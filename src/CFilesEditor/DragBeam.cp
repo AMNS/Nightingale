@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DragBeam.c
 *	PROJ:	Nightingale, by John Gibson
 *	DESC:	Beam dragging routines
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -48,7 +48,7 @@ static void DrawBothGrips(Document *);
 
 static Point lGrip, rGrip;				/* in paper coords */
 
-/* ------------------------------------------------------------------ DoBeamEdit -- */
+/* ------------------------------------------------------------------------ DoBeamEdit -- */
 
 void DoBeamEdit(Document *doc, LINK beamL)
 {
@@ -69,7 +69,7 @@ void DoBeamEdit(Document *doc, LINK beamL)
 	
 	while (True) {
 		if (GetNextEvent(updateMask, &beamEventRec)) {
-			if (grip != DRAGBEAM)
+			if (grip != DRAGBEAM)						// FIXME: grip IS UNINITIALIZED!!
 				DrawBothGrips(doc);								/* erase grips */
 			DoUpdate((WindowPtr)(beamEventRec.message));
 			ArrowCursor();
@@ -88,17 +88,18 @@ void DoBeamEdit(Document *doc, LINK beamL)
 			else if (beamEventRec.what != mouseUp)
 				break;
 			
-			/* If mouse down event, edit hairpin. Swallow mouse up. */		
+			/* If mouse down event, edit hairpin. Swallow mouse up. */
+				
 			GetNextEvent(mDownMask|mUpMask, &beamEventRec);
 			if (beamEventRec.what == mouseUp) continue;
 
 			/* Leave initial beam in gray. NB: If you want the beam to be fainter
-			 * than staff lines, use dkGray (sic) instead.
-			 */
+			   than staff lines, use dkGray (sic) instead. */
+			   
 			PenMode(patXor);
-			DoBeamFeedback(doc, &thisBeam);						/* erase black beam */
+			DoBeamFeedback(doc, &thisBeam);				/* erase black beam */
 			PenPat(NGetQDGlobalsGray());				/* ???dkGray might be better here; easier to see black beam */
-			DoBeamFeedback(doc, &thisBeam);						/* draw it in gray */
+			DoBeamFeedback(doc, &thisBeam);				/* draw it in gray */
 			PenNormal();
 
 			if (SamePoint(mousePt, lGrip)) {
@@ -123,7 +124,8 @@ void DoBeamEdit(Document *doc, LINK beamL)
 			if (grip==RGRIP || grip==DRAGBEAM)
 				yDiffRight = p2d(newGripV - oldGripV);
 		
-			/* ??It'd be nice to give user a way to say, don't quantize thin beams.*/
+			/* ??It'd be nice to give user a way to say, don't quantize thin beams. */
+			
 			if ( LXOR(config.quantizeBeamYPos!=0, CmdKeyDown()) )
 				if (QuantizeBeamEndYStems(doc, beamL, yDiffLeft, yDiffRight,
 													&deltaFirst, &deltaLast)) {
@@ -131,26 +133,22 @@ void DoBeamEdit(Document *doc, LINK beamL)
 					yDiffRight += deltaLast;
 				}
 				
-			/*
-			 * Fix stem ends after drag and quantization. Because of the quantization,
-			 * both beam endpoints might have moved even if only one was dragged.
-			 */
+			/* Fix stem ends after drag and quantization. Because of the quantization,
+			   both beam endpoints might have moved even if only one was dragged. */
+			   
 				if (GraceBEAM(beamL)) {
-					if (yDiffLeft!=0)
-						FixGRStemLengths(beamL, yDiffLeft, LGRIP);
-					if (yDiffRight!=0)
-						FixGRStemLengths(beamL, yDiffRight, RGRIP);
+					if (yDiffLeft!=0) FixGRStemLengths(beamL, yDiffLeft, LGRIP);
+					if (yDiffRight!=0) FixGRStemLengths(beamL, yDiffRight, RGRIP);
 				}
 				else {
-					if (yDiffLeft!=0)
-						FixStemLengths(beamL, yDiffLeft, LGRIP);
-					if (yDiffRight!=0)
-						FixStemLengths(beamL, yDiffRight, RGRIP);
+					if (yDiffLeft!=0) FixStemLengths(beamL, yDiffLeft, LGRIP);
+					if (yDiffRight!=0) FixStemLengths(beamL, yDiffRight, RGRIP);
 				}
 
 			SetBeamFeedback(doc, beamL, &thisBeam);
 			
-			/* force an update event */
+			/* Force an update event */
+			
 			newObjRect = thisBeam.objRect;
 			oldObjRect = oldBeam.objRect;
 			Rect2Window(doc, &newObjRect);
@@ -168,14 +166,13 @@ void DoBeamEdit(Document *doc, LINK beamL)
 		}
 	}
 	
-	if (BlockCompare(&thisBeam, &origBeam, sizeof(BEAMFEEDBACK)))
-		doc->changed = True;
+	if (BlockCompare(&thisBeam, &origBeam, sizeof(BEAMFEEDBACK))) doc->changed = True;
 	DrawBothGrips(doc);	
 	MEHideCaret(doc);	
 }
 
 
-/* ----------------------------------------------- QuantizeBeamEndYStems and ally -- */
+/* ---------------------------------------------------- QuantizeBeamEndYStems and ally -- */
 
 /* If the given stem endpoint positions, presumably of the notes beginning and
 ending a beam, are within the staff, quantize them to multiples of a quarter space.
@@ -293,17 +290,13 @@ static Boolean QuantizeBeamEndYStems(
 
 	stemDown = (NoteYD(firstNoteL) < NoteYSTEM(firstNoteL));
 
-	/*
-	 * Set the range to quantize from the config field, unless it's zero. In the latter
-	 * case, we have no information to set it from, so make it "infinity".
-	 */
-	if (config.quantizeBeamYPos==0)
-		ledgerSpaces = MAX_LEDGERS;
+	/* Set the range to quantize from the config field, unless it's zero. In the latter
+	   case, we have no information to set it from, so make it "infinity". */
+	
+	if (config.quantizeBeamYPos==0) ledgerSpaces = MAX_LEDGERS;
 	else {
-		if (config.quantizeBeamYPos<=2)
-			ledgerSpaces = config.quantizeBeamYPos;
-		else
-			ledgerSpaces = MAX_LEDGERS;
+		if (config.quantizeBeamYPos<=2) ledgerSpaces = config.quantizeBeamYPos;
+		else ledgerSpaces = MAX_LEDGERS;
 	}
 
 	origFirstystem = firstystem;
@@ -320,7 +313,7 @@ static Boolean QuantizeBeamEndYStems(
 }
 
 
-/* ------------------------------------------------------------------- PtInBeam -- */
+/* -------------------------------------------------------------------------- PtInBeam -- */
 
 static Boolean PtInBeam(
 					Document		*doc,
@@ -335,17 +328,17 @@ static Boolean PtInBeam(
 	Boolean	isInBeam;
 
 	thick = bm->thickness;
-	lPtUp = bm->leftPt;				rPtUp = bm->rightPt;
-	Pt2Window(doc, &lPtUp);			Pt2Window(doc, &rPtUp);
-	lPtDn = lPtUp;						rPtDn = rPtUp;
+	lPtUp = bm->leftPt;			rPtUp = bm->rightPt;
+	Pt2Window(doc, &lPtUp);		Pt2Window(doc, &rPtUp);
+	lPtDn = lPtUp;				rPtDn = rPtUp;
 	
-	if (bm->leftUOD==STEM_DOWN)	{	lPtUp.v -= thick;	lPtDn.v++;			}
-	else 						{	lPtUp.v--;			lPtDn.v += thick;	}
-	if (bm->rightUOD==STEM_DOWN)	{	rPtUp.v -= thick;	rPtDn.v++;			}
-	else 							{	rPtUp.v--;			rPtDn.v += thick;	}
+	if (bm->leftUOD==STEM_DOWN)	{ lPtUp.v -= thick;	lPtDn.v++;			}
+	else 						{ lPtUp.v--;		lPtDn.v += thick;	}
+	if (bm->rightUOD==STEM_DOWN)	{ rPtUp.v -= thick;	rPtDn.v++;			}
+	else 							{ rPtUp.v--;		rPtDn.v += thick;	}
 	
-	lPtUp.v -= slop;		rPtUp.v -= slop;
-	lPtDn.v += slop;		rPtDn.v += slop;
+	lPtUp.v -= slop;	rPtUp.v -= slop;
+	lPtDn.v += slop;	rPtDn.v += slop;
 	
 	/* Define a region that encloses just the 1st primary beam + vertical slop... */
 	beamRgn = NewRgn();
@@ -369,7 +362,7 @@ static Boolean PtInBeam(
 }
 
 
-/* ------------------------------------------------------------------- EditBeam -- */
+/* -------------------------------------------------------------------------- EditBeam -- */
 /*	Handle the actual dragging of the beam.
 <grip> tells which mode of dragging the beam is in effect.
 <mousePt> and grip points are in paper-relative coordinates. */
@@ -377,7 +370,7 @@ static Boolean PtInBeam(
 static void EditBeam(
 				Document		*doc,
 				LINK			beamL,
-				short	 		grip,			/* Edit mode: LGRIP, RGRIP, DRAGBEAM */
+				short	 		grip,		/* Edit mode: LGRIP, RGRIP, DRAGBEAM */
 				BEAMFEEDBACK	*bm
 				)
 {
@@ -386,7 +379,7 @@ static void EditBeam(
 	Rect		boundsRect;					/* in paper coords */
 	short		dv;
 		
-	if (grip==DRAGBEAM)									/* Erase the handles prior to dragging the beam. */
+	if (grip==DRAGBEAM)							/* Erase the handles prior to dragging the beam. */
 		DrawBothGrips(doc);
 
 	InitBeamBounds(doc, beamL, &boundsRect);
@@ -407,7 +400,7 @@ static void EditBeam(
 			dv = newPt.v - oldPt.v;
 			
 			PenMode(patXor);
-			DoBeamFeedback(doc, bm);					/* erase old beam */
+			DoBeamFeedback(doc, bm);			/* erase old beam */
 			
 			switch (grip) {
 				case DRAGBEAM:
@@ -417,7 +410,7 @@ static void EditBeam(
 					bm->rightPt.v += dv;
 					break;
 				case LGRIP:
-					DrawBeamGrip(doc, LGRIP);			/* erase grip */
+					DrawBeamGrip(doc, LGRIP);	/* erase grip */
 					lGrip.v += dv;
 					bm->leftPt.v += dv;
 					break;
@@ -427,28 +420,28 @@ static void EditBeam(
 					bm->rightPt.v += dv;
 					break;
 			}
-			AutoScroll();								/* ??Only problem: old beam drawn in black when re-emerging; not too serious. */
+			AutoScroll();						/* ??Only problem: old beam drawn in black when re-emerging; not too serious. */
 
 			if (grip != DRAGBEAM)
 				DrawBeamGrip(doc, grip);
-			DoBeamFeedback(doc, bm);					/* draw new beam */
+			DoBeamFeedback(doc, bm);			/* draw new beam */
 			
 			oldPt = newPt;
 		}
 	}
-	DoBeamFeedback(doc, bm);							/* erase old beam */
+	DoBeamFeedback(doc, bm);					/* erase old beam */
 	PenNormal();
 }
 
 
-/* ------------------------------------------------------------------ InitBeamGrips -- */
+/* --------------------------------------------------------------------- InitBeamGrips -- */
 /* Set up handles for manipulating beam slant. */
 
 static void InitBeamGrips(BEAMFEEDBACK *bm)
 {
 	SetPt(&lGrip, bm->leftPt.h-5, bm->leftPt.v);
 	SetPt(&rGrip, bm->rightPt.h+6, bm->rightPt.v);
-	if (bm->leftUOD != bm->rightUOD) {						/* center or cross-staff beam */
+	if (bm->leftUOD != bm->rightUOD) {					/* center or cross-staff beam */
 		if (bm->leftUOD==STEM_DOWN)
 			rGrip.v += bm->thickness;
 		else
@@ -457,7 +450,7 @@ static void InitBeamGrips(BEAMFEEDBACK *bm)
 }
 
 
-/* ----------------------------------------------------------------- GetMaxSecBeams -- */
+/* -------------------------------------------------------------------- GetMaxSecBeams -- */
 /* Get the max. no. of secondary beams above and below primaries in the given beam. */
 
 static void GetMaxSecBeams(
@@ -469,7 +462,8 @@ static void GetMaxSecBeams(
 				short	*pMaxBelow
 				)
 {
-	short numEntries, maxAbove, maxBelow;  register short n;
+	short numEntries, maxAbove, maxBelow;
+	register short n;
 	
 	numEntries = LinkNENTRIES(beamL);
 	maxAbove = maxBelow = 0;
@@ -496,14 +490,14 @@ static void GetMaxSecBeams(
 	*pMaxBelow = maxBelow;
 }
 
-/* ------------------------------------------------------------- SetBeamFeedback -- */
+/* ------------------------------------------------------------------- SetBeamFeedback -- */
 /* Set up the BEAMFEEDBACK struct used in drawing the beam feedback animation,
 which consists only of the first primary beam. Set its tmpObjRect field, used for
 calculating the area of the screen to update after each call to EditBeam. NB: Beams
 for upstemmed notes hang from bm->leftPt (or bm->rightPt), whereas those for
 downstemmed notes sit on the points. */
 
-/* ???changes needed:
+/* FIXME: Changes needed:
 	+- If more than 1 primary, beam feedback is bad. Which primary do we use
 		as beam feedback? The one that's closer to stem end of left note.
 		
@@ -606,9 +600,10 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 		else					bm->leftPt.h -= d2p(config.crossStaffBeamExt*dQuarterSp);
 	}
 
-	/* If there's more than 1 primary beam and the beamset is a center (or cross-staff) beam,
-	 * use as the feedback beam the primary that is closer to the stem end of the left note.
-	 */
+	/* If there's more than 1 primary beam and the beamset is a center (or cross-staff)
+	   beam, use as the feedback beam the primary that is closer to the stem end of the
+	   left note. */
+	   
 	if (nPrimary>1 && (bm->leftUOD != bm->rightUOD)) {
 		if (bm->leftUOD==STEM_DOWN)
 			bm->rightPt.v += d2p((nPrimary-1) * flagYDelta);
@@ -618,7 +613,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 
 	/* Derive beam thickness */
 	
-	beamThick = LNSPACE(&firstContext)/2;							/* get thickness from first staff rastral */
+	beamThick = LNSPACE(&firstContext)/2;					/* get thickness from first staff rastral */
 	if (beamP->thin) beamThick /= 2;
 	if (GraceBEAM(beamL)) {
 		beamThick = GRACESIZE(beamThick);
@@ -632,9 +627,8 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 
 	/* Determine TMPOBJRECT */
 	
-	/* Determine right and left of objRect, taking into account any otherstemside
-	 * notes, accidentals and dots.
-	 */
+	/* Determine right and left of objRect, taking into account any "otherstemside"
+	   notes, accidentals and dots. */
 	 
 	xtraWidD = SymDWidthLeft(doc, firstSyncL, firstStaff, firstContext);
 	bm->objRect.left = d2p(sysLeft + SysRelxd(firstSyncL) + NoteXD(firstNoteL) - xtraWidD);
@@ -697,7 +691,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 }
 
 
-/* ----------------------------------------------------------------- InitBeamBounds -- */
+/* -------------------------------------------------------------------- InitBeamBounds -- */
 /* Set up the rectangle beyond which the user won't be allowed to drag the beam. */
 
 #define SYSHT_SLOP pt2d(8)		/* DDIST */
@@ -711,17 +705,17 @@ static void InitBeamBounds(
 	short	staffn;
 	CONTEXT	context;
 
-	staffn = BeamSTAFF(beamL);									/* doesn't matter which one of beam's staves */
+	staffn = BeamSTAFF(beamL);								/* doesn't matter which one of beam's staves */
 	GetContext(doc, beamL, staffn, &context);
 	
 	bounds->top = d2p(context.systemTop - SYSHT_SLOP);
 	bounds->bottom = d2p(context.systemBottom + SYSHT_SLOP);
-	bounds->left = d2p(context.systemLeft);						/* really irrelevant for beams, because no horiz. motion allowed */
+	bounds->left = d2p(context.systemLeft);					/* really irrelevant for beams, because no horiz. motion allowed */
 	bounds->right = d2p(context.staffRight);
 }
 
 
-/* --------------------------------------------------------------- DoBeamFeedback -- */
+/* -------------------------------------------------------------------- DoBeamFeedback -- */
 /* Draw the feedback beam using the current pen characteristics (penPat and penMode). */
 
 static void DoBeamFeedback(Document *doc, BEAMFEEDBACK *bm)
@@ -747,7 +741,7 @@ static void DoBeamFeedback(Document *doc, BEAMFEEDBACK *bm)
 }
 
 
-/* --------------------------------------------------------------- DrawBeamGrip -- */
+/* ---------------------------------------------------------------------- DrawBeamGrip -- */
 /* Draw a small box for the left or right grip of the feedback beam. */
 
 static void DrawBeamGrip(
@@ -764,7 +758,7 @@ static void DrawBeamGrip(
 }
 
 
-/* ------------------------------------------------------------- DrawBothGrips -- */
+/* --------------------------------------------------------------------- DrawBothGrips -- */
 
 static void DrawBothGrips(Document *doc)
 {
@@ -775,9 +769,8 @@ static void DrawBothGrips(Document *doc)
 }
 
 
-/* ------------------------------------------------------------- FixStemLengths -- */
-/* After the beam has been dragged, fix the stem lengths of the notes in 
-the beamset. */
+/* -------------------------------------------------------------------- FixStemLengths -- */
+/* After the beam has been dragged, fix the stem lengths of the notes in the beamset. */
 
 Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 {
@@ -905,7 +898,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 }
 
 
-/* ----------------------------------------------------------- FixGRStemLengths -- */
+/* ------------------------------------------------------------------ FixGRStemLengths -- */
 /* After the beam has been dragged, fix the stem lengths of the grace notes
 in the beamset. */
 

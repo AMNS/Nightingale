@@ -472,7 +472,7 @@ Boolean FindSheet(Document *doc, Point pt, short *ans)
 		return(False);
 	}
 
-/* Set the current sheet to a given sheet number, which must be between 0
+/* Set the current sheet to a given sheet number, which must be between 0 
 and numSheets-1.  The sheet's position in the window coordinate system is
 provided as well so that various conversion routines can convert mouse
 points to paper points quickly. */

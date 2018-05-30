@@ -20,10 +20,10 @@ static enum {
 #define  BOXSIZE		4
 
 typedef struct {
-	Point	leftPt, rightPt;				/* paper coords */
-	Rect	objRect;						/* paper coords */
-	short	penThick;						/* pen thickness (pixels) */
-	short	centerOffset;					/* offset for vertical centering (pixels) */
+	Point	leftPt, rightPt;			/* paper coords */
+	Rect	objRect;					/* paper coords */
+	short	penThick;					/* pen thickness (pixels) */
+	short	centerOffset;				/* offset for vertical centering (pixels) */
 } DRAWOBJ;
 
 /* Local prototypes */
@@ -42,11 +42,11 @@ static void UpdateDrawObjData(Document *, PCONTEXT, LINK, DRAWOBJ *);
 static Point	lGrip, rGrip;				/* in paper coords */
 
 
-/* -------------------------------------------------------------- DoDrawingEdit -- */
+/* --------------------------------------------------------------------- DoDrawingEdit -- */
 
 void DoDrawingEdit(Document *doc, LINK pL)
 {
-	Point 		mousePt;							/* paper coord */
+	Point 		mousePt;							/* paper coords */
 	EventRecord	eventRec;
 	CONTEXT		context;
 	DRAWOBJ		oldDrawObj, origDrawObj, thisDrawObj;
@@ -55,19 +55,18 @@ void DoDrawingEdit(Document *doc, LINK pL)
 	
 	GetContext(doc, pL, GraphicSTAFF(pL), &context);
 
-	/* Deselect Graphic to prevent flashing when user clicks outside of
-	 * Graphic, and to avoid hiliting original Graphic when autoscrolling.
-	 */	
+	/* Deselect Graphic to prevent flashing when user clicks outside of Graphic,
+	   and to avoid hiliting original Graphic when autoscrolling. */
+	   	
 	DeselectNode(pL);
 
-	if (!InitFeedback(doc, &context, pL, &thisDrawObj))
-		return;
+	if (!InitFeedback(doc, &context, pL, &thisDrawObj)) return;
+	
 	oldDrawObj = origDrawObj = thisDrawObj;
 	InitGrips(doc, &context, pL);
 	DrawBothGrips(doc);
 	
-	while (True) 
-	{
+	while (True) {
 		GetNextEvent(mDownMask, &eventRec);
 		if (eventRec.what == mouseDown) {
 			mousePt = eventRec.where;
@@ -78,9 +77,9 @@ void DoDrawingEdit(Document *doc, LINK pL)
 				break;
 		}
 
-		/* Leave initial object in gray. NB: If you want the object
-		 * to be fainter than staff lines, use dkGray (sic) instead.
-		 */
+		/* Leave initial object in gray. NB: If you want the object to be fainter
+		   than staff lines, use dkGray (sic) instead. */
+		
 		PenMode(patXor);
 		DoDrawFeedback(doc, &thisDrawObj);					/* erase black object */
 		PenPat(NGetQDGlobalsGray());
@@ -110,6 +109,7 @@ void DoDrawingEdit(Document *doc, LINK pL)
 	DrawBothGrips(doc);										/* erase grips */
 
 	/* Update object in data structure and inval rect if it's changed. */
+	
 	if (BlockCompare(&thisDrawObj, &origDrawObj, sizeof(DRAWOBJ))) {
 		UpdateDrawObjData(doc, &context, pL, &thisDrawObj);
 		doc->changed = True;
@@ -119,7 +119,7 @@ void DoDrawingEdit(Document *doc, LINK pL)
 }
 
 
-/* ---------------------------------------------------------------- EditDrawObj -- */
+/* ----------------------------------------------------------------------- EditDrawObj -- */
 /*	Handle the actual dragging of the object or one of its handles.
  * <grip> tells which mode of dragging the object is in effect.
  * <mousePt> and grip points are in paper-relative coordinates.
@@ -129,10 +129,10 @@ static void EditDrawObj(Document *doc, LINK pL,
 						short grip,		/* Edit mode: LGRIP, RGRIP, DRAGOBJ */
 						DRAWOBJ *pd)	
 {
-	Point		oldPt, newPt;
-	long		aLong;
-	Rect		boundsRect;						/* in paper coords */
-	short		dh, dv;
+	Point	oldPt, newPt;
+	long	aLong;
+	Rect	boundsRect;						/* in paper coords */
+	short	dh, dv;
 			
 	if (grip==DRAGOBJ)							/* Erase the boxes before dragging */
 		DrawBothGrips(doc);
@@ -147,6 +147,7 @@ static void EditDrawObj(Document *doc, LINK pL,
 			GetPaperMouse(&newPt, &doc->currentPaper);
 
 			/* Force the code below to see the mouse as always within boundsRect. */
+			
 			aLong = PinRect(&boundsRect, newPt);
 			newPt.v = HiWord(aLong);	newPt.h = LoWord(aLong);
 
@@ -198,8 +199,7 @@ static void EditDrawObj(Document *doc, LINK pL,
 			 * all won't be used that often, and won't always cause these problems.
 			 */
 			 
-			if (grip != DRAGOBJ)
-				DrawGrip(doc, grip);
+			if (grip != DRAGOBJ) DrawGrip(doc, grip);
 			DoDrawFeedback(doc, pd);							/* draw new object */
 			PenNormal();
 			
@@ -227,22 +227,21 @@ void LocateDrawObjEndPts(LINK pL, DDIST *pFirstXD, DDIST *pLastXD)
 }
 
 
-/* ---------------------------------------------------------------- InitFeedback -- */
+/* ---------------------------------------------------------------------- InitFeedback -- */
 /* Fill in the DRAWOBJ struct we use for feedback. */
 
 static Boolean InitFeedback(Document */*doc*/,
 								PCONTEXT pContext,
-								LINK pL,							/* GRDraw Graphic */
+								LINK pL,					/* GRDraw Graphic */
 								DRAWOBJ *pd)
 {
 	DDIST		firstXD, lastXD, sysLeft, staffTop, lnSpace, dThick;
 	PGRAPHIC	pGraphic;
 	
 	lnSpace = LNSPACE(pContext);
-	/*
-	 * We interpret thickening as horizontal only--not good unless the line is
-	 * nearly horizontal, or thickness is small enough that it doesn't matter.
-	 */
+	
+	/* We interpret thickening as horizontal only: this isn't very good unless the
+	   line is nearly horizontal, or thickness is small enough that it doesn't matter. */
 	pGraphic = GetPGRAPHIC(pL);
 	dThick = (long)(pGraphic->gu.thickness*lnSpace) / 100L;
 	pd->penThick = (d2p(dThick)>1? d2p(dThick) : 1);
@@ -253,13 +252,12 @@ static Boolean InitFeedback(Document */*doc*/,
 
 	LocateDrawObjEndPts(pL, &firstXD, &lastXD);
 	
-	/*
-	 * Position the object with vertical centering. This should be done exactly as the
-	 * drawing routine, DrawGRDraw, does it, with the same rounding, or feedback won't
-	 * always be correct. FIXME: Unfortunately, the following does NOT do so: cf.
-	 * DrawGRAPHIC and the routines it calls,GetGraphicOrTempoDrawInfo,
-	 * GetGRDrawLastDrawInfo, and DrawGRDraw.
-	 */
+	/* Position the object with vertical centering. This should be done exactly as
+	   the drawing routine, DrawGRDraw, does it, with the same rounding, or feedback
+	   won't always be correct. FIXME: Unfortunately, the following does NOT do so:
+	   cf. DrawGRAPHIC and the routines it calls, GetGraphicOrTempoDrawInfo,
+	   GetGRDrawLastDrawInfo, and DrawGRDraw. */
+	   
 	pGraphic = GetPGRAPHIC(pL);
 	SetPt(&pd->leftPt, d2p(firstXD+LinkXD(pL)+sysLeft), d2p(staffTop+LinkYD(pL)));
 	SetPt(&pd->rightPt, d2p(lastXD+pGraphic->info+sysLeft), d2p(staffTop+pGraphic->info2));
@@ -273,7 +271,7 @@ static Boolean InitFeedback(Document */*doc*/,
 }
 
 
-/* -------------------------------------------------------------------- InitGrips -- */
+/* ------------------------------------------------------------------------- InitGrips -- */
 /* Set up the draw object grips temporarily here. */
 
 static void InitGrips(Document */*doc*/, PCONTEXT pContext, LINK pL)
@@ -294,7 +292,7 @@ static void InitGrips(Document */*doc*/, PCONTEXT pContext, LINK pL)
 }
 
 
-/* ----------------------------------------------------------- InitDrawObjBounds -- */
+/* ----------------------------------------------------------------- InitDrawObjBounds -- */
 /* Set up the rectangle beyond which the user won't be allowed to drag the object. */
 
 #define SYSHT_SLOP pt2d(8)
@@ -303,11 +301,11 @@ static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 										DRAWOBJ *pd,
 										Point mousePt, Rect *bounds)	/* paper coords */
 {
-	short			staffn, mouseFromLeft, mouseFromRight;
+	short		staffn, mouseFromLeft, mouseFromRight;
 	CONTEXT		context;
 	PAMEASURE	aMeasP;
-	DDIST			sysLeft, sysTop, sysRight, sysBot, measWid;
-	LINK			firstL, lastL, measL, prevMeasL, nextMeasL, targetMeasL;
+	DDIST		sysLeft, sysTop, sysRight, sysBot, measWid;
+	LINK		firstL, lastL, measL, prevMeasL, nextMeasL, targetMeasL;
 
 	mouseFromLeft = pd->leftPt.h - mousePt.h;
 	mouseFromRight = pd->rightPt.h - mousePt.h;
@@ -329,15 +327,14 @@ static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 	bounds->bottom = d2p(sysBot + SYSHT_SLOP);
 	
 	/* Constrain further in these ways:
-	 * 	- Object should never be less than 2 pixels long.
-	 * 	- Don't let endpoints reverse left-to-right order.
-	 *		- Neither endpoint should be further than 1 measure away
-	 *			from one of the object's attachment points.
-	 */
+	   - Object should never be less than 2 pixels long.
+	   - Don't let endpoints reverse left-to-right order.
+	   - Neither endpoint should be further than 1 measure away from
+	     one of the object's attachment points. */
 
 	/* Find the measure that will be the left boundary */
-	measL = LSSearch(firstL, MEASUREtype, staffn, GO_LEFT, False);				/* meas containing 1st att.point */
-	prevMeasL = LinkLMEAS(measL);												/* meas before that */
+	measL = LSSearch(firstL, MEASUREtype, staffn, GO_LEFT, False);			/* meas containing 1st att.point */
+	prevMeasL = LinkLMEAS(measL);											/* meas before that */
 	if (SameSystem(prevMeasL, measL))
 		targetMeasL = prevMeasL;
 	else
@@ -345,27 +342,26 @@ static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 		
 	/* Allow dragging into reserved area */
 	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, False); /* 1st meas in system */	
-	if (targetMeasL == measL)														/* targetMeas is 1st in system */
+	if (targetMeasL == measL)													/* targetMeas is 1st in system */
 		bounds->left = d2p(sysLeft);
 	else
 		bounds->left = d2p(LinkXD(targetMeasL) + sysLeft);
 
 	/* Find the measure that will be the right boundary */
-	measL = LSSearch(lastL, MEASUREtype, staffn, GO_LEFT, False);				/* meas containing last sync */
-	nextMeasL = LinkRMEAS(measL);												/* meas after that */
+	measL = LSSearch(lastL, MEASUREtype, staffn, GO_LEFT, False);			/* meas containing last sync */
+	nextMeasL = LinkRMEAS(measL);											/* meas after that */
 	if (SameSystem(nextMeasL, measL))
 		targetMeasL = nextMeasL;
 	else
 		targetMeasL = measL;
-	aMeasP = GetPAMEASURE(FirstSubLINK(targetMeasL));							/* get xd of END of meas */
+	aMeasP = GetPAMEASURE(FirstSubLINK(targetMeasL));						/* get xd of END of meas */
 	measWid = aMeasP->measSizeRect.right;
 	bounds->right = d2p(LinkXD(targetMeasL) + measWid + sysLeft);
 
-	/* Prevent objects < 2 pixels long and crossing of endpoints. Offset
-	 *	boundaries depending on mouse position relative to object endpoints.
-	 *	(PinRect in EditDrawObj decides whether mousePt, not object, is
-	 *	 within bounds.)
-	 */
+	/* Prevent objects < 2 pixels long and crossing of endpoints. Offset boundaries
+	   depending on mouse position relative to object endpoints. (PinRect in EditDrawObj
+	   decides whether mousePt, not object, is within bounds.) */
+	
 	switch (grip) {
 		case DRAGOBJ:
 			bounds->left -= mouseFromLeft;
@@ -383,7 +379,7 @@ static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 }
 
 
-/* -------------------------------------------------------------- DoDrawFeedback -- */
+/* -------------------------------------------------------------------- DoDrawFeedback -- */
 
 static void DoDrawFeedback(Document *doc, DRAWOBJ *pd)
 {
@@ -399,11 +395,11 @@ static void DoDrawFeedback(Document *doc, DRAWOBJ *pd)
 	MoveTo(lPt.h, lPt.v);
 	LineTo(rPt.h, rPt.v);
 
-	PenSize(1,1);
+	PenSize(1, 1);
 }
 
 
-/* ------------------------------------------------------------ UpdateTmpObjRect -- */
+/* ------------------------------------------------------------------ UpdateTmpObjRect -- */
 
 static void UpdateTmpObjRect(Document */*doc*/, short grip, DRAWOBJ *pd, short dh, short dv)
 {	
@@ -420,7 +416,7 @@ static void UpdateTmpObjRect(Document */*doc*/, short grip, DRAWOBJ *pd, short d
 }
 
 
-/* -------------------------------------------------------------------- DrawGrip -- */
+/* -------------------------------------------------------------------------- DrawGrip -- */
 /* Draw a small box for the left and right grips of the feedback object. */
 
 static void DrawGrip(Document *doc,
@@ -429,13 +425,13 @@ static void DrawGrip(Document *doc,
 	Point gripPt;
 
 	if (whichOne==LGRIP)	gripPt = lGrip;
-	else						gripPt = rGrip;
+	else					gripPt = rGrip;
 	Pt2Window(doc, &gripPt);
 	DrawBox(gripPt, BOXSIZE);
 }
 
 
-/* --------------------------------------------------------------- DrawBothGrips -- */
+/* --------------------------------------------------------------------- DrawBothGrips -- */
 
 static void DrawBothGrips(Document *doc)
 {
@@ -446,14 +442,12 @@ static void DrawBothGrips(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- DrawInvalRects -- */
+/* -------------------------------------------------------------------- DrawInvalRects -- */
 /* Inval both the original object's objRect and the new object's tmpObjRect. */
 
-/* ???If updateRect falls entirely outside of the system rect, the update
- * triggered by invaling that rect doesn't take place. If it intersects
- * the system rect at all, the update is fine. This seems to be a problem
- * way up the calling chain.
- */
+/* FIXME: If updateRect falls entirely outside of the system rect, the update triggered
+by invaling that rect doesn't take place. If it intersects the system rect at all, the
+update is fine. This seems to be a problem way up the calling chain. */
 
 static void DrawInvalRects(Document *doc, LINK pL,
 							DRAWOBJ *pd,
@@ -462,7 +456,7 @@ static void DrawInvalRects(Document *doc, LINK pL,
 {
 	Rect	oldObjRect, newObjRect, updateRect;
 
-/* ???NB: this should look at config.enlargeHilite value!! */
+/* FIXME: this should look at config.enlargeHilite value!! */
 	newObjRect = pd->objRect;
 	InsetRect(&newObjRect, -pt2p(2), -pt2p(3));			/* avoid hiliting problem on update */
 	oldObjRect = LinkOBJRECT(pL);
@@ -475,11 +469,11 @@ static void DrawInvalRects(Document *doc, LINK pL,
 	else
 		EraseAndInval(&updateRect);
 
-	LinkVALID(pL) = False;										/* force objRect recomputation */
+	LinkVALID(pL) = False;								/* force objRect recomputation */
 }
 
 
-/* ----------------------------------------------------------- UpdateDrawObjData -- */
+/* ----------------------------------------------------------------- UpdateDrawObjData -- */
 
 static void UpdateDrawObjData(Document */*doc*/, PCONTEXT pContext, LINK pL, DRAWOBJ *pd)
 {

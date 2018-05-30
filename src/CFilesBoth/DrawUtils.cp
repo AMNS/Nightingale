@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -21,10 +21,10 @@ static void DrawNatural(Document *, short, short, DDIST, DDIST, DDIST, short, sh
 
 /* ------------------------------------------------------------------- GetSmallerRSize -- */
 /* Given a rastral size, get the next smaller "Preferred" rastral size, i.e., the
-next smaller size that has an integral no. of points (and therefore an integral
-no. of pixels on screen at 100% magnification) between staff lines, if such a
-smaller size has at least 2 pixels between staff lines center-to-center. (1 pixel
-between staff lines isn't much use, since the staff line itself needs a pixel.) */
+next smaller size that has an integral no. of points (and therefore an integral no.
+of pixels on screen at 100% magnification) between staff lines, if such a smaller
+size has at least 2 pixels between staff lines center-to-center. (1 pixel between
+staff lines isn't much use, since the staff line itself needs a pixel.) */
 
 short GetSmallerRSize(short rSize)
 {
@@ -1380,8 +1380,96 @@ DDIST GRNoteXLoc(
 	return xd;
 }
 
+/* ---------------------------------------------------------------------- NCHasLedgers -- */
+/* Does the note or chord in the given note's voice in the given Sync have ledger lines?
+NB: Works only for the MainNote of a chord! Returns separate values for above the staff
+and below the staff. */
 
-/*----------------------------------------------------------------------- NoteLedgers -- */
+void NCHasLedgers(
+		LINK		syncL,
+		LINK		aNoteL,
+		PCONTEXT	pContext,
+		Boolean		*hasLedgersAbove,
+		Boolean		*hasLedgersBelow)
+{
+	QDIST	hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
+			hiyqpitSus, lowyqpitSus;
+	
+	if (MainNote(aNoteL) || !NoteINCHORD(aNoteL)) {
+		GetNCLedgerInfo(syncL, aNoteL, pContext, &hiyqpit, &lowyqpit, &hiyqpitSus, &lowyqpitSus);
+		*hasLedgersAbove = (hiyqpit<0 || hiyqpitSus<0);
+		*hasLedgersBelow = (lowyqpit>pContext->staffHeight || lowyqpitSus>pContext->staffHeight);
+	}
+	else {
+		*hasLedgersAbove = False;
+		*hasLedgersBelow = False;
+	}
+}
+
+
+/* ------------------------------------------------------------------- GetNCLedgerInfo -- */
+/* Return info needed to draw ledger lines both above and below the staff for the note
+or for the chord in the given note's voice in the given Sync: the clef-adjusted distance
+below middle C of the highest and lowest notes both on the normal side of the stem and
+"suspended" (on the other side). */
+
+void GetNCLedgerInfo(
+		LINK		syncL,
+		LINK		aNoteL,
+		PCONTEXT	pContext,
+		QDIST		*pHiyqpit,
+		QDIST		*pLowyqpit,
+		QDIST		*pHiyqpitSus,
+		QDIST		*pLowyqpitSus)
+{
+	LINK	bNoteL;
+	QDIST	hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
+			hiyqpitSus, lowyqpitSus,
+			yqpitHiRel, yqpitHiRelSus,
+			yqpitLowRel, yqpitLowRelSus;
+
+	hiyqpit = hiyqpitSus = 9999;
+	lowyqpit = lowyqpitSus = -9999;
+	
+	bNoteL = FirstSubLINK(syncL);
+
+	/* Find the "pitches" of the chord's extreme notes above and below staff, on both
+	   sides of stem. */
+	
+	for ( ; bNoteL; bNoteL = NextNOTEL(bNoteL)) {
+		if (NoteVOICE(bNoteL)==NoteVOICE(aNoteL)) {
+			if (NoteYQPIT(bNoteL)<hiyqpit) hiyqpit = NoteYQPIT(bNoteL);
+			if (NoteYQPIT(bNoteL)<hiyqpitSus && NoteOtherStemSide(bNoteL))
+				hiyqpitSus = NoteYQPIT(bNoteL);
+			if (NoteYQPIT(bNoteL)>lowyqpit) lowyqpit = NoteYQPIT(bNoteL);
+			if (NoteYQPIT(bNoteL)>lowyqpitSus && NoteOtherStemSide(bNoteL))
+				lowyqpitSus = NoteYQPIT(bNoteL);
+		}
+	}
+	
+LogPrintf(LOG_DEBUG, "GetNCLedgerInfo 1: hiyqpit=%d lowyqpit=%d hiyqpitSus=%d lowyqpitSus=%d\n",
+hiyqpit, lowyqpit, hiyqpitSus, lowyqpitSus);
+
+		/* Convert to staff-rel. coords. */
+		
+		yqpitHiRel = hiyqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
+		yqpitHiRelSus = (hiyqpitSus==9999? 0
+							: hiyqpitSus + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType)));
+		yqpitLowRel = lowyqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
+		yqpitLowRelSus = (lowyqpitSus==-9999? 0
+							: lowyqpitSus + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType)));
+
+LogPrintf(LOG_DEBUG, "GetNCLedgerInfo 2: yqpitHiRel=%d yqpitLowRel=%d yqpitHiRelSus=%d yqpitLowRelSus=%d\n",
+yqpitHiRel, yqpitLowRel, yqpitHiRelSus, yqpitLowRelSus);
+
+	*pHiyqpit = yqpitHiRel;
+	*pLowyqpit = yqpitLowRel;
+	*pHiyqpitSus = yqpitHiRelSus;
+	*pLowyqpitSus = yqpitLowRelSus;
+}
+
+
+/* ------------------------------------------------------------------- DrawNoteLedgers -- */
 /*	Draw zero or more ledger lines appropriate for one or two notes, one on the normal
 side of the stem (required), the other "suspended", i.e., on the other side of the
 the stem (and optional). Starting with the ledger line closest to the staff, we draw
@@ -1393,10 +1481,10 @@ If there is a suspended note, the normal note cannot be closer to the staff than
 Also, one note cannot be above the staff and the other below the staff! Therefore,
 drawing all the ledger lines for a chord may require two calls to this function. */
 
-void NoteLedgers(
+void DrawNoteLedgers(
 			DDIST		xd,				/* DDIST horizontal position of normal-side notes */
 			QDIST		yqpit,			/* QDIST vertical position rel. to staff top of normal note, */
-			QDIST		yqpitSus,		/* 		of suspended (other side of stem) note (0=none) */
+			QDIST		yqpitSus,		/*   of suspended (other side of stem) note (0=none) */
 			Boolean		stemDown,
 			DDIST		staffTop,		/* abs DDIST position of staff top */
 			PCONTEXT	pContext,		/* for staff height and paper */

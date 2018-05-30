@@ -3043,7 +3043,7 @@ unscrambling them is practical?
 Bit fields > 7 bits declared in NTypes.h:
 
 	NIGHTSCOREHEADER:
-				firstMNNumber:13;	/* Number of first measure */								\
+				firstMNNumber:13;	/* Number of first measure */
 
 	MEASURE obj & subobj:
 				measureNum:15;		/* internal measure number; first is always 0 */
@@ -3056,7 +3056,7 @@ Bit fields > 7 bits declared in NTypes.h:
 Bit fields > 7 bits declared in NMiscTypes.h:
 					moreUnused:11;
 
-NB: It's not obvious even "unused" fields of over 8 bits wo't complicate things, since
+NB: It's not obvious even "unused" fields of over 8 bits won't complicate things, since
 they might result in other fields in the same word getting scrambled across bytes :-( .
 
 Anything declared elsewhere that's written to Ngale files?? TBContinued.
@@ -3066,8 +3066,26 @@ Anything declared elsewhere that's written to Ngale files?? TBContinued.
 14 - 15 May
 
 Using Xcode 3.2 on Torrey's Old White MacBook: Xcode insists InitNightingale() is
-undefined!? Clean All Targets, Build again => no change. Remove InitNIghtingale.cp from
+undefined!? Clean All Targets, Build again => no change. Remove InitNightingale.cp from
 the project, put it back in => no change. Replace project file w/ a copy from MacBook
 Air => all OK. Weird.
 
+-------------------------------------------------------------------------------
+
+24 - 29 May
+
+Issue #173: The minimum space between notes on ledger lines isn't enough; as a result,
+the ledger lines on consecutive notes in measures Respaced to a small percentage touch
+each other and appear to merge, which makes the notes really hard to read. This is a
+big problem for my 2-flute arrangement of the Mozart Andante.
+
+Adjustment probably needs to consider chords as a whole, w/ regular & suspended notes
+both above and below staff; cf. DrawNoteLedgers().
+
+Write GetNCLedgerInfo(); call it from DrawNCLedgers() => OK. Write NCHasLedgers(), which
+also calls GetNCLedgerInfo() => looks OK. Now, routines in SpaceHighLevel.cp and/or
+SpaceTime.cp need to use NCHasLedgers() when Respace1Bar() is computing new positions
+for the "spine" -- but doing it one note/chord at a time isn't enough: we need extra
+space between two consecutive notes/chords only if _both_ have ledger lines, and on the
+same side of the staff!
 

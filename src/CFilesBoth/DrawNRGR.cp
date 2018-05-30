@@ -519,10 +519,10 @@ unsigned char GetNoteheadInfo(short appearance, short subType,
 
 
 /* --------------------------------------------------------------------- DrawNCLedgers -- */
-/* Draw any ledger lines needed: if note is in a chord, for the chord's extreme
-notes on both sides of the staff; if it's not in a chord, just for the note. Should
-be called only once per chord, e.g., just for the MainNote. Assumes the NOTE and
-OBJECT heaps are locked! */
+/* Draw any ledger lines needed: if note is in a chord, for the chord's extreme notes
+on both sides of the staff; if it's not in a chord, just for the note. Should be called
+only once per chord, just for the MainNote. Assumes all staff lines are being shown,
+and assumes the OBJECT heap is locked! */
 
 static void DrawNCLedgers(
 		LINK		syncL,
@@ -533,61 +533,27 @@ static void DrawNCLedgers(
 		short		ledgerSizePct
 		)
 {
-	LINK	bNoteL, mainNoteL;
-	PANOTE	aNote, bNote;
-	QDIST	yqpitRel, yqpitRelSus,		/* y QDIST positions relative to staff top */
-			hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
-			hiyqpitSus, lowyqpitSus;
+	QDIST	hiyqpit, lowyqpit,			/* y QDIST positions relative to staff top */
+			hiyqpitSus, lowyqpitSus,
+			yqpit;
 	Boolean	stemDown;
 
-	if (!pContext->showLedgers)
-		return;
+	if (!pContext->showLedgers) return;
 
-	mainNoteL = FindMainNote(syncL, NoteVOICE(aNoteL));
-	stemDown = (NoteYSTEM(mainNoteL) > NoteYD(mainNoteL));
-	
-	aNote = GetPANOTE(aNoteL);
-	if (aNote->inChord) {
-		hiyqpit = hiyqpitSus = 9999;
-		lowyqpit = lowyqpitSus = -9999;
-		bNoteL = FirstSubLINK(syncL);
+	stemDown = (NoteYSTEM(aNoteL) > NoteYD(aNoteL));
 
-		/*
-		 * Find the chord's extreme notes above and below staff, on the normal side of
-		 * the stem and "suspended" (on the other side).
-		 */
-		for ( ; bNoteL; bNoteL = NextNOTEL(bNoteL)) {
-			bNote = GetPANOTE(bNoteL);
-			if (NoteVOICE(bNoteL)==NoteVOICE(aNoteL)) {
-				if (bNote->yqpit<hiyqpit) hiyqpit = bNote->yqpit;
-				if (bNote->yqpit<hiyqpitSus && bNote->otherStemSide) hiyqpitSus = bNote->yqpit;
-				if (bNote->yqpit>lowyqpit) lowyqpit = bNote->yqpit;
-				if (bNote->yqpit>lowyqpitSus && bNote->otherStemSide) lowyqpitSus = bNote->yqpit;
-			}
-		}
-		
-		/*
-		 * Convert to staff-rel. coords. and draw the ledger lines, first below the
-		 * staff, then above.
-		 */
-		yqpitRel = lowyqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		yqpitRelSus = (lowyqpitSus==-9999? 0
-							: lowyqpitSus + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType)));
-		NoteLedgers(xd, yqpitRel, yqpitRelSus, stemDown, dTop, pContext, ledgerSizePct);
-		
-		yqpitRel = hiyqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		yqpitRelSus = (hiyqpitSus==9999? 0
-							: hiyqpitSus + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType)));
-		NoteLedgers(xd, yqpitRel, yqpitRelSus, stemDown, dTop, pContext, ledgerSizePct);
+	GetNCLedgerInfo(syncL, aNoteL, pContext, &hiyqpit, &lowyqpit, &hiyqpitSus, &lowyqpitSus);
+	if (NoteINCHORD(aNoteL)) {		
+		DrawNoteLedgers(xd, hiyqpit, hiyqpitSus, stemDown, dTop, pContext, ledgerSizePct);
+		DrawNoteLedgers(xd, lowyqpit, lowyqpitSus, stemDown, dTop, pContext, ledgerSizePct);
 	}
-	
-	else if (pContext->showLines!=SHOW_ALL_LINES ||
-									aNote->yd<0 || aNote->yd>pContext->staffHeight) {
-	
-		/* Not a chord. Just draw ledger lines for the single note. */
-		
-		yqpitRel = aNote->yqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		NoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
+
+	else {
+		/* Not a chord. Just draw any ledger lines the single note needs. */
+
+		yqpit =  (NoteYD(aNoteL)<0? hiyqpit : lowyqpit);
+//LogPrintf(LOG_DEBUG, "DrawNCLedgers: hiyqpit=%d lowyqpit=%d yqpit=%d\n", hiyqpit, lowyqpit, yqpit);
+		DrawNoteLedgers(xd, yqpit, 0, stemDown, dTop, pContext, ledgerSizePct);
 	}
 }
 
@@ -642,7 +608,7 @@ static void GetNoteheadRect(unsigned char glyph, Byte appearance, DDIST dhalfLn,
 static void PaintRoundLeftRect(Rect *paRect, short ovalWidth, short ovalHeight);
 void PaintRoundLeftRect(Rect *paRect, short ovalWidth, short ovalHeight)
 {
-	Rect		leftEndRect, otherRect;
+	Rect	leftEndRect, otherRect;
 
 	leftEndRect = *paRect;
 	leftEndRect.right = leftEndRect.left+ovalWidth;
@@ -981,14 +947,12 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 		
 		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, dim, sizePercent, chordNoteToL);
 
-		/*
-		 * If note is not a non-Main note in a chord, draw any ledger lines needed: for
-		 * note or entire chord. A chord has only one MainNote, so this draws the ledger
-		 * lines exactly once.
-		 */
-		if (MainNote(aNoteL))
-			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct); 
-
+		/* If note is not a non-Main note in a chord, draw any ledger lines needed: for
+		   note or entire chord. A chord has exactly one MainNote, so this draws the
+		   ledger lines exactly once. */
+		
+		if (MainNote(aNoteL) || !NoteINCHORD(aNoteL))
+			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct);
 				 
 		if (doc->pianoroll)	{										/* Handle pianoRoll notation */
 			MoveTo(xhead, yhead);									/* position to draw head */
@@ -1188,13 +1152,11 @@ EndQDrawing:
 		 
 		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, False, sizePercent, chordNoteToL);
 
-		/*
-		 *	If note is not a stemless note in a chord, add any ledger lines needed:
-		 *	if it's part of a chord, for the extreme notes on both sides of the staff.
-		 * All but one note of every chord has its stem length set to 0, so this
-		 *	draws the ledger lines exactly once.
-		 */
-		if (MainNote(aNoteL))
+		/* If note is not a non-Main note in a chord, draw any ledger lines needed: for
+		   note or entire chord. A chord has exactly one MainNote, so this draws the
+		   ledger lines exactly once. */
+		   
+		if (MainNote(aNoteL) || !NoteINCHORD(aNoteL))
 			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct); 
 	
 	/* Now draw the note head, stem, and flags */
@@ -1845,15 +1807,15 @@ static void DrawGRNCLedgers(LINK syncL, PCONTEXT pContext, LINK aGRNoteL, DDIST 
 		}
 		yqpitRel = lowyqpit+
 						halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		NoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
+		DrawNoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
 		yqpitRel = hiyqpit+
 						halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		NoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
+		DrawNoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
 	}
 	else if (aGRNote->yd<0 || aGRNote->yd>pContext->staffHeight) {
 		yqpitRel = aGRNote->yqpit+
 						halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		NoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
+		DrawNoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
 	}
 }
 

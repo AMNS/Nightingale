@@ -187,7 +187,8 @@ static MIDIUniqueID GetCMOutputDeviceID()
 	return kInvalidMIDIUniqueID;
 }
 
-static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MIDIUniqueID device, short item)
+static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect* /* box */,
+										MIDIUniqueID device, short item)
 {
 	Boolean popupOK = InitPopUp(dlog, p,
 								item,			/* Dialog item to set p->box from */
@@ -199,7 +200,7 @@ static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MI
 	if (!popupOK || p->menu==NULL) return NULL;
 		
 	cmVecDevices = new MIDIUniqueIDVector();
-	long numItems = FillCMDestinationPopup(p->menu, cmVecDevices);
+	(void)FillCMDestinationPopup(p->menu, cmVecDevices);
 
 	short currChoice = GetCMDeviceIndex(device);
 
@@ -493,7 +494,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 			}
 
 			gotValue = GetDlgWord(theDialog, V_BALANCE, &val);
-			if (gotValue && val >= -127 && val <= 127)			/* MAX_VELOCITY */
+			if (gotValue && val >= -MAX_VELOCITY && val <= MAX_VELOCITY)
 				mp->partVelocity = val;
 			else {
 				GetIndCString(strBuf, INSTRERRS_STRS, 6);		/* "Balance velocity must be between -127 and 127." */
@@ -1147,7 +1148,7 @@ static rangeHandle ReadInstr(
 						)
 {
 	rangeMaster *tmpRngPtr;
-	short i, firstBad;
+	short i, firstBad=0;
 	char anInstr[256];
 	Point theCell;
 	short nBad=0;
@@ -1460,7 +1461,7 @@ Boolean MpCheck(PARTINFO *p)
 			&& p->patchNum<=MAXPATCHNUM
 			&& p->patchNum>=minPatchNum
 			&& p->partVelocity<=MAX_VELOCITY
-			&& p->partVelocity>=-127 )
+			&& p->partVelocity>= -MAX_VELOCITY )
 			return True;							/* OK to use this data */
 	}
 	return False;
@@ -1662,7 +1663,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 			}
 			
 			gotValue = GetDlgWord(theDialog, PM_V_BALANCE, &val);
-			if (gotValue && val >= -127 && val <= MAX_VELOCITY)
+			if (gotValue && val >= -MAX_VELOCITY && val <= MAX_VELOCITY)
 				mp->partVelocity = val;
 			else {
 				GetIndCString(strBuf, INSTRERRS_STRS, 6);    /* "Velocity balance must be between -127 and 127." */
@@ -1701,7 +1702,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 			}
 			
 			gotValue = GetDlgWord(theDialog, PM_V_BALANCE, &val);
-			if (gotValue && val >= -127 && val <= MAX_VELOCITY)
+			if (gotValue && val >= -MAX_VELOCITY && val <= MAX_VELOCITY)
 				mp->partVelocity = val;
 			else {
 				GetIndCString(strBuf, INSTRERRS_STRS, 6);    /* "Velocity balance must be between -127 and 127." */
@@ -1732,7 +1733,6 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 		DisposePopUp(&cmOutputPopup);
 	}
 
-broken:
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(theDialog);
 	SetPort(oldPort);

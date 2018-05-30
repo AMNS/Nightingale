@@ -7,7 +7,7 @@
 	RespaceAll					PrevITSym
 	LyricWidthLR				ArpWidthLR					SyncGraphicWidthLR
 	IPGroupWidth				IPMarginWidth				IPSpaceNeeded
-	ConsidITWidths				ConsidIPWidths				ConsiderWidths
+	ConsiderITWidths			ConsiderIPWidths			ConsiderWidths
 	Respace1Bar					GetJustProp					PositionSysByTable
 	RespaceBars					StretchToSysEnd				SysJustFact
 	JustifySystem				JustifySystems
@@ -18,7 +18,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -45,8 +45,8 @@ static STDIST IPGroupWidth(short, short, SPACETIMEINFO [], STDIST [], STDIST [],
 static STDIST IPMarginWidth(Document *, SPACETIMEINFO [], short, short);
 static STDIST IPSpaceNeeded(Document *, short, short, SPACETIMEINFO [], STDIST [], STDIST [],
 							LONGSTDIST []);
-static void ConsidITWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST []);
-static void ConsidIPWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
+static void ConsiderITWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST []);
+static void ConsiderIPWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
 static void ConsiderWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
 
 
@@ -270,13 +270,12 @@ void SyncGraphicWidthLR(Document *doc,
 			}
 	}
 
-	/*
-	 *	If we need ANY space to the left, i.e., if there's a lyric extending to the
-	 * left, add extra space, but only half the amount needed since if there's a lyric
-	 *	extending to the right of the preceding sync, it'll add the other half. Likewise
-	 *	on the other side (a lyric extending to the right). This won't work all the time
-	 * but it certainly seems to work in typical real-life situations. 
-	 */
+	/* If we need ANY space to the left, i.e., if there's a lyric extending to the
+	   left, add extra space, but only half the amount needed since if there's a lyric
+	   extending to the right of the preceding sync, it'll add the other half. Likewise
+	   on the other side (a lyric extending to the right). This won't work all the time
+	   but it certainly seems to work in typical real-life situations. */
+	   
 	if (*pNeedLeft>0) *pNeedLeft += config.minLyricRSpace/2;
 	if (*pNeedRight>0) *pNeedRight += config.minLyricRSpace/2;
 }
@@ -308,10 +307,10 @@ static STDIST IPGroupWidth(short staff, short ind, SPACETIMEINFO spaceTimeInfo[]
 	for (j = ind; j>=0; j--) {
 	
 		/* If this object is not J_IP, this is the end of the group. If it's J_IP but
-		 *	not on this staff, the situation depends on whether we've found any J_IPs
-		 *	on this staff yet: if so, we're at the end of the group; if not, we may
-		 * not even have reached the beginning of the group yet.
-		 */
+		   not on this staff, the situation depends on whether we've found any J_IPs
+		   on this staff yet: if so, we're at the end of the group; if not, we may
+		   not even have reached the beginning of the group yet. */
+		   
 		if (spaceTimeInfo[j].justType!=J_IP) break;
 		if (!ObjOnStaff(spaceTimeInfo[j].link, staff, False)) {
 			if (count>0)	break;
@@ -370,10 +369,9 @@ static STDIST IPSpaceNeeded(
 	groupWidth = IPGroupWidth(staff, ind-1, spaceTimeInfo, fSpBefore, fSpAfter, &nInGroup);
 	if (nInGroup<=0) return 0;
 
-	/*
-	 * Find out how much space there already is in the slot the IP group goes into
-	 * and compute how much more, if any, we need.
-	 */
+	/* Find out how much space there already is in the slot the IP group goes into
+	   and compute how much more, if any, we need. */
+	   
 	prevIT = PrevITSym(doc, staff, ind, spaceTimeInfo);
 	if (prevIT>=0) {
 		needRight = SymWidthRight(doc, spaceTimeInfo[prevIT].link, staff, False);
@@ -405,6 +403,7 @@ static void DebugPrintSpacing(short nLast, STDIST fSpBefore[])
 
 
 /* Fill in a table of voice nos. of note/chords the user doesn't want to affect spacing. */
+
 static void FillIgnoreChordTable(Document *doc, short nLast, SPACETIMEINFO spaceTimeInfo[])
 {
 	short	i, v;
@@ -430,13 +429,12 @@ static void FillIgnoreChordTable(Document *doc, short nLast, SPACETIMEINFO space
 }
 
 
-/* -------------------------------------------------------------------- ConsidITWidths -- */
-/* Consider widths of all J_IT objects (syncs, space objects, etc.) and adjust
-spacing accordingly. The effect of lyric-subtype and arpeggio-sign-subtype
-Graphics, the only J_D symbols that can affect spacing, are also considered here.
-Handles one measure. */
+/* ------------------------------------------------------------------ ConsiderITWidths -- */
+/* Consider widths of all J_IT objects (Syncs, space objects, etc.) and adjust spacing
+accordingly. We also consider lyric-subtype and arpeggio-sign-subtype Graphics, the only
+J_D symbols that can affect spacing. Handles one measure. */
 
-static void ConsidITWidths(
+static void ConsiderITWidths(
 					Document *doc,
 					LINK /*barTermL*/,					/* Object ending the Measure */
 					short nLast,
@@ -529,11 +527,11 @@ static void ConsidITWidths(
 }
 
 
-/* -------------------------------------------------------------------- ConsidIPWidths -- */
+/* ------------------------------------------------------------------ ConsiderIPWidths -- */
 /*	Consider widths of all J_IP objects (clefs, key signatures, time signatures, grace
 syncs, etc.) and adjust spacing accordingly. Handles one measure. */
 
-static void ConsidIPWidths(
+static void ConsiderIPWidths(
 				register Document *doc,
 				LINK			/*barTermL*/,		/* Object ending the Measure */
 				short			nLast,
@@ -547,25 +545,23 @@ static void ConsidIPWidths(
 	STDIST spNeeded, xpos, fSpNeeded;
 	STDIST fSpAfter[MAX_MEASNODES];	/* Fine STDIST space-after table for J_IP objs. for the measure */
 	
-	/*
-	 * Go thru the measure, considering all staves simultaneously, and, for each J_IP
-	 * object, compute the space needed before and after it. Then go thru the measure
-	 *	for each staff, looking at each J_IT object, and adjust the position for that
-	 *	and all following objects to reflect any further space J_IP objects preceding it
-	 *	need on that staff. Finally, position J_IP objects just to the left of following
-	 * J_IT objects. (Actually, as in Respace1Bar, we treat J_STRUC objects like J_ITs,
-	 *	since the measure may be ended by a System or Page, and we need a position for
-	 *	the measure-ending object so we can compute locations of symbols before it.)
-	 *
-	 *	The theory behind this is as follows: In a group of contiguous J_IP objects on a
-	 *	staff, the last one is right-justified against the following J_IT object, and the
-	 *	others huddle as close to it as possible. (There is always a following J_IT or
-	 *	J_STRUC object--the object ending the measure, if nothing else.) Note that this
-	 *	can result in positioning several J_IP symbols (in practice, very likely grace
-	 *	notes) to the left of a J_IT symbol that precedes all of them in the object list!
-	 *	That's the way CMN works: horizontal positions of symbols are not entirely a
-	 *	monotonic function of their logical order.
-	 */
+	/* Go thru the measure, considering all staves simultaneously, and, for each J_IP
+	   object, compute the space needed before and after it. Then go thru the measure
+	   for each staff, looking at each J_IT object, and adjust the position for that
+	   and all following objects to reflect any further space J_IP objects preceding it
+	   need on that staff. Finally, position J_IP objects just to the left of following
+	   J_IT objects. (Actually, as in Respace1Bar, we treat J_STRUC objects like J_ITs,
+	   since the measure may be ended by a System or Page, and we need a position for
+	   the measure-ending object so we can compute locations of symbols before it.)
+	   
+	   The theory behind this is as follows: In a group of contiguous J_IP objects on a
+	   staff, the last one is right-justified against the following J_IT object, and the
+	   others huddle as close to it as possible. (There is always a following J_IT or
+	   J_STRUC object--the object ending the measure, if nothing else.) Note that this
+	   can result in positioning several J_IP symbols (in practice, very likely grace
+	   notes) to the left of a J_IT symbol that precedes all of them in the object list!
+	   That's the way CMN works: horizontal positions of symbols are not entirely a
+	   monotonic function of their logical order. */
 
 	/*	Before starting, convert distances between J_IT symbols to Fine STDIST positions. */
 	
@@ -574,11 +570,10 @@ static void ConsidIPWidths(
 		position[i] = xpos;
 	}
 	
-	/*
-	 *	Get space needed before and after each J_IP symbol on all staves. (We assume
-	 *	that, if object 0 is J_IP, its fSpBefore has already been set to the normal
-	 *	value.)
-	 */
+	/* Get space needed before and after each J_IP symbol on all staves. (We assume
+	   that, if object 0 is J_IP, its fSpBefore has already been set to the normal
+	   value.) */
+	
 	for (i = 0; i<=nLast; i++)
 		if (spaceTimeInfo[i].justType==J_IP) {
 			spNeeded = SymWidthLeft(doc, spaceTimeInfo[i].link, ANYONE, -1);
@@ -624,9 +619,9 @@ static void ConsidIPWidths(
 		}
 
 	/* Finally, position the J_IP symbols. If two consecutive (in the object list)
-	 *	J_IP objects have any staves in common, they must be positioned side-by-side,
-	 *	otherwise they can overlap totally.
-	 */
+	   J_IP objects have any staves in common, they must be positioned side-by-side,
+	   otherwise they can overlap totally. */
+	   
 	for (i = nLast-1; i>=0; i--)
 		if (spaceTimeInfo[i].justType==J_IP) {
 			short iRef, iLeftmost; LONGSTDIST posRef;
@@ -696,23 +691,23 @@ static void ConsidSPWidths(
 /* -------------------------------------------------------------------- ConsiderWidths -- */
 /* Consider objects' widths (both to left and right of their origins) and increase
 spacing as needed, not only to avoid overprinting, but to insure a separation of
-config.minRSpace between objects. First, handle all J_IT objects (syncs and
-space objects); then handle all J_IP objects (clefs, key signatures, time sig-
-natures, grace syncs, etc.), since these objects have no effect on spacing if
-there's room for them between notes and rests. The only J_D objects that can
-affect spacing--some subtypes of Graphics attached to syncs--are handled with the
-syncs they're attached to. ConsiderWidths handles one measure per call. */
+config.minRSpace between objects. First, handle all J_IT objects (Syncs and space
+objects); then handle all J_IP objects (clefs, key signatures, time signatures, grace
+Syncs, etc.), since these objects have no effect on spacing if there's room for them
+between notes and rests. The only J_D objects that can affect spacing--some subtypes
+of Graphics attached to Syncs--are handled with the Syncs they're attached to.
+ConsiderWidths handles one measure per call. */
 
 static void ConsiderWidths(
-					register Document *doc,
-					LINK			barTermL,		/* Object ending the Measure */
-					short			nLast,
-					SPACETIMEINFO	spaceTimeInfo[],
-					STDIST			fSpBefore[],
-					LONGSTDIST		position[]		/* Position table for J_IT & J_IP objs. for the measure */
-					)
+				register Document *doc,
+				LINK			barTermL,		/* Object ending the Measure */
+				short			nLast,
+				SPACETIMEINFO	spaceTimeInfo[],
+				STDIST			fSpBefore[],
+				LONGSTDIST		position[]		/* Position table for J_IT & J_IP objs. for measure */
+				)
 {
-	ConsidITWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore);
+	ConsiderITWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore);
 
 #ifdef SPACEBUG
 	if (DETAIL_SHOW) {
@@ -720,7 +715,7 @@ static void ConsiderWidths(
 	}
 #endif
 	
-	ConsidIPWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore, position);
+	ConsiderIPWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore, position);
 	
 	/*
 	 *	NB: At this point, we should have config.minRSpace between the right end of
@@ -737,22 +732,22 @@ static void ConsiderWidths(
 
 
 /* ----------------------------------------------------------------------- Respace1Bar -- */
-/* Perform global punctuation in the specified measure by fixing up object x-
-coordinates (xd's) so that each is allowed the "correct" space. For principles
-of operation, see Donald Byrd's dissertation, Sec. 4.6, and John Gourlay's
-"Spacing a Line of Music" (Tech. Report TR-35, Ohio State Univ. Computer &
-Information Science Res. Ctr., 1987). What we actually do is essentially Gourlay's
-algorithm with these changes:
-	Blocking widths are computed by staff instead of by voice (though by voice would
+/* Perform global punctuation in the specified measure by fixing up object x-coords.
+(xd's) so that each is allowed the "correct" space. For principles of operation, see
+Donald Byrd's dissertation, Sec. 4.6, and John Gourlay's "Spacing a Line of Music"
+(Tech. Report TR-35, Ohio State Univ. Computer & Information Science Res. Ctr., 1987). 
+What we actually do is essentially Gourlay's algorithm with these changes:
+	* Blocking widths are computed by staff instead of by voice (though by voice would
 		generally be better when there's any difference between them).
-	A table for the ideal spacings of basic durations instead of his system of built-in
-		values automatically adjusted for the neighborhood.
-	Much more attention to positioning J_IP symbols (clefs, grace notes, etc.).
+	* We use table for the ideal spacings of basic durations instead of his system of
+		built-in values automatically adjusted for the neighborhood.
+	* We pay much more attention to positioning J_IP symbols (clefs, grace notes, etc.).
 
-Return value is the measure's new width, or 0 if it exceeds Respace1Bar's limit
-of MAX_MEASNODES J_IT and J_IP objects. */
+Return value is the measure's new width, or 0 if it exceeds Respace1Bar's limit of
+MAX_MEASNODES J_IT and J_IP objects. */
 
-#define EMPTYMEAS_WIDTH 2*STD_LINEHT		/* STDIST width to use for measures with no J_IT or IP symbols */
+#define AVOID_OVERPRINT True			/* Add space as needed to avoid symbols overprinting */
+#define EMPTYMEAS_WIDTH 2*STD_LINEHT	/* STDIST width to use for measures with no J_IT or IP symbols */
 
 DDIST Respace1Bar(
 			Document		*doc,
@@ -772,10 +767,9 @@ DDIST Respace1Bar(
 
 	if (nLast>=MAX_MEASNODES) return 0;
 	
-	/*
-	 *	Allow for the right width of the preceding barline if it exists and is in the
-	 *	same System as this Measure.
-	 */
+	/* Allow for the right width of the preceding barline if there is one and it's in
+	   the same System as this Measure. */
+	
 	prevBarL = SSearch(LeftLINK(barTermL), MEASUREtype, GO_LEFT);
 	if (!prevBarL || !SameSystem(prevBarL, LeftLINK(barTermL)))
 		prevBarWidth = 0;
@@ -784,21 +778,18 @@ DDIST Respace1Bar(
 		
 	minWidth = std2d(prevBarWidth+config.spAfterBar+EMPTYMEAS_WIDTH, STFHEIGHT, STFLINES);
 
-	/*
-	 *	If the Measure contains no J_IT or IP symbols, give it the minimum width.
-	 */
+	/* If the Measure contains no J_IT or IP symbols, give it the minimum width. */
+	
 	if (nLast<=0) return minWidth;
 
-	/*
-	 *	Initialize the spacing table with "ideal" values based solely on durations plus
-	 *	a predetermined space after the barline at the beginning the measure. Specifically,
-	 * set fSpBefore[0] to a value based on the type of the first object in the measure
-	 * to produce the predetermined space. Other than that, set fSpBefore[] for every
-	 * J_IT object to our table-driven version of Gourlay's function of the elapsed
-	 *	duration since the previous J_IT object, and set all other fSpBefore[] to 0.
-	 *	(Actually, we also get fSpBefore[] for J_STRUC objs, since the measure may be
-	 *	ended by a System or Page, and we need a position for the measure-ending object.)
-	 */
+	/* Initialize the spacing table with "ideal" values based solely on durations plus
+	   a predetermined space after the barline at the beginning the measure. Specifically,
+	   set fSpBefore[0] to a value based on the type of the first object in the measure
+	   to produce the predetermined space. Other than that, set fSpBefore[] for every
+	   J_IT object to our table-driven version of Gourlay's function of the elapsed
+	   duration since the previous J_IT object, and set all other fSpBefore[] to 0.
+	   (Actually, we also get fSpBefore[] for J_STRUC objs, since the measure may be
+	   ended by a System or Page, and we need a position for the measure-ending object.) */
 
 	fSpBefore[0] = STD2F(prevBarWidth);
 	if (SyncTYPE(spaceTimeInfo[0].link))	fSpBefore[0] += STD2F(config.spAfterBar);
@@ -842,12 +833,12 @@ DDIST Respace1Bar(
 	}
 #endif
 
-	/*
-	 *	Consider objects' widths (both to left and right of their origins) and
-	 *	increase spacing as needed to avoid overprinting. (People doing proportional
-	 * notation might prefer not to do this: it would be nice to make it an option.)
-	 */
-	ConsiderWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore, position);
+	/* Consider objects' widths both to left and to right of their origins, and
+	   increase spacing as needed to avoid overprinting. (Some people might prefer
+	   to skip this, e.g., for proportional notation: it would be nice to make it
+	   a user-settable option instead of compiling it in.) */
+	   
+	if (AVOID_OVERPRINT) ConsiderWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore, position);
 
 #ifdef SPACEBUG
 	if (DETAIL_SHOW) {
@@ -858,10 +849,9 @@ DDIST Respace1Bar(
 	}
 #endif
 	
-	/*
-	 *	Finally, go thru object list for the measure and fill in xd's from the values
-	 *	in the position table.
-	 */
+	/* Finally, go thru object list for the measure and fill in xd's from the values
+	   in the position table. */
+	   
 	for (i = 0; i<=nLast; i++) {
 		pL = spaceTimeInfo[i].link;
 		currentxd = std2d(position[i], STFHEIGHT, STFLINES);

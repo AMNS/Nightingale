@@ -1,4 +1,4 @@
-IDEAS FOR A NEW NIGHTINGALE FILE FORMAT (AND OBJECT LIST) - DAB, mid April 2018 
+IDEAS FOR A NEW NIGHTINGALE FILE FORMAT (AND OBJECT LIST) - DAB, late May 2018 
 
 The current format is 'N105", so the new one will be 'N106'.
 
@@ -8,11 +8,11 @@ we get rid of bit fields! Well, possibly bit fields of < 8 bits -- the vast majo
 -- won't be too bad.  Cf. NgaleDevelopmentLog.txt .
 
 ANOTE:
-	* 1-2 more bits for accidental offset
+	* 2 more bits each for accidental H offset & aug. dot H offset
 	* 2 more bits for microtone
 	* 2 bits for harmonics: values = normal note (non-harmonic), touched,
 		stopped, sounding; touched & stopped normally play at velocity 0
-	* Add bit to say if cue note (=> small, always play at cue velocity, etc.)
+	* Add bit to say if a cue note (=> small, always play at cue velocity, etc.)
 	* Consolidate fragmented fields
 	* Add voice role, w/ same values as in VOICEINFO (VCROLE_UPPER, etc., incl.
 		unknown)
@@ -22,7 +22,7 @@ ANOTE:
 DYNAMIC:
 	* Add modifier field(s) (e.g., for "mpp", adding "subito", "piu")
 	* Add "cross staff" fields: one to say also affects staff below, staff above,
-		or neither; one to say "show curly brace"
+		or neither; one to say "show curly brace if cross-staff"
 
 CLEF:
 	* Change codes to leave space for more 8ve-transposing clefs, e.g.,

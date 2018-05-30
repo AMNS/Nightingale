@@ -248,12 +248,12 @@ STDIST SymWidthRight(
 										context.staffLines);
 					if (doc->nonstdStfSizes) nwidth = STF_SCALE(nwidth, (anyStaff? 1 : staff));
 				}
-				/*
-				 * If the note/rest has any dots and we're considering stuff after the
-				 * notehead, the dots determine its width; otherwise, if it's stem
-				 * up and has flags, the flags determine its width. (Grace notes are
-				 * the same except that they can't have dots.)
-				 */
+				
+				/* If the note/rest has any dots and we're considering stuff after the
+				   notehead, the dots determine its width; otherwise, if it's stem
+				   up and has flags, the flags determine its width. (Grace notes are
+				   the same except that they can't have dots.) */
+				
 			  	else if (NoteNDOTS(aNoteL)==0 || toHead) {
 					aNote = GetPANOTE(aNoteL);
 					if (doNoteheadGraphs)
@@ -264,7 +264,9 @@ STDIST SymWidthRight(
 					&&  NFLAGS(aNote->subType)>0					/*   flag-needing duration, */  
 					&&  aNote->yd>aNote->ystem						/*   stem up, */
 					&&  !toHead)									/* and we're considering flags? */
+					
 					/* In line below, STD_LINEHT is too little, STD_LINEHT*4/3 too much. */
+					
 						nwidth += (STD_LINEHT*7)/6; 				/* Yes, allow space for flags */
 					if (doc->nonstdStfSizes) nwidth = STF_SCALE(nwidth, aNote->staffn);
 				}
@@ -284,22 +286,34 @@ STDIST SymWidthRight(
 	  		}
 	  	}
 
-		/*
-		 * If chord is upstemmed and has notes to the right of the stem, it extends
-		 * further to the right than it otherwise would. (The following adjustments
-		 * should really take into account STF_SCALE. Someday.)
-		 */
+		/* If chord is upstemmed and has notes to the right of the stem, it extends
+		   further to the right than it otherwise would. (FIXME: The adjustments
+		   below should really take into account STF_SCALE.) */
+		
 		noteToRight = False;
 		if (anyStaff) {
 			for (s = 1; s<=doc->nstaves; s++)
-				if (ChordNoteToRight(pL,s)) { noteToRight = True; break; }
+				if (ChordNoteToRight(pL, s)) { noteToRight = True; break; }
 		}
 		else
-			if (ChordNoteToRight(pL,staff)) noteToRight = True;
+			if (ChordNoteToRight(pL, staff)) noteToRight = True;
 		if (noteToRight) totWidth += STD_LINEHT;
 
-	  	return totWidth;
+#ifdef NOTYET
+		/* If note has any ledger lines, add a tiny bit of space so they
+		   can't touch ledger lines of a following note/chord (GitHub issue #173).
+		   ??SHOULD DO ONLY IF FOLLOWING NOTE/CHORD HAS LEDGERS ON SAME SIDE OF
+		   STAFF! */
+		Boolean hasLedgersAbove, hasLedgersBelow;
+		
+		if (MainNote(aNoteL) || !NoteINCHORD(aNoteL)) {
+			NCHasLedgers(pL, aNoteL, &context, &hasLedgersAbove, &hasLedgersBelow);
+			if (hasLedgersAbove || hasLedgersBelow) totWidth += STD_LINEHT; // ??TOO MUCH@
+		}
+#endif
 
+	  	return totWidth;
+		
 	 case GRSYNCtype:
 		totWidth = 0;
 		aGRNoteL = FirstSubLINK(pL);
@@ -709,7 +723,7 @@ void FillSpaceMap(Document *doc, short whichTable)
 }
 
 
-/* ------------------------------------------------------------ FIdealSpace,IdealSpace -- */
+/* ----------------------------------------------------------- FIdealSpace, IdealSpace -- */
 
 /* Return fine "ideal" horizontal space for the given duration and spacing. */
 
@@ -796,8 +810,8 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 				symWidth = SymWidthRight(doc, beforeL, noteStaff, False);
 				GetContext(doc, beforeL, noteStaff, &context);
 				return (LinkXD(beforeL) + ((space >= symWidth) ? 
-										std2d(space,context.staffHeight,context.staffLines) :
-				 						std2d(symWidth,context.staffHeight,context.staffLines)));
+										std2d(space, context.staffHeight, context.staffLines) :
+				 						std2d(symWidth, context.staffHeight, context.staffLines)));
 		case RPTENDtype:
 		case MEASUREtype:
 		case CLEFtype:
