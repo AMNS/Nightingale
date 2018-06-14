@@ -111,7 +111,7 @@ Boolean IsFakeMeasure(Document *doc, LINK measL)
 	return NRGRInMeasure(doc, measL);
 }
 
-/* -------------------------------------------------------------------- UpdatePageNums -- */
+/* ----------------------------------------------------------- UpdatePage/Sys/MeasNums -- */
 /* Update the sheetNum field for all pages in the score by simply re-numbering them
 by starting at 0 for the first page and incrementing for all remaining pages. Also
 update the header's numSheets field. */
@@ -128,8 +128,6 @@ void UpdatePageNums(Document *doc)
 	doc->numSheets = sheetNum;
 }
 
-
-/* --------------------------------------------------------------------- UpdateSysNums -- */
 /* Update the systemNum field for all systems in the score by simply re-numbering
 them by starting at 1 for the first system and incrementing for all remaining
 systems. Also update the header's nsystems field. */
@@ -146,8 +144,6 @@ void UpdateSysNums(Document *doc, LINK headL)
 	doc->nsystems = sysNum-1;
 }
 
-
-/* -------------------------------------------------------------------- UpdateMeasNums -- */
 /* Based on Measure and Sync objects, update the fakeMeas field of every Measure object
 and the measureNum field of every Measure subobject in the given document from <startL>
 or the preceding Measure to the end. If <startL> is NILINK, do the entire document.
@@ -572,7 +568,7 @@ DDIST ObjSpaceUsed(Document *doc, LINK pL)
 }
 
 
-/* -------------------------------------------------------------------------- SysRelxd -- */
+/* -------------------------------------------------------------------- SysRelxd, etc. -- */
 /* Return object's xd relative to the System, regardless of the object's type. Assumes
 pL is in the main object list. */
 
@@ -589,7 +585,6 @@ DDIST SysRelxd(LINK pL)
 }
 
 
-/* --------------------------------------------------------------------- Sysxd, PMDist -- */
 /* Return point's xd relative to the System. */
 
 DDIST Sysxd(Point pt, DDIST sysLeft)
@@ -691,7 +686,8 @@ LINK ObjWithValidxd(LINK pL, Boolean measureOK)
 }
 
 
-/* -------------------------------------------------------------------------- GetSubXD -- */
+/* ------------------------------------------------------------------ GetSubXD, ZeroXD -- */
+
 /* Get the subobject xd of subobject subObjL of object pL. */
 
 DDIST GetSubXD(LINK pL, LINK subObjL)
@@ -714,7 +710,6 @@ DDIST GetSubXD(LINK pL, LINK subObjL)
 	return 0;
 }
 	
-/* ---------------------------------------------------------------------------- ZeroXD -- */
 /* Set the xd of subobject subObjL of object pL to zero. */
 
 void ZeroXD(LINK pL, LINK subObjL)
@@ -787,7 +782,7 @@ Boolean RealignObj(LINK pL,
 
 /* ----------------------------------------------------------- GetSysWidth, GetSysLeft -- */
 /* Get the "standard" width of a system, actually the width of the document's last
-system. As of v. 3.0A, used only in Clipboard.c. */
+system. As of v. 5.8b7, used only in Clipboard.c. */
 
 DDIST GetSysWidth(Document *doc)
 {
@@ -815,7 +810,7 @@ DDIST GetSysLeft(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------------- StaffHeight -- */
+/* ---------------------------------------------------------- StaffHeight, StaffLength -- */
 /* Get the staffHeight at the specified object on the specified staff. This is
 done by searching backwards for a Staff object and getting the information from
 there. */
@@ -845,8 +840,6 @@ DDIST StaffHeight(Document *doc, LINK pL, short theStaff)
 	return -1L;
 }
 
-
-/* ----------------------------------------------------------------------- StaffLength -- */
 /* Return the length of the staff <pL> is in. */
 
 DDIST StaffLength(LINK pL)
@@ -944,9 +937,9 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 }
 
 
-/* ------------------------------------------------------------------------- MeasWidth -- */
-/* If <pL> is a Measure, return its width, otherwise return the width of the
-Measure <pL> is in. */
+/* ----------------------------------------------------------------- Get measure width -- */
+/* If <pL> is a Measure, return its width, otherwise return the width of the Measure
+<pL> is in. */
 
 DDIST MeasWidth(LINK pL)
 {
@@ -961,8 +954,6 @@ DDIST MeasWidth(LINK pL)
 	return (aMeas->measSizeRect.right-aMeas->measSizeRect.left);
 }
 
-
-/* ----------------------------------------------------------------- MeasOccupiedWidth -- */
 /* If <pL> is a Measure, return width of its occupied part, otherwise return the
 width of the occupied part of the Measure <pL> is in. The "occupied part" extends
 to the point where its ending barline normally "would go", i.e., to the right of
@@ -988,8 +979,6 @@ DDIST MeasOccupiedWidth(Document *doc, LINK pL, long spaceProp)
 	return mWidth;
 }
 
-
-/* --------------------------------------------------------------------- MeasJustWidth -- */
 /* If <pL> is a Measure, return its "justification width", otherwise return the
 justification width of the Measure <pL> is in. Justification width is the space
 that should be allocated to the Measure if it's at the end of a right-justified
@@ -1018,7 +1007,8 @@ DDIST MeasJustWidth(Document *doc, LINK pL, CONTEXT context)
 }
 
 
-/* ---------------------------------------------------------------------- SetMeasWidth -- */
+/* ----------------------------------------------------------------- Set measure width -- */
+
 /* Set the width of every subobject of the given Measure to the given width. */
 
 Boolean SetMeasWidth(LINK measL, DDIST width)
@@ -1038,8 +1028,6 @@ Boolean SetMeasWidth(LINK measL, DDIST width)
 	return True;
 }
 
-
-/* ----------------------------------------------------------------- SetMeasFillSystem -- */
 /* Set the measureRects of all subobjects of <measL>, which must be a Measure, to
 extend to the end of their System (which ends at the same point as the Staff). If
 any of the subobjects starts at or past the end of their Staff, return False, else
@@ -1098,7 +1086,8 @@ Done:
 }
 
 
-/* --------------------------------------------------------------------------- IsAfter -- */
+/* ---------------------------------------------------------- Compare order of objects -- */
+
 /* Returns True if obj1 is followed by obj2 in some object list. */
 
 Boolean IsAfter(LINK obj1, LINK obj2)
@@ -1111,8 +1100,6 @@ Boolean IsAfter(LINK obj1, LINK obj2)
 	return False;
 }
 
-
-/* ---------------------------------------------------------------------- IsAfterIncl -- */
 /* Returns True if obj1 is the same as obj2 or is followed by it in some object
 list. */
 
@@ -1126,8 +1113,6 @@ Boolean IsAfterIncl(LINK obj1, LINK obj2)
 	return False;
 }
 
-
-/* ------------------------------------------------------------------------- IsOutside -- */
 /* Is theObj outside [obj1, obj2]? Assumes all three are in the same object list. */
 
 Boolean IsOutside(LINK theObj, LINK obj1, LINK obj2)
@@ -1135,8 +1120,6 @@ Boolean IsOutside(LINK theObj, LINK obj1, LINK obj2)
 	return (IsAfter(theObj, obj1) || IsAfter(obj2, theObj));
 }
 
-
-/* ----------------------------------------------------------------------- BetweenIncl -- */
 /* Is theObj between obj1 and obj2 or identical to one of them? N.B. This will
 misbehave if obj2 precedes obj1! */
 
@@ -1150,8 +1133,6 @@ Boolean BetweenIncl(LINK obj1, LINK theObj, LINK obj2)
 	return False;
 }
 
-
-/* ----------------------------------------------------------------------- WithinRange -- */
 /* Is theObj within the range obj1 to obj2 (including the first but not the
 second)? */
 
@@ -2202,7 +2183,7 @@ void CountSubobjsByHeap(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ HasOtherStemSide -- */
+/* ------------------------------------------------------------- Note/grace note stems -- */
 
 Boolean HasOtherStemSide(LINK syncL,
 							short staff)			/* staff no. or ANYONE */
@@ -2217,8 +2198,6 @@ Boolean HasOtherStemSide(LINK syncL,
 	return False;
 }
 
-
-/* ------------------------------------------------------------------ IsNoteLeftOfStem -- */
 /* Is the given note on the left side of its stem or its chord's stem? */
 
 Boolean IsNoteLeftOfStem(LINK /*pL*/,			/* Sync note belongs to */
@@ -2232,8 +2211,6 @@ Boolean IsNoteLeftOfStem(LINK /*pL*/,			/* Sync note belongs to */
 	return (stemDown==theNote->otherStemSide);
 }
 
-
-/* --------------------------------------------------------------------- GetStemUpDown -- */
 /* Deliver 1 if the note/chord for the given voice and Sync is stem up, -1
 if stem down. If the voice and Sync has a rest or nothing, return 0. */
 
@@ -2254,8 +2231,6 @@ short GetStemUpDown(LINK syncL, short voice)
 	return 0;				/* No MainNote in voice */
 }
 
-
-/* ------------------------------------------------------------------- GetGRStemUpDown -- */
 /* Deliver 1 if the note/chord for the given voice and GRSync is stem up, -1
 if stem down. If the voice and GRSync has nothing, return 0. */
 
@@ -2276,7 +2251,7 @@ short GetGRStemUpDown(LINK grSyncL, short voice)
 }
 
 
-/* ------------------------------------------------------------------- GetExtremeNotes -- */
+/* ----------------------------------------------------------- GetExtremeNotes/GRNotes -- */
 /* Return the highest and lowest (in terms of y-position, not pitch!) notes of the
 chord in a given Sync and voice. If there's only one note in that Sync/voice,
 return that note as both highest and lowest; if there are no notes in the Sync/voice,
@@ -2313,8 +2288,6 @@ void GetExtremeNotes(LINK syncL,
 	*pHiNoteL = hiNoteL;
 }
 
-
-/* ----------------------------------------------------------------- GetExtremeGRNotes -- */
 /* Return the highest and lowest (in terms of y-position, not pitch!) grace notes of
 the chord in a given GRSync and voice. If there's only one grace note in that
 GRSync/voice, return that note as both highest and lowest; if there are no grace notes
@@ -2351,9 +2324,9 @@ void GetExtremeGRNotes(LINK grSyncL,
 }
 
 
-/* ---------------------------------------------------------------------- FindMainNote -- */
-/* Return the MainNote/GRMainNote (the one with a stem) in the given voice and
-Sync/GRSync. */
+/* --------------------------------------------------------------- FindMain/GRMainNote -- */
+/* Return the MainNote/GRMainNote of a chord (the one with a stem) in the given voice and
+Sync/GRSync, if there is one; else return NILINK. */
 
 LINK FindMainNote(LINK pL,			/* Sync or GRSync */
 					short voice
@@ -2379,13 +2352,12 @@ LINK FindMainNote(LINK pL,			/* Sync or GRSync */
 	return NILINK;
 }
 
-
-/* -------------------------------------------------------------------- FindGRMainNote -- */
-/* Return the GRMainNote (the one with a stem) in the given voice and GRSync. */
+/* Return the GRMainNote (the one with a stem) of a chord in the given voice and GRSync,
+if there is one; else return NILINK. */
 
 LINK FindGRMainNote(LINK pL,		/* GRSync */
-						short voice
-						)
+					short voice
+					)
 {
 	LINK aGRNoteL;
 
@@ -2396,6 +2368,30 @@ LINK FindGRMainNote(LINK pL,		/* GRSync */
 	}
 	return NILINK;
 }
+
+/* Return the MainNote of a chord (the one with a stem) in the given voice and
+Sync, or the only note in the voice and Syncif there is one; if there are no
+notes in the voice and Sync, return NILINK. */
+
+LINK FindMainOrOnlyNote(LINK pL,			/* Sync */
+						short voice
+						)
+{
+	LINK aNoteL, aGRNoteL;
+
+	if (SyncTYPE(pL)) {
+		aNoteL = FirstSubLINK(pL);
+		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+			if (NoteVOICE(aNoteL)==voice && !NoteINCHORD(aNoteL))
+				return aNoteL;
+			if (NoteVOICE(aNoteL)==voice && MainNote(aNoteL))
+				return aNoteL;
+		}
+	}
+
+	return NILINK;
+}
+
 
 
 /* ------------------------------------------------------------------- GetObjectLimits -- */
@@ -2609,8 +2605,8 @@ Boolean ObjOnStaff(LINK pL, short staff, Boolean selectedOnly)
 			
 		/* Ignore <selectedOnly> for structural objects following */
 		
-		case SYSTEMtype:								/* This acts as if it's on EVERY staff */
-		case PAGEtype:									/* This ditto */
+		case SYSTEMtype:							/* This acts as if it's on EVERY staff */
+		case PAGEtype:								/* This ditto */
 			return True;
 		default:
 			if (TYPE_BAD(pL))
@@ -2714,6 +2710,7 @@ LINK ObjSelInVoice(LINK pL, short v)
 	if (link==NILINK)	return NILINK;
 	else				return (LinkSEL(link) ? link : NILINK);
 }
+
 
 /* --------------------------------------------------------------- "OnStaff" utilities -- */
 
@@ -2866,7 +2863,7 @@ short SyncVoiceOnStaff(LINK syncL, short staff)
 	return NOONE;
 }
 
-/* --------------------------------------------------------------------- SyncInBEAMSET -- */
+/* -------------------------------------------------------------- SyncInBEAMSET/OTTAVA -- */
 /* Is the given Sync or GRSync in the given Beamset? */
 
 Boolean SyncInBEAMSET(LINK syncL, LINK beamSetL)
@@ -2882,8 +2879,6 @@ Boolean SyncInBEAMSET(LINK syncL, LINK beamSetL)
 	return False;
 }
 
-
-/* ---------------------------------------------------------------------- SyncInOTTAVA -- */
 /* Is the given Sync or GRSync in the given Ottava? */
 
 Boolean SyncInOTTAVA(LINK syncL, LINK ottavaL)
@@ -3047,7 +3042,7 @@ Boolean BFTimeSigExists(LINK timeSigL)
 
 
 /* ---------------------------------------------------------------------- SetTempFlags -- */
-/* Set the tempFlags for all notes && GRNotes in range [startL, endL). */
+/* Set the tempFlags for all notes and GRNotes in range [startL, endL). */
 
 void SetTempFlags(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL,
 						Boolean value)
@@ -3248,6 +3243,7 @@ Boolean CompareScoreFormat(Document *doc1,
 	return True;
 }
 
+
 /* --------------------------------------------------------------------- DisposeMODNRs -- */
 /* Dispose of all MODNRs in the range [startL,endL). */
 
@@ -3268,6 +3264,7 @@ void DisposeMODNRs(LINK startL, LINK endL)
 			}
 		}
 }
+
 
 /* ---------------------------------------------------- Staff2PartL, PartL2Partn, etc. -- */
 
@@ -3314,8 +3311,8 @@ LINK Partn2PartL(Document *doc, short partn)
 
 /* ------------------------------------------------------------ HasXXXAcross utilities -- */
 
-/* Determines if there is a tie-subtype Slur in <voice> across the point just
-before <link>.  If so, returns the LINK to the Slur, else NILINK. */
+/* Determines if there is a tie-subtype Slur in <voice> across the point just before
+<link>.  If so, returns the LINK to the Slur, else NILINK. */
 
 LINK VHasTieAcross(LINK link, short voice)	
 {
@@ -3340,7 +3337,7 @@ LINK VHasTieAcross(LINK link, short voice)
 	if (!NoteTIEDL(rNoteL)) return NILINK;
 
 	/* Left and right notes are both tied. Search for the right one's tie. If it also
-		belongs to the left Sync, return it, otherwise return NILINK. */
+	   belongs to the left Sync, return it, otherwise return NILINK. */
 
 	slurL = LeftSlurSearch(rSyncL, voice, True);
 	if (SlurFIRSTSYNC(slurL)==lSyncL) 
@@ -3350,9 +3347,9 @@ LINK VHasTieAcross(LINK link, short voice)
 }
 
 
-/* If any "extended object" has a range that crosses the point just before the
-given link, return True and a message string. Intended for use before recording, so
-it ignores slurs, and considers ties only in the default voice for doc->selStaff. */
+/* If any "extended object" has a range that crosses the point just before the given
+link, return True and a message string. Intended for use before recording, so it ignores
+slurs and considers ties only in the default voice for doc->selStaff. */
 
 Boolean HasSmthgAcross(
 				Document *doc,
@@ -3362,8 +3359,8 @@ Boolean HasSmthgAcross(
 	short voice, staff, number;
 	Boolean isVoice, foundSmthg=False;
 	
-	/* Slurs are never a problem, and ties in voices other than the one we're
-		recording into aren't a problem. */
+	/* Slurs are never a problem, and ties in voices other than the one we're recording
+	   into aren't a problem. */
 		
 	voice = USEVOICE(doc, doc->selStaff);
 	if (VHasTieAcross(link, voice)) {
@@ -3386,10 +3383,8 @@ Boolean HasSmthgAcross(
 
 Finish:
 	if (foundSmthg) {
-		if (isVoice)
-			Voice2UserStr(doc, number, str);
-		else
-			Staff2UserStr(doc, number, str);
+		if (isVoice)	Voice2UserStr(doc, number, str);
+		else			Staff2UserStr(doc, number, str);
 	}
 
 	return foundSmthg;
@@ -3397,6 +3392,7 @@ Finish:
 
 
 /* ----------------------------------------------------------------- Rastral utilities -- */
+
 /* Given interline space in DDIST, return the rastral of a staff that would have
 that interline space, or return -1 if error.  -JGG, 7/31/00 */
 

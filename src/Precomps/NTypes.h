@@ -21,7 +21,7 @@
 */
 
 #define INT16 short				/* 2 bytes; no longer used */
-#define STDIST short			/* range +-4096 staffLines, resolution 1/8 staffLine */
+#define STDIST short			/* range +-4096 staffLines, resolution 1/8 (STD_LINEHT) staffLine */
 #define LONGSTDIST long			/* range +-268,435,456 staffLines, resolution 1/8 staffLine */
 #define QDIST short				/* range +-8192 staffLines, resolution 1/4 staffLine */
 #define SHORTSTD SignedByte		/* range +-16 staffLines, resolution 1/8 staffLine */
@@ -30,7 +30,7 @@
 #define SHORTDDIST SignedByte	/* range +-8 points, resolution 1/16 point */
 #define LONGDDIST long			/* range +-134,217,728 points (+-155344 ft), resolution 1/16 point */
 #define STD_LINEHT 8			/* STDIST scale: value for standard staff interline space */
-								/* N.B. Before changing, consider roundoff in conversion macros. */
+								/* NB: Before changing, consider roundoff in conversion macros! */
 #define FASTFLOAT double		/* For floating-point vars. that don't need much range or precision */
 #define STRINGOFFSET long		/* So we don't have to include "StringManager.h" everywhere */
 
@@ -92,9 +92,9 @@ enum {								/* Types of part names (to label left ends of systems) */
 };
 
 
-/* Generic subObj functions FirstSubObj(), NextSubObj() in Objects.c are 
-dependent on the order of items in the following enum. Arrays subObjLength[] 
-and objLength[], in vars.h, MUST be updated if enum is changed. */
+/* Generic subObj functions FirstSubObj(), NextSubObj() in Objects.c are dependent on
+the order of items in the following enum. Arrays subObjLength[]  and objLength[], in
+vars.h, MUST be updated if this enum is changed. */
 
 enum								/* Object types: */
 {

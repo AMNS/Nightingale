@@ -299,19 +299,6 @@ STDIST SymWidthRight(
 			if (ChordNoteToRight(pL, staff)) noteToRight = True;
 		if (noteToRight) totWidth += STD_LINEHT;
 
-#ifdef NOTYET
-		/* If note has any ledger lines, add a tiny bit of space so they
-		   can't touch ledger lines of a following note/chord (GitHub issue #173).
-		   ??SHOULD DO ONLY IF FOLLOWING NOTE/CHORD HAS LEDGERS ON SAME SIDE OF
-		   STAFF! */
-		Boolean hasLedgersAbove, hasLedgersBelow;
-		
-		if (MainNote(aNoteL) || !NoteINCHORD(aNoteL)) {
-			NCHasLedgers(pL, aNoteL, &context, &hasLedgersAbove, &hasLedgersBelow);
-			if (hasLedgersAbove || hasLedgersBelow) totWidth += STD_LINEHT; // ??TOO MUCH@
-		}
-#endif
-
 	  	return totWidth;
 		
 	 case GRSYNCtype:
@@ -1412,19 +1399,19 @@ static void FixVoiceTimes(
 
 
 /* --------------------------------------------------------------------- GetSpTimeInfo -- */
-/* Creates the rhythmic spine, i.e., the set of MEvent logical times integrated
-across all voices for symbols of either independent justification type, for one
-measure or less. It then uses the spine to fill in various information in
-<spaceTimeInfo>: always, in startTime, logical times; in justType, justification
-types; in link, object pointers; and in isSync, whether the object is a Sync. If
-<getSpacing>, the dur and frac fields are also filled in. The function value returned
-is the index of the last entry in the list, NOT the number of entries in the list!
-For example, if it returns 4, startTime[0--4] and justType[0--4] are meaningful.
-If the spine is empty, it returns -1.
+/* Creates the rhythmic spine, i.e., the set of MEvent logical times integrated across
+all voices for symbols of either independent justification type, for one measure or
+less. It then uses the spine to fill in various information in <spaceTimeInfo>:
+always, in startTime, logical times; in justType, justification types; in link, object
+pointers; and in isSync, whether the object is a Sync. If <getSpacing>, the dur and
+frac fields are also filled in. The function value returned is the index of the last
+entry in the list, NOT the number of entries in the list! For example, if it returns
+4, startTime[0--4] and justType[0--4] are meaningful. If the spine is empty, it
+returns -1.
 
 One reason this is tricky is some symbols (notes, rests, grace notes) are in voices,
 others (clefs, key sigs., etc.) are on staves, but their interactions affect timing.
-This is True even though notes and rests are the only symbols that occupy time. */
+This is true even though notes and rests are the only symbols that occupy time. */
 
 short GetSpTimeInfo(
 			Document		*doc,
@@ -1438,7 +1425,7 @@ short GetSpTimeInfo(
 	long		stLTimes[MAXSTAVES+1],			/* Logical times for staves */
 				vLTimes[MAXVOICES+1];			/* Logical times for voices */
 	short		vStaves[MAXVOICES+1];			/* Staff each voice is currently on */
-	short		last, i;
+	short		last, s, v;
 	PANOTE		aNote;
 	PAGRNOTE	aGRNote;
 	register LINK	pL, aNoteL, aGRNoteL;
@@ -1447,11 +1434,11 @@ short GetSpTimeInfo(
 	Boolean		voiceInSync[MAXVOICES+1];
 	long		noteDur, minDur;
 	
-	for (i = 0; i<=doc->nstaves; i++)
-		stLTimes[i] = 0L;
-	for (i = 0; i<=MAXVOICES; i++) {
-		vLTimes[i] = 0L;
-		vStaves[i] = 0;
+	for (s = 0; s<=doc->nstaves; s++)
+		stLTimes[s] = 0L;
+	for (v = 0; v<=MAXVOICES; v++) {
+		vLTimes[v] = 0L;
+		vStaves[v] = 0;
 	}
 
 	last = -1;
@@ -1460,11 +1447,10 @@ short GetSpTimeInfo(
 		timeHere = 0L;
 		jType = objTable[ObjLType(pL)].justType;
 
-		switch (ObjLType(pL))
-		{
+		switch (ObjLType(pL)) {
 			case SYNCtype:
-				for (i = 0; i<=MAXVOICES; i++)
-					voiceInSync[i] = False;
+				for (v = 0; v<=MAXVOICES; v++)
+					voiceInSync[v] = False;
 					
 				/* Set the start time for this Sync to the current time for the voice or
 				   staff that's furthest along of all participating. Then synchronize all
@@ -1497,10 +1483,10 @@ short GetSpTimeInfo(
 				   it can give bad results in cases where consecutive Syncs have no voices
 				   in common but we could still trace both back to the beginning of the
 				   Measure. */
-				for (i = 0; i<=MAXVOICES; i++)							/* Make non-participating */
-					if (!voiceInSync[i])								/*   voices catch up */
-						if (vLTimes[i]<=timeHere)
-							vLTimes[i] = timeHere+minDur;
+				for (v = 0; v<=MAXVOICES; v++)							/* Make non-participating */
+					if (!voiceInSync[v])								/*   voices catch up */
+						if (vLTimes[v]<=timeHere)
+							vLTimes[v] = timeHere+minDur;
 				break;
 				
 			case GRSYNCtype:
@@ -1529,10 +1515,10 @@ short GetSpTimeInfo(
 			case PSMEAStype:
 			case RPTENDtype:
 				/* Synchronize everything to high-water mark of either staves or voices. */
-				for (i = 1; i<=doc->nstaves; i++)
-					timeHere = n_max(timeHere, stLTimes[i]);
-				for (i = 0; i<=MAXVOICES; i++)
-					timeHere = n_max(timeHere, vLTimes[i]);
+				for (s = 1; s<=doc->nstaves; s++)
+					timeHere = n_max(timeHere, stLTimes[s]);
+				for (v = 0; v<=MAXVOICES; v++)
+					timeHere = n_max(timeHere, vLTimes[v]);
 				break;
 				
 			case CLEFtype:

@@ -3072,7 +3072,7 @@ Air => all OK. Weird.
 
 -------------------------------------------------------------------------------
 
-24 - 29 May
+24 May - 4 June
 
 Issue #173: The minimum space between notes on ledger lines isn't enough; as a result,
 the ledger lines on consecutive notes in measures Respaced to a small percentage touch
@@ -3089,3 +3089,4 @@ for the "spine" -- but doing it one note/chord at a time isn't enough: we need e
 space between two consecutive notes/chords only if _both_ have ledger lines, and on the
 same side of the staff!
 
+Write ConsiderLedgerLines(), called from ConsiderWidths(), called from Respace1Bar()...

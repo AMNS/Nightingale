@@ -120,6 +120,7 @@ void GetExtremeNotes(LINK syncL, short voice, LINK *pLowNoteL, LINK *pHiNoteL);
 void GetExtremeGRNotes(LINK syncL, short voice, LINK *pLowNoteL, LINK *pHiNoteL);
 LINK FindMainNote(LINK, short);
 LINK FindGRMainNote(LINK, short);
+LINK FindMainOrOnlyNote(LINK, short);
 
 void GetObjectLimits(short, short *, short *, Boolean *);
 Boolean InObjectList(Document *doc, LINK, short);

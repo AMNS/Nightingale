@@ -1380,33 +1380,6 @@ DDIST GRNoteXLoc(
 	return xd;
 }
 
-/* ---------------------------------------------------------------------- NCHasLedgers -- */
-/* Does the note or chord in the given note's voice in the given Sync have ledger lines?
-NB: Works only for the MainNote of a chord! Returns separate values for above the staff
-and below the staff. */
-
-void NCHasLedgers(
-		LINK		syncL,
-		LINK		aNoteL,
-		PCONTEXT	pContext,
-		Boolean		*hasLedgersAbove,
-		Boolean		*hasLedgersBelow)
-{
-	QDIST	hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
-			hiyqpitSus, lowyqpitSus;
-	
-	if (MainNote(aNoteL) || !NoteINCHORD(aNoteL)) {
-		GetNCLedgerInfo(syncL, aNoteL, pContext, &hiyqpit, &lowyqpit, &hiyqpitSus, &lowyqpitSus);
-		*hasLedgersAbove = (hiyqpit<0 || hiyqpitSus<0);
-		*hasLedgersBelow = (lowyqpit>pContext->staffHeight || lowyqpitSus>pContext->staffHeight);
-	}
-	else {
-		*hasLedgersAbove = False;
-		*hasLedgersBelow = False;
-	}
-}
-
-
 /* ------------------------------------------------------------------- GetNCLedgerInfo -- */
 /* Return info needed to draw ledger lines both above and below the staff for the note
 or for the chord in the given note's voice in the given Sync: the clef-adjusted distance
@@ -1447,8 +1420,8 @@ void GetNCLedgerInfo(
 		}
 	}
 	
-LogPrintf(LOG_DEBUG, "GetNCLedgerInfo 1: hiyqpit=%d lowyqpit=%d hiyqpitSus=%d lowyqpitSus=%d\n",
-hiyqpit, lowyqpit, hiyqpitSus, lowyqpitSus);
+//LogPrintf(LOG_DEBUG, "GetNCLedgerInfo 1: hiyqpit=%d lowyqpit=%d hiyqpitSus=%d lowyqpitSus=%d\n",
+//hiyqpit, lowyqpit, hiyqpitSus, lowyqpitSus);
 
 		/* Convert to staff-rel. coords. */
 		
@@ -1459,13 +1432,45 @@ hiyqpit, lowyqpit, hiyqpitSus, lowyqpitSus);
 		yqpitLowRelSus = (lowyqpitSus==-9999? 0
 							: lowyqpitSus + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType)));
 
-LogPrintf(LOG_DEBUG, "GetNCLedgerInfo 2: yqpitHiRel=%d yqpitLowRel=%d yqpitHiRelSus=%d yqpitLowRelSus=%d\n",
-yqpitHiRel, yqpitLowRel, yqpitHiRelSus, yqpitLowRelSus);
+//LogPrintf(LOG_DEBUG, "GetNCLedgerInfo 2: yqpitHiRel=%d yqpitLowRel=%d yqpitHiRelSus=%d yqpitLowRelSus=%d\n",
+//yqpitHiRel, yqpitLowRel, yqpitHiRelSus, yqpitLowRelSus);
 
 	*pHiyqpit = yqpitHiRel;
 	*pLowyqpit = yqpitLowRel;
 	*pHiyqpitSus = yqpitHiRelSus;
 	*pLowyqpitSus = yqpitLowRelSus;
+}
+
+
+/* ---------------------------------------------------------------------- NCHasLedgers -- */
+/* Does the note or chord in the given note's voice in the given Sync have ledger lines?
+NB: Works only for the MainNote of a chord! Returns separate values for above the staff
+and below the staff. */
+
+void NCHasLedgers(
+		LINK		syncL,
+		LINK		aNoteL,
+		PCONTEXT	pContext,
+		Boolean		*hasLedgersAbove,
+		Boolean		*hasLedgersBelow)
+{
+	QDIST	hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
+			hiyqpitSus, lowyqpitSus,
+			yqpitLowStaffLine, qStfSpace;
+	
+	if (MainNote(aNoteL) || !NoteINCHORD(aNoteL)) {
+		yqpitLowStaffLine = d2qd(pContext->staffHeight, pContext->staffHeight, pContext->staffLines);
+		qStfSpace = yqpitLowStaffLine/pContext->staffLines;
+		GetNCLedgerInfo(syncL, aNoteL, pContext, &hiyqpit, &lowyqpit, &hiyqpitSus, &lowyqpitSus);
+		*hasLedgersAbove = (hiyqpit < -qStfSpace || hiyqpitSus < -qStfSpace);
+		*hasLedgersBelow = (lowyqpit > yqpitLowStaffLine+qStfSpace || lowyqpitSus > yqpitLowStaffLine+qStfSpace);
+//LogPrintf(LOG_DEBUG, "NCHasLedgers: hiyqpit=%d lowyqpit=%d hiyqpitSus=%d lowyqpitSus=%d yqpitLowStaffLine=%d\n",
+//hiyqpit, lowyqpit, hiyqpitSus, lowyqpitSus, yqpitLowStaffLine);
+	}
+	else {
+		*hasLedgersAbove = False;
+		*hasLedgersBelow = False;
+	}
 }
 
 

@@ -2268,3 +2268,14 @@ Affects DrawNRGR, DrawUtils, SpaceTime.
 
 Minor cleanup. Affects DrawUtils.h; CarbonPrinting, DebugDisplay, DragBeam, DrawingEdit,
 DrawNRGR, DrawUtils, InstrDialog, Sheet, SpaceTime.
+
+-------------------------------------------------------------------------------
+
+31 May - 14 June
+
+Fixed bug (Issue #173): The minimum space between consecutive notes/chords with ledger
+lines is insufficient, resulting in the ledger lines merging. Affects DrawUtils,
+SpaceHighLevel.
+
+Minor cleanup. Affects DSUtils.h, NTypes.h; DrawUtils, DSUtils, SpaceHighLevel,
+SpaceTime.
