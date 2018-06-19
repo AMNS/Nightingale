@@ -202,16 +202,17 @@ enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 #define CH_CR '\r'						/* ASCII (=C's) character code for carriage return  */
 #define CH_NLDELIM '#'					/* ASCII code for "start a new line" where '\r' can't be used */
 #define CH_ESC 0x1B						/* ASCII character code for ESC (escape) */
+#define CH_HARDSPACE 0xCA				/* 8-bit (non-ASCII) character code for hard space */
 
 #define CLEARKEY 27						/* Macintosh character code for clear key */
 #define CMD_KEY 17						/* Macintosh character code for command key */
-#define LEFTARROWKEY	28				/* Macintosh character codes for arrow keys... */
-#define RIGHTARROWKEY	29
+#define LEFTARROWKEY 28					/* Macintosh character codes for arrow keys... */
+#define RIGHTARROWKEY 29
 #define UPARROWKEY 30
 #define DOWNARROWKEY 31
 #define FWDDEL_KEY 127					/* Macintosh character code for forward delete key (on ext. kybds) */
 
-#define CS_DELIMITER	FWDDEL_KEY		/* Chord symbol field delimiter */
+#define CS_DELIMITER FWDDEL_KEY			/* Chord symbol field delimiter */
 
 /* ----------------------------------------------------------- MISCELLANEOUS CONSTANTS -- */
 

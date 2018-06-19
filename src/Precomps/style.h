@@ -1,11 +1,10 @@
-/*
-	Style.h for Nightingale
-	Some notation style parameters, for engravers and other fanatics. Numerous others
-	are kept in the CNFG resource; cf. Initialize.c. (Those below that are constants
-	should eventually be moved there, or put somewhere that lets users override them.)
-	
-	Created by donbyrd on 25 May 2016.
- */
+/* Style.h for Nightingale
+
+Some notation style parameters, for engravers and other fanatics. Numerous others
+are kept in the CNFG resource; cf. Initialize.c. (Those below that are constants
+should eventually be moved there, or put somewhere that lets users override them.)
+
+Created by donbyrd on 25 May 2016. */
 
 #define CLEF8_ITAL True						/* Use italic digits (normal) instead of roman for clef '8's? */
 
@@ -28,16 +27,29 @@
 #define STEMSHORTEN_XSHAPEHEAD 3				/* Shorten stem by this if note has "X" head (eighth-spaces)  */
 
 /* Adjust notehead <width> for given WIDEHEAD code. NB: watch out for integer overflow! */
+
 #define WIDENOTEHEAD_PCT(whCode, width) (whCode==2? 160*(width)/100 : \
 											(whCode==1? 135*(width)/100 : (width)) )
-/* If notehead is wider or narrow than normal and note is upstemmed, move so right edge touches the stem. */
+/* If notehead is wider or narrow than normal and note is upstemmed, distance to move to
+make right edge touch the stem. */
+
 #define NHEAD_XD_GLYPH_ADJ(stemDn, headRSize)		\
 	(!stemDn? ((headRSize-100L)*HeadWidth(lnSpace))/100L : 0L)
 #define GRNOTE_SLASH_YDELTA(len) (3*(len)/4)	/* "Height" of slash of length len */
 
+#define CONSEC_LEDGER_SPACE STD2F(2*STD_LINEHT/3)	/* Extra space to keep ledgers from touching */
+
+/* LedgerLen and LedgerOtherLen are used only for insertion feedback and for ledger
+lines on rests. Lengths of note ledger lines are determined by <config> fields. */
+
+#define LedgerLen(lnSp) 	(12*(lnSp)*4/32)	/* Length on notehead's side of stem */
+#define LedgerOtherLen(lnSp) (3*(lnSp)*4/32)	/* Length on side of stem away from notehead */
+#define InsLedgerLen(lnSp) ((lnSp)*4/4)			/* Note insert pseudo-ledger line length */
+
 /* STRICT_SHORTSTEM is an offset, in half-spaces toward the center of staff, on where
 stem shortening kicks in. With STRICT_SHORTSTEM=0, any notes entirely outside the staff
 with stems away from the staff are shortened. */
+
 #define STRICT_SHORTSTEM 0
 
 #define REST_STEMLET_LEN 4					/* For "stemlets" on beamed rests (quarter-spaces) */
@@ -51,13 +63,27 @@ with stems away from the staff are shortened. */
 #define FlagLeading(lnSp)	(3*(lnSp)*4/16)	/* Vertical distance between flags */
 
 /* Note modifier sizes. Caveat: see the comment on GetModNRInfo before adjusting these. */
+
 #define FINGERING_SIZEPCT 65				/* Percent of normal font size for fingerings */
 #define CIRCLE_SIZEPCT 150					/* Percent of normal font size for circle */
 
 /* Constants for cue notes, especially the "Paste as Cue" command. These really don't belong
-in a file of notation style parameters, but where is better?  --DAB, June 2017 */
+in a file of notation style parameters, but where would be better?  --DAB, June 2017 */
+
 #define CUE_VOICENUM 3
 #define CUENOTE_VELOCITY 20
+
+
+/* ---------------- Measures ---------------- */
+
+#define EMPTYMEAS_WIDTH 2*STD_LINEHT			/* STDIST width to use for measures with no J_IT or IP symbols */
+
+
+/* ---------------- Dynamics ---------------- */
+
+#define HAIRPIN_STD_MINLEN (3*STD_LINEHT/2)		/* Min. length for hairpins after respacing */
+#define HAIRPIN_OFFSET_THRESHOLD  STD_LINEHT/2	/* Min. x-offset for ?? */
+
 
 /* ---------------- Chord symbols ---------------- */
 
@@ -88,7 +114,7 @@ in a file of notation style parameters, but where is better?  --DAB, June 2017 *
 #define ENDING_THICK(lnSp)	((6*(lnSp))/50)		/* PostScript thickness of lines in Endings (DDIST) */
 #define ENDING_CUTOFFLEN(lnSp) (2*(lnSp))		/* Length of Ending's vertical cutoff line (DDIST) */
 
-/* ---------------- Nonarpeggio sign ---------------- */
+/* ---------------- Nonarpeggio signs ---------------- */
 
 #define NONARP_CUTOFF_LEN(lnSp) ((3*(lnSp))/4)	/* Nonarpeggio sign horiz. cutoff length (DDIST) */
 
@@ -96,13 +122,6 @@ in a file of notation style parameters, but where is better?  --DAB, June 2017 *
 
 #define HeadWidth(lnSp)	(9*(lnSp)*4/32)			/* Width of common (beamable) note heads */
 #define FracBeamWidth(lnSp) ((lnSp)*4/4)		/* Fractional beam length */
-
-/* LedgerLen and LedgerOtherLen are used only for insertion feedback and for ledger
-lines on rests. Lengths of note ledger lines are determined by <config> fields. */
-#define LedgerLen(lnSp) 	(12*(lnSp)*4/32)	/* Length on notehead's side of stem */
-#define LedgerOtherLen(lnSp) (3*(lnSp)*4/32)	/* Length on side of stem away from notehead */
-
-#define InsLedgerLen(lnSp) ((lnSp)*4/4)			/* Note insert pseudo-ledger line length */
 
 /* The following #defines are just abbreviations for convenience. */
 

@@ -2279,3 +2279,9 @@ SpaceHighLevel.
 
 Minor cleanup. Affects DSUtils.h, NTypes.h; DrawUtils, DSUtils, SpaceHighLevel,
 SpaceTime.
+
+-------------------------------------------------------------------------------
+
+16 June			======== NIGHTINGALE 5.8b8 (16 June 2018) ========
+
+Minor cleanup. Affects Defs.h, Style.h; SpaceHighLevel.

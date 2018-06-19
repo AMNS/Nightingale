@@ -30,7 +30,9 @@
 #define SPACEBUG
 #endif
 
-#define STFHEIGHT drSize[doc->srastral]	/* For now, assume all staves are same height */
+#define STFHEIGHT drSize[doc->srastral]		/* For now, assume all staves are same height */
+
+#define AVOID_OVERPRINT True				/* Add space needed to avoid symbols overprinting? */
 
 typedef struct {
 	LINK		link;
@@ -129,9 +131,8 @@ Boolean RemoveObjSpace(Document *doc, LINK pL)
 
 
 /* ------------------------------------------------------------------------ RespaceAll -- */
-/* Go thru entire data structure and perform global punctuation by fixing up
-x-coordinates so each allows previous thing the correct space, scaled by a
-given percentage. */
+/* Go thru entire data structure and perform global punctuation by fixing up x-coords.
+so each allows previous thing the correct space, scaled by a given percentage. */
 
 void RespaceAll(Document *doc, short percent)
 {
@@ -173,10 +174,9 @@ static Boolean IsLyricPunct(unsigned char ch)
 }
 
 /* Return True if the lyric should be allowed to overlap following notes, i.e., if
-its last non-whitespace, non-punctuation character is hyphen or underline (poor
-person's extender) or hard blank. ??Should use C string (via CCopy) instead of Pascal. */
-
-#define CH_HARDSPACE 0xCA
+its last non-whitespace, non-punctuation character is hyphen or underline (a poor
+person's extender) or hard blank. FIXME: Should use C string (via CCopy) instead of
+Pascal. */
 
 static Boolean AllowOverlap(LINK lyricL)
 {
@@ -217,8 +217,8 @@ static void LyricWidthLR(Document *doc, LINK lyricL, short staff, STDIST *pNeedL
 }
 
 /* ------------------------------------------------------------------------ ArpWidthLR -- */
-/* Return the distance the given arpeggio sign Graphic needs to the left and to
-the right of the origin of the object it's attached to, to avoid overlap. */
+/* Return the distance the given arpeggio sign Graphic needs to the left and to the
+right of the origin of the object it's attached to, to avoid overlap. */
 
 static void ArpWidthLR(Document *doc, LINK arpL, short staff, STDIST *pNeedLeft,
 							STDIST *pNeedRight)
@@ -272,7 +272,7 @@ void SyncGraphicWidthLR(Document *doc,
 			}
 	}
 
-	/* If we need ANY space to the left, i.e., if there's a lyric extending to the
+	/* If we need _any_ space to the left, i.e., if there's a lyric extending to the
 	   left, add extra space, but only half the amount needed since if there's a lyric
 	   extending to the right of the preceding sync, it'll add the other half. Likewise
 	   on the other side (a lyric extending to the right). This won't work all the time
@@ -338,7 +338,7 @@ objects, or, where consecutive J_IP objects have a common staff, J_IP ones. */
 static STDIST IPMarginWidth(Document *doc, SPACETIMEINFO spaceTimeInfo[],
 								short iFirst, short iSecond)
 {
-	STDIST widthLeft; short s;
+	STDIST widthLeft;  short s;
 	
 	widthLeft = 0;	
 	for (s = 1; s<=doc->nstaves; s++) {
@@ -459,7 +459,7 @@ static void ConsiderITWidths(
 	 *	continuous 16ths. We could do this by voice instead of by staff, but that
 	 *  would cause a different set of problems. What's really needed is an image-
 	 *  space representation, as discussed in Chapter 5 of my dissertation, but
-	 *  implementing that would be a major undertaking.)
+	 *  implementing that would be a very major undertaking.  --DAB)
 	 */
 	for (s = 1; s<=doc->nstaves; s++) {
 		prevNeedRight[s] = 0;
@@ -474,7 +474,6 @@ static void ConsiderITWidths(
 			}
 			
 			for (s = 1; s<=doc->nstaves; s++) {
-
 #ifdef SPACEBUG
 	if (DETAIL_SHOW) {
 		LogPrintf(LOG_DEBUG, "CIT2.  "); DebugPrintSpacing(nLast, fSpBefore);
@@ -640,12 +639,6 @@ static void ConsiderIPWidths(
 #endif
 }
 
-
-#define CONSEC_LEDGER_SPACE STD2F(2*STD_LINEHT/3)	/* Extra space to keep ledgers from touching */
-#define AVOID_OVERPRINT True					/* Add space needed to avoid symbols overprinting? */
-#define EMPTYMEAS_WIDTH 2*STD_LINEHT			/* STDIST width to use for measures with no J_IT or IP symbols */
-#define HAIRPIN_STD_MINLEN (3*STD_LINEHT/2)		/* Min. length for hairpins after respacing */
-#define HAIRPIN_OFFSET_THRESHOLD  STD_LINEHT/2		// just for now
 
 /* --------------------------------------------------------------- ConsiderLedgerLines -- */
 
@@ -1010,15 +1003,18 @@ void PositionSysByTable(
 		
 		for (m = first; m<=last; m++) {
 			/* Adjust the Measure's position w/r/t first barline (startChange) */
+			
 			temp = spaceProp * (rmTable[m].lxd - startChange);
 			LinkXD(rmTable[m].measL) = (temp/resUnit) + startChange;
 			
 			/* New space compression is product of spaceProp and old compression */
+			
 			curSpaceFact = (FASTFLOAT)MeasSpaceProp(rmTable[m].measL)/resUnit;
 			newProp = (long)(curSpaceFact*spaceProp);
 			SetMeasSpacePercent(rmTable[m].measL, newProp);
 			
-			/* Stretch or squeeze coordinates of all objects within the Measure */
+			/* Stretch or squeeze coordinates of all objects within the Measure. */
+			
 			pL = RightLINK(rmTable[m].measL);
 			endMeasL = EndMeasSearch(doc, rmTable[m].measL);
 			for ( ; pL!=endMeasL; pL = RightLINK(pL)) {
@@ -1098,7 +1094,8 @@ static short CountRespMeas(
 					LINK endMeasL
 					)
 {
-	short mindex=0;  LINK measL;
+	short mindex=0;
+	LINK measL;
 	char fmtStr[256];
 
 	measL = startMeasL;
@@ -1129,7 +1126,8 @@ static Boolean GetXDTabIndex(LINK pL, XDDATA *xdTable, unsigned short tabLen, un
 
 
 /* If any hairpins in the given range are below the minimum length, move their right
-ends to make them the minimum length. Return the number of hairpins changed. */
+ends to make them the minimum length. Return the number of hairpins changed. This is
+much like our "antikinking" for slurs. */
 
 static short FixHairpinLengths(Document *doc, LINK /*measL*/, LINK firstL, LINK lastL,
 								DDIST oldMWidth, DDIST newMWidth, XDDATA *xdTable, unsigned short);
@@ -1255,7 +1253,7 @@ static short RespWithinMeasures(
 			SetMeasSpacePercent(measL, spaceProp);
 			CenterWholeMeasRests(doc, firstL, lastL, newMWidth);
 
-			/* ??This is a lot like antikinking--give this a more general name, at least? */
+			/* ??This is a lot like antikinking--give this a better name, at least? */
 			(void)FixHairpinLengths(doc, measL, firstL, lastL, oldMWidth, newMWidth,
 											xdTable, xdTabLen);
 		}
@@ -1316,10 +1314,9 @@ static Boolean PositionWholeMeasures(
 			GetContext(doc, rmTable[first].measL, 1, &context);
 			newSpProp = GetJustProp(doc, rmTable, first, m, context);
 			
-			/*
-			 *	If we're handling an explicit Respace command, or if <doRfmt>, just
-			 *	set a flag and reformat the whole area later.
-			 */
+			/* If we're handling an explicit Respace command, or if <doRfmt>, just
+			   set a flag and reformat the whole area later. */
+			   
 			if (command || doRfmt) {
 				PositionSysByTable(doc, rmTable, first, m, 0L, context);
 				if (newSpProp>0L) reformat = True;
@@ -1327,11 +1324,10 @@ static Boolean PositionWholeMeasures(
 			else
 				PositionSysByTable(doc, rmTable, first, m, newSpProp, context);
 			
-			/*
-			 *	If this is the first System of the range and we're squeezing it,
-			 *	redraw Measures from the beginning of the System to the beginning
-			 * of the respaced area.
-			 */
+			/* If this is the first System of the range and we're squeezing it,
+			   redraw Measures from the beginning of the System to the beginning
+			   of the respaced area. */
+			   
 			if (first==0 && newSpProp>0L && !command)
 				startInvalL = rmTable[0].measL;
 		}
@@ -1385,7 +1381,7 @@ what we do depends on the <command> and <doRfmt> parameters:
 
 Naturally, this is a user-interface level function.
 
-N.B. RespaceBars acts as if barlines (the graphic manifestation of Measures)
+NB: RespaceBars acts as if barlines (the graphic manifestation of Measures)
 TERMINATE Measures rather than beginning them, so if there's an insertion point
 "at" a barline--selStartL=selEndL=the barline, so the insertion point appears to
 the left of the barline--the preceding Measure is respaced. Areas before the initial
@@ -1394,7 +1390,7 @@ if they're within the specified area. It returns True if it successfully respace
 anything, False if not (either because of an error or because the specified area is
 entirely before a System's initial barline).
 
-N.B.2. If RespaceBars reformats, it sets the selection range to an insertion point
+NB2: If RespaceBars reformats, it sets the selection range to an insertion point
 at doc->tailL. Also, if it reformats, it may REMOVE doc->selStartL (and <endL>?) from
 the object list, so saving selection status before RespaceBars and restoring it
 afterwards is not easy! */
@@ -1423,7 +1419,7 @@ Boolean RespaceBars(
 				endSysBarL,					/* First Meas after the last System involved or tail*/
 				startInvalL, pL,
 				measL, aMeasL;
-	short		mindex, i; //??OR UNSIGNED?
+	short		mindex, i;		//??OR UNSIGNED?
 	unsigned short objCount, measCount; 
 	register	RMEASDATA *rmTable;
 	XDDATA		*positionA;
@@ -1449,7 +1445,7 @@ Boolean RespaceBars(
 	}
 
 	/*
-	 *	Respacing as specified may require reformatting. Unfortunately, we can't easily
+	 * Respacing as specified may require reformatting. Unfortunately, we can't easily
 	 * tell that's going to happen until we actually do the respacing; yet if it does,
 	 * we want to give the user a chance to cancel the whole operation. So to implement
 	 * it, make tables of the current positions of every affected object and of
@@ -1744,10 +1740,9 @@ void JustifySystems(Document *doc, LINK startL, LINK endL)
 		lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, False);
 		nextSysL = LinkRSYS(currSysL);
 		
-		/*
-		 *	If the System isn't empty (e.g., the invisible barline isn't the last
-		 *	barline in the System) then we can justify the measures in it.
-		 */
+		/* If the System isn't empty (e.g., the invisible barline isn't the last
+		   barline in the System) then we can justify the measures in it. */
+		   
 		if (lastMeasL!=firstMeasL) {
 			JustifySystem(doc, firstMeasL, lastMeasL);
 			didAnything = True;
