@@ -143,8 +143,8 @@ the MIDI Modifier Effects dialog slightly smaller. Affects .rsrc.
 
 12 - 16 Sept.
 
-Fix bug (Issue #24) in MIDI file export where tempo changes after the first few are often ignored.
-Affects MIDIPlay.cp: PlaySequence().
+Fix bug (Issue #24) in MIDI file export where tempo changes after the first few are
+often ignored. Affects MIDIPlay.cp: PlaySequence().
 
 MIDIPlay.cp: Change most instances of "Midi" in function names to "MIDI"; improve
 comments; minor cleanup.
@@ -1350,8 +1350,8 @@ Minor cleanup. Affects MemMacros.h; DebugUtils, InsUtils, Slurs, SysPageEdit.
 
 6-11 Apr.
 
-Add an "Add Cautionary TimeSigs" command. Affects .rsrc, NResourceID.h, NTypes.h;
-Menu, Undo.
+Add an "Add Cautionary TimeSigs" command (Issue #132). Affects .rsrc, NResourceID.h,
+NTypes.h; Menu, Undo.
 
 Replace the "alternate" diagonal light gray shading pattern, indicating one type of
 rhythm/time signature conflict, with a rectangular-grid pattern. Affects .rsrc; vars.h;
@@ -1400,7 +1400,7 @@ The space percentage in the Extract dialog has always been initialized to
 doc->spacePercent, but at most 100; instead, we now initialize it to the mean of
 100 and doc->spacePercent, but at most 100. Affects ExtractHighLevel.
 
-Add to the Respace dialog a brief comment on how it works. Affects .rsrc. (HOWEVER,
+Added to the Respace dialog a brief comment on how it works. Affects .rsrc. (HOWEVER,
 SourceTree doesn't recognize that it's been modified! How to get it into the
 repository??)
 
@@ -1419,7 +1419,7 @@ HeaderFooterDialog, Initialize, Preferences, PS_Stdio, Search.
 Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects style.h;
 About, AutoBeam, Beam, Extract, StringUtils, Utility.
 
-Rename ExpandString() to ExpandPString() and other minor cleanup. Affects
+Renamed ExpandString() to ExpandPString() and other minor cleanup. Affects
 NightTemplates.h, Utility,h; About, AutoBeam, Beam, Dragging, DrawObject, Extract, File,
 PS_Stdio, StringUtils, TextDialog, Utility.
 
@@ -1433,7 +1433,7 @@ StringUtils.
 
 Minor cleanup. Affects ChordSym, StringUtils.
 
-Redefine version 5.7 by changing the version number from 5.8b1 back to 5.7; this is
+Redefined version 5.7 by changing the version number from 5.8b1 back to 5.7; this is
 desirable because I failed to preserve the 5.7 source (as previously defined) in the
 GitHub repository. Affects Info.plist.
 
@@ -2285,3 +2285,19 @@ SpaceTime.
 16 June			======== NIGHTINGALE 5.8b8 (16 June 2018) ========
 
 Minor cleanup. Affects Defs.h, Style.h; SpaceHighLevel.
+
+===============================================================================
+
+11-12 August
+
+Changed version number from 5.8b8 to 5.8b9. Affects Info.plist.
+
+Added a #define to control whether to add space to avoid ledger lines colliding.
+Affects SpaceHighLevel.
+
+Changed copyright date range in About box to extend into 2018.
+
+Fixed bug: if any note in a Sync has an accidental and any note in the Sync (whether
+that note or another) has ledger lines, the minimum space we leave before the Sync
+is too large. Affects SpaceHighLevel.
+

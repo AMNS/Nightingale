@@ -33,6 +33,7 @@
 #define STFHEIGHT drSize[doc->srastral]		/* For now, assume all staves are same height */
 
 #define AVOID_OVERPRINT True				/* Add space needed to avoid symbols overprinting? */
+#define AVOID_LEDGER_COLLISION True			/* Add space so consecutive ledger lines don't touch? */
 
 typedef struct {
 	LINK		link;
@@ -250,10 +251,9 @@ void SyncGraphicWidthLR(Document *doc,
 	*pNeedLeft = *pNeedRight = 0;
 	voice = SyncVoiceOnStaff(syncL, staff);
 	
-	/*
-	 *	Scan the entire system looking for lyrics attached to the Sync. This is
-	 * probably overkill; just its measure should be enough.
-	 */
+	/* Scan the entire system looking for lyrics attached to the Sync. This is probably
+	   overkill; just its measure should be enough. */
+	
 	pL = LSSearch(syncL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	endL = LinkRSYS(pL);
 	for ( ; pL!=endL; pL = RightLINK(pL)) {
@@ -451,16 +451,15 @@ static void ConsiderITWidths(
 	
 	//FillIgnoreChordTable(doc, nLast, spaceTimeInfo);
 
-	/*
-	 *	For each J_IT object, go thru each staff and update spacing table entries for
-	 *  the objects to reflect any additional space they need on that staff. (This is
-	 *  overly simple-minded, especially for Syncs. It will give bad results when two
-	 *	voices share a staff and, say, one has dotted quarters while the other has
-	 *	continuous 16ths. We could do this by voice instead of by staff, but that
-	 *  would cause a different set of problems. What's really needed is an image-
-	 *  space representation, as discussed in Chapter 5 of my dissertation, but
-	 *  implementing that would be a very major undertaking.  --DAB)
-	 */
+	/* For each J_IT object, go thru each staff and update spacing table entries for the
+	   objects to reflect any additional space they need on that staff. (This is overly
+	   simple-minded, especially for Syncs. It will give bad results when two voices share
+	   a staff and, say, one has dotted quarters while the other has continuous 16ths. We
+	   could do this by voice instead of by staff, but that would cause a different set of
+	   problems. What's really needed is an image- space representation, as discussed in
+	   Chapter 5 of my dissertation, but implementing that would be a very major
+	   undertaking. --DAB) */
+	
 	for (s = 1; s<=doc->nstaves; s++) {
 		prevNeedRight[s] = 0;
 		fAvailSp[s] = 0;
@@ -516,10 +515,9 @@ static void ConsiderITWidths(
 				}
 			}
 			
-			/*
-			 *	The appearance of any staff in this obj cuts off any accumulated space
-			 * from being usable for following objs on that staff.
-			 */
+			/* The appearance of any staff in this obj cuts off any accumulated space
+			   from being usable for following objs on that staff. */
+			
 			for (s = 1; s<=doc->nstaves; s++)
 				if (staffUsed[s]) fAvailSp[s] = 0;
 		}
@@ -643,7 +641,8 @@ static void ConsiderIPWidths(
 /* --------------------------------------------------------------- ConsiderLedgerLines -- */
 
 /* When consecutive notes/chords on a staff both have ledger lines above the staff or
-both have ledger lines below the staff, add space to keep the ledger lines apart. */
+both have ledger lines below the staff, consider adding space to keep the ledger lines
+apart. */
 
 static void ConsiderLedgerLines(
 				register Document *doc,
@@ -653,14 +652,16 @@ static void ConsiderLedgerLines(
 				)
 {
 	short v, k, stf;
-	LINK pL, aNoteL;
+	LINK syncL, aNoteL;
 	CONTEXT context[MAXSTAVES+1];
-	Boolean hasLAbove, hasLBelow, bothLAbove, bothLBelow;
+	Boolean hasLAbove, hasLBelow, bothLAbove, bothLBelow, haveAcc;
 	Boolean hasLedgersAbove[MAX_MEASNODES][MAXSTAVES+1],
 			hasLedgersBelow[MAX_MEASNODES][MAXSTAVES+1];
 	
 	/* Fill tables saying for each staff which Syncs have ledger lines above and which
-	   have them below. */
+	   have them below. Exception: if any note in a Sync has an accidental, there will
+	   automatically be enough room for happy ledger lines, so pretend there are no
+	   ledger lines. */
 
 	for (k = 0; k<=nLast; k++) {
 		if (!SyncTYPE(spaceTimeInfo[k].link)) continue;
@@ -668,13 +669,20 @@ static void ConsiderLedgerLines(
 			hasLedgersAbove[k][stf] = False;
 			hasLedgersBelow[k][stf] = False;
 		}
-		pL = spaceTimeInfo[k].link;
-		GetAllContexts(doc, context, pL);
+		syncL = spaceTimeInfo[k].link;
+		aNoteL = FirstSubLINK(syncL);
+		haveAcc = False;
+		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+			if (NoteACC(aNoteL)!=0) { haveAcc = True; break; }
+		}
+		if (haveAcc) continue;
+		
+		GetAllContexts(doc, context, syncL);
 		for (v = 1; v<=MAXVOICES; v++) {
-			aNoteL = FindMainOrOnlyNote(pL, v);
+			aNoteL = FindMainOrOnlyNote(syncL, v);
 			if (aNoteL) {
 				stf = NoteSTAFF(aNoteL);
-				NCHasLedgers(pL, aNoteL, &context[stf], &hasLAbove, &hasLBelow);
+				NCHasLedgers(syncL, aNoteL, &context[stf], &hasLAbove, &hasLBelow);
 				if (hasLAbove) hasLedgersAbove[k][stf] = True;
 				if (hasLBelow) hasLedgersBelow[k][stf] = True;
 			}
@@ -773,7 +781,7 @@ static void ConsiderWidths(
 	}
 #endif
 	
-	ConsiderLedgerLines(doc, nLast, spaceTimeInfo, fSpBefore);
+	if (AVOID_LEDGER_COLLISION) ConsiderLedgerLines(doc, nLast, spaceTimeInfo, fSpBefore);
 	
 	/*	Convert distances between J_IT symbols to Fine STDIST positions. */
 	
