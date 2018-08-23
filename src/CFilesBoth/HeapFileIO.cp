@@ -998,15 +998,24 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 		const char *ps;
 		GetFPos(refNum, &position);
 		ps = NameHeapType(heapIndex, False);
-		LogPrintf(LOG_DEBUG, "RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
-						heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type, tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
+		LogPrintf(LOG_DEBUG, "ReadHeapHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
+				heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type,
+				tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
 	}
 
-	if (myHeap->type!=tempHeap.type)
-		{ OpenError(True, refNum, HDR_TYPE_ERR, heapIndex); return HDR_TYPE_ERR; }
+	if (myHeap->type!=tempHeap.type) {
+		LogPrintf(LOG_ERR, "Header for heap %d type is %d, but expected type %d (ReadHeapHdr)\n",
+			heapIndex, tempHeap.type, myHeap->type);
+		OpenError(True, refNum, HDR_TYPE_ERR, heapIndex);
+		return HDR_TYPE_ERR;
+	}
 		
-	if (myHeap->objSize!=tempHeap.objSize)
-		{ OpenError(True, refNum, HDR_SIZE_ERR, heapIndex); return HDR_SIZE_ERR; }
+	if (myHeap->objSize!=tempHeap.objSize) {
+		LogPrintf(LOG_ERR, "Header for heap %d objSize is %d, but expected objSize %d (ReadHeapHdr)\n",
+			heapIndex, tempHeap.objSize, myHeap->objSize);
+		OpenError(True, refNum, HDR_SIZE_ERR, heapIndex);
+		return HDR_SIZE_ERR;
+	}
 	
 	return 0;
 }

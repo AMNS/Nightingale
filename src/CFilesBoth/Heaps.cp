@@ -124,6 +124,7 @@ Boolean InitAllHeaps(Document *doc)
 	{
 		short i; HEAP *hp;
 		
+LogPrintf(LOG_DEBUG, "InitAllHeaps: sizeof(AGRAPHIC)=%ld\n", sizeof(AGRAPHIC));
 		/* For each heap in the document's heap array... */
 		
 		for (hp=doc->Heap,i=FIRSTtype; i<LASTtype; i++,hp++) {

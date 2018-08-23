@@ -94,7 +94,9 @@ Boolean InitGPopUp(
 	p->numItems = chgdP->numChars;		FIX_END(p->numItems);
 	p->numColumns = chgdP->numColumns;
 	p->fontSize = chgdP->fontSize;		FIX_END(p->fontSize);
-	p->itemChars = (char *)NewPtr((Size)p->numItems);
+	//p->itemChars = (char *)NewPtr((Size)p->numItems);
+LogPrintf(LOG_DEBUG, "InitGPopUp: numItems=%d numColumns=%d fontSize=%d\n", p->numItems,
+p->numColumns, p->fontSize);
 //	if (p->itemChars==NULL) goto broken;    // -ls
     if (p->itemChars==NULL) {
         ReleaseResource(resH);
@@ -107,6 +109,7 @@ Boolean InitGPopUp(
 
 	for (i=0; i<p->numItems; i++)
 		p->itemChars[i] = itemChars[i];
+//LogPrintf(LOG_DEBUG, "InitGPopUp: itemChars[]=%c%c%c\n", p->itemChars[0], ??????????
 	
 	/* Get popup font number and characteristics */
 	FMFontFamily fff = FMGetFontFamilyFromName(chgdP->fontName);

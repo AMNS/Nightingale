@@ -1,4 +1,6 @@
-/* NMiscTypes.h (formerly applicationTypes.h) for Nightingale */
+/* NMiscTypes.h (formerly applicationTypes.h) for Nightingale: declarations for the
+Document and headers that are part of it, plus Configuration and other Preference info
+and a few other things. */
 
 // MAS
 #include <CoreMIDI/MIDIServices.h>		/* for MIDIUniqueID */
@@ -7,7 +9,7 @@
 // MAS we want to /always/ use mac68k alignment
 #pragma options align=mac68k
 
-/* DOCUMENTHEADER is generic: it contains fields appropriate for any program that
+/* DOCUMENTHEADER is generic: it contains fields appropriate for any program that displays
 displays pages of documents. */
 
 #define DOCUMENTHEADER	\
@@ -38,7 +40,228 @@ typedef struct {
 } DOCUMENTHDR, *PDOCUMENTHDR;
 
 
-/* The <Document> struct includes a DOCUMENTHEADER, a set of Heaps, and a
+typedef struct {
+	short	fontID;					/* font ID number for TextFont */
+	unsigned char fontName[32]; 	/* font name: Pascal string */
+} FONTITEM;
+
+
+#define NIGHTSCOREHEADER																		\
+	LINK 		headL,				/* links to header and tail objects */						\
+				tailL,																			\
+				selStartL,			/* currently selected range. */								\
+				selEndL;			/*		Also see the <selStaff> field. */					\
+																								\
+	short		nstaves,			/* number of staves in a system */							\
+				nsystems;			/* number of systems in score */							\
+	unsigned char comment[MAX_COMMENT_LEN+1]; /* User comment on score */						\
+	char		feedback:1;			/* True if we want feedback on note insert */				\
+	char		dontSendPatches:1; /* 0 = when playing, send patch changes for channels */		\
+	char		saved:1;			/* True if score has been saved */							\
+	char		named:1;			/* True if file has been named */							\
+	char 		used:1;				/* True if score contains any nonstructural info */			\
+	char		transposed:1;		/* True if transposed score, else C score */				\
+	char		lyricText:1;		/* (no longer used) True if last text entered was lyric */	\
+	char		polyTimbral:1;		/* True for one part per MIDI channel */					\
+	Byte		currentPage;		/* (no longer used) */										\
+	short		spacePercent,		/* Percentage of normal horizontal spacing used */			\
+				srastral,			/* Standard staff size rastral no. */						\
+				altsrastral,		/* (unused) Alternate staff size rastral no. */				\
+				tempo,				/* playback speed in beats per minute */					\
+				channel,			/* Basic MIDI channel number */								\
+				velocity;			/* global playback velocity offset */						\
+	STRINGOFFSET headerStrOffset;	/* index returned by String Manager */						\
+	STRINGOFFSET footerStrOffset;	/* index returned by String Manager */						\
+	char		topPGN:1;			/* True=page numbers at top of page, else bottom */			\
+	char		hPosPGN:3;			/* 1=page numbers at left, 2=center, 3=at right */			\
+	char		alternatePGN:1;		/* True=page numbers alternately left and right */			\
+	char		useHeaderFooter:1;	/* True=use header/footer text, not simple pagenum */		\
+	char		fillerPGN:2;		/* unused */												\
+	SignedByte	fillerMB;			/* unused */												\
+	DDIST		filler2,			/* unused */												\
+				dIndentOther;		/* Amount to indent Systems other than first */				\
+	SignedByte	firstNames,			/* Code for drawing part names: see enum above */			\
+				otherNames,			/* Code for drawing part names: see enum above */			\
+				lastGlobalFont,		/* Header index of most recent text style used */			\
+				xMNOffset,			/* Horiz. pos. offset for meas. nos. (half-spaces) */		\
+				yMNOffset,			/* Vert. pos. offset for meas. nos. (half-spaces) */		\
+				xSysMNOffset;		/* Horiz. pos. offset for meas.nos.if 1st meas.in system */ \
+	short		aboveMN:1,			/* True=measure numbers above staff, else below */			\
+				sysFirstMN:1,		/* True=indent 1st meas. of system by xMNOffset */			\
+				startMNPrint1:1,	/* True=First meas. number to print is 1, else 2 */			\
+				firstMNNumber:13;	/* Number of first measure */								\
+	LINK		masterHeadL,		/* Head of Master Page object list */						\
+				masterTailL;		/* Tail of Master Page object list */						\
+	SignedByte	filler1,																		\
+				nFontRecords;		/* Always 15 for now */										\
+	/* Fifteen identical TEXTSTYLE records. Fontnames are Pascal strings. */					\
+																								\
+	unsigned char fontNameMN[32];	/* MEASURE NO. FONT: default name, size and style */		\
+	unsigned short	fillerMN:5;																	\
+	unsigned short	lyricMN:1;		/* True if spacing like lyric (ignored) */					\
+	unsigned short	enclosureMN:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSizeMN:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSizeMN:7;	/* if relFSizeMN, small..large code, else point size */		\
+	short			fontStyleMN;																\
+																								\
+	unsigned char fontNamePN[32];	/* PART NAME FONT: default name, size and style */			\
+	unsigned short	fillerPN:5;																	\
+	unsigned short	lyricPN:1;		/* True if spacing like lyric (ignored) */					\
+	unsigned short	enclosurePN:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSizePN:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSizePN:7;	/* if relFSizePN, small..large code, else point size */		\
+	short			fontStylePN;																\
+																								\
+	unsigned char fontNameRM[32];	/* REHEARSAL MARK FONT: default name, size and style */		\
+	unsigned short	fillerRM:5;																	\
+	unsigned short	lyricRM:1;		/* True if spacing like lyric (ignored) */					\
+	unsigned short	enclosureRM:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSizeRM:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSizeRM:7;	/* if relFSizeRM, small..large code, else point size */		\
+	short			fontStyleRM;																\
+																								\
+	unsigned char fontName1[32];	/* REGULAR FONT 1: default name, size and style */			\
+	unsigned short	fillerR1:5;																	\
+	unsigned short	lyric1:1;		/* True if spacing like lyric	*/							\
+	unsigned short	enclosure1:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSize1:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSize1:7;	/* if relFSize1, small..large code, else point size */		\
+	short			fontStyle1;																	\
+																								\
+	unsigned char fontName2[32];	/* REGULAR FONT 2: default name, size and style */			\
+	unsigned short	fillerR2:5;																	\
+	unsigned short	lyric2:1;		/* True if spacing like lyric	*/							\
+	unsigned short	enclosure2:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSize2:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSize2:7;	/* if relFSize2, small..large code, else point size */		\
+	short			fontStyle2;																	\
+																								\
+	unsigned char fontName3[32];	/* REGULAR FONT 3: default name, size and style */			\
+	unsigned short	fillerR3:5;																	\
+	unsigned short	lyric3:1;		/* True if spacing like lyric	*/							\
+	unsigned short	enclosure3:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSize3:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSize3:7;	/* if relFSize3, small..large code, else point size */		\
+	short			fontStyle3;																	\
+																								\
+	unsigned char fontName4[32];	/* REGULAR FONT 4: default name, size and style */			\
+	unsigned short	fillerR4:5;																	\
+	unsigned short	lyric4:1;		/* True if spacing like lyric	*/							\
+	unsigned short	enclosure4:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSize4:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSize4:7;	/* if relFSizeR4, small..large code, else point size */		\
+	short			fontStyle4;																	\
+																								\
+	unsigned char fontNameTM[32];	/* TEMPO MARK FONT: default name, size and style */			\
+	unsigned short	fillerTM:5;																	\
+	unsigned short	lyricTM:1;		/* True if spacing like lyric (ignored) */					\
+	unsigned short	enclosureTM:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSizeTM:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSizeTM:7;	/* if relFSizeTM, small..large code, else point size */		\
+	short			fontStyleTM;																\
+																								\
+	unsigned char fontNameCS[32];	/* CHORD SYMBOL FONT: default name, size and style */		\
+	unsigned short	fillerCS:5;																	\
+	unsigned short	lyricCS:1;		/* True if spacing like lyric (ignored) */					\
+	unsigned short	enclosureCS:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSizeCS:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSizeCS:7;	/* if relFSizeCS, small..large code, else point size */		\
+	short			fontStyleCS;																\
+																								\
+	unsigned char fontNamePG[32];	/* PAGE HEADER/FOOTER/NO.FONT: default name, size and style */	\
+	unsigned short	fillerPG:5;																	\
+	unsigned short	lyricPG:1;		/* True if spacing like lyric (ignored) */					\
+	unsigned short	enclosurePG:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSizePG:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSizePG:7;	/* if relFSizePG, small..large code, else point size */		\
+	short			fontStylePG;																\
+																								\
+	unsigned char fontName5[32];	/* REGULAR FONT 5: default name, size and style */			\
+	unsigned short	fillerR5:5;																	\
+	unsigned short	lyric5:1;		/* True if spacing like lyric (ignored) */					\
+	unsigned short	enclosure5:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSize5:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSize5:7;	/* if relFSize5, small..large code, else point size */		\
+	short			fontStyle5;																	\
+																								\
+	unsigned char fontName6[32];	/* REGULAR FONT 6: default name, size and style */			\
+	unsigned short	fillerR6:5;																	\
+	unsigned short	lyric6:1;		/* True if spacing like lyric	*/							\
+	unsigned short	enclosure6:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSize6:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSize6:7;	/* if relFSizeR6, small..large code, else point size */		\
+	short			fontStyle6;																	\
+																								\
+	unsigned char fontName7[32];	/* REGULAR FONT 7: default name, size and style */			\
+	unsigned short	fillerR7:5;																	\
+	unsigned short	lyric7:1;		/* True if spacing like lyric	*/							\
+	unsigned short	enclosure7:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSize7:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSize7:7;	/* if relFSizeR7, small..large code, else point size */		\
+	short			fontStyle7;																	\
+																								\
+	unsigned char fontName8[32];	/* REGULAR FONT 8: default name, size and style */			\
+	unsigned short	fillerR8:5;																	\
+	unsigned short	lyric8:1;		/* True if spacing like lyric	*/							\
+	unsigned short	enclosure8:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSize8:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSize8:7;	/* if relFSizeR8, small..large code, else point size */		\
+	short			fontStyle8;																	\
+																								\
+	unsigned char fontName9[32];	/* REGULAR FONT 9: default name, size and style */			\
+	unsigned short	fillerR9:5;																	\
+	unsigned short	lyric9:1;		/* True if spacing like lyric	*/							\
+	unsigned short	enclosure9:2;	/* Enclosure: whether box, circular or none */				\
+	unsigned short	relFSize9:1;	/* True if size is relative to staff size */				\
+	unsigned short	fontSize9:7;	/* if relFSizeR9, small..large code, else point size */		\
+	short			fontStyle9;																	\
+																								\
+	/* End of TEXTSTYLE records */																\
+																								\
+	short			nfontsUsed;			/* no. of entries in fontTable */						\
+	FONTITEM		fontTable[MAX_SCOREFONTS]; /* To convert stored to system font nos. */		\
+																								\
+	unsigned char musFontName[32]; /* name of this document's music font */						\
+																								\
+	short			magnify,			/* Current reduce/enlarge magnification, 0=none */		\
+					selStaff;			/* If sel. is empty, insertion pt's staff, else undefined */ \
+	SignedByte		otherMNStaff,			/* (not yet used) staff no. for meas. nos. besides stf 1 */ \
+					numberMeas;			/* Show measure nos.: -=every system, 0=never, n=every nth meas. */ \
+	short			currentSystem,		/* systemNum of system which contains caret or, if non-empty sel, selStartL (but currently not defined) */	\
+					spaceTable,			/* ID of 'SPTB' resource having spacing table to use */ \
+					htight,				/* Percent tightness */									\
+					fillerInt,			/* unused */											\
+					lookVoice,			/* Voice to look at, or -1 for all voices */			\
+					fillerHP,			/* (unused) */											\
+					fillerLP,			/* (unused) */											\
+					ledgerYSp,			/* Extra space above/below staff for max. ledger lines (half-spaces) */ \
+					deflamTime;			/* Maximum time between consec. attacks in a chord (millsec.) */ \
+																								\
+	Boolean			autoRespace,		/* Respace on symbol insert, or leave things alone? */	\
+					insertMode,			/* Graphic insertion logic (else temporal)? */			\
+					beamRests,			/* In beam handling, treat rests like notes? */			\
+					pianoroll,			/* Display everything in pianoroll, not CMN, form? */	\
+					showSyncs,			/* Show (with InvertSymbolHilite) lines on every Sync? */	\
+					frameSystems,		/* Frame systemRects (for debugging)? */				\
+					fillerEM:4,			/* unused */											\
+					colorVoices:2,		/* 0=normal, 1=show non-dflt voices in color, 2=show all but voice 1 in color */ \
+					showInvis:1,		/* Display invisible objects? */						\
+					showDurProb:1,		/* Show measures with duration/time sig. problems? */	\
+					recordFlats;		/* True if black-key notes recorded should use flats */ \
+																								\
+	long			spaceMap[MAX_L_DUR];	/* Ideal spacing of basic (undotted, non-tuplet) durs. */ \
+	DDIST			dIndentFirst,		/* Amount to indent first System */						\
+					yBetweenSys;		/* obsolete, was vert. "dead" space btwn Systems */		\
+	VOICEINFO		voiceTab[MAXVOICES+1];	/* Descriptions of voices in use */					\
+	short			expansion[256-(MAXVOICES+1)];
+
+
+typedef struct {
+	NIGHTSCOREHEADER
+} SCOREHEADER, *PSCOREHEADER;
+
+
+/* The <Document> struct includes a DOCUMENTHEADER, a set of Heaps, and a 
 NIGHTSCOREHEADER, along with many other fields. Each open Document file is represented
 on the desktop by a single window with which the user edits the Document. This
 Document's window record is the first field of an extended Document struct, so that
@@ -46,17 +269,17 @@ pointers to Documents can be used anywhere a WindowPtr can.  Each Document consi
 a standard page size and margin for all pages, and between 1 and numSheets pages,
 called <sheets>.
 
-Sheets are always numbered from 0 to (numSheets-1) and are the internal form of a
-page; pages are numbered according to the user's whim.  Sheets are laid out to tile
-the space in the window, extending first horizontally and then vertically into the
-window space.  There is always a currentSheet that we're editing, and whose upper left
-corner is always (0,0) with respect to any drawing routines that draw on the sheets. 
-However, sheets are kept in an array whose upper left origin (sheetOrigin) is usually
-chosen very negative so that we can use as much of Quickdraws 16-bits space as
-possible. The coordinate system of the window is continually danced around as the
-current sheet changes, as well as during scrolling.  The bounding box of all sheets is
-used to compute the scrolling bounds.  The background region is used to paint a
-background pattern behind all sheets in the array. */
+ Sheets, the internal form of pages, are always numbered from 0 to (numSheets-1);
+ pages are numbered according to the user's whim.  Sheets are laid out to tile the space
+ in the window, extending first horizontally and then vertically into the window space. 
+ There is always a currentSheet that we're editing, and whose upper left corner is always
+ (0,0) with respect to any drawing routines that draw on the sheets. However, sheets are
+ kept in an array whose upper left origin (sheetOrigin) is usually chosen very negative
+ so that we can use as much of Quickdraws 16-bits space as possible. The coordinate
+ system of the window is continually danced around as the current sheet changes, as well
+ as during scrolling.  The bounding box of all sheets is used to compute the scrolling
+ bounds.  The background region is used to paint a background pattern behind all sheets
+ in the array. */
 
 typedef struct {
 /* These first fields don't need to be saved. */
@@ -164,25 +387,23 @@ typedef struct {
 } Document;
 
 
-/*
- * General configuration information is kept in a 'CNFG' resource, with the structure
- * given below; its size is 256 bytes.
- *
- * To add a field (assuming there's room for it):
- *
- * 1. Add its declaration just before the unused[] array below.
- * 2. Reduce the size of the unused[] array accordingly. NB: if the size is even, its
- * 	starting offset is odd: this will lead to certain C  compilers sometimes putting a
- * 	byte of padding in front of it, leading to subtle but potentially nasty problems! To
- * 	avoid this the new size being even, include or comment out (but do not remove!) the
- * 	<unusedOddByte> field, as appropriate.
- * 3. In GetConfig(), add code to initialize the new field and, if possible, to check for
- *	 illegal values.
- *
- * In comments on the struct declaration below, each field is tagged by the type of
- * information it contains, viz. "G" (Graphic), "L" (Logical), "P" (Performance), "S"
- * (System), or "U" (User interface).
- */
+/* General configuration information is kept in a 'CNFG' resource, with the structure
+ given below; its size is 256 bytes.
+ 
+ To add a field (assuming there's room for it):
+ 
+ 1. Add its declaration just before the unused[] array below.
+ 2. Reduce the size of the unused[] array accordingly. NB: if the size is even, its
+ starting offset is odd: this can lead certain C compilers to put a byte of padding
+ in front of it, leading to subtle and potentially nasty problems! To avoid this
+ the new size being even, include or comment out (but do not remove!) the
+ <unusedOddByte> field, as appropriate.
+ 3. In GetConfig(), add code to initialize the new field and, if possible, to check for
+ illegal values.
+ 
+ In comments on the struct declaration below, each field is tagged by the type of
+ information it contains, viz. "G" (Graphic), "L" (Logical), "P" (Performance), "S"
+ (System), or "U" (User interface). */
 
 typedef struct {
 	short		maxDocuments;		/* S: Size of Document table to allocate */
@@ -416,10 +637,8 @@ typedef struct {
 	SignedByte	roomToGrow[104];	/* Room for expansion: resource is 128 bytes long */
 } MIDIPreferences;
 
-/*
- * MIDI modifier information, kept in a 'MIDM' resource, with this structure. Array
- * indices are ModNR identifiers (MOD_FERMATA, etc.). New in v.4.1b6.  -JGG, 6/24/01
- */
+/* MIDI modifier information, kept in a 'MIDM' resource, with this structure. Array
+indices are ModNR identifiers (MOD_FERMATA, etc.). New in v.4.1b6.  -JGG, 6/24/01  */
 
 typedef struct {
 	short		velocityOffsets[32];	/* Velocity offset from note's value */
@@ -484,6 +703,34 @@ struct SysEnvRec {
   short               atDrvrVersNum;
   short               sysVRefNum;
 };
-typedef struct SysEnvRec			SysEnvRec;
+typedef struct SysEnvRec	SysEnvRec;
+
+
+/* ------------------------------------------------------------------------- UserPopUp -- */
+
+typedef struct {
+	Rect box, bounds, shadow, prompt;
+	short currentChoice, menuID;
+	MenuHandle menu;
+	unsigned char str[40];		/* Pascal string */
+} UserPopUp;
+
+
+/* ----------------------------------------------------------------------- SEARCHPARAM -- */
+/*	PARAMETER BLOCK FOR Search functions. If you change it, be sure to change
+InitSearchParam accordingly! */
+
+typedef struct {
+	short		id;					/* target staff number (for Staff, Measure, Sync, etc) */
+									/*	or page number (for Page) */
+	Boolean		needSelected;		/* True if we only want selected items */
+	Boolean		needInMeasure;		/* True if we only want items inMeasure */
+	Boolean		inSystem;			/* True if we want to stay within the System */
+	Boolean		optimize;			/* True if use optimized search functions (LPageSearch, etc.) */
+	short		subtype;			/* ANYSUBTYPE or code for subtype wanted */
+	short		voice;				/* target voice number (for Sync, Beamset, etc.) */
+	short		entryNum;			/* output: index of subitem found */
+	LINK		pEntry;				/* output: link to subitem found */
+} SearchParam;
 
 #pragma options align=reset

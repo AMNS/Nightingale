@@ -7,25 +7,19 @@
 #endif
 
 #ifdef NOTINVARS
-DRAWGLOBAL WindowPtr	wDetail;					/* ptr to Detail window */
-#endif
-
-DRAWGLOBAL WindowRecord	wrDetail;			/* windowrec for Detail */
-
-#ifdef NOTINVARS
 
 extern FASTFLOAT relFSizeTab[];
 
 #endif
 
-/* The following char. codes are used in DrawRest; there should be a better way...  */
+/* FIXME The following char. codes are used in DrawRest; there should be a better way...  */
 
-#define BREVEdur		221		/* unused */
+#define BREVEdur	221		/* unused */
 #define UNKNOWNdur	126		/* unused */
-#define EIGHth			228
+#define EIGHth		228
 #define SIXTEENth 	197
 #define THIRTY2nd 	168
-#define SIXTY4th 		244
+#define SIXTY4th 	244
 #define ONETWENTY8th 229			
 
 void DrawPageContent(Document *, short, Rect *, Rect *);

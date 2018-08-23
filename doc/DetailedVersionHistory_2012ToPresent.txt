@@ -2301,3 +2301,16 @@ Fixed bug: if any note in a Sync has an accidental and any note in the Sync (whe
 that note or another) has ledger lines, the minimum space we leave before the Sync
 is too large. Affects SpaceHighLevel.
 
+-------------------------------------------------------------------------------
+
+16-23 August
+
+Move typedefs and #defines for objects and subobjects to a new header, NObjectTypes.h.
+Affects NTypes.h; Nightingale_Prefix.pch.
+
+Move typedefs and #defines for NIGHTSCOREHEADER to a different header. Affects NTypes.h,
+NMiscTypes.h.
+
+Minor cleanup: change all LOG_NOTICE in DebugDisplay() to LOG_INFO, give more details
+if a file can't be opened because of heap header problems, etc. Affects Draw.h,
+NMiscTypes.h; DebugDisplay, DurationPopUp, HeapFileIO.

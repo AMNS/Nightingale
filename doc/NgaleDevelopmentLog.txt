@@ -2896,9 +2896,8 @@ Mar 12 14:11:16 DonDualG5 Ngale[53195]: info. Setting up music font 'BlueNotz-NG
 Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=&=38 yt=-1334 yb=401
 Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=?=63 yt=-990 yb=-192
 
-!! These values aren't slightly different, they're VERY different! How can that be??
-Actually, they're not so different; the Intel (MBAir) values are just larger by 255!
-Could these different values be present in the 'BBX#'?
+!! The Intel (MBAir) values are all larger by 255 or 256! Could these different values be
+present in the 'BBX#'?
 
 Compare the values for char. code 38 & 63 in BBX# 129 (Briard) in the latest
 NightingalePPC.app and NightingaleIntel.app => they're exactly the same. Maybe I'm
@@ -3059,7 +3058,9 @@ Bit fields > 7 bits declared in NMiscTypes.h:
 NB: It's not obvious even "unused" fields of over 8 bits won't complicate things, since
 they might result in other fields in the same word getting scrambled across bytes :-( .
 
-Anything declared elsewhere that's written to Ngale files?? TBContinued.
+Anything declared elsewhere that's written to Ngale files?? TBContinued, but the path
+of least resistance is very likely the simple version of the plan outlined above, namely
+format N106 will use no bit fields at all.
 
 -------------------------------------------------------------------------------
 
@@ -3090,3 +3091,49 @@ space between two consecutive notes/chords only if _both_ have ledger lines, and
 same side of the staff!
 
 Write ConsiderLedgerLines(), called from ConsiderWidths(), called from Respace1Bar()...
+
+-------------------------------------------------------------------------------
+
+17 - 18 August
+
+Back to problems on Intel unrelated to opening/saving files. Summary of known problems
+(rev. from 18 March):
+
+1. On launch, the initial Open File dialog is sometimes much too tall. I say "is
+sometimes", but I haven't seen this at all recently.
+
+2. On launch, the tool palette isn't filled in, though it works perfectly in terms of
+selecting tools and hiliting their squares. Nothing I've tried -- resizing, etc. -- gets
+Ngale to fill it in.
+
+3. The three pop-up menu palettes all have similar problems drawing their contents.
+Launch, New Nightingale Score, insert a note, Set Duration, click on the note => the
+palette pops up, but only odd-numbered squares are filled in. See 22-25 Feb. above for
+details.
+
+-------------------------------------------------------------------------------
+
+22 - 23 August
+
+Moving some of NTypes.h into a new header, NObjTypes.h, seems to result in sizeof(AGRAPHIC)
+being 8 instead of 6! -- which makes old files unreadable. How could that cause the size
+to change??
+
+Copies of the bad files are NTypesQ1.h and NObjTypesQ1.h of 19 Aug., ca. 6 PM.
+
+Starting over with NTypesOK.h, move into a new NObjTypes.h:
+	UserPopUp
+	OBJECTHEADER, SUBOBJHEADER, EXTOBJHEADER
+	HEADER, PHEADER
+	TAIL => DYNAMIC
+	enum for dynamics
+	AMODNR => OBJDATA
+
+But wait! NTypes.h is enclosed in
+	#pragma options align=mac68k
+	...
+	#pragma options align=reset
+
+So is NMiscTypes.h and many other .h's; but NObjTypes.h isn't!! Add to NObjTypes.h =>
+all OK.
+
