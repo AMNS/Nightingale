@@ -60,6 +60,7 @@ static void	VMShowSyncs(void);
 static void	VMShowInvisibles(void);
 static void	VMColorVoices(void);
 static void	VMPianoRoll(void);
+static void	VMToollPalette(void);
 static void	VMActivate(short);
 
 static void	PLRecord(Document *doc, Boolean merge);
@@ -911,8 +912,6 @@ void DoGroupsMenu(short choice)
 void DoViewMenu(short choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
-		short palIndex;
-		Rect screen, pal, docRect;
 		
 		switch (choice) {
 			case VM_GoTo:
@@ -965,34 +964,7 @@ void DoViewMenu(short choice)
 				ShowClipDocument();
 				break;
 			case VM_ToollPalette:
-				palIndex = TOOL_PALETTE;
-				GetWindowPortBounds(palettes[palIndex], &pal);
-				OffsetRect(&pal,-pal.left, -pal.right);
-				if (TopDocument) {
-				
-					/* Initial position is the offset in config.toolsPosition from the
-					   upper left corner of the document's window, but not offscreen. */
-					 					 
-					//docRect = (*((WindowPeek)TopDocument)->contRgn)->rgnBBox;
-					GetWindowRgnBounds(TopDocument, kWindowContentRgn, &docRect);					
-					docRect.right = docRect.left + pal.right;
-					docRect.bottom = docRect.top + pal.bottom;
-					GetMyScreen(&docRect, &screen);
-					OffsetRect(&docRect, config.toolsPosition.h, config.toolsPosition.v);
-					PullInsideRect(&docRect, &screen, 2);
-LogPrintf(LOG_DEBUG, "DoViewMenu/VM_ToollPalette: docRect.top=%d\n", docRect.top);  // FIX ISSUE 67
-				}
-				 else {
-					/* Initial position is upper left corner of main screen */
-					GetQDScreenBitsBounds(&docRect);
-				 	InsetRect(&docRect, 10, GetMBarHeight()+16);
-LogPrintf(LOG_DEBUG, "DoViewMenu/VM_ToollPalette: docRect.top=%d GetMBarHeight()=%d\n",
-docRect.top, GetMBarHeight());														// FIX ISSUE 67
-				}
-				(*paletteGlobals[palIndex])->position.h = docRect.left;
-				(*paletteGlobals[palIndex])->position.v = docRect.top;
-				MovePalette(palettes[palIndex],(*paletteGlobals[palIndex])->position);
-				palettesVisible[TOOL_PALETTE] = True;
+				VMToollPalette();
 				break;
 			case VM_ShowSearchPattern:
 				//Do nothing; Nightingale Search has been temporarily removed
@@ -1988,6 +1960,41 @@ static void VMPianoRoll()
 		CheckMenuItem(viewMenu, VM_PianoRoll, doc->pianoroll);
 		InvalWindow(doc);
 	}
+}
+
+
+static void VMToollPalette()
+{
+	short palIndex;
+	Rect screen, pal, docRect;
+
+	palIndex = TOOL_PALETTE;
+	GetWindowPortBounds(palettes[palIndex], &pal);
+	OffsetRect(&pal, -pal.left, -pal.right);
+	if (TopDocument) {
+		/* Initial position is the offset in config.toolsPosition from the
+		   upper left corner of the document's window, but not offscreen. */
+							 
+		//docRect = (*((WindowPeek)TopDocument)->contRgn)->rgnBBox;
+		GetWindowRgnBounds(TopDocument, kWindowContentRgn, &docRect);					
+		docRect.right = docRect.left + pal.right;
+		docRect.bottom = docRect.top + pal.bottom;
+		GetMyScreen(&docRect, &screen);
+		OffsetRect(&docRect, config.toolsPosition.h, config.toolsPosition.v);
+		PullInsideRect(&docRect, &screen, 2);
+LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d\n", docRect.top);  // FIX ISSUE 67
+	}
+	else {
+		/* Initial position is upper left corner of main screen */
+		GetQDScreenBitsBounds(&docRect);
+		InsetRect(&docRect, 10, GetMBarHeight()+16);
+LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d GetMBarHeight()=%d\n", docRect.top,
+GetMBarHeight());														// FIX ISSUE 67
+	}
+	(*paletteGlobals[palIndex])->position.h = docRect.left;
+	(*paletteGlobals[palIndex])->position.v = docRect.top;
+	MovePalette(palettes[palIndex],(*paletteGlobals[palIndex])->position);
+	palettesVisible[TOOL_PALETTE] = True;
 }
 
 

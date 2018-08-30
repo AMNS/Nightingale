@@ -2314,3 +2314,14 @@ NMiscTypes.h.
 Minor cleanup: change all LOG_NOTICE in DebugDisplay() to LOG_INFO, give more details
 if a file can't be opened because of heap header problems, etc. Affects Draw.h,
 NMiscTypes.h; DebugDisplay, DurationPopUp, HeapFileIO.
+
+-------------------------------------------------------------------------------
+
+25-30 August
+
+Fixed bug?? (Issue #67): Initial position of tool palette is sometimes at very top of
+screen, underneath the menu bar. Affects Initialize. 
+
+Minor cleanup: Pull VMToollPalette() out of DoViewMenu(), move a struct to another .h,
+etc. Affects ApplicData.h, NMiscTypes.h, NTypes.h; Event, Heaps, Initialize, Menu,
+ToolPalette, Windows.

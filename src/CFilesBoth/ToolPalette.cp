@@ -46,33 +46,31 @@ static unsigned char shiftKeyPad[] = {
 	'('			/* 9 */
 };
 
-/* TranslatePalChar lets us modify Nightingale's standard mapping of character
- * codes to palette tools without having to mess around with the symtable or grid
- * globals. Only DoToolKeyDown need call this function.
- *
- * TranslatePalChar looks at a 'PLMP' resource for a mapping of the standard tool
- * chars to new ones. If it finds an entry that matches theChar, it replaces theChar
- * with that entry. First it translates chars produced on the numeric keypad with
- * the shift key down to the chars that shifted numbers on the main keyboard produce.
- * We do this to let numeric keypad users generate rests with shift-number combinations.
- * (NB: there are likely to be some international compatibility problems here.)
- *
- * Further, TranslatePalChar lets us set up a key (on the main keyboard and/or on
- * the numeric keypad) that toggles the duration keys to mean either rests or notes.
- * (This is the way HB Engraver behaved.) This would be useful for someone who
- * does most of their note entry by Step Recording. They could map numbers on the
- * keypad to durations and then use the zero on the keypad to toggle between
- * notes and rests.
- * NB: When this feature is active, clicking in the palette should affect the toggle
- * state. (i.e., toggle set for rests; user clicks on note; toggle should be set to
- * notes.) Also, if the currently selected palette item is a note, and the user hits
- * a toggle key, the corresponding rest should be selected in palette.
- *
- * Returns False if error getting resource; else returns True, even if no match
- * found. Maybe we shouldn't freak out if we can't find the resource, though probably
- * we should just ship a standard identity mapping. This 'PLMP' should probably go
- * into the setup file, and NightCustomizer should let the user edit it safely.
- */
+/* TranslatePalChar lets us modify Nightingale's standard mapping of character codes
+to palette tools without having to mess around with the symtable or grid globals. Only
+DoToolKeyDown need call this function.
+
+TranslatePalChar looks at a 'PLMP' resource for a mapping of the standard tool chars
+to new ones. If it finds an entry that matches theChar, it replaces theChar with that
+entry. First it translates chars produced on the numeric keypad with the shift key
+down to the chars that shifted numbers on the main keyboard produce. We do this to let
+numeric keypad users generate rests with shift-number combinations. (NB: there are
+likely to be some international compatibility problems here.)
+
+Further, TranslatePalChar lets us set up a key (on the main keyboard and/or on the
+numeric keypad) that toggles the duration keys to mean either rests or notes. (This is
+the way HB Engraver behaved.) This would be useful for someone who does most of their
+note entry by Step Recording. They could map numbers on the keypad to durations and
+then use the zero on the keypad to toggle between notes and rests. NB: When this
+feature is active, clicking in the palette should affect the toggle state. (i.e.,
+toggle set for rests; user clicks on note; toggle should be set to notes.) Also, if
+the currently selected palette item is a note, and the user hits a toggle key, the
+corresponding rest should be selected in palette.
+
+Returns False if error getting resource; else returns True, even if no match found.
+Maybe we shouldn't freak out if we can't find the resource, though probably we should
+just ship a standard identity mapping. This 'PLMP' should probably go into the setup
+file, and NightCustomizer should let the user edit it safely. */
 
 Boolean TranslatePalChar(
 				short *theChar,					/* character code */
@@ -143,12 +141,13 @@ Boolean TranslatePalChar(
 		}
 		if ((ch == kpadTogChar && IsOnKeyPad(ch)) ||
 			 (ch == mainTogChar && !IsOnKeyPad(ch))) {
-			note = !note;			
+			note = !note;
+						
 			/* If current palette tool is a note or rest, must toggle the tool.
-			 * Assigning palChar to theChar forces code below to change notes
-			 * into rests or vice versa. We want to skip the 'PLMP' mapping below,
-			 * since we're already working with Ngale's internal duration codes.
-			 */
+			   Assigning palChar to theChar forces code below to change notes into
+			   rests or vice versa. We want to skip the 'PLMP' mapping below, since
+			   we're already working with Ngale's internal duration codes. */
+			   
 			if (IsDurKey((unsigned char)palChar, &isNote)) {
 				ch = (unsigned char)palChar;
 				goto skipMapping;
@@ -286,14 +285,16 @@ portRect.top, portRect.left, portRect.bottom, portRect.right);
 	
 	/* Erase area to right and below frame, in case window was just shrunk */
 	
-	tmp = *r; tmp.left = tmp.right - (TOOLS_MARGIN-1);
+	tmp = *r;
+	tmp.left = tmp.right - (TOOLS_MARGIN-1);
 	EraseRect(&tmp);
-	tmp = *r; tmp.top = tmp.bottom - (TOOLS_MARGIN-1);
+	tmp = *r;
+	tmp.top = tmp.bottom - (TOOLS_MARGIN-1);
 	EraseRect(&tmp);
 	
 	/* Place a poor person's grow box in lower right only when not in the menu bar */
 	
-	if (notMenu) {
+	if (notInMenu) {
 		tmp = *r;
 		tmp.left = tmp.right - (TOOLS_MARGIN+1);
 		tmp.top = tmp.bottom - (TOOLS_MARGIN+1);
@@ -424,9 +425,7 @@ void DoToolContent(Point pt, short modifiers)
 	SetPort(oldPort);
 }
 
-/*
- *	Given two items from the Tool Palette, swap them in their respective positions.
- */
+/* Given two items from the Tool Palette, swap them in their respective positions. */
 
 void SwapTools(short firstItem, short lastItem)
 {

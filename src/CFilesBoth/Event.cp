@@ -570,11 +570,11 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 					}
 				break;
 			case PALETTEKIND:
-				notMenu = True;
+				notInMenu = True;
 				index = GetWRefCon(w);
 				if (index == TOOL_PALETTE) DoToolContent(pt, modifiers);
 				if (index == CLAVIER_PALETTE) SysBeep(60);
-				notMenu = False;
+				notInMenu = False;
 				break;
 					
 			}

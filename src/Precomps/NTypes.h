@@ -395,62 +395,6 @@ typedef struct {
 	unsigned char	fontName[32];	/* font name (Pascal string) */	
 } FONTUSEDITEM;
 
-
-/* ---------------------------------------------------------- MIDI-file-handling stuff -- */
-
-/* Information on a MIDI file track */
-
-typedef struct {
-	Byte			*pChunk;		/* Contents of the track */
-	Word			len;			/* Track length */
-	Word			loc;			/* Current position in the track (offset into *pChunk) */
-	DoubleWord		now;			/* Time at position <loc> in the track */
-	Boolean			okay;			/* True=no problems parsing the track */
-} TRACKINFO;
-
-
-typedef struct MEASINFO {
-	short			count;
-	short			numerator;
-	short			denominator;
-} MEASINFO;
-
-typedef struct TEMPOINFO {
-	long			tStamp;			/* in units specified by <timeBase> in file header */
-	unsigned long 	microsecPQ;
-} TEMPOINFO;
-
-typedef struct CTRLINFO {
-	long			tStamp;			/* in units specified by <timeBase> in file header */
-	Byte			channel;
-	Byte 			ctrlNum;
-	Byte 			ctrlVal;
-	short			track;
-} CTRLINFO;
-
-/* ----------------------------------------------------------- Document printing stuff -- */
-
-//typedef struct Document *DocumentPtr;
-//typedef OSStatus (*NDocDrawPageProc)(int doc, UInt32 pageNum);
-//typedef void (*DebugPrintFunc)(void *data, short width, short precision, short alternate);
-
-//typedef CALLBACK_API(OSStatus, NDocDrawPageProc)
-//							(Document 	*doc,
-//							UInt32		pageNum);
-
-//typedef struct DocPrintInfo *DocPrintInfoPtr;
-/* Document Print info record */
-
-typedef struct DocPrintInfo {
-	PMPrintSession 	docPrintSession;
-	PMPageFormat		docPageFormat;
-	PMPrintSettings	docPrintSettings;
-	
-	PMSheetDoneUPP	docPageSetupDoneUPP;
-	PMSheetDoneUPP	docPrintDialogDoneUPP;
-//	NDocDrawPageProc	docDrawPageProc;
-} DocPrintInfo, *DocPrintInfoPtr;
-
 #pragma options align=reset
 
 #endif /* TypesIncluded */

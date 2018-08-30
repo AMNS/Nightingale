@@ -6,7 +6,7 @@ GLOBAL Boolean		closingAll;			/* True when closing all windows */
 GLOBAL Boolean		quitting;			/* True when closing down */
 GLOBAL short		oldEventMask;		/* Event mask state to restore */
 GLOBAL Boolean 		alreadyDrawn;		/* Don't include controls in next update */
-GLOBAL Boolean		notMenu;			/* Is operation in a torn off window or not */
+GLOBAL Boolean		notInMenu;			/* Is operation in a torn off window or not */
 GLOBAL Rect			*updateRectTable;	/* Table of nUpdateRects rectangles to be redrawn */
 GLOBAL short		nUpdateRects;		/* Size of above, or -1 for standard update region */
 GLOBAL Boolean		holdCursor;			/* Don't reset arrow while this is True */

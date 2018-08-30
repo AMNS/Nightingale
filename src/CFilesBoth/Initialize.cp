@@ -1353,6 +1353,13 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		windowRect->bottom += 2*TOOLS_MARGIN;
 		toolsFrame = *windowRect;
 		InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);
+
+		/* Avoid Issue #67, where the tool palette's initial position is sometimes at
+		   the very top of screen, underneath the menu bar. FIXME: This is certainly not
+		   the right fix. The problem occurs randomly on some computers, consistently
+		   on others, so it's probably an uninitialized variable. */
+		
+		OffsetRect(windowRect, 0, 40);
 		
 		/* Initialize the PaletteGlobals structure */
 		
@@ -1389,7 +1396,7 @@ LogPixMapInfo("SetupToolPalette2", portPixMap, 1000);
 }
 
 
-/* Initialize everything about the floating windows, a.k.a. palettes. NB: as of v. 5.7,
+/* Initialize everything about the floating windows, a.k.a. palettes. NB: as of v. 5.8b8,
 the tool palette is our only floating window. We've kept vestigal code for a help palette
 (which seems unlikely ever to be used) and for a clavier palette (which might be useful
 someday). */

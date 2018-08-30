@@ -3137,3 +3137,13 @@ But wait! NTypes.h is enclosed in
 So is NMiscTypes.h and many other .h's; but NObjTypes.h isn't!! Add to NObjTypes.h =>
 all OK.
 
+-------------------------------------------------------------------------------
+
+25 - 30 August
+
+On Issue 67 (initial position of tool palette is sometimes at very top of screen,
+underneath the menu bar): Where is the initial position set? Where is it even made
+visible? NInitFloatingWindows() creates the window & makes it invisible, with a windowRect
+set in SetupPaletteRects(). Adjust the position there => seems to move it down, as desired,
+so this should avoid the problem -- though it's certainly not the correct fix.
+
