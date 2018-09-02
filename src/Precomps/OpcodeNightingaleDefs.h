@@ -1,4 +1,4 @@
-/* rts:30 Nightingale Source:NewNightingaleDefs.h
+/* OpcodeNightingaleDefs.h
 
 89/07/04 12:07:33	created by Ray Spears, Opcode Systems
 
@@ -22,7 +22,7 @@ struct TSig {
 	Byte beat;
 };
 
-#define noError 0		/* ??Now used in a bunch of places: change all to Apple's <noErr>. */
+#define noError 0		/* FIXME: Now used in a bunch of places: change all to Apple's <noErr>. */
 
 #define Simple 0		/* divisible by 2 but not 3 */
 #define Compound 1		/* divisible by 3 */

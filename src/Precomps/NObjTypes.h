@@ -1,38 +1,40 @@
-/* NObjTypes.h for Nightingale - typedefs for objects, subobjects, and related things. */
+/* NObjTypes.h for Nightingale - typedefs for objects, subobjects, and related things.
+NB: Very many of these appear in Nightingale score files, so changing them may be a
+problem for backward compatibility.*/
 
 #pragma options align=mac68k
 
-/* Macros in MemMacros.h depend on the positions of the first five fields of the
- object header, which MUST NOT be re-positioned! In the future, this may apply to
- other fields as well. */
+/* Macros in MemMacros.h depend on the positions of the first five fields of the object
+header, which MUST NOT be re-positioned! In the future, this may apply to other fields
+as well. */
 
 #define OBJECTHEADER \
-LINK		right, left;		/* links to left and right objects */					\
-LINK		firstSubObj;		/* link to first subObject */							\
-DDIST		xd, yd;				/* position of object */								\
-SignedByte	type;				/* (.+#10) object type */								\
-Boolean		selected:1;			/* True if any part of object selected */				\
-Boolean		visible:1;			/* True if any part of object is visible */				\
-Boolean		soft:1;				/* True if object is program-generated */				\
-Boolean		valid:1;			/* True if objRect (for Measures, measureBBox also) valid. */ \
-Boolean		tweaked:1;			/* True if object dragged or position edited with Get Info */ \
-Boolean		spareFlag:1;		/* available for general use */							\
-char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */		\
-Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ 	\
-SignedByte	relSize;			/* (unused) size rel. to normal for object & context */	\
-SignedByte	ohdrFiller2;		/* unused */											\
-Byte		nEntries;			/* (.+#22) number of subobjects in object */
-
+	LINK		right, left;		/* links to left and right objects */					\
+	LINK		firstSubObj;		/* link to first subObject */							\
+	DDIST		xd, yd;				/* position of object */								\
+	SignedByte	type;				/* (.+#10) object type */								\
+	Boolean		selected:1;			/* True if any part of object selected */				\
+	Boolean		visible:1;			/* True if any part of object is visible */				\
+	Boolean		soft:1;				/* True if object is program-generated */				\
+	Boolean		valid:1;			/* True if objRect (for Measures, measureBBox also) valid. */ \
+	Boolean		tweaked:1;			/* True if object dragged or position edited with Get Info */ \
+	Boolean		spareFlag:1;		/* available for general use */							\
+	char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */		\
+	Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ 	\
+	SignedByte	relSize;			/* (unused) size rel. to normal for object & context */	\
+	SignedByte	ohdrFiller2;		/* unused */											\
+	Byte		nEntries;			/* (.+#22) number of subobjects in object */
+	
 #define SUBOBJHEADER \
-LINK		next;				/* index of next subobj */								\
-SignedByte	staffn;				/* staff number. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
-SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */		\
-Boolean		selected:1;			/* True if subobject is selected */						\
-Boolean		visible:1;			/* True if subobject is visible */						\
-Boolean		soft:1;				/* True if subobject is program-generated */
+	LINK		next;				/* index of next subobj */								\
+	SignedByte	staffn;				/* staff number. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
+	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */		\
+	Boolean		selected:1;			/* True if subobject is selected */						\
+	Boolean		visible:1;			/* True if subobject is visible */						\
+	Boolean		soft:1;				/* True if subobject is program-generated */
 
 #define EXTOBJHEADER \
-SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
+	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
 
 
 /* ------------------------------------------------------------------------------ TAIL -- */

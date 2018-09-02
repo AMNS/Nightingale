@@ -3147,3 +3147,14 @@ visible? NInitFloatingWindows() creates the window & makes it invisible, with a 
 set in SetupPaletteRects(). Adjust the position there => seems to move it down, as desired,
 so this should avoid the problem -- though it's certainly not the correct fix.
 
+-------------------------------------------------------------------------------
+
+1 September
+
+I think all almost all of the bit fields that affect files are now in NObjTypes.h. How
+about KSITEM, still in NTypes.h? Oops: instances of it are written to files; likeewise
+for TEXTSTYLE, of which NIGHTSCOREHEADER has 15 occurrences (though they aren't called
+that) and probably VOICEINFO, all in NTypes.h. And NMiscTypes.h has loads of bit fields.
+Oh well! For now, just add comment that changing these headers has implications for Ngale
+files.
+

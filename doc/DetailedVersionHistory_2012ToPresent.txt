@@ -2319,9 +2319,18 @@ NMiscTypes.h; DebugDisplay, DurationPopUp, HeapFileIO.
 
 25-30 August
 
-Fixed bug?? (Issue #67): Initial position of tool palette is sometimes at very top of
-screen, underneath the menu bar. Affects Initialize. 
+Fixed bug (Issue #67): The initial position of the tool palette is sometimes at the
+very top of the screen, stuck underneath the menu bar because the drag region is
+inaccessible. Affects Initialize. 
 
-Minor cleanup: Pull VMToollPalette() out of DoViewMenu(), move a struct to another .h,
+Minor cleanup: Pull VMToollPalette() out of DoViewMenu(), move a struct out of NTypes.h,
 etc. Affects ApplicData.h, NMiscTypes.h, NTypes.h; Event, Heaps, Initialize, Menu,
 ToolPalette, Windows.
+
+-------------------------------------------------------------------------------
+
+31 August - 1 Sept.
+
+Minor cleanup: move some structs and enums out of NTypes.h, etc. Affects NMiscTypes.h,
+NObjectTypes.h, NTypes.h, OpcodeNightingaleDefs.h.
+

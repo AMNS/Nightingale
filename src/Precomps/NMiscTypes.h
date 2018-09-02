@@ -1,6 +1,7 @@
 /* NMiscTypes.h (formerly applicationTypes.h) for Nightingale: declarations for the
 Document and headers that are part of it, plus Configuration and other Preference info
-and a few other things. */
+and a few other things. NB: Many of these appear in Nightingale score files, so changing
+them may be a problem for backward compatibility.*/
 
 // MAS
 #include <CoreMIDI/MIDIServices.h>		/* for MIDIUniqueID */
@@ -66,6 +67,138 @@ typedef struct DocPrintInfo {
 //	NDocDrawPageProc	docDrawPageProc;
 } DocPrintInfo, *DocPrintInfoPtr;
 
+
+/* --------------------------------------------------------------------------- UNDOREC -- */
+/* struct and constants for use by Undo routines */
+
+typedef struct {				
+	Byte		lastCommand;			/* operation to be undone */
+	Byte		subCode;				/* sub-operation */
+	LINK		headL;					/* Head of Undo object list */
+	LINK		tailL;					/* Tail of Undo object list */
+	LINK		selStartL;				/* selStartL in Undo object list */
+	LINK		selEndL;				/* selEndL in Undo object list */
+	LINK		scorePrevL;				/* link before range in main object list */
+	LINK		scoreEndL;				/* end of range in main object list */
+	LINK		insertL;				/* Location in score of last operation */
+	short		param1;					/* parameter for an operation */
+	short		param2;					/* another parameter for an operation which requires 2 */
+	Handle		undoRecord;				/* space for undo's private storage */
+	char		menuItem[64];			/* menu command: C string */
+	unsigned short redo : 1;			/* undo flag for menu: True if redo, False if undo */
+	unsigned short hasUndo : 1;			/* True if Undo object list contains a System */
+	unsigned short canUndo : 1;			/* True if operation is undoable */
+	unsigned short unused : 13;			/* space for more flags */
+	unsigned short expand[6];			/*	room to move */
+} UNDOREC;
+
+enum									/* Undo op codes */
+{
+	U_NoOp = 0,
+	U_Insert,
+	U_InsertClef,
+	U_InsertKeySig,
+	U_EditBeam,
+	U_EditSlur,
+	U_Cut,
+	U_Paste,
+	U_PasteSystem,
+	U_Copy,
+	U_Clear,
+	U_Merge,
+	U_GetInfo,
+	U_Set,
+	U_LeftEnd,
+	U_GlobalText,
+	U_MeasNum,
+	U_AddSystem,
+	U_AddPage,
+	U_ChangeTight,
+	U_Respace,
+	U_Justify,
+	U_BreakSystems,
+	U_MoveMeasUp,
+	U_MoveMeasDown,
+	U_MoveSysUp,
+	U_MoveSysDown,
+	U_SetDuration,
+	U_Transpose,
+	U_DiatTransp,
+	U_Respell,
+	U_DelRedundAcc,
+	U_Dynamics,
+	U_AutoBeam,
+	U_Beam,
+	U_Unbeam,
+	U_GRBeam,
+	U_GRUnbeam,
+	U_Tuple,
+	U_Untuple,
+	U_Ottava,
+	U_UnOttava,
+	U_AddMods,
+	U_StripMods,
+	U_MultiVoice,
+	U_FlipSlurs,
+	U_CompactVoice,
+	U_Record,
+	U_Quantize,
+	U_TapBarlines,
+	U_TranspKey,
+	U_Reformat,
+	U_Double,
+	U_RecordMerge,
+	U_ClearSystem,
+	U_ClearPages,
+	U_AddRedundAcc,
+	U_FillEmptyMeas,
+	U_AddCautionaryTS,
+	U_EditText,
+	U_PasteAsCue,
+	U_NUM_OPS
+};
+
+
+/* ------------------------------------------------------------------------- MPCHANGED -- */
+/*	Changed flags for exporting Master Page. */
+
+#define MPCHANGEDFLAGS				\
+	short	partChangedMP : 1,		\
+			sysVChangedMP : 1,		\
+			sysHChangedMP : 1,		\
+			stfChangedMP : 1,		\
+			margVChangedMP : 1,		\
+			margHChangedMP : 1,		\
+			indentChangedMP : 1,	\
+			fixMeasRectYs : 1,		\
+			grpChangedMP : 1,		\
+			stfLinesChangedMP : 1,	\
+			unusedChgdMP : 6;
+
+typedef struct {
+	MPCHANGEDFLAGS
+} MPCHGDFLAGS;
+
+
+/* --------------------------------------------------------------------- CHANGE_RECORD -- */
+/* "Change part" record for exporting operations (add/delete, group/ungroup, etc.)
+from Master Page. */
+
+enum {								/* Opcodes for change part records. */
+	SDAdd,
+	SDDelete,
+	SDGroup,
+	SDUngroup,
+	SDMake1
+};
+
+typedef struct	{
+	short		oper;				/* Operation: SDAdd,SDDelete,SDGroup,SDUngroup. */
+	short		staff;				/* Starting staff no. */
+	short		p1;					/* Operation-dependent */
+	short		p2;					/* Operation-dependent */
+	short		p3;					/* Operation-dependent */
+} CHANGE_RECORD;
 
 
 /* -------------------------------------------------------------------- Major headers -- */
@@ -784,7 +917,7 @@ typedef struct {
 InitSearchParam accordingly! */
 
 typedef struct {
-	short		id;					/* target staff number (for Staff, Measure, Sync, etc) */
+	short		id;					/* target staff number (for Staff, Measure, Sync, etc.) */
 									/*	or page number (for Page) */
 	Boolean		needSelected;		/* True if we only want selected items */
 	Boolean		needInMeasure;		/* True if we only want items inMeasure */
@@ -795,5 +928,46 @@ typedef struct {
 	short		entryNum;			/* output: index of subitem found */
 	LINK		pEntry;				/* output: link to subitem found */
 } SearchParam;
+
+
+/* --------------------------------------------------------- Reconstruction algorithms -- */
+	
+typedef struct {
+	LINK startL;
+	LINK endL;
+} SELRANGE;
+
+typedef struct {
+	LINK objL;
+	LINK subL;
+	LINK newObjL;					/* New objects for updating cross links */
+	LINK newSubL;
+	LINK beamL;						/* Owning links */
+	LINK octL;
+	LINK tupletL;
+	LINK slurFirstL;				/* slurL if Sync is first Sync */
+	LINK slurLastL;					/* slurL if Sync is last Sync */
+	LINK tieFirstL;					/* tieL if Sync is first Sync */
+	LINK tieLastL;					/* tieL if Sync is last Sync */
+	short mult;						/* The number of notes in a staff (voice) */
+	long playDur;
+	long pTime;
+} PTIME;
+
+
+/* --------------------------------------------------------------------- CharRectCache -- */
+
+typedef struct {
+	short		fontNum, fontSize;
+	Rect		charRect[256];
+} CharRectCache, *CharRectCachePtr;
+
+
+/* ---------------------------------------------------------------------- FONTUSEDITEM -- */
+
+typedef struct {
+	Boolean			style[4];		/* styles used (bold and italic attribs. only) */
+	unsigned char	fontName[32];	/* font name (Pascal string) */	
+} FONTUSEDITEM;
 
 #pragma options align=reset
