@@ -87,14 +87,14 @@ static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 	PANOTE aNote;
 
 	/* Determine if there is a chord. If there's only one note in the voice, there
-		is no need to do anything. */
+	   is no need to do anything. */
 
 	vNotes = CountVNotes(syncL,v);
 	if (vNotes<=1) return;
 
 	/* Determine if there are notes from both score and clipboard in this voice. If
-		not, there should have been a consistent chord in either score or clipboard
-		before we started, and so nothing needs to be done. */
+	   not, there should have been a consistent chord in either score or clipboard
+	   before we started, and so nothing needs to be done. */
 
 	GetMrgdUnmrgd(syncL,v,&hasMerged,&hasUnmerged);
 	if (!(hasMerged && hasUnmerged)) return;
@@ -127,9 +127,9 @@ static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 	if (vNotes<=1) return;
 	
 	/* See if there are any rests from the score in the voice. If there are any rests
-		in the voice, there should be only one, and it should be from the score. If
-		there is one, get its duration, which will be used to set duration of merged
-		notes, and delete the rest from the data structure. */
+	   in the voice, there should be only one, and it should be from the score. If
+	   there is one, get its duration, which will be used to set duration of merged
+	   notes, and delete the rest from the data structure. */
 
 	hadRest = False;
 	aNoteL = FirstSubLINK(syncL);
@@ -138,8 +138,8 @@ static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 			if (!NoteMERGED(aNoteL)) {
 				hadRest = True;
 				aNote = GetPANOTE(aNoteL);
-				noteDur = aNote->subType;							/* Use score note's values for duration */
-				noteNDots = aNote->ndots;							/*   and no. of dots */
+				noteDur = aNote->subType;					/* Use score note's values for duration */
+				noteNDots = aNote->ndots;					/*   and no. of dots */
 
 				RemoveLink(syncL, NOTEheap, FirstSubLINK(syncL), aNoteL);
 				HeapFree(NOTEheap,aNoteL);
@@ -148,7 +148,7 @@ static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 			}
 		}
 
-	/* Check if there is only one note remaining in the voice; if there is, insure
+	/* Check if there is only one note remaining in the voice; if there is, ensure
 		that its inChord flag is no longer set. */
 
 	vNotes = CountVNotes(syncL,v);
@@ -270,7 +270,7 @@ static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, short v)
 	}
 	
 	/* Now retraverse the range, unbeaming and rebeaming all beams from the document.
-		Start with the first beam that needs fixing up. */
+	   Start with the first beam that needs fixing up. */
 
 	beamL = NILINK;
 	for (pL=startL; pL!=endL && beamL==NILINK; pL=RightLINK(pL)) {
@@ -446,7 +446,7 @@ static void MRemoveOctOnStf(Document *doc, LINK octL,
 
 
 /* ------------------------------------------------------------------ MergeFixOctRange -- */
-/* ??It's totally unclear how to write this function, for the following reason:
+/* FIXME: It's totally unclear how to write this function, for the following reason:
 In order to rebeam properly, it appears necessary to pre-process notes
 merged into a beamset from the score, by: i. setting aNote->ystem = aNote->yd
 and ii. setting the inChord flag. Similar pre-processing would appear
@@ -500,9 +500,9 @@ static void MergeFixOctRange(Document *doc, LINK startL, LINK endL, VInfo *vInfo
 
 doneCheck:
 					/* This is a merged Ottava. If hasUnmerged is True, we have problems
-						and must remove the Ottava, taking into account that its internal
-						structure may be inconsistent at this point due to the presence of
-						unmerged notes. */
+					   and must remove the Ottava, taking into account that its internal
+					   structure may be inconsistent at this point due to the presence of
+					   unmerged notes. */
 				
 					if (hasUnmerged) {
 						MRemoveOctOnStf(doc, pL, s, True);
@@ -1024,20 +1024,20 @@ for overlapped voices, which can superimpose beams, ottavas in the same voice. *
 
 void MFixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray)
 {
-	LINK sysL,firstSysL,firstMeasL;
+	LINK sysL, firstSysL, firstMeasL;
 
 	sysL = SSearch(startMeas,SYSTEMtype,GO_LEFT);
 	firstSysL = LinkLSYS(sysL) ? LinkLSYS(sysL) : sysL;
 
 	/* Beamsets can begin in a previous system; crossSys beamsets
-		can begin in the system before the previous system. */
+	   can begin in the system before the previous system. */
 
 	MFixAllBeamLinks(doc, doc, firstSysL, endMeas);
 	
-	/* Rules are not clearly stated in FixGroupsMenu,NTypes.h, or DoOttava
-		for Ottavas. Assuming we do not have crossSys Ottavas. Must update
-		all Ottavas which can have octNotes in the measure; Ottavas located
-		after endMeas are guaranteed to have none. */
+	/* Rules for Ottavas are not clearly stated in FixGroupsMenu, headers, or DoOttava.
+	   Assuming we do not have crossSys Ottavas. Must update all Ottavas which can have
+	   octNotes in the measure; Ottavas located after endMeas are guaranteed to have
+	   none. */
 	
 	MFixOttavaLinks(doc, doc, sysL, endMeas);
 
@@ -1045,10 +1045,10 @@ void MFixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray)
 
 	FixTupletLinks(doc, doc, startMeas, endMeas);
 
-	/* NBJD objects which start before and end in the measure being processed
-		will remain in place in the data structure, and their firstSyncL/firstObjL
-		will remain valid across the operation. This call to FixNBJDLinks will
-		properly update their lastSyncL/lastObjL field. */
+	/* NBJD objects which start before and end in the measure being processed will
+	   remain in place in the data structure, and their firstSyncL/firstObjL will
+	   remain valid across the operation. This call to FixNBJDLinks will properly
+	   update their lastSyncL/lastObjL field. */
 
 	firstMeasL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
 	FixNBJDLinks(firstMeasL, doc->tailL, durArray);

@@ -2334,3 +2334,10 @@ ToolPalette, Windows.
 Minor cleanup: move some structs and enums out of NTypes.h, etc. Affects NMiscTypes.h,
 NObjectTypes.h, NTypes.h, OpcodeNightingaleDefs.h.
 
+-------------------------------------------------------------------------------
+
+9 Sept.
+
+Minor cleanup: remove some long-obsolete struct definitions; move some structs and enums
+out of NTypes.h; rename NTypes.h to NBasicTypes.h; etc. Affects Debug.h, NMiscTypes.h,
+Notelist.h, NTypes.h, OpcodeNightingaleDefs.h, vars.h; about eight .c files.

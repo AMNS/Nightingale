@@ -1910,10 +1910,10 @@ void FixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray,
 
 	FixAllBeamLinks(doc, doc, firstSysL, endMeas);
 	
-	/* Rules are not clearly stated in FixGroupsMenu,NTypes.h, or DoOttava
-		for Ottavas. Assuming we do not have crossSys Ottavas. Must update
-		all Ottavas which can have octNotes in the measure; Ottavas located
-		after endMeas are guaranteed to have none. */
+	/* Rules for Ottavas are not clearly stated in FixGroupsMenu, DoOttava, or header
+	   files. Assuming we do not have crossSys Ottavas. Must update all Ottavas which
+	   can have octNotes in the measure; Ottavas located after endMeas are guaranteed
+	   to have none. */
 	
 	FixOttavaLinks(doc, doc, sysL, endMeas);
 
@@ -1922,10 +1922,10 @@ void FixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray,
 	FixTupletLinks(doc, doc, startMeas, endMeas);
 
 	/* NBJD objects which start before and end in the measure being processed
-		will remain in place in the object list, and their firstSyncL/firstObjL
-		will remain valid across the operation. This call to FixNBJDLinks will
-		properly update their lastSyncL/lastObjL field. NB: As written, this is
-		way overkill: it operates on the entire score! */
+	   will remain in place in the object list, and their firstSyncL/firstObjL
+	   will remain valid across the operation. This call to FixNBJDLinks will
+	   properly update their lastSyncL/lastObjL field. NB: As written, this is
+	   way overkill: it operates on the entire score! */
 
 	firstMeasL = SSearch(doc->headL, MEASUREtype, GO_RIGHT);
 	FixNBJDLinks(firstMeasL, doc->tailL, durArray);
@@ -1940,8 +1940,8 @@ static void FixVoiceNum(LINK pL,short stfDiff,short *vMap);
 static void FixStaffn(LINK pL,short stfDiff);
 
 static void FixVoiceNum(LINK pL,
-								short /*stfDiff*/,		/* obsolete; ignored */
-								short *vMap)
+						short /*stfDiff*/,		/* obsolete; ignored */
+						short *vMap)
 {
 	LINK aNoteL,aGRNoteL;
 

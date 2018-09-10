@@ -1,6 +1,6 @@
 /* Debug.h: Nightingale	public header file for Debug files */
 
-enum { MAIN_DSTR, CLIP_DSTR, UNDO_DSTR, MP_DSTR };	/* ??Should probably be in NTypes.h */
+enum { MAIN_DSTR, CLIP_DSTR, UNDO_DSTR, MP_DSTR };
 
 Boolean DCheckEverything(Document *, Boolean, Boolean);
 short DCheckNode(Document *, LINK, short, Boolean);

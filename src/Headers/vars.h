@@ -318,7 +318,8 @@ short pdrSize[MAXRASTRAL+1] =								/* Sizes for staff rastral nos., */
 	{ 28, 24, 20, 19, 18, 16, 14, 12, 10};					/*  in points */ 
 
 /* Sets of related characters in Adobe's Sonata and compatibles (individual characters
-are declared in NTypes.h) */
+are declared in Defs.h) */
+
 unsigned char SonataAcc[6] = { ' ', 0xBA,'b','n','#',0xDC };	/* Accidentals */
 unsigned char MCH_idigits[10] =									/* Small italic digits for tuplets, etc. */
 	{ 0xBC, 0xC1, 0xAA, 0xA3, 0xA2, 0xB0, 0xA4, 0xA6, 0xA5, 0xBB };
@@ -331,6 +332,7 @@ unsigned char MCH_rests[MAX_L_DUR] =
 	{ 0xE3, 0xB7, 0xEE, 0xCE, 0xE4, 0xC5, 0xA8, 0xF4, 0xE5 };
 
 /* Coarse correction to font for rest Y-positions (half-lines) */
+
 short restYOffset[MAX_L_DUR+1] = 
 					{ 0, 0, 0, 0, 0, -1, 1, 1, 3, 3 };
 
@@ -338,6 +340,7 @@ short noteOffset[] = { 7, 14, 21, -7, -14, -21 };				/* Vert. offset for ottavas
 
 /*	Text sizes, in line spaces:
                              Tiny VSmall Small Medium Large VLarge Jumbo ------- StaffHt */
+							 
 FASTFLOAT relFSizeTab[] =  { 1.0, 1.5,   1.7,  2.0,   2.2,	2.5,   3.0,  3.6, 0,   4.0  };
 
 short subObjLength[] = {

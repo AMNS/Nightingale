@@ -11,6 +11,32 @@ them may be a problem for backward compatibility.*/
 #pragma options align=mac68k
 
 
+/* ----------------------------------------------------------- JUSTTYPE, SPACETIMEINFO -- */
+
+enum {
+	J_IT=1,							/* Justification type Independent, Totally ordered */
+	J_IP,							/* Justification type Independent, Partially ordered */
+	J_D,							/* Justification type Dependent */
+	J_STRUC							/* Structural object, no justification type */
+};
+
+typedef struct
+{
+	long		startTime;			/* Logical start time for object */
+	SignedByte	justType;			/* Justification type */
+	LINK		link;
+	Boolean		isSync;
+	long		dur;				/* Duration that controls space after (Gourlay) */
+	FASTFLOAT	frac;				/* Fraction of controlling duration to use (Gourlay) */
+} SPACETIMEINFO;
+
+typedef struct {
+	LINK		measL;
+	long		lxd;
+	DDIST		width;
+} RMEASDATA;
+
+
 /* ---------------------------------------------------------- MIDI-file-handling stuff -- */
 
 /* Information on a MIDI file track */
@@ -536,7 +562,7 @@ typedef struct {
 	OMSUniqueID		omsInputDevice;  				/* OMS MIDI dev data for recording inputs */
 	/* FreeMIDI (obsolete) */
 	fmsUniqueID		fmsInputDevice;					/* FreeMIDI dev data for recording inputs */
-	destinationMatch	fmsInputDestination;		/* (See comment at PARTINFO in NTypes.h.) */
+	destinationMatch	fmsInputDestination;		/* (See comment at PARTINFO in NBasicTypes.h.) */
 	/* Core MIDI */
 	MIDIUniqueID	cmPartDeviceList[MAXSTAVES];	/* CoreMIDI dev data for each part on MP, */
 													/*   indexed by partn associated with PARTINFOheap */

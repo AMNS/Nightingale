@@ -179,11 +179,11 @@ void FlipSelDirection(Document *doc)
 							if (aNoteL) {
 								aNoteL = FindMainNote(pL, NoteVOICE(aNoteL));
 								/*
-								 *	If this note is beamed, we can't set its stem correctly now,
+								 * If this note is beamed, we can't set its stem correctly now,
 								 * since other notes in the beamset may follow, but remember
 								 * its owning beamset for later use; if we run out of space to
-								 *	remember it, just unbeam so at least we won't end up with
-								 *	stems and beams that disagree.
+								 * remember it, just unbeam so at least we won't end up with
+								 * stems and beams that disagree.
 								 */
 								if (NoteBEAMED(aNoteL)) {
 									beamL = LVSearch(pL, BEAMSETtype, NoteVOICE(aNoteL), GO_LEFT,
@@ -329,7 +329,7 @@ Boolean Respell(Document *doc)
 			if (voiceChanged[v]) FixBeamsInVoice(doc, doc->selStartL, doc->selEndL, v, True);
 	}
 	if (changedNotes || changedChords) {
-		InvalRange(doc->selStartL, doc->selEndL);					/* Update objRects */
+		InvalRange(doc->selStartL, doc->selEndL);				/* Update objRects */
 		doc->changed = True;
 		return True;
 	}
@@ -478,8 +478,7 @@ anything, else False.
 
 We leave all accidentals on transposed notes alone and simply move the notes up or down,
 although we may change accidentals on following notes to keep their pitches constant.
-After making this transformation, we remove redundant accidentals.
-*/
+After making this transformation, we remove redundant accidentals. */
 
 Boolean DTranspose(
 			Document *doc,
@@ -575,8 +574,7 @@ thing but decides what to do it to based on selection and either one or all staf
 instead of on any no. of staves in their entirety.
 
 This assumes standard CMN accidental-carrying rules including ties across barlines.
-If ACC_IN_CONTEXT is False, it should probably do nothing.
-*/
+If ACC_IN_CONTEXT is False, it should probably do nothing. */
 
 static Boolean StfDelRedundantAccs(Document *, short, Boolean []);
 static Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
@@ -621,7 +619,7 @@ static Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
 }
 
 
-/* ---------------------------------------------------------------- TransposeKey -- */
+/* ---------------------------------------------------------------------- TransposeKey -- */
 /* In staves with the given numbers, for the entire score, transpose zero or more of
 key signatures, notes, and chord symbols by the specified amount. For example,
 transposing down a minor 3rd would be indicated goUp=False, steps=2, semitones=3;
@@ -667,6 +665,7 @@ Boolean TransposeKey(
 	}
 	
 	/* FIXME: Following checking is wrong, since notes are affected even if they're not selected! */
+	
 	if (steps==0 && semiChange==1)
 		if (FindSelAcc(doc, AC_DBLSHARP)) {
 			GetIndCString(strBuf, PITCHERRS_STRS, 5);	/* "Nightingale can't transpose double-sharps up an augmented unison." */
@@ -788,7 +787,7 @@ Boolean TransposeKey(
 			LINK keySigL, endL;
 			
 			/* Key signatures, both changes and those in the reserved areas of systems,
-				might need much more or less space than they have now. */
+			   might need much more or less space than they have now. */
 				
 			keySigL = SSearch(doc->headL, KEYSIGtype, GO_RIGHT);
 			for ( ; keySigL; keySigL = SSearch(RightLINK(keySigL), KEYSIGtype, GO_RIGHT))
@@ -798,9 +797,9 @@ Boolean TransposeKey(
 				}
 
 			/* The following respaces the entire score at a fixed percentage--pretty
-				crude. Much better would be to go thru the score one measure at a time,
-				respacing any measure with keysigs on affected staves at its current
-				percentage, but that would tend to produce messy reformatting. Someday. */
+			   crude. Much better would be to go thru the score one measure at a time,
+			   respacing any measure with keysigs on affected staves at its current
+			   percentage, but that would tend to produce messy reformatting. Someday. */
 
 			spaceProp = RESFACTOR*doc->spacePercent;
 			ProgressMsg(RESPACE_PMSTR, "");
@@ -813,7 +812,7 @@ Boolean TransposeKey(
 	}
 
 	if (changedKeys || changedNotes || changedChords) {
-		InvalRange(doc->headL, doc->tailL);						/* Update objRects */
+		InvalRange(doc->headL, doc->tailL);					/* Update objRects */
 		doc->changed = True;
 		return True;
 	}
@@ -827,7 +826,7 @@ Boolean TransposeKey(
 assigned to their parts. Any out-of-range notes are left selected; everything else is
 deselected. Assumes doc is in the active window.
 FIXME: Questions:
-1. firstStaff and lastStaff: is index (cf comment in NTypes.h) the staffn?
+1. firstStaff and lastStaff: is index (cf. comment in NObjTypes.h) the staffn?
 2. are the staves numbered consecutively or at least monotonically? */
 
 void CheckRange(Document *doc)
@@ -855,7 +854,7 @@ void CheckRange(Document *doc)
 					&&	!NoteREST(aNoteL)) {
 						aNote = GetPANOTE(aNoteL);
 						/* hiKeyNum and loKeyNumIf are written pitches, but if the score
-							isn't transposed, it contains sounding pitches; convert. */
+						   isn't transposed, it contains sounding pitches; convert. */
 						writtenNoteNum = aNote->noteNum;
 						if (!doc->transposed) writtenNoteNum -= transposition;
 						if (writtenNoteNum>hiKeyNum || writtenNoteNum<loKeyNum) {

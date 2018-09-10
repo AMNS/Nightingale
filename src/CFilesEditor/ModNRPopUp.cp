@@ -9,13 +9,13 @@
  */
  
 /* Includes code for managing key presses that select from a popup menu of note
-modifiers. This code parallels that for duration popups in DurationPopUp.c.
-(That file also includes the more generic code for creating graphic popups
-with the MDEF -- which really should go in its own file.)  Also in the current
-file are dialog routines invoked when user double-clicks a modifier or chooses
-the Add Modifiers command. I thought it best to keep these here, since they need
-static vars. The whole mechanism for keyboard selection should be generalized to
-work with all the graphic popups, but no time for that now.  -- John Gibson, 8/4/00 */
+modifiers. This code parallels that for duration popups in DurationPopUp.c. (That
+file also includes the more generic code for creating graphic popups with the MDEF
+-- which really should go in its own file.)  Also in the current file are dialog
+routines invoked when user double-clicks a modifier or chooses the Add Modifiers
+command. I thought it best to keep these here, since they need static vars. FIXME:
+The whole mechanism for keyboard selection should be generalized to work with all
+the graphic popups, but no time for that now.  -- John Gibson, 8/4/00 */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -24,6 +24,7 @@ work with all the graphic popups, but no time for that now.  -- John Gibson, 8/4
 extern Boolean TranslatePalChar(short *, short, Boolean);
 
 /* ASCII decimal for the modNR symbols in popDynMod font */
+
 static enum {
 	POP_MOD_FINGERING_0 = 97,
 	POP_MOD_FINGERING_1,
@@ -45,19 +46,19 @@ static enum {
 	POP_MOD_TURN,
 	POP_MOD_FERMATA,
 	POP_MOD_INV_MORDENT,
-	POP_MOD_TREMOLO,			/* NOTE: this doesn't map to just one mod code; see NTypes.h */
+	POP_MOD_TREMOLO,			/* NOTE: this map to several mod codes; see NObjTypes.h */
 	POP_MOD_PLUS,
 	POP_MOD_CIRCLE
 } E_ModNRSyms;
 
 
 typedef struct {
-	Byte modCode;					/* from NTypes.h */
+	Byte modCode;				/* from NObjTypes.h */
 	unsigned char symCode;		/* from <symtable> in vars.h */
 } MODNR_POPKEY;
 
 
-/* ---------------------------- ModNRPopupKey & Friends --------------------------- */
+/* ------------------------------ ModNRPopupKey & Friends ------------------------------ */
 
 /* Allocates 1-based array mapping menu item numbers to MODNR_POPKEY structs.
 Caller should dispose this pointer when disposing its associated popop.
@@ -66,11 +67,11 @@ Assumes graphic popup already inited.
 CAUTION: The symCodes assigned here _must_ be consistent with those that appear
 in the <symtable> in vars.h. */
 
-static MODNR_POPKEY *InitModNRPopupKey(PGRAPHIC_POPUP	gp);
-static MODNR_POPKEY *InitModNRPopupKey(PGRAPHIC_POPUP	gp)
+static MODNR_POPKEY *InitModNRPopupKey(PGRAPHIC_POPUP gp);
+static MODNR_POPKEY *InitModNRPopupKey(PGRAPHIC_POPUP gp)
 {
-	short				i;
-	char				*q;
+	short			i;
+	char			*q;
 	MODNR_POPKEY	*pkeys, *p;
 	
 	if (gp==NULL || gp->numItems==0) return NULL;
@@ -187,12 +188,12 @@ broken:
 }
 
 
-/* Given a modifier popup and associated MODNR_POPKEY array, return the index
-into that array of the given modCode. The index will be a menu item number. */
+/* Given a modifier popup and associated MODNR_POPKEY array, return the index into
+that array of the given modCode. The index will be a menu item number. */
 
 static short GetModNRPopItem(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, short modCode)
 {
-	short				i;
+	short			i;
 	MODNR_POPKEY	*q;
 	
 	for (i=1, q=&pk[1]; i<=p->numItems; i++, q++)
@@ -257,8 +258,8 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
-	short				ch, ans;
-	Point				where;
+	short			ch, ans;
+	Point			where;
 	GrafPtr			oldPort;
 	
 	w = (WindowPtr)(evt->message);

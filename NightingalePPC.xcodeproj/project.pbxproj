@@ -13,6 +13,7 @@
 		1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B41E645DEF00431548 /* Defs.h */; };
 		154518B31F26D8F200FA26FF /* InternalInput.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154518B21F26D8F200FA26FF /* InternalInput.cp */; };
 		1546E7922063F00F000AFC57 /* Endian.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1546E7912063F00F000AFC57 /* Endian.h */; };
+		1547A3E92145A5C100C5B716 /* NBasicTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1547A3E82145A5C100C5B716 /* NBasicTypes.h */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
 		154C91D31EDBB86F00AAC011 /* AutoBeam.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154C91D21EDBB86F00AAC011 /* AutoBeam.cp */; };
 		154FABBD1EF2ADF300666F3F /* Reconstruct.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154FABBC1EF2ADF300666F3F /* Reconstruct.cp */; };
@@ -211,6 +212,7 @@
 				15FD35C82012A11C00198184 /* CoreMIDIDefs.h in CopyFiles */,
 				1546E7922063F00F000AFC57 /* Endian.h in CopyFiles */,
 				15641170212E4E6300FD52E6 /* NObjTypes.h in CopyFiles */,
+				1547A3E92145A5C100C5B716 /* NBasicTypes.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,6 +226,7 @@
 		1544E9B41E645DEF00431548 /* Defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defs.h; sourceTree = "<group>"; };
 		154518B21F26D8F200FA26FF /* InternalInput.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InternalInput.cp; sourceTree = "<group>"; };
 		1546E7912063F00F000AFC57 /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
+		1547A3E82145A5C100C5B716 /* NBasicTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBasicTypes.h; sourceTree = "<group>"; };
 		154C91D21EDBB86F00AAC011 /* AutoBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoBeam.cp; sourceTree = "<group>"; };
 		154FABBC1EF2ADF300666F3F /* Reconstruct.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Reconstruct.cp; sourceTree = "<group>"; };
 		1556A2F51D3FA4E700A0B147 /* InsNew.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNew.cp; sourceTree = "<group>"; };
@@ -266,7 +269,6 @@
 		D03E69750D5F60AB005FD177 /* CarbonTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CarbonTemplates.h; sourceTree = "<group>"; };
 		D03E69760D5F60AB005FD177 /* FreeMIDICompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FreeMIDICompat.h; sourceTree = "<group>"; };
 		D03E69770D5F60AB005FD177 /* NLimits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NLimits.h; sourceTree = "<group>"; };
-		D03E69780D5F60AB005FD177 /* NTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTypes.h; sourceTree = "<group>"; };
 		D03E69790D5F60AB005FD177 /* OMSCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OMSCompat.h; sourceTree = "<group>"; };
 		D03E697A0D5F60AB005FD177 /* StringPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringPool.h; sourceTree = "<group>"; };
 		D03E697B0D5F60B9005FD177 /* Application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Application.h; sourceTree = "<group>"; };
@@ -669,12 +671,12 @@
 				D03E6BB10D5F7870005FD177 /* MPImportExport.h */,
 				D03E6BB20D5F7870005FD177 /* Multivoice.h */,
 				D03E6BB30D5F7870005FD177 /* MusicFont.h */,
+				1547A3E82145A5C100C5B716 /* NBasicTypes.h */,
 				D03E6A670D5F69BE005FD177 /* NightTemplates.h */,
 				D03E69770D5F60AB005FD177 /* NLimits.h */,
 				1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */,
 				1564116F212E4E6300FD52E6 /* NObjTypes.h */,
 				D03E6BB40D5F7870005FD177 /* Nodes.h */,
-				D03E69780D5F60AB005FD177 /* NTypes.h */,
 				D03E6BB50D5F7870005FD177 /* Objects.h */,
 				D03E6BB60D5F7870005FD177 /* Octava.h */,
 				D03E69FA0D5F65DC005FD177 /* OpcodeNightingaleDefs.h */,

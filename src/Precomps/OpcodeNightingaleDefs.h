@@ -6,7 +6,7 @@
 					AutoBeam.c, except several modules use <noError> and OpcodeUtils.c
 					uses TSig.  --DAB
 
-96/05/29			Further simplified.
+96/05/29 & later	Further simplified.
 */
 
 #pragma options align=mac68k
@@ -14,13 +14,6 @@
 
 #define LCDsPerBeat 480L
 #define LCD4 (LCDsPerBeat * 4)
-
-struct TSig {
-	Byte num;
-	Byte denompH;		/* negative exponent of denominator as in DMCS */
-	Byte ClickTime;
-	Byte beat;
-};
 
 #define noError 0		/* FIXME: Now used in a bunch of places: change all to Apple's <noErr>. */
 

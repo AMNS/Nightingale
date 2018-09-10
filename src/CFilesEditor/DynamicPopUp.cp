@@ -34,12 +34,12 @@ static enum {
 
 
 typedef struct {
-	SignedByte dynamicType;		/* from NTypes.h */
+	SignedByte dynamicType;		/* from NObjTypes.h */
 	unsigned char symCode;		/* from <symtable> in vars.h */
 } DYN_POPKEY;
 
 
-/* ------------------------ DynamicPopupKey & Friends --------------------------- */
+/* ----------------------------- DynamicPopupKey & Friends ----------------------------- */
 
 /* Allocates 1-based array mapping menu item numbers to DYN_POPKEY structs.
 Caller should dispose this pointer when disposing its associated popop.
@@ -48,11 +48,11 @@ Assumes graphic popup already inited.
 CAUTION: The symCodes assigned here _must_ be consistent with those that appear
 in the <symtable> in vars.h. */
 
-static DYN_POPKEY *InitDynamicPopupKey(PGRAPHIC_POPUP	gp);
-static DYN_POPKEY *InitDynamicPopupKey(PGRAPHIC_POPUP	gp)
+static DYN_POPKEY *InitDynamicPopupKey(PGRAPHIC_POPUP gp);
+static DYN_POPKEY *InitDynamicPopupKey(PGRAPHIC_POPUP gp)
 {
-	short			i;
-	char			*q;
+	short		i;
+	char		*q;
 	DYN_POPKEY	*pkeys, *p;
 	
 	if (gp==NULL || gp->numItems==0) return NULL;
@@ -152,18 +152,18 @@ Boolean DynamicPopupKey(PGRAPHIC_POPUP p, DYN_POPKEY *pk, unsigned char theChar)
 		}
 	}
 	if (newDynamicType==NOMATCH)
-		return False;										/* no action for this key */
+		return False;									/* no action for this key */
 	
 	newItem = GetDynamicPopItem(p, pk, newDynamicType);
 	if (newItem && newItem!=p->currentChoice)
 		SetGPopUpChoice(p, newItem);
 
-	return True;											/* the keystroke was directed at popup */
+	return True;										/* the keystroke was directed at popup */
 }
 
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* SetDynamicDialog */
 
 static GRAPHIC_POPUP	dynamicPop, *curPop;
@@ -179,8 +179,8 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
-	short				ch, ans;
-	Point				where;
+	short			ch, ans;
+	Point			where;
 	GrafPtr			oldPort;
 	
 	w = (WindowPtr)(evt->message);
@@ -255,9 +255,9 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 	SetPort(GetDialogWindowPort(dlog));
 
 	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);									/* popup code uses Get1Resource */
+	UseResFile(appRFRefNum);							/* popup code uses Get1Resource */
 
-	dynamicPop.menu = NULL;										/* NULL makes any goto broken safe */
+	dynamicPop.menu = NULL;								/* NULL makes any goto broken safe */
 	dynamicPop.itemChars = NULL;
 	popKeysDynamic = NULL;
 

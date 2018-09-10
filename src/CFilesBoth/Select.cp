@@ -1304,7 +1304,7 @@ void UpdateSelection(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ SetSelEnds -- */
+/* ------------------------------------------------------------------------ SetSelEnds -- */
 /* Accumulate the selection range pinned at startL. */
 
 static void SetSelEnds(LINK pL, LINK *startL, LINK *endL)
@@ -1314,16 +1314,15 @@ static void SetSelEnds(LINK pL, LINK *startL, LINK *endL)
 }
 
 
-/* ----------------------------------------------------------------- GetStfSelRange -- */
-/*  Return the minimum range that includes everything selected on a staff. If
-nothing is selected on that staff, returns NILINKs.
+/* -------------------------------------------------------------------- GetStfSelRange -- */
+/*  Return the minimum range that includes everything selected on a staff. If nothing
+is selected on that staff, returns NILINKs.
 
 Note: We could lump the last 8 cases into one by use of GetSubObjStaff(pL, 1). However,
 GetSubObjStaff is misnamed, since it gets objStaff half the time, and casts Graphics,
-Tempos, Slurs and Space objects to PEXTENDs, which they are not; NTypes.h had damn well
+Tempos, Slurs and Space objects to PEXTENDs, which they are not. NObjTypes.h had damn well
 better know about this if we don't want to risk breaking things by moving fields around
-in Graphics, etc.
-*/
+in Graphics, etc. */
 
 void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 {
@@ -1390,7 +1389,7 @@ void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 }
 
 
-/* ---------------------------------------------------------------- GetVSelRange -- */
+/* ---------------------------------------------------------------------- GetVSelRange -- */
 /*  Return the minimum range that includes everything selected in a voice. If
 nothing is selected in that voice, returns NILINKs. */
 
@@ -1410,7 +1409,7 @@ void GetVSelRange(Document *doc, short v, LINK *startL, LINK *endL)
 }
 
 
-/* ------------------------------------------------------------- GetNoteSelRange -- */
+/* ------------------------------------------------------------------- GetNoteSelRange -- */
 /* Return the minimum range that includes all selected notes/rests/grace notes in
 a voice. If nothing is selected in that voice, returns NILINKs. */
 

@@ -43,7 +43,7 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 /* General Nightingale headers */
 
 #include "NLimits.h"
-#include "NTypes.h"
+#include "NBasicTypes.h"
 #include "NObjTypes.h"
 #include "NMiscTypes.h"
 #include "Defs.h"

@@ -229,8 +229,8 @@ static void DoDialogActivate(DialogPtr dlog, short activ)
 	}
 
 
-/* Build this dialog's window on desktop, and install initial item values.
-Return the dlog opened, or NULL if error (no resource, no memory). */
+/* Build this dialog's window on desktop, and install initial item values. Return
+the dlog opened, or NULL if error (no resource, no memory). */
 
 static DialogPtr OpenThisDialog(Document *doc)
 	{
@@ -278,9 +278,9 @@ static void CloseThisDialog(DialogPtr dlog)
 	}
 
 
-/* Handle OK button, and possibly handle a click in the list.
-The local point is in where; modifiers in modifiers.
-Returns whether or not the dialog should be closed (keepGoing). */
+/* Handle OK button, and possibly handle a click in the list. The local point is
+in where; modifiers in modifiers. Returns whether or not the dialog should be closed
+(keepGoing). */
 
 static short DoDialogItem(DialogPtr dlog, short itemHit)
 	{
@@ -311,17 +311,15 @@ static short DoDialogItem(DialogPtr dlog, short itemHit)
 	}
 
 
-/* Pull values out of dialog items and deliver True if any of them are
-illegal or inconsistent; otherwise deliver False. */
+/* Pull values out of dialog items and deliver True if any of them are illegal or
+inconsistent; otherwise deliver False. */
 
 static short AnyBadValues(DialogPtr /*dlog*/)
 	{
 		return(False);
 	}
 
-/* -------------------------------------------------------------------------------- */
-
-/* ClipVInfo is defined in <NTypes.h>. */
+/* -------------------------------------------------------------------------------------- */
 
 static short GetLengthList(UserList *l, ClipVInfo *clipVInfo);
 

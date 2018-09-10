@@ -1,4 +1,4 @@
-/*	NTypes.h - #defines and typedefs for Nightingale's basic datatypes. NB: Many of
+/*	NBasicTypes.h - #defines and typedefs for Nightingale's basic datatypes. NB: Many of
 these appear in Nightingale score files, so changing them may be a problem for backward
 compatibility. */
 
@@ -196,32 +196,6 @@ typedef struct						/* A part (for an instrument or voice): */
 	fmsUniqueID	fmsOutputDevice;
 	destinationMatch fmsOutputDestination;	/* NB: about 280 bytes */
 } PARTINFO, *PPARTINFO;
-
-
-/* ----------------------------------------------------------- JUSTTYPE, SPACETIMEINFO -- */
-
-enum {
-	J_IT=1,							/* Justification type Independent, Totally ordered */
-	J_IP,							/* Justification type Independent, Partially ordered */
-	J_D,							/* Justification type Dependent */
-	J_STRUC							/* Structural object, no justification type */
-};
-
-typedef struct
-{
-	long		startTime;			/* Logical start time for object */
-	SignedByte	justType;			/* Justification type */
-	LINK		link;
-	Boolean		isSync;
-	long		dur;				/* Duration that controls space after (Gourlay) */
-	FASTFLOAT	frac;				/* Fraction of controlling duration to use (Gourlay) */
-} SPACETIMEINFO;
-
-typedef struct {
-	LINK		measL;
-	long		lxd;
-	DDIST		width;
-} RMEASDATA;
 
 
 #pragma options align=reset
