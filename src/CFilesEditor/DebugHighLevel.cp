@@ -3,7 +3,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* DebugHighLevel.c - Debug command and high-level functions:
@@ -24,7 +24,7 @@ short nerr, errLim;
 Boolean minDebugCheck;			/* Do only Most important checks? */
 
 
-/* -------------------------------------------------------------- DCheckEverything -- */
+/* ------------------------------------------------------------------ DCheckEverything -- */
 /* Do many or all available consistency checks on everything. Unfortunately, "all
 available consistency checks" don't come anywhere near checking everything that's
 checkable. Someday... Anyway, return False normally, True if things are dangerously
@@ -148,7 +148,7 @@ Boolean DCheckEverything(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- DebugDialog -- */
+/* ----------------------------------------------------------------------- DebugDialog -- */
 /* Let user say what debug information they want checked and/or displayed. */
 
 #define DISABLE_CONTROLS {	\
@@ -220,7 +220,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 	PutDlgString(dialogp,LABEL_DI, (unsigned char *)strBuf, False);
 
 	/* Initialize: get Handles to controls, set initial values, etc. */
-	for (j=FULL; j<=LAST_RBUTTON; j++)						/* Get Hdls to radio btns */
+	for (j=FULL; j<=LAST_RBUTTON; j++)							/* Get Hdls to radio btns */
 		GetDialogItem(dialogp, j, &itype, (Handle *)&whatHdl[j], &tRect);
 	if (*what<FULL || *what>LAST_RBUTTON) {
 		SetControlValue(whatHdl[FULL], 1);						/* Set default */		  	
@@ -313,7 +313,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 }
 
 
-/* ---------------------------------------------------------- DErrLimit and friend -- */
+/* -------------------------------------------------------------- DErrLimit and friend -- */
 /* DErrLimit returns True if Debug should quit because the maximum no. of errors has
 been exceeded. */
 
@@ -354,7 +354,7 @@ Boolean DErrLimit()
 }
 
 
-/* ----------------------------------------------------------------------- DoDebug -- */
+/* --------------------------------------------------------------------------- DoDebug -- */
 /* Ask user what info they want and display/check it.  Returns False normally,
 True if things are so badly screwed up that quitting immediately is desirable. */
 
@@ -366,7 +366,7 @@ Boolean DoDebug(
 	static short	what, istart, istop;
 	short			kount, inLine, nInRange, nSel, objList;
 	static Boolean	disp, check, showLinks, showSubs;
-	static Boolean firstCall = True;
+	static Boolean	firstCall = True;
 	Boolean			selLinksBad;
 	Document 		*doc=GetDocumentFromWindow(TopDocument);
 	char			fullLabel[256];			/* Starting with close single quote */
@@ -382,7 +382,7 @@ Boolean DoDebug(
 	}
 	
 	if (doc==NULL) {
-		LogPrintf(LOG_WARNING, "•DoDebug: doc NULL");
+		LogPrintf(LOG_ERR, "•DoDebug: doc NULL");
 		return True;
 	}
 	if (DebugDialog(label, &what, &istart, &istop, &disp, &check,	/* What does the */
@@ -413,7 +413,7 @@ Boolean DoDebug(
 		case MIN_THINGS:
 			if (DCheckEverything(doc, what==EVERYTHING, what==MIN_THINGS)) {
 					/* Things are in a disasterous state. Quit before we crash! */
-					LogPrintf(LOG_WARNING, "•DoDebug: CAN'T FINISH CHECKING.\n"); 					
+					LogPrintf(LOG_ERR, "•DoDebug: CAN'T FINISH CHECKING.\n"); 					
 					return True;							
 			}
 			else
@@ -486,7 +486,7 @@ Boolean DoDebug(
 				DCheckHeirarchy(doc);
 				if (selLinksBad) {
 					/* Things are in a disasterous state. Quit before we crash! */
-					LogPrintf(LOG_WARNING, "•DoDebug: CAN'T DISPLAY THE SELECTION.\n"); 	
+					LogPrintf(LOG_ERR, "•DoDebug: CAN'T DISPLAY THE SELECTION.\n"); 	
 					return True;
 				}
 			}

@@ -2263,7 +2263,7 @@ Minor cleanup. Affects NResourceID.h; Event, File, InfoDialog, Main, Menu, MIDIU
 
 21-29 May
 
-Begin work on Issue #173 (allowing more horizontal space as needed for ledger lines).
+Began work on Issue #173 (allowing more horizontal space as needed for ledger lines).
 Affects DrawNRGR, DrawUtils, SpaceTime. 
 
 Minor cleanup. Affects DrawUtils.h; CarbonPrinting, DebugDisplay, DragBeam, DrawingEdit,
@@ -2305,13 +2305,13 @@ is too large. Affects SpaceHighLevel.
 
 16-23 August
 
-Move typedefs and #defines for objects and subobjects to a new header, NObjectTypes.h.
+Moved typedefs and #defines for objects and subobjects to a new header, NObjectTypes.h.
 Affects NTypes.h; Nightingale_Prefix.pch.
 
-Move typedefs and #defines for NIGHTSCOREHEADER to a different header. Affects NTypes.h,
+Moved typedefs and #defines for NIGHTSCOREHEADER to a different header. Affects NTypes.h,
 NMiscTypes.h.
 
-Minor cleanup: change all LOG_NOTICE in DebugDisplay() to LOG_INFO, give more details
+Minor cleanup: changed all LOG_NOTICE in DebugDisplay() to LOG_INFO, give more details
 if a file can't be opened because of heap header problems, etc. Affects Draw.h,
 NMiscTypes.h; DebugDisplay, DurationPopUp, HeapFileIO.
 
@@ -2323,7 +2323,7 @@ Fixed bug (Issue #67): The initial position of the tool palette is sometimes at 
 very top of the screen, stuck underneath the menu bar because the drag region is
 inaccessible. Affects Initialize. 
 
-Minor cleanup: Pull VMToollPalette() out of DoViewMenu(), move a struct out of NTypes.h,
+Minor cleanup: Pulled VMToollPalette() out of DoViewMenu(), move a struct out of NTypes.h,
 etc. Affects ApplicData.h, NMiscTypes.h, NTypes.h; Event, Heaps, Initialize, Menu,
 ToolPalette, Windows.
 
@@ -2331,13 +2331,27 @@ ToolPalette, Windows.
 
 31 August - 1 Sept.
 
-Minor cleanup: move some structs and enums out of NTypes.h, etc. Affects NMiscTypes.h,
+Minor cleanup: moved some structs and enums out of NTypes.h, etc. Affects NMiscTypes.h,
 NObjectTypes.h, NTypes.h, OpcodeNightingaleDefs.h.
 
 -------------------------------------------------------------------------------
 
 9 Sept.
 
-Minor cleanup: remove some long-obsolete struct definitions; move some structs and enums
-out of NTypes.h; rename NTypes.h to NBasicTypes.h; etc. Affects Debug.h, NMiscTypes.h,
-Notelist.h, NTypes.h, OpcodeNightingaleDefs.h, vars.h; about eight .c files.
+Minor cleanup: removed some long-obsolete struct definitions; moved some structs and
+enums out of NTypes.h; renamed NTypes.h to NBasicTypes.h; etc. Affects Debug.h,
+NMiscTypes.h, Notelist.h, NTypes.h, OpcodeNightingaleDefs.h, vars.h; about eight .c
+files.
+
+-------------------------------------------------------------------------------
+
+10 Sept.
+
+Fixed very recent bug: graphic popups for changing dynamics and note duration and
+choosing note modifiers never appear because of a line in InitGPopUp() that was
+inadvertently commented out.
+
+Moved code for graphic and "regular" popups into a new file; minor cleanup. Adds
+PopUpUtils.h; PopUpUtils. Affects DurationPopUp.h, UIFUtils.h; DebugHighLevel,
+DurationPopUp, GraphicMDEF, UIFUtils.
+

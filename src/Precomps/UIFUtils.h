@@ -67,19 +67,6 @@ void HiliteRect(Rect *);
 void Voice2UserStr(Document *doc, short voice, char str[]);
 void Staff2UserStr(Document *doc, short staffn, char str[]);
 
-void DrawPopUp(UserPopUp *popup);
-void TruncPopUpString(UserPopUp *popup);
-short InitPopUp(DialogPtr dlog, UserPopUp *p, short item, short pItem,
-					short menuID, short choice);
-short	DoUserPopUp(UserPopUp *p);
-void	ChangePopUpChoice(UserPopUp *p, short choice);
-void	DisposePopUp(UserPopUp *p);
-void	HilitePopUp (UserPopUp *p,short activ);
-short	ResizePopUp(UserPopUp *p);
-void	ShowPopUp(UserPopUp *p, short vis);
-
-void	HiliteArrowKey(DialogPtr, short, UserPopUp *, Boolean *);
-
 Rect GetQDPortBounds(void);
 Rect GetQDScreenBitsBounds(void);
 Rect *GetQDScreenBitsBounds(Rect *bounds);

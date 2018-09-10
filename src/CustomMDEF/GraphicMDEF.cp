@@ -1,7 +1,7 @@
 /* GraphicMDEF.c for Nightingale
 
-This is used for things we think of as _palettes_, Mac OS considers them pop-up menus;
-hence the terminology herein.
+This is used for things we sometimes think of as palettes, but Mac OS considers them pop-up
+menus; hence the terminology herein.
 
 The app's resource fork must contain a 'chgd' resource having the same ID as any 'MENU'
 that uses this defproc. NB: If you want a special background color for a popup menu,
@@ -323,8 +323,8 @@ static void DrawItem(short item, Rect *itemRect, MenuHandle theMenu, Boolean lea
 	p = (unsigned char *)*gCharGridH;					/* no need to lock handle here */
 	p += gItemCharsOffset;								/* point at beginning of item chars */
 	theChar = p[item-1];
-LogPrintf(LOG_DEBUG, "DrawItem: item=%d theChar=%c itemRect->left=%d, ->bottom=%d\n", item,
-			theChar, itemRect->left, itemRect->bottom);
+//LogPrintf(LOG_DEBUG, "DrawItem: item=%d theChar=%c itemRect->left=%d, ->bottom=%d\n", item,
+//			theChar, itemRect->left, itemRect->bottom);
 	MoveTo(itemRect->left, itemRect->bottom);
 	DrawChar(theChar);
 

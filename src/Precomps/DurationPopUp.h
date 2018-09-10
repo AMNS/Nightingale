@@ -31,13 +31,6 @@ typedef struct {
 
 #pragma options align=reset
 
-Boolean InitGPopUp(PGRAPHIC_POPUP, Point, short, short);
-void SetGPopUpChoice(PGRAPHIC_POPUP, short);
-void DrawGPopUp(PGRAPHIC_POPUP);
-void HiliteGPopUp(PGRAPHIC_POPUP, short);
-Boolean DoGPopUp(PGRAPHIC_POPUP);
-void DisposeGPopUp(PGRAPHIC_POPUP);
-
 POPKEY *InitDurPopupKey(PGRAPHIC_POPUP);
 short GetDurPopItem(PGRAPHIC_POPUP, POPKEY *, short, short);
 Boolean DurPopupKey(PGRAPHIC_POPUP, POPKEY *, unsigned char);

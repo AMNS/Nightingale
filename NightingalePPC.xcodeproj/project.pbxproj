@@ -14,6 +14,8 @@
 		154518B31F26D8F200FA26FF /* InternalInput.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154518B21F26D8F200FA26FF /* InternalInput.cp */; };
 		1546E7922063F00F000AFC57 /* Endian.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1546E7912063F00F000AFC57 /* Endian.h */; };
 		1547A3E92145A5C100C5B716 /* NBasicTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1547A3E82145A5C100C5B716 /* NBasicTypes.h */; };
+		1547A4522146B18600C5B716 /* PopUpUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1547A4512146B18600C5B716 /* PopUpUtils.cp */; };
+		1547A4782146B35000C5B716 /* PopUpUtils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1547A4772146B35000C5B716 /* PopUpUtils.h */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
 		154C91D31EDBB86F00AAC011 /* AutoBeam.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154C91D21EDBB86F00AAC011 /* AutoBeam.cp */; };
 		154FABBD1EF2ADF300666F3F /* Reconstruct.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154FABBC1EF2ADF300666F3F /* Reconstruct.cp */; };
@@ -213,6 +215,7 @@
 				1546E7922063F00F000AFC57 /* Endian.h in CopyFiles */,
 				15641170212E4E6300FD52E6 /* NObjTypes.h in CopyFiles */,
 				1547A3E92145A5C100C5B716 /* NBasicTypes.h in CopyFiles */,
+				1547A4782146B35000C5B716 /* PopUpUtils.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,6 +230,8 @@
 		154518B21F26D8F200FA26FF /* InternalInput.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InternalInput.cp; sourceTree = "<group>"; };
 		1546E7912063F00F000AFC57 /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
 		1547A3E82145A5C100C5B716 /* NBasicTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBasicTypes.h; sourceTree = "<group>"; };
+		1547A4512146B18600C5B716 /* PopUpUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PopUpUtils.cp; sourceTree = "<group>"; };
+		1547A4772146B35000C5B716 /* PopUpUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopUpUtils.h; sourceTree = "<group>"; };
 		154C91D21EDBB86F00AAC011 /* AutoBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoBeam.cp; sourceTree = "<group>"; };
 		154FABBC1EF2ADF300666F3F /* Reconstruct.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Reconstruct.cp; sourceTree = "<group>"; };
 		1556A2F51D3FA4E700A0B147 /* InsNew.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNew.cp; sourceTree = "<group>"; };
@@ -681,6 +686,7 @@
 				D03E6BB60D5F7870005FD177 /* Octava.h */,
 				D03E69FA0D5F65DC005FD177 /* OpcodeNightingaleDefs.h */,
 				D03E6BB70D5F7870005FD177 /* PitchUtils.h */,
+				1547A4772146B35000C5B716 /* PopUpUtils.h */,
 				D03E6BB80D5F7870005FD177 /* PS_Stdio.h */,
 				D03E6BB90D5F7870005FD177 /* Reconstruct.h */,
 				D03E6BBA0D5F7870005FD177 /* RhythmDur.h */,
@@ -772,6 +778,7 @@
 				15E4B7741C823507001279A2 /* Ottava.cp */,
 				D088B9800D5FBA100028C2BC /* Part.cp */,
 				D088B9810D5FBA100028C2BC /* PitchUtils.cp */,
+				1547A4512146B18600C5B716 /* PopUpUtils.cp */,
 				D088B9820D5FBA100028C2BC /* Preferences.cp */,
 				D088B8CA0D5FB69C0028C2BC /* PS_Stdio.cp */,
 				D088B8D30D5FB7530028C2BC /* RhythmDur.cp */,
@@ -1194,6 +1201,7 @@
 				15FD35CB2012A11C00198184 /* MidiMapInfo.cp in Sources */,
 				155F2FE22012E88600E6A344 /* CoreMIDIUtils.cp in Sources */,
 				15BE10072063EAC900170274 /* Endian.cp in Sources */,
+				1547A4522146B18600C5B716 /* PopUpUtils.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
