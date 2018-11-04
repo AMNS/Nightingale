@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -18,7 +18,7 @@
 										animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
 #define	BOLD_CODE			'º'		/* [opt-b] If this begins a line of TEXT resource, or follows
 										PAUSE_CODE, that line will be drawn in bold. */
-#define	SCROLL_PAUSE_DELAY	210		/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
+#define	SCROLL_PAUSE_DELAY	90		/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
 #define	SCROLL_NORM_DELAY	4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
 #define	MAX_PAUSE_LINES		10		/* Max number of lines that can begin with PAUSE_CODE */
 
@@ -32,8 +32,7 @@ static enum {
 	CREDITS_BOX = 3,
 	STXT_HINT1,
 	STXT_HINT2,
-	STXT_VERS,
-	PICT_DEMO=10
+	STXT_VERS
 } E_AboutItems;
 
 static GrafPtr	fullTextPort;
@@ -46,7 +45,6 @@ void DoAboutBox(
 	)
 {
 	short			type, itemHit;
-	short			x, y;
 	Boolean			okay, keepGoing=True;
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
@@ -81,8 +79,6 @@ void DoAboutBox(
 	textSection = creditRect;
 	OffsetRect(&textSection, -creditRect.left, -creditRect.top);
 	if (!SetupCredits()) goto broken;
-
-	HideDialogItem(dlog, PICT_DEMO);
 	
 	/* Get version number string and display it in a static text item. */
 	strcpy((char *)versionPStr, applVerStr);
@@ -97,7 +93,6 @@ void DoAboutBox(
 	TextFont(textFontNum);
 	TextSize(textFontSmallSize);
 
-	y = GetMBarHeight()+10;  x = 25;
 	CenterWindow(GetDialogWindow(dlog), 70);
 	ShowWindow(GetDialogWindow(dlog));
 	
@@ -187,34 +182,34 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 
 
 /* Prepare an offscreen port holding lines of text read from a TEXT resource.
-	AnimateCredits() will copy a sliding rectangle from this port onto the 
-	screen every few ticks (specified by SCROLL_NORM_DELAY). */
+	AnimateCredits() will copy a sliding rectangle from this port onto the screen
+	every few ticks (specified by SCROLL_NORM_DELAY). */
 	
 Boolean SetupCredits()
 {
-	Handle	creditText;
+	Handle	hCreditText;
 	char	*textPtr, *strP, *thisStr;
 	short	numLines, lineNum, strWid, offset, pauseLineCount, i;
 	long	textLen;
 	short	portWid;
 	
 	/* Get credit text from TEXT resource. (Get1Resource isn't worth the trouble.) */
-	creditText = GetResource('TEXT', ABOUT_TEXT);
-	if (!creditText) {
+	hCreditText = GetResource('TEXT', ABOUT_TEXT);
+	if (!hCreditText) {
 		MayErrMsg("AboutBox: Can't get credit text.");
 		return False;
 	}
-	textLen = GetResourceSizeOnDisk(creditText);
+	textLen = GetResourceSizeOnDisk(hCreditText);
 	
 	/* Lock and dereference handle to text */
-	HLock(creditText);
-	textPtr = (char *) *creditText;
+	HLock(hCreditText);
+	textPtr = (char *) *hCreditText;
 		
 	/* How many lines in text? */
 	for (i=0, numLines=0; i<textLen; i++, textPtr++) {
 		if (*textPtr == CH_CR) numLines++;
 	}
-	textPtr = (char *) *creditText;								/* reset ptr */
+	textPtr = (char *) *hCreditText;								/* reset ptr */
 
 	SaveGWorld();
 	
@@ -229,6 +224,7 @@ Boolean SetupCredits()
 
 	/* Initialize pauseLines[], so that we won't pause inadvertantly on a line whose
 	   number happens to be given by garbage. */
+	   
 	for (i=0; i<MAX_PAUSE_LINES; i++)
 		pauseLines[i] = -1;
 	
@@ -236,6 +232,7 @@ Boolean SetupCredits()
 	   that might begin a line. NB: the pause code must precede the bold code if both
 	   are used in the same line.  After the first MAX_PAUSE_LINES pause codes have been
 	   interpreted, any following ones are ignored. */
+	   
 	thisStr = strP = textPtr;
 	for (i=0, lineNum=1, pauseLineCount=0; i<textLen; i++) {
 		if (*textPtr == CH_CR) {
@@ -266,8 +263,8 @@ Boolean SetupCredits()
 	UnlockGWorld(gwPtr);
 	RestoreGWorld();
 	
-	HUnlock(creditText);
-	ReleaseResource(creditText);	
+	HUnlock(hCreditText);
+	ReleaseResource(hCreditText);	
 	
 	return True;
 }

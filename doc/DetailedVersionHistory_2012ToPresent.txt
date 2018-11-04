@@ -2345,7 +2345,7 @@ files.
 
 -------------------------------------------------------------------------------
 
-10 Sept.
+10 Sept.			======== NIGHTINGALE 5.8b9 (10 Sept. 2018) ========
 
 Fixed very recent bug: graphic popups for changing dynamics and note duration and
 choosing note modifiers never appear because of a line in InitGPopUp() that was
@@ -2355,3 +2355,14 @@ Moved code for graphic and "regular" popups into a new file; minor cleanup. Adds
 PopUpUtils.h; PopUpUtils. Affects DurationPopUp.h, UIFUtils.h; DebugHighLevel,
 DurationPopUp, GraphicMDEF, UIFUtils.
 
+===============================================================================
+
+1-4 Nov.			======== NIGHTINGALE 5.8.9 (4 Nov. 2018) ========
+
+Move source files (but not headers) for utilities from the CFilesBoth and CFilesEditor
+folders to the Utilities folder.
+
+Changed version number from 5.8b9 to 5.8.9. Affects Info.plist.
+
+Minor cleanup: remove an item that's always hidden from the About box, etc. Affects
+.rsrc; About.
