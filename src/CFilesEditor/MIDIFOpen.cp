@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -21,7 +21,7 @@ long eofpos;
 name available from the International MIDI Association. As of this writing (March 2017),
 it appears that the "official" descripion is only in a 1996 document plus four
 supplements of 1998 thru 2001 available from the MIDI Association, but only after
-registering with them. Or just get the unoficial (and not-quite-up-to-date) 1999
+registering with them. Much easier to get the unoficial (and not-quite-up-to-date) 1999
 "Standard MIDI-File Format Spec. 1.1, updated", found in various places on the Web.
 
 We go thru two steps in converting a MIDI file to Nightingale score. In step 1, we
@@ -35,7 +35,7 @@ interface-level routines. */
 static short errCode;
 
 Word nTracks, timeBase;
-long qtrNTicks;						/* Ticks per quarter in Nightingale (not in the MIDI file!) */
+long qtrNTicks;					/* Ticks per quarter in Nightingale (not in the MIDI file!) */
 			
 /* Prototypes for local functions */
 
@@ -44,7 +44,7 @@ static Word getw(Word);
 static DoubleWord getl(Word);
 static void SkipChunksUntil(DoubleWord);
 
-static Boolean TimeSigBad(short, short);
+static Boolean IsTimeSigBad(short, short);
 
 static DoubleWord GetVarLen(Byte [], DoubleWord *);
 
@@ -122,7 +122,7 @@ static void SkipChunksUntil(DoubleWord type)
 }
 
 
-static Boolean TimeSigBad(short tsNum, short tsDenom)
+static Boolean IsTimeSigBad(short tsNum, short tsDenom)
 {
 	char fmtStr[256];
 
@@ -690,7 +690,7 @@ Boolean GetTimingTrackInfo(
 				totCount++;
 				tsDenom = (eventData[4]<=MAX_DENOM_POW2 ?
 								denomTab[eventData[4]] : denomTab[MAX_DENOM_POW2]);
-				if (TimeSigBad(eventData[3], tsDenom))
+				if (IsTimeSigBad(eventData[3], tsDenom))
 					(*nTSBad)++;
 				else
 					maxDenom = n_max(maxDenom, tsDenom);
@@ -912,7 +912,7 @@ static short Track2Night(Document *, TRACKINFO [], short, short, short, short, l
 #define ONETRACK_TAB_SIZE 4000		/* Max. Syncs and max. notes for a single track */
 
 #define MAX_TSCHANGE 1000			/* Max. no. of time sig. changes in score */
-#define MAX_TEMPOCHANGE 1000		/* Max. no. of tempo changes in score */
+#define MAX_MF_TEMPOCHANGE 1000		/* Max. no. of tempo changes in score */
 #define MAX_CTRLCHANGE 1000
 
 static short tsNum, tsDenom, sharpsOrFlats;
@@ -1141,7 +1141,7 @@ static Boolean DoMetaEvent(
 			return True;
 
 		case ME_TEMPO:	
-			if (tempoTabLen >= MAX_TEMPOCHANGE) return False;
+			if (tempoTabLen >= MAX_MF_TEMPOCHANGE) return False;
 			
 			unsigned long microsecsPQ = GetTempoMicrosecsPQ(p);
 			tempoInfoTab[tempoTabLen].tStamp = timeNow;
@@ -1156,20 +1156,20 @@ static Boolean DoMetaEvent(
 			newDenom = (p->data[4]<=MAX_DENOM_POW2 ?
 							denomTab[p->data[4]] : denomTab[MAX_DENOM_POW2]);
 			if (p->data[3]!=tsNum || newDenom!=tsDenom) {
-				if (TimeSigBad(p->data[3], newDenom)) return False;
+				if (IsTimeSigBad(p->data[3], newDenom)) return False;
 
 				/* If <timeNow> is 0, we're just replacing the initial time sig.;
 					otherwise, store count for previous time sig. and index to new one */
 				
 				if (timeNow!=0L) {
-					/* The interval between time sigs. MIGHT correspond to a fractional
-					    number of measures. This is a pretty strange situation; I'm not sure
-						most MIDI-file-writing programs would ever write such a file, but it
-						can easily happen with MIDI files written by Nightingale itself, since
-						we don't insist measure contents agree with time sigs. In such cases,
-						Nightingale warns the user when they save the file that it may not be
-						easy to make sense of; we also warn here, when they open it, and
-						round the no. of measures. */
+					/* The interval between time sigs. _might_ correspond to a fractional
+					   number of measures. This is a pretty strange situation; I'm not sure
+					   most MIDI-file-writing programs would ever write such a file, but it
+					   can easily happen with MIDI files written by Nightingale itself, since
+					   we don't insist measure contents agree with time sigs. In such cases,
+					   Nightingale warns the user when they save the file that it may not be
+					   easy to make sense of; we also warn here, when they open it, and
+					   round the no. of measures. */
 						
 					measCount = (timeNow-timeSigTime)/measDur;
 					if ((timeNow-timeSigTime)%measDur!=0) {
@@ -1242,8 +1242,7 @@ basis to keep notes near the staff. They:
 	- create only treble and bass clefs.
 
 (It would probably be easy to make these functions leave alone any staves that start in
-clefs other than treble or bass; beyond that, handling other clefs looks hard.)
-*/
+clefs other than treble or bass; beyond that, handling other clefs looks hard.) */
 
 static LINK NewClefPrepare(Document *, LINK, short);
 static LINK Replace1Clef(Document *, LINK, short, char);
@@ -1268,9 +1267,9 @@ static LINK NewClefPrepare(Document *doc, LINK insL, short nstaves)
 	return newL;
 }
 
-/* Replace clef before first (with invisible barline) Measure. Return the first
-LINK after the range affected, i.e., the next clef change on the staff, if any.
-Identical to ReplaceClef except this function doesn't affect selection. */
+/* Replace clef before first (with invisible barline) Measure. Return the first LINK
+after the range affected, i.e., the next clef change on the staff, if any. Identical
+to ReplaceClef except that this function doesn't affect selection. */
 
 LINK Replace1Clef(Document *doc, LINK firstClefL, short staffn, char subtype)
 {
@@ -1301,7 +1300,8 @@ LINK Replace1Clef(Document *doc, LINK firstClefL, short staffn, char subtype)
 
 static Boolean ReplaceClefs(Document *doc, char /*curClef*/[], char newClef[], short nToChange)
 {
-	LINK firstClefL; short i, s, staff;
+	LINK firstClefL;
+	short i, s, staff;
 	
 	firstClefL = LSSearch(doc->headL, CLEFtype, 1, GO_RIGHT, False);
 	
@@ -1318,7 +1318,8 @@ static Boolean ReplaceClefs(Document *doc, char /*curClef*/[], char newClef[], s
 static Boolean AddClefs(Document *doc, LINK measL, char curClef[], char newClef[],
 								short nToChange)
 {
-	LINK newL, aClefL; PACLEF aClef; short i, s, staff;
+	LINK newL, aClefL;  PACLEF aClef;
+	short i, s, staff;
 	
 	newL = NewClefPrepare(doc, measL, nToChange);
 	if (!newL) return False;
@@ -1350,8 +1351,8 @@ static Boolean ChangeClefs(
 		char curClef[]
 		)
 {
-	short s, nToChange; char newClef[MAXSTAVES+1];
-	LINK firstMeasL; Boolean beforeFirst, okay;
+	short s, nToChange;  char newClef[MAXSTAVES+1];
+	LINK firstMeasL;  Boolean beforeFirst, okay;
 	
 	for (nToChange = 0, s = 1; s<=doc->nstaves; s++) {
 		if (avgNoteNum[s]<=0)
@@ -1410,7 +1411,8 @@ static Boolean AddClefs1Measure(Document *doc, LINK measL, char curClef[])
 
 static Boolean AddClefChanges(Document *doc)
 {
-	LINK measL, clefL, aClefL; char curClef[MAXSTAVES+1];
+	LINK measL, clefL, aClefL;
+	char curClef[MAXSTAVES+1];
 			
 	clefL = LSSearch(doc->headL, CLEFtype, ANYONE, GO_RIGHT, False);
 	aClefL = FirstSubLINK(clefL);
@@ -1456,7 +1458,6 @@ static short CountSyncs(Document *doc)
 	return nSyncs;
 }
 
-#if 1
 
 static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *rawSyncTab, short rawTabSize) 
 {
@@ -1499,33 +1500,6 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *raw
 	
 	return docSyncTab;
 }
-
-#else
-
-static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize) 
-{
-	short nSyncs = CountSyncs(doc);
-	long tLen = nSyncs * sizeof(LINKTIMEINFO);
-	LINKTIMEINFO *docSyncTab = (LINKTIMEINFO *)NewPtr(tLen);
-	if (!GoodNewPtr((Ptr)docSyncTab)) {
-		*tabSize = 0; return NULL;
-	}
-	*tabSize = nSyncs;
-	
-	int i = 0;
-	for (LINK pL = doc->headL; pL != doc->tailL; pL=RightLINK(pL)) {
-		if (SyncTYPE(pL)) {
-			LINKTIMEINFO info = docSyncTab[i];
-			info.link = pL;
-			info.time = LastEndTime(doc, doc->headL, pL);
-			docSyncTab[i++] = info;
-		}
-	}
-	
-	return docSyncTab;
-}
-
-#endif
 
 
 static LINK GetTempoRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo) 
@@ -1611,7 +1585,7 @@ static Boolean CompactTempoTab()
 	
 	TEMPOINFO *tempoInfoTabOrig = tempoInfoTab;	
 	
-	long tLen = MAX_TEMPOCHANGE*sizeof(TEMPOINFO);
+	long tLen = MAX_MF_TEMPOCHANGE*sizeof(TEMPOINFO);
 	tempoInfoTab = (TEMPOINFO *)NewPtr(tLen);
 	if (!GoodNewPtr((Ptr)tempoInfoTab)) {
 		OutOfMemory(tLen);
@@ -2239,7 +2213,7 @@ short MIDNight2Night(
 		OutOfMemory(len);
 		goto Done;
 	}
-	tLen = MAX_TEMPOCHANGE*sizeof(TEMPOINFO);
+	tLen = MAX_MF_TEMPOCHANGE*sizeof(TEMPOINFO);
 	tempoInfoTab = (TEMPOINFO *)NewPtr(tLen);
 	if (!GoodNewPtr((Ptr)tempoInfoTab)) {
 		OutOfMemory(tLen);

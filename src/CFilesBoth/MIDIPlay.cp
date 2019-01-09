@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -81,8 +81,7 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 {
 	Rect messageRect;
 
-	if (pL!=NILINK)
-		measNum = GetMeasNum(doc, pL);
+	if (pL!=NILINK) measNum = GetMeasNum(doc, pL);
 
 	PrepareMessageDraw(doc,&messageRect, False);
 	GetIndCString(strBuf, MIDIPLAY_STRS, 1);				/* "Playing m. " */
@@ -718,7 +717,7 @@ Notes are played at their correct relative times, even if that means there's sil
 the next selected note's time. */
 
 #define CH_BARTAP 0x09						/* Character code for insert-barline key  */
-#define MAX_TEMPO_CHANGES 500				/* Max. no. of tempo changes we handle */
+#define MAX_PLAY_TEMPOCHANGE 500			/* Max. no. of tempo changes we handle */
 
 void PlaySequence(
 			Document *doc,
@@ -758,7 +757,7 @@ void PlaySequence(
 	short		oldCurrentSheet, tempoCount, barTapSlopMS;
 	EventRecord	theEvent;
 	char		theChar;
-	TCONVERT	tConvertTab[MAX_TEMPO_CHANGES];
+	TCONVERT	tConvertTab[MAX_PLAY_TEMPOCHANGE];
 	char		fmtStr[256];
 	short		velOffset, durFactor, timeFactor;
 	
@@ -809,11 +808,11 @@ void PlaySequence(
 
 	InitAddBarlines();
 
-	tempoCount = MakeTConvertTable(doc, fromL, toL, tConvertTab, MAX_TEMPO_CHANGES);
+	tempoCount = MakeTConvertTable(doc, fromL, toL, tConvertTab, MAX_PLAY_TEMPOCHANGE);
 	tooManyTempi = (tempoCount<0);
 	if (tooManyTempi) {
-		LogPrintf(LOG_WARNING, "Over %d tempo changes, too many to play correctly.\n", MAX_TEMPO_CHANGES);
-		tempoCount = MAX_TEMPO_CHANGES;						/* Table size exceeded */
+		LogPrintf(LOG_WARNING, "Over %d tempo changes, too many to play correctly.\n", MAX_PLAY_TEMPOCHANGE);
+		tempoCount = MAX_PLAY_TEMPOCHANGE;						/* Table size exceeded */
 	}
 
 	switch (useWhichMIDI) {
@@ -1165,7 +1164,7 @@ done:
 
 	if (tooManyTempi) {
 		GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 3);			/* "Nightingale can only play %d tempo changes" */
-		sprintf(strBuf, fmtStr, MAX_TEMPO_CHANGES);
+		sprintf(strBuf, fmtStr, MAX_PLAY_TEMPOCHANGE);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 	}

@@ -201,7 +201,7 @@ Boolean IsSafeToQuit()
 				{ inMasterPage = True; break; }
 	
 	if (inMasterPage) {
-		GetIndCString(strBuf, MENUCMDMSGS_STRS, 1);			/* "You can't quit now because at least one score is in Master Page." */
+		GetIndCString(strBuf, MENUCMDMSGS_STRS, 1);		/* "You can't quit now because at least one score is in Master Page." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return False;
@@ -252,7 +252,7 @@ Boolean DoFileMenu(short choice)
 				if (!FirstFreeDocument()) TooManyDocs();
 				 else {
 					UseStandardType(documentType);
-					GetIndCString(str, MENUCMDMSGS_STRS, 4);			/* "Which score do you want to open?" */
+					GetIndCString(str, MENUCMDMSGS_STRS, 4);		/* "Which score do you want to open?" */
 					returnCode = GetInputName(str, True, tmpStr, &vrefnum, &nscd);
 					if (returnCode) {
 						if (returnCode==OP_OpenFile) {
@@ -272,7 +272,7 @@ Boolean DoFileMenu(short choice)
 				if (!FirstFreeDocument()) TooManyDocs();
 				 else {
 					UseStandardType(documentType);
-					GetIndCString(str, MENUCMDMSGS_STRS, 5);			/* "Which score do you want to open read-only?" */
+					GetIndCString(str, MENUCMDMSGS_STRS, 5);		/* "Which score do you want to open read-only?" */
 					returnCode = GetInputName(str, False, tmpStr, &vrefnum, &nscd);
 					if (returnCode)
 						fsSpec = nscd.nsFSSpec;
@@ -301,7 +301,7 @@ Boolean DoFileMenu(short choice)
 				UseStandardType('Midi');
 				ClearStandardTypes();
 				
-				GetIndCString(str, MIDIFILE_STRS, 1);					/* "What MIDI file do you want to Import?" */
+				GetIndCString(str, MIDIFILE_STRS, 1);				/* "What MIDI file do you want to Import?" */
 				returnCode = GetInputName(str, False, tmpStr, &vrefnum, &nscd);
 				if (returnCode) {
 					fsSpec = nscd.nsFSSpec;
@@ -356,7 +356,7 @@ Boolean DoFileMenu(short choice)
 				break;
 			case FM_ScoreInfo:
 				/* For users of public versions that don't have the Test menu, provide
-					a way to access our debugging and emergency-repair facilities. */
+				   a way to access our debugging and emergency-repair facilities. */
 				if (OptionKeyDown() && CmdKeyDown()) {
 					InstallDebugMenuItems(ControlKeyDown());
 				}
@@ -1301,10 +1301,9 @@ static void DoFormatMenu(short choice)
 
 static void DoMagnifyMenu(short choice)
 {		
-	/*
-	 * Assume the menu simply contains a list of all possible <doc->magnify>
-	 * values, starting with the smallest (MIN_MAGNIFY).
-	 */
+	/* Assume the menu simply contains a list of all possible <doc->magnify> values,
+	   starting with the smallest (MIN_MAGNIFY). */
+	   
 	Document *doc=GetDocumentFromWindow(TopDocument);
 	short newMagnify, magnifyDiff;
 
@@ -1501,8 +1500,8 @@ static void SMRespace(Document *doc)
 								RESFACTOR*(long)dval, True, False))
 			doc->spacePercent = dval;
 			
-		/* NB: It would be much better not to Antikink if RespaceBars failed, but we
-			have no other way to free its data structures! This should be fixed. */
+		/* FIXME: It would be much better not to Antikink if RespaceBars failed, but we
+			have no other way to free its data structures! */
 		Antikink();
 	}
 }
@@ -1975,21 +1974,20 @@ static void VMToollPalette()
 		/* Initial position is the offset in config.toolsPosition from the
 		   upper left corner of the document's window, but not offscreen. */
 							 
-		//docRect = (*((WindowPeek)TopDocument)->contRgn)->rgnBBox;
 		GetWindowRgnBounds(TopDocument, kWindowContentRgn, &docRect);					
 		docRect.right = docRect.left + pal.right;
 		docRect.bottom = docRect.top + pal.bottom;
 		GetMyScreen(&docRect, &screen);
 		OffsetRect(&docRect, config.toolsPosition.h, config.toolsPosition.v);
 		PullInsideRect(&docRect, &screen, 2);
-LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d\n", docRect.top);  // FIX ISSUE 67
+//LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d\n", docRect.top);  // FIX ISSUE 67
 	}
 	else {
 		/* Initial position is upper left corner of main screen */
 		GetQDScreenBitsBounds(&docRect);
 		InsetRect(&docRect, 10, GetMBarHeight()+16);
-LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d GetMBarHeight()=%d\n", docRect.top,
-GetMBarHeight());														// FIX ISSUE 67
+//LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d GetMBarHeight()=%d\n", docRect.top,
+//GetMBarHeight());														// FIX ISSUE 67
 	}
 	(*paletteGlobals[palIndex])->position.h = docRect.left;
 	(*paletteGlobals[palIndex])->position.v = docRect.top;
@@ -2311,7 +2309,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 		 * Unlike most other menus, we can't just disable the whole menu if there's
 		 * no score open, so the code below has to work even if doc==NULL!
 		 *
-		 *	Handle clipboard commands if either doc==NULL, or it exists and is in the
+		 * Handle clipboard commands if either doc==NULL, or it exists and is in the
 		 * normal view (not Master Page or Work on Format).
 		 */
 		
@@ -2346,8 +2344,6 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 			else
 				GetIndCString(str, MENUCMD_STRS, 22);					/* "Clear Page" */
 			SetMenuItemCText(editMenu, EM_ClearPage, str);
-
-			/* FIXME: How can you "Paste Insert" anything into a DA? (CER asks?) */
 
 			switch (lastCopy) {
 				case COPYTYPE_CONTENT:

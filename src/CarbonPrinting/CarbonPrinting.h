@@ -1,5 +1,5 @@
 /*
-	File:		MyCarbonPrinting.h
+	File:		CarbonPrinting.h
 	
 	Contains:	Prototypes for our high level printing routines.
 

@@ -16,7 +16,7 @@ several more places, e.g., DoPostScript, NameMFScore. */
 #define MAXCHORD 88			/* Maximum no. of notes in a chord */
 #define MAXINBEAM 127		/* Maximum no. of notes/chords in a beamset */
 #define MAXINOTTAVA	127		/* Maximum no. of notes/chords in an ottava */
-#define MAXINTUPLET	50		/* Maximum no. of notes/chords in an tuplet */
+#define MAXINTUPLET	80		/* Maximum no. of notes/chords in an tuplet */
 #define MAX_TUPLENUM 255	/* Maximum possible numerator/denominator in a tuplet */
 #define MAX_MEASNODES 250	/* Maximum no. of nodes in a measure */
 #define MAX_L_DUR 9			/* Max. legal SYNC l_dur code; the shortest legal */
@@ -33,7 +33,7 @@ several more places, e.g., DoPostScript, NameMFScore. */
 #define MAX_FIRSTMEASNUM 4000	/* Largest number for the first measure */
 #define MAX_RSP_MEASURES 5000	/* Max. no. of Measures we can respace per call */
 
-#define MAX_CHANGES 50		/* Max. no. of changes in one call to Master Page */
+#define MAX_MPCHANGES 50	/* Max. no. of changes in one call to Master Page */
 
 #define MF_MAXPIECES 300	/* Max. pieces one note/rest can be "clarified" into */
 
