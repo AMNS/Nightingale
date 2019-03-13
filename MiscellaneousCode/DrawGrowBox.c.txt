@@ -1,0 +1,25 @@
+/* Draw a grow icon at given position in given port.  Doesn't change the current port.
+The icon is assumed the usual 16 by 16 icon.  If drawit is False, erase the area it
+appears in but leave box framed. This function is not used in Ngale 5.8 and I doubt
+it'll ever be needed again.  --DAB, Feb. 2018 */
+
+void DrawGrowBox(WindowPtr w, Point pt, Boolean drawit)
+{
+	Rect r,t,grow;  GrafPtr oldPort;
+	
+	GetPort(&oldPort); SetPort(GetWindowPort(w));
+	
+	SetRect(&grow,pt.h,pt.v,pt.h+SCROLLBAR_WIDTH+1,pt.v+SCROLLBAR_WIDTH+1);
+	t = grow; InsetRect(&t,1,1);
+	EraseRect(&t);
+	FrameRect(&grow);
+	if (drawit) {
+		SetRect(&r,3,3,10,10);
+		SetRect(&t,5,5,14,14);
+		OffsetRect(&r,grow.left,grow.top);
+		OffsetRect(&t,grow.left,grow.top);
+		FrameRect(&t);
+		EraseRect(&r); FrameRect(&r);
+	}
+	SetPort(oldPort);
+}

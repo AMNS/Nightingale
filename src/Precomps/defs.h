@@ -1,9 +1,9 @@
-/* Defs.h for Nightingale - general global #defines and enums. Limits are in NLimits.h.
+/* Defs.h for Nightingale - general global #defines and enums. Most limits are in NLimits.h.
 Some other #defines, dependent on _VERSION, are in versionStrings. */
 
-/* ----------------------------------------------------- Miscellaneous global enums -- */
+/* -------------------------------------------------------- Miscellaneous global enums -- */
 
-enum {										/* In the order of TEXTSTYLEs in NIGHTSCOREHDR */
+enum {									/* In the order of TEXTSTYLEs in NIGHTSCOREHDR */
 	FONT_THISITEMONLY=0,
 	FONT_MN,
 	FONT_PN,
@@ -20,15 +20,15 @@ enum {										/* In the order of TEXTSTYLEs in NIGHTSCOREHDR */
 	FONT_R7,
 	FONT_R8,
 	FONT_R9
-	};
+};
 
-enum {										/* Selection types */
+enum {									/* Selection types */
 	MARCHING_ANTS = 1,
 	SWEEPING_RECTS,
 	SLURSOR
 };
 
-enum {										/* Goto types */
+enum {									/* Goto types */
 	goDirectlyToJAIL = 0,
 	gotoPAGE,
 	gotoBAR,
@@ -36,21 +36,21 @@ enum {										/* Goto types */
 };
 
 enum {
-	WHOLEMR_L_DUR=-1,						/* l_dur code (subType) for whole measure rest */
-	UNKNOWN_L_DUR=0,						/*							unknown CMN value */
-	BREVE_L_DUR=1,							/*							breve */
-	WHOLE_L_DUR,							/* 							whole note/rest */
-	HALF_L_DUR,								/* 							half note/rest */
-	QTR_L_DUR,								/* 							quarter note/rest */
-	EIGHTH_L_DUR,							/*							eighth note/rest */
-	SIXTEENTH_L_DUR,						/*							16th note/rest */
-	THIRTY2ND_L_DUR,						/*							32nd note/rest */
-	SIXTY4TH_L_DUR,							/*							64th note/rest */
-	ONE28TH_L_DUR,							/*							128th note/rest */
+	WHOLEMR_L_DUR=-1,					/* l_dur code (subType) for whole measure rest */
+	UNKNOWN_L_DUR=0,					/*							unknown CMN value */
+	BREVE_L_DUR=1,						/*							breve */
+	WHOLE_L_DUR,						/* 							whole note/rest */
+	HALF_L_DUR,							/* 							half note/rest */
+	QTR_L_DUR,							/* 							quarter note/rest */
+	EIGHTH_L_DUR,						/*							eighth note/rest */
+	SIXTEENTH_L_DUR,					/*							16th note/rest */
+	THIRTY2ND_L_DUR,					/*							32nd note/rest */
+	SIXTY4TH_L_DUR,						/*							64th note/rest */
+	ONE28TH_L_DUR,						/*							128th note/rest */
 	NO_L_DUR	
 };
 
-enum {										/* Accidental codes */
+enum {									/* Accidental codes */
 	AC_DBLFLAT=1,
 	AC_FLAT,
 	AC_NATURAL,
@@ -58,64 +58,64 @@ enum {										/* Accidental codes */
 	AC_DBLSHARP
 };
 
-enum {										/* Output device types */
+enum {									/* Output device types */
 	toScreen=0,
-	toBitmapPrint,							/* I.e., QuickDraw printer */
+	toBitmapPrint,						/* I.e., QuickDraw printer */
 	toPostScript,
 	toPICT,
-	toVoid									/* (for debugging: do everything but actual drawing) */
+	toVoid								/* (for debugging: do everything but actual drawing) */
 };
 
-enum {										/* Location for adding Systems and Measures: */
-	FirstSystem,							/* Adding the very first System of the score, when it is created */
-	BeforeFirstSys,							/* Adding before the first System of the score */
-	FirstOnPage,							/* Adding a new first System to some page other than the first */
-	SuccSystem,								/* Adding a System following the first to any page */
-	SuccMeas								/* Adding a Measure following the first to any System */
+enum {									/* Location for adding Systems and Measures: */
+	FirstSystem,						/* Adding the very first System of the score, when it is created */
+	BeforeFirstSys,						/* Adding before the first System of the score */
+	FirstOnPage,						/* Adding a new first System to some page other than the first */
+	SuccSystem,							/* Adding a System following the first to any page */
+	SuccMeas							/* Adding a Measure following the first to any System */
 };
 
-enum {										/* DrawSTAFF foreground/background codes: */
-	BACKGROUND_STAFF,
+enum {									/* DrawSTAFF foreground/background codes */
+	BACKGROUND_STAFF=0,
 	OTHERSYS_STAFF,
 	SECONDSYS_STAFF,
-	TOPSYS_STAFF	
+	TOPSYS_STAFF
 };
 
 enum {
-	LEFT_SIDE=1,							/* Page number position codes */
+	LEFT_SIDE=1,						/* Page number position codes */
 	CENTER,
 	RIGHT_SIDE
 };
 
-enum {										/* Note/rest/grace note codes: */
-	NOTES_ONLY,								/* Notes and rests */
-	GRNOTES_ONLY,							/* Grace notes */
-	NOTES_BOTH								/* All */
+enum {									/* Note/rest/grace note codes: */
+	NOTES_ONLY,							/* Notes and rests */
+	GRNOTES_ONLY,						/* Grace notes */
+	NOTES_BOTH							/* All */
 };
 
-enum {										/* Function return values: */
+enum {									/* Function return values: */
 	FAILURE=-1,
 	NOTHING_TO_DO=0,
 	OP_COMPLETE=1
 };
 
-enum {										/* MIDI Driver: */
-	MIDIDR_CM,								/* Core MIDI */
-	MIDIDR_NONE								/* No MIDI driver */
+enum {									/* MIDI Driver: */
+	MIDIDR_CM,							/* Core MIDI */
+	MIDIDR_NONE							/* No MIDI driver */
 };
 
-enum {										/* MIDI Driver config settings */
-	MIDISYS_CM=0,							/* Core MIDI */
+enum {									/* MIDI Driver config settings: */
+	MIDISYS_CM=0,						/* Core MIDI */
 	MIDISYS_NONE
 };
 
-enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
+enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 	OK = 1,
 	Cancel
 };
 
 
-/* --------------------------------------------------------------- MUSIC CHARACTERS -- */
+/* ------------------------------------------------------------------ MUSIC CHARACTERS -- */
 /* Characters in our music font, Adobe's "Sonata" and compatible fonts: */
 
 #define MCH_trebleclef '&'
@@ -195,23 +195,26 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 
 #define BREVEYOFFSET 2						/* Correction for Sonata error in breve origin (half-lines) */
 
-/* -------------------------------------------------- OTHER CHARACTER AND KEY CODES -- */
+/* ----------------------------------------------------- OTHER CHARACTER AND KEY CODES -- */
 
 #define CH_ENTER 0x03					/* ASCII character code for enter key */
 #define CH_BS 0x08						/* ASCII character code for backspace (delete) */
 #define CH_CR '\r'						/* ASCII (=C's) character code for carriage return  */
 #define CH_NLDELIM '#'					/* ASCII code for "start a new line" where '\r' can't be used */
 #define CH_ESC 0x1B						/* ASCII character code for ESC (escape) */
+#define CH_HARDSPACE 0xCA				/* 8-bit (non-ASCII) character code for hard space */
 
 #define CLEARKEY 27						/* Macintosh character code for clear key */
 #define CMD_KEY 17						/* Macintosh character code for command key */
-#define LEFTARROWKEY	28				/* Macintosh character codes for arrow keys... */
-#define RIGHTARROWKEY	29
+#define LEFTARROWKEY 28					/* Macintosh character codes for arrow keys... */
+#define RIGHTARROWKEY 29
 #define UPARROWKEY 30
 #define DOWNARROWKEY 31
 #define FWDDEL_KEY 127					/* Macintosh character code for forward delete key (on ext. kybds) */
 
-/* -------------------------------------------------------- MISCELLANEOUS CONSTANTS -- */
+#define CS_DELIMITER FWDDEL_KEY			/* Chord symbol field delimiter */
+
+/* ----------------------------------------------------------- MISCELLANEOUS CONSTANTS -- */
 
 #define FIDEAL_RESOLVE 10				/* Fractional STDIST resolution in parts of an STDIST */
 
@@ -239,11 +242,11 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 
 #define NOMATCH -1
 
-#define GO_LEFT TRUE					/* used in calls to search routines */
-#define GO_RIGHT FALSE
+#define GO_LEFT True					/* used in calls to search routines */
+#define GO_RIGHT False
 
-#define EXACT_TIME TRUE					/* used in calls to TimeSearch routines */
-#define MIN_TIME FALSE
+#define EXACT_TIME True					/* used in calls to TimeSearch routines */
+#define MIN_TIME False
 
 #define DFLT_CLEF TREBLE_CLEF			/* Default clefType for new staves */
 #define DFLT_NKSITEMS 0					/* Dflt. key sig. NB: !=0 has side effects: CAREFUL! */
@@ -276,7 +279,7 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 #define DOCUMENT_TYPE_VIEWER 'SCOV'
 #define CREATOR_TYPE_VIEWER 'BYRV'		/* "signature" */
 
-/* ------------------------------------------------------------ MIDI and real-time -- */
+/* ---------------------------------------------------------------- MIDI and real-time -- */
 
 /* Some MIDI parameters. Others are in the CNFG resource (and most of these should be
 moved there eventually). */
@@ -294,12 +297,12 @@ moved there eventually). */
 #define TSCALE2MICROBEATS(ts) (60*1000000L/(ts))
 
 
-/* ----------------------------------------------------------- MISCELLANEOUS MACROS -- */
+/* -------------------------------------------------------------- MISCELLANEOUS MACROS -- */
 /* FIXME: These should probably be in a new file, <genlMacros.h> or some such. */
 
 /* Arithmetic, etc. */
 #define ABS(a) ( (a)<0 ? -(a) : (a) )							/* absolute value function */
-#define odd(a) ((a) & 1)										/* TRUE if a is odd */
+#define odd(a) ((a) & 1)										/* True if a is odd */
 
 // CER: 02.19.2003 changed min, max to n_min, n_max
 #define n_min(a,b)		( (a)<(b) ? (a) : (b) )					/* minimum functions */
@@ -323,7 +326,7 @@ moved there eventually). */
 #define IsSFDynam(link)		(DynamType(link)>=FIRSTSF_DYNAM && DynamType(link)<FIRSTHAIRPIN_DYNAM)
 #define IsHairpin(link)		(DynamType(link)>=FIRSTHAIRPIN_DYNAM)
 
-/* To skip subordinate notes in chords, return FALSE if note in chord & has no stem */
+/* To skip subordinate notes in chords, return False if note in chord & has no stem */
 #define MainNote(link) (!NoteINCHORD(link) || NoteYD(link)!=NoteYSTEM(link))
 #define GRMainNote(link) (!GRNoteINCHORD(link) || GRNoteYD(link)!=GRNoteYSTEM(link))
 
@@ -350,7 +353,7 @@ moved there eventually). */
 #define NFLAGS(l_dur)		( ((l_dur)>QTR_L_DUR)? (l_dur)-QTR_L_DUR : 0 )
 
 /* Does note with given y-offset "normally" have stem down? */ 
-#define DOWNSTEM(yd, staffHeight)	( ((yd) > (staffHeight)/2)? FALSE : TRUE )
+#define DOWNSTEM(yd, staffHeight)	( ((yd) > (staffHeight)/2)? False : True )
 
 /* Quarter-line stem length for single or multiple voices, shorter stem or normal */
 #define QSTEMLEN(singleV, shrt)	((singleV)? config.stemLenNormal :				\
@@ -373,7 +376,7 @@ moved there eventually). */
 /* Is the given voice in use? N.B. ALWAYS considers default voices to be in use. */
 #define VOICE_MAYBE_USED(doc, v)	((doc)->voiceTab[v].partn!=0)
 
-/* Return TRUE if object is visible or we are showing invisibles */
+/* Return True if object is visible or we are showing invisibles */
 #define VISIBLE(pL) (LinkVIS(pL) || doc->showInvis)
 
 #define ENABLE_REDUCE(doc)		((doc)!=NULL && (doc)->magnify>MIN_MAGNIFY)
@@ -397,7 +400,7 @@ equiv. KSINFO is necessarily even, so BlockMove(ks1, ks2, sizeof(KSINFO)) doesn'
 /* Simple compound-meter identifying heuristic. Better for fast tempi than slow ones! */
 #define COMPOUND(numer) (numer%3==0 && numer>3)
 
-/* ---------------------------------------------------------------- ERROR CHECKING -- */ 
+/* -------------------------------------------------------------------- ERROR CHECKING -- */ 
 		
 /* calls to be replaced by calls to GARBAGELX */						 
 #define GARBAGEL(pL) 0
@@ -415,11 +418,11 @@ equiv. KSINFO is necessarily even, so BlockMove(ks1, ks2, sizeof(KSINFO)) doesn'
 
 /* Check timeSigType, numerator, denominator for legality. TSDENOM_BAD must agree
 with MAX_TSDENOM, above! */
-#define TSTYPE_BAD(t)		(	(t)<LOW_TStype || (t)>HIGH_TStype)
+#define TSTYPE_BAD(t)			(	(t)<LOW_TStype || (t)>HIGH_TStype)
 #define TSNUM_BAD(t)			(	(t)<1 || (t)>MAX_TSNUM )
-#define TSDENOM_BAD(t)		(	(t)!=1 && (t)!=2 && (t)!=4 && (t)!=8		\
+#define TSDENOM_BAD(t)			(	(t)!=1 && (t)!=2 && (t)!=4 && (t)!=8		\
 									&&	(t)!=16 && (t)!=32 && (t)!=64 )
-#define TSDUR_BAD(tn,td)	(TimeSigDur(N_OVER_D, (tn), (td))>MAX_SAFE_MEASDUR )
+#define TSDUR_BAD(tn, td)		(TimeSigDur(N_OVER_D, (tn), (td))>MAX_SAFE_MEASDUR )
 
 /* Crude checks for object and subobject vertical and horizontal positions */
 #define ABOVE_VLIM(doc) 	(-pt2d((doc)->marginRect.bottom))
@@ -427,7 +430,9 @@ with MAX_TSDENOM, above! */
 #define RIGHT_HLIM(doc) 	(pt2d((doc)->marginRect.right-(doc)->marginRect.left))
 #define LEFT_HLIM(doc, pL)	(J_DTYPE(pL)? -RIGHT_HLIM(doc) : 0)
 
-/* ------------------------------------------------------------- CONVERSION MACROS -- */
+#define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
+
+/* ----------------------------------------------------------------- CONVERSION MACROS -- */
 
 /* Convert STDIST to DDIST and vice-versa */
 #define std2d(std, stfHt, lines)	( ((long)(std)*(stfHt)) / (8*((lines)-1)) )
@@ -468,8 +473,7 @@ with MAX_TSDENOM, above! */
 #define pt2p(p)	d2p(pt2d(p))							/* points to pixels */
 
 
-/* ------------------------------------------------ MISCELLANEOUS SYSTEM-DEPENDENT -- */
-
+/* ---------------------------------------------------- MISCELLANEOUS SYSTEM-DEPENDENT -- */
 
 /* Convert OS ticks (in Carbon, 1/60 sec.) to milliseconds. */
 #define TICKS2MS(ticks) (1000*(ticks)/60)

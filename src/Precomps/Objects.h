@@ -12,9 +12,9 @@ typedef struct {
 		LINK			next;					/* To next subobject in list */
 		char			staffn;				/* staff number */
 		char			subType;				/* subobject subtype. N.B. Signed--see ANOTE. */
-		Boolean		selected:1;			/* TRUE if subobject is selected */
-		Boolean		visible:1;			/* TRUE if subobject is visible */
-		Boolean		soft:1;				/* TRUE if subobject is program-generated */
+		Boolean		selected:1;			/* True if subobject is selected */
+		Boolean		visible:1;			/* True if subobject is visible */
+		Boolean		soft:1;				/* True if subobject is program-generated */
 		
 } GenSubObj;
 

@@ -1,15 +1,15 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DrawObject.c
 *	PROJ:	Nightingale
 *	DESC:	General object-drawing routines
-****************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -18,7 +18,7 @@
 static void D2ObjRect(DRect *pdEnclBox, Rect *pobjRect);
 static void DrawPageNum(Document *, LINK, Rect *, PCONTEXT);
 static void DrawMeasNum(Document *, DDIST, DDIST, short, PCONTEXT);
-static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat);
+static void ShadeMeasureInRect(Rect *pMRect, PCONTEXT pContext, Pattern *shadePat);
 static void ShadeDurPblmMeasure(Document *, LINK, PCONTEXT);
 static void DrawPartName(Document *, LINK, short, SignedByte, DDIST, Rect *, CONTEXT []);
 static void DrawInstrInfo(Document *, short, Rect *, CONTEXT []);
@@ -30,11 +30,11 @@ static void DrawArpSign(Document *, DDIST, DDIST, DDIST, short, PCONTEXT, Boolea
 static DDIST DrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, short, PCONTEXT, Boolean,
 						Boolean, Boolean *); 
 static short CountTextLines(StringPtr pString);
-static Boolean GetTempoDBox(Document *, LINK, Boolean, PCONTEXT, short, short, short, DRect *);
+static Boolean GetTempoDBox(Document *, LINK, Boolean, short, short, short, DRect *);
 static void DrawBarline(Document *, LINK, short, short, CONTEXT [], SignedByte);
 
 
-/* -------------------------------------------------------------------- D2ObjRect -- */
+/* ------------------------------------------------------------------------- D2ObjRect -- */
 /* Convert DRect to Rect. If Rect has zero width or height, move the edges apart
 slightly. Intended for computing objRects, which aren't useful if they're empty! But
 note that this doesn't guarantee non-empty objRects: if the edges cross, it does
@@ -54,7 +54,7 @@ static void D2ObjRect(DRect *pdEnclBox, Rect *pobjRect)
 }
 
 
-/* ------------------------------------------------------------- DrawHeaderFooter -- */
+/* ------------------------------------------------------------------ DrawHeaderFooter -- */
 /* Draw a page header/footer. */
 
 static void DrawHeaderFooter(Document *doc,
@@ -79,12 +79,12 @@ static void DrawHeaderFooter(Document *doc,
 	fontID = doc->fontTable[fontInd].fontID;
 
 	if (doc->alternatePGN && !odd(pageNum)) {
-		GetHeaderFooterStrings(doc, rhStr, chStr, lhStr, pageNum, TRUE, TRUE);
-		GetHeaderFooterStrings(doc, rfStr, cfStr, lfStr, pageNum, TRUE, FALSE);
+		GetHeaderFooterStrings(doc, rhStr, chStr, lhStr, pageNum, True, True);
+		GetHeaderFooterStrings(doc, rfStr, cfStr, lfStr, pageNum, True, False);
 	}
 	else {
-		GetHeaderFooterStrings(doc, lhStr, chStr, rhStr, pageNum, TRUE, TRUE);
-		GetHeaderFooterStrings(doc, lfStr, cfStr, rfStr, pageNum, TRUE, FALSE);
+		GetHeaderFooterStrings(doc, lhStr, chStr, rhStr, pageNum, True, True);
+		GetHeaderFooterStrings(doc, lfStr, cfStr, rfStr, pageNum, True, False);
 	}
 
 	hypt = doc->headerFooterMargins.top;
@@ -176,7 +176,7 @@ static void DrawHeaderFooter(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ DrawPageNum -- */
+/* ----------------------------------------------------------------------- DrawPageNum -- */
 /* Draw a page number. */
 
 static void DrawPageNum(Document *doc,
@@ -242,7 +242,7 @@ static void DrawPageNum(Document *doc,
 }
 
 
-/* --------------------------------------------------------------------- DrawPAGE -- */
+/* -------------------------------------------------------------------------- DrawPAGE -- */
 /* Draw a PAGE object, including the page number, if it should be shown. */
 
 void DrawPAGE(Document *doc, LINK pL, Rect *paper, CONTEXT context[])
@@ -258,7 +258,7 @@ void DrawPAGE(Document *doc, LINK pL, Rect *paper, CONTEXT context[])
 }
 
 
-/* ------------------------------------------------------------------- DrawSYSTEM -- */
+/* ------------------------------------------------------------------------ DrawSYSTEM -- */
 /* Draw a SYSTEM object from given document, in page whose window coordinates
 	are specified in paper.  */
 
@@ -281,7 +281,7 @@ void DrawSYSTEM(Document *doc,
 		pContext->systemTop = p->systemRect.top;
 		pContext->systemLeft = p->systemRect.left;
 		pContext->systemBottom = p->systemRect.bottom;
-		pContext->visible = pContext->inMeasure = FALSE;
+		pContext->visible = pContext->inMeasure = False;
 	}
 	switch (outputTo) {									/* draw the System */
 		case toScreen:
@@ -299,7 +299,7 @@ void DrawSYSTEM(Document *doc,
 }
 
 
-/* --------------------------------------------------------- SetFontFromTEXTSTYLE -- */
+/* -------------------------------------------------------------- SetFontFromTEXTSTYLE -- */
 /* For screen only: set the port's text characteristics from the given TEXTSTYLE. */
 
 void SetFontFromTEXTSTYLE(Document *doc, TEXTSTYLE *pTextStyle, DDIST lineSpace)
@@ -316,7 +316,7 @@ void SetFontFromTEXTSTYLE(Document *doc, TEXTSTYLE *pTextStyle, DDIST lineSpace)
 }
 
 
-/* ----------------------------------------------------------------- DrawPartName -- */
+/* ---------------------------------------------------------------------- DrawPartName -- */
 /* If the given staff is the last staff of its part, draw the part name at the
 left end of the system vertically centered between the top and bottom visible
 staves of the part. If no staves of the part are visible, do nothing. We draw the
@@ -412,7 +412,7 @@ static void DrawPartName(Document *doc, LINK staffL,
 }
 
 
-/* --------------------------------------------------------------- DrawInstrInfo -- */
+/* --------------------------------------------------------------------- DrawInstrInfo -- */
 /* If the given staff is the first staff of its part, draw the part's instrument
 information across the left end of the staff. Intended for use in Master Page. */
 
@@ -499,22 +499,24 @@ static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT cont
 }
 
 
-/* ----------------------------------------------------------------- Draw1Staff -- */
+/* ------------------------------------------------------------------------ Draw1Staff -- */
 
 void Draw1Staff(Document *doc,
-				short /*staffn*/,
+				short /* staffn */,
 				Rect *paper,
 				PCONTEXT pContext,
 				short ground			/* _STAFF foreground/background code; see enum */
 				)
 {
 	DDIST	yd;
-	short	lines,		/* Number of lines in the staff */
+	short	nLines,			/* Number of lines in the staff */
 			line,
-			showLines;
+			showLines;		/* 0, 1, or SHOW_ALL_LINES */
 
-	lines = pContext->staffLines;
+	nLines = pContext->staffLines;
 	showLines = pContext->showLines;
+//LogPrintf(LOG_DEBUG, "Draw1Staff: staffn=%d ground=%d nLines=%d showLines=%d staffTop=%d staffHeight=%d\n",
+//		staffn, ground, nLines, showLines, pContext->staffTop, pContext->staffHeight);
 	
 	switch (outputTo) {
 		case toScreen:
@@ -536,10 +538,10 @@ void Draw1Staff(Document *doc,
 		case toBitmapPrint:
 		case toPICT:
 			if (showLines>0) {
-				for (line=0; line<lines; line++) {
+				for (line=0; line<nLines; line++) {
 					yd = pContext->staffTop + 
-							halfLn2d(2*line, pContext->staffHeight, lines);
-					if (showLines!=1 || line==(lines-1)/2) {
+							halfLn2d(2*line, pContext->staffHeight, nLines);
+					if (showLines!=1 || line==(nLines-1)/2) {
 						MoveTo(paper->left+d2p(pContext->staffLeft), paper->top+d2p(yd));
 						LineTo(paper->left+d2p(pContext->staffRight), paper->top+d2p(yd));
 					}
@@ -549,34 +551,32 @@ void Draw1Staff(Document *doc,
 			ForeColor(blackColor);
 			break;
 		case toPostScript:
-			// CER: 7.2005 Staff lines are too thin for 2 line staves. Put a floor of 24 under the font size.
-			// CER 11.2006 Rastral 8 2stf lines => ptSize of 3
+			/* CER: 7.2005 Staff lines are too thin for 2 line staves. Put a floor of
+					24 under the font size.
+			   CER 11.2006 Rastral 8 2stf lines => ptSize of 3 */
 			
 			short ptSize;
-			if (lines == 5) {
+			if (nLines == 5) {
 				ptSize = d2pt(pContext->staffHeight)+config.musFontSizeOffset;
 			}
 			else {
 				short stfHeight = drSize[doc->srastral];
 				ptSize = d2pt(stfHeight)+config.musFontSizeOffset;
 			}
-			if (ptSize < 3) 
-				ptSize = 3;
 			
-			if (ptSize >= 3)
-				PS_MusSize(doc, ptSize);
-			else
-				PS_MusSize(doc, 3);
+			if (ptSize < 3) ptSize = 3;
+			if (ptSize >= 3)	PS_MusSize(doc, ptSize);
+			else				PS_MusSize(doc, 3);
 			
 			if (showLines>0) {
-				for (line=0; line<lines; line++) {
+				for (line=0; line<nLines; line++) {
 					yd = pContext->staffTop + 
-							halfLn2d(2*line, pContext->staffHeight, lines);
-					if (showLines!=1 || line==(lines-1)/2)
+							halfLn2d(2*line, pContext->staffHeight, nLines);
+					if (showLines!=1 || line==(nLines-1)/2)
 						PS_StaffLine(yd, pContext->staffLeft, pContext->staffRight);
 				}
 			}
-			// Leave the routine with pt size as before calculated.
+			// Leave the routine with point size as before calculated.
 			PS_MusSize(doc, ptSize);
 			break;
 		default:
@@ -585,7 +585,7 @@ void Draw1Staff(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- DrawSTAFF -- */
+/* ------------------------------------------------------------------------- DrawSTAFF -- */
 /* Draw all subobjects of a STAFF object and update their context[] entries. */
 
 void DrawSTAFF(Document *doc, LINK pL, Rect *paper,
@@ -634,20 +634,20 @@ PushLock(STAFFheap);
 						DrawInstrInfo(doc, staffn, paper, context);
 				}
 				else if (pSystem->systemNum==1)
-					DrawPartName(doc, pL, staffn, doc->firstNames, doc->firstIndent,
+					DrawPartName(doc, pL, staffn, doc->firstNames, doc->dIndentFirst,
 											paper, context);
 				else
-					DrawPartName(doc, pL, staffn, doc->otherNames, doc->otherIndent,
+					DrawPartName(doc, pL, staffn, doc->otherNames, doc->dIndentOther,
 											paper, context);
 				break;
 			case toPostScript:
 				if (doc->masterView)
 					;
 				else if (pSystem->systemNum==1)
-					DrawPartName(doc, pL, staffn, doc->firstNames, doc->firstIndent,
+					DrawPartName(doc, pL, staffn, doc->firstNames, doc->dIndentFirst,
 											paper, context);
 				else
-					DrawPartName(doc, pL, staffn, doc->otherNames, doc->otherIndent,
+					DrawPartName(doc, pL, staffn, doc->otherNames, doc->dIndentOther,
 											paper, context);
 				break;
 		}
@@ -664,7 +664,7 @@ PopLock(STAFFheap);
 }
 
 
-/* ---------------------------------------------------------------- DrawCONNECT -- */
+/* ----------------------------------------------------------------------- DrawCONNECT -- */
 /* Draw all subobjects of a CONNECT object. */
 
 void DrawCONNECT(Document *doc, LINK pL,
@@ -675,7 +675,7 @@ void DrawCONNECT(Document *doc, LINK pL,
 	PACONNECT	aConnect;				/* ptr to current subobj */
 	LINK		aConnectL, staffL;
 	PCONTEXT	pContext;				/* ptr to current context[] entry */
-	Rect		r;						/* Rect of current staff */
+	Rect		cBox;					/* bounding box of curly brace */
 	short		width,					/* Width of curly brace */
 				xwidth, brackHt,
 				px, pyTop, pyBot,
@@ -685,14 +685,14 @@ void DrawCONNECT(Document *doc, LINK pL,
 	DDIST		dLeft,					/* left edge of staff */
 				curlyWider;
 	Boolean		entire;					/* Does connect include the entire system? */
-	PicHandle	pictRsrc;				/* Handle to brace PICT */
+	PicHandle	bracePicH;				/* Handle to brace PICT */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 
 PushLock(OBJheap);
 PushLock(CONNECTheap);
 
-	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, FALSE);			/* must exist */
+	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, False);			/* must exist */
 
 	aConnectL = FirstSubLINK(pL);
 	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
@@ -713,7 +713,7 @@ PushLock(CONNECTheap);
 									&context[stfA=aConnect->staffAbove];
 		else
 			pContext = entire ? &context[FirstStaffn(pL)] :
-									&context[stfA=NextStaffn(doc,pL,TRUE,aConnect->staffAbove)];
+								&context[stfA=NextVisStaffn(doc, pL, True, aConnect->staffAbove)];
 		dLeft = pContext->staffLeft;
 		dTop = pContext->staffTop;
 
@@ -722,7 +722,7 @@ PushLock(CONNECTheap);
 									&context[stfB=aConnect->staffBelow];
 		else
 			pContext = entire ? &context[LastStaffn(pL)] :
-									&context[stfB=NextStaffn(doc,pL,FALSE,aConnect->staffBelow)];
+								&context[stfB=NextVisStaffn(doc, pL, False, aConnect->staffBelow)];
 		dBottom = pContext->staffTop + pContext->staffHeight;
 		xd = dLeft+aConnect->xd;
 		
@@ -738,7 +738,7 @@ PushLock(CONNECTheap);
 						MoveTo(px, pyTop); LineTo(px, pyBot);
 						break;
 					case toPostScript:
-						PS_ConLine(dTop,dBottom,xd);
+						PS_ConLine(dTop, dBottom, xd);
 						break;
 				}
 				break;
@@ -753,22 +753,30 @@ PushLock(CONNECTheap);
 						case toScreen:
 						case toBitmapPrint:
 						case toPICT:
-							pictRsrc = (PicHandle)GetResource('PICT',200);
-							if (!GoodResource((Handle)pictRsrc))
-								goto Cleanup;								
-							r = (*pictRsrc)->picFrame;
-							/* PICT 200 was created from the Sonata 36 brace */
-							width = ((r.right-r.left)*(UseTextSize(pContext->fontSize, doc->magnify)))/36;
-							SetRect(&r, d2p(xd), d2p(dTop), d2p(xd)+width, d2p(dBottom));
-							OffsetRect(&r, pContext->paper.left, pContext->paper.top);
-							/* FIXME: DrawPicture OVERWRITES ANYTHING ALREADY THERE--SHOULD BE OR'ED
-								IN, PROBABLY VIA DrawPicture TO BITMAP, THEN CopyBits. */
-							DrawPicture(pictRsrc,&r);
-							HUnlock((Handle)pictRsrc); HPurge((Handle)pictRsrc);
+							bracePicH = (PicHandle)GetResource('PICT', 200);
+							if (!GoodResource((Handle)bracePicH)) {
+								SysBeep(10);
+								LogPrintf(LOG_WARNING, "Can't get curly brace resource.  (DrawConnect)\n");
+								goto Cleanup;
+							}
+							cBox = (*bracePicH)->picFrame;
+							FIX_END(cBox.top); FIX_END(cBox.left);
+							FIX_END(cBox.bottom); FIX_END(cBox.right);
+							
+							/* PICT 200 was created from the Sonata 36 brace. */
+							width = ((cBox.right-cBox.left)*(UseTextSize(pContext->fontSize,
+																		doc->magnify))) / 36;
+							SetRect(&cBox, d2p(xd), d2p(dTop), d2p(xd)+width, d2p(dBottom));
+							OffsetRect(&cBox, pContext->paper.left, pContext->paper.top);
+							
+							/* FIXME: DrawPicture OVERWRITES ANYTHING ALREADY THERE. Better to
+							   "or" in, probably via DrawPicture to bitmap, then CopyBits. */
+							DrawPicture(bracePicH, &cBox);
+							HUnlock((Handle)bracePicH); HPurge((Handle)bracePicH);
 							if (doc->masterView && ground==OTHERSYS_STAFF) {
 								PenPat(NGetQDGlobalsGray());
 								PenMode(notPatBic);
-								PaintRect(&r);
+								PaintRect(&cBox);
 								PenNormal();
 							}
 							break;
@@ -780,11 +788,11 @@ PushLock(CONNECTheap);
 					break;
 				}
 				else {
-					/* Substituting brackets for curly braces--tweak before falling thru to bracket case */
+					/* Substituting brackets for curly brace; tweak before falling thru */
 					curlyWider = ConnectDWidth(doc->srastral, CONNECTCURLY)
 										-ConnectDWidth(doc->srastral, CONNECTBRACKET);
 					xd += curlyWider;
-				}
+				}								/* Drop thru... */
 			case CONNECTBRACKET:				/* Must immediately follow case CONNECTCURLY */
 				switch (outputTo) {
 					case toScreen:
@@ -794,7 +802,7 @@ PushLock(CONNECTheap);
 						pyTop = pContext->paper.top+d2p(dTop);
 						pyBot = pContext->paper.top+d2p(dBottom);
 						xwidth = CharWidth(MCH_topbracket) * .36275;
-						/* Add fudge factor for weird round-off error at this magnification */
+						/* Add fudge factor for weird round-off error at one magnification */
 						if (doc->magnify == 0) xwidth++;
 						PenSize(xwidth>1 ? xwidth : 2, 1);
 						MoveTo(px, pyTop); DrawChar(MCH_topbracket);
@@ -804,10 +812,10 @@ PushLock(CONNECTheap);
 						if (doc->masterView && ground==OTHERSYS_STAFF) {
 							PenPat(NGetQDGlobalsGray());
 							PenMode(notPatBic);
-							/* Assume brackets are almost square--good enuf for this */
+							/* Assume brackets are almost square: good enuf for this */
 							brackHt = CharWidth(MCH_topbracket)+1;
-							SetRect(&r, px, pyTop-brackHt, px+2*xwidth, pyBot+brackHt);
-							PaintRect(&r);
+							SetRect(&cBox, px, pyTop-brackHt, px+2*xwidth, pyBot+brackHt);
+							PaintRect(&cBox);
 						}
 						PenNormal();
 						break;
@@ -828,7 +836,7 @@ PopLock(CONNECTheap);
 }
 
 
-/* --------------------------------------------------------------------- DrawCLEF -- */
+/* -------------------------------------------------------------------------- DrawCLEF -- */
 /* Draw a CLEF object. Handles zero-sized objRects for invisible clefs. */
 
 void DrawCLEF(Document *doc, LINK pL, CONTEXT context[])
@@ -846,8 +854,8 @@ void DrawCLEF(Document *doc, LINK pL, CONTEXT context[])
 		 		oldTxSize,
 				sizePercent;		/* Percent of "normal" size to draw in */
 	unsigned char glyph;			/* clef symbol */
-	Boolean		drawn,				/* FALSE until a subobject has been drawn */
-				clefVisible;		/* TRUE if clef contains a visible subobject */
+	Boolean		drawn,				/* False until a subobject has been drawn */
+				clefVisible;		/* True if clef contains a visible subobject */
 	Point		pt;
 	Byte		octGlyph;
 
@@ -855,7 +863,7 @@ PushLock(OBJheap);
 PushLock(CLEFheap);
 
 	aClefL = FirstSubLINK(pL);
-	drawn = clefVisible = FALSE;
+	drawn = clefVisible = False;
 	oldTxSize = GetPortTxSize();
 	
 	for (i=0; i<LinkNENTRIES(pL); i++, aClefL=NextCLEFL(aClefL)) {
@@ -884,7 +892,7 @@ PushLock(CLEFheap);
 			xp = d2p(xd);
 			MoveTo(pContext->paper.left+xp, pContext->paper.top+d2p(yd));
 			if (aClef->visible || doc->showInvis) {
-				clefVisible = TRUE;
+				clefVisible = True;
 				DrawChar(glyph);
 				if (xdOct>(DDIST)CANCEL_INT) {
 					MoveTo(pContext->paper.left+d2p(xdOct), pContext->paper.top+d2p(ydOct));
@@ -908,15 +916,15 @@ PushLock(CLEFheap);
 					xp2Obj = pt.h;
 					ypObj = yp;
 					yp2Obj = yp2;
-					drawn = TRUE;
+					drawn = True;
 				}
 			}
 			break;
 		case toPostScript:
 			if (aClef->visible || doc->showInvis) {
-				PS_MusChar(doc, xd, yd, glyph, TRUE, sizePercent);
+				PS_MusChar(doc, xd, yd, glyph, True, sizePercent);
 				if (xdOct>(DDIST)CANCEL_INT)
-					PS_MusChar(doc, xdOct, ydOct, octGlyph, TRUE, sizePercent);
+					PS_MusChar(doc, xdOct, ydOct, octGlyph, True, sizePercent);
 			}
 			break;
 		}
@@ -925,11 +933,11 @@ PushLock(CLEFheap);
 	if (outputTo==toScreen && !LinkVALID(pL)) {
 		if (clefVisible) {
 			SetRect(&LinkOBJRECT(pL), xpObj, ypObj, xp2Obj, yp2Obj);
-			LinkVALID(pL) = TRUE;
+			LinkVALID(pL) = True;
 		}
 		else {
 			SetRect(&LinkOBJRECT(pL), xpObj, ypObj, xpObj, yp2Obj);
-			LinkVALID(pL) = TRUE;
+			LinkVALID(pL) = True;
 		}
 	}
 
@@ -942,7 +950,7 @@ PopLock(CLEFheap);
 }
 
 
-/* ------------------------------------------------------------------ DrawKEYSIG -- */
+/* ------------------------------------------------------------------------ DrawKEYSIG -- */
 /* Draw a KEYSIG object */
 
 void DrawKEYSIG(Document *doc, LINK pL, CONTEXT context[])
@@ -956,12 +964,12 @@ void DrawKEYSIG(Document *doc, LINK pL, CONTEXT context[])
 				dTop,
 				height;			/* height of current staff */
 	Rect		subRect;		/* enclosing rect for key signature */
-	Boolean		drawn;			/* FALSE until something's drawn */
+	Boolean		drawn;			/* False until something's drawn */
 
 PushLock(OBJheap);
 PushLock(KEYSIGheap);
 	aKeySigL = FirstSubLINK(pL);
-	drawn = FALSE;
+	drawn = False;
 	for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL)) {
 	
 		pContext = &context[KeySigSTAFF(aKeySigL)];
@@ -984,20 +992,20 @@ PushLock(KEYSIGheap);
 				UnionRect(&LinkOBJRECT(pL), &subRect, &LinkOBJRECT(pL));
 			else {
 				LinkOBJRECT(pL) = subRect;
-				drawn = TRUE;
+				drawn = True;
 			}
 		}
 	}
 
 	if (outputTo==toScreen)
-		LinkVALID(pL) = TRUE;
+		LinkVALID(pL) = True;
 
 PopLock(OBJheap);
 PopLock(KEYSIGheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawTIMESIG -- */
+/* ----------------------------------------------------------------------- DrawTIMESIG -- */
 /* Draw a TIMESIG object */
 
 void DrawTIMESIG(Document *doc, LINK pL, CONTEXT context[])
@@ -1014,15 +1022,15 @@ void DrawTIMESIG(Document *doc, LINK pL, CONTEXT context[])
 	DDIST		xd, yd, xdN, xdD,
 				ydN, ydD;
 	Str31		nStr, dStr;				/* numerator & denominator */
-	Boolean		drawn,					/* FALSE until a subobject has been drawn */
-				recalc;					/* TRUE if we need to recalculate object rectangles */
+	Boolean		drawn,					/* False until a subobject has been drawn */
+				recalc;					/* True if we need to recalculate object rectangles */
 	Rect		rObj;					/* bounding box */
 	Point		pt;						/* scratch point */
 
 PushLock(OBJheap);
 PushLock(TIMESIGheap);
 
-	drawn = FALSE;
+	drawn = False;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);
 	aTimeSigL = FirstSubLINK(pL);
 	for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL)) {
@@ -1079,7 +1087,7 @@ PushLock(TIMESIGheap);
 						rObj.bottom = bottom;
 						rObj.right = right;
 						LinkOBJRECT(pL) = rObj;
-						drawn = TRUE;
+						drawn = True;
 					}
 					else {
 						rObj.top = n_min(rObj.top, top);
@@ -1101,14 +1109,14 @@ PushLock(TIMESIGheap);
 		}
 	}
 
-	if (recalc)	LinkVALID(pL) = TRUE;
+	if (recalc)	LinkVALID(pL) = True;
 
 PopLock(OBJheap);
 PopLock(TIMESIGheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawHairpin -- */
+/* ----------------------------------------------------------------------- DrawHairpin -- */
 /* Draw a hairpin dynamic. X-coord. of left end = xd; x-coord. of right end
 (relative to the symbol it's attached to) = aDynamic->endxd. */
 
@@ -1206,7 +1214,7 @@ static void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DD
 }
 
 
-/* ------------------------------------------------------------------ DrawDYNAMIC -- */
+/* ----------------------------------------------------------------------- DrawDYNAMIC -- */
 /* Draw a DYNAMIC object, a set (as of v. 5.7, always one) of hairpins and/or
 "simple" dynamics, and if necessary recompute its objRect. */
 
@@ -1214,7 +1222,7 @@ void DrawDYNAMIC(
 			Document *doc,
 			LINK pL,
 			CONTEXT context[],
-			Boolean doDraw)		/* TRUE=draw if dynam. is visible, FALSE=never draw */
+			Boolean doDraw)		/* True=draw if dynam. is visible, False=never draw */
 {
 	PADYNAMIC	aDynamic;
 	LINK		aDynamicL;
@@ -1224,7 +1232,7 @@ void DrawDYNAMIC(
 				lnSpace;
 	short		xp, yp;			/* pixel coordinates */
 	unsigned char glyph;		/* dynamic symbol */
-	Boolean		drawn;			/* FALSE until a subobject has been drawn */
+	Boolean		drawn;			/* False until a subobject has been drawn */
 	Rect		rSub;			/* bounding boxes for subobject and entire object */
 	PCONTEXT	pContext;
 	Boolean		reallyDraw;
@@ -1232,7 +1240,7 @@ void DrawDYNAMIC(
 PushLock(OBJheap);
 PushLock(DYNAMheap);
 
-	drawn = FALSE;
+	drawn = False;
 
 	aDynamicL = FirstSubLINK(pL);
 	pContext = &context[DynamicSTAFF(aDynamicL)];
@@ -1267,7 +1275,7 @@ PushLock(DYNAMheap);
 						aDynamic = GetPADYNAMIC(aDynamicL);
 						if (reallyDraw) {
 							MoveTo(pContext->paper.left+xp, pContext->paper.top+yp);
-							DrawMChar(doc, glyph, NORMAL_VIS, FALSE);
+							DrawMChar(doc, glyph, NORMAL_VIS, False);
 						}
 						if (!LinkVALID(pL) && outputTo==toScreen) {
 							rSub = charRectCache.charRect[glyph];
@@ -1275,7 +1283,7 @@ PushLock(DYNAMheap);
 							if (drawn)
 								UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));
 							else {
-								drawn = TRUE;
+								drawn = True;
 								LinkOBJRECT(pL) = rSub;
 							}
 						}
@@ -1295,14 +1303,14 @@ PushLock(DYNAMheap);
 							glyph = MapMusChar(doc->musFontInfoIndex, glyph);
 							xd += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 							yd += MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
-							PS_MusChar(doc, xd, yd, glyph, TRUE, sizePercent);
+							PS_MusChar(doc, xd, yd, glyph, True, sizePercent);
 					}
 				break;
 		}
 	}
 
 	if (outputTo==toScreen)
-		LinkVALID(pL) = TRUE;
+		LinkVALID(pL) = True;
 
 Cleanup:
 
@@ -1311,14 +1319,14 @@ PopLock(DYNAMheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawRPTEND -- */
+/* ------------------------------------------------------------------------ DrawRPTEND -- */
 /* Draw a REPEATEND object */
 
 void DrawRPTEND(Document *doc, LINK pL, CONTEXT context[])
 {
 	DDIST		xd, yd;
 	Boolean		drawn,
-				dotsOnly;		/* TRUE=don't draw barline proper, only repeat dots */
+				dotsOnly;		/* True=don't draw barline proper, only repeat dots */
 	LINK		aRptL;
 	PARPTEND	aRpt;
 	Rect		rSub;
@@ -1327,7 +1335,7 @@ void DrawRPTEND(Document *doc, LINK pL, CONTEXT context[])
 
 PushLock(OBJheap);
 
-	drawn = FALSE;
+	drawn = False;
 	aRptL = FirstSubLINK(pL);
 	for ( ; aRptL; aRptL = NextRPTENDL(aRptL)) {
 		aRpt = GetPARPTEND(aRptL);
@@ -1349,7 +1357,7 @@ PushLock(OBJheap);
 						if (drawn)
 							UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));
 						else {
-							drawn = TRUE;
+							drawn = True;
 							LinkOBJRECT(pL) = rSub;
 						}
 					}
@@ -1362,13 +1370,13 @@ PushLock(OBJheap);
 		}
 	}
 	if (outputTo==toScreen)
-		LinkVALID(pL) = TRUE;
+		LinkVALID(pL) = True;
 	
 PopLock(OBJheap);
 }
 
 
-/* ------------------------------------------------------------------ DrawENDING -- */
+/* ------------------------------------------------------------------------ DrawENDING -- */
 /* Draw an ENDING object: bracket and optional label. */
 
 #define MOVE_AND_LINE(x1, y1, x2, y2)	{ MoveTo((x1), (y1)); LineTo((x2), (y2)); }
@@ -1434,7 +1442,7 @@ PushLock(OBJheap);
 																			papTop+yp);
 				MOVE_AND_LINE(papLeft+xp, papTop+yp, papLeft+endxp, papTop+yp);
 				if (!p->noRCutoff) MOVE_AND_LINE(papLeft+endxp, papTop+yp, papLeft+endxp,
-																			papTop+yp+risePxl);
+																		papTop+yp+risePxl);
 
 				if (endNum!=0 && endNum<maxEndingNum) {
 					oldFont = GetPortTxFont();
@@ -1475,7 +1483,7 @@ PopLock(OBJheap);
 }
 
 
-/* -------------------------------------------------------------- DrawEnclosure -- */
+/* --------------------------------------------------------------------- DrawEnclosure -- */
 /* Draw an enclosure, e.g., around a rehearsal mark. At the moment, the only type
 is a rectangle. */
 
@@ -1523,22 +1531,23 @@ static void DrawEnclosure(Document */*doc*/,
 }
 
 
-/* ------------------------------------------------------------- GetGraphicDBox -- */
+/* -------------------------------------------------------------------- GetGraphicDBox -- */
 /* Return the DDIST bounding box for the given Graphic, with origin at (0,0). If
-the Graphic is a text type and _expandN_, it's stretched out. */
+the Graphic is a text type and _expandN_, it's stretched out. As function value,
+return True normally, False if we can't compute the bounding box. */
 
 static Boolean GetGraphicDBox(Document *doc,
 					LINK pL,
 					Boolean expandN,
-					PCONTEXT pContext,
+					PCONTEXT pContext,			/* NILINK iff Graphic is attached to Page */
 					short fontID, short fontSize, short fontStyle,
-					DRect *dBox				/* Bounding box (TOP_LEFT at 0,0 and no margin) */
+					DRect *pDBox				/* Bounding box (TOP_LEFT at 0,0 and no margin) */
 					)
 {
- 	PGRAPHIC p; DDIST dHeight;
+ 	PGRAPHIC p;  DDIST dHeight;
 	Str255 string;
 	StringPtr pStr;
-	LINK aGraphicL; PAGRAPHIC aGraphic;
+	LINK aGraphicL;  PAGRAPHIC aGraphic;
 	StringOffset theStrOffset;
 	Rect bBox;
 	
@@ -1546,7 +1555,7 @@ static Boolean GetGraphicDBox(Document *doc,
 	switch (GraphicSubType(pL)) {
 		case GRPICT:
 			{
-				Handle picH; Rect r; short width, height;
+				Handle picH;  Rect r;  short width, height;
 				
 				/*
 				 * Get the bounding box of the PICT resource. If the resource isn't available,
@@ -1576,25 +1585,29 @@ static Boolean GetGraphicDBox(Document *doc,
 					r = (*(PicHandle)picH)->picFrame;
 				width = r.right - r.left;					/* calculate width and height */
 				height = r.bottom - r.top;
-				SetDRect(dBox, 0, 0, pt2d(width), pt2d(height));
+				SetDRect(pDBox, 0, 0, pt2d(width), pt2d(height));
 			}
-			return TRUE;
+			return True;
 		case GRArpeggio:
+			if (pContext==NILINK) {
+				LogPrintf(LOG_WARNING, "GetGraphicDBox: can't handle arpeggio sign attached to Page.\n");
+				return False;
+			}
 			dHeight = qd2d(p->info, pContext->staffHeight, pContext->staffLines);
-			SetDRect(dBox, 0, 0, pt2d(3), dHeight);			/* Width is crude but seems acceptable */
-			return TRUE;
+			SetDRect(pDBox, 0, 0, pt2d(3), dHeight);			/* Width is crude but seems acceptable */
+			return True;
 		case GRChar:
 			string[0] = 1;
 			string[1] = p->info;
 			pStr = string;
 			break;
-		case GRMIDISustainOn:
+		case GRSusPedalDown:
 			string[0] = 1;
 			string[1] = 0xA1;								// Mac OS Roman keys: shift-option 8
 			pStr = string;
 			fontID = doc->musicFontNum;
 			break;
-		case GRMIDISustainOff:
+		case GRSusPedalUp:
 			string[0] = 2;
 			string[1] = '*';								// Shift 8
 			string[2] = '*';
@@ -1602,7 +1615,7 @@ static Boolean GetGraphicDBox(Document *doc,
 			fontID = doc->musicFontNum;
 			break;
 		case GRChordSym:
-			return FALSE;									/* Handled by DrawChordSym */
+			return False;									/* Handled by DrawChordSym */
 		default:
 			aGraphicL = FirstSubLINK(pL);
 			aGraphic = GetPAGRAPHIC(aGraphicL);
@@ -1611,7 +1624,7 @@ static Boolean GetGraphicDBox(Document *doc,
 			if (expandN) {
 				if (!ExpandPString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
 					LogPrintf(LOG_WARNING, "GetGraphicDBox: ExpandPString failed.\n");
-					return FALSE;
+					return False;
 				}
 				
 			}
@@ -1624,7 +1637,7 @@ static Boolean GetGraphicDBox(Document *doc,
 	GetNPtStringBBox(doc, pStr, fontID, fontSize, fontStyle, p->multiLine, &bBox);
 //char cStr[256]; Pstrcpy((unsigned char *)cStr, pStr); PToCString((unsigned char *)cStr);
 //LogPrintf(LOG_DEBUG, "GetGraphicDBox: count lines=%d fontID, Size, Style=%d, %d, %d str='%s'\n",
-//			CountTextLines(string), fontID, fontSize, fontStyle, cStr);
+//CountTextLines(string), fontID, fontSize, fontStyle, cStr);
 
 	/* 
 	 *	Pure fudgery: for mysterious reasons, if the style is not plain, what we have
@@ -1634,11 +1647,13 @@ static Boolean GetGraphicDBox(Document *doc,
 	 */
 	if (fontStyle!=0) bBox.right += 2*(*pStr)/3;
 
-	PtRect2D(&bBox, dBox);	
-	return TRUE;
+	PtRect2D(&bBox, pDBox);	
+//LogPrintf(LOG_DEBUG, "GetGraphicDBox: pDBox=%d,%d,%d,%d\n", pDBox->top, pDBox->left,
+//		pDBox->bottom, pDBox->right);
+	return True;
 }
 
-/* ------------------------------------------------------------------ DrawGRPICT -- */
+/* ------------------------------------------------------------------------ DrawGRPICT -- */
 /* Draw the GRPICT Graphic with the given resource ID or handle. NB: PostScript
 drawing isn't yet implemented! */
 
@@ -1650,8 +1665,8 @@ static void DrawGRPICT(Document */*doc*/,
 				Boolean /*dim*/			/* ignored */
 				)
 {
-	Rect r; short width, height;
-	short xp, yp, yTop; DDIST lnSpace;
+	Rect r;  short width, height;
+	short xp, yp, yTop;  DDIST lnSpace;
 	
 	lnSpace = LNSPACE(pContext);
 	yTop = pContext->paper.top;
@@ -1679,7 +1694,7 @@ static void DrawGRPICT(Document */*doc*/,
 }
 
 
-/* ----------------------------------------------------------------- DrawArpSign -- */
+/* ----------------------------------------------------------------------- DrawArpSign -- */
 /* Draw an arpeggio or non-arpeggio sign. */
 
 static void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
@@ -1728,7 +1743,7 @@ static void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
 }
 
 
-/* ----------------------------------------------------------------- DrawGRDraw -- */
+/* ------------------------------------------------------------------------ DrawGRDraw -- */
 /* Draw a MiniDraw-subtype Graphic. Returns half its line thickness.  */
 
 static DDIST DrawGRDraw(Document */*doc*/,
@@ -1737,7 +1752,7 @@ static DDIST DrawGRDraw(Document */*doc*/,
 				short lineLW,			/* in percent of linespace */
 				PCONTEXT pContext,
 				Boolean dim,
-				Boolean doDraw,			/* TRUE=really draw, FALSE=just return value */
+				Boolean doDraw,			/* True=really draw, False=just return value */
 				Boolean *pVertical		/* Output: is line vertical or nearly vertical? */
 				)
 {
@@ -1794,7 +1809,7 @@ Done:
 }
 
 
-/* ------------------------------------------------------------------ DrawTextBlock -- */
+/* --------------------------------------------------------------------- DrawTextBlock -- */
 
 static short CountTextLines(StringPtr pString)
 {
@@ -1813,7 +1828,7 @@ static short CountTextLines(StringPtr pString)
 
 /* Draw a "block" of strings: really a single Pascal string, perhaps with embedded
 CRs, which we interpret as starting new lines. Intended for use with text Graphics
-and the verbal part of Tempos. Return TRUE normally, FALSE if there's a problem. */
+and the verbal part of Tempos. Return True normally, False if there's a problem. */
 
 Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pContext,
 						Boolean dim, short fontID, short fontSize, short fontStyle)
@@ -1824,8 +1839,8 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 	DDIST			dLineSp;
 	Str255			str, strToDraw;
 	StringOffset	theStrOffset;
-	Boolean			expandN=FALSE;				/* Stretch string out? */
-	Boolean			multiLine=FALSE;
+	Boolean			expandN=False;				/* Stretch string out? */
+	Boolean			multiLine=False;
 	FontInfo		fInfo;
 	
 	if (ObjLType(pL)==GRAPHICtype) {
@@ -1833,9 +1848,10 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		LINK aGraphicL;  PAGRAPHIC aGraphic;
 		
 		if (GraphicSubType(pL)!=GRLyric && GraphicSubType(pL)!=GRString) {
-			LogPrintf(LOG_ERR, "DrawTextBlock: Graphic at %d isn't a GRLyric or GRString\n",
+			SysBeep(10);
+			LogPrintf(LOG_ERR, "Graphic at %d isn't a GRLyric or GRString  (DrawTextBlock)\n",
 					  pL);
-			return FALSE;
+			return False;
 		}
  		p = GetPGRAPHIC(pL);
 		if (p->graphicType==GRString) expandN = (p->info2!=0);
@@ -1847,7 +1863,8 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		theStrOffset = aGraphic->strOffset;
 		GetNFontInfo(fontID, fontSize, fontStyle, &fInfo);
 		dLineSp = pt2d(fInfo.ascent + fInfo.descent + fInfo.leading);
-		(void)GetGraphicOrTempoDrawInfo(doc, pL, GraphicFIRSTOBJ(pL), GraphicSTAFF(pL), &xd, &yd, &relContext);
+		(void)GetGraphicOrTempoDrawInfo(doc, pL, GraphicFIRSTOBJ(pL), GraphicSTAFF(pL),
+											&xd, &yd, &relContext);
 		Pstrcpy(str, (StringPtr)PCopy(theStrOffset));
 	}
 	else if (ObjLType(pL)==TEMPOtype) {
@@ -1859,14 +1876,15 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		voice = -1;
 		GetNFontInfo(fontID, fontSize, fontStyle, &fInfo);
 		dLineSp = pt2d(fInfo.ascent + fInfo.descent + fInfo.leading);
-//		LogPrintf(LOG_DEBUG, "DrawTextBlock: TEMPO lines=%d dim=%d\n", CountTextLines(str), dim);
+//		LogPrintf(LOG_DEBUG, "TEMPO lines=%d dim=%d  (DrawTextBlock)\n", CountTextLines(str), dim);
 	}
 	else {
-		LogPrintf(LOG_ERR, "DrawTextBlock: object at %d isn't a Graphic or Tempo\n", pL);
-		return FALSE;
+		SysBeep(10);
+		LogPrintf(LOG_ERR, "object at %d isn't a Graphic or Tempo  (DrawTextBlock)\n", pL);
+		return False;
 	}
 	
-	switch (outputTo) { 
+	switch (outputTo) {
 		case toScreen:
 		case toBitmapPrint:
 		case toPICT:
@@ -1899,7 +1917,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 					if (q[i] == CH_CR || i == len) {
 						q[j] = count;
 						if (dim)
-							DrawMString(doc, (StringPtr)&q[j], NORMAL_VIS, TRUE);
+							DrawMString(doc, (StringPtr)&q[j], NORMAL_VIS, True);
 						else
 							DrawString((StringPtr)&q[j]);
 						if (i < len) {
@@ -1915,13 +1933,13 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 			else {
 				if (expandN) {
 					if (!ExpandPString(strToDraw, str, EXPAND_WIDER)) {
-						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandPString failed.\n");
+						LogPrintf(LOG_WARNING, "ExpandPString failed.  (DrawTextBlock)\n");
 						break;
 					}
 				}
 				else Pstrcpy(strToDraw, str);
 				
-				if (dim) DrawMString(doc, strToDraw, NORMAL_VIS, TRUE);
+				if (dim) DrawMString(doc, strToDraw, NORMAL_VIS, True);
 				else DrawString(strToDraw);
 			}
 			
@@ -1929,13 +1947,14 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 			TextFont(oldFont);
 			TextSize(oldSize);
 			TextFace(oldStyle);
-			return TRUE;
+			return True;
 			
 		case toPostScript:
 			Str255 fontName;
 			if (!FontID2Name(doc, fontID, fontName)) {
-				LogPrintf(LOG_ERR, "Can't find font with ID=%d in font table.\n");
-				return FALSE;
+				SysBeep(10);
+				LogPrintf(LOG_ERR, "Can't find font with ID=%d in font table.  (DrawTextBlock)\n");
+				return False;
 			}
 			if (multiLine) {
 				short i, j, len, count;
@@ -1961,32 +1980,33 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 			else {
 				if (expandN) {
 					if (!ExpandPString(strToDraw, str, EXPAND_WIDER)) {
-						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandPString failed.\n");
-						return FALSE;
+						SysBeep(10);
+						LogPrintf(LOG_WARNING, "ExpandPString failed.  (DrawTextBlock)\n");
+						return False;
 					}
 				}
 				else Pstrcpy(strToDraw, (StringPtr)str);
 				
 				PS_FontString(doc, xd, yd, strToDraw, fontName, fontSize, fontStyle);
 			}			
-			return TRUE;
+			return True;
 	}
 	
-	return FALSE;										/* Should never reach here */
+	return False;										/* Should never reach here */
 }
 
 
-/* -------------------------------------------------------------------- DrawGRAPHIC -- */
+/* ----------------------------------------------------------------------- DrawGRAPHIC -- */
 /* Draw a GRAPHIC object, including its enclosure, if it needs one, and/or
 recompute its objRect. (Thus far, our UI doesn't support entering strings over
-255 chars., so we don't need to support longer strings here.  --DAB, Sept. 2015) */
+255 chars., so we don't need to support longer strings here.  --DAB, Nov. 2017) */
 
 #define SWAP(a, b)	{ short temp; temp = (a); (a) = (b); (b) = temp; }
 
 void DrawGRAPHIC(Document *doc,
 				LINK pL,
 				CONTEXT context[],
-				Boolean doDraw		/* TRUE=really draw, FALSE=just compute objRect */
+				Boolean doDraw		/* True=really draw, False=just compute objRect */
 				)
 {
 	PGRAPHIC		p;
@@ -2006,7 +2026,7 @@ void DrawGRAPHIC(Document *doc,
 	unsigned char	oneChar[2];				/* Pascal string of a char */
 	StringOffset	theStrOffset;
 	Boolean			expandN;				/* Stretch string out? */
-	Boolean			dim=FALSE;
+	Boolean			dim=False;
 
 	/*
 	 *	Compute Graphic's absolute position from its relative object's position.
@@ -2020,14 +2040,18 @@ PushLock(GRAPHICheap);
  	staffn = GetGraphicOrTempoDrawInfo(doc, pL, p->firstObj, p->staffn, &xd, &yd, &relContext);
 	GetGraphicFontInfo(doc, pL, &relContext, &fontID, &fontSize, &fontStyle);
 	
-	if (staffn!=NOONE) {
+	if (staffn==NOONE) pContext = NILINK;
+	else {
 		pContext = &context[staffn];
 		if (!pContext->staffVisible && !PageTYPE(p->firstObj)) goto Cleanup;
 	}
 
-	expandN = FALSE;
+	expandN = False;
 	if (p->graphicType==GRString) expandN = (p->info2!=0);
-	if (GetGraphicDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox))
+	/* DrawChordSym gets the bounding box of chord symbols as well as drawing them, so
+		GetGraphicDBox doesn't handle chord symbols. */ 
+	if (p->graphicType!=GRChordSym &&
+			GetGraphicDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox))
 		OffsetDRect(&dEnclBox, xd, yd);
 
 	dim = (outputTo==toScreen && !LOOKING_AT(doc, p->voice));
@@ -2111,7 +2135,7 @@ PushLock(GRAPHICheap);
 			if (doDraw)
 				switch (p->graphicType) {
 					case GRChar:
-						if (dim) DrawMChar(doc, p->info, NORMAL_VIS, TRUE);
+						if (dim) DrawMChar(doc, p->info, NORMAL_VIS, True);
 						else	 DrawChar(p->info);
 						break;
 					case GRChordSym:
@@ -2121,24 +2145,24 @@ PushLock(GRAPHICheap);
 					case GRChordFrame:
 					case GRRehearsal:
 					case GRMIDIPatch:
-						if (dim) DrawMString(doc, (StringPtr)PCopy(theStrOffset),
-														NORMAL_VIS, TRUE);
+						if (dim)	DrawMString(doc, (StringPtr)PCopy(theStrOffset),
+														NORMAL_VIS, True);
 						else		DrawString(PCopy(theStrOffset));
 						break;
 					case GRMIDIPan:
 						TextFace(italic);
-						if (dim) DrawMString(doc, (StringPtr)PCopy(theStrOffset),
-														NORMAL_VIS, TRUE);
+						if (dim)	DrawMString(doc, (StringPtr)PCopy(theStrOffset),
+														NORMAL_VIS, True);
 						else		DrawString(PCopy(theStrOffset));
 						break;
-					case GRMIDISustainOn:
+					case GRSusPedalDown:
 						oneChar[0] = 1;
 						oneChar[1] = 0xA1;					// Mac OS Roman keys: shift-option 8
 						TextFace(normal);
 						TextFont(doc->musicFontNum);
 						DrawString(oneChar);
 						break;
-					case GRMIDISustainOff:
+					case GRSusPedalUp:
 						oneChar[0] = 1;
 						oneChar[1] = '*';					// Shift 8
 						TextFace(normal);
@@ -2187,15 +2211,15 @@ PushLock(GRAPHICheap);
 										doc->fontTable[p->fontInd].fontName,
 										fontSize, fontStyle);
 					break;
-				/* For sustain on/off (=pedal down/up), always use the document's music font. */
-				case GRMIDISustainOn:
+				/* For pedal down and up, always use the document's music font. */
+				case GRSusPedalDown:
 					oneChar[0] = 1;
 					oneChar[1] = 0xA1;									// Mac OS Roman keys: shift-option 8
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->musFontName,
 										fontSize, fontStyle);
 					break;
-				case GRMIDISustainOff:
+				case GRSusPedalUp:
 					oneChar[0] = 1;
 					oneChar[1] = '*';									// Shift 8
 					PS_FontString(doc, xd, yd,oneChar,
@@ -2212,10 +2236,9 @@ DrawEnclosure:
 
 Cleanup:
 	/* Strings in Sonata have been seen with zero-height objRects. That's not good, so
-		prevent possibility of zero-height objRect. */
+		avoid the possibility. */
 
-	if (outputTo==toScreen && objRect.bottom==objRect.top)
-		objRect.bottom++;
+	if (outputTo==toScreen && objRect.bottom==objRect.top) objRect.bottom++;
 	LinkOBJRECT(pL) = objRect;
 
 PopLock(OBJheap);
@@ -2223,35 +2246,32 @@ PopLock(GRAPHICheap);
 }
 
 
-
-
-/* ------------------------------------------------------------------- GetTempoDBox -- */
+/* ---------------------------------------------------------------------- GetTempoDBox -- */
 /* Return the DDIST bounding box for the given Tempo object, with origin at (0,0).
 If _expandN_, it's stretched out. */
 
 static Boolean GetTempoDBox(Document *doc,
 							LINK pL,
 							Boolean expandN,
-							PCONTEXT pContext,
 							short fontID, short fontSize, short fontStyle,
 							DRect *dBox			/* Bounding box (TOP_LEFT at 0,0 and no margin) */
 							)
 {
  	PTEMPO p;
-	Str255 string, tmpStr;
+	Str255 string, tempStr;
 	StringOffset theStrOffset;
 	Boolean multiLine;
 	Rect bBox;
 	
 	p = GetPTEMPO(pL);
 	theStrOffset = p->strOffset;
-	Pstrcpy(tmpStr, (StringPtr)PCopy(theStrOffset));
-	multiLine = (CountTextLines(tmpStr)>1);
+	Pstrcpy(tempStr, (StringPtr)PCopy(theStrOffset));
+	multiLine = (CountTextLines(tempStr)>1);
 	
 	if (expandN) {
-		if (!ExpandPString(string, tmpStr, EXPAND_WIDER)) {
+		if (!ExpandPString(string, tempStr, EXPAND_WIDER)) {
 			LogPrintf(LOG_WARNING, "GetTempoDBox: ExpandPString failed.\n");
-			return FALSE;
+			return False;
 		}
 	}
 	else Pstrcpy(string, (StringPtr)PCopy(theStrOffset));
@@ -2270,18 +2290,18 @@ static Boolean GetTempoDBox(Document *doc,
 	if (fontStyle!=0) bBox.right += 2*(Pstrlen(string))/3;
 	
 	PtRect2D(&bBox, dBox);
-	return TRUE;
+	return True;
 }
 
 
-/* ------------------------------------------------------------------ DrawTEMPO -- */
+/* ------------------------------------------------------------------------- DrawTEMPO -- */
 /* Draw a TEMPO object: verbal tempo string and/or metronome mark (consisting of a
 duration-unit note, perhaps dotted, and an M.M. number string). */
 
 void DrawTEMPO(Document *doc,
 				LINK pL,
 				CONTEXT context[],
-				Boolean doDraw					/* TRUE=really draw, FALSE=just set objRect */
+				Boolean doDraw					/* True=really draw, False=just set objRect */
 				)
 {
 	PTEMPO p;
@@ -2335,7 +2355,7 @@ PushLock(TEMPOheap);
 		course _dEnclBox_, the object's bounding box, should reflect this.) */
 		
 	metroIsBelow = (tempoStr[tempoStrlen]==CH_CR);
-	if (GetTempoDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox)) {
+	if (GetTempoDBox(doc, pL, expandN, fontID, fontSize, fontStyle, &dEnclBox)) {
 		dEnclBoxHeight = dEnclBox.bottom-dEnclBox.top;
 		OffsetDRect(&dEnclBox, xd, yd);
 	}
@@ -2348,7 +2368,7 @@ PushLock(TEMPOheap);
 	
 	if (metroIsBelow) {
 		xdMM = xd;
-		GetNPtStringBBox(doc, tempoStr, fontID, fontSize, fontStyle, FALSE, &lineBBox);
+		GetNPtStringBBox(doc, tempoStr, fontID, fontSize, fontStyle, False, &lineBBox);
 		dTextLineHeight = pt2d(lineBBox.bottom-lineBBox.top);
 		ydMM = yd+dEnclBoxHeight-dTextLineHeight;
 	}
@@ -2361,8 +2381,6 @@ PushLock(TEMPOheap);
 		}
 		ydMM = yd;
 	}
-//LogPrintf(LOG_DEBUG, "dEnclBox.bottom=%d dTextLineHeight=%d xd,yd=%d,%d xdMM,ydMM=%d,%d\n",
-//dEnclBox.bottom, dTextLineHeight, xd, yd, xdMM, ydMM);
 	
 	/* We'll cheat and get the width of the note and dot in the current font/size/style
 	 * instead of the ones it'll be drawn in. FIXME: This shouldn't make much difference,
@@ -2386,7 +2404,7 @@ PushLock(TEMPOheap);
 	xdMMNumber = xdMM+p2d(noteWidth);
 	
 	/* Decide whether to actually draw the metronome mark. */
-	if (p->noMM)	doDrawMM = FALSE;
+	if (p->noMM)	doDrawMM = False;
 	else			doDrawMM = ((!p->hideMM || doc->showInvis) && doDraw);
 
 	switch (outputTo) {
@@ -2396,7 +2414,7 @@ PushLock(TEMPOheap);
 			/* Perhaps draw the verbal tempo string. If the metronome mark is visible
 			and to its right, update the object's bounding box; otherwise, the bounding
 			box is already correct. */		
-			if (doDraw) DrawTextBlock(doc, xd, yd, pL, pContext, FALSE, fontID, fontSize,
+			if (doDraw) DrawTextBlock(doc, xd, yd, pL, pContext, False, fontID, fontSize,
 										fontStyle);
 			if (outputTo==toScreen) {
 				D2ObjRect(&dEnclBox, &objRect);
@@ -2418,8 +2436,6 @@ PushLock(TEMPOheap);
 				TextFace(0);											/* Plain */
 				DrawChar(noteChar);
 				if (p->dotted) {
-//LogPrintf(LOG_DEBUG, "xdDot, ydDot=%d. %d  pap.left=%d pap.top=%d\n", xdDot, ydDot,
-//			pContext->paper.left, pContext->paper.top);
 					MoveTo(pContext->paper.left+d2p(xdDot), pContext->paper.top+d2p(ydDot));
 					DrawChar(dotChar);
 				}
@@ -2443,13 +2459,13 @@ PushLock(TEMPOheap);
 		case toPostScript:
 			/* Draw the verbal tempo string and perhaps metronome mark */
 			fontSize = GetTextSize(doc->relFSizeTM, doc->fontSizeTM, lnSpace);
-			DrawTextBlock(doc, xd, yd, pL, pContext, FALSE, fontID, fontSize, fontStyle);
+			DrawTextBlock(doc, xd, yd, pL, pContext, False, fontID, fontSize, fontStyle);
 			if (doDrawMM) {
-				PS_MusChar(doc, xdMM, ydMM, noteChar, TRUE, METROSIZE(100));
+				PS_MusChar(doc, xdMM, ydMM, noteChar, True, METROSIZE(100));
 				if (p->dotted) {
 					/* FIXME: Why is ydDot defined differently here from bitmap drawing? */
 					ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lnSpace);
-					PS_MusChar(doc, xdDot, ydDot, dotChar, TRUE, METROSIZE(100));
+					PS_MusChar(doc, xdDot, ydDot, dotChar, True, METROSIZE(100));
 				}
 				PS_FontString(doc, xdMMNumber, ydMM, CToPString(metroStr),
 									doc->fontNameTM, fontSize, doc->fontStyleTM);
@@ -2464,7 +2480,7 @@ PopLock(TEMPOheap);
 }
 
 
-/* --------------------------------------------------------------------- DrawSPACER -- */
+/* ------------------------------------------------------------------------ DrawSPACER -- */
 /* Draw a SPACER object */
 
 void DrawSPACER(Document *doc, LINK pL, CONTEXT context[])
@@ -2547,7 +2563,7 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 		fontInd = FontName2Index(doc, doc->fontNameMN);					/* Should never fail */
 		fontID = doc->fontTable[fontInd].fontID;
 		fontSize = GetTextSize(doc->relFSizeMN, doc->fontSizeMN, LNSPACE(pContext));
-		GetNPtStringBBox(doc, nStr, fontID, fontSize, doc->fontStyleMN, FALSE, &measNumBox);
+		GetNPtStringBBox(doc, nStr, fontID, fontSize, doc->fontStyleMN, False, &measNumBox);
 		measNumBox.right += fontSize/4;									/* Pure fudgery */
 		PtRect2D(&measNumBox, &dEnclBox);
 		OffsetDRect(&dEnclBox, xdMN, ydMN);
@@ -2556,11 +2572,11 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 }
 
 
-/* ------------------------------------------------------------- ShadeDurPblmMeasure -- */
+/* --------------------------------------------------------------- Shade Measure areas -- */
 
-static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat)
+static void ShadeMeasureInRect(Rect *pMRect, PCONTEXT pContext, Pattern *shadePat)
 {
-	OffsetRect(pRect, pContext->paper.left, pContext->paper.top);
+	OffsetRect(pMRect, pContext->paper.left, pContext->paper.top);
 	/*
 	 * Indent shading area horizontally to avoid covering up the barlines,
 	 * and vertically to separate this measure from those in adjacent systems.
@@ -2568,10 +2584,10 @@ static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat)
 	 * it often makes the blinking caret almost invisible, so use our own
 	 * diagonal stripes.
 	 */
-	InsetRect(pRect, 1, 2);
+	InsetRect(pMRect, 1, 2);
 	PenPat(shadePat);
 	PenMode(patOr);
-	PaintRect(pRect);
+	PaintRect(pMRect);
 	PenNormal();
 }
 
@@ -2595,14 +2611,11 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 	
 	barTermL = EndMeasSearch(doc, measureL);
 	if (barTermL) {
-		okay = TRUE;
+		okay = True;
 		measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
-		if (measDurFromTS<0) okay = FALSE;
+		if (measDurFromTS<0) okay = False;
 		else {
 			measDurActual = GetMeasDur(doc, barTermL, ANYONE);
-//if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT)
-//LogPrintf(LOG_DEBUG, "ShadeDurPblmMeasure: for measureL=%d, dur from TS=%d durActual=%d\n",
-//				measureL, measDurFromTS, measDurActual);
 			/* If the first Sync following the Measure object is a multibar rest, assume
 			   the "measure" is OK. (NB that if the "measure" we're checking contains no
 			   Syncs, the first Sync following won't be in it, but that shouldn't cause
@@ -2616,7 +2629,7 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 				if (isMBRest) return;
 			}
 			if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT)
-				okay = FALSE;
+				okay = False;
 		}
 
 		if (okay) {
@@ -2624,7 +2637,7 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 				incomplete contents. */
 			p = GetPMEASURE(measureL);
 			xd = p->xd;
-			sysL = LSSearch(measureL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+			sysL = LSSearch(measureL, SYSTEMtype, ANYONE, GO_LEFT, False);
 			aMeasL = FirstSubLINK(measureL);
 			for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
 				staffn = MeasureSTAFF(aMeasL);			
@@ -2632,22 +2645,22 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 				if (measDurOnStaff!=0 && ABS(measDurFromTS-measDurOnStaff)>=PDURUNIT) {
 					mrect = MeasMRECT(aMeasL);
 					OffsetDRect(&mrect, xd, 0);
-					InsetDRect(&mrect, 0, pt2d(6));		/* Reduce ht of shading to emphasize staff */
+					InsetDRect(&mrect, 0, pt2d(10));		/* Reduce ht of shading to emphasize staff */
 					DRect2ScreenRect(mrect, SystemRECT(sysL), doc->paperRect, &r);
-					ShadeRect(&r, pContext, &otherLtGray);
+					ShadeMeasureInRect(&r, pContext, &otherLtGray);
 				}
 			}
 		}
 		else {
 			p = GetPMEASURE(measureL);
 			r = p->measureBBox;
-			ShadeRect(&r, pContext, &diagonalLtGray);
+			ShadeMeasureInRect(&r, pContext, &diagonalLtGray);
 		}
 	}
 }
 
 
-/* -------------------------------------------------------------------- DrawBarline -- */
+/* ----------------------------------------------------------------------- DrawBarline -- */
 /* Draw a barline (not a repeat bar) across one or more staves. */
 
 void DrawBarline(Document *doc,
@@ -2678,11 +2691,11 @@ void DrawBarline(Document *doc,
 	}
 
 	if (connStaff==0) {
-		dBottom = dTop + pContext->staffHeight;					/* Not connected below */
+		dBottom = dTop + pContext->staffHeight;						/* Not connected below */
 		if (pContext->showLines==1) dBottom -= lnSpace;			
 	}
 	else {
-		pContext2 = &context[NextStaffn(doc,pL,FALSE,connStaff)]; /* Connected below */
+		pContext2 = &context[NextVisStaffn(doc,pL,False,connStaff)]; /* Connected below */
 		dBottom = pContext2->staffTop + pContext2->staffHeight;
 		if (pContext2->showLines==1) dBottom -= LNSPACE(pContext2);			
 	}
@@ -2768,10 +2781,10 @@ void DrawBarline(Document *doc,
 }
 
 
-/* ----------------------------------------------------------------- DrawMEASURE -- */
-/* Draw a MEASURE object, i.e., all its barlines or repeat bars. If !LinkVALID(pL)
-and we're drawing to the screen, also update the MEASURE's <measureBBox> based on
-the <measSizeRect>s of the subobjects. */
+/* ----------------------------------------------------------------------- DrawMEASURE -- */
+/* Draw the graphical manifestation of a MEASURE object, i.e., all its barlines or
+repeat bars. If !LinkVALID(pL) and we're drawing to the screen, also update the MEASURE's
+<measureBBox> based on the <measSizeRect>s of the subobjects. */
 
 void DrawMEASURE(Document *doc, LINK pL, CONTEXT context[])
 {
@@ -2788,17 +2801,18 @@ void DrawMEASURE(Document *doc, LINK pL, CONTEXT context[])
 	DDIST		dTop,				/* top of above staff */
 				dLeft,				/* left edge of staff */
 				xdMN, ydMN, yOffset;
-	Boolean		drawn,				/* FALSE until a subobject has been drawn */
-				recalc,				/* TRUE if we need to recalc object's enclosing rectangle */
-				drawBar;			/* TRUE=draw barline proper as well as any repeat dots */
+	Boolean		drawn,				/* False until a subobject has been drawn */
+				recalc,				/* True if we need to recalc object's enclosing rectangle */
+				drawBar;			/* True=draw barline proper as well as any repeat dots */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 
+//LogPrintf(LOG_DEBUG, "DrawMEASURE(%u)\n", pL);
 PushLock(OBJheap);
 PushLock(MEASUREheap);
 	p = GetPMEASURE(pL);
 	aMeasureL = FirstSubLINK(pL);
-	drawn = FALSE;
+	drawn = False;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);
 	for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
@@ -2812,7 +2826,7 @@ PushLock(MEASUREheap);
 		dTop = pContext->measureTop = pContext->staffTop;
 		if (pContext->showLines==1) dTop += LNSPACE(pContext);
 		dLeft = pContext->measureLeft = pContext->staffLeft + LinkXD(pL);
-		pContext->inMeasure = TRUE;
+		pContext->inMeasure = True;
 
 		pContext->clefType = aMeasure->clefType;
 		pContext->nKSItems = aMeasure->nKSItems;				/* Copy this key sig. */
@@ -2855,13 +2869,13 @@ PushLock(MEASUREheap);
 			if (!drawn) {
 				LinkOBJRECT(pL) = barlineRect;
 				p->measureBBox = measureRect;
-				drawn = TRUE;
+				drawn = True;
 			}
 			else {
 				UnionRect(&LinkOBJRECT(pL), &barlineRect, &LinkOBJRECT(pL));
 				UnionRect(&p->measureBBox, &measureRect, &p->measureBBox);
 			}
-			LinkVALID(pL) = TRUE;
+			LinkVALID(pL) = True;
 		}
 		
 		if (pContext->visible || doc->showInvis) {
@@ -2884,12 +2898,12 @@ PushLock(MEASUREheap);
 						break;
 				}
 			}
-/*
- *	Measure numbers should be drawn regardless of whether the Measure is visible,
- *	i.e., whether the barline is drawn. The exact conditions are complex (must be
- *	a "real" measure, must be the top or bottom visible staff of the system, etc.),
- *	so ask a specialist function.
- */
+			
+			/* Measure numbers should be drawn regardless of whether the Measure is
+			   visible, i.e., whether the barline is drawn. The exact conditions are
+			   complex (must be a "real" measure, must be the top or bottom visible
+			   staff of the system, etc.), so ask a specialist function. */
+			   
 			if (ShouldDrawMeasNum(doc, pL, aMeasureL)) {
 				measureNum = aMeasure->measureNum+doc->firstMNNumber;
 				if (FirstMeasInSys(pL) && doc->sysFirstMN)
@@ -2915,38 +2929,43 @@ PushLock(MEASUREheap);
 		}
 	}
 	
-/* If this is the last measure of a system, just set its measureBBox to end exactly
- * at the end of the system. If in addition the previous measure ends at the same
- * point, this measure's width is zero, and we set its measureBBox to start at that
- * point as well.
- */
+	/* If this is the last measure of a system, just set its measureBBox to end exactly
+	   at the end of the system. If in addition the previous measure ends at the same
+	   point, this measure's width is zero, and we set its measureBBox to start at that
+	   point as well. */
+	   
 	if (recalc) {
 		if (LastMeasInSys(pL)) {
+//LogPrintf(LOG_DEBUG, "DrawMEASURE(%u): update measureBBox\n", pL);
 			/*  FIXME: This code seems way more complicated than it should be. */
-			LINK sysL; DRect sysDRect; short sysLeft, boxRight;
+			LINK sysL;  DRect sysDRect;  short sysLeft, boxRight;
 						
-			sysL = LSSearch(pL, SYSTEMtype, ANYONE, TRUE, FALSE);
+			sysL = LSSearch(pL, SYSTEMtype, ANYONE, True, False);
 			sysDRect = SystemRECT(sysL);
 			sysLeft = d2pt(sysDRect.left);
 			boxRight = sysLeft+STAFF_LEN(doc);
 			if (LinkLSYS(sysL)==NILINK)
-				boxRight -= d2pt(doc->firstIndent);
+				boxRight -= d2pt(doc->dIndentFirst);
 			else
-				boxRight -= d2pt(doc->otherIndent);
+				boxRight -= d2pt(doc->dIndentOther);
 			p->measureBBox.right = UseMagnifiedSize(boxRight, doc->magnify);
+//LogPrintf(LOG_DEBUG, "DrawMEASURE(%u): 1 measureBBox.left=%d right=%d\n", pL,
+//p->measureBBox.left, p->measureBBox.right);
 			
-			prevL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
-			if (prevL) {
+			prevL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, GO_LEFT, False);
+			if (prevL && SameSystem(pL, prevL)) {
 				prevRight = MeasureBBOX(prevL).right;
 				if (prevRight==p->measureBBox.right)
 					p->measureBBox.left = p->measureBBox.right;
+//LogPrintf(LOG_DEBUG, "DrawMEASURE(%u): 2 measureBBox.left=%d right=%d\n", pL,
+//p->measureBBox.left, p->measureBBox.right);
 			}
 		}
 	}
 
-/* If we're showing measure duration problems, check whether this measure's notated
- * and actual durations agree, and if they don't, shade over the entire measure.
- */
+	/* If we're showing measure duration problems, check whether this measure's notated
+	   and actual durations agree, and if they don't, shade over the measure. */
+	   
 	if (doc->showDurProb)
 		ShadeDurPblmMeasure(doc, pL, lastContext);
 
@@ -2959,7 +2978,7 @@ PopLock(MEASUREheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawPSMEAS -- */
+/* ------------------------------------------------------------------------ DrawPSMEAS -- */
 /* Draw all subobjects of a PSMEAS object. */
 
 void DrawPSMEAS(Document *doc, LINK pL, CONTEXT context[])
@@ -2974,20 +2993,20 @@ void DrawPSMEAS(Document *doc, LINK pL, CONTEXT context[])
 	DDIST		dTop, dBottom,	/* top of above staff and bottom of below staff */
 				dLeft,			/* left edge of staff */
 				lnSpace;
-	Boolean		drawn,			/* FALSE until a subobject has been drawn */
-				recalc;			/* TRUE if we need to recalc object's enclosing rectangle */
+	Boolean		drawn,			/* False until a subobject has been drawn */
+				recalc;			/* True if we need to recalc object's enclosing rectangle */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 
 PushLock(OBJheap);
 PushLock(PSMEASheap);
 	aPSMeasL = FirstSubLINK(pL);
-	drawn = FALSE;
+	drawn = False;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);
 	for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
 		aPSMeas = GetPAPSMEAS(aPSMeasL);
 		
-		pContext = &context[NextLimStaffn(doc, pL, TRUE, PSMeasSTAFF(aPSMeasL))];
+		pContext = &context[NextLimVisStaffn(doc, pL, True, PSMeasSTAFF(aPSMeasL))];
 		dTop = pContext->staffTop;
 		dLeft = pContext->measureLeft + LinkXD(pL);
 		lnSpace = LNSPACE(pContext);
@@ -2997,7 +3016,7 @@ PushLock(PSMEASheap);
 			if (pContext->showLines==1) dBottom -= lnSpace;			
 		}
 		else {
-			pContext2 = &context[NextLimStaffn(doc,pL,FALSE,aPSMeas->connStaff)]; /* Connected below */
+			pContext2 = &context[NextLimVisStaffn(doc,pL,False,aPSMeas->connStaff)]; /* Connected below */
 			dBottom = pContext2->staffTop + pContext2->staffHeight;
 			if (pContext2->showLines==1) dBottom -= LNSPACE(pContext2);			
 		}
@@ -3021,12 +3040,12 @@ PushLock(PSMEASheap);
 
 			if (!drawn) {
 				LinkOBJRECT(pL) = barlineRect;
-				drawn = TRUE;
+				drawn = True;
 			}
 			else {
 				UnionRect(&LinkOBJRECT(pL), &barlineRect, &LinkOBJRECT(pL));
 			}
-			LinkVALID(pL) = TRUE;
+			LinkVALID(pL) = True;
 		}
 		if (pContext->visible || doc->showInvis) {
 			if (aPSMeas->visible || doc->showInvis) {
@@ -3046,7 +3065,7 @@ PopLock(PSMEASheap);
 }
 
 
-/* -------------------------------------------------------------------- DrawSLUR -- */
+/* --------------------------------------------------------------------------k DrawSLUR -- */
 /* Draw a SLUR object, i.e., a slur or set of ties. */
 
 void DrawSLUR(Document *doc, LINK pL, CONTEXT context[])
@@ -3064,7 +3083,7 @@ void DrawSLUR(Document *doc, LINK pL, CONTEXT context[])
 	DPoint		start, end, c0, c1;
 	PASLUR		aSlur;
 	LINK		aSlurL;
-	Boolean		drawn,					/* FALSE until a subobject has been drawn */
+	Boolean		drawn,					/* False until a subobject has been drawn */
 				dim;					/* Should it be dimmed bcs in a voice not being looked at? */
 	STFRANGE	stfRange = {0,0};
 	Rect		paper;
@@ -3077,7 +3096,7 @@ PushLock(SLURheap);
 	MaySetPSMusSize(doc, &localContext);
 
 	GetSlurContext(doc, pL, startPt, endPt);			/* Get absolute positions, in DPoints */
-	drawn = FALSE;
+	drawn = False;
 	
 	paper = localContext.paper;
 
@@ -3131,8 +3150,8 @@ PushLock(SLURheap);
 					UnionRect(&LinkOBJRECT(pL), &aSlur->bounds, &LinkOBJRECT(pL));
 				else
 					LinkOBJRECT(pL) = aSlur->bounds;
-				LinkVALID(pL) = TRUE;
-				drawn = TRUE;
+				LinkVALID(pL) = True;
+				drawn = True;
 				break;
 			case toPostScript:
 				xdCtl0 = xdFirst + aSlur->seg.c0.h;

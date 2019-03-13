@@ -1,11 +1,11 @@
-/* AccModNRMouse.c for Nightingale - handle dragging accidentals and ModNRs */
+/* AccModNRMouse.c for Nightingale - handle dragging accidentals and note modifiers */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -13,7 +13,7 @@
 
 static short FindAccModNR(Document *, Point, LINK *, LINK *, LINK *, Rect *);
 static void GetAccidentalBbox(Document *, LINK, LINK, Rect *);
-static void DoAccidentalDrag(Document *, Point, LINK, LINK, Rect *);
+static void DragAccidental(Document *, Point, LINK, LINK, Rect *);
 static DDIST GetAccXOffset(PANOTE, short, PCONTEXT);
 static void ShowAccidentalParams(Document *doc, short);
 static Boolean GetModNRBbox(Document *, LINK, LINK, LINK, Rect *);
@@ -52,9 +52,9 @@ static short FindAccModNR(Document *doc, Point pt,
 	 * to the LEFT of its note's measure.
 	 */
 	startL = NILINK;
-	firstMeasL = LSSearch(pageL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	firstMeasL = LSSearch(pageL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	for (measL = firstMeasL; SamePage(measL, firstMeasL); measL = LinkRMEAS(measL)) {
-		if (PtInMeasure(doc, pt, measL)) {
+		if (IsPtInMeasure(doc, pt, measL)) {
 			startL = measL;
 			break;
 		}
@@ -94,8 +94,8 @@ static short FindAccModNR(Document *doc, Point pt,
 				}
 			}
 		}
-		/* If we've reached this point, the first search found nothing,
-		 * so we must start over at the top of the page.
+		/* If we've reached this point, the first search found nothing, so we must
+		 * start over at the top of the page.
 		 */
 		if (startL == pageL) return NOHIT;			/* we've already searched the whole page */
 		endL = startL;
@@ -105,8 +105,8 @@ static short FindAccModNR(Document *doc, Point pt,
 }
 
 
-/* If user double-clicked on a modNR, invokes a dialog to let them change the
-modifier and returns TRUE; otherwise, just returns FALSE. */
+/* If user double-clicked on a modNR, invokes a dialog to let them change the modifier
+and returns True; otherwise, just returns False. */
 
 Boolean DoOpenModNR(Document *doc, Point pt)
 {
@@ -119,7 +119,7 @@ Boolean DoOpenModNR(Document *doc, Point pt)
 	result = FindAccModNR(doc, pt, &syncL, &noteL, &modNRL, &bboxOld);
 	
 	if (result==MODNR) {
-		DisableUndo(doc, FALSE);
+		DisableUndo(doc, False);
 		modCode = ModNRMODCODE(modNRL);
 		change = SetModNRDialog(&modCode);
 		if (change) {
@@ -134,17 +134,17 @@ Boolean DoOpenModNR(Document *doc, Point pt)
 			InsetRect(&bbox, -1, -4);
 			EraseAndInval(&bbox);				/* ??NB: if bbox entirely outside of systemRect, it won't be redrawn */
 
-			doc->changed = TRUE;
+			doc->changed = True;
 		}
-		return TRUE;
+		return True;
 	}
 
-	return FALSE;
+	return False;
 }
 
 
 /* If user clicked on a modNR or an accidental, calls functions to handle dragging and
-returns TRUE; otherwise, just returns FALSE. */
+returns True; otherwise, just returns False. */
 
 Boolean DoAccModNRClick(Document *doc, Point pt)
 {
@@ -155,17 +155,17 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 	result = FindAccModNR(doc, pt, &syncL, &noteL, &modNRL, &bbox);
 	
 	if (result==MODNR) {
-		DisableUndo(doc, FALSE);
+		DisableUndo(doc, False);
 		DoModNRDrag(doc, pt, syncL, noteL, modNRL, &bbox);
-		return TRUE;
+		return True;
 	}
 	if (result==ACCIDENTAL) {
-		DisableUndo(doc, FALSE);
-		DoAccidentalDrag(doc, pt, syncL, noteL, &bbox);
-		return TRUE;
+		DisableUndo(doc, False);
+		DragAccidental(doc, pt, syncL, noteL, &bbox);
+		return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -238,14 +238,14 @@ static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBB
 }
 
 
-static void DoAccidentalDrag(Document *doc, Point pt, LINK syncL, LINK noteL,
+static void DragAccidental(Document *doc, Point pt, LINK syncL, LINK noteL,
 									Rect *origAccBBox)				/* in paper coords */
 {
 	DDIST	noteXD, noteYD, xdNorm, xdNormAdjusted, xOffset, accXOffset, dAccWidth;
 	short	accCode, oldTxMode, oldTxSize, useTxSize, 
 			sizePercent, diffH, accOriginH, xmoveAcc;
 	Point	oldPt, newPt;
-	Boolean	chordNoteToL, suppressRedraw = FALSE;
+	Boolean	chordNoteToL, suppressRedraw = False;
 	ANOTE	oldNote;	
 	PANOTE	aNote;
 	CONTEXT	context;
@@ -273,16 +273,16 @@ PushLock(NOTEheap);
 	
 	TextMode(srcXor);
 	DrawAcc(doc, &context, noteL, xdNorm, noteYD,
-						FALSE, sizePercent, chordNoteToL);		/* erase original accidental */
+						False, sizePercent, chordNoteToL);		/* erase original accidental */
 	TextMode(srcOr);
 	DrawAcc(doc, &context, noteL, xdNorm, noteYD,
-						TRUE, sizePercent, chordNoteToL);		/* draw it in gray */
+						True, sizePercent, chordNoteToL);		/* draw it in gray */
 	TextMode(srcXor);
 
-	ShowAccidentalParams(doc, aNote->xmoveAcc);				/* display this now in case we never drag */
+	ShowAccidentalParams(doc, aNote->xmoveAcc);					/* display this now in case we never drag */
 
-	/* Adjust xdNorm for chordNoteToL notes. Don't change xdNorm, because
-	 * DrawAcc already does that for us.
+	/* Adjust xdNorm for chordNoteToL notes. Don't change xdNorm, because DrawAcc
+	 * already does that for us.
 	 */
 	xdNormAdjusted = chordNoteToL?
 			xdNorm-SizePercentSCALE(HeadWidth(LNSPACE(&context))) : xdNorm;
@@ -301,7 +301,7 @@ PushLock(NOTEheap);
 		if (EqualPt(newPt, oldPt)) continue;
 		
 		DrawAcc(doc, &context, noteL, xdNorm, noteYD,
-							FALSE, sizePercent, chordNoteToL);		/* erase old accidental */
+							False, sizePercent, chordNoteToL);		/* erase old accidental */
 		
 		/* This is the reverse of what AccXOffset does. That is, we have the DDIST
 		 * offset <xOffset> from the left edge of the note to the accidental origin.
@@ -312,7 +312,7 @@ PushLock(NOTEheap);
 		if (chordNoteToL)
 			xOffset -= SizePercentSCALE(HeadWidth(LNSPACE(&context)));
 		if (aNote->small) {
-				LONGDDIST xOffsetLong;								/* to avoid DDIST overflow */			
+				LONGDDIST xOffsetLong;							/* to avoid DDIST overflow */			
 				xOffsetLong = (LONGDDIST)xOffset;
 				xmoveAcc = (((((DDIST)((xOffsetLong*100L)/(long)sizePercent)) 
 										- dAccWidth) * 4) / dAccWidth) + DFLT_XMOVEACC;
@@ -320,28 +320,28 @@ PushLock(NOTEheap);
 		else
 			xmoveAcc = (((xOffset - dAccWidth) * 4) / dAccWidth) + DFLT_XMOVEACC;
 		if (aNote->accident==AC_DBLFLAT)
-			xmoveAcc -= 2;									/* ??this isn't quite right */
+			xmoveAcc -= 2;										/* ??this isn't quite right */
 
 		if (xmoveAcc >= 0 && xmoveAcc <= 31)
 			aNote->xmoveAcc = xmoveAcc;
-		else {												/* if outside limits, constrain to limits */
+		else {													/* if outside limits, constrain to limits */
 			if (xmoveAcc < 0)
 				aNote->xmoveAcc = 0;
 			else
 				aNote->xmoveAcc = 31;
 		}
 					
-		aNote->accident = 0;			/* temporarily remove this so AutoScroll won't leave accidental turds */
-		TextMode(srcOr);				/* so staff lines won't cut through notes */
+		aNote->accident = 0;					/* temporarily remove it so AutoScroll won't leave accidental junk */
+		TextMode(srcOr);						/* so staff lines won't cut through notes */
 		AutoScroll();
 		TextMode(srcXor);
-		TextSize(useTxSize);			/* this might be changed in AutoScroll */
+		TextSize(useTxSize);					/* this might be changed in AutoScroll */
 		aNote->accident = accCode;
 
 		/* Now translate our newly-acquired offset into DDISTs before drawing. */
 		accXOffset = GetAccXOffset(aNote, sizePercent, &context);
 		DrawAcc(doc, &context, noteL, xdNorm, noteYD,
-							FALSE, sizePercent, chordNoteToL);		/* draw new accidental */
+							False, sizePercent, chordNoteToL);		/* draw new accidental */
 		
 		/* Draw new params in msg box. (Do this after drawing accidental at new pos to reduce flicker.) */
 		ShowAccidentalParams(doc, aNote->xmoveAcc);
@@ -351,14 +351,14 @@ PushLock(NOTEheap);
 
 	TextMode(srcOr);
 	DrawAcc(doc, &context, noteL, xdNorm, noteYD,
-							FALSE, sizePercent, chordNoteToL);		/* draw new accidental in normal mode */
+							False, sizePercent, chordNoteToL);		/* draw new accidental in normal mode */
 	TextSize(oldTxSize);
 	TextMode(oldTxMode);
 
 	/* Update modNR in data structure and inval rect if it's changed. */
 	if (BlockCompare(aNote, &oldNote, sizeof(ANOTE))) {
-		doc->changed = TRUE;
-		LinkTWEAKED(syncL) = TRUE;									/* Flag to show node was edited */
+		doc->changed = True;
+		LinkTWEAKED(syncL) = True;									/* Flag to show node was edited */
 		
 		Rect2Window(doc, origAccBBox);
 		InsetRect(origAccBBox, -1, -4);
@@ -429,9 +429,9 @@ static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 									&glyph, &xOffset, &yOffset, &sizePercent)) {
 		MayErrMsg("GetModNRBbox: illegal MODNR code %ld for note link=%ld",
 					(long)code, (long)noteL);
-		return FALSE;
+		return False;
 	}
-   if (glyph==' ') return FALSE;			/* if it's a tremolo slash, can't drag it */
+   if (glyph==' ') return False;			/* if it's a tremolo slash, can't drag it */
 
 	xdMod += (LNSPACE(&context)/8)*xOffset;
 	ydMod += (LNSPACE(&context)/8)*yOffset;
@@ -465,7 +465,7 @@ static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 	InsetRect(bbox, (wid<ADD_SLOP_THRESH? -SLOP_TO_ADD : 0),
 							(ht<ADD_SLOP_THRESH? -SLOP_TO_ADD : 0));
 
-	return TRUE;
+	return True;
 }
 
 
@@ -486,7 +486,7 @@ static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK mo
 	short	code, sizePercent, xOffset, yOffset, constrain = NOCONSTRAIN,
 			oldTxSize, useTxSize, oldTxMode;
 	Point	oldPt, newPt, modOrigin, diffPt;
-	Boolean	firstLoop = TRUE, suppressRedraw = FALSE;
+	Boolean	firstLoop = True, suppressRedraw = False;
 	PAMODNR	aModNR;
 	AMODNR	oldModNR;
 	PANOTE	aNote;
@@ -534,10 +534,10 @@ PushLock(NOTEheap);
 #ifdef DRAW_IN_GRAY
 	TextMode(srcXor);
 	Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context,
-					sizePercent, FALSE);					/* erase original modNR */
+					sizePercent, False);					/* erase original modNR */
 	TextMode(srcOr);
 	Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context, 
-					sizePercent, TRUE);						/* ...and redraw it in gray */
+					sizePercent, True);						/* ...and redraw it in gray */
 	TextMode(srcXor);
 #endif
 
@@ -557,11 +557,11 @@ PushLock(NOTEheap);
 			if (ShiftKeyDown())
 				constrain = (ABS(newPt.h-oldPt.h) >= ABS(newPt.v-oldPt.v)) ?
 												H_CONSTRAIN : V_CONSTRAIN;
-			firstLoop = FALSE;
+			firstLoop = False;
 		}
 		
 		Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context,
-						sizePercent, FALSE);				/* erase modNR at old position */
+						sizePercent, False);				/* erase modNR at old position */
 		
 		xd = p2d(newPt.h - diffPt.h);
 		xstd = d2std(xd - noteXD - ((LNSPACE(&context)/8)*xOffset),
@@ -607,7 +607,7 @@ PushLock(NOTEheap);
 		ydMod += MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 
 		Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context, 
-						sizePercent, FALSE);					/* draw modNR in new position */
+						sizePercent, False);					/* draw modNR in new position */
 
 		/* Draw new params in msg box. (Do this after drawing modNR at new position to
 		   reduce flicker.) */
@@ -618,15 +618,15 @@ PushLock(NOTEheap);
 
 	TextMode(srcOr);
 	Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context, sizePercent,
-					 FALSE);									/* draw in final position in normal mode */
+					 False);									/* draw in final position in normal mode */
 
 	TextMode(oldTxMode);
 	TextSize(oldTxSize);
 	
 	/* Update modNR in data structure and inval rect if it's changed. */
 	if (BlockCompare(aModNR, &oldModNR, sizeof(AMODNR))) {
-		doc->changed = TRUE;
-		LinkTWEAKED(syncL) = TRUE;								/* Flag to show node was edited */
+		doc->changed = True;
+		LinkTWEAKED(syncL) = True;								/* Flag to show node was edited */
 		
 		Rect2Window(doc, origModNRBbox);
 		InsetRect(origModNRBbox, -1, -4);

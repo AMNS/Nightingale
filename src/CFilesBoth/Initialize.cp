@@ -10,44 +10,44 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#include "SampleMDEF.h"
 #include "GraphicMDEF.h"
-#include "EndianUtils.h"
+#include "Endian.h"
 
 /* Private routines */
 
 static void			InitToolbox(void);
-static Boolean		AddSetupResource(Handle);
-static OSStatus		FindPrefsFile(unsigned char *name, OSType fType, OSType fCreator, FSSpec *prefsSpec);
-static void			DebugDisplayCnfg(void);
+static Boolean		AddPrefsResource(Handle);
+static OSStatus		FindPrefsFile(unsigned char *name, OSType fType, OSType fCreator,
+									FSSpec *prefsSpec);
+static void			DisplayConfig(void);
+static Boolean		CheckConfig(void);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
 static Boolean		NInitFloatingWindows(void);
-static void			SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
+static void			DisplayToolPalette(PaletteGlobals *whichPalette);
+static Boolean		CheckToolPalette(PaletteGlobals *whichPalette);
 static short		GetToolGrid(PaletteGlobals *whichPalette);
 static void			SetupPaletteRects(Rect *whichRects, short across, short down, short width,
-								short height);
+										short height);
+static void			SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
 static Boolean		PrepareClipDoc(void);
-static void			AddSampleItems(MenuRef menu);
 static void			InstallCoreEventHandlers(void);
 
 
-/* ----------------------------------------------------------- Initialize and ally -- */
+/* --------------------------------------------------------------- Initialize and ally -- */
 /* Do everything that must be done prior to entering main event loop. A great deal of
 this is platform-dependent. */
 
 static void InitToolbox()
 {
-#if TARGET_API_MAC_CARBON
-	FlushEvents(everyEvent, 0);		// FIXME: DO WE NEED THIS?
-#endif
+	FlushEvents(everyEvent, 0);
 }
 		
 
@@ -58,6 +58,7 @@ void Initialize()
 {
 	OSErr err;
 	Str63 dummyVolName;
+	Str255 versionPStr;
 	
 	InitToolbox();
 
@@ -109,12 +110,19 @@ void Initialize()
 	
 	InitLogPrintf();
 
-	if (!OpenSetupFile())							/* needs creatorType */
+	/* Fill global _applVerStr_ with our version string, and display it in the log. */
+	
+	Pstrcpy((unsigned char *)strBuf, VersionString(versionPStr));
+	PToCString((unsigned char *)strBuf);
+	GoodStrncpy(applVerStr, strBuf, 15);			/* Allow one char. for terminator */
+	LogPrintf(LOG_NOTICE, "Running Nightingale %s  (Initialize)\n", applVerStr);
+
+	if (!OpenPrefsFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
 	GetConfig();									/* needs the Prefs (Setup) file open */
 	if (!OpenTextSetupFile())						/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
-	GetTextConfig();								/* needs the Prefs (Setup) file open */
+	GetTextConfig();								/* needs the Prefs file open */
 	
 //	char *foo = GetPrefsValue("foo");
 //	char *bazz = GetPrefsValue("bazz");
@@ -122,13 +130,6 @@ void Initialize()
 	if (!InitMemory(config.numMasters))				/* needs the CNFG resource */
 		{ BadInit(); ExitToShell(); }
 
-#ifdef TARGET_API_MAC_CARBON	
-	// WaitNextEvent is always available in OS X
-	
-	hasWaitNextEvent = TRUE;
-#else
-	hasWaitNextEvent = TrapAvailable(_WaitNextEvent);
-#endif
 	/*
 	 *	Allocate a large grow zone handle, which gets freed when we run out of memory,
 	 *	so that whoever is asking for memory will probably get what they need without
@@ -141,7 +142,7 @@ void Initialize()
 		BadInit();
 		ExitToShell();
 	}
-	outOfMemory = FALSE;
+	outOfMemory = False;
 	growZoneUPP = NewGrowZoneUPP(GrowMemory);
 	if (growZoneUPP)
 		SetGrowZone(growZoneUPP);			/* Install simple grow zone function */
@@ -160,14 +161,17 @@ void Initialize()
 	
 	/*
 	 * See if we have enough memory that the user should be able to do SOMETHING
-	 * useful -- and enough to get back to the main event loop, where we do our
-	 * we do our regular low-memory checking. As of v.999, 250K was enough; but now,
-	 * in the 21st century, we might as well make the minimum a lot higher.
+	 * useful, and enough to get back to the main event loop, where we do our
+	 * regular low-memory checking. As of v.999, 250K was enough; but now, in the
+	 * 21st century, we might as well make the minimum a lot higher -- though it's
+	 * not clear if this is even meaningful anymore!
 	 */
-	if (!PreflightMem(600))
+	if (!PreflightMem(1000))
 		{ BadInit(); ExitToShell(); }
 }
 
+
+/* ------------------------------------------------------------------------ Prefs file -- */
 
 static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCreator,
 								FSSpec *prefsSpec) 
@@ -179,8 +183,8 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 	OSStatus err;
 	
 	/* Find the preferences folder, normally ~/Library/Preferences */
-	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, true, &pvol, &pdir);
-	LogPrintf(LOG_NOTICE, "Prefs File: FindFolder: err=%d\n", err);
+	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
+	//LogPrintf(LOG_DEBUG, "FindFolder: err=%d  (FindPrefsFile)\n", err);
 	if (err!=noErr) return err;
 	
 	/* Search the folder for the file */
@@ -204,51 +208,43 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 	}
 	
 	err = FSMakeFSSpec(pvol, pdir, PREFS_PATH, prefsSpec);
-	LogPrintf(LOG_NOTICE, "Prefs File: FSMakeFSSpec: err=%d (fnfErr=%d)\n", err, fnfErr);
+	LogPrintf(LOG_INFO, "FSMakeFSSpec: err=%d (fnfErr=%d)  (FindPrefsFile)\n", err, fnfErr);
 	return fnfErr;		// FIXME: HUH? ALWAYS RETURN AN ERROR? ISN'T THIS "FILE NOT FOUND"?
 } 
 
 
-/* -------------------------------------------------------------- CreateSetupFile -- */
 /* Create a new Nightingale Prefs file. (We used to call the "Prefs" file the "Setup"
-file: hence all the xxSetupxx names.) If we succeed, return TRUE; if we fail, return
-FALSE without giving an error message. */
+file, and some names may still reflect that.) If we succeed, return True; if we fail,
+return False without giving an error message. */
 
 static short rfVRefNum;
 static long rfVolDirID;
 static OSType prefsFileType = 'NSET';
 
-Boolean CreateSetupFile(FSSpec *rfSpec)
+Boolean CreatePrefsFile(FSSpec *rfSpec)
 {
 	Handle			resH;
 	OSType			theErr;
 	short			nSPTB, i;
 	ScriptCode		scriptCode = smRoman;
-//	FSSpec			rfSpec;
 	
 	/* Create a new file in the ~/Library/Preferences and give it a resource fork.
 		If there is no Preferences folder in ~/Library, create it. */
 	
-//	theErr = Create(, thisMac.sysVRefNum, creatorType, 'NSET'); /* Create new file */
-//	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, "\pNightingale 2001 Prefs", &rfSpec);
-
-	Pstrcpy(rfSpec->name, SETUP_FILE_PATH);	
+	Pstrcpy(rfSpec->name, PREFS_FILE_PATH);	
 	FSpCreateResFile(rfSpec, creatorType, 'NSET', scriptCode);
 	theErr = ResError();
-	if (theErr) return FALSE;
+	if (theErr) return False;
 
-//	CreateResFile(SETUP_FILE_NAME);
-//	theErr = ResError();
-	if (theErr!=noErr) return FALSE;
+	if (theErr!=noErr) return False;
 	
 	/* Open it, setting global setupFileRefNum.  NB: HOpenResFile makes the file it
 		opens the current resource file. */
 		
-	//setupFileRefNum = OpenResFile(SETUP_FILE_NAME);
 	setupFileRefNum = FSpOpenResFile(rfSpec, fsRdWrPerm);
 	
 	theErr = ResError();
-	if (theErr!=noErr) return FALSE;				/* Otherwise we'll write in the app's resource fork! */
+	if (theErr!=noErr) return False;				/* Otherwise we'll write in the app's resource fork! */
 	
 	/*
 	 * Get various resources and copy them to the new Prefs file.  Since the Prefs
@@ -257,120 +253,115 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	 * First copy the config and its template.
 	 */	
 	resH = GetResource('CNFG', THE_CNFG);
-	if (!GoodResource(resH)) return FALSE;	
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;	
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetNamedResource('TMPL', "\pCNFG");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Now copy the instrument list. */
 	resH = GetResource('STR#', INSTR_STRS);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Next, the MIDI velocity table and its template. */
 	resH = GetResource('MIDI', PREFS_MIDI);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetNamedResource('TMPL', "\pMIDI");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	/* The MIDI modifier prefs table and its template. */
 	resH = GetResource('MIDM', PREFS_MIDI_MODNR);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetNamedResource('TMPL', "\pMIDM");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Now copy the palette, palette char. map, and palette translation map and template. */
 	resH = GetResource('PICT', ToolPaletteID);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetResource('PLCH', ToolPaletteID);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetResource('PLMP', THE_PLMP);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 	
 	resH = GetNamedResource('TMPL', "\pPLMP");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Now copy the MIDI Manager port resources. */
 	resH = GetResource('port', time_port);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 	
 	resH = GetResource('port', input_port);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetResource('port', output_port);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	/* And finally copy the built-in MIDI parameter resource. */
 	resH = GetResource('BIMI', THE_BIMI);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
-	/* Nightingale Prefs uses the same version number resource as Nightingale. */
-	resH = GetResource('vers', 1);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
-
-	/* Copy all the spacing tables we can find into the Prefs file. We use
-	 * Get1IndResource instead of GetIndResource to avoid getting a resource
-	 * from the Prefs file we've just written out! Of course, this means we
-	 * have to be sure the current resource file is the application; we're
-	 * relying on AddSetupResource to take care of that. Also copy the template.
-	 */
+	/* Copy all the spacing tables we can find into the Prefs file. We use Get1IndResource
+		instead of GetIndResource to avoid getting a resource from the Prefs file we've
+		just written out! (Of course, this means we have to be sure the current resource
+		file is the application; we're relying on AddPrefsResource to take care of that.)
+		Also copy the template. */
+	
 	nSPTB = CountResources('SPTB');
 	for (i = 1; i<=nSPTB; i++) {
 		resH = Get1IndResource('SPTB', i);
-		if (!GoodResource(resH)) return FALSE;		
-		if (!AddSetupResource(resH)) return FALSE;
+		if (!GoodResource(resH)) return False;		
+		if (!AddPrefsResource(resH)) return False;
 	}
 	
 	resH = GetNamedResource('TMPL', "\pSPTB");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Finally, close the setup file. */
 
 	CloseResFile(setupFileRefNum);
 	
-	return TRUE;
+	return True;
 }
 
-/* ---------------------------------------------------------------- OpenSetupFile -- */
+
 /* Open the resource fork of the Prefs file.  If we can't find a Prefs file in the
 System Folder, generate a new one using resources from the application and open it.
 Also make the Prefs file the current resource file.
 
-If we find a problem, including the Prefs file resource fork already open with
-write permission, we give an error message and return FALSE. (If the Prefs file
-resource fork is open but with only read permission, I suspect we won't detect that
-and it won't be made the current resource file--bad but unlikely. Note that
-NightCustomizer doesn't keep the Prefs file open while it's running.) If all goes
-well, return TRUE. */
+If we find a problem, including the Prefs file resource fork already open with write
+permission, we give an error message and return False. (If the Prefs file resource
+fork is open but with only read permission, I suspect we won't detect that and it
+won't be made the current resource file: bad, but unlikely.) If all goes well, return
+True. */
 
-Boolean OpenSetupFile()
+Boolean OpenPrefsFile()
 {
-	OSErr result; Boolean okay=TRUE; Str63 volName;
-	StringHandle strHdl; char fmtStr[256];
+	OSErr result;  Boolean okay=True;
+	Str63 volName;
+	StringHandle strHdl;  char fmtStr[256];
 	Str255 setupFileName;
 
-	short oldVRefNum; long oldDirID;
-	short vRefNum; long dirID;
+	short oldVRefNum, vRefNum;
+	long oldDirID, dirID;
 
 	FSSpec rfSpec; OSErr theErr;
 	
@@ -380,8 +371,8 @@ Boolean OpenSetupFile()
 
 	theErr = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder, &vRefNum, &dirID);
 	
-	HGetVol(volName,&oldVRefNum,&oldDirID);
-	HSetVol(volName,vRefNum,dirID);					// Need to specify a location for setup file
+	HGetVol(volName, &oldVRefNum, &oldDirID);
+	HSetVol(volName, vRefNum, dirID);				/* Need to specify a location for setup file */
 
 	rfVRefNum = vRefNum;
 	rfVolDirID = dirID;
@@ -389,9 +380,9 @@ Boolean OpenSetupFile()
 	/* Try to open the Prefs file. Under "classic" Mac OS (9 and before), it was normally
 	in  the System Folder; under OS X, it's in ~/Library/Preferences . */
 	
-	Pstrcpy(setupFileName, SETUP_FILE_NAME);
+	Pstrcpy(setupFileName, PREFS_FILE_NAME);
 	theErr = FindPrefsFile(setupFileName, prefsFileType, creatorType, &rfSpec);
-	LogPrintf(LOG_NOTICE, "OpenSetupFile: FindPrefsFile (filename '%s') returned theErr=%d\n",
+	LogPrintf(LOG_INFO, "FindPrefsFile (filename '%s') returned theErr=%d  (OpenPrefsFile)\n",
 				PToCString(setupFileName), theErr);
 	if (theErr==noErr)
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
@@ -405,17 +396,17 @@ Boolean OpenSetupFile()
 //	if (result==fnfErr || result==dirNFErr) {
 	if (result==fnfErr) {
 		/* Note that the progress message has the setup filename embedded in it: this is
-		 * lousy--it should use SETUP_FILE_NAME, of course--but ProgressMsg() can't
+		 * lousy--it should use PREFS_FILE_NAME, of course--but ProgressMsg() can't
 		 * handle that!
 		 */
 		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.\n", PToCString(setupFileName));
-		ProgressMsg(CREATESETUP_PMSTR, "");
+		ProgressMsg(CREATE_PREFS_PMSTR, "");
 		SleepTicks((unsigned)(5*60L));					/* Give user time to read the msg */
-		if (!CreateSetupFile(&rfSpec)) {
+		if (!CreatePrefsFile(&rfSpec)) {
 			GetIndCString(strBuf, INITERRS_STRS, 2);	/* "Can't create Prefs file" */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			okay = FALSE;
+			okay = False;
 			goto done;
 		}
 		/* Try opening the brand-new Prefs file. */
@@ -437,7 +428,7 @@ Boolean OpenSetupFile()
 		}
 		CParamText(strBuf, "", "", "");
 		StopInform(OPENPREFS_ALRT);
-		okay = FALSE;
+		okay = False;
 	}
 	
 done:
@@ -447,9 +438,9 @@ done:
 }
 
 /* Adds the resource pointed to by resH to the current resource file. Returns
-TRUE if OK, FALSE if error. */
+True if OK, False if error. */
 
-static Boolean AddSetupResource(Handle resH)
+static Boolean AddPrefsResource(Handle resH)
 {
 	Handle	tempH;
 	OSType	type;
@@ -459,184 +450,545 @@ static Boolean AddSetupResource(Handle resH)
 	UseResFile(setupFileRefNum);				/* safeguard against writing in app's res fork */
 
 	GetResInfo(resH, &id, &type, name);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	
 	tempH = resH;
 	HandToHand(&tempH);	
 	ReleaseResource(resH);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	AddResource(tempH, type, id, name);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	WriteResource(tempH);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	ReleaseResource(tempH);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	
 	UseResFile(appRFRefNum);
-	return TRUE;
+	return True;
 }
 
 
-static void DebugDisplayCnfg()
+/* --------------------------------------------------------------------------- Config -- */
+
+static void DisplayConfig()
 {
-	LogPrintf(LOG_NOTICE, "Displaying CNFG:\n");
-	LogPrintf(LOG_NOTICE, "  (1)maxDocuments=%d", config.maxDocuments);
-	LogPrintf(LOG_NOTICE, "  (2)stemLenNormal=%d", config.stemLenNormal);
-	LogPrintf(LOG_NOTICE, "  (3)stemLen2v=%d", config.stemLen2v);
-	LogPrintf(LOG_NOTICE, "  (4)stemLenOutside=%d\n", config.stemLenOutside);
-	LogPrintf(LOG_NOTICE, "  (5)stemLenGrace=%d", config.stemLenGrace);
+	LogPrintf(LOG_INFO, "Displaying CNFG:\n");
+	LogPrintf(LOG_INFO, "  (1)maxDocuments=%d", config.maxDocuments);
+	LogPrintf(LOG_INFO, "  (2)stemLenNormal=%d", config.stemLenNormal);
+	LogPrintf(LOG_INFO, "  (3)stemLen2v=%d", config.stemLen2v);
+	LogPrintf(LOG_INFO, "  (4)stemLenOutside=%d\n", config.stemLenOutside);
+	LogPrintf(LOG_INFO, "  (5)stemLenGrace=%d", config.stemLenGrace);
 
-	LogPrintf(LOG_NOTICE, "  (6)spAfterBar=%d", config.spAfterBar);
-	LogPrintf(LOG_NOTICE, "  (7)minSpBeforeBar=%d", config.minSpBeforeBar);
-	LogPrintf(LOG_NOTICE, "  (8)minRSpace=%d\n", config.minRSpace);
-	LogPrintf(LOG_NOTICE, "  (9)minLyricRSpace=%d", config.minLyricRSpace);
-	LogPrintf(LOG_NOTICE, "  (10)minRSpace_KSTS_N=%d", config.minRSpace_KSTS_N);
+	LogPrintf(LOG_INFO, "  (6)spAfterBar=%d", config.spAfterBar);
+	LogPrintf(LOG_INFO, "  (7)minSpBeforeBar=%d", config.minSpBeforeBar);
+	LogPrintf(LOG_INFO, "  (8)minRSpace=%d\n", config.minRSpace);
+	LogPrintf(LOG_INFO, "  (9)minLyricRSpace=%d", config.minLyricRSpace);
+	LogPrintf(LOG_INFO, "  (10)minRSpace_KSTS_N=%d", config.minRSpace_KSTS_N);
 
-	LogPrintf(LOG_NOTICE, "  (11)hAccStep=%d", config.hAccStep);
+	LogPrintf(LOG_INFO, "  (11)hAccStep=%d", config.hAccStep);
 
-	LogPrintf(LOG_NOTICE, "  (12)stemLW=%d\n", config.stemLW);
-	LogPrintf(LOG_NOTICE, "  (13)barlineLW=%d", config.barlineLW);
-	LogPrintf(LOG_NOTICE, "  (14)ledgerLW=%d", config.ledgerLW);
-	LogPrintf(LOG_NOTICE, "  (15)staffLW=%d", config.staffLW);
-	LogPrintf(LOG_NOTICE, "  (16)enclLW=%d\n", config.enclLW);
+	LogPrintf(LOG_INFO, "  (12)stemLW=%d\n", config.stemLW);
+	LogPrintf(LOG_INFO, "  (13)barlineLW=%d", config.barlineLW);
+	LogPrintf(LOG_INFO, "  (14)ledgerLW=%d", config.ledgerLW);
+	LogPrintf(LOG_INFO, "  (15)staffLW=%d", config.staffLW);
+	LogPrintf(LOG_INFO, "  (16)enclLW=%d\n", config.enclLW);
 
-	LogPrintf(LOG_NOTICE, "  (17)beamLW=%d", config.beamLW);
-	LogPrintf(LOG_NOTICE, "  (18)hairpinLW=%d", config.hairpinLW);
-	LogPrintf(LOG_NOTICE, "  (19)dottedBarlineLW=%d", config.dottedBarlineLW);
-	LogPrintf(LOG_NOTICE, "  (20)mbRestEndLW=%d\n", config.mbRestEndLW);
-	LogPrintf(LOG_NOTICE, "  (21)nonarpLW=%d", config.nonarpLW);
+	LogPrintf(LOG_INFO, "  (17)beamLW=%d", config.beamLW);
+	LogPrintf(LOG_INFO, "  (18)hairpinLW=%d", config.hairpinLW);
+	LogPrintf(LOG_INFO, "  (19)dottedBarlineLW=%d", config.dottedBarlineLW);
+	LogPrintf(LOG_INFO, "  (20)mbRestEndLW=%d\n", config.mbRestEndLW);
+	LogPrintf(LOG_INFO, "  (21)nonarpLW=%d", config.nonarpLW);
 
-	LogPrintf(LOG_NOTICE, "  (22)graceSlashLW=%d", config.graceSlashLW);
-	LogPrintf(LOG_NOTICE, "  (23)slurMidLW=%d", config.slurMidLW);
-	LogPrintf(LOG_NOTICE, "  (24)tremSlashLW=%d\n", config.tremSlashLW);
-	LogPrintf(LOG_NOTICE, "  (25)slurCurvature=%d", config.slurCurvature);
-	LogPrintf(LOG_NOTICE, "  (26)tieCurvature=%d", config.tieCurvature);
-	LogPrintf(LOG_NOTICE, "  (27)relBeamSlope=%d", config.relBeamSlope);
+	LogPrintf(LOG_INFO, "  (22)graceSlashLW=%d", config.graceSlashLW);
+	LogPrintf(LOG_INFO, "  (23)slurMidLW=%d", config.slurMidLW);
+	LogPrintf(LOG_INFO, "  (24)tremSlashLW=%d\n", config.tremSlashLW);
+	LogPrintf(LOG_INFO, "  (25)slurCurvature=%d", config.slurCurvature);
+	LogPrintf(LOG_INFO, "  (26)tieCurvature=%d", config.tieCurvature);
+	LogPrintf(LOG_INFO, "  (27)relBeamSlope=%d", config.relBeamSlope);
 
-	LogPrintf(LOG_NOTICE, "  (28)hairpinMouthWidth=%d\n", config.hairpinMouthWidth);
-	LogPrintf(LOG_NOTICE, "  (29)mbRestBaseLen=%d", config.mbRestBaseLen);
-	LogPrintf(LOG_NOTICE, "  (30)mbRestAddLen=%d", config.mbRestAddLen);
-	LogPrintf(LOG_NOTICE, "  (31)barlineDashLen=%d", config.barlineDashLen);
-	LogPrintf(LOG_NOTICE, "  (32)crossStaffBeamExt=%d\n", config.crossStaffBeamExt);
-	LogPrintf(LOG_NOTICE, "  (33)titleMargin=%d", config.titleMargin);
+	LogPrintf(LOG_INFO, "  (28)hairpinMouthWidth=%d\n", config.hairpinMouthWidth);
+	LogPrintf(LOG_INFO, "  (29)mbRestBaseLen=%d", config.mbRestBaseLen);
+	LogPrintf(LOG_INFO, "  (30)mbRestAddLen=%d", config.mbRestAddLen);
+	LogPrintf(LOG_INFO, "  (31)barlineDashLen=%d", config.barlineDashLen);
+	LogPrintf(LOG_INFO, "  (32)crossStaffBeamExt=%d\n", config.crossStaffBeamExt);
+	LogPrintf(LOG_INFO, "  (33)titleMargin=%d", config.titleMargin);
 
-	LogPrintf(LOG_NOTICE, "  (35)pageMarg.top=%d", config.pageMarg.top);
-	LogPrintf(LOG_NOTICE, "  .left=%d", config.pageMarg.left);
-	LogPrintf(LOG_NOTICE, "  .bottom=%d", config.pageMarg.bottom);
-	LogPrintf(LOG_NOTICE, "  .right=%d\n", config.pageMarg.right);
+	LogPrintf(LOG_INFO, "  (34)paperRect.top=%d", config.paperRect.top);
+	LogPrintf(LOG_INFO, "  .left=%d", config.paperRect.left);
+	LogPrintf(LOG_INFO, "  .bottom=%d", config.paperRect.bottom);
+	LogPrintf(LOG_INFO, "  .right=%d\n", config.paperRect.right);
 
-	LogPrintf(LOG_NOTICE, "  (37)pageNumMarg.top=%d", config.pageNumMarg.top);
-	LogPrintf(LOG_NOTICE, "  .left=%d", config.pageNumMarg.left);
-	LogPrintf(LOG_NOTICE, "  .bottom=%d", config.pageNumMarg.bottom);
-	LogPrintf(LOG_NOTICE, "  .right=%d\n", config.pageNumMarg.right);
+	LogPrintf(LOG_INFO, "  (35-36)pageMarg.top=%d", config.pageMarg.top);
+	LogPrintf(LOG_INFO, "  .left=%d", config.pageMarg.left);
+	LogPrintf(LOG_INFO, "  .bottom=%d", config.pageMarg.bottom);
+	LogPrintf(LOG_INFO, "  .right=%d\n", config.pageMarg.right);
 
-	LogPrintf(LOG_NOTICE, "  (38)defaultLedgers=%d", config.defaultLedgers);
-	LogPrintf(LOG_NOTICE, "  (39)defaultTSNum=%d", config.defaultTSNum);
-	LogPrintf(LOG_NOTICE, "  (40)defaultTSDenom=%d", config.defaultTSDenom);
-	LogPrintf(LOG_NOTICE, "  (41)defaultRastral=%d\n", config.defaultRastral);
-	LogPrintf(LOG_NOTICE, "  (42)rastral0size=%d", config.rastral0size);
+	LogPrintf(LOG_INFO, "  (37)pageNumMarg.top=%d", config.pageNumMarg.top);
+	LogPrintf(LOG_INFO, "  .left=%d", config.pageNumMarg.left);
+	LogPrintf(LOG_INFO, "  .bottom=%d", config.pageNumMarg.bottom);
+	LogPrintf(LOG_INFO, "  .right=%d\n", config.pageNumMarg.right);
 
-	LogPrintf(LOG_NOTICE, "  (43)minRecVelocity=%d", config.minRecVelocity);
-	LogPrintf(LOG_NOTICE, "  (44)minRecDuration=%d\n", config.minRecDuration);
-	LogPrintf(LOG_NOTICE, "  (45)midiThru=%d", config.midiThru);
-	LogPrintf(LOG_NOTICE, "  (46)defaultTempoMM=%d", config.defaultTempoMM);
+	LogPrintf(LOG_INFO, "  (38)defaultLedgers=%d", config.defaultLedgers);
+	LogPrintf(LOG_INFO, "  (39)defaultTSNum=%d", config.defaultTSNum);
+	LogPrintf(LOG_INFO, "  (40)defaultTSDenom=%d", config.defaultTSDenom);
+	LogPrintf(LOG_INFO, "  (41)defaultRastral=%d\n", config.defaultRastral);
+	LogPrintf(LOG_INFO, "  (42)rastral0size=%d", config.rastral0size);
 
-	LogPrintf(LOG_NOTICE, "  (47)lowMemory=%d", config.lowMemory);
-	LogPrintf(LOG_NOTICE, "  (48)minMemory=%d\n", config.minMemory);
+	LogPrintf(LOG_INFO, "  (43)minRecVelocity=%d", config.minRecVelocity);
+	LogPrintf(LOG_INFO, "  (44)minRecDuration=%d\n", config.minRecDuration);
+	LogPrintf(LOG_INFO, "  (45)midiThru=%d", config.midiThru);
+	LogPrintf(LOG_INFO, "  (46)defaultTempoMM=%d", config.defaultTempoMM);
 
-	LogPrintf(LOG_NOTICE, "  (49)numRows=%d", config.numRows);
-	LogPrintf(LOG_NOTICE, "  (50)numCols=%d", config.numCols);
-	LogPrintf(LOG_NOTICE, "  (51)maxRows=%d", config.maxRows);
-	LogPrintf(LOG_NOTICE, "  (52)maxCols=%d\n", config.maxCols);
-	LogPrintf(LOG_NOTICE, "  (53)hPageSep=%d", config.hPageSep);
-	LogPrintf(LOG_NOTICE, "  (54)vPageSep=%d", config.vPageSep);
-	LogPrintf(LOG_NOTICE, "  (55)hScrollSlop=%d", config.hScrollSlop);
-	LogPrintf(LOG_NOTICE, "  (56)vScrollSlop=%d\n", config.vScrollSlop);
+	LogPrintf(LOG_INFO, "  (47)lowMemory=%d", config.lowMemory);
+	LogPrintf(LOG_INFO, "  (48)minMemory=%d\n", config.minMemory);
 
-	LogPrintf(LOG_NOTICE, "  (57)maxSyncTolerance=%d", config.maxSyncTolerance);
-	LogPrintf(LOG_NOTICE, "  (58)enlargeHilite=%d", config.enlargeHilite);
-	LogPrintf(LOG_NOTICE, "  (59)infoDistUnits=%d", config.infoDistUnits);
-	LogPrintf(LOG_NOTICE, "  (60)mShakeThresh=%d\n", config.mShakeThresh);
+	LogPrintf(LOG_INFO, "  (49)numRows=%d", config.numRows);
+	LogPrintf(LOG_INFO, "  (50)numCols=%d", config.numCols);
+	LogPrintf(LOG_INFO, "  (51)maxRows=%d", config.maxRows);
+	LogPrintf(LOG_INFO, "  (52)maxCols=%d\n", config.maxCols);
+	LogPrintf(LOG_INFO, "  (53)hPageSep=%d", config.hPageSep);
+	LogPrintf(LOG_INFO, "  (54)vPageSep=%d", config.vPageSep);
+	LogPrintf(LOG_INFO, "  (55)hScrollSlop=%d", config.hScrollSlop);
+	LogPrintf(LOG_INFO, "  (56)vScrollSlop=%d\n", config.vScrollSlop);
+
+	LogPrintf(LOG_INFO, "  (57)maxSyncTolerance=%d", config.maxSyncTolerance);
+	LogPrintf(LOG_INFO, "  (58)enlargeHilite=%d", config.enlargeHilite);
+	LogPrintf(LOG_INFO, "  (59)infoDistUnits=%d", config.infoDistUnits);
+	LogPrintf(LOG_INFO, "  (60)mShakeThresh=%d\n", config.mShakeThresh);
 	
-	LogPrintf(LOG_NOTICE, "  (61)musicFontID=%d", config.musicFontID);
-	LogPrintf(LOG_NOTICE, "  (62)numMasters=%d", config.numMasters);
-	LogPrintf(LOG_NOTICE, "  (63)indent1st=%d", config.indent1st);
-	LogPrintf(LOG_NOTICE, "  (64)mbRestHeight=%d\n", config.mbRestHeight);
-	LogPrintf(LOG_NOTICE, "  (65)chordSymMusSize=%d", config.chordSymMusSize);
+	LogPrintf(LOG_INFO, "  (61)musicFontID=%d", config.musicFontID);
+	LogPrintf(LOG_INFO, "  (62)numMasters=%d", config.numMasters);
+	LogPrintf(LOG_INFO, "  (63)indentFirst=%d", config.indentFirst);
+	LogPrintf(LOG_INFO, "  (64)mbRestHeight=%d\n", config.mbRestHeight);
+	LogPrintf(LOG_INFO, "  (65)chordSymMusSize=%d", config.chordSymMusSize);
 
-	LogPrintf(LOG_NOTICE, "  (66)enclMargin=%d", config.enclMargin);
-	LogPrintf(LOG_NOTICE, "  (67)legatoPct=%d", config.legatoPct);
+	LogPrintf(LOG_INFO, "  (66)enclMargin=%d", config.enclMargin);
+	LogPrintf(LOG_INFO, "  (67)legatoPct=%d", config.legatoPct);
 
-	LogPrintf(LOG_NOTICE, "  (68)defaultPatch=%d\n", config.defaultPatch);
-	LogPrintf(LOG_NOTICE, "  (69)whichMIDI=%d", config.whichMIDI);
+	LogPrintf(LOG_INFO, "  (68)defaultPatch=%d\n", config.defaultPatch);
+	LogPrintf(LOG_INFO, "  (69)whichMIDI=%d", config.whichMIDI);
 
-	LogPrintf(LOG_NOTICE, "  (70)musFontSizeOffset=%d", config.musFontSizeOffset);
-	LogPrintf(LOG_NOTICE, "  (71)fastScreenSlurs=%d", config.fastScreenSlurs);
-	LogPrintf(LOG_NOTICE, "  (72)restMVOffset=%d\n", config.restMVOffset);
-	LogPrintf(LOG_NOTICE, "  (73)autoBeamOptions=%d", config.autoBeamOptions);
+	LogPrintf(LOG_INFO, "  (70)musFontSizeOffset=%d", config.musFontSizeOffset);
+	LogPrintf(LOG_INFO, "  (71)fastScreenSlurs=%d", config.fastScreenSlurs);
+	LogPrintf(LOG_INFO, "  (72)restMVOffset=%d\n", config.restMVOffset);
+	LogPrintf(LOG_INFO, "  (73)autoBeamOptions=%d", config.autoBeamOptions);
 	
-	LogPrintf(LOG_NOTICE, "  (74)noteOffVel=%d", config.noteOffVel);
-	LogPrintf(LOG_NOTICE, "  (75)feedbackNoteOnVel=%d", config.feedbackNoteOnVel);
-	LogPrintf(LOG_NOTICE, "  (76)defaultChannel=%d\n", config.defaultChannel);
-	LogPrintf(LOG_NOTICE, "  (77)enclWidthOffset=%d", config.enclWidthOffset);	
-	LogPrintf(LOG_NOTICE, "  (78)rainyDayMemory=%d", config.rainyDayMemory);
-	LogPrintf(LOG_NOTICE, "  (79)tryTupLevels=%d", config.tryTupLevels);
-	LogPrintf(LOG_NOTICE, "  (80)justifyWarnThresh=%d\n", config.justifyWarnThresh);
+	LogPrintf(LOG_INFO, "  (74)noteOffVel=%d", config.noteOffVel);
+	LogPrintf(LOG_INFO, "  (75)feedbackNoteOnVel=%d", config.feedbackNoteOnVel);
+	LogPrintf(LOG_INFO, "  (76)defaultChannel=%d\n", config.defaultChannel);
+	LogPrintf(LOG_INFO, "  (77)enclWidthOffset=%d", config.enclWidthOffset);	
+	LogPrintf(LOG_INFO, "  (78)rainyDayMemory=%d", config.rainyDayMemory);
+	LogPrintf(LOG_INFO, "  (79)tryTupLevels=%d", config.tryTupLevels);
+	LogPrintf(LOG_INFO, "  (80)justifyWarnThresh=%d\n", config.justifyWarnThresh);
 
-	LogPrintf(LOG_NOTICE, "  (81)metroChannel=%d", config.metroChannel);
-	LogPrintf(LOG_NOTICE, "  (82)metroNote=%d", config.metroNote);
-	LogPrintf(LOG_NOTICE, "  (83)metroVelo=%d", config.metroVelo);
-	LogPrintf(LOG_NOTICE, "  (84)metroDur=%d\n", config.metroDur);
+	LogPrintf(LOG_INFO, "  (81)metroChannel=%d", config.metroChannel);
+	LogPrintf(LOG_INFO, "  (82)metroNote=%d", config.metroNote);
+	LogPrintf(LOG_INFO, "  (83)metroVelo=%d", config.metroVelo);
+	LogPrintf(LOG_INFO, "  (84)metroDur=%d\n", config.metroDur);
 
-	LogPrintf(LOG_NOTICE, "  (85)chordSymSmallSize=%d", config.chordSymSmallSize);
-	LogPrintf(LOG_NOTICE, "  (86)chordSymSuperscr=%d", config.chordSymSuperscr);
-	LogPrintf(LOG_NOTICE, "  (87)chordSymStkLead=%d\n", config.chordSymStkLead);
+	LogPrintf(LOG_INFO, "  (85)chordSymSmallSize=%d", config.chordSymSmallSize);
+	LogPrintf(LOG_INFO, "  (86)chordSymSuperscr=%d", config.chordSymSuperscr);
+	LogPrintf(LOG_INFO, "  (87)chordSymStkLead=%d\n", config.chordSymStkLead);
 
-	LogPrintf(LOG_NOTICE, "  (88)tempoMarkHGap=%d", config.tempoMarkHGap);
-	LogPrintf(LOG_NOTICE, "  (89)trebleVOffset=%d", config.trebleVOffset);
-	LogPrintf(LOG_NOTICE, "  (90)cClefVOffset=%d", config.cClefVOffset);
-	LogPrintf(LOG_NOTICE, "  (91)bassVOffset=%d\n", config.bassVOffset);
+	LogPrintf(LOG_INFO, "  (88)tempoMarkHGap=%d", config.tempoMarkHGap);
+	LogPrintf(LOG_INFO, "  (89)trebleVOffset=%d", config.trebleVOffset);
+	LogPrintf(LOG_INFO, "  (90)cClefVOffset=%d", config.cClefVOffset);
+	LogPrintf(LOG_INFO, "  (91)bassVOffset=%d\n", config.bassVOffset);
 
-	LogPrintf(LOG_NOTICE, "  (92)tupletNumSize=%d", config.tupletNumSize);
-	LogPrintf(LOG_NOTICE, "  (93)tupletColonSize=%d", config.tupletColonSize);
-	LogPrintf(LOG_NOTICE, "  (94)octaveNumSize=%d", config.octaveNumSize);
-	LogPrintf(LOG_NOTICE, "  (95)lineLW=%d\n", config.lineLW);
-	LogPrintf(LOG_NOTICE, "  (96)ledgerLLen=%d", config.ledgerLLen);
-	LogPrintf(LOG_NOTICE, "  (97)ledgerLOtherLen=%d", config.ledgerLOtherLen);
-	LogPrintf(LOG_NOTICE, "  (98)slurDashLen=%d", config.slurDashLen);
-	LogPrintf(LOG_NOTICE, "  (99)slurSpaceLen=%d\n", config.slurSpaceLen);
+	LogPrintf(LOG_INFO, "  (92)tupletNumSize=%d", config.tupletNumSize);
+	LogPrintf(LOG_INFO, "  (93)tupletColonSize=%d", config.tupletColonSize);
+	LogPrintf(LOG_INFO, "  (94)octaveNumSize=%d", config.octaveNumSize);
+	LogPrintf(LOG_INFO, "  (95)lineLW=%d\n", config.lineLW);
+	LogPrintf(LOG_INFO, "  (96)ledgerLLen=%d", config.ledgerLLen);
+	LogPrintf(LOG_INFO, "  (97)ledgerLOtherLen=%d", config.ledgerLOtherLen);
+	LogPrintf(LOG_INFO, "  (98)slurDashLen=%d", config.slurDashLen);
+	LogPrintf(LOG_INFO, "  (99)slurSpaceLen=%d\n", config.slurSpaceLen);
 
-	LogPrintf(LOG_NOTICE, "  (100)courtesyAccLXD=%d", config.courtesyAccLXD);
-	LogPrintf(LOG_NOTICE, "  (101)courtesyAccRXD=%d", config.courtesyAccRXD);
-	LogPrintf(LOG_NOTICE, "  (102)courtesyAccYD=%d", config.courtesyAccYD);
-	LogPrintf(LOG_NOTICE, "  (103)courtesyAccSize=%d\n", config.courtesyAccSize);
+	LogPrintf(LOG_INFO, "  (100)courtesyAccLXD=%d", config.courtesyAccLXD);
+	LogPrintf(LOG_INFO, "  (101)courtesyAccRXD=%d", config.courtesyAccRXD);
+	LogPrintf(LOG_INFO, "  (102)courtesyAccYD=%d", config.courtesyAccYD);
+	LogPrintf(LOG_INFO, "  (103)courtesyAccSize=%d\n", config.courtesyAccSize);
 
-	LogPrintf(LOG_NOTICE, "  (104)quantizeBeamYPos=%d", config.quantizeBeamYPos);
-	LogPrintf(LOG_NOTICE, "  (105)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
-	LogPrintf(LOG_NOTICE, "  (106)enlargeNRHiliteV=%d", config.enlargeNRHiliteV);
-	LogPrintf(LOG_NOTICE, "\n");
+	LogPrintf(LOG_INFO, "  (104)quantizeBeamYPos=%d", config.quantizeBeamYPos);
+	LogPrintf(LOG_INFO, "  (105)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
+	LogPrintf(LOG_INFO, "  (106)enlargeNRHiliteV=%d\n", config.enlargeNRHiliteV);
+
+	LogPrintf(LOG_INFO, "  (107)pianorollLenFact=%d", config.pianorollLenFact);
+	LogPrintf(LOG_INFO, "  (108)useModNREffects=%d", config.useModNREffects);
+	LogPrintf(LOG_INFO, "  (109)thruChannel=%d", config.thruChannel);
+	LogPrintf(LOG_INFO, "  (110)thruDevice=%d\n", config.thruDevice);
+
+	LogPrintf(LOG_INFO, "  (111)cmMetroDev=%ld", config.cmMetroDev);
+	LogPrintf(LOG_INFO, "  (112)cmDfltInputDev=%ld", config.cmDfltInputDev );
+	LogPrintf(LOG_INFO, "  (113)cmDfltOutputDev=%ld", config.cmDfltOutputDev);
+	LogPrintf(LOG_INFO, "  (114)cmDfltOutputChannel=%d", config.cmDfltOutputChannel);
+	LogPrintf(LOG_INFO, "\n");
+}
+
+
+#define ERR(fn) { nerr++; LogPrintf(LOG_WARNING, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
+
+/* Do a reality check for config values that might be bad. We can't easily check origin,
+toolsPosition, font IDs, or the fields that represent Boolean values or MIDI system info.
+Almost all other fields are checked, though not all as strictly as possible -- and of
+course most don't have well-defined limits. For each problem case we find, give an error
+message and set the field to a reasonable default value. If no problems are found,
+return TRUE. If problems are found, tell user and give them a chance to quit immediately;
+if they decline, return FALSE. */
+
+static Boolean CheckConfig()
+{
+	short nerr, firstErr;
+	char fmtStr[256];
+
+	LogPrintf(LOG_NOTICE, "Checking CNFG: ");
+	nerr = 0;
+	firstErr = 0;
+
+	if (config.maxDocuments < 1 || config.maxDocuments > 150)
+		{ config.maxDocuments = 10; ERR(1); }
+
+#define STEMLEN_NORMAL_MIN 1
+#define STEMLEN_NORMAL_DFLT 14
+
+#define STEMLEN_2V_MIN 1
+#define STEMLEN_2V_DFLT 12
+
+#define STEMLEN_OUTSIDE_MIN 1
+#define STEMLEN_OUTSIDE_DFLT 12
+
+#define STEMLEN_GRACE_MIN 1
+#define STEMLEN_GRACE_DFLT 10
+
+/* Assume compiled-in minimum values for these are OK: currently they're all 0 or 1. */
+#define SP_AFTER_BAR_DFLT 6
+#define MINSP_BEFORE_BAR_DFLT 5
+#define MINRSP_DFLT 2
+#define MINLYRICRSP_DFLT 4
+#define MINRSP_KSTS_DFLT 8
+#define HACCSTEP_DFLT 4
+	if (config.stemLenNormal < STEMLEN_NORMAL_MIN) { config.stemLenNormal = STEMLEN_NORMAL_DFLT; ERR(2); }
+	if (config.stemLen2v < STEMLEN_2V_MIN) { config.stemLen2v = STEMLEN_2V_DFLT; ERR(3); }
+	if (config.stemLenOutside < STEMLEN_OUTSIDE_MIN) { config.stemLenOutside = STEMLEN_OUTSIDE_DFLT; ERR(4); }
+	if (config.stemLenGrace < STEMLEN_GRACE_MIN) { config.stemLenGrace = STEMLEN_GRACE_DFLT; ERR(5); }
+
+	if (config.spAfterBar < 0) { config.spAfterBar = SP_AFTER_BAR_DFLT; ERR(6); }
+	if (config.minSpBeforeBar < 0) { config.minSpBeforeBar = MINSP_BEFORE_BAR_DFLT; ERR(7); }
+	if (config.minRSpace < 0) { config.minRSpace = MINRSP_DFLT;  ERR(8); }
+	if (config.minLyricRSpace < 0) { config.minLyricRSpace = MINLYRICRSP_DFLT;  ERR(9); }
+	if (config.minRSpace_KSTS_N < 0) { config.minRSpace_KSTS_N = MINLYRICRSP_DFLT; ERR(10); }
+
+	if (config.hAccStep < 0 || config.hAccStep > 31) { config.hAccStep = HACCSTEP_DFLT; ERR(11); }
+
+#define STEMLW_DFLT 8
+#define BARLINELW_DFLT 10
+#define LEDGERLW_DFLT 13
+#define STAFFLW_DFLT 8
+#define ENCLLW_DFLT 4
+	if (config.stemLW < 0) { config.stemLW = STEMLW_DFLT;  ERR(12); }
+	if (config.barlineLW < 0) { config.barlineLW = BARLINELW_DFLT;  ERR(13); }
+	if (config.ledgerLW < 0) { config.ledgerLW = LEDGERLW_DFLT;  ERR(14); }
+	if (config.staffLW < 0) { config.staffLW = STAFFLW_DFLT;  ERR(15); }
+	if (config.enclLW < 0) { config.enclLW = ENCLLW_DFLT; ERR(16); }
+
+#define BEAMLW_DFLT 50
+#define HAIRPINLW_DFLT 12
+#define DTBARLINELW_DFLT 12
+#define MBRESTENDLW_DFLT 12
+#define NONARPLW_DFLT 12
+	if (config.beamLW < 1) { config.beamLW = BEAMLW_DFLT; ERR(17); }
+	if (config.hairpinLW < 1) { config.hairpinLW = HAIRPINLW_DFLT; ERR(18); }
+	if (config.dottedBarlineLW < 1) { config.dottedBarlineLW = DTBARLINELW_DFLT; ERR(19); }
+	if (config.mbRestEndLW < 1) { config.mbRestEndLW = MBRESTENDLW_DFLT; ERR(20); }
+	if (config.nonarpLW < 1) { config.nonarpLW = NONARPLW_DFLT; ERR(21); }
+
+#define GRACESLASHLW_DFLT 12
+#define SLURMIDLW_DFLT 30
+#define TREMSLASHLW_DFLT 38
+#define SLURCURVELW_DFLT 100
+#define TIECURVELW_DFLT 100
+#define BEAMSLOPELW_DFLT 25
+	if (config.graceSlashLW < 0) { config.graceSlashLW = GRACESLASHLW_DFLT; ERR(22); }
+	if (config.slurMidLW < 0) { config.slurMidLW = SLURMIDLW_DFLT; ERR(23); }
+	if (config.tremSlashLW < 0) { config.tremSlashLW = TREMSLASHLW_DFLT; ERR(24); }
+	if (config.slurCurvature < 1) { config.slurCurvature = SLURCURVELW_DFLT; ERR(25); }
+	if (config.tieCurvature < 1) { config.tieCurvature = TIECURVELW_DFLT; ERR(26); }
+	if (config.relBeamSlope < 0) { config.relBeamSlope = BEAMSLOPELW_DFLT; ERR(27); }
+
+#define HAIRPINMOUTH_DFLT 5
+#define MBREST_BASELEN_DFLT 6
+#define MBREST_ADDLEN_DFLT 1
+#define BARLINE_DASHLEN_DFLT 4
+#define XSTAFF_BEAMEXT_DFLT 5
+	if (config.hairpinMouthWidth < 0 || config.hairpinMouthWidth > 31)
+			{ config.hairpinMouthWidth = HAIRPINMOUTH_DFLT; ERR(28); }
+	if (config.mbRestBaseLen < 1) { config.mbRestBaseLen = MBREST_BASELEN_DFLT;  ERR(29); }
+	if (config.mbRestAddLen < 0) { config.mbRestAddLen = MBREST_ADDLEN_DFLT;  ERR(30); }
+	if (config.barlineDashLen < 1) { config.barlineDashLen = BARLINE_DASHLEN_DFLT; ERR(31); }
+	if (config.crossStaffBeamExt < 0) { config.crossStaffBeamExt = XSTAFF_BEAMEXT_DFLT;  ERR(32); }
+
+#define TITLEMARGIN_DFLT in2pt(1)
+#define PAPERRECT_WIDTH_DFLT in2pt(17)/2
+#define PAPERRECT_HT_DFLT in2pt(11)
+	if (config.titleMargin < 0) { config.titleMargin = TITLEMARGIN_DFLT;  ERR(33); };
+
+	if (config.paperRect.top!=0 || config.paperRect.left!=0)
+		{ SetRect(&config.paperRect, 0, 0, PAPERRECT_WIDTH_DFLT, PAPERRECT_HT_DFLT); ERR(34); }
+	if (config.paperRect.bottom<in2pt(3) || config.paperRect.bottom>in2pt(30)
+		|| config.paperRect.right<in2pt(3) || config.paperRect.right>in2pt(30))
+		{ SetRect(&config.paperRect, 0, 0, PAPERRECT_WIDTH_DFLT, PAPERRECT_HT_DFLT); ERR(34); }
+
+#define PAGEMARG_TOP_DFLT in2pt(1)/2
+#define PAGEMARG_LEFT_DFLT in2pt(1)/2
+#define PAGEMARG_BOTTOM_DFLT in2pt(1)/2
+#define PAGEMARG_RIGHT_DFLT in2pt(1)/2
+	/* Check for ridiculously small or large margins. */
+	if (!RectIsValid(config.pageMarg, 4, in2pt(5))) {
+		if (config.pageMarg.top<4 || config.pageMarg.top>in2pt(5))
+			{ config.pageMarg.top = PAGEMARG_TOP_DFLT; }
+		if (config.pageMarg.left<4 || config.pageMarg.left>in2pt(5))
+			{ config.pageMarg.left = PAGEMARG_LEFT_DFLT; }
+		if (config.pageMarg.bottom<4 || config.pageMarg.bottom>in2pt(5))
+			{ config.pageMarg.bottom = PAGEMARG_BOTTOM_DFLT; }
+		if (config.pageMarg.right<4 || config.pageMarg.right>in2pt(5))
+			{ config.pageMarg.right = PAGEMARG_RIGHT_DFLT; }
+		ERR(35);
+	}
+	/* Check for margins crossing. */
+	if (config.pageMarg.top+config.pageMarg.bottom>in2pt(6)) {
+		config.pageMarg.top = PAGEMARG_TOP_DFLT;
+		config.pageMarg.bottom = PAGEMARG_BOTTOM_DFLT;
+		ERR(36);
+	}
+	if (config.pageMarg.left+config.pageMarg.right>in2pt(5)) {
+		config.pageMarg.left = PAGEMARG_LEFT_DFLT;
+		config.pageMarg.right = PAGEMARG_RIGHT_DFLT;
+		ERR(36);
+	}
+
+#define PAGENUMMARG_TOP_DFLT in2pt(1)/2
+#define PAGENUMMARG_LEFT_DFLT in2pt(1)/2
+#define PAGENUMMARG_BOTTOM_DFLT in2pt(1)/2
+#define PAGENUMMARG_RIGHT_DFLT in2pt(1)/2
+	if (!RectIsValid(config.pageNumMarg, 4, in2pt(5))) {
+		if (config.pageNumMarg.top<4 || config.pageNumMarg.top>in2pt(5))
+			{ config.pageNumMarg.top = PAGENUMMARG_TOP_DFLT; }
+		if (config.pageNumMarg.left<4 || config.pageNumMarg.left>in2pt(5))
+			{ config.pageNumMarg.left = PAGENUMMARG_LEFT_DFLT; }
+		if (config.pageNumMarg.bottom<4 || config.pageNumMarg.bottom>in2pt(5))
+			{ config.pageNumMarg.bottom = PAGENUMMARG_BOTTOM_DFLT; }
+		if (config.pageNumMarg.right<4 || config.pageNumMarg.right>in2pt(5))
+			{ config.pageNumMarg.right = PAGENUMMARG_RIGHT_DFLT; }
+		ERR(37);
+	}
+	
+#define LEDGERS_DFLT 6
+#define TSNUM_DFLT 4
+#define TSDENOM_DFLT 4
+#define RASTRAL_DFLT 5
+#define RASTRAL0SIZE_DFLT pdrSize[0]
+	if (config.defaultLedgers < 1 || config.defaultLedgers > MAX_LEDGERS)
+			{ config.defaultLedgers = LEDGERS_DFLT; ERR(38); }
+	if (TSNUM_BAD(config.defaultTSNum)) 	{ config.defaultTSNum = TSNUM_DFLT; ERR(39); }
+	if (TSDENOM_BAD(config.defaultTSDenom)) { config.defaultTSDenom = TSDENOM_DFLT; ERR(40); }
+	if (config.defaultRastral < 0 || config.defaultRastral > MAXRASTRAL)
+			{ config.defaultRastral = RASTRAL_DFLT; ERR(41); }
+	if (config.rastral0size < 4 || config.rastral0size > 72)
+			{ config.rastral0size = RASTRAL0SIZE_DFLT; ERR(42); }
+
+#define MIN_RECVELOCITY_DFLT 10
+#define MIN_RECDURATION_DFLT 50
+#define MIDIDTHRU_DFLT 0
+	if (config.minRecVelocity < 1 || config.minRecVelocity > MAX_VELOCITY)
+			{ config.minRecVelocity = MIN_RECVELOCITY_DFLT; ERR(43); }
+	if (config.minRecDuration < 1) { config.minRecDuration = MIN_RECDURATION_DFLT; ERR(44); }
+#define MIDI_THRU
+#ifdef MIDI_THRU
+	/* FIXME: Does MIDI Thru work with Core MIDI? Needs thought/testing. */
+	if (config.midiThru < 0) { config.midiThru = MIDIDTHRU_DFLT; ERR(45); }
+#else
+	config.midiThru = 0;
+#endif		
+
+#define DEFAULT_TEMPO_MM_DFLT 96
+#define LOWMEMORY_DFLT 800
+#define MINMEMORY_DFLT 320
+	if (config.defaultTempoMM < MIN_BPM || config.defaultTempoMM > MAX_BPM)
+			{ config.defaultTempoMM = DEFAULT_TEMPO_MM_DFLT; ERR(46); }
+	if (config.lowMemory < 320 || config.lowMemory > 4096) { config.lowMemory = LOWMEMORY_DFLT; ERR(47); }
+	if (config.lowMemory < config.minMemory) { config.lowMemory = LOWMEMORY_DFLT; ERR(47); }
+	if (config.minMemory < 320 || config.minMemory > 4096) { config.minMemory = MINMEMORY_DFLT; ERR(48); }
+#define NUMROWS_DFLT 1
+#define NUMCOLS_DFLT 20
+#define MAXROWS_DFLT 256
+#define MAXCOLS_DFLT 256
+	if (config.numRows < 1 || config.numRows > 100) { config.numRows = NUMROWS_DFLT; ERR(49); }
+	if (config.numCols < 1 || config.numCols > 100) { config.numCols = NUMCOLS_DFLT; ERR(50); }
+	if (config.maxRows < 4 || config.maxRows > 256) { config.maxRows = MAXROWS_DFLT; ERR(51); }
+	if (config.numRows > config.maxRows) { config.maxRows = config.numRows; ERR(51); }
+	if (config.maxCols < 4 || config.maxCols > 256) { config.maxCols = MAXCOLS_DFLT; ERR(52); }
+	if (config.numCols > config.maxCols) { config.maxCols = config.numCols; ERR(52); }
+#define HPAGESEP_DFLT 8
+#define VPAGESEP_DFLT 8
+#define HSCROLLSLOP_DFLT 16
+#define VSCROLLSLOP_DFLT 16
+	if (config.hPageSep < 0 || config.hPageSep > 80) { config.hPageSep = HPAGESEP_DFLT; ERR(53); }
+	if (config.vPageSep < 0 || config.vPageSep > 80) { config.vPageSep = VPAGESEP_DFLT; ERR(54); }
+	if (config.hScrollSlop < 0 || config.hScrollSlop > 80) { config.hScrollSlop = HSCROLLSLOP_DFLT; ERR(55); }
+	if (config.vScrollSlop < 0 || config.vScrollSlop > 80) { config.vScrollSlop = VSCROLLSLOP_DFLT; ERR(56); }
+
+#define MAX_SYNC_TOLERANCE_DFLT 60
+#define ENLARGE_HILITE_DFLT 1
+#define INFO_DISTUNITS_DFLT 0
+#define MSHAKE_THRESH_DFLT 0
+	if (config.maxSyncTolerance < 0) { config.maxSyncTolerance = MAX_SYNC_TOLERANCE_DFLT;  ERR(57); }
+	if (config.enlargeHilite < 0 || config.enlargeHilite > 10)
+			{ config.enlargeHilite = ENLARGE_HILITE_DFLT; ERR(58); }
+	if (config.infoDistUnits < 0 || config.infoDistUnits > 2)		/* Max. from enum in InfoDialog.c */
+			{ config.infoDistUnits = INFO_DISTUNITS_DFLT; ERR(59); }
+	if (config.mShakeThresh < 0) { config.mShakeThresh = MSHAKE_THRESH_DFLT; ERR(60); }
+
+#define NUMMASTERS_DFLT 64
+	if (config.numMasters < 64) { config.numMasters = NUMMASTERS_DFLT; ERR(62); }
+	
+#define INDENT_FIRST_DFLT 47
+#define MBREST_HT_DFLT 2
+#define CHORDSYM_MUS_SIZE_DFLT 150
+#define ENCLMARGIN_DFLT 2
+	if (config.indentFirst < 0) { config.indentFirst = INDENT_FIRST_DFLT; ERR(63); }
+	if (config.mbRestHeight < 1) { config.mbRestHeight = MBREST_HT_DFLT; ERR(64); }
+	if (config.chordSymMusSize < 20 || config.chordSymMusSize > 400) { config.chordSymMusSize = CHORDSYM_MUS_SIZE_DFLT; ERR(65); }
+	if (config.enclMargin < 0) { config.enclMargin = ENCLMARGIN_DFLT; ERR(66); }
+
+#define LEGATO_PCT_DFLT 95
+#define DEFAULTPATCH_DFLT 1
+#define WHICH_MIDI_DFLT MIDISYS_CM
+	if (config.legatoPct < 1) { config.legatoPct = LEGATO_PCT_DFLT; ERR(67); }
+	if (config.defaultPatch < 1 || config.defaultPatch > MAXPATCHNUM)
+			{ config.defaultPatch = DEFAULTPATCH_DFLT; ERR(68); }
+			
+	if (config.whichMIDI < 0 || config.whichMIDI > MIDISYS_NONE) { config.whichMIDI = WHICH_MIDI_DFLT; ERR(69); }
+	
+#define MUS_FONTSIZE_DFLT 0
+#define REST_MV_OFFSET_DFLT 2
+#define AUTOBEAM_OPTIONS_DFLT 0
+#define NOTEOFF_VELOCITY_DFLT 64
+#define FEEDBACK_NOTEON_VELOCITY_DFLT 64
+#define DEFAULT_CHANNEL_DFLT 1
+#define RAINYDAY_MEMORY_DFLT 640
+#define TRY_TUP_LEVELS_DFLT 21
+#define JUSTIFY_WARN_THRESH 15
+	/* Set min. for musFontSizeOffset so even if rastral 0 is only 4 pts, will still give >0 PS size */
+	if (config.musFontSizeOffset < -3) { config.musFontSizeOffset = MUS_FONTSIZE_DFLT; ERR(70); }
+
+	if (config.restMVOffset < 0 || config.restMVOffset > 20)
+			{ config.restMVOffset = REST_MV_OFFSET_DFLT; ERR(72); }
+	if (config.autoBeamOptions < 0 || config.autoBeamOptions > 3)
+			{ config.autoBeamOptions = AUTOBEAM_OPTIONS_DFLT; ERR(73); }
+	if (config.noteOffVel < 1 || config.noteOffVel > MAX_VELOCITY)
+			{ config.noteOffVel = NOTEOFF_VELOCITY_DFLT; ERR(74); }
+	if (config.feedbackNoteOnVel < 1 || config.feedbackNoteOnVel > MAX_VELOCITY)
+			{ config.feedbackNoteOnVel = FEEDBACK_NOTEON_VELOCITY_DFLT; ERR(75); }
+	if (config.defaultChannel < 1 || config.defaultChannel > MAXCHANNEL)
+			{ config.defaultChannel = DEFAULT_CHANNEL_DFLT; ERR(76); }
+	if (config.rainyDayMemory < 320 || config.rainyDayMemory > 4096)
+			{ config.rainyDayMemory = RAINYDAY_MEMORY_DFLT; ERR(78); }
+	if (config.tryTupLevels < 1 || config.tryTupLevels > 321)
+			{ config.tryTupLevels = TRY_TUP_LEVELS_DFLT; ERR(79); }
+	if (config.justifyWarnThresh < 10) { config.justifyWarnThresh = JUSTIFY_WARN_THRESH; ERR(80); }
+
+#define METRO_CHANNEL_DFLT 1
+#define METRO_NOTENUM_DFLT 77
+#define METRO_VELO_DFLT 90
+#define METRO_DUR_DFLT 50
+	if (config.metroChannel < 1 || config.metroChannel > MAXCHANNEL)
+			{ config.metroChannel = METRO_CHANNEL_DFLT; ERR(81); }
+	if (config.metroNote < 1 || config.metroNote > MAX_NOTENUM)
+			{ config.metroNote = METRO_NOTENUM_DFLT; ERR(82); }
+	if (config.metroVelo < 1 || config.metroVelo > MAX_VELOCITY)
+			{ config.metroVelo = METRO_VELO_DFLT; ERR(83); }
+	if (config.metroDur < 1 || config.metroDur > 999) { config.metroDur = METRO_DUR_DFLT; ERR(84); }
+
+#define CHORDSYM_SMALLSIZE_DFLT 1
+#define CHORDSYM_SUPERSCR_DFLT 1
+#define CHORDSYM_STKLEAD_DFLT 10
+	if (config.chordSymSmallSize < 1 || config.chordSymSmallSize > 127)
+			{ config.chordSymSmallSize = CHORDSYM_SMALLSIZE_DFLT; ERR(85); }
+	if (config.chordSymSuperscr < 0 || config.chordSymSuperscr > 127)
+			{ config.chordSymSuperscr = CHORDSYM_SUPERSCR_DFLT; ERR(86); }
+	if (config.chordSymStkLead < -20 || config.chordSymStkLead > 127)
+			{ config.chordSymStkLead = CHORDSYM_STKLEAD_DFLT; ERR(87); }
+
+#define TUPLETNUMSIZE_DFLT 110
+#define TUPLETCOLONSIZE_DFLT 60
+#define OCTAVENUMSIZE_DFLT 110
+	if (config.tupletNumSize < 0 || config.tupletNumSize > 127)
+			{ config.tupletNumSize = TUPLETNUMSIZE_DFLT; ERR(92); }
+	if (config.tupletColonSize < 0 || config.tupletColonSize > 127)
+			{ config.tupletColonSize = TUPLETCOLONSIZE_DFLT; ERR(93); }
+	if (config.octaveNumSize < 0 || config.octaveNumSize > 127)
+			{ config.octaveNumSize = OCTAVENUMSIZE_DFLT; ERR(94); }
+
+#define LINE_LW_DFLT 25
+#define LEDGERL_LEN_DFLT 48
+#define LEDGERL_OTHERLEN_DFLT 12
+#define SLUR_DASHLEN_DFLT 3
+#define SLUR_SPACELEN_DFLT 3
+	if (config.lineLW < 5 || config.lineLW > 127) { config.lineLW = LINE_LW_DFLT; ERR(95); }
+	if (config.ledgerLLen < 32) { config.ledgerLLen = LEDGERL_LEN_DFLT; ERR(96); }
+	if (config.ledgerLOtherLen < 0) { config.ledgerLOtherLen = LEDGERL_OTHERLEN_DFLT; ERR(97); }
+	if (config.slurDashLen < 1) { config.slurDashLen = SLUR_DASHLEN_DFLT; ERR(98); }
+	if (config.slurSpaceLen < 1) { config.slurSpaceLen = SLUR_SPACELEN_DFLT; ERR(99); }
+
+#define COURTESYACC_LXD_DFLT 6
+#define COURTESYACC_RXD_DFLT 8
+#define COURTESYACC_YD_DFLT 8
+#define COURTESYACC_SIZE_DFLT 100
+	if (config.courtesyAccLXD < 0) { config.courtesyAccLXD = COURTESYACC_LXD_DFLT; ERR(100); }
+	if (config.courtesyAccRXD < 0) { config.courtesyAccRXD = COURTESYACC_RXD_DFLT; ERR(101); }
+	if (config.courtesyAccYD < 0) { config.courtesyAccYD = COURTESYACC_YD_DFLT; ERR(102); }
+	if (config.courtesyAccSize < 20) { config.courtesyAccSize = COURTESYACC_SIZE_DFLT; ERR(103); }
+
+#define QUANTIZEBEAMYPOS_DFLT 3
+	if (config.quantizeBeamYPos<0) { config.quantizeBeamYPos = QUANTIZEBEAMYPOS_DFLT; ERR(104); };
+
+#define ENLARGE_NRHILITE_H_DFLT 1
+#define ENLARGE_NRHILITE_V_DFLT 1
+	if (config.enlargeNRHiliteH < 0 || config.enlargeNRHiliteH > 10)
+			{ config.enlargeNRHiliteH = ENLARGE_NRHILITE_H_DFLT; ERR(105); }
+	if (config.enlargeNRHiliteV < 0 || config.enlargeNRHiliteV > 10)
+			{ config.enlargeNRHiliteV = ENLARGE_NRHILITE_V_DFLT; ERR(106); }
+
+	/* No validity check at this time for MIDI fields. */
+
+	if (nerr>0) {
+		LogPrintf(LOG_NOTICE, "\n");
+        LogPrintf(LOG_WARNING, "TOTAL OF %d ERROR(S) FOUND.\n", nerr);
+		GetIndCString(fmtStr, INITERRS_STRS, 5);		/* "CNFG resource in Prefs has [n] illegal value(s)" */
+		sprintf(strBuf, fmtStr, nerr, firstErr);
+		CParamText(strBuf, "", "", "");
+		if (CautionAdvise(CNFG_ALRT)==OK) ExitToShell();
+		return False;
+	}
+    else
+        LogPrintf(LOG_NOTICE, "No errors found.  (CheckConfig)\n");
+		return True;
 }
 
 
 /* Install our configuration data from the Prefs file; also check for, report, and
 correct any illegal values. Assumes the Prefs file is the current resource file. */
 
-#define ERR(fn) { nerr++; LogPrintf(LOG_NOTICE, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
-
 static Boolean GetConfig()
 {
 	Handle cnfgH;
-	Boolean gotCnfg;
-	short nerr, firstErr;
 	long cnfgSize;
-	char fmtStr[256];
 	
-	cnfgH = Get1Resource('CNFG',THE_CNFG);
+	cnfgH = Get1Resource('CNFG', THE_CNFG);
 	if (!GoodResource(cnfgH)) {
 		GetIndCString(strBuf, INITERRS_STRS, 4);		/* "Can't find the CNFG resource" */
 		CParamText(strBuf, "", "", "");
 		if (CautionAdvise(CNFG_ALRT)==OK) ExitToShell();
-		else							  gotCnfg = FALSE;
 		
 		/*
 		 * Since we couldn't find the configuration data, set all checkable fields to
@@ -673,7 +1025,7 @@ static Boolean GetConfig()
 
 		config.titleMargin = -1;
 
-		SetRect(&config.paperRect,0, 0, 0, 0);
+		SetRect(&config.paperRect, 0, 0, 0, 0);
 		SetRect(&config.pageMarg, 0, 0, 0, 0);
 		SetRect(&config.pageNumMarg, 0, 0, 0, 0);
 		
@@ -707,7 +1059,7 @@ static Boolean GetConfig()
 
 		config.numMasters = -1;
 		
-		config.indent1st = -1;
+		config.indentFirst = -1;
 		config.chordSymMusSize = 0;
 		config.fastScreenSlurs = 0;
 		config.legatoPct = -1;
@@ -750,7 +1102,7 @@ static Boolean GetConfig()
 		config.courtesyAccYD = -127;
 		config.courtesyAccSize = -127;
 
-		/* FIXME: What about OMS fields (metroDevice thru defaultOutputChannel)? */
+		/* FIXME: What about Core MIDI fields (cmMetroDev thru cmDfltOutputChannel)? */
 		
 		config.quantizeBeamYPos = -1;
 
@@ -765,9 +1117,10 @@ static Boolean GetConfig()
 		if (cnfgSize!=(long)sizeof(Configuration))
 			if (CautionAdvise(CNFGSIZE_ALRT)==OK) ExitToShell();
 		config = *(Configuration *)(*cnfgH);
-		gotCnfg = TRUE;
 
-		if (ControlKeyDown()) {
+		EndianFixConfig();
+		
+		if (OptionKeyDown() && ControlKeyDown()) {
 			GetIndCString(strBuf, INITERRS_STRS, 11);		/* "Skipping checking the CNFG" */
 			CParamText(strBuf, "", "", "");
 			NoteInform(GENERIC_ALRT);
@@ -776,238 +1129,33 @@ static Boolean GetConfig()
 
 	}
 
-	DebugDisplayCnfg();
-
-	/*
-	 * Now do a reality check for values that might be bad. We can't easily check
-	 * origin, toolsPosition, musicFontID, or the fields that represent Boolean values.
-	 * Almost all other fields are checked, though not all as strictly as possible (of
-	 * course there's often no well-defined limit). For each problem case we find,
-	 * give an error message and set the field to a reasonable default value.
-	 */
-	LogPrintf(LOG_NOTICE, "Checking CNFG: ");
-	nerr = 0; firstErr = 0;
-
-	if (config.maxDocuments <= 0 || config.maxDocuments > 100)
-		{ config.maxDocuments = 10; ERR(1); }
-
-	if (config.stemLenNormal < 1) { config.stemLenNormal = 14; ERR(2); }
-	if (config.stemLen2v < 1) { config.stemLen2v = 12; ERR(3); }
-	if (config.stemLenOutside < 1) { config.stemLenOutside = 10; ERR(4); }
-	if (config.stemLenGrace < 1) { config.stemLenGrace = 10; ERR(5); }
-
-	if (config.spAfterBar < 0) { config.spAfterBar = 6; ERR(6); }
-	if (config.minSpBeforeBar < 0) { config.minSpBeforeBar = 5; ERR(7); }
-	if (config.minRSpace < 0) { config.minRSpace = 2;  ERR(8); }
-	if (config.minLyricRSpace < 0) { config.minLyricRSpace = 4;  ERR(9); }
-	if (config.minRSpace_KSTS_N < 0) { config.minRSpace_KSTS_N = 8; ERR(10); }
-
-	if (config.hAccStep < 0 || config.hAccStep > 31) { config.hAccStep = 4; ERR(11); }
-
-	if (config.stemLW < 0) { config.stemLW = 8;  ERR(12); }
-	if (config.barlineLW < 0) { config.barlineLW = 10;  ERR(13); }
-	if (config.ledgerLW < 0) { config.ledgerLW = 13;  ERR(14); }
-	if (config.staffLW < 0) { config.staffLW = 8;  ERR(15); }
-	if (config.enclLW < 0) { config.enclLW = 4; ERR(16); }
-
-	if (config.beamLW < 1) { config.beamLW = 50; ERR(17); }
-	if (config.hairpinLW < 1) { config.hairpinLW = 12; ERR(18); }
-	if (config.dottedBarlineLW < 1) { config.dottedBarlineLW = 12; ERR(19); }
-	if (config.mbRestEndLW < 1) { config.mbRestEndLW = 12; ERR(20); }
-	if (config.nonarpLW < 1) { config.nonarpLW = 12; ERR(21); }
-
-	if (config.graceSlashLW < 0) { config.graceSlashLW = 12; ERR(22); }
-	if (config.slurMidLW < 0) { config.slurMidLW = 30; ERR(23); }
-	if (config.tremSlashLW < 0) { config.tremSlashLW = 38; ERR(24); }
-	if (config.slurCurvature < 1) { config.slurCurvature = 100; ERR(25); }
-	if (config.tieCurvature < 1) { config.tieCurvature = 100; ERR(26); }
-	if (config.relBeamSlope < 0) { config.relBeamSlope = 25; ERR(27); }
-
-	if (config.hairpinMouthWidth < 0 || config.hairpinMouthWidth > 31)
-			{ config.hairpinMouthWidth = 5; ERR(28); }
-	if (config.mbRestBaseLen < 1) { config.mbRestBaseLen = 6;  ERR(29); }
-	if (config.mbRestAddLen < 0) { config.mbRestAddLen = 1;  ERR(30); }
-	if (config.barlineDashLen < 1) { config.barlineDashLen = 4; ERR(31); }
-	if (config.crossStaffBeamExt < 0) { config.crossStaffBeamExt = 5;  ERR(32); }
-
-	if (config.titleMargin < 0) { config.titleMargin = in2pt(1);  ERR(33); };
-
-	if (EmptyRect(&config.paperRect))
-		{ SetRect(&config.paperRect, 0, 0, in2pt(17)/2, in2pt(11)); ERR(34); }
-
-	if (config.pageMarg.top<1 || config.pageMarg.left<1 || config.pageMarg.bottom<1
-		|| config.pageMarg.right<1) {
-		if (config.pageMarg.top<1) { config.pageMarg.top = in2pt(1)/2; }
-		if (config.pageMarg.left<1) { config.pageMarg.left = in2pt(1)/2; }
-		if (config.pageMarg.bottom<1) { config.pageMarg.bottom = in2pt(1)/2; }
-		if (config.pageMarg.right<1) { config.pageMarg.right = in2pt(1)/2; }
-		ERR(35);
+	/* Display CNFG fields in the log. Then check for problems, and, if any are found,
+		display the (presumably corrected) values. */
+	if (DETAIL_SHOW) DisplayConfig();
+	if (!CheckConfig()) {
+		LogPrintf(LOG_WARNING, "Illegal fields have been set to default values.  (GetConfig)\n");
+		DisplayConfig();
 	}
-	/* Crudely try to insure that even for smallest paper size, margins don't cross */
-	if (config.pageMarg.top+config.pageMarg.bottom>in2pt(6)) {
-		config.pageMarg.top = in2pt(1)/2;
-		config.pageMarg.bottom = in2pt(1)/2;
-		ERR(36);
-	}
-	if (config.pageMarg.left+config.pageMarg.right>in2pt(5)) {
-		config.pageMarg.left = in2pt(1)/2;
-		config.pageMarg.right = in2pt(1)/2;
-		ERR(36);
-	}
-
-	if (config.pageNumMarg.top<1 || config.pageNumMarg.left<1 || config.pageNumMarg.bottom<1
-		|| config.pageNumMarg.right<1) {
-		if (config.pageNumMarg.top<1) { config.pageNumMarg.top = in2pt(1)/2; }
-		if (config.pageNumMarg.left<1) { config.pageNumMarg.left = in2pt(1)/2; }
-		if (config.pageNumMarg.bottom<1) { config.pageNumMarg.bottom = in2pt(1)/2; }
-		if (config.pageNumMarg.right<1) { config.pageNumMarg.right = in2pt(1)/2; }
-		ERR(37);
-	}
-	
-	if (config.defaultLedgers < 1 || config.defaultLedgers > MAX_LEDGERS)
-			{ config.defaultLedgers = 6; ERR(38); }
-	if (TSNUM_BAD(config.defaultTSNum)) 	{ config.defaultTSNum = 4; ERR(39); }
-	if (TSDENOM_BAD(config.defaultTSDenom)) { config.defaultTSDenom = 4; ERR(40); }
-	if (config.defaultRastral < 0 || config.defaultRastral > MAXRASTRAL)
-			{ config.defaultRastral = 5; ERR(41); }
-	if (config.rastral0size < 4 || config.rastral0size > 72)
-			{ config.rastral0size = pdrSize[0]; ERR(42); }
-
-	if (config.minRecVelocity < 1 || config.minRecVelocity > MAX_VELOCITY)
-			{ config.minRecVelocity = 10; ERR(43); }
-	if (config.minRecDuration < 1) { config.minRecDuration = 50; ERR(44); }
-#define MIDI_THRU
-#ifdef MIDI_THRU
-	/* FIXME: MIDI THRU SHOULD WORK FOR OMS, BUT MAY FAIL OR EVEN BE DANGEROUS W/OTHER
-		DRIVERS! Needs thought/testing. */
-	if (config.midiThru < 0) { config.midiThru = 0; ERR(45); }
-#else
-	config.midiThru = 0;
-#endif		
-
-	if (config.defaultTempoMM < MIN_BPM || config.defaultTempoMM > MAX_BPM)
-			{ config.defaultTempoMM = 96; ERR(46); }
-	if (config.lowMemory < config.minMemory) { config.lowMemory = config.minMemory; ERR(47); }
-	if (config.minMemory < 1) { config.minMemory = 1; ERR(48); }
-
-	if (config.numRows < 1) { config.numRows = 4; ERR(49); }
-	if (config.numCols < 1) { config.numCols = 4; ERR(50); }
-	if (config.maxRows < 1) { config.maxRows = 16; ERR(51); }
-	if (config.maxCols < 1) { config.maxCols = 8; ERR(52); }
-	if (config.hPageSep < 0) { config.hPageSep = 8; ERR(53); }
-	if (config.vPageSep < 0) { config.vPageSep = 8; ERR(54); }
-	if (config.hScrollSlop < 0) { config.hScrollSlop = 16; ERR(55); }
-	if (config.vScrollSlop < 0) { config.vScrollSlop = 16; ERR(56); }
-
-	if (config.maxSyncTolerance < 0) { config.maxSyncTolerance = 60;  ERR(57); }
-	if (config.enlargeHilite < 0 || config.enlargeHilite > 10)
-			{ config.enlargeHilite = 1; ERR(58); }
-	if (config.infoDistUnits < 0 || config.infoDistUnits > 2)		/* Max. from enum in InfoDialog.c */
-			{ config.infoDistUnits = 0; ERR(59); }
-	if (config.mShakeThresh < 0) { config.mShakeThresh = 0; ERR(60); }
-
-	if (config.numMasters < 64) { config.numMasters = 64; ERR(62); }
-	
-	if (config.indent1st < 0) { config.indent1st = 47; ERR(63); }
-	if (config.mbRestHeight < 1) { config.mbRestHeight = 2; ERR(64); }
-	if (config.chordSymMusSize < 10) { config.chordSymMusSize = 150; ERR(65); }
-	if (config.enclMargin < 0) { config.enclMargin = 2; ERR(66); }
-
-	if (config.legatoPct < 1) { config.legatoPct = 95; ERR(67); }
-	if (config.defaultPatch < 1 || config.defaultPatch > MAXPATCHNUM)
-			{ config.defaultPatch = 1; ERR(68); }
-			
-	if (config.whichMIDI < 0 || config.whichMIDI > MIDISYS_NONE) { config.whichMIDI = MIDISYS_CM; ERR(69); }
-	
-	/* Set min. for musFontSizeOffset so even if rastral 0 is 4 pts, will still give >0 PS size */
-	if (config.musFontSizeOffset < -3) { config.musFontSizeOffset = 0; ERR(70); }
-
-	if (config.restMVOffset < 0 || config.restMVOffset > 20)
-			{ config.restMVOffset = 2; ERR(72); }
-	if (config.autoBeamOptions < 0 || config.autoBeamOptions > 3)
-			{ config.autoBeamOptions = 0; ERR(73); }
-	if (config.noteOffVel < 1 || config.noteOffVel > MAX_VELOCITY)
-			{ config.noteOffVel = 64; ERR(74); }
-	if (config.feedbackNoteOnVel < 1 || config.feedbackNoteOnVel > MAX_VELOCITY)
-			{ config.feedbackNoteOnVel = 64; ERR(75); }
-	if (config.defaultChannel < 1 || config.defaultChannel > MAXCHANNEL)
-			{ config.defaultChannel = 1; ERR(76); }
-	if (config.rainyDayMemory < 32 || config.rainyDayMemory > 1024)
-			{ config.rainyDayMemory = 32; ERR(78); }
-	if (config.tryTupLevels < 1 || config.tryTupLevels > 321)
-			{ config.tryTupLevels = 21; ERR(79); }
-	if (config.justifyWarnThresh < 10) { config.justifyWarnThresh = 15; ERR(80); }
-
-	if (config.metroChannel < 1 || config.metroChannel > MAXCHANNEL)
-			{ config.metroChannel = 1; ERR(81); }
-	if (config.metroNote < 1 || config.metroNote > MAX_NOTENUM)
-			{ config.metroNote = 77; ERR(82); }
-	if (config.metroVelo < 1 || config.metroVelo > MAX_VELOCITY)
-			{ config.metroVelo = 90; ERR(83); }
-	if (config.metroDur < 1 || config.metroDur > 999) { config.metroDur = 50; ERR(84); }
-
-	if (config.chordSymSmallSize < 1 || config.chordSymSmallSize > 127)
-			{ config.chordSymSmallSize = 1; ERR(85); }
-	if (config.chordSymSuperscr < 0 || config.chordSymSuperscr > 127)
-			{ config.chordSymSuperscr = 1; ERR(86); }
-	if (config.chordSymStkLead < -20 || config.chordSymStkLead > 127)
-			{ config.chordSymStkLead = 10; ERR(87); }
-
-	if (config.tupletNumSize < 0 || config.tupletNumSize > 127)
-			{ config.tupletNumSize = 110; ERR(92); }
-	if (config.tupletColonSize < 0 || config.tupletColonSize > 127)
-			{ config.tupletColonSize = 60; ERR(93); }
-	if (config.octaveNumSize < 0 || config.octaveNumSize > 127)
-			{ config.octaveNumSize = 110; ERR(94); }
-	if (config.lineLW < 5 || config.lineLW > 127) { config.lineLW = 25; ERR(95); }
-	if (config.ledgerLLen < 32) { config.ledgerLLen = 48; ERR(96); }
-	if (config.ledgerLOtherLen < 0) { config.ledgerLOtherLen = 12; ERR(97); }
-	if (config.slurDashLen < 1) { config.slurDashLen = 3; ERR(98); }
-	if (config.slurSpaceLen < 1) { config.slurSpaceLen = 3; ERR(99); }
-
-	if (config.courtesyAccLXD < 0) { config.courtesyAccLXD = 6; ERR(100); }
-	if (config.courtesyAccRXD < 0) { config.courtesyAccRXD = 8; ERR(101); }
-	if (config.courtesyAccYD < 0) { config.courtesyAccYD = 8; ERR(102); }
-	if (config.courtesyAccSize < 20) { config.courtesyAccSize = 100; ERR(103); }
-
-	if (config.quantizeBeamYPos<0) { config.quantizeBeamYPos = 3; ERR(104); };
-
-	if (config.enlargeNRHiliteH < 0 || config.enlargeNRHiliteH > 10)
-			{ config.enlargeNRHiliteH = 1; ERR(105); }
-	if (config.enlargeNRHiliteV < 0 || config.enlargeNRHiliteV > 10)
-			{ config.enlargeNRHiliteV = 1; ERR(106); }
-
-	/* No validity check at this time for default or metro Devices, do it in InitOMS */
-
-	if (gotCnfg && nerr>0) {
-        LogPrintf(LOG_NOTICE, " TOTAL OF %d ERROR(S) FOUND.\n", nerr);
-		GetIndCString(fmtStr, INITERRS_STRS, 5);		/* "CNFG resource in Prefs has [n] illegal value(s)" */
-		sprintf(strBuf, fmtStr, nerr, firstErr);
-		CParamText(strBuf, "", "", "");
-		if (CautionAdvise(CNFG_ALRT)==OK) ExitToShell();
-	}
-    else
-        LogPrintf(LOG_NOTICE, "(no errors)\n");
 	
 Finish:
 	/* Make any final adjustments. NB: Must undo these in UpdateSetupFile()! */
 	
 	config.maxDocuments++;								/* to allow for clipboard doc */
 
-	return TRUE;
+	return True;
 }
 
 
 /* Make the heap _almost_ as large as possible (so we have a little extra stack space),
-and allocate as many Master Pointers as possible up to numMasters. Return TRUE if
-all went well, FALSE if not. */
+and allocate as many Master Pointers as possible up to numMasters. Return True if all
+went well, False if not. */
 
 static Boolean InitMemory(short numMasters)
 {
 #ifdef CARBON_NOMORE
 	THz thisZone;  long heapSize;  short orig;
 	
-	/* Increase stack size by decreasing heap size (thanks to DBW for the method). */
+	/* Increase stack size by decreasing heap size (thanks to Dave Winzler for the method). */
 	heapSize = (long)GetApplLimit()-(long)GetZone();
 	heapSize -= 32000;
 	SetApplLimit((Ptr)ApplicationZone()+heapSize);
@@ -1026,72 +1174,140 @@ static Boolean InitMemory(short numMasters)
 }
 
 
-/* Initialize everything about the floating windows. NB: as of v. 5.7, for a very long
-time, we've had a tool palette. We've kept vestigal code for the help palette (unlikely
-ever to be used) and for the clavier palette (fairly likely to be used someday). */
+/* ------------------------------------------------------------------------ Palette(s) -- */
 
-static Boolean NInitFloatingWindows()
-	{
-		short index,wdefID;
-		PaletteGlobals *whichPalette;
-		Rect windowRects[TOTAL_PALETTES];
-		int totalPalettes = TOTAL_PALETTES;
-		
-		for (index=0; index<totalPalettes; index++) {
-		
-			/* Get a handle to a PaletteGlobals structure for this palette */
-			
-			paletteGlobals[index] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+index);
-			if (!GoodResource((Handle)paletteGlobals[index])) return FALSE;
+static void DisplayToolPalette(PaletteGlobals *whichPalette)
+{
+	LogPrintf(LOG_INFO, "Displaying Tool Palette parameters:\n");
+	LogPrintf(LOG_INFO, "  maxAcross=%d", whichPalette->maxAcross);
+	LogPrintf(LOG_INFO, "  maxDown=%d", whichPalette->maxDown);
+	LogPrintf(LOG_INFO, "  across=%d", whichPalette->across);
+	LogPrintf(LOG_INFO, "  down=%d", whichPalette->down);
+	LogPrintf(LOG_INFO, "  oldAcross=%d", whichPalette->oldAcross);
+	LogPrintf(LOG_INFO, "  oldDown=%d", whichPalette->oldDown);
+	LogPrintf(LOG_INFO, "  firstAcross=%d", whichPalette->firstAcross);
+	LogPrintf(LOG_INFO, "  firstDown=%d\n", whichPalette->firstDown);
+}
 
-			MoveHHi((Handle)paletteGlobals[index]);
-			HLock((Handle)paletteGlobals[index]);
-			whichPalette = *paletteGlobals[index];
-			
-			switch(index) {
-				case TOOL_PALETTE:
-					SetupToolPalette(whichPalette, &windowRects[index]);
-					wdefID = ToolPaletteWDEF_ID;
-					break;
-				case HELP_PALETTE:
-				case CLAVIER_PALETTE:
-					break;
-				}
+/* Do a reality check for palette values that might be bad. If no problems are found,
+return True, else False. */
 
-			wdefID = floatGrowProc;
-			
-			if (thisMac.hasColorQD)
-				palettes[index] = (WindowPtr)NewCWindow(NULL, &windowRects[index],
-										"\p", FALSE, wdefID, BRING_TO_FRONT, TRUE,
-										(long)index);
-			 else
-				palettes[index] = (WindowPtr)NewWindow(NULL, &windowRects[index],
-										"\p", FALSE, wdefID, BRING_TO_FRONT, TRUE,
-										(long)index);
-			if (!GoodNewPtr((Ptr)palettes[index])) return FALSE;
-		
-			//	((WindowPeek)palettes[index])->spareFlag = (index==TOOL_PALETTE || index==HELP_PALETTE);
-			
-			/* Add a zoom box to tools and help palette */
-			if (index==TOOL_PALETTE || index==HELP_PALETTE)		
-			{
-				ChangeWindowAttributes(palettes[index], kWindowFullZoomAttribute, kWindowNoAttributes);
-			}
-
-			/* Finish Initializing the TearOffMenuGlobals structure. */
-			
-			whichPalette->environment = &thisMac;
-			whichPalette->paletteWindow = palettes[index];
-			SetWindowKind(palettes[index], PALETTEKIND);
-			
-			HUnlock((Handle)paletteGlobals[index]);
-			}
+static Boolean CheckToolPalette(PaletteGlobals *whichPalette)
+{
+	if (whichPalette->maxAcross<4 || whichPalette->maxAcross>150) return False;
+	if (whichPalette->maxDown<4 || whichPalette->maxDown>150) return False;
+	if (whichPalette->across<1 || whichPalette->across>80) return False;
+	if (whichPalette->down<1 || whichPalette->down>80) return False;
+	if (whichPalette->oldAcross<1 || whichPalette->oldAcross>80) return False;
+	if (whichPalette->oldDown<1 || whichPalette->oldDown>80) return False;
+	if (whichPalette->firstAcross<1 || whichPalette->firstAcross>80) return False;
+	if (whichPalette->firstDown<1 || whichPalette->firstDown>80) return False;
 	
-	return TRUE;
+	return True;
+}
+
+/* Allocate a grid of characters from the 'PLCH' resource; uses GridRec dataType to
+store the information for a maximal maxRow by maxCol grid, where the dimensions are
+stored in the PLCH resource itself and should match the PICT that is being used to draw
+the palette.  Deliver the item number of the default tool (arrow), or 0 if problem. */
+
+static short GetToolGrid(PaletteGlobals *whichPalette)
+	{
+		short maxRow, maxCol, row, col, item, defItem = 0; 
+		short curResFile;
+		GridRec *pGrid;
+		Handle hdl;
+		unsigned char *p;			/* Careful: contains both binary and char data! */
+		
+		curResFile = CurResFile();
+		UseResFile(setupFileRefNum);
+
+		hdl = GetResource('PLCH', ToolPaletteID);		/* get info on and char map of palette */
+		if (!GoodResource(hdl)) {
+			GetIndCString(strBuf, INITERRS_STRS, 6);	/* "can't get Tool Palette resource" */
+			CParamText(strBuf, "", "", "");
+			StopInform(GENERIC_ALRT);
+			UseResFile(curResFile);
+			return(0);
+			}
+		
+		UseResFile(curResFile);
+
+		/* Pull in the maximum and suggested sizes for palette and check them. */
+		
+		p = (unsigned char *)*hdl;
+		whichPalette->maxAcross = *p++;
+		whichPalette->maxDown = *p++;
+		whichPalette->firstAcross = whichPalette->oldAcross = whichPalette->across = *p++;
+		whichPalette->firstDown   = whichPalette->oldDown   = whichPalette->down   = *p++;
+		
+		/* We must _not_ "Endian fix" these values: they're read from one-byte fields! */
+		
+		if (DETAIL_SHOW) DisplayToolPalette(whichPalette);
+		LogPrintf(LOG_NOTICE, "Checking Tool Palette parameters: ");
+		if (CheckToolPalette(whichPalette)) LogPrintf(LOG_NOTICE, "No errors found.  (GetToolGrid)\n");
+		else {
+			if (!DETAIL_SHOW) DisplayToolPalette(whichPalette);
+			GetIndCString(strBuf, INITERRS_STRS, 34);	/* "Your Prefs file has illegal values for the tool palette..." */
+			CParamText(strBuf, "", "", "");
+			LogPrintf(LOG_ERR, "%s\n", strBuf);
+			StopInform(GENERIC_ALRT);
+			return 0;
+		}
+		
+		/* Create storage for 2-D table of char/positions for palette grid */
+		
+		maxCol = whichPalette->maxAcross;
+		maxRow = whichPalette->maxDown;
+		
+		grid = (GridRec *)NewPtr((Size)maxRow*maxCol*sizeof(GridRec));
+		if (!GoodNewPtr((Ptr)grid)) {
+			OutOfMemory((long)maxRow*maxCol*sizeof(GridRec));
+			return 0;
+			}
+
+		/* And scan through resource to install grid cells */
+		
+		p = (unsigned char *) (*hdl + 4*sizeof(long));			/* Skip header stuff */
+		pGrid = grid;
+		item = 1;
+		for (row=0; row<maxRow; row++)							/* initialize grid[] */
+			for (col=0; col<maxCol; col++, pGrid++, item++) {
+				SetPt(&pGrid->cell, col, row);					/* Doesn't move memory */
+				if ((pGrid->ch = *p++) == CH_ENTER)
+					if (defItem == 0) defItem = item; 
+				}
+		
+		GetToolZoomBounds();
+		return defItem;
 	}
 
 
-/* Initialise the Symbol Palette: We use the size of the PICT in resources as well as
+/* Install the rectangles for the given pallete rects array and its dimensions */
+
+static void SetupPaletteRects(Rect *whichRects, short itemsAcross, short itemsDown,
+								short itemWidth, short itemHeight)
+{
+	short across, down;
+	
+	whichRects->left = 0;
+	whichRects->top = 0;
+	whichRects->right = 0;
+	whichRects->bottom = 0;
+
+	whichRects++;
+	for (down=0; down<itemsDown; down++)
+		for (across=0; across<itemsAcross; across++, whichRects++) {
+			whichRects->left = across * itemWidth;
+			whichRects->top = down * itemHeight;
+			whichRects->right = (across + 1) * itemWidth;
+			whichRects->bottom = (down + 1) * itemHeight;
+			OffsetRect(whichRects, TOOLS_MARGIN, TOOLS_MARGIN);
+		}
+}
+
+
+/* Initialise the tool palette: We use the size of the PICT in resources as well as
 the grid dimensions in the PLCH resource to determine the size of the palette, with a
 margin around the cells so that there is space in the lower right corner for a grow box.
 The PICT should have a frame size that is (TOOLS_ACROSS * TOOLS_CELL_WIDTH)-1 pixels
@@ -1112,8 +1328,8 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		curResFile = CurResFile();
 		UseResFile(setupFileRefNum);
 		toolPicture = (PicHandle)GetPicture(ToolPaletteID);
-		fix_end((*toolPicture)->picFrame.bottom);
-		fix_end((*toolPicture)->picFrame.right);
+		FIX_END((*toolPicture)->picFrame.bottom);
+		FIX_END((*toolPicture)->picFrame.right);
 		UseResFile(curResFile);
 
 		if(!GoodResource((Handle)toolPicture)) { BadInit(); ExitToShell(); }
@@ -1136,128 +1352,117 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		windowRect->right += 2*TOOLS_MARGIN;
 		windowRect->bottom += 2*TOOLS_MARGIN;
 		toolsFrame = *windowRect;
-		InsetRect(&toolsFrame,TOOLS_MARGIN,TOOLS_MARGIN);
+		InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);
+
+		/* Avoid Issue #67, where the tool palette's initial position is sometimes at
+		   the very top of screen, underneath the menu bar. FIXME: This is certainly not
+		   the right fix. The problem occurs randomly on some computers, consistently
+		   on others, so it's probably an uninitialized variable. */
+		
+		OffsetRect(windowRect, 0, 40);
 		
 		/* Initialize the PaletteGlobals structure */
 		
 	 	whichPalette->currentItem = defaultToolItem;
-		whichPalette->drawMenuProc = (void (*)())DrawToolMenu;
+		whichPalette->drawMenuProc = (void (*)())DrawToolPalette;
 		whichPalette->findItemProc = (short (*)())FindToolItem;
 		whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
 		
+LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
+
 		/* Put picture into offscreen port so that any rearrangements can be saved */
 
-#if 0	
-		GrafPtr oldPort;
-		palPort = NewGrafPort(picRect.right, picRect.bottom);
-		if (palPort == NULL) { BadInit(); ExitToShell(); }
-		GetPort(&oldPort); SetPort(palPort);
-		
-		HLock((Handle)toolPicture);
-		DrawPicture(toolPicture, &picRect);
-		HUnlock((Handle)toolPicture);
-		ReleaseResource((Handle)toolPicture);
-		SetPort(oldPort);
-#else
 		SaveGWorld();
 		
-		GWorldPtr gwPtr = MakeGWorld(picRect.right, picRect.bottom, TRUE);
+		GWorldPtr gwPtr = MakeGWorld(picRect.right, picRect.bottom, True);
 		SetGWorld(gwPtr, NULL);
 		
+{
+PixMapHandle portPixMapH = GetPortPixMap(gwPtr); PixMapPtr portPixMap = *portPixMapH;
+LogPixMapInfo("SetupToolPalette1", portPixMap, 1000);
+}
 		HLock((Handle)toolPicture);
 		DrawPicture(toolPicture, &picRect);
 		HUnlock((Handle)toolPicture);
 		ReleaseResource((Handle)toolPicture);
 		
 		palPort = gwPtr;
+{
+PixMapHandle portPixMapH = GetPortPixMap(palPort); PixMapPtr portPixMap = *portPixMapH;
+LogPixMapInfo("SetupToolPalette2", portPixMap, 1000);
+}
 //		UnlockGWorld(gwPtr);
 		RestoreGWorld();
-#endif
-	}
+}
 
 
-/* Allocate a grid of characters from the 'PLCH' resource; uses GridRec dataType to
-store the information for a maximal maxRow by maxCol grid, where the dimensions
-are stored in the PLCH resource itself and should match the PICT that is being
-used to draw the palette.  Deliver the item number of the default tool (arrow),
-or 0 if problem. */
+/* Initialize everything about the floating windows, a.k.a. palettes. NB: as of v. 5.8b8,
+the tool palette is our only floating window. We've kept vestigal code for a help palette
+(which seems unlikely ever to be used) and for a clavier palette (which might be useful
+someday). */
 
-static short GetToolGrid(PaletteGlobals *whichPalette)
+static Boolean NInitFloatingWindows()
 	{
-		short maxRow, maxCol, row, col, item, defItem = 0;  short curResFile;
-		GridRec *pGrid;  Handle hdl;
-		unsigned char *p;			/* Careful: contains both binary and char data! */
+		short index, wdefID;
+		PaletteGlobals *whichPalette;
+		Rect windowRects[TOTAL_PALETTES];
+		short totalPalettes = TOTAL_PALETTES;
 		
-		curResFile = CurResFile();
-		UseResFile(setupFileRefNum);
+		for (index=0; index<totalPalettes; index++) {
+		
+			/* Get a handle to a PaletteGlobals structure for this palette */
+			
+			paletteGlobals[index] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+index);
+			if (!GoodResource((Handle)paletteGlobals[index])) return False;
+			EndianFixPaletteGlobals(index);
 
-		hdl = GetResource('PLCH', ToolPaletteID);			/* get char map of palette */
-		if (!GoodResource(hdl)) {
-			GetIndCString(strBuf, INITERRS_STRS, 6);		/* "can't get Tool Palette resource" */
-			CParamText(strBuf, "", "", "");
-			StopInform(GENERIC_ALRT);
-			UseResFile(curResFile);
-			return(0);
-			}
-		
-		UseResFile(curResFile);
-
-		/* Pull in the maximum and suggested sizes for palette */
-		
-		p = (unsigned char *) *hdl;
-		maxCol = whichPalette->maxAcross = *p++;
-		maxRow = whichPalette->maxDown = *p++;
-		whichPalette->firstAcross = whichPalette->oldAcross = whichPalette->across = *p++;
-		whichPalette->firstDown   = whichPalette->oldDown   = whichPalette->down   = *p++;
-		
-		/* Create storage for 2-D table of char/positions for palette grid */
-		
-		grid = (GridRec *) NewPtr((Size)maxRow*maxCol*sizeof(GridRec));
-		if (!GoodNewPtr((Ptr)grid)) {
-			OutOfMemory((long)maxRow*maxCol*sizeof(GridRec));
-			return(0);
-			}
-
-		/* And scan through resource to install grid cells */
-		
-		p = (unsigned char *) (*hdl + 4*sizeof(long));		/* Skip header stuff */
-		pGrid = grid;
-		item = 1;
-		for (row=0; row<maxRow; row++)						/* initialize grid[] */
-			for (col=0; col<maxCol; col++,pGrid++,item++) {
-				SetPt(&pGrid->cell, col, row);				/* Doesn't move memory */
-				if ((pGrid->ch = *p++) == CH_ENTER)
-					if (defItem == 0) defItem = item; 
+			MoveHHi((Handle)paletteGlobals[index]);
+			HLock((Handle)paletteGlobals[index]);
+			whichPalette = *paletteGlobals[index];
+			
+			switch(index) {
+				case TOOL_PALETTE:
+					SetupToolPalette(whichPalette, &windowRects[index]);
+					wdefID = ToolPaletteWDEF_ID;
+					break;
+				case HELP_PALETTE:
+				case CLAVIER_PALETTE:
+					break;
 				}
+
+			wdefID = floatGrowProc;
+			
+			if (thisMac.hasColorQD)
+				palettes[index] = (WindowPtr)NewCWindow(NULL, &windowRects[index],
+										"\p", False, wdefID, BRING_TO_FRONT, True,
+										(long)index);
+			 else
+				palettes[index] = (WindowPtr)NewWindow(NULL, &windowRects[index],
+										"\p", False, wdefID, BRING_TO_FRONT, True,
+										(long)index);
+			if (!GoodNewPtr((Ptr)palettes[index])) return False;
 		
-		GetToolZoomBounds();
-		return(defItem);
+			//	((WindowPeek)palettes[index])->spareFlag = (index==TOOL_PALETTE || index==HELP_PALETTE);
+			
+			/* Add a zoom box to tools and help palette */
+			if (index==TOOL_PALETTE || index==HELP_PALETTE) {
+				ChangeWindowAttributes(palettes[index], kWindowFullZoomAttribute, kWindowNoAttributes);
+			}
+
+			/* Finish Initializing the TearOffMenuGlobals structure. */
+			
+			whichPalette->environment = &thisMac;
+			whichPalette->paletteWindow = palettes[index];
+			SetWindowKind(palettes[index], PALETTEKIND);
+			
+			HUnlock((Handle)paletteGlobals[index]);
+			}
+	
+	return True;
 	}
 
 
-/* Install the rectangles for the given pallete rects array and its dimensions */
-
-static void SetupPaletteRects(Rect *whichRects, short itemsAcross, short itemsDown,
-								short itemWidth, short itemHeight)
-	{
-		short across, down;
-		
-		whichRects->left = 0;
-		whichRects->top = 0;
-		whichRects->right = 0;
-		whichRects->bottom = 0;
-
-		whichRects++;
-		for (down=0; down<itemsDown; down++)
-			for (across=0; across<itemsAcross; across++, whichRects++) {
-				whichRects->left = across * itemWidth;
-				whichRects->top = down * itemHeight;
-				whichRects->right = (across + 1) * itemWidth;
-				whichRects->bottom = (down + 1) * itemHeight;
-				OffsetRect(whichRects, TOOLS_MARGIN, TOOLS_MARGIN);
-				}
-	}
-
+/* -------------------------------------------------------------------------------------- */
 
 /* Provide the pre-allocated clipboard document with default values. */
 	
@@ -1266,47 +1471,48 @@ static Boolean PrepareClipDoc()
 		WindowPtr w; char title[256]; LINK pL; long junkVersion;
 
 		clipboard = documentTable;
-		clipboard->inUse = TRUE;
+		clipboard->inUse = True;
 		w = GetNewWindow(docWindowID, NULL, (WindowPtr)-1);
-		if (w == NULL) return(FALSE);
+		if (w == NULL) return(False);
 		
 		clipboard->theWindow = w;
 		SetWindowKind(w, DOCUMENTKIND);
 
-		//		((WindowPeek)w)->spareFlag = TRUE;
+		//		((WindowPeek)w)->spareFlag = True;
 		ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
 
-		if (!BuildDocument(clipboard, NULL, 0, NULL, &junkVersion, TRUE))
-			return FALSE;
+		if (!BuildDocument(clipboard, NULL, 0, NULL, &junkVersion, True))
+			return False;
 		for (pL=clipboard->headL; pL!=clipboard->tailL; pL=DRightLINK(clipboard, pL))
 			if (DObjLType(clipboard, pL)==MEASUREtype)
 				{ clipFirstMeas = pL; break; }
-		clipboard->canCutCopy = FALSE;
+		clipboard->canCutCopy = False;
 		GetIndCString(title, MiscStringsID, 2);
 		SetWCTitle((WindowPtr)clipboard, title);
-		return TRUE;
+		return True;
 	}
 	
 Boolean BuildEmptyDoc(Document *doc) 
 	{
-		if (!InitAllHeaps(doc)) { NoMoreMemory(); return FALSE; }
+		if (!InitAllHeaps(doc)) { NoMoreMemory(); return False; }
 		InstallDoc(doc);
 		BuildEmptyList(doc,&doc->headL,&doc->tailL);
 		
 		doc->selStartL = doc->selEndL = doc->tailL;			/* Empty selection  */	
-		return TRUE;
+		return True;
 	}
 
 	
 //#define TEST_MDEF_CODE
 #ifdef TEST_MDEF_CODE
 // add some interesting sample items
+static void AddSampleItems(MenuRef menu);
 static void AddSampleItems(MenuRef menu)
 {
 	MenuItemIndex	item;
 	
 	AppendMenuItemTextWithCFString(menu, CFSTR("Checkmark"), 0, 0, &item);
-	CheckMenuItem(menu, item, true);
+	CheckMenuItem(menu, item, True);
 	AppendMenuItemTextWithCFString(menu, CFSTR("Dash"), 0, 0, &item);
 	SetItemMark(menu, item, '-');
 	AppendMenuItemTextWithCFString(menu, CFSTR("Diamond"), 0, 0, &item);
@@ -1326,26 +1532,23 @@ static void AddSampleItems(MenuRef menu)
 
 Boolean InitGlobals()
 	{
-		long size; Document *doc;
+		long size;
+		Document *doc;
 		
 		InitNightingale();
-				
-		Pstrcpy((unsigned char *)strBuf, VersionString());
-		PToCString((unsigned char *)strBuf);
-		GoodStrncpy(applVerStr, strBuf, 15); 	/* Allow one char. for terminator */
 
 		/* Create an empty Document table for max number of docs in configuration */
 		
 		size = (long)sizeof(Document) * config.maxDocuments;
 		documentTable = (Document *)NewPtr(size);
 		if (!GoodNewPtr((Ptr)documentTable))
-			{ OutOfMemory(size);  return FALSE; }
+			{ OutOfMemory(size);  return False; }
 		
 		topTable = documentTable + config.maxDocuments;
-		for (doc=documentTable; doc<topTable; doc++) doc->inUse = FALSE;
+		for (doc=documentTable; doc<topTable; doc++) doc->inUse = False;
 		
 		/* Preallocate the clipboard and search documents */
-		if (!PrepareClipDoc()) return FALSE;
+		if (!PrepareClipDoc()) return False;
 			
 		/* Set up the global scrap reference */
 		GetCurrentScrap(&gNightScrap);
@@ -1354,55 +1557,54 @@ Boolean InitGlobals()
 		
 		tmpStr = (unsigned char *)NewPtr(256);
 		if (!GoodNewPtr((Ptr)tmpStr))
-			{ OutOfMemory(256L); return FALSE; }
+			{ OutOfMemory(256L); return False; }
 		
 		updateRectTable = (Rect *)NewPtr(MAX_UPDATE_RECTS * sizeof(Rect));
 		if (!GoodNewPtr((Ptr)updateRectTable))
-			{ OutOfMemory((long)MAX_UPDATE_RECTS * sizeof(Rect)); return FALSE; }
+			{ OutOfMemory((long)MAX_UPDATE_RECTS * sizeof(Rect)); return False; }
 		
-		/* Pull in the permanent menus from resources and install in menu bar. */
+		/* Pull the permanent menus in from resources and install them in menu bar. */
 		
-		appleMenu = GetMenu(appleID);		if (!appleMenu) return FALSE;
+		appleMenu = GetMenu(appleID);		if (!appleMenu) return False;
 		AppendResMenu(appleMenu, 'DRVR');
 		InsertMenu(appleMenu, 0);
 		
-		fileMenu = GetMenu(fileID);			if (!fileMenu) return FALSE;
+		fileMenu = GetMenu(fileID);			if (!fileMenu) return False;
 		InsertMenu(fileMenu, 0);
 		
-		editMenu = GetMenu(editID);			if (!editMenu) return FALSE;
+		editMenu = GetMenu(editID);			if (!editMenu) return False;
 		InsertMenu(editMenu, 0);
 		
 #ifdef PUBLIC_VERSION
-		if (CmdKeyDown() && OptionKeyDown())
-		{
+		if (CmdKeyDown() && OptionKeyDown()) {
 			AppendMenu(editMenu, "\p(-");
 			AppendMenu(editMenu, "\pBrowser");
 			AppendMenu(editMenu, "\pDebug...");
 			AppendMenu(editMenu, "\pDelete Objects");
 		}
 #else
-		testMenu = GetMenu(testID);			if (!testMenu) return FALSE;
+		testMenu = GetMenu(testID);			if (!testMenu) return False;
 		InsertMenu(testMenu, 0);
 #endif
 		
-		scoreMenu = GetMenu(scoreID);		if (!scoreMenu) return FALSE;
+		scoreMenu = GetMenu(scoreID);		if (!scoreMenu) return False;
 		InsertMenu(scoreMenu, 0);
 		
-		notesMenu = GetMenu(notesID);		if (!notesMenu) return FALSE;
+		notesMenu = GetMenu(notesID);		if (!notesMenu) return False;
 		InsertMenu(notesMenu, 0);
 		
-		groupsMenu = GetMenu(groupsID);		if (!groupsMenu) return FALSE;
+		groupsMenu = GetMenu(groupsID);		if (!groupsMenu) return False;
 		InsertMenu(groupsMenu, 0);
 		
-		viewMenu = GetMenu(viewID);			if (!viewMenu) return FALSE;
+		viewMenu = GetMenu(viewID);			if (!viewMenu) return False;
 		InsertMenu(viewMenu, 0);
 		
-		magnifyMenu = GetMenu(magnifyID);	if (!magnifyMenu) return FALSE;
+		magnifyMenu = GetMenu(magnifyID);	if (!magnifyMenu) return False;
 		InsertMenu(magnifyMenu, hierMenu);
 		
 		/* We install only one of the following menus at a time. */
 		
-		playRecMenu = GetMenu(playRecID);	if (!playRecMenu) return FALSE;
+		playRecMenu = GetMenu(playRecID);	if (!playRecMenu) return False;
 		InsertMenu(playRecMenu, 0);
 		
 #ifdef TEST_MDEF_CODE
@@ -1410,7 +1612,7 @@ Boolean InitGlobals()
 		MenuDefSpec		defSpec;
 		
 		defSpec.defType = kMenuDefProcPtr;
-		defSpec.u.defProc = NewMenuDefUPP(MyMDefProc);
+		defSpec.u.defProc = NewMenuDefUPP(NMDefProc);
 
 		// Create a custom menu
 		//CreateCustomMenu( &defSpec, 1201, 0, &customMenu );
@@ -1423,9 +1625,9 @@ Boolean InitGlobals()
 		AddSampleItems(customMenu);
 #endif
 		
-		masterPgMenu = GetMenu(masterPgID);	if (!masterPgMenu) return FALSE;
+		masterPgMenu = GetMenu(masterPgID);	if (!masterPgMenu) return False;
 		
-		formatMenu = GetMenu(formatID);		if (!formatMenu) return FALSE;
+		formatMenu = GetMenu(formatID);		if (!formatMenu) return False;
 		
 		DrawMenuBar();
 		
@@ -1442,7 +1644,7 @@ Boolean InitGlobals()
 
 		XLoadEditScoreSeg();
 		
-		return TRUE;
+		return True;
 	}
 
 
@@ -1465,13 +1667,13 @@ static void InstallCoreEventHandlers()
 	quitUPP = NewAEEventHandlerUPP(HandleQUIT);
 
 	if (quitUPP) {
-		err = AEInstallEventHandler(kCoreEventClass,kAEOpenApplication,oappUPP,0,FALSE);
+		err = AEInstallEventHandler(kCoreEventClass,kAEOpenApplication,oappUPP,0,False);
 		if (err) goto broken;
-		err = AEInstallEventHandler(kCoreEventClass,kAEOpenDocuments,odocUPP,0,FALSE);
+		err = AEInstallEventHandler(kCoreEventClass,kAEOpenDocuments,odocUPP,0,False);
 		if (err) goto broken;
-		err = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,pdocUPP,0,FALSE);
+		err = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,pdocUPP,0,False);
 		if (err) goto broken;
-		err = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,quitUPP,0,FALSE);
+		err = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,quitUPP,0,False);
 		if (err) goto broken;
 	}
 	
@@ -1482,9 +1684,9 @@ static void InstallCoreEventHandlers()
 	closUPP = NewAEEventHandlerUPP(HandleClose);
 
 	if (closUPP) {
-		err = AEInstallEventHandler(myAppType,'Edit',editUPP,0,FALSE);
+		err = AEInstallEventHandler(myAppType,'Edit',editUPP,0,False);
 		if (err) goto broken;
-		err = AEInstallEventHandler(myAppType,'Clos',closeUPP,0,FALSE);
+		err = AEInstallEventHandler(myAppType,'Clos',closeUPP,0,False);
 	}
 #endif
 

@@ -19,11 +19,11 @@ gestaltAnswer = 3 (gestaltExtendedTimeMgr) for the extended Time Manager. */
 // MAS
 #include "NTimeMgr.h"
 
-#ifndef TRUE
-#define TRUE 1
+#ifndef True
+#define True 1
 #endif
-#ifndef FALSE
-#define FALSE 0
+#ifndef False
+#define False 0
 #endif
 
 typedef struct {					/* Time Manager information record */
@@ -73,14 +73,14 @@ void NTMStartTimer(
 {
 	theCount = 0L;
 	theDelay = delayTime;
-	timerRunning = TRUE;
+	timerRunning = True;
 	PrimeTime((QElemPtr)&theTMInfo, theDelay);	/* activate the task record */
 }
 
 /* Temporarily or permanently stop the timer, leaving current time unchanged. */
 void NTMStopTimer()
 {
-	timerRunning = FALSE;
+	timerRunning = False;
 }
 
 /* Return the timer's current time, in milliseconds. */

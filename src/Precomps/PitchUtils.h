@@ -15,7 +15,7 @@ short Pitch2PC(short, short);
 short PCDiff(short, short, Boolean);
 short GetRespell(short, short, short *, short *);
 
-void FixRespelledVoice(Document *, LINK, short);
+void FixVoiceForPitchChange(Document *, LINK, short);
 short Char2LetName(char);
 char LetName2Char(short);
 
@@ -50,3 +50,6 @@ void GetAccTable(Document *, SignedByte[], LINK, short);
 void GetPitchTable(Document *, SignedByte[], LINK, short);
 void DelNoteFixAccs(Document *, LINK, SignedByte, short, short);
 short InsNoteFixAccs(Document *, LINK, SignedByte, short, short);
+
+Boolean AvoidUnisons(Document *, LINK, short, PCONTEXT);
+void AvoidUnisonsInRange(Document *, LINK, LINK, short);

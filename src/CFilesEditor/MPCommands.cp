@@ -28,9 +28,9 @@ static void InsertPartMP(Document *doc, LINK partL, short nadd, short nper, shor
 
 #define DELETE_PART_DI	2			/* Delete Part button in DELPART_ANYWAY_ALRT */
 
-/* Check if user is trying to delete a non-empty part: if so, ask them if they
-really want to delete the part.  If Nightingale should delete the part, return
-TRUE, else return FALSE. */
+/* Check if user is trying to delete a non-empty part: if so, ask them if they really
+want to delete the part.  If Nightingale should delete the part, return True, else
+return False. */
 
 static Boolean CanDeletePart(
 					Document *doc,
@@ -40,7 +40,7 @@ static Boolean CanDeletePart(
 	short staff, usedStaff=-1;
 	short measNum;
 	short alrtChoice;
-	Boolean reallyUsed=FALSE;
+	Boolean reallyUsed=False;
 	char fmtStr[256], thoughStr[256];
 
 	/*
@@ -50,7 +50,7 @@ static Boolean CanDeletePart(
 	 */ 
 	for (staff = minStf; staff<=maxStf; staff++) {
 		for (pL = doc->headL; pL && !reallyUsed;
-			  pL = LSSearch(RightLINK(pL), ANYTYPE, staff, GO_RIGHT, FALSE)) {
+			  pL = LSSearch(RightLINK(pL), ANYTYPE, staff, GO_RIGHT, False)) {
 			switch (ObjLType(pL)) {
 				case HEADERtype:
 				case TAILtype:
@@ -59,7 +59,7 @@ static Boolean CanDeletePart(
 				case STAFFtype:
 				case MEASUREtype:
 				case CONNECTtype:
-					break;													/* Safe to delete, keep looking */
+					break;												/* Safe to delete, keep looking */
 				case KEYSIGtype:
 					if (!LinkSOFT(pL) && KeySigINMEAS(pL)) { usedStaff = staff; usedL = pL; }
 					break;
@@ -67,12 +67,12 @@ static Boolean CanDeletePart(
 					if (!LinkSOFT(pL) && TimeSigINMEAS(pL))  { usedStaff = staff; usedL = pL; }
 					break;
 				default:
-					if (!LinkSOFT(pL)) { usedStaff = staff; usedL = pL; reallyUsed = TRUE; }
+					if (!LinkSOFT(pL)) { usedStaff = staff; usedL = pL; reallyUsed = True; }
 			}
 		}
 	}
 
-	if (usedStaff<0) return TRUE;
+	if (usedStaff<0) return True;
 
 	measNum = GetMeasNum(doc, usedL);
 	GetIndCString(fmtStr, MPERRS_STRS, 2);			/* "Staff %d is not empty starting at measure %d%s" */
@@ -85,7 +85,7 @@ static Boolean CanDeletePart(
 }
 
 
-/* Return FALSE if more than one part is in the given range of staves. */
+/* Return False if more than one part is in the given range of staves. */
 
 static Boolean OnlyOnePart(Document *doc, short minStf, short maxStf)
 {
@@ -99,14 +99,15 @@ static Boolean OnlyOnePart(Document *doc, short minStf, short maxStf)
 
 
 /* Given two staff numbers in the current Master Page, find the corresponding staff
-numbers in the score. If there are no corresponding numbers in the score
-(because the staves were just added in Master Page), return NOONE. */
+numbers in the score. If there are no corresponding numbers in the score (because the
+staves were just added in Master Page), return NOONE. */
 
 void Map2OrigStaves(Document *, short, short, short *, short *);
 void Map2OrigStaves(Document *doc, short minStf, short maxStf, short *pOrigMinStf,
 					short *pOrigMaxStf)
 {
-	short s, i, nGone, origStart, newStart; short newStaff[MAXSTAVES+1];
+	short s, i, nGone, origStart, newStart;
+	short newStaff[MAXSTAVES+1];
 	
 	*pOrigMinStf = *pOrigMaxStf = NOONE;
 
@@ -143,8 +144,8 @@ void Map2OrigStaves(Document *doc, short minStf, short maxStf, short *pOrigMinSt
 }
 
 
-/* Remove a part from the Master Page data structure and append a Delete Part
-change record to the array of changes. */
+/* Remove a part from the Master Page object list and append a Delete Part change
+record to the array of changes. */
 
 void MPDeletePart(Document *doc)
 {
@@ -175,8 +176,8 @@ void MPDeletePart(Document *doc)
 	if (!CanDeletePart(doc, origMinStf, origMaxStf))
 		return;
 
-	doc->partChangedMP = TRUE;
-	doc->masterChanged = TRUE;
+	doc->partChangedMP = True;
+	doc->masterChanged = True;
 
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
@@ -194,8 +195,8 @@ void MPDeletePart(Document *doc)
 }
 
 
-/* Return the number of parts remaining to <aConnectL> in the group after partL
-has been deleted. */
+/* Return the number of parts remaining to <aConnectL> in the group after partL has
+been deleted. */
 
 short CountConnParts(Document */*doc*/, LINK headL, LINK connectL, LINK aConnectL, LINK partL)
 {
@@ -235,23 +236,21 @@ short CountConnParts(Document */*doc*/, LINK headL, LINK connectL, LINK aConnect
 }
 
 
-/* Update fields for Connect object connectL following deletion of a part.
-stfDiff is the number of staves deleted; lastStf is the lastStaff field of
-the part. staffns of staves have already been updated. The first loop
-updates staffns of connects; lastStf, however, is the PartLASTSTAFF of the
-part deleted before any staffns are updated. */
+/* Update fields for Connect object connectL following deletion of a part. stfDiff is
+the number of staves deleted; lastStf is the lastStaff field of the part. staffns of
+staves have already been updated. The first loop updates staffns of connects; lastStf,
+however, is the PartLASTSTAFF of the part deleted before any staffns are updated. */
 
 void UpdateConnFields(LINK connectL, short stfDiff, short lastStf)
 {
 	LINK aConnectL;
 	PACONNECT aConnect;
 
-	/* Update fields for the connects spanning or after the part
-		deleted. */
+	/* Update fields for the connects spanning or after the part deleted. */
 		
-	/* If the staffAbove field is >lastStf, all parts connected
-		by PartLevel or GroupLevel connects are after the one deleted.
-		Handle the case for PartLevel connects here. */
+	/* If the staffAbove field is >lastStf, all parts connected by PartLevel or
+		GroupLevel Connects are after the one deleted. Handle the case for PartLevel
+		Connects here. */
 
 	aConnectL = FirstSubLINK(connectL);
 	for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
@@ -276,8 +275,8 @@ void UpdateConnFields(LINK connectL, short stfDiff, short lastStf)
 		}
 	}
 
-	/* Handle the case where the staffAbove field is >lastStf for GroupLevel
-		connects here. */
+	/* Handle the case where the staffAbove field is >lastStf for GroupLevel Connects
+		here. */
 
 	aConnectL = FirstSubLINK(connectL);
 	for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
@@ -442,7 +441,7 @@ static void MPDeleteSelRange(Document *doc, LINK partL)
 						doc->nstavesMP--;
 					}
 
-				/* Traverse the subList and delete selected subObjects. */
+				/* Traverse the subList and delete selected subobjects. */
 
 				pSubL = FirstSubLINK(pL);
 				while (pSubL) {
@@ -485,18 +484,18 @@ static void MPDeleteSelRange(Document *doc, LINK partL)
 }
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Adding parts */
 
 void MPAddPart(Document *doc)
 {
-	LINK staffL,aStaffL,partL=NILINK; short nadd,nper;
+	LINK staffL, aStaffL, partL=NILINK;  short nadd, nper;
 
-	/* Get the selected staff subobject before which to add the new part.
-		If no subobj is selected, partL will be passed to InsertPartMP as
-		NILINK, and the part will be added after all staves. */
+	/* Get the selected staff subobject before which to add the new part. If no
+		subobj is selected, partL will be passed to InsertPartMP as NILINK, and
+		the part will be added after all staves. */
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
+	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
 
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
@@ -535,7 +534,7 @@ static void MPDefltStfCtxt(LINK aStaffL)
 
 
 /* Check staff height for the bottom staff (really system height) against vertical
-space available: return TRUE if there's enough space, FALSE if not. */
+space available: return True if there's enough space, False if not. */
 
 static Boolean ChkStfHt(Document *doc, short nadd, short nper)
 {
@@ -567,21 +566,21 @@ static Boolean MPAddChkVars(Document *doc,
 		sprintf(msg, "%d", MAXSTPART);
 		CParamText(msg, "", "", "");
 		StopInform(ILLNSP_ALRT);
-		return FALSE;
+		return False;
 	}
 	if (nadd<=0 || (nadd*nper)+doc->nstavesMP>MAXSTAVES) {
 		sprintf(msg, "%d", MAXSTAVES);
 		CParamText(msg, "", "", "");
 		StopInform(ILLNS_ALRT);
-		return FALSE;
+		return False;
 	}
 	if (!ChkStfHt(doc,nadd,nper)) {
 		sprintf(msg, "%d", nadd*nper);
 		CParamText(msg, "", "", "");
 		StopInform(FITSTAFF_ALRT);
-		return FALSE;
+		return False;
 	}
-	return TRUE;
+	return True;
 }
 
 
@@ -590,19 +589,19 @@ static enum {
 	nStavesITM=7
 } E_AddPartItems;
 
-/* Dialog to get number of parts to add, and the number of staves per part.
-Returns TRUE for OK, FALSE for Cancel. */
+/* Dialog to get number of parts to add, and the number of staves per part. Returns
+True for OK, False for Cancel. */
 
 static Boolean MPAddPartDialog(short *nParts, short *nStaves)
 {	
-	DialogPtr dlog; GrafPtr oldPort;
+	DialogPtr dlog;  GrafPtr oldPort;
 	short dVal=0, ditem;
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(ADDPART_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	GetPort(&oldPort);
@@ -610,14 +609,14 @@ static Boolean MPAddPartDialog(short *nParts, short *nStaves)
 	if (dlog==NULL) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(ADDPART_DLOG);
-		return FALSE;
+		return False;
 	}
  	SetPort(GetDialogWindowPort(dlog)); 			
 	
 	SelectDialogItemText(dlog, nPartsITM, 0, ENDTEXT);
 
 	ShowWindow(GetDialogWindow(dlog));
-	OutlineOKButton(dlog,TRUE);
+	OutlineOKButton(dlog,True);
 	
 	do {
 		ModalDialog(filterUPP, &ditem);
@@ -641,31 +640,30 @@ static Boolean MPAddPartDialog(short *nParts, short *nStaves)
 
 
 /* Add nadd parts with nper staves in each part before partL to doc's Master Page
-data structure. If partL is NILINK, add after all the parts. */
+object list. If partL is NILINK, add after all the parts. */
 
 static void InsertPartMP(Document *doc,
 							LINK partL,
 							short nadd, short nper,
 							short showLines)
 {
-	LINK aPartL,partList,staffL,aStaffL,stfList,
-			connList,connectL,aConnectL,listHead;
+	LINK aPartL, partList, staffL, aStaffL, stfList, connList, connectL, aConnectL, listHead;
 	PACONNECT aConnect;
-	short j,lastStf,nextStf,startStf,endStf,totalStaves,stavesAbove,
-			startConnStf,firstConnStf,noParts=FALSE,prevnstavesMP, groupConnType;
-	Boolean addToGroup=FALSE;
-	DDIST newPos,startStfTop,stfHeight,stfHeight1,stfLeft,stfRight,dLineSp;
+	short j, lastStf, nextStf, startStf, endStf, totalStaves, stavesAbove, startConnStf,
+			firstConnStf, noParts=False, prevnstavesMP, groupConnType;
+	Boolean addToGroup=False;
+	DDIST newPos, startStfTop, stfHeight, stfHeight1, stfLeft, stfRight, dLineSp;
 	
-	doc->partChangedMP = TRUE;
-	doc->masterChanged = TRUE;
+	doc->partChangedMP = True;
+	doc->masterChanged = True;
 
 	totalStaves = nadd*nper;
 	prevnstavesMP = doc->nstavesMP;
 	doc->nstavesMP += totalStaves;
 
-	/* The firstSubLINK of masterHeadL is the initial unused part; if partL is
-		passed into this function as this part, it is an error; traverse to the
-		next LINK in the list and insert before this one. */
+	/* The firstSubLINK of masterHeadL is the initial unused part. If partL is passed
+		into this function as that part, it's an error; traverse to the next LINK in
+		the list and insert before this one. */
 
 	if (partL == FirstSubLINK(doc->masterHeadL)) 
 		partL = NextPARTINFOL(partL);
@@ -684,26 +682,22 @@ static void InsertPartMP(Document *doc,
 	FirstSubLINK(doc->masterHeadL) = listHead;
 	LinkNENTRIES(doc->masterHeadL) += nadd;
 
-	/* Traverse the list of parts, and get the lastStaff of the part
-		immediately before the inserted list of parts. If the list was
-		inserted before all except the first unused part, lastStf equals
-		zero. */
+	/* Traverse the list of parts, and get the lastStaff of the part immediately before
+		the inserted list of parts. If the list was inserted before all except the first
+		unused part, lastStf equals zero. */
 
 	aPartL = FirstSubLINK(doc->masterHeadL);
 	for ( ; aPartL; aPartL=NextPARTINFOL(aPartL)) {
 		lastStf = PartLastSTAFF(aPartL);
-		if (NextPARTINFOL(aPartL) == partList)
-			break;
+		if (NextPARTINFOL(aPartL) == partList) break;
 	}
-	if (aPartL == FirstSubLINK(doc->masterHeadL))
-		lastStf = 0;
+	if (aPartL == FirstSubLINK(doc->masterHeadL)) lastStf = 0;
 	
 	startStf = nextStf = startConnStf = lastStf + 1;
 
-	/* Traverse the inserted list of parts, and set the firstStaff
-		and lastStaff fields of all its parts. Then add <totalStaves>
-		to the first and last staffns of all parts following the
-		inserted list. */
+	/* Traverse the inserted list of parts, and set the firstStaff and lastStaff
+		fields of all its parts. Then add <totalStaves> to the first and last staffns
+		of all parts following the inserted list. */
 
 	aPartL=NextPARTINFOL(aPartL);
 	for (j=0; j<nadd && aPartL; j++, aPartL=NextPARTINFOL(aPartL)) {
@@ -724,13 +718,11 @@ static void InsertPartMP(Document *doc,
 		if (StaffSTAFF(aStaffL) >= startStf)
 			StaffSTAFF(aStaffL) += totalStaves;
 		
-	/* Get the staff subObj at the insertion point, or the last staff
-		subObj if partL is NILINK. If there were originally no parts,
-		use default values for the parameters obtained from the staff
-		subObj in the other case.
-		###: Both firstStaff field of the parts and the staffn field 
-		of the staves have already been incremented, so the test is
-		valid. */
+	/* Get the staff subobj at the insertion point, or the last staff subobj if partL
+		is NILINK. If there were originally no parts, use default values for the
+		parameters obtained from the staff subobj in the other case.  ###: Both the
+		firstStaff field of the parts and the staffn field of the staves have already
+		been incremented, so the test is valid. */
 
 	if (LinkNENTRIES(staffL) > 0) {
 		aStaffL = FirstSubLINK(staffL);
@@ -752,18 +744,17 @@ static void InsertPartMP(Document *doc,
 		initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastralMP]/STFHALFLNS);
 		
 		newPos = 0;
-		noParts = TRUE;					/* Means there were originally no parts */
+		noParts = True;								/* Means there were originally no parts */
 		stfHeight1 = drSize[doc->srastralMP];
 		stfHeight = (5*stfHeight1/2);
 		stfLeft = 0;
-		stfRight = pt2d(doc->marginRect.right-doc->marginRect.left-doc->otherIndentMP);
+		stfRight = pt2d(doc->marginRect.right-doc->marginRect.left-doc->dIndentOtherMP);
 		doc->staffTopMP[1] = initStfTop1;
 	}
 
-	/* Allocate a list of staves and insert before <aStaffL>, the staff subObj
-		at the insertion point, or as the firstSubLINK, if there were previously
-		no staves. Increment the staff obj nEntries, and initialize the added
-		list of staves. */
+	/* Allocate a list of staves and insert before <aStaffL>, the staff subobj at the
+	   insertion point, or as the firstSubLINK, if there were previously no staves.
+	   Increment the staff obj nEntries, and initialize the added list of staves. */
 
 	stfList = HeapAlloc(STAFFheap,totalStaves);
 	if (!stfList) { NoMoreMemory(); return; }		/* ??not good--leaves doc in inconsistent state! */
@@ -821,9 +812,8 @@ static void InsertPartMP(Document *doc,
 	MPUpdateStaffTops(doc, doc->masterHeadL, doc->masterTailL);
 	UpdateMPSysRectHeight(doc, newPos);
 
-	/* Regardless of whether a new Connect subObj is to be added,
-		update the staffAbove and staffBelow fields of all connects
-		below the part to be added. */
+	/* Regardless of whether a new Connect subobj is to be added, update the staffAbove
+		and staffBelow fields of all connects below the part to be added. */
 
 	connectL = SSearch(doc->masterHeadL,CONNECTtype,GO_RIGHT);
 
@@ -840,9 +830,9 @@ static void InsertPartMP(Document *doc,
 		}
 	}
 
-	/* If part added is added inside an already existing group,
-		update the Connect field of that group here.
-		#1. If parts are added to an already existing group, all parts will
+	/* If part added is added inside an already existing group, update the Connect
+		field of that group here.
+		#1. If parts are added to an already existing group, all parts will be
 			 in a single consecutive segment added to one group; therefore we
 			 only need to check once for all parts added, not once for each
 			 part added. */
@@ -853,12 +843,12 @@ static void InsertPartMP(Document *doc,
 		if (aConnect->connLevel==GroupLevel)
 			if (aConnect->staffAbove<startConnStf && aConnect->staffBelow>=startConnStf) {
 				aConnect->staffBelow += totalStaves;
-				addToGroup = TRUE;									/* #1. */
+				addToGroup = True;									/* #1. */
 				groupConnType = aConnect->connectType;
 			}
 	}
 
-	/* Add new Connect subObjs, if needed. */
+	/* Add new Connect subobjs, if needed. */
 
 	if (nper>1) {
 
@@ -899,7 +889,7 @@ static void InsertPartMP(Document *doc,
 }
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Maintaining the Master Page menu */
 
 short GetPartSelRange(Document *doc, LINK *firstPartL, LINK *lastPartL)
@@ -910,12 +900,12 @@ short GetPartSelRange(Document *doc, LINK *firstPartL, LINK *lastPartL)
 	*firstPartL = *lastPartL = NILINK;
 	
 	if (!PartIsSel(doc)) {
-		return FALSE;
+		return False;
 	}	
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
+	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
 	if (!LinkSEL(staffL)) {
-		return FALSE;
+		return False;
 	}
 	
 	GetSelStaves(staffL,&minStf,&maxStf);
@@ -937,18 +927,18 @@ short GetPartSelRange(Document *doc, LINK *firstPartL, LINK *lastPartL)
 			return minPartL!=maxPartL;
 		}
 		
-	return FALSE;
+	return False;
 }
 
-/* Return TRUE if a range of more than one part in the Master Page is selected. */
+/* Return True if a range of more than one part in the Master Page is selected. */
 
 short PartRangeIsSel(Document *doc)
 {
 	LINK staffL,aStaffL,partL,minPartL,maxPartL;
 	short minStf,maxStf;
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
-	if (!LinkSEL(staffL)) return FALSE;
+	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
+	if (!LinkSEL(staffL)) return False;
 
 	GetSelStaves(staffL,&minStf,&maxStf);
 
@@ -966,12 +956,12 @@ short PartRangeIsSel(Document *doc)
 			return minPartL!=maxPartL;
 		}
 		
-	return FALSE;
+	return False;
 }
 
 
-/* Return TRUE if any group exists in the selection range, which in this
-case is the range of selected staff subObjects. Otherwise, return FALSE. */
+/* Return True if any group exists in the selection range, which in this
+case is the range of selected staff subObjects. Otherwise, return False. */
 
 short GroupIsSel(Document *doc)
 {
@@ -979,13 +969,13 @@ short GroupIsSel(Document *doc)
 	short minStf,maxStf;
 	PACONNECT aConnect;
 	
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
-	if (!LinkSEL(staffL)) return FALSE;
+	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
+	if (!LinkSEL(staffL)) return False;
 
 	GetSelStaves(staffL,&minStf,&maxStf);
 	connectL = SSearch(doc->masterHeadL,CONNECTtype,GO_RIGHT);
 
-	/* Return TRUE if any group in the selRange exists. */
+	/* Return True if any group in the selRange exists. */
 
 	aConnectL = FirstSubLINK(connectL);
 	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
@@ -994,33 +984,33 @@ short GroupIsSel(Document *doc)
 			if (	(aConnect->staffAbove <= minStf && aConnect->staffBelow >= minStf) ||
 					(aConnect->staffAbove >= minStf && aConnect->staffBelow <= maxStf) ||
 					(aConnect->staffAbove <= maxStf && aConnect->staffBelow >= maxStf) )
-						return TRUE;
+						return True;
 		}
 	}
 
-	return FALSE;
+	return False;
 }
 
 
-/* Return TRUE if any staves (and therefore parts) are selected. Otherwise, return
-FALSE. Will correctly return FALSE if score has no parts. */
+/* Return True if any staves (and therefore parts) are selected. Otherwise, return
+False. Will correctly return False if score has no parts. */
 
 short PartIsSel(Document *doc)
 {
 	LINK staffL,aStaffL;
 
 	staffL = SSearch(doc->masterHeadL,STAFFtype,GO_RIGHT);
-	if (!LinkSEL(staffL)) return FALSE;
+	if (!LinkSEL(staffL)) return False;
 
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
-		if (StaffSEL(aStaffL)) return TRUE;
+		if (StaffSEL(aStaffL)) return True;
 		
-	return FALSE;
+	return False;
 }
 
 
-/* ------------------------------------------------ Group and Ungroup Parts, etc. -- */
+/* ----------------------------------------------------- Group and Ungroup Parts, etc. -- */
 
 static void GroupPartsDialog(Boolean *, short *);
 
@@ -1051,13 +1041,13 @@ static enum {
 } E_GroupPartsItems;
 
 static void GroupPartsDialog(
-				Boolean *pConnBars,		/* TRUE=extend barlines to connect staves */
+				Boolean *pConnBars,		/* True=extend barlines to connect staves */
 				short *pConnType)			/* CONNECTBRACKET or CONNECTCURLY */
 {
 	short itemHit;
 	static short radioGroup;
-	static Boolean firstCall=TRUE;
-	Boolean keepGoing=TRUE;
+	static Boolean firstCall=True;
+	Boolean keepGoing=True;
 	DialogPtr dlog; GrafPtr oldPort;
 	ModalFilterUPP	filterUPP;
 
@@ -1079,10 +1069,10 @@ static void GroupPartsDialog(
 
 	if (firstCall) {
 		radioGroup = RAD4_SQBRACKET;
-		firstCall = FALSE;
+		firstCall = False;
 	}
 
-	PutDlgChkRadio(dlog, radioGroup, TRUE);
+	PutDlgChkRadio(dlog, radioGroup, True);
 	PutDlgChkRadio(dlog,CHK6_EXTEND,*pConnBars);
 
 	PlaceWindow(GetDialogWindow(dlog),(WindowPtr)NULL,0,60);
@@ -1094,7 +1084,7 @@ static void GroupPartsDialog(
 		ModalDialog(filterUPP,&itemHit);
 		switch(itemHit) {
 			case BUT1_OK:
-				keepGoing = FALSE;
+				keepGoing = False;
 				break;
 			case RAD4_SQBRACKET:
 			case RAD5_CURLY:
@@ -1125,9 +1115,9 @@ void DoGroupParts(Document *doc)
 			aConnectL,connList,connL;
 	short minStf,maxStf, connType; DDIST connWidth;
 	PACONNECT aConnect;
-	static Boolean connBars=TRUE;				/* TRUE=extend barlines to connect staves */ 
+	static Boolean connBars=True;				/* True=extend barlines to connect staves */ 
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
+	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
 	if (!LinkSEL(staffL)) return;
 
 	GroupPartsDialog(&connBars, &connType);
@@ -1201,8 +1191,8 @@ void DoGroupParts(Document *doc)
 
 	}
 	
-	doc->grpChangedMP = TRUE;
-	doc->masterChanged = TRUE;
+	doc->grpChangedMP = True;
+	doc->masterChanged = True;
 	
 	GroupChangeParts(doc,minStf,maxStf,connBars,connType);
 	InvalWindow(doc);
@@ -1214,7 +1204,7 @@ void DoUngroupParts(Document *doc)
 	short minStf,maxStf,minGrpStf,maxGrpStf; DDIST connWidth;
 	PACONNECT aConnect,bConnect;
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
+	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
 	if (!LinkSEL(staffL)) return;
 
 	GetSelStaves(staffL,&minStf,&maxStf);
@@ -1261,14 +1251,14 @@ void DoUngroupParts(Document *doc)
 
 	UngroupChangeParts(doc,minStf,maxStf);
 	
-	doc->grpChangedMP = TRUE;
-	doc->masterChanged = TRUE;
+	doc->grpChangedMP = True;
+	doc->masterChanged = True;
 
 	InvalWindow(doc);
 }
 
 
-/* ------------------------------------------------- DoMake1StaffParts and allies -- */
+/* ------------------------------------------------------ DoMake1StaffParts and allies -- */
 
 static Boolean MPAdd1StaffParts(Document *, LINK, short, short);
 static void MPFinish1StaffParts(Document *, LINK, LINK);
@@ -1292,7 +1282,7 @@ static Boolean MPAdd1StaffParts(Document *doc, LINK prevPartL, short nadd,
 		list of parts after prevPartL. */
 
 	partList = HeapAlloc(PARTINFOheap,nadd);
-	if (!partList) { NoMoreMemory(); return FALSE; }
+	if (!partList) { NoMoreMemory(); return False; }
 
 	nextPartL = NextPARTINFOL(prevPartL);								/* OK if it's NILINK */
 
@@ -1319,7 +1309,7 @@ static Boolean MPAdd1StaffParts(Document *doc, LINK prevPartL, short nadd,
 	}
 
 	InvalWindow(doc);
-	return TRUE;
+	return True;
 }
 
 
@@ -1332,7 +1322,7 @@ static void MPFinish1StaffParts(Document *doc, LINK origPartL, LINK lastPartL)
 {
 	LINK connectL, aConnectL; PACONNECT aConnect; DDIST squareWider; short firstStf;
 	
-	connectL = LSSearch(doc->masterHeadL,CONNECTtype,ANYONE,GO_RIGHT,FALSE);
+	connectL = LSSearch(doc->masterHeadL,CONNECTtype,ANYONE,GO_RIGHT,False);
 	aConnectL = FirstSubLINK(connectL);
 	for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
 		aConnect = GetPACONNECT(aConnectL);
@@ -1361,12 +1351,12 @@ static Boolean IsTupletCrossStaff(LINK tupletL)
 	aNoteTupleL = FirstSubLINK(tupletL);
 	for ( ; aNoteTupleL; aNoteTupleL = NextNOTETUPLEL(aNoteTupleL)) {
 		aNoteTuple = GetPANOTETUPLE(aNoteTupleL);				/* Ptr to note info in TUPLET */
-		aNoteL = NoteInVoice(aNoteTuple->tpSync, tupVoice, FALSE);
-		if (!aNoteL) return TRUE;									/* Should never happen */
-		if (NoteSTAFF(aNoteL)!=tupStaff) return TRUE;
+		aNoteL = NoteInVoice(aNoteTuple->tpSync, tupVoice, False);
+		if (!aNoteL) return True;									/* Should never happen */
+		if (NoteSTAFF(aNoteL)!=tupStaff) return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -1474,7 +1464,7 @@ static LINK DefaultVoiceOnOtherStaff(Document *doc, LINK startL, LINK endL, shor
 
 static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 {
-	Boolean okay=TRUE;
+	Boolean okay=True;
 	LINK badL;
 	short firstBad, problemV;
 	char cantSplitPartStr[256], fmtStr[256];
@@ -1484,33 +1474,34 @@ static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 	if (!OnlyOnePart(doc,minStf,maxStf)) { 
 		GetIndCString(strBuf, MPERRS_STRS, 6);					/* "can Split only one Part at a time" */
 		CParamText(strBuf,	"", "", "");
-		okay = FALSE;
+		okay = False;
 	}
 	else if (maxStf-minStf+1<2) {
 		GetIndCString(strBuf, MPERRS_STRS, 8);					/* "has only one staff" */
 		CParamText(cantSplitPartStr, strBuf, "", "");
-		okay = FALSE;
+		okay = False;
 	}
 	else if (GroupIsSel(doc)) {
 		GetIndCString(strBuf, MPERRS_STRS, 9);					/* "it's within a group" */
 		CParamText(cantSplitPartStr, strBuf, "", "");
-		okay = FALSE;
+		okay = False;
 	}
-	else if (badL = XStfObjInRange(doc->headL, doc->tailL, minStf, maxStf)) {
+	else if ((badL = XStfObjInRange(doc->headL, doc->tailL, minStf, maxStf))) {
 		firstBad = GetMeasNum(doc, badL);
 		GetIndCString(fmtStr, MPERRS_STRS, 10);					/* "contains cross-staff..." */
 		sprintf(strBuf, fmtStr, firstBad);
 		CParamText(cantSplitPartStr, strBuf, "", "");
-		okay = FALSE;
+		okay = False;
 	}
-	else if (badL = HasVoiceOnMultipleStaves(doc->headL, doc->tailL, minStf, maxStf)) {
+	else if ((badL = HasVoiceOnMultipleStaves(doc->headL, doc->tailL, minStf, maxStf))) {
 		firstBad = GetMeasNum(doc, badL);
 		GetIndCString(fmtStr, MPERRS_STRS, 11);					/* "has a voice in use on two or more staves..." */
 		sprintf(strBuf, fmtStr, firstBad);
 		CParamText(cantSplitPartStr, strBuf, "", "");
-		okay = FALSE;
+		okay = False;
 	}
-	else if (badL = DefaultVoiceOnOtherStaff(doc, doc->headL, doc->tailL, minStf, maxStf, &problemV)) {
+	else if ((badL = DefaultVoiceOnOtherStaff(doc, doc->headL, doc->tailL, minStf, maxStf,
+						&problemV))) {
 	/* This part has at least one default voice with notes/rests on at least one staff
 		other than its "native" staff. That requires special attention, but we know from
 		the above tests that every voice appears on just one staff, and in such a case
@@ -1520,7 +1511,7 @@ static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 		GetIndCString(fmtStr, MPERRS_STRS, 13);					/* "has notes in a default voice..." */
 		sprintf(strBuf, fmtStr, problemV, problemV, firstBad);
 		CParamText(cantSplitPartStr, strBuf, "", "");
-		okay = FALSE;
+		okay = False;
 	}
 
 	if (!okay) StopInform(GENERIC2_ALRT);	
@@ -1536,11 +1527,11 @@ Boolean DoMake1StaffParts(Document *doc)
 	LINK staffL, aStaffL, partL, thePartL, newPartL; PASTAFF aStaff;
 	short minStf, maxStf, firstStf, lastStf, nStavesAdd;
 
-	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
-	if (!LinkSEL(staffL)) return FALSE;
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);
+	if (!LinkSEL(staffL)) return False;
 
 	GetSelStaves(staffL, &minStf, &maxStf);
-	if (!OKMake1StaffParts(doc, minStf, maxStf)) return FALSE;
+	if (!OKMake1StaffParts(doc, minStf, maxStf)) return False;
 	
 	partL = FirstSubLINK(doc->masterHeadL);
 	for (partL = NextPARTINFOL(partL); partL; partL = NextPARTINFOL(partL)) {
@@ -1560,28 +1551,29 @@ Boolean DoMake1StaffParts(Document *doc)
 	aStaffL = StaffOnStaff(staffL, PartFirstSTAFF(thePartL));
 	aStaff = GetPASTAFF(aStaffL);
 	
-	doc->partChangedMP = TRUE;
-	doc->masterChanged = TRUE;
+	doc->partChangedMP = True;
+	doc->masterChanged = True;
 
 	/* Finish transforming the Master Page object list, and start the machinery that
-		(if the user saves changes when they leave Master Page) will make the same
+		(assuming the user saves changes when they leave Master Page) will make the same
 		changes to the main score object list. */
 	
-	if (newPartL = MPAdd1StaffParts(doc,thePartL,nStavesAdd,aStaff->showLines)) {
+	newPartL = MPAdd1StaffParts(doc,thePartL,nStavesAdd,aStaff->showLines);
+	if (newPartL) {
 		MPFinish1StaffParts(doc,thePartL, newPartL);
 		
 		Make1StaffChangeParts(doc,firstStf,nStavesAdd,aStaff->showLines);
 		
-		return TRUE;
+		return True;
 	}
 
-	return FALSE;
+	return False;
 }
 
 
-/* ---------------------------------------------------- MPDistributeStaves --- */
-/* Given 3 or more staves in the selection, distribute them vertically with
-the same distance between them. Contributed by Tim Crawford, Sept. '96. */
+/* ---------------------------------------------------------------- MPDistributeStaves -- */
+/* Given three or more staves in the selection, distribute them vertically with the
+same distance between each pair. Contributed by Tim Crawford, Sept. 1996. */
 
 void MPDistributeStaves(Document *doc)
 {
@@ -1590,7 +1582,7 @@ void MPDistributeStaves(Document *doc)
 	long botStaffHeight, topStaffHeight, vertDisplacement, displacementFactor,
 			staffTopPos;
 
-	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);
 	if (!LinkSEL(staffL)) return;
 
 	GetSelStaves(staffL, &minStf, &maxStf);
@@ -1610,14 +1602,13 @@ void MPDistributeStaves(Document *doc)
 				vertDisplacement = ((i-minStf)*displacementFactor)-StaffTOP(aStaffL);
 				if (vertDisplacement) {
 					staffTopPos = d2pt(vertDisplacement+topStaffHeight);
-					staffTopPos <<= 16;			/* value needs to be in high word of number */
+					staffTopPos <<= 16;				/* value needs to be in high word of number */
 					UpdateDraggedStaff(doc, staffL, aStaffL, staffTopPos);
 					i++;
 				}
 			}
 		}
-		doc->masterChanged = TRUE;
+		doc->masterChanged = True;
 	}
 	InvalWindow(doc);
 }
-

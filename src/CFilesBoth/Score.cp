@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	Score.c
 *	PROJ:	Nightingale
 *	DESC:	Large-scale score data structure manipulation routines:
@@ -15,7 +15,7 @@
 		MakeTimeSig				MakeMeasure				CreateSysFixContext
 		CreateSystem			AddPage					CreatePage
 		ScrollToPage			GoTo					GoToSel
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -40,7 +40,7 @@ static void CreateSysFixContext(Document *, LINK, LINK, short);
 static void ScrollToLink(Document *, LINK);
 
 
-/* ------------------------------------------------------------- InitN103FontRecs -- */
+/* ------------------------------------------------------------------ InitN103FontRecs -- */
 /* Init just the font records introduced in file version N103. Called when converting
 older files (in File.c) and from InitFontRecs below.   -JGG, 3/20/01 */
 
@@ -51,30 +51,30 @@ void InitN103FontRecs(Document *doc)
 	GetIndString(fontReg1, FONT_STRS, 1);    						/* "Times" */
 
 	Pstrcpy((StringPtr)doc->fontName6, (StringPtr)fontReg1);		/* Regular font 6 */
-		doc->lyric6 = FALSE;
+		doc->lyric6 = False;
 		doc->enclosure6 = ENCL_NONE;
-		doc->relFSize6 = TRUE;													
+		doc->relFSize6 = True;													
 		doc->fontSize6 = GRMedium;						
 		doc->fontStyle6 = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontName7, (StringPtr)fontReg1);		/* Regular font 7 */
-		doc->lyric7 = FALSE;
+		doc->lyric7 = False;
 		doc->enclosure7 = ENCL_NONE;
-		doc->relFSize7 = TRUE;													
+		doc->relFSize7 = True;													
 		doc->fontSize7 = GRMedium;						
 		doc->fontStyle7 = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontName8, (StringPtr)fontReg1);		/* Regular font 8 */
-		doc->lyric8 = FALSE;
+		doc->lyric8 = False;
 		doc->enclosure8 = ENCL_NONE;
-		doc->relFSize8 = TRUE;													
+		doc->relFSize8 = True;													
 		doc->fontSize8 = GRMedium;						
 		doc->fontStyle8 = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontName9, (StringPtr)fontReg1);		/* Regular font 9 */
-		doc->lyric9 = FALSE;
+		doc->lyric9 = False;
 		doc->enclosure9 = ENCL_NONE;
-		doc->relFSize9 = TRUE;													
+		doc->relFSize9 = True;													
 		doc->fontSize9 = GRMedium;						
 		doc->fontStyle9 = 0;										/* Plain */
 
@@ -82,7 +82,7 @@ void InitN103FontRecs(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------- InitFontRecs -- */
+/* ---------------------------------------------------------------------- InitFontRecs -- */
 
 void InitFontRecs(Document *doc)
 {
@@ -96,79 +96,79 @@ void InitFontRecs(Document *doc)
 	GetIndString(fontSp2, FONT_STRS, 4);    						/* "Helvetica" */
 
 	Pstrcpy((StringPtr)doc->fontNameMN, (StringPtr)fontSp1);		/* Measure no. font */
-		doc->lyricMN = FALSE;
+		doc->lyricMN = False;
 		doc->enclosureMN = ENCL_NONE;
-		doc->relFSizeMN = TRUE;													
+		doc->relFSizeMN = True;													
 		doc->fontSizeMN = GRLarge;						
 		doc->fontStyleMN = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontNamePN, (StringPtr)fontSp1);		/* Part name font */
-		doc->lyricPN = FALSE;
+		doc->lyricPN = False;
 		doc->enclosurePN = ENCL_NONE;
-		doc->relFSizePN = TRUE;													
+		doc->relFSizePN = True;													
 		doc->fontSizePN = GRLarge;						
 		doc->fontStylePN = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontNameRM, (StringPtr)fontSp2); 		/* Rehearsal mark font */
-		doc->lyricRM = FALSE;
+		doc->lyricRM = False;
 		doc->enclosureRM = ENCL_BOX;
-		doc->relFSizeRM = TRUE;													
+		doc->relFSizeRM = True;													
 		doc->fontSizeRM = GRVLarge;						
 		doc->fontStyleRM = bold;
 
 	Pstrcpy((StringPtr)doc->fontName1, (StringPtr)fontReg1);		/* Regular font 1 */
-		doc->lyric1 = FALSE;
+		doc->lyric1 = False;
 		doc->enclosure1 = ENCL_NONE;
-		doc->relFSize1 = TRUE;													
+		doc->relFSize1 = True;													
 		doc->fontSize1 = GRMedium;						
 		doc->fontStyle1 = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontName2, (StringPtr)fontReg1);		/* Regular font 2 */
-		doc->lyric2 = FALSE;
+		doc->lyric2 = False;
 		doc->enclosure2 = ENCL_NONE;
-		doc->relFSize2 = TRUE;													
+		doc->relFSize2 = True;													
 		doc->fontSize2 = GRMedium;						
 		doc->fontStyle2 = italic;
 
 	Pstrcpy((StringPtr)doc->fontName3, (StringPtr)"\pSonata");		/* Regular font 3 */
-		doc->lyric3 = FALSE;
+		doc->lyric3 = False;
 		doc->enclosure3 = ENCL_NONE;
-		doc->relFSize3 = TRUE;													
+		doc->relFSize3 = True;													
 		doc->fontSize3 = GRStaffHeight;						
 		doc->fontStyle3 = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontName4, (StringPtr)fontReg1);		/* Regular font 4 */
-		doc->lyric4 = TRUE;
+		doc->lyric4 = True;
 		doc->enclosure4 = ENCL_NONE;
-		doc->relFSize4 = TRUE;
+		doc->relFSize4 = True;
 		doc->fontSize4 = GRMedium;						
 		doc->fontStyle4 = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontNameTM, (StringPtr)fontSp1);		/* Tempo mark font */
-		doc->lyricTM = FALSE;
+		doc->lyricTM = False;
 		doc->enclosureTM = ENCL_NONE;
-		doc->relFSizeTM = TRUE;
+		doc->relFSizeTM = True;
 		doc->fontSizeTM = GRVLarge;						
 		doc->fontStyleTM = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontNameCS, (StringPtr)fontSp2);		/* Chord symbol font */
-		doc->lyricCS = FALSE;
+		doc->lyricCS = False;
 		doc->enclosureCS = ENCL_NONE;
-		doc->relFSizeCS = TRUE;
+		doc->relFSizeCS = True;
 		doc->fontSizeCS = GRLarge;						
 		doc->fontStyleCS = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontNamePG, (StringPtr)fontSp1);		/* Page font */
-		doc->lyricPG = FALSE;
+		doc->lyricPG = False;
 		doc->enclosurePG = ENCL_NONE;
-		doc->relFSizePG = FALSE;													
+		doc->relFSizePG = False;													
 		doc->fontSizePG = 12;						
 		doc->fontStylePG = 0;										/* Plain */
 
 	Pstrcpy((StringPtr)doc->fontName5, (StringPtr)fontReg2);		/* Regular font 5 */
-		doc->lyric5 = FALSE;
+		doc->lyric5 = False;
 		doc->enclosure5 = ENCL_NONE;
-		doc->relFSize5 = FALSE;
+		doc->relFSize5 = False;
 		doc->fontSize5 = 24;
 		doc->fontStyle5 = 0;										/* Plain */
 
@@ -181,7 +181,7 @@ void InitFontRecs(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- FixGraphicFont -- */
+/* -------------------------------------------------------------------- FixGraphicFont -- */
 /* Insure that the given Graphic refers to the correct font in the score's <fontTable>,
 adding a new font to fontTable if necessary (in FontName2Index). Intended for use in
 pasting and similar operations. */
@@ -199,17 +199,17 @@ void FixGraphicFont(Document *doc, LINK pL)
 }
 
 
-/* ------------------------------------------------------------------ NewDocScore -- */
+/* ----------------------------------------------------------------------- NewDocScore -- */
 /*	Create a virgin score and (unless doc is the clipboard) Master Page. Assumes
-doc->headL and doc->tailL already exist. Return TRUE if we succeed, FALSE if we
+doc->headL and doc->tailL already exist. Return True if we succeed, False if we
 find a problem (usually out of memory). */
 
 Boolean NewDocScore(Document *doc)
 {
-	LINK		pL, qL, headL, tailL;
-	PPAGE		pPage;
-	DDIST		sysTop;
-	short		i;
+	LINK	pL, qL, headL, tailL;
+	PPAGE	pPage;
+	DDIST	sysTop;
+	short	i;
 	
 	doc->ledgerYSp = 2*config.defaultLedgers+2;
 	initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastral]/STFHALFLNS);
@@ -227,21 +227,21 @@ Boolean NewDocScore(Document *doc)
 	 */
 	if (LinkNENTRIES(headL)!=2) {							/* Only shrink if necessary. */
 		GrowObject(doc, headL, -LinkNENTRIES(headL)+2);		/* Set to 2 subobjects. */
-		InitObject(headL, NILINK, tailL, 0, 0, FALSE, FALSE, TRUE);
+		InitObject(headL, NILINK, tailL, 0, 0, False, False, True);
 	}
 
 	doc->feedback = config.midiFeedback;					/* Someday debug and use MIDIConnected */
-	doc->polyTimbral = TRUE;
-	doc->dontSendPatches = FALSE;
+	doc->polyTimbral = True;
+	doc->dontSendPatches = False;
 	doc->tempo = 999;										/* No longer used */
 
 	doc->omsInputDevice = config.defaultInputDevice;
 	for (i=0; i<MAXSTAVES; i++)
 		doc->omsPartDeviceList[i] = config.defaultOutputDevice;
 
-	doc->cmInputDevice = config.cmDefaultInputDevice;
+	doc->cmInputDevice = config.cmDfltInputDev;
 	
-	MIDIUniqueID cmDefaultID = config.cmDefaultOutputDevice;
+	MIDIUniqueID cmDefaultID = config.cmDfltOutputDev;
 	if (cmDefaultID == kInvalidMIDIUniqueID)
 		cmDefaultID = gAuMidiControllerID;
 	
@@ -250,11 +250,11 @@ Boolean NewDocScore(Document *doc)
 
 	doc->channel = config.defaultChannel;
 	doc->velocity = 1;
-	doc->changed = doc->saved = FALSE;
-	doc->named = doc->used = FALSE;
-	doc->hasCaret = FALSE;
+	doc->changed = doc->saved = False;
+	doc->named = doc->used = False;
+	doc->hasCaret = False;
 	doc->transposed = 0;
-	doc->lyricText = FALSE;									/* No longer used */
+	doc->lyricText = False;									/* No longer used */
 	doc->spacePercent = 100;
 	doc->nstaves = 0;
 	
@@ -275,30 +275,30 @@ Boolean NewDocScore(Document *doc)
 	
 	qL = headL;
 	pL = InsertNode(doc, RightLINK(qL), PAGEtype, 0);
-	if (!pL) { NoMoreMemory(); return FALSE; }
+	if (!pL) { NoMoreMemory(); return False; }
 	
-	SetObject(pL, 0, 0, FALSE, TRUE, TRUE);
-	LinkTWEAKED(pL) = FALSE;
+	SetObject(pL, 0, 0, False, True, True);
+	LinkTWEAKED(pL) = False;
 	qL = RightLINK(headL) = pL;
 	pPage = GetPPAGE(pL);
 	pPage->lPage = pPage->rPage = NILINK;
 	pPage->sheetNum = 0;
 
 	sysTop = SYS_TOP(doc)+pt2d(config.titleMargin);
-	if (!CreateSystem(doc, qL, sysTop, FirstSystem)) return FALSE;
+	if (!CreateSystem(doc, qL, sysTop, FirstSystem)) return False;
 	doc->selStartL = doc->selEndL = doc->tailL;
 	doc->yBetweenSys = 0;
 
-	if (doc!=clipboard) NewMasterPage(doc, sysTop, FALSE);
-	BuildVoiceTable(doc, TRUE);
+	if (doc!=clipboard) NewMasterPage(doc, sysTop, False);
+	BuildVoiceTable(doc, True);
 	
-	return TRUE;
+	return True;
 }
 
 
-/* ---------------------------------------------------------------- GetSysHeight -- */
-/* Get the "normal" height of the given system, either from an adjacent system or
-(if it's the only system of the score) from the default. */
+/* ---------------------------------------------------------------------- GetSysHeight -- */
+/* Get the "normal" height of the given System, either from an adjacent System or
+(if it's the only System of the score) from the default. */
 
 DDIST GetSysHeight(Document *doc,
 					LINK sysL,
@@ -316,8 +316,8 @@ DDIST GetSysHeight(Document *doc,
 }
 
 
-/* -------------------------------------------------------------- FixTopSystemYs -- */
-/* Fix the systemRect tops and bottoms for every page top system in the range
+/* -------------------------------------------------------------------- FixTopSystemYs -- */
+/* Fix the systemRect tops and bottoms for every Page top System in the range
 [startSysL,endSysL). */
 
 void FixTopSystemYs(Document *doc, LINK startSysL, LINK endSysL)
@@ -335,27 +335,27 @@ void FixTopSystemYs(Document *doc, LINK startSysL, LINK endSysL)
 }
 
 
-/* ------------------------------------------------------------- PageFixSysRects -- */
-/* Using the systemRect.top for the first system, fix up systemRect.tops for all
+/* ------------------------------------------------------------------- PageFixSysRects -- */
+/* Using the systemRect.top for the first System, fix up systemRect.tops for all
 other systems and systemRect.bottoms for all systems on pageL. Optionally use the
-measureRect.bottom for the bottom staff in the first measure of the first system
+measureRect.bottom for the bottom staff in the first measure of the first System
 to reset all systemRect heights (this may be dangerous if not all systems have
 the same visibility of staves!). Otherwise preserve the current systemRect heights.
-FIXME: It's not obvious this function works correctly if there's only system per
-page, and it's not obvious that prevSysBottom and sysHeight get set correctly or at
+FIXME: It's not obvious this function works correctly if there's only System per
+Page, and it's not obvious that prevSysBottom and sysHeight get set correctly or at
 all in all cases. */
 
 void PageFixSysRects(
 			Document *doc,
 			LINK pageL,
-			Boolean setSysHts 	/* TRUE=reset systemRect heights from first Measure measureRect */
+			Boolean setSysHts 	/* True=reset systemRect heights from first Measure measureRect */
 			)
 {
 	LINK prevSysL, sysL, measL, aMeasL;
 	register PSYSTEM pSystem;
 	DDIST prevSysBottom, sysHeight;
 
-	sysL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+	sysL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 
 	for (prevSysL = sysL; sysL; prevSysL=sysL,sysL=LinkRSYS(sysL)) {
 
@@ -363,7 +363,7 @@ void PageFixSysRects(
 
 		if (FirstSysInPage(sysL)) {
 			if (setSysHts) {
-				measL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+				measL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 				aMeasL = MeasOnStaff(measL, doc->nstaves);
 				sysHeight = MeasMRECT(aMeasL).bottom;
 			}
@@ -383,32 +383,32 @@ void PageFixSysRects(
 		pSystem = GetPSYSTEM(sysL);
 		pSystem->systemRect.bottom = pSystem->systemRect.top+sysHeight;
 		prevSysBottom = pSystem->systemRect.bottom;
-		LinkVALID(sysL) = FALSE;
+		LinkVALID(sysL) = False;
 	}
 }
 
 
-/* ------------------------------------------------------------- FixSystemRectYs -- */
-/* On each Page, using the systemRect.top for the first system, fix up systemRect
-.tops for all other systems and systemRect.bottoms for all systems. Optionally use
-the measureRect.bottom for the first measure of the first system to reset all
+/* ------------------------------------------------------------------- FixSystemRectYs -- */
+/* On each Page, using the systemRect.top for the first System, fix up systemRect
+.tops for all other systems and systemRect.bottoms for all Systems. Optionally use
+the measureRect.bottom for the first measure of the first System to reset all
 systemRect heights; otherwise preserve the current systemRect heights. */
 
 void FixSystemRectYs(
 		Document *doc,
-		Boolean setSysHts 	/* TRUE=reset systemRect heights from top sys measureRect */
+		Boolean setSysHts 	/* True=reset systemRect heights from top sys measureRect */
 		)
 {
 	LINK pageL;
 
-	pageL = LSSearch(doc->headL, PAGEtype, ANYONE, GO_RIGHT, FALSE);
+	pageL = LSSearch(doc->headL, PAGEtype, ANYONE, GO_RIGHT, False);
 
 	for ( ; pageL; pageL = LinkRPAGE(pageL))
 		PageFixSysRects(doc, pageL, setSysHts);
 }
 
 
-/* -------------------------------------------------------------- FillStaffArray -- */
+/* -------------------------------------------------------------------- FillStaffArray -- */
 /* Fill an array of LINKs to Staff subobjects, indexed by the staffn of the
 subobjects. The array is assumed to have space allocated for at least MAXSTAVES+1
 LINKs. Search right from startL for the first Staff object; if it is found, use
@@ -418,7 +418,7 @@ LINK FillStaffArray(Document */*doc*/, LINK startL, LINK staves[])
 {
 	LINK staffL, aStaffL;
 
-	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_RIGHT, False);
 	if (staffL) {
 		aStaffL = FirstSubLINK(staffL);
 		for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
@@ -429,29 +429,29 @@ LINK FillStaffArray(Document */*doc*/, LINK startL, LINK staves[])
 }
 
 
-/* ----------------------------------------------------------- FillStaffTopArray -- */
-/* Fill an array of staffTop positions, indexed by the staffn of the staves.
-Search right from startL for the first staff object; if it is found, use it
-to fill the array, and return TRUE; else return FALSE. */
+/* ----------------------------------------------------------------- FillStaffTopArray -- */
+/* Fill an array of staffTop positions, indexed by the staffn of the staves. Search
+right from startL for the first staff object; if it is found, use it to fill the array,
+and return True; else return False. */
 
 Boolean FillStaffTopArray(Document */*doc*/, LINK startL, DDIST staffTop[])
 {
 	LINK staffL, aStaffL;  PASTAFF aStaff;
 
-	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_RIGHT, False);
 	if (staffL) {
 		aStaffL = FirstSubLINK(staffL);
 		for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 			aStaff = GetPASTAFF(aStaffL);
 			staffTop[StaffSTAFF(aStaffL)] = aStaff->staffTop;
 		}
-		return TRUE;
+		return True;
 	}
-	return FALSE;
+	return False;
 }
 
 
-/* ------------------------------------------------------------- UpdateStaffTops -- */
+/* ------------------------------------------------------------------- UpdateStaffTops -- */
 /* Update the staffTop fields of all Staff subobjects in range [startL, endL): set
 each to the corresponding value in the <staffTop> array. FIXME: MasterPage.c should
 call this instead of its own version. */
@@ -472,7 +472,7 @@ void UpdateStaffTops(Document */*doc*/,					/* unused */
 		}
 }
 
-/* ------------------------------------------------------------ PageFixMeasRects -- */
+/* ------------------------------------------------------------------ PageFixMeasRects -- */
 /* Fix up measureRect tops and bottoms for all measures on Page <pageL>. We do
 this based mostly on Staff positions and sizes. */
 
@@ -480,7 +480,7 @@ static void PageFixMeasRects(
 					Document *doc,
 					LINK pageL,
 					Boolean useLedg,
-					Boolean masterPg		/* TRUE=use the masterSystem to fix measRects */
+					Boolean masterPg		/* True=use the masterSystem to fix measRects */
 					)
 {
 	LINK sysL, staffL, staves[MAXSTAVES+1];
@@ -489,14 +489,12 @@ static void PageFixMeasRects(
 	DRect sysRect;
 
 	staffL = FillStaffArray(doc, pageL, staves);
-	measL = LSSearch(pageL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	measL = LSSearch(pageL, MEASUREtype, ANYONE, GO_RIGHT, False);
 
 	for (prevMeasL=measL; measL; prevMeasL=measL, measL=LinkRMEAS(measL)) {
-
 		if (MeasPAGE(prevMeasL)!=MeasPAGE(measL)) break;
 
-		LinkVALID(measL) = FALSE;
-
+		LinkVALID(measL) = False;
 		aMeasL = FirstSubLINK(measL);
 		for (; aMeasL; aMeasL = NextMEASUREL(aMeasL))
 			measures[MeasureSTAFF(aMeasL)] = aMeasL;
@@ -517,14 +515,14 @@ static void PageFixMeasRects(
 			aMeas->measSizeRect.bottom = MEAS_BOTTOM(aStaff->staffTop, aStaff->staffHeight);
 		else {
 			/*
-			 * Set the measSizeRect.bottom of the last measure subobj in the system.
+			 * Set the measSizeRect.bottom of the last measure subobj in the System.
 			 * measSizeRect is v-relative to systemTop, so the last meas subobj's
 			 * measSizeRect.bottom will just be the sysHeight.
 			 */
 			if (masterPg)
 				sysL = SSearch(doc->masterHeadL, SYSTEMtype, GO_RIGHT);
 			else
-				sysL = LSSearch(measL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+				sysL = LSSearch(measL, SYSTEMtype, ANYONE, GO_LEFT, False);
 
 			sysRect = SystemRECT(sysL);
 			aMeas->measSizeRect.bottom = sysRect.bottom - sysRect.top;
@@ -548,37 +546,37 @@ static void PageFixMeasRects(
 }
 
 
-/* --------------------------------------------------------------- FixMeasRectYs -- */
+/* --------------------------------------------------------------------- FixMeasRectYs -- */
 /* Set all Measure subobjects' measSizeRect.tops and .bottoms from Staff tops
 and heights.  Also optionally set the Systems' systemRect.tops and .bottoms. If
 pageL is NILINK, do this for the entire score; otherwise pageL should be a Page
-object, and we do it for that page only. */
+object, and we do it for that Page only. */
 
 void FixMeasRectYs(
 		Document *doc,
 		LINK 	pageL,		/* Page to fix up, or NILINK for entire score */
-		Boolean	fixSys,		/* TRUE=fix up systemRects as well */
-		Boolean	useLedg,	/* TRUE=set measSizeRect on bottom stf from doc->ledgerYSp */
-		Boolean	masterPg	/* TRUE=use the masterSystem to fix meas/sysRects */
+		Boolean	fixSys,		/* True=fix up systemRects as well */
+		Boolean	useLedg,	/* True=set measSizeRect on bottom stf from doc->ledgerYSp */
+		Boolean	masterPg	/* True=use the masterSystem to fix meas/sysRects */
 		)
 {
 	if (pageL==NILINK) {
-		pageL = LSSearch(doc->headL, PAGEtype, ANYONE, GO_RIGHT, FALSE);
+		pageL = LSSearch(doc->headL, PAGEtype, ANYONE, GO_RIGHT, False);
 		for ( ; pageL; pageL = LinkRPAGE(pageL)) {
 			PageFixMeasRects(doc, pageL, useLedg, masterPg);
 			if (fixSys)
-				PageFixSysRects(doc, pageL, TRUE);
+				PageFixSysRects(doc, pageL, True);
 		}
 	}
 	else {
 		PageFixMeasRects(doc, pageL, useLedg, masterPg);
 		if (fixSys)
-			PageFixSysRects(doc, pageL, TRUE);
+			PageFixSysRects(doc, pageL, True);
 	}
 }
 
 
-/* --------------------------------------------------------------- FixMeasRectXs -- */
+/* --------------------------------------------------------------------- FixMeasRectXs -- */
 /* Fix the measSizeRect.left and .right for every Measure from <startBarL> to
 <endBarL> so each ends where the next one begins, except for the last Measures
 of Systems, which are made to extend to the end of their System. <startBarL> must
@@ -590,14 +588,14 @@ Boolean FixMeasRectXs(LINK startBarL, LINK endBarL)
 	DDIST	measWidth;
 	
 	if (!MeasureTYPE(startBarL))
-		startBarL = LSSearch(startBarL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		startBarL = LSSearch(startBarL, MEASUREtype, ANYONE, GO_LEFT, False);
 	if (endBarL && !MeasureTYPE(endBarL))
-		endBarL = LSSearch(endBarL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
-	if (!startBarL) return FALSE;
+		endBarL = LSSearch(endBarL, MEASUREtype, ANYONE, GO_LEFT, False);
+	if (!startBarL) return False;
 
 	for (barL = startBarL; barL; barL = LinkRMEAS(barL)) {
 		if (LastMeasInSys(barL))
-			MeasFillSystem(barL);
+			SetMeasFillSystem(barL);
 		else {
 			measWidth = LinkXD(LinkRMEAS(barL))-LinkXD(barL);
 			if (measWidth<=0) {
@@ -612,10 +610,10 @@ Boolean FixMeasRectXs(LINK startBarL, LINK endBarL)
 		if (barL==endBarL) break;
 	}
 	
-	return TRUE;
+	return True;
 }
 
-/* ------------------------------------------------------------ FixSysMeasRectXs -- */
+/* ------------------------------------------------------------------ FixSysMeasRectXs -- */
 /* Fix the measSizeRect.left and .right for every Measure in sysL. sysL must be
 a LINK to a System obj. */
 
@@ -623,24 +621,23 @@ Boolean FixSysMeasRectXs(LINK sysL)
 {
 	LINK firstMeasL, lastMeasL, endRangeL;
 	
-	firstMeasL = LSISearch(RightLINK(sysL), MEASUREtype, ANYONE, GO_RIGHT, FALSE);
-	if (!firstMeasL) return FALSE;
+	firstMeasL = LSISearch(RightLINK(sysL), MEASUREtype, ANYONE, GO_RIGHT, False);
+	if (!firstMeasL) return False;
 	endRangeL = LinkRSYS(sysL);
 
-	lastMeasL = endRangeL ? LSSearch(endRangeL, MEASUREtype, ANYONE, GO_LEFT, FALSE) : NILINK;
+	lastMeasL = endRangeL ? LSSearch(endRangeL, MEASUREtype, ANYONE, GO_LEFT, False) : NILINK;
 	
 	InvalRange(firstMeasL, lastMeasL);
 	return FixMeasRectXs(firstMeasL, lastMeasL);
 }
 
-/* -------------------------------------------------------------- SetStaffLength -- */
-/* Update the object list appropriately for the new staff length.  If there's
-any content in the score, it's dangerous to let this routine decrease the width
-of the Systems, since it doesn't worry about redoing system breaks and so on.
-All it does is change the page width in the header (since for now we have a
-fixed right margin width), the systemRect.right in each System, the staff width
-in each Staff subobject, and the measure width in every Measure subobject that
-ends a System. */
+/* -------------------------------------------------------------------- SetStaffLength -- */
+/* Update the object list appropriately for the new staff length.  If there's any
+content in the score, it's dangerous to let this routine decrease the width of the
+Systems, since it doesn't worry about redoing System breaks and so on. All it does
+is change the Page width in the header (since for now we have a fixed right margin
+width), the systemRect.right in each System, the staff width in each Staff subobject,
+and the measure width in every Measure subobject that ends a System. */
  
 void SetStaffLength(Document *doc, short staffLength)
 {
@@ -650,14 +647,14 @@ void SetStaffLength(Document *doc, short staffLength)
 	LINK		pL, pMeasL, aStaffL, aMeasureL;
 	DDIST		dStaffLength;
 
-	dStaffLength = pt2d(staffLength)-doc->firstIndent;			/* For first System only */
+	dStaffLength = pt2d(staffLength)-doc->dIndentFirst;					/* For first System only */
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
 			case SYSTEMtype:
 				pSys = GetPSYSTEM(pL);
 				if (pSys->systemNum>1)
-					dStaffLength = pt2d(staffLength)-doc->otherIndent;	/* For all other Systems */
+					dStaffLength = pt2d(staffLength)-doc->dIndentOther;	/* For all other Systems */
 				pSys->systemRect.right = pSys->systemRect.left+dStaffLength;
 				break;
 			case STAFFtype:
@@ -671,22 +668,21 @@ void SetStaffLength(Document *doc, short staffLength)
 				;
 		}
 		
-	pMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, FALSE, FALSE);
-	for ( ; pMeasL; pMeasL = LinkRMEAS(pMeasL))
-	{
+	pMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, False, False);
+	for ( ; pMeasL; pMeasL = LinkRMEAS(pMeasL)) {
 		if (LastMeasInSys(pMeasL)) {
 			aMeasureL = FirstSubLINK(pMeasL);
 			for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 				aMeasure = GetPAMEASURE(aMeasureL);
 				aMeasure->measSizeRect.right = dStaffLength-LinkXD(pMeasL);
 			}
-			LinkVALID(pMeasL) = FALSE;							/* So measureBBox will get updated */
+			LinkVALID(pMeasL) = False;							/* So measureBBox will get updated */
 		}
 	}
 }
 
 
-/* ------------------------------------------------------------------- SetStaffSize -- */
+/* ---------------------------------------------------------------------- SetStaffSize -- */
 /* Fix values in object list in non-structural objects, Measure widths, and Staffs
 for new staff size.  N.B. Does NOT adjust Staff or Measure y-coordinates, measSizeRect
 heights, or anything in System objects (e.g., systemRect). */
@@ -859,12 +855,15 @@ void SetStaffSize(Document */*doc*/, LINK headL, LINK tailL, short oldRastral, s
 }
 
 
-/* ------------------------------------------------------------- ChangeSysIndent -- */
+/* ------------------------------------------------------------------- ChangeSysIndent -- */
 
 Boolean ChangeSysIndent(Document *doc, LINK sysL, DDIST change)
 {
-	LINK staffL, aStaffL, measL, aMeasL, endL;  DDIST sysWidth;
-	PSYSTEM pSystem;  PASTAFF aStaff;  PAMEASURE aMeasure;
+	LINK staffL, aStaffL, measL, aMeasL, endL; 
+	DDIST sysWidth;
+	PSYSTEM pSystem; 
+	PASTAFF aStaff;
+	PAMEASURE aMeasure;
 
 	pSystem = GetPSYSTEM(sysL);
 	sysWidth = pSystem->systemRect.right-pSystem->systemRect.left;
@@ -872,11 +871,11 @@ Boolean ChangeSysIndent(Document *doc, LINK sysL, DDIST change)
 		GetIndCString(strBuf, MISCERRS_STRS, 17);			/* "That much indent would make the system less than 1 inch long." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	pSystem->systemRect.left += change;
 	
-	staffL = LSSearch(sysL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	staffL = LSSearch(sysL, STAFFtype, ANYONE, GO_RIGHT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 		aStaff = GetPASTAFF(aStaffL);
@@ -886,7 +885,7 @@ Boolean ChangeSysIndent(Document *doc, LINK sysL, DDIST change)
 	endL = EndSystemSearch(doc, sysL);
 	InvalRange(staffL, endL);
 
-	measL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	measL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	for ( ; measL; measL = LinkRMEAS(measL))
 		if (LastMeasInSys(measL)) {
 			aMeasL = FirstSubLINK(measL);
@@ -894,71 +893,72 @@ Boolean ChangeSysIndent(Document *doc, LINK sysL, DDIST change)
 				aMeasure = GetPAMEASURE(aMeasL);
 				aMeasure->measSizeRect.right += change;
 			}
-			LinkVALID(measL) = FALSE;
-			break;											/* Last meas. of this system only */
+			LinkVALID(measL) = False;
+			break;											/* Last meas. of this System only */
 		}
 
-	return TRUE;
+	return True;
 }
 
 
-/* ------------------------------------------------------------------ IndentSystems -- */
-/* Increase indent of system(s) in the Document by <changeIndent>. If <first>, do
-the first system only; otherwise do every system but the first. */
+/* --------------------------------------------------------------------- IndentSystems -- */
+/* Increase indent of System(s) in the Document by <changeIndent>. If <first>, do
+the first System only; otherwise do every System but the first. */
 
 Boolean IndentSystems(Document *doc, DDIST changeIndent, Boolean first)
 {
-	LINK systemL, link;  Boolean didSmthg=FALSE;
+	LINK systemL, link;  Boolean didSmthg=False;
 	
-	if (changeIndent==0) return FALSE;
+	if (changeIndent==0) return False;
 	
-	systemL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+	systemL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	
 	if (first) {
-		if (ChangeSysIndent(doc, systemL, changeIndent)) didSmthg = TRUE;
+		if (ChangeSysIndent(doc, systemL, changeIndent)) didSmthg = True;
 	}
 	else {
 		for (link = LinkRSYS(systemL); link; link = LinkRSYS(link)) {
-			if (ChangeSysIndent(doc, link, changeIndent)) didSmthg = TRUE;
+			if (ChangeSysIndent(doc, link, changeIndent)) didSmthg = True;
 		}
 	}
 	
-	if (didSmthg) doc->changed = TRUE;
+	if (didSmthg) doc->changed = True;
 	return didSmthg;
 }
 
 
-/* -------------------------------------------------------------- AddSysInsertPt -- */
-/* Return an insertion point for Add System, when the caller wishes to add a
-system at pL. AddSystem must be called with the page, system or tail object
-before which to add the system.
-Assumes system is to be added before the page or system following the system
-containing the insertion point defined by pL, or the system containing pL, if
-there is a non-empty selRange, unless pL is beforeFirstMeas, in which case system
-is to be added before the system containing pL. If pL is in the final system, add
-new system before the tail. If pL is before any system (pathological case, resulting
+/* -------------------------------------------------------------------- AddSysInsertPt -- */
+/* Return an insertion point for Add System, when the caller wishes to add a System
+at pL. AddSystem must be called with the Page, System or tail object before which to
+add the System.
+
+Assumes System is to be added before the Page or System following the System
+containing the insertion point defined by pL, or the System containing pL, if
+there is a non-empty selRange, unless pL is beforeFirstMeas, in which case System
+is to be added before the System containing pL. If pL is in the final System, add
+new System before the tail. If pL is before any System (pathological case, resulting
 from Select All), add at the end of the score. */
 
 LINK AddSysInsertPt(Document *doc, LINK pL, short *where)
 {
 	LINK insertL;
 	
-	/* If pL is a Page, BeforeFirstMeas will return TRUE if pL is the first page
-		of the score; else FALSE. This is accidentally correct here: if we are
-		before any system, BeforeFirstMeas returns TRUE, we search right for a
-		system, don't find one, and insert before the tail, which is what we want.
-		Otherwise, we use the page itself, which does terminate the preceding system,
+	/* If pL is a Page, BeforeFirstMeas will return True if pL is the first Page
+		of the score; else False. This is accidentally correct here: if we are
+		before any System, BeforeFirstMeas returns True, we search right for a
+		System, don't find one, and insert before the tail, which is what we want.
+		Otherwise, we use the Page itself, which does terminate the preceding System,
 		which is also what we want. */
 
 	if (BeforeFirstMeas(pL)) {
 
-		/* Add new system before the current system which contains selStartL. Search
-			back for the current system. If it is the first system of the page, if the
-			sheetNum of its page is 0, we are adding before the first system of the score;
-			else adding before the first system of some page following the first page of
+		/* Add new System before the current System which contains selStartL. Search
+			back for the current System. If it is the first System of the Page, if the
+			sheetNum of its Page is 0, we are adding before the first System of the score;
+			else adding before the first System of some Page following the first Page of
 			the score. */
 		
-		insertL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+		insertL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
 		if (!insertL)
 			*where = SuccSystem;
 		else if (FirstSysInPage(insertL))
@@ -971,10 +971,10 @@ LINK AddSysInsertPt(Document *doc, LINK pL, short *where)
 		*where = SuccSystem;
 	}
 	else {
-		insertL = LSSearch(pL, SYSTEMtype, ANYONE, FALSE, FALSE);
+		insertL = LSSearch(pL, SYSTEMtype, ANYONE, False, False);
 
 		if (insertL)
-			if (FirstSysInPage(insertL))			/* Found first sys of fllwng pg; return pg */
+			if (FirstSysInPage(insertL))		/* Found first System of following Page; return Page */
 				insertL = SysPAGE(insertL);
 
 		*where = SuccSystem;
@@ -984,9 +984,9 @@ LINK AddSysInsertPt(Document *doc, LINK pL, short *where)
 }
 
 
-/* ----------------------------------------------------------- SysOverflowDialog -- */
-/* Tell user there's no room to add a system to this page and ask what they want to
-do. Return values are 0=Cancel, 1=reformat this page only, 2=reformat to the end. */
+/* ----------------------------------------------------------------- SysOverflowDialog -- */
+/* Tell user there's no room to add a System to this Page and ask what they want to
+do. Return values are 0=Cancel, 1=reformat this Page only, 2=reformat to the end. */
 
 static enum {
 	BUT1_OK=1,
@@ -1001,7 +1001,7 @@ static short SysOverflowDialog(short);
 static short SysOverflowDialog(short oldChoice)
 {
 	short itemHit;  short code;
-	Boolean keepGoing=TRUE;
+	Boolean keepGoing=True;
 	DialogPtr dlog;  GrafPtr oldPort;
 	ModalFilterUPP filterUPP;
 
@@ -1036,11 +1036,11 @@ static short SysOverflowDialog(short oldChoice)
 		ModalDialog(filterUPP, &itemHit);
 		switch(itemHit) {
 			case BUT1_OK:
-				keepGoing = FALSE;
+				keepGoing = False;
 				code = (group1==RAD4_RfmtPage) ? 1 : 2;
 				break;
 			case BUT2_Cancel:
-				keepGoing = FALSE;
+				keepGoing = False;
 				code = 0;
 				break;
 			case RAD4_RfmtPage:
@@ -1060,20 +1060,20 @@ static short SysOverflowDialog(short oldChoice)
 }
 
 
-/* ------------------------------------------------------------------- AddSystem -- */
+/* ------------------------------------------------------------------------- AddSystem -- */
 /* Add an empty System before <insertL>. <insertL> must be a Page, a System or
-the tail; else there is an error. If there's no room for another system on the
-page, ask user what to do; if they say to go ahead, or if there is enough room on
-the page, add the system and update Measure and System numbers. Then move any
-following Systems on the page down and, if the page overflows, reformat this and
-perhaps following page. Returns the new System's LINK if success, else NILINK.
+the tail; else there is an error. If there's no room for another System on the
+Page, ask user what to do; if they say to go ahead, or if there is enough room on
+the Page, add the System and update Measure and System numbers. Then move any
+following Systems on the Page down and, if the Page overflows, reformat this and
+perhaps following Page. Returns the new System's LINK if success, else NILINK.
 Assumes the specified document is in the active window. N.B. It's not clear if
 <where> is correct in call to AddSystem from ReformatRaw. */
 
 LINK AddSystem(Document *doc, LINK insertL, short where)
 {
-	LINK		newSysL,prevSysL,sysL,endRfmtL;
-	DRect		invalDRect,sysRect;
+	LINK		newSysL, prevSysL, sysL, endRfmtL;
+	DRect		invalDRect, sysRect;
 	Rect		invalRect;
 	DDIST		sysTop;
 	static short rfmtChoice=1;
@@ -1095,8 +1095,8 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 		if (rfmtChoice==0) return NILINK;
 	}
 
-	/* Add the new system before insertL */
-	prevSysL = LSSearch(LeftLINK(insertL), SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	/* Add the new System before insertL */
+	prevSysL = LSSearch(LeftLINK(insertL), SYSTEMtype, ANYONE, GO_LEFT, False);
 
 	if (where == FirstSystem || where == BeforeFirstSys)
 		sysTop = SYS_TOP(doc)+pt2d(config.titleMargin);
@@ -1106,7 +1106,7 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 		invalDRect = sysRect = SystemRECT(prevSysL);
 		sysTop = sysRect.bottom;
 
-		/* Make the inval rect as wide as the page. (Systems can have different l/r indents.) */
+		/* Make the inval rect as wide as the Page. (Systems can have different l/r indents.) */
 		invalDRect.left = 0;
 		invalDRect.right = pt2d(doc->origPaperRect.right);
 
@@ -1118,8 +1118,8 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 	if (newSysL!=NILINK) {
 
 		/* Update numbers of all Systems in the entire document and Measures from here
-			to the end. Then, if the page overflows, reformat; otherwise just move all
-			following Systems on this page down. */
+			to the end. Then, if the Page overflows, reformat; otherwise just move all
+			following Systems on this Page down. */
 
 		UpdateSysNums(doc, doc->headL);
 		UpdateMeasNums(doc, prevSysL);
@@ -1127,15 +1127,15 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 		if (rfmtChoice!=0) {
 			if (rfmtChoice==1) {
 				sysL = newSysL;
-				while (!LastSysInPage(sysL))
+				while (!IsLastSysInPage(sysL))
 					sysL = LinkRSYS(sysL);
 				endRfmtL = RightLINK(sysL);
 			}
 			else
 				endRfmtL = doc->tailL;
-			Reformat(doc, newSysL, endRfmtL, FALSE, 9999, FALSE, 999, config.titleMargin);
+			Reformat(doc, newSysL, endRfmtL, False, 9999, False, 999, config.titleMargin);
 		}
-		else if (!LastSysInPage(newSysL)) {
+		else if (!IsLastSysInPage(newSysL)) {
 			DRect newSysR; long newPos; short hiWord;
 			
 			newSysR = SystemRECT(newSysL);
@@ -1149,32 +1149,32 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 		else {
 			LINK pageL; Rect paperRect;
 			
-			pageL = LSSearch(newSysL,PAGEtype,ANYONE,GO_LEFT,FALSE);
-			GetSheetRect(doc,SheetNUM(pageL),&paperRect);
-			OffsetRect(&invalRect,paperRect.left,paperRect.top);
-			invalRect.left = paperRect.left;			/* Redraw from left edge of page */
-			invalRect.bottom = paperRect.bottom;		/* Redraw to bottom of page */
+			pageL = LSSearch(newSysL, PAGEtype, ANYONE, GO_LEFT, False);
+			GetSheetRect(doc, SheetNUM(pageL), &paperRect);
+			OffsetRect(&invalRect, paperRect.left, paperRect.top);
+			invalRect.left = paperRect.left;			/* Redraw from left edge of Page */
+			invalRect.bottom = paperRect.bottom;		/* Redraw to bottom of Page */
 			EraseAndInval(&invalRect);
 		}
 
-		doc->changed = doc->used = TRUE;
+		doc->changed = doc->used = True;
 		doc->selStartL = doc->selEndL = EndSystemSearch(doc, newSysL);
-		MEAdjustCaret(doc, FALSE);
+		MEAdjustCaret(doc, False);
 		
 	}
 	return newSysL;
 }
 
 
-/* ------------------------------------------------------------------- InitParts -- */
-/* Initialize default Part structures in score header or master page header. */
+/* ------------------------------------------------------------------------- InitParts -- */
+/* Initialize default Part structures in score header or master Page header. */
 
 void InitParts(Document *doc, Boolean master)
 {
 	LINK partL;  PPARTINFO pPart;
 
 	partL = (master? FirstSubLINK(doc->masterHeadL) : FirstSubLINK(doc->headL));
-	InitPart(partL, NOONE, NOONE);		/* Dummy part--should never be used at all */
+	InitPart(partL, NOONE, NOONE);			/* Dummy part--should never be used at all */
 	pPart = GetPPARTINFO(partL);
 	strcpy(pPart->name, "DUMMY");
 	strcpy(pPart->shortName, "DUM.");
@@ -1184,7 +1184,7 @@ void InitParts(Document *doc, Boolean master)
 }
 
 
-/* ------------------------------------------------------------------- MakeSystem -- */
+/* ------------------------------------------------------------------------ MakeSystem -- */
 /* Insert a new System after prevL in some object list belonging to doc. Return
 new System's LINK, or NILINK. */
 
@@ -1197,11 +1197,11 @@ LINK MakeSystem(Document *doc, LINK prevL, LINK prevPageL, LINK prevSysL, DDIST 
 	pL = InsertNode(doc, RightLINK(prevL), SYSTEMtype, 0);
 	if (!pL) { NoMoreMemory(); return NILINK; }
 
-	SetObject(pL, MARGLEFT(doc), sysTop, FALSE, TRUE, TRUE);
-	LinkTWEAKED(pL) = FALSE;
+	SetObject(pL, MARGLEFT(doc), sysTop, False, True, True);
+	LinkTWEAKED(pL) = False;
 	
 	if (where==BeforeFirstSys)
-		nextSysL = SSearch(RightLINK(pL), SYSTEMtype, FALSE);
+		nextSysL = SSearch(RightLINK(pL), SYSTEMtype, False);
 	else
 		nextSysL = (prevSysL? LinkRSYS(prevSysL) : NILINK);
 
@@ -1215,12 +1215,12 @@ LINK MakeSystem(Document *doc, LINK prevL, LINK prevPageL, LINK prevSysL, DDIST 
 	SysPAGE(pL) = prevPageL;
 
 	if (where==FirstSystem || where==BeforeFirstSys) {
-		indent = doc->firstIndent;
-		staffLength = MARGWIDTH(doc)-doc->firstIndent;
+		indent = doc->dIndentFirst;
+		staffLength = MARGWIDTH(doc) - doc->dIndentFirst;
 	}
 	else {
-		indent = doc->otherIndent;
-		staffLength = MARGWIDTH(doc)-doc->otherIndent;
+		indent = doc->dIndentOther;
+		staffLength = MARGWIDTH(doc) - doc->dIndentOther;
 	}
 	sysHeight = GetSysHeight(doc,pL,where);
 
@@ -1232,7 +1232,7 @@ LINK MakeSystem(Document *doc, LINK prevL, LINK prevPageL, LINK prevSysL, DDIST 
 }
 
 
-/* ----------------------------------------------------------------- MakeStaff -- */
+/* ------------------------------------------------------------------------- MakeStaff -- */
 /* Insert a new Staff after prevL in some object list belonging to doc. Return
 new Staff's LINK, or NILINK. Does not set the Staff's context fields: the
 calling routine must do so.
@@ -1253,13 +1253,13 @@ LINK MakeStaff(Document *doc,
 		pL = InsertNode(doc, RightLINK(prevL), STAFFtype, doc->nstaves);
 		if (!pL) { NoMoreMemory(); return NILINK; }
 	
-		SetObject(pL, 0, 0, FALSE, TRUE, TRUE);
-		LinkTWEAKED(pL) = FALSE;
+		SetObject(pL, 0, 0, False, True, True);
+		LinkTWEAKED(pL) = False;
 		
 		LinkLSTAFF(pL) = LinkRSTAFF(pL) = NILINK;
 		StaffSYS(pL) = systemL;
 
-		/* Create a default system with 2 default staves. */
+		/* Create a default System with 2 default staves. */
 	
 		aStaffL = FirstSubLINK(pL);
 		InitStaff(aStaffL, 1, initStfTop1, 0, staffLength, STHEIGHT, STFLINES, SHOW_ALL_LINES);
@@ -1275,7 +1275,7 @@ LINK MakeStaff(Document *doc,
 	if (where==BeforeFirstSys) copyStaffL = SSearch(doc->headL,STAFFtype,GO_RIGHT);
 	else if (prevStaffL)		copyStaffL = prevStaffL;
 	else						copyStaffL = SSearch(doc->masterHeadL,STAFFtype,GO_RIGHT);
-	pL = DuplicateObject(STAFFtype, copyStaffL, FALSE, doc, doc, FALSE);
+	pL = DuplicateObject(STAFFtype, copyStaffL, False, doc, doc, False);
 	if (!pL) { NoMoreMemory(); return NILINK; }
 
 	/* ...but pay attention to the requested <staffLength>. */
@@ -1299,9 +1299,9 @@ LINK MakeStaff(Document *doc,
 	return pL;
 }
 
-/* ----------------------------------------------------------------- MakeConnect -- */
+/* ----------------------------------------------------------------------- MakeConnect -- */
 /* Insert a new Connect after prevL in some object list belonging to doc. Return
-new Connect's LINK, or NILINK. N.B. If where=<FirstSystem>, assumes the system has
+new Connect's LINK, or NILINK. N.B. If where=<FirstSystem>, assumes the System has
 exactly one part of two staves!*/
 
 LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, short where)
@@ -1313,15 +1313,15 @@ LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, short where)
 		pL = InsertNode(doc, RightLINK(prevL), CONNECTtype, 2);
 		if (!pL) { NoMoreMemory(); return NILINK; }
 
-		SetObject(pL, LinkXD(prevL)+pt2d(5), 0, FALSE, TRUE, TRUE);
-		LinkTWEAKED(pL) = FALSE;
+		SetObject(pL, LinkXD(prevL)+pt2d(5), 0, False, True, True);
+		LinkTWEAKED(pL) = False;
 		pConnect = GetPCONNECT(pL);
 		pConnect->connFiller = 0;
 		
 		aConnectL = FirstSubLINK(pL);
 		aConnect = GetPACONNECT(aConnectL);
-		aConnect->selected = FALSE;
-		aConnect->connLevel = SystemLevel;					/* Connect entire system */
+		aConnect->selected = False;
+		aConnect->connLevel = SystemLevel;					/* Connect entire System */
 		aConnect->connectType = CONNECTLINE;
 		aConnect->staffAbove = NOONE;
 		aConnect->staffBelow = NOONE;						/* Ignored if level=SystemLevel */
@@ -1332,7 +1332,7 @@ LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, short where)
 		
 		aConnectL = NextCONNECTL(aConnectL);
 		aConnect = GetPACONNECT(aConnectL);
-		aConnect->selected = FALSE;
+		aConnect->selected = False;
 		aConnect->connLevel = PartLevel;					/* Connect the part */
 		aConnect->connectType = CONNECTCURLY;
 		aConnect->staffAbove = 1;
@@ -1352,14 +1352,14 @@ LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, short where)
 	else if (prevConnectL)		copyConnL = prevConnectL;
 	else						copyConnL = SSearch(doc->masterHeadL,CONNECTtype,GO_RIGHT);
 
-	pL = DuplicateObject(CONNECTtype, copyConnL, FALSE, doc, doc, FALSE);
+	pL = DuplicateObject(CONNECTtype, copyConnL, False, doc, doc, False);
 	if (!pL) { NoMoreMemory(); return NILINK; }
 	
 	InsNodeInto(pL,RightLINK(prevL));
 	return pL;
 }
 
-/* ------------------------------------------------------ MakeClef/KeySig/TimeSig -- */
+/* ----------------------------------------------------------- MakeClef/KeySig/TimeSig -- */
 
 static LINK MakeClef(
 				Document *doc,
@@ -1373,9 +1373,9 @@ static LINK MakeClef(
 	/* Create and fill in the Clef object. */
 
 	if (where==BeforeFirstSys) {
-		prevClefL = SSearch(prevL, CLEFtype, FALSE);
+		prevClefL = SSearch(prevL, CLEFtype, False);
 
-		pL = DuplicateObject(CLEFtype, prevClefL, FALSE, doc, doc, FALSE);
+		pL = DuplicateObject(CLEFtype, prevClefL, False, doc, doc, False);
 		if (!pL) { NoMoreMemory(); return NILINK; }
 		
 		InsNodeInto(pL,RightLINK(prevL));
@@ -1385,9 +1385,9 @@ static LINK MakeClef(
 	pL = InsertNode(doc, RightLINK(prevL), CLEFtype, doc->nstaves);
 	if (pL==NILINK) { NoMoreMemory(); return NILINK; }
 
-	SetObject(pL, spBefore, 0, FALSE, TRUE, TRUE);
-	ClefINMEAS(pL) = FALSE;
-	LinkTWEAKED(pL) = FALSE;
+	SetObject(pL, spBefore, 0, False, True, True);
+	ClefINMEAS(pL) = False;
+	LinkTWEAKED(pL) = False;
 
 	aClefL = FirstSubLINK(pL);
 	if (where==FirstSystem) {
@@ -1413,9 +1413,9 @@ static LINK MakeKeySig(Document *doc, LINK prevL, short where, CONTEXT context[]
 	/* Create and fill in the KeySig object. */
 
 	if (where==BeforeFirstSys) {
-		prevKeySigL = SSearch(prevL, KEYSIGtype, FALSE);
+		prevKeySigL = SSearch(prevL, KEYSIGtype, False);
 
-		pL = DuplicateObject(KEYSIGtype, prevKeySigL, FALSE, doc, doc, FALSE);
+		pL = DuplicateObject(KEYSIGtype, prevKeySigL, False, doc, doc, False);
 		if (!pL) { NoMoreMemory(); return NILINK; }
 
 		InsNodeInto(pL,RightLINK(prevL));
@@ -1435,9 +1435,9 @@ static LINK MakeKeySig(Document *doc, LINK prevL, short where, CONTEXT context[]
 
 	pL = InsertNode(doc, RightLINK(prevL), KEYSIGtype, doc->nstaves);
 	if (pL==NILINK) { NoMoreMemory(); return NILINK; }
-	SetObject(pL, LinkXD(prevL)+spBefore, 0, FALSE, TRUE, TRUE);
-	LinkTWEAKED(pL) = FALSE;
-	KeySigINMEAS(pL) = FALSE;
+	SetObject(pL, LinkXD(prevL)+spBefore, 0, False, True, True);
+	LinkTWEAKED(pL) = False;
+	KeySigINMEAS(pL) = False;
 	if (where==FirstSystem) {
 		aKeySigL = FirstSubLINK(pL);
 		InitKeySig(aKeySigL, 1, 0, 0);
@@ -1473,9 +1473,9 @@ static LINK MakeTimeSig(Document *doc, LINK prevL, short where, CONTEXT context[
 	LINK pL, prevTimeSigL, aTimeSigL;
 
 	if (where==BeforeFirstSys) {
-		prevTimeSigL = SSearch(prevL, TIMESIGtype, FALSE);
+		prevTimeSigL = SSearch(prevL, TIMESIGtype, False);
 
-		pL = DuplicateObject(TIMESIGtype, prevTimeSigL, FALSE, doc, doc, FALSE);
+		pL = DuplicateObject(TIMESIGtype, prevTimeSigL, False, doc, doc, False);
 		if (!pL) { NoMoreMemory(); return NILINK; }
 
 		InsNodeInto(pL,RightLINK(prevL));
@@ -1484,9 +1484,9 @@ static LINK MakeTimeSig(Document *doc, LINK prevL, short where, CONTEXT context[
 
 	pL = InsertNode(doc, RightLINK(prevL), TIMESIGtype, doc->nstaves);
 	if (pL==NILINK) { NoMoreMemory(); return NILINK; }
-	SetObject(pL, LinkXD(prevL)+spBefore, 0, FALSE, TRUE, TRUE);
-	TimeSigINMEAS(pL) = FALSE;
-	LinkTWEAKED(pL) = FALSE;
+	SetObject(pL, LinkXD(prevL)+spBefore, 0, False, True, True);
+	TimeSigINMEAS(pL) = False;
+	LinkTWEAKED(pL) = False;
 
 	aTimeSigL = FirstSubLINK(pL);
 	InitTimeSig(aTimeSigL, 1, 0, context[1].timeSigType,
@@ -1500,7 +1500,7 @@ static LINK MakeTimeSig(Document *doc, LINK prevL, short where, CONTEXT context[
 	return pL;
 }
 
-/* ------------------------------------------------------------------- MakeMeasure -- */
+/* ----------------------------------------------------------------------- MakeMeasure -- */
 /* Insert a new Measure after prevL in an object list belonging to doc. Deliver new
 Measure's LINK if it succeeds, else NILINK. Does not depend on validity of cross-links.
 Does not set the Measure's context fields: the calling routine must do so. */
@@ -1520,7 +1520,7 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 	if (pL==NILINK) { NoMoreMemory(); return NILINK; }
 
 	if (where==BeforeFirstSys)
-		nextMeasL = SSearch(RightLINK(pL), MEASUREtype, FALSE);
+		nextMeasL = SSearch(RightLINK(pL), MEASUREtype, False);
 	else
 		nextMeasL = (prevMeasL? LinkRMEAS(prevMeasL) : NILINK);
 
@@ -1533,8 +1533,8 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 	MeasSTAFFL(pL) = staffL;
 
 	xd = (where==SuccMeas? LinkXD(prevMeasL)+spBefore : LinkXD(prevL)+spBefore);
-	SetObject(pL, xd, 0, FALSE, FALSE, TRUE);
-	LinkTWEAKED(pL) = FALSE;
+	SetObject(pL, xd, 0, False, False, True);
+	LinkTWEAKED(pL) = False;
 	pMeasure = GetPMEASURE(pL);
 	SetRect(&pMeasure->measureBBox, 0, 0, 0, 0);			/* Will be computed when it's drawn */ 
 	pMeasure->spacePercent = doc->spacePercent;
@@ -1553,15 +1553,15 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 
 	aMeasureL = FirstSubLINK(pL);
 	if (where==FirstSystem) {
-		staffLength = MARGWIDTH(doc)-doc->firstIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentFirst;
 		InitMeasure(aMeasureL, 1, pt2d(0), pt2d(0), staffLength-LinkXD(pL),
-									initStfTop1+initStfTop2, FALSE, FALSE, 2, 0);
+									initStfTop1+initStfTop2, False, False, 2, 0);
 		aMeasureL = NextMEASUREL(aMeasureL);
 		InitMeasure(aMeasureL, 2, pt2d(0), initStfTop1+STHEIGHT, staffLength-LinkXD(pL),
-									sysHeight, FALSE, TRUE, 0, 0);
+									sysHeight, False, True, 0, 0);
 	}
 	else {
-		staffLength = MARGWIDTH(doc)-doc->otherIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentOther;
 		for (i = 1; i<=doc->nstaves; i++, aMeasureL=NextMEASUREL(aMeasureL)) {
 
 			partL=FirstSubLINK(doc->headL);
@@ -1592,7 +1592,7 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 					if (aConnect->connLevel==GroupLevel &&
 							aConnect->staffAbove<pPart->firstStaff &&
 							aConnect->staffBelow>=pPart->lastStaff) {
-						connAbove = TRUE;
+						connAbove = True;
 						break;
 					}
 				}
@@ -1600,8 +1600,8 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 			
 			aStaffL = StaffOnStaff(staffL,i);
 			if (StaffVIS(aStaffL)) {
-				mTop = (i==1) ? pt2d(0) : staffTop[NextLimStaffn(doc,pL,FALSE,i-1)]+STHEIGHT;
-				mBottom = (i==doc->nstaves) ? sysHeight : staffTop[NextLimStaffn(doc,pL,TRUE,i+1)];
+				mTop = (i==1) ? pt2d(0) : staffTop[NextLimVisStaffn(doc,pL,False,i-1)]+STHEIGHT;
+				mBottom = (i==doc->nstaves) ? sysHeight : staffTop[NextLimVisStaffn(doc,pL,True,i+1)];
 			}
 			else
 				mTop = mBottom = 0;
@@ -1613,18 +1613,19 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 			else
 				measureNum = 0;
 			InitMeasure(aMeasureL, i, pt2d(0), mTop, staffLength-LinkXD(pL), mBottom,
-							FALSE, connAbove, connStaff, measureNum);
+							False, connAbove, connStaff, measureNum);
 		}
 	}
 
 	return pL;
 }
 
-/* ---------------------------------------------------------- CreateSysFixContext -- */
+/* --------------------------------------------------------------- CreateSysFixContext -- */
 
 static void CreateSysFixContext(Document *doc, LINK staffL, LINK measL, short where)
 {
-	LINK aStaffL,aMeasL,theMeasL;  CONTEXT theContext;  short i;
+	LINK aStaffL, aMeasL, theMeasL;
+	CONTEXT theContext;  short i;
 
 	/* Fill in clef/key sig./time sig. context fields of the initial Staff.
 		See comments on horrible way to establish context in CreateSystem. */
@@ -1639,18 +1640,17 @@ static void CreateSysFixContext(Document *doc, LINK staffL, LINK measL, short wh
 	}
 	else if (where==BeforeFirstSys) {
 
-		/* Update the context of the staff object in the system which
-			was added. */
+		/* Update the context of the staff object in the System which was added. */
 		for (i=1; i<=doc->nstaves; i++, aStaffL=NextSTAFFL(aStaffL)) {
 			GetContext(doc, LinkRSTAFF(staffL), StaffSTAFF(aStaffL), &theContext);
 			FixStaffContext(aStaffL, &theContext);
 		}
 
-		/* Update the context for the staff of the system before which
-			the new system was added. */
+		/* Update the context for the staff of the System before which the new System
+			 was added. */
 		aStaffL = FirstSubLINK(LinkRSTAFF(staffL));
 		for (i=1; i<=doc->nstaves; i++, aStaffL=NextSTAFFL(aStaffL)) {
-			theMeasL = SSearch(LinkRSTAFF(staffL), MEASUREtype, FALSE);
+			theMeasL = SSearch(LinkRSTAFF(staffL), MEASUREtype, False);
 			GetContext(doc, theMeasL, StaffSTAFF(aStaffL), &theContext);
 			FixStaffContext(aStaffL, &theContext);
 		}
@@ -1685,15 +1685,15 @@ static void CreateSysFixContext(Document *doc, LINK staffL, LINK measL, short wh
 }
 
 
-/* ---------------------------------------------------------------- CreateSystem -- */
+/* ---------------------------------------------------------------------- CreateSystem -- */
 /* Create a new System, with a minimal legal set of objects in it--Staff, Connect,
 Clef, KeySig, TimeSig, Measure--and link it into the object list after prevL.
 The Clef, KeySig, and TimeSig are properly initialized from the context. If there is
 anything following the new objects, the calling routine is responsible for updating
-it appropriately, aside from links: CreateSystem does not update system numbers,
+it appropriately, aside from links: CreateSystem does not update System numbers,
 coordinates, etc. Delivers LINK to the new System. Uses enum following comment
-for <where> to determine where to add the system. N.B. If <FirstSystem>, assumes
-the system is exactly one part of two staves!
+for <where> to determine where to add the System. NB: If <FirstSystem>, assumes
+the System is exactly one part of two staves!
 */
 
 LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
@@ -1706,27 +1706,27 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 	CONTEXT		context[MAXSTAVES+1];
 	DDIST 		staffTop[MAXSTAVES+1];
 
-	qPageL = LSSearch(prevL, PAGEtype, ANYONE, TRUE, FALSE);
+	qPageL = LSSearch(prevL, PAGEtype, ANYONE, True, False);
 
 	if (where==FirstSystem) {
 		qSystemL = qStaffL = qMeasureL = qConnectL = NILINK;
-		staffLength = MARGWIDTH(doc)-doc->firstIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentFirst;
 		doc->nstaves = 2;
 		doc->nsystems = 1;
-		InitParts(doc, FALSE);
+		InitParts(doc, False);
 	}
 	else if (where==BeforeFirstSys) {
 		qSystemL = qStaffL = qMeasureL = qConnectL = NILINK;
-		staffLength = MARGWIDTH(doc)-doc->firstIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentFirst;
 		FillStaffTopArray(doc, doc->headL, staffTop);
 		doc->nsystems++;
 	}
 	else {
-		qSystemL = LSSearch(prevL, SYSTEMtype, ANYONE, TRUE, FALSE);
-		qStaffL = LSSearch(prevL, STAFFtype, ANYONE, TRUE, FALSE);
-		qMeasureL = LSSearch(prevL, MEASUREtype, ANYONE, TRUE, FALSE);
-		qConnectL = LSSearch(prevL, CONNECTtype, ANYONE, TRUE, FALSE);
-		staffLength = MARGWIDTH(doc)-doc->otherIndent;
+		qSystemL = LSSearch(prevL, SYSTEMtype, ANYONE, True, False);
+		qStaffL = LSSearch(prevL, STAFFtype, ANYONE, True, False);
+		qMeasureL = LSSearch(prevL, MEASUREtype, ANYONE, True, False);
+		qConnectL = LSSearch(prevL, CONNECTtype, ANYONE, True, False);
+		staffLength = MARGWIDTH(doc)-doc->dIndentOther;
 		FillStaffTopArray(doc, doc->headL, staffTop);
 		doc->nsystems++;
 	}
@@ -1751,9 +1751,9 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 
 	/* GetContext needs legal staves to get the context on; but the staves don't yet
 		have any context info to give to GetContext, so we start GetContext to the left
-		of the staff object so it gets context info from headL.
-		This is a horrible way to establish initial context: e.g. for clefType there
-		are no explicit fields in the header so it is left up to GetContext to fill in
+		of the staff object so it gets context info from headL.  FIXME: This is a
+		horrible way to establish initial context: e.g. for clefType there are no
+		explicit fields in the header so it is left up to GetContext to fill in
 		DEFLT_CLEF by default, and there isn't even any comment to indicate that this
 		is the way it is being done. */
 	
@@ -1785,14 +1785,14 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 
 	if (maxSofonStaff!=0) {
 		spBefore = dLineSp/2;
-		spBefore += std2d(SymWidthRight(doc, pL, maxSofonStaff, FALSE), STHEIGHT, 5);
+		spBefore += std2d(SymWidthRight(doc, pL, maxSofonStaff, False), STHEIGHT, 5);
 	}
 	else
 		spBefore = 0;
 
 	/* Create and fill in the TimeSig object, but only if this is first System of score.
-		If we are inserting beforeFirstSys, add TimeSig to this system, and remove the
-		one from the previous first system. */
+		If we are inserting beforeFirstSys, add TimeSig to this System, and remove the
+		one from the previous first System. */
 
 	if (where==FirstSystem || where==BeforeFirstSys) {
 		pL = MakeTimeSig(doc, pL, where, context, spBefore);
@@ -1806,10 +1806,10 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 	if (pL==NILINK) return NILINK;	
 	
 	if (where==FirstSystem) 
-		InitObject(doc->tailL, pL, NILINK, 0xFFFF, 0, FALSE, FALSE, TRUE);	/* xd will be set by UpdateTailxd */
+		InitObject(doc->tailL, pL, NILINK, 0xFFFF, 0, False, False, True);	/* xd will be set by UpdateTailxd */
 	
 	if (where==BeforeFirstSys) 
-		(void)ChangeSysIndent(doc, LinkRSYS(systemL), -doc->firstIndent);
+		(void)ChangeSysIndent(doc, LinkRSYS(systemL), -doc->dIndentFirst);
 	
 	CreateSysFixContext(doc, staffL, pL, where);
 	
@@ -1822,47 +1822,48 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 				{ StaffCLEFTYPE(aStaffL) = BASS_CLEF; break; }
 	}
 
-	/* Delete the timeSig in the system which was once the first system. Don't
+	/* Delete the timeSig in the System which was once the first system. Don't
 		delete it until now so as to preserve context information until all context
 		updating is done. */
 
 	if (where==BeforeFirstSys) {
-		timeSigL = SSearch(LinkRSYS(systemL), TIMESIGtype, FALSE);
+		timeSigL = SSearch(LinkRSYS(systemL), TIMESIGtype, False);
 		DeleteNode(doc, timeSigL);
 	}
 	return systemL;
 }
 
 
-/* ------------------------------------------------------------- AddPageInsertPt -- */
-/* Return an insertion point for add page, when the caller wishes to add a
-page at pL. AddPage must be called with the page or tail object before
-which to add the page.
-Assumes page is to be added after the page containing pL (before the page
-following the page containing pL), unless pL is before the first measure of
-the first system in its page, in which case page is to be added before the
-page containing pL. If pL is in the final page, add new page before the tail.
-If pL is before any system or any page (pathological case, resulting from
+/* ------------------------------------------------------------------- AddPageInsertPt -- */
+/* Return an insertion point for add Page, when the caller wishes to add a
+Page at pL. AddPage must be called with the Page or tail object before
+which to add the Page.
+
+Assumes Page is to be added after the Page containing pL (before the Page
+following the Page containing pL), unless pL is before the first measure of
+the first System in its Page, in which case Page is to be added before the
+Page containing pL. If pL is in the final Page, add new Page before the tail.
+If pL is before any System or any Page (pathological case, resulting from
 Select All), add at the end of the score. */
 
 LINK AddPageInsertPt(Document *doc, LINK pL)
 {
 	LINK insertL, sysL;
 
-	sysL = LSSearch(pL, SYSTEMtype, ANYONE, TRUE, FALSE);
+	sysL = LSSearch(pL, SYSTEMtype, ANYONE, True, False);
 	if (!sysL) return doc->tailL;
 
 	if (BeforeFirstMeas(pL) && FirstSysInPage(sysL))
-			insertL = LSSearch(pL, PAGEtype, ANYONE, TRUE, FALSE);
-	else	insertL = LSSearch(pL, PAGEtype, ANYONE, FALSE, FALSE);
+			insertL = LSSearch(pL, PAGEtype, ANYONE, True, False);
+	else	insertL = LSSearch(pL, PAGEtype, ANYONE, False, False);
 
 	return (insertL ? insertL : doc->tailL);
 }
 
 
-/* --------------------------------------------------------------------- AddPage -- */
-/* Add an empty page before <insertL>. <insertL> must be a page or the tail; else
-there is an error. Update measure, system, and page numbers. Returns the new Page's
+/* --------------------------------------------------------------------------- AddPage -- */
+/* Add an empty Page before <insertL>. <insertL> must be a Page or the tail; else
+there is an error. Update measure, System, and Page numbers. Returns the new Page's
 LINK if success, else NILINK.
 
 Assumes the specified document is in the active window. */
@@ -1870,7 +1871,7 @@ Assumes the specified document is in the active window. */
 LINK AddPage(Document *doc, LINK insertL)
 {
 	LINK newPageL, prevPageL;  Rect paper, result;  short pageNum;
-	Boolean appending;  static Boolean alreadyWarned=FALSE;
+	Boolean appending;  static Boolean alreadyWarned=False;
 
 	if (!PageTYPE(insertL) && !TailTYPE(insertL)) {
 		MayErrMsg("AddPage: called with LINK %ld of bad type %ld",
@@ -1888,12 +1889,12 @@ LINK AddPage(Document *doc, LINK insertL)
 	appending = TailTYPE(insertL);
 	DeselAll(doc);
 
-	/* Add the new page before insertL */
+	/* Add the new Page before insertL */
 	newPageL = CreatePage(doc, LeftLINK(insertL));
 	if (newPageL!=NILINK) {
 		if (ScreenPagesExceedView(doc) && !alreadyWarned) {
 			CautionInform(MANYPAGES_ALRT);
-			alreadyWarned = TRUE;
+			alreadyWarned = True;
 		}
 
 		UpdateSysNums(doc, doc->headL);
@@ -1903,18 +1904,18 @@ LINK AddPage(Document *doc, LINK insertL)
 
 		GetAllSheets(doc);
 		RecomputeView(doc);
-		MEAdjustCaret(doc,FALSE);
+		MEAdjustCaret(doc,False);
 		
 		/* FIXME: The following has a problem: if GetSheetRect doesn't return
-			INARRAY_INRANGE, <paper> is meaningless. In that case, the new page is
+			INARRAY_INRANGE, <paper> is meaningless. In that case, the new Page is
 			off-screen, and we should probably unconditionally ScrollToPage. */
 
 		GetSheetRect(doc,doc->numSheets-1,&paper);
 		InsetRect(&paper, -2, -2);
 		InvalWindowRect(doc->theWindow,&paper);
-		DisableUndo(doc, FALSE);
+		DisableUndo(doc, False);
 		
-		doc->changed = doc->used = TRUE;
+		doc->changed = doc->used = True;
 		doc->selStartL = doc->selEndL =								
 			LinkRPAGE(newPageL) ? LinkRPAGE(newPageL) : doc->tailL;
 		SectRect(&paper, &doc->viewRect, &result);
@@ -1927,20 +1928,20 @@ LINK AddPage(Document *doc, LINK insertL)
 }
 
 
-/* ------------------------------------------------------------------ CreatePage -- */
+/* ------------------------------------------------------------------------ CreatePage -- */
 /* Create a new Page and link it into the object list AFTER prevL. */
 
 LINK CreatePage(Document *doc, LINK prevL)
 {
 	LINK	pageL, lPage, rPage, sysL;
 	
-	lPage = LSSearch(prevL, PAGEtype, ANYONE, TRUE, FALSE);
-	rPage = LSSearch(RightLINK(prevL), PAGEtype, ANYONE, FALSE, FALSE);
+	lPage = LSSearch(prevL, PAGEtype, ANYONE, True, False);
+	rPage = LSSearch(RightLINK(prevL), PAGEtype, ANYONE, False, False);
 
 	pageL = InsertNode(doc, RightLINK(prevL), PAGEtype, 0);
 	if (pageL==NILINK) { NoMoreMemory(); return NILINK; }
-	SetObject(pageL, 0, 0, FALSE, TRUE, TRUE);
-	LinkTWEAKED(pageL) = FALSE;
+	SetObject(pageL, 0, 0, False, True, True);
+	LinkTWEAKED(pageL) = False;
 
 	LinkLPAGE(pageL) = lPage;
 	if (lPage) LinkRPAGE(lPage) = pageL;
@@ -1948,7 +1949,7 @@ LINK CreatePage(Document *doc, LINK prevL)
 	if (rPage) LinkLPAGE(rPage) = pageL;
 	LinkRPAGE(pageL) = rPage;
 
-	sysL = LSSearch(pageL, SYSTEMtype, ANYONE, TRUE, FALSE);
+	sysL = LSSearch(pageL, SYSTEMtype, ANYONE, True, False);
 	doc->currentSystem = sysL ? SystemNUM(sysL) : 1;
 	SheetNUM(pageL) = lPage ? SheetNUM(lPage)+1 : 0;
 	doc->numSheets++;
@@ -1965,11 +1966,11 @@ LINK CreatePage(Document *doc, LINK prevL)
 }
 
 
-/* ----------------------------------------------------------- Functions for GoTo -- */
+/* ---------------------------------------------------------------- Functions for GoTo -- */
 
 void ScrollToPage(Document *doc, short pageNum)
 {
-	short sheetNum,x,y;  Rect sheet;  Boolean inval;
+	short sheetNum,x, y;  Rect sheet;  Boolean inval;
 	
 	sheetNum = pageNum - doc->firstPageNumber;
 	
@@ -1989,12 +1990,12 @@ void ScrollToPage(Document *doc, short pageNum)
 	x = sheet.left - config.hPageSep;
 	y = sheet.top  - config.vPageSep;
 	
-	QuickScroll(doc,x,y,FALSE,!inval);
+	QuickScroll(doc,x,y,False,!inval);
 	if (inval) InvalWindowRect(doc->theWindow,&doc->viewRect);
 	doc->currentSheet = sheetNum;
 	GetSheetRect(doc,sheetNum,&doc->currentPaper);
 	/*  FIXME: PLACE INS. POINT AT TOP OF PAGE & MOVE CARET THERE WITH MEAdjustCaret() */
-	DrawMessageBox(doc, TRUE);
+	DrawMessageBox(doc, True);
 }
 
 static void ScrollToLink(Document *doc, LINK pL)
@@ -2002,34 +2003,36 @@ static void ScrollToLink(Document *doc, LINK pL)
 	Point pt;  short x, y;
 
 	if (pL!=NILINK) {
-		pt = LinkToPt(doc, pL, TRUE);
+		pt = LinkToPt(doc, pL, True);
 		/* Keep coordinates multiples of 8 so that background pattern doesn't shift */
 		x = pt.h - (pt.h & 7);
 		y = pt.v - (pt.v & 7);
 		/* Place destination in upper center of view */
 		x -= (doc->viewRect.right - doc->viewRect.left) / 2;
 		y -= (doc->viewRect.bottom - doc->viewRect.top) / 4;
-		QuickScroll(doc,x,y,FALSE,TRUE);
+		QuickScroll(doc,x,y,False,True);
 	}
 }
 
 void GoTo(Document *doc)
 {
-	short pageNum, newPageNum, measNum, gotoType;  PGRAPHIC pMark;
-	LINK measL, markL, newPageL;  Boolean beforeFirst;
+	short pageNum, newPageNum, measNum, gotoType;
+	PGRAPHIC pMark;
+	LINK measL, markL, newPageL;
+	Boolean beforeFirst;
 	
 	pageNum = doc->currentSheet+doc->firstPageNumber;
 
 	/* Search right for a measure if selStartL is before the first measure,
 		else search left */
 	beforeFirst = BeforeFirstMeas(doc->selStartL);
-	measL = MNSearch(doc, doc->selStartL, ANYONE, !beforeFirst, TRUE);
+	measL = MNSearch(doc, doc->selStartL, ANYONE, !beforeFirst, True);
 	measNum = GetPAMEASURE(FirstSubLINK(measL))->measureNum+doc->firstMNNumber;
 
-	markL = RMSearch(doc, doc->selStartL, "\p", TRUE);
+	markL = RMSearch(doc, doc->selStartL, "\p", True);
 
-	gotoType = GoToDialog(doc,&pageNum,&measNum,&markL);
-	if (gotoType == goDirectlyToJAIL) return; 
+	gotoType = GoToDialog(doc, &pageNum, &measNum, &markL);
+	if (gotoType==goDirectlyToJAIL) return; 
 	DoUpdate(doc->theWindow);
 	
 	switch (gotoType) {
@@ -2037,7 +2040,7 @@ void GoTo(Document *doc)
 			ScrollToPage(doc, pageNum);
 			break;
 		case gotoBAR:
-			measL = MNSearch(doc, doc->headL, measNum-doc->firstMNNumber, GO_RIGHT, TRUE);
+			measL = MNSearch(doc, doc->headL, measNum-doc->firstMNNumber, GO_RIGHT, True);
 			newPageL = SysPAGE(MeasSYSL(measL));
 			newPageNum = SheetNUM(newPageL)+doc->firstPageNumber;
 			if (newPageNum!=pageNum) {
@@ -2055,8 +2058,8 @@ void GoTo(Document *doc)
 			;
 	}
 	/*
-	 * Set initial zoom origin to a point that's not on any page so SheetMagnify
-	 * will just use the current page.
+	 * Set initial zoom origin to a point that's not on any Page so SheetMagnify
+	 * will just use the current Page.
 	 */
 	doc->scaleCenter.h = doc->scaleCenter.v = SHRT_MAX;
 }
@@ -2069,7 +2072,7 @@ void GoToSel(Document *doc)
 	/* if (doc->selStartL in view) should maybe just return; on the other hand,
 		this way, it "touches up" the display, which unfortunately may be useful. */
 
-	pageL = EitherSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, FALSE);
+	pageL = EitherSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, False);
 	pageNum = SheetNUM(pageL)+doc->firstPageNumber;
 	if (GetSheetRect(doc,SheetNUM(pageL),&sheet)==NOT_INARRAY)
 		ScrollToPage(doc, pageNum);
@@ -2078,7 +2081,7 @@ void GoToSel(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- FindPartInfo -- */
+/* ---------------------------------------------------------------------- FindPartInfo -- */
 
 LINK FindPartInfo(Document *doc, short partn)
 {

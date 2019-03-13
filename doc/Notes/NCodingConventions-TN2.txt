@@ -1,81 +1,120 @@
-I. Nightingale Coding Conventions
-	A. Nightingale Technical Note #2. Don Byrd, AMNS, revised 26 December 1996
-II. In General
-	A. Naturally, the ÒpurestÓ examples of my coding conventions are in the files written entirely (or almost entirely) by me, especially DebugXXX.c, MIDIXXX.c, and RTRhythmDur.c. The least pure by far are in Doug McKennaÕs code; actually these are pure examples of coding conventions alright, but theyÕre his, not mine (or AMNSÕ).
-	B. I *highly* recommend Steve MaguireÕs Writing Solid Code (Microsoft Press, 1993). It not only contains a tremendous amount of excellent advice on every aspect of Òwriting solid codeÓ, including coding style, but itÕs exceptionally readable and to-the-point: he doesnÕt waste your time. One observation he makes that justifies a lot of the following guidelines is that it's very likely that at some point someone who knows less about the program than you do will need to understand your code; it's also quite possible that they won't be an outstanding programmer. As Maguire puts it, "Write code for the 'average' programmer."
-III. Naming and spelling conventions
-	A. Names in General
-		1. In order to minimize typing errors, statements that need line breaks, etc., use the shortest name thatÕs clear. Of course, it's not always easy to decide  what's clear; when in doubt, it's probably better to err on the side of clarity (=length). Here are are some examples:
-			a. Use InitXXX, not InitializeXXX: it's very obvious what "Init" means, and it saves a lot of characters (six, to be exact). Also, use ÒMinÓ and ÒMaxÓ, not ÒMinimumÓ and ÒMaximumÓ: the case is slightly weaker because they donÕt save as many characters, but itÕs still hard to imagine anyone failing to know what they stand for.
-On the other hand:
-			Use "offset", not "ofst" or "off": "ofst" and "off" are unclear, and they save only two or three characters anyway.
-			Use "count" instead of "cnt".
- 		 Use "sequence" instead of "seq". But this could go the other way: "seq" saves five characters, and it could be clear, depending on context.
-	B. CONSTANT_NAMES
-		1. Constants should be in all capitals, e.g., MAXBLOCKS.  (This is still standard on Windows, though not the Mac.) Feel free to use embedded underlines for clarity.  For resources, follow the name with the resource type, e.g., MAXNOTES_ALRT; if the resource type uses characters that aren't legal in names, come as close as you can, e.g., end with _STRS for type ÒSTR#Ó. Otherwise, wherever appropriate, precede the name with a standard class abbreviation, for example VM_ and EM_ for View Menu and Edit Menu constants.
-			a. NAME_DLOG signifies a dialog ID
-			b. NAME_ALRT signifies an alert ID
-			c. XM_NAME signifies an item in a menu that starts with the letter X
-			d. I_NAME signifies a DITL item ID
-	C. variableNames
-		1. Follow the Mac standard that all variable names begin with a lowercase letter.  If a name is made up of several words (like ÔnoteÕ and ÔcountÕ), capitalize the first letter of each word other than the first (as in ÔnoteCountÕ or ÔdoneFlagÕ).
-		2. Avoid underlines: the capitalization convention above achieves the same thing in fewer characters.
-		3. We use partial ÒHungarian notationÓ: if something is a pointer, the name should indicate it by starting with the letter ÔpÕ  (i.e., pNode). If itÕs a link, it should end with ÔLÕ (and should NOT start with ÔpÕ, except for the conventional ÔpLÕ!). Do not call a Point ÔpÕ, call it ÔptÕ!
-	D. FunctionNames
-		1. Follow the Mac standard of starting each word of the name (including the first) with a capital letter. (Dave Winzler says historically, this is partially due to AppleÕs early infatuation with Pascal, and partially due to the Smalltalk background of some people on the Lisa and Mac teams.)
-		2. Names built from noun and verb words should be of the form VerbNoun (as in FixNodes, and PlayNotes rather than NodeFix or NotePlay).  This emphasizes the verb, implying that the function DOES something as opposed to being something.
-		3. Avoid underlines in function names: the capitalization convention above achieves the same thing in fewer characters.
-		4. Historical note: For the sake of earlier versions of MacsBug, we used to try to make function names unique in the first eight characters, but with recent versions this no longer matters.
-		5. Predicates should have names that suggest theyÕre predicates, e.g., IsAfter or ShouldDrawBarline. The names should also suggest in which case the predicate returns TRUE, e.g., GoodValue instead of CheckValueÑor even better, in view of the previous rule, IsGoodValue.
-		6. Functions that count something should be named that way: CountBeamable is less ambiguous than BeamableNumber. Besides, ÒCountXXXÓ is the convention the Mac toolbox routines follow. Similarly, functions that deliver an indexed value should have standardized names. In Mac toolbox routines, this would be (for a CountFoo function) GetIndFoo. However, this is confusing to read: a better solution is GetNthFoo and GetNthFooQuick. The former does bounds checking on its index and other arguments; the latter doesn't, under the assumption it's being called from within a loop whose bounds have previously been determined by a call to CountFoo.
-	E. File Names
-		1. Files should be named bearing in mind a possible port to (ugh) Windows 3.1: if names are longer than eight characters, they should at least be unique in the first eight characters. But this is getting less important as Windows 3.1 recedes into the past.
-IV. Use of whitespace
-	A. It should be easy to see sections of a file, especially where functions begin, at a glance. DougÕs solutionÑindent absolutely everything but the initial comments and function headerÑwastes the left end of the screen (especially with tabs 4 spaces apart; I prefer 3, as mentioned below). My solution:
-		1. Two blank lines between function definitions and separating major sections of files, e.g., between prototypes and the first function.
-		2. Put something in front of every function that clearly separates it from the one above, e.g., Ò/* --------------------- FuncName -- */Ó. Exception: short and closely-related functions.
-	B. Within functions, one blank line between declarations and executable code.
-	C. One blank on each side of assignment operators (  =   -=    +=   and so on).
-	D. No blanks around other relational and equality operators (==   >=   etc.) except where really needed for readability, e.g., because one side or the other is exceptionally complicated.
-V. Tabs, fonts, indenting, etc.
-	A. Set tabs 3 columns apart, not the usual 4! This saves screen width with no loss of readability at all.
-	B. Ò{Ó does NOT go on a separate line.
-	C. Ò}Ó always goes on a separate line. Indent it the same as the statement whose range it terminates, i.e., one tab to the left of lines within it.
-	D. Statements within a block go on separate lines unless theyÕre very short and closely related.
-	E. Use a small but readable monospaced font, preferably one in which, e.g., digit 1 and lower-case-ell are different: on the Mac, Courier 10 or Monaco 9 or something similar. Doug McKenna recommends the free Avignon 9 programmer's font.
-	F. Lines should very rarely extend off the end of a window thatÕs full size on a standard 14-in. (640-pixel wide) monitor. Cases where such long lines are acceptable are things like very long string constants and comments at the right of a line of codeÑbut in the latter case, SOME of the comment must be visible normally, or a reader may not realize thereÕs a comment there at all. As a general rule, keep lines down to 88 characters: that fits comfortably on a 640-pixel-wide screen in standard fonts.
-	G. Always indents comments the same as the code they apply to.
-	H. Never indent preprocessor directives except where complex nestings would otherwise make it very difficult to follow them.
-VI. Functions and Prototypes
-	A. Always run with Required Prototypes ON. In fact, Maguire makes a convincing case for setting all compiler checking to the highest possible level, and keeping compiles completely free of warnings if at all possible.
-	B. Functions used only within a file should always be declared ÒstaticÓ, with prototypes either at the beginning of the file or at the beginning of the section of the file they pertain to.
-	C. Functions in file ÒBarf.cÓ that must be callable from other files should have their prototypes in file ÒBarf.hÓ unless there are only a few such in Barf.c; in that case put them in NightingaleTemplates.h.
-VII. Comments
-	A. Comments describing conceptually what difficult blocks of code do, as opposed to comments describing on a low level what individual lines of code do, are extremely important. Take as much space as you need for such comments. If you feel they interrupt the flow of the code too much, put them at the top of the function and refer to them with a short comment where they apply. And don't forget that entire functions very often qualify as "difficult blocks of code"!
-	B. Comments trailing code on the same line should be tabbed well to the right of the code, but of course try to keep a fair amount of the comment in the window.
-	C. Comments pointing out things that will need attention later should begin with something distinctive. I used to begin them with Ò??Ó; these days, this could conflict with the ANSI/ISO C trigraph syntax, but in practice, thatÕd hardly ever be a problem. Another idea is to use C++ syntax (start each line with Ò//Ó): then you can be sure to find these comments by turning off C++ compatability! Finally, comments of this type that REALLY shouldnÕt be forgotten should be in all caps.
-	D. Comments in a function should not assume that they KNOW how the function is used, but they can certainly say how the function SHOULD be used. For example, at the top of the function, donÕt say ÒCoordinates have already been updatedÓ, say ÒWe assume coordinates have already been updatedÓ. This is particularly important for publically-visible functions.
-	E. Comment out code you want to leave in the source for some reason by surrounding it with lines Ò#ifdef NOMOREÓ or Ò#ifdef NOTYETÓ or some such and Ò#endifÓ. This is much better than using genuine comment delimiters because Ò#ifÓs nest properly; comments donÕt. And these #ifdefs are better than Ò#if 0Ó because they say WHY the code is commented out; use Ò#if 0Ó only if youÕre certain the commenting out is VERY temporary.
-VIII. Portability
-	A. Unless thereÕs a very good reason not to, to enhance portability, write in ANSI/ISO standard C. Take full advantage of what it offers, but know and be careful about what it doesnÕt guarantee. Of course, entire books have been written about this; here are a few brief thoughts, plus some references.
-		1. Comments: IÕve seen several instances of people using C++-style comments (everything on a line after Ò//Ó) in Nightingale. I know this usage is likely to become standard C, but for now, please donÕt, except perhaps for special comments you want to be able to find later (see the section on comments). 
-		2. Library Functions: The  ANSI/ISO C library functions are extensive and powerful; use them whenever possible. But one thing to be careful of: according to  ANSI/ISO, the formatted input functions (the scanf family) and the string-to-number conversion functions (atof, atoi, and atol) have Òundefined behaviorÓ in some cases, for example, if the string doesnÕt represent a legal number. In  ANSI/ISO-speak, Òundefined behaviorÓ means Òcan do anything including crashÓ! This is not acceptable in Nightingale or *any* commercial application. The only solution is to avoid using these functions. Instead of atof, atoi, and atol, use strtod, strtol, and strtol, respectively.
-		3. As far as I know, you can't buy the standard itself for less than $300, but it's reprinted in Schildt's The Annotated ANSI C Standard (Osborne). SchildtÕs annotations are extensive but useless because theyÕre addressed to C beginners. On the other hand, the standards committee also put out a "rationale" document explaining their decisions: itÕs excellent, and currently available free on the World-Wide Web. Harbison and SteeleÕs C: A Reference Manual (Prentice Hall) doesnÕt reprint the standard, but it contains detailed systematic comments on it, incomparably superior to SchildtÕs. Harbison and SteeleÕs fourth edition also discusses ÒISO C Amendment 1Ó and compatability with C++.
-	B. As much as possible, avoid characters outside of ASCII, i.e., 0x80 and above. Windows character sets are completely incompatible with Mac ones, except for the ASCII subset. Specifically, in English-speaking locales and Western Europe, Windows uses Windows Latin 1, a.k.a. ÒANSIÓ: that character set is totally different from Macintosh Roman. (However, itÕs quite similar toÑessentially, a superset ofÑthe ISO 8859-1 character set that UNIX uses and that Unicode includes.) Avoid non-ASCII characters in comments as well as in code: in comments, of course, they wonÕt hurt the programÕs behavior, but they may hurt the behavior of Windows programmers!
-IX. Miscellany
-	A. Write what you mean as precisely and as readably as possible.  For example, donÕt write Ò0Ó when you mean ÒNULLÓ or Ò0LÓ.  Do NOT write a loop thatÕs exited only by break or jumping out of it as Òfor ( ; ; )ÓÑthere are good reasons for having such a loop, but Òwhile (TRUE)Ó is much, much easier to understand.
-		1. An important special case of writing readable code: ÒMagic numbersÓ are a no-no!  In most cases, a perfectly good way to avoid one is to give it a descriptive name and put it in a #define, with a comment. If the #define "should" go in a header file and you don't want to bother right now, it's much better to put the #define in the source file than to use the magic number: once the #define exists, it can easily be moved to the appropriate place later without someone having to figure out what the code does.
-		2. For macros that want to consist of full or multiple C statements, the most robust syntax is along the lines of
+NIGHTINGALE CODING CONVENTIONS
+	A. Nightingale Technical Note #2. Don Byrd, AMNS, revised late December 2017
 
-    #define FOO(a,b)  do { something(a); something(b) } while(FALSE)
+This document can also be found in a slightly different form in the Wiki of the GitHub Repository of AMNS/Nightingale. NB: I wrote this document many years ago: in the 1990's, if not earlier. I've tried to update everything properly, but if anything seems absurdly out-of-date, it might really be.
 
-so you don't have to worry about semi-colons and if...else statements ending up wierd.
+I. In General
 
-	B. Instead of writing a series of #defines for related things whose values must be distinct integers but otherwise don't matter, you should probably use enum instead. (But be careful with enums: if you #define a symbol to one value and enum it to another, your development system may not tell you (at least, THINK C didnÕt a couple of years ago), and the result may be a hard-to-diagnose bug.)
-	C. Re datatypes, use type Byte (=unsigned char) for binary data--e.g., buffers--only. DonÕt declare variables that contain character data as Byte, since the definition of a character is likely to change someday to wchar_t or to Òunsigned shortÓ, in order to support Unicode.
-	D. Re datatypes, donÕt overuse casts. A cast, of course, tells the compiler ÒdonÕt worry about the type of this, I know what IÕm doingÓÑbut you might be wrong.
-	E. Ranges of nodes in the main data structure or any list should be described with a ÒfromÓ link thatÕs INSIDE the range and a ÒtoÓ link thatÕs  OUTSIDE the range, so the range can be handled with something like Òfor (pL = from; pL!=to; pL = RightLINK(pL))Ó.
-	F. Resist the temptation to assign a variable in the test part of an ÒifÓ. I suppose itÕs wonderfully idiomatic, but after 10 years of writing C, I still find this style is almost always harder to read than assigning it in a separate statement, then testing it.
-	G. DonÕt worry about over-parenthesizing complex expressions. If you have to look up the precedence rules to see whether parentheses are really necessary, just put them in so the next person to look at the code doesnÕt have to look them up--or, worse, fail to look them up and misunderstand the code as a result. Again see Maguire.
-	H. DonÕt write Òif (Boolean expression==FALSE) ...Ó and Òif (Boolean expression==TRUE) ...Ó, just write Òif (!Boolean expression) ...Ó and Òif (Boolean expression) ...Ó Clarity aside, if the Boolean expression has a value other than 0 or 1, it will fail to equal either FALSE or TRUE, and this is particularly insidious if the expression is just a function call. Again see Maguire.
-	I. Arrange functions in modules by level consistently: in Nightingale, always lower-level-first, so definitions of calling functions follow definitions of those they call. Being consistent about it can save someone reading the code a lot of time.
+    A. Naturally, the “purest” examples of our coding conventions are in the files written entirely (or almost entirely) by me, especially DebugXXX.c, MIDIXXX.c, and RTRhythmDur.c. The least pure by far are in Doug McKenna’s code. (Actually, these are pure examples of coding conventions, but they’re not Nightingale’s.)
+    B. I strongly recommend Steve Maguire’s Writing Solid Code (Microsoft Press, 1993). It not only contains a tremendous amount of excellent advice on every aspect of “writing solid code”, including coding style, but it’s exceptionally readable and to-the-point: he doesn’t waste your time. One observation he makes that justifies a lot of the below guidelines is that it's very likely that at some point someone who knows less about the program than you do will need to understand your code; it's also quite possible that they won't be an outstanding programmer. As Maguire puts it, "Write code for the 'average' programmer."
+
+II. Naming and spelling conventions
+
+    A. Names in General
+
+    In order to minimize typing errors, statements that need line breaks, etc., use the shortest name that’s clear. Of course, it's not always easy to decide what's clear; when in doubt, it's probably better to err on the side of clarity (=length). Here are are some examples:
+        * Use InitXXX, not InitializeXXX: it's very obvious what "Init" means, and it saves a lot of characters (six, to be exact). Also, use “Min” and “Max”, not “Minimum” and “Maximum”: the case is slightly weaker because they don’t save as many characters, but it’s still hard to imagine anyone failing to know what they stand for.
+
+    On the other hand:
+        * Use "offset", not "ofst" or "off": "ofst" and "off" are unclear, and they save only two or three characters anyway.
+        * Use "count" instead of "cnt".
+        * Use "sequence" instead of "seq". But this could go the other way: "seq" saves five characters, and it could be clear, depending on context.
+
+    Names that refer to how many of something there are of something should include the word "Count": e.g., CountBeamable, not BeamableNumber. "Count" is much clearer than "Number"; it's also the convention the Mac toolbox routines follow. Similarly, functions that deliver an indexed value should have standardized names. In Mac toolbox routines, this would be (for a CountFoo function) GetIndFoo. However, this is confusing to read: a better solution is GetNthFoo. (You might also have GetNthFooQuick. The former would do bounds checking on its index and other arguments; the latter wouldn't, under the assumption it's being called in a situation where the argument has previously been determined to be legal. Presumably GetNthFoo would just check the arguments, then call GetNthFooQuick.)
+
+    Acronyms that appear in names should be in all capitals! "Midi" is a size between "mini" and "maxi"; the acronym for Musical Instrument Digital Interface is "MIDI".
+
+    B. CONSTANT_NAMES
+
+        Constants should be in all capitals, e.g., MAXBLOCKS. Feel free to use embedded underlines for clarity. For resources, follow the name with the resource type, e.g., MAXNOTES_ALRT; if the resource type uses characters that aren't legal in names, come as close as you can, e.g., end with STRS for type “STR#”. Otherwise, wherever appropriate, precede the name with a standard class abbreviation, for example VM and EM_ for View Menu and Edit Menu constants.
+		* NAME_DLOG signifies a dialog ID.
+		* NAME_ALRT signifies an alert ID.
+		* XM_NAME signifies an item in a menu that starts with the letter X.
+		* I_NAME signifies a DITL item ID.
+
+    C. variableNames
+    
+        Follow the Mac "camelCase" standard. All variable names begin with a lowercase letter. If it's made up of several words (like ‘note’ and ‘count’), capitalize the first letter of each word other than the first (as in ‘noteCount’ or ‘doneFlag’).
+        Avoid underlines: the camelCase convention achieves the same thing in fewer characters.
+        We use partial “Hungarian notation”: if something is a pointer, the name should indicate it by starting with the letter ‘p’ (i.e., pNode). If it’s a link, it should end with ‘L’ (and should NOT start with ‘p’, except for the conventional ‘pL’!). Do not call a Point ‘p’, call it ‘pt’!
+
+    D. FunctionNames
+    
+        Follow the Mac "CamelCase" standard of starting each word of the name (including the first) with a capital letter. Avoid underlines.
+        Names built from noun and verb words should be of the form VerbNoun (e.g., FixNodes and PlayNotes rather than NodeFix or NotePlay). This emphasizes the verb, implying that the function DOES something as opposed to being something.
+        Avoid underlines: the CamelCase convention achieves the same thing in fewer characters.
+        Predicates should have names that suggest they’re predicates, e.g., IsAfter or ShouldDrawBarline. The names should also suggest in which case the predicate returns True, e.g., GoodValue instead of CheckValue -- or even better, in view of the previous rule, IsGoodValue.
+
+    E. FileNames
+    
+        Follow the Mac "CamelCase" standard of starting each word of the name (including the first) with a capital letter. Avoid underlines.
+
+III. Use of whitespace
+
+    A. It should be easy to see sections of a file, especially where functions begin, at a glance. Doug’s solution -- indent absolutely everything but the initial comments and function header -- wastes the left end of the screen. Our standard is:
+        Two blank lines between function definitions and separating major sections of files, e.g., between prototypes and the first function.
+        Put something in front of every function that clearly separates it from the one above, e.g., “/* --------------------- FuncName -- */”. Exception: a series of short and closely-related functions.
+    B. Within functions, one blank line between declarations and executable code.
+    C. One blank on each side of assignment operators ( = -= += and so on).
+    D. No blanks around other relational and equality operators (== >= etc.) except where really needed for readability, e.g., because one side or the other is exceptionally complicated.
+
+IV. Tabs, fonts, indenting, etc.
+
+    A. Set tabs the standard 4 columns apart. (We used to use 3, to save screen width, but that's much less important than it was 20 years ago, and the value of 4 keeps creeping in anyway.)
+    B. “{” does _not_ go on a separate line.
+    C. “}” always goes on a separate line. Indent it the same as the statement whose range it terminates, i.e., one tab to the left of lines within it.
+    D. Statements within a block go on separate lines unless they’re very short and closely related.
+    E. Use a small but readable monospaced font, and one in which digit 1 and lower-case-ell are different; likewise digit 0 and letter oh.
+    F. Lines should not be too long. It's hard to say what "too long" is, but, in general, keep lines down to about 90 to 100 characters: that fits comfortably in a 1024-pixel-wide window in standard fonts even with the typical panes on the sides IDE's like Xcode use these days. Cases where longer lines are acceptable are things like very long string constants and comments at the right of a line of code -- but in the latter case, _some_ of the comment must be visible in a "normal" width, else a reader may not realize there’s a comment there at all.
+    G. Always indents comments the same as the code they apply to.
+    H. Never indent preprocessor directives except where complex nestings would otherwise make it very difficult to follow them.
+
+V. Functions and Prototypes
+
+    A. Always run with Required Prototypes ON. In fact, Maguire makes a convincing case for setting all compiler checking to the highest possible level, and keeping compiles completely free of warnings if at all possible.
+    B. Functions used only within a file should always be declared “static”, with prototypes either at the beginning of the file or at the beginning of the section of the file they pertain to.
+    C. Functions in file “Barf.c” that must be callable from other files should have their prototypes in file “Barf.h” unless there are only a few such in Barf.c; in that case put them in NightingaleTemplates.h.
+
+VI. Comments
+
+    A. Comments describing conceptually what difficult blocks of code do, as opposed to comments describing on a low level what individual lines of code do, are extremely important. Take as much space as you need for such comments. If you feel they interrupt the flow of the code too much, put them at the top of the function and refer to them with a short comment where they apply. And don't forget that entire functions very often qualify as "difficult blocks of code"!
+    B. In general, avoid C++-style comments (everything on a line after “//”) except perhaps for special comments you want to be able to find later (see below). Why? My experience is it discourages keeping long comments up-to-date, since changes in the middle of such comments may require re-formatting to avoid unreasonably long or short lines. The same problem occurs with block comments in which every line begins with "*". Just use "/*" at the beginning of the first line and "*/" at the end of the last.
+    C. Comments trailing code on the same line should be tabbed well to the right of the code, but of course try to keep a fair amount of the comment in the window.
+    D. Comments pointing out things that will need attention later should begin with something distinctive. Our standard now is "FIXME:". I used to begin them with “??”; theoretically, that could conflict with the ANSI/ISO C trigraph syntax, but in practice, it’d hardly ever be a problem. Another idea was to use C++ syntax (start each line with “//”): then you can be sure to find these comments by turning off C++ compatibility! But "FIXME:" stands out visually, and searching for it should have perfect precision and recall (i.e., no false positives and no false negatives).
+    E. Comments in a function should not assume that the writer knows how the function is being used (how can you know what someone who adds a call to your function five years from now is going to do?); but they can certainly say how the function should be used. For example, at the top of the function, don’t say “Coordinates have already been updated”, say “We assume coordinates have already been updated”. This is particularly important for publically-visible functions.
+    F. Comment out unneeded code you want to leave in the source for some reason by preceding it with lines “#ifdef NOMORE” or “#ifdef NOTYET” or, preferably, something more specific like "#ifdef TARGET_API_MAC_CARBON", and of course following it with “#endif”. These #ifdefs are much better than “#if 0” or real comment delimiters because they say WHY the code is commented out; use “#if 0” only if you’re certain the commenting out is _very_ temporary. In addition, “#if”s (like  C++ -style "//" comments) nest properly; standard C comments don’t. 
+
+VII. Portability
+
+    A. Unless there’s a very good reason not to, to enhance portability, write in ANSI/ISO standard C99. Take full advantage of what it offers, but know and be careful about what it doesn’t guarantee. Of course, entire books have been written about this; here are a few brief thoughts, plus some references.
+    B. Library Functions: The ANSI/ISO C library functions are extensive and powerful; use them whenever possible. But one thing to be careful of: according to ANSI/ISO, the formatted input functions (the scanf family) and the string-to-number conversion functions (atof, atoi, and atol) have “undefined behavior” in some cases, for example, if the string doesn’t represent a legal number. In ANSI/ISO-speak, “undefined behavior” means “can do anything including crash”! The only solution is to avoid using these functions. Instead of atof, atoi, and atol, use strtod, strtol, and strtol, respectively. The scanf family is harder to avoid; comments, anyone?
+    C. The best reference I know of for the C language is Harbison and Steele’s C: A Reference Manual (Prentice Hall). I have the 5th edition, which seems fine, though it's probably not the latest.
+    D. As much as possible, avoid characters outside of ASCII, i.e., 0x80 and above. Windows character sets are completely incompatible with Mac ones, except for the ASCII subset. Specifically, in English-speaking locales and Western Europe, Windows uses Windows Latin 1, a.k.a. “ANSI”: that character set is totally different from Macintosh Roman. (However, it’s quite similar to -- essentially, a superset of -- the ISO 8859-1 character set that UNIX uses and that Unicode includes.) Nightingale source code files are now encoded in UTF-8, with UNIX line breaks.
+    E. Don't write different versions of functions distinguishable only by the calling sequence! This is perfectly good C++, but it isn't valid C99.
+
+VIII. Miscellany
+
+    A. Write what you mean as precisely and as readably as possible. For example, don’t write “0” when you mean “NULL” or “0L”. Please don't write a loop that’s exited only by break or jumping out of it as “for ( ; ; )”. There are good reasons for having such a loop, but “while (True)” is so much easier to understand.
+        An important special case of writing readable code: “Magic numbers” are a no-no! In most cases, a perfectly good way to avoid one is to give it a descriptive name and put it in a #define, with a comment. If the #define "should" go in a header file and you don't want to bother right now, it's much better to put the #define in the source file than to use the magic number: once the #define exists, it can easily be moved to the appropriate place later without someone having to figure out what the code does.
+
+    For macros that want to consist of full or multiple C statements, the most robust syntax is along the lines of
+
+    \#define FOO(a,b)  do { something(a); something(b) } while(False)
+
+    In particular, every occurrence of a parameter in the macro body should be within parentheses!
+
+    B. Instead of writing a series of #defines for related things whose values must be distinct integers but otherwise don't matter, you should probably use enum instead. But be careful with enums: if you #define a symbol to one value and enum it to another, your development system may not tell you (at least, THINK C didn’t, many years ago), and the result may be a hard-to-diagnose bug.
+
+    C. Re datatypes, use type Byte (=unsigned char) for binary data -- e.g., buffers -- only. Don’t declare variables that contain character data as Byte, since the definition of a character is likely to change someday to wchar_t or to “unsigned short”, in order to support Unicode.
+
+    D. Re datatypes, don’t overuse casts. A cast, of course, tells the compiler “don’t worry about the type of this, I know what I’m doing” -- but you might be wrong.
+
+    E. Ranges of nodes in the main data structure or any list should be described with a “from” link that’s INSIDE the range and a “to” link that’s OUTSIDE the range, so the range can be handled with something like “for (pL = from; pL!=to; pL = RightLINK(pL))”.
+
+    F. Resist the temptation to assign a variable in the test part of an “if”. It used to be considered wonderfully idiomatic, but it's almost always harder to read than assigning it in a separate statement, then testing it. Anyway, Xcode warns about this. There _are_ rare cases where it helps code readability, but in that case, you can put another set of parentheses around the assignment to reduce the chances of misunderstanding.
+
+    G. Don’t worry about over-parenthesizing complex expressions. If you have to look up the precedence rules to see whether parentheses are really necessary, just put them in so the next person to look at the code doesn’t have to look them up -- or, worse, fail to look them up and misunderstand the code as a result. Again see Maguire.
+
+    H. Don’t write “if (Boolean expression==False) ...” and “if (Boolean expression==True) ...”; just write “if (!Boolean expression) ...” and “if (Boolean expression) ...” Clarity aside, if the Boolean expression has a value other than 0 or 1, it will fail to equal either False or True ! This is particularly insidious if the expression is just a function call. Again see Maguire.
+
+    I. Arrange functions in modules by level consistently: in Nightingale, always lower-level-first, so definitions of calling functions follow definitions of those they call. Being consistent about it can save someone reading the code a lot of time.

@@ -5,7 +5,7 @@
 			containing a list of key value pairs in the format
 				key=value
 			Nomenclature follows that of config file routines in Initialize.c .
-			NB: This is really a work in progress, but there are already calls to
+			NB: THIS IS REALLY A WORK IN PROGRESS, but there are already calls to
 			it elsewhere in Nightingale code! They don't seem to cause any trouble,
 			but beware!
 ****************************************************************************************/
@@ -63,7 +63,7 @@ static OSStatus FindTextPreferencesFile(OSType fType, OSType fCreator, FSSpec *p
 	OSStatus err;
 	
 	// find the preferences folder
-	err = FindFolder( kOnSystemDisk, kPreferencesFolderType, true, &pvol, &pdir);
+	err = FindFolder( kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
 	if (err != noErr) return err;
 	
 	// search the folder for the file
@@ -116,10 +116,10 @@ static Boolean AddSetupStrings(Handle resH, short refNum)
 		
 		count = AddNewLine(buf);
 		theErr = FSWrite(refNum, &count, buf);
-		if (theErr) return FALSE;		
+		if (theErr) return False;		
 	}
 
-	return TRUE;
+	return True;
 }
 
 
@@ -136,21 +136,21 @@ static Boolean CreateTextSetupFile(FSSpec *fsSpec)
 
 	Pstrcpy(fsSpec->name, SETUP_TEXTFILE_PATH);	
 	theErr = FSpCreate(fsSpec, creatorType, prefsTextFileType, scriptCode);
-	if (theErr) return FALSE;
+	if (theErr) return False;
 	
 	theErr = FSpOpenDF (fsSpec, fsRdWrPerm, &refNum);
-	if (theErr) return FALSE;
+	if (theErr) return False;
 		
 	/* Now copy the instrument list. */
 	resH = GetResource('STR#', TEXTPREFS_STRS);
 	
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupStrings(resH, refNum)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupStrings(resH, refNum)) return False;
 	
 	theErr = FSClose(refNum);
-	if (theErr) return FALSE;
+	if (theErr) return False;
 
-	return TRUE;
+	return True;
 }
 
 /* ---------------------------------------------------------------- OpenSetupFile -- */
@@ -159,15 +159,15 @@ System Folder, generate a new one using resources from the application and open 
 Also make the Prefs file the current resource file.
 
 If we find a problem, including the Prefs file resource fork already open with
-write permission, we give an error message and return FALSE. (If the Prefs file
+write permission, we give an error message and return False. (If the Prefs file
 resource fork is open but with only read permission, I suspect we won't detect that
 and it won't be made the current resource file--bad but unlikely. Note that
 NightCustomizer doesn't keep the Prefs file open while it's running.) If all goes
-well, return TRUE. */
+well, return True. */
 
 Boolean OpenTextSetupFile()
 {
-	OSErr result; Boolean okay=TRUE; Str63 volName;
+	OSErr result; Boolean okay=True; Str63 volName;
 	StringHandle strHdl; char fmtStr[256];
 	
 	short oldVRefNum; long oldDirID;
@@ -196,13 +196,13 @@ Boolean OpenTextSetupFile()
 		 * lousy--it should use SETUP_FILE_NAME, of course--but ProgressMsg() can't
 		 * handle that!
 		 */
-		ProgressMsg(CREATESETUP_PMSTR, "");
+		ProgressMsg(CREATE_PREFS_PMSTR, "");
 		SleepTicks(60L);								/* Be sure user can read the msg */
 		if (!CreateTextSetupFile(&prefsFSSpec)) {
 			GetIndCString(strBuf, INITERRS_STRS, 2);	/* "Can't create Prefs file" */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			okay = FALSE;
+			okay = False;
 			goto done;
 		}
 		/* Try opening the brand-new one. */
@@ -224,7 +224,7 @@ Boolean OpenTextSetupFile()
 		}
 		CParamText(strBuf, "", "", "");
 		StopInform(OPENPREFS_ALRT);
-		okay = FALSE;
+		okay = False;
 	}
 	
 done:
@@ -234,8 +234,8 @@ done:
 
 Boolean ValidChar(char c) 
 {
-	if (c == ' ' || c == '\t') return FALSE;
-	return TRUE;
+	if (c == ' ' || c == '\t') return False;
+	return True;
 }
 
 Ptr CleanData(Ptr data, long count) 
@@ -336,13 +336,13 @@ static Boolean ReadPrefsTbl(char *data, KeyValuePair *tbl, long numLines)
 				line++;
 			}
 		}		
-		if (line > numLines) return FALSE;
+		if (line > numLines) return False;
 		
 		p = q + 1;
 		q = strchr(q + 1, '\n');		
 	}
 	
-	return TRUE;
+	return True;
 }
 
 Boolean GetTextConfig()
@@ -351,29 +351,29 @@ Boolean GetTextConfig()
 	OSStatus theErr;
 	long count, numLines;
 	Ptr data, newData;
-	Boolean ok = TRUE;
+	Boolean ok = True;
 	
 //	prefsStringPool = NewStringPool();
 //	if (prefsStringPool==NULL)
-//		return FALSE;
+//		return False;
 	
 //	theErr = FSpOpenDF (&prefsFSSpec, fsRdWrPerm, &refNum);
-//	if (theErr) return FALSE;
+//	if (theErr) return False;
 
 	refNum = setupFileRefNum;
 	
 	theErr = GetEOF(refNum, &count);
-	if (theErr) return FALSE;
+	if (theErr) return False;
 	
 	data = NewPtr(count);
-	if (!GoodNewPtr(data)) return FALSE;
+	if (!GoodNewPtr(data)) return False;
 	
 	theErr = FSRead(refNum, &count, data);
-	if (theErr) return FALSE;
+	if (theErr) return False;
 	
 	newData = CleanData(data, count);
 	if (newData == NULL) {
-		ok = FALSE; goto done;
+		ok = False; goto done;
 	}
 	
 	numLines = CountLines(newData);
@@ -382,7 +382,7 @@ Boolean GetTextConfig()
 	
 	prefsTbl = NewPtr(numLines * sizeof(KeyValuePair));
 	if (!GoodNewPtr(prefsTbl)) {
-		ok = FALSE; goto done;
+		ok = False; goto done;
 	}
 	
 	ok = ReadPrefsTbl(newData, (KeyValuePair *)prefsTbl, numLines);
@@ -392,9 +392,9 @@ done:
 		DisposePtr(data);
 	
 	theErr = FSClose(refNum);
-	if (theErr) ok = FALSE;
+	if (theErr) ok = False;
 	
-	if (ok == FALSE) {
+	if (ok == False) {
 	
 		if (newData)
 			DisposePtr(newData);

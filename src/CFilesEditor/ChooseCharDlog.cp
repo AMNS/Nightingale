@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -13,7 +13,8 @@
 
 #include "ChooseCharLDEF.h"
 
-/* 24 is a nice size for Sonata and compatible fonts */
+/* No one point size is good for both music fonts and normal text fonts. 24 is a nice
+size for Sonata and similar fonts, whether compatible or not. */
 #define MIN_FONTSIZE 	14		/* still too small for music fonts! */
 #define MAX_FONTSIZE 	48		/* too big for non-music fonts? too small for 72pt Seville, etc.*/
 #define MIN_CELLWIDTH	32		/* pixels */
@@ -35,12 +36,12 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 static Boolean BuildList(DialogPtr dlog);
 
 
-/* Display the Choose Char modal dialog.  Return TRUE if OK, FALSE if Cancel or error. */
+/* Display the Choose Char modal dialog.  Return True if OK, False if Cancel or error. */
 
 Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 {
 	short			itemHit, type;
-	Boolean			okay, keepGoing=TRUE;
+	Boolean			okay, keepGoing=True;
 	Cell			aCell;
 	register DialogPtr dlog;
 	Handle			hndl;
@@ -51,7 +52,7 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 	filterUPP = NewModalFilterUPP(ChooseCharFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(CHOOSECHAR_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -59,7 +60,7 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 	if (dlog == NULL) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(CHOOSECHAR_DLOG);
-		return FALSE;
+		return False;
 	}
 	SetPort(GetDialogWindowPort(dlog));
 
@@ -72,10 +73,10 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 		TrueType and, I assume, ATM fonts are "real" fonts.) */
 	if (!RealFont(fontNum, fontSize)) {
 		register short i;
-		Boolean gotIt=FALSE;
+		Boolean gotIt=False;
 		for (i=fontSize; i<=MAX_FONTSIZE; i++) {			/* look for a larger installed size */
 			if (RealFont(fontNum, i)) {
-				gotIt = TRUE;
+				gotIt = True;
 				fontSize = i;
 				break;
 			}
@@ -95,7 +96,7 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 	TextFont(fontNum);
 	TextSize(fontSize);
 	
-	if (!BuildList(dlog)) { okay = FALSE; goto broken; }
+	if (!BuildList(dlog)) { okay = False; goto broken; }
 	
 	CenterWindow(GetDialogWindow(dlog), 0);
 	ShowWindow(GetDialogWindow(dlog));
@@ -107,10 +108,10 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
 		switch (itemHit) {
 			case OK:
-				keepGoing = FALSE; okay = TRUE;
+				keepGoing = False; okay = True;
 				break;
 			case Cancel:
-				keepGoing = FALSE;
+				keepGoing = False;
 				break;
 			case LIST3:					/* handled in filter */
 				break;
@@ -120,7 +121,7 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 	okay = (itemHit==OK);
 	if (okay) {
 		aCell.h = aCell.v = 0;
-		LGetSelect(TRUE, &aCell, charListHndl);
+		LGetSelect(True, &aCell, charListHndl);
 		*theChar = (aCell.v * numColumns) + aCell.h;
 		lastChoice = *theChar;
 	}
@@ -136,7 +137,7 @@ broken:							/* Error return */
 
 static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
-	Boolean			ans=FALSE, doHilite=FALSE;
+	Boolean			ans=False, doHilite=False;
 	WindowPtr		w;
 	short			ch, listFont, listFontSize, sysFontSize;
 	Cell			aCell;
@@ -163,12 +164,12 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 				UpdateDialogVisRgn(dlog);
 				TextFont(listFont);
 				TextSize(listFontSize);
-				FrameDefault(dlog, OK, TRUE);
+				FrameDefault(dlog, OK, True);
 				FrameRect(&charListBounds);
 				LUpdateDVisRgn(dlog, charListHndl);			
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
-				ans = TRUE;  *itemHit = 0;
+				ans = True;  *itemHit = 0;
 			}
 			break;
 		case activateEvt:
@@ -184,26 +185,26 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 			/* if double-click, simulate pressing OK button */
 			if (LClick(clickPt, evt->modifiers, charListHndl)) {
 				*itemHit = OK;
-				doHilite = TRUE;
+				doHilite = True;
 			}
-			ans = doHilite;								/* false if not a double-click in list */
+			ans = doHilite;									/* False if not a double-click in list */
 			break;
 		case autoKey:										/* arrow keys need autoKey events */
 		case keyDown:
 			ch = (unsigned char)evt->message;
 			if (ch==CH_CR || ch==CH_ENTER) {
 				*itemHit = OK;
-				doHilite = ans = TRUE;
+				doHilite = ans = True;
 			}
 			else if (ch=='.' && evt->modifiers & cmdKey) {
 				*itemHit = Cancel;
-				doHilite = TRUE;
-				ans = TRUE;									/* Ignore other cmd-chars */
+				doHilite = True;
+				ans = True;									/* Ignore other cmd-chars */
 			}
 			else {				
 				aCell.h = aCell.v = 0;
-				LGetSelect(TRUE, &aCell, charListHndl);
-				LSetSelect(FALSE, aCell, charListHndl);
+				LGetSelect(True, &aCell, charListHndl);
+				LSetSelect(False, aCell, charListHndl);
 				oldCellCh = (aCell.v * numColumns) + aCell.h;
 				switch (ch) {
 					case LEFTARROWKEY:
@@ -222,15 +223,15 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 						if (oldCellCh < numColumns*(numRows-1))
 							oldCellCh += numColumns;
 						break;
-					default:											/* select the letter typed */
+					default:								/* select the character typed */
 						oldCellCh = ch;
 						break;
 				}
 				aCell.h = oldCellCh % numColumns;
 				aCell.v = oldCellCh / numColumns;
-				LSetSelect(TRUE, aCell, charListHndl);
+				LSetSelect(True, aCell, charListHndl);
 				LAutoScroll(charListHndl);
-				ans = TRUE;
+				ans = True;
 			}
 			break;
 	}
@@ -271,7 +272,8 @@ static Boolean BuildList(DialogPtr dlog)
 	lMarg = userBox;
 	
 	GetDialogPortBounds(dlog, &portRect);
-	lMarg.right = portRect.right - userBox.right;		/* NB: rt & bot are dist. btw. list and closest edge of wind */
+	/* NB: right & bottom are dist. between list and closest edge of window */
+	lMarg.right = portRect.right - userBox.right;
 	lMarg.bottom = portRect.bottom - userBox.bottom;
 
 	/* Calculate cell dimensions from current font characteristics */
@@ -284,10 +286,10 @@ static Boolean BuildList(DialogPtr dlog)
 	/* Determine how many cells can fit in a comfortably sized window */
 	maxColumns = (scrnWid - (lMarg.left + lMarg.right)) / cellWid;
 	numColumns = maxColumns>=16? 16 : (maxColumns>=8? 8 : 4);
-	numRowsVis = (scrnHt - (lMarg.top + lMarg.bottom)) / cellHt;			/* number of rows visible at a time (without scrolling) */
-	numRows = 256/numColumns;												/* total number of rows */
+	numRowsVis = (scrnHt - (lMarg.top + lMarg.bottom)) / cellHt;		/* number of rows visible at a time (without scrolling) */
+	numRows = 256/numColumns;											/* total number of rows */
 	if (numRowsVis>numRows) numRowsVis = numRows;
-	scrollBarWid = numRowsVis==numRows? 0 : SCROLLBAR_WIDTH;				/* may not need scroll bar */
+	scrollBarWid = numRowsVis==numRows? 0 : SCROLLBAR_WIDTH;			/* may not need scroll bar */
 	
 	/* Calculate size of list and dialog window */
 	userBox.right = userBox.left + (cellWid*numColumns) + scrollBarWid;
@@ -295,11 +297,11 @@ static Boolean BuildList(DialogPtr dlog)
 
 	/* set list bounding rect */
 	charListBounds = userBox; InsetRect(&charListBounds, -1, -1);
-	SetDialogItem(dlog, LIST3, userItem, NULL, &charListBounds);			/* so we get clicks in updated user item rect, I guess */
+	SetDialogItem(dlog, LIST3, userItem, NULL, &charListBounds);		/* so we get clicks in updated user item rect, I guess */
 
 	/* Change window size */
 	SizeWindow(GetDialogWindow(dlog), (userBox.right - userBox.left) + (lMarg.left + lMarg.right),
-					(userBox.bottom - userBox.top) + (lMarg.top + lMarg.bottom), FALSE);
+					(userBox.bottom - userBox.top) + (lMarg.top + lMarg.bottom), False);
 	
 	/* Move Cancel button */
 	GetDialogItem(dlog, Cancel, &type, &hndl, &cancelBox);
@@ -338,11 +340,12 @@ static Boolean BuildList(DialogPtr dlog)
 
 	// Create a custom list
 	WindowPtr w = GetDialogWindow(dlog);
-	CreateCustomList(&contentRect, &dataBounds, cSize, &defSpec, 
-						w, FALSE, FALSE, FALSE, scrollBarWid==0? FALSE : TRUE, &charListHndl);
+	CreateCustomList(&contentRect, &dataBounds, cSize, &defSpec, w, False,
+						False, False, (scrollBarWid==0? False : True), &charListHndl);
 #else	
 	charListHndl = LNew(&contentRect, &dataBounds, cSize, CHOOSECHAR_LDEF,
-							GetDialogWindow(dlog), FALSE, FALSE, FALSE, scrollBarWid==0? FALSE : TRUE);
+							GetDialogWindow(dlog), False, False, False, scrollBarWid==0?
+							 False : True);
 #endif
 	if (charListHndl) {
 		(*charListHndl)->selFlags = lOnlyOne;
@@ -355,9 +358,9 @@ static Boolean BuildList(DialogPtr dlog)
 		}
 		aCell.h = lastChoice % numColumns;
 		aCell.v = lastChoice / numColumns;
-		LSetSelect(TRUE, aCell, charListHndl);				/* select default (or sticky) cell */
+		LSetSelect(True, aCell, charListHndl);				/* select default (or sticky) cell */
 		LAutoScroll(charListHndl);							/* and scroll to it */
-		LSetDrawingMode(TRUE, charListHndl);
+		LSetDrawingMode(True, charListHndl);
 	}
 	
 	return (charListHndl!=NULL);

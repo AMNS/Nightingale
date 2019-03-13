@@ -53,9 +53,8 @@ enum {
   kPMNSysJustifUserCancel = -30902  
 };
 
-/*------------------------------------------------------------------------------
-	Globals
-------------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------------- Globals -- */
+	
 static PMSheetDoneUPP gMyPageSetupDoneProc = NULL;
 static PMSheetDoneUPP gMyPrintDialogDoneProc = NULL;
 
@@ -87,25 +86,24 @@ static void FillFontUsedTbl(Document *doc);
 static short PSTypeDialog(short, short);
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
+
 static OSStatus DocCreatePrintSessionProcs(PMSheetDoneUPP *pageSetupDoneUPP,
-															PMSheetDoneUPP *printDialogDoneUPP)
+											PMSheetDoneUPP *printDialogDoneUPP)
 {
 	OSStatus err = noErr;
 
 	if (gMyPageSetupDoneProc == NULL) {
 		gMyPageSetupDoneProc = NewPMSheetDoneUPP(NPageSetupDoneProc);
 		
-		if (gMyPageSetupDoneProc == NULL)
-			err = memFullErr;
+		if (gMyPageSetupDoneProc == NULL) err = memFullErr;
 	}
 	
 	if (err == noErr) {
 		*pageSetupDoneUPP = gMyPageSetupDoneProc;
 		
 		gMyPrintDialogDoneProc = NewPMSheetDoneUPP(NPrintDialogDoneProc);
-		if (gMyPrintDialogDoneProc == NULL)
-			err = memFullErr;
+		if (gMyPrintDialogDoneProc == NULL) err = memFullErr;
 			
 		*printDialogDoneUPP = gMyPrintDialogDoneProc;
 	}
@@ -119,7 +117,7 @@ static OSStatus DocCreatePrintSessionProcs(PMSheetDoneUPP *pageSetupDoneUPP,
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 // Create DocPrintInfo record for the document.
 
 Boolean IsDocPrintInfoInstalled(Document *doc)
@@ -127,7 +125,7 @@ Boolean IsDocPrintInfoInstalled(Document *doc)
 	return (doc->docPrintInfo.docPageSetupDoneUPP != NULL);
 }
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 // Create DocPrintInfo record for the document.
 
 OSStatus InstallDocPrintInfo(Document *doc)
@@ -154,7 +152,7 @@ OSStatus InstallDocPrintInfo(Document *doc)
 	return err;
 }
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static OSStatus DocSetupPageFormat(Document *doc)
 {
@@ -193,7 +191,7 @@ static OSStatus DocSetupPageFormat(Document *doc)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 										WindowRef docWindow,
@@ -203,10 +201,10 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 	OSStatus status = noErr;
 	
 	if (doc!=NULL && doc->docPrintInfo.docPageFormat!=kPMNoPageFormat && accepted) {
-		/*
-		 *	Now if doc->paperRect is different from rPaper (user has chosen different
-		 *	size paper), we change to new size and inval everything.
-		 */
+	
+		/* Now if doc->paperRect is different from rPaper (user has chosen different
+		   size paper), we change to new size and inval everything. */
+		
 		PMRect pmRPaper;
 		Rect rPaper;
 		PMOrientation pmOrientation;
@@ -231,9 +229,9 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 			rPaper.right = pmRPaper.right;
 			
 			OffsetRect(&rPaper, -rPaper.left, -rPaper.top);
-			LogPrintf(LOG_NOTICE, "NPageSetupDoneProc: origPaperRect= %d,%d,%d,%d\n", doc->origPaperRect.left,
+			LogPrintf(LOG_INFO, "NPageSetupDoneProc: origPaperRect= %d,%d,%d,%d\n", doc->origPaperRect.left,
 						doc->origPaperRect.top, doc->origPaperRect.right, doc->origPaperRect.bottom);
-			LogPrintf(LOG_NOTICE, "                    rPaper=        %d,%d,%d,%d\n", rPaper.left,
+			LogPrintf(LOG_INFO, "                    rPaper=        %d,%d,%d,%d\n", rPaper.left,
 							rPaper.top, rPaper.right, rPaper.bottom);
 			if (!EqualRect(&doc->origPaperRect, &rPaper)) {
 				short marginRight = doc->origPaperRect.right - doc->marginRect.right;
@@ -242,7 +240,7 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 				doc->marginRect.bottom = rPaper.bottom - marginBottom;
 				doc->origPaperRect = rPaper;
 				MagnifyPaper(&doc->origPaperRect, &doc->paperRect, doc->magnify);
-				doc->changed = TRUE;
+				doc->changed = True;
 				InvalSheetView(doc);
 			}
 		}		
@@ -252,7 +250,7 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 			SignedByte oldLandscape = doc->landscape;
 	
 			doc->landscape = (pmOrientation==kPMLandscape || pmOrientation==kPMReverseLandscape);
-			if (doc->landscape != oldLandscape) doc->changed = TRUE;
+			if (doc->landscape != oldLandscape) doc->changed = True;
 		}
 	}
 	
@@ -270,12 +268,12 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
-void NDoPageSetup(Document *doc)
+void DoPageSetup(Document *doc)
 {
 	WindowRef w = doc->theWindow;
-	Boolean accepted = FALSE;
+	Boolean accepted = False;
 	
 	OSStatus status = DocSetupPageFormat(doc);
 	
@@ -295,8 +293,7 @@ void NDoPageSetup(Document *doc)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
-
+/* -------------------------------------------------------------------------------------- */
 /* Actually do the printing. */
 
 static pascal void NPrintDialogDoneProc(PMPrintSession /*printSession*/,
@@ -311,12 +308,11 @@ static pascal void NPrintDialogDoneProc(PMPrintSession /*printSession*/,
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
-
-/* Despite its name, NDoPrintScore doesn't actually do any printing; it handles interaction
+/* -------------------------------------------------------------------------------------- */
+/* Despite its name, DoPrintScore doesn't actually do any printing; it handles interaction
 with the user and sets things up for printing. */
 
-void NDoPrintScore(Document *doc)
+void DoPrintScore(Document *doc)
 {
 	OSStatus status = DocSetupPageFormat(doc);
 	PMPrintSettings printSettings;
@@ -359,8 +355,7 @@ void NDoPrintScore(Document *doc)
 	}
 	
 	if (status != noErr) {
-		if (printSettings != kPMNoPrintSettings)
-			PMRelease(printSettings);
+		if (printSettings != kPMNoPrintSettings) PMRelease(printSettings);
 			
 		DocReleasePrintSettings(doc);
 		DocReleasePrintSession(doc);
@@ -372,7 +367,7 @@ void NDoPrintScore(Document *doc)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static OSStatus SetupPrintDlogPages(Document *doc)
 {
@@ -387,7 +382,7 @@ static OSStatus SetupPrintDlogPages(Document *doc)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static OSStatus GetPrintPageRange(Document *doc, UInt32 *firstPage, UInt32 *lastPage)
 {
@@ -400,62 +395,48 @@ static OSStatus GetPrintPageRange(Document *doc, UInt32 *firstPage, UInt32 *last
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPage)
 {
-	OSStatus status = PMSetFirstPage(doc->docPrintInfo.docPrintSettings, firstPage, FALSE);
+	OSStatus status = PMSetFirstPage(doc->docPrintInfo.docPrintSettings, firstPage, False);
 
 	if (status == noErr)
-		status = PMSetLastPage(doc->docPrintInfo.docPrintSettings, lastPage, FALSE);
+		status = PMSetLastPage(doc->docPrintInfo.docPrintSettings, lastPage, False);
 				
 	return status;
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
 
-/*
- * Check that systems in a range of pages are all justified. If SysJustFact() is
- * significantly different from 1.0, tell user and give them a chance to
- * cancel. Return FALSE if user says stop, TRUE otherwise (all justified or user
- * says continue anyway). (It'd be nice some day to give them an opportunity to
- * justify right now.)
- */
-
-#define JUSTSLOP .001
+/* Check that systems in a range of pages are all justified. If SysJustFact() is
+significantly different from 1.0, tell user and give them a chance to cancel. Return
+False if user says stop or there's an error, True otherwise (all justified, or user
+sqys continue anyway). (It'd be nice some day to give them an opportunity to justify
+right now.) */
 
 static Boolean IsRightJustOK(Document *doc, 
 								short firstSheet, short lastSheet)	/* Inclusive range of sheet numbers */
 {
-	LINK startPageL, endPageL, pL, firstMeasL, termSysL, lastMeasL;
-	FASTFLOAT justFact;
-	DDIST staffWidth, lastMeasWidth;
+	LINK startPageL, endPageL;
+	short firstUnjustPg;
 	
-	startPageL = LSSearch(doc->headL, PAGEtype, firstSheet, GO_RIGHT, FALSE);
-	endPageL = LSSearch(doc->headL, PAGEtype, lastSheet+1, GO_RIGHT, FALSE);
+	startPageL = LSSearch(doc->headL, PAGEtype, firstSheet, GO_RIGHT, False);
+	endPageL = LSSearch(doc->headL, PAGEtype, lastSheet+1, GO_RIGHT, False);
 	if (!endPageL) endPageL = doc->tailL;
 	if (!startPageL) {
 		MayErrMsg("IsRightJustOK: can't find startPageL.");
-		return TRUE;
+		return False;
 	}
 	
-	for (pL = startPageL; pL!=endPageL; pL = RightLINK(pL))
-		if (SystemTYPE(pL)) {
-			firstMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
-			termSysL = EndSystemSearch(doc, pL);
-			lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
-			justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
-			if (justFact<1.0-JUSTSLOP || justFact>1.0+JUSTSLOP) {
-				return (CautionAdvise(NOTJUST_ALRT)!=Cancel);
-			}
-		}
-		
-	return TRUE;
+	if (CountUnjustifiedSystems(doc, startPageL, endPageL, &firstUnjustPg)>0)
+		return (CautionAdvise(NOTJUST_ALRT)!=Cancel);
+	return True;
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
 
 static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg)
 {
@@ -518,7 +499,7 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 
 static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 {
-	Boolean		includePostScript = false;
+	Boolean		includePostScript = False;
 	OSStatus	status;
 	CFArrayRef	supportedFormats = NULL;
 	SInt32		i, numSupportedFormats;
@@ -554,7 +535,7 @@ static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 																	arrayOfGraphicsContexts, NULL);
 
 					if (status == noErr)
-						includePostScript = true;	// Enable use of PS PicComments in DrawPage.
+						includePostScript = True;	// Enable use of PS PicComments in DrawPage.
 
 					// Deallocate the array used for the list of graphics contexts.
 					CFRelease(arrayOfGraphicsContexts);
@@ -571,7 +552,7 @@ static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 }	//	IncludePostScriptInSpoolFile
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 /* Decide whether to do PostScript or bitmap printing. We do this based on "whether the
 current printer driver supports embedding of PostScript in the spool file" (cf.
@@ -590,21 +571,14 @@ static short GetPrintDestination(Document *doc)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
-
-#define USE_PREC103 1
-
-void PS_FinishPrintDictHdl()
-{
-}
-
+/* -------------------------------------------------------------------------------------- */
 
 static void NDoPrintLoop(Document *doc)
 {
 	short saveOutputTo;
 	OSStatus status;
-	UInt32	firstPage,lastPage;
-	UInt32	firstSheet,lastSheet;
+	UInt32	firstPage, lastPage;
+	UInt32	firstSheet, lastSheet;
 	UInt32	copies;
 	Rect imageRect;
 	
@@ -616,26 +590,18 @@ static void NDoPrintLoop(Document *doc)
 	firstSheet = firstPage - doc->firstPageNumber;
 	lastSheet = lastPage - doc->firstPageNumber;
 
-	if (status == noErr)
-		status = PMGetCopies(doc->docPrintInfo.docPrintSettings, &copies);	
-	require(status==noErr,displayError);
+	if (status == noErr) status = PMGetCopies(doc->docPrintInfo.docPrintSettings, &copies);	
+	require(status==noErr, displayError);
 	
 	UpdateAllWindows();
 	
-	status = DocFormatGetAdjustedPaperRect(doc, &imageRect, TRUE);
-	require(status==noErr,displayError);
+	status = DocFormatGetAdjustedPaperRect(doc, &imageRect, True);
+	require(status==noErr, displayError);
 	
-#if USE_PREC103
-	if (status == noErr)
-		PS_PreparePrintDict(doc,&imageRect);					/* Create 'PREC' 103 */
-#else
-	if (status == noErr)
-		printDictHdl = PS_PreparePrintDictHdl(doc,&imageRect);	/* Create 'PREC' 103 */
-#endif
+	if (status == noErr) PS_PreparePrintDict(doc,&imageRect);		/* Create 'PREC' 103 */
 		
-	if (status == noErr)
-		outputTo = GetPrintDestination(doc);
-	require(status==noErr,displayError);
+	if (status == noErr) outputTo = GetPrintDestination(doc);
+	require(status==noErr, displayError);
 	
 	if (status == noErr) {
 		switch (outputTo) {
@@ -654,15 +620,9 @@ static void NDoPrintLoop(Document *doc)
 	
 displayError:
 
-#if USE_PREC103
 	PS_FinishPrintDict();
-#else
-	PS_FinishPrintDictHdl();	
-#endif
 	
-	if (status != noErr &&
-		 status != kPMNSysJustifUserCancel) 
-	{
+	if (status != noErr && status != kPMNSysJustifUserCancel) {
 		CFStringRef cfFormatStr = CFSTR("Print loop error. Error number: %d.");
 		
 		DocPostPrintingError(doc, status, cfFormatStr);
@@ -686,13 +646,14 @@ displayError:
 	doc->docPrintInfo.docPrintSession = NULL;
 }
 
-// --------------------------------------------------------------------------------------------------------------
+
+/* -------------------------------------------------------------------------------------- */
 
 static OSStatus PrintBitmap(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
 {
-	OSStatus err = noErr,status = noErr;
+	OSStatus err = noErr, status = noErr;
 	UInt32 sheetNum;
-	GrafPtr	currPort,printPort;
+	GrafPtr	currPort, printPort;
 	
 	status = PMSessionBeginDocument(doc->docPrintInfo.docPrintSession,
 										doc->docPrintInfo.docPrintSettings,
@@ -701,7 +662,7 @@ static OSStatus PrintBitmap(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
 	if (status == noErr) {
 		sheetNum = firstSheet;
 		
-		while (sheetNum <= lastSheet && DocSessionOK(doc,status)) {
+		while (sheetNum <= lastSheet && DocSessionOK(doc, status)) {
 			status = PMSessionBeginPage(doc->docPrintInfo.docPrintSession,
 											doc->docPrintInfo.docPageFormat,
 											NULL);
@@ -734,7 +695,7 @@ static OSStatus PrintBitmap(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
 {
@@ -757,7 +718,7 @@ static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastShe
 		 */
 		//printRect = (**hPrint).prInfo.rPage;
 		//imageRect = (*hPrint)->rPaper;		
-		status = DocFormatGetAdjustedPaperRect(doc, &imageRect, TRUE);
+		status = DocFormatGetAdjustedPaperRect(doc, &imageRect, True);
 
 		paper = doc->paperRect;
 		
@@ -801,11 +762,11 @@ static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastShe
 						 */
 						PS_NewPage(doc,NULL,sheet+doc->firstPageNumber);
 						
-						PS_OutOfQD(doc,TRUE,&imageRect);
-						//PrintDemoBanner(doc, TRUE);
+						PS_OutOfQD(doc,True,&imageRect);
+						//PrintDemoBanner(doc, True);
 						DrawPageContent(doc, sheet, &paper, &doc->currentPaper);
 //						PS_Print("showpage\r");
-						PS_IntoQD(doc,TRUE);
+						PS_IntoQD(doc,True);
 						
 						PS_EndPage();
 						SetPort(currPort);
@@ -826,7 +787,7 @@ static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastShe
 	return status;
 }
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static OSStatus NDocDrawPage(Document *doc, UInt32 sheetNum)
 {
@@ -839,18 +800,18 @@ static OSStatus NDocDrawPage(Document *doc, UInt32 sheetNum)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static OSStatus DocFormatGetAdjustedPaperRect(Document *doc, Rect *rPaper, Boolean xlateScale)
 {
 	PMRect pmRPaper;
 	double scale;
 	
-	OSStatus status = PMGetAdjustedPaperRect(doc->docPrintInfo.docPageFormat,&pmRPaper);
+	OSStatus status = PMGetAdjustedPaperRect(doc->docPrintInfo.docPageFormat, &pmRPaper);
 	
 	if (xlateScale) {
 		if (status == noErr)
-			status = PMGetScale(doc->docPrintInfo.docPageFormat,&scale);
+			status = PMGetScale(doc->docPrintInfo.docPageFormat, &scale);
 	}
 	else {
 		scale = 100.0;
@@ -875,18 +836,18 @@ static OSStatus DocFormatGetAdjustedPaperRect(Document *doc, Rect *rPaper, Boole
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static Boolean DocSessionOK(Document *doc, OSStatus status)
 {
-	if (status != noErr) return FALSE;
-	if (doc->docPrintInfo.docPrintSession == NULL) return FALSE;
+	if (status != noErr) return False;
+	if (doc->docPrintInfo.docPrintSession == NULL) return False;
 	
 	return (PMSessionError(doc->docPrintInfo.docPrintSession) == noErr);
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static void DocReleasePrintSession(Document *doc)
 {
@@ -915,9 +876,10 @@ static void DocReleasePrintSettings(Document *doc)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
-static void DocSPFReleasePrintSession(Document *doc,PMPrintSession printSession,PMPageFormat pageFormat)
+static void DocSPFReleasePrintSession(Document *doc, PMPrintSession printSession,
+										PMPageFormat pageFormat)
 {
 	if (doc->docPrintInfo.docPageFormat != pageFormat) {
 		if (pageFormat != kPMNoPageFormat)
@@ -1012,7 +974,7 @@ OSStatus LoadAndUnflattenPageFormat(Document *doc)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static void DocPostPrintingError(Document */*doc*/, OSStatus status, CFStringRef errorFormatStringKey)
 {   
@@ -1041,13 +1003,10 @@ static void DocPostPrintingError(Document */*doc*/, OSStatus status, CFStringRef
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
-// Save as EPSF routines.
+/* --------------------------------------------------------- Roputines to save as EPSF -- */
 
-/*
- *	Go thru the entire object list and make a list of the font/style combinations that are
- *	actually used.
- */
+/* Go thru the entire object list and make a list of the font/style combinations that are
+actually used. */
 
 static void FillFontUsedTbl(Document *doc)
 {
@@ -1058,18 +1017,18 @@ static void FillFontUsedTbl(Document *doc)
 	for (j = 0; j<doc->nfontsUsed; j++) {
 		Pstrcpy((StringPtr)fontUsedTbl[j].fontName, (StringPtr)doc->fontTable[j].fontName);
 		for (k = 0; k<4; k++)
-			fontUsedTbl[j].style[k] = FALSE;
+			fontUsedTbl[j].style[k] = False;
 		}
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		if (GraphicTYPE(pL)) {
 			p = GetPGRAPHIC(pL);
 			styleBits = p->fontStyle % 4;
-			fontUsedTbl[p->fontInd].style[styleBits] = TRUE;
+			fontUsedTbl[p->fontInd].style[styleBits] = True;
 			}
 }
 
 
-Boolean NDoPostScript(Document *doc)
+Boolean DoPostScript(Document *doc)
 	{
 		short			saveOutputTo, saveMagnify, sheet, sufIndex;
 		short			len, vref, rfNum, suffixLen, ch, firstSheet, topSheet;
@@ -1091,7 +1050,7 @@ Boolean NDoPostScript(Document *doc)
 		Sel2MeasPage(doc, &anInt, &pageNum);
 		newType = PSTypeDialog(type, pageNum);
 		sheetNum = pageNum-doc->firstPageNumber;
-		if (!newType) return FALSE;
+		if (!newType) return False;
 		type = newType;
 		
 		EPSFile = (type==1);
@@ -1116,17 +1075,15 @@ Boolean NDoPostScript(Document *doc)
 		
 		/* Finally append suffix */
 		
-		ch = outname[len];								/* Hold last character of name */
+		ch = outname[len];									/* Hold last character of name */
 		GetIndString(outname+len, MiscStringsID,sufIndex);	/* Append suffix, obliterating last char */
-		outname[len] = ch;								/* Overwrite length byte with saved char */
-		*outname = (len + suffixLen);					/* And ensure new string knows new length */
+		outname[len] = ch;									/* Overwrite length byte with saved char */
+		*outname = (len + suffixLen);						/* And ensure new string knows new length */
 		
 		/* Ask user where to put this PostScript file */
 
-		//Pstrcpy(outname,doc->name);
-		//PStrCat(outname,EPSFile? (StringPtr)"\p.eps":(StringPtr)"\p.txt");
 		keepGoing = GetOutputName(MiscStringsID,EPSFile? 7:9, outname, &vref, &nscd);
-		if (!keepGoing) return FALSE;
+		if (!keepGoing) return False;
 		
 		rfSpec = nscd.nsFSSpec;
 		
@@ -1138,7 +1095,7 @@ Boolean NDoPostScript(Document *doc)
 		if (theErr == noErr) {
 			paperRect = doc->origPaperRect;
 			
-			PS_Header(doc, outname, (EPSFile? 1:doc->numSheets), 1.0, FALSE, TRUE, &paperRect, &paperRect);
+			PS_Header(doc, outname, (EPSFile? 1:doc->numSheets), 1.0, False, True, &paperRect, &paperRect);
 			
 			if (EPSFile) {
 				firstSheet = sheetNum;					/* Do current sheet only */
@@ -1219,7 +1176,7 @@ Boolean NDoPostScript(Document *doc)
 		outputTo = saveOutputTo;
 		ArrowCursor();
 
-		return TRUE;
+		return True;
 	}
 
 
@@ -1236,7 +1193,7 @@ static short group1;
 
 static short PSTypeDialog(short oldType, short pageNum)
 	{
-		short itemHit, okay, type, keepGoing=TRUE;
+		short itemHit, okay, type, keepGoing=True;
 		DialogPtr dlog; GrafPtr oldPort;
 		ModalFilterUPP filterUPP;
 		Handle hndl;
@@ -1270,7 +1227,7 @@ static short PSTypeDialog(short oldType, short pageNum)
 		PutDlgChkRadio(dlog, RAD4_EPSF, (group1==RAD4_EPSF));
 		PutDlgChkRadio(dlog, RAD5_PostScript, (group1==RAD5_PostScript));
 
-		PlaceWindow(GetDialogWindow(dlog),NULL,0,80);
+		PlaceWindow(GetDialogWindow(dlog),NULL, 0, 80);
 		ShowWindow(GetDialogWindow(dlog));
 
 		/* Entertain filtered user events until dialog is dismissed */
@@ -1279,11 +1236,11 @@ static short PSTypeDialog(short oldType, short pageNum)
 			ModalDialog(filterUPP, &itemHit);
 			switch(itemHit) {
 				case BUT1_OK:
-					keepGoing = FALSE;
+					keepGoing = False;
 					okay = (group1==RAD4_EPSF) ? 1 : 2;
 					break;
 				case BUT2_Cancel:
-					keepGoing = FALSE;
+					keepGoing = False;
 					okay = 0;
 					break;
 				case RAD4_EPSF:

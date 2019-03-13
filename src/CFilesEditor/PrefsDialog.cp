@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	PrefsDialog.c
 *	PROJ:	Nightingale
 *	DESC:	Preferences dialog routines.
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -93,33 +93,33 @@ enum {
 		PM_LastSection				/* 1 more than last defined section number */
 	};
 
-static UserPopUp cardPopup;		/* Select preferences card */
-static UserPopUp spaceTblPopup;	/* Select space table */
-static UserPopUp musFontPopup;	/* Select music font */
+static UserPopUp cardPopup;			/* Select preferences card */
+static UserPopUp spaceTblPopup;		/* Select space table */
+static UserPopUp musFontPopup;		/* Select music font */
 
 static Rect	borderRect;				/* Store rect of USER5_Divider for drawing */
-static short currEditField = 0;	/* Field selected when dlog last closed */
+static short currEditField = 0;		/* Field selected when dlog last closed */
 
 
 void PrefsDialog(
 			Document *doc,
 			Boolean	/*fileUsed*/,		/* (unused) Is there a score open that has any content? */
-			short		*section			/* The card showing first */
+			short	*section			/* The card showing first */
 			)
 {
 	register DialogPtr dlog;
-	GrafPtr		oldPort;
+	GrafPtr			oldPort;
 	register short dialogOver;
 	short			ditem, itype;
 	short			tableID,oldSpaceTable, oldmShakeThresh, temp, saveResFile, musFontOrigChoice;
-	Handle		beamrestHdl, tHdl;
+	Handle			beamrestHdl, tHdl;
 	Rect			tRect;
-	Boolean		oldAutoRespace, oldBeamRests;
+	Boolean			oldAutoRespace, oldBeamRests;
 	register short count;
-	ResType		tType;
-	Str255		tableName, mItemName;
-	Handle		tableHndl;
-	double		titleMargInch, fTemp;
+	ResType			tType;
+	Str255			tableName, mItemName;
+	Handle			tableHndl;
+	double			titleMargInch, fTemp;
 	char			fmtStr[256];
 	ModalFilterUPP	filterUPP;
 	
@@ -159,11 +159,11 @@ void PrefsDialog(
 
 	titleMargInch = pt2in(config.titleMargin);
 	titleMargInch = RoundDouble(titleMargInch, .01);
-	PutDlgDouble(dlog, EDIT7_margin, titleMargInch, FALSE);
-	PutDlgWord(dlog, EDIT10_ShakeTresh, config.mShakeThresh, FALSE);
-	PutDlgWord(dlog, EDIT13_numer, config.defaultTSNum, FALSE);
-	PutDlgWord(dlog, EDIT14_denom, config.defaultTSDenom, FALSE);
-	PutDlgWord(dlog, EDIT16_rastral, config.defaultRastral, FALSE);
+	PutDlgDouble(dlog, EDIT7_margin, titleMargInch, False);
+	PutDlgWord(dlog, EDIT10_ShakeTresh, config.mShakeThresh, False);
+	PutDlgWord(dlog, EDIT13_numer, config.defaultTSNum, False);
+	PutDlgWord(dlog, EDIT14_denom, config.defaultTSDenom, False);
+	PutDlgWord(dlog, EDIT16_rastral, config.defaultRastral, False);
 	tHdl = PutDlgChkRadio(dlog, CHK17_MakeBackup, config.makeBackup);
 	
 	beamrestHdl = PutDlgChkRadio(dlog, CHK18_BeamRests, doc->beamRests);
@@ -175,14 +175,14 @@ void PrefsDialog(
 	ResizePopUp(&spaceTblPopup);
 
 	/* Convert sticky space table res ID to menu item number */
-	if (doc->spaceTable == 0)					/* if Ngale's internal table */
-		spaceTblPopup.currentChoice = 1;		/* first item */
+	if (doc->spaceTable == 0)							/* if Ngale's internal table */
+		spaceTblPopup.currentChoice = 1;				/* first item */
 	else {
 		saveResFile = CurResFile();
 		UseResFile(setupFileRefNum);
 		tableHndl = GetResource('SPTB', doc->spaceTable);
 		if (!GoodResource(tableHndl)) {
-			GetIndCString(fmtStr, PREFSERRS_STRS, 2);    /* "Nightingale can't find the current spacing table (ID=%d): it will not appear in the menu of spacing tables." */
+			GetIndCString(fmtStr, PREFSERRS_STRS, 2);	/* "Nightingale can't find the current spacing table (ID=%d): it will not appear in the menu of spacing tables." */
 			sprintf(strBuf, fmtStr, doc->spaceTable); 
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
@@ -193,7 +193,7 @@ void PrefsDialog(
 		/* Search for a match between doc->spaceTable and menuItem strings */
 		for (count = 1; count <= CountMenuItems(spaceTblPopup.menu); count++) {
 			GetMenuItemText(spaceTblPopup.menu, count, mItemName);
-			if (EqualString(tableName, mItemName, TRUE, TRUE)) {
+			if (EqualString(tableName, mItemName, True, True)) {
 				spaceTblPopup.currentChoice = count;
 				break;
 			}
@@ -210,7 +210,7 @@ void PrefsDialog(
 	ResizePopUp(&musFontPopup);
 	for (count = 1; count <= CountMenuItems(musFontPopup.menu); count++) {
 		GetMenuItemText(musFontPopup.menu, count, mItemName);
-		if (EqualString(doc->musFontName, mItemName, TRUE, TRUE)) {
+		if (EqualString(doc->musFontName, mItemName, True, True)) {
 			musFontPopup.currentChoice = count;
 			break;
 		}
@@ -219,18 +219,18 @@ void PrefsDialog(
 	musFontOrigChoice = musFontPopup.currentChoice;
 
 	/* Engraver Prefs */
-	PutDlgWord(dlog, EDIT23_StfLineWid, config.staffLW, FALSE);
-	PutDlgWord(dlog, EDIT24_LedgerWid, config.ledgerLW, FALSE);
-	PutDlgWord(dlog, EDIT25_BarlineWid, config.barlineLW, FALSE);
-	PutDlgWord(dlog, EDIT26_SlurWid, config.slurMidLW, FALSE);
-	PutDlgWord(dlog, EDIT27_StemWid, config.stemLW, FALSE);
-	PutDlgWord(dlog, EDIT28_StemLenNorm, config.stemLenNormal, FALSE);
-	PutDlgWord(dlog, EDIT29_StemLenGr, config.stemLenGrace, FALSE);
-	PutDlgWord(dlog, EDIT30_StemLen2in, config.stemLen2v, FALSE);
-	PutDlgWord(dlog, EDIT31_StemLen2out, config.stemLenOutside, FALSE);
-	PutDlgWord(dlog, EDIT32_BeamSlope, config.relBeamSlope, FALSE);
-	PutDlgWord(dlog, EDIT33_SpcAfterBar, config.spAfterBar, FALSE);
-	PutDlgWord(dlog, EDIT34_AccsOffset, config.hAccStep, FALSE);
+	PutDlgWord(dlog, EDIT23_StfLineWid, config.staffLW, False);
+	PutDlgWord(dlog, EDIT24_LedgerWid, config.ledgerLW, False);
+	PutDlgWord(dlog, EDIT25_BarlineWid, config.barlineLW, False);
+	PutDlgWord(dlog, EDIT26_SlurWid, config.slurMidLW, False);
+	PutDlgWord(dlog, EDIT27_StemWid, config.stemLW, False);
+	PutDlgWord(dlog, EDIT28_StemLenNorm, config.stemLenNormal, False);
+	PutDlgWord(dlog, EDIT29_StemLenGr, config.stemLenGrace, False);
+	PutDlgWord(dlog, EDIT30_StemLen2in, config.stemLen2v, False);
+	PutDlgWord(dlog, EDIT31_StemLen2out, config.stemLenOutside, False);
+	PutDlgWord(dlog, EDIT32_BeamSlope, config.relBeamSlope, False);
+	PutDlgWord(dlog, EDIT33_SpcAfterBar, config.spAfterBar, False);
+	PutDlgWord(dlog, EDIT34_AccsOffset, config.hAccStep, False);
 	
 	oldAutoRespace = doc->autoRespace;
 	oldBeamRests = doc->beamRests;
@@ -242,7 +242,7 @@ void PrefsDialog(
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	InstallPrefsCard(dlog, *section, TRUE, FALSE);
+	InstallPrefsCard(dlog, *section, True, False);
 	if (currEditField) SelectDialogItemText(dlog, currEditField, 0, ENDTEXT);
 	
 /*--- 2. Interact with user til they push OK or Cancel. --- */
@@ -266,8 +266,8 @@ void PrefsDialog(
 					dialogOver = ditem;
 					break;
 				case POP4_SelectCard:
-					InstallPrefsCard(dlog, *section, FALSE, TRUE);
-					InstallPrefsCard(dlog, *section = cardPopup.currentChoice, TRUE, TRUE);
+					InstallPrefsCard(dlog, *section, False, True);
+					InstallPrefsCard(dlog, *section = cardPopup.currentChoice, True, True);
 					break;
 				default:
 					;
@@ -338,10 +338,10 @@ void PrefsDialog(
 	if (musFontPopup.currentChoice!=musFontOrigChoice) {
 		GetMenuItemText(musFontPopup.menu, musFontPopup.currentChoice, mItemName);
 		Pstrcpy(doc->musFontName, mItemName);
-		InitDocMusicFont(doc);	// FIXME: this gives dumb error msgs for prefs dlog context...
-		InvalRange(doc->headL, doc->tailL);		/* Force recomputing of objRects. ??Doesn't work! */
+		InitDocMusicFont(doc);		// FIXME: this gives dumb error msgs for prefs dlog context...
+		InvalRange(doc->headL, doc->tailL);			/* Force recomputing of objRects. ??Doesn't work! */
 		InvalWindow(doc);
-		doc->changed = TRUE;
+		doc->changed = True;
 	}
 
 	/* Engraver Prefs */
@@ -375,7 +375,7 @@ void PrefsDialog(
 	if (doc->autoRespace!=oldAutoRespace
 	||  doc->beamRests!=oldBeamRests
 	||  doc->spaceTable!=oldSpaceTable)
-			doc->changed = TRUE;
+			doc->changed = True;
 
 	/* Save current menu choice and text item for next invocation of dlog. */
 	*section = cardPopup.currentChoice;
@@ -393,8 +393,8 @@ broken:
 }
 
 
-/* Given one of the choices from the Preference card popup menu, show or
-hide (as specified by <show>) all items that belong to that choice. */
+/* Given one of the choices from the Preference card popup menu, show or hide (as
+specified by <show>) all items that belong to that choice. */
 
 void InstallPrefsCard(DialogPtr dlog, short choice, Boolean show, Boolean sel) 
 {
@@ -428,7 +428,7 @@ void InstallPrefsCard(DialogPtr dlog, short choice, Boolean show, Boolean sel)
 }
 
 /* Check values of edit fields on current card.  If any are bad, give an alert and
-and return TRUE. */
+and return True. */
 
 static Boolean AnyBadPrefs(DialogPtr dlog, short curCard)
 {
@@ -464,7 +464,7 @@ static Boolean AnyBadPrefs(DialogPtr dlog, short curCard)
 			}
 			GetDlgWord(dlog, badField = EDIT10_ShakeTresh, &newval);
 			if (newval<0 || newval>127) {
-				GetIndCString(strBuf, PREFSERRS_STRS, 7);			/* "Mouse shake maximum time must be from 0 to 127." */
+				GetIndCString(strBuf, PREFSERRS_STRS, 7);		/* "Mouse shake maximum time must be from 0 to 127." */
 				goto hadError;
 			}
 			break;
@@ -525,13 +525,13 @@ static Boolean AnyBadPrefs(DialogPtr dlog, short curCard)
 	}
 	
 	/* If we've gotten this far, there aren't any errors. */
-	return FALSE;
+	return False;
 	
 hadError:
 	CParamText(strBuf, "", "", "");
 	StopInform(MIDIBADVALUE_ALRT);
-	SelectDialogItemText(dlog, badField, 0, ENDTEXT);					/* Select field so user knows which one is bad. */
-	return TRUE;
+	SelectDialogItemText(dlog, badField, 0, ENDTEXT);			/* Select field so user knows which one is bad. */
+	return True;
 }
 
 
@@ -539,7 +539,7 @@ pascal Boolean PrefsFilter(DialogPtr dlog, EventRecord *theEvent, short *itemHit
 {
 	Point		where;
 	short		lastCard;
-	Boolean	ans = FALSE;
+	Boolean	ans = False;
 
 	switch (theEvent->what) {
 		case updateEvt:
@@ -547,28 +547,28 @@ pascal Boolean PrefsFilter(DialogPtr dlog, EventRecord *theEvent, short *itemHit
 			
 			/* First draw border lines. */
 	   	MoveTo(borderRect.left, borderRect.top);  	
-			LineTo(cardPopup.shadow.left-7, borderRect.top);		/* Don't cover popup box */
+			LineTo(cardPopup.shadow.left-7, borderRect.top);	/* Don't cover popup box */
 			MoveTo(cardPopup.shadow.right+6, borderRect.top);	
 			LineTo(borderRect.right, borderRect.top); 	   
 			LineTo(borderRect.right, borderRect.bottom);
 			LineTo(borderRect.left, borderRect.bottom);
 			LineTo(borderRect.left, borderRect.top);
 			
-			ChangeDlogFont(dlog, FALSE);						/* Use system font when drawing popup */
+			ChangeDlogFont(dlog, False);						/* Use system font when drawing popup */
 			DrawPopUp(&cardPopup);
-			if (cardPopup.currentChoice == PM_Engraver)	/* Restore current font for drawing text items */
-				ChangeDlogFont(dlog, TRUE);				
+			if (cardPopup.currentChoice == PM_Engraver)		/* Restore current font for drawing text items */
+				ChangeDlogFont(dlog, True);				
 
 			UpdateDialogVisRgn(dlog);
 
-			FrameDefault(dlog, OK, TRUE);
+			FrameDefault(dlog, OK, True);
 			if (cardPopup.currentChoice == PM_File) {
 				DrawPopUp(&spaceTblPopup);
 				DrawPopUp(&musFontPopup);
 			}
 			EndUpdate(GetDialogWindow(dlog));
 			*itemHit = 0;
-			ans = TRUE;
+			ans = True;
 			break;
 		case mouseDown:
 			where = theEvent->where;
@@ -576,34 +576,34 @@ pascal Boolean PrefsFilter(DialogPtr dlog, EventRecord *theEvent, short *itemHit
 			
 			if (PtInRect(where, &cardPopup.shadow)) {
 				lastCard = cardPopup.currentChoice;
-				ChangeDlogFont(dlog, FALSE);							/* Use system font when drawing popups */
+				ChangeDlogFont(dlog, False);						/* Use system font when drawing popups */
 				if (DoUserPopUp(&cardPopup)) {
 					*itemHit = POP4_SelectCard;
 					if (AnyBadPrefs(dlog, lastCard)) {
 						ChangePopUpChoice(&cardPopup, lastCard);	/* Restore old menu choice */
 						*itemHit = 0;
 					}
-					ans = TRUE;
+					ans = True;
 				}
-				else { *itemHit = 0; ans = TRUE; }
+				else { *itemHit = 0; ans = True; }
 				if (cardPopup.currentChoice == PM_Engraver)		/* Restore current font for drawing text items */
-					ChangeDlogFont(dlog, TRUE);
+					ChangeDlogFont(dlog, True);
 				break;
 			}
 			if (PtInRect(where, &spaceTblPopup.shadow)) {
-				ChangeDlogFont(dlog, FALSE);							/* Use system font when drawing popups */
+				ChangeDlogFont(dlog, False);							/* Use system font when drawing popups */
 				*itemHit = DoUserPopUp(&spaceTblPopup) ? POP20_SpaceTbl : 0;
-				ans =  TRUE;
+				ans =  True;
 			}
 			if (PtInRect(where, &musFontPopup.shadow)) {
-				ChangeDlogFont(dlog, FALSE);							/* Use system font when drawing popups */
+				ChangeDlogFont(dlog, False);							/* Use system font when drawing popups */
 				*itemHit = DoUserPopUp(&musFontPopup) ? POP22_MusFont : 0;
-				ans =  TRUE;
+				ans =  True;
 			}
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(dlog, theEvent, itemHit, FALSE)) return TRUE;
+			if (DlgCmdKey(dlog, theEvent, itemHit, False)) return True;
 			break;
 		default:
 			;
@@ -622,7 +622,7 @@ resource ID's in a struct to pass back, but we don't do that yet. */
 	
 static short BuildSpaceTblMenu(UserPopUp *popup)
 {
-	short		saveResFile;
+	short	saveResFile;
 		
 	ReleaseResource((Handle)popup->menu);
 	popup->menu = GetMenu(SPACETBL_MENU);
@@ -634,7 +634,7 @@ static short BuildSpaceTblMenu(UserPopUp *popup)
 
 	UseResFile(saveResFile);
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -643,7 +643,7 @@ puts their names in the popup menu. */
 	
 static short BuildMusFontMenu(UserPopUp *popup)
 {
-	short		saveResFile;
+	short	saveResFile;
 		
 	ReleaseResource((Handle)popup->menu);
 	popup->menu = GetMenu(MUSFONT_MENU);
@@ -655,7 +655,7 @@ static short BuildMusFontMenu(UserPopUp *popup)
 
 	UseResFile(saveResFile);
 	
-	return TRUE;
+	return True;
 }
 
 

@@ -9,7 +9,7 @@ machinery, and when user selects the Undo command to undo the previous operation
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -89,7 +89,7 @@ void SetupUndo(Document *doc, short command, char *menuItem)
 }
 
 
-/* Return TRUE if the range contains any cross-system beamsets, dynamics or slurs. */
+/* Return True if the range contains any cross-system beamsets, dynamics or slurs. */
 
 static Boolean CheckCrossSys(LINK startL, LINK endL)
 {
@@ -98,35 +98,35 @@ static Boolean CheckCrossSys(LINK startL, LINK endL)
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
 		switch (ObjLType(pL)) {
 			case BEAMSETtype:
-				if (BeamCrossSYS(pL)) return TRUE;
+				if (BeamCrossSYS(pL)) return True;
 				break;
 			case DYNAMtype:
-				if (DynamCrossSYS(pL)) return TRUE;
+				if (DynamCrossSYS(pL)) return True;
 				break;
 			case SLURtype:
-				if (SlurCrossSYS(pL)) return TRUE;
+				if (SlurCrossSYS(pL)) return True;
 				break;
 		}
 
-	return FALSE;
+	return False;
 }
 
 
 /* Check selRange and clipboard for cross-system objects; if either contains any,
-return FALSE to indicate the clipboard operation will not be undoable. */
+return False to indicate the clipboard operation will not be undoable. */
 
 static Boolean CheckClipUndo(Document *doc, short /*theCommand*/)
 {
-	Document *saveDoc; Boolean ok=TRUE;
+	Document *saveDoc; Boolean ok=True;
 	
 	saveDoc = currentDoc;
 
 	if (CheckCrossSys(doc->selStartL, doc->selEndL))
-		return FALSE;
+		return False;
 		
 	InstallDoc(clipboard);
 	if (CheckCrossSys(clipboard->headL, clipboard->tailL))
-		ok = FALSE;
+		ok = False;
 
 	InstallDoc(saveDoc);
 	
@@ -138,7 +138,7 @@ static Boolean CheckClipUndo(Document *doc, short /*theCommand*/)
 and the selStart and selEnd links are not in the same system, then a cross-system beam
 is being created; for now, this is not undoable. If the command in an Unbeam command,
 then check the range to see if any of the beamsets are cross-system; unbeaming
-cross-system beamsets is not currently undoable. Return FALSE indicates the operation
+cross-system beamsets is not currently undoable. Return False indicates the operation
 won't be undoable. */
 
 static Boolean CheckBeamUndo(Document *doc, short theCommand)
@@ -150,55 +150,55 @@ static Boolean CheckBeamUndo(Document *doc, short theCommand)
 	if (theCommand==U_Unbeam)
 		for (pL=doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 			if (BeamsetTYPE(pL))
-				if (BeamCrossSYS(pL)) return FALSE;
+				if (BeamCrossSYS(pL)) return False;
 
-	return TRUE;
+	return True;
 }
 
 
-/* Check to see if the insertion operation can be undone; if so, return TRUE, else
-FALSE. If the selStart link is before the first measure, as will be the case with the
+/* Check to see if the insertion operation can be undone; if so, return True, else
+False. If the selStart link is before the first measure, as will be the case with the
 insertion of a page-relative Graphic, then there is no current system to replace, and
 the undo operation must be handled specially; for now, it is not undoable. */
 
 static Boolean CheckInsertUndo(Document *doc)
 {
-	if (BeforeFirstMeas(doc->selStartL)) return FALSE;
-	return TRUE;
+	if (BeforeFirstMeas(doc->selStartL)) return False;
+	return True;
 }
 
 
 /* Check to see if the operation of editing the beam or slur can be undone; if so,
-return TRUE, else FALSE. If the object is cross-system, the edit cannot be undone. */
+return True, else False. If the object is cross-system, the edit cannot be undone. */
 
 static Boolean CheckSlurBeamUndo(Document */*doc*/, LINK changeL)
 {
 	if (SlurTYPE(changeL))
-		if (SlurCrossSYS(changeL)) return FALSE;
+		if (SlurCrossSYS(changeL)) return False;
 
 	if (BeamsetTYPE(changeL))
-		if (BeamCrossSYS(changeL)) return FALSE;
+		if (BeamCrossSYS(changeL)) return False;
 
-	return TRUE;
+	return True;
 }
 
 
-/* Check if the Get Info operation can be undone; if so, return TRUE, else FALSE.
+/* Check if the Get Info operation can be undone; if so, return True, else False.
 If the link is a page-relative Graphic, then there is no current system to replace,
 and the undo operation must be handled specially; for now, it is not undoable. */
 
 static Boolean CheckInfoUndo(Document */*doc*/, LINK changeL)
 {	
 	if (GraphicTYPE(changeL)) {
-		if (!GraphicFIRSTOBJ(changeL)) return FALSE;
-		if (PageTYPE(GraphicFIRSTOBJ(changeL))) return FALSE;
+		if (!GraphicFIRSTOBJ(changeL)) return False;
+		if (PageTYPE(GraphicFIRSTOBJ(changeL))) return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
-/* Check if the Set operation can be undone; if so, return TRUE, else FALSE. We can't
+/* Check if the Set operation can be undone; if so, return True, else False. We can't
 undo if a page-relative Graphic is involved. */
 
 static Boolean CheckSetUndo(Document *doc)
@@ -207,9 +207,9 @@ static Boolean CheckSetUndo(Document *doc)
 	
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (GraphicTYPE(pL) && PageTYPE(GraphicFIRSTOBJ(pL)))
-			return FALSE;
+			return False;
 
-	return TRUE;
+	return True;
 }
 
 
@@ -271,7 +271,7 @@ static long GetRangeMemAlloc(LINK startL, LINK endL)
 }
 
 
-/* Check whether enough memory is available. Return TRUE if so, FALSE if not. */
+/* Check whether enough memory is available. Return True if so, False if not. */
 
 static Boolean UndoChkMemory(Document *doc, LINK firstL, LINK lastL)
 {
@@ -284,7 +284,7 @@ static Boolean UndoChkMemory(Document *doc, LINK firstL, LINK lastL)
 	
 	memNeeded -= memFreed;
 	
-	if (memNeeded < 0) return TRUE;
+	if (memNeeded < 0) return True;
 
 	totalFree = FreeMem();
 	
@@ -299,12 +299,12 @@ void DisableUndo(Document *doc,
 {
 	SetupUndo(doc, U_NoOp, "");
 
-	doc->undo.canUndo = FALSE;
+	doc->undo.canUndo = False;
 
 	/* If necessary, delete a system from the undo record */
 	if (doc->undo.hasUndo) {
 		DeleteRange(doc, RightLINK(doc->undo.headL), doc->undo.tailL);
-		doc->undo.hasUndo = FALSE;
+		doc->undo.hasUndo = False;
 	}
 }
 
@@ -393,7 +393,7 @@ range affected. */
 static void GetUndoRange(
 					Document *doc,
 					LINK startChangeL,
-					LINK *sysL, LINK *lastL,			/* Range: a System, last obj in System */
+					LINK *sysL, LINK *lastL,			/* Range: a System, last obj in a System */
 					short theCommand
 					)
 {
@@ -417,27 +417,27 @@ static void GetUndoRange(
 
 		/* Specify two systems or some global range */
 		case U_MoveMeasUp:
-			pL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+			pL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, False);
 			*sysL = LinkLSYS(pL);				/* Must exist, otherwise couldn't move meas up. */
 			*lastL = UndoLastObjInSys(doc, doc->selEndL);
 			return;
 		case U_MoveMeasDown:
 			*sysL = UndoGetStartSys(doc);
-			pL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+			pL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 			if (pL==NILINK)	*lastL = LeftLINK(doc->tailL);
 			else			*lastL = UndoLastObjInSys(doc, RightLINK(pL));
 			return;
 		case U_MoveSysUp:
 			pL = UndoGetStartSys(doc);
 			*sysL = LinkLSYS(pL);
-			pL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, FALSE);
+			pL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, False);
 			if (pL==NILINK) *lastL = LeftLINK(doc->tailL);
 			else			*lastL = LeftLINK(pL);
 			return;
 		case U_MoveSysDown:
 			pL = UndoGetStartSys(doc);			/* pL can't be NILINK, since we don't allow moving the only system on a page. */
 			*sysL = LinkLSYS(pL);
-			pL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, FALSE);
+			pL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, False);
 			if (pL==NILINK)						/* This can't happen now, but could if we let Move Sys Down add a page. */
 				*lastL = LeftLINK(doc->tailL);
 			else {
@@ -510,11 +510,11 @@ static void GetUndoRange(
 			{
 				LINK curSysL, rightSysL, rightPageL;
 
-				curSysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
-				rightPageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, FALSE);
+				curSysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, False);
+				rightPageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, False);
 				if (rightPageL==NILINK)
 					rightPageL = doc->tailL;
-				rightSysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+				rightSysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 				if (rightSysL==NILINK)
 					rightSysL = doc->tailL;
 				if (CheckCrossSys(curSysL, rightSysL)) {
@@ -540,11 +540,12 @@ static void GetUndoRange(
 		case U_Merge:
 		case U_Insert:
 		case U_Record:
+		case U_EditText:
 			*sysL = UndoGetStartSys(doc);
 			*lastL = UndoLastObjInSys(doc,*sysL);
 			return;
 
-		/* Affects selStartL's system, as well as all following systems that would
+		/* Affects selStartL's System, as well as all following Systems that would
 			be affected by undoing removal of a clef or keysig change. */
 		case U_Cut:
 		case U_Clear:
@@ -552,20 +553,20 @@ static void GetUndoRange(
 				LINK clefL, ksL;
 
 				*sysL = UndoGetStartSys(doc);
-				clefL = ClefSearch(doc, startChangeL, ANYONE, TRUE, TRUE);
-				ksL = KSSearch(doc, startChangeL, ANYONE, TRUE, TRUE);
+				clefL = ClefSearch(doc, startChangeL, ANYONE, True, True);
+				ksL = KSSearch(doc, startChangeL, ANYONE, True, True);
 				pL = IsAfter(clefL, ksL)? ksL : clefL;
 				*lastL = UndoLastObjInSys(doc, pL);
 			}
 			return;
 		case U_InsertClef:
 			*sysL = UndoGetStartSys(doc);
-			pL = ClefSearch(doc, startChangeL, doc->undo.param1, TRUE, FALSE);
+			pL = ClefSearch(doc, startChangeL, doc->undo.param1, True, False);
 			*lastL = UndoLastObjInSys(doc, pL);
 			return;
 		case U_InsertKeySig:
 			*sysL = UndoGetStartSys(doc);
-			pL = KSSearch(doc, startChangeL, doc->undo.param1, TRUE, FALSE);
+			pL = KSSearch(doc, startChangeL, doc->undo.param1, True, False);
 			*lastL = UndoLastObjInSys(doc,pL);
 			return;
 
@@ -582,7 +583,7 @@ static void GetUndoRange(
 			*lastL = UndoGetLastMergePoint(doc);
 			return;
 		
-		/* Directly affect Systems or Pages: effects can extend well past sel.range */
+		/* Directly affect Systems or Pages: effects can extend well past sel. range */
 		case U_ClearSystem:
 			{
 				LINK thisSysL, nextPageL;
@@ -622,23 +623,25 @@ static void GetUndoRange(
 
 /* Copy range from srcStartL to srcEndL into object list at insertL. All copying is
 done from heaps in doc to heaps in doc; the nodes from the undo system are all
-allocated from the heaps for that document. Return TRUE if successful, FALSE is
+allocated from the heaps for that document. Return True if successful, False is
 there's a problem. */
 
 static Boolean CopyUndoRange(Document *doc, LINK srcStartL, LINK srcEndL, LINK insertL,
 										short toRange)
 {
-	LINK pL, prevL, copyL, initL;  short i, numObjs;  COPYMAP *copyMap;
+	LINK pL, prevL, copyL, initL;
+	short i, numObjs;
+	COPYMAP *copyMap;
 
 	initL = prevL = LeftLINK(insertL);
 	SetupCopyMap(srcStartL, srcEndL, &copyMap, &numObjs);
 
 	for (i=0, pL=srcStartL; pL!=srcEndL; i++, pL=RightLINK(pL)) {
-		copyL = DuplicateObject(ObjLType(pL), pL, FALSE, doc, doc, TRUE);
+		copyL = DuplicateObject(ObjLType(pL), pL, False, doc, doc, True);
 		if (!copyL) {
-			doc->undo.hasUndo = TRUE;				/* Get rid of what was copied into undo dataStr */
-			DisableUndo(doc, TRUE);
-			return FALSE; 							/* Memory error or some other problem */
+			doc->undo.hasUndo = True;				/* Get rid of what was copied into undo dataStr */
+			DisableUndo(doc, True);
+			return False; 							/* Memory error or some other problem */
 		}
 
 		RightLINK(copyL) = insertL;
@@ -683,7 +686,7 @@ static Boolean CopyUndoRange(Document *doc, LINK srcStartL, LINK srcEndL, LINK i
 	CopyFixLinks(doc, doc, RightLINK(initL), insertL, copyMap, numObjs);
 	DisposePtr((Ptr)copyMap);
 	
-	return TRUE;		/* Successful copy */
+	return True;		/* Successful copy */
 }
 
 
@@ -696,11 +699,12 @@ void PrepareUndo(
 			short stringInd					/* Index into the Undo stringlist */
 			)
 {
-	LINK sysL, lastL, prevSysL;  Boolean cantUndo=FALSE;
+	LINK sysL, lastL, prevSysL;
+	Boolean cantUndo=False;
 	char menuItem[256];						/* Undo menu command, excluding "Undo"/"Redo" (C string) */
 
 	if (config.disableUndo) {
-		DisableUndo(doc, FALSE);
+		DisableUndo(doc, False);
 		return;
 	}
 
@@ -715,31 +719,31 @@ void PrepareUndo(
 		case U_Paste:
 		case U_Merge:
 		case U_Clear:
-			if (!CheckClipUndo(doc, theCommand)) cantUndo = TRUE;
+			if (!CheckClipUndo(doc, theCommand)) cantUndo = True;
 			break;
 		case U_Beam:
 		case U_Unbeam:
-			if (!CheckBeamUndo(doc, theCommand)) cantUndo = TRUE;
+			if (!CheckBeamUndo(doc, theCommand)) cantUndo = True;
 			break;
 		case U_Insert:
-			if (!CheckInsertUndo(doc)) cantUndo = TRUE;
+			if (!CheckInsertUndo(doc)) cantUndo = True;
 			break;
 		case U_EditBeam:
 		case U_EditSlur:
-			if (!CheckSlurBeamUndo(doc, startChangeL)) cantUndo = TRUE;
+			if (!CheckSlurBeamUndo(doc, startChangeL)) cantUndo = True;
 			break;
 		case U_GetInfo:
-			if (!CheckInfoUndo(doc, startChangeL)) cantUndo = TRUE;
+			if (!CheckInfoUndo(doc, startChangeL)) cantUndo = True;
 			break;
 		case U_Set:
-			if (!CheckSetUndo(doc)) cantUndo = TRUE;
+			if (!CheckSetUndo(doc)) cantUndo = True;
 			break;
 		default:
 			;
 	}
 	
 	if (cantUndo) {
-		DisableUndo(doc, FALSE);
+		DisableUndo(doc, False);
 		return;
 	}
 	
@@ -793,14 +797,15 @@ void PrepareUndo(
 		case U_ClearPages:
 		case U_EditBeam:
 		case U_EditSlur:
-		case U_AddSystem:			/* added by JGG, 17-June-00 */
-		case U_MoveMeasUp:			/* move up/down added by JGG, 23-July-00 */
+		case U_AddSystem:
+		case U_MoveMeasUp:
 		case U_MoveMeasDown:
 		case U_MoveSysUp:
 		case U_MoveSysDown:
-		case U_PasteSystem:			/* added by JGG, 25-July-00 */
-		case U_FillEmptyMeas:		/* added by JGG, 26-July-00 */
+		case U_PasteSystem:
+		case U_FillEmptyMeas:
 		case U_AddCautionaryTS:
+		case U_EditText:
 
 			/* Set up fields for the command that's about to be performed. */
 			SetupUndo(doc, theCommand, menuItem);
@@ -814,7 +819,7 @@ void PrepareUndo(
 			prevSysL = LeftLINK(sysL);
 			
 			if (!UndoChkMemory(doc, prevSysL, lastL)) {
-				DisableUndo(doc, TRUE);
+				DisableUndo(doc, True);
 				break;
 			}
 
@@ -829,9 +834,9 @@ void PrepareUndo(
 		
 			/* Copy the range from the score into the undo record. */
 			if (CopyUndoRange(doc, prevSysL, RightLINK(lastL), doc->undo.tailL, TO_UNDO)) {
-				doc->undo.hasUndo = TRUE;
-				doc->undo.redo = FALSE;
-				doc->undo.canUndo = TRUE;
+				doc->undo.hasUndo = True;
+				doc->undo.redo = False;
+				doc->undo.canUndo = True;
 			}
 			break;
 			
@@ -841,12 +846,12 @@ void PrepareUndo(
 		case U_AddPage:
 		case U_BreakSystems:
 			/* Cannot handle undo for these operations. */
-			DisableUndo(doc, FALSE);
+			DisableUndo(doc, False);
 			break;
 		default:
 			LogPrintf(LOG_INFO, "PrepareUndo: unknown command code %d; stringInd=%d\n",
 							theCommand, stringInd);
-			DisableUndo(doc, FALSE);			
+			DisableUndo(doc, False);			
 	}
 }
 
@@ -899,7 +904,7 @@ static void SwapSystems(
 		operations can replace the System itself. We now update any crosslinks that
 		refer to that object. */
 
-	startL = LSSearch(undoPrevSysL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	startL = LSSearch(undoPrevSysL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	if (!startL) startL = doc->headL;
 	
 	for (pL=startL; pL!=undoPrevSysL; pL=RightLINK(pL)) {
@@ -999,7 +1004,7 @@ static void SwapSystems(
 	
 	UndoDeselRange(doc, doc->undo.headL, doc->undo.tailL);
 	DeselRange(doc, doc->headL, doc->tailL);
-	firstSysMeas = LSSearch(RightLINK(undoPrevSysL), MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	firstSysMeas = LSSearch(RightLINK(undoPrevSysL), MEASUREtype, ANYONE, GO_RIGHT, False);
 	doc->selStartL = doc->selEndL = RightLINK(firstSysMeas);	
 	
 	/* ??It certainly seems like we should be setting undo.selStartL and undo.selEndL,
@@ -1014,7 +1019,7 @@ void DoUndo(Document *doc)
 	LINK tempStartL, tempEndL;
 
 	if (!doc->undo.canUndo) {
-		MayErrMsg("DoUndo: canUndo is FALSE.");
+		MayErrMsg("DoUndo: canUndo is False.");
 		return;
 	}
 	
@@ -1032,5 +1037,5 @@ void DoUndo(Document *doc)
 	InvalSystems(RightLINK(doc->undo.scorePrevL),doc->undo.scoreEndL);
 
 	ToggleUndo(doc); 												/* Next iteration in cycle */
-	MEAdjustCaret(doc,TRUE);
+	MEAdjustCaret(doc,True);
 }

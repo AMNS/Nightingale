@@ -45,13 +45,13 @@ static void sprintfInches(char *label, short points)
 }
 
 
-/* ------------------------------------------------------------ NSysOnMasterPage -- */
+/* ------------------------------------------------------------------ NSysOnMasterPage -- */
 /* Returns number of copies of the Master Page's system that fit on a page. */
 
 short NSysOnMasterPage(Document *);
 short NSysOnMasterPage(Document *doc)
 {
-	LINK sysL; DRect sysRect;
+	LINK sysL;  DRect sysRect;
 	DDIST sysHeight, sysOffset;
 	short count;
 
@@ -59,7 +59,7 @@ short NSysOnMasterPage(Document *doc)
 	
 	count = 1;
 
-	sysL = LSSearch(doc->masterHeadL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+	sysL = LSSearch(doc->masterHeadL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	sysRect = SystemRECT(sysL);
 
 	sysHeight = SystemRECT(sysL).bottom - SystemRECT(sysL).top;
@@ -132,17 +132,17 @@ static void DrawMarginParams(Document *doc,
 
 
 /* If the user is editing the Master Page, find out here if she is editing the
-document margin; if so, edit it here, and return TRUE; otherwise return FALSE. */
+document margin; if so, edit it here, and return True; otherwise return False. */
 
 static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short /*doubleClick*/)
 	{
-		Boolean didSomething = FALSE; Point oldPt;
+		Boolean didSomething = False; Point oldPt;
 		Rect topMargin,leftMargin,rightMargin,bottomMargin,margin;		/* in pixels */
 		Rect origMarginRect;											/* in points */
 		CursHandle upDownCursor,rightLeftCursor;
 		short *dragVal,oldVal,dx,dy,minVal,maxVal;
-		Boolean horiz=FALSE,vert=FALSE,moved;
-		Boolean inTop=FALSE,inBottom=FALSE,inRight=FALSE,inLeft=FALSE;
+		Boolean horiz=False,vert=False,moved;
+		Boolean inTop=False,inBottom=False,inRight=False,inLeft=False;
 		short whichMarg, margv, margh, hdiff, vdiff;
 		
 		/*
@@ -211,7 +211,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 						}
 					minVal += doc->currentPaper.top;
 					maxVal += doc->currentPaper.top;
-					didSomething = vert = TRUE;
+					didSomething = vert = True;
 					}
 				}
 			}
@@ -236,7 +236,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 						}
 					minVal += doc->currentPaper.left;
 					maxVal += doc->currentPaper.left;
-					didSomething = horiz = TRUE;
+					didSomething = horiz = True;
 					}
 				}
 			}
@@ -252,7 +252,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 			oldVal = horiz ? pt.h : pt.v;
 			if (StillDown()) while (WaitMouseUp()) {
 				GetMouse(&pt);
-				moved = FALSE;
+				moved = False;
 				if (horiz) {
 					if (pt.h < minVal) pt.h = minVal; else if (pt.h > maxVal) pt.h = maxVal;
 					if (pt.h != oldVal) {
@@ -269,8 +269,8 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 						*dragVal = pt.h - dx;	/* Set new margin */
 						oldVal = pt.h;
 						FrameRect(&margin);		/* Draw new margin */
-						moved = TRUE;
-						doc->margHChangedMP = TRUE;
+						moved = True;
+						doc->margHChangedMP = True;
 						}
 					}
 				 else if (vert) {
@@ -289,8 +289,8 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 						oldVal = pt.v;
 						*dragVal = pt.v - dy;		/* Set new margin */
 						FrameRect(&margin);			/* Draw new margin */
-						moved = TRUE;
-						doc->margVChangedMP = TRUE;
+						moved = True;
+						doc->margVChangedMP = True;
 						}
 					}
 				if (moved) {
@@ -307,7 +307,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 				}
 
 			/* Mouse button off: doc->marginRect is already set for the new margins. */
-			if (!EqualRect(&origMarginRect,&doc->marginRect)) didSomething = TRUE;
+			if (!EqualRect(&origMarginRect,&doc->marginRect)) didSomething = True;
 			
 			if (horiz) DisposeHandle((Handle)rightLeftCursor);
 			 else if (vert) DisposeHandle((Handle)upDownCursor);
@@ -317,7 +317,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 	}
 
 
-/* Handle a double-click in Master Page: call FindMasterObject with selection mode
+/* Handle a double-click in Master Page: call FindAndActOnMasterObj with selection mode
 SMDblClick to bring up InstrDialog to edit a part.
 
 Must save and restore doc->nstaves, since the number of staves in Master Page may be
@@ -330,12 +330,12 @@ static void DoMasterDblClick(Document *doc, Point pt, short /*modifiers*/)
 
 	oldnstaves = doc->nstaves;
 	doc->nstaves = doc->nstavesMP;
-	FindMasterObject(doc, pt, &index, SMDblClick);
+	FindAndActOnMasterObj(doc, pt, &index, SMDblClick);
 	doc->nstaves = oldnstaves;
 }
 
 
-/* ------------------------------------------------ Master Page Selection Routines -- */
+/* ---------------------------------------------------- Master Page Selection Routines -- */
 
 /* Track mouse dragging and select all Master Page objects in rectangular area.
 The origin and clip region should already be set correctly.
@@ -362,10 +362,10 @@ void SelectMasterRectangle(Document *doc, Point pt)
 		if (VISIBLE(pL))
 			/* ObjRect of staffobject is NULL here. */
 			if (/* SectRect(&selRect, &LinkOBJRECT(pL), &aRect) */ 1 ) {
-				found = FALSE;
+				found = False;
 				CheckMasterObject(doc, pL, &found, (Ptr)&selRect, context, SMDrag, &pIndex, stfRange);
 				if (found) {
-					LinkSEL(pL) = TRUE;							/* update selection */
+					LinkSEL(pL) = True;							/* update selection */
 					if (!doc->selStartL)
 						doc->selStartL = pL;
 					doc->selEndL = RightLINK(pL);
@@ -413,9 +413,9 @@ static LINK SelPartStaves(Document *doc, LINK staffL, CONTEXT context[], short s
 }
 
 
-/* Handle clicking on objects in the Master Page: track dragging, when the object
-is draggable, and selection. */
-	
+/* Handle clicking on objects in the Master Page: track selection and (when the object
+is draggable) dragging. */
+
 void DoMasterObject(Document *doc, Point pt, short modifiers)
 {
 	short index, oldnstaves, lowStaffn, hiStaffn, stf;
@@ -425,14 +425,14 @@ void DoMasterObject(Document *doc, Point pt, short modifiers)
 	doc->nstaves = doc->nstavesMP;
 	
 	selStaffL = NILINK;
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
 		if (StaffSEL(aStaffL)) { selStaffL = aStaffL; break; }
 
 	/* Look for an object clicked on: if it's draggable, track dragging with feedback. */
 	
-	pL = FindMasterObject(doc, pt, &index, SMClick);
+	pL = FindAndActOnMasterObj(doc, pt, &index, SMClick);
 
 	/*
 	 * If there was already a staff selected and user shift-clicked on a staff, extend
@@ -458,20 +458,20 @@ void DoMasterObject(Document *doc, Point pt, short modifiers)
 }
 
 
-/* ----------------------------------------------------------------- DoEditMaster -- */
+/* ---------------------------------------------------------------------- DoEditMaster -- */
 /*
  *	Search for something (including both objects in the usual Nightingale sense
  * and page margins!) in the Master Page the user may have clicked on.  If something
- * found, handle dragging, selecting, and double-clicking, and return TRUE.  If nothing
- *	clickable, return FALSE.  The pt provided is expected in paper-relative pixels.
+ * found, handle dragging, selecting, and double-clicking, and return True.  If nothing
+ *	clickable, return False.  The pt provided is expected in paper-relative pixels.
  */
 
 Boolean DoEditMaster(Document *doc, Point pt, short modifiers, short doubleClick)
 	{
-		Boolean didSomething=FALSE;
+		Boolean didSomething=False;
 
 		if (EditDocMargin(doc,pt,modifiers,doubleClick)) {
-			didSomething = TRUE;
+			didSomething = True;
 			UpdateMasterMargins(doc);
 			}
 		 else {	

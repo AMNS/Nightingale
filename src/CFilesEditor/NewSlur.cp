@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 	FILE:	NewSlur.c
 	PROJ:	Nightingale
 	DESC:	Slur creating routines.
@@ -11,7 +11,7 @@
 		GetTiesCurveDir			GetSlurTieCurveDir		NewSlurSetCtlPts
 		CrossSysSetCtlPts		NewSlurCleanup			NewCrossSystemSlur
 		SlurToNext				NewSlur					AddNoteTies
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -48,7 +48,7 @@ static void NewCrossSystemSlur(Document *, short staff, short voice, CONTEXT con
 static Boolean SlurToNext(Document *, short *, short);
 static short BuildTieArrays(LINK, LINK, short, char [], char[]);
 
-/* --------------------------------------------------- NewSlur and Help Functions -- */
+/* -------------------------------------------------------- NewSlur and Help Functions -- */
 /* Functions for NewSlur. Functions called by NewSlur return one of these codes to
 indicate whether they were successful, or if not, the reason why. */
 
@@ -80,7 +80,7 @@ static Point	startPt[MAXCHORD], endPt[MAXCHORD];
 static char HandleFirstSync(Document *doc, short staff, short voice)
 {
 	LINK aNoteL;  PANOTE aNote;
-	Boolean noteFound=FALSE;
+	Boolean noteFound=False;
 	
 	if (doc->selStartL==doc->headL) {
 		MayErrMsg("HandleFirstSync: ASKED TO INSERT BEFORE HEADER");
@@ -94,11 +94,11 @@ static char HandleFirstSync(Document *doc, short staff, short voice)
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
 		if (aNote->staffn==staff && aNote->voice==voice)
-			{ noteFound = TRUE; break; }
+			{ noteFound = True; break; }
 	}
 	if (!noteFound) return F_ABORT;						/* No note on this staff & voice? */
 
-	HiliteInsertNode(doc, firstSyncL, staff, TRUE);
+	InvertSymbolHilite(doc, firstSyncL, staff, True);
 	return NF_OK;
 }
 
@@ -161,19 +161,19 @@ static short GetSyncStaff(LINK pL, short index)
 }
 
 
-/* Check whether the slur ended on the same system or staff as it began. If the
-system was different, it's a cross-system slur, so set crossSystem TRUE. If the
-staff was different, it's a cross-staff slur, so set crossStaff TRUE.
+/* Check whether the slur ended on the same system or staff as it began. If the system
+was different, it's a cross-system slur, so set crossSystem True. If the staff was
+different, it's a cross-staff slur, so set crossStaff True.
 
-#1. Get staff containing mouseClick. Need to call FindObject in case the note
-terminating slur-tracking operation is so high or low that it overlaps a staff
-which it is not on, with the result that FindStaffSetSys will find the staff that
-the note is not on. However, slur tracking routines eventually call ValidSlurEndpt
-to get a valid note at the end of the slur-tracking operation, and ValidSlurEndpt
-uses different logic from FindObject, so it may be possible for FindObject to miss
-a sync that ValidSlurEndpt will accept. Therefore, if FindObject actually finds
-the endnote of the tracking operation, use that note's staff here; otherwise, the
-best that can be done is to use the results of FindStaffSetSys. */
+#1. Get staff containing mouseClick. Need to call FindAndActOnObject in case the note
+terminating slur-tracking operation is so high or low that it overlaps a staff which it
+is not on, with the result that FindStaffSetSys will find the staff that the note is not
+on. However, slur tracking routines eventually call ValidSlurEndpt to get a valid note
+at the end of the slur-tracking operation, and ValidSlurEndpt uses different logic from
+FindAndActOnObject, so it may be possible for FindAndActOnObject to miss a sync that
+ValidSlurEndpt will accept. Therefore, if FindAndActOnObject actually finds the endnote
+of the tracking operation, use that note's staff here; otherwise, the best that can be
+done is to use the results of FindStaffSetSys. */
 
 
 static void CheckCrossness(Document *doc, short	staff, Point pt)
@@ -184,7 +184,7 @@ static void CheckCrossness(Document *doc, short	staff, Point pt)
 	oldSystem = doc->currentSystem;
 
 	endStaff = FindStaffSetSys(doc, pt);					/* #1. */
-	pL = FindObject(doc, pt, &index, SMFind);
+	pL = FindAndActOnObject(doc, pt, &index, SMFind);
 	if (pL) objEndStaff = GetSyncStaff(pL, index);
 
 	if (objEndStaff!=NOONE)
@@ -193,17 +193,17 @@ static void CheckCrossness(Document *doc, short	staff, Point pt)
 
 	if (doc->currentSystem!=oldSystem)	{					/* Does it cross systems? */
 		crossSysBack = (doc->currentSystem<oldSystem);
-		crossSystem = TRUE;
+		crossSystem = True;
 	}
 	else
-		crossSystem = FALSE;
+		crossSystem = False;
 
 	if (endStaff!=staff) {									/* Does it cross staves? */
 		crossStfBack = (endStaff<staff);
-		crossStaff = TRUE;
+		crossStaff = True;
 	}
 	else
-		crossStaff = FALSE;
+		crossStaff = False;
 }
 
 
@@ -219,15 +219,15 @@ static LINK ValidSlurEndpt(Document *doc, Point pt, short staffn)
 	/* Get valid leftL, rightL, if possible: closest note on the staff, before any
 	 * other non-J_D object. 
 	 */
-	symRightL = StaffFindSymRight(doc, pt, FALSE, staffn);
+	symRightL = StaffFindSymRight(doc, pt, False, staffn);
 	if (symRightL) 
-		rightL = StaffFindSyncRight(doc, pt, FALSE, staffn);
+		rightL = StaffFindSyncRight(doc, pt, False, staffn);
 	if (rightL)
 		symRightL = FindValidSymRight(doc, symRightL, staffn);
 
-	symLeftL = StaffFindSymLeft(doc, pt, FALSE, staffn);
+	symLeftL = StaffFindSymLeft(doc, pt, False, staffn);
 	if (symLeftL)
-		leftL = StaffFindSyncLeft(doc, pt, FALSE, staffn);
+		leftL = StaffFindSyncLeft(doc, pt, False, staffn);
 	if (leftL)
 		symLeftL = FindValidSymLeft(doc, symLeftL, staffn);
 	
@@ -238,7 +238,7 @@ static LINK ValidSlurEndpt(Document *doc, Point pt, short staffn)
 	
 	/* We've got our valid syncs leftL, rightL; find which is closer. */
 	
-	systemL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, FALSE);
+	systemL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, False);
 	pSystem = GetPSYSTEM(systemL); 
 	sysLeft = pSystem->systemRect.left;
 	insertxd = Sysxd(pt, sysLeft);
@@ -276,7 +276,7 @@ static char HandleLastSync(Document *doc, short staff, short voice, Point pt)
 		InvalMeasure(doc->selStartL, staff);
 		return USR_ALERT;
 	}
-	HiliteInsertNode(doc, lastSyncL, staff, TRUE);
+	InvertSymbolHilite(doc, lastSyncL, staff, True);
 	SleepTicks(HILITE_TICKS);
 	return NF_OK;
 }
@@ -320,11 +320,11 @@ static void SwapEndpoints(Document *doc, short *staff)
 }
 
 
-/* ----------------------------------------------------------------- NestingIsOK -- */
+/* ----------------------------------------------------------------------- NestingIsOK -- */
 /* NestingIsOK checks whether a slur/tie to be added would be nested in or over-
 lapping an existing slur or tie; it should be called before making any changes
 to the data structure such as actually inserting the slur object. It returns
-TRUE if the putative slur/tie is legal, FALSE if not. If the slur/tie is legal,
+True if the putative slur/tie is legal, False if not. If the slur/tie is legal,
 it also sets *mustBeTie. NestingIsOK looks for existing slurs that might overlap
 the new slur/tie's range, and: 
 1. For slurs with first sync strictly between newFirstL and newLastL:
@@ -383,32 +383,32 @@ static void CheckProposedSlur(
 	firstPos = ComparePosInSys(newFirstL, oldFirstL);
 	lastPos = ComparePosInSys(newLastL, oldLastL);
 
-	*pCanTie = TRUE; *pCanSlur = TRUE;
+	*pCanTie = True; *pCanSlur = True;
 	switch (firstPos) {
 		case C1_THEN_2:
 			if (IsAfterIncl(newLastL, oldFirstL)) break;		/* no pblm if they're disjoint */
 			switch (lastPos) {
 				case C1_THEN_2:									/* case 1a */
-					*pCanTie = *pCanSlur = FALSE;
+					*pCanTie = *pCanSlur = False;
 					break;
 				case CEQUAL:									/* case 1b */
 				case C2_THEN_1:
-					*pCanTie = FALSE;
-					if (!SlurTIE(oldSlurL)) *pCanSlur = FALSE;
+					*pCanTie = False;
+					if (!SlurTIE(oldSlurL)) *pCanSlur = False;
 					break;
 			}
 			break;
 		case CEQUAL:
 			switch (lastPos) {
 				case C1_THEN_2:									/* case 2a */
-					*pCanSlur = FALSE;
+					*pCanSlur = False;
 					break;
 				case CEQUAL:									/* case 2b */
-					*pCanTie = *pCanSlur = FALSE;
+					*pCanTie = *pCanSlur = False;
 					break;
 				case C2_THEN_1:									/* case 2c */
-					*pCanTie = FALSE;
-					if (!SlurTIE(oldSlurL)) *pCanSlur = FALSE;
+					*pCanTie = False;
+					if (!SlurTIE(oldSlurL)) *pCanSlur = False;
 					break;
 			}
 			break;
@@ -417,10 +417,10 @@ static void CheckProposedSlur(
 			switch (lastPos) {
 				case C1_THEN_2:									/* case 3a */
 				case CEQUAL:
-					*pCanSlur = FALSE;
+					*pCanSlur = False;
 					break;
 				case C2_THEN_1:									/* case 3b */
-					*pCanTie = *pCanSlur = FALSE;
+					*pCanTie = *pCanSlur = False;
 					break;
 			}
 			break;
@@ -439,31 +439,31 @@ static Boolean NestingIsOK(
 {
 	SearchParam pbSearch;
 	LINK		oldSlurL;
-	Boolean 	canTie=TRUE, canSlur=TRUE, canTieThis, canSlurThis, tiePossible;
+	Boolean 	canTie=True, canSlur=True, canTieThis, canSlurThis, tiePossible;
 
-	if (crossSys || crossStf) return TRUE;		/* FIXME: This doesn't look at all safe! */
+	if (crossSys || crossStf) return True;		/* FIXME: This doesn't look at all safe! */
 	
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;			/* check slurs on *any* staff that are in our voice */
 	pbSearch.voice = voice;				
-	pbSearch.inSystem = TRUE;
+	pbSearch.inSystem = True;
 
 	oldSlurL = newLastL;
-	while (oldSlurL = L_Search(LeftLINK(oldSlurL), SLURtype, GO_LEFT, &pbSearch)) {
+	while ((oldSlurL = L_Search(LeftLINK(oldSlurL), SLURtype, GO_LEFT, &pbSearch))) {
 		if (IsAfter(SlurLASTSYNC(oldSlurL), newFirstL)) break;
 		CheckProposedSlur(newFirstL, newLastL, oldSlurL,  &canTieThis, &canSlurThis);
-		if (!canTieThis) canTie = FALSE;
-		if (!canSlurThis) canSlur = FALSE;
+		if (!canTieThis) canTie = False;
+		if (!canSlurThis) canSlur = False;
 	}
 
 	*mustBeTie = !canSlur;
 	tiePossible = SyncsAreConsec(newFirstL, newLastL, staff, voice);
-	if (!tiePossible) canTie = FALSE;
+	if (!tiePossible) canTie = False;
 	return (canTie || canSlur);
 }
 
 
-/* --------------------------------------------------------------- FillTieArrays -- */
+/* --------------------------------------------------------------------- FillTieArrays -- */
 /* For ties, fills firstIndA and lastIndA with indices to the tied notes within
 their respective chords in the given Syncs (first note=0), as specified by parallel
 arrays fChordNote and lChordNote (presumably filled by CompareNCNotes, to handle
@@ -520,7 +520,7 @@ static short FillTieArrays(
 		if (firstNoteL) {
 			lastNoteL = lChordNote[n].noteL;
 			NoteNUM(lastNoteL) = NoteNUM(firstNoteL);
-			NoteTIEDR(firstNoteL) = NoteTIEDL(lastNoteL) = TRUE;
+			NoteTIEDR(firstNoteL) = NoteTIEDL(lastNoteL) = True;
 			firstIndA[subCount] = fChordNote[n].noteNum;
 			lastIndA[subCount] = lChordNote[n].noteNum;
 			subCount++;
@@ -531,10 +531,10 @@ static short FillTieArrays(
 }
 
 
-/* -------------------------------------------------------------------- WantTies -- */
+/* -------------------------------------------------------------------------- WantTies -- */
 /* Decide whether user wants a set of ties or a single slur. If the <config> struct
 doesn't specify and the user hasn't said which to assume, ask them which they want.
-Returns TRUE for ties, FALSE for slur. */
+Returns True for ties, False for slur. */
 
 static enum {
 	BUT1_OK=1,
@@ -552,14 +552,14 @@ static Boolean WantTies(
 	Boolean value;
 	static short assumeSlurTie=0, oldChoice=0;
 	register DialogPtr dlog;  GrafPtr oldPort;
-	Boolean keepGoing=TRUE;
-	static Boolean firstCall=TRUE;
+	Boolean keepGoing=True;
+	static Boolean firstCall=True;
 
 	if (firstCall) {
 		if (config.assumeTie==1)		assumeSlurTie = TIES_DI;
 		else if (config.assumeTie==2)	assumeSlurTie = SLUR_DI;
 		else							assumeSlurTie = 0;
-		firstCall = FALSE;
+		firstCall = False;
 	}
 	
 	if (assumeSlurTie)
@@ -571,14 +571,14 @@ static Boolean WantTies(
 		ModalFilterUPP	filterUPP = NewModalFilterUPP(OKButFilter);
 		if (filterUPP==NULL) {
 			MissingDialog(SLURTIE_DLOG);
-			return FALSE;
+			return False;
 		}
 		GetPort(&oldPort);
 		dlog = GetNewDialog(SLURTIE_DLOG, NULL, BRING_TO_FRONT);
 		if (dlog==NULL) {
 			DisposeModalFilterUPP(filterUPP);
 			MissingDialog(SLURTIE_DLOG);
-			return FALSE;
+			return False;
 		}
 		SetPort(GetDialogWindowPort(dlog));
 	
@@ -598,7 +598,7 @@ static Boolean WantTies(
 			ModalDialog(filterUPP, &itemHit);
 			switch(itemHit) {
 				case BUT1_OK:
-					keepGoing = FALSE;
+					keepGoing = False;
 					value = (group1==TIES_DI);
 					if (GetDlgChkRadio(dlog, ASSUME_DI)) assumeSlurTie = group1;
 					oldChoice = group1;
@@ -624,7 +624,7 @@ static Boolean WantTies(
 }
 
 
-/* ------------------------------------------------------------------- HandleTie -- */
+/* ------------------------------------------------------------------------- HandleTie -- */
 /* HandleTie decides whether the curve connecting the given Syncs should be
 a tie or set of ties, or a slur. If the situation is ambiguous, it asks the user.
 Should be called only for consecutive Syncs, since otherwise it must be a slur. 
@@ -673,7 +673,7 @@ static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 	 *	If there's no match of pitches, the slur/tie must be a slur; if there is a
 	 *	match, we may have to ask for help deciding which it is.
 	 */
-	itsATie = FALSE;
+	itsATie = False;
 
 	CompareNCNotes(firstL, lastL, voice, &nMatch, &nTiedMatch, fChordNote,lChordNote,
 						&flCount);
@@ -701,7 +701,7 @@ static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 }
 
 
-/* ---------------------------------------------------------------- NewSlurOrTie -- */
+/* ---------------------------------------------------------------------- NewSlurOrTie -- */
 /* Determine whether new "slur" is a tie or not. First check whether the new
 slur/tie is nested within or overlapping an existing slur; if so, it must
 (according to Nightingale's rules) be a tie. Then check if its endpts are
@@ -726,7 +726,7 @@ static char NewSlurOrTie(
 	 * makes hard-to-undo data structure changes. We can sidestep this clumsily by
 	 * setting a slur-disallow or tie-disallow flag. 
 	 */
- 	itsATie = mustBeTie = FALSE;
+ 	itsATie = mustBeTie = False;
 	if (!NestingIsOK(firstSyncL, lastSyncL, staff, voice, crossSystem, crossStaff, &mustBeTie)) {
 		GetIndCString(strBuf, SLURERRS_STRS, 4);    /* "There is already a tie and/or slur here, and Nightingale doesn't allow overlapping or nested ties or slurs." */
 		CParamText(strBuf, "", "", "");
@@ -750,7 +750,7 @@ static char NewSlurOrTie(
 		itsATie = (status==F_TIE);
 	}
 	else {
-		itsATie = FALSE;
+		itsATie = False;
 		subCount = 1;
 	}
 	
@@ -771,13 +771,13 @@ static char NewSlurOrTie(
 		for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 			aNote = GetPANOTE(aNoteL);
 			if (aNote->voice==voice)
-				if (MainNote(aNoteL)) aNote->slurredR = TRUE;
+				if (MainNote(aNoteL)) aNote->slurredR = True;
 		}
 		aNoteL = FirstSubLINK(lastSyncL);
 		for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 			aNote = GetPANOTE(aNoteL);
 			if (aNote->voice==voice)
-				if (MainNote(aNoteL)) aNote->slurredL = TRUE;
+				if (MainNote(aNoteL)) aNote->slurredL = True;
 		}
 	}
 	return NF_OK;
@@ -803,7 +803,7 @@ static LINK AddNewSlur(Document *doc, LINK insertL, short staff, short voice)
  	pSlur->tie = itsATie;
  	pSlur->firstSyncL = firstSyncL;
  	pSlur->lastSyncL = lastSyncL;
- 	pSlur->crossSystem = FALSE;
+ 	pSlur->crossSystem = False;
  	pSlur->crossStaff = crossStaff;
  	pSlur->crossStfBack = crossStfBack;
 	aSlurL = FirstSubLINK(newL);
@@ -915,7 +915,7 @@ void GetTiesCurveDir(Document */*doc*/, short voice, LINK slurL, Boolean curveUp
 
 	firstSyncL = syncL = SlurFIRSTSYNC(slurL);
 	if (MeasureTYPE(syncL)) syncL = SlurLASTSYNC(slurL);
-	count = GSortChordNotes(syncL, voice, TRUE, chordNote);
+	count = GSortChordNotes(syncL, voice, True, chordNote);
 	
 	aTieL = FirstSubLINK(slurL);
 	for (s = 0; aTieL; s++, aTieL = NextSLURL(aTieL)) {
@@ -1035,7 +1035,7 @@ static void NewSlurCleanup(
 					Document *doc,
 					short	staff,
 					LINK	newL,
-					Boolean	user 		/* TRUE=assume call results from user directly creating slur */
+					Boolean	user 		/* True=assume call results from user directly creating slur */
 					)
 {
 	register PASLUR aSlur;
@@ -1045,8 +1045,8 @@ static void NewSlurCleanup(
 	for ( ; aSlurL; aSlurL=NextSLURL(aSlurL)) {
 		aSlur = GetPASLUR(aSlurL);
 		aSlur->selected = user;
-		aSlur->visible = TRUE;
-		aSlur->soft = FALSE;
+		aSlur->visible = True;
+		aSlur->soft = False;
 		aSlur->dashed = 0;
 		aSlur->filler = 0;
 		aSlur->reserved = 0L;
@@ -1057,7 +1057,7 @@ static void NewSlurCleanup(
 		doc->selEndL = RightLINK(newL);										
 	}
 	InvalMeasures(firstSyncL, lastSyncL, staff);							
-	InvalObject(doc,newL,FALSE);							/* Redraw slur in case outside system */
+	InvalObject(doc,newL,False);							/* Redraw slur in case outside system */
 }
 
 /* First, this adds a slur in the first system, and sets pSlur->lastSyncL to be the
@@ -1079,9 +1079,9 @@ static void NewCrossSystemSlur(Document *doc, short staff, short voice, CONTEXT 
 	/* Set the slur's lastSyncL to its system. */
 
 	pSlur = GetPSLUR(newL1);
-	pSlur->lastSyncL = LSSearch(newL1, SYSTEMtype, ANYONE, TRUE, FALSE);
-	pSlur->crossSystem = TRUE;
-	pSlur->crossStaff = FALSE;
+	pSlur->lastSyncL = LSSearch(newL1, SYSTEMtype, ANYONE, True, False);
+	pSlur->crossSystem = True;
+	pSlur->crossStaff = False;
 
 	SetSlurIndices(newL1);
 	GetSlurContext(doc, newL1, startPt, endPt);
@@ -1098,13 +1098,13 @@ static void NewCrossSystemSlur(Document *doc, short staff, short voice, CONTEXT 
 	
 	/* Deselect the slur and subObjects so that only one slur will end up
 		selected. */
-	LinkSEL(newL1) = FALSE;
+	LinkSEL(newL1) = False;
 	aSlurL = FirstSubLINK(newL1);
 	for ( ; aSlurL; aSlurL=NextSLURL(aSlurL)) {
 		aSlur = GetPASLUR(aSlurL);
-		aSlur->selected = FALSE;
-		aSlur->visible = TRUE;
-		aSlur->soft = FALSE;
+		aSlur->selected = False;
+		aSlur->visible = True;
+		aSlur->soft = False;
 	}
 
 	/* Add the slur on the second system. Reset doc->selStartL and doc->selEndL
@@ -1112,8 +1112,8 @@ static void NewCrossSystemSlur(Document *doc, short staff, short voice, CONTEXT 
 		of the system. The firstSyncL field of this slur is filled by the first
 		measure of the system. */
 
-	sysL = LSSearch(oldLastSync, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
-	firstMeasL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	sysL = LSSearch(oldLastSync, SYSTEMtype, ANYONE, GO_LEFT, False);
+	firstMeasL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 
 	lastSyncL = oldLastSync;
 	doc->selStartL = firstMeasL;
@@ -1122,7 +1122,7 @@ static void NewCrossSystemSlur(Document *doc, short staff, short voice, CONTEXT 
 
 	pSlur = GetPSLUR(newL2);
 	pSlur->firstSyncL = firstMeasL;
-	pSlur->crossStaff = FALSE;
+	pSlur->crossStaff = False;
 
 	SetSlurIndices(newL2);
 	GetSlurContext(doc, newL2, startPt, endPt);
@@ -1130,27 +1130,27 @@ static void NewCrossSystemSlur(Document *doc, short staff, short voice, CONTEXT 
 	pSlur = GetPSLUR(newL2);
 	firstSyncL = pSlur->firstSyncL;
 	lastSyncL = pSlur->lastSyncL;
-	pSlur->crossSystem = TRUE;
+	pSlur->crossSystem = True;
 	CrossSysSetCtlPts(doc, endStaff, voice, newL2, context);
 	
 	/* Clean up, and set all the soft flags for the second slur. Reset firstSyncL
 		to the first sync of the first slur to include in the Inval Range. */
 	pSlur = GetPSLUR(newL1);
 	firstSyncL = pSlur->firstSyncL;
-	InvalObject(doc,newL1,FALSE);
+	InvalObject(doc,newL1,False);
 
-	NewSlurCleanup(doc, staff, newL1, FALSE);
-	NewSlurCleanup(doc, endStaff, newL2, TRUE);
-	LinkSOFT(newL2) = TRUE;
+	NewSlurCleanup(doc, staff, newL1, False);
+	NewSlurCleanup(doc, endStaff, newL2, True);
+	LinkSOFT(newL2) = True;
 	aSlurL = FirstSubLINK(newL2);
 	for ( ; aSlurL; aSlurL=NextSLURL(aSlurL)) {
 		aSlur = GetPASLUR(aSlurL);
-		aSlur->soft = FALSE;
+		aSlur->soft = False;
 	}
 }
 
 
-/* ------------------------------------------------------------------ SlurToNext -- */
+/* ------------------------------------------------------------------------ SlurToNext -- */
 /* Assuming <firstSyncL> is set, set <lastSyncL> and cross-staff/system variables
 to make slur/tie go to next note/chord in <voice>. */
 
@@ -1166,14 +1166,14 @@ static Boolean SlurToNext(Document *doc,
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.voice = voice;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = FALSE;
-	lastSyncL = L_Search(RightLINK(firstSyncL), SYNCtype, FALSE, &pbSearch);
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = False;
+	lastSyncL = L_Search(RightLINK(firstSyncL), SYNCtype, False, &pbSearch);
 
-	if (!lastSyncL) return FALSE;
+	if (!lastSyncL) return False;
 	aNoteL = pbSearch.pEntry;
 	
-	lastSystemL = LSSearch(lastSyncL, SYSTEMtype, ANYONE, TRUE, FALSE);
+	lastSystemL = LSSearch(lastSyncL, SYSTEMtype, ANYONE, True, False);
 	pSystem = GetPSYSTEM(lastSystemL);
 	crossSystem = (pSystem->systemNum!=doc->currentSystem);
 	crossSysBack = (pSystem->systemNum<doc->currentSystem);
@@ -1187,11 +1187,11 @@ static Boolean SlurToNext(Document *doc,
 		*pStaff = tempStf;
 	}
 
-	return TRUE;
+	return True;
 }
 
 
-/* --------------------------------------------------------------------- NewSlur -- */
+/* --------------------------------------------------------------------------- NewSlur -- */
 /*	Add a slur or tie on <staff> and <voice> at <pt>. The firstSync is the node
 immediately to the left of <pt> on <staff>/<voice>; NewSlur checks that this is a
 Sync, tracks the slur, checks systems and staves, finds a valid last Sync, checks
@@ -1210,8 +1210,8 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 	/* Disable later if problem */
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);    			/* "Undo Insert" */
 
-	slurToNext = FALSE;
-	firstMeas = LSSearch(doc->headL, MEASUREtype, ANYONE, FALSE, FALSE);
+	slurToNext = False;
+	firstMeas = LSSearch(doc->headL, MEASUREtype, ANYONE, False, False);
 	GetContext(doc, doc->selStartL, staff, &context);
 
 	/* Sets firstSyncL, firstNoteL, checks if firstSync has a note on <staff> &
@@ -1228,7 +1228,7 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 	/* If mouse moved horizontally only a very short distance, make slur/ties go to
 		the next note/chord to the right in voice <voice>. */
 	if (ABS(newPt.h-pt.h)<SLOP) {
-		slurToNext = TRUE;
+		slurToNext = True;
 		if (!SlurToNext(doc, &staff, voice)) {
 			InvalMeasure(firstSyncL, staff);
 			goto Disable;
@@ -1246,8 +1246,8 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 			}
 		
 		/* Gets the staff containing <newPt>, checks if <newPt>'s staff and system
-			are same as that of first anchor point. Sets crossStaff TRUE if staves
-			are different; sets crossSystem TRUE if systems are different. */
+			are same as that of first anchor point. Sets crossStaff True if staves
+			are different; sets crossSystem True if systems are different. */
 
 		CheckCrossness(doc, staff, newPt);
 	
@@ -1282,16 +1282,16 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 		points for slur subobjects, and clean up. */
 	GetSlurContext(doc, slurL, startPt, endPt);
 	NewSlurSetCtlPts(doc, staff, voice, context);
-	NewSlurCleanup(doc, staff, slurL, TRUE);
+	NewSlurCleanup(doc, staff, slurL, True);
 	
 	return;
 
 Disable:
-	DisableUndo(doc, FALSE);
+	DisableUndo(doc, False);
 }
 
 
-/* -------------------------------------------------------------- BuildTieArrays -- */
+/* -------------------------------------------------------------------- BuildTieArrays -- */
 /* For ties, fills firstIndA and lastIndA with indices to the tied notes within
 their respective chords in the given Syncs (first note=0). If there's no chord, only
 a single note, in that Sync, it just sets firstIndA[0] or lastIndA[0] to 0. In any
@@ -1321,7 +1321,7 @@ static short BuildTieArrays(LINK firstL, LINK lastL, short voice,
 				if (lastNote->voice==voice) {
 					lastInd++;
 					if (firstNote->noteNum==lastNote->noteNum) {
-						firstNote->tiedR = lastNote->tiedL = TRUE;
+						firstNote->tiedR = lastNote->tiedL = True;
 						firstIndA[subCount] = firstInd;
 						lastIndA[subCount] = lastInd;
 						subCount++;
@@ -1335,7 +1335,7 @@ static short BuildTieArrays(LINK firstL, LINK lastL, short voice,
 }
 
 
-/* ----------------------------------------------------------------- AddNoteTies -- */
+/* ----------------------------------------------------------------------- AddNoteTies -- */
 /* Generate a set of ties between the given Syncs for the given staff and voice.
 Also set the tiedR and tiedL flags for the notes involved. Restrictions:
 1. Since the staff must be specified, not just the voice, this can't be used to
@@ -1356,10 +1356,10 @@ short AddNoteTies(Document *doc, LINK pL, LINK qL, short staff, short voice)
 
 	/* Set all the global variables used by the NewSlur routines. */
 	
-	itsATie = TRUE;
+	itsATie = True;
 	firstSyncL = pL; lastSyncL = qL;
 	GetContext(doc, pL, staff, &context);
-	crossStaff = FALSE;
+	crossStaff = False;
 	subCount = BuildTieArrays(firstSyncL, lastSyncL, voice, firstIndA, lastIndA);
 	if (subCount<=0) return 0;
 	
@@ -1375,7 +1375,7 @@ short AddNoteTies(Document *doc, LINK pL, LINK qL, short staff, short voice)
 	
 	GetSlurContext(doc, slurL, startPt, endPt);
 	NewSlurSetCtlPts(doc, staff, voice, context);
-	NewSlurCleanup(doc, staff, slurL, FALSE);
+	NewSlurCleanup(doc, staff, slurL, False);
 	
 	return subCount;
 }

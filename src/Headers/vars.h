@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	vars.h
 *	PROJ:	Nightingale
 *	DESC:	global variables
-***************************************************************************/
+*******************************************************************************************/
 
 /*
 #ifdef MAIN
@@ -13,7 +13,7 @@
 */
 
 
-/* ------------------------------- Without Initialization --------------------------- */
+/* ------------------------------------------------------------ Without Initialization -- */
 
 GLOBAL SysEnvRec	thisMac;				/* Our machine environment info */
 GLOBAL HEAP 		*Heap;					/* Pointer to current heap list */
@@ -47,11 +47,10 @@ GLOBAL OSType		creatorType;			/* Application signature ('BYRD') */
 GLOBAL OSType		documentType;			/* Document file signature */
 
 GLOBAL LINK			clipFirstMeas;			/* first measure of clipboard */
-GLOBAL Boolean		doneFlag,				/* FALSE until program is done */
-					cursorValid,			/* TRUE while cursor is valid */
-					hasWaitNextEvent,		/* Is the WaitNextEvent trap available (e.g., MultiFinder)? */
+GLOBAL Boolean		doneFlag,				/* False until program is done */
+					cursorValid,			/* True while cursor is valid */
 					bestQualityPrint,		/* "Best Quality Print" requested (on ImageWriter)? */
-					toolPalChanged;			/* TRUE if user has rearranged tool palette */
+					toolPalChanged;			/* True if user has rearranged tool palette */
 GLOBAL CursHandle	handCursor,				/* various cursors */
 					threadCursor,
 					genlDragCursor,
@@ -90,13 +89,13 @@ GLOBAL DDIST		drSize[MAXRASTRAL+1];	/* Sizes for staff rastral nos. */
 GLOBAL GridRec		*grid;					/* Character grid for Tool Palette */
 GLOBAL short		maxMCharWid, maxMCharHt; /* Max. size of any music char.in any view */
 GLOBAL GrafPtr		fontPort,				/* Offscreen bitmap to store image of a single music char */
-					palPort;				/* Offscreen port to hold copy of tools picture */
+					palPort;				/* Offscreen port to hold copy of tool palette picture */
 
 GLOBAL Rect			revertWinPosition;		/* Where to replace Document window */
 GLOBAL short		theSelectionType;		/* Current selection type (for autoscrolling) */
 GLOBAL short		dragOffset;				/* Diff between measureRect and portRect */
 GLOBAL CONTEXT		*contextA;				/* Allocate context[MAXSTAVES+1] on the heap */
-GLOBAL Boolean		initedBIMIDI;			/* TRUE=hardware/interrupts set for MIDI use, FALSE=normal */
+GLOBAL Boolean		initedBIMIDI;			/* True=hardware/interrupts set for MIDI use, False=normal */
 GLOBAL short		portSettingBIMIDI;		/* Port to use for built-in MIDI */	
 GLOBAL short		interfaceSpeedBIMIDI;	/* Interface speed for built-in MIDI */
 GLOBAL short		maxEndingNum;			/* Maximum Ending number available */
@@ -121,7 +120,7 @@ GLOBAL long			mPacketBufferLen;		/* Length of mPacketBuffer */
 GLOBAL long			mRecIndex;				/* For our MIDI Mgr readHook or built-in MIDI */		
 GLOBAL long			mFirstTime;				/* For our MIDI Mgr readHook: time stamp of 1st data message */
 GLOBAL long			mFinalTime;				/* For our MIDI Mgr readHook: time stamp of last data message */
-GLOBAL Boolean		recordingNow;			/* TRUE = MIDI recording in progress */
+GLOBAL Boolean		recordingNow;			/* True = MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
 GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
 
@@ -150,25 +149,24 @@ GLOBAL ScrapRef 	gNightScrap;
 
 GLOBAL Boolean		gCoreMIDIInited;
 
-GLOBAL Boolean		unisonsOK;				/* If TRUE, don't object to unisons (perfect or augmented) in a chord */
+GLOBAL Boolean		unisonsOK;				/* If True, don't object to unisons (perfect or augmented) in a chord */
 
 GLOBAL Boolean		ignoreChord[MAX_MEASNODES][MAXVOICES+1];
 
 
-/* ------------------------------- With Initialization ------------------------------ */
+/* --------------------------------------------------------------- With Initialization -- */
 
 #ifdef MAIN
 
-/* <symtable> gives information for <symcode>, the input key code, i.e., it gives
-the mapping from input character codes to musical symbols. A mapping from
-palette squares to key codes is specified by a 'PLCH' resource (see Palette.c
-for details).
+/* <symtable> gives information for <symcode>, the input key code, i.e., it gives the
+mapping from input character codes to musical symbols. A mapping from palette squares to
+key codes is specified by a 'PLCH' resource (see Palette.c for details).
 
-Re <symcode>: (1) Note that chars. that aren't in 7-bit ASCII may display differently
-in different fonts and may generate different code on different platforms: to avoid
-these problems, they should be given in hex. (2) Our palette re-mapping feature can
-override the chars. given here (via a 'PLMP' resource), and in fact the default
-re-mapping as of 3.5b8 makes dozens of changes, so caveat! */
+Re <symcode>: (1) Note that chars. that aren't in 7-bit ASCII may display differently in
+different fonts and may generate different code on different platforms: to avoid these
+problems, they should be given in hex. (2) Our palette re-mapping feature can override
+the chars. given here (via a 'PLMP' resource), and in fact the default re-mapping as of
+v. 3.5b8 makes dozens of changes, so caveat! */
  
 SYMDATA symtable[] = {
 		/* cursor	objtype   	subtype			symcode durcode */
@@ -251,13 +249,13 @@ SYMDATA symtable[] = {
 		{ 271,		MODNRtype,	5,				'5',	0 },		/* Note modifier: fingering 5 */
 		{ 280,		GRAPHICtype,GRString,		'A',	0 },		/* Text */
 		{ 281,		GRAPHICtype,GRRehearsal,	'c',	0 },		/* Rehearsal mark */
-		{ 282,		GRAPHICtype,GRMIDIPatch,	'z',	0 },		/* Patch change */
+		{ 282,		GRAPHICtype,GRMIDIPatch,	'z',	0 },		/* MIDI patch change */
 		{ 280,		GRAPHICtype,GRChordSym,		'7',	0 },		/* Chord symbol */
 		{ 271,		GRAPHICtype,GRArpeggio,		'g',	ARP },		/* Arpeggio sign */
 		{ 271,		GRAPHICtype,GRArpeggio,		'G',	NONARP },	/* Non-arpeggio sign */
 		{ 275,		GRAPHICtype,GRDraw,			'_',	0 },		/* Line */
-		{ 341,		GRAPHICtype,GRMIDISustainOn, 0xB6,	0 },		/* Music char. "Ped." (pedal down) */
-		{ 342,		GRAPHICtype,GRMIDISustainOff, 0xFA,	1 },		/* Music char. pedal up */
+		{ 341,		GRAPHICtype,GRSusPedalDown,	0xB6,	0 },		/* Music char. "Ped." (pedal down = sustain) */
+		{ 342,		GRAPHICtype,GRSusPedalUp,	0xFA,	1 },		/* Music char. pedal up */
 		{ 340,		GRAPHICtype,GRMIDIPan,		0x7C,	1 },		/* MIDI Pan Controller */
 		{ 271,		GRAPHICtype,GRChordFrame,	0xB1,	0 },		/* Chord frame */
 		{ 300,		MEASUREtype, BAR_RPT_L,		'[',	0 },		/* left repeat */
@@ -270,40 +268,40 @@ SYMDATA symtable[] = {
 		{ GENLDRAG_CURS, 0,		0,				'j',	0 }			/* General object dragging tool */
 };
 
-short nsyms=(sizeof(symtable)/sizeof(SYMDATA));	/* Length of symtable */ 
+short nsyms=(sizeof(symtable)/sizeof(SYMDATA));			/* Length of symtable */ 
 
 /*	objTable gives information for each object type */
  
 OBJDATA objTable[] = {
 	/*	objtype  	justType	minEnt	maxEnt		objRectOrd */
-	{ HEADERtype,	0,			2,		MAXSTAVES+1,FALSE },
-	{ TAILtype,		J_IT,		0,		0,			FALSE },
-	{ SYNCtype,		J_IT,		1,		255,		TRUE },
-	{ RPTENDtype,	J_IT,		1,		MAXSTAVES,	TRUE },
-	{ PAGEtype,		J_STRUC,	0,		0,			FALSE },
+	{ HEADERtype,	0,			2,		MAXSTAVES+1,False },
+	{ TAILtype,		J_IT,		0,		0,			False },
+	{ SYNCtype,		J_IT,		1,		255,		True },
+	{ RPTENDtype,	J_IT,		1,		MAXSTAVES,	True },
+	{ PAGEtype,		J_STRUC,	0,		0,			False },
 
-	{ SYSTEMtype,	J_STRUC,	0,		0,			FALSE },
-	{ STAFFtype,	J_STRUC,	1,		MAXSTAVES,	FALSE },
-	{ MEASUREtype,	J_IT,		1,		MAXSTAVES,	TRUE },
-	{ CLEFtype,		J_IP,		1,		MAXSTAVES,	TRUE },
-	{ KEYSIGtype,	J_IP,		1,		MAXSTAVES,	TRUE },
+	{ SYSTEMtype,	J_STRUC,	0,		0,			False },
+	{ STAFFtype,	J_STRUC,	1,		MAXSTAVES,	False },
+	{ MEASUREtype,	J_IT,		1,		MAXSTAVES,	True },
+	{ CLEFtype,		J_IP,		1,		MAXSTAVES,	True },
+	{ KEYSIGtype,	J_IP,		1,		MAXSTAVES,	True },
 
-	{ TIMESIGtype,	J_IP,		1,		MAXSTAVES,	TRUE },
-	{ BEAMSETtype,	J_D,		2,		127,		FALSE },
-	{ CONNECTtype,	J_D,		1,		MAXSTAVES,	TRUE },
-	{ DYNAMtype,	J_D,		1,		MAXSTAVES,	FALSE },
-	{ MODNRtype,	0,			0,		0,			FALSE },
+	{ TIMESIGtype,	J_IP,		1,		MAXSTAVES,	True },
+	{ BEAMSETtype,	J_D,		2,		127,		False },
+	{ CONNECTtype,	J_D,		1,		MAXSTAVES,	True },
+	{ DYNAMtype,	J_D,		1,		MAXSTAVES,	False },
+	{ MODNRtype,	0,			0,		0,			False },
 
-	{ GRAPHICtype,	J_D,		1,		255,		FALSE },
-	{ OTTAVAtype,	J_D,		1,		MAXINOTTAVA,TRUE },
-	{ SLURtype,		J_D,		1,		MAXCHORD,	FALSE },
-	{ TUPLETtype,	J_D,		2,		127,		FALSE },
-	{ GRSYNCtype,	J_IP,		1,		255,		TRUE },
-	{ TEMPOtype,	J_D,		0,		0,			FALSE },
-	{ SPACERtype,	J_IT,		0,		0,			TRUE },	
-	{ ENDINGtype,	J_D,		0,		0,			FALSE },
-	{ PSMEAStype, 	J_IT,		1,		MAXSTAVES,	TRUE },	
-	{ OBJtype,		J_STRUC,	0,		0,			FALSE }
+	{ GRAPHICtype,	J_D,		1,		255,		False },
+	{ OTTAVAtype,	J_D,		1,		MAXINOTTAVA,True },
+	{ SLURtype,		J_D,		1,		MAXCHORD,	False },
+	{ TUPLETtype,	J_D,		2,		127,		False },
+	{ GRSYNCtype,	J_IP,		1,		255,		True },
+	{ TEMPOtype,	J_D,		0,		0,			False },
+	{ SPACERtype,	J_IT,		0,		0,			True },	
+	{ ENDINGtype,	J_D,		0,		0,			False },
+	{ PSMEAStype, 	J_IT,		1,		MAXSTAVES,	True },	
+	{ OBJtype,		J_STRUC,	0,		0,			False }
 };
 
 /*
@@ -312,7 +310,7 @@ OBJDATA objTable[] = {
  *		FASTFLOAT rSize[MAXRASTRAL+1] =						Sizes for staff rastral nos.
  *			{26,21.6,20,18.8,18,16.4,14.2,12.4,10;			in points
  *	But we'll accept the following approximations, which are more practical with the
- *	Macintosh's screen resolution of 72 dpi, or 1 point. N.B. pdrSize[0] is normally
+ *	Macintosh's screen resolution of 72 dpi, or 1 point. NB: pdrSize[0] is normally
  * replaced by a value from the CNFG resource.
  */
 
@@ -320,7 +318,8 @@ short pdrSize[MAXRASTRAL+1] =								/* Sizes for staff rastral nos., */
 	{ 28, 24, 20, 19, 18, 16, 14, 12, 10};					/*  in points */ 
 
 /* Sets of related characters in Adobe's Sonata and compatibles (individual characters
-are declared in NTypes.h) */
+are declared in Defs.h) */
+
 unsigned char SonataAcc[6] = { ' ', 0xBA,'b','n','#',0xDC };	/* Accidentals */
 unsigned char MCH_idigits[10] =									/* Small italic digits for tuplets, etc. */
 	{ 0xBC, 0xC1, 0xAA, 0xA3, 0xA2, 0xB0, 0xA4, 0xA6, 0xA5, 0xBB };
@@ -333,6 +332,7 @@ unsigned char MCH_rests[MAX_L_DUR] =
 	{ 0xE3, 0xB7, 0xEE, 0xCE, 0xE4, 0xC5, 0xA8, 0xF4, 0xE5 };
 
 /* Coarse correction to font for rest Y-positions (half-lines) */
+
 short restYOffset[MAX_L_DUR+1] = 
 					{ 0, 0, 0, 0, 0, -1, 1, 1, 3, 3 };
 
@@ -340,6 +340,7 @@ short noteOffset[] = { 7, 14, 21, -7, -14, -21 };				/* Vert. offset for ottavas
 
 /*	Text sizes, in line spaces:
                              Tiny VSmall Small Medium Large VLarge Jumbo ------- StaffHt */
+							 
 FASTFLOAT relFSizeTab[] =  { 1.0, 1.5,   1.7,  2.0,   2.2,	2.5,   3.0,  3.6, 0,   4.0  };
 
 short subObjLength[] = {
@@ -422,6 +423,6 @@ GLOBAL SignedByte threadableType;
 #endif
 
 
-/* ------------------------------------- enums --------------------------------------- */
+/* ----------------------------------------------------------------------------- enums -- */
 
 enum { ClickErase, ClickSelect, ClickInsert, ClickFrame };

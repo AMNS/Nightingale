@@ -24,7 +24,7 @@ void GotoSheet(Document *doc, short nSheet, short drawIt)
 		if (status==INARRAY_INRANGE || status==INARRAY_OVERFLOW) {
 			dx = sheet.left - doc->origin.h - config.hPageSep;
 			dy = sheet.top  - doc->origin.v - config.vPageSep;
-			QuickScroll(doc,dx,dy,TRUE,drawIt);
+			QuickScroll(doc,dx,dy,True,drawIt);
 			}
 	}
 
@@ -34,9 +34,9 @@ void GotoSheet(Document *doc, short nSheet, short drawIt)
 /* Temporarily change the size of a paper to 1/10 the usual size, so
 that user can see lots of sheets and click on one to go to it.  If
 we're already in overview mode, go back to where we were.  If fromMenu
-is TRUE, then this call is due to the user choosing Goto from menu,
+is True, then this call is due to the user choosing Goto from menu,
 otherwise, it's an internal call.  If a sheet was picked, then i has
-its number in it, and fromMenu will be FALSE.  If fromMenu is TRUE,
+its number in it, and fromMenu will be False.  If fromMenu is True,
 i is undefined. */
 
 void PickSheetMode(Document *doc, Boolean fromMenu, short i)
@@ -99,7 +99,7 @@ void PickSheetMode(Document *doc, Boolean fromMenu, short i)
 				}
 			}
 		
-		QuickScroll(doc,x,y,FALSE,FALSE);			/* Internal scroll without update */
+		QuickScroll(doc,x,y,False,False);			/* Internal scroll without update */
 		InvalWindowRect(doc->theWindow,&doc->viewRect);						/* Redraw everything */
 	}
 	
@@ -110,7 +110,7 @@ void PickSheetMode(Document *doc, Boolean fromMenu, short i)
 
 /* If it had the given number of pages, would it be possible for pages of the given
 document, in its current screen page layout, to overflow screen coordinate space at
-the given magnification? If so, return TRUE, else FALSE. */
+the given magnification? If so, return True, else False. */
 
 Boolean ScreenPagesCanOverflow(Document *doc, short magnify, short numSheets)
 {
@@ -123,7 +123,7 @@ Boolean ScreenPagesCanOverflow(Document *doc, short magnify, short numSheets)
 	 * is because the user shouldn't have been allowed to set up a layout that
 	 * overflows without magnifying in the first place.
 	 */
-	if (magnify<=0) return FALSE;
+	if (magnify<=0) return False;
 	
 	/*
 	 * There's a problem if the no. of rows in the layout and the actual no. of
@@ -153,9 +153,9 @@ static enum {
 
 void WarnScreenPagesOverflow(Document */*doc*/)		/* doc is unused */
 {
-	static Boolean warnAgain=TRUE;
+	static Boolean warnAgain=True;
 	DialogPtr dlog;
-	Boolean keepGoing=TRUE;
+	Boolean keepGoing=True;
 	short itemHit;
 	GrafPtr savePort;
 	ModalFilterUPP	filterUPP;
@@ -188,7 +188,7 @@ void WarnScreenPagesOverflow(Document */*doc*/)		/* doc is unused */
 		ModalDialog(filterUPP,&itemHit);
 		switch (itemHit) {
 			case BUT1_OK:
-				keepGoing = FALSE;
+				keepGoing = False;
 				warnAgain = !GetDlgChkRadio(dlog, DONT_WARN_AGAIN_DI);
 				break;
 			case DONT_WARN_AGAIN_DI:
@@ -208,7 +208,7 @@ void WarnScreenPagesOverflow(Document */*doc*/)		/* doc is unused */
 
 /* Are there more pages of the given document, in its current screen page
 layout, than can be reached by scrolling, i.e., more than fit in the current
-visible array? If so, return TRUE, else FALSE. This is not very serious,
+visible array? If so, return True, else False. This is not very serious,
 but users might like to be informed anyway. */
 
 Boolean ScreenPagesExceedView(Document *doc)
@@ -325,12 +325,12 @@ void SheetMagnify(Document *doc,
 			y = doc->origin.v - 2 * config.vPageSep;
 			}
 		GetAllSheets(doc);
-		magnifyOnly = TRUE;
+		magnifyOnly = True;
 		RecomputeView(doc);
-		magnifyOnly = FALSE;
-		QuickScroll(doc,x,y,FALSE,FALSE);		/* Internal scroll without update */
+		magnifyOnly = False;
+		QuickScroll(doc,x,y,False,False);		/* Internal scroll without update */
 		DrawDocumentView(doc, &doc->viewRect);
-		if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc, TRUE);
+		if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc, True);
 	}
 
 
@@ -395,9 +395,9 @@ void DoMasterSheet(Document *doc)
 
 			if (ExitMasterView(doc)) {
 
-				doc->masterView = FALSE;
+				doc->masterView = False;
 				doc->currentSheet = oldCurrentSheet;
-				GotoSheet(doc,doc->currentSheet,FALSE);
+				GotoSheet(doc,doc->currentSheet,False);
 	
 				GetAllSheets(doc);
 				RecomputeView(doc);
@@ -406,7 +406,7 @@ void DoMasterSheet(Document *doc)
 				ClipRect(&portRect);
 				InvalWindowRect(w,&portRect);
 	
-				MEAdjustCaret(doc, FALSE);
+				MEAdjustCaret(doc, False);
 				}
 			return;
 			}
@@ -414,11 +414,11 @@ void DoMasterSheet(Document *doc)
 		if (doc->masterView = !doc->masterView) {
 			oldCurrentSheet = doc->currentSheet;
 			doc->currentSheet = 0;
-			GotoSheet(doc,0,FALSE);
+			GotoSheet(doc,0,False);
 			}
 		 else {
 			doc->currentSheet = oldCurrentSheet;
-			GotoSheet(doc,doc->currentSheet,FALSE);
+			GotoSheet(doc,doc->currentSheet,False);
 			}
 		
 		GetAllSheets(doc);
@@ -434,7 +434,7 @@ void DoMasterSheet(Document *doc)
 			}
 		 else
 			if (ExitMasterView(doc))			/* Dispose memory, export values, etc. */
-				MEAdjustCaret(doc, FALSE);
+				MEAdjustCaret(doc, False);
 				
 		// CER 05.11.2003, 5_02a4 - Carbon version, window not being re-drawn
 		
@@ -445,7 +445,7 @@ void DoMasterSheet(Document *doc)
 	}
 
 /* Given a point in window coordinates, deliver the sheet number of the sheet
-that the point falls in and return TRUE; return FALSE if it's outside any
+that the point falls in and return True; return False if it's outside any
 visible sheet.  Checks the current sheet first, since it's the most likely
 to be tested. */
 
@@ -456,23 +456,23 @@ Boolean FindSheet(Document *doc, Point pt, short *ans)
 		GetSheetRect(doc,doc->currentSheet,&paper);
 		if (PtInRect(pt,&paper)) {
 			*ans = doc->currentSheet;
-			return(TRUE);
+			return(True);
 			}
 		
 		for (i=doc->firstSheet; i<doc->numSheets; i++)
 			if (GetSheetRect(doc,i,&paper)==INARRAY_INRANGE) {
 				if (PtInRect(pt,&paper)) {
 					*ans = i;
-					return(TRUE);
+					return(True);
 					}
 				}
 			 else
 				break;
 		
-		return(FALSE);
+		return(False);
 	}
 
-/* Set the current sheet to a given sheet number, which must be between 0
+/* Set the current sheet to a given sheet number, which must be between 0 
 and numSheets-1.  The sheet's position in the window coordinate system is
 provided as well so that various conversion routines can convert mouse
 points to paper points quickly. */
@@ -546,11 +546,11 @@ short GetSheetRect(Document *doc, short nSheet, Rect *paper)
 
 /* Get the sheet number of the first sheet whose lower right corner is greater
 than or equal (in both coordinates) to the current window origin. If one is
-found, return TRUE. */
+found, return True. */
 
 static Boolean GetVisibleSheet(Document *doc, short *i)
 	{
-		short pWidth,pHeight,r,c; Boolean ans = FALSE;
+		short pWidth,pHeight,r,c; Boolean ans = False;
 		
 		pWidth = config.hPageSep*2 + doc->paperRect.right - doc->paperRect.left;
 		pHeight = config.vPageSep*2 + doc->paperRect.bottom - doc->paperRect.top;
@@ -561,7 +561,7 @@ static Boolean GetVisibleSheet(Document *doc, short *i)
 		*i = r*doc->numCols + c;
 		*i += doc->firstSheet;
 		
-		ans = TRUE;
+		ans = True;
 		return(ans);
 	}
 
@@ -574,7 +574,7 @@ for every sheet. */
 void GetAllSheets(Document *doc)
 	{
 		short r,c,w,h,i; Rect sheet;
-		static RgnHandle sheetRgn; static Boolean once = TRUE;
+		static RgnHandle sheetRgn; static Boolean once = True;
 		
 		if (doc->masterView) {
 			GetSheetRect(doc,doc->currentSheet,&doc->allSheets);
@@ -597,7 +597,7 @@ void GetAllSheets(Document *doc)
 		
 		/* Now compute background region: all of space minus visible sheets */
 		
-		if (once) { sheetRgn = NewRgn(); once = FALSE; }
+		if (once) { sheetRgn = NewRgn(); once = False; }
 		
 		w = 32000;
 		SetRectRgn(doc->background,-w,-w,w,w);	/* Start with everything */
@@ -626,7 +626,7 @@ of paper), which is always defined (in window coords). */
 void DrawSheet(Document *doc, short i, Rect *paper, Rect *vis)
 	{
 		char numStr[16]; short pageNum; short dx,dy,width,arraySize;
-		Boolean pre=FALSE,post=FALSE; char *more = " ... ";
+		Boolean pre=False,post=False; char *more = " ... ";
 
 		pageNum = i + doc->firstPageNumber;
 		sprintf(numStr, "%d", pageNum);
@@ -685,7 +685,7 @@ sheets firstSheet through lastSheet, inclusive. */
 
 void InvalSheets(Document *doc, short firstSheet, short lastSheet)
 	{
-		short i,once = TRUE;	/* ??<once> should be Boolean */
+		short i,once = True;	/* ??<once> should be Boolean */
 		Rect paper; GrafPtr oldPort;
 		
 		GetPort(&oldPort); SetPort(GetWindowPort(doc->theWindow));
@@ -695,7 +695,7 @@ void InvalSheets(Document *doc, short firstSheet, short lastSheet)
 		for (i=firstSheet; i<=lastSheet && GetSheetRect(doc,i,&paper)==INARRAY_INRANGE;
 				i++) {
 			/* If at least some graphic activity, turn caret off first */
-			if (once) { MEHideCaret(doc); once = FALSE; }
+			if (once) { MEHideCaret(doc); once = False; }
 			EraseAndInval(&paper);
 			}
 		

@@ -42,7 +42,7 @@ static short modifiers;
 
 void DoSheetSetup(register Document *doc)
 	{
-		short itemHit,type,okay=FALSE,keepGoing=TRUE,maxRows,maxCols;
+		short itemHit,type,okay=False,keepGoing=True,maxRows,maxCols;
 		Handle hndl; Rect box;
 		DialogPtr dlog; GrafPtr oldPort;
 		ModalFilterUPP	filterUPP;
@@ -67,7 +67,7 @@ void DoSheetSetup(register Document *doc)
 		PlaceWindow(GetDialogWindow(dlog),(WindowPtr)NULL,0,40);
 		SetPort(GetDialogWindowPort(dlog));
 
-		redraw = FALSE;										/* Must be before any "goto broken;" */
+		redraw = False;										/* Must be before any "goto broken;" */
 		
 		/* Fill in dialog's values here */
 				
@@ -81,7 +81,7 @@ void DoSheetSetup(register Document *doc)
 		PutDlgChkRadio(dlog,RAD6_Vertical, group1==RAD6_Vertical);
 		PutDlgChkRadio(dlog,RAD7_Custom, group1==RAD7_Custom);
 
-		PutDlgWord(dlog,EDIT8_Rows,doc->numRows,FALSE);
+		PutDlgWord(dlog,EDIT8_Rows,doc->numRows,False);
 		PutDlgWord(dlog,EDIT10_Cols,doc->numCols,group1==RAD7_Custom);
 		
 		ShowWindow(GetDialogWindow(dlog));
@@ -94,10 +94,10 @@ void DoSheetSetup(register Document *doc)
 				case BUT1_OK:
 					if (keepGoing = AnyBadValues(dlog,doc))
 						HiliteControl((ControlHandle)hndl,0);
-					okay = TRUE;
+					okay = True;
 					break;
 				case BUT2_Cancel:
-					keepGoing = okay = FALSE;
+					keepGoing = okay = False;
 					break;
 				case EDIT8_Rows:
 				case EDIT10_Cols:
@@ -134,13 +134,13 @@ broken:
 		if (redraw) {
 			InvalSheetView(doc);
 			if (doc->selStartL==doc->selEndL)
-				MEAdjustCaret(doc,FALSE);
+				MEAdjustCaret(doc,False);
 		}
 	}
 
 
-/* Retrieve values from dialog items, check for any bad values, and deliver TRUE
-if any are bad; FALSE if all are reasonable.  If all are reasonable, set the values
+/* Retrieve values from dialog items, check for any bad values, and deliver True
+if any are bad; False if all are reasonable.  If all are reasonable, set the values
 in the given document, etc. */
 
 static Boolean AnyBadValues(DialogPtr dlog, register Document *doc)
@@ -158,24 +158,24 @@ static Boolean AnyBadValues(DialogPtr dlog, register Document *doc)
 		if (numRows<1 || numRows>maxRows) {
 			SelectDialogItemText(dlog,EDIT8_Rows,0,ENDTEXT);
 			TooManyRows(maxRows);
-			return(TRUE);
+			return(True);
 			}
 	
 		GetDlgWord(dlog,EDIT10_Cols,&numCols);
 		if (numCols<1 || numCols>maxCols) {
 			SelectDialogItemText(dlog,EDIT10_Cols,0,ENDTEXT);
 			TooManyColumns(maxCols);
-			return(TRUE);
+			return(True);
 			}
 	
 		if (doc->numRows!=numRows || doc->numCols!=numCols) {
 			doc->numRows = numRows;
 			doc->numCols = numCols;
-			doc->changed = TRUE;
-			redraw = TRUE;
+			doc->changed = True;
+			redraw = True;
 			}
 		
-		return(FALSE);
+		return(False);
 	}
 
 
@@ -211,10 +211,10 @@ the others. */
 
 static void SetRowsCols(DialogPtr dlog, short r, short c)
 	{
-		TextEditState(dlog,TRUE);
-		PutDlgWord(dlog,EDIT8_Rows,r,FALSE);
-		PutDlgWord(dlog,EDIT10_Cols,c,FALSE);
-		TextEditState(dlog,FALSE);
+		TextEditState(dlog,True);
+		PutDlgWord(dlog,EDIT8_Rows,r,False);
+		PutDlgWord(dlog,EDIT10_Cols,c,False);
+		TextEditState(dlog,False);
 	}
 
 /* ------------------------------------------------------ XLoadSheetSetupSeg -- */

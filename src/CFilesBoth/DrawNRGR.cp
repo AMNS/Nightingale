@@ -1,15 +1,15 @@
-/***************************************************************************
+/*****************************************************************************************
 *	FILE:	DrawNRGR.c
 *	PROJ:	Nightingale
 *	DESC:	Routines to draw notes, rests, grace notes, and modifers
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -25,14 +25,14 @@ static void ShowNGRSync(Document *, LINK, CONTEXT []);
 static void DrawGRAcc(Document *, PCONTEXT, LINK, DDIST, DDIST, Boolean, short);
 static void DrawGRNCLedgers(LINK, PCONTEXT, LINK, DDIST, DDIST, short);
 
-/* ----------------------------------------------------------------- DrawSlashes -- */
+/* ----------------------------------------------------------------------- DrawSlashes -- */
 /* Draw the specified number of tremolo slashes at the given position. Some editions
 vary the angle of the slashes for beamed notes; Gould says that's OK (in _Behind Bars_),
 but she recommends a fixed angle, and that's what we do, */
 
 static void DrawSlashes(DDIST xdh, DDIST ydh,
 					short nslashes,
-					Boolean centerAroundNote,	/* TRUE=horizontally center at note center, else at stem */
+					Boolean centerAroundNote,	/* True=horizontally center at note center, else at stem */
 					Boolean stemUp,
 					PCONTEXT pContext,
 					Boolean dim
@@ -100,7 +100,7 @@ static void DrawSlashes(DDIST xdh, DDIST ydh,
 }
 
 
-/* ------------------------------------------------------------------ Draw1ModNR -- */
+/* ------------------------------------------------------------------------ Draw1ModNR -- */
 
 void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char glyph,
 						CONTEXT *pContext, short sizePercent, Boolean dim)
@@ -134,7 +134,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 				case MOD_DOWNBOW:
 				case MOD_HEAVYACC_STACC:
 				case MOD_LONG_INVMORDENT:
-					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, True);
 					else		DrawChar(glyph);
 					break;
 				case MOD_CIRCLE:
@@ -145,7 +145,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 				case 4:
 				case 5:
 					TextSize(useTxSize);
-					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, True);
 					else		DrawChar(glyph);
 					TextSize(oldTxSize);
 					break;
@@ -178,7 +178,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 				case 3:
 				case 4:
 				case 5:
-					PS_MusChar(doc, xdh, yd, glyph, TRUE, sizePercent);
+					PS_MusChar(doc, xdh, yd, glyph, True, sizePercent);
 					break;
 				default:
 					;
@@ -188,7 +188,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 }
 
 
-/* ------------------------------------------------------------------- DrawModNR -- */
+/* ------------------------------------------------------------------------- DrawModNR -- */
 /* Draw all of <aNoteL>'s note/rest modifiers. Assumes the NOTEheap is locked;
 does not assume the MODNRheap is. */
 
@@ -245,7 +245,7 @@ void DrawModNR(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- DrawAugDots -- */
+/* ----------------------------------------------------------------------- DrawAugDots -- */
 /* Draw all the augmentation dots for the given note or rest. */
 
 static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dots for */
@@ -342,7 +342,7 @@ static void DrawAugDots(Document *doc,
 			if (doc->srastral==7) ydDots += pt2d(1)/8;				/* Tiny empirical correction */
 			while (ndots>0) {
 				xdDots += 2*dhalfLn;
-				PS_MusChar(doc, xdDots, ydDots, glyph, TRUE, 100);
+				PS_MusChar(doc, xdDots, ydDots, glyph, True, 100);
 				ndots--;
 			}
 			break;
@@ -350,7 +350,7 @@ static void DrawAugDots(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- AccXOffset -- */
+/* ------------------------------------------------------------------------ AccXOffset -- */
 
 DDIST AccXOffset(short xmoveAcc, PCONTEXT pContext)
 {
@@ -365,7 +365,7 @@ DDIST AccXOffset(short xmoveAcc, PCONTEXT pContext)
 }
 
 
-/* ---------------------------------------------------------------------- DrawAcc -- */
+/* --------------------------------------------------------------------------- DrawAcc -- */
 /* Draw an accidental, if there is one, for the given note. */
 
 void DrawAcc(Document *doc,
@@ -458,12 +458,12 @@ void DrawAcc(Document *doc,
 
 			break;
 		case toPostScript:
-			PS_MusChar(doc, xdAcc, yd, accGlyph, TRUE, sizePercent);
+			PS_MusChar(doc, xdAcc, yd, accGlyph, True, sizePercent);
 
 			/* If it's a courtesy accidental, draw parentheses around it. */
 			if (theNote->courtesyAcc) {
-				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, TRUE, scalePercent);
-				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, TRUE, scalePercent);
+				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, True, scalePercent);
+				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, True, scalePercent);
 			}
 
 			break;
@@ -471,7 +471,7 @@ void DrawAcc(Document *doc,
 }
 
 
-/* ------------------------------------------------------------- GetNoteheadInfo -- */
+/* ------------------------------------------------------------------- GetNoteheadInfo -- */
 /* Given a notehead's <appearance> and <subType>, return the music font <glyph> as
 function value, plus <sizePct> and <stemShorten>. Note that if <sizePct> is very far
 from 100, the calling routine may have to adjust horizontal positions of upstems. */
@@ -485,7 +485,7 @@ unsigned char GetNoteheadInfo(short appearance, short subType,
 	
 	if (appearance==X_SHAPE) glyph = MCH_xShapeHead;
 	else if (appearance==HARMONIC_SHAPE) glyph = MCH_harmonicHead;
-	else if (appearance==SLASH_SHAPE) glyph = '\0';					/* Not in  font, must be drawn */
+	else if (appearance==SLASH_SHAPE) glyph = '\0';					/* Not in font, must be drawn */
 	else if (appearance==SQUAREH_SHAPE) glyph = MCH_squareHHead;
 	else if (appearance==SQUAREF_SHAPE) glyph = MCH_squareFHead;
 	else if (appearance==DIAMONDH_SHAPE) glyph = MCH_diamondHHead;
@@ -518,11 +518,11 @@ unsigned char GetNoteheadInfo(short appearance, short subType,
 }
 
 
-/* --------------------------------------------------------------- DrawNCLedgers -- */
-/* Draw any ledger lines needed: if note is in a chord, for the chord's extreme
-notes on both sides of the staff; if it's not in a chord, just for the note. Should
-be called only once per chord, e.g., just for the MainNote. Assumes the NOTE and
-OBJECT heaps are locked! */
+/* --------------------------------------------------------------------- DrawNCLedgers -- */
+/* Draw any ledger lines needed: if note is in a chord, for the chord's extreme notes
+on both sides of the staff; if it's not in a chord, just for the note. Should be called
+only once per chord, just for the MainNote. Assumes all staff lines are being shown,
+and assumes the OBJECT heap is locked! */
 
 static void DrawNCLedgers(
 		LINK		syncL,
@@ -533,66 +533,32 @@ static void DrawNCLedgers(
 		short		ledgerSizePct
 		)
 {
-	LINK		bNoteL, mainNoteL;
-	PANOTE	aNote, bNote;
-	QDIST		yqpitRel, yqpitRelSus,		/* y QDIST positions relative to staff top */
-				hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
-				hiyqpitSus, lowyqpitSus;
+	QDIST	hiyqpit, lowyqpit,			/* y QDIST positions relative to staff top */
+			hiyqpitSus, lowyqpitSus,
+			yqpit;
 	Boolean	stemDown;
 
-	if (!pContext->showLedgers)
-		return;
+	if (!pContext->showLedgers) return;
 
-	mainNoteL = FindMainNote(syncL, NoteVOICE(aNoteL));
-	stemDown = (NoteYSTEM(mainNoteL) > NoteYD(mainNoteL));
-	
-	aNote = GetPANOTE(aNoteL);
-	if (aNote->inChord) {
-		hiyqpit = hiyqpitSus = 9999;
-		lowyqpit = lowyqpitSus = -9999;
-		bNoteL = FirstSubLINK(syncL);
+	stemDown = (NoteYSTEM(aNoteL) > NoteYD(aNoteL));
 
-		/*
-		 * Find the chord's extreme notes above and below staff, on the normal side of
-		 * the stem and "suspended" (on the other side).
-		 */
-		for ( ; bNoteL; bNoteL = NextNOTEL(bNoteL)) {
-			bNote = GetPANOTE(bNoteL);
-			if (NoteVOICE(bNoteL)==NoteVOICE(aNoteL)) {
-				if (bNote->yqpit<hiyqpit) hiyqpit = bNote->yqpit;
-				if (bNote->yqpit<hiyqpitSus && bNote->otherStemSide) hiyqpitSus = bNote->yqpit;
-				if (bNote->yqpit>lowyqpit) lowyqpit = bNote->yqpit;
-				if (bNote->yqpit>lowyqpitSus && bNote->otherStemSide) lowyqpitSus = bNote->yqpit;
-			}
-		}
-		
-		/*
-		 * Convert to staff-rel. coords. and draw the ledger lines, first below the
-		 * staff, then above.
-		 */
-		yqpitRel = lowyqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		yqpitRelSus = (lowyqpitSus==-9999? 0
-							: lowyqpitSus + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType)));
-		NoteLedgers(xd, yqpitRel, yqpitRelSus, stemDown, dTop, pContext, ledgerSizePct);
-		
-		yqpitRel = hiyqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		yqpitRelSus = (hiyqpitSus==9999? 0
-							: hiyqpitSus + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType)));
-		NoteLedgers(xd, yqpitRel, yqpitRelSus, stemDown, dTop, pContext, ledgerSizePct);
+	GetNCLedgerInfo(syncL, aNoteL, pContext, &hiyqpit, &lowyqpit, &hiyqpitSus, &lowyqpitSus);
+	if (NoteINCHORD(aNoteL)) {		
+		DrawNoteLedgers(xd, hiyqpit, hiyqpitSus, stemDown, dTop, pContext, ledgerSizePct);
+		DrawNoteLedgers(xd, lowyqpit, lowyqpitSus, stemDown, dTop, pContext, ledgerSizePct);
 	}
-	
-	else if (pContext->showLines!=SHOW_ALL_LINES ||
-									aNote->yd<0 || aNote->yd>pContext->staffHeight) {
-	
-		/* Not a chord. Just draw ledger lines for the single note. */
-		
-		yqpitRel = aNote->yqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		NoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
+
+	else {
+		/* Not a chord. Just draw any ledger lines the single note needs. */
+
+		yqpit =  (NoteYD(aNoteL)<0? hiyqpit : lowyqpit);
+//LogPrintf(LOG_DEBUG, "DrawNCLedgers: hiyqpit=%d lowyqpit=%d yqpit=%d\n", hiyqpit, lowyqpit, yqpit);
+		DrawNoteLedgers(xd, yqpit, 0, stemDown, dTop, pContext, ledgerSizePct);
 	}
 }
 
 
-/* --------------------------------------------------------------- DrawNotehead -- */
+/* ---------------------------------------------------------------------- DrawNotehead -- */
 /* QuickDraw only */
 
 static void DrawNotehead(Document *doc,
@@ -642,7 +608,7 @@ static void GetNoteheadRect(unsigned char glyph, Byte appearance, DDIST dhalfLn,
 static void PaintRoundLeftRect(Rect *paRect, short ovalWidth, short ovalHeight);
 void PaintRoundLeftRect(Rect *paRect, short ovalWidth, short ovalHeight)
 {
-	Rect		leftEndRect, otherRect;
+	Rect	leftEndRect, otherRect;
 
 	leftEndRect = *paRect;
 	leftEndRect.right = leftEndRect.left+ovalWidth;
@@ -839,14 +805,14 @@ static void DrawNoteheadGraph(Document *doc,
 #endif
 }
 
-/* ----------------------------------------------------------------------- DrawNote -- */
+/* -------------------------------------------------------------------------- DrawNote -- */
 
 void DrawNote(Document *doc,
 				LINK	pL,				/* Sync note belongs to */
 				PCONTEXT pContext,		/* Current context[] entry */
 				LINK	aNoteL,			/* Subobject (note) to draw */
-				Boolean	*drawn,			/* FALSE until a subobject has been drawn */
-				Boolean	*recalc			/* TRUE if we need to recalc enclosing rectangle */
+				Boolean	*drawn,			/* False until a subobject has been drawn */
+				Boolean	*recalc			/* True if we need to recalc enclosing rectangle */
 				)	
 {
 	PANOTE		aNote, bNote;
@@ -981,14 +947,12 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 		
 		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, dim, sizePercent, chordNoteToL);
 
-		/*
-		 * If note is not a non-Main note in a chord, draw any ledger lines needed: for
-		 * note or entire chord. A chord has only one MainNote, so this draws the ledger
-		 * lines exactly once.
-		 */
-		if (MainNote(aNoteL))
-			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct); 
-
+		/* If note is not a non-Main note in a chord, draw any ledger lines needed: for
+		   note or entire chord. A chord has exactly one MainNote, so this draws the
+		   ledger lines exactly once. */
+		
+		if (MainNote(aNoteL) || !NoteINCHORD(aNoteL))
+			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct);
 				 
 		if (doc->pianoroll)	{										/* Handle pianoRoll notation */
 			MoveTo(xhead, yhead);									/* position to draw head */
@@ -1172,7 +1136,7 @@ EndQDrawing:
 			if (*drawn)
 				UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));
 			else {
-				*drawn = TRUE;
+				*drawn = True;
 				LinkOBJRECT(pL) = rSub;
 			}
 		}
@@ -1186,15 +1150,13 @@ EndQDrawing:
 
 		/* First draw any accidental symbol to left of note */
 		 
-		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, FALSE, sizePercent, chordNoteToL);
+		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, False, sizePercent, chordNoteToL);
 
-		/*
-		 *	If note is not a stemless note in a chord, add any ledger lines needed:
-		 *	if it's part of a chord, for the extreme notes on both sides of the staff.
-		 * All but one note of every chord has its stem length set to 0, so this
-		 *	draws the ledger lines exactly once.
-		 */
-		if (MainNote(aNoteL))
+		/* If note is not a non-Main note in a chord, draw any ledger lines needed: for
+		   note or entire chord. A chord has exactly one MainNote, so this draws the
+		   ledger lines exactly once. */
+		   
+		if (MainNote(aNoteL) || !NoteINCHORD(aNoteL))
 			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct); 
 	
 	/* Now draw the note head, stem, and flags */
@@ -1217,10 +1179,10 @@ EndQDrawing:
 			 *	UNKNOWN DURATION, WHOLE NOTE, OR BREVE
 			 */
 			if (noteType==UNKNOWN_L_DUR)
-				PS_NoteStem(doc, xd+xoff, yd+yoff, xd+xoff, glyph, (DDIST)0, (DDIST)0, FALSE,
+				PS_NoteStem(doc, xd+xoff, yd+yoff, xd+xoff, glyph, (DDIST)0, (DDIST)0, False,
 								appearance!=NO_VIS, headSizePct);
 			else if (noteType<=WHOLE_L_DUR)
-				PS_NoteStem(doc, xd+xoff, yd+yoff+breveFudgeHeadY, xd+xoff, glyph, (DDIST)0, (DDIST)0, FALSE,
+				PS_NoteStem(doc, xd+xoff, yd+yoff+breveFudgeHeadY, xd+xoff, glyph, (DDIST)0, (DDIST)0, False,
 							appearance!=NO_VIS, headSizePct);
 			
 			else {
@@ -1249,23 +1211,23 @@ EndQDrawing:
 							switch (flagCount) {
 								case 1:
 									PS_MusChar(doc, xd, ypStem, stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp,
-												TRUE, sizePercent);
+												True, sizePercent);
 									break;
 								case 2:
-									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, TRUE, sizePercent);
+									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, True, sizePercent);
 									break;
 								default:
 									if (stemDown) {
 										ypStem = yd + dStemLen;
 										while (flagCount-- > 0) {
-											PS_MusChar(doc, xd, ypStem, MCH_extendFlagDown, TRUE, sizePercent);
+											PS_MusChar(doc, xd, ypStem, MCH_extendFlagDown, True, sizePercent);
 											ypStem -= FlagLeading(lnSpace);
 											}
 										}
 									 else {
 										ypStem = yd + dStemLen;
 										while (flagCount-- > 0) {
-											PS_MusChar(doc, xd, ypStem, MCH_extendFlagUp, TRUE, sizePercent);
+											PS_MusChar(doc, xd, ypStem, MCH_extendFlagUp, True, sizePercent);
 											ypStem += FlagLeading(lnSpace);
 											}
 										}
@@ -1284,14 +1246,14 @@ EndQDrawing:
 																	(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, True, sizePercent);
 							}
 							else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex, 
 																	(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, True, sizePercent);
 							}
 							else {
 								DDIST ypos;
@@ -1310,7 +1272,7 @@ EndQDrawing:
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 								ypos = ydStem;
 								while (count-- > 1) {
-									PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff, flagGlyph, TRUE, sizePercent);
+									PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff, flagGlyph, True, sizePercent);
 									ypos += flagLeading;
 								}
 
@@ -1326,7 +1288,7 @@ EndQDrawing:
 								}
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff+flagLeading, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff+flagLeading, flagGlyph, True, sizePercent);
 							}
 						}
 					}
@@ -1360,7 +1322,7 @@ PopLock(NOTEheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawMBRest -- */
+/* ------------------------------------------------------------------------ DrawMBRest -- */
 /* Draw a multibar rest. */
 
 static void DrawMBRest(Document *doc, PCONTEXT pContext,
@@ -1417,7 +1379,7 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 				LineTo(restBar.right, pContext->paper.top+d2p(endTop));
 	
 				MoveTo(pContext->paper.left+d2p(xdNum), pContext->paper.top+d2p(ydNum));
-				if (dim) DrawMString(doc, numStr, NORMAL_VIS, TRUE);
+				if (dim) DrawMString(doc, numStr, NORMAL_VIS, True);
 				else		DrawString(numStr);
 	
 				PenNormal();
@@ -1442,14 +1404,14 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 }
 
 
-/* ------------------------------------------------------------------- DrawRest -- */
+/* -------------------------------------------------------------------------- DrawRest -- */
 
 void DrawRest(Document *doc,
 				LINK pL,
 				PCONTEXT pContext,	/* current context[] entry */
 				LINK aRestL,		/* current subobject */
-				Boolean *drawn,		/* FALSE until a subobject has been drawn */
-				Boolean *recalc		/* TRUE if we need to recalc enclosing rectangle */
+				Boolean *drawn,		/* False until a subobject has been drawn */
+				Boolean *recalc		/* True if we need to recalc enclosing rectangle */
 				)
 {
 	PANOTE		aRest;
@@ -1559,7 +1521,7 @@ PushLock(NOTEheap);
 					Line(d2p(LedgerLen(lnSpace)+LedgerOtherLen(lnSpace)),0);
 				}
 				DrawModNR(doc, aRestL, xd, pContext);					/* Draw all modifiers */
-				DrawAugDots(doc, aRestL, xd, ydNorm, pContext, FALSE);
+				DrawAugDots(doc, aRestL, xd, ydNorm, pContext, False);
 	
 				/* If we're supposed to draw stemlets on beamed rests, do so. */
 				
@@ -1606,7 +1568,7 @@ PushLock(NOTEheap);
 			if (*drawn)
 				UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));
 			else {
-				*drawn = TRUE;
+				*drawn = True;
 				LinkOBJRECT(pL) = rSub;
 			}
 		}
@@ -1618,17 +1580,17 @@ PushLock(NOTEheap);
 	
 		if (appearance!=NO_VIS) {
 			if (aRest->subType<WHOLEMR_L_DUR)
-				DrawMBRest(doc, pContext, aRestL, xd, yd, appearance, FALSE, &rSub);
+				DrawMBRest(doc, pContext, aRestL, xd, yd, appearance, False, &rSub);
 			else {
 				glyph = MapMusChar(doc->musFontInfoIndex, glyph);
 				restxd += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace));
 				restyd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace));
-				PS_MusChar(doc, restxd, restyd, glyph, TRUE, sizePercent);
+				PS_MusChar(doc, restxd, restyd, glyph, True, sizePercent);
 				if (xledg)
 					PS_LedgerLine(yd-yledg,xd-xledg,LedgerLen(lnSpace)+LedgerOtherLen(lnSpace));
 
 				/*	Rest drawn: now add augmentation dots, if any */
-				DrawAugDots(doc, aRestL, xd, ydNorm, pContext, FALSE);
+				DrawAugDots(doc, aRestL, xd, ydNorm, pContext, False);
 			}
 		}
 		
@@ -1643,7 +1605,7 @@ PopLock(NOTEheap);
 }
 
 
-/* ------------------------------------------------------------------- ShowNGRSync -- */
+/* ----------------------------------------------------------------------- ShowNGRSync -- */
 /* Draw a dotted vertical line from near the bottom to near the top of the objRect
 of the given object, but only if it's tall enough to help clarify what's related to
 what. Intended for Syncs and GRSyncs, but should work for any non-J_STRUC object. */
@@ -1671,7 +1633,7 @@ static void ShowNGRSync(Document *doc, LINK pL, CONTEXT context[])
 }
 
 
-/* -------------------------------------------------------------------- DrawSYNC -- */
+/* -------------------------------------------------------------------------- DrawSYNC -- */
 /* Draw a SYNC object, i.e., all of its notes and rests with their augmentation dots,
 modifiers, and accidentals. */
 
@@ -1680,12 +1642,12 @@ void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 	PANOTE		aNote;
 	LINK		aNoteL;
 	PCONTEXT	pContext;
-	Boolean		drawn;				/* FALSE until a subobject has been drawn */
-	Boolean		recalc;				/* TRUE if we need to recalc enclosing rectangle */
+	Boolean		drawn;				/* False until a subobject has been drawn */
+	Boolean		recalc;				/* True if we need to recalc enclosing rectangle */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 	
-	drawn = FALSE;
+	drawn = False;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);
 	
 	aNoteL = FirstSubLINK(pL);
@@ -1701,7 +1663,7 @@ void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 		}
 	}
 
-	if (recalc) LinkVALID(pL) = TRUE;
+	if (recalc) LinkVALID(pL) = True;
 	if (LinkSEL(pL))
 		if (doc->showFormat)
 			CheckSYNC(doc, pL, context, NULL, SMFind, stfRange, enlarge, enlarge);
@@ -1715,7 +1677,7 @@ void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 }
 
 
-/* ------------------------------------------------------------------- DrawGRAcc -- */
+/* ------------------------------------------------------------------------- DrawGRAcc -- */
 /* Draw accidental, if any, for the given grace note. */
 
 static void DrawGRAcc(Document *doc,
@@ -1799,19 +1761,19 @@ static void DrawGRAcc(Document *doc,
 			
 			break;
 		case toPostScript:
-			PS_MusChar(doc, xdAcc, yd, accGlyph, TRUE, sizePercent);
+			PS_MusChar(doc, xdAcc, yd, accGlyph, True, sizePercent);
 
 			/* If it's a courtesy accidental, draw parentheses around it. */
 			if (theGRNote->courtesyAcc) {
-				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, TRUE, scalePercent);
-				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, TRUE, scalePercent);
+				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, True, scalePercent);
+				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, True, scalePercent);
 			}
 			
 			break;
 	}
 }
 
-/* --------------------------------------------------------------- DrawGRNCLedgers -- */
+/* ------------------------------------------------------------------- DrawGRNCLedgers -- */
 /* Draw any ledger lines needed: if grace note is in a chord, for the chord's
 extreme notes on both sides of the staff; if it's not in a chord, just for itself.
 Should be called only once per chord. Assumes the GRNOTE and OBJECT heaps are locked! */
@@ -1845,27 +1807,27 @@ static void DrawGRNCLedgers(LINK syncL, PCONTEXT pContext, LINK aGRNoteL, DDIST 
 		}
 		yqpitRel = lowyqpit+
 						halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		NoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
+		DrawNoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
 		yqpitRel = hiyqpit+
 						halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		NoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
+		DrawNoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
 	}
 	else if (aGRNote->yd<0 || aGRNote->yd>pContext->staffHeight) {
 		yqpitRel = aGRNote->yqpit+
 						halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
-		NoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
+		DrawNoteLedgers(xd, yqpitRel, 0, stemDown, dTop, pContext, ledgerSizePct);
 	}
 }
 
 
-/* ------------------------------------------------------------------ DrawGRNote -- */
+/* ------------------------------------------------------------------------ DrawGRNote -- */
 
 void DrawGRNote(Document *doc,
 						LINK pL,			/* GRSYNC grace note belongs to */
 						PCONTEXT pContext,	/* current context[] entry */
 						LINK aGRNoteL,		/* Subobject (grace note) to draw */
-						Boolean	*drawn,		/* FALSE until a subobject has been drawn */
-						Boolean	*recalc)	/* TRUE if we need to recalc enclosing rectangle */
+						Boolean	*drawn,		/* False until a subobject has been drawn */
+						Boolean	*recalc)	/* True if we need to recalc enclosing rectangle */
 {
 	PAGRNOTE	aGRNote;
 	short		flagCount,			/* number of flags on grace note */
@@ -1955,14 +1917,14 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 	/*	Suppress flags if the grace note is beamed. */
 	flagCount = (aGRNote->beamed? 0 : NFLAGS(aGRNote->subType));
 
-	slashStem = FALSE;
+	slashStem = False;
 	if (config.slashGraceStems!=0) {
-		if (flagCount==1) slashStem = TRUE;
+		if (flagCount==1) slashStem = True;
 		else {
 			if (config.slashGraceStems>1 && aGRNote->beamed) {
 				voice = GRNoteVOICE(aGRNoteL);
-				beamL = LVSearch(pL, BEAMSETtype, voice, GO_LEFT, FALSE);	/* Should always succeed */
-				if (pL==FirstInBeam(beamL)) slashStem = TRUE;
+				beamL = LVSearch(pL, BEAMSETtype, voice, GO_LEFT, False);	/* Should always succeed */
+				if (pL==FirstInBeam(beamL)) slashStem = True;
 			}
 		}
 	}
@@ -2191,7 +2153,7 @@ EndQDrawing:
 			if (*drawn)
 				UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));
 			else {
-				*drawn = TRUE;
+				*drawn = True;
 				LinkOBJRECT(pL) = rSub;
 			}
 		}
@@ -2204,7 +2166,7 @@ EndQDrawing:
 
 		/* First draw any accidental symbol to left of grace note */
 		 
-		DrawGRAcc(doc, pContext, aGRNoteL, xdNorm, yd, FALSE, sizePercent);
+		DrawGRAcc(doc, pContext, aGRNoteL, xdNorm, yd, False, sizePercent);
 
 		/*
 		 * If grace note is not a stemless note in a chord, draw any ledger lines needed
@@ -2265,23 +2227,23 @@ EndQDrawing:
 							switch (flagCount) {
 								case 1:
 									PS_MusChar(doc, xd, ypStem, stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp,
-												TRUE, sizePercent);
+												True, sizePercent);
 									break;
 								case 2:
-									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, TRUE, sizePercent);
+									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, True, sizePercent);
 									break;
 								default:
 									if (stemDown) {
 										ypStem = yd + dStemLen;
 										while (flagCount-- > 0) {
-											PS_MusChar(doc, xd, ypStem, MCH_extendFlagDown, TRUE, sizePercent);
+											PS_MusChar(doc, xd, ypStem, MCH_extendFlagDown, True, sizePercent);
 											ypStem -= FlagLeading(lnSpace);
 											}
 										}
 									 else {
 										ypStem = yd + dStemLen;
 										while (flagCount-- > 0) {
-											PS_MusChar(doc, xd, ypStem, MCH_extendFlagUp, TRUE, sizePercent);
+											PS_MusChar(doc, xd, ypStem, MCH_extendFlagUp, True, sizePercent);
 											ypStem += FlagLeading(lnSpace);
 											}
 										}
@@ -2300,14 +2262,14 @@ EndQDrawing:
 																	(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, True, sizePercent);
 							}
 							else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex, 
 																	(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, True, sizePercent);
 							}
 							else {
 								DDIST ypos;
@@ -2326,7 +2288,7 @@ EndQDrawing:
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 								ypos = ydStem;
 								while (count-- > 1) {
-									PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff, flagGlyph, TRUE, sizePercent);
+									PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff, flagGlyph, True, sizePercent);
 									ypos += flagLeading;
 								}
 
@@ -2342,7 +2304,7 @@ EndQDrawing:
 								}
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff+flagLeading, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff+flagLeading, flagGlyph, True, sizePercent);
 							}
 						}
 					}
@@ -2374,7 +2336,7 @@ PopLock(GRNOTEheap);
 }
 
 
-/* ------------------------------------------------------------------ DrawGRSYNC -- */
+/* ------------------------------------------------------------------------ DrawGRSYNC -- */
 /* Draw a GRSYNC object, i.e., all of its grace notes with their augmentation dots
 and accidentals. */
 
@@ -2383,10 +2345,10 @@ void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 	PAGRNOTE	aGRNote;
 	LINK		aGRNoteL;
 	PCONTEXT	pContext;
-	Boolean		drawn;			/* FALSE until a subobject has been drawn */
-	Boolean		recalc;			/* TRUE if we need to recalc enclosing rectangle */
+	Boolean		drawn;			/* False until a subobject has been drawn */
+	Boolean		recalc;			/* True if we need to recalc enclosing rectangle */
 	
-	drawn = FALSE;
+	drawn = False;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);
 	
 	aGRNoteL = FirstSubLINK(pL);
@@ -2399,7 +2361,7 @@ void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 		}
 	}
 
-	if (recalc) LinkVALID(pL) = TRUE;
+	if (recalc) LinkVALID(pL) = True;
 #ifdef USE_HILITESCORERANGE
 	if (LinkSEL(pL)) CheckGRSYNC(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 #endif

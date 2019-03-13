@@ -17,9 +17,7 @@
 #include "Nightingale.appl.h"
 
 /* This array gives the initial guess at the size, in objects, of each object/subobject
-heap.  These can be tweaked however is appropriate. (Note: As of v.82, 2048 initial
-SYNC objects was too large for 1MB machines. I've never changed the smaller values
-used here because they seem to work fine. --DAB) */
+heap.  These can be tweaked however is appropriate. */
 
 #ifdef LARGE_INITIAL_HEAPS
 static short initialNumbers[LASTtype] = {
@@ -117,7 +115,7 @@ char *LinkToPtr(HEAP *heap, LINK link)
 
 
 /* Allocate all the object heaps for a given document, with initial free list sizes
-taken from the initialNumbers array, and deliver TRUE or FALSE according to
+taken from the initialNumbers array, and deliver True or False according to
 success or not. */
 
 Boolean InitAllHeaps(Document *doc)
@@ -135,11 +133,11 @@ Boolean InitAllHeaps(Document *doc)
 			hp->nFree = 0;
 			hp->firstFree = NILINK;
 			hp->block = NewHandle(0L);			/* Initially empty data block */
-			if (MemError()) return(FALSE);
-			if (!ExpandFreeList(hp,initialNumbers[i])) return(FALSE);
+			if (MemError()) return(False);
+			if (!ExpandFreeList(hp,initialNumbers[i])) return(False);
 			}
 			
-		return(TRUE);
+		return(True);
 	}
 
 /* Dispose of all heap blocks in a given document record.  This routine can be (but
@@ -157,38 +155,37 @@ void DestroyAllHeaps(Document *doc)
 			}
 	}
 
-/* This is called to expand the size of a given heap by deltaObjs objects of the
-size associated with the given heap.  It links these into the freelist, and
-delivers TRUE if okay, FALSE on an error (LINK count overflow or memory wasn't
-available).  This routine works whether or not there are any free objects left
-in the heap's freelist.
+/* This is called to expand the size of a given heap by deltaObjs objects of the size
+associated with the given heap.  It links these into the freelist, and delivers True if
+okay, False on an error (LINK count overflow or memory wasn't available).  This routine
+works whether or not there are any free objects left in the heap's freelist.
 
-The objects in each heap are all the same objSize, and can initially be treated
-as an array of free objects; however, we use the link field (at the same spot
-in all object records) to turn the array into a singly-linked list of free objects.
-Note that the 0'th object is always unused, so that we can rely on a LINK value of
-NILINK to mean boundary conditions of various kinds.
+The objects in each heap are all the same objSize, and can initially be treated as an
+array of free objects; however, we use the link field (at the same spot in all object
+records) to turn the array into a singly-linked list of free objects. Note that the 0'th
+object is always unused, so that we can rely on a LINK value of NILINK to mean boundary
+conditions of various kinds.
 
-This code depends on the fact that object's right LINK field is the first field
-of the object header (so that its address is the same as the whole object's).
+This code depends on the fact that object's right LINK field is the first field of the
+object header (so that its address is the same as the whole object's).
 
-Never allow more objects than we can access with a LINK used as an index (USHRT_MAX
-= 65535L); in fact, the number of objects should always be at least a few less so
-very large values can be used as codes for whatever reason. It's also possible to
-limit the number to a much smaller number, e.g., for a "Lite" version. */
+Never allow more objects than we can access with a LINK used as an index (USHRT_MAX =
+65535L); in fact, the number of objects should always be at least a few less so very
+large values can be used as codes for whatever reason. It's also possible to limit the
+number to a much smaller number, e.g., for a "Lite" version. */
 
-/* ??To allow more helpful error msgs, especially for a "Lite" version, if this
+/* FIXME: To allow more helpful error msgs, especially for a "Lite" version, if this
 fails, it should return info as to the reason! */
 
-#define MAX_HEAPSIZE 65500L								/* Maximum objects of any type */
+#define MAX_HEAPSIZE 65500L							/* Maximum objects of any type */
 
 Boolean ExpandFreeList(HEAP *heap,
-								long deltaObjs)				/* <=0 = do nothing, else <MAX_HEAPSIZE */ 
+						long deltaObjs)				/* <=0 = do nothing, else <MAX_HEAPSIZE */ 
 	{
-		long newSize; unsigned short i;
-		char *p; short err;
+		long newSize;  unsigned short i;
+		char *p;  short err;
 		
-		if (deltaObjs<=0 || heap->objSize<=0) return(TRUE);		/* Do nothing */
+		if (deltaObjs<=0 || heap->objSize<=0) return(True);		/* Do nothing */
 		
 		/*
 		 *	Add extra space for deltaObjs>0 objects at the end of this Heap's block, but
@@ -201,7 +198,7 @@ Boolean ExpandFreeList(HEAP *heap,
 			GetIndCString(str, ErrorStringsID, 16);	/* "The operation failed because the score requires more objects... */
 			CParamText(str, "", "", "");
 			StopInform(GENERIC_ALRT);
-	 				return(FALSE);
+	 				return(False);
  		}
 		
 		/* Temporarily unlock the data block, if necessary, and expand it. */
@@ -216,7 +213,7 @@ Boolean ExpandFreeList(HEAP *heap,
 		SetHandleSize(heap->block,newSize * heap->objSize);
 		err = MemError();
 		if (heap->lockLevel != 0) HLock(heap->block);
-		if (err) return(FALSE);
+		if (err) return(False);
 		
 		/*
 		 *	For all but last added object, link object to following object.
@@ -245,7 +242,7 @@ Boolean ExpandFreeList(HEAP *heap,
 			if (--heap->nFree > 0) heap->firstFree = 1;
 
 		heap->nObjs = newSize;
-		return(TRUE);
+		return(True);
 	}
 
 
@@ -256,8 +253,8 @@ from a given heap, or NILINK if no more memory.  nObjs must be positive! */
 
 LINK HeapAlloc(HEAP *heap, unsigned short nObjs)
 	{
-		LINK link,head;
-		char *p,*start;
+		LINK link, head;
+		char *p, *start;
 		
 		if (nObjs <= 0) {
 		 	MayErrMsg("HeapAlloc: nObjs=%ld is illegal. heap=%ld", (long)nObjs, heap-Heap);
@@ -290,18 +287,17 @@ LINK HeapAlloc(HEAP *heap, unsigned short nObjs)
 		return(head);
 	}
 
-/* Add a given list, whose first LINK is head, to the freelist of the given heap.
-If we're keeping track of the last object in the heap's free list, we can just
-tack this list onto the end; otherwise, we have to traverse this list to find
-its last object, and set its link field to the current head of the freelist,
-and then reset the firstFree field to list.  The empty list is just ignored.
-HeapFree always delivers NILINK, so that the calling routine can just assign
-HeapFree() to head. */
+/* Add a given list whose first LINK is head to the freelist of the given heap. If we're
+keeping track of the last object in the heap's free list, we can just tack this list
+onto the end; otherwise, we have to traverse this list to find its last object, and set
+its link field to the current head of the freelist, and then reset the firstFree field
+to list.  The empty list is just ignored. HeapFree always delivers NILINK, so that the
+calling routine can just assign HeapFree() to head. */
 
 LINK HeapFree(HEAP *heap, LINK head)
 	{
 		short count; LINK link;
-		char *start,*p;
+		char *start, *p;
 		
 		if (head) {
 			
@@ -323,17 +319,13 @@ LINK HeapFree(HEAP *heap, LINK head)
 		return(NILINK);
 	}
 
-/*
- *	Given a list of subobjects of object objL, remove the given object, obj,
- *	from the list (if it's there, otherwise error).  The object removed can
- *	still be refered to by the caller, since it has not yet been freed back
- *	to its heap's free list.  Delivers new head of list, or NILINK, if obj
- *	was not found.
- *
- *	This function should only be called for subObjects. If a similar 
- *	function is required for object links, the assignment below of 
- *	FirstSubLINK(objL) must be modified.
- */
+/* Given a list of subobjects of object objL, remove the given object, obj, from the
+list (if it's there, otherwise error).  The object removed can still be refered to by
+the caller, since it has not yet been freed back to its heap's free list. Delivers
+new head of list, or NILINK, if obj was not found.
+
+This function should only be called for subObjects. If a similar function is required
+for object links, the assignment below of FirstSubLINK(objL) must be modified. */
 
 LINK RemoveLink(LINK objL, HEAP *heap, LINK head, LINK obj)
 	{
@@ -356,14 +348,13 @@ LINK RemoveLink(LINK objL, HEAP *heap, LINK head, LINK obj)
 		return(NILINK);
 	}
 
-/* Insert a given list before another given object in a given list.
-If before is NILINK, then append obj to list.  Delivers new head of list,
-or NILINK if error.
-This code assumes that objlist is a well-formed (NILINK-terminated) list. */
+/* Insert a given list before another given object in a given list. If before is NILINK,
+then append obj to list.  Delivers new head of list, or NILINK if error. This assumes
+that objlist is a well-formed (NILINK-terminated) list. */
 
 LINK InsertLink(HEAP *heap, LINK head, LINK before, LINK objlist)
 	{
-		LINK prev,next,link,tail;
+		LINK prev, next, link, tail;
 		
 		if (objlist == NILINK) return(head);
 		
@@ -399,13 +390,13 @@ LINK InsertLink(HEAP *heap, LINK head, LINK before, LINK objlist)
 		return(NILINK);
 	}
 
-/* Insert <objlist> after link <after> in list <head>.  If after is NILINK,
-then append objList to head's list.  Delivers new head of list, or NILINK if error.
-This code assumes that objlist is a well-formed (NILINK-terminated) list. */
+/* Insert <objlist> after link <after> in list <head>.  If after is NILINK, then
+append objList to head's list.  Delivers new head of list, or NILINK if error. This
+ assumes that objlist is a well-formed (NILINK-terminated) list. */
 
 LINK InsAfterLink(HEAP *heap, LINK head, LINK after, LINK objlist)
 	{
-		LINK prev,next,link,tail,temp;
+		LINK prev, next, link, tail, temp;
 		
 		if (objlist == NILINK) return(head);
 		

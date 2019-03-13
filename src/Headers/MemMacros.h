@@ -140,6 +140,7 @@
 #define MeasureVIS(link)	( (GetPAMEASURE(link))->visible )
 #define PSMeasVIS(link)		( (GetPAPSMEAS(link))->visible )
 
+#define MeasType(link)		( (GetPAMEASURE(link))->subType )
 #define PSMeasType(link)	( (GetPAPSMEAS(link))->subType )
 #define DynamType(link) 	( (GetPDYNAMIC(link))->dynamicType )
 #define RptType(link) 		( (GetPRPTEND(link))->subType )
@@ -353,6 +354,7 @@
 #define J_DTYPE(link)			( JustTYPE(link)==J_D )
 #define J_STRUCTYPE(link)		( JustTYPE(link)==J_STRUC )
 #define GenlJ_DTYPE(link)		( GraphicTYPE(pL) || EndingTYPE(pL) || TempoTYPE(pL) )
+#define SyncSupportTYPE(link)	( BeamsetTYPE(link) || OttavaTYPE(link) || SlurTYPE(link) || TupletTYPE(link) )
 
 /* Get an object's justification type */
 
@@ -673,6 +675,7 @@
 #define NoteINOTTAVA(link)			( (GetPANOTE(link))->inOttava )	
 #define NoteINTUPLET(link)			( (GetPANOTE(link))->inTuplet )	
 #define NoteMERGED(link)			( (GetPANOTE(link))->merged )	
+#define NotePLAYASCUE(link)			( (GetPANOTE(link))->playAsCue)	
 #define NoteMICROPITCH(link)		( (GetPANOTE(link))->micropitch)	
 #define NoteNDOTS(link)		 		( (GetPANOTE(link))->ndots )
 #define NoteNUM(link)				( (GetPANOTE(link))->noteNum )
@@ -736,7 +739,7 @@
    that condition makes it possible for FixCrossSysSlurs to use SlurFirstIsSYSTEM. */
  
 #define _SlurFirstSYSTEM(pL)		( (SystemTYPE(SlurLASTSYNC(pL))) )			/* Boolean, not link */
-#define SlurFirstIsSYSTEM(pL)		(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : TRUE)	/* Boolean, not link */		
+#define SlurFirstIsSYSTEM(pL)		(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : True)	/* Boolean, not link */		
 #define SlurKNOT(link)				( (GetPASLUR(link))->seg.knot)
 #define SlurLASTIND(link)			( (GetPASLUR(link))->lastInd)	
 #define SlurLASTSYNC(link)	 		( (GetPSLUR(link))->lastSyncL )		

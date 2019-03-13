@@ -1,11 +1,11 @@
 /* About.c: routines for the About box, including animating the credits, etc. */
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEÂª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -14,11 +14,11 @@
 /* --------------------------------------------------------------- DoAboutBox et al -- */
 
 #define	CR_LEADING			14		/* Vert. dist. between baselines of credit text */
-#define	PAUSE_CODE			'¹'		/* [opt-p] If line of TEXT resource begins with this,
-											animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
-#define	BOLD_CODE			'º'		/* [opt-b] If this begins a line of TEXT resource, or follows
-											PAUSE_CODE, that line will be drawn in bold. */
-#define	SCROLL_PAUSE_DELAY	210		/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
+#define	PAUSE_CODE			'Â¹'		/* [opt-p] If line of TEXT resource begins with this,
+										animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
+#define	BOLD_CODE			'Âº'		/* [opt-b] If this begins a line of TEXT resource, or follows
+										PAUSE_CODE, that line will be drawn in bold. */
+#define	SCROLL_PAUSE_DELAY	90		/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
 #define	SCROLL_NORM_DELAY	4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
 #define	MAX_PAUSE_LINES		10		/* Max number of lines that can begin with PAUSE_CODE */
 
@@ -32,8 +32,7 @@ static enum {
 	CREDITS_BOX = 3,
 	STXT_HINT1,
 	STXT_HINT2,
-	STXT_VERS,
-	PICT_DEMO=10
+	STXT_VERS
 } E_AboutItems;
 
 static GrafPtr	fullTextPort;
@@ -46,14 +45,13 @@ void DoAboutBox(
 	)
 {
 	short			type, itemHit;
-	short			x, y;
-	Rect			smallRect, bigRect;
-	Boolean			okay, keepGoing=true;
+	Boolean			okay, keepGoing=True;
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
 	Handle			hndl;
 	Rect			box;
 	char			fmtStr[256], str[256], serialStr[256], userName[256], userOrg[256];
+	Str255			versionPStr;
 	ModalFilterUPP	filterUPP;
 
 	/* Build dialog window and install its item values */
@@ -81,26 +79,11 @@ void DoAboutBox(
 	textSection = creditRect;
 	OffsetRect(&textSection, -creditRect.left, -creditRect.top);
 	if (!SetupCredits()) goto broken;
-
-	HideDialogItem(dlog, PICT_DEMO);
 	
 	/* Get version number string and display it in a static text item. */
-	{
-		Str255 vstr;
-		unsigned char *vers_str;
-		const char *bundle_version_str;
-		
-		/* Get version number from main bundle (Info.plist); 
-		   this is the string value for key "CFBundleVersion" aka "Bundle version" 
-		 */
-		CFStringRef vsr = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey);
-		bundle_version_str = CFStringGetCStringPtr(vsr, kCFStringEncodingMacRoman);
-		vers_str = CToPString((char *) bundle_version_str);
-		vstr[0] = 0;
-		Pstrcpy(vstr, "\pv. ");
-		PStrCat(vstr, vers_str);
-		PutDlgString(dlog, STXT_VERS, vstr, false);
-	}
+	strcpy((char *)versionPStr, applVerStr);
+	CToPString((char *)versionPStr);
+	PutDlgString(dlog, STXT_VERS, versionPStr, False);
 
 	GetDialogItem(dlog, BUT2_Special, &type, &hndl, &box);
 	HiliteControl((ControlHandle)hndl, CTL_INACTIVE);
@@ -110,17 +93,11 @@ void DoAboutBox(
 	TextFont(textFontNum);
 	TextSize(textFontSmallSize);
 
-	y = GetMBarHeight()+10;  x = 25;
-	SetRect(&smallRect, x, y, x+2, y+2);
 	CenterWindow(GetDialogWindow(dlog), 70);
-	GetWindowPortBounds(GetDialogWindow(dlog), &bigRect);
-	LocalToGlobal(&TOP_LEFT(bigRect));
-	LocalToGlobal(&BOT_RIGHT(bigRect));
-	//ZoomRect(&smallRect, &bigRect, true);
 	ShowWindow(GetDialogWindow(dlog));
 	
 	/* Show the first "screen" of animated text */
-	firstAnimateCall = true;
+	firstAnimateCall = True;
 	
 	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);
 	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
@@ -140,7 +117,7 @@ void DoAboutBox(
 		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
 		switch(itemHit) {
 			case BUT1_OK:
-				keepGoing = false; okay = true;
+				keepGoing = False; okay = True;
 				break;
 			case BUT2_Special:
 				SysBeep(1);		/* For future use; maybe a simple "Debug Check" */
@@ -149,9 +126,7 @@ void DoAboutBox(
 	}
 	
 	DestroyGWorld(fullTextPort);
-	
 	HideWindow(GetDialogWindow(dlog));
-	//ZoomRect(&smallRect, &bigRect, false);
 broken:	
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
@@ -161,7 +136,7 @@ broken:
 
 static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
-	Boolean		ans=false;
+	Boolean		ans=False;
 	WindowPtr	w;
 	GrafPtr		oldPort;
 	int			ch;
@@ -176,12 +151,12 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				BeginUpdate(GetDialogWindow(dlog));
 		
 				UpdateDialogVisRgn(dlog);
-				FrameDefault(dlog, BUT1_OK, true);
+				FrameDefault(dlog, BUT1_OK, True);
 		
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 
-				ans = true; *itemHit = 0;
+				ans = True; *itemHit = 0;
 			}
 			break;
 		case activateEvt:
@@ -198,7 +173,7 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (ch=='\r' || ch==CH_ENTER) {
 				FlashButton(dlog, BUT1_OK);
 				*itemHit = BUT1_OK;
-				ans = true;
+				ans = True;
 			}
 			break;
 	}
@@ -207,56 +182,57 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 
 
 /* Prepare an offscreen port holding lines of text read from a TEXT resource.
-	AnimateCredits() will copy a sliding rectangle from this port onto the 
-	screen every few ticks (specified by SCROLL_NORM_DELAY). */
+	AnimateCredits() will copy a sliding rectangle from this port onto the screen
+	every few ticks (specified by SCROLL_NORM_DELAY). */
 	
 Boolean SetupCredits()
 {
-	Handle		creditText;
-	char		*textPtr, *strP, *thisStr;
-	short		numLines, lineNum, strWid, offset, pauseLineCount, i;
-	long		textLen;
-	short		portWid;
+	Handle	hCreditText;
+	char	*textPtr, *strP, *thisStr;
+	short	numLines, lineNum, strWid, offset, pauseLineCount, i;
+	long	textLen;
+	short	portWid;
 	
 	/* Get credit text from TEXT resource. (Get1Resource isn't worth the trouble.) */
-	creditText = GetResource('TEXT', ABOUT_TEXT);
-	if (!creditText) {
+	hCreditText = GetResource('TEXT', ABOUT_TEXT);
+	if (!hCreditText) {
 		MayErrMsg("AboutBox: Can't get credit text.");
-		return false;
+		return False;
 	}
-	textLen = GetResourceSizeOnDisk(creditText);
+	textLen = GetResourceSizeOnDisk(hCreditText);
 	
 	/* Lock and dereference handle to text */
-	HLock(creditText);
-	textPtr = (char *) *creditText;
+	HLock(hCreditText);
+	textPtr = (char *) *hCreditText;
 		
 	/* How many lines in text? */
 	for (i=0, numLines=0; i<textLen; i++, textPtr++) {
 		if (*textPtr == CH_CR) numLines++;
 	}
-	textPtr = (char *) *creditText;								/* reset ptr */
+	textPtr = (char *) *hCreditText;								/* reset ptr */
 
 	SaveGWorld();
 	
 	/* Create offscreen port to hold formatted text */
 
 	portWid = creditRect.right - creditRect.left;				/* creditRect is static global declared above */
-	GWorldPtr gwPtr = MakeGWorld(portWid, numLines * CR_LEADING, true);
+	GWorldPtr gwPtr = MakeGWorld(portWid, numLines * CR_LEADING, True);
 	SetGWorld(gwPtr, NULL);
 	
 	TextFont(textFontNum);
 	TextSize(textFontSmallSize);
 
-	/* Initialize pauseLines[], so that we won't pause inadvertantly
-		on a line whose number happens to be given by garbage. */
+	/* Initialize pauseLines[], so that we won't pause inadvertantly on a line whose
+	   number happens to be given by garbage. */
+	   
 	for (i=0; i<MAX_PAUSE_LINES; i++)
 		pauseLines[i] = -1;
 	
-	/* Break text into lines, draw them into offscreen port, interpreting
-		the codes that might begin a line.
-		NB: the pause code must precede the bold code if both are used in
-		the same line.  After the first MAX_PAUSE_LINES pause codes have been
-		interpreted, any following ones are ignored. */
+	/* Break text into lines, draw them into offscreen port, interpreting the codes
+	   that might begin a line. NB: the pause code must precede the bold code if both
+	   are used in the same line.  After the first MAX_PAUSE_LINES pause codes have been
+	   interpreted, any following ones are ignored. */
+	   
 	thisStr = strP = textPtr;
 	for (i=0, lineNum=1, pauseLineCount=0; i<textLen; i++) {
 		if (*textPtr == CH_CR) {
@@ -287,10 +263,10 @@ Boolean SetupCredits()
 	UnlockGWorld(gwPtr);
 	RestoreGWorld();
 	
-	HUnlock(creditText);
-	ReleaseResource(creditText);	
+	HUnlock(hCreditText);
+	ReleaseResource(hCreditText);	
 	
-	return true;
+	return True;
 }
 
 
@@ -305,14 +281,14 @@ void AnimateCredits(DialogPtr dlog)
 	static long		lastTime;
 	static short	pixelCount;
 	short			i, thisLineNum;
-	Boolean			doPause=false;
+	Boolean			doPause=False;
 
 	thisTime = TickCount();
 	
 	/* Is this first time called since the dialog was put up? [AboutBox() initializes
-		firstAnimateCall to true.] If so, we must initialize some static variables. */
-	if (firstAnimateCall == true) {
-		firstAnimateCall = false;
+		firstAnimateCall to True.] If so, we must initialize some static variables. */
+	if (firstAnimateCall == True) {
+		firstAnimateCall = False;
 		lastTime = thisTime;
 		pixelCount = CR_LEADING;
 	}
@@ -323,7 +299,7 @@ void AnimateCredits(DialogPtr dlog)
 	/* If line number has changed, check array to see if we should pause on this line. */
 	if (!(pixelCount % CR_LEADING)) {
 		for (i=0; i<MAX_PAUSE_LINES; i++) {
-			if (pauseLines[i]==thisLineNum) doPause = true;
+			if (pauseLines[i]==thisLineNum) doPause = True;
 		}
 	}
 			
@@ -351,3 +327,4 @@ void AnimateCredits(DialogPtr dlog)
 
 	lastTime = thisTime;
 }
+

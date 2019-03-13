@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	Dragging.c
 *	PROJ:	Nightingale
 *	DESC:	Bitmap dragging routines
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -53,7 +53,7 @@ static void SDDrawSlur(Document *doc, LINK pL, LINK measureL);
 static Boolean SymDragLoop(Document *doc, LINK, LINK, unsigned char, Point, LINK);
 
 
-/* ================================================================================= */
+/* ====================================================================================== */
 /* Functions for drawing individual symbols into the offScreen bitmap picBits, for the
 benefit of SymDragLoop. */
 
@@ -145,7 +145,7 @@ static void SDDrawTimeSig(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	}
 }
 
-/* --------------------------------------------------- Notes, rests, grace notes -- */
+/* --------------------------------------------------------- Notes, rests, grace notes -- */
 
 /* Draw augmentation dots for the note or rest <aNoteL>. */
 
@@ -290,8 +290,7 @@ PushLock(NOTEheap);
 	xd = dLeft + aNote->xd;									/* measure-rel position of note */
 	xd = DragXD(xd);
 	if (aNote->otherStemSide) {
-		for (extNoteL=FirstSubLINK(pL);extNoteL;
-				extNoteL=NextNOTEL(extNoteL)) {
+		for (extNoteL=FirstSubLINK(pL); extNoteL; extNoteL=NextNOTEL(extNoteL)) {
 			extNote = GetPANOTE(extNoteL);
 			if (extNote->staffn==aNote->staffn && MainNote(extNoteL)) {
 				stemDown = (extNote->ystem > extNote->yd);		/* Is stem up or down? */
@@ -300,8 +299,8 @@ PushLock(NOTEheap);
 		}
 		headRect = CharRect(MapMusChar(doc->musFontInfoIndex, MCH_halfNoteHead));
 		headWidth = p2d(headRect.right-headRect.left)+1;
-		if (stemDown) xd -= headWidth;
-		else			  xd += headWidth;
+		if (stemDown)	xd -= headWidth;
+		else			xd += headWidth;
 	}
 	lnSpace = LNSPACE(&context);
 	dhalfLn = lnSpace/2;
@@ -694,9 +693,9 @@ PushLock(GRNOTEheap);
 					if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 						stemSpace = 0;
 
-					MoveTo(xhead+stemSpace, ypStem);						/* x, y of stem end */
+					MoveTo(xhead+stemSpace, ypStem);					/* x, y of stem end */
 
-					if (flagCount==1) {										/* Draw 8th flag. */
+					if (flagCount==1) {									/* Draw 8th flag. */
 						flagGlyph = MapMusChar(doc->musFontInfoIndex, 
 															(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
@@ -714,7 +713,7 @@ PushLock(GRNOTEheap);
 							Move(d2p(xoff), d2p(yoff));
 						DrawChar(flagGlyph);
 					}
-					else {														/* Draw using multiple flag chars */
+					else {												/* Draw using multiple flag chars */
 						short count = flagCount;
 
 						/* Draw extension flag(s) */
@@ -795,7 +794,7 @@ static void SDDrawDynamic(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 		xp = d2p(xd); yp = d2p(yd);
 		aDynamic = GetPADYNAMIC(aDynamicL);
 		MoveTo(pContext->paper.left+xp, pContext->paper.top+yp);
-		DrawMChar(doc, glyph, NORMAL_VIS, FALSE);
+		DrawMChar(doc, glyph, NORMAL_VIS, False);
 }
 #endif
 
@@ -817,7 +816,7 @@ static void SDDrawRptEnd(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL
 	for ( ; aRptL; aRptL = NextRPTENDL(aRptL)) {
 		aRpt = GetPARPTEND(aRptL);
 		DrawRptBar(doc, pL, RptEndSTAFF(aRptL), aRpt->connStaff, context, LinkXD(pL),
-						(char)RptType(pL), SDDraw, FALSE);
+						(char)RptType(pL), SDDraw, False);
 	}
 }
 
@@ -854,8 +853,8 @@ static void SDDrawEnding(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL
 	lnSpace = LNSPACE(pContext);
 	rise = ENDING_CUTOFFLEN(lnSpace);
 
-	firstMeasL = LSSearch(p->firstObjL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
-	lastMeasL = LSSearch(p->lastObjL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	firstMeasL = LSSearch(p->firstObjL,MEASUREtype,ANYONE,GO_LEFT,False);
+	lastMeasL = LSSearch(p->lastObjL,MEASUREtype,ANYONE,GO_LEFT,False);
 	measXD = (firstMeasL==lastMeasL ? 0 : LinkXD(lastMeasL)-LinkXD(firstMeasL));
 
 	dTop = pContext->measureTop;
@@ -926,7 +925,7 @@ static void SDDrawMeasure(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 		GetContext(doc, pL, aMeasure->connStaff, &context2);
 		dBottom = context2.staffTop + context2.staffHeight;
 	}
-	prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, TRUE, FALSE);
+	prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, True, False);
 	mLeft = d2p(LinkXD(pL) - LinkXD(prevMeasL));
 
 	dTop -= p2d(mRect.top);
@@ -958,7 +957,7 @@ static void SDDrawPSMeas(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 		GetContext(doc, pL, aPSMeas->connStaff, &context2);
 		dBottom = context2.staffTop + context2.staffHeight;
 	}
-	prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, TRUE, FALSE);
+	prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, True, False);
 	mLeft = d2p(LinkXD(pL));
 
 	dTop -= p2d(mRect.top);
@@ -1004,7 +1003,7 @@ static void SDDrawTuplet(Document *doc, LINK pL, LINK measureL)
 	tup = GetPTUPLET(pL);
 	if (tup->denomVis || doc->showInvis) {
 		MoveTo(xp+xColon+1, yp-1);
-		DrawMColon(doc, TRUE, FALSE, LNSPACE(&context));
+		DrawMColon(doc, True, False, LNSPACE(&context));
 	}
 }
 
@@ -1094,13 +1093,13 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			SDDrawGRDraw(doc, xd, yd, xd2, yd2, lineLW, &context);
 			break;
 
-		case GRMIDISustainOn:
+		case GRSusPedalDown:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
 			oldStyle = GetPortTxFace();
 			
 			oneChar[0] = 1;
-			oneChar[1] = '';						// Shift-option 8
+			oneChar[1] = 0xA1;						// Mac OS Roman keys: shift-option 8
 			TextFont(doc->musicFontNum);
 			TextSize(UseTextSize(fontSize, doc->magnify));
 			MoveTo(d2p(DragXD(xd)), d2p(yd));
@@ -1108,7 +1107,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			DrawString(oneChar);
 			break;
 			
-		case GRMIDISustainOff:
+		case GRSusPedalUp:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
 			oldStyle = GetPortTxFace();
@@ -1167,12 +1166,10 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 					}
 				}
 				else {
-					Boolean expandN = FALSE;
+					Boolean expandN = False;
 					Str255 textStr;
 					pGraphic = GetPGRAPHIC(pL);
 					if (pGraphic->graphicType==GRString) expandN = (pGraphic->info2!=0);
-					//if (pGraphic->graphicType==GRString)
-					//	LogPrintf(LOG_DEBUG, "SDDrawGraphic: pGraphic->info2=%d\n", pGraphic->info2);
 					if (expandN) {
 						if (!ExpandPString(textStr, (StringPtr)PCopy(strOffset), EXPAND_WIDER))
 							LogPrintf(LOG_WARNING, "SDDrawGraphic: ExpandPString failed.\n");
@@ -1200,11 +1197,11 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	LINK contextL;
 	CONTEXT context; Rect mRect; FontInfo fInfo;
 	StringOffset theStrOffset;
-	Boolean expandN=FALSE, beforeFirst;
+	Boolean expandN=False, beforeFirst;
 	Byte dotChar = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	beforeFirst = LinkBefFirstMeas(pL);
-	contextL = (beforeFirst ? LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, FALSE) : pL);
+	contextL = (beforeFirst ? LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, False) : pL);
 	GetContext(doc, contextL, TempoSTAFF(pL), &context);
 	lineSpace = LNSPACE(&context);
 	dTop = context.measureTop;
@@ -1326,8 +1323,8 @@ PushLock(OBJheap);
 	firstxd = LinkXD(firstSyncL);
 	lastxd = LinkXD(lastSyncL);
 	
-	firstMeas = LSSearch(firstSyncL, MEASUREtype, ANYONE, TRUE, FALSE);
-	lastMeas = LSSearch(lastSyncL, MEASUREtype, ANYONE, TRUE, FALSE);
+	firstMeas = LSSearch(firstSyncL, MEASUREtype, ANYONE, True, False);
+	lastMeas = LSSearch(lastSyncL, MEASUREtype, ANYONE, True, False);
 	if (firstMeas!=lastMeas)
 		lastxd += LinkXD(lastMeas)-LinkXD(firstMeas);
 
@@ -1357,7 +1354,7 @@ PushLock(OBJheap);
 
 	octxdFirst = firstxd+p->xdFirst;
 	octydFirst = dTop+p->ydFirst-p2d(mRect.top);
-	lastNoteWidth = SymDWidthRight(doc, lastSyncL, staff, FALSE, *pContext);
+	lastNoteWidth = SymDWidthRight(doc, lastSyncL, staff, False, *pContext);
 	octxdLast = lastxd+lastNoteWidth+p->xdLast;
 	octydLast = dTop+p->ydLast-p2d(mRect.top);
 	
@@ -1406,7 +1403,7 @@ PopLock(OBJheap);
 }
 
 
-/* ----------------------------------------------------------------------- Beams -- */
+/* ----------------------------------------------------------------------------- Beams -- */
 
 /* Draw a single beam (not a complete set), for either normal or grace-note beamsets. */
 
@@ -1490,8 +1487,8 @@ void SDDrawGRBeamset(Document *doc, LINK pL, LINK measL)
 
 	yBeam = GRNoteXStfYStem(aGRNoteL,stfRange,firstStfTop,lastStfTop,crossStaff);
 	/* FIXME: measLeft PARAM LOOKS WRONG FOR GRBEAMS SPANNING MEASURES. Cf. SDCalcXStem. */
-	xStemL = CalcGRXStem(doc, firstSyncL, voice, upOrDown, pContext->measureLeft, pContext, TRUE);
-	xStemR = CalcGRXStem(doc, lastSyncL, voice, upOrDown, pContext->measureLeft, pContext, FALSE);
+	xStemL = CalcGRXStem(doc, firstSyncL, voice, upOrDown, pContext->measureLeft, pContext, True);
+	xStemR = CalcGRXStem(doc, lastSyncL, voice, upOrDown, pContext->measureLeft, pContext, False);
 	
 	while (nBeams>0) {
 		firstGRNoteL = FindGRMainNote(firstSyncL, voice);
@@ -1521,7 +1518,7 @@ in case it turns out to be needed for some coordinate system adjustment. */
 
 DDIST SDCalcXStem(LINK syncL, short voice, short stemDir,
 					DDIST measLeft, DDIST headWidth,
-					Boolean left			/* TRUE=left end of beam, else right */
+					Boolean left			/* True=left end of beam, else right */
 					)
 {
 	DDIST		xd, xdNorm;
@@ -1591,7 +1588,7 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 		GetBeamNotes(pL, notesInBeam);
 		GetCrossStaff(LinkNENTRIES(pL), notesInBeam, &stfRange);
 	}
-	staffL = LSSearch(pL,STAFFtype,ANYONE,GO_LEFT,FALSE);
+	staffL = LSSearch(pL,STAFFtype,ANYONE,GO_LEFT,False);
 	if (staffL) {
 		aStaffL = FirstSubLINK(staffL);
 		for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
@@ -1629,7 +1626,7 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 	for (iel = 0; iel<LinkNENTRIES(pL); iel++, noteBeamL=NextNOTEBEAML(noteBeamL)) {
 		pNoteBeam = GetPANOTEBEAM(noteBeamL);
 		syncL = pNoteBeam->bpSync;
-		haveSlope = FALSE;	
+		haveSlope = False;	
 		aNoteL = FindMainNote(syncL, voice);
 		upOrDown = ( (NoteYSTEM(aNoteL) < NoteYD(aNoteL)) ? 1 : -1 );
 
@@ -1659,7 +1656,7 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 				hDiff = SysRelxd(lastSyncL)-SysRelxd(firstSyncL);
 				slope = (FASTFLOAT)(lastystem-firstystem)/hDiff;
 				vDiff = FracBeamWidth(LNSPACE(pContext))*slope;
-				haveSlope = TRUE;
+				haveSlope = True;
 			}
 			yBeam = NoteXStfYStem(aNoteL,stfRange,firstStfTop,lastStfTop,crossStaff);
 			pNoteBeam = GetPANOTEBEAM(noteBeamL);
@@ -1712,9 +1709,9 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 				stemDirR = ( (NoteYSTEM(lastNoteL) < NoteYD(lastNoteL)) ? 1 : -1 );
 				
 				xStemL = SDCalcXStem(beamStack[nestLevel].startL, voice, stemDirL,
-											pContext->measureLeft, HeadWidth(LNSPACE(pContext)), TRUE);
+											pContext->measureLeft, HeadWidth(LNSPACE(pContext)), True);
 				xStemR = SDCalcXStem(syncL, voice, stemDirR, pContext->measureLeft,
-											HeadWidth(LNSPACE(pContext)), FALSE);
+											HeadWidth(LNSPACE(pContext)), False);
 
 				beamLeft = beamStack[nestLevel].dLeft;
 
@@ -1740,7 +1737,7 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 }
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 {
@@ -1798,9 +1795,9 @@ static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 }
 
 
-/* =================================================================================== */
+/* ====================================================================================== */
 
-/* ------------------------------------------------------------------ HandleSymDrag -- */
+/* --------------------------------------------------------------------- HandleSymDrag -- */
 /* Should be called by all CheckXXX routines to handle normal dragging. See comments
 on DoSymbolDrag for a description of the torturous route we take to get here. */
 
@@ -1808,12 +1805,12 @@ Boolean HandleSymDrag(Document *doc, LINK pL, LINK subObjL, Point pt, unsigned c
 {
 	LINK measL;
 	
-	measL = LSSearch(pL, MEASUREtype, 1, TRUE, FALSE);
+	measL = LSSearch(pL, MEASUREtype, 1, True, False);
 	return SymDragLoop(doc, pL, subObjL, glyph, pt, measL);
 }
 
 
-/* -------------------------------------------------------------------- SymDragLoop -- */
+/* ----------------------------------------------------------------------- SymDragLoop -- */
 /* Routine that is actually responsible for dragging the object. First calls the
 SDDraw routine for the object's type to draw the to-be-dragged object into the
 offscreen bitmap; then enters the loop where the user drags the object; and finally
@@ -1824,7 +1821,7 @@ type of the dragged object.
 should eliminate this param!. The measure containing the object is used to correct
 the coordinate system if the measure is partially off the screen.
 
-Returns TRUE if the symbol was actually dragged along either axis, else FALSE. */
+Returns True if the symbol was actually dragged along either axis, else False. */
 
 static Boolean SymDragLoop(
 				Document *doc,
@@ -1859,19 +1856,19 @@ static Boolean SymDragLoop(
 	const BitMap *accPortBits = NULL;
 	GWorldPtr gwPtr = NULL;
 	
-	isClef = isRest = FALSE;
+	isClef = isRest = False;
 	GetPort(&oldPort);
 	SetPort(picBits);
 	SetRect(&theClipRect, -32000, -32000, 32000, 32000);
 	ClipRect(&theClipRect);
 	GetPortBounds(underBits,&theRect);
 	TextFont(doc->musicFontNum);
-	staffL = LSSearch(pL, STAFFtype, ANYONE, TRUE, FALSE);
+	staffL = LSSearch(pL, STAFFtype, ANYONE, True, False);
 	spaceFactor = 0L;												/* Normally unused */
 	
 	switch (ObjLType(pL)) {
 		case CLEFtype:
-			isClef = TRUE;
+			isClef = True;
 			staff = ClefSTAFF(subObjL);
 			SDDrawClef(doc, pL, subObjL, glyph, measureL);
 			GetContext(doc, pL, staff, &context);
@@ -1896,7 +1893,7 @@ static Boolean SymDragLoop(
 			SDDrawNote(doc, pL, subObjL, measureL);
 			staff = NoteSTAFF(subObjL);
 			GetContext(doc, pL, staff, &context);
-			if (NoteREST(subObjL)) isRest = TRUE;
+			if (NoteREST(subObjL)) isRest = True;
 			if (!isRest) {
 
 				/* Set up the accidental box for vertical note dragging. */
@@ -1913,7 +1910,7 @@ static Boolean SymDragLoop(
 						accBox.bottom-accBox.top);
 				SaveGWorld();
 				
-				gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, TRUE);
+				gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, True);
 				if (!gwPtr) goto broken;
 				accPort = gwPtr;
 
@@ -1978,7 +1975,7 @@ static Boolean SymDragLoop(
 					
 			SaveGWorld();
 			
-			gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, TRUE);
+			gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, True);
 			if (!gwPtr) goto broken;
 			accPort = gwPtr;
 
@@ -2079,7 +2076,7 @@ static Boolean SymDragLoop(
 			
 		default:
 			MayErrMsg("SymDragLoop: type %d not supported", ObjLType(pL));
-			return FALSE;
+			return False;
 	}
 	
 	SetPort(oldPort);
@@ -2088,12 +2085,12 @@ static Boolean SymDragLoop(
 	mRect = SDGetMeasRect(doc, pL, measureL);
 	bounds = mRect; InsetRect(&bounds, 2, 2);
 	OffsetRect(&mRect,doc->currentPaper.left,doc->currentPaper.top);
-	firstMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	firstMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	
 	oldPt = newPt = pt;
-	stillWithinSlop = TRUE;
-	horiz = vert = TRUE;
-	vQuantize = FALSE;
+	stillWithinSlop = True;
+	horiz = vert = True;
+	vQuantize = False;
 	
 	if (StillDown())
 		while (WaitMouseUp()) {
@@ -2133,7 +2130,7 @@ static Boolean SymDragLoop(
 									oldHalfLn = CalcPitchLevel(pt.v, &context, staffL, staff);
 									break;
 								default:
-									horiz = TRUE;
+									horiz = True;
 									vert = !horiz;
 									break;	
 								
@@ -2144,11 +2141,11 @@ static Boolean SymDragLoop(
 						case MEASUREtype:
 						case PSMEAStype:
 						case RPTENDtype:
-							horiz = TRUE;
+							horiz = True;
 							vert = !horiz;
 							break;
 						case BEAMSETtype:
-							vert = TRUE;
+							vert = True;
 							horiz = !vert;
 							break;
 						default:
@@ -2158,7 +2155,7 @@ static Boolean SymDragLoop(
 							}
 					}
 					/* And don't ever come back, you hear! */
-					stillWithinSlop = FALSE;
+					stillWithinSlop = False;
 				}
 				
 				if (vQuantize) {
@@ -2301,8 +2298,8 @@ setAccDone:
 	ydDiff = (vert? p2d(yp=newPt.v-oldPt.v) : 0);
 
 	if (xdDiff==0 && ydDiff==0) {
-		SDCleanUp(doc, oldPort, 100L, pL, FALSE, 0, 0);
-		return FALSE;
+		SDCleanUp(doc, oldPort, 100L, pL, False, 0, 0);
+		return False;
 	}
 
 	/* Symbol was really moved on one or both axes. Update the object list. */
@@ -2323,13 +2320,13 @@ setAccDone:
 			if (doc->feedback && !NoteREST(subObjL) && vert) {
 
 			}
-			SetNoteFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert, FALSE, newAcc);
+			SetNoteFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert, False, newAcc);
 			break;
 
 		case GRSYNCtype:
 			if (doc->feedback && vert) {
 			}
-			SetGRNoteFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert, FALSE, newAcc);
+			SetGRNoteFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert, False, newAcc);
 			break;
 
 		case DYNAMtype:
@@ -2383,16 +2380,16 @@ setAccDone:
 	doc->scaleCenter.h += d2p(xdDiff);
 	doc->scaleCenter.v += d2p(ydDiff);
 	
-	SDCleanUp(doc, oldPort, spaceFactor, pL, TRUE, xdDiff, ydDiff);
+	SDCleanUp(doc, oldPort, spaceFactor, pL, True, xdDiff, ydDiff);
 	
 	if (gwPtr != NULL) DestroyGWorld(gwPtr);
-	return TRUE;
+	return True;
 	
 broken:	
-	SDCleanUp(doc, oldPort, spaceFactor, pL, FALSE, 0, 0);
+	SDCleanUp(doc, oldPort, spaceFactor, pL, False, 0, 0);
 	
 	if (gwPtr != NULL) DestroyGWorld(gwPtr);
-	return FALSE;
+	return False;
 
 noteDragDone:
 	{
@@ -2400,26 +2397,26 @@ noteDragDone:
 	
 		if (InsTrackPitch(doc, pt, &symIndex, pL, staff, &pitchLev, &acc, octType)) {
 			SetForNewPitch(doc, pL, subObjL, context, pitchLev, acc);
-			SDCleanUp(doc, oldPort, spaceFactor, pL, TRUE, 0, 0);
-			return TRUE;
+			SDCleanUp(doc, oldPort, spaceFactor, pL, True, 0, 0);
+			return True;
 		}
 		else {
-			SDCleanUp(doc, oldPort, spaceFactor, pL, FALSE, 0, 0);
+			SDCleanUp(doc, oldPort, spaceFactor, pL, False, 0, 0);
 			InvalMeasure(pL, staff);
-			return FALSE;
+			return False;
 		}
 	}
 }
 
 
-/* ------------------------------------------------------------------- DoSymbolDrag -- */
+/* ---------------------------------------------------------------------- DoSymbolDrag -- */
 /* This is the entry point for all dragging routines handling normal dragging.
 If symbol is beforeFirstMeas, handle it as a special case and return. Otherwise,
 set up the three offscreen bitmaps and call CheckObject, which should call the
 appropriate CheckXXX routine with mode SMSymDrag; the CheckXXX routines should in
 turn call HandleSymDrag. <pt> is the mouseDown pt in window-local coordinates.
 
-Returns TRUE if it found something to drag, regardless of whether the user tried to
+Returns True if it found something to drag, regardless of whether the user tried to
 drag it and regardless of whether anything went wrong. */
 
 Boolean DoSymbolDrag(Document *doc, Point pt)
@@ -2432,10 +2429,10 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 	
 	/* If there is no object, do nothing. */
 
-	pL = FindObject(doc, pt, &index, SMFind);
-	if (!pL) return FALSE;
+	pL = FindAndActOnObject(doc, pt, &index, SMFind);
+	if (!pL) return False;
 	
-	DisableUndo(doc, FALSE);
+	DisableUndo(doc, False);
 	
 	/* If the object is before the first Measure of its System, call DragBeforeFirst.
 	Exception: If object is a Graphic or is attached to a page-relative Graphic, handle
@@ -2447,20 +2444,20 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 
 			if (startMeas && !endMeas) {					/* Cf. comments for Graphics */
 				endMeas = EndSystemSearch(doc,startMeas);
-				endMeas = LSSearch(endMeas,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+				endMeas = LSSearch(endMeas,MEASUREtype,ANYONE,GO_LEFT,False);
 			}
 			drag1stMeas = startMeas;
 			dragLastMeas = endMeas;
 
 			DragBeforeFirst(doc, pL, pt);
-			return TRUE;
+			return True;
 		}
 	}
 
 	/* Not a special case. Get the following barline, and set up grafPorts for giving
 		visual feedback during the drag. */
 	
-	measureL = LSSearch(pL, MEASUREtype, 1, TRUE, FALSE);
+	measureL = LSSearch(pL, MEASUREtype, 1, True, False);
 	
 	switch (ObjLType(pL)) {
 		case MEASUREtype:
@@ -2468,58 +2465,58 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 				into the next measure. */
 			if (!Setup2MeasPorts(doc, measureL)) {
 				ErrDisposPorts();
-				return TRUE;
+				return True;
 			}
 			break;
 		case DYNAMtype:
 			if (IsHairpin(pL)) {
 				DragHairpin(doc, pL);
-				return TRUE;						/* FIXME: Skip HandleSymDrag called from CheckObject below. */
+				return True;						/* FIXME: Skip HandleSymDrag called from CheckObject below. */
 			}
 			else {
 #ifdef DRAG_DYNAMIC_OLD_WAY
 				if (!SetupMeasPorts(doc, measureL)) {
 					ErrDisposPorts();
-					return TRUE;
+					return True;
 				}
 #else
 				DragDynamic(doc, pL);
-				return TRUE;						/* FIXME: Skip HandleSymDrag called from CheckObject below. */
+				return True;						/* FIXME: Skip HandleSymDrag called from CheckObject below. */
 #endif
 			}
 			break;
 		case BEAMSETtype:
 			if (!SetupNMeasPorts(doc, FirstInBeam(pL), LastInBeam(pL))) {
 				ErrDisposPorts();
-				return TRUE;
+				return True;
 			}
 			break;
 		case OTTAVAtype:
 			if (!SetupNMeasPorts(doc, FirstInOttava(pL), LastInOttava(pL))) {
 				ErrDisposPorts();
-				return TRUE;
+				return True;
 			}
 			break;
 		case TUPLETtype:
 			if (!SetupNMeasPorts(doc, FirstInTuplet(pL), LastInTuplet(pL))) {
 				ErrDisposPorts();
-				return TRUE;
+				return True;
 			}
 			break;
 		case SLURtype:
 			if (!SetupNMeasPorts(doc, SlurFIRSTSYNC(pL), SlurLASTSYNC(pL))) {
 				ErrDisposPorts();
-				return TRUE;
+				return True;
 			}
 			break;
 		case GRAPHICtype:
 			if (GraphicSubType(pL)==GRChordSym) {
 				DragGraphic(doc, pL);
-				return TRUE;					/* Skip HandleSymDrag called from CheckObject below. */
+				return True;					/* Skip HandleSymDrag called from CheckObject below. */
 			}
 			if (PageTYPE(GraphicFIRSTOBJ(pL))) {
 				PageRelDrag(doc, pL, pt);
-				return TRUE;
+				return True;
 			}
 			else {
 				if (MeasureTYPE(GraphicFIRSTOBJ(pL))) {
@@ -2537,7 +2534,7 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 					of the system. */
 				if (startMeas && !endMeas) {
 					endMeas = EndSystemSearch(doc, startMeas);
-					endMeas = LSSearch(endMeas, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+					endMeas = LSSearch(endMeas, MEASUREtype, ANYONE, GO_LEFT, False);
 				}
 
 				drag1stMeas = startMeas;
@@ -2545,12 +2542,12 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 				if (startMeas && endMeas && (startMeas != endMeas)) {
 					if (!SetupNMeasPorts(doc, startMeas, endMeas)) {
 						ErrDisposPorts();
-						return TRUE;
+						return True;
 					}
 				}
 				else if (!SetupMeasPorts(doc, measureL)) {
 					ErrDisposPorts();
-					return TRUE;
+					return True;
 				}
 			}
 			break;
@@ -2561,25 +2558,25 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 
 			if (startMeas && !endMeas) {					/* Cf. comments for Graphics */
 				endMeas = EndSystemSearch(doc, startMeas);
-				endMeas = LSSearch(endMeas, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+				endMeas = LSSearch(endMeas, MEASUREtype, ANYONE, GO_LEFT, False);
 			}
 			drag1stMeas = startMeas;
 			dragLastMeas = endMeas;
 			if (startMeas && endMeas && (startMeas != endMeas)) {
 				if (!SetupNMeasPorts(doc, startMeas, endMeas)) {
 					ErrDisposPorts();
-					return TRUE;
+					return True;
 				}
 			}
 			else if (!SetupMeasPorts(doc, measureL)) {
 				ErrDisposPorts();
-				return TRUE;
+				return True;
 			}
 			break;
 		default:
 			if (!SetupMeasPorts(doc, measureL)) {
 				ErrDisposPorts();
-				return TRUE;
+				return True;
 			}
 			break;
 	}
@@ -2591,5 +2588,5 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 	doc->selEndL = RightLINK(pL);
 	DisposMeasPorts();
 	
-	return TRUE;
+	return True;
 }

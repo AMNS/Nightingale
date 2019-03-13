@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.7b8)
 Nightingale Technical Note #1
-Don Byrd, rev. late January 2017
+Don Byrd, rev. mid Februrary 2017
 
 A general note:
 
@@ -16,6 +16,8 @@ computers: typically one or two megabytes. As a result:
 	multiple levels. Of course the cross links can become inconsistent.
 * For speed, Nightingale tries pretty hard not to redraw more than necessary. Of
 	course it can redraw _less_ than necesssary.
+* Nightingale's data structures -- in particular, the object list (see below) -- were
+	designed with heavy emphasis on saving memory.
 * Nightingale's file format closely resembles its in-memory data structures, making it
 	much harder to add functionality that requires keeping information around while
 	retaining backwards compatability.
@@ -139,11 +141,11 @@ other fields as well. */
 	LINK		firstSubObj;		/* link to first subObject */							\
 	DDIST		xd, yd;				/* position of object */								\
 	SignedByte	type;				/* (.+#10) object type */								\
-	Boolean		selected:1;			/* TRUE if any part of object selected */				\
-	Boolean		visible:1;			/* TRUE if any part of object is visible */				\
-	Boolean		soft:1;				/* TRUE if object is program-generated */				\
-	Boolean		valid:1;			/* TRUE if objRect (for Measures, measureBBox also) valid. */ \
-	Boolean		tweaked:1;			/* TRUE if object dragged or position edited with Get Info */ \
+	Boolean		selected:1;			/* True if any part of object selected */				\
+	Boolean		visible:1;			/* True if any part of object is visible */				\
+	Boolean		soft:1;				/* True if object is program-generated */				\
+	Boolean		valid:1;			/* True if objRect (for Measures, measureBBox also) valid. */ \
+	Boolean		tweaked:1;			/* True if object dragged or position edited with Get Info */ \
 	Boolean		spareFlag:1;		/* available for general use */							\
 	char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */		\
 	Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ 	\
@@ -155,9 +157,9 @@ other fields as well. */
 	LINK		next;				/* index of next subobj */								\
 	SignedByte	staffn;				/* staff number. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
 	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */		\
-	Boolean		selected:1;			/* TRUE if subobject is selected */						\
-	Boolean		visible:1;			/* TRUE if subobject is visible */						\
-	Boolean		soft:1;				/* TRUE if subobject is program-generated */
+	Boolean		selected:1;			/* True if subobject is selected */						\
+	Boolean		visible:1;			/* True if subobject is visible */						\
+	Boolean		soft:1;				/* True if subobject is program-generated */
 
 #define EXTOBJHEADER \
 	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
@@ -168,34 +170,34 @@ Object table (from vars.h)
 
 OBJDATA objTable[] = {
 	/*	objtype  justType	minEnt	maxEnt	objRectOrd */
-	HEADERtype,	0,			2,			MAXSTAVES+1,FALSE,
-	TAILtype,	J_IT,		0,			0,			FALSE,
-	SYNCtype,	J_IT,		1,			255,		TRUE,
-	RPTENDtype,	J_IT,		1,			MAXSTAVES,	TRUE,
-	PAGEtype,	J_STRUC,	0,			0,			FALSE,
+	HEADERtype,	0,			2,			MAXSTAVES+1,False,
+	TAILtype,	J_IT,		0,			0,			False,
+	SYNCtype,	J_IT,		1,			255,		True,
+	RPTENDtype,	J_IT,		1,			MAXSTAVES,	True,
+	PAGEtype,	J_STRUC,	0,			0,			False,
 
-	SYSTEMtype,	J_STRUC,	0,			0,			FALSE,
-	STAFFtype,	J_STRUC,	1,			MAXSTAVES,	FALSE,
-	MEASUREtype,J_IT,		1,			MAXSTAVES,	TRUE,
-	CLEFtype,	J_IP,		1,			MAXSTAVES,	TRUE,
-	KEYSIGtype,	J_IP,		1,			MAXSTAVES,	TRUE,
+	SYSTEMtype,	J_STRUC,	0,			0,			False,
+	STAFFtype,	J_STRUC,	1,			MAXSTAVES,	False,
+	MEASUREtype,J_IT,		1,			MAXSTAVES,	True,
+	CLEFtype,	J_IP,		1,			MAXSTAVES,	True,
+	KEYSIGtype,	J_IP,		1,			MAXSTAVES,	True,
 
-	TIMESIGtype,J_IP,		1,			MAXSTAVES,	TRUE,
-	BEAMSETtype,J_D,		2,			127,		FALSE,
-	CONNECTtype,J_D,		1,			MAXSTAVES,	TRUE,
-	DYNAMtype,	J_D,		1,			MAXSTAVES,	FALSE,
-	MODNRtype,	0,			0,			0,			FALSE,
+	TIMESIGtype,J_IP,		1,			MAXSTAVES,	True,
+	BEAMSETtype,J_D,		2,			127,		False,
+	CONNECTtype,J_D,		1,			MAXSTAVES,	True,
+	DYNAMtype,	J_D,		1,			MAXSTAVES,	False,
+	MODNRtype,	0,			0,			0,			False,
 
-	GRAPHICtype,J_D,		1,			255,		FALSE,
-	OTTAVAtype,	J_D,		1,			MAXINOTTAVA,TRUE,
-	SLURtype,	J_D,		1,			MAXCHORD,	FALSE,
-	TUPLETtype,	J_D,		2,			127,		FALSE,
-	GRSYNCtype,	J_IP,		1,			255,		TRUE,
-	TEMPOtype,	J_D,		0,			0,			FALSE,
-	SPACERtype,	J_IT,		0,			0,			TRUE,	
-	ENDINGtype,	J_D,		0,			0,			FALSE,
-	PSMEAStype, J_IT,		1,			MAXSTAVES,	TRUE,	
-	OBJtype,	J_STRUC,	0,			0,			FALSE
+	GRAPHICtype,J_D,		1,			255,		False,
+	OTTAVAtype,	J_D,		1,			MAXINOTTAVA,True,
+	SLURtype,	J_D,		1,			MAXCHORD,	False,
+	TUPLETtype,	J_D,		2,			127,		False,
+	GRSYNCtype,	J_IP,		1,			255,		True,
+	TEMPOtype,	J_D,		0,			0,			False,
+	SPACERtype,	J_IT,		0,			0,			True,	
+	ENDINGtype,	J_D,		0,			0,			False,
+	PSMEAStype, J_IT,		1,			MAXSTAVES,	True,	
+	OBJtype,	J_STRUC,	0,			0,			False
 };
 
 ---------------------------------------------------------------------------------------
@@ -211,8 +213,8 @@ void Browser(doc, headL, tailL)
 Document *doc; LINK headL, tailL;
 
 
-/* Ask user what info they want and display/check it.  Returns FALSE normally,
-TRUE if things are so badly screwed up that quitting immediately is desirable. */
+/* Ask user what info they want and display/check it.  Returns False normally,
+True if things are so badly screwed up that quitting immediately is desirable. */
 
 Boolean DoDebug(label, showWind)
 char	*label;						/* Identifying string to display */
@@ -285,15 +287,15 @@ Offset
 0	0000	LINK		next;			/* index of next subobj */
 2	01		SignedByte	staffn;			/* staff number */
 3	05		SignedByte	subType;		/* subType (l_dur): LG: <0=n measure rest, 0=unknown, >0=Logical (CMN) dur. code */
-4	40		Boolean		selected:1;		/* (.+4) TRUE if subobject is selected */
-			Boolean		visible:1;		/* TRUE if subobject is visible */
-			Boolean		soft:1;			/* TRUE if subobject is program-generated */
+4	40		Boolean		selected:1;		/* (.+4) True if subobject is selected */
+			Boolean		visible:1;		/* True if subobject is visible */
+			Boolean		soft:1;			/* True if subobject is program-generated */
 	(Everything else:)
-			Boolean		inChord:1;		/* TRUE if note is part of a chord */
-			Boolean		rest:1;			/* LGP: TRUE=rest (=> ignore accident, ystem, etc.) */
-			Boolean		unpitched:1;	/* LGP: TRUE=unpitched note */
-			Boolean		beamed:1;		/* TRUE if beamed */
-			Boolean		otherStemSide:1;	/* G: TRUE if note goes on "wrong" side of stem */
+			Boolean		inChord:1;		/* True if note is part of a chord */
+			Boolean		rest:1;			/* LGP: True=rest (=> ignore accident, ystem, etc.) */
+			Boolean		unpitched:1;	/* LGP: True=unpitched note */
+			Boolean		beamed:1;		/* True if beamed */
+			Boolean		otherStemSide:1;	/* G: True if note goes on "wrong" side of stem */
 	    
 5	EC		SHORTQD		yqpit;			/* LG: clef-independent dist. below middle C ("pitch") (unused for rests) */
 6	0000	DDIST		xd, yd;			/* G: head position */
@@ -305,8 +307,8 @@ Offset
 18	4E		Byte		noteNum;		/* P: MIDI note number (unused for rests) */
 19	4B		Byte		onVelocity;		/* P: MIDI note-on velocity, normally loudness (unused for rests) */
 20	40		Byte		offVelocity;	/* (.+20) P: MIDI note-off (release) velocity (unused for rests) */
-21	10		Boolean		tiedL:1;		/* TRUE if tied to left */
-			Boolean		tiedR:1;		/* TRUE if tied to right */
+21	10		Boolean		tiedL:1;		/* True if tied to left */
+			Boolean		tiedR:1;		/* True if tied to right */
 			Byte		ymovedots:2;	/* G: Y-offset on dot pos. (halflines, 2=same as note, except 0=invisible) */
 			Byte		ndots:4;		/* LG: No. of dots */
 22	01		SignedByte	voice;			/* L: Voice number */
@@ -320,11 +322,11 @@ Offset
 25	0B		Byte		headShape:5;	/* G: Special notehead or rest shape; see list below */
 			Byte		xmovedots:3;	/* G: x-offset on dot position (4=normal??) */
 26	0000	LINK		firstMod;		/* LG: Note-related symbols (articulation, fingering, etc.) */
-28	00		Byte		slurredL:2;		/* TRUE if endpoint of slur to left (extra bit for future use) */
-			Byte		slurredR:2;		/* TRUE if endpoint of slur to right (extra bit for future use) */
-			Byte		inTuplet:1;		/* TRUE if in a tuplet */
-			Byte		inOctava:1;		/* TRUE if in an octava */
-			Byte		small:1;		/* TRUE if a small (cue, etc.) note */
+28	00		Byte		slurredL:2;		/* True if endpoint of slur to left (extra bit for future use) */
+			Byte		slurredR:2;		/* True if endpoint of slur to right (extra bit for future use) */
+			Byte		inTuplet:1;		/* True if in a tuplet */
+			Byte		inOctava:1;		/* True if in an octava */
+			Byte		small:1;		/* True if a small (cue, etc.) note */
 			Byte		tempFlag:1;		/* temporary flag for benefit of functions that need it */
 29	00		SignedByte	fillerN;
 

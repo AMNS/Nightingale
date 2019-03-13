@@ -89,7 +89,7 @@ void SetClefFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydD
 		MoveClefHoriz(pL, subObjL, xdDiff);
 
 	InvalRange(pL, RightLINK(pL));
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -133,7 +133,7 @@ void SetKeySigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 	MoveKeySigHoriz(pL, subObjL, xdDiff);
 
 	InvalRange(pL, RightLINK(pL));
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -177,7 +177,7 @@ void SetTimeSigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 	MoveTimeSigHoriz(pL, subObjL, xdDiff);
 
 	InvalRange(pL, RightLINK(pL));
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -237,7 +237,7 @@ static void FixNoteAugDotPos(
 			LINK aNoteL,
 			short voiceRole,
 			Boolean stemDown,
-			Boolean lineNotesOnly)						/* TRUE=set position for "line" notes only */	
+			Boolean lineNotesOnly)						/* True=set position for "line" notes only */	
 {
 	short	halfSp, midCHalfSp;
 	Boolean lineNote, midCIsInSpace;
@@ -262,7 +262,7 @@ static LINK FindOttava(LINK pL, short staffn)
 {
 	LINK octL;
 	
-	octL = LSSearch(pL, OTTAVAtype, staffn, GO_LEFT, FALSE);
+	octL = LSSearch(pL, OTTAVAtype, staffn, GO_LEFT, False);
 	if (!octL) return NILINK;
 	
 	if (SyncInOTTAVA(pL, octL))
@@ -279,7 +279,7 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 					DDIST xdDiff, DDIST ydDiff,
 					short /*xp*/, short /*yp*/,
 					Boolean vert,
-					Boolean beam,		/* TRUE if dragging a beamset. */
+					Boolean beam,		/* True if dragging a beamset. */
 					short newAcc		/* The new accidental resulting from vertical dragging. */
 					)
 {
@@ -347,7 +347,7 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 		mainNoteL = FindMainNote(pL, v);
 		stemDown = (NoteYD(mainNoteL)<NoteYSTEM(mainNoteL));
 		voiceRole = doc->voiceTab[v].voiceRole;
-		FixNoteAugDotPos(context.clefType, subObjL, voiceRole, stemDown, FALSE);
+		FixNoteAugDotPos(context.clefType, subObjL, voiceRole, stemDown, False);
 
 		/* If this is a note in a chord, fix the entire chord's stems, notehead left/right
 			of stem positions, accidental positions, etc.; else just fix this note's
@@ -365,7 +365,7 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 												NFLAGS(NoteType(subObjL)),
 												stemDown,
 												context.staffHeight, context.staffLines,
-												qStemLen, FALSE);
+												qStemLen, False);
 			}
 		}
 	}
@@ -379,7 +379,7 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 	if (!vert) {
 		aNote = GetPANOTE(subObjL);
 		if (aNote->beamed) {
-			beamL = LVSearch(pL, BEAMSETtype, NoteVOICE(subObjL), TRUE, FALSE);
+			beamL = LVSearch(pL, BEAMSETtype, NoteVOICE(subObjL), True, False);
 			if (!beamL) {
 				MayErrMsg("SetNoteFields: no beamset for beamed note %ld", subObjL);
 				return;
@@ -393,13 +393,13 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 				<firstystem!=lastystem> in case the beam is cross staff. */
 
 			if (firstystem!=lastystem) {
-				InvalObject(doc, beamL, TRUE);
+				InvalObject(doc, beamL, True);
 				SDFixStemLengths(doc, beamL);
 			}
 		}
 	}
 
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -454,7 +454,7 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 						DDIST xdDiff, DDIST ydDiff,
 						short /*xp*/, short /*yp*/,
 						Boolean vert,
-						Boolean /*beam*/,		/* TRUE if dragging a beamset. */
+						Boolean /*beam*/,		/* True if dragging a beamset. */
 						short newAcc			/* The new accidental resulting from vertical dragging. */
 						)
 {
@@ -486,7 +486,7 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 
 		aGRNote = GetPAGRNOTE(subObjL);
 		if (!aGRNote->beamed && aGRNote->inChord)
-			FixGRSyncForChord(doc, pL, aGRNote->voice, aGRNote->beamed, 0, TRUE, NULL);
+			FixGRSyncForChord(doc, pL, aGRNote->voice, aGRNote->beamed, 0, True, NULL);
 
 		/* Update the new note accidental. */
 		midCHalfLn = ClefMiddleCHalfLn(context.clefType);			/* Get middle C staff pos. */		
@@ -522,7 +522,7 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 	if (!vert) {
 		aGRNote = GetPAGRNOTE(subObjL);
 		if (aGRNote->beamed) {
-			beamL = LSSearch(pL, BEAMSETtype, staffn, TRUE, FALSE);
+			beamL = LSSearch(pL, BEAMSETtype, staffn, True, False);
 			if (!beamL) MayErrMsg("SetGRNoteFields: no beamset for beamed note %ld",
 										(long)subObjL);
 			firstystem = GetGRystem(BeamVOICE(beamL), FirstInBeam(beamL));
@@ -534,7 +534,7 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 		}
 	}
 
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -573,7 +573,7 @@ void SetDynamicFields(LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short x
 		aDynamic->endyd += ydDiff;
 	}
 	
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 	
@@ -587,7 +587,7 @@ void SetRptEndFields(LINK pL, LINK /*subObjL*/, DDIST xdDiff, short xp)
 	p->xd += xdDiff;
 	OffsetRect(&LinkOBJRECT(pL),xp,0);
 
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -609,7 +609,7 @@ void SetEndingFields(Document *doc, LINK pL, LINK /*subObjL*/, DDIST xdDiff, DDI
 	p->yd += ydDiff;
 	OffsetRect(&LinkOBJRECT(pL),xp,yp);
 
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -643,7 +643,7 @@ long SetMeasureFields(Document *doc, LINK pL, DDIST xdDiff)
 		an error will result when the prevMeas is found on the previous
 		system, or NILINK, if no prevSys. */
 
-	prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, TRUE, FALSE);
+	prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, True, False);
 	oldMWidth = (long)(LinkXD(pL) - LinkXD(prevMeasL));
 	qL = LastObjInSys(doc, pL);				
 	MoveMeasures(pL, RightLINK(qL), xdDiff);
@@ -651,9 +651,9 @@ long SetMeasureFields(Document *doc, LINK pL, DDIST xdDiff)
 	/* Update the measure rects of the measures in the system of the
 		dragged barline. */
 	newMWidth = (long)(LinkXD(pL) - LinkXD(prevMeasL));
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 
-	pSystemL = LSSearch(pL, SYSTEMtype, doc->currentSystem, TRUE, FALSE);
+	pSystemL = LSSearch(pL, SYSTEMtype, doc->currentSystem, True, False);
 	pSystem = GetPSYSTEM(pSystemL);
 
 	sysWidth = pSystem->systemRect.right-pSystem->systemRect.left;
@@ -682,7 +682,7 @@ void SetPSMeasFields(Document */*doc*/, LINK pL, DDIST xdDiff)
 	LinkXD(pL) += xdDiff;
 	OffsetRect(&LinkOBJRECT(pL), d2p(xdDiff), 0);
 
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -699,7 +699,7 @@ void SetTupletFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 	p->ydLast += ydDiff;
 	OffsetRect(&LinkOBJRECT(pL), xp, yp);
 
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -716,7 +716,7 @@ void SetOttavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 	p->ydLast += ydDiff;
 	OffsetRect(&LinkOBJRECT(pL), xp, yp);
 
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -735,7 +735,7 @@ void SetGraphicFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 		p->info2 += ydDiff;
 	}
 	OffsetRect(&LinkOBJRECT(pL), xp, yp);
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -750,7 +750,7 @@ void SetTempoFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 	p->xd += xdDiff;
 	p->yd += ydDiff;
 	OffsetRect(&LinkOBJRECT(pL), xp, yp);
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 
 
@@ -810,13 +810,13 @@ void SetForNewPitch(Document *doc,
 			
 	if (SyncTYPE(pL)) {
 		if (NoteTIEDL(subObjL)) {
-			slurL = LeftSlurSearch(pL, NoteVOICE(subObjL), TRUE);
+			slurL = LeftSlurSearch(pL, NoteVOICE(subObjL), True);
 			DeleteSlurTie(doc, slurL);
 		}
 		if (NoteTIEDR(subObjL)) {
 			startL = LeftLINK(pL);
 			for ( ; pL && J_DTYPE(pL); pL = LeftLINK(pL)) ;
-			slurL = LVSearch(startL, SLURtype, NoteVOICE(subObjL), GO_RIGHT, FALSE);
+			slurL = LVSearch(startL, SLURtype, NoteVOICE(subObjL), GO_RIGHT, False);
 			DeleteSlurTie(doc, slurL);
 		}
 
@@ -824,13 +824,13 @@ void SetForNewPitch(Document *doc,
 		oldPitchLev = qd2halfLn(aNote->yqpit)+ClefMiddleCHalfLn(context.clefType);
 		ydDiff = halfLn2d(pitchLev-oldPitchLev, context.staffHeight, context.staffLines);
 		yp = d2p(ydDiff);
-		SetNoteFields(doc, pL, subObjL, 0, ydDiff, 0, yp, TRUE, FALSE, acc);
+		SetNoteFields(doc, pL, subObjL, 0, ydDiff, 0, yp, True, False, acc);
 	}
 	else {
 		aGRNote = GetPAGRNOTE(subObjL);
 		oldPitchLev = qd2halfLn(aGRNote->yqpit)+ClefMiddleCHalfLn(context.clefType);
 		ydDiff = halfLn2d(pitchLev-oldPitchLev, context.staffHeight, context.staffLines);
 		yp = d2p(ydDiff);
-		SetGRNoteFields(doc, pL, subObjL, 0, ydDiff, 0, yp, TRUE, FALSE, acc);
+		SetGRNoteFields(doc, pL, subObjL, 0, ydDiff, 0, yp, True, False, acc);
 	}
 }

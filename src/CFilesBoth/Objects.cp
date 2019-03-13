@@ -1,6 +1,6 @@
-/***************************************************************************
+/******************************************************************************************
 	FILE:	Objects.c
-	PROJ:	Nightingale, rev. for v. 99
+	PROJ:	Nightingale
 	DESC:	Object-level routines, mostly for specific object types. Most
 			generic object-handling routines are in Copy.c, CrossLinks.c, and
 			DSUtils.c.
@@ -20,14 +20,14 @@
 		GetGRCYStem				FixGRChordForYStem		FixGRSyncForChord
 		FixGRSyncNote			FixGRSyncForNoChord		FixAugDotPos
 		ToggleAugDotPos
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -51,7 +51,7 @@ LINK CopyModNRList(Document *srcDoc, Document *dstDoc, LINK firstModNRL)
 {
 	LINK aModNRL, newModNRList, prevModNRL, newModNRL;
 	PAMODNR pModNR, pNewModNR;
-	HEAP *srcHeap,*dstHeap;
+	HEAP *srcHeap, *dstHeap;
 	
 	newModNRList = NILINK;
 	srcHeap = srcDoc->Heap+MODNRtype;
@@ -59,11 +59,9 @@ LINK CopyModNRList(Document *srcDoc, Document *dstDoc, LINK firstModNRL)
 	for (aModNRL=firstModNRL; aModNRL; aModNRL=DNextMODNRL(srcDoc,aModNRL)) {
 		newModNRL = HeapAlloc(dstHeap, 1);
 		if (!newModNRL) MayErrMsg("CopyModNRList: HeapAlloc failed.");
-		if (!newModNRList)
-			newModNRList = newModNRL;
-		else
-			DNextMODNRL(dstDoc,prevModNRL) = newModNRL;
-		pModNR    = (PAMODNR)LinkToPtr(srcHeap,aModNRL);
+		if (!newModNRList)	newModNRList = newModNRL;
+		else				DNextMODNRL(dstDoc,prevModNRL) = newModNRL;
+		pModNR = (PAMODNR)LinkToPtr(srcHeap,aModNRL);
 		pNewModNR = (PAMODNR)LinkToPtr(dstHeap,newModNRL);
 		BlockMove(pModNR, pNewModNR, sizeof(AMODNR));
 		prevModNRL = newModNRL;
@@ -72,15 +70,15 @@ LINK CopyModNRList(Document *srcDoc, Document *dstDoc, LINK firstModNRL)
 }
 
 
-/* -------------------------------------------------------------- DuplicateObject -- */
+/* ------------------------------------------------------------------- DuplicateObject -- */
 /* Given a LINK to an object of a given type, allocate another duplicate object
 from the Object Heap, and duplicate the subobject list as well.  If selectedOnly
-is TRUE, then only duplicate those subobjects that are selected in the original;
+is True, then only duplicate those subobjects that are selected in the original;
 if no subobjects are selected, don't duplicate anything and return NILINK.
 Exception: if the object is of HEADERtype, all subobjects are always duplicated.
 If keepGraphics and object is a Graphic, its string is not duplicated: rather, the
 new object has the same stringOffset as the original. ??NB: If the object is not
-selected and is of a type that sets subsNeeded=FALSE, it's always duplicated,
+selected and is of a type that sets subsNeeded=False, it's always duplicated,
 regardless of <selectedOnly>! This is probably a bug: these types should be handled
 the way GRAPHICs and TEMPOs are. ??NB2: For an "extended object", it appears that
 <selectedOnly> looks at, not the object's subobjects' selection status, but that of
@@ -89,19 +87,19 @@ the Syncs it refers to! Maybe this should be changed, but it wouldn't be easy.
 Returns the LINK to the duplicate object, or NILINK if a problem (probably out of
 memory). */
 
-LINK DuplicateObject(short type, LINK objL, Boolean selectedOnly,
-							Document *srcDoc, Document *dstDoc,
-							Boolean keepGraphics)
+LINK DuplicateObject(short type, LINK objL, Boolean selectedOnly, Document *srcDoc,
+							Document *dstDoc, Boolean keepGraphics)
 {
 	HEAP *myHeap,*srcHeap,*dstHeap;
 	short subcount = 0;
 	LINK subL,newSubL;
 	LINK newObjL,tmpL,firstSubObj;
-	GenSubObj *pSub,*pNewSub; PMEVENT pObj,pNewObj;
-	Boolean subsNeeded = TRUE;
+	GenSubObj *pSub,*pNewSub;
+	PMEVENT pObj,pNewObj;
+	Boolean subsNeeded = True;
 	
 #ifdef DODEBUG
-LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
+LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 #endif
 
 	if (objL==NILINK) {
@@ -123,7 +121,7 @@ LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 		case PAGEtype:
 		case SYSTEMtype:
 		case TAILtype:
-			subsNeeded = FALSE;
+			subsNeeded = False;
 			break;
 
 		case STAFFtype: {
@@ -208,7 +206,7 @@ LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			break;
 		case SPACERtype:
 		case ENDINGtype:
-			subsNeeded = FALSE;
+			subsNeeded = False;
 			break;
 		case OTTAVAtype: {
 			LINK aNoteOctL, opSyncL, aNoteL;
@@ -255,8 +253,8 @@ LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 	
 #ifdef DODEBUG
 if (type==TEMPOtype) {
-LogPrintf(LOG_NOTICE, "\tSub-object list is %d long\n", subcount);
-LogPrintf(LOG_NOTICE, "\tsubsNeeded=%d\n", subsNeeded);
+LogPrintf(LOG_DEBUG, "\tSub-object list is %d long\n", subcount);
+LogPrintf(LOG_DEBUG, "\tsubsNeeded=%d\n", subsNeeded);
 }
 #endif
 	if (subcount<=0 && subsNeeded) return NILINK;
@@ -269,14 +267,6 @@ LogPrintf(LOG_NOTICE, "\tsubsNeeded=%d\n", subsNeeded);
 
 	if (newObjL == NILINK) return NILINK;
 	
-/*
-LogPrintf(LOG_NOTICE, "\tLINK of new Object = %d\n",newObjL);
-LogPrintf(LOG_NOTICE, "\tsizeof(SUPEROBJECT) = %ld\n",(long)sizeof(SUPEROBJECT));
-LogPrintf(LOG_NOTICE, "\tsizeof(Object from OBJheap) = %ld\n",(long)OBJheap->objSize);
-LogPrintf(LOG_NOTICE, "\tsizeof(ANOTE) = %ld\n",(long)sizeof(ANOTE));
-LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap->objSize);
-*/
-
 	/* Copy obj's information into newObj's information */
 	
 	pObj    = (PMEVENT)LinkToPtr(srcDoc->Heap+OBJtype,objL);
@@ -298,7 +288,7 @@ LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap
 	
 	/* Loop through the subobject lists, copying the internal information */
 
-	subL 	  = DFirstSubLINK(srcDoc,objL);
+	subL = DFirstSubLINK(srcDoc,objL);
 	newSubL = DFirstSubLINK(dstDoc,newObjL);
 	switch (DObjLType(srcDoc,objL)) {
 		case HEADERtype: {
@@ -327,9 +317,9 @@ LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap
 				aStaff = DGetPASTAFF(srcDoc,subL);
 				newStaff = DGetPASTAFF(dstDoc,newSubL);
 				if (DStaffSEL(srcDoc,subL) || !selectedOnly) {
-					tmpL = DNextSTAFFL(dstDoc,newSubL);		/* Save it before it gets wiped out */
+					tmpL = DNextSTAFFL(dstDoc,newSubL);			/* Save it before it gets wiped out */
 					BlockMove(aStaff, newStaff, (long)subObjLength[type]);
-					newStaff->next = newSubL = tmpL;		/* Restore and move on */
+					newStaff->next = newSubL = tmpL;			/* Restore and move on */
 				}
 				subL = DNextSTAFFL(srcDoc,subL);
 			}
@@ -344,7 +334,7 @@ LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap
 				if (DConnectSEL(srcDoc,subL) || !selectedOnly) {
 					tmpL = DNextCONNECTL(dstDoc,newSubL);		/* Save it before it gets wiped out */
 					BlockMove(aConnect, newConnect, (long)subObjLength[type]);
-					newConnect->next = newSubL = tmpL;		/* Restore and move on */
+					newConnect->next = newSubL = tmpL;			/* Restore and move on */
 				}
 				subL = DNextCONNECTL(srcDoc,subL);
 			}
@@ -358,7 +348,7 @@ LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap
 				aNote = DGetPANOTE(srcDoc,subL);
 				newNote = DGetPANOTE(dstDoc,newSubL);
 				if (DNoteSEL(srcDoc,subL) || !selectedOnly) {
-					tmpL = DNextNOTEL(dstDoc,newSubL);		/* Save it before it gets wiped out */
+					tmpL = DNextNOTEL(dstDoc,newSubL);			/* Save it before it gets wiped out */
 					BlockMove(aNote, newNote, (long)subObjLength[type]);
 					newNote->next = tmpL;
 					if (newNote->firstMod) {
@@ -387,9 +377,9 @@ LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap
 				pSub    = (GenSubObj *)LinkToPtr(srcHeap,subL);
 				pNewSub = (GenSubObj *)LinkToPtr(dstHeap,newSubL);
 				if (pSub->selected || !selectedOnly) {
-					tmpL = NextLink(dstHeap,newSubL);		/* Save it before it gets wiped out */
+					tmpL = NextLink(dstHeap,newSubL);			/* Save it before it gets wiped out */
 					BlockMove(pSub, pNewSub, (long)subObjLength[type]);
-					pNewSub->next = newSubL = tmpL;		/* Restore and move on */
+					pNewSub->next = newSubL = tmpL;				/* Restore and move on */
 				}
 				subL = NextLink(srcHeap,subL);
 			}
@@ -402,9 +392,9 @@ LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap
 				aSlur = DGetPASLUR(srcDoc,subL);
 				newSlur = DGetPASLUR(dstDoc,newSubL);
 				if (DSlurSEL(srcDoc,subL) || !selectedOnly) {
-					tmpL = DNextSLURL(dstDoc,newSubL);		/* Save it before it gets wiped out */
+					tmpL = DNextSLURL(dstDoc,newSubL);			/* Save it before it gets wiped out */
 					BlockMove(aSlur, newSlur, (long)subObjLength[type]);
-					newSlur->next = newSubL = tmpL;		/* Restore and move on */
+					newSlur->next = newSubL = tmpL;				/* Restore and move on */
 				}
 				subL = DNextSLURL(srcDoc,subL);
 			}
@@ -452,7 +442,8 @@ LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap
 
 		case GRAPHICtype: {
 			PAGRAPHIC aGraphic, newGraphic;
-			StringPoolRef currentPool; unsigned char *graphicString;
+			StringPoolRef currentPool;
+			unsigned char *graphicString;
 			STRINGOFFSET stringOff;
 			
 			if (!keepGraphics) {
@@ -569,16 +560,16 @@ PopLock(dstDoc->Heap+OBJtype);
 }
 
 
-/* -------------------------------------------------------------------- DuplicNC -- */
-/* Given a LINK to a Sync, create another Sync that is identical except that it
-includes only the subobjects in the given voice. Returns the LINK to the duplicate
-Sync, or NILINK if there's a problem. */
+/* -------------------------------------------------------------------------- DuplicNC -- */
+/* Given a LINK to a Sync, create another Sync that is identical except that it includes
+only the subobjects in the given voice, i.e., it duplicates the note or chord. Returns
+the LINK to the duplicate Sync, or NILINK if there's a problem. */
 
 LINK DuplicNC(Document *doc, LINK syncL, short voice)
 {
 	LINK copyL, aNoteL, tempL;
 	
-	copyL = DuplicateObject(SYNCtype, syncL, FALSE, doc, doc, FALSE);
+	copyL = DuplicateObject(SYNCtype, syncL, False, doc, doc, False);
 
 	if (copyL==NILINK)
 		NoMoreMemory();
@@ -599,30 +590,26 @@ LINK DuplicNC(Document *doc, LINK syncL, short voice)
 }
 
 
-/* ------------------------------------------------------- InitObject, SetObject -- */
+/* ------------------------------------------------------------- InitObject, SetObject -- */
 
-void InitObject(
-				LINK link, LINK left, LINK right,
-				DDIST xd, DDIST yd,
-				Boolean selected, Boolean visible, Boolean soft)
+void InitObject(LINK link, LINK left, LINK right, DDIST xd, DDIST yd,
+					Boolean selected, Boolean visible, Boolean soft)
 {
 	PMEVENT p;
 	
 	p = GetPMEVENT(link);
 	p->left = left;
 	p->right = right;
-	p->tweaked = FALSE;
+	p->tweaked = False;
 	p->relSize = 0;
-	p->spareFlag = FALSE;
+	p->spareFlag = False;
 	p->ohdrFiller1 = 0;
 	p->ohdrFiller2 = 0;
 	SetObject(link, xd, yd, selected, visible, soft);
 }
 
 
-void SetObject(
-				LINK link,
-				DDIST xd, DDIST yd,
+void SetObject(LINK link, DDIST xd, DDIST yd,
 				Boolean selected, Boolean visible, Boolean soft)
 {
 	PMEVENT p;
@@ -636,7 +623,7 @@ void SetObject(
 }
 
 
-/* ------------------------------------------------------------------ GrowObject -- */
+/* ---------------------------------------------------------------------- GrowObject -- */
 /* GrowObject changes the size of an object by a specified number of subobjects and
 updates data structure cross-links appropriately. */
 	
@@ -648,7 +635,7 @@ LINK GrowObject(Document *doc,
 	PMEASURE 	pMeasure, lMeasure, rMeasure;
 	PMEVENT		q;
 	PRPTEND		pRptEnd, startRpt, endRpt;
-	LINK 			staffL, qL, subListL;
+	LINK 		staffL, qL, subListL;
 
 	/* Grow the node generically. */
 	
@@ -664,7 +651,7 @@ LINK GrowObject(Document *doc,
 		case STAFFtype:
 			staffL = pL;
 			pStaff = GetPSTAFF(pL);
-			if (pStaff->lStaff) {													/* Update pointers */
+			if (pStaff->lStaff) {										/* Update pointers */
 				lStaff = GetPSTAFF(pStaff->lStaff);
 				lStaff->rStaff = staffL;
 			}
@@ -720,7 +707,7 @@ LINK GrowObject(Document *doc,
 }
 
 
-/* --------------------------------------------------------------- SimplePlayDur -- */
+/* --------------------------------------------------------------------- SimplePlayDur -- */
 /* Compute the "simple" playback duration of a note/rest, ignoring tuplet
 membership and whole-measure and multibar rests. */
 
@@ -730,7 +717,7 @@ long SimplePlayDur(LINK aNoteL)
 }
 
 
-/* ----------------------------------------------------------------- CalcPlayDur -- */
+/* ----------------------------------------------------------------------- CalcPlayDur -- */
 /* Return the playback duration in PDUR ticks of the given note. Handles whole-
 measure and multibar rests, tuplet membership, and unknown duration. In the latter
 case, we set this note's play duration to that of the first note we find in its
@@ -738,22 +725,22 @@ voice and Sync; if there is no such note, it's an error. */
 
 short CalcPlayDur(LINK syncL, LINK aNoteL, char lDur, Boolean isRest, PCONTEXT pContext)
 {
-	short playDur; LINK bNoteL; PANOTE bNote;
+	short playDur;  LINK bNoteL;  PANOTE bNote;
 	
 	if (isRest && lDur<=WHOLEMR_L_DUR) {
 		playDur = TimeSigDur(pContext->timeSigType,				/* Whole rest: duration=measure dur. */
-									pContext->numerator,
-									pContext->denominator);
+								pContext->numerator,
+								pContext->denominator);
 		playDur *= ABS(lDur);
 		return playDur;
 	}
 
 	if (lDur!=UNKNOWN_L_DUR) {
-		playDur = SimplePlayDur(aNoteL);								/* Known duration */
+		playDur = SimplePlayDur(aNoteL);						/* Known duration */
 		return playDur;
 	}
 
-	bNoteL = FirstSubLINK(syncL);										/* Must be unknown duration */
+	bNoteL = FirstSubLINK(syncL);								/* Must be unknown duration */
 	for ( ; bNoteL; bNoteL = NextNOTEL(bNoteL))
 		if (NoteVOICE(bNoteL)==NoteVOICE(aNoteL)) {
 			bNote = GetPANOTE(bNoteL);
@@ -766,50 +753,50 @@ short CalcPlayDur(LINK syncL, LINK aNoteL, char lDur, Boolean isRest, PCONTEXT p
 }
 
 
-/* -------------------------------------------------------------- IsRestPosLower -- */
+/* -------------------------------------------------------------------- IsRestPosLower -- */
 
 static Boolean IsRestPosLower(
 				Document *doc,
 				short staff,
-				short voiceRole 	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+				short voiceRole 	/* VCROLE_UPPER, etc. */
 				)
 {
-	LINK partL; PPARTINFO pPart;
+	LINK partL;  PPARTINFO pPart;
 
 	switch (voiceRole) {
-		case CROSS_DI:
+		case VCROLE_CROSS:
 			partL = FindPartInfo(doc, Staff2Part(doc, staff));
 			pPart = GetPPARTINFO(partL);
 			return (staff==pPart->firstStaff);
 		default:
-			return (voiceRole==LOWER_DI);
+			return (voiceRole==VCROLE_LOWER);
 	}
 }
 
 
-/* ------------------------------------------------------------------- SetupNote -- */
+/* ------------------------------------------------------------------------- SetupNote -- */
 /* Setup a vanilla (what some people call "B-flat") note or rest. If it has an
 accidental, also handle its effect on following notes by calling InsNoteFixAccs
 (though something that high-level probably shouldn't be done here). */
 
 LINK SetupNote(
-				Document *doc,
-				LINK syncL, LINK aNoteL,
-				char staffn,
-				short halfLn,					/* Relative to the top of the staff */
-				char lDur, short ndots,
-				char voice,
-				Boolean isRest,
-				short accident,
-				short octType
-				)
+		Document *doc,
+		LINK syncL, LINK aNoteL,
+		char staffn,
+		short halfLn,					/* Relative to the top of the staff */
+		char lDur, short ndots,
+		char voice,
+		Boolean isRest,
+		short accident,
+		short octType
+		)
 {
-	PANOTE		aNote;
-	short			voiceRole, midCHalfLn, effectiveAcc, playDur;
-	QDIST			qStemLen;
-	CONTEXT		context;							/* current context */
-	SHORTQD		yqpit;
-	Boolean		makeLower;
+	PANOTE	aNote;
+	short	voiceRole, midCHalfLn, effectiveAcc, playDur;
+	QDIST	qStemLen;
+	CONTEXT	context;							/* current context */
+	SHORTQD	yqpit;
+	Boolean	makeLower;
 	
 PushLock(NOTEheap);
 	GetContext(doc, syncL, staffn, &context);
@@ -819,9 +806,9 @@ PushLock(NOTEheap);
 	aNote = GetPANOTE(aNoteL);
 	aNote->staffn = staffn;
 	aNote->voice = voice;								/* Must set before calling GetStemInfo */
-	aNote->selected = FALSE;
-	aNote->visible = TRUE;
-	aNote->soft = FALSE;
+	aNote->selected = False;
+	aNote->visible = True;
+	aNote->soft = False;
 	aNote->xd = 0;
 	aNote->rest = isRest;
 
@@ -829,10 +816,10 @@ PushLock(NOTEheap);
 		makeLower = IsRestPosLower(doc, staffn, voiceRole);
 		yqpit = GetRestMultivoiceRole(&context, voiceRole, makeLower);
 		aNote->yd = qd2d(yqpit, context.staffHeight, context.staffLines);
-		aNote->yqpit = -1;												/* No QDIST pitch */
-		aNote->accident = 0;											/* No accidental */
-		aNote->noteNum = 0;												/* No MIDI note number */
-		aNote->ystem = 0;												/* No stem end pos. */
+		aNote->yqpit = -1;										/* No QDIST pitch */
+		aNote->accident = 0;									/* No accidental */
+		aNote->noteNum = 0;										/* No MIDI note number */
+		aNote->ystem = 0;										/* No stem end pos. */
 	}
 	else {
 		yqpit = halfLn2qd(halfLn);
@@ -850,10 +837,8 @@ PushLock(NOTEheap);
 		else
 			aNote->noteNum = Pitch2MIDI(midCHalfLn-halfLn, effectiveAcc);
 		makeLower = GetStemInfo(doc, syncL, aNoteL, &qStemLen);
-		aNote->ystem = CalcYStem(doc, aNote->yd, NFLAGS(lDur),
-												makeLower,
-												context.staffHeight, context.staffLines,
-												qStemLen, FALSE);
+		aNote->ystem = CalcYStem(doc, aNote->yd, NFLAGS(lDur), makeLower,
+									context.staffHeight, context.staffLines, qStemLen, False);
 	}
 
 	aNote->onVelocity = dynam2velo[context.dynamicType];
@@ -878,26 +863,27 @@ PushLock(NOTEheap);
 	playDur = CalcPlayDur(syncL, aNoteL, lDur, isRest, &context);
 	aNote = GetPANOTE(aNoteL);
 	aNote->playDur = playDur;
-	aNote->pTime = 0;														/* Used by Tuplet routines */
+	aNote->pTime = 0;											/* Used by Tuplet routines */
 	
-	aNote->inChord = FALSE;
-	aNote->unpitched = FALSE;
-	aNote->beamed = FALSE;
-	aNote->otherStemSide = FALSE;
-	aNote->rspIgnore = FALSE;	
-	aNote->accSoft = FALSE;
+	aNote->inChord = False;
+	aNote->unpitched = False;
+	aNote->beamed = False;
+	aNote->otherStemSide = False;
+	aNote->rspIgnore = False;	
+	aNote->accSoft = False;
+	aNote->playAsCue = False;
 	aNote->micropitch = 0;
 	aNote->xmoveAcc = DFLT_XMOVEACC;
 	aNote->courtesyAcc = 0;
-	aNote->doubleDur = FALSE;
+	aNote->doubleDur = False;
 	aNote->headShape = NORMAL_VIS;
 	aNote->firstMod = NILINK;
-	aNote->tiedR = aNote->tiedL = FALSE;
-	aNote->slurredR = aNote->slurredL = FALSE;
-	aNote->inTuplet = FALSE;
-	aNote->inOttava = FALSE;
-	aNote->small = FALSE;
-	aNote->tempFlag = FALSE;
+	aNote->tiedR = aNote->tiedL = False;
+	aNote->slurredR = aNote->slurredL = False;
+	aNote->inTuplet = False;
+	aNote->inOttava = False;
+	aNote->small = False;
+	aNote->tempFlag = False;
 	aNote->fillerN = 0;
 	
 PopLock(NOTEheap);
@@ -905,7 +891,7 @@ PopLock(NOTEheap);
 }
 
 
-/* ----------------------------------------------------------------- SetupGRNote -- */
+/* ----------------------------------------------------------------------- SetupGRNote -- */
 /* Set up a vanilla (what some people call "B-flat") grace note. If it has an
 accidental, also handle its effect on following notes by calling InsNoteFixAccs
 (though something that high-level probably shouldn't be done here). */
@@ -921,8 +907,8 @@ LINK SetupGRNote(
 				short octType
 				)
 {
-	PAGRNOTE		aGRNote;
-	short			midCHalfLn, effectiveAcc;
+	PAGRNOTE	aGRNote;
+	short		midCHalfLn, effectiveAcc;
 	CONTEXT		context;
 	SHORTQD		yqpit;
 	
@@ -932,11 +918,11 @@ PushLock(GRNOTEheap);
 	aGRNote = GetPAGRNOTE(aGRNoteL);
 	aGRNote->staffn = staffn;
 	aGRNote->voice = voice;								/* Must set before calling GetGRStemInfo */
-	aGRNote->selected = FALSE;
-	aGRNote->visible = TRUE;
-	aGRNote->soft = FALSE;
+	aGRNote->selected = False;
+	aGRNote->visible = True;
+	aGRNote->soft = False;
 	aGRNote->xd = 0;
-	aGRNote->rest = FALSE;
+	aGRNote->rest = False;
 
 	yqpit = halfLn2qd(halfLn);
 	aGRNote->yd = qd2d(yqpit, context.staffHeight,
@@ -954,9 +940,9 @@ PushLock(GRNOTEheap);
 	else
 		aGRNote->noteNum = Pitch2MIDI(midCHalfLn-halfLn, effectiveAcc);
 	aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(lDur),
-										FALSE,											/* Always stem up */
-										context.staffHeight, context.staffLines,
-										config.stemLenGrace, TRUE);
+									False,						/* Always stem up */
+									context.staffHeight, context.staffLines,
+									config.stemLenGrace, True);
 
 	aGRNote->onVelocity = dynam2velo[context.dynamicType];
 	aGRNote->offVelocity = config.noteOffVel;
@@ -967,24 +953,24 @@ PushLock(GRNOTEheap);
 
 	aGRNote->playTimeDelta = 0;
 	aGRNote->playDur = SimpleGRLDur(aGRNoteL);
-	aGRNote->pTime = 0;																/* Not used for grace notes */
-	aGRNote->inChord = FALSE;
-	aGRNote->unpitched = FALSE;
-	aGRNote->beamed = FALSE;
-	aGRNote->otherStemSide = FALSE;
-	aGRNote->accSoft = FALSE;
+	aGRNote->pTime = 0;											/* Not used for grace notes */
+	aGRNote->inChord = False;
+	aGRNote->unpitched = False;
+	aGRNote->beamed = False;
+	aGRNote->otherStemSide = False;
+	aGRNote->accSoft = False;
 	aGRNote->micropitch = 0;
 	aGRNote->xmoveAcc = DFLT_XMOVEACC;
 	aGRNote->headShape = NORMAL_VIS;
 	aGRNote->courtesyAcc = 0;
-	aGRNote->doubleDur = FALSE;
+	aGRNote->doubleDur = False;
 	aGRNote->firstMod = NILINK;
-	aGRNote->tiedR = aGRNote->tiedL = FALSE;
-	aGRNote->slurredR = aGRNote->slurredL = FALSE;
-	aGRNote->inTuplet = FALSE;
-	aGRNote->inOttava = FALSE;
-	aGRNote->small = FALSE;
-	aGRNote->tempFlag = FALSE;
+	aGRNote->tiedR = aGRNote->tiedL = False;
+	aGRNote->slurredR = aGRNote->slurredL = False;
+	aGRNote->inTuplet = False;
+	aGRNote->inOttava = False;
+	aGRNote->small = False;
+	aGRNote->tempFlag = False;
 	aGRNote->fillerN = 0;
 	
 PopLock(GRNOTEheap);
@@ -992,7 +978,7 @@ PopLock(GRNOTEheap);
 }
 
 
-/* -------------------------------------------------------------------- InitPart -- */
+/* -------------------------------------------------------------------------- InitPart -- */
 /* Initialize a garden-variety Part subobject. */
 
 void InitPart(LINK partL, short firstStaff, short lastStaff)
@@ -1029,7 +1015,7 @@ PopLock(PARTINFOheap);
 }
 
 
-/* ------------------------------------------------------------------- InitStaff -- */
+/* ------------------------------------------------------------------------- InitStaff -- */
 /* Initialize a garden-variety staff subobject. */
 
 void InitStaff(LINK aStaffL, short staff, short top, short left, short right,
@@ -1039,8 +1025,8 @@ void InitStaff(LINK aStaffL, short staff, short top, short left, short right,
 	
 	aStaff = GetPASTAFF(aStaffL);
 	aStaff->staffn = staff;
-	aStaff->selected = FALSE;		/* ??WHY ISN'T THIS NEEDED FOR OTHER SUBOBJS? */
-	aStaff->visible = TRUE;
+	aStaff->selected = False;		/* ??WHY ISN'T THIS NEEDED FOR OTHER SUBOBJS? */
+	aStaff->visible = True;
 	aStaff->fillerStf = 0;
 	aStaff->staffTop = top;
 	aStaff->staffLeft = left;
@@ -1048,7 +1034,7 @@ void InitStaff(LINK aStaffL, short staff, short top, short left, short right,
 	aStaff->staffHeight = height;
 	aStaff->staffLines = lines;
 	aStaff->showLines = showLines;
-	aStaff->showLedgers = TRUE;
+	aStaff->showLedgers = True;
 	aStaff->fontSize = Staff2MFontSize(height);
 	aStaff->flagLeading = 0;							/* no longer used */
 	aStaff->minStemFree = 0;							/* no longer used */
@@ -1060,7 +1046,7 @@ void InitStaff(LINK aStaffL, short staff, short top, short left, short right,
 } 
 
 
-/* -------------------------------------------------------------------- InitClef -- */
+/* -------------------------------------------------------------------------- InitClef -- */
 /*	Initialize a garden-variety clef subobject. */
 
 void InitClef(LINK aClefL, short staff, DDIST xd, short clefType)
@@ -1072,14 +1058,14 @@ void InitClef(LINK aClefL, short staff, DDIST xd, short clefType)
 	aClef->small = 0;
 	aClef->xd = xd;
 	aClef->yd = 0;
-	aClef->visible = TRUE;
+	aClef->visible = True;
 	aClef->subType = clefType;
 	aClef->filler1 = aClef->filler2 = 0;
 }
 
 
-/* ------------------------------------------------------------------ InitKeySig -- */
-/*	Initialize a garden-variety key signature subobject. Caveat: does NOT fill in
+/* ------------------------------------------------------------------------ InitKeySig -- */
+/*	Initialize a garden-variety key signature subobject. Caveat: doesn't fill in
 the no. of sharps/flats and what they are! For that, use SetupKeySig. */
 
 void InitKeySig(LINK aKeySigL, short staff, DDIST xd, short nKSItems)
@@ -1091,15 +1077,15 @@ void InitKeySig(LINK aKeySigL, short staff, DDIST xd, short nKSItems)
 	aKeySig->small = 0;
 	aKeySig->xd = xd;
 	aKeySig->visible = (nKSItems!=0);				/* Keysig of no sharps/flats is invisible */
-	aKeySig->soft = FALSE;
-	aKeySig->nKSItems = 0;								/* Must be filled in later */
-	aKeySig->subType = 0;								/* May be filled in later */
+	aKeySig->soft = False;
+	aKeySig->nKSItems = 0;							/* Must be filled in later */
+	aKeySig->subType = 0;							/* May be filled in later */
 	aKeySig->nonstandard = 0;
 	aKeySig->filler1 = aKeySig->filler2 = 0;
 }
 
 
-/* ------------------------------------------------------------------- AddKSItem -- */
+/* ------------------------------------------------------------------------- AddKSItem -- */
 
 static void AddKSItem(LINK aKeySigL, Boolean isSharp, short n, short line)
 {
@@ -1111,7 +1097,7 @@ static void AddKSItem(LINK aKeySigL, Boolean isSharp, short n, short line)
 }
 
 
-/* ----------------------------------------------------------------- SetupKeySig -- */
+/* ----------------------------------------------------------------------- SetupKeySig -- */
 /* Set fields in key signature node in data structure, for conventional key
 signatures only (all we support as of v.3.0). */
 
@@ -1121,49 +1107,47 @@ void SetupKeySig(LINK aKeySigL,
 						short sharpsOrFlats)			/* >0 = sharps, <0 = flats */
 {
 	PAKEYSIG	aKeySig;
-	short nItems;											/* No. of sharps/flats in key sig. */
+	short		nItems;									/* No. of sharps/flats in key sig. */
 
 	aKeySig = GetPAKEYSIG(aKeySigL);
 	aKeySig->nKSItems = nItems = ABS(sharpsOrFlats);
 
-	if (sharpsOrFlats>0)
-	{
+	if (sharpsOrFlats>0) {
 		if (nItems > 0)
-			AddKSItem(aKeySigL, TRUE, 0, F);						/* sharp on F */
+			AddKSItem(aKeySigL, True, 0, F);					/* sharp on F */
 		if (nItems > 1)
-			AddKSItem(aKeySigL, TRUE, 1, C);						/* sharp on C */
+			AddKSItem(aKeySigL, True, 1, C);					/* sharp on C */
 		if (nItems > 2)
-			AddKSItem(aKeySigL, TRUE, 2, G);						/* sharp on G */
+			AddKSItem(aKeySigL, True, 2, G);					/* sharp on G */
 		if (nItems > 3)
-			AddKSItem(aKeySigL, TRUE, 3, D);						/* sharp on D */
+			AddKSItem(aKeySigL, True, 3, D);					/* sharp on D */
 		if (nItems > 4)
-			AddKSItem(aKeySigL, TRUE, 4, A);						/* sharp on A */
+			AddKSItem(aKeySigL, True, 4, A);					/* sharp on A */
 		if (nItems > 5)
-			AddKSItem(aKeySigL, TRUE, 5, E);						/* sharp on E */
+			AddKSItem(aKeySigL, True, 5, E);					/* sharp on E */
 		if (nItems > 6)
-			AddKSItem(aKeySigL, TRUE, 6, B);						/* sharp on B */
+			AddKSItem(aKeySigL, True, 6, B);					/* sharp on B */
 	}
-	else if (sharpsOrFlats<0)
-	{
+	else if (sharpsOrFlats<0) {
 		if (nItems > 0)
-			AddKSItem(aKeySigL, FALSE, 0, B);						/* flat on B */
+			AddKSItem(aKeySigL, False, 0, B);					/* flat on B */
 		if (nItems > 1)
-			AddKSItem(aKeySigL, FALSE, 1, E);						/* flat on E */
+			AddKSItem(aKeySigL, False, 1, E);					/* flat on E */
 		if (nItems > 2)
-			AddKSItem(aKeySigL, FALSE, 2, A);						/* flat on A */
+			AddKSItem(aKeySigL, False, 2, A);					/* flat on A */
 		if (nItems > 3)
-			AddKSItem(aKeySigL, FALSE, 3, D);						/* flat on D */
+			AddKSItem(aKeySigL, False, 3, D);					/* flat on D */
 		if (nItems > 4)
-			AddKSItem(aKeySigL, FALSE, 4, G);						/* flat on G */
+			AddKSItem(aKeySigL, False, 4, G);					/* flat on G */
 		if (nItems > 5)
-			AddKSItem(aKeySigL, FALSE, 5, C);						/* flat on C */
+			AddKSItem(aKeySigL, False, 5, C);					/* flat on C */
 		if (nItems > 6)
-			AddKSItem(aKeySigL, FALSE, 6, F);						/* flat on F */
+			AddKSItem(aKeySigL, False, 6, F);					/* flat on F */
 	}
 }
 
 
-/* ----------------------------------------------------------------- InitTimeSig -- */
+/* ----------------------------------------------------------------------- InitTimeSig -- */
 /*	Initialize a garden-variety time signature subobject. */
 
 void InitTimeSig(LINK aTimeSigL, short staff, DDIST xd, short timeSigType, short numerator,
@@ -1177,7 +1161,7 @@ void InitTimeSig(LINK aTimeSigL, short staff, DDIST xd, short timeSigType, short
 	aTimeSig->connStaff = 0;					/* For future use */
 	aTimeSig->xd = xd;
 	aTimeSig->yd = 0;
-	aTimeSig->visible = TRUE;
+	aTimeSig->visible = True;
 	aTimeSig->subType = timeSigType;
 	aTimeSig->numerator = numerator;
 	aTimeSig->denominator = denominator;
@@ -1185,7 +1169,7 @@ void InitTimeSig(LINK aTimeSigL, short staff, DDIST xd, short timeSigType, short
 }
 
 
-/* ----------------------------------------------------------------- InitMeasure -- */
+/* ----------------------------------------------------------------------- InitMeasure -- */
 /*	Initialize a garden-variety measure subobject. */
 
 void InitMeasure(LINK aMeasureL, short staff, short left, short top, short right,
@@ -1198,7 +1182,7 @@ void InitMeasure(LINK aMeasureL, short staff, short left, short top, short right
 	aMeasure->staffn = staff;
 	SetDRect(&aMeasure->measSizeRect, left, top, right, bottom);
 	aMeasure->visible = barlineVisible;
-	aMeasure->measureVisible = TRUE;
+	aMeasure->measureVisible = True;
 	aMeasure->connAbove = connAbove;
 	aMeasure->connStaff = connStaff;
 	aMeasure->measureNum = measNum;
@@ -1209,7 +1193,7 @@ void InitMeasure(LINK aMeasureL, short staff, short left, short top, short right
 }
 
 
-/* --------------------------------------------------------------- InitPSMeasure -- */
+/* --------------------------------------------------------------------- InitPSMeasure -- */
 /*	Initialize a generic PSMeasure subobject. */
 
 void InitPSMeasure(LINK aPSMeasL, short staff, Boolean barlineVisible,
@@ -1227,19 +1211,19 @@ void InitPSMeasure(LINK aPSMeasL, short staff, Boolean barlineVisible,
 }
 
 
-/* ------------------------------------------------------------------ InitRptEnd -- */
+/* ------------------------------------------------------------------------ InitRptEnd -- */
 /*	Initialize a garden-variety RepeatEnd subobject. */
 
 void InitRptEnd(LINK pL, short /*staff*/, char rptEndType, LINK measL)
 {
-	PRPTEND p;
-	PARPTEND aRpt;
+	PRPTEND		p;
+	PARPTEND	aRpt;
 	PAMEASURE 	aMeasure;
-	LINK			aRptL, aMeasL;
+	LINK		aRptL, aMeasL;
 	
 	p = GetPRPTEND(pL);
 	p->yd = 0;
-	p->visible = p->selected = TRUE;
+	p->visible = p->selected = True;
 	p->subType = rptEndType;
 	p->firstObj = NILINK;
 	p->count = 2;
@@ -1251,7 +1235,7 @@ void InitRptEnd(LINK pL, short /*staff*/, char rptEndType, LINK measL)
 		aRpt = GetPARPTEND(aRptL);
 		aMeasure = GetPAMEASURE(aMeasL);
 		aRpt->subType = 0;									/* Unused: obj has type */
-		aRpt->selected = TRUE;
+		aRpt->selected = True;
 		aRpt->staffn = aMeasure->staffn;
 		aRpt->connAbove = aMeasure->connAbove;
 		aRpt->connStaff = aMeasure->connStaff;
@@ -1260,7 +1244,7 @@ void InitRptEnd(LINK pL, short /*staff*/, char rptEndType, LINK measL)
 }
 
 
-/* ----------------------------------------------------------------- InitDynamic -- */
+/* ----------------------------------------------------------------------- InitDynamic -- */
 /*	Initialize a garden-variety Dynamic subobject. */
 
 void InitDynamic(Document *doc, LINK pL, short staff, short x, DDIST sysLeft,
@@ -1272,26 +1256,26 @@ void InitDynamic(Document *doc, LINK pL, short staff, short x, DDIST sysLeft,
 
 	aDynamic = GetPADYNAMIC(FirstSubLINK(pL));
 	aDynamic->staffn = staff;
-	aDynamic->subType = 0;													/* Unused--obj has type */
+	aDynamic->subType = 0;											/* Unused: obj has type */
 	aDynamic->small = 0;
 	aDynamic->xd = 0;
 	aDynamic->yd = halfLn2d(pitchLev, pContext->staffHeight,
 									pContext->staffLines);
-	aDynamic->selected = TRUE;												/* Select the subobj */
-	aDynamic->visible = TRUE;
-	aDynamic->soft = FALSE;
+	aDynamic->selected = True;										/* Select the subobj */
+	aDynamic->visible = True;
+	aDynamic->soft = False;
 	aDynamic->mouthWidth = aDynamic->otherWidth = 0;
 	aDynamic->endxd = 0;
 	aDynamic->endyd = aDynamic->yd;
 }
 
 
-/* ---------------------------------------------------------------- SetupHairpin -- */
+/* ---------------------------------------------------------------------- SetupHairpin -- */
 
-void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft,
-							short endx, Boolean crossSys)
+void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft, short endx,
+																		Boolean crossSys)
 {
-	LINK measL; PDYNAMIC newp; PADYNAMIC aDynamic;
+	LINK measL;  PDYNAMIC newp;  PADYNAMIC aDynamic;
 
 	newp = GetPDYNAMIC(newpL);
 	switch (DynamType(newpL)) {
@@ -1300,9 +1284,9 @@ void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft,
  			aDynamic = GetPADYNAMIC(FirstSubLINK(newpL));
 			aDynamic->mouthWidth = config.hairpinMouthWidth;
 						
-			/* Search right from the sync at the right end of the hairpin for
-				the next barline; if it is to the left of the corresponding end
-				of the hairpin, truncate it. */
+			/* Search right from the sync at the right end of the hairpin for the
+				next barline; if it is to the left of the corresponding end of the
+				hairpin, truncate it. */
 
  			if (SystemTYPE(lastSyncL))
  				aDynamic->endxd = p2d(endx)-sysLeft;
@@ -1316,12 +1300,12 @@ void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft,
 				<if (LinkXD(measL)<p2d ...>, which may be needing for some
 				situation too obscure for me to perceive at this moment (12/13/90). */
 
-			measL = LSSearch(lastSyncL, MEASUREtype, staff, GO_RIGHT, FALSE);
+			measL = LSSearch(lastSyncL, MEASUREtype, staff, GO_RIGHT, False);
 			if (measL && !crossSys && SameSystem(measL,lastSyncL))
 				if (LinkXD(measL)<p2d(endx)-sysLeft)
 					aDynamic->endxd = -SysRelxd(lastSyncL)+LinkXD(measL)-pt2d(2);
 
-			InvalMeasures(newpL, lastSyncL, staff);							/* NewObjCleanup only Invals 1 meas. */
+			InvalMeasures(newpL, lastSyncL, staff);						/* NewObjCleanup only Invals 1 meas. */
 			newp->lastSyncL = lastSyncL;
 			newp->crossSys = crossSys;
 			break;
@@ -1332,7 +1316,7 @@ void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft,
 }
 
 
-/* ----------------------------------------------------------------- InitGraphic -- */
+/* ----------------------------------------------------------------------- InitGraphic -- */
 
 void InitGraphic(LINK graphicL, short graphicType, short staff, short voice,
 						short fontInd, Boolean relFSize, short fSize, short fStyle,
@@ -1348,7 +1332,7 @@ void InitGraphic(LINK graphicL, short graphicType, short staff, short voice,
 	pGraphic->enclosure = enclosure;
 	pGraphic->justify = pGraphic->multiLine = 0;
 	pGraphic->info = 0;
-	pGraphic->vConstrain = pGraphic->hConstrain = FALSE;
+	pGraphic->vConstrain = pGraphic->hConstrain = False;
 
 	pGraphic->gu.handle = NULL;
 	pGraphic->fontInd = fontInd;
@@ -1359,7 +1343,7 @@ void InitGraphic(LINK graphicL, short graphicType, short staff, short voice,
 }
 
 
-/* -------------------------------------------------------------- SetMeasVisible -- */
+/* -------------------------------------------------------------------- SetMeasVisible -- */
 /* Set the visibility of all subobjects of the given Measure object. */
 
 void SetMeasVisible(LINK measL, Boolean visible)
@@ -1376,8 +1360,8 @@ void SetMeasVisible(LINK measL, Boolean visible)
 }
 
 
-/* -------------------------------------------------------------- ChordHasUnison -- */
-/* If the specified chord contains any unisons, return TRUE, else FALSE. We check
+/* -------------------------------------------------------------------- ChordHasUnison -- */
+/* If the specified chord contains any unisons, return True, else False. We check
 by looking for notes with the same vertical position, so both perfect and augmented
 unisons are detected. */
 
@@ -1391,94 +1375,95 @@ Boolean ChordHasUnison(LINK syncL, short voice)
 	 *	Get sorted notes and go thru them by y-position. For our purpose, it makes
 	 * no difference whether the chord is stem up or down, so choose arbitrarily.
 	 */
-	noteCount = GSortChordNotes(syncL, voice, TRUE, chordNote);
+	noteCount = GSortChordNotes(syncL, voice, True, chordNote);
 	
 	prevyqpit = 9999;
 	for (i = 0; i<noteCount; i++) {
 		aNote = GetPANOTE(chordNote[i].noteL);
-		if (ABS(aNote->yqpit-prevyqpit)==0) return TRUE;
+		if (ABS(aNote->yqpit-prevyqpit)==0) return True;
 		prevyqpit = aNote->yqpit;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
-/* --------------------------------------------------------------- ChordNoteToRight -- */
-/* Return TRUE if the given Sync and voice has a chord that is stem up but has at least
+/* ------------------------------------------------------------------ ChordNoteToRight -- */
+/* Return True if the given Sync and voice has a chord that is stem up but has at least
 one note to right of the stem. Works even if stem won't be drawn, probably because
 all notes are whole notes. */
 
 Boolean ChordNoteToRight(LINK syncL, short voice)
 {
-	LINK		mainNoteL;
-	LINK		aNoteL;
+	LINK	mainNoteL;
+	LINK	aNoteL;
 	Boolean	stemDown;
 
 	mainNoteL = FindMainNote(syncL, voice);
 	if (mainNoteL) {
 		stemDown = (NoteYSTEM(mainNoteL) > NoteYD(mainNoteL));
-		if (stemDown) return FALSE;
+		if (stemDown) return False;
 		
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 			if (NoteVOICE(aNoteL)==voice && !IsNoteLeftOfStem(syncL, aNoteL, stemDown))
-				return TRUE;
+				return True;
 		}
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
-/* ---------------------------------------------------------------- ChordNoteToLeft -- */
-/* Return TRUE if the given Sync and voice has a chord that is stem down and has at
-least one note to left of the stem. Works even if stem won't be drawn, probably because
+/* ------------------------------------------------------------------- ChordNoteToLeft -- */
+/* Return True if the given Sync and voice has a chord that is stem down and has at
+least one note to left of the stem. Works even if stem won't be drawn, typically because
 all notes are whole notes. */
 
 Boolean ChordNoteToLeft(LINK syncL, short voice)
 {
-	LINK		mainNoteL;
-	LINK		aNoteL;
-	Boolean		stemDown;
+	LINK	mainNoteL;
+	LINK	aNoteL;
+	Boolean	stemDown;
 
 	mainNoteL = FindMainNote(syncL, voice);
 	if (mainNoteL) {
 		stemDown = (NoteYSTEM(mainNoteL) > NoteYD(mainNoteL));
-		if (!stemDown) return FALSE;
+		if (!stemDown) return False;
 		
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 			if (NoteVOICE(aNoteL)==voice && IsNoteLeftOfStem(syncL, aNoteL, stemDown))
-				return TRUE;
+				return True;
 		}
 	}
 	
-	return FALSE;
+	return False;
 }
 
-/* ---------------------------------------------------------- NormalStemUpDown -- */
+/* ------------------------------------------------------------------ NormalStemUpDown -- */
 /* If the note or chord in the given Sync and voice would normally (considering
 the voice's multivoice position) be stem up, return 1, else -1. Cf. the DOWNSTEM
 macro. */
 
 static short NormalStemUpDown(Document *doc, LINK syncL, short voice, CONTEXT *pContext)
 {
-	DDIST		maxy, miny, midLine;
-	LINK		aNoteL;
-	LINK		hiNoteL, lowNoteL;
+	DDIST	maxy, miny, midLine;
+	LINK	aNoteL;
+	LINK	hiNoteL, lowNoteL;
 	Boolean	stemDown;
-	LINK		partL; PPARTINFO pPart;
+	LINK	partL;
+	PPARTINFO pPart;
 
 	switch (doc->voiceTab[voice].voiceRole) {
-		case SINGLE_DI:
+		case VCROLE_SINGLE:
 			maxy = (DDIST)(-9999);
 			miny = (DDIST)9999;
 			for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL))
 				if (NoteVOICE(aNoteL)==voice) {
 					if (NoteYD(aNoteL)>maxy) {
 						maxy = NoteYD(aNoteL);
-						lowNoteL = aNoteL;							/* yd's increase going downward */
+						lowNoteL = aNoteL;						/* yd's increase going downward */
 					}
 					if (NoteYD(aNoteL)<miny) {
 						miny = NoteYD(aNoteL);
@@ -1488,39 +1473,39 @@ static short NormalStemUpDown(Document *doc, LINK syncL, short voice, CONTEXT *p
 		
 			midLine = pContext->staffHeight/2;
 			return (maxy-midLine<=midLine-miny? -1 : 1);
-		case UPPER_DI:
+		case VCROLE_UPPER:
 			return 1;
-		case LOWER_DI:
+		case VCROLE_LOWER:
 			return -1;
-		case CROSS_DI:
-			aNoteL = NoteInVoice(syncL, voice, FALSE);
+		case VCROLE_CROSS:
+			aNoteL = NoteInVoice(syncL, voice, False);
 			partL = FindPartInfo(doc, Staff2Part(doc, NoteSTAFF(aNoteL)));
 			pPart = GetPPARTINFO(partL);
 			stemDown = (NoteSTAFF(aNoteL)==pPart->firstStaff);
 			return (stemDown? -1 : 1);
 		default:
-			return 1;													/* Should never get here */
+			return 1;											/* Should never get here */
 	}
 }
 
 
-/* ------------------------------------------------------------------ GetNCYStem -- */
+/* ------------------------------------------------------------------------ GetNCYStem -- */
 /* Find the correct stem endpoint for a note or chord. Return the stem endpoint the
 note closest to the end of the stem for the specified direction would have if it wasn't
 in a chord. */
 
 DDIST GetNCYStem(
-				Document *doc,
-				LINK		syncL,
-				short 	voice,
-				short		stemUpDown,					/* 1=up, -1=down */
-				Boolean	singleVoice,				/* TRUE=voice doesn't share staff */
-				PCONTEXT	pContext
-				)
+			Document	*doc,
+			LINK		syncL,
+			short		voice,
+			short		stemUpDown,				/* 1=up, -1=down */
+			Boolean		singleVoice,			/* True=voice doesn't share staff */
+			PCONTEXT	pContext
+			)
 {
-	DDIST		maxy, miny, farStem, stemLen;
-	LINK		aNoteL;
-	LINK		hiNoteL, lowNoteL, farNoteL;
+	DDIST	maxy, miny, farStem, stemLen;
+	LINK	aNoteL;
+	LINK	hiNoteL, lowNoteL, farNoteL;
 	
 	maxy = (DDIST)(-9999);
 	miny = (DDIST)9999;
@@ -1528,7 +1513,7 @@ DDIST GetNCYStem(
 		if (NoteVOICE(aNoteL)==voice) {
 			if (NoteYD(aNoteL)>maxy) {
 				maxy = NoteYD(aNoteL);
-				lowNoteL = aNoteL;							/* yd's increase going downward */
+				lowNoteL = aNoteL;					/* yd's increase going downward */
 			}
 			if (NoteYD(aNoteL)<miny) {
 				miny = NoteYD(aNoteL);
@@ -1547,12 +1532,12 @@ DDIST GetNCYStem(
 	farStem = CalcYStem(doc, NoteYD(farNoteL), NFLAGS(NoteType(farNoteL)),
 									stemUpDown<0,
 									pContext->staffHeight, pContext->staffLines,
-									stemLen, FALSE);
+									stemLen, False);
 	return farStem;
 }
 
 
-/* ------------------------------------------------------------ FixChordForYStem -- */
+/* ----------------------------------------------------==------------ FixChordForYStem -- */
 /* Fix all the notes in a chord for a given stem direction and endpoint:
 	-Set their inChord flags;
 	-Put them on their correct sides of the stem;
@@ -1563,10 +1548,10 @@ notes in the chord without warning!
 */
 
 void FixChordForYStem(
-				LINK		syncL,
-				short		voice,
-				short		stemUpDown,				/* 1=up, -1=down */
-				short		ystem					/* New ystem of chord */
+				LINK	syncL,
+				short	voice,
+				short	stemUpDown,				/* 1=up, -1=down */
+				short	ystem					/* New ystem of chord */
 				)
 {
 	LINK aNoteL;
@@ -1584,10 +1569,10 @@ void FixChordForYStem(
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
 		if (aNote->voice==voice) {
-			aNote->inChord = TRUE;
+			aNote->inChord = True;
 			if (aNote->yd>maxy) {
 				maxy = aNote->yd;
-				lowNoteL = aNoteL;						/* yd's increase going downward */
+				lowNoteL = aNoteL;					/* yd's increase going downward */
 			}
 			if (aNote->yd<miny) {
 				miny = aNote->yd;
@@ -1595,10 +1580,8 @@ void FixChordForYStem(
 			}
 		}
 	}	
-	if (stemUpDown<0)
-		farNoteL = hiNoteL;
-	else
-		farNoteL = lowNoteL;
+	if (stemUpDown<0)	farNoteL = hiNoteL;
+	else				farNoteL = lowNoteL;
 
 	ArrangeChordNotes(syncL, voice, stemUpDown<0);
 	
@@ -1615,8 +1598,8 @@ void FixChordForYStem(
 }
 
 
-/* ------------------------------------------------------------- FixSyncForChord -- */
-/* Fix all the notes in a chord:
+/* ------------------------------------------------------------------- FixSyncForChord -- */
+/* Normalize notation of a note or of all the notes in a chord:
 	-Set their inChord flags;
 	-Put them on their correct sides of the stem;
 	-Position their accidentals to avoid collisions among them;
@@ -1628,35 +1611,35 @@ We don't arrange augmentation dot positions and visibilities, but it would be ni
 if we did some day.
 
 We don't require the chord to have a MainNote, so this routine can be used to fix
-things when deleting notes. It returns FALSE in case of an error, else TRUE.
+things when deleting notes. It returns False in case of an error, else True.
 NB: Will do bad things if the the given sync and voice does not have a chord. */
 
 Boolean FixSyncForChord(
-				Document *doc,
+				Document	*doc,
 				LINK		syncL,
 				short		voice,
-				Boolean	beamed,			/* If TRUE, ignore stemUpDown and keep current stem endpt */
+				Boolean		beamed,			/* If True, ignore stemUpDown and keep current stem endpt */
 				short		stemUpDown,		/* 1=up, -1=down, 0=let FixSyncForChord decide */
 				short		voices1orMore,	/* 1=single voice on staff, -1=multiple, 0=let us decide */
 				PCONTEXT	pContext 		/* Context; if NULL, FixSyncForChord will get it */
 				)
 {
 	short 	staff;
-	DDIST		newxd, ystem;
-	LINK		aNoteL;
-	LINK		mainNoteL;
+	DDIST	newxd, ystem;
+	LINK	aNoteL;
+	LINK	mainNoteL;
 	CONTEXT	context;
-	Boolean	singleVoice;				/* TRUE=voice doesn't share staff */
+	Boolean	singleVoice;				/* True=voice doesn't share staff */
 	
 	if (beamed && stemUpDown!=0)
-		return FALSE;
+		return False;
 	
 	mainNoteL = NILINK;
 	staff = NOONE;
 	for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		if (NoteVOICE(aNoteL)==voice) {
 			staff = NoteSTAFF(aNoteL);
-			NoteINCHORD(aNoteL) = TRUE;
+			NoteINCHORD(aNoteL) = True;
 			if (MainNote(aNoteL)) {
 				newxd = NoteXD(aNoteL);
 				mainNoteL = aNoteL;
@@ -1667,19 +1650,19 @@ Boolean FixSyncForChord(
 	if (staff==NOONE) {
 		MayErrMsg("FixSyncForChord: no notes in voice %ld in sync at %ld.",
 					(long)voice, (long)syncL);
-		return FALSE;
+		return False;
 	}
 
-	if (pContext) context = *pContext;
-	else			  GetContext(doc, syncL, staff, &context);
+	if (pContext)	context = *pContext;
+	else			GetContext(doc, syncL, staff, &context);
 
 	if (beamed && mainNoteL!=NILINK)
 		stemUpDown = (NoteYSTEM(mainNoteL)>NoteYD(mainNoteL)? -1 : 1);
 	if (!stemUpDown)
 		stemUpDown = NormalStemUpDown(doc, syncL, voice, &context);
 		
-	if (voices1orMore==0) singleVoice = (doc->voiceTab[voice].voiceRole==SINGLE_DI);
-	else						 singleVoice = (voices1orMore==1);
+	if (voices1orMore==0)	singleVoice = (doc->voiceTab[voice].voiceRole==VCROLE_SINGLE);
+	else					singleVoice = (voices1orMore==1);
 	
 	/* In all cases, <context>, <stemUpDown>, and <singleVoice> are now defined. */
 	
@@ -1699,64 +1682,61 @@ Boolean FixSyncForChord(
 		}
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
-/* ----------------------------------------------------------------- FixSyncNote -- */
-/* For the note in the given GRSync and voice, fix its ystem, clear its inChord
-flag, put it on the normal side of the stem, and move its accidental to default
-position. If the note is in a chord, this function will cause serious damage! */
+/* ----------------------------------------------------------------------- FixSyncNote -- */
+/* For the one note in the given Sync and voice, fix its ystem, clear its inChord flag,
+put it on the normal side of the stem, and move its accidental to default position. */
 
 void FixSyncNote(Document *doc,
-						LINK syncL,
-						short voice,
-						PCONTEXT pContext)				/* Context to use or NULL */
+					LINK syncL,
+					short voice,
+					PCONTEXT pContext)				/* Context to use or NULL */
 {
 	CONTEXT	context;
 	PANOTE	aNote;
-	LINK		aNoteL;
+	LINK	aNoteL;
 	Boolean	stemDown;
-	QDIST		qStemLen;
+	QDIST	qStemLen;
 	
-	aNoteL = NoteInVoice(syncL, voice, FALSE);
+	aNoteL = NoteInVoice(syncL, voice, False);
 	if (aNoteL) {
 		aNote = GetPANOTE(aNoteL);
-		aNote->inChord = FALSE;
-		aNote->otherStemSide = FALSE;
+		aNote->inChord = False;
+		aNote->otherStemSide = False;
 		aNote->xmoveAcc = DFLT_XMOVEACC;
 		stemDown = GetStemInfo(doc, syncL, aNoteL, &qStemLen);
 		if (pContext) context = *pContext;
 		else			  GetContext(doc, syncL, NoteSTAFF(aNoteL), &context);
 		NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
-													stemDown, 
-													context.staffHeight, context.staffLines,
-													qStemLen, FALSE);
+											stemDown, context.staffHeight,
+											context.staffLines, qStemLen, False);
 	}
 }
 
 
-/* ----------------------------------------------------------- FixSyncForNoChord -- */
+/* ----------------------------------------------------------------- FixSyncForNoChord -- */
 /* When a note that was formerly in a chord (as indicated by its <inChord> flag
 being set) is no longer in a chord, fix its ystem, clear its inChord flag, put it
 on the normal side of the stem, and move its accidental to default position. If the
-note's <inChord> flag isn't set, do nothing. N.B. If the note is STILL in a chord,
-this function will cause serious problems! */
+note's <inChord> flag isn't set, do nothing. */
 
 void FixSyncForNoChord(Document *doc,
-								LINK syncL,
-								short voice,
-								PCONTEXT pContext)		/* Context to use or NULL */
+							LINK syncL,
+							short voice,
+							PCONTEXT pContext)		/* Context to use or NULL */
 {
 	LINK aNoteL;
 
-	aNoteL = NoteInVoice(syncL, voice, FALSE);
+	aNoteL = NoteInVoice(syncL, voice, False);
 	if (aNoteL && NoteINCHORD(aNoteL))
 		FixSyncNote(doc, syncL, voice, pContext);
 }
 
 
-/* -------------------------------------------------------------- FixNoteForClef -- */
+/* -------------------------------------------------------------------- FixNoteForClef -- */
 /* Fix the given note or, if it's in a chord, its chord, for the impending move of
 the note to a different staff and clef. If the clef in effect on the new staff is
 the same as the note's current clef, do nothing. We assume that all notes in the
@@ -1764,12 +1744,12 @@ chord, if there is one, are going to remain in the same chord (i.e., if this not
 is going to change voice, all notes in the chord must change). */
 
 void FixNoteForClef(Document *doc,
-							LINK syncL, LINK aNoteL,
-							short absStaff)					/* Destination staff */
+						LINK syncL, LINK aNoteL,
+						short absStaff)					/* Destination staff */
 {
-	CONTEXT	oldContext,newContext;
+	CONTEXT	oldContext, newContext;
 	short yPrev, yHere, qStemLen;
-	DDIST yDelta; Boolean stemDown; PANOTE aNote;
+	DDIST yDelta;  Boolean stemDown;  PANOTE aNote;
 
 	GetContext(doc,syncL,NoteSTAFF(aNoteL),&oldContext);
 	GetContext(doc,syncL,absStaff,&newContext);
@@ -1785,37 +1765,34 @@ void FixNoteForClef(Document *doc,
 			}
 		else {
 			stemDown = GetCStemInfo(doc, syncL, aNoteL, newContext, &qStemLen);
-			NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL),
-												NFLAGS(NoteType(aNoteL)),
-												stemDown,
-												newContext.staffHeight, newContext.staffLines,
-												qStemLen, FALSE);
+			NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
+											stemDown, newContext.staffHeight,
+											newContext.staffLines, qStemLen, False);
 		}
 	}
 }
 
 
-
-/* ----------------------------------------------------------------- GetGRCYStem -- */
+/* ----------------------------------------------------------------------- GetGRCYStem -- */
 /* Find the correct stem endpoint for a grace note or chord. If the note/chord is
 beamed, we just return the current endpoint of its MainNote (regardless of the
 specifed stem direction). Otherwise, return the stem endpoint of the note closest
 to the end of the stem for the specified direction. */
 
-DDIST GetGRCYStem(Document *, LINK, short, Boolean, short, Boolean, PCONTEXT);
-DDIST GetGRCYStem(
-					Document *doc,
+static DDIST GetGRCYStem(Document *, LINK, short, Boolean, short, Boolean, PCONTEXT);
+static DDIST GetGRCYStem(
+					Document	*doc,
 					LINK		grSyncL,
-					short 	voice,
-					Boolean	beamed,						/* If TRUE, ignore <stemUpDown> */
-					short		stemUpDown,					/* 1=up, -1=down */
-					Boolean	/*singleVoice*/,				/* TRUE=voice doesn't share staff */
+					short		voice,
+					Boolean		beamed,					/* If True, ignore <stemUpDown> */
+					short		stemUpDown,				/* 1=up, -1=down */
+					Boolean		/*singleVoice*/,		/* True=voice doesn't share staff */
 					PCONTEXT	pContext
 					)
 {
-	DDIST		maxy, miny, farStem;
-	LINK		aGRNoteL;
-	LINK		hiGRNoteL, lowGRNoteL, farGRNoteL, mainGRNoteL;
+	DDIST	maxy, miny, farStem;
+	LINK	aGRNoteL;
+	LINK	hiGRNoteL, lowGRNoteL, farGRNoteL, mainGRNoteL;
 	
 	if (beamed) {		
 		mainGRNoteL = FindGRMainNote(grSyncL, voice);
@@ -1828,7 +1805,7 @@ DDIST GetGRCYStem(
 			if (GRNoteVOICE(aGRNoteL)==voice) {
 				if (GRNoteYD(aGRNoteL)>maxy) {
 					maxy = GRNoteYD(aGRNoteL);
-					lowGRNoteL = aGRNoteL;						/* yd's increase going downward */
+					lowGRNoteL = aGRNoteL;					/* yd's increase going downward */
 				}
 				if (GRNoteYD(aGRNoteL)<miny) {
 					miny = GRNoteYD(aGRNoteL);
@@ -1844,15 +1821,14 @@ DDIST GetGRCYStem(
 		 */
 		farGRNoteL = (stemUpDown<0? lowGRNoteL : hiGRNoteL);
 		farStem = CalcYStem(doc, GRNoteYD(farGRNoteL), NFLAGS(GRNoteType(farGRNoteL)),
-										stemUpDown<0,
-										pContext->staffHeight, pContext->staffLines,
-										config.stemLenGrace, FALSE);
+									stemUpDown<0, pContext->staffHeight,
+									pContext->staffLines, config.stemLenGrace, False);
 		return farStem;
 	}
 }
 
 
-/* ---------------------------------------------------------- FixGRChordForYStem -- */
+/* ---------------------------------------------------------------- FixGRChordForYStem -- */
 /* Fix all the notes in a chord for a given stem direction and endpoint:
 	-Set their inChord flags;
 	-Put them on their correct sides of the stem;
@@ -1861,10 +1837,10 @@ DDIST GetGRCYStem(
 */
 
 void FixGRChordForYStem(
-				LINK		grSyncL,
-				short		voice,
-				short		stemUpDown,				/* 1=up, -1=down */
-				short		ystem 					/* New ystem of chord */
+				LINK	grSyncL,
+				short	voice,
+				short	stemUpDown,				/* 1=up, -1=down */
+				short	ystem 					/* New ystem of chord */
 				)
 {
 	LINK aGRNoteL;
@@ -1882,7 +1858,7 @@ void FixGRChordForYStem(
 	for ( ; aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL)) {
 		aGRNote = GetPAGRNOTE(aGRNoteL);
 		if (aGRNote->voice==voice) {
-			aGRNote->inChord = TRUE;
+			aGRNote->inChord = True;
 			if (aGRNote->yd>maxy) {
 				maxy = aGRNote->yd;
 				lowGRNoteL = aGRNoteL;						/* yd's increase going downward */
@@ -1913,7 +1889,7 @@ void FixGRChordForYStem(
 }
 
 
-/* ----------------------------------------------------------- FixGRSyncForChord -- */
+/* ----------------------------------------------------------------- FixGRSyncForChord -- */
 /* Fix all the grace notes in a grace chord:
 	-Set their inChord flags;
 	-Put them on their correct sides of the stem;
@@ -1924,29 +1900,29 @@ void FixGRChordForYStem(
 	-Correct stem lengths and (optionally) stem direction.
 
 We don't require the chord have a GRMainNote so this routine can be used to fix things
-when deleting grace notes. It returns FALSE in case of an error, else TRUE.
+when deleting grace notes. It returns False in case of an error, else True.
 N.B. Will do bad things if the the given sync and voice does not have a chord. */
 
 Boolean FixGRSyncForChord(
-				Document *doc,
+				Document	*doc,
 				LINK		grSyncL,
 				short		voice,
-				Boolean	beamed,			/* If TRUE, ignore stemUpDown and keep current stem endpt */
+				Boolean		beamed,			/* If True, ignore stemUpDown and keep current stem endpt */
 				short		stemUpDown,		/* 1=up, -1=down, 0=let FixGRSyncForChord decide */
 				short		voices1orMore,	/* 1=single voice on staff, -1=multiple, 0=let us decide */
 				PCONTEXT	pContext 		/* Context; if NULL, FixGRSyncForChord will get it */
 				)
 {
 	short 	staff;
-	DDIST		newxd, ystem;
-	LINK		aGRNoteL, mainNoteL;
+	DDIST	newxd, ystem;
+	LINK	aGRNoteL, mainNoteL;
 	CONTEXT	context;
-	Boolean	singleVoice;				/* TRUE=voice doesn't share staff */
+	Boolean	singleVoice;				/* True=voice doesn't share staff */
 	
 	if (beamed && stemUpDown) {
 		MayErrMsg("FixGRSyncForChord: called with beamed and stemUpDown=%ld. grSyncL=%ld",
 					(long)stemUpDown, (long)grSyncL);
-		return FALSE;
+		return False;
 	}
 	
 	mainNoteL = NILINK;
@@ -1954,7 +1930,7 @@ Boolean FixGRSyncForChord(
 	for (aGRNoteL = FirstSubLINK(grSyncL); aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 		if (GRNoteVOICE(aGRNoteL)==voice) {
 			staff = GRNoteSTAFF(aGRNoteL);
-			GRNoteINCHORD(aGRNoteL) = TRUE;
+			GRNoteINCHORD(aGRNoteL) = True;
 			if (GRMainNote(aGRNoteL)) {
 				newxd = GRNoteXD(aGRNoteL);
 				mainNoteL = aGRNoteL;
@@ -1965,7 +1941,7 @@ Boolean FixGRSyncForChord(
 	if (staff==NOONE) {
 		MayErrMsg("FixGRSyncForChord: no notes in voice %ld in sync at %ld.",
 					(long)voice, (long)grSyncL);
-		return FALSE;
+		return False;
 	}
 
 	if (pContext) context = *pContext;
@@ -1974,10 +1950,10 @@ Boolean FixGRSyncForChord(
 	if (beamed && mainNoteL!=NILINK)
 		stemUpDown = (GRNoteYSTEM(mainNoteL)>GRNoteYD(mainNoteL)? -1 : 1);
 	if (!stemUpDown)
-		stemUpDown = 1;		/* Probably should call GRNormalStemUpDown instead */
+		stemUpDown = 1;					/* ??Probably should call GRNormalStemUpDown instead */
 		
-	if (voices1orMore==0) singleVoice = (doc->voiceTab[voice].voiceRole==SINGLE_DI);
-	else						 singleVoice = (voices1orMore==1);
+	if (voices1orMore==0)	singleVoice = (doc->voiceTab[voice].voiceRole==VCROLE_SINGLE);
+	else					singleVoice = (voices1orMore==1);
 	
 	/* In all cases, <context>, <stemUpDown>, and <singleVoice> are now defined. */
 	
@@ -1994,45 +1970,45 @@ Boolean FixGRSyncForChord(
 			GRNoteXD(aGRNoteL) = newxd;
 		}
 	}
-	return TRUE;
+	return True;
 }
 
 
-/* --------------------------------------------------------------- FixGRSyncNote -- */
+/* ------------------------------------------------------------------- FixGRSyncNote -- */
 /* For the grace note in the given GRSync and voice, fix its ystem, clear its inChord
 flag, put it on the normal side of the stem, and move its accidental to default
 position. If the grace note is in a chord, this function will cause serious damage! */
 
 void FixGRSyncNote(Document *doc,
-							LINK grSyncL,
-							short voice,
-							PCONTEXT pContext)		/* Context to use or NULL */
+						LINK grSyncL,
+						short voice,
+						PCONTEXT pContext)		/* Context to use or NULL */
 {
-	CONTEXT	context;
+	CONTEXT		context;
 	PAGRNOTE	aGRNote;
 	LINK		aGRNoteL;
-	Boolean	stemDown;
+	Boolean		stemDown;
 	QDIST		qStemLen;
 	
-	aGRNoteL = GRNoteInVoice(grSyncL, voice, FALSE);
+	aGRNoteL = GRNoteInVoice(grSyncL, voice, False);
 	if (aGRNoteL) {
 		aGRNote = GetPAGRNOTE(aGRNoteL);
-		aGRNote->inChord = FALSE;
-		aGRNote->otherStemSide = FALSE;
+		aGRNote->inChord = False;
+		aGRNote->otherStemSide = False;
 		aGRNote->xmoveAcc = DFLT_XMOVEACC;
-		stemDown = FALSE;							/* ??wrong if voiceRole==upper or cross */
+		stemDown = False;							/* ??wrong if voiceRole==upper or cross */
 		qStemLen = config.stemLenGrace;
 		if (pContext) context = *pContext;
 		else			  GetContext(doc, grSyncL, GRNoteSTAFF(aGRNoteL), &context);
 		GRNoteYSTEM(aGRNoteL) = CalcYStem(doc, GRNoteYD(aGRNoteL), NFLAGS(GRNoteType(aGRNoteL)),
 												stemDown, 
 												context.staffHeight, context.staffLines,
-												qStemLen, TRUE);
+												qStemLen, True);
 	}
 }
 
 
-/* --------------------------------------------------------- FixGRSyncForNoChord -- */
+/* --------------------------------------------------------------- FixGRSyncForNoChord -- */
 /* When a grace note that was formerly in a chord (as indicated by its <inChord> flag
 being set) is no longer in a chord, fix its ystem, clear its inChord flag, put it
 on the normal side of the stem, and move its accidental to default position. If the
@@ -2040,22 +2016,22 @@ grace note's <inChord> flag isn't set, do nothing. N.B. If the note is STILL in 
 chord, this function will cause serious problems! */
 
 void FixGRSyncForNoChord(Document *doc,
-									LINK grSyncL,
-									short voice,
-									PCONTEXT pContext)		/* Context to use or NULL */
+							LINK grSyncL,
+							short voice,
+							PCONTEXT pContext)		/* Context to use or NULL */
 {
-	LINK		aGRNoteL;
+	LINK	aGRNoteL;
 	
-	aGRNoteL = GRNoteInVoice(grSyncL, voice, FALSE);
+	aGRNoteL = GRNoteInVoice(grSyncL, voice, False);
 	if (aGRNoteL && GRNoteINCHORD(aGRNoteL))
 		FixGRSyncNote(doc, grSyncL, voice, pContext);
 }
 
 
-/* ---------------------------------------------------------------- FixAugDotPos -- */
-/* Set the augmentation dot position for notes in the given Sync and voice to
-a reasonable standard value, regardless of whether the notes actually have dots
-or not. Does not handle grace Syncs, which (as of v. 3.0) can never have dots.
+/* ---------------------------------------------------------------------- FixAugDotPos -- */
+/* Set the augmentation dot position for notes in the given Sync and voice to a
+reasonable standard value, regardless of whether the notes actually have dots or
+not. Does not handle grace Syncs, which (as of v. 5.7) can never have dots.
 
 Augmentation dots for a "line" note should never be next to the note: normally
 they should in the space above, but for stem-down voices in two-voice notation,
@@ -2071,10 +2047,10 @@ void FixAugDotPos(
 			Document *doc,
 			LINK syncL,
 			short voice,
-			Boolean lineNotesOnly)				/* TRUE=set position for "line" notes only */	
+			Boolean lineNotesOnly)				/* True=set position for "line" notes only */	
 {
 	short	voiceRole, halfSp, midCHalfSp;
-	LINK mainNoteL, aNoteL;
+	LINK	mainNoteL, aNoteL;
 	Boolean stemDown, lineNote, midCIsInSpace;
 	CONTEXT context;
 	
@@ -2089,18 +2065,18 @@ void FixAugDotPos(
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 		if (NoteVOICE(aNoteL)==voice) {
-			halfSp = qd2halfLn(NoteYQPIT(aNoteL));					/* Half-lines below middle C */
+			halfSp = qd2halfLn(NoteYQPIT(aNoteL));				/* Half-lines below middle C */
 			lineNote = (midCIsInSpace? odd(halfSp) : !odd(halfSp));
 
-			if (lineNote)													/* Note on line */
+			if (lineNote)										/* Note on line */
 				NoteYMOVEDOTS(aNoteL) = GetLineAugDotPos(voiceRole, stemDown);
-			else if (!lineNotesOnly)									/* Note in space */
+			else if (!lineNotesOnly)							/* Note in space */
 				NoteYMOVEDOTS(aNoteL) = 2;
 		}
 }
 
 
-/* --------------------------------------------------------------- ToggleAugDotPos -- */
+/* ------------------------------------------------------------------- ToggleAugDotPos -- */
 /* If the vertical position of augmentation dots is above or below the note, put them
 next to the notehead. If the dots are next to the notehead, move them above or below,
 depending on the note's voice role. If the dots are invisible (ymovedots=0), do
@@ -2108,7 +2084,8 @@ nothing. */
 
 void ToggleAugDotPos(Document *doc, LINK aNoteL, Boolean stemDown)
 {
-	PANOTE aNote; short voiceRole;
+	PANOTE aNote;
+	short voiceRole;
 	
 	aNote = GetPANOTE(aNoteL);					
 	if (aNote->ymovedots==1 || aNote->ymovedots==3)

@@ -2046,3 +2046,1115 @@ Michel Alexandre Salim
 profile:    https://keybase.io/michel_slm
 GPG key ID: 4AF554ABA36A937A
 
+-------------------------------------------------------------------------------
+
+6 May ff.
+
+Need to get the Ngale 5.7 codebase from the develop into the master branch! ??
+
+...done; also, created branch develop5p8 ...
+
+-------------------------------------------------------------------------------
+
+10 May-7 June
+
+To facilitate adding cues to extracted parts, how about a "Paste as Cue" command? It
+should:
+(1) put up a dialog to get voice no. n & cue note velocity v, & text of a Graphic to
+display at beginning of the cue (presumably name of the instrument the cue is of);
+(2) Paste Merge notes/rests _only_ from the clipboard into voice n;
+(3) set notes/rest size to small, and note velocity to v; and
+(4) attach the text Graphic to the 1st note (or rest? ??CF. GOULD!).
+
+Step 3 might be difficult: the operation shouldn't affect the clipboard, so it must be
+done either while the merge is in progress or afterwards. While the merge is in progress
+there could be tricky problems with heaps, so best to do afterwards, but then how to
+tell what objects/subobjects came from the clipboard? We're using the object-level
+<spareFlag> to mark all objects from the clipboard. So after the merge, we can distinguish
+notes/rests in Syncs w/ <spareFlag> set by voice or by their <merged> flags.
+
+Hmmm. It seems that Paste Merge and Paste as Cue always go into voice 1, regardless of
+the Looked at voice! I'm almost certain that Paste Merge used to do this correctly. ??
+
+-------------------------------------------------------------------------------
+
+8 - 13 June
+
+Paste Merge and Paste as Cue _do_ seem to handle the Looked at voice correctly; the
+apparent problem resulted from an anomaly in handling doc->lookVoice. Fixed.
+
+Back to Paste as Cue. How to keep it from copying objects of all types into the score?
+Try letting it copy everything, then delete undesired objects. Write ThinNonSyncObjects,
+which calls DeleteNode() for objs of undesired types; call it from CleanupMerge => seems
+to work okay, but if a dynamic was copied in, then removed, the dynamic context is left
+in inconsistent state. Could fix that, presumably w/ FixContextForDynamic(), but anyway,
+it'd be safer to avoid copying them in in the 1st place. Looks like non-Sync nodes are
+handled via a "temporary object list"; see comment in MRearrangeAll()...
+
+-------------------------------------------------------------------------------
+
+16-20 June
+
+It'd be really nice to record "permanently" if a note is a cue note, so (at a minimum)
+Ngale knows how to play it appropriately -- the obvious thing being to play it at a
+fixed velocity for cues. Is there a bit in ANOTE to record it, a bit that's guaranteed
+to be initialized? Yes! There are several possibilities, e.g., the high order bit in
+all three MIDI values, <rspIgnore>, and a bit in micropitch. The change should be low
+impact, but should really display it in Get Info -- read only? -- and in Browser.
+Decision: take the high-order bit of micropitch.
+
+Work on Issue #142, undesirable change of stem directions on transposing notes in
+multivoice situations. Tricky aspect: How far does the "situation" extend in each
+direction from a Sync w/ multiple voices on the staff? Maybe just decide a measure
+at a time. Also, must change ystem of MainNote as well as yd's of notes.
+
+-------------------------------------------------------------------------------
+
+22-27 June
+
+Back to Paste as Cue. Non-Sync nodes are indeed handled via a temporary object list,
+but only those from the score, not the clipboard! Nodes from the clipboard are moved
+into the main object list by calls to RelocateClObjs and RelocateClGenlJDObjs in
+MRearrangeAll. Is it as simple as skipping those calls to get only Syncs from the
+clipboard? No: we also need slur/ties, tuplets, ottavas, and (probably) clefs in
+the clipboard! Oh well; it really doesn't look hard to keep those and skip everything
+else.
+
+So in MRearrangeAll, must _always_ call RelocateClObjs and RelocateClGenlJDObjs,
+passing the <syncsOnly> flag to them.
+
+-------------------------------------------------------------------------------
+
+29 June-1 July
+
+For Paste as Cue, in MRearrangeAll, _always_ call RelocateClObjs and
+RelocateClGenlJDObjs, passing the <syncsOnly> flag to them => done. ?! RelocateClObjs
+and RelocateClGenlJDObjs have "break" statements where it realllly looks like they
+should have "continue"s! As written, their _for_ loops are going to quit prematurely,
+no?
+
+Test to test Paste as Cue w/ all object types; cf. the objTable[], def'd in vars.h ??
+
+-------------------------------------------------------------------------------
+
+18 July
+
+I give up on Paste as Cue, at least for the time being. I think it's almost working,
+but have to do other things for the Concerto. So just pull the menu command out of
+the menu and processing in Menu.cp... ??
+
+-------------------------------------------------------------------------------
+
+14 Aug.
+
+Following up comments of 1 Jan., another idea for artificial harmonics: (3) take a chord
+of three notes, meaning the obvious, as input. Do the same things as in idea #2, but
+also move the top note into another voice and give it stem length 0! But is any version
+of displaying artificial harmonics as such important enough to bother with? No, unless
+Madalyn thinks it's important!
+
+-------------------------------------------------------------------------------
+
+23 Aug. - 15 Sept.
+
+I need better tools for consistency checking of massaged parts against the score!
+Ideas:
+	+ Have Score Info display the score duration in ticks as well as measures & beats.
+		This would allow directly comparing info on the score to info on any part.
+
+For checks other than total duration, the easiest way is surely by comparing a NON-
+massaged newly-extracted part to the massaged one, but how?
+
+	+ Have Score Info optionally write its info to the log file, to facilitate
+		doing text comparisons on the info from two scores
+	+ Add a "skeleton" option to Save Notelist that writes out only general info:
+		definitely time signatures and Measures; maybe tempo/MMs -- but the latter
+		will be far more useful (i.e., far less confusing) if they always appear in
+		the same place relative to their barlines.
+	+ Make notelists more consistent to facilitate doing text comparisons on the
+		info from two scores. Important: make tempo/MMs attached to barlines always
+		appear in the same place relative to the barlines! Currently it's different
+		for tempo/MMs attached to systems' initial (invisible) barlines from tempo/MMs
+		attached to other barlines.
+
+Actually, if a system ends with a barline -- say, measureNum = 8 (usually displayed
+as 9) -- and it's not the last system in the score, then there are _two_ Measure objects
+w/ measureNum 8: that one and the one w/ invisible barline at the beginning of the next
+system! And a Tempo/MM attached to the invisible barline is in the object list
+before its Measure, as always; it's just that the visible measureNum 8 is the one
+that goes into the notelist, not the following and invisible one! How about just changing
+that? In that case, we're not exactly "Sav[ing] Selection Notelist", but I don't think
+anyone will notice... especially since probably noone but me is using notelists :-) .
+
+-------------------------------------------------------------------------------
+
+30 Sept. - 4 Oct.
+
+To fit Nightingale conventions better and enhance code readability, use "True" and
+"False" for Boolean constants. First, change all "TRUE" to "True" and all "FALSE" to
+"False" => CarbonStubs.cp gets 6-11 compilation errors!? Everywhere else in Ngale, True
+and False are defined, but I can't find the #defines; here they're _not_ defined, but I
+can't see what the difference is! Anyway, at least for now, just #define them in
+CarbonStubs.cp.
+
+Stop the presses! application.h #define's them unless they're already #define'd.
+(NB: chooseCharLDEF.h is pretty useless; clean it up!)
+
+Now, change all "true" to "True" and all "false" to "False"...
+
+-------------------------------------------------------------------------------
+
+2-4 Oct.
+
+According to BBEdit, a number of C files still have encodings other than UTF-8, mostly
+ISO Latin-1. This could cause problems, e.g., with compiled-in non-ASCII chars., so
+they should be converted to UTF-8:
++ CarbonStubs, Double, DrawUtils
++ About, ChordSym, MIDIFOCmd, UIFUtils
+
+The vast majority of .h's seem to be in ISO Latin-1, etc., not UTF-8; these should also
+be converted, but it's less likely to cause problems.
+
+-------------------------------------------------------------------------------
+
+27 Oct.
+
+In DanceNotesDontPlayBug.ngl, play from start of m. 7 or earlier => the notes on the 3rd
+eighth usually sound for a _very_ short time or not at all! Very occasionally they
+sound for the correct duration. They're the same pitches as the notes on the 2nd eighth,
+but with voices swapped. Play duration of notes on the 2nd eighth is 95% of written (228
+ticks); shorten them to 83% (199 ticks) or less => all is well!  But it's not at all
+clear what's causing this, and I suspect it won't be easy to track down or fix. TBC; put
+it aside for now.
+
+-------------------------------------------------------------------------------
+
+31 Oct. - 8 Nov.
+
+Open RespellAndTransp_2Voice.ngl, select all, transpose up 1 octave => the stem endpoints
+are just where they used to be, so down stems are now way too long and up stems way too
+short. This bug was introduced in 5.8b1; comment on the change is: "Partly fixed bug: When
+notes are transposed or respelled, we always 'normalize' the new notation according to the
+standard one-voice notation rules even if there are two voices on the staff." It's very
+likely in FixVoiceForPitchChange(): the comment "In multivoice (>=2 voices on the staff)
+notation, don't change stem direction, but preserve stem length" is immediately followed
+by <return>, so it _doesn't_ preserve stem length. BUT preserving stem length isn't
+right either! For unbeamed notes, probably call CalcYStem() with the current stem dir;
+for beamed notes, probably just unbeam and rebeam... Actually, CalcYStem seems to handle
+beamed notes too!
+
+W/ Cadenza2VoiceTranspTest.ngl, sel. notes on last beat, respell => notes in voice 2 are
+unchanged, so notation should be unchanged -- but they end up upstemmed. The cause:
+FixBeamsInRange() rebeams all selected notes; it doesn't know they're unchanged, and it
+knows nothing at all about multivoice notation!
+
+FixBeamsInRange just calls Rebeam(doc, beamL); Rebeam calls
+
+	CreateBEAMSET(doc, firstSyncL, RightLINK(lastSyncL), voice,
+					nInBeam, False, doc->voiceTab[voice].voiceRole);
+
+But the voiceRole recorded in the voice table is just the voice's _current_ role; it's
+only weakly correlated with the role played by the notes in a given beamed group! Rebeam
+should probably check if the beam's notes are involved in multivoice notation, and if
+so, preserve the stem direction; likewise for unbeamed notes/chrds => done. Except
+what does "involved in..." mean? The "neighborhood" matters too, especially for unbeamed
+notes/chords; consider at least adjacent notes/chords on the staff => ??
+
+And what if they _aren't_ involved in multivoice notation? Currently we use the
+voiceRole, but again, that's only weakly correlated with the note(s)' role. Would it be
+better to use single-voice rules? Probably, but maybe put that off for now??
+
+-------------------------------------------------------------------------------
+
+10 - 12 Nov.
+
+GitHub comment on Issue #57 says "HiliteAttPoints() is used for double clicks on
+Graphics, Syncs, Ottavas, and hairpin Dynamics: of these, currently only hairpin
+Dynamics have two attachment points. It works for the one attachment point of Graphics
+(bringing up a dialog), but does nothing visible for Syncs, Ottavas, and hairpin
+Dynamics (which don't bring up a dialog)! Its failure is no problem for Syncs (which
+can't be attached to anything anyway) and Ottavas, but for hairpin Dynamics, it means
+the user has no indication that they're inserting the hairpin on the wrong staff (one
+adjacent to the intended one)." Actually, hiliting works on Tempo/MMs and chord symbols
+as well as Graphics, all of which bring up a dialog! So, regardless of implementation
+details, the hilite lines show up if and only if there's a dialog on the screen; why?
+
+In CheckTEMPO() calls HiliteInsertNode before putting its dialog up and after taking
+it down. Comment out both => no hiliting appears, as expected.  Comment out only the 2nd
+=> hiliting appears and disappears on alternate double-clicks, as expected. Add the
+obvious code to hilite/unhilite hairpins => OK!
+
+Status (for double-clicking):
+
+Symbol					before	after
+-------------------------------------
+Sync (note or rest)		n		n
+Dynamic, hairpin		n		Y		<-- Better.
+Dynamic, other			Y		Y
+Graphic, text			Y		Y
+Graphic, chord symbol	Y		Y
+Ottava					n		n
+Slur					n		n
+Tuplet					Y		Y
+Tempo/MM				Y		Y
+Ending					Y		Y
+
+-------------------------------------------------------------------------------
+
+What about feedback on inserting symbols?
+
+Status (for insertion):
+
+Symbol					now
+-------------------------------------
+Sync (note or rest)		Y
+Dynamic, hairpin		1st pt.		
+Dynamic, other			Y
+Graphic, text			Y
+Graphic, chord symbol	Y
+Ottava					n
+Slur					1st pt.
+Tuplet					n
+Tempo/MM				Y
+Ending					Y, both pts.!
+
+So we _do_ have code still gives proper feedback on insertion! ??
+
+-------------------------------------------------------------------------------
+
+13 Nov.
+
+Minor cleanup: made voice role constants (now called VCROLE_xxx) independent of
+Multivoice dialog item numbers, etc. Affects Check, Multivoice, and a bunch of other
+files. Oops: it seems to handle Upper & Lower roles correctly, but not Single or
+Cross-staff! Ah, a tiny mistake in the Multivoice dialog handler... Done.
+
+-------------------------------------------------------------------------------
+
+14 - 16 Nov.
+
+For the last few days, I've been getting these messages from Debug Check while working
+on All You Need Is Love:
+
+--CHECK MASTER: sysR.right=9568, ESWidth=64, margR.right=594
+ Done.    --CHECK CLIPBOARD: *DCheckNode: SYSTEM L4 RECT PAST RIGHT MARGIN (580 vs. 567).
+sysR.right=9280, ESWidth=64, margR.right=567
+
+Where does the "right margin" come from? Close the score, open a New score, do
+Debug Check => the same messages, so it seems to have nothing to do with the
+currently-open score. The rects being compared are d2pt(pSystem->systemRect.right)
+and doc->marginRect.right, so it _is_ coming from the score! ??
+
+Quit Ngale, re-launch, New, Debug Check =>
+
+	DEBUG 'Menu'-Standard: --CHECK MAIN:
+	sysR.right=9136, ESWidth=64, margR.right=567
+	Discont. sel, 0 objs in range, 0 sel, 10 total.  0 voices.
+	--CHECK MASTER: sysR.right=9072, ESWidth=64, margR.right=567
+	 Done.    --CHECK CLIPBOARD: sysR.right=9136, ESWidth=64, margR.right=567
+
+...no complaint. Open "All You Need Is Love", Debug Check =>
+
+	--CHECK MASTER: sysR.right=9280=580 pt, ESWidth=64, margR.right=576
+	 Done.    --CHECK CLIPBOARD: sysR.right=9136=571 pt, ESWidth=64, margR.right=567
+
+...still no complaint. But do a Copy, Debug Check =>
+
+	--CHECK MASTER: sysR.right=9280=580 pt, ESWidth=64, margR.right=576
+	 Done.    --CHECK CLIPBOARD: *DCheckNode: SYSTEM L4 RECT EXTENDS INTO RIGHT MARGIN (580 vs. 567).
+	sysR.right=9280=580 pt, ESWidth=64, margR.right=567
+
+The expression for checking systemRect.right has always involved subtracting
+ExtraSysWidth(doc) , the width of the widest barline (final double). In Oct. 2015, I
+kludged that by subtracting 2*ExtraSysWidth(doc) to sidestep the problem, but that's not
+enough for the Clipboard after a Copy operation in All You Need Is Love, presumably bcs
+its right margin is 0.50" instead of the default 0.63", so systemRect.right is
+larger, but marginRect.right is unchanged. What should this be?
+
+We're obviously comparing a systemRect from the main object list that's been copied to
+the clipboard to one from the clipboard! But this complaint is about soomething very
+unimportant; just skip this check on the clipboard => OK. (And likewise for "SYSTEM RECT
+BELOW BOTTOM MARGIN".)
+
+-------------------------------------------------------------------------------
+
+25 - 26 Nov.
+
+New, insert text Graphic, double-click it, do anything to enlarge it => only the area it
+formerly occupied is redrawn. The same thing happens with tempo marks and dynamics. Why?
+
+In CheckGRAPHIC(), at end of case SMDblClick, add
+
+	InvalObject(doc, pL, True)
+	
+=> no change. That's strange, since InvalObject ends with
+
+		if (doErase)	EraseAndInval(&r);
+
+...and True = doErase. But it looks like the call to InvalObject happens before we call
+DrawGRAPHIC and get the new, enlarged bbox:
+
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: InvalObject: r=123,169,138,192 doErase=0
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=1 pDBox=-128,0,32,240
+Nov 27 10:33:51 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 10:33:51 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 10:33:51 DonDualG5 Ngale[74259]: InvalObject: r=123,169,138,192 doErase=1
+Nov 27 10:33:51 DonDualG5 Ngale[74259]: TextDialog: *expanded=0 theExpanded=0
+Nov 27 10:34:24 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 10:34:24 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 10:34:24 DonDualG5 Ngale[74259]: InvalObject: r=123,169,138,192 doErase=1
+Nov 27 10:34:25 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,768
+Nov 27 10:34:25 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=1 pDBox=-128,0,32,768
+
+Wrong. InvalObject itself calls DrawGRAPHIC, which call GetGraphicDBox, but GetGraphicDBox
+still returns the old bbox. Why?
+
+Nov 27 13:10:01 DonDualG5 com.apple.launchd[1] (org.postfix.master[76341]): Stray process with PGID equal to this dead job: PID 76343 PPID 1 qmgr
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: CheckGRAPHIC: <InvalObject 1
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: GetGraphicDBox: count lines=1 fontID, Size, Style=20, 9, 0 str='asdf'
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: InvalObject: r=120,169,135,192 doErase=1
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: TextDialog: *expanded=0 theExpanded=0
+
+Double-click, lengthen string =>
+
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: CheckGRAPHIC: <InvalObject 2
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: GetGraphicDBox: count lines=1 fontID, Size, Style=20, 9, 0 str='asdf'
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: InvalObject: r=120,169,135,192 doErase=1
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: GetGraphicDBox: count lines=1 fontID, Size, Style=20, 9, 0 str='asdfXXXXX'
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: GetGraphicDBox: pDBox=-128,0,32,768
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: DrawGRAPHIC>GetGraphicDBox: doDraw=1 pDBox=-128,0,32,768
+
+No, right! InvalObject calls DrawGRAPHIC, which call GetGraphicDBox, which returns the old bbox;
+then _somebody_ calls DrawGRAPHIC and gets the new, enlarged bbox, but it's too late. ??
+
+To Be Continued.
+
+-------------------------------------------------------------------------------
+
+3 - 5 Dec.
+
+Issue #163: The current version of my arrangement of All You Need Is Love, on four
+staves in one group, has a repeat bar that should just be a double barline. However,
+setting the type to double barline with the QuickChange command affects only two staves;
+it should affect the entire group. This is especially serious because there's no way to
+fix this with Get Info.
+
+Cause: SetMeasType() correctly operates only on Measure subobjects that are selected,
+but clicking anywhere on the barline in question selects only staves 1 and 3. This is
+a bug in CheckMEASURE(), case SMClick:
+
+ * Measure subobjects are unusual in that they may be grouped as indicated by
+ * connAbove and connStaff, and groups can only be selected as a whole. If this
+ * measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
+ * to include the entire group; if it's a lower one of a group, they will then
+ * already be set correctly. Notice that this code assumes that when a lower
+ * subobject of a group is encountered, we've already set rSub from the top one
+ * of the group; this is safe as long as we insert subobjects for all staves at
+ * once and in order (FIXME: this is questionable -- check it!), and don't
+ * allow deleting anything but the entire object.
+
+That assumption isn't just questionable, it's wrong! But CheckMEASURE() does a lot of
+different things and the code is a mess, so it's difficult to undo properly. Well, find
+the visible staves in the group 1st and operate on all and only those => W%^)(#%$% just
+inserting a barline crashes in CheckMEASURE for a different case! But it shouldn't be
+hard to avoid impacting any case other than SMClick by using my new utility routines
+GetStaffGroupBounds() and GetMeasureVisStaffBounds()... Done!
+
+-------------------------------------------------------------------------------
+
+6 - 7 Dec.
+
+With the latest, New, insert chord symbol => log message "GetGraphicDBox failed. pL=10" and
+nothing is drawn. Open file containing chord symbol => it's not drawn. With 5.8b4, no
+problem. Huh?
+
+With either version, an apparently-correct Graphic of subtype GRChordSym is added to the
+object list. Ah, but the code in GetGraphicDBox, case GRChordSym:
+
+			return False;									/* Handled by DrawChordSym */
+
+So it shouldn't even be getting called! But how has this ever worked?? I see; until very
+recently, the return False was ignored; everything for chord symbols is handled by
+DrawChordSym! Not wonderful. But by far the easiest acceptable fix is to really skip
+calling GetGraphicDBox for chord symbols, _and_ add a comment to explain => done.
+
+-------------------------------------------------------------------------------
+
+22 - 25 Jan. 2018
+
+I've been thinking for a long time that Carbon-based applications can't work past OS
+10.6, but that's dumb: It's obvious now (from statements by Michel Salim and many
+others) they work fine all the way thru OS 10.12; it's just PowerPC apps, like all
+versions of Nightingale to date, that croak at 10.7! Xcode 2.5 & 3.2 both claim to be
+able to compile to i386 code, and on both, the SDK I'm using is "MacOSX10.4u.sdk" -- "u"
+presumably meaning "Universal". So:
+
+In the Ngale project in Xcode 2.5 (on my G5), for Configuration "Release", select both
+PPC and i386; clean and build => Nope, result is still PPC only. Select only i386 =>
+still PPC only. Quit Xcode, re-launch, compile for only i386 again => still PPC only!
+
+In the Ngale project in Xcode 3.2 (on my MacBook Air), for Configuration "Release",
+select "Standard (32/64-bit Universal", clean & build => still PPC only! #^**)E%$()_* .
+Select "Native Architecture of Build Machine" (it'a an Intel Core 2 Duo) => STILL PPC
+only!!??
+
+From http://www.cocoabuilder.com/archive/xcode :
+	
+	"When I upgraded from Xcode 3.2.3 to 3.2.6, Xcode "erased" my universal build
+	settings, as many of you probably know or experienced. I've tried to restore them
+	with some info found on the web, but what I've wound up with is builds that are
+	universal, but do not actually run in 64 bit mode. Can someone please tell me
+	precisely what the correct build settings should be? This is what I have:
+	
+	Architectures: i386 ppc
+	Base SDK: Current Mac OS  (** now on SL)
+	Valid Architectures: x86_64 i386 ppc ppc7400 ppc970
+	Mac OS X 10.5:  x86_64 i386 ppc64
+	
+	Compiler Version: GCC 4.2
+	Mac OS X Deployment Target: Mac OS X 10.4
+	
+	"Note that I created an additional "valid architecture" at one point, because I need
+	to weak link some frameworks for 10.5+ It must run on OS X 10.4"
+
+It's not clear if this helps. What's the relationship between "Architectures" and "Valid
+Architectures" and what Xcode does? According to the Xcode Build Setting Reference, Xcode
+intersects the two lists and that's what it actually builds for. Okay, but Xcode's Get
+Info for Nightingale.xcodeproj, "All Settings", dosn't even show Valid Architectures!
+But they're probably in the xcodeproj in an intelligible form? Yes! project.pbxproj is in
+a JSON-like format; its XCBuildConfiguration section shows Debug and Release configs --
+in fact, two of each! And of the two Release configs, the 2nd has 
+
+				ARCHS = (
+					i386,
+					ppc,
+				);
+
+...which agrees with what Get Info shows; but the 1st just has ARCHS = ppc. Also, the
+1st has VALID_ARCHS = "i386 ppc"; the 2nd doesn't have a VALID_ARCHS. Maybe Xcode is
+paying attention to the 1st? Try hand editing its ARCHS to the same as the 2nd; clean;
+build => it says it's compiling 320 source files, about twice the usual number!! Yay!!
+And, sure enough, it builds a Universal app, one that runs on my OS 10.8.x Intel MacBook
+-- sort of. It's still unusable with Intel processors so far, probably because of Endian
+issues. It gives 11 CNFG errors:
+
+	Checking CNFG:  err #1, err #36, err #36, err #46, err #47, err #62, err #65,
+		err #68, err #78, err #79, err #84, TOTAL OF 11 ERROR(S) FOUND.
+
+...and doesn't even seem to be able to draw a staff! ??
+
+-------------------------------------------------------------------------------
+
+26 - 31 Jan.
+
+On my MacBook Air: Try the Endian approach to Ngale's problems on Intel processors,
+which are little Endian: use  Michel Salim's nice FIX_END macro, in EndianUtils.h. New
+function EndianFixConfig() calls FIX_END for ca. 40 config fields => all config fields
+are (I think) OK! -- but when I quit, Ngale always thinks the config has changed and
+writes it out in little Endian form :-( . Add call to EndianFixConfig() in
+UpdatePrefsFile() => that's OK too.
+
+Next problem: click "New Nightingale File" => error message in BuildCharRectCache():
+"Can't scale the music font: reference symbol has height zero." In fact, for
+the reference char, the bbox.bottom = bbox.top = 0! From the system log:
+
+	Ngale[47090]: Music font is 'Sonata' (font no. 242).  (InitDocMusicFont)
+	coreaudiod[196]: Disabled automatic stack shots because audio IO is active
+	Ngale[47090]: Music font is 'Sonata' (font no. 242).  (InitDocMusicFont)
+	Ngale[47090]: ATS: Invalid FontObjectID (3) - only low 16 bits are being passed in.
+	Ngale[47090]: fontNum=242 refCode=38 bbox[].bottom=0 .top=0.  (BuildCharRectCache)
+
+"ATS: Invalid FontObjectID (3)" sounds bad; could be a symptom of the problem.
+
+On my OS 10.11.x Mac mini, launch the latest => says "Can't create a Nightingale Prefs
+file"! Try again => this time it creates one!; "New Nightingale File" => the same
+error message, this time for Briard.
+
+-------------------------------------------------------------------------------
+
+1 - 5 Feb.
+
+On my OS 10.6 MacBook 3: The PowerPC build works fine, as expected.  The Intel build
+fails in exactly the same ways as on MacBook Air.
+
+BuildCharRectCache() gets the ref. symbol's bbox from InitMusFontTables() -- which gets
+font info directly from a resource, so is vulnerable to endian problems. Add some calls
+to FIX_END => no complaints from BuildCharRectCache(), and Ngale displays clefs, time
+sigs., notes, & rests correctly!, except (a) no flags, & selection hiliting for most
+symbols is a bit too low. Also, in a New score, the only staff line visible is the bottom
+line of the lower staff -- but there's some mysterious heavily strrrretched out stuff,
+very likely supposed to be the other staff lines! Add staff below => It's fine in both
+regular & Master Page; add staff above => likewise. ??
+Do I need more calls to FIX_END? Probably :-| . TO BE CONTINUED.
+
+Possibly related: the palette on both computers is blank, though it behaves correctly,
+i.e., hiliting clicked-on squares, changing the cursor, and causing subsequent clicks
+in the score to do the right thing. DrawToolMenu() does the drawing, assuming an
+image of the palette is in global _palPort_ where SetupToolPalette() puts it. But is
+it really ever getting into palPort?? How can I tell??? Well, I can compare the port
+bitmaps on Intel (where it isn't drawn) to PowerPC (where it is) -- e.g., crudely via
+counting the no. of set bits in each. Write MemBitCount() => ??
+MemBitCount(blah, 300) on PPC: 369, then 380(?)
+"	"	"	" on Intel: 353, then 364: different, but not by nearly enuf to explain
+the difference between a blank palette and a correct one!?! Of course 300 bytes is
+nowhere near the size of the bitmap,which should be the same as the portRect: roughly
+(399*271)/8 = 13500. What about the port bitmap Rect? On PPC:
+
+	DrawToolMenu: ...portRect tlbr=0,0,399,271
+	
+but on Intel (MBAir):
+
+	DrawToolMenu: ...portRect tlbr=0,0,399,-1073750488
+	
+!! So why is portRect.Right garbage on Intel??
+
+!! After some bizarre behavior from LogPrintf and finagling w/ calls to it, I get this
+on both PPC _and_ Intel:
+
+	SetupToolPalette: MemBitCount(palPortBits, -)=262 portRect tlbr=0,0,399,271
+	DrawToolMenu: MemBitCount(palPortBits, -)=262 portRect tlbr=0,0,399,271	
+
+-- exactly the same on both, and all reasonable values now! Now what??
+
+For 400 bytes:
+on PPC, MemBitCount from SetupToolPalette = 262, from DrawToolMenu = 262
+on Intel, MemBitCount from SetupToolPalette = 388, from DrawToolMenu = 388
+
+For 600 bytes:
+on PPC, MemBitCount from SetupToolPalette = 427 or 412, from DrawToolMenu = 427 or 412
+on Intel, MemBitCount from SetupToolPalette = 546 or 572, from DrawToolMenu = 546 or 572
+
+-------------------------------------------------------------------------------
+
+7 Feb.
+
+Back to the "in a New score, the only staff line visible is the bottom line of the lower
+staff -- but there's some mysterious heavily strrrretched-out stuff, very likely
+supposed to be the other staff lines" bug: actually, the strrrretched-out stuff is the
+Connect! Which is a curly brace read from a resource, so it's vulnerable to the Endian
+problem. Skip DrawCONNECT => yep: strrrretched-out stuff disappears, and all staff lines
+appear! Put DrawCONNECT back, add FIX_END()'s => yep: Connect appears!
+
+DrawToolPalette: MemBitCount(palPortBits, 600)=427 portRect tlbr=0,0,399,271
+Feb 17 09:59:14 DonDualG5 Ngale[33188]: d. SizeMenu: charHt=26 charWid=24 numRows=3 numColumns=9
+10 - 14 Feb.
+
+Everything from any call to GetResource(), Get1Resource, etc.,  could be vulnerable to
+the Endian problem, except (I think!) for Apple-defined resources like 'DITL', 'PAT ',
+'PICT', 'STR#', 'TEXT'. Specifically, all multibyte fields containing numbers in:
+
++Config
++MIDI ModNR table
++-PaletteGlobals
+-spaceMap (doc specific)
+-??
+
+Need to go thru _all_ the calls in Ngale! See list in QGetResourceQ.txt .
+
+GitHub Issues 171 & 172 are probably both Endian-related:
+
+When you launch Ngale on an Intel machine, problems appear instantly. On Don's MacBook
+Air and (old) MacBook, the palette is never drawn. On the MBAir, the opening dialog is
+much too tall and, the vast majority of the time,doesn't show the "New Nightingale
+Score" and "Cancel" buttons -- until you resize it, that is. On the old MacBook, that
+dialog is fine.
+
+Trying to open an existing Ngale file on Intel CPUs gives a series of strange error
+messages and, on Don's MacBook Air, crashes or at best displays just the background
+image; on his old white MacBook, it hangs.
+
+-------------------------------------------------------------------------------
+
+16 - 17 Feb.
+
+On my MBAir, the Set Duration "menu" (palette) seems to be waaaaay too large.
+In GraphicMDEF.cp on G5 (with "Show two dots" unchecked):
+
+	d. SizeMenu: charHt=26 charWid=24 numRows=2 numColumns=9
+	d. InitGlobals: gNumItems=18 gNumCols=9 gNumRows=2 gItemHt=26 gItemWid=26
+
+...all reasonable values -- and after adding a few FIX_ENDs to GraphicMDEF.cp, on MBAir,
+they're all?? the same, but the Set Duration dialog is no better! Ah, it's _not_ the
+popped-up palette; it's the unpopped version, showing a single char, which is waaaay,
+WAY too large -- and InitGPopUp() in DurationPopUp sure seems to need FIX_ENDs. Add
+'em => all OK! I.e., the unpopped version is drawn correctly; the popped version
+is the right size, the selected item is hilited, and selecting other items works
+correctly; but the popped palette is blank. Just like the tool palette :-( .
+
+-------------------------------------------------------------------------------
+
+19 - 21 Feb.
+
+I've been using a list of all calls to GetResource, Get1Resource, and GetNamedResource,
+and checked almost all of 'em out -- but I forgot about LoadResource! There are calls to
+LoadResource in GraphicMDEF; add FIX_ENDs for them => better: the popped-up duration palette is
+filled in now, but every other char. is missing! %*&#%(_%  Likewise for the dynamics popup
+and the Add Modifier palette $($@$%* .
+
+Log on my PPC G5:
+
+	Ngale[68821]: d. SizeMenu: charHt=26 charWid=24 numRows=2 numColumns=9
+	--- last message repeated 1 time ---
+	Ngale[68821]: d. InitGlobals: gNumItems=18 gNumCols=9 gNumRows=2 gItemHt=26 gItemWid=24
+	--- last message repeated 1 time ---
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=1 theRect tlbr=166,768,192,792
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=2 theRect tlbr=166,792,192,816
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=3 theRect tlbr=166,816,192,840
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=4 theRect tlbr=166,840,192,864
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=5 theRect tlbr=166,864,192,888
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=6 theRect tlbr=166,888,192,912
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=7 theRect tlbr=166,912,192,936
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=8 theRect tlbr=166,936,192,960
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=9 theRect tlbr=166,960,192,984
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=10 theRect tlbr=192,768,218,792
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=11 theRect tlbr=192,792,218,816
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=12 theRect tlbr=192,816,218,840
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=13 theRect tlbr=192,840,218,864
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=14 theRect tlbr=192,864,218,888
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=15 theRect tlbr=192,888,218,912
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=16 theRect tlbr=192,912,218,936
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=17 theRect tlbr=192,936,218,960
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=18 theRect tlbr=192,960,218,984
+
+On my Intel MBAir:
+
+	Ngale[68496]: d. SizeMenu: charHt=26 charWid=24 numRows=2 numColumns=9
+	Ngale[68496]: d. SizeMenu: charHt=26 charWid=24 numRows=2 numColumns=9
+	Ngale[68496]: d. InitGlobals: gNumItems=18 gNumCols=9 gNumRows=2 gItemHt=26 gItemWid=24
+	Ngale[68496]: d. InitGlobals: gNumItems=18 gNumCols=9 gNumRows=2 gItemHt=26 gItemWid=24
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=1 theRect tlbr=166,672,192,696
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=2 theRect tlbr=166,696,192,720
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=3 theRect tlbr=166,720,192,744
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=4 theRect tlbr=166,744,192,768
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=5 theRect tlbr=166,768,192,792
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=6 theRect tlbr=166,792,192,816
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=7 theRect tlbr=166,816,192,840
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=8 theRect tlbr=166,840,192,864
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=9 theRect tlbr=166,864,192,888
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=10 theRect tlbr=192,672,218,696
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=11 theRect tlbr=192,696,218,720
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=12 theRect tlbr=192,720,218,744
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=13 theRect tlbr=192,744,218,768
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=14 theRect tlbr=192,768,218,792
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=15 theRect tlbr=192,792,218,816
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=16 theRect tlbr=192,816,218,840
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=17 theRect tlbr=192,840,218,864
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=18 theRect tlbr=192,864,218,888
+
+...exactly the same coords., except on MBAir the x coords. are all 96 less -- which hardly
+explains the missing chars! ??
+
+On Intel, in the 1st row, the odd-numbered chars. are drawn; in the 2nd row, the even-
+numbered chars.; in the 3rd row (if "Show 2 dots" is checked), again the odd-numbered
+chars.
+
+So Ngale is (trying to) draw the chars. in the right positions. What chars. is it drawing?
+On my G5:
+
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=1 theRect tlbr=166,768,192,792
+	Ngale[69602]: d. DrawItem: item=1 theChar=2 itemRect->left=768, ->bottom=192
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=2 theRect tlbr=166,792,192,816
+	Ngale[69602]: d. DrawItem: item=2 theChar=0 itemRect->left=792, ->bottom=192
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=3 theRect tlbr=166,816,192,840
+	Ngale[69602]: d. DrawItem: item=3 theChar=. itemRect->left=816, ->bottom=192
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=4 theRect tlbr=166,840,192,864
+	Ngale[69602]: d. DrawItem: item=4 theChar=, itemRect->left=840, ->bottom=192
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=5 theRect tlbr=166,864,192,888
+	Ngale[69602]: d. DrawItem: item=5 theChar=* itemRect->left=864, ->bottom=192
+	etc. etc.
+	
+...and the log on my MBAir shows the same sequence of chars. :-( .
+
+But the curly brace char. for Connects is fine! So the problems seem to be related to
+drawing palettes that we handle as pop-up menus.
+
+-------------------------------------------------------------------------------
+
+23 - 25 Feb.
+
+Status: In all cases, selecting and hiliting are fine; the only problem is drawing; for
+the pop-ups (all but the tool palette), the problem is only in the popped-up state.
+Exactly what is drawn?
+
+* TOOL PALETTE: 'PLCH' & 'PLMP' resources; drawing via CopyBits(). Nothing is drawn
+except the grid and hiliting.
+
+* ALL OTHERS: 'chgd' (& 'SICN' for arrows) resources; drawing via DrawChar(). Odd numbered
+chars are drawn, but:
+* Duration palette: clicking on an even numbered char. draws it before the palette closes!
+* Dynamic palette: just hovering over an even numbered char. sometimes draws it (and
+erases the next one?); clicking always does.
+* Modifier palette: just hovering over an even numbered char. OFTEN draws it (and
+occasionally erases the next one?); clicking always does.
+
+Ah, if HiliteMenuItem() finds <previousItem> and <newItem> are different, it calls
+InvertItem for each, and InvertItem actually redraws the item! This makes more sense.
+Hmmm... InvertItem sets a clipping region, and it has a comment "All this clipping stuff
+is probably unnecessary, but it doesn't hurt." But maybe it does!? Try on MBAir => nope;
+no change -- except I now see an odd numbered char. disappearing instead of an even one
+appearing! ??
+
+-------------------------------------------------------------------------------
+
+28 Feb.
+
+Summary of known problems on Intel machines as of the 25 Feb. commit:
+
+1. On launch, (a) the initial Open File dialog is much too tall, and (b) the "New
+Nightingale Score" and Cancel buttons usually aren't shown until you resize it;
+nonetheless you can click on them and they work!
+
+2. On launch, the tool palette isn't filled in, though it works perfectly in terms of
+selecting tools and hiliting their squares. Nothing I've tried -- resizing, etc. -- gets
+Ngale to fill it in.
+
+3. The three pop-up menu palettes all have similar problems drawing their contents.
+Launch, New Nightingale Score, insert a note, Set Duration, click on the note => the
+palette pops up, but only odd-numbered squares are filled in. See 22-25 Feb. above for
+details.
+
+4. The selectable area (& hiliting for it) is the same as on PPC for timesigs, but slightly
+too low for most other symbols.
+
+(Note: My G5 suddenly became unusuable on 28 Feb.; a one-week hiatus ensued while I got
+it working again.)
+
+-------------------------------------------------------------------------------
+
+9 - 11 March
+
+My comment of 7 Feb.: "Everything from any call to GetResource(), Get1Resource, etc.,
+could be vulnerable to the Endian problem, except (I think!) for Apple-defined resources
+like 'DITL', 'PAT ', 'PICT', 'STR#', 'TEXT'." Apple Universal Binary Programming
+Gudidelines confirms that Apple takes care of Endianness for their own resources, so my
+problems are definitely elsewhere!
+
+How about the excessive height of the initial Open File dialog on my MacBook Air? This
+is set in NSNavOpenEventProc(), called from NavCreateGetFileDialog() via a UPP that's
+the latter's 3rd parameter. On my G5, it's 401; on my MacBook Air, it's 820. Why?? On my
+old MacBook w/ the PPC version (Via Rosetta), it's 397, which is a bit smaller but OK, &
+it shows all its buttons; w/ the Intel version, it's 397, which is OK, & it shows all
+its buttons! On my Mac mini, it's 457, somewhat larger but OK, & it shows all its
+buttons. On all three Intel systems, the tool palette behaves the same (it's never
+filled in, though it works perfectly otherwise), and the three pop-up menu palettes have
+similar problems drawing their contents. Sigh... I have no idea; TBContinued.
+
+-------------------------------------------------------------------------------
+
+11 - 13 March
+On the selection area/hiliting problem: New, Select All => look at log:
+
+On Intel (MBAir):
+3/11/18 5:33:04.485 PM Ngale[81606]: debug. CheckCLEF: wSub=-23904,-23913,-23878,-23904
+3/11/18 5:33:04.485 PM Ngale[81606]: debug. CheckCLEF: wSub=-23859,-23913,-23848,-23903
+
+On PPC (G5):
+Mar 11 17:31:57 DonDualG5 Ngale[45230]: debug. CheckCLEF: wSub=-23908,-23913,-23882,-23904
+Mar 11 17:31:57 DonDualG5 Ngale[45230]: debug. CheckCLEF: wSub=-23863,-23913,-23850,-23903
+
+So wSub.top and wSub.bottom really are slightly less negative (= lower on the page) on
+Intel. Is it the same font? Yep, Briard for both. CheckCLEF sets wSub like this:
+
+		rSub = charRectCache.charRect[glyph];
+		OffsetRect(&rSub, d2p(xd), d2p(yd));
+		wSub = rSub; OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
+
+So evidently the charRectCache.charRect[]s for many symbols are different on the two
+machines -- and correct on the PPC!?  BuildCharRectCache() does what it sounds like, via:
+
+	bbox = musFontInfo[doc->musFontInfoIndex].cBBox;
+
+...and InitMusFontTables() fills in the cBBox values from our 'BBX#' resource. Does that
+really have slightly different values on the two platforms?
+
+On MBAir:
+3/12/18 2:06:25.384 PM Ngale[97766]: info. Setting up music font 'Sonata': 174 chars.  (InitMusFontTables)
+3/12/18 2:06:25.384 PM Ngale[97766]: debug. InitMusFontTables: ch=&=38 yt=-1079 yb=657	[ht=1736]
+3/12/18 2:06:25.384 PM Ngale[97766]: debug. InitMusFontTables: ch=?=63 yt=-736 yb=64	[ht=800]
+3/12/18 2:06:25.385 PM Ngale[97766]: info. Setting up music font 'Briard': 217 chars.  (InitMusFontTables)
+3/12/18 2:06:25.385 PM Ngale[97766]: debug. InitMusFontTables: ch=&=38 yt=-1079 yb=656
+3/12/18 2:06:25.385 PM Ngale[97766]: debug. InitMusFontTables: ch=?=63 yt=-735 yb=64
+3/12/18 2:06:25.417 PM Ngale[97766]: info. Setting up music font 'BlueNotz-NG': 217 chars.  (InitMusFontTables)
+3/12/18 2:06:25.417 PM Ngale[97766]: debug. InitMusFontTables: ch=&=38 yt=-1079 yb=656
+3/12/18 2:06:25.417 PM Ngale[97766]: debug. InitMusFontTables: ch=?=63 yt=-735 yb=64
+
+On G5:
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: info. Setting up music font 'Sonata': 174 chars.  (InitMusFontTables)
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=&=38 yt=-1334 yb=402	[ht=1736]
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=?=63 yt=-991 yb=-192	[ht=799]
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: info. Setting up music font 'Briard': 217 chars.  (InitMusFontTables)
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=&=38 yt=-1334 yb=401
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=?=63 yt=-990 yb=-192
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: info. Setting up music font 'BlueNotz-NG': 217 chars.  (InitMusFontTables)
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=&=38 yt=-1334 yb=401
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=?=63 yt=-990 yb=-192
+
+!! The Intel (MBAir) values are all larger by 255 or 256! Could these different values be
+present in the 'BBX#'?
+
+Compare the values for char. code 38 & 63 in BBX# 129 (Briard) in the latest
+NightingalePPC.app and NightingaleIntel.app => they're exactly the same. Maybe I'm
+somehow using the BBX#'s from a different resource file? Delete the BBX# for Blue Notz
+from NgaleIntel, run it => BlueNotz is gone, so that's not it. %^&(@#(^$#%  Whatever it
+is, it's something pretty weird! Could FIX_END possibly be the problem??
+
+BBX# values of width & bounding box for char. codes 38 & 63, both before and after FIX_END, on G5:
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: info. Setting up music font 'Sonata': 174 chars.  (InitMusFontTables)
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   611  611
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   0  0
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   402  402
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   611  611
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   -1334  -1334
+
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   694  694
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   0  0
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   -192  -192
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   691  691
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   -991  -991
+
+On MBAir:
+3/13/18 7:46:16.373 PM Ngale[11513]: info. Setting up music font 'Sonata': 174 chars.  (InitMusFontTables)
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   25346  611
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   0  0
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   -28414  657	**255 GREATER THAN G5 VALUE
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   25346  611
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   -13829  -1079	**255 GREATER THAN G5 VALUE
+
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   46594  694
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   0  0
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   16384  64		**255 GREATER THAN G5 VALUE
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   -19710  691
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   8445  -736	**255 GREATER THAN G5 VALUE
+
+Nope, FIX_END is okay (confirmed via my own SwapBytes program). What does Ngale do
+before getting the values listed above?
+
+		resH = Get1IndResource('BBX#', i); 
+		if (!GoodResource(resH)) goto error;
+		GetResInfo(resH, &resID, &resType, resName);
+		
+Sure looks like a bug in the Intel implementation of the Resource Manager, a highly
+unlikely bug since it affects things so selectively, but via Sherlock Holmes' dogma...
+!! In which case, the only solution is a kludge to correct it => done.
+
+-------------------------------------------------------------------------------
+
+18 Mar.
+
+I upgraded my MacBook Air from OS 10.8 to 10.13; problem of 1b of 28 Feb. no longer occurs.
+Updated list of known problems on Intel machines:
+
+1. On launch, the initial Open File dialog is much too tall.
+
+2. On launch, the tool palette isn't filled in, though it works perfectly in terms of
+selecting tools and hiliting their squares. Nothing I've tried -- resizing, etc. -- gets
+Ngale to fill it in.
+
+3. The three pop-up menu palettes all have similar problems drawing their contents.
+Launch, New Nightingale Score, insert a note, Set Duration, click on the note => the
+palette pops up, but only odd-numbered squares are filled in. See 22-25 Feb. above for
+details.
+
+-------------------------------------------------------------------------------
+
+20 - 28 Mar.
+
+Working on opening files on Intel processors; _lots_ of Endian problems.
+
+EndianFixDocumentHdr() works.
+
+EndianFixScoreHdr() calls exit() and quits because sizeof(something) is 1!?! ...Fixed.
+
+-------------------------------------------------------------------------------
+
+1 - 10 April
+
+More work on opening files on Intel processors, esp. EndianFixScoreHdr().
+
+Uh-oh. <firstMNNumber> is a 13-bit field, so we must do something special: write
+EndianFix_13BitField() & test with firstMNNumber = 259 => nope! #%^&*#$%*#)%#$%  Ngale
+reads in 259 = 0x103 as 124 = 0x7c !! Then it converts it -1024 = 0xfffffc00 -- garbage,
+of course; but how does it get 0x7c?? It's not just swapping the bytes of the <short>
+that <firstMNNumber> belongs to -- and Harbison & Steele's _C: A Reference Manual_ warns
+that bit fields are "likely to be nonportable". This is looking really bad, since our
+objects and subobjects and jammed with bit fields!!
+
+By far the most reasonable solution I can think of: a new file format, format "N106",
+that doesn't use bit fields at all! Or perhaps it still uses them, but far less than the
+current format, and only in very limited ways. The Intel version of Ngale 5.8 won't be
+able to open N105 or earlier files, but the PPC version will be able to open them & save
+them in the new format. This will also allow making some other desirable changes to
+files & to the object list: cf. NgaleFileFormatIdeas.txt.
+
+This is going to take awhile! TBContinued.
+
+-------------------------------------------------------------------------------
+
+10 - 11 April
+
+The "notes entered on a new system aren't drawn until there's a barline following on the
+system" bug (GitHub Issue #165) is a real pain. Cf. discussion above for Feb. - Mar.
+2016.
+
+The basic problem is that entering the notes leaves measureBBox.right = measureBBox.left.
+One place -- maybe the only one! -- where measureBBox.right is updated is in DrawMEASURE().
+Is it getting called in this situation? Yes -- but measureBBox.right is set to the right
+end of the system, which is correct; the problem is measureBBox.left! Why? The comment:
+
+	/* If this is the last measure of a system, just set its measureBBox to end exactly
+	   at the end of the system. If in addition the previous measure ends at the same
+	   point, this measure's width is zero, and we set its measureBBox to start at that
+	   point as well. */
+
+But the test for the previous measure ending at the same point doesn't consider the case
+where the previous measure is on the previous system! Fixed.
+
+-------------------------------------------------------------------------------
+
+21 April - 11 May
+
+Doing more testing of how Ngale on Intel reads the 13-bit score header field 
+<firstMNNumber> before going ahead with the new file format plan...
+
+In files with the other three bits in the word (aboveMN, sysFirstMN, startMNPrint1) all
+set to 1, Ngale reads firstMNNumber of:
+	0x001 (1)    as  0x03c (60)
+	0x02a (42)   as  0x55c (1372)
+	0x07e (124)  as  0xf9c (3996)
+	0x07e (126)  as  0xfdc (4060)
+	0x07f (127)  as  0xffc (4092)
+	0x103 (259)  as  0x7c (124)
+
+Looks like the other three bits become these bits of firstMNNumber: 0x038; if so, the
+three missing bits of firstMNNumber must go into those flags! -- which makes sense.
+
+So I _could_ unscramble these fields, but I doubt it's worth the trouble! But almost
+all of Ngale's bit fields stored in files are less than 8 bits, so fit in a byte; maybe
+unscrambling them is practical?
+
+Bit fields > 7 bits declared in NTypes.h:
+
+	NIGHTSCOREHEADER:
+				firstMNNumber:13;	/* Number of first measure */
+
+	MEASURE obj & subobj:
+				measureNum:15;		/* internal measure number; first is always 0 */
+					spacePercent:15;	/* Percentage of normal horizontal spacing used */
+
+	"Structs for Merge" (VInfo & ClipVInfo):
+				unused:11;
+					unused:13;
+
+Bit fields > 7 bits declared in NMiscTypes.h:
+					moreUnused:11;
+
+NB: It's not obvious even "unused" fields of over 8 bits won't complicate things, since
+they might result in other fields in the same word getting scrambled across bytes :-( .
+
+Anything declared elsewhere that's written to Ngale files?? TBContinued, but the path
+of least resistance is very likely the simple version of the plan outlined above, namely
+format N106 will use no bit fields at all.
+
+-------------------------------------------------------------------------------
+
+14 - 15 May
+
+Using Xcode 3.2 on Torrey's Old White MacBook: Xcode insists InitNightingale() is
+undefined!? Clean All Targets, Build again => no change. Remove InitNightingale.cp from
+the project, put it back in => no change. Replace project file w/ a copy from MacBook
+Air => all OK. Weird.
+
+-------------------------------------------------------------------------------
+
+24 May - 4 June
+
+Issue #173: The minimum space between notes on ledger lines isn't enough; as a result,
+the ledger lines on consecutive notes in measures Respaced to a small percentage touch
+each other and appear to merge, which makes the notes really hard to read. This is a
+big problem for my 2-flute arrangement of the Mozart Andante.
+
+Adjustment probably needs to consider chords as a whole, w/ regular & suspended notes
+both above and below staff; cf. DrawNoteLedgers().
+
+Write GetNCLedgerInfo(); call it from DrawNCLedgers() => OK. Write NCHasLedgers(), which
+also calls GetNCLedgerInfo() => looks OK. Now, routines in SpaceHighLevel.cp and/or
+SpaceTime.cp need to use NCHasLedgers() when Respace1Bar() is computing new positions
+for the "spine" -- but doing it one note/chord at a time isn't enough: we need extra
+space between two consecutive notes/chords only if _both_ have ledger lines, and on the
+same side of the staff!
+
+Write ConsiderLedgerLines(), called from ConsiderWidths(), called from Respace1Bar()...
+
+-------------------------------------------------------------------------------
+
+17 - 18 August
+
+Back to problems on Intel unrelated to opening/saving files. Summary of known problems
+(rev. from 18 March):
+
+1. On launch, the initial Open File dialog is sometimes much too tall. I say "is
+sometimes", but I haven't seen this at all recently.
+
+2. On launch, the tool palette isn't filled in, though it works perfectly in terms of
+selecting tools and hiliting their squares. Nothing I've tried -- resizing, etc. -- gets
+Ngale to fill it in.
+
+3. The three pop-up menu palettes all have similar problems drawing their contents.
+Launch, New Nightingale Score, insert a note, Set Duration, click on the note => the
+palette pops up, but only odd-numbered squares are filled in. See 22-25 Feb. above for
+details.
+
+-------------------------------------------------------------------------------
+
+22 - 23 August
+
+Moving some of NTypes.h into a new header, NObjTypes.h, seems to result in sizeof(AGRAPHIC)
+being 8 instead of 6! -- which makes old files unreadable. How could that cause the size
+to change??
+
+Copies of the bad files are NTypesQ1.h and NObjTypesQ1.h of 19 Aug., ca. 6 PM.
+
+Starting over with NTypesOK.h, move into a new NObjTypes.h:
+	UserPopUp
+	OBJECTHEADER, SUBOBJHEADER, EXTOBJHEADER
+	HEADER, PHEADER
+	TAIL => DYNAMIC
+	enum for dynamics
+	AMODNR => OBJDATA
+
+But wait! NTypes.h is enclosed in
+	#pragma options align=mac68k
+	...
+	#pragma options align=reset
+
+So is NMiscTypes.h and many other .h's; but NObjTypes.h isn't!! Add to NObjTypes.h =>
+all OK.
+
+-------------------------------------------------------------------------------
+
+25 - 30 August
+
+On Issue 67 (initial position of tool palette is sometimes at very top of screen,
+underneath the menu bar): Where is the initial position set? Where is it even made
+visible? NInitFloatingWindows() creates the window & makes it invisible, with a windowRect
+set in SetupPaletteRects(). Adjust the position there => seems to move it down, as desired,
+so this should avoid the problem -- though it's certainly not the correct fix.
+
+-------------------------------------------------------------------------------
+
+1 September
+
+I think all almost all of the bit fields that affect files are now in NObjTypes.h. How
+about KSITEM, still in NTypes.h? Oops: instances of it are written to files; likeewise
+for TEXTSTYLE, of which NIGHTSCOREHEADER has 15 occurrences (though they aren't called
+that) and probably VOICEINFO, all in NTypes.h. And NMiscTypes.h has loads of bit fields.
+Oh well! For now, just add comment that changing these headers has implications for Ngale
+files.
+

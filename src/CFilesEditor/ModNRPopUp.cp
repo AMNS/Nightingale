@@ -9,13 +9,13 @@
  */
  
 /* Includes code for managing key presses that select from a popup menu of note
-modifiers. This code parallels that for duration popups in DurationPopUp.c.
-(That file also includes the more generic code for creating graphic popups
-with the MDEF -- which really should go in its own file.)  Also in the current
-file are dialog routines invoked when user double-clicks a modifier or chooses
-the Add Modifiers command. I thought it best to keep these here, since they need
-static vars. The whole mechanism for keyboard selection should be generalized to
-work with all the graphic popups, but no time for that now.  -- John Gibson, 8/4/00 */
+modifiers. This code parallels that for duration popups in DurationPopUp.c. (That
+file also includes the more generic code for creating graphic popups with the MDEF
+-- which really should go in its own file.)  Also in the current file are dialog
+routines invoked when user double-clicks a modifier or chooses the Add Modifiers
+command. I thought it best to keep these here, since they need static vars. FIXME:
+The whole mechanism for keyboard selection should be generalized to work with all
+the graphic popups, but no time for that now.  -- John Gibson, 8/4/00 */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -24,6 +24,7 @@ work with all the graphic popups, but no time for that now.  -- John Gibson, 8/4
 extern Boolean TranslatePalChar(short *, short, Boolean);
 
 /* ASCII decimal for the modNR symbols in popDynMod font */
+
 static enum {
 	POP_MOD_FINGERING_0 = 97,
 	POP_MOD_FINGERING_1,
@@ -45,19 +46,19 @@ static enum {
 	POP_MOD_TURN,
 	POP_MOD_FERMATA,
 	POP_MOD_INV_MORDENT,
-	POP_MOD_TREMOLO,			/* NOTE: this doesn't map to just one mod code; see NTypes.h */
+	POP_MOD_TREMOLO,			/* NOTE: this map to several mod codes; see NObjTypes.h */
 	POP_MOD_PLUS,
 	POP_MOD_CIRCLE
 } E_ModNRSyms;
 
 
 typedef struct {
-	Byte modCode;					/* from NTypes.h */
+	Byte modCode;				/* from NObjTypes.h */
 	unsigned char symCode;		/* from <symtable> in vars.h */
 } MODNR_POPKEY;
 
 
-/* ---------------------------- ModNRPopupKey & Friends --------------------------- */
+/* ------------------------------ ModNRPopupKey & Friends ------------------------------ */
 
 /* Allocates 1-based array mapping menu item numbers to MODNR_POPKEY structs.
 Caller should dispose this pointer when disposing its associated popop.
@@ -66,11 +67,11 @@ Assumes graphic popup already inited.
 CAUTION: The symCodes assigned here _must_ be consistent with those that appear
 in the <symtable> in vars.h. */
 
-static MODNR_POPKEY *InitModNRPopupKey(PGRAPHIC_POPUP	gp);
-static MODNR_POPKEY *InitModNRPopupKey(PGRAPHIC_POPUP	gp)
+static MODNR_POPKEY *InitModNRPopupKey(PGRAPHIC_POPUP gp);
+static MODNR_POPKEY *InitModNRPopupKey(PGRAPHIC_POPUP gp)
 {
-	short				i;
-	char				*q;
+	short			i;
+	char			*q;
 	MODNR_POPKEY	*pkeys, *p;
 	
 	if (gp==NULL || gp->numItems==0) return NULL;
@@ -187,12 +188,12 @@ broken:
 }
 
 
-/* Given a modifier popup and associated MODNR_POPKEY array, return the index
-into that array of the given modCode. The index will be a menu item number. */
+/* Given a modifier popup and associated MODNR_POPKEY array, return the index into
+that array of the given modCode. The index will be a menu item number. */
 
 static short GetModNRPopItem(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, short modCode)
 {
-	short				i;
+	short			i;
 	MODNR_POPKEY	*q;
 	
 	for (i=1, q=&pk[1]; i<=p->numItems; i++, q++)
@@ -204,7 +205,7 @@ static short GetModNRPopItem(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, short modCode)
 
 /* Given a character code <theChar>, a popup <p> and its associated MODNR_POPKEY
 array <pk>, determine if the character should select a new modifier from the popup.
-If it should, call SetGPopUpChoice and return TRUE; if not, return FALSE. ModNRPopupKey
+If it should, call SetGPopUpChoice and return True; if not, return False. ModNRPopupKey
 calls TranslatePalChar before doing anything, so it recognizes remapped modifier key
 equivalents. */
 
@@ -215,7 +216,7 @@ Boolean ModNRPopupKey(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, unsigned char theChar)
 	
 	/* remap theChar according to the 'PLMP' resource */
 	intChar = (short)theChar;
-	TranslatePalChar(&intChar, 0, FALSE);
+	TranslatePalChar(&intChar, 0, False);
 	theChar = (unsigned char) intChar;
 	
 	newModCode = NOMATCH;
@@ -226,13 +227,13 @@ Boolean ModNRPopupKey(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, unsigned char theChar)
 		}
 	}
 	if (newModCode==NOMATCH)
-		return FALSE;										/* no action for this key */
+		return False;										/* no action for this key */
 	
 	newItem = GetModNRPopItem(p, pk, newModCode);
 	if (newItem && newItem!=p->currentChoice)
 		SetGPopUpChoice(p, newItem);
 
-	return TRUE;											/* the keystroke was directed at popup */
+	return True;											/* the keystroke was directed at popup */
 }
 
 
@@ -242,7 +243,7 @@ Boolean ModNRPopupKey(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, unsigned char theChar)
 
 static GRAPHIC_POPUP	modNRPop, *curPop;
 static MODNR_POPKEY	*popKeysModNR;
-static short			popUpHilited = TRUE;
+static short			popUpHilited = True;
 
 #define CurEditField(dlog) (((DialogPeek)(dlog))->editField+1)
 
@@ -257,8 +258,8 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
-	short				ch, ans;
-	Point				where;
+	short			ch, ans;
+	Point			where;
 	GrafPtr			oldPort;
 	
 	w = (WindowPtr)(evt->message);
@@ -268,13 +269,13 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));			
 				UpdateDialogVisRgn(dlog);
-				FrameDefault(dlog, OK, TRUE);
+				FrameDefault(dlog, OK, True);
 				DrawGPopUp(curPop);		
 				HiliteGPopUp(curPop, popUpHilited);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
-				return TRUE;
+				return True;
 			}
 			break;
 		case activateEvt:
@@ -288,21 +289,21 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (PtInRect(where, &curPop->box)) {
 				DoGPopUp(curPop);
 				*itemHit = MODNR_POP_DI;
-				return TRUE;
+				return True;
 			}
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
-				return TRUE;
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
+				return True;
 			ch = (unsigned char)evt->message;
 			ans = ModNRPopupKey(curPop, popKeysModNR, ch);
 			*itemHit = ans? MODNR_POP_DI : 0;
-			HiliteGPopUp(curPop, TRUE);
-			return TRUE;
+			HiliteGPopUp(curPop, True);
+			return True;
 			break;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -321,14 +322,14 @@ Boolean SetModNRDialog(Byte *modCode)
 	filterUPP = NewModalFilterUPP(ModNRFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(SETMOD_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	dlog = GetNewDialog(SETMOD_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(SETMOD_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -355,13 +356,13 @@ Boolean SetModNRDialog(Byte *modCode)
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	dialogOver = FALSE;
+	dialogOver = False;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
 			case Cancel:
-				dialogOver = TRUE;
+				dialogOver = True;
 				break;
 			default:
 				;
@@ -399,14 +400,14 @@ Boolean AddModNRDialog(Byte *modCode)
 	filterUPP = NewModalFilterUPP(ModNRFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(ADDMOD_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	dlog = GetNewDialog(ADDMOD_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(ADDMOD_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -433,13 +434,13 @@ Boolean AddModNRDialog(Byte *modCode)
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	dialogOver = FALSE;
+	dialogOver = False;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
 			case Cancel:
-				dialogOver = TRUE;
+				dialogOver = True;
 				break;
 			default:
 				;

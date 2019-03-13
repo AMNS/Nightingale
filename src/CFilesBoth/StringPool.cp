@@ -1,17 +1,17 @@
 /*
  *								NOTICE
  *
- *	THIS FILE IS CONFIDENTIAL PROPERTY OF MATHEMAESTHETICS INC.  IT IS
- *	IS CONSIDERED A TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY
- *	PARTIES WHO HAVE NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
+ *	THIS FILE IS CONFIDENTIAL PROPERTY OF MATHEMAESTHETICS INC.  IT IS CONSIDERED
+ *	A TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
+ *	WRITTEN AUTHORIZATION FROM THE OWNER.
  *
  *	String Pool Manager Source Code, Nightingale version.
  *	Copyright 1987-96	Mathemaesthetics, Inc.
  *	All Rights Reserved.
  *
- *	This file contains routines to implement the String Pool Manager.
- *	A StringPool can contain C or Pascal strings, which are referenced
- *	by the outside world using StringRefs.
+ *	This file contains routines to implement the String Pool Manager. A StringPool
+ *	can contain C or Pascal strings, which are referenced by the outside world
+ *	using StringRefs.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -28,9 +28,9 @@
 	#define nil			((void *)0)
 #endif
 
-#ifndef TRUE
-	#define TRUE		1
-	#define FALSE		0
+#ifndef True
+	#define True		1
+	#define False		0
 #endif
 
 #define MAXPOOLNEST		32
@@ -88,19 +88,18 @@ static void	DefaultNoMemory(OSErr err);
 /*
  *	Re-initialize the String Manager to use a push/pop context stack of given
  *	nesting size, maxNest, and to allocate a default string pool with given
- *	initial size, firstSize.  Deliver TRUE if done, FALSE if couldn't do it.
+ *	initial size, firstSize.  Deliver True if done, False if couldn't do it.
  *	All hell will break loose if this routine's failure is ignored.
  *	If either of the arguments is 0, then we use internal default sizes.
  */
 
 int InitStringPools(short maxNest, long firstSize)
 	{
-		int okay = FALSE; long size;
+		int okay = False; long size;
 		
 		// Allocate/reallocate the pushme/poolyou stack
 		
-		if (poolStack)
-			DisposePtr((Ptr)poolStack);
+		if (poolStack) DisposePtr((Ptr)poolStack);
 			
 		if (maxNest <= 0) maxNest = MAXPOOLNEST;			// Use default if 0
 		size = maxNest * sizeof(StringPoolRef);
@@ -118,10 +117,10 @@ int InitStringPools(short maxNest, long firstSize)
 			firstPoolSize = firstSize==0 ? 256 : firstSize;
 			
 			theFirstPool = NewStringPool();
-			if (theFirstPool) {									// Initializes it also
+			if (theFirstPool) {										// Initializes it also
 				SetStringPool(theFirstPool);
 				NoStringMemoryFunc = DefaultNoMemory;
-				okay = TRUE;
+				okay = True;
 				}
 			 else {
 				DisposePtr((Ptr)poolStack);
@@ -132,15 +131,13 @@ int InitStringPools(short maxNest, long firstSize)
 		return(okay);
 	}
 
-/*
- *	Attempt to enlarge the current pool by a given number of bytes.
- *	Deliver noErr if successful, or error code if not.  This routine
- *	is called automatically by the storage routines below.
- */
+/* Attempt to enlarge the current pool by a given number of bytes. Deliver noErr
+if successful, or error code if not.  This routine is called automatically by the
+storage routines below. */
 
 static OSErr MoreStringMemory(long n, StringPoolRef pool)
 	{
-		long len; OSErr err = 0;
+		long len;  OSErr err = 0;
 		
 		if (pool) {
 			n += (*pool)->sizeJump;
@@ -148,8 +145,7 @@ static OSErr MoreStringMemory(long n, StringPoolRef pool)
 			len = GetHandleSize((Handle)pool);
 			SetHandleSize((Handle)pool,len += n);
 			err = MemError();
-			if (err == noErr)
-				(*pool)->topFreeByte += n;
+			if (err == noErr) (*pool)->topFreeByte += n;
 			}
 		
 		return(err);
@@ -181,8 +177,8 @@ NoMemoryFunc SetNoStringMemoryHandler(NoMemoryFunc ErrorFunc, OSErr err)
 	}
 
 /*
- *	The default no memory handler does nothing, so the library
- *	routine will just deliver -1.
+ *	The default "no memory" handler does nothing, so the library routine will
+ *	just deliver -1.
  */
 
 static void DefaultNoMemory(OSErr err)
@@ -212,8 +208,7 @@ StringPoolRef NewStringPool()
 
 StringPoolRef DisposeStringPool(StringPoolRef pool)
 	{
-		if (pool)
-			DisposeHandle((Handle)pool);
+		if (pool) DisposeHandle((Handle)pool);
 
 		return(nil);
 	}
@@ -221,16 +216,16 @@ StringPoolRef DisposeStringPool(StringPoolRef pool)
 /*
  *	Ditch all strings in a given StringPool, and reset it to allocate from
  *	the beginning.  Set the pool to initially have space for size bytes of
- *	storage.  Returns TRUE if okay to continue, FALSE if problem.  Attempts
+ *	storage.  Returns True if okay to continue, False if problem.  Attempts
  *	to initialize the nil pool are ignored.
  */
 
 int InitStringPool(StringPoolRef pool, long size)
 	{
-		int okay = TRUE;
+		int okay = True;
 		
 		if (pool) {
-			StringPool *p = *pool;							// Caution: floating ptr
+			StringPool *p = *pool;								// Caution: floating ptr
 			
 			p->firstFreeByte = sizeof(StringPool);
 			p->lockLevel = 0;
@@ -245,7 +240,7 @@ int InitStringPool(StringPoolRef pool, long size)
 			SetHandleSize((Handle)pool, sizeof(StringPool) + size);
 			// Memory has moved; p invalid
 			if (MemError())
-				okay = FALSE;
+				okay = False;
 			 else
 				(*pool)->topFreeByte = (*pool)->firstFreeByte + size;
 			}
@@ -273,8 +268,7 @@ StringPoolRef SetStringPool(StringPoolRef pool)
 	{
 		StringPoolRef oldPool = thePool;
 		
-		if (pool)
-			thePool = pool;
+		if (pool) thePool = pool;
 		
 		return(oldPool);
 	}
@@ -286,92 +280,80 @@ StringPoolRef SetStringPool(StringPoolRef pool)
 
 long GetStringPoolSize(StringPoolRef pool)
 	{
-		if (pool == nil)
-			pool = thePool;
+		if (pool == nil) pool = thePool;
 		
-		return( pool ? GetHandleSize((Handle)pool) : 0L );
+		return( pool? GetHandleSize((Handle)pool) : 0L );
 	}
 
-/*
- *	Remove all free space from the given pool, or the current pool.
- *	The pool should not be locked, although this will probably still
- *	work, since it always shrinks the handle in place.
- */
+/* Remove all free space from the given pool, or the current pool. The pool should
+not be locked, although this will probably still work, since it always shrinks the
+handle in place. */
 
 void ShrinkStringPool(StringPoolRef pool)
 	{
-		if (pool == nil)
-			pool = thePool;
+		if (pool == nil) pool = thePool;
 		
-		if (pool)
-			SetHandleSize((Handle)pool,(*pool)->firstFreeByte);
+		if (pool) SetHandleSize((Handle)pool,(*pool)->firstFreeByte);
 	}
 
 /*
- *	Clear all strings in given pool back down to the current save level's
- *	bottom byte, so that subsequent allocation starts from there.
+ *	Clear all strings in given pool back down to the current save level's bottom
+ *	byte, so that subsequent allocation starts from there.
  */
 
 void ClearStringsInPool(StringPoolRef pool)
 	{
 		StringPool *p;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		
 		p = *pool;
 		p->firstFreeByte = p->bottomByte[p->saveLevel];
 	}
 
-/*
- *	If the pool is currently unlocked, lock it and bump the lock level.
- *	If already locked, then just bump the level.  While the pool is
- *	locked, the addresses returned by PAddr and CAddr are valid.
+/* If the pool is currently unlocked, lock it and bump the lock level. If
+already locked, then just bump the level.  While the pool is locked, the
+addresses returned by PAddr and CAddr are valid.
  */
 
 void LockStringsInPool(StringPoolRef pool)
 	{
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		
-		if ((*pool)->lockLevel++ == 0)
-			HLock((Handle)pool);
+		if ((*pool)->lockLevel++ == 0) HLock((Handle)pool);
 	}
 
 /*
- *	If the lock level is greater than 1, decrement it and return.
- *	If the level gets back to 0, then unlock the given pool.
+ *	If the lock level is greater than 1, decrement it and return. If the level
+ *	gets back to 0, then unlock the given pool.
  */
 
 void UnlockStringsInPool(StringPoolRef pool)
 	{
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		
-		if (--(*pool)->lockLevel == 0)
-			HUnlock((Handle)pool);
+		if (--(*pool)->lockLevel == 0) HUnlock((Handle)pool);
 	}
 
 /*
- *	Bump the current save level of the given pool, returning FALSE for stack
- *	overflow or other problem, and TRUE if all okay to continue.
+ *	Bump the current save level of the given pool, returning False for stack
+ *	overflow or other problem, and True if all okay to continue.
  */
 
 int SaveStringsInPool(StringPoolRef pool)
 	{
 		StringPool *p;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		
 		p = *pool;
 		if (++p->saveLevel >= MAXSAVE) {
 			p->saveLevel--;
-			return(FALSE);
+			return(False);
 			}
 		
 		p->bottomByte[p->saveLevel] = p->firstFreeByte;
-		return(TRUE);
+		return(True);
 	}
 
 /*
@@ -382,8 +364,7 @@ void RestoreStringsInPool(StringPoolRef pool)
 	{
 		StringPool *p;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		
 		p = *pool;
 		if (p->saveLevel > 0)
@@ -398,8 +379,7 @@ void ClearFromStringInPool(StringRef offset, StringPoolRef pool)
 	{
 		StringPool *p;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
 		if (offset <= 0)
@@ -411,12 +391,12 @@ void ClearFromStringInPool(StringRef offset, StringPoolRef pool)
 	}
 
 /*
- *  Fix endian problems in string pool
+ *  Fix Endian problems in string pool
  */
 
 void StringPoolEndianFix(StringPoolRef pool) {
 	StringPool *p = *pool;
-	fix_end(p->sizeJump);
+	FIX_END(p->sizeJump);
 }
 
 /*
@@ -429,8 +409,7 @@ short StringPoolProblem(StringPoolRef pool)
 		StringPool *p;
 		short errCode;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 
 		errCode = 0;
@@ -447,26 +426,23 @@ short StringPoolProblem(StringPoolRef pool)
 						/*************************/
 
 /*
- *	Tell caller whether given string was stored as C string or not.
- *	Always TRUE for the empty string, and garbage if given offset
- *	is garbage.
+ *	Tell caller whether given string was stored as C string or not. Always True
+ *	for the empty string, and garbage if given offset is garbage.
  */
 
 int IsCStringInPool(StringRef offset, StringPoolRef pool)
 	{
 		StringPool *p;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
 		if (offset>=0 && offset<p->firstFreeByte) {
 			Byte *start = ((Byte *)p) + offset;
-			if (*start & C_String)
-				return(TRUE);
+			if (*start & C_String) return(True);
 			}
 		
-		return(FALSE);
+		return(False);
 	}
 
 /*
@@ -479,17 +455,15 @@ int IsCStringInPool(StringRef offset, StringPoolRef pool)
 
 StringRef CStoreInPool(Byte *str, StringPoolRef pool)
 	{
-		StringRef itsOffset; long len; Byte *dst;
+		StringRef itsOffset;  long len;  Byte *dst;
 		StringPool *p;
 		
 		// If the string is nil or empty, always maps to the canonical
 		// empty string stored at offset 0 in every pool.
 		
-		if (str==nil || *str=='\0')
-			return(emptyStringRef);
+		if (str==nil || *str=='\0') return(emptyStringRef);
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
 		len = 2+strlen((char *)str);					// Type byte + str + EOS
@@ -511,26 +485,22 @@ StringRef CStoreInPool(Byte *str, StringPoolRef pool)
 		return(itsOffset);
 	}
 
-/*
- *	Append the given C string, str, to the already stored string
- *	at offset in the given pool.  Deliver the new offset of the
- *	concatenated string, in case we have to move the whole thing.  The
- *	caller should ensure that the stored string is C.
- */
+/* Append the given C string, str, to the already stored string at offset in the
+given pool.  Deliver the new offset of the concatenated string, in case we have
+to move the whole thing.  The caller should ensure that the stored string is C. */
 
 StringRef CConcatStringInPool(StringRef offset, Byte *str, StringPoolRef pool)
 	{
-		StringRef newOff; int isLastString;
-		Byte *start,*dst; long len,newLen,bytesNeeded;
+		StringRef newOff;  int isLastString;
+		Byte *start,*dst;  long len,newLen,bytesNeeded;
 		StringPool *p;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
 		if (offset<=emptyStringRef || offset>=p->firstFreeByte) {
-			// Concatenating to empty or non-existent string is
-			// same as installing the given string in a new spot
+			// Concatenating to empty or non-existent string is sasme as
+			// installing the given string in a new spot
 			return(CStoreInPool(str,pool));
 			}
 		
@@ -561,8 +531,8 @@ StringRef CConcatStringInPool(StringRef offset, Byte *str, StringPoolRef pool)
 			}
 		
 		if (isLastString) {
-			// And we're now guaranteed that we can append directly
-			// so the offset we deliver remains the same
+			// And we're now guaranteed that we can append directly so the
+			// offset we deliver remains the same
 			newOff = offset;
 			// Get to tag character of stored string
 			dst = ((Byte *)p) + offset;
@@ -589,18 +559,15 @@ StringRef CConcatStringInPool(StringRef offset, Byte *str, StringPoolRef pool)
 		return(newOff);
 	}
 
-/*
- *	Deliver pointer for a given C string offset in given pool, with
- *	bounds and type check.  This pointer can only be assumed good up
- *	until the next ToolBox or inter-segment call, if the pool is unlocked.
- */
+/* Deliver pointer for a given C string offset in given pool, with bounds and type
+check.  This pointer can only be assumed good up until the next ToolBox or inter-
+segment call, if the pool is unlocked. */
 
 Byte *CAddrInPool(StringRef offset, StringPoolRef pool)
 	{
 		Byte *start; StringPool *p;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
 		if (offset<0 || offset>=p->firstFreeByte)
@@ -608,10 +575,10 @@ Byte *CAddrInPool(StringRef offset, StringPoolRef pool)
 		 else {
 			start = ((Byte *)p) + offset;
 			if (*start==0 || *start>(C_String|P_String))
-				start = nil;					// Check for legal string types
+				start = nil;						// Check for legal string types
 			 else
 				if ((*start++ & C_String) == 0)
-					SysBeep(1);					// But deliver it anyway
+					SysBeep(1);						// But deliver it anyway
 			}
 		
 		return(start);
@@ -623,20 +590,17 @@ Byte *CAddrInPool(StringRef offset, StringPoolRef pool)
 
 long CStringWidthInPool(StringRef offset, StringPoolRef pool)
 	{
-		StringPool *p; long width; Byte *str;
+		StringPool *p;  long width;  Byte *str;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
-		if (p->lockLevel == 0)
-			HLock((Handle)pool);
+		if (p->lockLevel == 0) HLock((Handle)pool);
 		
 		str = CAddrInPool(offset,pool);
 		width = TextWidth(str,0,strlen((char *)str));
 		
-		if (p->lockLevel == 0)
-			HUnlock((Handle)pool);
+		if (p->lockLevel == 0) HUnlock((Handle)pool);
 		
 		return(width);
 	}
@@ -649,18 +613,15 @@ void CDrawStringInPool(StringRef offset, StringPoolRef pool)
 	{
 		StringPool *p; Byte *str;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
-		if (p->lockLevel == 0)
-			HLock((Handle)pool);
+		if (p->lockLevel == 0) HLock((Handle)pool);
 		
 		str = CAddrInPool(offset,pool);
 		DrawText(str,0,strlen((char *)str));
 		
-		if (p->lockLevel == 0)
-			HUnlock((Handle)pool);
+		if (p->lockLevel == 0) HUnlock((Handle)pool);
 	}
 
 
@@ -674,17 +635,15 @@ void CDrawStringInPool(StringRef offset, StringPoolRef pool)
 
 StringRef PStoreInPool(Byte *str, StringPoolRef pool)
 	{
-		StringRef start; long len; Byte *dst;
+		StringRef start;  long len;  Byte *dst;
 		StringPool *p;
 		
 		// If the string is nil or empty, always maps to the canonical
 		// empty string stored at offset 0 in every pool.
 		
-		if (str==nil || *str==0)
-			return(emptyStringRef);
+		if (str==nil || *str==0) return(emptyStringRef);
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
 		len = 2 + *str;
@@ -717,28 +676,24 @@ StringRef PStoreInPool(Byte *str, StringPoolRef pool)
 
 StringRef PReplaceInPool(StringRef offset, Byte *str, StringPoolRef pool)
 	{
-		Byte *dst; long len,newLen;
+		Byte *dst;  long len, newLen;
 		StringPool *p;
 		
 		// If the string is nil or empty, always maps to the canonical
 		// empty string stored at offset 0 in every pool.
 		
-		if (str==nil || *str==0)
-			return(emptyStringRef);
+		if (str==nil || *str==0) return(emptyStringRef);
 		
 		// Install current pool if necessary
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
 		// Reality check on offset
-		if (offset<0 || offset>=p->firstFreeByte)
-			return(badParamStringRef);
+		if (offset<0 || offset>=p->firstFreeByte) return(badParamStringRef);
 		
 		// Get tag byte of Pascal string, and reality check it
 		dst = ((Byte *)p) + offset;
-		if (*dst==0 || *dst>(C_String|P_String))
-			return(badParamStringRef);
+		if (*dst==0 || *dst>(C_String|P_String)) return(badParamStringRef);
 		
 		if ((*dst++ & P_String) == 0) {		// Moves dst up to length byte
 			SysBeep(1);
@@ -749,8 +704,8 @@ StringRef PReplaceInPool(StringRef offset, Byte *str, StringPoolRef pool)
 		len = 2 + *dst;
 		if ((offset + len) == p->firstFreeByte) {
 			// Yup, it's last string in pool
-			p->firstFreeByte = offset;			// Delete it
-			return(PStoreInPool(str,pool));		// And append
+			p->firstFreeByte = offset;				// Delete it
+			return(PStoreInPool(str,pool));			// and append
 			}
 		
 		newLen = 2 + *str;
@@ -774,8 +729,7 @@ Byte *PAddrInPool(StringRef offset, StringPoolRef pool)
 		Byte *start;
 		StringPool *p;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
 		if (offset<0 || offset>=p->firstFreeByte)
@@ -805,7 +759,7 @@ Byte *PCopyInPool(long offset, StringPoolRef pool)
 	{
 		static Byte theCopy[256],anotherCopy[256];
 		static short flip;
-		Byte *dst,*src; Byte *buf; short len;
+		Byte *dst,*src;  Byte *buf;  short len;
 		StringPool *p;
 		
 		if (pool == nilpool)
@@ -848,19 +802,16 @@ Byte *PCopyInPool(long offset, StringPoolRef pool)
 
 long PStringWidthInPool(StringRef offset, StringPoolRef pool)
 	{
-		StringPool *p; long width;
+		StringPool *p;  long width;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
-		if (p->lockLevel == 0)
-			HLock((Handle)pool);
+		if (p->lockLevel == 0) HLock((Handle)pool);
 		
 		width = StringWidth(PAddrInPool(offset,pool));
 		
-		if (p->lockLevel == 0)
-			HUnlock((Handle)pool);
+		if (p->lockLevel == 0) HUnlock((Handle)pool);
 		
 		return(width);
 	}
@@ -873,29 +824,26 @@ void PDrawStringInPool(StringRef offset, StringPoolRef pool)
 	{
 		StringPool *p;
 		
-		if (pool == nilpool)
-			pool = thePool;
+		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
-		if (p->lockLevel == 0)
-			HLock((Handle)pool);
+		if (p->lockLevel == 0) HLock((Handle)pool);
 		
 		DrawString(PAddrInPool(offset,pool));
 		
-		if (p->lockLevel == 0)
-			HUnlock((Handle)pool);
+		if (p->lockLevel == 0) HUnlock((Handle)pool);
 	}
 
 
 /*
- *	Read and store the i'th string from a given 'STR#' resource.
- *	Delivers -1 for memory error, -2 for resource error.
+ *	Read and store the i'th string from a given 'STR#' resource. Delivers -1
+ *	for memory error, -2 for resource error.
  */
 
 StringRef PReadStringListInPool(short id, short i, StringPoolRef pool)
 	{
-		Handle rsrc; Byte str[256];
-		short len; OSErr err;
+		Handle rsrc;  Byte str[256];
+		short len;  OSErr err;
 		
 		rsrc = Get1Resource('STR#',id);
 		err = ResError();

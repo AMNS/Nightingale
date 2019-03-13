@@ -1,11 +1,11 @@
-/* CheckUtils.c for Nightingale -  MemMacroized version. */
+/* CheckUtils.c for Nightingale */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -15,7 +15,7 @@
 
 static short ComputeLimitRTop(Document *, LINK, Rect, Rect, short, PCONTEXT);
 
-/* -------------------------------------------------------------------------------- */
+
 /* Utilities for CheckSYSTEM */
 
 Rect SetStaffRect(LINK aStaffL, PCONTEXT pContext)
@@ -44,13 +44,12 @@ Rect SetStaffRect(LINK aStaffL, PCONTEXT pContext)
 
 short AboveStfDist(LINK staffL)
 {
-	LINK aStaffL; short firstStf;
+	LINK aStaffL;  short firstStf;
 
 	firstStf = FirstStaffn(staffL);
 	aStaffL = FirstSubLINK(staffL);
-	for (	; aStaffL; aStaffL = NextSTAFFL(aStaffL))
+	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==firstStf) {
-			/* aStaff = GetPASTAFF(aStaffL); */
 			return d2pt(StaffTOP(aStaffL));
 		}
 
@@ -59,14 +58,13 @@ short AboveStfDist(LINK staffL)
 
 short BelowStfDist(Document */*doc*/, LINK sysL, LINK staffL)
 {
-	LINK aStaffL; short lastStf;
-	DRect systemRect; DDIST belowStf;
+	LINK aStaffL;  short lastStf;
+	DRect systemRect;  DDIST belowStf;
 
 	lastStf = LastStaffn(staffL);
 	aStaffL = FirstSubLINK(staffL);
-	for (	; aStaffL; aStaffL = NextSTAFFL(aStaffL))
+	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==lastStf) {
-			/* aStaff = GetPASTAFF(aStaffL); */
 			systemRect = SystemRECT(sysL);
 			
 			/* Space below bottom staff = systemHeight - bottom of last staff */
@@ -85,7 +83,7 @@ region to be dragged.
 vDiff is the offset of position of mouseLoc relative to top of grayRgn. */
 
 static short ComputeLimitRTop(Document *doc, LINK sysL,
-										Rect /*sysRect*/,					/* unused */
+										Rect /*sysRect*/,				/* unused */
 										Rect r, short vDiff,
 										PCONTEXT pContext)
 {
@@ -125,10 +123,9 @@ static short ComputeLimitRTop(Document *doc, LINK sysL,
 		return limitTop;
 	}
 
-	/* Handle case for following systems of page for showFormat.
-
-		Get position of top of systemRect of sysL; includes vDiff
-		to offset position of mouseLoc relative to top of grayRgn. */
+	/* Handle case for following systems of page for showFormat. Get position of top
+	   of systemRect of sysL; includes vDiff to offset position of mouseLoc relative
+	   to top of grayRgn. */
 
 	limitTop = r.top+vDiff;
 	
@@ -138,9 +135,8 @@ static short ComputeLimitRTop(Document *doc, LINK sysL,
 	limitTop -= AboveStfDist(staffL);
 
 	/* Subtract distance bottom stf of previous system is above previous system's
-		sysRect.bottom.
-		Then can drag sysL up to where bottom of bottom staff of previous system
-		touches top of top staff of this system. */
+	   sysRect.bottom. Then can drag sysL up to where bottom of bottom staff of
+	   previous system touches top of top staff of this system. */
 
 	if (LinkLSYS(sysL))
 		limitTop -= BelowStfDist(doc, LinkLSYS(sysL), LinkLSTAFF(staffL));
@@ -160,14 +156,14 @@ an empty Rect. */
 Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
 {
 	LINK staffL, aStaffL;  Rect sysRect, aRect, emptyR = {0,0,0,0};
-	short numStaves;  Boolean rectSet = FALSE;
+	short numStaves;  Boolean rectSet = False;
 
 	numStaves = NumVisStaves(sysL);
 	if (numStaves<=0) return emptyR;
 	
-	/* Get the box bounding the staff rects of all staff subObjects in the system. */
+	/* Get the box bounding the staff rects of all staff subobjects in the system. */
 
-	staffL = SSearch(sysL, STAFFtype, FALSE);
+	staffL = SSearch(sysL, STAFFtype, False);
 	aStaffL = FirstSubLINK(staffL);
 	
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
@@ -176,7 +172,7 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
 			if (rectSet)
 				UnionRect(&aRect, &sysRect, &sysRect);
 			else
-				{ sysRect = aRect; rectSet = TRUE; }
+				{ sysRect = aRect; rectSet = True; }
 		}
 	}
 		
@@ -186,6 +182,7 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
 	
 	return sysRect;
 }
+
 
 /*
  * Routine to drag a grayRgn corresponding to the system sysL, when in showFormat
@@ -199,7 +196,6 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
  * user is in masterPage, drags the region, and then updates the location of the
  * system in question.
  */
-
 
 Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr, Rect sysObjRect,
 									Rect sysRect, Rect r, PCONTEXT pContext)
@@ -238,25 +234,25 @@ Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr, Rect sysObjRect,
 				if (doc->masterView) {
 					UpdateDraggedSystem(doc, newPos);
 					MPDrawParams(doc, sysL, NILINK, doc->yBetweenSysMP, HiWord(newPos));
-					doc->sysVChangedMP = TRUE;
+					doc->sysVChangedMP = True;
 				}
 				else if (doc->showFormat)
 					UpdateFormatSystem(doc, sysL, newPos);
 			}
-			return TRUE;
+			return True;
 		}
 
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
-/* ----------------------------------------------------------------------------------- */
+/* ====================================================================================== */
 /* Utilities for CheckSTAFF */
 
 /*
- * Select all subObjects of staff object pL in the part containing the staff <staffn>.
+ * Select all subobjects of staff object pL in the part containing the staff <staffn>.
  * Returns the LINK to the part containing <staffn>.
  */
 
@@ -277,8 +273,8 @@ LINK SelectStaff(Document *doc, LINK pL, short staffn)
 	aStfL = FirstSubLINK(pL);
 	for ( ; aStfL; aStfL=NextSTAFFL(aStfL)) {
 		if (StaffSTAFF(aStfL) >= firstStaff && StaffSTAFF(aStfL) <= lastStaff) {
-			StaffSEL(aStfL) = TRUE;
-			LinkSEL(pL) = TRUE;
+			StaffSEL(aStfL) = True;
+			LinkSEL(pL) = True;
 		}
 	}
 
@@ -316,14 +312,14 @@ void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt,
 	firstVis = FirstStaffn(pL);
 	if (staffn==firstVis) {
 		pContext = &context[1];
-		sysL = SSearch(pL, SYSTEMtype, TRUE);
+		sysL = SSearch(pL, SYSTEMtype, True);
 		sysRect = SystemRECT(sysL);
 		limitR->top = d2p(sysRect.top)+pContext->paper.top
 									+(dragPt.v-wSub.top)
 									+d2p(LNSPACE(pContext));
 	}
 	else {
-		prevStaffn = NextLimStaffn(doc,pL,FALSE,staffn-1);
+		prevStaffn = NextLimVisStaffn(doc,pL,False,staffn-1);
 		pContext = &context[prevStaffn];
 		stfHeight = pContext->staffHeight;
 		lnSpace = LNSPACE(pContext);
@@ -335,7 +331,7 @@ void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt,
 	/* Set limit Rect bottom */
 
 	if (staffn<doc->nstaves) {
-		nextStaffn = NextLimStaffn(doc,pL,TRUE,staffn+1);
+		nextStaffn = NextLimVisStaffn(doc,pL,True,staffn+1);
 		pContext = &context[nextStaffn];
 		limitR->bottom = d2p(pContext->staffTop)+pContext->paper.top
 								+(dragPt.v-wSub.bottom)
@@ -344,7 +340,7 @@ void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt,
 	else {
 		if (doc->showFormat) {
 			pContext = &context[staffn];
-			sysL = SSearch(pL, SYSTEMtype, TRUE);
+			sysL = SSearch(pL, SYSTEMtype, True);
 			sysRect = SystemRECT(sysL);
 			limitR->bottom = d2p(sysRect.bottom)+pContext->paper.top
 										+(dragPt.v-wSub.bottom)
@@ -357,8 +353,8 @@ void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt,
 
 /*
  * Set up a gray region rectangle to provide feedback for dragging a staff in either
- * masterPage or showFormat; drag the staff, update its position, and return TRUE;
- * if the mousePt (*(Point *)ptr) was not in any staff, return FALSE.
+ * masterPage or showFormat; drag the staff, update its position, and return True;
+ * if the mousePt (*(Point *)ptr) was not in any staff, return False.
  *
  * rSub is the convex hull of the staffLines in paper-relative coordinates; wSub
  * is rSub converted to window coordinates.
@@ -394,22 +390,22 @@ Boolean DragGrayStaffRect(Document *doc, LINK pL, LINK aStaffL, short staffn, Pt
 			if (HiWord(newPos) && HiWord(newPos)!=0x8000) {
 				if (doc->masterView) {
 					UpdateDraggedStaff(doc, pL, aStaffL, newPos);
-					doc->stfChangedMP = TRUE;
+					doc->stfChangedMP = True;
 				}
 				else
 					UpdateFormatStaff(doc, pL, aStaffL, newPos);
 			}
 
- 			return TRUE;
+ 			return True;
 		}
 
 	}
 	
-	return FALSE;
+	return False;
 }
 
 /*
- * Toggle the selection hiliting of staff subObjs in pL; if doDeselect is TRUE,
+ * Toggle the selection hiliting of staff subObjs in pL; if doDeselect is True,
  * deselect pL.
  */
 
@@ -443,7 +439,7 @@ void HiliteStaves(Document *doc, LINK pL, CONTEXT context[], short doDeselect)
 }
 
 /*
- * Toggle the selection hiliting of all staves in pL; if doDeselect is TRUE,
+ * Toggle the selection hiliting of all staves in pL; if doDeselect is True,
  * deselect them.
  */
 
@@ -451,7 +447,7 @@ void HiliteAllStaves(Document *doc, short doDeselect)
 {
 	LINK staffL; CONTEXT context[MAXSTAVES+1];
 	
-	staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, False);
 	
 	for ( ; staffL; staffL=LinkRSTAFF(staffL)) {
 		GetAllContexts(doc, context, staffL);
@@ -459,11 +455,11 @@ void HiliteAllStaves(Document *doc, short doDeselect)
 	}
 }
 
-/* --------------------------------------------------------------------------------- */
+/* ====================================================================================== */
 /* Utilities for CheckGRAPHIC */
 
 
-/* ----------------------------------------------------------------- GraphicWidth -- */
+/* ---------------------------------------------------------------------- GraphicWidth -- */
 /* Compute and return the StringWidth (in pixels) of the given Graphic in the
 current view. */
 
@@ -488,11 +484,11 @@ short GraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 }
 
 
-/* -------------------------------------------------------------------------------- */
+/* ====================================================================================== */
 /* Utilities for CheckKEYSIG */
 
 
-/* ----------------------------------------------------------------- SetSubRect -- */
+/* ------------------------------------------------------------------------ SetSubRect -- */
 
 Rect SetSubRect(DDIST xd, DDIST dTop, short width, PCONTEXT pContext)
 {
@@ -508,11 +504,11 @@ Rect SetSubRect(DDIST xd, DDIST dTop, short width, PCONTEXT pContext)
 }
 
 
-/* -------------------------------------------------------------------------------- */
-/* FindObject and utilities */
+/* ====================================================================================== */
+/* FindAndActOnObject and utilities */
 
 
-/* -------------------------------------------------------------- ContextObject -- */
+/* --------------------------------------------------------------------- ContextObject -- */
 /* During traversal of data structure, update the context array by calling the
  * appropriate Context routine at any structural object encountered.
  */
@@ -540,10 +536,9 @@ void ContextObject(Document *doc, LINK pL, CONTEXT context[])
 }
 
 
-/* ------------------------------------------------------------------ CheckObject -- */
+/* ----------------------------------------------------------------------- CheckObject -- */
 /* Perform the action selected by <mode> on object <pL>. See Check.h for a list of
-possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag
-mode. */
+possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag mode. */
 
 LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT context[],
 						short mode, short *pIndex, STFRANGE stfRange)
@@ -554,7 +549,7 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 
 	if (ObjLType(pL)!=threadableType && mode==SMThread) return NILINK;
 
-	*found = FALSE;
+	*found = False;
 	switch (ObjLType(pL)) {
 		case PAGEtype:
 		case SYSTEMtype:
@@ -566,103 +561,103 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 			break;
 		case CLEFtype:
 			if ((*pIndex = CheckCLEF(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case DYNAMtype:
 			if ((*pIndex = CheckDYNAMIC(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case RPTENDtype:
 			if ((*pIndex = CheckRPTEND(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case ENDINGtype:
 			if ((*pIndex = CheckENDING(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case KEYSIGtype:
 			if ((*pIndex = CheckKEYSIG(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case TIMESIGtype:
 			if ((*pIndex = CheckTIMESIG(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case MEASUREtype:
 			if ((*pIndex = CheckMEASURE(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case PSMEAStype:
 			if ((*pIndex = CheckPSMEAS(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case SYNCtype:
 			if ((*pIndex = CheckSYNC(doc, pL, context, ptr, mode, stfRange, enlarge, enlargeNR))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case GRSYNCtype:
 			if ((*pIndex = CheckGRSYNC(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case SLURtype:
 			if ((*pIndex = CheckSLUR(doc, pL, context, ptr, mode, stfRange))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case BEAMSETtype:
 			if ((*pIndex = CheckBEAMSET(doc, pL, context, ptr, mode, stfRange))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case TUPLETtype:
 			if ((*pIndex = CheckTUPLET(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case GRAPHICtype:
 			if ((*pIndex = CheckGRAPHIC(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case TEMPOtype:
 			if ((*pIndex = CheckTEMPO(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case SPACERtype:
 			if ((*pIndex = CheckSPACER(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case OTTAVAtype:
 			if ((*pIndex = CheckOTTAVA(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
@@ -674,7 +669,7 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 					break;
 				case SMDrag:
 				case SMSelect:
-					*found = TRUE;
+					*found = True;
 				case SMDeselect:
 					r = LinkOBJRECT(pL);
 					InsetRect(&r, -1, -1);
@@ -687,9 +682,9 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 	return NILINK;
 }
 
-/* ------------------------------------------------------------------ ObjectTest -- */
-/* Determine if mousedown at <pt> is a candidate for Check routine to handle
-selection of pL or one of pL's subObjects. */
+/* ------------------------------------------------------------------------ ObjectTest -- */
+/* Determine if mousedown at <pt> is a candidate for Check routine to handle selection
+of pL or one of pL's subobjects. */
 
 Boolean ObjectTest(Rect *paper, Point pt, LINK pL)
 {
@@ -728,21 +723,21 @@ Boolean ObjectTest(Rect *paper, Point pt, LINK pL)
 			if (PtInRect(pt, &r)) {
 				aSlurL = FirstSubLINK(pL);
 				for ( ; aSlurL; aSlurL=NextSLURL(aSlurL))
-					if (FindSLUR(paper, pt, aSlurL)) return TRUE;
+					if (FindSLUR(paper, pt, aSlurL)) return True;
 			}
-			return FALSE;
+			return False;
 		default:
-			return FALSE;
+			return False;
 	}
 }
 
 
-/* ----------------------------------------------------------------- FindObject -- */
-/*	Find the object that <pt> is within, optionally set its selected flag,
-and return its LINK, or just return NILINK if point is not within any
-object.  The calling routine is responsible for updating the selection range. */
+/* ---------------------------------------------------------------- FindAndActOnObject -- */
+/*	Find the object that <pt> is within; handle _checkMode_ for it; optionally set its 
+selected flag; and return its LINK. If point is not within any object, just return NILINK.
+The calling routine is responsible for updating the selection range. */
 
-LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
+LINK FindAndActOnObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK		pL, firstMeas, endL;
 	CONTEXT		context[MAXSTAVES+1];
@@ -752,16 +747,16 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 
 	SetPt(&enlargeNR, config.enlargeNRHiliteH, config.enlargeNRHiliteV);
 
-	BuildCharRectCache(doc);							/* ensure charRectCache valid */
+	BuildCharRectCache(doc);						/* ensure charRectCache valid */
 	
 	pL = GetCurrentPage(doc); 
 	endL = LinkRPAGE(pL);
 	if (endL == NILINK) endL = doc->tailL;
 	
-	for ( ; pL!=endL; pL=RightLINK(pL)) {				/* find object that was clicked in */
+	for ( ; pL!=endL; pL=RightLINK(pL)) {			/* find object that was clicked in */
 		switch (ObjLType(pL)) {
 			case PAGEtype:
-				firstMeas = LSSearch(pL, MEASUREtype, ANYONE, FALSE, FALSE);
+				firstMeas = LSSearch(pL, MEASUREtype, ANYONE, False, False);
 				GetAllContexts(doc, context, firstMeas);
 				break;
 			case SYSTEMtype:
@@ -778,8 +773,9 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 			default:
 				break;
 		}
+
 		if (VISIBLE(pL))
-			if (ObjectTest(&context->paper,pt,pL)) {
+			if (ObjectTest(&context->paper, pt, pL)) {
 				switch (ObjLType(pL)) {
 					case PAGEtype:
 					case SYSTEMtype:
@@ -866,9 +862,9 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 }
 
 
-/* --------------------------------------------------------------- FindRelObject -- */
-/* Version of FindObject called when we need to find a relative object, e.g., the
-firstObj of a GRAPHIC, etc. */
+/* --------------------------------------------------------------------- FindRelObject -- */
+/* Version of FindAndActOnObject called when we need to find a relative object, e.g.,
+the firstObj of a GRAPHIC, etc. */
 
 LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
@@ -877,14 +873,14 @@ LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 
-	pL = FindObject(doc, pt, pIndex, checkMode);
+	pL = FindAndActOnObject(doc, pt, pIndex, checkMode);
 	if (pL) return pL;
 	
 	/* Desperately seeking places for GRAPHICs */
 	if (checkMode==SMFind) {
 		pL=GetCurrentPage(doc);
 		endL = LinkRPAGE(pL);
-		firstMeas = LSSearch(pL, MEASUREtype, ANYONE, FALSE, FALSE);
+		firstMeas = LSSearch(pL, MEASUREtype, ANYONE, False, False);
 		GetAllContexts(doc,context,firstMeas);
 		if (CheckPAGE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge)!=NOMATCH) {
 			for (qL=pL; qL!=endL; qL=RightLINK(qL))					/* find object that was clicked in */
@@ -893,8 +889,7 @@ LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 					if (CheckSYSTEM(doc, qL, context, (Ptr)&pt, checkMode, stfRange, enlarge)!=NOMATCH) {
 						sL = SSearch(qL,MEASUREtype,GO_RIGHT);
 						for ( ; sL && MeasSYSL(sL)==qL; sL = LinkRMEAS(sL)) {
-							if (PtInMeasure(doc,pt,sL))
-								return sL;
+							if (IsPtInMeasure(doc, pt, sL)) return sL;
 						}
 						return qL;
 					}
@@ -907,11 +902,11 @@ LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 	return NILINK;
 }
 
-/* ----------------------------------------------------------------------------------- */
-/* FindMasterObject and utilities */
+/* ====================================================================================== */
+/* FindAndActOnMasterObj and utilities */
 
 
-/* -------------------------------------------------------------- CheckMasterObject -- */
+/* ----------------------------------------------------------------- CheckMasterObject -- */
 /* Perform the action selected by <mode> on object <pL>. See Check.h for a list of
 possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag mode. */
 
@@ -920,29 +915,29 @@ LINK CheckMasterObject (Document *doc, LINK pL, Boolean *found, Ptr ptr,
 {
 	Point enlarge = {0,0};
 
-	*found = FALSE;
+	*found = False;
 	switch (ObjLType(pL)) {
 		case PAGEtype:
 			if ((*pIndex=CheckPAGE(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case SYSTEMtype:
 			if ((*pIndex=CheckSYSTEM(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case STAFFtype:
 			if ((*pIndex=CheckSTAFF(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
 		case CONNECTtype:
 			if ((*pIndex=CheckCONNECT(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
-				*found = TRUE;
+				*found = True;
 				return pL;
 			}
 			break;
@@ -951,9 +946,9 @@ LINK CheckMasterObject (Document *doc, LINK pL, Boolean *found, Ptr ptr,
 }
 
 
-/* ------------------------------------------------------------ MasterObjectTest -- */
-/* Determine if mousedown at <pt> is a candidate for Check routine to handle
-selection of pL or one of pL's subObjects. */
+/* ------------------------------------------------------------------ MasterObjectTest -- */
+/* Determine if mousedown at <pt> is a candidate for Check routine to handle selection
+of pL or one of pL's subobjects. */
 
 Boolean MasterObjectTest(
 						Rect */*paper*/,				/* unused */
@@ -970,28 +965,27 @@ Boolean MasterObjectTest(
 			return(PtInRect(pt, &tempRect));
 
 		case STAFFtype:
-			sysL = SSearch(pL, SYSTEMtype, TRUE);
+			sysL = SSearch(pL, SYSTEMtype, True);
 			tempRect = LinkOBJRECT(sysL);
 			InsetRect(&tempRect, -1, -1);
 			return(PtInRect(pt, &tempRect));
 
 		default:
-			return FALSE;
+			return False;
 	}
 }
 
 
-/* --------------------------------------------------------------- FindMasterObject -- */
-/* Find the object and subObject in the masterPage containing the mousedown <pt>.
+/* ------------------------------------------------------------- FindAndActOnMasterObj -- */
+/* Find the object and subobject in the masterPage containing the mousedown <pt>.
 Traverse the masterPage data structure from tailL to headL, in order to correctly
 handle the spatial nesting of the objRects of connects, staves, systems and pages.
 That is, PAGEs enclose SYSTEMs, and SYSTEMs enclose STAFFs, so if we traverse from
 masterHeadL to masterTailL, STAFFs will be masked by SYSTEMs and SYSTEMs by PAGEs,
-with the net result that PAGEs mask everything. But a traversal from tailL to headL
-will correctly find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their
-enclosing PAGEs. */
+with the net result that PAGEs mask everything. But traversing backwards will correctly
+find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their enclosing PAGEs. */
 
-LINK FindMasterObject(Document *doc, Point pt, short *pIndex, short checkMode)
+LINK FindAndActOnMasterObj(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK		pL, endL;
 	CONTEXT		context[MAXSTAVES+1];
@@ -1040,12 +1034,12 @@ LINK FindMasterObject(Document *doc, Point pt, short *pIndex, short checkMode)
 }
 
 
-/* -------------------------------------------------------------------------------- */
-/* FindFormatObject and utilities */
+/* ====================================================================================== */
+/* FindAndActOnFormatObj and utilities */
 
-/* ------------------------------------------------------------ FormatObjectTest -- */
+/* ------------------------------------------------------------------ FormatObjectTest -- */
 /* Determine if mousedown at <pt> is a candidate for Check routine to handle
-selection of pL or one of pL's subObjects. ??As of v. 5.7, this is unused. */
+selection of pL or one of pL's subobjects. NB; As of v. 5.7, this is unused. */
 
 Boolean FormatObjectTest(
 					Rect */*paper*/,			/* unused */
@@ -1062,19 +1056,19 @@ Boolean FormatObjectTest(
 			return(PtInRect(pt, &tempRect));
 
 		case STAFFtype:
-			sysL = SSearch(pL, SYSTEMtype, TRUE);
+			sysL = SSearch(pL, SYSTEMtype, True);
 			tempRect = LinkOBJRECT(sysL);
 			InsetRect(&tempRect, -1, -1);
 			return(PtInRect(pt, &tempRect));
 
 		default:
-			return FALSE;
+			return False;
 	}
 }
 
 
-/* ------------------------------------------------------------- FindFormatObject - */
-/* In the showFormat mode, find the object and subObject containing the mousedown
+/* ------------------------------------------------------------- FindAndActOnFormatObj -- */
+/* In the showFormat mode, find the object and subobjectsubobject containing the mousedown
 <pt>.
 
 Traverse the main data structure from tailL to headL, in order to correctly handle
@@ -1085,7 +1079,7 @@ net result that PAGEs mask everything. But a traversal from tailL to headL will
 correctly find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their
 enclosing PAGEs. */
 
-LINK FindFormatObject(Document *doc, Point pt, short *pIndex, short checkMode)
+LINK FindAndActOnFormatObj(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK		pL, endL;
 	CONTEXT		context[MAXSTAVES+1];
@@ -1108,8 +1102,8 @@ LINK FindFormatObject(Document *doc, Point pt, short *pIndex, short checkMode)
 				break;
 		}
 		
-		/* ??I have no idea why the call to FormatObjectTest is replaced with TRUE! */
-		if ( /* FormatObjectTest(&context->paper,pt,pL) */ 1 ) {
+		/* ??I have no idea why the call to FormatObjectTest is replaced with True! */
+		if ( /* FormatObjectTest(&context->paper,pt,pL) */ True ) {
 			switch (ObjLType(pL)) {
 				case PAGEtype:
 					if ((*pIndex=CheckPAGE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)

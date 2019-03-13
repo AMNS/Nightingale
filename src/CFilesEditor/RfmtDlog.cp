@@ -23,7 +23,7 @@ Boolean reformatFirstSys;
 
 
 /* -------------------------------------------------------------- ReformatDialog -- */
-/* Handle Reformat dialog. Return TRUE if OK, FALSE if Cancel. */
+/* Handle Reformat dialog. Return True if OK, False if Cancel. */
 
 static void DimSysPanel(DialogPtr dlog, short item);
 static pascal void UserDimSysPanel(DialogPtr theWindow, short dItem);
@@ -80,14 +80,14 @@ Boolean ReformatDialog(
 	userTMUPP = NewUserItemUPP(UserDimTMPanel);
 	if (userSysUPP==NULL || userTMUPP==NULL) {
 		MissingDialog(REFORMAT_DLOG);  /* Missleading, but this isn't likely to happen. */
-		return FALSE;
+		return False;
 	}
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP==NULL) {
 		DisposeUserItemUPP(userSysUPP);
 		DisposeUserItemUPP(userTMUPP);
 		MissingDialog(REFORMAT_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	GetPort(&oldPort);
@@ -117,20 +117,20 @@ Boolean ReformatDialog(
 		if (!*pCareMPS)		group1 = RAD13_AsManyAsFit;
 		else if (*pExactMPS) group1 = RAD14_Exactly;
 		else						group1 = RAD5_AtMost;
-		PutDlgChkRadio(dlog, group1, TRUE);
+		PutDlgChkRadio(dlog, group1, True);
 
 		group2 = (*pCareSPP? RAD10_SysPerPage : RAD16_AsManySysAsFit);
-		PutDlgChkRadio(dlog, group2, TRUE);
+		PutDlgChkRadio(dlog, group2, True);
 		
 		PutDlgChkRadio(dlog, CHK8_Justify, *pJustify);
 
 		/* Stuff text items; select only if "owning" checkbox is checked. */
-		PutDlgWord(dlog, EDIT6_NMeasPerSys, *pNMPS, FALSE);
+		PutDlgWord(dlog, EDIT6_NMeasPerSys, *pNMPS, False);
 		PutDlgWord(dlog, EDIT11_NSysPerPage, *pSPP, !*pSBreaks);
 
 		titleMargInch = pt2in(*pTitleMargin);
 		titleMargInch = RoundDouble(titleMargInch, .01);
-		PutDlgDouble(dlog, EDIT18_TitleMargin, titleMargInch, FALSE);
+		PutDlgDouble(dlog, EDIT18_TitleMargin, titleMargInch, False);
 
 		if (*pSBreaks) SelectDialogItemText(dlog, EDIT6_NMeasPerSys, 0, ENDTEXT);
 		
@@ -148,9 +148,9 @@ Boolean ReformatDialog(
 
 		ArrowCursor();
 				
-		dialogOver = FALSE;
+		dialogOver = False;
 		do {
-			while (TRUE) {
+			while (True) {
 				ModalDialog(filterUPP, &ditem);
 				if (ditem<1 || ditem>LASTITEM) continue;
 				
@@ -162,7 +162,7 @@ Boolean ReformatDialog(
 				switch (ditem) {
 					case OK:
 					case Cancel:
-						dialogOver = TRUE;
+						dialogOver = True;
 						goto Dismissed;
 					case CHK4_ChangeSysBreaks:
 						InvalWindowRect(GetDialogWindow(dlog),&sysPanelBox);	/* force filter to call DimSysPanel */
@@ -204,7 +204,7 @@ Dismissed:
 						sprintf(strBuf, fmtStr, MINPERSYS, MAXPERSYS); 
 						CParamText(strBuf,	"", "", "");
 						StopInform(GENERIC_ALRT);
-						dialogOver = FALSE;
+						dialogOver = False;
 						}
 					}
 				GetDlgDouble(dlog, EDIT18_TitleMargin, &fTemp);
@@ -217,7 +217,7 @@ Dismissed:
 						sprintf(strBuf, fmtStr, maxMargin/100L, maxMargin%100L); 
 						CParamText(strBuf,	"", "", "");
 						StopInform(GENERIC_ALRT);
-						dialogOver = FALSE;
+						dialogOver = False;
 						}
 					}
 				}

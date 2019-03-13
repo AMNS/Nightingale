@@ -4,10 +4,38 @@
 #pragma once
 // MAS
 
-void HiliteInsertNode(Document *, LINK, short, Boolean);
-void HiliteTwoNodesOn(Document *, LINK, LINK, short);
+void		WaitCursor(void);
+void		ArrowCursor(void);
+void		FixCursor(void);
+void		XableItem(MenuHandle menu, short item, short enable);
+void		UpdateMenu(MenuHandle menu, Boolean enable);
+void		UpdateMenuBar(void);
+
+void		CenterRect(Rect *r, Rect *inside, Rect *ans);
+void		PullInsideRect(Rect *r, Rect *inside, short margin);
+Boolean		ContainedRect(Rect *r, Rect *bounds);
+void		ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp);
+
+void		GetGlobalPort(WindowPtr w, Rect *r);
+void		GetIndWinPosition(WindowPtr w, short i, short n, Point *ans);
+void		AdjustWinPosition(WindowPtr w);
+short		GetMyScreen(Rect *r, Rect *bounds);
+void		PlaceAlert(short id, WindowPtr w, short left, short top);
+Boolean		PlaceWindow(WindowPtr w, WindowPtr inside, short left, short top);
+void 		CenterWindow(WindowPtr w, short top);
+void		EraseAndInval(Rect *r);
+
+Boolean		KeyIsDown(short);
+Boolean		CmdKeyDown(void);
+Boolean		OptionKeyDown(void);
+Boolean		ShiftKeyDown(void);
+Boolean		CapsLockKeyDown(void);
+Boolean		ControlKeyDown(void);
+Boolean		CommandKeyDown(void);
+
+void InvertSymbolHilite(Document *, LINK, short, Boolean);
+void InvertTwoSymbolHilite(Document *, LINK, LINK, short);
 void HiliteAttPoints(Document *, LINK, LINK, short);
-void FixCursor(void);
 void FlashRect(Rect *);
 Boolean SamePoint(Point, Point);
 
@@ -26,29 +54,18 @@ Boolean UserInterrupt(void);
 Boolean UserInterruptAndSel(void);
 
 const char *NameHeapType(short, Boolean);
-const char *NameNodeType(LINK);
+const char *NameObjType(LINK);
 const char *NameGraphicType(LINK, Boolean);
 
-short	ConvertQuote(TEHandle textH, short ch);
+short SmartenQuote(TEHandle textH, short ch);
 
 void DrawBox(Point pt,short size);
+void DrawGrowBox(WindowPtr w, Point pt, Boolean drawit);
+void DrawTheSelection(void);
 void HiliteRect(Rect *);
 
 void Voice2UserStr(Document *doc, short voice, char str[]);
 void Staff2UserStr(Document *doc, short staffn, char str[]);
-
-void    DrawPopUp(UserPopUp *popup);
-void    TruncPopUpString(UserPopUp *popup);
-short    InitPopUp(DialogPtr dlog, UserPopUp *p, short item, short pItem,
-					short menuID, short choice);
-short	DoUserPopUp(UserPopUp *p);
-void	ChangePopUpChoice(UserPopUp *p, short choice);
-void	DisposePopUp(UserPopUp *p);
-void	HilitePopUp (UserPopUp *p,short activ);
-short	ResizePopUp(UserPopUp *p);
-void	ShowPopUp(UserPopUp *p, short vis);
-
-void	HiliteArrowKey(DialogPtr, short, UserPopUp *, Boolean *);
 
 Rect GetQDPortBounds(void);
 Rect GetQDScreenBitsBounds(void);
@@ -101,5 +118,6 @@ void SetDocumentKind(WindowPtr w);
 
 void OffsetContrlRect(ControlRef ctrl, short dx, short dy);
 
-StringPtr CtoPstr(StringPtr str);
-StringPtr PtoCstr(StringPtr str);
+Boolean VLogPrintf(const char *fmt, va_list argp);
+Boolean LogPrintf(short priLevel, const char *fmt, ...);
+short InitLogPrintf();

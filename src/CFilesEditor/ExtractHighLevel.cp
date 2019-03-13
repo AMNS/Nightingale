@@ -80,20 +80,20 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 	GrafPtr oldPort;
 	short aShort;  Handle aHdl;  Rect spacePanelBox;
 	short newSpace;
-	Boolean dialogOver=FALSE;
+	Boolean dialogOver=False;
 	UserItemUPP userDimUPP;
 	ModalFilterUPP filterUPP;
 	
 	userDimUPP = NewUserItemUPP(UserDimPanel);
 	if (userDimUPP==NULL) {
 		MissingDialog((long)EXTRACT_DLOG);  /* Misleading, but this isn't likely to happen. */
-		return FALSE;
+		return False;
 	}
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
 		DisposeUserItemUPP(userDimUPP);
 		MissingDialog((long)EXTRACT_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	dlog = GetNewDialog(EXTRACT_DLOG, NULL, BRING_TO_FRONT);
@@ -101,29 +101,29 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 		DisposeUserItemUPP(userDimUPP);
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog((long)EXTRACT_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	GetPort(&oldPort);
 	SetPort(GetDialogWindowPort(dlog));
 
-	PutDlgString(dlog,WHICHONE_DI,partName, FALSE);
+	PutDlgString(dlog,WHICHONE_DI,partName, False);
 
 	radio1 = (*pAll ? EXTRACTALL_DI : EXTRACTONE_DI);
-	PutDlgChkRadio(dlog, radio1, TRUE);
+	PutDlgChkRadio(dlog, radio1, True);
 	radio2 = (*pSave ? SAVE_DI : OPEN_DI);
-	PutDlgChkRadio(dlog, radio2, TRUE);
+	PutDlgChkRadio(dlog, radio2, True);
 	PutDlgChkRadio(dlog, REFORMAT_DI, *pReformat);
 	GetDialogItem(dlog, SPACEBOX_DI, &aShort, &aHdl, &spacePanelBox);
 	SetDialogItem(dlog, SPACEBOX_DI, userItem, (Handle)userDimUPP, &spacePanelBox);
-	PutDlgWord(dlog, SPACE_DI, *pSpacePercent, TRUE);
+	PutDlgWord(dlog, SPACE_DI, *pSpacePercent, True);
 
 	CenterWindow(GetDialogWindow(dlog), 55);
 	ShowWindow(GetDialogWindow(dlog));
 	DimSpacePanel(dlog, SPACEBOX_DI);			/* Prevent flashing if subordinates need to be dimmed right away */
 	ArrowCursor();
 
-	dialogOver = FALSE;
+	dialogOver = False;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
@@ -132,10 +132,10 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 				if (newSpace<MINSPACE || newSpace>MAXSPACE)
 					Inform(SPACE_ALRT);
 				else
-					dialogOver = TRUE;
+					dialogOver = True;
 				break;
 			case Cancel:
-				dialogOver = TRUE;
+				dialogOver = True;
 				break;
 			case REFORMAT_DI:
 				PutDlgChkRadio(dlog, REFORMAT_DI, !GetDlgChkRadio(dlog, REFORMAT_DI));
@@ -217,16 +217,16 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	NormalizePartFormat(doc);
 
 	InitAntikink(doc, doc->headL, doc->tailL);
-	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE);		/* Start at first measure */
+	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False);		/* Start at first measure */
 	RespaceBars(doc, pL, doc->tailL,
-					RESFACTOR*(long)spacePercent, FALSE, FALSE);	/* Don't reformat! */
+					RESFACTOR*(long)spacePercent, False, False);	/* Don't reformat! */
 	doc->spacePercent = spacePercent;
 	Antikink();														/* FIXME: SHOULD DO AFTER Reformat! */
 
 	Reformat(doc, RightLINK(doc->headL), doc->tailL, changeSBreaks,
-				(careMeasPerSys? measPerSys : 9999), FALSE, 999, config.titleMargin);
+				(careMeasPerSys? measPerSys : 9999), False, 999, config.titleMargin);
 
-	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
+	(void)DelRedTimeSigs(doc, True, &firstDelL, &lastDelL);
 }
 
 
@@ -242,13 +242,7 @@ static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partF
 	GetFinalSubstring(tempStr, extStr, '.');
     wantLen = strlen(tempStr)-strlen(extStr)-1;						/* -1 to leave out the "." */
     okay = GetInitialSubstring(tempStr, nameStr, wantLen);
-    if (okay) {
-        //LogPrintf(LOG_DEBUG, "BuildPartFilename: OK. tempStr='%s' wantLen=%d name='%s' ext='%s'\n",
-		//			tempStr, wantLen, nameStr, extStr);
-    } else {
-        //LogPrintf(LOG_DEBUG, "BuildPartFilename: Not OK. tempStr=%s wantLen=%d.\n", tempStr, wantLen);
-		return FALSE;
-	}
+    if (!okay) return False;
 	strcat(nameStr, "-");
 	
 	/* With the Carbon toolkit, filenames can't be longer than the modest length MacOS 9
@@ -296,7 +290,7 @@ static Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerS
 			newOffset = PStore(string);
 		if (newOffset < 0L) {
 			NoMoreMemory();
-			return FALSE;
+			return False;
 		}
 		dstDoc->headerStrOffset = newOffset;
 	}
@@ -310,17 +304,17 @@ static Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerS
 			newOffset = PStore(string);
 		if (newOffset < 0L) {
 			NoMoreMemory();
-			return FALSE;
+			return False;
 		}
 		dstDoc->footerStrOffset = newOffset;
 	}
 
-	return TRUE;
+	return True;
 }
 
 
 /* Extract part(s) into separate document(s) and optionally reformat and/or save
-it/them. If all goes well, return TRUE; if there's a problem, return FALSE. */
+it/them. If all goes well, return True; if there's a problem, return False. */
 
 Boolean DoExtract(Document *doc)
 {
@@ -330,9 +324,9 @@ Boolean DoExtract(Document *doc)
 	LINK selPartList[MAXSTAVES+1];
 	Document *partDoc;
 	Boolean useHeaderFooter;
-	Boolean keepGoing=TRUE;
-	static Boolean allParts=TRUE, closeAndSave=FALSE, reformat=TRUE;
-	static Boolean firstCall=TRUE, careMeasPerSys;
+	Boolean keepGoing=True;
+	static Boolean allParts=True, closeAndSave=False, reformat=True;
+	static Boolean firstCall=True, careMeasPerSys;
 	static short measPerSys;
 
 	/* Prepare and run the Extract dialog to find out what user wants */
@@ -353,12 +347,12 @@ Boolean DoExtract(Document *doc)
 	spacePercent = (doc->spacePercent+100)/2;
 	if (spacePercent>100) spacePercent = 100;
 	if (!ExtractDialog(partName, &allParts, &closeAndSave, &reformat, &spacePercent))
-		return FALSE;
+		return False;
 
 	/* Dialog was OK'd: the user really wants one or more parts exxtracted. */
 	
 	if (firstCall) {
-		careMeasPerSys = FALSE;  measPerSys = 4;  firstCall = FALSE;
+		careMeasPerSys = False;  measPerSys = 4;  firstCall = False;
 	}
 	
 	char headerStr[256], footerStr[256];
@@ -373,7 +367,6 @@ Boolean DoExtract(Document *doc)
 		if (pStr[0]!=0) {
 			Pstrcpy((StringPtr)headerStr, (StringPtr)pStr);
 			PToCString((StringPtr)headerStr);
-			//LogPrintf(LOG_DEBUG, "page header='%s'\n", headerStr);
 		}
 
 		fOffset = doc->footerStrOffset;
@@ -381,7 +374,6 @@ Boolean DoExtract(Document *doc)
 		if (pStr[0]!=0) {
 			Pstrcpy((StringPtr)footerStr, (StringPtr)pStr);
 			PToCString((StringPtr)footerStr);
-			//LogPrintf(LOG_DEBUG, "page footer='%s'\n", footerStr);
 		}
 	}
 
@@ -408,16 +400,16 @@ Boolean DoExtract(Document *doc)
 			partDoc = CreatePartDoc(doc, name, doc->vrefnum, &doc->fsSpec, partL);
 			if (partDoc) {
 				if (reformat) {
-					ReformatPart(partDoc, spacePercent, TRUE, careMeasPerSys,
+					ReformatPart(partDoc, spacePercent, True, careMeasPerSys,
 										measPerSys);
 				}
 				else
 					NormalizePartFormat(partDoc);
 
 				if (useHeaderFooter) {
-					CopyHeaderFooter(partDoc, headerStr, footerStr, TRUE);
-					CopyHeaderFooter(partDoc, headerStr, footerStr, FALSE);
-					partDoc->useHeaderFooter = TRUE;
+					CopyHeaderFooter(partDoc, headerStr, footerStr, True);
+					CopyHeaderFooter(partDoc, headerStr, footerStr, False);
+					partDoc->useHeaderFooter = True;
 				}
 
 				/* Finally, set empty selection just after the first Measure, and put
@@ -426,15 +418,15 @@ Boolean DoExtract(Document *doc)
 				SetDefaultSelection(partDoc);
 				partDoc->selStaff = 1;
 				
-				MEAdjustCaret(partDoc, FALSE);		// FIXME: AND REMOVE CALL IN CreatePartDoc!
+				MEAdjustCaret(partDoc, False);		// FIXME: AND REMOVE CALL IN CreatePartDoc!
 				AnalyzeWindows();
 				if (closeAndSave)
-					{ if (!DoCloseDocument(partDoc)) keepGoing = FALSE; }
+					{ if (!DoCloseDocument(partDoc)) keepGoing = False; }
 				 else
 					DoUpdate(partDoc->theWindow);
 				}
 			 else
-				keepGoing = FALSE;
+				keepGoing = False;
 
 			/*
 			 *	Installation of correct heaps here is not yet understood. This
@@ -455,5 +447,5 @@ Boolean DoExtract(Document *doc)
 	}
 
 Done:
-	return TRUE;
+	return True;
 }

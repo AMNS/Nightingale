@@ -78,7 +78,7 @@ enum {
 
 /*--- 2. Interact with user til they push Done. --- */
 
-	done = FALSE;
+	done = False;
 	TextFont(SYSFONTID_MONOSPACED);
 	TextSize(9);
 	itemIndex = heapIndex = 0;
@@ -93,7 +93,7 @@ enum {
 		ModalDialog(NULL, &ditem);									/* Handle dialog events */
 		switch (ditem) {
 		case hOK:
-		  	done = TRUE;
+		  	done = True;
 		  	break;
 		case hHead:
 			heapIndex = FIRSTtype;
@@ -144,7 +144,7 @@ static void ShowHeap(short theHeap, register short itemIndex)
 
 	linenum = 1;
 	myHeap = Heap + theHeap;
-	ps = NameHeapType(theHeap, FALSE);
+	ps = NameHeapType(theHeap, False);
 	sprintf(s, "%s Heap [%d]", ps, theHeap);
 	HeapDrawLine(s);
 
@@ -254,7 +254,7 @@ void HeapBrowseStaff(short itemIndex)
 	q = GetPASTAFF(qL);
 	sprintf(s, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
 	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "visible=%s", q->visible ? "TRUE" : "false");
+	sprintf(s, "visible=%s", q->visible ? "True" : "False");
 	HeapDrawLine(s); q = GetPASTAFF(qL);
 	sprintf(s, "staff top/left/right=%d %d %d",
 				q->staffTop,
@@ -464,18 +464,18 @@ void HeapBrowseSync(short itemIndex)
 	sprintf(s, "ndots=%hd xmovedots=%hd ymovedots=%hd", q->ndots, q->xmovedots,
 					q->ymovedots);
 	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "rest=%s", q->rest ? "TRUE" : "false");
+	sprintf(s, "rest=%s", q->rest ? "True" : "False");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "accident=%hd accSoft=%s", q->accident,
-													  q->accSoft ? "TRUE" : "false");
+													  q->accSoft ? "True" : "False");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "xmoveAcc=%hd", q->xmoveAcc);
 	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "beamed=%s otherStemSide==%s", q->beamed ? "TRUE" : "false",
-															q->otherStemSide ? "TRUE" : "false");
+	sprintf(s, "beamed=%s otherStemSide==%s", q->beamed ? "True" : "False",
+															q->otherStemSide ? "True" : "False");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "inTuplet=%s inOttava=%s", q->inTuplet ? "TRUE" : "false",
-														 q->inOttava ? "TRUE" : "false");
+	sprintf(s, "inTuplet=%s inOttava=%s", q->inTuplet ? "True" : "False",
+														 q->inOttava ? "True" : "False");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "firstMod=%d", q->firstMod);
 	HeapDrawLine(s);
@@ -496,7 +496,7 @@ void HeapBrowseBeamset(short itemIndex)
 	HeapDrawLine(s);	q = GetPANOTEBEAM(qL);
 	sprintf(s, "fracs=%d", q->fracs);
 	HeapDrawLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "TRUE" : "false");
+	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "True" : "False");
 	HeapDrawLine(s);
 }
 
@@ -630,7 +630,7 @@ void HeapBrowseObject(short itemIndex)
 	HeapDrawLine(s); q = GetPMEVENT(qL);
 	
 	sprintf(s, "xd=%d yd=%d type=%s nEntries=%d", 
-		q->xd, q->yd, NameNodeType(qL), q->nEntries);
+		q->xd, q->yd, NameObjType(qL), q->nEntries);
 	HeapDrawLine(s); q = GetPMEVENT(qL);
 	sprintf(s, "selected=%d visible=%d soft=%d", 
 		q->selected, q->visible, q->soft);

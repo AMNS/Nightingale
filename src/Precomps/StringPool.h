@@ -99,7 +99,7 @@ typedef void (*NoMemoryFunc)(OSErr err);
 /*--------------------------------------
 	InitStringPools() initializes or re-initializes the String Manager to use a
 	PushStringPool/PopStringPool stack of size maxNest, and to create a default
-	current string pool of size firstSize.  Delivers TRUE if okay, or FALSE if not.
+	current string pool of size firstSize.  Delivers True if okay, or False if not.
 	Typically you need only call InitStringPools() once near the start of the
 	application. If maxNest or firstSize is 0, the routine uses an internal default size.
 																							*/
@@ -108,7 +108,7 @@ typedef void (*NoMemoryFunc)(OSErr err);
 
 /*--------------------------------------
 	Declare an out-of-memory handler and the error code to pass to it.  If the
-	ErrorFunc argument is non-NIL, it will be called by every routine that delivers
+	ErrorFunc argument is non-NULL, it will be called by every routine that delivers
 	a StringRef value of -1.  Delivers the old value.
 																							*/
 	NoMemoryFunc SetNoStringMemoryHandler(NoMemoryFunc func, OSErr err);
@@ -126,8 +126,8 @@ typedef void (*NoMemoryFunc)(OSErr err);
 	Re-initialize a given string pool.  This empties all strings, and resizes the pool
 	to the given size.  Pools are grown automatically as you add strings to them; the
 	size parameter lets you preset the free space size to something larger if you know
-	you are about to store a lot of strings into the empty pool.  Delivers TRUE if
-	okay to proceed; FALSE if memory problem.
+	you are about to store a lot of strings into the empty pool.  Delivers True if
+	okay to proceed; False if memory problem.
 																							*/
 	int	InitStringPool(StringPoolRef pool, long size);
 
@@ -156,8 +156,8 @@ typedef void (*NoMemoryFunc)(OSErr err);
 
 /*--------------------------------------
 	Save the current pool on an internal stack, and install the given pool.
-	This routine should be matched by a call to PopPool().  Delivers TRUE if
-	success; FALSE if stack ran out.  pool can be nilPool to leave the current
+	This routine should be matched by a call to PopPool().  Delivers True if
+	success; False if stack ran out.  pool can be nilPool to leave the current
 	pool unchanged (although it will still be stacked).
 																							*/
 	int PushStringPool(StringPoolRef pool);
@@ -174,8 +174,8 @@ typedef void (*NoMemoryFunc)(OSErr err);
  	After a call to SaveStrings(), all strings allocated prior to the call will
 	be considered permanently allocated until a matching call to RestoreStrings().
 	Thus a call to ClearStrings() only cuts back the allocation pointer to the
-	level of the latest call to SaveStrings().  SaveStrings() returns FALSE if
-	it runs out of stack space; TRUE if all went OK.
+	level of the latest call to SaveStrings().  SaveStrings() returns False if
+	it runs out of stack space; True if all went OK.
 																							*/
 	int SaveStringsInPool(StringPoolRef pool);
 	#define SaveStrings() SaveStringsInPool(defaultPool)
@@ -296,7 +296,7 @@ typedef void (*NoMemoryFunc)(OSErr err);
 
 
 /*--------------------------------------
-	IsCStringInPool() delivers TRUE or FALSE, depending on whether the given
+	IsCStringInPool() delivers True or False, depending on whether the given
 	reference is for a string originally stored as a C string.
 																							*/
 	int IsCStringInPool(StringRef offset, StringPoolRef pool);

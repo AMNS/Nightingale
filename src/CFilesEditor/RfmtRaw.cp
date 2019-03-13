@@ -72,7 +72,7 @@ void UMoveMeasures(LINK startL, LINK endL, DDIST diffxd)
 in that Measure's System, move that following stuff left or right as appropriate
 so it starts where the Measure ends. Identical to CanMoveRestOfSystem (q.v.) except
 that it treats xd's as unsigned, instead of signed, numbers. ??SHOULD IT JUST
-SKIP MeasFillSystem, SINCE IT'S NOT NEEDED AND CAN'T BE RELIABLE? */
+SKIP SetMeasFillSystem, SINCE IT'S NOT NEEDED AND CAN'T BE RELIABLE? */
 
 void UMoveRestOfSystem(Document *doc, LINK measL, DDIST measWidth)
 {
@@ -107,7 +107,7 @@ unsigned DDIST USysRelxd(register LINK pL)
 	
 	if (MeasureTYPE(pL)) return (LinkUXD(pL));
 	else {
-		measL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, TRUE, FALSE);
+		measL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, True, False);
 		if (measL) {
 			if (SameSystem(measL, pL))
 				return (LinkUXD(measL)+LinkUXD(pL));
@@ -169,15 +169,15 @@ LINK BreakSystem(register Document *doc, LINK breakL)
 	long prevMeasDur;
 	
 	sysTermL = EndSystemSearch(doc, breakL);
-	prevSysL = LSSearch(breakL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	prevSysL = LSSearch(breakL, SYSTEMtype, ANYONE, GO_LEFT, False);
 
 	prevSysRect = SystemRECT(prevSysL);
 	sysTop = prevSysRect.bottom;
 	newSysL = CreateSystem(doc, LeftLINK(sysTermL), sysTop, SuccSystem);
 	if (!newSysL)  { NoMoreMemory(); return NILINK; }
 	
-	prevMeasL = LSSearch(breakL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
-	newMeasL = LSSearch(newSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	prevMeasL = LSSearch(breakL, MEASUREtype, ANYONE, GO_LEFT, False);
+	newMeasL = LSSearch(newSysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 		
 	/*
 	 *	Move the stuff that belongs in the new System to its new location, both
@@ -204,7 +204,7 @@ LINK BreakSystem(register Document *doc, LINK breakL)
  	 *	Correct the timestamp of the new Measure, and adjust times of everything within
  	 *	it to be relative to it, so the first Sync in it will be at relative time 0.
  	 */
-	syncL = LSSearch(newMeasL, SYNCtype, ANYONE, GO_RIGHT, FALSE);
+	syncL = LSSearch(newMeasL, SYNCtype, ANYONE, GO_RIGHT, False);
 	if (syncL)
 		prevMeasDur = SyncTIME(syncL);
 	else
@@ -214,7 +214,7 @@ LINK BreakSystem(register Document *doc, LINK breakL)
 
 	/* Handle slurs and beams becoming cross-system. */
 	
-	startL = LSSearch(prevMeasL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	startL = LSSearch(prevMeasL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	sysTermL = EndSystemSearch(doc, newMeasL);
 	FixCrossSysObjects(doc, startL, sysTermL);
 	
@@ -236,8 +236,8 @@ can start before the range and end after it.
 
 Intended for use on notes that were either played-in or read from a MIDI file or
 similar source, of either unknown or known duration. Assumes it's operating on the
-active document, so it updates objRects and redraws. Returns TRUE if it creates any
-new Systems or Pages, FALSE if not. */
+active document, so it updates objRects and redraws. Returns True if it creates any
+new Systems or Pages, False if not. */
 
 #define EXTRA_MARGIN	0			/* End of each System relative to last usable position (DDIST) */
 
@@ -255,11 +255,11 @@ Boolean RespAndRfmtRaw(
 	DDIST				oldMWidth, newMWidth,
 						widthChange;
 	LONGDDIST		staffLengthUse;
-	Boolean			newSysOrPage=FALSE;
+	Boolean			newSysOrPage=False;
 	short				status;
 
 	barTermL = EndMeasSearch(doc, startL);
-	barL = LSSearch(LeftLINK(barTermL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	barL = LSSearch(LeftLINK(barTermL), MEASUREtype, ANYONE, GO_LEFT, False);
 		
 	/* Respace the range and get the change in its Measure's width */
 	
@@ -290,7 +290,7 @@ Boolean RespAndRfmtRaw(
 			if (HasValidxd(pL))
 				if (USysRelxd(pL)>staffLengthUse) {
 					if (IsAfter(barTermL, pL))
-						breakL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+						breakL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, False);
 					else
 						breakL = pL;
 					break;
@@ -308,7 +308,7 @@ Boolean RespAndRfmtRaw(
 		&&  !(MeasureTYPE(breakL) && RightLINK(breakL)==sysTermL)) {
 			newSysL = BreakSystem(doc, breakL);
 		 	if (newSysL)
-				newSysOrPage = TRUE;
+				newSysOrPage = True;
 			else
 				goto Cleanup;
 		}
@@ -316,9 +316,9 @@ Boolean RespAndRfmtRaw(
 
 Cleanup:
 	/* ??Should probably not Reformat if we jump to Cleanup--move this call above? */
-	status = Reformat(doc, startL, endL, FALSE, 9999, FALSE, 999, config.titleMargin);
+	status = Reformat(doc, startL, endL, False, 9999, False, 999, config.titleMargin);
 	if (status==FAILURE)
-		newSysOrPage = FALSE;
+		newSysOrPage = False;
 
 	InvalRange(barL, sysTermL);
 	InvalWindow(doc);

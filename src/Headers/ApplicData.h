@@ -1,15 +1,15 @@
 /* ApplicData.h: generic and semi-generic "Sheets" globals for Nightingale */
 
 GLOBAL Configuration config;			/* Nightingale configuration info */
-GLOBAL Boolean		inBackground;		/* Application state: TRUE if we're frontmost */
-GLOBAL Boolean		closingAll;			/* TRUE when closing all windows */
-GLOBAL Boolean		quitting;			/* TRUE when closing down */
+GLOBAL Boolean		inBackground;		/* Application state: True if we're frontmost */
+GLOBAL Boolean		closingAll;			/* True when closing all windows */
+GLOBAL Boolean		quitting;			/* True when closing down */
 GLOBAL short		oldEventMask;		/* Event mask state to restore */
 GLOBAL Boolean 		alreadyDrawn;		/* Don't include controls in next update */
-GLOBAL Boolean		notMenu;			/* Is operation in a torn off window or not */
+GLOBAL Boolean		notInMenu;			/* Is operation in a torn off window or not */
 GLOBAL Rect			*updateRectTable;	/* Table of nUpdateRects rectangles to be redrawn */
 GLOBAL short		nUpdateRects;		/* Size of above, or -1 for standard update region */
-GLOBAL Boolean		holdCursor;			/* Don't reset arrow while this is TRUE */
+GLOBAL Boolean		holdCursor;			/* Don't reset arrow while this is True */
 
 GLOBAL WindowPtr	TopDocument;		/* Frontmost document, or NULL */
 GLOBAL WindowPtr	TopWindow;			/* Frontmost window, or NULL */
@@ -22,15 +22,10 @@ GLOBAL short		clavierCellWidth,	/* Size of clavier cell */
 					clavierCellHeight;
 GLOBAL Rect			toolsFrame;			/* Frame for symbols picture in palette */
 GLOBAL Rect			clavierFrame;		/* Same for clavier palette */
-GLOBAL Boolean		outOfMemory;		/* TRUE when grow zone function has been called */
+GLOBAL Boolean		outOfMemory;		/* True when grow zone function has been called */
 GLOBAL Handle		memoryBuffer;		/* Handle to grow zone free block */
 
-#if TARGET_API_MAC_CARBON
-GLOBAL MenuRef
-#else
-GLOBAL MenuHandle
-#endif	
-					appleMenu,			/* Standard menus */
+GLOBAL MenuRef		appleMenu,			/* Standard menus */
 					fileMenu,
 					editMenu,
 					testMenu,

@@ -13,14 +13,14 @@
 
 #include "MidiMap.h"
 
-/* ================================================= AltInsTrackPitch and helpers == */
+/* ====================================================== AltInsTrackPitch and helpers == */
 
 #define NO_ACCIDENTAL	0
 #define MIN_ACCSIZE		14		/* Feedback accidentals will be no smaller than this pt size */
 #define CH_MODE_CHNG	'\t'	/* Character code that will change note insertion mode. */
-		/* FIXME: belongs in NTypes.h, since accMode should be global. */
+		/* FIXME: belongs in NObjTypes.h, since accMode should be global. */
 
-#define INCL_DBL_ACCS FALSE
+#define INCL_DBL_ACCS False
 
 #define ACC_DOWN		-1
 #define ACC_UP			1
@@ -29,7 +29,7 @@
 static enum {
 	DIATONIC_MODE,
 	CHROMATIC_MODE
-	} E_TrackVMode;
+} E_TrackVMode;
 
 /* Local prototypes */
 static void DrawAccInBox(short, short, short, Rect *);
@@ -39,7 +39,7 @@ static void PaperMouse2Global(Point *, Rect *);
 static void SetMouse(short x, short y, Boolean updateCrs);
 
 
-/* ------------------------------------------------------------- AltInsTrackPitch -- */
+/* ------------------------------------------------------------------ AltInsTrackPitch -- */
 /* For notes and rests. Tracks the cursor up and down the staff, giving appro-
 priate feedback: audio and ledger lines, plus a rectangle sliding up and down
 showing where the symbol would go.  The global <accMode>, toggled by hitting
@@ -49,12 +49,10 @@ global, <dblAccidents> determines whether double sharps and flats will be
 included in the sequence of accidentals displayed.
 Returns in parameters the half-line pitch level and the index into the global
 SonataAcc[] of the chosen accidental (0=none, 1...5=dbl-flat thru dbl-sharp).
-If the cursor's final position is outside the music area, returns FALSE to
+If the cursor's final position is outside the music area, returns False to
 allow the caller to cancel the operation. If called with a rest, does minimal
 tracking, allowing the user to cancel, but giving no feedback. If the cursor
-is inside the music area, returns TRUE.
-
-WARNING: This routine calls SetMouse, which stores into low-memory globals.
+is inside the music area, returns True.
 
 NOTE: The standard MIDIFBNoteOn and MIDIFBNoteOff include an intentional delay;
 that was slowing this routine down AltInsTrackPitch in chromatic mode. So this
@@ -86,7 +84,7 @@ Boolean AltInsTrackPitch(
 				durIndex, durIndexOld,
 				partn, useChan, octTransp, transp;
 	short		useIORefNum=0;	/* NB: both OMSUniqueID and fmsUniqueID are unsigned short */
-	Boolean		outOfBounds, sharpKS, halfLnAccel = FALSE;
+	Boolean		outOfBounds, sharpKS, halfLnAccel = False;
 	SignedByte	direction, accidentStep, extraTime;
 	long		thisTime, lastTime, deltaTime;
 	Point		pt, tempPt;
@@ -114,20 +112,20 @@ Boolean AltInsTrackPitch(
 	 * mouse is outside of the music area.
 	 */
 	if (symtable[*symIndex].subtype!=0) {					/* Is it a rest? */
-		outOfBounds = FALSE;
+		outOfBounds = False;
 		SetCrossbar(3, downPt.h, &context);					/* Calculate ccrossbar rect */
 		InvertCrossbar(doc);								/* Show it */
 		do {
 			GetPaperMouse(&pt, &context.paper);
 			if (!PtInRect(pt, &tRect)) {					/* Mouse out of System? */
-				outOfBounds = TRUE;
+				outOfBounds = True;
 				InvertCrossbar(doc);
 				do {
 					GetPaperMouse(&pt, &context.paper);
 				} while (!PtInRect(pt, &tRect) && WaitMouseUp());
 				InvertCrossbar(doc);
 			}
-			else outOfBounds = FALSE;
+			else outOfBounds = False;
 		} while (WaitMouseUp()); 
 		*pHalfLn = 0;
 		*pAccident = 0;
@@ -138,31 +136,31 @@ Boolean AltInsTrackPitch(
 
 	/* If it's a note, we need more info and a much more comprehensive tracking loop. */
 	
-	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_LEFT, FALSE);
+	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_LEFT, False);
 	halfLn = CalcPitchLevel(downPt.v, &context, staffL, staff);
 	halfLnOrig = halfLn;
-	hiPitchLim = GetPitchLim(doc, staffL, staff, TRUE);
-	loPitchLim = GetPitchLim(doc, staffL, staff, FALSE);
+	hiPitchLim = GetPitchLim(doc, staffL, staff, True);
+	loPitchLim = GetPitchLim(doc, staffL, staff, False);
 
 	durIndex = *symIndex;
 	partn = Staff2Part(doc, staff);
-	useChan = UseMIDIChannel(doc, partn);							/* Set feedback channel no. */
+	useChan = UseMIDIChannel(doc, partn);						/* Set feedback channel no. */
 
-	octTransp = (octType>0? noteOffset[octType-1] : 0);				/* Set feedback transposition */
+	octTransp = (octType>0? noteOffset[octType-1] : 0);			/* Set feedback transposition */
 	partL = FindPartInfo(doc, partn);
 	pPart = GetPPARTINFO(partL);
 	if (doc->transposed) transp = pPart->transpose;
 	else						transp = 0;
 
-	if (context.nKSItems==0) sharpKS = TRUE;						/* arbitrary for no key sig */
+	if (context.nKSItems==0) sharpKS = True;					/* arbitrary for no key sig */
 	else {
-		if (context.KSItem[0].sharp) sharpKS = TRUE;				/* key sig begins with sharp */
-		else sharpKS = FALSE;										/* key sig begins with flat */
+		if (context.KSItem[0].sharp) sharpKS = True;			/* key sig begins with sharp */
+		else sharpKS = False;									/* key sig begins with flat */
 	}
 	
 	pt.v = downPt.v;
 	accident = prevAccident = NO_ACCIDENTAL;
-	outOfBounds = FALSE;
+	outOfBounds = False;
 
 	middleCHalfLn = ClefMiddleCHalfLn(context.clefType);
 	if (ACC_IN_CONTEXT) {
@@ -175,8 +173,8 @@ Boolean AltInsTrackPitch(
 	InsertLedgers(p2d(downPt.h), halfLn, &context);
 	halfLnLo = halfLnHi = halfLn;
 
-	SetCrossbar(halfLn, downPt.h, &context);						/* Calculate ccrossbar rect */
-	InvertCrossbar(doc);											/* Show it */
+	SetCrossbar(halfLn, downPt.h, &context);					/* Calculate ccrossbar rect */
+	InvertCrossbar(doc);										/* Show it */
 
 	CalcAccBox(doc, &context, &downPt, &accBox, &accSize);
 	accBoxWid = accBox.right-accBox.left;
@@ -187,7 +185,7 @@ Boolean AltInsTrackPitch(
 
 	SaveGWorld();
 	
-	gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, TRUE);
+	gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, True);
 	savePort = gwPtr;
 
 	ourPortBits = GetPortBitMapForCopyBits(ourPort);
@@ -222,7 +220,7 @@ Boolean AltInsTrackPitch(
 				GetPaperMouse(&pt, &context.paper);
 				
 				if (!PtInRect(pt, &tRect)) {					/* Mouse out of System? */
-					outOfBounds = TRUE;
+					outOfBounds = True;
 					MIDIFBNoteOff(doc, noteNum, useChan, useIORefNum);
 					InvertCrossbar(doc);
 					if (accMode==CHROMATIC_MODE) {
@@ -241,7 +239,7 @@ Boolean AltInsTrackPitch(
 					if (accMode==CHROMATIC_MODE) HideCursor();
 					break;
 				}
-				else outOfBounds = FALSE;
+				else outOfBounds = False;
 				
 				/* Change mode if we get a CH_MODE_CHNG key event */
 				if (GetNextEvent(keyDownMask, &evt)) {
@@ -278,8 +276,10 @@ Boolean AltInsTrackPitch(
 					
 				else {
 					if (accMode==CHROMATIC_MODE)	{
+					
 						/* Determine number of pixels mouse must move to change accidental.
-						 * The quicker the mouse moves, the fewer the number of pixels. */
+						   The quicker the mouse moves, the fewer the number of pixels. */
+						   
 						thisTime = TickCount();
 						deltaTime = thisTime-lastTime;
 						lastTime = thisTime;
@@ -298,9 +298,9 @@ Boolean AltInsTrackPitch(
 						/* Extra bump(s) for maximum acceleration. */
 						if (accidentStep==1 && ABS(deltaV)>2) {
 							halfLn -= direction*(ABS(deltaV)>>1);
-							halfLnAccel = TRUE;
+							halfLnAccel = True;
 						}
-						else halfLnAccel = FALSE;
+						else halfLnAccel = False;
 
 						SleepTicks(1L);				/* Rein in fast machines. (??Where should this go?) */
 
@@ -324,13 +324,13 @@ Boolean AltInsTrackPitch(
 								tempPt.h = ccrossbar.left + ((ccrossbar.right-ccrossbar.left)>>1);
 								tempPt.v = ccrossbar.top + ((ccrossbar.bottom-ccrossbar.top)>>1);
 								PaperMouse2Global(&tempPt, &context.paper);
-								SetMouse(tempPt.h, tempPt.v, FALSE);
+								SetMouse(tempPt.h, tempPt.v, False);
 							}
 							else {
 								tempPt = pt;
 								PaperMouse2Global(&tempPt, &context.paper);
 								/* Keep mouse "running in place" as we change accidentals. */
-								SetMouse(tempPt.h, tempPt.v, FALSE);
+								SetMouse(tempPt.h, tempPt.v, False);
 							}
 						}
 					}
@@ -424,18 +424,18 @@ Boolean AltInsTrackPitch(
 	if (outOfBounds) {
 		*pHalfLn = halfLnOrig;
 		*pAccident = accident;
-		return FALSE;
+		return False;
 	}
 	else {
 		*pHalfLn = halfLn;
 		*pAccident = accident;
 		*symIndex = durIndex;
-		return TRUE;
+		return True;
 	}
 }
 
 
-/* ---------------------------------------------------------------- DrawAccInBox -- */
+/* ---------------------------------------------------------------------- DrawAccInBox -- */
 /* DrawAccInBox draws the given accidental, expressed as an index into the
 global array of accidental characters (SonataAcc) in the given rect in the
 current port using the given size of the Sonata font. */
@@ -464,7 +464,7 @@ void DrawAccInBox(short accIndex, short fontSize, short baselineV, Rect *accBox)
 }
 
 
-/* ------------------------------------------------------------------ CalcAccBox -- */
+/* ------------------------------------------------------------------------ CalcAccBox -- */
 /* CalcAccBox determines the dimensions and placement of the accidental box and
 the font size used to display the accidentals, both of which it passes back to the
 caller.  NB: Currently there's no distinction based on whether box will include
@@ -521,14 +521,13 @@ double-flats and -sharps are included. */
 static char ShrpKSaccs[] = {0xBA,'b','n',' ','#',0xDC};
 static char FlatKSaccs[] = {0xBA,'b',' ','n','#',0xDC};
 
-/* ----------------------------------------------------------- AltCalcAccidental -- */
-/* AltCalcAccidental takes the index into the global SonataAcc array of the
-current accidental and changes it depending on the direction the mouse is
-moving, the current key signature, and whether the user wants to see double
-flats and double sharps.  If user reaches a minimum or maximum accidental,
-we wrap around to the other end and bump the half line position, which we
-pass back to the caller for further action.  Passes back an index into the
-global SonataAcc array. */
+/* ----------------------------------------------------------------- AltCalcAccidental -- */
+/* AltCalcAccidental takes the index into the global SonataAcc array of the current
+accidental and changes it depending on the direction the mouse is moving, the current
+key signature, and whether the user wants to see double flats and double sharps.  If
+user reaches a minimum or maximum accidental, we wrap around to the other end and bump
+the half line position, which we pass back to the caller for further action.  Passes
+back an index into the global SonataAcc array. */
 
 void AltCalcAccidental(
 			short		*pAcc,		/* Current index into global SonataAcc[] */
@@ -543,7 +542,7 @@ void AltCalcAccidental(
 	SignedByte	minIndex, maxIndex, locIndex;
 	short		accident, halfLn;
 	char		*accList;
-	Boolean		bumpHalfLn = FALSE;
+	Boolean		bumpHalfLn = False;
 	register short i;
 
 	if (*pAcc>MAX_INDEX) {
@@ -567,17 +566,17 @@ void AltCalcAccidental(
 	locIndex += direction;
 	
 	/* If we've hit a maximum or minimum index, unless we're at either pitch limit,
-	 * wrap around to accidental on the other end and bump halfLn so that crossbar will
-	 * be moved by caller.
-	 */
+	   wrap around to accidental on the other end and bump halfLn so that crossbar will
+	   be moved by caller. */
+	   
 	if (halfLn<hiPitchLim) halfLn = hiPitchLim;			/* due to halfLn acceleration in InsTrackPitch */
 	else if (halfLn>loPitchLim) halfLn = loPitchLim;
 	if (direction==ACC_UP && locIndex>maxIndex) {
 		if (halfLn==hiPitchLim)
-			locIndex--;										/* restore *pAcc */
+			locIndex--;									/* restore *pAcc */
 		else {
 			locIndex = minIndex;
-			bumpHalfLn = TRUE;
+			bumpHalfLn = True;
 		}
 	}
 	else if (direction==ACC_DOWN && locIndex<minIndex) {
@@ -585,7 +584,7 @@ void AltCalcAccidental(
 			locIndex++;
 		else {
 			locIndex = maxIndex;
-			bumpHalfLn = TRUE;
+			bumpHalfLn = True;
 		}
 	}
 	
@@ -601,8 +600,8 @@ void AltCalcAccidental(
 }
 
 
-/* ----------------------------------------------------------- PaperMouse2Global -- */
-/* Convert paper-relative point to global coordinates.  Paper is a rectangle
+/* ----------------------------------------------------------------- PaperMouse2Global -- */
+/* Convert paper-relative point to global coordinates.  Paper is a rectangle in
 in window-relative coordinates. */
 
 void PaperMouse2Global(Point *pt, Rect *paper)
@@ -613,10 +612,10 @@ void PaperMouse2Global(Point *pt, Rect *paper)
 }
 
 
-/* -------------------------------------------------------------------- SetMouse -- */
-/* Move the mouse cursor to <x>, <y> (in global coordinates), optionally updat-
-ing the cursor position.  Takes effect immediately. Adapted from code by
-Joe Holt of Adobe Systems, which is based on Apple Sample Code #17. */
+/* -------------------------------------------------------------------------- SetMouse -- */
+/* Move the mouse cursor to <x>, <y> (in global coordinates), optionally updating
+the cursor position.  Takes effect immediately. Adapted from code by Joe Holt of Adobe
+Systems, which is based on Apple Sample Code #17. */
 
 /* Low memory globals */
 /*
@@ -649,7 +648,7 @@ void SetMouse(short x, short y, Boolean updateCrs)
 }
 
 
-/* ---------------------------------------------------------------- InsTrackPitch -- */
+/* --------------------------------------------------------------------- InsTrackPitch -- */
 /* For notes and rests. For notes (as indicated by *symIndex), track the cursor up
 and down the staff, giving appropriate feedback: audio and ledger lines, plus a
 rectangle sliding up and down showing where the symbol would go.  The shift key
@@ -657,15 +656,15 @@ invokes a "spring-loaded" accidental entry submode; if *symIndex is not negative
 the command key invokes a spring-loaded mode that changes duration when the mouse
 is moved horizontally.
 
-If the cursor's final position is outside the music area, returns FALSE to allow the
+If the cursor's final position is outside the music area, returns False to allow the
 caller to cancel the operation. Otherwise, returns in parameters the new symbol table
 index, half-line pitch level, and accidental value (0=none, 1...5=double-flat thru
 double-sharp).
 
 For rests (as indicated by *symIndex), does minimal tracking, allowing the user to
 cancel, but giving no feedback. If the cursor's final position is outside the music
-area, returns FALSE to allow the caller to cancel the operation. Otherwise, simply
-returns TRUE. */
+area, returns False to allow the caller to cancel the operation. Otherwise, simply
+returns True. */
 
 Boolean InsTrackPitch(
 			register Document *doc,
@@ -697,7 +696,7 @@ Boolean InsTrackPitch(
 	PPARTINFO	pPart;
 	
 	MIDIUniqueID partDevID;
-	Boolean		useFeedback = TRUE;
+	Boolean		useFeedback = True;
 	
 	SignedByte	partVelo[MAXSTAVES];
 	Byte		partChannel[MAXSTAVES];
@@ -728,20 +727,20 @@ Boolean InsTrackPitch(
 	 * mouse is outside of the music area.
 	 */
 	if (*symIndex>=0 && symtable[*symIndex].subtype!=0) {			/* Is it a rest? */
-		outOfBounds = FALSE;
+		outOfBounds = False;
 		SetCrossbar(3, downPt.h, &context);							/* Calculate ccrossbar rect */
 		InvertCrossbar(doc);										/* Show it */
 		do {
 			GetPaperMouse(&pt, &context.paper);
 			if (!PtInRect(pt, &tRect)) {							/* Mouse out of System? */
-				outOfBounds = TRUE;
+				outOfBounds = True;
 				InvertCrossbar(doc);
 				do {
 					GetPaperMouse(&pt, &context.paper);
 				} while (!PtInRect(pt, &tRect) && WaitMouseUp());
 				InvertCrossbar(doc);
 			}
-			else outOfBounds = FALSE;
+			else outOfBounds = False;
 		} while (WaitMouseUp()); 
 		*pHalfLn = 0;
 		*pAccident = 0;
@@ -752,7 +751,7 @@ Boolean InsTrackPitch(
 
 	/* If it's a note, we need more info and a much more comprehensive tracking loop. */
 	
-	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_LEFT, FALSE);
+	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_LEFT, False);
 	halfLn = CalcPitchLevel(downPt.v, &context, staffL, staff);
 	halfLnOrig = halfLn;
 	durIndex = *symIndex;
@@ -770,7 +769,7 @@ Boolean InsTrackPitch(
 			CMSetup(doc, partChannel);			
 			CMMIDIProgram(doc, partPatch, partChannel);
 		}
-		useFeedback = FALSE;
+		useFeedback = False;
 	}
 
 	octTransp = (octType>0? noteOffset[octType-1] : 0);				/* Set feedback transposition */
@@ -781,7 +780,7 @@ Boolean InsTrackPitch(
 	
 	pt.v = downPt.v;
 	accident = prevAccident = 0;
-	outOfBounds = FALSE;
+	outOfBounds = False;
 	patchNum = pPart->patchNum;
 
 	middleCHalfLn = ClefMiddleCHalfLn(context.clefType);
@@ -791,19 +790,17 @@ Boolean InsTrackPitch(
 	}
 	noteNum = Pitch2MIDI(middleCHalfLn-halfLn+octTransp, prevAccident)+transp;
 	MIDIFBOn(doc);
-#ifdef TARGET_API_MAC_CARBON_MIDI
 	if (IsPatchMapped(doc, patchNum)) {
 		noteNum = GetMappedNoteNum(doc, noteNum);		
 	}
 	CMMIDIFBNoteOn(doc, noteNum, useChan, partDevID);
-#endif
 	InsertLedgers(p2d(downPt.h), halfLn, &context);
 	halfLnLo = halfLnHi = halfLn;
 
 	SetCrossbar(halfLn, downPt.h, &context);						/* Calculate ccrossbar rect */
 	InvertCrossbar(doc);											/* Show it */
 
-	accy = d2p(context.staffTop+context.staffHeight/2);			/* Setup accidental feedback */
+	accy = d2p(context.staffTop+context.staffHeight/2);				/* Setup accidental feedback */
 	accBox.left = ccrossbar.left-2-ACCBOXWIDE;		
 	accBox.right = ccrossbar.left-2;
 	accBox.bottom = accy+ACCBOXWIDE/2+1;
@@ -813,7 +810,7 @@ Boolean InsTrackPitch(
 	SetRect(&saveBox, 0, 0, accBox.right-accBox.left, accBox.bottom-accBox.top);
 	SaveGWorld();
 	
-	gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, TRUE);
+	gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, True);
 	savePort = gwPtr;
 
 	savePortBits = GetPortBitMapForCopyBits(savePort);
@@ -839,10 +836,8 @@ Boolean InsTrackPitch(
 			do {														/* Watch for ANY change */
 				GetPaperMouse(&pt,&context.paper);
 				if (!PtInRect(pt, &tRect)) {							/* Mouse out of System? */
-					outOfBounds = TRUE;
-#ifdef TARGET_API_MAC_CARBON_MIDI
+					outOfBounds = True;
 					CMMIDIFBNoteOff(doc, noteNum, useChan, partDevID);
-#endif
 					InvertCrossbar(doc);
 					do {
 						GetPaperMouse(&pt,&context.paper);
@@ -851,7 +846,7 @@ Boolean InsTrackPitch(
 					break;
 				}
 				else
-					outOfBounds = FALSE; 
+					outOfBounds = False; 
 				if (ShiftKeyDown())	
 					accident = CalcAccidental(pt.v, oldv);
 				else if (CmdKeyDown() && *symIndex>=0)
@@ -905,9 +900,7 @@ Boolean InsTrackPitch(
 							DrawChar(SonataAcc[accident]);			/* Draw new accidental */
 						}
 					}
-#ifdef TARGET_API_MAC_CARBON_MIDI
 					CMMIDIFBNoteOff(doc, noteNum, useChan, partDevID);
-#endif
 					if (accident==0) {
 						if (ACC_IN_CONTEXT)
 							prevAccident = accTable[halfLn-middleCHalfLn+ACCTABLE_OFF];			
@@ -918,12 +911,10 @@ Boolean InsTrackPitch(
 						noteNum = Pitch2MIDI(middleCHalfLn-halfLn+octTransp, accident)
 										+transp;
 					}
-#ifdef TARGET_API_MAC_CARBON_MIDI
 					if (IsPatchMapped(doc, patchNum)) {
 						noteNum = GetMappedNoteNum(doc, noteNum);		
 					}
 					CMMIDIFBNoteOn(doc, noteNum, useChan, partDevID);
-#endif
 				}
 				
 			}
@@ -931,10 +922,8 @@ Boolean InsTrackPitch(
 
 	InvertCrossbar(doc);
 	
-#ifdef TARGET_API_MAC_CARBON_MIDI
 	CMMIDIFBNoteOff(doc, noteNum, useChan, partDevID);
 	MIDIFBOff(doc);
-#endif
 	
 	/* Restore bits under accBox so we'll never have to redraw previous Measure. */
 	
@@ -949,18 +938,18 @@ Boolean InsTrackPitch(
 	if (outOfBounds) {
 		*pHalfLn = halfLnOrig;
 		*pAccident = accident;
-		return FALSE;
+		return False;
 	}
 	else {
 		*pHalfLn = halfLn;
 		*pAccident = accident;
 		*symIndex = durIndex;
-		return TRUE;
+		return True;
 	}
 }
 
 
-/* -------------------------------------------------------------- InsTrackUpDown -- */
+/* -------------------------------------------------------------------- InsTrackUpDown -- */
 /*	For symbol with variable y-position, track the cursor up and down the staff,
 giving appropriate feedback: for now, a rectangle sliding up and down showing where
 the symbol would go. If the symbol is a dynamic, it allows changing the dynamic by
@@ -988,24 +977,24 @@ short InsTrackUpDown(
 	CONTEXT	context;					/* current context */
 	LINK	staffL;
 	
-	GetContext(doc, LeftLINK(startL), staff, &context);					/* For staff size */
-	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_LEFT, FALSE);
+	GetContext(doc, LeftLINK(startL), staff, &context);				/* For staff size */
+	staffL = LSSearch(startL, STAFFtype, ANYONE, GO_LEFT, False);
 	halfLn = CalcPitchLevel(downPt.v, &context, staffL, staff);
 	halfLnOrig = halfLn;
 	itemIndex = *symIndex;
 	isDynamic = (symtable[*symIndex].objtype==DYNAMtype);
 	
 	pt.v = downPt.v;
-	outOfBounds = FALSE;
+	outOfBounds = False;
 	InsertLedgers(p2d(downPt.h), halfLn, &context);					/* Just to clarify which staff */
 	halfLnLo = halfLnHi = halfLn;
 
 	GetInsRect(doc, startL, &tRect);
 
 	SetCrossbar(halfLn, downPt.h, &context);						/* Calculate ccrossbar rect */
-	InvertCrossbar(doc);												/* Show it */
+	InvertCrossbar(doc);											/* Show it */
 
-	anyChange = FALSE;
+	anyChange = False;
 	oldh = downPt.h;
 	oldv = downPt.v;
 	
@@ -1015,10 +1004,10 @@ short InsTrackUpDown(
 		while (WaitMouseUp()) {
 			halfLnOld = halfLn;
 			itemIndexOld = itemIndex;
-			do {														/* Watch for mouseUp or pitch change */
+			do {													/* Watch for mouseUp or pitch change */
 				GetPaperMouse(&pt,&context.paper);
-				if (!PtInRect(pt, &tRect)) {							/* Mouse still in System? */
-					outOfBounds = TRUE;
+				if (!PtInRect(pt, &tRect)) {						/* Mouse still in System? */
+					outOfBounds = True;
 					InvertCrossbar(doc);
 					do {
 						GetPaperMouse(&pt,&context.paper);
@@ -1027,7 +1016,7 @@ short InsTrackUpDown(
 					break;
 				}
 				else
-					outOfBounds = FALSE;
+					outOfBounds = False;
 				if (isDynamic && CmdKeyDown())
 					itemIndex = CalcNewDynIndex(*symIndex, pt.h, oldh);
 				else {
@@ -1044,7 +1033,7 @@ short InsTrackUpDown(
 					PalKey(symtable[itemIndex].symcode);
 					currentCursor = cursorList[itemIndex];
 					SetCursor(*currentCursor);
-					anyChange = TRUE;
+					anyChange = True;
 				}
 				else if (halfLn!=halfLnOld)	{						/* Pitch level change? */
 					InvertCrossbar(doc);							/* Move ccrossbar to new halfLn */
@@ -1058,7 +1047,7 @@ short InsTrackUpDown(
 						InsertLedgers(p2d(downPt.h), halfLn, &context);
 					}
 					InvertCrossbar(doc);
-					anyChange = TRUE;
+					anyChange = True;
 				}
 			}
 		}
@@ -1076,7 +1065,7 @@ short InsTrackUpDown(
 }
 
 
-/* ----------------------------------------------------------------- SetCrossbar -- */
+/* ----------------------------------------------------------------------- SetCrossbar -- */
 /* Calculate new crossbar rectangle, in paper-relative coords */
 
 void SetCrossbar(short halfLn, short h, PCONTEXT pCont)
@@ -1096,7 +1085,7 @@ void SetCrossbar(short halfLn, short h, PCONTEXT pCont)
 }
 
 
-/* -------------------------------------------------------------- InvertCrossbar -- */
+/* -------------------------------------------------------------------- InvertCrossbar -- */
 
 void InvertCrossbar(Document *doc)
 {
@@ -1108,7 +1097,7 @@ void InvertCrossbar(Document *doc)
 }
 
 
-/* --------------------------------------------------------------- CalcAccidental -- */
+/* -------------------------------------------------------------------- CalcAccidental -- */
 
 #define ACC_STEP 3								/* Pixels between accidentals */
 
@@ -1126,7 +1115,7 @@ short CalcAccidental(short newy, short oldy)
 }
 
 
-/* ------------------------------------------------------------- CalcNewDurIndex -- */
+/* ------------------------------------------------------------------- CalcNewDurIndex -- */
 
 #define DUR_STEP 4								/* Pixels between duration changes */
 
@@ -1142,13 +1131,13 @@ short CalcNewDurIndex(short oldIndex, short newx, short oldx)
 }
 
 
-/* ------------------------------------------------------------- CalcNewDynIndex -- */
+/* ------------------------------------------------------------------- CalcNewDynIndex -- */
 
 #define DYN_STEP 4								/* Pixels between dynamic changes */
 
 short CalcNewDynIndex(short oldIndex, short newx, short oldx)
 {
-	static Boolean firstCall=TRUE;
+	static Boolean firstCall=True;
 	static short	lowDynIndex, hiDynIndex;
 	short 			delta, j, newIndex;
 	
@@ -1158,7 +1147,7 @@ short CalcNewDynIndex(short oldIndex, short newx, short oldx)
 				lowDynIndex = j; break;
 			}
 		hiDynIndex = lowDynIndex+7;				/* Assume 8 non-hairpin dynamics */
-		firstCall = FALSE;
+		firstCall = False;
 	}
 	
 	delta = newx-oldx;

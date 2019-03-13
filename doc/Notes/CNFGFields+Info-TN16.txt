@@ -1,261 +1,270 @@
-NIGHTINGALE 5.x "CNFG" RESOURCE FIELDS (from applicationTypes.h) AND VALUES
-DAB, rev. March 2016
+NIGHTINGALE 5.x "CNFG" RESOURCE FIELDS AND VALUES
+DAB, rev. February 2018
+
+The Configuration struct, the encoding of the 'CNFG' resource Nightingale uses internally,
+is declared in NMiscTypes.h; here's an annotated version.
+
+Under "Description", each field is tagged by the type of information it contains, viz.
+"G" (Graphic), "L" (Logical), "P" (Performance), "S" (System), or "U" (User interface).
 
 OFF	TYPE		NAME				DESCRIPTION
---------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 typedef struct {
-0	short		maxDocuments;		/* Size of Document table to allocate */
+0	short		maxDocuments;		/* S: Size of Document table to allocate */
 
-2	SignedByte	stemLenNormal;		/* Standard stem length (quarter-spaces) */
-3	SignedByte	stemLen2v;			/* Standard stem length if >=2 voices/staff (qtr-spaces) */
-4	SignedByte	stemLenOutside;	/* Standard stem length if entire stem outside of staff (qtr-spaces) */
-5	SignedByte	stemLenGrace;		/* Standard grace note stem length (qtr-spaces) */
+2	SignedByte	stemLenNormal;		/* G: Standard stem length (quarter-spaces) */
+3	SignedByte	stemLen2v;			/* G: Standard stem length if >=2 voices/staff (qtr-spaces) */
+4	SignedByte	stemLenOutside;		/* G: Standard stem length if entire stem outside of staff (qtr-spaces) */
+5	SignedByte	stemLenGrace;		/* G: Standard grace note stem length (qtr-spaces) */
 
-6	SignedByte	spAfterBar;			/* For Respace, "normal" space between barline and next symbol (eighth-spaces) */
-7	SignedByte	minSpBeforeBar;	/* For Respace, min. space between barline and previous symbol (eighth-spaces) */
-8	SignedByte	minRSpace;			/* For Respace, minimum space between symbols (eighth-spaces) */
-9	SignedByte	minLyricRSpace;	/* For Respace, minimum space between lyrics (eighth-spaces) */
-10	SignedByte	minRSpace_KSTS_N;	/* For Respace, min. space btwn keysig or timesig and note (eighth-spaces) */
+6	SignedByte	spAfterBar;			/* G: For Respace, "normal" space between barline and next symbol (eighth-spaces) */
+7	SignedByte	minSpBeforeBar;		/* G: For Respace, min. space between barline and previous symbol (eighth-spaces) */
+8	SignedByte	minRSpace;			/* G: For Respace, minimum space between symbols (eighth-spaces) */
+9	SignedByte	minLyricRSpace;		/* G: For Respace, minimum space between lyrics (eighth-spaces) */
+10	SignedByte	minRSpace_KSTS_N;	/* G: For Respace, min. space btwn keysig or timesig and note (eighth-spaces) */
 
-11	SignedByte	hAccStep;			/* Step size for moving accidentals to avoid overlap */
+11	SignedByte	hAccStep;			/* G: Step size for moving accidentals to avoid overlap */
 
-12	SignedByte	stemLW;				/* PostScript linewidth for note stems (% of a space) */
-13	SignedByte	barlineLW;			/* PostScript linewidth for regular barlines (% of a space) */
-14	SignedByte	ledgerLW;			/* PostScript linewidth for ledger lines (% of a space) */
-15	SignedByte	staffLW;				/* PostScript linewidth for staff lines (% of a space) */
-16	SignedByte	enclLW;				/* PostScript linewidth for text/meas.no. enclosure (qtr-points) */
+12	SignedByte	stemLW;				/* G: PostScript linewidth for note stems (% of a space) */
+13	SignedByte	barlineLW;			/* G: PostScript linewidth for regular barlines (% of a space) */
+14	SignedByte	ledgerLW;			/* G: PostScript linewidth for ledger lines (% of a space) */
+15	SignedByte	staffLW;			/* G: PostScript linewidth for staff lines (% of a space) */
+16	SignedByte	enclLW;				/* G: PostScript linewidth for text/meas.no. enclosure (qtr-points) */
 
-17	SignedByte	beamLW;				/* (+)PostScript linewidth for normal-note beams (% of a space) */
-18	SignedByte	hairpinLW;			/* +PostScript linewidth for hairpins (% of a space) */
-19	SignedByte	dottedBarlineLW;	/* +PostScript linewidth for dotted barlines (% of a space) */
-20	SignedByte	mbRestEndLW;		/* +PostScript linewidth for multibar rest end lines (% of a space) */
-21	SignedByte	nonarpLW;			/* +PostScript nonarpeggio sign linewidth (% of a space) */
+17	SignedByte	beamLW;				/* G: (+)PostScript linewidth for normal-note beams (% of a space) */
+18	SignedByte	hairpinLW;			/* G: +PostScript linewidth for hairpins (% of a space) */
+19	SignedByte	dottedBarlineLW;	/* G: +PostScript linewidth for dotted barlines (% of a space) */
+20	SignedByte	mbRestEndLW;		/* G: +PostScript linewidth for multibar rest end lines (% of a space) */
+21	SignedByte	nonarpLW;			/* G: +PostScript nonarpeggio sign linewidth (% of a space) */
 
-22	SignedByte	graceSlashLW;		/* PostScript linewidth of slashes on grace-notes stems (% of a space) */
-23	SignedByte	slurMidLW;			/* PostScript linewidth of middle of slurs and ties (% of a space) */
+22	SignedByte	graceSlashLW;		/* G: PostScript linewidth of slashes on grace-notes stems (% of a space) */
+23	SignedByte	slurMidLW;			/* G: PostScript linewidth of middle of slurs and ties (% of a space) */
 
-24	SignedByte	tremSlashLW;		/* +Linewidth of tremolo slashes (% of a space) */
+24	SignedByte	tremSlashLW;		/* G: +Linewidth of tremolo slashes (% of a space) */
 
-25	SignedByte	slurCurvature;		/* Initial slur curvature (% of "normal") */
-26	SignedByte	tieCurvature;		/* Initial tie curvature (% of "normal") */
-27	SignedByte	relBeamSlope;		/* Relative slope for new beams (%) */
+25	SignedByte	slurCurvature;		/* G: Initial slur curvature (% of "normal") */
+26	SignedByte	tieCurvature;		/* G: Initial tie curvature (% of "normal") */
+27	SignedByte	relBeamSlope;		/* G: Relative slope for new beams (%) */
 
-28	SignedByte	hairpinMouthWidth; /* Initial hairpin mouth width (quarter-spaces) */
-29	SignedByte	mbRestBaseLen;		/* Length of 2-meas. multibar rest (qtr-spaces) */
-30	SignedByte	mbRestAddLen;		/* Additional length per meas. of multibar rest (qtr-spaces) */
-31	SignedByte	barlineDashLen;	/* Length of dashes in dotted barlines (eighth-spaces) */
-32	SignedByte	crossStaffBeamExt; /* Dist. cross-staff beams extend past end stem (qtr-spaces) */
+28	SignedByte	hairpinMouthWidth; 	/* G: Initial hairpin mouth width (quarter-spaces) */
+29	SignedByte	mbRestBaseLen;		/* G: Length of 2-meas. multibar rest (qtr-spaces) */
+30	SignedByte	mbRestAddLen;		/* G: Additional length per meas. of multibar rest (qtr-spaces) */
+31	SignedByte	barlineDashLen;		/* G: Length of dashes in dotted barlines (eighth-spaces) */
+32	SignedByte	crossStaffBeamExt;	/* G: Dist. cross-staff beams extend past end stem (qtr-spaces) */
 
-33	SignedByte	slashGraceStems;	/* !0 = slash stems of (normally unbeammed 8th) grace notes */
-34	SignedByte	bracketsForBraces; /* !0 = substitute square brackets for curly braces */
+33	SignedByte	slashGraceStems;	/* G: !0 = slash stems of (normally unbeammed 8th) grace notes */
+34	SignedByte	bracketsForBraces;	/* G: !0 = substitute square brackets for curly braces */
 
-35	SignedByte	titleMargin;		/* Additional margin at top of first page, in points */
+35	SignedByte	titleMargin;		/* G: Additional margin at top of first page, in points */
 	
-36	Rect			paperRect;			/* Default paper size, in points */
-44	Rect			pageMarg;			/* Default page top/left/bottom/right margins, in points */
-52	Rect			pageNumMarg;		/* Page number top/left/bottom/right margins, in points */
+36	Rect		paperRect;			/* G: Default paper size, in points */
+44	Rect		pageMarg;			/* G: Default page top/left/bottom/right margins, in points */
+52	Rect		pageNumMarg;		/* G: Page number top/left/bottom/right margins, in points */
 
-60	SignedByte	defaultLedgers;	/* Default max. no. of ledger lines to position systems for */
+60	SignedByte	defaultLedgers;		/* G: Default max. no. of ledger lines to position systems for */
 
-61	SignedByte	defaultTSNum;		/* Default time signature numerator */
-62	SignedByte	defaultTSDenom;	/* Default time signature denominator */
+61	SignedByte	defaultTSNum;		/* L: Default time signature numerator */
+62	SignedByte	defaultTSDenom;		/* L: Default time signature denominator */
 
-63	SignedByte	defaultRastral;	/* Default staff size rastral */
-64	SignedByte	rastral0size;		/* Height of rastral 0 staff (points) */
+63	SignedByte	defaultRastral;		/* G: Default staff size rastral */
+64	SignedByte	rastral0size;		/* G: Height of rastral 0 staff (points) */
 
-65	SignedByte	minRecVelocity;	/* Softer (lower-velocity) recorded notes are ignored */
-66	SignedByte	minRecDuration;	/* Shorter recorded notes are ignored (milliseconds) */
-67	SignedByte	midiThru;			/* MIDI Thru: 0 = off, 1 = to modem port */
+65	SignedByte	minRecVelocity;		/* P: Softer (lower-velocity) recorded notes are ignored */
+66	SignedByte	minRecDuration;		/* P: Shorter recorded notes are ignored (milliseconds) */
+67	SignedByte	midiThru;			/* P: MIDI Thru: 0 = off, 1 = to modem port */
 
-68	short			defaultTempo;		/* Default tempo (quarters per min.) */
+68	short		defaultTempoMM;		/* P: Default tempo (quarters per min.) */
 
-70	short			lowMemory;			/* Number of Kbytes below which to warn once */
-72	short			minMemory;			/* Number of Kbytes below which to warn always */
+70	short		lowMemory;			/* S: Number of free Kbytes below which to warn once */
+72	short		minMemory;			/* S: Number of free Kbytes below which to warn always */
 
-74	Point			toolsPosition;		/* Palette offset from left/right of screen (plus/minus) */
+74	Point		toolsPosition;		/* U: Palette offset from left/right of screen (plus/minus) */
 
-78	short			numRows;				/* Initial layout of sheets */
-80	short			numCols;				/* ditto */
-82	short			maxRows;				/* No more than this number of rows in sheet array */
-84	short			maxCols;				/* ditto */
-86	short			vPageSep;			/* Amount to separate pages horizontally */
-88	short			hPageSep;			/* And vertically */
-90	short			vScrollSlop;		/* Amount of paper to keep in view, vertically */
-92	short			hScrollSlop;		/* Amount of paper to keep in view, horizontally */
-94	Point			origin;				/* Of upper left corner sheet in array */
+78	short		numRows;			/* U: Initial layout of sheets */
+80	short		numCols;			/* U: ditto */
+82	short		maxRows;			/* U: No more than this number of rows in sheet array */
+84	short		maxCols;			/* U: ditto */
+86	short		vPageSep;			/* U: Amount to separate pages horizontally */
+88	short		hPageSep;			/* U: And vertically */
+90	short		vScrollSlop;		/* U: Amount of paper to keep in view, vertically */
+92	short		hScrollSlop;		/* U: Amount of paper to keep in view, horizontally */
+94	Point		origin;				/* U: Of upper left corner sheet in array */
 
-98	SignedByte	powerUser;			/* Enable power user feature(s)? */
-99	SignedByte	maxSyncTolerance;	/* Max. horiz. tolerance to sync on note insert (% of notehead width) */
-100	SignedByte	dblBarsBarlines;	/* Double bars/rpt bars inserted become: 0=ask, 1=MEASUREs, 2=PSEUDOMEAS/RPTENDs */
-101	SignedByte	enlargeHilite;		/* Enlarge all selection hiliting areas, horiz. and vert. (pixels) */
-102	SignedByte	disableUndo;		/* !0 = disable the Undo command */
-103	SignedByte	assumeTie;			/* Assume slur/tie of same pitch is: 0=ask, 1=tie, 2=slur */
-104	SignedByte	delRedundantAccs;	/* On record, automatically Delete Redundant Accidentals? */
-105	SignedByte	strictContin; 		/* Use strict (old) rules for continous selections? */
-106	SignedByte	turnPagesInPlay;	/* !0 = "turn pages" on screen during playback */
-107	SignedByte	infoDistUnits;		/* Code for units for Get Info to display distances */
-108	SignedByte	earlyMusic;			/* !0 = allow early music clefs */
-109	SignedByte	mShakeThresh;		/* Max. number of ticks between connected mouse shakes */
+98	SignedByte	powerUser;			/* U: Enable power user feature(s)? */
+99	SignedByte	maxSyncTolerance;	/* U: Max. horiz. tolerance to sync on note insert (% of notehead width) */
+100	SignedByte	dblBarsBarlines;	/* U: Double bars/rpt bars inserted become: 0=ask, 1=MEASUREs, 2=PSEUDOMEAS/RPTENDs */
+101	SignedByte	enlargeHilite;		/* U: Enlarge all selection hiliting areas, horiz. and vert. (pixels) */
+102	SignedByte	disableUndo;		/* U: !0 = disable the Undo command */
+103	SignedByte	assumeTie;			/* U: Assume slur/tie of same pitch is: 0=ask, 1=tie, 2=slur */
+104	SignedByte	delRedundantAccs;	/* U: On record, automatically Delete Redundant Accidentals? */
+105	SignedByte	strictContin; 		/* U: Use strict (old) rules for continous selections? */
+106	SignedByte	turnPagesInPlay;	/* U: !0 = "turn pages" on screen during playback */
+107	SignedByte	infoDistUnits;		/* U: Code for units for Get Info to display distances */
+108	SignedByte	earlyMusic;			/* U: !0 = allow early music clef positions */
+109	SignedByte	mShakeThresh;		/* U: Max. number of ticks between connected mouse shakes */
 
-110	short			musicFontID;		/* Font ID of music font (0=use Sonata) */
-112	short			numMasters;			/* Size of extra MasterPtr blocks */
+110	short		musicFontID;		/* S: Font ID of music font (0=use Sonata) */
+112	short		numMasters;			/* S: Size of extra MasterPtr blocks */
 
-114	SignedByte	indent1st;			/* Default 1st system indent (qtr-spaces) */
-115	SignedByte	mbRestHeight;		/* In qtr-spaces: 2 for engraving, 4 for "manuscript" style */
-116	short			chordSymMusSize;	/* Size of music chars. in chord syms. (% of text size) */
-118	SignedByte	enclMargin;			/* Margin between text bboxes and enclosures (points) */
-119	SignedByte	musFontSizeOffset; /* Offset on PostScript size for music font (points) */
+114	SignedByte	indent1st;			/* G: Default 1st system indent (qtr-spaces) */
+115	SignedByte	mbRestHeight;		/* G: In qtr-spaces: 2 for engraving, 4 for "manuscript" style */
+116	short		chordSymMusSize;	/* G: Size of music chars. in chord syms. (% of text size) */
+118	SignedByte	enclMargin;			/* G: Margin between text bboxes and enclosures (points) */
+119	SignedByte	musFontSizeOffset;	/* G: Offset on PostScript size for music font (points) */
 	
-120	SignedByte	fastScreenSlurs;	/* Code for faster-drawing but less beautiful slurs on screen */
-121	SignedByte	legatoPct;			/* For notes, play duration/note duration (%) */
-122	short			defaultPatch;		/* MIDI default patch number, 1 to MAXPATCHNUM */
-124	SignedByte	whichMIDI;			/* Use MIDI Mgr, built-in MIDI, or none: see InitMIDI */
-125	SignedByte	restMVOffset; 		/* Rest multivoice offset from normal ht. (half-spaces) */
-126	SignedByte	autoBeamOptions; 	/* Control beam breaks for Autobeam */
-127	SignedByte	dontAsk; 			/* !0 = save Preference and palette changes without asking */
-128	SignedByte	noteOffVel;			/* Default MIDI Note Off velocity */
-129	SignedByte	feedbackNoteOnVel; /* Note On velocity to use for feedback on input, etc. */
-130	SignedByte	defaultChannel;	/* MIDI default channel number, 1 to MAXCHANNEL */
-131	SignedByte	enclWidthOffset;	/* Offset on width of text enclosures (points) */
-132	short			rainyDayMemory;	/* Number of Kbytes in "rainy day" memory fund */
-134	short			tryTupLevels;		/* When quantizing, beat levels to look for tuplets at */
-136	SignedByte	solidStaffLines;	/* !0 = (non-Master Page) staff lines are solid, else gray */
-137	SignedByte	moveModNRs;			/* !0 = when notes move vertically, move modifiers too */
-138	SignedByte	minSpAfterBar;		/* For Respace, min. space between barline and next symbol (eighth-spaces) */
-139	SignedByte	leftJustPN;			/* !0=left-justify part names, else center them */
-140	SignedByte	show1StfSysConn;	/* Draw system connect if only 1 staff visible? */
-141	SignedByte	show1StfPartConn;	/* Draw part connect if only 1 staff visible? */
-142	SignedByte	midiFeedback;		/* Set MIDI feedback initially on? */
-143	SignedByte	alwaysCtrWholeMR;	/* Center whole-meas. rests entered even if auto-respace is off? */
-144	SignedByte	barTapSlop;			/* Tap-in barline tolerance to put before next note (100ths of sec.) */
-145	SignedByte	justifyWarnThresh; /* Min. stretching for Justify to warn about (mult. of 10%) */
-146	SignedByte	leastSquares;		/* Least-squares fit to decide tuplets from real time (else least-linear)? */
-147	SignedByte	altPitchCtl;		/* Use alternate accidental-pitch-entry method? */
+120	SignedByte	fastScreenSlurs;	/* U: Code for faster-drawing but less beautiful slurs on screen */
+121	SignedByte	legatoPct;			/* P: For notes, play duration/note duration (%) */
+122	short		defaultPatch;		/* P: MIDI default patch number, 1 to MAXPATCHNUM */
+124	SignedByte	whichMIDI;			/* P: Use MIDI Mgr, built-in MIDI, or none: see InitMIDI */
+125	SignedByte	restMVOffset; 		/* G: Rest multivoice offset from normal ht. (half-spaces) */
+126	SignedByte	autoBeamOptions; 	/* U: Control beam breaks for Autobeam */
+127	SignedByte	dontAskSavePrefs; 	/* U: !0 = save Preference and palette changes without asking */
+128	SignedByte	noteOffVel;			/* P: Default MIDI Note Off velocity */
+129	SignedByte	feedbackNoteOnVel;	/* P: Note On velocity to use for feedback on input, etc. */
+130	SignedByte	defaultChannel;		/* P: MIDI default channel number, 1 to MAXCHANNEL */
+131	SignedByte	enclWidthOffset;	/* G: Offset on width of text enclosures (points) */
+132	short		rainyDayMemory;		/* S: Number of Kbytes in "rainy day" memory fund */
+134	short		tryTupLevels;		/* G: When quantizing, beat levels to look for tuplets at */
+136	SignedByte	solidStaffLines;	/* U: !0 = (non-Master Page) staff lines are solid, else gray */
+137	SignedByte	moveModNRs;			/* U: !0 = when notes move vertically, move modifiers too */
+138	SignedByte	minSpAfterBar;		/* G: For Respace, min. space between barline and next symbol (eighth-spaces) */
+139	SignedByte	leftJustPN;			/* G: !0=left-justify part names, else center them */
+140	SignedByte	show1StfSysConn;	/* G: Draw system connect if only 1 staff visible? */
+141	SignedByte	show1StfPartConn;	/* G: Draw part connect if only 1 staff visible? */
+142	SignedByte	midiFeedback;		/* U: Set MIDI feedback initially on? */
+143	SignedByte	alwaysCtrWholeMR;	/* G: Center whole-meas. rests entered even if auto-respace is off? */
+144	SignedByte	barTapSlop;			/* U: Tap-in barline tolerance to put before next note (100ths of sec.) */
+145	SignedByte	justifyWarnThresh;	/* U: Min. stretching for Justify to warn about (mult. of 10%) */
+146	SignedByte	leastSquares;		/* L: Least-squares fit to decide tuplets from real time (else least-linear)? */
+147	SignedByte	altPitchCtl;		/* U: Use alternate accidental-pitch-entry method? */
 
-148	SignedByte	metroViaMIDI;		/* TRUE=use MIDI for metronome, FALSE=internal sound */
-149	SignedByte	metroChannel;		/* MIDI metronome channel number, 1 to MAXCHANNEL */
-150	SignedByte	metroNote;			/* MIDI metronome note number */
-151	SignedByte	metroVelo;			/* MIDI metronome note velocity */
-152	short			metroDur;			/* MIDI metronome note duration (millisec.) */
+148	SignedByte	metroViaMIDI;		/* P: True=use MIDI for metronome, False=internal sound */
+149	SignedByte	metroChannel;		/* P: MIDI metronome channel number, 1 to MAXCHANNEL */
+150	SignedByte	metroNote;			/* P: MIDI metronome note number */
+151	SignedByte	metroVelo;			/* P: MIDI metronome note velocity */
+152	short		metroDur;			/* P: MIDI metronome note duration (millisec.) */
 						
-154	SignedByte	chordSymSmallSize; /* Size of font used in all components of chord */
-											/* symbol except root string. (% of CS font size) */
-155	SignedByte	chordSymSuperscr;	/* Superscript of chord sym extensions above root baseline (% of CS font size) */
-156	SignedByte	chordSymDrawPar;	/* !0=draw parentheses around each level of ext stack in chord sym */
-157	SignedByte	endingHeight;		/* Height above staff top of new endings (half-spaces) */
-158	SignedByte	drawStemlets;		/* !0=draw stemlets on beamed rests */
-159	SignedByte	noTripletBias;		/* When quantizing, bias against recognizing tuplets */
-160	SignedByte	chordSymStkLead;	/* Extra leading of chord sym extensions (%) */
-161	SignedByte	ignoreRecVel;		/* On record, ignore recorded note velocity & set it from context? */
+154	SignedByte	chordSymSmallSize;	/* G: Size of font used in all components of chord symbol */
+										/* except root string. (% of CS font size) */
+155	SignedByte	chordSymSuperscr;	/* G: Superscript of chord sym extensions above root baseline (% of CS font size) */
+156	SignedByte	chordSymDrawPar;	/* G: !0=draw parentheses around each level of ext stack in chord sym */
+157	SignedByte	endingHeight;		/* G: Height above staff top of new endings (half-spaces) */
+158	SignedByte	drawStemlets;		/* G: !0=draw stemlets on beamed rests */
+159	SignedByte	noTripletBias;		/* U: When quantizing, bias against recognizing tuplets */
+160	SignedByte	chordSymStkLead;	/* G: Extra leading of chord sym extensions (%) */
+161	SignedByte	ignoreRecVel;		/* U: On record, ignore recorded note velocity & set it from context? */
 
-	/* Following fields were added after Nightingale 1.0. */
+/* Following fields were added after Nightingale 1.0. */
 
-162	SignedByte	tempoMarkHGap;		/* Extra gap between tempo mark & metronome mark */
+162	SignedByte	tempoMarkHGap;		/* G: Extra gap between tempo mark & metronome mark */
 163	SignedByte	conFiller;
 
-164	short			trebleVOffset;		/* Vertical offset on treble clef from Sonata pos. (% of a space) */
-166	short			cClefVOffset;		/* Vertical offset on C clef from Sonata pos. (% of a space) */
-168	short			bassVOffset;		/* Vertical offset on bass clef from Sonata pos. (% of a space) */
+164	short		trebleVOffset;		/* G: Vertical offset on treble clef from Sonata pos. (% of a space) */
+166	short		cClefVOffset;		/* G: Vertical offset on C clef from Sonata pos. (% of a space) */
+168	short		bassVOffset;		/* G: Vertical offset on bass clef from Sonata pos. (% of a space) */
 
-170	SignedByte	tupletNumSize;		/* PostScript size of accessory numerals in tuplets (% of text size) */
-171	SignedByte	tupletColonSize;	/* PostScript size of colons between tuplet numerals (% of text size) */
-172	SignedByte	octaveNumSize;		/* PostScript size of number on octave signs (% of text size) */
-173 ?!? "Open NoteScan file tolerance for combining subobjects (points)" ?!?
-173	SignedByte	lineLW;				/* Linewidth of line Graphics (% of a space) */
-	SignedByte	ledgerLLen;			/* Length of ledger lines on notehead's side of stem (32nds of a space) */
-	SignedByte	ledgerLOtherLen;	/* Length of ledger lines on other side of stem (32nds of a space) */
-	SignedByte	printJustWarn;		/* !0=on printing, warn if all systems aren't right-justified */
+170	SignedByte	tupletNumSize;		/* G: PostScript size of accessory numerals in tuplets (% of text size) */
+171	SignedByte	tupletColonSize;	/* G: PostScript size of colons between tuplet numerals (% of text size) */
+172	SignedByte	octaveNumSize;		/* G: PostScript size of number on octave signs (% of text size) */
+173 SignedByte	noteScanEpsXD;		/* G: Open NoteScan File tolerance for combining subobjects (points) */
+173	SignedByte	lineLW;				/* G: Linewidth of line Graphics (% of a space) */
+	SignedByte	ledgerLLen;			/* G: Length of ledger lines on notehead's side of stem (32nds of a space) */
+	SignedByte	ledgerLOtherLen;	/* G: Length of ledger lines on other side of stem (32nds of a space) */
+	SignedByte	printJustWarn;		/* U: !0=on printing, warn if all systems aren't right-justified */
 
 	/* Following fields were added after Nightingale 2.0. */
 	
-	SignedByte	slurDashLen;		/* PostScript length of dashes in dashed slurs (points) */	
-	SignedByte	slurSpaceLen;		/* PostScript length of spaces in dashed slurs (points) */	
-	SignedByte	courtesyAccLXD;	/* Left paren. H offset for courtesy accidentals (8th-spaces) */
-	SignedByte	courtesyAccRXD;	/* Right paren. H offset for courtesy accidentals (8th-spaces) */
-	SignedByte	courtesyAccYD;		/* Paren. V offset for courtesy accidentals (8th-spaces) */
-	SignedByte	courtesyAccSize;	/* Paren. size for courtesy accidentals (% of normal) */
+	SignedByte	slurDashLen;		/* G: PostScript length of dashes in dashed slurs (points) */	
+	SignedByte	slurSpaceLen;		/* G: PostScript length of spaces in dashed slurs (points) */	
+	SignedByte	courtesyAccLXD;		/* G: Left paren. H offset for courtesy accidentals (8th-spaces) */
+	SignedByte	courtesyAccRXD;		/* G: Right paren. H offset for courtesy accidentals (8th-spaces) */
+	SignedByte	courtesyAccYD;		/* G: Paren. V offset for courtesy accidentals (8th-spaces) */
+	SignedByte	courtesyAccSize;	/* G: Paren. size for courtesy accidentals (% of normal) */
 
 	/* Following fields were added after Nightingale 2.5. */
 	
-	OMSUniqueID metroDevice;			/* OMS identifier for metronome synth */
-	OMSUniqueID defaultInputDevice;	/* OMS identifier for default input synth */
-	OMSUniqueID defaultOutputDevice;	/* OMS identifier for default output synth */
-	SignedByte	defaultOutputChannel; /* channel for dflt out device; input uses defaultChannel */
+	OMSUniqueID metroDevice;			/* P: OMS identifier for metronome synth (no longer used) */
+	OMSUniqueID defaultInputDevice;		/* P: OMS identifier for default input synth (no longer used) */
+	OMSUniqueID defaultOutputDevice;	/* P: OMS identifier for default output synth (no longer used) */
+	SignedByte	defaultOutputChannel;	/* P: channel for dflt out device; input uses defaultChannel (no longer used) */
 
 	/* Following fields were added after Nightingale 3.0. */
 
-	SignedByte	wholeMeasRestBreve;	/* !0 = whole-measure rests can look like breve rests */
-	SignedByte	quantizeBeamYPos;		/* !0 = force beam vertical positions to sit, straddle, or hang */
-	SignedByte	makeBackup;				/* !0 = on Save, rename and keep old file as backup */
+	SignedByte	wholeMeasRestBreve;		/* U: !0 = whole-measure rests can look like breve rests */
+	SignedByte	quantizeBeamYPos;		/* G: !0 = force beam vertical positions to sit, straddle, or hang */
+	SignedByte	makeBackup;				/* U: !0 = on Save, rename and keep old file as backup */
 
-	short			chordFrameFontID;		/* Font ID of chord-frame font (0=use Seville) */
-	SignedByte	chordFrameRelFSize;	/* !0 = size is relative to staff size */ 
-	SignedByte	chordFrameFontSize;	/* if chordFrameRelFSize, small..large code, else point size */
-	SignedByte	notelistWriteBeams;	/* !0 = include beamsets in Notelist files */
-	SignedByte	extractAllGraphics;	/* !0 = extract to all parts all Graphics attached to suitable objs */
+	short		chordFrameFontID;		/* G: Font ID of chord-frame font (0=use Seville) */
+	SignedByte	chordFrameRelFSize;		/* G: !0 = size is relative to staff size */ 
+	SignedByte	chordFrameFontSize;		/* G: if chordFrameRelFSize, small..large code, else point size */
+	SignedByte	notelistWriteBeams;		/* G: !0 = include beamsets in Notelist files */
+	SignedByte	extractAllGraphics;		/* U: !0 = extract to all parts all Graphics attached to suitable objs */
 
 	/* Following fields were added after Nightingale 3.5. */
 
-	Byte			maxHyphenDist;			/* For flow in text, max. space a hyphen can span (half-spaces; 0 = 1/2 in.) */
-	SignedByte	enlargeNRHiliteH;		/* Further enlarge note/rest sel. hiliting area, horiz. (pixels) */
-	SignedByte	enlargeNRHiliteV;		/* Further enlarge note/rest sel. hiliting area, vertical (pixels) */
-	SignedByte	pianorollLenFact;		/* Relative length of note bars in pianoroll (%; 0 = just round blobs) */
+	Byte		maxHyphenDist;			/* G: For flow in text, max. space a hyphen can span (half-spaces; 0 = 1/2 in.) */
+	SignedByte	enlargeNRHiliteH;		/* U: Further enlarge note/rest sel. hiliting area, horiz. (pixels) */
+	SignedByte	enlargeNRHiliteV;		/* U: Further enlarge note/rest sel. hiliting area, vertical (pixels) */
+	SignedByte	pianorollLenFact;		/* G: Relative length of note bars in pianoroll (%; 0 = just round blobs) */
 
 	/* Following fields were added after Nightingale 4.0. */
 
-	SignedByte	useModNREffects;		/* Use modifier prefs for velocity, duration, etc. changes when playing? */
-	SignedByte	thruChannel;			/* Channel and device (either FreeMIDI or OMS) for MIDI thru output */
-	fmsUniqueID	thruDevice;
+	SignedByte	useModNREffects;		/* P: Use modifier prefs for velocity, duration, etc. changes when playing? */
+	SignedByte	thruChannel;			/* U: Channel for MIDI thru output */
+	unsigned short thruDevice;			/* U: Device for MIDI thru output */
 
-	/* Following fields were added after Nightingale 4.0 - N104. */
+	/* Following fields were added after Nightingale 4.0, file format version "N104". */
 	
-	MIDIUniqueID cmMetroDevice;				/* CoreMIDI identifier for metronome synth */
-	MIDIUniqueID cmDefaultInputDevice;		/* CoreMIDI identifier for default input synth */
-	MIDIUniqueID cmDefaultOutputDevice; 	/* CoreMIDI identifier for default output synth */
-	SignedByte	cmDefaultOutputChannel; 	/* channel for dflt out device; input uses defaultChannel */
+	MIDIUniqueID cmMetroDev;			/* P: Core MIDI identifier for metronome synth */
+	MIDIUniqueID cmDfltInputDev;		/* P: Core MIDI identifier for default input synth */
+	MIDIUniqueID cmDfltOutputDev;		/* P: Core MIDI identifier for default output synth */
+	SignedByte	 cmDfltOutputChannel;	/* P: channel for dflt out device; input uses defaultChannel */
 
 	/* Padding and final stuff. NOTE: Cf. comments on <unused> above before adding fields! */
 	
-	SignedByte	unusedOddByte;			/* Room for expansion: must be 0 in resource. */
+	SignedByte	unusedOddByte;			/* S: Room for expansion: must be 0 in resource. */
 
-	SignedByte	unused[32];				/* Room for expansion: must be 0's in resource */
-	SignedByte	fastLaunch;				/* SECRET FIELD: Don't show splash screen, MIDI init ALRT, or font warnings? FOR TESTING ONLY! */
-	SignedByte	noExpire;				/* SECRET FIELD: defeat expiration date */
+	SignedByte	unused[32];				/* S: Room for expansion: must be 0's in resource */
+	SignedByte	fastLaunch;				/* S: SECRET FIELD: Don't show splash screen, MIDI init ALRT, or font warnings? FOR TESTING ONLY! */
+	SignedByte	noExpire;				/* S: SECRET FIELD: defeat expiration date (unused since v. 5.5) */
 	
 	} Configuration;
 
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
-From Nightingale 5.6b4 running on Don's G5. These are almost all default values, but two
-or three are probably not the defaults...
+CNFG fields from Nightingale 5.8b6 running on Don's G5, as shown in the system.log. These
+are almost all default values, but two or three are probably not the defaults.
 
 Displaying CNFG:
-  (1)maxDocuments=20  (2)stemLenNormal=14  (3)stemLen2v=12  (4)stemLenOutside=11
-  (5)stemLenGrace=10  (6)spAfterBar=12  (7)minSpBeforeBar=5  (8)minRSpace=2
-  (9)minLyricRSpace=6  (10)minRSpace_KSTS_N=10  (11)hAccStep=4  (12)stemLW=8
-  (13)barlineLW=10  (14)ledgerLW=13  (15)staffLW=8  (16)enclLW=2
-  (17)beamLW=50  (18)hairpinLW=12  (19)dottedBarlineLW=12  (20)mbRestEndLW=12
-  (21)nonarpLW=12  (22)graceSlashLW=12  (23)slurMidLW=30  (24)tremSlashLW=38
-  (25)slurCurvature=100  (26)tieCurvature=85  (27)relBeamSlope=25  (28)hairpinMouthWidth=5
-  (29)mbRestBaseLen=12  (30)mbRestAddLen=2  (31)barlineDashLen=4  (32)crossStaffBeamExt=5
-  (33)titleMargin=0  (35)pageMarg.top=36  .left=36  .bottom=18  .right=45
-  (37)pageNumMarg.top=39  .left=54  .bottom=39  .right=54
-  (38)defaultLedgers=5  (39)defaultTSNum=4  (40)defaultTSDenom=4  (41)defaultRastral=5
-  (42)rastral0size=28  (43)minRecVelocity=10  (44)minRecDuration=50
-  (45)midiThru=0  (46)defaultTempo=100  (47)lowMemory=80  (48)minMemory=32
-  (49)numRows=1  (50)numCols=20  (51)maxRows=256  (52)maxCols=256
-  (53)hPageSep=8  (54)vPageSep=8  (55)hScrollSlop=16  (56)vScrollSlop=16
-  (57)maxSyncTolerance=40  (58)enlargeHilite=1  (59)infoDistUnits=1  (60)mShakeThresh=10
-  (61)musicFontID=1980  (62)numMasters=512  (63)indent1st=47  (64)mbRestHeight=2
-  (65)chordSymMusSize=140  (66)enclMargin=2  (67)legatoPct=95  (68)defaultPatch=1
-  (69)whichMIDI=0  (70)musFontSizeOffset=0  (71)fastScreenSlurs=0  (72)restMVOffset=4
-  (73)autoBeamOptions=0  (74)noteOffVel=64  (75)feedbackNoteOnVel=64  (76)defaultChannel=1
-  (77)enclWidthOffset=0  (78)rainyDayMemory=64  (79)tryTupLevels=21  (80)justifyWarnThresh=15
-  (81)metroChannel=10  (82)metroNote=76  (83)metroVelo=92  (84)metroDur=50
-  (85)chordSymSmallSize=67  (86)chordSymSuperscr=40  (87)chordSymStkLead=10
-  (88)tempoMarkHGap=4  (89)trebleVOffset=0  (90)cClefVOffset=0  (91)bassVOffset=0
-  (92)tupletNumSize=110  (93)tupletColonSize=60  (94)octaveNumSize=120  (95)lineLW=20
-  (96)ledgerLLen=48  (97)ledgerLOtherLen=12  (98)slurDashLen=3  (99)slurSpaceLen=3
-  (100)courtesyAccLXD=6  (101)courtesyAccRXD=8  (102)courtesyAccYD=8  (103)courtesyAccSize=100
-  (104)quantizeBeamYPos=0  (105)enlargeNRHiliteH=0  (106)enlargeNRHiliteV=0
-Checking CNFG: (no errors)
+   (1)maxDocuments=20  (2)stemLenNormal=14  (3)stemLen2v=12  (4)stemLenOutside=11
+   (5)stemLenGrace=10  (6)spAfterBar=12  (7)minSpBeforeBar=5  (8)minRSpace=2
+   (9)minLyricRSpace=4  (10)minRSpace_KSTS_N=10  (11)hAccStep=4  (12)stemLW=8
+   (13)barlineLW=10  (14)ledgerLW=13  (15)staffLW=8  (16)enclLW=2
+   (17)beamLW=50  (18)hairpinLW=12  (19)dottedBarlineLW=12  (20)mbRestEndLW=12
+   (21)nonarpLW=12  (22)graceSlashLW=12  (23)slurMidLW=30  (24)tremSlashLW=38
+   (25)slurCurvature=100  (26)tieCurvature=85  (27)relBeamSlope=25  (28)hairpinMouthWidth=5
+   (29)mbRestBaseLen=12  (30)mbRestAddLen=2  (31)barlineDashLen=4  (32)crossStaffBeamExt=5
+   (33)titleMargin=36  (34)paperRect.top=0  .left=0  .bottom=792  .right=612
+   (35-36)pageMarg.top=36  .left=36  .bottom=18  .right=45
+   (37)pageNumMarg.top=39  .left=54  .bottom=39  .right=54
+   (38)defaultLedgers=5  (39)defaultTSNum=4  (40)defaultTSDenom=4  (41)defaultRastral=5
+   (42)rastral0size=28  (43)minRecVelocity=10  (44)minRecDuration=50
+   (45)midiThru=0  (46)defaultTempoMM=100  (47)lowMemory=800  (48)minMemory=320
+   (49)numRows=1  (50)numCols=20  (51)maxRows=256  (52)maxCols=256
+   (53)hPageSep=8  (54)vPageSep=8  (55)hScrollSlop=16  (56)vScrollSlop=16
+   (57)maxSyncTolerance=40  (58)enlargeHilite=1  (59)infoDistUnits=1  (60)mShakeThresh=10
+   (61)musicFontID=1980  (62)numMasters=512  (63)indent1st=47  (64)mbRestHeight=2
+   (65)chordSymMusSize=140  (66)enclMargin=2  (67)legatoPct=95  (68)defaultPatch=1
+   (69)whichMIDI=0  (70)musFontSizeOffset=0  (71)fastScreenSlurs=0  (72)restMVOffset=4
+   (73)autoBeamOptions=0  (74)noteOffVel=64  (75)feedbackNoteOnVel=64  (76)defaultChannel=1
+   (77)enclWidthOffset=0  (78)rainyDayMemory=640  (79)tryTupLevels=21  (80)justifyWarnThresh=15
+   (81)metroChannel=1  (82)metroNote=76  (83)metroVelo=92  (84)metroDur=50
+   (85)chordSymSmallSize=67  (86)chordSymSuperscr=40  (87)chordSymStkLead=10
+   (88)tempoMarkHGap=4  (89)trebleVOffset=0  (90)cClefVOffset=0  (91)bassVOffset=0
+   (92)tupletNumSize=110  (93)tupletColonSize=60  (94)octaveNumSize=120  (95)lineLW=20
+   (96)ledgerLLen=48  (97)ledgerLOtherLen=12  (98)slurDashLen=3  (99)slurSpaceLen=3
+   (100)courtesyAccLXD=6  (101)courtesyAccRXD=8  (102)courtesyAccYD=8  (103)courtesyAccSize=100
+   (104)quantizeBeamYPos=0  (105)enlargeNRHiliteH=0  (106)enlargeNRHiliteV=0
+   (107)pianorollLenFact=75  (108)useModNREffects=1  (109)thruChannel=1  (110)thruDevice=0
+   (111)cmMetroDev=-2090478782  (112)cmDfltInputDev=0  (113)cmDfltOutputDev=0  (114)cmDfltOutputChannel=1
+ Checking CNFG: No errors found.  (CheckConfig)

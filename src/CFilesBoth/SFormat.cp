@@ -20,7 +20,7 @@ static void SFInvalMeasures(Document *doc,LINK sysL);
 void MoveSysOnPage(Document *doc, LINK sysL, long newPos);
 
 
-/* ------------- Routines for graphical updating of objects edited in showFormat -- */
+/* ------------------- Routines for graphical updating of objects edited in showFormat -- */
 
 static void UpdateScoreMargins(Document */*doc*/)
 {
@@ -79,7 +79,7 @@ static void SFUpdateStfPos(Document *doc, LINK sysL, long newPos)
 }
 
 /* In effect, call InvalRange for each of the measures in sysL; set the valid
-flag of each measure FALSE and the objRect to nilRect. */
+flag of each measure False and the objRect to nilRect. */
 
 static void SFInvalMeasures(Document *doc, LINK sysL)
 {
@@ -87,7 +87,7 @@ static void SFInvalMeasures(Document *doc, LINK sysL)
 
 	endL = LastObjInSys(doc,RightLINK(sysL));
 	InvalRange(sysL,endL);
-	UpdateSysMeasYs(doc, sysL, TRUE, FALSE);
+	UpdateSysMeasYs(doc, sysL, True, False);
 }
 
 
@@ -102,8 +102,8 @@ void OffsetSystem(LINK sysL, short dx, short dy)
 void UpdateSysMeasYs(
 			Document *doc,
 			LINK sysL,
-			Boolean useLedg,	/* TRUE=use doc->ledgerYSp to get the system height */
-			Boolean masterPg  /* if !useLedg, TRUE=get the system height from the Master System */
+			Boolean useLedg,	/* True=use doc->ledgerYSp to get the system height */
+			Boolean masterPg  /* if !useLedg, True=get the system height from the Master System */
 			)
 {
 	LINK staffL,staves[MAXSTAVES+1],measures[MAXSTAVES+1],prevMeasL,measL,aMeasL;
@@ -116,7 +116,7 @@ void UpdateSysMeasYs(
 
 		if (MeasSYSL(prevMeasL)!=MeasSYSL(measL)) break;
 
-		LinkVALID(measL) = FALSE;
+		LinkVALID(measL) = False;
 
 		aMeasL = FirstSubLINK(measL);
 		for (; aMeasL; aMeasL = NextMEASUREL(aMeasL))
@@ -131,7 +131,7 @@ void UpdateSysMeasYs(
 			aMeas = GetPAMEASURE(measures[i]);
 	
 			if (StaffVIS(staves[i])) {
-				aStaff = GetPASTAFF(staves[NextLimStaffn(doc,staffL,TRUE,i+1)]);
+				aStaff = GetPASTAFF(staves[NextLimVisStaffn(doc,staffL,True,i+1)]);
 	
 				aMeas->measSizeRect.bottom = aStaff->staffTop;
 			}
@@ -150,9 +150,9 @@ void UpdateSysMeasYs(
 			aMeas->measSizeRect.bottom = MEAS_BOTTOM(aStaff->staffTop,aStaff->staffHeight);
 		else {
 			if (masterPg)
-				sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+				sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 			else
-				sysL = LSSearch(measL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+				sysL = LSSearch(measL, SYSTEMtype, ANYONE, GO_LEFT, False);
 
 			sysRect = SystemRECT(sysL);
 			aMeas->measSizeRect.bottom = sysRect.bottom - sysRect.top;
@@ -165,7 +165,7 @@ void UpdateSysMeasYs(
 				/* ??If the staff above is invisible, setting measSizeRect.top as follows
 					is very questionable! E.g., if i=2 and staff 1 is invisible, we want
 					measSizeRect.top = 0. But it's not clear how to fix this in general. */
-				aStaff = GetPASTAFF(staves[NextLimStaffn(doc,staffL,FALSE,i-1)]);
+				aStaff = GetPASTAFF(staves[NextLimVisStaffn(doc,staffL,False,i-1)]);
 	
 				aMeas->measSizeRect.top = aStaff->staffTop+aStaff->staffHeight;
 			}
@@ -177,9 +177,8 @@ void UpdateSysMeasYs(
 	}	
 }
 
-/* Offset all systems after sysL in sysL's page by dh=LoWord(newPos),
-dv=HiWord(newPos). Update measure Rects of measures in the system to
-reflect the offset. */
+/* Offset all systems after sysL in sysL's page by dh=LoWord(newPos), dv=HiWord(newPos).
+Update measure Rects of measures in the system to reflect the offset. */
 
 void MoveSysOnPage(Document *doc, LINK sysL, long newPos)
 {	
@@ -213,22 +212,21 @@ void UpdateFormatSystem(Document *doc, LINK sysL, long newPos)
 		SFUpdateStfPos(doc, sysL, newPos);
 	}
 	
-	/* If a system has been dragged down, the new upper boundary of its
-		sysRect and the lower boundary of the previous system's sysRect
-		will each get half of the added space. Update the measureRects
-		of both the previous system, if one exists on the page, and this
-		system accordingly. */
+	/* If a system has been dragged down, the new upper boundary of its sysRect and
+		the lower boundary of the previous system's sysRect will each get half of
+		the added space. Update the measureRects of both the previous system, if one
+		exists on the page, and this system accordingly. */
 
 	if (LinkLSYS(sysL))
 		if (SamePage(sysL, LinkLSYS(sysL)))
-			UpdateSysMeasYs(doc, LinkLSYS(sysL), FALSE, FALSE);
-	UpdateSysMeasYs(doc, sysL, FALSE, FALSE);
+			UpdateSysMeasYs(doc, LinkLSYS(sysL), False, False);
+	UpdateSysMeasYs(doc, sysL, False, False);
 	
 	/* doc, every page, !fixSys, !useLedg, !masterPg */
-	FixMeasRectYs(doc, NILINK, FALSE, FALSE, FALSE);
+	FixMeasRectYs(doc, NILINK, False, False, False);
 
 	EraseAndInval(&doc->viewRect);
-	doc->locFmtChanged = doc->changed = TRUE;
+	doc->locFmtChanged = doc->changed = True;
 }
 
 /* Update the main data structure to reflect changes resulting from dragging the
@@ -238,10 +236,10 @@ void UpdateFormatStaff(Document *doc, LINK staffL, LINK aStaffL, long newPos)
 {
 	PASTAFF aStaff; LINK sysL; Rect r;
 
-	/* Treat dragging the staff of a single-staff system as a system drag, not
-		as a staff drag. */
+	/* Treat dragging the staff of a single-staff system as a system drag, not as
+		a staff drag. */
 
-	sysL = SSearch(staffL, SYSTEMtype, TRUE);
+	sysL = SSearch(staffL, SYSTEMtype, True);
 	if (LinkNENTRIES(staffL)==1) {
 		UpdateFormatSystem(doc, sysL, newPos);
 		return;
@@ -252,8 +250,8 @@ void UpdateFormatStaff(Document *doc, LINK staffL, LINK aStaffL, long newPos)
 	
 	InvalSystem(sysL);
 
-	/* Inval the area to the left of the system, containing the Connect and
-		the part name. */
+	/* Inval the area to the left of the system, containing the Connect and the
+		part name. */
 
 	r = LinkOBJRECT(sysL);
 	r.left = 0;
@@ -262,8 +260,8 @@ void UpdateFormatStaff(Document *doc, LINK staffL, LINK aStaffL, long newPos)
 	InvalWindowRect(doc->theWindow,&r);
 
 	InvalRange(sysL, (LinkRSYS(sysL) ? LinkRSYS(sysL) : doc->tailL));
-	doc->locFmtChanged = doc->changed = TRUE;
-	UpdateSysMeasYs(doc, sysL, TRUE, FALSE);
+	doc->locFmtChanged = doc->changed = True;
+	UpdateSysMeasYs(doc, sysL, True, False);
 }
 
 
@@ -282,11 +280,11 @@ void UpdateFormatConnect(Document *doc, LINK staffL, short stfAbove, short stfBe
 }
 
 
-/* -------------------------------- Routines for showFormat editing and selection -- */
+/* ------------------------------------- Routines for showFormat editing and selection -- */
 
 static Boolean EditFormatMargin(Document *, Point, short, short)
 {
-	return FALSE;
+	return False;
 }
 
 
@@ -296,27 +294,27 @@ void DoFormatSelect(Document *doc, Point pt)
 {
 	short index;
 
-	FindFormatObject(doc, pt, &index, SMClick);
+	FindAndActOnFormatObj(doc, pt, &index, SMClick);
 }
 
 
 /* Discern user's intent here by searching for whatever object the user may have
 clicked on while in the showFormat mode.  If one found, let user drag it to
-whereever, and return TRUE.  If nothing grabbable, return FALSE.  The pt provided
+whereever, and return True.  If nothing grabbable, return False.  The pt provided
 is expected in paper-relative pixels.  */
 
 Boolean DoEditFormat(Document *doc, Point pt, short modifiers, short doubleClick)
 {
-	Boolean didSomething=FALSE;
+	Boolean didSomething=False;
 
 	if (EditFormatMargin(doc,pt,modifiers,doubleClick)) {
-		didSomething = TRUE;
+		didSomething = True;
 		UpdateScoreMargins(doc);
 	}
 	else {	
 		MEHideCaret(doc);
 		DoFormatSelect(doc, pt);
-		DrawMessageBox(doc, TRUE);
+		DrawMessageBox(doc, True);
 	}
 	
 	ArrowCursor();
@@ -326,7 +324,7 @@ Boolean DoEditFormat(Document *doc, Point pt, short modifiers, short doubleClick
 }
 
 
-/* -------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Routines to handle menu commands from the Show Format menu. */
 
 /* Return staff number of top visible staff in first System at or to left of <pL>. */
@@ -335,7 +333,7 @@ short FirstStaffn(LINK pL)
 {
 	LINK staffL,aStaffL; short firstStaffn=MAXSTAVES+1;
 	
-	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, FALSE);
+	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffVIS(aStaffL))
@@ -351,7 +349,7 @@ short LastStaffn(LINK pL)
 {
 	LINK staffL,aStaffL; short lastStaffn=0;
 	
-	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, FALSE);
+	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffVIS(aStaffL))
@@ -361,23 +359,23 @@ short LastStaffn(LINK pL)
 }
 
 
-/* ---------------------------------------------------- NextStaffn,NextLimStaffn -- */
+/* --------------------------------------------------- NextVisStaffn, NextLimVisStaffn -- */
 /* Get the staff no. of the next visible staff subObject in staff obj <pL>, starting
 from staffn <base>, going in direction <up>. <up> means in direction of increasing
 staffn, physically downward. E.g., to get the staffn of the first visible staff at
-or after aConnect->staffAbove, call NextStaffn(doc,pL,TRUE,aConnect->staffAbove);
+or after aConnect->staffAbove, call NextVisStaffn(doc, pL, True, aConnect->staffAbove);
 to get the staffn of the first visible staff at or before aConnect->staffBelow, call
-NextStaffn(doc,pL,FALSE,aConnect->staffBelow).
+NextVisStaffn(doc, pL, False, aConnect->staffBelow).
 
 Returns 0 if there is no visible staff satisfying the given conditions. */
 
-short NextStaffn(Document *doc, LINK pL, short up, short base)
+short NextVisStaffn(Document *doc, LINK pL, short up, short base)
 {
 	LINK staffL,aStaffL; short theStaffn;
 	
 	if (base<1 || base>doc->nstaves) return 0;
 	
-	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, FALSE);
+	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, False);
 	aStaffL = FirstSubLINK(staffL);
 
 	if (up) {
@@ -397,15 +395,15 @@ short NextStaffn(Document *doc, LINK pL, short up, short base)
 }
 
 /* Get the staff no. of the next visible staff subObject in staff obj <pL>, starting
-from staffn <base>, going in direction <up>. Identical to NextStaffn, except if
+from staffn <base>, going in direction <up>. Identical to NextVisStaffn, except if
 there's no visible staff satisfying the conditions, this returns the extreme staff
 no. in the given direction. */
 
-short NextLimStaffn(Document *doc, LINK pL, short up, short base)
+short NextLimVisStaffn(Document *doc, LINK pL, short up, short base)
 {
 	short theStaffn;
 	
-	theStaffn = NextStaffn(doc,pL,up,base);
+	theStaffn = NextVisStaffn(doc, pL, up, base);
 	if (theStaffn==0) theStaffn = up? doc->nstaves : 1;
 
 	return theStaffn;
@@ -414,10 +412,11 @@ short NextLimStaffn(Document *doc, LINK pL, short up, short base)
 
 short NumVisStaves(LINK pL)
 {
-	LINK staffL,aStaffL,sysL; short numVis=0;
+	LINK staffL,aStaffL,sysL;
+	short numVis=0;
 	
-	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
-	staffL = LSSearch(sysL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
+	staffL = LSSearch(sysL, STAFFtype, ANYONE, GO_RIGHT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffVIS(aStaffL)) numVis++;
@@ -425,18 +424,18 @@ short NumVisStaves(LINK pL)
 	return numVis;
 }
 
-#define VIS		TRUE
-#define INVIS	FALSE
+#define VIS		True
+#define INVIS	False
 
-/* --------------------------------------------------------------- VisifySubObjs -- */
-/* Visify any subObjs of pL on staffn, or pL itself if it is on staffn,
-according to vis: TRUE if make them visible, FALSE if invisible. */
+/* --------------------------------------------------------------------- VisifySubObjs -- */
+/* Visify any subObjs of pL on staffn, or pL itself if it is on staffn, according to
+vis: True if make them visible, False if invisible. */
 
 static void VisifySubObjs(LINK pL, short staffn, short vis)
 {
 	PMEVENT		p;
-	HEAP			*tmpHeap;
-	LINK			subObjL;
+	HEAP		*tmpHeap;
+	LINK		subObjL;
 	GenSubObj 	*subObj;
 	
 	switch (ObjLType(pL)) {
@@ -503,60 +502,59 @@ void VisifyAllObjs(Document *doc, LINK pL, LINK aStaffL, short vis)
 
 /* Set the first invisible measure of staffL invisible; make the object and all
 subobjects invisible. Note that when we visify a staff, we have no way of knowing
-whether the first invisible measure on that staff was intended to be invisible
-or not. The caller simply calls this routine to unconditionally insure its
-invisibility. */
+whether the first invisible measure on that staff was intended to be invisible or
+not. The caller simply calls this routine to unconditionally insure its invisibility. */
 
 void InvisFirstMeas(LINK staffL)
 {
 	LINK measL, aMeasL;
 	
-	measL = LSSearch(staffL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
-	LinkVIS(measL) = FALSE;
+	measL = LSSearch(staffL, MEASUREtype, ANYONE, GO_RIGHT, False);
+	LinkVIS(measL) = False;
 
 	aMeasL = FirstSubLINK(measL);
 	for ( ; aMeasL; aMeasL=NextMEASUREL(aMeasL))
-		MeasureVIS(aMeasL) = FALSE;
+		MeasureVIS(aMeasL) = False;
 }
 
 
 /*  If there are any cross-staff objects on the given staff in the system containing
-the given object, return TRUE. ??BUG: doesn't check for cross-staff tuplets! Cf.
+the given object, return True. ??BUG: doesn't check for cross-staff tuplets! Cf.
 checking for cross-staff objs for the Split Part command. */
 
 Boolean XStfObjOnStaff(LINK pL, short staffn)
 {
-	LINK sysL, qL; PSLUR pSlur; PBEAMSET pBeam;
+	LINK sysL, qL;  PSLUR pSlur;  PBEAMSET pBeam;
 	
-	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	
 	for (qL=RightLINK(sysL); qL && !SystemTYPE(qL); qL=RightLINK(qL)) {
 		if (SlurTYPE(qL) && (SlurSTAFF(qL)==staffn || SlurSTAFF(qL)==staffn-1)) {
 			pSlur = GetPSLUR(qL);
-			if (pSlur->crossStaff) return TRUE;
+			if (pSlur->crossStaff) return True;
 		}
 		
 		if (BeamsetTYPE(qL) && (BeamSTAFF(qL)==staffn || BeamSTAFF(qL)==staffn-1)) {
 			pBeam = GetPBEAMSET(qL);
-			if (pBeam->crossStaff) return TRUE;
+			if (pBeam->crossStaff) return True;
 		}
 	}
-	return FALSE;
+	return False;
 }
 
 
-/* -------------------------------------------------------------- GrayFormatPage -- */
+/* -------------------------------------------------------------------- GrayFormatPage -- */
 /* Paint the sheetRect with gray in penMode notPatBic. This should be called during
 the drawing loop in ShowFormat after all the objects have been drawn, in order to
 gray out the objects in the page. */
 
 void GrayFormatPage(Document *doc, LINK fromL, LINK toL)
 {
-	LINK startPage, endPage, pL; Rect aRect,paper;
+	LINK startPage, endPage, pL;  Rect aRect, paper;
 
 	PenPat(NGetQDGlobalsGray());
-	startPage = LSSearch(fromL, PAGEtype, ANYONE, TRUE, TRUE);
-	endPage = LSSearch(toL, PAGEtype, ANYONE, TRUE, TRUE);
+	startPage = LSSearch(fromL, PAGEtype, ANYONE, True, True);
+	endPage = LSSearch(toL, PAGEtype, ANYONE, True, True);
 	for (pL=startPage; pL!=RightLINK(endPage); pL=RightLINK(pL)) {
 		if (PageTYPE(pL)) {
 			GetSheetRect(doc, SheetNUM(pL), &paper);

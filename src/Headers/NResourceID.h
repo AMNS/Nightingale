@@ -7,7 +7,7 @@
 #define HIDDENSTAVES_ALRT 184
 #define STFSIZE_ALRT 190				/* Staves aren't the same size as the standard size */
 #define MANYPAGES_ALRT 200				/* More pages than can be viewed w/just scroll bar */
-#define NO_OMS_DEVS_ALRT 201			/* With OMS, no devices avail. for playback */
+#define NO_CM_DEVS_ALRT 201				/* With Core MIDI (& formerly OMS), no devices avail. for playback */
 #define EXPORT_ALRT 202					/* Export master page changes to score? */
 #define EXPORTFMT_ALRT 203				/* Export master page changes and lose Work on Format changes? */
 #define DANGLING_ALRT 204				/* Export master page results in dangling systems */
@@ -18,11 +18,6 @@
 #define DELPART_ANYWAY_ALRT 214			/* Delete Staff/Part, even if it has content? */
 #define TRANSKEY_ALRT 220
 #define SMALL_GENERIC_ALRT 230
-#define FMS_INPUTDEST_MISMATCH_ALRT 235
-#define FMS_ALL_OUTPUTDEST_MISMATCH_ALRT 236
-#define FMS_DOC_OUTPUTDEST_MISMATCH_ALRT 237
-#define FMS_CONFIG_MISSING_ALRT 238
-#define FMS_METROTHRUDEST_MISMATCH_ALRT 239
 #define SETSTAFF_CHORD_ALRT 240 
 #define SETVOICE_CHORD_ALRT 241
 #define SETSTAFF_ALRT 245
@@ -48,12 +43,7 @@
 #define SFVIS_ALL_ALRT1 321				/* Cannot visify all staves */
 #define RTM_TIMESIG_ALRT 324
 #define SAVECNFG_ALRT 330
-#define USEMM_NOBI_ALRT 332				/* NOTE: all these USE... ALRTs are replaced by DLOG 485 */
-#define USEOMS_MM_NOBI_ALRT 333
-#define USEOMS_NOBI_ALRT 334
 #define USEMM_ALRT 335
-#define USEOMS_MM_ALRT 336
-#define USEOMS_ALRT 337
 
 #define SAVEMM_ALRT 340					/* Save MIDI Manager port hookup? */
 #define OPENDOCS_ALRT 344
@@ -113,12 +103,12 @@
 #define STAFFSIZE_DLOG 455				/* Set staff size dialog */
 #define ADDPART_DLOG 456				/* Add part dialog */
 #define MARGINS_DLOG 460
-#define USEMIDIDR_DLOG 485				/* This replaces all the USE... ALRTs (332-337) */
-#define MIDISETUP_DLOG 489				/* MIDI setup dialog */
-#define OMS_MIDISETUP_DLOG 490			/* MIDI setup dialog for OMS */
+#define USEMIDIDR_DLOG 485				/* This replaces all the USE... ALRTs (formerly 332-337) */
+#define MIDISETUP_DLOG 489				/* Old MIDI setup dialog */
+#define CM_MIDISETUP_DLOG 490			/* MIDI setup dialog for Core MIDI (and formerly OMS) */
 
-#define METRO_DLOG 491 					/* Metronome setup dialog */
-#define OMS_METRO_DLOG 492				/* OMS Metronome setup dialog */
+#define METRO_DLOG 491 					/* Old metronome setup dialog */
+#define CM_METRO_DLOG 492				/* Metronome setup dialog for Core MIDI (and formerly OMS) */
 #define MIDITHRU_DLOG 493				/* MIDI Thru Preferences */
 #define	KEYSIG_DLOG 500					/* Key Signature dialog */
 #define	TIMESIG_DLOG 510				/* Time Signature dialog */
@@ -140,14 +130,11 @@
 #define EXTRACT_DLOG 685				/* Whether to save or open parts, etc. */
 #define MBREST_DLOG 690
 
-#define FMS_INSTRUMENT_DLOG 699
-#define OMS_INSTRUMENT_DLOG 700
 #define INSTRUMENT_DLOG 701
 #define BALANCE_DLOG 702				/* Balance (part velocity) dialog */
 #define PARTMIDI_DLOG 703
 #define OMS_PARTMIDI_DLOG 704
 #define GOTO_DLOG 705
-#define FMS_PARTMIDI_DLOG 706
 #define CM_INSTRUMENT_DLOG 708
 #define CM_PARTMIDI_DLOG 709
 #define SET_DLOG 711					/* "QuickChange" (formerly Set) */
@@ -411,7 +398,7 @@ enum {							/* View menu */
 	VM_RedrawScr,
 	VM_____________4,
 	VM_ShowClipboard,
-	VM_SymbolPalette,
+	VM_ToollPalette,
 	VM_ShowSearchPattern,
 	VM_LastItem=VM_ShowSearchPattern
 	};
@@ -575,7 +562,7 @@ enum {							/* Format menu */
 #define RESPACE_PMSTR 7
 #define SKIPTRACKS_PMSTR 8
 #define SKIPPARTS_PMSTR 9
-#define CREATESETUP_PMSTR 10
+#define CREATE_PREFS_PMSTR 10
 #define MIDIDR_NONE_PMSTR 11
 #define VOICE_PMSTR 12
 #define SKIPVOICE_PMSTR 13
@@ -584,7 +571,6 @@ enum {							/* Format menu */
 #define CONVERTNOTELIST_PMSTR 16
 #define CONTINUENOTELIST_PMSTR 17
 #define CHANGE_TOPMARGIN_PMSTR 18
-#define MIDIDR_FMS_PMSTR 19
 
 /* Cursors */
 

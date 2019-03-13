@@ -1,15 +1,15 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DrawHighLevel.c
 *	PROJ:	Nightingale
 *	DESC:	Routines for drawing object-list ranges
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -24,7 +24,7 @@ static void HiliteScoreRange(Document *, LINK, LINK, CONTEXT [], Rect *, Rect *)
 static void SetMusicPort(Document *);
 
 
-/* ---------------------------------------------------------------- FrameSysRect -- */
+/* ---------------------------------------------------------------------- FrameSysRect -- */
 
 void FrameSysRect(
 			Rect *r,
@@ -38,36 +38,36 @@ void FrameSysRect(
 }
 
 
-/* -------------------------------------------------------------- DrawPageContent -- */
+/* ------------------------------------------------------------------- DrawPageContent -- */
 /* Draw all objects in the specified page. */
 
 void DrawPageContent(Document *doc, short sheetNum, Rect *paper, Rect *updateRect)
 {
-	PPAGE pPage; LINK	pageL;
+	PPAGE pPage;  LINK pageL;
 	
-	if (pageL = LSSearch(doc->headL, PAGEtype, sheetNum, FALSE, FALSE)) {
+	pageL = LSSearch(doc->headL, PAGEtype, sheetNum, False, False);
+	if (pageL) {
 		pPage = GetPPAGE(pageL);
 		DrawRange(doc, pageL, pPage->rPage ? pPage->rPage : doc->tailL, paper, updateRect);
 	}
 }
 
-/* ------------------------------------------------------------- DrawMasterSystem -- */
+/* ------------------------------------------------------------------ DrawMasterSystem -- */
 /* Draw the objects in the given range, which should be the Master Page system. If
 drawing the system the first time, the page object needs to be included in the
 range to be drawn. */
 
 static void DrawMasterSystem(Document *doc, LINK fromL, LINK toL, CONTEXT context[],
-Rect *paper, Rect *updateRect, short sysNum)
+								Rect *paper, Rect *updateRect, short sysNum)
 {
-	LINK pL; Rect r, result, paperUpdate;
+	LINK pL;
+	Rect r, result, paperUpdate;
 	PSYSTEM pSystem;
 	short ground;
 
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate, -paper->left, -paper->top);
-	ground = (sysNum==1? TOPSYS_STAFF :
-					(sysNum==2? SECONDSYS_STAFF :
-						OTHERSYS_STAFF ));
+	ground = (sysNum==1? TOPSYS_STAFF : (sysNum==2? SECONDSYS_STAFF : OTHERSYS_STAFF ));
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -85,7 +85,7 @@ Rect *paper, Rect *updateRect, short sysNum)
 				
 				if (VISIBLE(pL) && SectRect(&r,updateRect,&result) || outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
-					if (doc->frameSystems) FrameSysRect(&r, FALSE);	/* For debugging */
+					if (doc->frameSystems) FrameSysRect(&r, False);	/* For debugging */
 				}
 				else return;
 				break;
@@ -104,7 +104,7 @@ Rect *paper, Rect *updateRect, short sysNum)
 static void DrawMasterRange(Document *doc, LINK /*fromL*/, LINK /*toL*/, CONTEXT context[],
 										Rect *paper, Rect *updateRect)
 {
-	LINK sysL, staffL; DRect oldSysRect; Rect r;
+	LINK sysL, staffL;  DRect oldSysRect;  Rect r;
 	DDIST sysHeight, sysOffset;
 	short sysNum=0;
 
@@ -118,7 +118,7 @@ static void DrawMasterRange(Document *doc, LINK /*fromL*/, LINK /*toL*/, CONTEXT
 	DrawMasterSystem(doc, doc->masterHeadL, doc->masterTailL, context, paper,
 							updateRect, ++sysNum);
 
-	sysL = LSSearch(doc->masterHeadL, SYSTEMtype, ANYONE, FALSE, FALSE);
+	sysL = LSSearch(doc->masterHeadL, SYSTEMtype, ANYONE, False, False);
 	oldSysRect = SystemRECT(sysL);
 
 	sysHeight = oldSysRect.bottom - oldSysRect.top;
@@ -156,7 +156,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 	PMEASURE	pMeasure;
 	Rect 		r, result,
 				paperUpdate;		/* Paper-relative update rect */
-	Boolean	drawAll=TRUE;			/* FALSE if we're only drawing measure-spanning objects */
+	Boolean	drawAll=True;			/* False if we're only drawing measure-spanning objects */
 	
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate, -paper->left, -paper->top);
@@ -170,7 +170,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				GetAllContexts(doc, context, measL);
 				ContextPage(doc, pL, context);
 				DrawPAGE(doc, pL, paper, context);
-				drawAll = TRUE;
+				drawAll = True;
 				break;
 			case SYSTEMtype:
 				pSystem = GetPSYSTEM(pL);
@@ -182,7 +182,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				if (VISIBLE(pL) && SectRect(&r, updateRect, &result)
 													|| outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
-					if (doc->frameSystems) FrameSysRect(&r, TRUE);
+					if (doc->frameSystems) FrameSysRect(&r, True);
 				}
 				else {
 					/* Skip ahead to next system: this one's not visible */
@@ -191,11 +191,11 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 					/* Rewind for increment part of for loop above */
 					pL = LeftLINK(pL);
 				}
-				drawAll = TRUE;
+				drawAll = True;
 				break;
 			case STAFFtype:
-				if (VISIBLE(pL)) DrawSTAFF(doc, pL, paper, context, TOPSYS_STAFF, FALSE);
-				drawAll = TRUE;
+				if (VISIBLE(pL)) DrawSTAFF(doc, pL, paper, context, TOPSYS_STAFF, False);
+				drawAll = True;
 				break;
 			case CONNECTtype:
 				if (VISIBLE(pL)) DrawCONNECT(doc, pL, context, TOPSYS_STAFF);
@@ -207,9 +207,9 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				pMeasure = GetPMEASURE(pL);
 				if (SectRect(&pMeasure->measureBBox, &paperUpdate, &result)
 								|| outputTo!=toScreen)
-					drawAll = TRUE;
+					drawAll = True;
 				else
-					drawAll = FALSE;					/* Draw only spanning objects in this measure */
+					drawAll = False;					/* Draw only spanning objects in this measure */
 				break;
 			case PSMEAStype:
 				if (VISIBLE(pL) && drawAll) DrawPSMEAS(doc, pL, context);
@@ -255,7 +255,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawDYNAMIC(doc, pL, context, TRUE);
+						DrawDYNAMIC(doc, pL, context, True);
 				break;
 			case RPTENDtype:
 				if (VISIBLE(pL))
@@ -273,13 +273,13 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawGRAPHIC(doc, pL, context, TRUE);
+						DrawGRAPHIC(doc, pL, context, True);
 				break;
 			case TEMPOtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawTEMPO(doc, pL, context, TRUE);
+						DrawTEMPO(doc, pL, context, True);
 				break;
 			case SPACERtype:
 				if (VISIBLE(pL) && drawAll) DrawSPACER(doc, pL, context);
@@ -307,7 +307,7 @@ grayPage:
 				GetAllContexts(doc, context, measL);
 				ContextPage(doc, pL, context);
 				DrawPAGE(doc, pL, paper, context);
-				drawAll = TRUE;
+				drawAll = True;
 				break;
 			case SYSTEMtype:
 				pSystem = GetPSYSTEM(pL);
@@ -318,7 +318,7 @@ grayPage:
 				
 				if (VISIBLE(pL) && SectRect(&r,updateRect, &result) || outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
-					if (doc->frameSystems) FrameSysRect(&r, FALSE);			/* For debugging */
+					if (doc->frameSystems) FrameSysRect(&r, False);			/* For debugging */
 				}
 				else {
 					/* Skip ahead to next system: this one's not visible */
@@ -327,11 +327,11 @@ grayPage:
 					/* Rewind for increment part of for loop above */
 					pL = LeftLINK(pL);
 				}
-				drawAll = TRUE;
+				drawAll = True;
 				break;
 			case STAFFtype:
-				if (VISIBLE(pL)) DrawSTAFF(doc, pL, paper, context, TOPSYS_STAFF, TRUE);
-				drawAll = TRUE;
+				if (VISIBLE(pL)) DrawSTAFF(doc, pL, paper, context, TOPSYS_STAFF, True);
+				drawAll = True;
 				break;
 			case CONNECTtype:
 				if (VISIBLE(pL)) DrawCONNECT(doc, pL, context, TOPSYS_STAFF);
@@ -350,12 +350,12 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 	PMEASURE	pMeasure;
 	Rect 		r, result,
 				paperUpdate;			/* Paper-relative update rect */
-	Boolean		drawAll=TRUE;			/* FALSE if we're drawing only measure-spanning objects */
+	Boolean		drawAll=True;			/* False if we're drawing only measure-spanning objects */
 	
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate, -paper->left, -paper->top);
 	
-	if (ShiftKeyDown() && ControlKeyDown())
+	if (DETAIL_SHOW)
 		LogPrintf(LOG_DEBUG, "DrawScoreRange: fromL=%u toL=%u outputTo=%d\n", fromL, toL, outputTo);
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))
@@ -372,7 +372,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				GetAllContexts(doc, context, measL);
 				ContextPage(doc, pL, context);
 				DrawPAGE(doc, pL, paper, context);
-				drawAll = TRUE;
+				drawAll = True;
 				break;
 			case SYSTEMtype:
 				pSystem = GetPSYSTEM(pL);
@@ -383,7 +383,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				
 				if (VISIBLE(pL) && SectRect(&r, updateRect, &result) || outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
-					if (doc->frameSystems) FrameSysRect(&r, FALSE);	/* For debugging */
+					if (doc->frameSystems) FrameSysRect(&r, False);	/* For debugging */
 				}
 				else {
 					/* Skip ahead to next system: this one's not visible */
@@ -392,11 +392,11 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 					/* Rewind for increment part of for loop above */
 					pL = LeftLINK(pL);
 				}
-				drawAll = TRUE;
+				drawAll = True;
 				break;
 			case STAFFtype:
-				if (VISIBLE(pL)) DrawSTAFF(doc, pL, paper, context, BACKGROUND_STAFF, FALSE);
-				drawAll = TRUE;
+				if (VISIBLE(pL)) DrawSTAFF(doc, pL, paper, context, BACKGROUND_STAFF, False);
+				drawAll = True;
 				break;
 			case CONNECTtype:
 				if (VISIBLE(pL)) DrawCONNECT(doc, pL, context, TOPSYS_STAFF);	/* FIXME: BACKGROUND_STAFF?? */
@@ -408,9 +408,9 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				pMeasure = GetPMEASURE(pL);
 				if (SectRect(&pMeasure->measureBBox, &paperUpdate, &result)
 									|| outputTo!=toScreen)
-					drawAll = TRUE;
+					drawAll = True;
 				else
-					drawAll = FALSE;					/* Draw only spanning objects in this measure */	
+					drawAll = False;					/* Draw only spanning objects in this measure */	
 				break;
 			case PSMEAStype:
 				if (VISIBLE(pL) && drawAll) DrawPSMEAS(doc, pL, context);
@@ -425,7 +425,6 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				if (VISIBLE(pL) && drawAll) DrawTIMESIG(doc, pL, context);
 				break;
 			case SYNCtype:
-				//LogPrintf(LOG_NOTICE, "DrawScoreRange <DrawSYNC: pL=%u visible=%d drawAll=%d\n", pL, VISIBLE(pL), drawAll);
 				if (VISIBLE(pL) && drawAll) DrawSYNC(doc, pL, context);
 				break;
 			case GRSYNCtype:
@@ -457,7 +456,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawDYNAMIC(doc, pL, context, TRUE);
+						DrawDYNAMIC(doc, pL, context, True);
 				break;
 			case RPTENDtype:
 				if (VISIBLE(pL))
@@ -475,13 +474,13 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawGRAPHIC(doc, pL, context, TRUE);
+						DrawGRAPHIC(doc, pL, context, True);
 				break;
 			case TEMPOtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawTEMPO(doc, pL, context, TRUE);
+						DrawTEMPO(doc, pL, context, True);
 				break;
 			case SPACERtype:
 				if (VISIBLE(pL) && drawAll) DrawSPACER(doc, pL, context);
@@ -510,7 +509,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 	PMEASURE	pMeas;
 	Rect 		r, result,
 				paperUpdate;		/* Paper-relative update rect */
-	Boolean	drawAll=TRUE;			/* FALSE if we're only drawing measure-spanning objects */
+	Boolean	drawAll=True;			/* False if we're only drawing measure-spanning objects */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 	Point		enlargeNR;
@@ -527,7 +526,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 				measL = SSearch(pL, MEASUREtype, GO_RIGHT);
 				GetAllContexts(doc, context, measL);
 				ContextPage(doc, pL, context);
-				drawAll = TRUE;
+				drawAll = True;
 				break;
 			case SYSTEMtype:
 				pSystem = GetPSYSTEM(pL);
@@ -539,15 +538,15 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 				
 				if (VISIBLE(pL) && SectRect(&r,updateRect,&result) || outputTo!=toScreen)
 					ContextSystem(pL, context);
-				else { 															/* Skip ahead to next system: this one's not visible */
+				else { 												/* Skip ahead to next system: this one's not visible */
 					pL = LinkRSYS(pL);
 					if (pL==NILINK || IsAfter(toL, pL)) pL = toL;	/* Rewind for increment part of for loop above */
 					pL = LeftLINK(pL);
 				}
-				drawAll = TRUE;
+				drawAll = True;
 				break;
 			case STAFFtype:
-				drawAll = TRUE;
+				drawAll = True;
 				ContextStaff(pL, context);
 				break;
 			case CONNECTtype:
@@ -563,8 +562,8 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 
 				pMeas = GetPMEASURE(pL);
 				if (SectRect(&pMeas->measureBBox, &paperUpdate, &result) || outputTo!=toScreen)
-						drawAll = TRUE;
-				else	drawAll = FALSE;				/* Draw only spanning objects in this measure */
+						drawAll = True;
+				else	drawAll = False;				/* Draw only spanning objects in this measure */
 				break;
 			case PSMEAStype:
 				if (VISIBLE(pL) && drawAll)
@@ -673,7 +672,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 }
 
 
-/* ---------------------------------------------------------------- SetMusicPort -- */
+/* ---------------------------------------------------------------------- SetMusicPort -- */
 /* Set general characteristics of the port, presumably in preparation for drawing
 the score. Set the font, the font size, and the magnification globals, and build the
 charRect cache. NB: if staves are not all the same size, this approach will have
@@ -692,7 +691,7 @@ static void SetMusicPort(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ DrawRange -- */
+/* ------------------------------------------------------------------------- DrawRange -- */
 /*	Draw all objects and subobjects in the specified range that
 	1. are in measures that overlap the updateRect, and
 	2. are supposed to be visible, i.e., have their "visible" flags set.

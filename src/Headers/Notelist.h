@@ -99,7 +99,7 @@ typedef struct {
 	unsigned short	eAcc:3;			/* code of effective accidental: 0-5 */
 
 	unsigned char	filler2:1;
-	unsigned char	appear:4;		/* appearance code: 0-10 (see "NTypes.h") */
+	unsigned char	appear:4;		/* appearance code: 0-10 (see NObjTypes.h) */
 	unsigned char	nDots:3;		/* number of augmentation dots: 0-5 */
 	char			durCode;		/* code for logical duration: 0-9 (-127 - 9 for rests!) */
 
@@ -135,7 +135,7 @@ typedef struct {
 	  
 typedef struct {
 	NLOBJHEADER
-	char		appear;				/* appearance code: 1-7 (see "NTypes.h") */
+	char		appear;				/* appearance code: 1-BAR_LAST (see NObjTypes.h) */
 	char		filler;
 	char		data[];				/* (additional bytes in union used by NL_NRGR) */
 } NL_BARLINE, *PNL_BARLINE;
@@ -147,7 +147,7 @@ typedef struct {
 	
 typedef struct {
 	NLOBJHEADER
-	char		type;				/* clef type code: 1-12 (see "NTypes.h") */
+	char		type;				/* clef type code: 1-HIGH_CLEF (see NObjTypes.h) */
 	char		filler;
 	char		data[];				/* (additional bytes in union used by NL_NRGR) */
 } NL_CLEF, *PNL_CLEF;
@@ -161,7 +161,7 @@ typedef struct {
 	NLOBJHEADER
 	char	numAcc;					/* number of accidentals in keysig: 0-7 */
 	char	filler;
-	Boolean	sharp;					/* TRUE if sharps in keysig, FALSE if flats */
+	Boolean	sharp;					/* True if sharps in keysig, False if flats */
 	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_KEYSIG, *PNL_KEYSIG;
 
@@ -174,7 +174,7 @@ typedef struct {
 	NLOBJHEADER
 	char	num;					/* numerator: 1-99 */
 	char	denom;					/* denominator: powers of 2 from 1 to 64 */
-	char	appear;					/* 1-4 (normal, 'C', cut time, numerator only -- see "NTypes.h") */
+	char	appear;					/* 1-4 (normal, 'C', cut time, numerator only -- see NObjTypes.h) */
 	char	filler;
 	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_TIMESIG, *PNL_TIMESIG;
@@ -197,11 +197,10 @@ typedef struct {
 
 /* Note the interpretation of NLOBJHEADER fields for graphics:
 	- <lStartTime> is not assigned by Notelist.
-	- <uVoice>, <part> and <staff> will be -2 if graphic is page-relative.
-		Note that if a graphic is attached to a clef, timesig or keysig,
-		then its staff will be the same as that of the clef, timesig or
-		keysig. However, its user (and internal) voice number, as well
-		as its part number, will be -2. */
+	- <uVoice>, <part> and <staff> will be -2 if graphic is page-relative. Note that
+		if a graphic is attached to a clef, timesig or keysig, then its staff will be
+		the same as that of the clef, timesig or keysig; but its user (and internal)
+		voice number, as well as its part number, will be -2. */
 		
 typedef struct {
 	NLOBJHEADER
@@ -218,7 +217,7 @@ typedef struct {
 	
 typedef struct {
 	NLOBJHEADER
-	char	type;					/* code (see "NTypes.h") : 1-23 */
+	char	type;					/* code for dynamic type (see enum in NObjTypes.h) : 1-23 */
 	char	filler;
 	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_DYNAMIC, *PNL_DYNAMIC;
@@ -241,7 +240,7 @@ typedef union {
 
 typedef struct {
 	NLINK	next;					/* link to next mod attached to owning note, or zero if none */
-	char	code;					/* note-modifier code: 1-31 (see "NTypes.h") */
+	char	code;					/* note-modifier code: 1-MOD_LONG_INVMORDENT (see NObjTypes.h) */
 	char	data;					/* [currently unused]: -127 - 128 */
 } NL_MOD, *PNL_MOD, **HNL_MOD;
 

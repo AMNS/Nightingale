@@ -113,8 +113,9 @@
 	Boolean		DocumentSaved(Document *doc);
 	Boolean		DoExtract(Document *doc);
 	Boolean		DoCombineParts(Document *doc);
-	Boolean		DoOpenDocument(unsigned char *fileName, short vrefnum, Boolean readOnly, FSSpec *pfsSpec);
-	Boolean		DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec, Document **pDoc);
+	Boolean		DoOpenDocument(StringPtr fileName, short vrefnum, Boolean readOnly, FSSpec *pfsSpec);
+	Boolean		DoOpenDocumentX(StringPtr fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec,
+						Document **pDoc);
 	void		DoRevertDocument(Document *doc);
 	Boolean		DoSaveDocument(Document *doc);
 	Boolean		DoSaveAs(Document *doc);
@@ -128,7 +129,7 @@
 	void		InstallMagnify(Document *doc);
 	void		InstallStrPool(Document *doc);
 	void		ShowClipDocument(void);
-	void		PositionWindow(WindowPtr,Document *);
+	void		PositionWindow(WindowPtr, Document *);
 	void 		ShowDocument(Document *doc);
 
 /* Double.c */
@@ -202,13 +203,18 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* Finalize.c */
 
-	Boolean		CloseSetupFile(void);
+	Boolean		ClosePrefsFile(void);
 	void		Finalize(void);
 
 /* FlowInText.c */
 
 	void		DoTextFlowIn(Document *doc);
 	Boolean		SetFlowInText(Ptr pText);
+
+/* FontUtils.c */
+
+	void		EnumerateFonts(Document *doc);
+	void		GetNFontInfo(short, short, short, FontInfo *);
 
 /* HairpinEdit.c, DragDynamic.c */
 
@@ -236,10 +242,10 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* Initialize.c */
 
-	Boolean		CreateSetupFile(void);
+	Boolean		CreatePrefsFile(void);
 	Boolean		InitGlobals(void);
 	void		Initialize(void);
-	Boolean		OpenSetupFile(void);
+	Boolean		OpenPrefsFile(void);
 	Boolean		BuildEmptyDoc(Document *doc);
 
 /* InitNightingale.c */
@@ -266,8 +272,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 	Boolean		FillEmptyDialog(Document *, short *, short *);
 	Boolean		IsRangeEmpty(LINK, LINK, short, Boolean *);
-	Boolean		FillEmptyMeas(Document *, LINK, LINK);
-	Boolean		FillNonemptyMeas(Document *,LINK, LINK, short, short);
+	short		FillEmptyMeas(Document *, LINK, LINK);
+	Boolean		FillNonemptyMeas(Document *, LINK, LINK, short, short);
 
 /* Menu.c */
 
@@ -281,15 +287,11 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* MIDIDialogs.c */
 
-	void		MIDIDialog(Document *);
+	void		MIDIPrefsDialog(Document *);
 	Boolean		MIDIThruDialog(void);
 	
 	Boolean		MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 						SignedByte *velocity, short *duration);
-	Boolean		FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
-						SignedByte *velocity, short *duration, fmsUniqueID *device);
-	Boolean		OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
-						SignedByte *velocity, short *duration, OMSUniqueID *device);
 	Boolean		CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 						SignedByte *velocity, short *duration, MIDIUniqueID *device);
 
@@ -347,7 +349,6 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	
 /* MIDIRecord.c */
 
-	void AvoidUnisonsInRange(Document *, LINK, LINK, short);
 	Boolean	Record(Document *);
 	Boolean	StepRecord(Document *, Boolean);
 	
@@ -459,10 +460,6 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	void		GetWCTitle(WindowPtr theWindow, char theCTitle[]);
 	void		SetWCTitle(WindowRef theWindow, char theCTitle[]);
 	void		SetDialogItemCText(Handle lHdl, char cStr[]);
-
-//	void		SFPCGetFile(Point where, char cPrompt[], FileFilterUPP fileFilterUPP,
-//					short numTypes, ConstSFTypeListPtr typeList, DlgHookUPP hookUPP,
-//					SFReply *pReply, short dlogID, ModalFilterUPP filterUPP);
 	void		SetMenuItemCText(MenuHandle theMenu, short item, char cItemString[]);
 	void		AppendCMenu(MenuHandle theMenu, char cItemText[]);
 
@@ -470,6 +467,9 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 	char		*PToCString(StringPtr str);
 	StringPtr	CToPString(char *str);
+	StringPtr CtoPstr(StringPtr str);
+	StringPtr PtoCstr(StringPtr str);
+
 	StringPtr	Pstrcpy(StringPtr dst, ConstStringPtr src);
 	void		PStrncpy(StringPtr, ConstStringPtr, short);
 	Boolean		streql(char *s, char *t);
@@ -521,7 +521,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 /* ToolPalette.c */
 
 	Boolean		TranslatePalChar(short *, short, Boolean);
-pascal void		DrawToolMenu(Rect *r);
+pascal void		DrawToolPalette(Rect *r);
 pascal void		HiliteToolItem(Rect *r, short item);
 pascal short	FindToolItem(Point pt);
 	void		DoToolContent(Point pt, short modifiers);
@@ -600,10 +600,7 @@ pascal short	FindToolItem(Point pt);
 	void		DoClickInsert(Document *doc, Point pt);
 	Boolean		DoEditMaster(Document *doc, Point pt, short modifiers, short dblClick);
 	Boolean		DoEditScore(Document *doc, Point pt, short modifiers, short dblClick);
-	void		DoPageSetup(Document *doc);
 	void		DoPrint(Document *doc);
-	void		DoPrintScore(Document *doc);
-	Boolean		DoPostScript(Document *doc);
 	void		DrawDocumentControls(Document *doc);
 	void		DrawDocumentView(Document *doc, Rect *updateRect);
 	void		ExportDeskScrap(void);
@@ -616,7 +613,6 @@ pascal short	FindToolItem(Point pt);
 	void		NSInvisify(Document *doc);
 	void		OffsetSystem(LINK sysL, short dh, short dv);
 	void		PrefsDialog(Document *, Boolean, short *);
-	unsigned short ProcessScore(Document *, short, Boolean);
 	void		QuickScroll(Document *doc, short dx, short dy, Boolean relCoords, Boolean doCopyBits);
 	void		RecomputeView(Document *doc);
 	void		SaveEPSF(void);
@@ -629,4 +625,4 @@ pascal void		ScrollDocument(ControlHandle control, short part);
 	void		UpdateSysMeasYs(Document *doc, LINK sysL, Boolean useLedg, Boolean masterPg);
 	void		XLoadEditScoreSeg(void);
 	void		XLoadSheetSetupSeg(void);
-	Boolean	XStfObjOnStaff(LINK, short);
+	Boolean		XStfObjOnStaff(LINK, short);

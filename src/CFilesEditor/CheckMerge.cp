@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -32,19 +32,19 @@ static enum {
 
 /* Local Prototypes */
 
-static DialogPtr OpenThisDialog(Document *doc);
-static void      CloseThisDialog(DialogPtr dlog);
-static void      DoDialogUpdate(DialogPtr dlog);
-static void      DoDialogActivate(DialogPtr dlog, short activ);
-static short     DoDialogItem(DialogPtr dlog, short itemHit);
+static DialogPtr	OpenThisDialog(Document *doc);
+static void			CloseThisDialog(DialogPtr dlog);
+static void			DoDialogUpdate(DialogPtr dlog);
+static void			DoDialogActivate(DialogPtr dlog, short activ);
+static short		DoDialogItem(DialogPtr dlog, short itemHit);
 
-static pascal  	Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
-static Boolean 	CheckUserItems(Point where, short *itemHit);
-static short    AnyBadValues(DialogPtr dlog);
+static pascal		Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
+static Boolean		CheckUserItems(Point where, short *itemHit);
+static short		AnyBadValues(DialogPtr dlog);
 
-static void		GetChkMergeData(Document *doc, UserList *l);
+static void			GetChkMergeData(Document *doc, UserList *l);
 
-static short    BuildList(Document *doc, DialogPtr dlog, short item, short csize, UserList *l);
+static short		BuildList(Document *doc, DialogPtr dlog, short item, short csize, UserList *l);
 
 static short		DoOpenCell(UserList *l, StringPtr buf, short *len);
 
@@ -55,21 +55,22 @@ static short modifiers;
 
 static UserList list2;
 
-static ModalFilterUPP	dlogFilterUPP;
+static ModalFilterUPP dlogFilterUPP;
 
 
-/* Display the CheckMerge dialog.  Return TRUE if OK, FALSE if CANCEL or error. */
+/* Display the CheckMerge dialog.  Return True if OK, False if CANCEL or error. */
 
 short DoChkMergeDialog(Document *doc)
 	{
-		short itemHit,okay,keepGoing=TRUE;
-		register DialogPtr dlog; GrafPtr oldPort;
+		short itemHit,okay,keepGoing=True;
+		register DialogPtr dlog;
+		GrafPtr oldPort;
 
 		/* Build dialog window and install its item values */
 		
 		GetPort(&oldPort);
 		dlog = OpenThisDialog(doc);
-		if (dlog == NULL) return(FALSE);
+		if (dlog == NULL) return(False);
 
 		/* Entertain filtered user events until dialog is dismissed */
 		
@@ -83,7 +84,8 @@ short DoChkMergeDialog(Document *doc)
 		 *	DoDialogItem() has already called AnyBadValues().
 		 */
 		
-		if (okay = (itemHit==OK_ITEM)) {		/* Or whatever is equivalent */
+		okay = (itemHit==OK_ITEM);
+		if (okay) {		/* Or whatever is equivalent */
 			}
 
 		/* That's all, folks! */
@@ -97,7 +99,7 @@ short DoChkMergeDialog(Document *doc)
 
 static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	{
-		Boolean ans=FALSE,doHilite=FALSE; WindowPtr w;
+		Boolean ans=False,doHilite=False; WindowPtr w;
 		short type,ch; Handle hndl; Rect box;
 		
 		w = (WindowPtr)(evt->message);
@@ -106,7 +108,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				if (w == GetDialogWindow(dlog)) {
 					/* Update our dialog contents */
 					DoDialogUpdate(dlog);
-					ans = TRUE; *itemHit = 0;
+					ans = True; *itemHit = 0;
 					}
 				 else {
 					}
@@ -129,7 +131,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 			case keyDown:
 				if ((ch=(unsigned char)evt->message)=='\r' || ch==CH_ENTER) {
 					*itemHit = OK_ITEM;
-					doHilite = ans = TRUE;
+					doHilite = ans = True;
 					}
 				 else if (evt->modifiers & cmdKey) {
 					ch = (unsigned char)evt->message;
@@ -170,10 +172,10 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 							break;
 						case '.':
 							*itemHit = CANCEL_ITEM;
-							doHilite = TRUE;
+							doHilite = True;
 							break;
 						}
-					ans = TRUE;		/* Other cmd-chars ignored */
+					ans = True;		/* Other cmd-chars ignored */
 					}
 				break;
 			}
@@ -195,7 +197,7 @@ Check if it's in some user item, and convert to itemHit if appropriate. */
 
 static Boolean CheckUserItems(Point /*where*/, short */*itemHit*/)
 	{
-		return(FALSE);
+		return(False);
 	}
 
 
@@ -209,7 +211,7 @@ static void DoDialogUpdate(DialogPtr dlog)
 		BeginUpdate(GetDialogWindow(dlog));
 
 		UpdateDialogVisRgn(dlog);
-		FrameDefault(dlog,BUT1_OK,TRUE);
+		FrameDefault(dlog,BUT1_OK,True);
 		FrameRect(&list2.bounds);
 		LUpdateDVisRgn(dlog,list2.hndl);
 
@@ -227,8 +229,8 @@ static void DoDialogActivate(DialogPtr dlog, short activ)
 	}
 
 
-/* Build this dialog's window on desktop, and install initial item values.
-Return the dlog opened, or NULL if error (no resource, no memory). */
+/* Build this dialog's window on desktop, and install initial item values. Return
+the dlog opened, or NULL if error (no resource, no memory). */
 
 static DialogPtr OpenThisDialog(Document *doc)
 	{
@@ -276,13 +278,13 @@ static void CloseThisDialog(DialogPtr dlog)
 	}
 
 
-/* Handle OK button, and possibly handle a click in the list.
-The local point is in where; modifiers in modifiers.
-Returns whether or not the dialog should be closed (keepGoing). */
+/* Handle OK button, and possibly handle a click in the list. The local point is
+in where; modifiers in modifiers. Returns whether or not the dialog should be closed
+(keepGoing). */
 
 static short DoDialogItem(DialogPtr dlog, short itemHit)
 	{
-		short okay=FALSE,keepGoing=TRUE,val;
+		short okay=False,keepGoing=True,val;
 		Str255 str;
 
 		if (itemHit<1 || itemHit>=LASTITEM)
@@ -290,7 +292,7 @@ static short DoDialogItem(DialogPtr dlog, short itemHit)
 
 		switch(itemHit) {
 			case BUT1_OK:
-				keepGoing = FALSE; okay = TRUE;
+				keepGoing = False; okay = True;
 				break;
 			case LIST2:
 				/*
@@ -309,17 +311,15 @@ static short DoDialogItem(DialogPtr dlog, short itemHit)
 	}
 
 
-/* Pull values out of dialog items and deliver TRUE if any of them are
-illegal or inconsistent; otherwise deliver FALSE. */
+/* Pull values out of dialog items and deliver True if any of them are illegal or
+inconsistent; otherwise deliver False. */
 
 static short AnyBadValues(DialogPtr /*dlog*/)
 	{
-		return(FALSE);
+		return(False);
 	}
 
-/* -------------------------------------------------------------------------------- */
-
-/* ClipVInfo is defined in <NTypes.h>. */
+/* -------------------------------------------------------------------------------------- */
 
 static short GetLengthList(UserList *l, ClipVInfo *clipVInfo);
 
@@ -350,9 +350,9 @@ static void GetChkMergeData(Document *doc, UserList *l)
 			clipVInfo[v].clipEndTime = -1L;
 			clipVInfo[v].firstStf = -1;
 			clipVInfo[v].lastStf = -1;
-			clipVInfo[v].singleStf = TRUE;
-			clipVInfo[v].hasV = FALSE;
-			clipVInfo[v].vBad = FALSE;
+			clipVInfo[v].singleStf = True;
+			clipVInfo[v].hasV = False;
+			clipVInfo[v].vBad = False;
 		}
 
 		stfDiff = CheckMerge1(doc,clipVInfo);
@@ -379,12 +379,14 @@ static void GetChkMergeData(Document *doc, UserList *l)
 
 
 /* Build a new list in given user item box of dialog, dlog, with cell height,
-csize.  If success, delivers TRUE; if couldn't allocate ListMgr list (no more memory
-or whatever), delivers FALSE. */
+csize.  If success, delivers True; if couldn't allocate ListMgr list (no more memory
+or whatever), delivers False. */
 
 static short BuildList(Document *doc, DialogPtr dlog, short item, short csize, UserList *l)
 	{
-		short type; Rect box; Handle hndl;
+		short type;
+		Rect box;
+		Handle hndl;
 
 		/* Content area (plus scroll bar) of list corresponds to user item box */
 		
@@ -399,32 +401,34 @@ static short BuildList(Document *doc, DialogPtr dlog, short item, short csize, U
 		l->cSize.v = csize > 0 ? csize : 1;
 		l->cSize.h = l->content.right - l->content.left;
 
-		l->hndl = LNew(&l->content,&l->dataBounds,l->cSize,0,GetDialogWindow(dlog),FALSE,FALSE,FALSE,TRUE);
-		if (!l->hndl) return FALSE;
+		l->hndl = LNew(&l->content,&l->dataBounds,l->cSize,0,GetDialogWindow(dlog),False,
+						False,False,True);
+		if (!l->hndl) return False;
 
 		(*l->hndl)->selFlags = lOnlyOne;		/* Or whatever */
 		
 		GetChkMergeData(doc,l);
 
 		l->cell.v = 0;
-		LSetSelect(TRUE,l->cell,l->hndl);
+		LSetSelect(True,l->cell,l->hndl);
 		EraseRect(&l->content);
 		InvalWindowRect(doc->theWindow,&l->bounds);
-		LSetDrawingMode(TRUE,l->hndl);
+		LSetDrawingMode(True,l->hndl);
 
-		return(TRUE);
+		return(True);
 	}
 
 
-/* Do whatever when user double clicks (opens) on a list cell.  Delivers
-TRUE or FALSE according to whether any cell was selected or not. */
+/* Do whatever when user double clicks (opens) on a list cell.  Delivers True or
+False according to whether any cell was selected or not. */
 
 static short DoOpenCell(UserList *l, StringPtr buf, short *len)
 	{
 		short ans;
 
 		l->cell.h = l->cell.v = 0;
-		if (ans = LGetSelect(TRUE,&l->cell,l->hndl)) {
+		ans = LGetSelect(True,&l->cell,l->hndl);
+		if (ans) {
 			LGetCell((Ptr)buf,len,l->cell,l->hndl);
 			/* Got data for first selected cell: do whatever with it */
 			/* ... */

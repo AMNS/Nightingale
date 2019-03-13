@@ -1,1 +1,30 @@
-Nightingale Conventions for Modifier KeysNightingale Technical Note #9Don Byrd, December 1999These are the conventions, but there are, regrettably, many exceptions, especiallyin debug (including Browser) code.Caps lock	Use ONLY in non-public versions! With Option key, display debug info			(normally in the Consolation window, but when PostScript printing, on			the printed page); alone or in other combinations, all bets are off.Command		Standard Mac OS usage, for menu command shortcuts; also used for			shortcuts to dialog items.Control		Skip checks to disallow situations where Ngale may have problems: e.g.,			when inserting notes or dragging them vertically, skip checking for and			hence allow unisons.Option		Rarely used alone outside debug code. In flow-in text, repeat the last			word.Shift		In public versions, constrain: e.g., in dragging, to horizontal or			vertical motion only. This is pretty much standard Mac OS usage.
+NIGHTINGALE CONVENTIONS FOR MODIFIER KEYS
+Nightingale Technical Note #9
+Don Byrd, December 1999; rev. late January 2018
+
+This key combination is used in a consistent way:
+
+Shift-control
+			Display additional information, mostly for debugging, and normally in the
+			system log file (accessible via the Console utility), but for PostScript
+			printing, on the printed page.
+
+And here are the conventions for keys used alone, but, regrettably, there are many
+exceptions, especially in debug (including Browser) code.
+
+Caps lock	Use sparingly, and NEVER in public versions! Often for break into the
+			old low-level debugger; otherwise all bets are off.
+
+Command		Standard Mac OS usage, for menu command shortcuts; also used for shortcuts
+			to dialog items.
+
+Control		Skip checks to disallow situations where Ngale may have problems: e.g.,
+			when inserting notes or dragging them vertically, skip checking for and
+			hence allow unisons.
+
+Option		Not often used alone outside debug code. In flow-in text, repeat the last
+			word; in editing slurs, move the other endpoint or control point
+			symmetrically.
+
+Shift		Constrain: e.g., in dragging, to horizontal or vertical motion only. This
+			is pretty much standard Mac OS usage.

@@ -18,14 +18,14 @@ Rect SetSubRect(DDIST, DDIST, short, PCONTEXT);
 void ContextObject(Document *, LINK, CONTEXT []);
 LINK CheckObject (Document *, LINK, Boolean *, Ptr, CONTEXT [], short, short *, STFRANGE);
 Boolean ObjectTest(Rect *, Point, LINK);
-LINK FindObject(Document *, Point, short *, short);
+LINK FindAndActOnObject(Document *, Point, short *, short);
 
 LINK FindRelObject(Document *, Point, short *, short);
 
 LINK CheckMasterObject (Document *, LINK, Boolean *, Ptr, CONTEXT [], short, short *, STFRANGE);
 Boolean MasterObjectTest(Rect *, Point, LINK);
-LINK FindMasterObject(Document *, Point, short *, short);
+LINK FindAndActOnMasterObj(Document *, Point, short *, short);
 
 Boolean FormatObjectTest(Rect *, Point, LINK);
-LINK FindFormatObject(Document *, Point, short *, short);
+LINK FindAndActOnFormatObj(Document *, Point, short *, short);
 

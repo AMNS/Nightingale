@@ -46,7 +46,7 @@ static char	hilitedItem = -1;  	/* ItemNum of item currently hilited by using ar
 static pascal Boolean TranspFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	Point where;
-	Boolean ans=FALSE; WindowPtr w;
+	Boolean ans=False; WindowPtr w;
 	short ch;
 
 	w = (WindowPtr)(evt->message);
@@ -58,9 +58,9 @@ static pascal Boolean TranspFilter(DialogPtr dlog, EventRecord *evt, short *item
 				UpdateDialogVisRgn(dlog);
 				DrawPopUp(&popupIntval);
 				DrawPopUp(&popupOctave);
-				FrameDefault(dlog,OK,TRUE);
+				FrameDefault(dlog,OK,True);
 				EndUpdate(GetDialogWindow(dlog));
-				ans = TRUE; *itemHit = 0;
+				ans = True; *itemHit = 0;
 			}
 			break;
 		case activateEvt:
@@ -76,22 +76,22 @@ static pascal Boolean TranspFilter(DialogPtr dlog, EventRecord *evt, short *item
 			if (PtInRect(where,&popupIntval.shadow)) {
 				*itemHit = DoUserPopUp(&popupIntval) ? INTERVAL_DI : 0;
 				hilitedItem = -1;
-				HilitePopUp(&popupIntval, FALSE);
-				HilitePopUp(&popupOctave, FALSE);
-				ans = TRUE;
+				HilitePopUp(&popupIntval, False);
+				HilitePopUp(&popupOctave, False);
+				ans = True;
 			}
 			else if (PtInRect(where,&popupOctave.shadow)) {
 				*itemHit = DoUserPopUp(&popupOctave) ? OCTAVES_DI : 0;
 				hilitedItem = -1;
-				HilitePopUp(&popupOctave, FALSE);
-				HilitePopUp(&popupIntval, FALSE);
-				ans = TRUE;
+				HilitePopUp(&popupOctave, False);
+				HilitePopUp(&popupIntval, False);
+				ans = True;
 			}
 			break;
 		case autoKey:
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, itemHit, FALSE))
-				return TRUE;
+			if (DlgCmdKey(dlog, evt, itemHit, False))
+				return True;
 			else {
 				ch = (unsigned char)evt->message;
 				switch (ch) {
@@ -101,7 +101,7 @@ static pascal Boolean TranspFilter(DialogPtr dlog, EventRecord *evt, short *item
 					case RIGHTARROWKEY:
 						DoTranspArrowKey(dlog, ch);
 						*itemHit = OCTAVES_DI;			/* forces Transpose dlog to update semitones text field */	
-						ans = TRUE;
+						ans = True;
 						break;						
 				}
 			}
@@ -165,14 +165,14 @@ Boolean TransposeDialog(Boolean *pUp, short *pOctaves, short *pSteps, short *pSe
 	filterUPP = NewModalFilterUPP(TranspFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(TRANSPOSE_DLOG);
-		return FALSE;
+		return False;
 	}
 	GetPort(&oldPort);
 	dlog = GetNewDialog(TRANSPOSE_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(TRANSPOSE_DLOG);
-		return FALSE;
+		return False;
 	}
 	CenterWindow(GetDialogWindow(dlog), 70);
 	SetPort(GetDialogWindowPort(dlog));
@@ -246,7 +246,7 @@ void CalcSemiTones(DialogPtr dlog)
 	semitones = (octaves[popupOctave.currentChoice][0]*12) + transp[popupIntval.currentChoice][1];
 	if (octaves[popupOctave.currentChoice][1]==0)					/* If direction is down... */
 		semitones = -semitones;												/* add neg sign. */
-	PutDlgWord(dlog, SEMITONES_DI, semitones, FALSE);
+	PutDlgWord(dlog, SEMITONES_DI, semitones, False);
 }
 
 /* For each entry in Diatonic Transpose pop-up menu, give diatonic steps */
@@ -274,14 +274,14 @@ Boolean DTransposeDialog(Boolean *pUp, short *pOctaves, short *pSteps, Boolean *
 	filterUPP = NewModalFilterUPP(TranspFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(DTRANSPOSE_DLOG);
-		return FALSE;
+		return False;
 	}
 	GetPort(&oldPort);
 	dlog = GetNewDialog(DTRANSPOSE_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(DTRANSPOSE_DLOG);
-		return FALSE;
+		return False;
 	}
 	CenterWindow(GetDialogWindow(dlog), 70);
 	SetPort(GetDialogWindowPort(dlog));
@@ -362,7 +362,7 @@ void DoTranspArrowKey(DialogPtr /*dlog*/, short whichKey)
 		case DOWNARROWKEY:
 			if (hilitedItem==-1) {
 				hilitedItem = INTERVAL_DI;
-				HilitePopUp(&popupIntval, TRUE); }
+				HilitePopUp(&popupIntval, True); }
 			else {
 				p = (hilitedItem==OCTAVES_DI) ? &popupOctave : &popupIntval;
 				newChoice = p->currentChoice;
@@ -380,19 +380,19 @@ void DoTranspArrowKey(DialogPtr /*dlog*/, short whichKey)
 					if (p->str[1] == '-') newChoice += 1;		/* Skip over the dash item */ 						
 				}
 				ChangePopUpChoice (p, newChoice);
-				HilitePopUp(p,TRUE);
+				HilitePopUp(p,True);
 			}
 			break;
 		case LEFTARROWKEY:
 			if (hilitedItem != OCTAVES_DI) {
-				HilitePopUp(&popupIntval, FALSE);
-				HilitePopUp(&popupOctave, TRUE);
+				HilitePopUp(&popupIntval, False);
+				HilitePopUp(&popupOctave, True);
 				hilitedItem = OCTAVES_DI; }							
 			break;
 		case RIGHTARROWKEY:
 			if (hilitedItem != INTERVAL_DI) {
-				HilitePopUp(&popupOctave, FALSE);
-				HilitePopUp(&popupIntval, TRUE);
+				HilitePopUp(&popupOctave, False);
+				HilitePopUp(&popupIntval, True);
 				hilitedItem = INTERVAL_DI; }
 			break;						
 	}
@@ -431,14 +431,14 @@ Boolean TransKeyDialog(Boolean trStaff[], Boolean *pUp, short *pOctaves, short *
 	filterUPP = NewModalFilterUPP(TranspFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(TRANSKEY_DLOG);
-		return FALSE;
+		return False;
 	}
 	GetPort(&oldPort);
 	dlog = GetNewDialog(TRANSKEY_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(TRANSKEY_DLOG);
-		return FALSE;
+		return False;
 	}
 	CenterWindow(GetDialogWindow(dlog), 70);
 	SetPort(GetDialogWindowPort(dlog));

@@ -1,11 +1,10 @@
-/* Routines for handling a text edit field with vertical scroll bar, by
- * John Gibson. Based on Macintosh Revealed, vol. 2, by Stephen Chernicoff.
- *	"Smart quotes" option (not used in this comment) added by Don Byrd, 10/92.
- * ScrollToSelection made public, 2/93.
- *
- * Revised for CW Pro 5 by JGG, 5/13/00, including:
- *		- Remove old code not enabled by Nightmare95 define (also removed)
- *		- Replace OLDROUTINENAMES with new ones.
+/* TEField.c for Nightingale
+Routines for handling a text edit field with vertical scroll bar, by John Gibson. Based
+on _Macintosh Revealed_, vol. 2, by Stephen Chernicoff. "Smart quotes" option (not used
+in this comment) added by Don Byrd, 10/92. ScrollToSelection made public, 2/93.
+Revised for CW Pro 5 by JGG, 5/13/00, including:
+	- Remove old code not enabled by Nightmare95 define (also removed)
+	- Replace OLDROUTINENAMES with new ones.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -25,14 +24,12 @@ static void DoScroll(PEDITFIELD, short, Point);
 static pascal Boolean EditFieldAutoScroll(TERec*);
 static pascal void ScrollText(ControlHandle, short);
 static void ScrollCharacter(PEDITFIELD, short, Boolean);
-//int ConvertQuote(TEHandle, int);
 
 static Boolean			scrapDirty;
-static short			scrapCompare;
 
 /* For current TE field, so EditFieldAutoScroll, ScrollText and dependents can get them */ 
 static ControlHandle	tmpScrollH;
-static TEHandle		tmpTEH;
+static TEHandle			tmpTEH;
 
 static TEClickLoopUPP clickUPP = NULL;
 
@@ -40,21 +37,21 @@ static TEClickLoopUPP clickUPP = NULL;
 /* NB: Call this only after you've SetPort to your window's port! */
 Boolean CreateEditField(
 		WindowPtr		wind,
-		Rect				box,				/* enclosing rect, including scroll bar, in local ccords */
-		short				fontNum,
-		short				fontSize,
-		short				fontStyle,
+		Rect			box,			/* enclosing rect, including scroll bar, in local ccords */
+		short			fontNum,
+		short			fontSize,
+		short			fontStyle,
 		Handle			textH,			/* put this text in the field */
-		Boolean			sel,				/* TRUE: selAll, FALSE: insertion pt at end */
+		Boolean			sel,			/* True: selAll, False: insertion pt at end */
 		PEDITFIELD		theField
 		)
 {
-	Rect				viewRect, destRect, scrollRect, boundsRect;
-	TEHandle			teH;
+	Rect			viewRect, destRect, scrollRect, boundsRect;
+	TEHandle		teH;
 	ControlHandle	scrollH;
-	Size				len;
-	FontInfo			finfo;
-	short				oldFont, oldSize, oldStyle, lineHeight, numLines, extraPixels;
+	Size			len;
+	FontInfo		finfo;
+	short			oldFont, oldSize, oldStyle, lineHeight, numLines, extraPixels;
 	
 	/* get font characteristics */
 	oldFont = GetPortTxFont(); oldSize = GetPortTxSize(); oldStyle = GetPortTxFace();
@@ -82,10 +79,11 @@ still see a white border around edges, like in THINK C.) */
 	
 	/* create TE field and scrollbar */
 	teH = TENew(&destRect, &viewRect);
-	scrollH = NewControl(wind, &scrollRect, "\p", TRUE, 0, 0, 100, scrollBarProc, 0L);
-	if (teH == NIL || scrollH == NIL) {
-		SysBeep(10);		/* ***FIXME: need more than this! */
-		return FALSE;
+	scrollH = NewControl(wind, &scrollRect, "\p", True, 0, 0, 100, scrollBarProc, 0L);
+	if (teH == NULL || scrollH == NULL) {
+		LogPrintf(LOG_WARNING, "CreateEditField: Handle to TE field and/or scrollbar is NULL.\n");
+		SysBeep(10);
+		return False;
 	}
 	
 	/* set font for TE record */
@@ -95,8 +93,8 @@ still see a white border around edges, like in THINK C.) */
 	(**teH).lineHeight = lineHeight;
 	(**teH).fontAscent = finfo.ascent;
 
-	/* stuff text into field */
-	if (textH != NIL) {
+	/* stuff text into the field */
+	if (textH != NULL) {
 		len = GetHandleSize(textH);
 		HLock(textH);
 		TESetText(*textH, (long) len, teH);
@@ -105,7 +103,7 @@ still see a white border around edges, like in THINK C.) */
 	}
 
 	/* Allocate the routine descriptor just once, since routine could be shared. */
-	if (clickUPP == NIL)
+	if (clickUPP == NULL)
 		clickUPP = NewTEClickLoopUPP(EditFieldAutoScroll);
 	if (clickUPP)
 		TESetClickLoop(clickUPP, teH);
@@ -114,11 +112,11 @@ still see a white border around edges, like in THINK C.) */
 	theField->teH = teH;
 	theField->scrollH = scrollH;
 	theField->bounds = boundsRect;
-	theField->active = TRUE;
+	theField->active = True;
 	
 	AdjustScrollBar(theField);
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -129,10 +127,10 @@ void DisposeEditField(PEDITFIELD theField)
 }
 
 
-/* Stuffs into the edit field the text contained in either <textH>, a handle
- * to raw text (not a Pascal or C string), or <textP>, a (null terminated) 
- * C string. The choice is yours; pass NIL for the one not used.  This 
- * replaces any text already in the field. Returns TRUE if ok, FALSE if error.
+/* This stuffs into the edit field the text contained in either <textH>, a handle to
+raw text (not a Pascal or C string), or <textP>, a (null terminated)  C string. The
+choice is yours; pass NULL for the one not used.  This replaces any text already in the
+field. Returns True if OK, False if error.
  */
 
 /* ••••••InsideMac says:
@@ -144,28 +142,27 @@ Boolean SetEditFieldText(PEDITFIELD theField, Handle textH, unsigned char *textP
 {
 	long	len;
 
-	if (textH != NIL) {
+	if (textH != NULL) {
 		len = (long) GetHandleSize(textH);
 		HLock(textH);
 		TESetText(*textH, len, theField->teH);
 		HUnlock(textH);
 	}
-	else if (textP != NIL) {
+	else if (textP != NULL) {
 		len = strlen((char *)textP);
 		TESetText(textH, len, theField->teH);
 	}
 	else
-		return FALSE;
+		return False;
 
 	TESetSelect(sel? 0L : (long)32767, (long)32767, theField->teH);
 	AdjustScrollBar(theField);
-	return TRUE;
+	return True;
 }
 
 
-/* Returns a new handle containing the entire text of the edit field.
- * Caller should dispose of this handle when finished with it.
- * Handle will be NIL if there's a problem.
+/* Returns a new handle containing the entire text of the edit field. Caller should
+dispose of this handle when finished with it. Handle will be NULL if there's a problem.
  */
 /*••••••••should make caller allocate handle and pass it in. Then resize it.
 Otherwise, if caller wants to keep using the same handle (like flow-in),
@@ -173,22 +170,22 @@ they'll have to Dispose the old one...*/
 CharsHandle GetEditFieldText(PEDITFIELD theField)
 {
 	CharsHandle	textH;
-	OSErr			err;
+	OSErr		err;
 	
 	textH = TEGetText(theField->teH);
 	err = HandToHand(&textH);
 	if (err == noErr)
 		return textH;
 	else
-		return (char**)NIL;
+		return (char**)NULL;
 }
 
 
 static void AdjustScrollBar(PEDITFIELD theField)
 {
-	TEHandle			teH;
+	TEHandle		teH;
 	ControlHandle	scrollH;
-	short				windowHt, maxTop;
+	short			windowHt, maxTop;
 	
 	teH = theField->teH;
 	scrollH = theField->scrollH;
@@ -196,7 +193,7 @@ static void AdjustScrollBar(PEDITFIELD theField)
 	windowHt = ((**teH).viewRect.bottom - (**teH).viewRect.top) / (**teH).lineHeight;
 	maxTop = (**teH).nLines - windowHt;			/* avoid white space at bottom */
 	
-	if (maxTop<=0) {									/* number of lines less than what will fit in view rect? */
+	if (maxTop<=0) {							/* is number of lines less than what will fit in view rect? */
 		maxTop = 0;
 		HiliteControl(scrollH, CTL_INACTIVE);
 	}
@@ -221,22 +218,20 @@ static void AdjustText(TEHandle teH, ControlHandle scrollH)
 
 static void DoScroll(PEDITFIELD theField, short part, Point pt)
 {
-	TEHandle				teH;
+	TEHandle			teH;
 	ControlHandle		scrollH;
 	ControlActionUPP	scrollUPP;
 
 	teH = theField->teH;
 	scrollH = theField->scrollH;
 	if (part==kControlIndicatorPart) {
-		part = TrackControl(scrollH, pt, (ControlActionUPP)NIL);
+		part = TrackControl(scrollH, pt, (ControlActionUPP)NULL);
 		AdjustText(teH, scrollH);
 	}
 	else {
 		RgnHandle	saveClip;
 		
-		/* Must set clip rgn equal to whole window; otherwise
-		 * scrollbar won't update.
-		 */
+		/* Must set clip rgn equal to whole window; otherwise scrollbar won't update. */
 		saveClip = NewRgn();
 		GetClip(saveClip);
 //		ClipRect(&qd.thePort->portRect);
@@ -276,6 +271,7 @@ static pascal void ScrollText(ControlHandle scrollH, short part)
 			delta = ((**teH).viewRect.bottom - (**teH).viewRect.top) / (**teH).lineHeight - 1;
 			break;
 		default:
+			delta = 0;
 			break;
 	}
 	
@@ -288,10 +284,11 @@ static pascal void ScrollText(ControlHandle scrollH, short part)
 
 
 /* Click loop routine--handles automatic scrolling during text selection. */
+
 static pascal Boolean EditFieldAutoScroll(TERec*)
 {
-	Point			mousePt;
-	Rect			textRect;
+	Point		mousePt;
+	Rect		textRect;
 	RgnHandle	saveClip;
 	
 	/* Must set clip rgn equal to whole window; otherwise
@@ -312,15 +309,15 @@ static pascal Boolean EditFieldAutoScroll(TERec*)
 	
 	SetClip(saveClip);
 	DisposeRgn(saveClip);
-	return TRUE;
+	return True;
 }
 
 
 void ScrollToSelection(PEDITFIELD theField)
 {
-	TEHandle			teH;
+	TEHandle		teH;
 	ControlHandle	scrollH;
-	short				topLine, botLine, windHt;
+	short			topLine, botLine, windHt;
 	
 	teH = theField->teH;
 	scrollH = theField->scrollH;
@@ -334,9 +331,9 @@ void ScrollToSelection(PEDITFIELD theField)
 	if (GetControlMaximum(scrollH) == 0)
 		AdjustText(teH, scrollH);
 	else if ((**teH).selEnd < (**teH).lineStarts[topLine])
-		ScrollCharacter(theField, (**teH).selStart, FALSE);
+		ScrollCharacter(theField, (**teH).selStart, False);
 	else if ((**teH).selStart >= (**teH).lineStarts[botLine])
-		ScrollCharacter(theField, (**teH).selEnd, TRUE);
+		ScrollCharacter(theField, (**teH).selEnd, True);
 
 	HUnlock((Handle)teH);
 }
@@ -344,8 +341,8 @@ void ScrollToSelection(PEDITFIELD theField)
 
 static void ScrollCharacter(PEDITFIELD theField, short charPos, Boolean toBottom)
 {
-	short				theLine, windHt;
-	TEHandle			teH;
+	short			theLine, windHt;
+	TEHandle		teH;
 	ControlHandle	scrollH;
 
 	teH = theField->teH;
@@ -373,11 +370,11 @@ void DoTEEdit(PEDITFIELD theField, short cmd)
 	switch (cmd) {
 		case TE_CUT:
 			TECut(theField->teH);
-			scrapDirty = TRUE;
+			scrapDirty = True;
 			break;
 		case TE_COPY:
 			TECopy(theField->teH);
-			scrapDirty = TRUE;
+			scrapDirty = True;
 			return;								/* skip stuff at bottom that the others need */
 			break;
 		case TE_PASTE:
@@ -401,18 +398,18 @@ void DoTEEdit(PEDITFIELD theField, short cmd)
 }
 
 
-/* Call this in response to a mouseDown in the window's content area.
- * If click was in the TE viewrect or scrollbar rect, handles click
- * and returns TRUE; FALSE if not in either rect.
- */
+/* Call this in response to a mouseDown in the window's content area. If click was in
+the TE viewrect or scrollbar rect, handles click and returns True; False if not in either
+rect. */
+
 Boolean DoEditFieldClick(PEDITFIELD theField, EventRecord *event)
 {
 	WindowPtr		wind;
 	ControlHandle	whichCntlH;
 	Boolean			extend;
-	Point				localPt;
-	short				part;
-	Rect				tmpCtlRect;
+	Point			localPt;
+	short			part;
+	Rect			tmpCtlRect;
 	
 //	wind = (**theField->scrollH).contrlOwner;
 	wind = GetControlOwner(theField->scrollH);
@@ -420,35 +417,35 @@ Boolean DoEditFieldClick(PEDITFIELD theField, EventRecord *event)
 	localPt = event->where;
 	GlobalToLocal(&localPt);
 
-	if (!PtInRect(localPt, &theField->bounds)) return FALSE;		/* not in our field */
+	if (!PtInRect(localPt, &theField->bounds)) return False;	/* not in our field */
 	
-	tmpTEH = theField->teH;													/* so clikloop routine can get them */
+	tmpTEH = theField->teH;										/* so clikloop routine can get them */
 	tmpScrollH = theField->scrollH;
  	GetControlBounds(tmpScrollH, &tmpCtlRect);
  	
 	if (PtInRect(localPt, &(**tmpTEH).viewRect)) {
 		TEClick(localPt, extend, tmpTEH);
-		return TRUE;
+		return True;
 	}
 //	else if (PtInRect(localPt, &(**tmpScrollH).contrlRect)) {
 	else if (PtInRect(localPt, &tmpCtlRect)) {
 		part = FindControl(localPt, wind, &whichCntlH);
 		if (part!=0 && part!=254 && whichCntlH==tmpScrollH)
 			DoScroll(theField, part, localPt);
-		return TRUE;															/* even though we may have hit an inactive cntl */
+		return True;											/* even though we may have hit an inactive cntl */
 	}
 	
-	return FALSE;		
+	return False;		
 }
 
 
-/* Call this in response to a keyDown or autoKey event, after having checked
- * for menu key equivalents or other special key behavior (e.g., arrow keys).
- */
+/* Call this in response to a keyDown or autoKey event, after having checked for menu
+key equivalents or other special key behavior (e.g., arrow keys). */
+
 void DoTEFieldKeyEvent(PEDITFIELD theField, EventRecord *event)
 {
 	unsigned char	ch;
-	long				selStart, selEnd;
+	long			selStart, selEnd;
 	
 	ch = (unsigned char) event->message;
 #ifdef SMART_QUOTES
@@ -468,7 +465,7 @@ void DoTEFieldKeyEvent(PEDITFIELD theField, EventRecord *event)
 	/* Handle pageUp -Dn, etc keys on extended keyboard. Change thumb position
 	 * and text displayed, but don't change selection (in accordance w/UIF guidelines).
 	 */
-	tmpTEH = theField->teH;											/* so ScrollText can get it */
+	tmpTEH = theField->teH;										/* so ScrollText can get it */
 	switch (ch) {
 		case PGUPKEY:
 			ScrollText(theField->scrollH, kControlPageUpPart);
@@ -494,11 +491,11 @@ void DoTEFieldKeyEvent(PEDITFIELD theField, EventRecord *event)
 
 #ifdef SMART_QUOTES
 	/*
-	 * Leave command-quote/-double-quote as std ASCII quotes so user can
-	 * bypass "smart" quotes; covert all other chars.
+	 * Leave command-quote/-double-quote as std ASCII quotes so user can bypass
+	 * "smart" quotes; convert all other quote marks.
 	 */
 	if (!(event->modifiers & cmdKey))
-		ch = ConvertQuote(theField->teH,ch);
+		ch = SmartenQuote(theField->teH,ch);
 #endif
 
 	/* Map forward delete char to delete and fiddle w/ sel range to make if work right. */
@@ -512,7 +509,8 @@ void DoTEFieldKeyEvent(PEDITFIELD theField, EventRecord *event)
 	if ((**theField->teH).teLength >= MAX_CHARS_IN_FIELD)
 		if ( !(ch==CH_BS || ch==CH_ENTER || ch==LEFTARROWKEY || ch==RIGHTARROWKEY ||
 														ch==UPARROWKEY || ch==DOWNARROWKEY) ) {
-			SysBeep(10);			/* •••need more than this? */
+			LogPrintf(LOG_INFO, "DoTEFieldKeyEvent: TE field is full.\n");
+			SysBeep(10);
 			return;
 		}
 		
@@ -525,9 +523,10 @@ void DoTEFieldKeyEvent(PEDITFIELD theField, EventRecord *event)
 
 
 /* Call this in response to an update event for this window. */
+
 void DoTEFieldUpdate(PEDITFIELD theField)
 {
-	PenState		savePenState;
+	PenState	savePenState;
 	GrafPtr		oldPort;
 	WindowPtr	wind;
 
@@ -550,6 +549,7 @@ void DoTEFieldUpdate(PEDITFIELD theField)
 
 
 /* Call this in response to an activate event. */
+
 void DoTEFieldActivateEvent(PEDITFIELD theField, EventRecord *event)
 {
 	GrafPtr		oldPort;
@@ -566,12 +566,12 @@ void DoTEFieldActivateEvent(PEDITFIELD theField, EventRecord *event)
 	GetPort(&oldPort); SetPort(GetWindowPort(wind));
 
 	if (event->modifiers & activeFlag != 0) {
-		theField->active = TRUE;
+		theField->active = True;
 		HiliteControl(theField->scrollH, CTL_ACTIVE);
 		TEActivate(theField->teH);
 	}
 	else {
-		theField->active = FALSE;
+		theField->active = False;
 		TEDeactivate(theField->teH);
 		HiliteControl(theField->scrollH, CTL_INACTIVE);
 	}
@@ -582,16 +582,16 @@ void DoTEFieldActivateEvent(PEDITFIELD theField, EventRecord *event)
 
 /* Call this in response to a nullEvent, or even every time through the event
  * loop (or dlog filter). It adjusts the cursor shape and causes the caret to blink.
- * Returns TRUE if mouse in field (we changed cursor); FALSE if not. It's the caller's
+ * Returns True if mouse in field (we changed cursor); False if not. It's the caller's
  * responsibility to set the cursor shape to something reasonable (e.g., arrow) when
- * this function returns FALSE.
+ * this function returns False.
  * NB: uses the QuickDraw global <arrow>.
  */
 Boolean DoTEFieldIdle(PEDITFIELD theField, EventRecord *event)
 {
-	Point			localWhere;
+	Point		localWhere;
 	CursHandle	iBeam;
-	Rect			tmpCtlRect;
+	Rect		tmpCtlRect;
 	
 	localWhere = event->where;
 	GlobalToLocal(&localWhere);
@@ -603,29 +603,29 @@ Boolean DoTEFieldIdle(PEDITFIELD theField, EventRecord *event)
  	
 	if (PtInRect(localWhere, &(**theField->teH).viewRect)) {
 		iBeam = GetCursor(iBeamCursor);
-		if (iBeam != NIL)
+		if (iBeam != NULL)
 			SetCursor(*iBeam);
 	}
 	else if (PtInRect(localWhere, &tmpCtlRect))
 		ArrowCursor();
 	else
-		return FALSE;						/* not in our edit field */
+		return False;						/* not in our edit field */
 	
-	return TRUE;							/* we changed cursor */
+	return True;							/* we changed cursor */
 }
 
 
-/* The program should call this or its equivalent when starting up
- * and when responding to a resume event.
- */
+/* The program should call this or its equivalent when starting up and when responding
+to a resume event.  */
+ 
 void ReadDeskScrap()
 {
 }
 
 
-/* The program should call this or its equivalent when quitting
- * and when responding to a suspend event.
- */
+/* The program should call this or its equivalent when quitting and when responding
+to a suspend event.  */
+
 void WriteDeskScrap()
 {
 }

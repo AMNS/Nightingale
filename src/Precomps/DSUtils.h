@@ -18,7 +18,7 @@ void UpdateSysNums(Document *, LINK);
 Boolean UpdateMeasNums(Document *, LINK);
 short GetMeasNum(Document *, LINK);
 
-Boolean PtInMeasure(Document *doc,Point pt,LINK sL);
+Boolean IsPtInMeasure(Document *doc, Point pt, LINK sL);
 
 DDIST PageRelxd(LINK pL, PCONTEXT pContext);
 DDIST PageRelyd(LINK pL, PCONTEXT pContext);
@@ -47,13 +47,15 @@ DDIST MeasWidth(LINK);
 DDIST MeasOccupiedWidth(Document *, LINK, long);
 DDIST MeasJustWidth(Document *, LINK, CONTEXT);
 Boolean SetMeasWidth(LINK, DDIST);
-Boolean MeasFillSystem(LINK);
+Boolean SetMeasFillSystem(LINK);
+void GetStaffGroupBounds(Document *, short, short *, short *);
 
 Boolean IsAfter(LINK, LINK);
 Boolean IsAfterIncl(LINK, LINK);
 Boolean BetweenIncl(LINK, LINK, LINK);
 Boolean WithinRange(LINK, LINK, LINK);
 Boolean IsOutside(LINK, LINK, LINK);
+Boolean	SamePage(LINK, LINK);
 Boolean SameSystem(LINK, LINK);
 Boolean SameMeasure(LINK, LINK);
 Boolean SyncsAreConsec(LINK, LINK, short, short);
@@ -73,8 +75,7 @@ LINK LastOnPrevSys(LINK);
 Boolean IsLastInSystem(LINK pL);
 LINK LastObjInSys(Document *, LINK);
 LINK GetNextSystem(Document *, LINK);
-Boolean	SamePage(LINK, LINK);
-Boolean LastSysInPage(LINK);
+Boolean IsLastSysInPage(LINK);
 LINK GetLastSysInPage(LINK);
 Boolean FirstSysInPage(LINK);
 Boolean FirstSysInScore(LINK sysL);
@@ -108,7 +109,7 @@ unsigned short SVCountGRNotes(short, short, LINK, LINK, Boolean);
 unsigned short CountNoteAttacks(Document *doc);
 unsigned short CountObjects(LINK, LINK, short);
 
-void CountInHeaps(Document *, unsigned short [], Boolean);
+void CountSubobjsByHeap(Document *, unsigned short [], Boolean);
 
 Boolean HasOtherStemSide(LINK, short);
 Boolean IsNoteLeftOfStem(LINK, LINK, Boolean);
@@ -119,9 +120,10 @@ void GetExtremeNotes(LINK syncL, short voice, LINK *pLowNoteL, LINK *pHiNoteL);
 void GetExtremeGRNotes(LINK syncL, short voice, LINK *pLowNoteL, LINK *pHiNoteL);
 LINK FindMainNote(LINK, short);
 LINK FindGRMainNote(LINK, short);
+LINK FindMainOrOnlyNote(LINK, short);
 
 void GetObjectLimits(short, short *, short *, Boolean *);
-Boolean InDataStruct(Document *doc, LINK, short);
+Boolean InObjectList(Document *doc, LINK, short);
 short GetSubObjStaff(LINK, short);
 short GetSubObjVoice(LINK, short);
 Boolean ObjOnStaff(LINK, short, Boolean);
@@ -158,18 +160,19 @@ Boolean BFTimeSigExists(LINK timeSigL);
 char *StaffPartName(Document *doc, short staff);
 void SetTempFlags(Document *, Document *, LINK, LINK, Boolean);
 void SetSpareFlags(LINK, LINK, Boolean);
-Boolean GetMultiVoice(LINK pL, short staff);
+Boolean IsSyncMultiVoice(LINK pL, short staff);
+Boolean IsNeighborhoodMultiVoice(LINK syncL, short staff, short voice);
 short GetSelectionStaff(Document *doc);
 void TweakSubRects(Rect *r, LINK aNoteL, CONTEXT *pContext);
-Boolean CompareScoreFormat(Document *doc1,Document *doc2,short pasteType);
-LINK GetaMeasL(LINK measL,short stf);
+Boolean CompareScoreFormat(Document *doc1, Document *doc2, short pasteType);
+LINK GetaMeasL(LINK measL, short stf);
 void DisposeMODNRs(LINK, LINK);
 
-LINK Staff2PartL(Document *doc,LINK headL,short stf);
+LINK Staff2PartL(Document *doc, LINK headL, short stf);
 short PartL2Partn(Document *doc, LINK partL);
 LINK Partn2PartL(Document *doc, short partn);
 
-LINK VHasTieAcross(LINK node,short voice);
+LINK VHasTieAcross(LINK node, short voice);
 Boolean HasSmthgAcross(Document *, LINK, char *);
 
 short LineSpace2Rastral(DDIST);

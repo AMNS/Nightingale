@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	SpaceTime.c
 *	PROJ:	Nightingale
 *	DESC:	Low- and medium-level space and time routines (welcome to the
@@ -23,14 +23,14 @@
 	GetVLDur				GetMeasDur					GetTimeSigMeasDur
 	GetStaffMeasDur			WholeMeasRestIsBreve
 
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -50,24 +50,24 @@ static void GetSpaceInfo(Document *, LINK, LINK, short, SPACETIMEINFO []);
 /* ------------------------------------------------------------ Fill various tables -- */
 
 /* Fill in doc's table of staff sizes. If any staff is not in its "standard" size,
-return TRUE, else return FALSE. */
+return True, else return False. */
 Boolean FillRelStaffSizes(Document *doc)
 {
-	LINK staffL, aStaffL; short stf; DDIST lnSpace; Boolean nonstandard=FALSE;
+	LINK staffL, aStaffL; short stf; DDIST lnSpace; Boolean nonstandard=False;
 	
 	staffL = SSearch(doc->headL, STAFFtype, GO_RIGHT);				/* Should never fail */
 	for (aStaffL = FirstSubLINK(staffL); aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 		lnSpace = StaffHEIGHT(aStaffL) / (StaffSTAFFLINES(aStaffL)-1);
 		stf = StaffSTAFF(aStaffL);
 		doc->staffSize[stf] = lnSpace*(STFLINES-1);
-		if (doc->staffSize[stf]!=drSize[doc->srastral]) nonstandard = TRUE;
+		if (doc->staffSize[stf]!=drSize[doc->srastral]) nonstandard = True;
 	}
 	
 	return nonstandard;
 }		
 
 
-/* -------------------------------------------------- SymWidthLeft, SymWidthRight -- */
+/* ------------------------------------------------------- SymWidthLeft, SymWidthRight -- */
 /* Return the horizontal space <pL> really occupies, i.e., the minimum required
 to avoid overwriting, for the given staff only or for all staves. SymWidthLeft
 returns width to left of symbol origin, SymWidthRight to right of symbol origin.
@@ -98,17 +98,17 @@ STDIST SymWidthLeft(
 			if (measNode>=0) LogPrintf(LOG_NOTICE, "(a) ignoreChord[1]=%d [2]=%d [3]=%d\n",
 					ignoreChord[measNode][1], ignoreChord[measNode][2], ignoreChord[measNode][3]);
 
-			noteToLeft = FALSE;
+			noteToLeft = False;
 			/* ??PROBLEM: We pass the staff no. to ChordNoteToLeft(), but it expects
 				voice no.! I tried to fix this, but the result waas a crash _every_
 				time Respacing was done. And giving it staff no. instead of voice no.
 				seems to work rather well! I dunno. */
 			if (anyStaff) {
 				for (s = 1; s<=doc->nstaves; s++)
-					if (!ChordNoteToLeft(pL, s)) { noteToLeft = TRUE; break; }
+					if (!ChordNoteToLeft(pL, s)) { noteToLeft = True; break; }
 			}
 			else
-				if (ChordNoteToLeft(pL, staff)) noteToLeft = TRUE;
+				if (ChordNoteToLeft(pL, staff)) noteToLeft = True;
 
 			maxxmoveAcc = -1;
 			aNoteL = FirstSubLINK(pL);
@@ -248,12 +248,12 @@ STDIST SymWidthRight(
 										context.staffLines);
 					if (doc->nonstdStfSizes) nwidth = STF_SCALE(nwidth, (anyStaff? 1 : staff));
 				}
-				/*
-				 * If the note/rest has any dots and we're considering stuff after the
-				 * notehead, the dots determine its width; otherwise, if it's stem
-				 * up and has flags, the flags determine its width. (Grace notes are
-				 * the same except that they can't have dots.)
-				 */
+				
+				/* If the note/rest has any dots and we're considering stuff after the
+				   notehead, the dots determine its width; otherwise, if it's stem
+				   up and has flags, the flags determine its width. (Grace notes are
+				   the same except that they can't have dots.) */
+				
 			  	else if (NoteNDOTS(aNoteL)==0 || toHead) {
 					aNote = GetPANOTE(aNoteL);
 					if (doNoteheadGraphs)
@@ -264,7 +264,9 @@ STDIST SymWidthRight(
 					&&  NFLAGS(aNote->subType)>0					/*   flag-needing duration, */  
 					&&  aNote->yd>aNote->ystem						/*   stem up, */
 					&&  !toHead)									/* and we're considering flags? */
+					
 					/* In line below, STD_LINEHT is too little, STD_LINEHT*4/3 too much. */
+					
 						nwidth += (STD_LINEHT*7)/6; 				/* Yes, allow space for flags */
 					if (doc->nonstdStfSizes) nwidth = STF_SCALE(nwidth, aNote->staffn);
 				}
@@ -284,22 +286,21 @@ STDIST SymWidthRight(
 	  		}
 	  	}
 
-		/*
-		 * If chord is upstemmed and has notes to the right of the stem, it extends
-		 * further to the right than it otherwise would. (The following adjustments
-		 * should really take into account STF_SCALE. Someday.)
-		 */
-		noteToRight = FALSE;
+		/* If chord is upstemmed and has notes to the right of the stem, it extends
+		   further to the right than it otherwise would. (FIXME: The adjustments
+		   below should really take into account STF_SCALE.) */
+		
+		noteToRight = False;
 		if (anyStaff) {
 			for (s = 1; s<=doc->nstaves; s++)
-				if (ChordNoteToRight(pL,s)) { noteToRight = TRUE; break; }
+				if (ChordNoteToRight(pL, s)) { noteToRight = True; break; }
 		}
 		else
-			if (ChordNoteToRight(pL,staff)) noteToRight = TRUE;
+			if (ChordNoteToRight(pL, staff)) noteToRight = True;
 		if (noteToRight) totWidth += STD_LINEHT;
 
 	  	return totWidth;
-
+		
 	 case GRSYNCtype:
 		totWidth = 0;
 		aGRNoteL = FirstSubLINK(pL);
@@ -322,13 +323,13 @@ STDIST SymWidthRight(
 		 * further to the right than it otherwise would. FIXME: ChordNoteToRight DOESN'T
 		 * KNOW ABOUT GRACE NOTES.
 		 */
-		noteToRight = FALSE;
+		noteToRight = False;
 		if (anyStaff) {
 			for (s = 1; s<=doc->nstaves; s++)
-				if (ChordNoteToRight(pL,s)) { noteToRight = TRUE; break; }
+				if (ChordNoteToRight(pL,s)) { noteToRight = True; break; }
 		}
 		else
-			if (ChordNoteToRight(pL,staff)) noteToRight = TRUE;
+			if (ChordNoteToRight(pL,staff)) noteToRight = True;
 		if (noteToRight) totWidth += STD_LINEHT;
 #endif
 
@@ -416,7 +417,7 @@ STDIST SymWidthRight(
 
 	 case TIMESIGtype:
 	 	nChars = 1;
-	 	wideChar = FALSE;
+	 	wideChar = False;
 		aTimeSigL = FirstSubLINK(pL);
 		for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL)) {
 			aTimeSig = GetPATIMESIG(aTimeSigL);
@@ -427,7 +428,7 @@ STDIST SymWidthRight(
 			 			if (aTimeSig->denominator>=10) nChars = 2;
 				}
 				else if (aTimeSig->subType==C_TIME || aTimeSig->subType==CUT_TIME)
-					wideChar = TRUE;
+					wideChar = True;
 			}
 		}
 		if (nChars==1 && wideChar) nwidth = 2*STD_LINEHT;
@@ -445,7 +446,7 @@ STDIST SymWidthRight(
 }
 
 
-/* ---------------------------------------------------------- SymLikelyWidthRight -- */
+/* --------------------------------------------------------------- SymLikelyWidthRight -- */
 /* SymLikelyWidthRight delivers a guess as to the space to right of symbol origin the
 given object needs. For most types of objects, it simply uses the graphic width; for
 Syncs, it uses the maximum of the Sync's ideal space (based on duration) and its graphic
@@ -462,7 +463,7 @@ STDIST SymLikelyWidthRight(
 	STDIST idealSp, width;
 	
 	pL = FirstValidxd(pL, GO_LEFT);
-	width = SymWidthRight(doc, pL, ANYONE, TRUE);
+	width = SymWidthRight(doc, pL, ANYONE, True);
 	
 	switch (ObjLType(pL)) {
 		case SYNCtype:
@@ -480,7 +481,7 @@ STDIST SymLikelyWidthRight(
 }
 
 
-/* ----------------------------------------------- SymDWidthLeft, SymDWidthRight -- */
+/* ----------------------------------------------------- SymDWidthLeft, SymDWidthRight -- */
 /* Returns DDIST symWidthRight, symWidthLeft. */
 
 DDIST SymDWidthLeft(Document *doc, LINK pL, short staff, CONTEXT context)
@@ -497,7 +498,7 @@ DDIST SymDWidthRight(Document *doc, LINK pL, short staff, Boolean toHead, CONTEX
 }
 
 
-/* --------------------------------------------------------------- ConnectDWidth -- */
+/* --------------------------------------------------------------------- ConnectDWidth -- */
 
 DDIST ConnectDWidth(short srastral, char connectType)
 {
@@ -520,7 +521,7 @@ DDIST ConnectDWidth(short srastral, char connectType)
 }
 
 
-/* -------------------------------------------------------- GetClefSpace,GetTSWidth -- */
+/* ----------------------------------------------------------- GetClefSpace,GetTSWidth -- */
 /* Special-purpose functions used by routines to insert and delete before the 1st bar.
 FIXME: Accuracy of both is dependent on screen resolution; GetClefSpace's accuracy
 further depends on staff size--yeech! But it should be easy to fix these problems. */
@@ -594,7 +595,7 @@ DDIST GetTSWidth(LINK timeSigL)
 }
 
 
-/* ------------------------------------------------------ Get Keysig Width Functions -- */
+/* -------------------------------------------------------- Get Keysig Width Functions -- */
 /* ??Cf. KSDWidth and GetKeySigWidth to GetKSWidth and SymWidthRight: these functions
 should too. But much better, there should be only one way to get keysig width for a
 subobj and only one for an object, and it should use STD_ACCWIDTH and STD_KS_ACCSPACE. */
@@ -658,7 +659,7 @@ DDIST GetKeySigWidth(
 }
 
 
-/* ------------------------------------------------------ FillSpaceMap and helper -- */
+/* ----------------------------------------------------------- FillSpaceMap and helper -- */
 /* This routine installs the whichTable'th spacing table. If whichTable is positive,
 we use it as the resource ID of a 'SPTB' resource containing the spacings coded
 as longs each containing 100 times the desired value.  If If whichTable is 0 or we
@@ -678,29 +679,38 @@ static void SpaceMapErr()
 FASTFLOAT dfltSpaceMap[MAX_L_DUR] =
 	{.625, 1.0, 1.625, 2.50,  3.75,  5.50,  8.00,  11.5,  16.25 };	/* new Fib/sqrt(2) */
 
-void FillSpaceMap(Document *doc, short	whichTable)
+void FillSpaceMap(Document *doc, short whichTable)
 {
-	short i, saveResFile; Boolean useDefault=TRUE; Handle rsrc;
+	short i, saveResFile; Boolean useDefault=True; Handle spRsrc;
 	
 	saveResFile = CurResFile();
 	UseResFile(setupFileRefNum);
-	{
-		doc->spaceTable = whichTable;
-		if (whichTable > 0) {
-			rsrc = GetResource('SPTB', whichTable);
-			if (!GoodResource(rsrc))	SpaceMapErr();
-			else						useDefault = FALSE;
+
+	doc->spaceTable = whichTable;
+	if (whichTable > 0) {
+		spRsrc = GetResource('SPTB', whichTable);
+		if (!GoodResource(spRsrc)) SpaceMapErr();
+		else {
+#ifdef NOTYET
+			EndianFixSpaceMap(doc ??NO, FIX spRsrc!!);
+#endif
+			useDefault = False;
 		}
 	}
 
-	for (i=0; i<MAX_L_DUR; i++) 
+	for (i=0; i<MAX_L_DUR; i++)
 		doc->spaceMap[i] = STD_LINEHT * (useDefault ? dfltSpaceMap[i] :
-											((long *)(*rsrc))[i] / 100.0);
-		UseResFile(saveResFile);
+											((long *)(*spRsrc))[i] / 100.0);
+	if (DETAIL_SHOW) {
+		LogPrintf(LOG_INFO, "spaceMap");
+		for (i=0; i<MAX_L_DUR; i++) LogPrintf(LOG_DEBUG, "[%d]=%ld ", i, doc->spaceMap[i]);
+		LogPrintf(LOG_INFO, "  (FillSpaceMap)\n");		
+	}
+	UseResFile(saveResFile);
 }
 
 
-/* ------------------------------------------------------ FIdealSpace,IdealSpace -- */
+/* ----------------------------------------------------------- FIdealSpace, IdealSpace -- */
 
 /* Return fine "ideal" horizontal space for the given duration and spacing. */
 
@@ -753,7 +763,7 @@ STDIST IdealSpace(
 }
 
 
-/* ------------------------------------------------------------- CalcSpaceNeeded -- */
+/* ------------------------------------------------------------------- CalcSpaceNeeded -- */
 /* Calculate the amount of space needed by the last object on the page before pL.
 ??Should probably call SymLikelyWidthRight instead of doing most of the work
 itself. */
@@ -771,7 +781,7 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 		MayErrMsg("CalcSpaceNeeded: link %ld is of the wrong type %ld",
 					(long)pL, (long)ObjLType(pL));
 
-	beforeL = FirstValidxd(LeftLINK(pL),TRUE);
+	beforeL = FirstValidxd(LeftLINK(pL),True);
 	switch(ObjLType(beforeL)) {
 		case SYNCtype:
 				maxLen = space = 0L;
@@ -784,11 +794,11 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 					}
 				}
 				space = IdealSpace(doc, maxLen, RESFACTOR*doc->spacePercent);
-				symWidth = SymWidthRight(doc, beforeL, noteStaff, FALSE);
+				symWidth = SymWidthRight(doc, beforeL, noteStaff, False);
 				GetContext(doc, beforeL, noteStaff, &context);
 				return (LinkXD(beforeL) + ((space >= symWidth) ? 
-										std2d(space,context.staffHeight,context.staffLines) :
-				 						std2d(symWidth,context.staffHeight,context.staffLines)));
+										std2d(space, context.staffHeight, context.staffLines) :
+				 						std2d(symWidth, context.staffHeight, context.staffLines)));
 		case RPTENDtype:
 		case MEASUREtype:
 		case CLEFtype:
@@ -797,7 +807,7 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 		case GRSYNCtype:
 		case SPACERtype:
 		case PSMEAStype:
-			return (SymWidthRight(doc, beforeL, ANYONE, FALSE));
+			return (SymWidthRight(doc, beforeL, ANYONE, False));
 		default:
 			if (TYPE_BAD(beforeL))
 				MayErrMsg("CalcSpaceNeeded: object at %ld has illegal type %ld",
@@ -807,14 +817,14 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 }
 
 
-/* ------------------------------------------ MeasSpaceProp, SetMeasSpacePercent -- */
+/* ------------------------------------------------ MeasSpaceProp, SetMeasSpacePercent -- */
 
 short MeasSpaceProp(LINK pL)
 {
 	LINK measL;
 	PMEASURE pMeas;
 	
-	measL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	measL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, False);
 	pMeas = GetPMEASURE(measL);
 	return RESFACTOR*pMeas->spacePercent;
 }
@@ -829,10 +839,10 @@ void SetMeasSpacePercent(LINK measL, long spaceProp)
 }
 
 
-/* -------------------------------------------------------------- GetMSpaceRange -- */
+/* -------------------------------------------------------------------- GetMSpaceRange -- */
 /* Return the range of Measure spacePercents for Measures in the given range
 of the given score. If an error is found, including no Measures in the range,
-return FALSE, else return TRUE. */
+return False, else return True. */
 
 Boolean GetMSpaceRange(Document *doc, LINK startL, LINK endL, short *pSpMin,
 								short *pSpMax)
@@ -846,14 +856,14 @@ Boolean GetMSpaceRange(Document *doc, LINK startL, LINK endL, short *pSpMin,
   *	nothing we can do, so arbitrarily say 100%.
   */
  		startBarL = LSSearch(LeftLINK(startL), MEASUREtype, ANYONE, GO_LEFT,
- 								FALSE);
+ 								False);
 	if (!startBarL) {
-		startBarL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		startBarL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 		if (endL==startBarL || IsAfter(endL, startBarL))
-			{ *pSpMin = *pSpMax = 100; return FALSE; }
+			{ *pSpMin = *pSpMax = 100; return False; }
 	}
 	endBarL = EndMeasSearch(doc, LeftLINK(endL));
-	lastBarL = LSSearch(LeftLINK(endBarL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	lastBarL = LSSearch(LeftLINK(endBarL), MEASUREtype, ANYONE, GO_LEFT, False);
 
 	*pSpMin = 9999;
 	*pSpMax = 1;
@@ -863,16 +873,16 @@ Boolean GetMSpaceRange(Document *doc, LINK startL, LINK endL, short *pSpMin,
 		*pSpMax = n_max(*pSpMax, pMeas->spacePercent);
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
-/* -------------------------------------------------------------------- LDur2Code -- */
+/* ------------------------------------------------------------------------- LDur2Code -- */
 /* Convert logical duration <lDur> in PDUR ticks to a more-or-less equivalent note
 l_dur code and number of augmentation dots, with an error of no more than <errMax>
 playDur units. The error is always positive, i.e., we may return a duration that's
-shorter than desired but never longer. If we can do this, return TRUE. If there is
-no such equivalent, return FALSE. */
+shorter than desired but never longer. If we can do this, return True. If there is
+no such equivalent, return False. */
 
 Boolean LDur2Code(short lDur, short errMax, short maxDots, char *pNewDur, char *pNewDots)
 {
@@ -885,7 +895,7 @@ Boolean LDur2Code(short lDur, short errMax, short maxDots, char *pNewDur, char *
 			 */
 			*pNewDur = i;
 			*pNewDots = 0;
-			return TRUE;
+			return True;
 		}
 		else if (l2p_durs[i]>lDur) {
 			/*
@@ -893,7 +903,7 @@ Boolean LDur2Code(short lDur, short errMax, short maxDots, char *pNewDur, char *
 			 *	See if adding dots can match <lDur> closely enough.
 			 */
 			*pNewDur = i+1;
-			if (i==MAX_L_DUR) return FALSE;				/* No, dur. shorter than shortest possible */
+			if (i==MAX_L_DUR) return False;				/* No, dur. shorter than shortest possible */
 			remainder = lDur-l2p_durs[i+1];
 			
 			*pNewDots = 0;
@@ -903,19 +913,19 @@ Boolean LDur2Code(short lDur, short errMax, short maxDots, char *pNewDur, char *
 					remainder -= l2p_durs[j];
 				}
 				else
-					return FALSE;								/* Can't match closely enough */
-				if (remainder<=errMax) return TRUE;
+					return False;								/* Can't match closely enough */
+				if (remainder<=errMax) return True;
 			}
-			return FALSE;										/* Can't match closely enough */
+			return False;										/* Can't match closely enough */
 		}
 	}
 	
 	/* The duration is longer than the longest possible single note/rest. */
-	return FALSE;
+	return False;
 }
 
 
-/* -------------------------------------------------------------------- Code2LDur -- */
+/* ------------------------------------------------------------------------- Code2LDur -- */
 /* Convert note l_dur code and number of augmentation dots to logical duration in
 PDUR ticks. */
 
@@ -931,7 +941,7 @@ long Code2LDur(char durCode, char nDots)
 }
 
 
-/* ------------------------------------------------------------------- SimpleLDur -- */
+/* ------------------------------------------------------------------------ SimpleLDur -- */
 /* Compute the "simple" logical duration of a note/rest in PDUR ticks, ignoring
 tuplet membership and whole-measure rests. */
 
@@ -950,7 +960,7 @@ long SimpleLDur(LINK aNoteL)
 }
 		
 
-/* ---------------------------------------------------------------- SimpleGRLDur -- */
+/* ---------------------------------------------------------------------- SimpleGRLDur -- */
 /* Compute the "simple" logical duration of a grace note. */
 
 long SimpleGRLDur(LINK aGRNoteL)
@@ -968,7 +978,7 @@ long SimpleGRLDur(LINK aGRNoteL)
 }
 		
 
-/* ------------------------------------------------------------------- GetMinDur -- */
+/* ------------------------------------------------------------------------- GetMinDur -- */
 /* Get the minimum SimpleLDur of any note/chord in the given range in the given
 voice. Intended to get a value to initialize the Fancy Tuplet dialog with. */
 
@@ -992,7 +1002,7 @@ short GetMinDur(short voice, LINK voiceStartL, LINK voiceEndL)
 }
 
 
-/* ---------------------------------------------------------------- TupletTotDir -- */
+/* ---------------------------------------------------------------------- TupletTotDir -- */
 /* Get the total SimpleLDur of the given tuplet. */
 
 short TupletTotDir(LINK tupL)
@@ -1003,7 +1013,7 @@ short TupletTotDir(LINK tupL)
 	voice = pTuplet->voice;
 	for (totalDur = 0, pL = FirstInTuplet(tupL); pL; pL = RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
-			aNoteL = NoteInVoice(pL, voice, FALSE);
+			aNoteL = NoteInVoice(pL, voice, False);
 			if (aNoteL!=NILINK) totalDur += SimpleLDur(aNoteL);
 		}
 		if (pL==LastInTuplet(tupL)) break;
@@ -1012,7 +1022,7 @@ short TupletTotDir(LINK tupL)
 }
 
 
-/* ----------------------------------------------------- GetDurUnit,GetMaxDurUnit -- */
+/* ---------------------------------------------------------- GetDurUnit,GetMaxDurUnit -- */
 /* Functions to infer the duration units of tuplets. It would be better simply to
 store tuplets' duration units, making it unnecessary to infer the unit. However,
 these procedures should be reliable and pretty fast.
@@ -1056,7 +1066,7 @@ short GetMaxDurUnit(LINK tupletL)
 	LINK aNoteTupleL, aNoteL; PANOTETUPLE aNoteTuple; Boolean firstNote;
 	short durUnit;
 	
-	firstNote = TRUE;
+	firstNote = True;
 	
 	/* Get GCD of simple logical durations of notes */
 	aNoteTupleL = FirstSubLINK(tupletL);
@@ -1066,7 +1076,7 @@ short GetMaxDurUnit(LINK tupletL)
 		if (NoteType(aNoteL)<=UNKNOWN_L_DUR) return 0;
 		if (firstNote) {
 			durUnit = SimpleLDur(aNoteL);
-			firstNote = FALSE;
+			firstNote = False;
 		}
 		else
 			durUnit = GCD(durUnit, (short)SimpleLDur(aNoteL));
@@ -1076,7 +1086,7 @@ short GetMaxDurUnit(LINK tupletL)
 }
 
 
-/* ------------------------------------------------------------------- TimeSigDur -- */
+/* ------------------------------------------------------------------------ TimeSigDur -- */
 /* Return the nominal duration of a measure with the given time signature. */
 
 long TimeSigDur(short /*timeSigType*/,		/* ignored */
@@ -1087,7 +1097,7 @@ long TimeSigDur(short /*timeSigType*/,		/* ignored */
 }
 
 
-/* ----------------------------------------------------------------- CalcNoteLDur -- */
+/* ---------------------------------------------------------------------- CalcNoteLDur -- */
 /* Compute the logical duration in PDUR ticks of a note/rest. For whole-measure rests,
 return one measure's duration according to the time signature; for multibar rests,
 multiply by the number of measures. If the note/rest's tuplet flag is set but the
@@ -1119,7 +1129,7 @@ long CalcNoteLDur(Document *doc, LINK aNoteL, LINK syncL)
 			noteDur = SimpleLDur(aNoteL);
 		
 		if (NoteINTUPLET(aNoteL)) {
-			tupletL = LVSearch(syncL, TUPLETtype, NoteVOICE(aNoteL), TRUE, FALSE);
+			tupletL = LVSearch(syncL, TUPLETtype, NoteVOICE(aNoteL), True, False);
 			if (tupletL==NILINK) return -1;						/* Error, missing tuplet */
 			pTuplet = GetPTUPLET(tupletL);
 			tempDur = noteDur*pTuplet->accDenom;
@@ -1130,7 +1140,7 @@ long CalcNoteLDur(Document *doc, LINK aNoteL, LINK syncL)
 }
 
 
-/* -------------------------------------------------------------------SyncMaxDur -- */
+/* -------------------------------------------------------------------------SyncMaxDur -- */
 /*	Compute the maximum logical duration in PDUR ticks of all notes/rests in the
 given Sync. */
 
@@ -1147,7 +1157,7 @@ long SyncMaxDur(Document *doc, LINK syncL)
 }
 
 
-/* ------------------------------------------------------------ SyncNeighborTime -- */
+/* ------------------------------------------------------------------ SyncNeighborTime -- */
 /* Look for specified object's closest Sync in the given direction within the same
 Measure and get that Sync's logical time since previous Measure.  If there is no
 Sync in the given direction within this Measure, return -1. */
@@ -1173,7 +1183,7 @@ long SyncNeighborTime(Document */*doc*/, LINK target, Boolean goLeft)
 }
 
 
-/* -------------------------------------------------------------------- GetLTime -- */
+/* -------------------------------------------------------------------------- GetLTime -- */
 /*	Get "logical time" in PDUR ticks since previous Measure:
 	If there's no previous Measure, give an error and return -1.
 	If the argument is itself a Measure, return 0.
@@ -1199,13 +1209,13 @@ long GetLTime(Document *doc, LINK target)
 	if (ObjLType(target)==MEASUREtype)
 		goto normalReturn;
 
-	startL = LSSearch(target, MEASUREtype, ANYONE, GO_LEFT, FALSE); /* Find previous barline */
+	startL = LSSearch(target, MEASUREtype, ANYONE, GO_LEFT, False); /* Find previous barline */
 	if (!startL) {
 		MayErrMsg("GetLTime: no Measure before %ld", (long)target);
 		goto errorReturn;
 	}
 
-	last = GetSpTimeInfo(doc, RightLINK(startL), target, spTimeInfo, FALSE);
+	last = GetSpTimeInfo(doc, RightLINK(startL), target, spTimeInfo, False);
 	if (last>=0) {
 		startTime = spTimeInfo[last].startTime;
 		DisposePtr((Ptr)spTimeInfo);
@@ -1223,7 +1233,7 @@ errorReturn:
 }
 
 
-/* ---------------------------------------------------------------- GetSpaceInfo -- */
+/* ---------------------------------------------------------------------- GetSpaceInfo -- */
 /*	Get information on Syncs needed for Gourlay's spacing algorithm: the controlling
 duration and fraction of that duration that affects spacing. Also fill in suitable
 values for non-Syncs in the spine. */
@@ -1307,7 +1317,7 @@ static void GetSpaceInfo(
 }
 
 
-/* ---------------------------------------------------------------- FixStaffTime -- */
+/* ---------------------------------------------------------------------- FixStaffTime -- */
 /* Set times for the given staff based on voices that most recently appeared on
 that staff. Intended to be called for objects (clefs, key signatures, time
 signatures) that are themselves attached to a staff but are affected by timings
@@ -1328,7 +1338,7 @@ static void FixStaffTime(
 }
 
 
-/* --------------------------------------------------------------- FixVoiceTimes -- */
+/* --------------------------------------------------------------------- FixVoiceTimes -- */
 /* Set times for all voices that most recently appeared on the given staff to
 at least <timeHere>. Intended to be called for objects (clefs, key signatures,
 time signatures) that are themselves attached to a staff but affect timings of
@@ -1367,14 +1377,14 @@ static void FixVoiceTimes(
 				moved along by some other voice? */
 
 			if (NoteINTUPLET(aNoteL) {
-				tupletL = LVSearch(pL,TUPLETtype,NoteVOICE(aNoteL),FALSE,FALSE);
+				tupletL = LVSearch(pL,TUPLETtype,NoteVOICE(aNoteL),False,False);
 				if (pL==LastInTuplet(tupletL)) {
-					syncForTuplet[NoteVOICE(aNoteL)] = TRUE;
+					syncForTuplet[NoteVOICE(aNoteL)] = True;
 				}
 			}
 			else {
 				if (syncForTuplet[NoteVOICE(aNoteL)]) {
-					tupletL = LVSearch(pL,TUPLETtype,NoteVOICE(aNoteL),FALSE,FALSE);
+					tupletL = LVSearch(pL,TUPLETtype,NoteVOICE(aNoteL),False,False);
 					firstL = FirstInTuplet(tupletL);
 					
 					tEndTime = ??? time of firstL + total time of tuplet ???;
@@ -1382,22 +1392,22 @@ static void FixVoiceTimes(
 					if (vLTimes[NoteVOICE(aNoteL)) < tEndTime
 						vLTimes[NoteVOICE(aNote) = tEndTime;
 					
-					syncForTuplet[NoteVOICE(aNoteL)] = FALSE;
+					syncForTuplet[NoteVOICE(aNoteL)] = False;
 				}
 			}
 #endif
 
 
-/* ----------------------------------------------------------------- GetSpTimeInfo -- */
-/* Creates the rhythmic spine, i.e., the set of MEvent logical times integrated
-across all voices for symbols of either independent justification type, for one
-measure or less. It then uses the spine to fill in various information in
-<spaceTimeInfo>: always, in startTime, logical times; in justType, justification
-types; in link, object pointers; and in isSync, whether the object is a Sync. If
-<getSpacing>, the dur and frac fields are also filled in. The function value returned
-is the index of the last entry in the list, NOT the number of entries in the list!
-For example, if it returns 4, startTime[0--4] and justType[0--4] are meaningful.
-If the spine is empty, it returns -1.
+/* --------------------------------------------------------------------- GetSpTimeInfo -- */
+/* Creates the rhythmic spine, i.e., the set of MEvent logical times integrated across
+all voices for symbols of either independent justification type, for one measure or
+less. It then uses the spine to fill in various information in <spaceTimeInfo>:
+always, in startTime, logical times; in justType, justification types; in link, object
+pointers; and in isSync, whether the object is a Sync. If <getSpacing>, the dur and
+frac fields are also filled in. The function value returned is the index of the last
+entry in the list, NOT the number of entries in the list! For example, if it returns
+4, startTime[0--4] and justType[0--4] are meaningful. If the spine is empty, it
+returns -1.
 
 One reason this is tricky is some symbols (notes, rests, grace notes) are in voices,
 others (clefs, key sigs., etc.) are on staves, but their interactions affect timing.
@@ -1408,14 +1418,14 @@ short GetSpTimeInfo(
 			LINK			barFirst,			/* First obj within measure, i.e., after barline */
 			LINK			barLast,			/* Last obj to consider (usually the next MEASURE obj.) */				
 			SPACETIMEINFO	spaceTimeInfo[],
-			Boolean			getSpacing 			/* TRUE=return spacing info as well as time info */
+			Boolean			getSpacing 			/* True=return spacing info as well as time info */
 			)
 {
 	register long	timeHere;
 	long		stLTimes[MAXSTAVES+1],			/* Logical times for staves */
 				vLTimes[MAXVOICES+1];			/* Logical times for voices */
 	short		vStaves[MAXVOICES+1];			/* Staff each voice is currently on */
-	short		last, i;
+	short		last, s, v;
 	PANOTE		aNote;
 	PAGRNOTE	aGRNote;
 	register LINK	pL, aNoteL, aGRNoteL;
@@ -1424,11 +1434,11 @@ short GetSpTimeInfo(
 	Boolean		voiceInSync[MAXVOICES+1];
 	long		noteDur, minDur;
 	
-	for (i = 0; i<=doc->nstaves; i++)
-		stLTimes[i] = 0L;
-	for (i = 0; i<=MAXVOICES; i++) {
-		vLTimes[i] = 0L;
-		vStaves[i] = 0;
+	for (s = 0; s<=doc->nstaves; s++)
+		stLTimes[s] = 0L;
+	for (v = 0; v<=MAXVOICES; v++) {
+		vLTimes[v] = 0L;
+		vStaves[v] = 0;
 	}
 
 	last = -1;
@@ -1437,11 +1447,10 @@ short GetSpTimeInfo(
 		timeHere = 0L;
 		jType = objTable[ObjLType(pL)].justType;
 
-		switch (ObjLType(pL))
-		{
+		switch (ObjLType(pL)) {
 			case SYNCtype:
-				for (i = 0; i<=MAXVOICES; i++)
-					voiceInSync[i] = FALSE;
+				for (v = 0; v<=MAXVOICES; v++)
+					voiceInSync[v] = False;
 					
 				/* Set the start time for this Sync to the current time for the voice or
 				   staff that's furthest along of all participating. Then synchronize all
@@ -1459,8 +1468,7 @@ short GetSpTimeInfo(
 					noteDur = CalcNoteLDur(doc, aNoteL, pL);
 					aNote = GetPANOTE(aNoteL);
 					vLTimes[aNote->voice] = timeHere+noteDur;
-//LogPrintf(LOG_DEBUG, "GetSpTimeInfo0: voice=%d pL=%u timeHere=%ld noteDur=%ld\n", aNote->voice, pL, timeHere, noteDur);
-					voiceInSync[aNote->voice] = TRUE;
+					voiceInSync[aNote->voice] = True;
 					vStaves[aNote->voice] = aNote->staffn;
 					if (noteDur<minDur) minDur = noteDur;
 				}
@@ -1475,10 +1483,10 @@ short GetSpTimeInfo(
 				   it can give bad results in cases where consecutive Syncs have no voices
 				   in common but we could still trace both back to the beginning of the
 				   Measure. */
-				for (i = 0; i<=MAXVOICES; i++)							/* Make non-participating */
-					if (!voiceInSync[i])								/*   voices catch up */
-						if (vLTimes[i]<=timeHere)
-							vLTimes[i] = timeHere+minDur;
+				for (v = 0; v<=MAXVOICES; v++)							/* Make non-participating */
+					if (!voiceInSync[v])								/*   voices catch up */
+						if (vLTimes[v]<=timeHere)
+							vLTimes[v] = timeHere+minDur;
 				break;
 				
 			case GRSYNCtype:
@@ -1507,10 +1515,10 @@ short GetSpTimeInfo(
 			case PSMEAStype:
 			case RPTENDtype:
 				/* Synchronize everything to high-water mark of either staves or voices. */
-				for (i = 1; i<=doc->nstaves; i++)
-					timeHere = n_max(timeHere, stLTimes[i]);
-				for (i = 0; i<=MAXVOICES; i++)
-					timeHere = n_max(timeHere, vLTimes[i]);
+				for (s = 1; s<=doc->nstaves; s++)
+					timeHere = n_max(timeHere, stLTimes[s]);
+				for (v = 0; v<=MAXVOICES; v++)
+					timeHere = n_max(timeHere, vLTimes[v]);
 				break;
 				
 			case CLEFtype:
@@ -1593,10 +1601,10 @@ short GetSpTimeInfo(
 }
 
 
-/* ------------------------------------------------------------- RhythmUnderstood -- */
+/* ------------------------------------------------------------------ RhythmUnderstood -- */
 /* Decide if Nightingale "understands" rhythm in the given measure.
 
-If <strict>, return TRUE iff there are no unknown-duration notes in the measure.
+If <strict>, return True iff there are no unknown-duration notes in the measure.
 (This is really not very strict: for example, we might also insist:
 	- All time signatures denote the same total time
 	- No time signature appears after the first Sync
@@ -1604,7 +1612,7 @@ If <strict>, return TRUE iff there are no unknown-duration notes in the measure.
 	- Every Sync after the 1st has a common voice with the preceding Sync
 Cf. DCheckMeasDur.)
 
-If <!strict>, return TRUE if there are no unknown-duration notes OR there's at least
+If <!strict>, return True if there are no unknown-duration notes OR there's at least
 one known-duration note in the measure. */
 
 Boolean RhythmUnderstood(Document *doc, LINK measL, Boolean strict)
@@ -1618,7 +1626,7 @@ Boolean RhythmUnderstood(Document *doc, LINK measL, Boolean strict)
 		aNoteL = FirstSubLINK(pL);
 		for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
 			if (NoteType(aNoteL)==UNKNOWN_L_DUR) {
-				if (strict)	return FALSE;
+				if (strict)	return False;
 				else		nUnknown++;
 			}
 			else
@@ -1630,7 +1638,7 @@ Boolean RhythmUnderstood(Document *doc, LINK measL, Boolean strict)
 }
 
 
-/* ----------------------------------------------------------- FixMeasTimeStamps -- */
+/* ----------------------------------------------------------------- FixMeasTimeStamps -- */
 /* Recompute timeStamps for Syncs in the given Measure. Does not adjust the
 lTimeStamps of following Measures, but returns the Measure's change in duration
 to facilitate its caller doing so.
@@ -1650,24 +1658,22 @@ static long FixMeasTimeStamps(
 	PAMEASURE aMeasure;
 	short i, last;
 	long endMeasTime, oldMeasDur, timeChange;
-	Boolean measTooLong=FALSE;
+	Boolean measTooLong=False;
 	char fmtStr[256];
 	
 #if 1
 	/* ??Experimental partial solution */
-	if (!CapsLockKeyDown() && !RhythmUnderstood(doc, measL, FALSE)) return 0L;
+	if (!CapsLockKeyDown() && !RhythmUnderstood(doc, measL, False)) return 0L;
 #endif
 
 	endMeasL = EndMeasSearch(doc, measL);
-	last = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, FALSE);
-//for (int k=0; k<=last; k++)
-//LogPrintf(LOG_DEBUG, "FixTimeStamps: spTimeInfo[%d].startTime=%ld\n", k, spTimeInfo[k].startTime);
+	last = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, False);
 	if (last>=0) {
 		for (i = 0; i<last; i++)
 			if (spTimeInfo[i].isSync) {
 				if (spTimeInfo[i].startTime>MAX_SAFE_MEASDUR) {
 					spTimeInfo[i].startTime = 65535L;
-					measTooLong = TRUE;
+					measTooLong = True;
 				}
 				pL = spTimeInfo[i].link;
 				SyncTIME(pL) = spTimeInfo[i].startTime;
@@ -1683,7 +1689,7 @@ static long FixMeasTimeStamps(
 		GetIndCString(fmtStr, MISCERRS_STRS, 4);		/* "Meas. has note(s) > 65500 ticks" */
 		sprintf(strBuf, fmtStr, aMeasure->measureNum+doc->firstMNNumber);
 		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_NOTICE, strBuf);
+		LogPrintf(LOG_WARNING, strBuf);
 		NoteInform(GENERIC_ALRT);
 	}
 
@@ -1695,7 +1701,7 @@ static long FixMeasTimeStamps(
 }
 
 
-/* --------------------------------------------------------------- FixTimeStamps -- */
+/* --------------------------------------------------------------------- FixTimeStamps -- */
 /* Recompute timeStamps for Syncs in the range of Measures [startL,endL] and
 adjust lTimeStamps of all following Measures accordingly. If startL is before the
 first Measure of the score, first set its lTimeStamp to 0. Note that if startL is
@@ -1709,10 +1715,10 @@ Boolean FixTimeStamps(
 {
 	SPACETIMEINFO *spTimeInfo;
 	LINK measL, endMeasL=NILINK;
-	long timeChange; Boolean okay=TRUE;
+	long timeChange; Boolean okay=True;
 	
 	spTimeInfo = AllocSpTimeInfo();
-	if (!spTimeInfo) return FALSE;
+	if (!spTimeInfo) return False;
 	
 	/*
 	 *	Start at the beginning of the Measure startL is in; if there is no such Measure,
@@ -1727,7 +1733,7 @@ Boolean FixTimeStamps(
 
 	if (endL) endMeasL = SSearch(RightLINK(endL), MEASUREtype, GO_RIGHT);
 	if (endMeasL && !IsAfter(measL, endMeasL))
-		{ okay = FALSE; goto done; }
+		{ okay = False; goto done; }
 
 	for ( ; measL && measL!=endMeasL; measL=LinkRMEAS(measL)) {
 		timeChange = FixMeasTimeStamps(doc, measL, spTimeInfo);
@@ -1740,7 +1746,7 @@ done:
 }
 
 
-/* --------------------------------------------------------------------- GetLDur -- */
+/* --------------------------------------------------------------------------- GetLDur -- */
 /* Get logical duration of an object for the given staff or for all staves. */
 				
 long GetLDur(
@@ -1768,7 +1774,7 @@ long GetLDur(
 }
 
 
-/* -------------------------------------------------------------------- GetVLDur -- */
+/* -------------------------------------------------------------------------- GetVLDur -- */
 /* Get logical duration of an object for the given voice or for all voices. */
 				
 long GetVLDur(
@@ -1797,7 +1803,7 @@ long GetVLDur(
 }
 
 
-/* ------------------------------------------------------------------- GetMeasDur -- */
+/* ------------------------------------------------------------------------ GetMeasDur -- */
 /* Get the actual -- based on notes and rests, not time signature -- logical duration
 of the Measure preceding the given Measure object, either for a single staff or across
 all staves. If something goes wrong, return -1L. */
@@ -1811,7 +1817,7 @@ long GetMeasDur(Document *doc,
 	short			last;
 	SPACETIMEINFO	*spTimeInfo=NULL;
 
-	startL = LSSearch(LeftLINK(endMeasL), MEASUREtype, ANYONE, GO_LEFT, FALSE); /* Find previous barline */
+	startL = LSSearch(LeftLINK(endMeasL), MEASUREtype, ANYONE, GO_LEFT, False); /* Find previous barline */
 	if (!startL) {
 		MayErrMsg("GetMeasDur: no Measure before %ld", (long)endMeasL);
 		return -1L;
@@ -1819,7 +1825,7 @@ long GetMeasDur(Document *doc,
 	
 	if (staffn!=ANYONE) {
 		/* Consider one staff only. */
-		syncL = LSSearch(LeftLINK(endMeasL), SYNCtype, staffn, GO_LEFT, FALSE);
+		syncL = LSSearch(LeftLINK(endMeasL), SYNCtype, staffn, GO_LEFT, False);
 		if (!syncL) return 0L;
 		maxDur = 0L;
 		aNoteL = FirstSubLINK(syncL);
@@ -1827,14 +1833,13 @@ long GetMeasDur(Document *doc,
 			if (NoteSTAFFN(aNoteL)==staffn)
 			maxDur = max(maxDur, CalcNoteLDur(doc, aNoteL, syncL));
 		}
-		//LogPrintf(LOG_DEBUG, "GetMeasDur: endMeasL=%d SyncTIME(syncL)=%d maxDur=%ld\n", endMeasL, SyncTIME(syncL), maxDur);
 		return SyncTIME(syncL)+maxDur;
 	}
 	
 	/* From this point on, consider all staves. */
-	if (!RhythmUnderstood(doc, startL, TRUE)) {
+	if (!RhythmUnderstood(doc, startL, True)) {
 		/* It's doubtful this function can do a good job in this case, but we'll try. */
-		syncL = LSSearch(LeftLINK(endMeasL), SYNCtype, ANYONE, GO_LEFT, FALSE);
+		syncL = LSSearch(LeftLINK(endMeasL), SYNCtype, ANYONE, GO_LEFT, False);
 		if (!syncL) return 0L;
 		return SyncTIME(syncL)+NotePLAYDUR(FirstSubLINK(syncL));
 	}
@@ -1845,7 +1850,7 @@ long GetMeasDur(Document *doc,
 		return -1L;
 	}
 
-	last = GetSpTimeInfo(doc, RightLINK(startL), endMeasL, spTimeInfo, FALSE);
+	last = GetSpTimeInfo(doc, RightLINK(startL), endMeasL, spTimeInfo, False);
 	if (last>=0) {
 		startTime = spTimeInfo[last].startTime;
 		DisposePtr((Ptr)spTimeInfo);
@@ -1857,12 +1862,12 @@ long GetMeasDur(Document *doc,
 }
 
 
-/* -------------------------------------------------------------- GetTimeSigMeasDur -- */
+/* ----------------------------------------------------------------- GetTimeSigMeasDur -- */
 /* Get the notated (i.e., according to the time signature) duration of the Measure
-ending at the given link. Looks at all staves; if they don't all have the same time
-signature, returns -1. NB: If any staff changes time signature in the middle of the
-Measure, this will misbehave. Cf. GetMeasDur, which gets the Measure's actual
-duration. */
+ending (not starting!) at the given link. Looks at all staves; if they don't all have
+the same time signature, return -1. NB: If any staff changes time signature in the
+middle of the Measure, this will misbehave. Cf. GetMeasDur, which gets the Measure's
+actual duration. */
 
 long GetTimeSigMeasDur(Document */*doc*/,
 							LINK endMeasL)		/* Object ending a Measure */
@@ -1899,7 +1904,7 @@ long GetTimeSigMeasDur(Document */*doc*/,
 
 long GetStaffMeasDur(Document *doc, LINK endMeasL, short staffn);
 
-/* ------------------------------------------------------------------ GetStaffMeasDur -- */
+/* ------------------------------------------------------------------- GetStaffMeasDur -- */
 /* Get the actual -- based on notes and rests, not time signature -- logical duration
 of notes/rests on the given staff in the Measure preceding the given Measure object. If
 something goes wrong, return -1L. */
@@ -1911,7 +1916,7 @@ long GetStaffMeasDur(Document *doc,
 	LINK	startL, pL, aNoteL;
 	long	maxTime, endTime;
 
-	startL = LSSearch(LeftLINK(endMeasL), MEASUREtype, ANYONE, GO_LEFT, FALSE); /* Find previous barline */
+	startL = LSSearch(LeftLINK(endMeasL), MEASUREtype, ANYONE, GO_LEFT, False); /* Find previous barline */
 	if (!startL) {
 		MayErrMsg("GetStaffMeasDur: no Measure before %ld", (long)endMeasL);
 		return -1L;
@@ -1934,10 +1939,10 @@ long GetStaffMeasDur(Document *doc,
 
 #endif
 
-/* --------------------------------------------------------- WholeMeasRestIsBreve -- */
+/* -------------------------------------------------------------- WholeMeasRestIsBreve -- */
 /* If, in a time signature with the given numerator and denominator, a whole-measure
-rest should look like a breve rest, return TRUE; otherwise, a whole-measure rest
-should look like a whole rest, and return FALSE.
+rest should look like a breve rest, return True; otherwise, a whole-measure rest
+should look like a whole rest, and return False.
 
 There's no question that in 4/2, breve rests should be used for whole measures; in
 other long-duration meters, what authorities say is inconsistent and seems not always

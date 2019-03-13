@@ -1,15 +1,15 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DrawUtils.c
 *	PROJ:	Nightingale
 *	DESC:	Drawing utility routines
-****************************************************************************/
+*******************************************************************************************/
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -19,12 +19,12 @@ static void DrawFlat(Document *, short, short, DDIST, DDIST, DDIST, short, short
 static void DrawSharp(Document *, short, short, DDIST, DDIST, DDIST, short, short *, PCONTEXT, short);
 static void DrawNatural(Document *, short, short, DDIST, DDIST, DDIST, short, short *, PCONTEXT, short);
 
-/* ------------------------------------------------------------- GetSmallerRSize -- */
+/* ------------------------------------------------------------------- GetSmallerRSize -- */
 /* Given a rastral size, get the next smaller "Preferred" rastral size, i.e., the
-next smaller size that has an integral no. of points (and therefore an integral
-no. of pixels on screen at 100% magnification) between staff lines, if such a
-smaller size has at least 2 pixels between staff lines center-to-center. (1 pixel
-between staff lines isn't much use, since the staff line itself needs a pixel.) */
+next smaller size that has an integral no. of points (and therefore an integral no.
+of pixels on screen at 100% magnification) between staff lines, if such a smaller
+size has at least 2 pixels between staff lines center-to-center. (1 pixel between
+staff lines isn't much use, since the staff line itself needs a pixel.) */
 
 short GetSmallerRSize(short rSize)
 {
@@ -46,14 +46,14 @@ short GetSmallerRSize(short rSize)
 }
 
 
-/* ------------------------------------------------------------ ContextedObjRect -- */
+/* ------------------------------------------------------------------ ContextedObjRect -- */
 
 Rect ContextedObjRect(Document *doc, LINK pL, short staff, PCONTEXT pContext)
 {
 	LINK contextL; Rect r; 
 
 	contextL = (LinkBefFirstMeas(pL) ?
-						LSSearch(pL,MEASUREtype,ANYONE,GO_RIGHT,FALSE) : pL);
+						LSSearch(pL,MEASUREtype,ANYONE,GO_RIGHT,False) : pL);
 
 	GetContext(doc, contextL, staff, pContext);
 	r = LinkOBJRECT(pL);
@@ -66,7 +66,7 @@ Rect ContextedObjRect(Document *doc, LINK pL, short staff, PCONTEXT pContext)
 /* Beware: In the following functions, character and string argument types are certainly
 not all what you'd expect or like. */
 
-/* -------------------------------------------------------------- DrawPaddedChar -- */
+/* -------------------------------------------------------------------- DrawPaddedChar -- */
 /* Draw the given character with several blanks of padding. This is to alleviate
 a long-standing bug in the Font Manager(?) of many Macs that results in characters
 being truncated on the right (see comments in DrawMChar): it doesn't completely
@@ -90,7 +90,7 @@ void DrawPaddedChar(unsigned char ch)
 }
 
 
-/* ------------------------------------------------------------------ DrawMChar -- */
+/* ------------------------------------------------------------------------ DrawMChar -- */
 /* Draw a QuickDraw character, optionally dimmed, in the current font. NB: this
 routine uses an off-screen bitmap that's set up for the largest music character
 we'll ever draw in the largest staff size at the maximum magnification. That's fine
@@ -110,14 +110,15 @@ extern short gMCharTop;
 extern short gMCharLeft;
 
 void DrawMChar(
-		Document *doc,					/* Used to get maximum char. size */
-		short		mchar,
-		short		shape,				/* NO_VIS=invisible, any other=normal */
-		Boolean	dim 					/* Should character be dimmed? */
+		Document *doc,				/* Used to get maximum char. size */
+		short mchar,
+		short shape,				/* NO_VIS=invisible, any other=normal */
+		Boolean	dim 				/* Should character be dimmed? */
 		)
 {
 	Point pt;
-	GrafPtr oldPort; PenState pnState;
+	GrafPtr oldPort;
+	PenState pnState;
 
 	/*
 	 * FIXME: The following comment and the code it refers to looks grossly out-of-date.
@@ -147,7 +148,7 @@ void DrawMChar(
 	
 	if (shape==NO_VIS) return;
 
-		kludgeFontMgr = TRUE;	/* Maybe should be FALSE if System>=6.0.x for some x? */
+		kludgeFontMgr = True;	/* Maybe should be False if System>=6.0.x for some x? */
 
 		
 	if (dim) {
@@ -167,8 +168,8 @@ void DrawMChar(
 		SetPenState(&pnState);
 	}
 	else {
-		if (kludgeFontMgr) DrawPaddedChar((unsigned char)mchar);
-		else					 DrawChar(mchar);
+		if (kludgeFontMgr)	DrawPaddedChar((unsigned char)mchar);
+		else				DrawChar(mchar);
 	}
 }
 
@@ -187,7 +188,7 @@ void DrawMString(Document *doc, unsigned char *mstr, short shape, Boolean dim)
 }
 
 
-/* ------------------------------------------------------------------ DrawMColon -- */
+/* ------------------------------------------------------------------------ DrawMColon -- */
 /* Draw a QuickDraw colon in the music font. Since Sonata and compatible fonts don't
 include a colon, this is the do-it-yourself version: two augmentation dots, one
 above or (if italic) above and to the right of the other. The augmentation dot is
@@ -206,17 +207,17 @@ void DrawMColon(Document *doc, Boolean italic, Boolean dim, DDIST lnSpace)
 	xoffset = d2p(MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace)/2);
 	yoffset = d2p(MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace)/2);
 	Move(xoffset, yoffset);
-	if (dim) DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+	if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, True);
 	else		DrawChar(glyph);
 	MoveTo(pt.h+xoffset, pt.v+yoffset);
 	Move((italic? colonSize/5 : 0), -2*colonSize/5);
-	if (dim) DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+	if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, True);
 	else		DrawChar(glyph);
 	TextSize(oldSize);
 }
 
 
-/* ---------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* GetXXXXDrawInfo functions are intended to be called by CheckXXXX, DrawXXXX,
 SDDrawXXXX, etc. They return various information about a subobject necessary to draw
 it: always its position (xd,yd), often the music font glyph to draw, sometimes other
@@ -492,8 +493,8 @@ void GetDynamicDrawInfo(
 	dTop = pContext->measureTop;
 	dLeft = pContext->measureLeft;
 	
-/* Make the dynamic xd relative to the firstSync of the dynamic. Offset
-is contained in subObject; LinkXD(pL) is set to 0 inside NewObjPrepare. */
+/* Make the dynamic xd relative to the firstSync of the dynamic. Offset is contained
+in subObject; LinkXD(pL) is set to 0 inside NewObjPrepare. */
 	*xd = SysRelxd(DynamFIRSTSYNC(pL)) + LinkXD(pL) + aDynamic->xd
 					+ pContext->systemLeft;
 	*yd = dTop + aDynamic->yd;
@@ -586,7 +587,7 @@ void GetRptEndDrawInfo(
 }
 
 
-/* ------------------------------------------------------------------ DrawRptBar -- */
+/* ------------------------------------------------------------------------ DrawRptBar -- */
 /* Draw a repeat bar, regardless of whether it's a RptEnd or a Measure subobject. */
 
 void DrawRptBar(Document *doc,
@@ -602,15 +603,15 @@ void DrawRptBar(Document *doc,
 {
 	PCONTEXT pContext, pContext2;
 	DDIST dTop, dBottom, dBotNorm, staffBottom;
-	DDIST	xdDots, ydDots, lnSpace;
+	DDIST xdDots, ydDots, lnSpace;
 	short xp, ypTop, ypBot, xOffset, ypStfBottom;
 	short xpDots, ypDots, sizePercent, oldTxSize, useTxSize;
-	Rect  mBBox;
+	Rect mBBox;
 	LINK prevMeasL;
 	Boolean hasRptDots;
 	Byte dotsGlyph;
 	
-	prevMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	prevMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, False);
 	mBBox = SDGetMeasRect(doc, pL, prevMeasL);
 	pContext = &context[staff];
 	switch (mode) {
@@ -624,14 +625,14 @@ void DrawRptBar(Document *doc,
 	}
 
 	if (connStaff==0) {
-		dBotNorm = dBottom = dTop + pContext->staffHeight;			/* Not connected below */
+		dBotNorm = dBottom = dTop + pContext->staffHeight;				/* Not connected below */
 		if (pContext->showLines==1) dBottom -= LNSPACE(pContext);			
 	}
 	else {
-		pContext2 = &context[NextStaffn(doc,pL,FALSE,connStaff)]; /* Connected below */
-		//pContext2 = &context[connStaff];									/* Connected below */
+		pContext2 = &context[NextVisStaffn(doc,pL,False,connStaff)];	/* Connected below */
+		//pContext2 = &context[connStaff];								/* Connected below */
 		dBottom = pContext2->staffTop + pContext2->staffHeight;
-		dBotNorm = dTop + pContext->staffHeight;						/* draw rpt-dots on <staff>, NOT <connStaff> */
+		dBotNorm = dTop + pContext->staffHeight;					/* draw rpt-dots on <staff>, NOT <connStaff> */
 		if (pContext2->showLines==1) dBottom -= LNSPACE(pContext2);			
 		if (mode==SDDraw || mode==SWDraw) 
 			dBottom -= p2d(mBBox.top);
@@ -650,7 +651,7 @@ void DrawRptBar(Document *doc,
 		ydDots = staffBottom + MusCharYOffset(doc->musFontInfoIndex, dotsGlyph, lnSpace);
 	}
 	else {	/* We have to use two augmentation dots, at a larger font size. */
-		sizePercent = 150;	/* Aug. dots are generally smaller than the dots in MCH_rptDots, so scale them up. */
+		sizePercent = 150;		/* Aug. dots are generally smaller than the dots in MCH_rptDots, so scale them up. */
 		dotsGlyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 		xdDots = dLeft + SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, dotsGlyph, lnSpace));
 		/* Origin of MCH_rptDots is bottom staff line, so have to use higher ydDots for MCH_dot.
@@ -724,11 +725,12 @@ void DrawRptBar(Document *doc,
 			PS_Repeat(doc, dTop, dBottom, dBotNorm, dLeft, subType, sizePercent, dotsOnly);
 			break;
 	}
+	
 	TextSize(oldTxSize);
 }
 
 
-/* ---------------------------------------------------------------- GetKSYOffset -- */
+/* ---------------------------------------------------------------------- GetKSYOffset -- */
 
 short GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
 {
@@ -761,45 +763,45 @@ short GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
 		case TREBLE8_CLEF:
 		case TREBLE_CLEF:
 		case PERC_CLEF:
-		  	if (KSItem.sharp) halfLn = trebleSharpPos[letcode];
-		  	else 				halfLn = trebleFlatPos[letcode];
+		  	if (KSItem.sharp)	halfLn = trebleSharpPos[letcode];
+		  	else				halfLn = trebleFlatPos[letcode];
 		  	break;
 	  	case SOPRANO_CLEF:
-		  	if (KSItem.sharp) halfLn = sopranoSharpPos[letcode];
-		  	else 				halfLn = sopranoFlatPos[letcode];
+		  	if (KSItem.sharp)	halfLn = sopranoSharpPos[letcode];
+		  	else				halfLn = sopranoFlatPos[letcode];
 			break;
 		case MZSOPRANO_CLEF:
-		  	if (KSItem.sharp) halfLn = mzSoprSharpPos[letcode];
-		  	else 				halfLn = mzSoprFlatPos[letcode];
+		  	if (KSItem.sharp)	halfLn = mzSoprSharpPos[letcode];
+		  	else				halfLn = mzSoprFlatPos[letcode];
 			break;
 	  	case ALTO_CLEF:
-		  	if (KSItem.sharp) halfLn = altoSharpPos[letcode];
-		  	else 				halfLn = altoFlatPos[letcode];
+		  	if (KSItem.sharp)	halfLn = altoSharpPos[letcode];
+		  	else				halfLn = altoFlatPos[letcode];
 			break;
 		case TENOR_CLEF:
-			if (KSItem.sharp) halfLn = tenorSharpPos[letcode];
-		  	else 				halfLn = tenorFlatPos[letcode];
+			if (KSItem.sharp)	halfLn = tenorSharpPos[letcode];
+		  	else				halfLn = tenorFlatPos[letcode];
 			break;
 		case BARITONE_CLEF:
-			if (KSItem.sharp) halfLn = baritoneSharpPos[letcode];
-		  	else 				halfLn = baritoneFlatPos[letcode];
+			if (KSItem.sharp)	halfLn = baritoneSharpPos[letcode];
+		  	else				halfLn = baritoneFlatPos[letcode];
 			break;
 	  	case BASS_CLEF:
 	  	case BASS8B_CLEF:
-		  	if (KSItem.sharp) halfLn = bassSharpPos[letcode];
-		  	else 				halfLn = bassFlatPos[letcode];
+		  	if (KSItem.sharp)	halfLn = bassSharpPos[letcode];
+		  	else				halfLn = bassFlatPos[letcode];
 			break;
 		case TRTENOR_CLEF:
 		default:
-		  	if (KSItem.sharp) halfLn = trebleSharpPos[letcode];
-		  	else 				halfLn = trebleFlatPos[letcode];
+		  	if (KSItem.sharp)	halfLn = trebleSharpPos[letcode];
+		  	else				halfLn = trebleFlatPos[letcode];
   	}
   	
   	return halfLn;
 }
 
 
-/* -------------------------------------------------------------------- DrawFlat -- */
+/* -------------------------------------------------------------------------- DrawFlat -- */
 /* Draw a single flat symbol in the designated position. */
 
 static void DrawFlat(
@@ -840,7 +842,7 @@ static void DrawFlat(
 			break;
 		case toPostScript:
 			yp = d2pt(halfLn2d(yPos, staffHeight, staffLines));
-			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, TRUE, 100);
+			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, True, 100);
 			break;
 		default:
 			;
@@ -848,7 +850,7 @@ static void DrawFlat(
 }
 
 
-/* ------------------------------------------------------------------- DrawSharp -- */
+/* ------------------------------------------------------------------------- DrawSharp -- */
 /* Draw a single sharp symbol in the designated position. */
 
 static void DrawSharp(
@@ -889,7 +891,7 @@ static void DrawSharp(
 			break;
 		case toPostScript:
 			yp = d2pt(halfLn2d(yPos, staffHeight, staffLines));
-			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, TRUE, 100);
+			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, True, 100);
 			break;
 		default:
 			;
@@ -897,7 +899,7 @@ static void DrawSharp(
 }
 
 
-/* ----------------------------------------------------------------- DrawNatural -- */
+/* ----------------------------------------------------------------------- DrawNatural -- */
 /* Draw a single natural symbol in the designated position. */
 
 static void DrawNatural(
@@ -938,7 +940,7 @@ static void DrawNatural(
 			break;
 		case toPostScript:
 			yp = d2pt(halfLn2d(yPos, staffHeight, staffLines));
-			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, TRUE, 100);
+			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, True, 100);
 			break;
 		default:
 			;
@@ -946,7 +948,7 @@ static void DrawNatural(
 }
 
 
-/* ------------------------------------------------------------------ DrawKSItems -- */
+/* ----------------------------------------------------------------------- DrawKSItems -- */
 
 void DrawKSItems(Document *doc,
 		LINK pL, LINK aKeySigL,
@@ -979,13 +981,13 @@ void DrawKSItems(Document *doc,
 		}
 	}
 	else {														/* No, so cancel previous key sig. */
-		prevKSL = LSSearch(LeftLINK(pL), KEYSIGtype, staffn, GO_LEFT, FALSE);
+		prevKSL = LSSearch(LeftLINK(pL), KEYSIGtype, staffn, GO_LEFT, False);
 		if (prevKSL)	{										/* Anything to change from? */
 			prevKS = GetPKEYSIG(prevKSL);
 			aPrevKSL = FirstSubLINK(prevKSL);
 			for ( ; aPrevKSL; aPrevKSL = NextKEYSIGL(aPrevKSL)) {
 				aPrevKS = GetPAKEYSIG(aPrevKSL);
-				if (KeySigSTAFF(aPrevKSL)==staffn) break;			/* Get keysig for curr staff */
+				if (KeySigSTAFF(aPrevKSL)==staffn) break;		/* Get keysig for curr staff */
 			}
 		  	if (aPrevKS->nKSItems>0) {
 		  		if (aKeySig->visible || doc->showInvis) 
@@ -1003,7 +1005,7 @@ void DrawKSItems(Document *doc,
 }
 
 
-/* ------------------------------------------------------------- GetKeySigDrawInfo -- */
+/* ----------------------------------------------------------------- GetKeySigDrawInfo -- */
 
 void GetKeySigDrawInfo(Document *doc,
 			LINK pL, LINK aKeySigL,
@@ -1044,7 +1046,7 @@ void GetKeySigDrawInfo(Document *doc,
 }
 
 
-/* ----------------------------------------------------------------- FillTimeSig -- */
+/* ----------------------------------------------------------------------- FillTimeSig -- */
 /* Fill in numerator and denominator strings for aTimeSig, depending on the
 timeSig's subType. Also return x and y position for numerator and denominator.
 Return value is the timeSig's subType. */
@@ -1111,7 +1113,7 @@ short  FillTimeSig(Document *doc,
 	return subType;
 }
 
-/* ----------------------------------------------------------- GetTimeSigDrawInfo -- */
+/* ---------------------------------------------------------------- GetTimeSigDrawInfo -- */
 /* Get basic x and y position for the given time signature. To get the exact
 positions of the numerator and denominator, pass these values to FillTimeSig.
 If QuickDraw, set the port's font size. */
@@ -1148,7 +1150,7 @@ void GetTimeSigDrawInfo(Document *doc,
 }
 
 
-/* -------------------------------------------------------------- GetRestDrawInfo -- */
+/* ------------------------------------------------------------------- GetRestDrawInfo -- */
 
 short GetRestDrawInfo(Document *doc,
 				LINK pL, LINK aRestL,
@@ -1171,14 +1173,14 @@ short GetRestDrawInfo(Document *doc,
 	aRest = GetPANOTE(aRestL);
 	
 	if (aRest->subType<=WHOLEMR_L_DUR)		*lDur = (breveWholeMeasure? BREVE_L_DUR : WHOLE_L_DUR);
-	else if (aRest->subType==UNKNOWN_L_DUR)	*lDur = BREVE_L_DUR; /* Should never happen */
+	else if (aRest->subType==UNKNOWN_L_DUR)	*lDur = BREVE_L_DUR;	/* Should never happen */
 	else									*lDur = aRest->subType;
 
 	*dTop = pContext->measureTop;
 	dLeft = pContext->measureLeft;
 
 	useTxSize = UseMTextSize(pContext->fontSize, doc->magnify);
-	if (aRest->small) useTxSize = SMALLSIZE(useTxSize);			/* A bit crude: cf. Ross */
+	if (aRest->small) useTxSize = SMALLSIZE(useTxSize);				/* A bit crude: cf. Ross */
 	if (outputTo!=toPostScript) TextSize(useTxSize);
 
 	*xd = dLeft + LinkXD(pL) + aRest->xd;
@@ -1193,10 +1195,10 @@ short GetRestDrawInfo(Document *doc,
 }
 
 
-/* ---------------------------------------------------------------- GetModNRInfo -- */
+/* ---------------------------------------------------------------------- GetModNRInfo -- */
 /* GetModNRInfo is analagous to the various GetXXXDrawInfo routines in that it
-provides information necessary to draw a specififed note modifier. Returns TRUE if
-<code> is legal, else FALSE.
+provides information necessary to draw a specififed note modifier. Returns True if
+<code> is legal, else False.
 
 NB: In the Sonata font, The PostScript fingerings are smaller than the bitmapped ones;
 the PostScript circle is larger than the tiny bitmapped one. Check both PostScript and
@@ -1208,8 +1210,8 @@ Sonata compatible fonts. Oh well. */
 Boolean GetModNRInfo(
 				short code,
 				short noteType,
-				Boolean	small,						/* TRUE=note/rest modNR is attached to is small */
-				Boolean	above,						/* TRUE=modNR is above its note/rest */
+				Boolean	small,						/* True=note/rest modNR is attached to is small */
+				Boolean	above,						/* True=modNR is above its note/rest */
 				unsigned char *glyph,				/* Blank=not a char. in music font, else the char. */
 				short *xOffset, short *yOffset,		/* in eighth-spaces */
 				short *sizePct
@@ -1306,7 +1308,7 @@ Boolean GetModNRInfo(
 			*sizePct = (small? SMALLSIZE(FINGERING_SIZEPCT) : FINGERING_SIZEPCT);
 			break;
 		default:
-			return FALSE;
+			return False;
 	}
 	
 	/* Heads for long notes are wider, which affects centering */
@@ -1314,11 +1316,11 @@ Boolean GetModNRInfo(
 	*xOffset = xOff;
 	*yOffset = yOff;
 	
-	return TRUE;
+	return True;
 }
 
 
-/* -------------------------------------------------------------------- NoteXLoc -- */
+/* -------------------------------------------------------------------------- NoteXLoc -- */
 /* Return the horizontal position of the left edge of the given note or rest. Also
 return the "normal" horizontal position of the note, which is also the "normal"
 position of its accidental, if any. */
@@ -1341,15 +1343,15 @@ DDIST NoteXLoc(
 	if (aNote->otherStemSide) {
 		mainNoteL = FindMainNote(syncL, NoteVOICE(aNoteL));
 		stemDown = (NoteYSTEM(mainNoteL) > NoteYD(mainNoteL));
-		if (stemDown) xd -= headWidth;
-		else		  	  xd += headWidth;
+		if (stemDown)	xd -= headWidth;
+		else			xd += headWidth;
 	}
 	
 	return xd;
 }
 
 
-/* ------------------------------------------------------------------ GRNoteXLoc -- */
+/* ------------------------------------------------------------------------ GRNoteXLoc -- */
 /* Return the horizontal position of the left edge of the given grace note. Also
 return the horizontal origin of its accidental, if any. */
 
@@ -1378,8 +1380,101 @@ DDIST GRNoteXLoc(
 	return xd;
 }
 
+/* ------------------------------------------------------------------- GetNCLedgerInfo -- */
+/* Return info needed to draw ledger lines both above and below the staff for the note
+or for the chord in the given note's voice in the given Sync: the clef-adjusted distance
+below middle C of the highest and lowest notes both on the normal side of the stem and
+"suspended" (on the other side). */
 
-/*------------------------------------------------------------------ NoteLedgers -- */
+void GetNCLedgerInfo(
+		LINK		syncL,
+		LINK		aNoteL,
+		PCONTEXT	pContext,
+		QDIST		*pHiyqpit,
+		QDIST		*pLowyqpit,
+		QDIST		*pHiyqpitSus,
+		QDIST		*pLowyqpitSus)
+{
+	LINK	bNoteL;
+	QDIST	hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
+			hiyqpitSus, lowyqpitSus,
+			yqpitHiRel, yqpitHiRelSus,
+			yqpitLowRel, yqpitLowRelSus;
+
+	hiyqpit = hiyqpitSus = 9999;
+	lowyqpit = lowyqpitSus = -9999;
+	
+	bNoteL = FirstSubLINK(syncL);
+
+	/* Find the "pitches" of the chord's extreme notes above and below staff, on both
+	   sides of stem. */
+	
+	for ( ; bNoteL; bNoteL = NextNOTEL(bNoteL)) {
+		if (NoteVOICE(bNoteL)==NoteVOICE(aNoteL)) {
+			if (NoteYQPIT(bNoteL)<hiyqpit) hiyqpit = NoteYQPIT(bNoteL);
+			if (NoteYQPIT(bNoteL)<hiyqpitSus && NoteOtherStemSide(bNoteL))
+				hiyqpitSus = NoteYQPIT(bNoteL);
+			if (NoteYQPIT(bNoteL)>lowyqpit) lowyqpit = NoteYQPIT(bNoteL);
+			if (NoteYQPIT(bNoteL)>lowyqpitSus && NoteOtherStemSide(bNoteL))
+				lowyqpitSus = NoteYQPIT(bNoteL);
+		}
+	}
+	
+//LogPrintf(LOG_DEBUG, "GetNCLedgerInfo 1: hiyqpit=%d lowyqpit=%d hiyqpitSus=%d lowyqpitSus=%d\n",
+//hiyqpit, lowyqpit, hiyqpitSus, lowyqpitSus);
+
+		/* Convert to staff-rel. coords. */
+		
+		yqpitHiRel = hiyqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
+		yqpitHiRelSus = (hiyqpitSus==9999? 0
+							: hiyqpitSus + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType)));
+		yqpitLowRel = lowyqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
+		yqpitLowRelSus = (lowyqpitSus==-9999? 0
+							: lowyqpitSus + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType)));
+
+//LogPrintf(LOG_DEBUG, "GetNCLedgerInfo 2: yqpitHiRel=%d yqpitLowRel=%d yqpitHiRelSus=%d yqpitLowRelSus=%d\n",
+//yqpitHiRel, yqpitLowRel, yqpitHiRelSus, yqpitLowRelSus);
+
+	*pHiyqpit = yqpitHiRel;
+	*pLowyqpit = yqpitLowRel;
+	*pHiyqpitSus = yqpitHiRelSus;
+	*pLowyqpitSus = yqpitLowRelSus;
+}
+
+
+/* ---------------------------------------------------------------------- NCHasLedgers -- */
+/* Does the note or chord in the given note's voice in the given Sync have ledger lines?
+NB: Works only for the MainNote of a chord! Returns separate values for above the staff
+and below the staff. */
+
+void NCHasLedgers(
+		LINK		syncL,
+		LINK		aNoteL,
+		PCONTEXT	pContext,
+		Boolean		*hasLedgersAbove,
+		Boolean		*hasLedgersBelow)
+{
+	QDIST	hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
+			hiyqpitSus, lowyqpitSus,
+			yqpitLowStaffLine, qStfSpace;
+	
+	if (MainNote(aNoteL) || !NoteINCHORD(aNoteL)) {
+		yqpitLowStaffLine = d2qd(pContext->staffHeight, pContext->staffHeight, pContext->staffLines);
+		qStfSpace = yqpitLowStaffLine/pContext->staffLines;
+		GetNCLedgerInfo(syncL, aNoteL, pContext, &hiyqpit, &lowyqpit, &hiyqpitSus, &lowyqpitSus);
+		*hasLedgersAbove = (hiyqpit < -qStfSpace || hiyqpitSus < -qStfSpace);
+		*hasLedgersBelow = (lowyqpit > yqpitLowStaffLine+qStfSpace || lowyqpitSus > yqpitLowStaffLine+qStfSpace);
+//LogPrintf(LOG_DEBUG, "NCHasLedgers: hiyqpit=%d lowyqpit=%d hiyqpitSus=%d lowyqpitSus=%d yqpitLowStaffLine=%d\n",
+//hiyqpit, lowyqpit, hiyqpitSus, lowyqpitSus, yqpitLowStaffLine);
+	}
+	else {
+		*hasLedgersAbove = False;
+		*hasLedgersBelow = False;
+	}
+}
+
+
+/* ------------------------------------------------------------------- DrawNoteLedgers -- */
 /*	Draw zero or more ledger lines appropriate for one or two notes, one on the normal
 side of the stem (required), the other "suspended", i.e., on the other side of the
 the stem (and optional). Starting with the ledger line closest to the staff, we draw
@@ -1391,10 +1486,10 @@ If there is a suspended note, the normal note cannot be closer to the staff than
 Also, one note cannot be above the staff and the other below the staff! Therefore,
 drawing all the ledger lines for a chord may require two calls to this function. */
 
-void NoteLedgers(
+void DrawNoteLedgers(
 			DDIST		xd,				/* DDIST horizontal position of normal-side notes */
 			QDIST		yqpit,			/* QDIST vertical position rel. to staff top of normal note, */
-			QDIST		yqpitSus,		/* 		of suspended (other side of stem) note (0=none) */
+			QDIST		yqpitSus,		/*   of suspended (other side of stem) note (0=none) */
 			Boolean		stemDown,
 			DDIST		staffTop,		/* abs DDIST position of staff top */
 			PCONTEXT	pContext,		/* for staff height and paper */
@@ -1499,7 +1594,7 @@ void NoteLedgers(
 }
 
 
-/*---------------------------------------------------------------- InsertLedgers -- */
+/*---------------------------------------------------------------------- InsertLedgers -- */
 /*	Draw pseudo-ledger lines for insertion feedback for notes and other
 symbols that are vertically positionable at the appropriate half-line number */
 
@@ -1559,7 +1654,7 @@ void InsertLedgers(
 }
 
 
-/* ----------------------------------------------------------------- GetMBRestBar -- */
+/* ---------------------------------------------------------------------- GetMBRestBar -- */
 /* Get the bounding DRect of the horizontal bar for a multibar rest. */
 
 void GetMBRestBar(short nMeasure, PCONTEXT pContext, DRect *pdBar)
@@ -1575,7 +1670,7 @@ void GetMBRestBar(short nMeasure, PCONTEXT pContext, DRect *pdBar)
 }
 
 
-/* ---------------------------------------------------- VisStavesInRange/ForPart -- */
+/* ---------------------------------------------------------- VisStavesInRange/ForPart -- */
 
 static void VisStavesInRange(Document *, LINK, short, short, short *, short *);
 static void VisStavesInRange(
@@ -1585,10 +1680,10 @@ static void VisStavesInRange(
 				short *firstVisStf, short *lastVisStf 	/* Output: first and last visible staves in range */
 				)
 {
-	*firstVisStf = NextStaffn(doc, staffL, TRUE, r1stStaff);
+	*firstVisStf = NextVisStaffn(doc, staffL, True, r1stStaff);
 	if (*firstVisStf<=0 || *firstVisStf>rLastStaff) *firstVisStf = -1;
 	
-	*lastVisStf = NextStaffn(doc, staffL, FALSE, rLastStaff);
+	*lastVisStf = NextVisStaffn(doc, staffL, False, rLastStaff);
 	if (*lastVisStf<=0 || *lastVisStf<r1stStaff) *lastVisStf = -1;
 }
 
@@ -1606,32 +1701,34 @@ void VisStavesForPart(
 	PPARTINFO pPart;
 	
 	pPart = GetPPARTINFO(partL);
-	VisStavesInRange(doc, staffL, pPart->firstStaff, pPart->lastStaff,
-								firstStaff, lastStaff);
+	VisStavesInRange(doc, staffL, pPart->firstStaff, pPart->lastStaff, firstStaff,
+																		lastStaff);
 }
 
 
-/* ----------------------------------------------------------- ShouldDrawConnect -- */
-/* For the given CONNECT subobject, if we should actually draw it, return TRUE;
-else return FALSE. */
+/* ----------------------------------------------------------------- ShouldDrawConnect -- */
+/* For the given CONNECT subobject, if we should actually draw it, return True;
+else return False. */
 
 Boolean ShouldDrawConnect(
 			Document *doc,
-			LINK	pL,
-			LINK	aConnectL,
-			LINK	staffL 		/* Staff the Connect is attached to */
+			LINK pL,
+			LINK aConnectL,
+			LINK staffL 		/* Staff the Connect is attached to */
 			)
 {
-	LINK partL; Boolean drawThisOne; PACONNECT aConnect;
+	LINK partL;
+	Boolean drawThisOne;
+	PACONNECT aConnect;
 	short firstStaff,lastStaff;
 	
-	if (doc->masterView)
-		drawThisOne = TRUE;
-	else {
+	drawThisOne = True;
+
+	if (!doc->masterView) {
 		/*
 		 *	CMN convention is usually to not show Connects if they include only one
 		 *	staff, except on groups (instrument choirs, etc.), where they're shown if
-		 * ANY staves are visible.
+		 *	any staves are visible.
 		 */
 		aConnect = GetPACONNECT(aConnectL);
 		switch (aConnect->connLevel) {
@@ -1656,19 +1753,21 @@ Boolean ShouldDrawConnect(
 	return drawThisOne;
 }
 
-/* --------------------------------------------------------- ShouldREDrawBarline -- */
+
+/* --------------------------------------------------------------- ShouldREDrawBarline -- */
 /* For the given RPTEND subobject, if we should draw draw the barline proper as well
-as the repeat dots (if there are any), return TRUE with *connStf set. If we should
-draw only the repeat dots (if any), simply return FALSE. */
+as the repeat dots (if there are any), return True with *connStf set. If we should
+draw only the repeat dots (if any), simply return False. */
 
 Boolean ShouldREDrawBarline(
 		Document *doc,
 		LINK rptEndObjL,		/* RptEnd object */
 		LINK theRptEndL,		/* RptEnd subobject */
-		short *connStf 			/* If function returns TRUE, staff no. to draw down to */
+		short *connStf 			/* If function returns True, staff no. to draw down to */
 		)
 {
-	PARPTEND theRptEnd, aRptEnd; LINK aRptEndL, topRptEndL;
+	PARPTEND theRptEnd, aRptEnd;
+	LINK aRptEndL, topRptEndL;
 	
 	theRptEnd = GetPARPTEND(theRptEndL);
 
@@ -1692,20 +1791,20 @@ Boolean ShouldREDrawBarline(
 	for (aRptEndL = topRptEndL; aRptEndL; aRptEndL = NextRPTENDL(aRptEndL)) {
 		if (aRptEndL==theRptEndL) break;
 		aRptEnd = GetPARPTEND(aRptEndL);
-		if (aRptEnd->visible || doc->showInvis) return FALSE;
+		if (aRptEnd->visible || doc->showInvis) return False;
 	}
 	
 DrawAll:
 	aRptEnd = GetPARPTEND(topRptEndL);
 	*connStf = aRptEnd->connStaff;
-	return TRUE;
+	return True;
 }
 
 
-/* ----------------------------------------------------------- ShouldDrawBarline -- */
+/* ----------------------------------------------------------------- ShouldDrawBarline -- */
 /* For the given MEASURE subobject,if we should draw the barline proper as well as
-the repeat dots (if there are any), return TRUE with the staff number to draw to;
-if we should draw only the repeat dots (if any), return FALSE. We consider staff
+the repeat dots (if there are any), return True with the staff number to draw to;
+if we should draw only the repeat dots (if any), return False. We consider staff
 visibility as well as barline grouping of staves.
 
 NB: This function should really ignore doc->showInvis, since "Show Invisibles"
@@ -1719,14 +1818,15 @@ Boolean ShouldDrawBarline(
 				Document *doc,
 				LINK measObjL,		/* Measure object */
 				LINK theMeasL,		/* Measure subobject */
-				short *connStf 		/* If function returns TRUE, staff no. to draw down to */
+				short *connStf 		/* If function returns True, staff no. to draw down to */
 				)
 {
-	PAMEASURE theMeas, aMeas; LINK aMeasL;
+	PAMEASURE theMeas, aMeas;
+	LINK aMeasL;
 	short theStf, gTopStf, gBottomStf;
 	
 	theMeas = GetPAMEASURE(theMeasL);
-	if (!theMeas->visible && !doc->showInvis) return FALSE;
+	if (!theMeas->visible && !doc->showInvis) return False;
 
 	/* If this the top staff of a group or not in a group, draw barline. */
 	
@@ -1757,29 +1857,30 @@ Boolean ShouldDrawBarline(
 	for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
 		if (MeasureSTAFF(aMeasL)>=gTopStf && MeasureSTAFF(aMeasL)<theStf) {
 			aMeas = GetPAMEASURE(aMeasL);
-			if (aMeas->visible || doc->showInvis) return FALSE;
+			if (aMeas->visible || doc->showInvis) return False;
 		}
 	}
 	
 DrawAll:
 	*connStf = gBottomStf;
-	return TRUE;
+	return True;
 }
 
 
-/* --------------------------------------------------------- ShouldPSMDrawBarline -- */
+/* -------------------------------------------------------------- ShouldPSMDrawBarline -- */
 /* For the given Pseudomeasure subobject,if we should draw the barline proper as well
-as any staff-specific stuff (if there is any), return TRUE with the staff number to
-draw to; if we should draw only the staff-specific stuff (if any), return  FALSE. */
+as any staff-specific stuff (if there is any), return True with the staff number to
+draw to; if we should draw only the staff-specific stuff (if any), return  False. */
 
 Boolean ShouldPSMDrawBarline(
 		Document *doc,
 		LINK measObjL,			/* Pseudomeasure object */
 		LINK thePSMeasL,		/* Pseudomeasure subobject */
-		short *connStf 			/* If function returns TRUE, staff no. to draw down to */
+		short *connStf 			/* If function returns True, staff no. to draw down to */
 		)
 {
-	PAPSMEAS thePSMeas, aPSMeas; LINK aPSMeasL;
+	PAPSMEAS thePSMeas, aPSMeas;
+	LINK aPSMeasL;
 	short theStf, gTopStf, gBottomStf;
 	
 	/* If this the top staff of a group or not in a group, draw barline. */
@@ -1812,55 +1913,57 @@ Boolean ShouldPSMDrawBarline(
 	for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
 		if (PSMeasSTAFF(aPSMeasL)>=gTopStf && PSMeasSTAFF(aPSMeasL)<theStf) {
 			aPSMeas = GetPAPSMEAS(aPSMeasL);
-			if (aPSMeas->visible || doc->showInvis) return FALSE;
+			if (aPSMeas->visible || doc->showInvis) return False;
 		}
 	}
 	
 DrawAll:
 	*connStf = gBottomStf;
-	return TRUE;
+	return True;
 }
 
 
-/* ------------------------------------------------------------ ShouldDrawMeasNum -- */
+/* ----------------------------------------------------------------- ShouldDrawMeasNum -- */
 /* For the given Measure subobject,if we should draw the measure number above or below
-it, return TRUE. The rules are, draw a measure number if measure numbers are wanted
+it, return True. The rules are, draw a measure number if measure numbers are wanted
 at all; this is a "real" measure (see the IsFakeMeasure function); this is the top
 or bottom (depending on doc->aboveMN) visible staff of the system; and this
 particular measure is one whose number should be shown, given the current settings of
 doc->startMNPrint1 and of the interval between numbers or "start of system only". */
 
 Boolean ShouldDrawMeasNum(
-		Document	*doc,
-		LINK		measObjL,		/* Object */
-		LINK		theMeasL 		/* Subobject */
-		)
+			Document	*doc,
+			LINK		measObjL,		/* Object */
+			LINK		theMeasL 		/* Subobject */
+			)
 {
-	PAMEASURE aMeasure; short measureNum, topVisStf, botVisStf; LINK staffL;
+	PAMEASURE aMeasure;
+	short measureNum, topVisStf, botVisStf;
+	LINK staffL;
 	
-	if (doc->numberMeas==0) return FALSE;	
+	if (doc->numberMeas==0) return False;	
 
-	if (MeasISFAKE(measObjL)) return FALSE;
+	if (MeasISFAKE(measObjL)) return False;
 
 	aMeasure = GetPAMEASURE(theMeasL);
 	measureNum = aMeasure->measureNum+doc->firstMNNumber;
 
-	staffL = LSSearch(measObjL, STAFFtype, ANYONE, GO_LEFT, FALSE);	/* Must always exist */
-	topVisStf = NextStaffn(doc, staffL, TRUE, 1);
-	botVisStf = NextStaffn(doc, staffL, FALSE, doc->nstaves);
-	if (doc->aboveMN && MeasureSTAFF(theMeasL)!=topVisStf) return FALSE;
-	if (!doc->aboveMN && MeasureSTAFF(theMeasL)!=botVisStf) return FALSE;
+	staffL = LSSearch(measObjL, STAFFtype, ANYONE, GO_LEFT, False);	/* Must always exist */
+	topVisStf = NextVisStaffn(doc, staffL, True, 1);
+	botVisStf = NextVisStaffn(doc, staffL, False, doc->nstaves);
+	if (doc->aboveMN && MeasureSTAFF(theMeasL)!=topVisStf) return False;
+	if (!doc->aboveMN && MeasureSTAFF(theMeasL)!=botVisStf) return False;
 	
-	if (measureNum<(doc->startMNPrint1? 1 : 2)) return FALSE;
+	if (measureNum<(doc->startMNPrint1? 1 : 2)) return False;
 	
 	if (doc->numberMeas>0? (measureNum % doc->numberMeas)!=0
-									: !FirstMeasInSys(measObjL)) return FALSE;
+									: !FirstMeasInSys(measObjL)) return False;
 	
-	return TRUE;
+	return True;
 }
 
 
-/* ------------------------------------------------------------- DrawVDashedLine -- */
+/* ------------------------------------------------------------------- DrawVDashedLine -- */
 /* Draw a vertical dashed line from (x1,y1) to (x2,y2) (QuickDraw only). */
 
 #define DASH_LEN 2	/* pixels */
@@ -1879,7 +1982,7 @@ void DrawVDashedLine(short x1, short y1, short /*x2*/, short y2)
 }
 
 
-/* --------------------------------------------------------------- DrawPSMSubType -- */
+/* -------------------------------------------------------------------- DrawPSMSubType -- */
 /* Draw PseudoMeas subTypes (QuickDraw only). */
 
 void DrawPSMSubType(short subType, short xp, short ypTop, short ypBot)
@@ -1910,7 +2013,7 @@ void DrawPSMSubType(short subType, short xp, short ypTop, short ypBot)
 	}
 }
 
-/* ------------------------------------------------------------------ DrawNonArp -- */
+/* --------------------------------------------------------------- DrawNonArp, DrawArp -- */
 /* Draw a non-arpeggio sign (QuickDraw only). */
 
 void DrawNonArp(short xp, short yp, DDIST dHeight, DDIST lnSpace)
@@ -1922,16 +2025,16 @@ void DrawNonArp(short xp, short yp, DDIST dHeight, DDIST lnSpace)
 	Line(d2p(NONARP_CUTOFF_LEN(lnSpace)), 0);
 }
 
-/* --------------------------------------------------------------------- DrawArp -- */
-/* Draw an arpeggio sign (QuickDraw only). Sonata has a nice arpeggio-section
-character we use.  */
+/* Draw an arpeggio sign (QuickDraw only). Sonata has a nice arpeggio-section char.
+we use.  */
 
 void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
-			 Byte glyph, PCONTEXT pContext)
+				Byte glyph, PCONTEXT pContext)
 {
 
 	DDIST lnSpace,charHeight,ydHere;
-	short oldFont,oldStyle; short yp;
+	short oldFont,oldStyle;
+	short yp;
 
 	lnSpace = LNSPACE(pContext);
 	charHeight = 2*lnSpace;				/* Sonata arpeggio char. is 2 spaces high */
@@ -1953,9 +2056,9 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
 }
 
 
-/* ------------------------------------------------------------------ TempoGlyph -- */
-/* Return the glyph to draw for the given Tempo subType. We use noteheads with
-(for stemmed durations) stem up. */
+/* ------------------------------------------------------------------------ TempoGlyph -- */
+/* Return the glyph to draw for the given Tempo subType. We use noteheads with (for
+stemmed durations) stem up. */
 
 char TempoGlyph(LINK pL)
 {
@@ -1964,7 +2067,7 @@ char TempoGlyph(LINK pL)
 	p = GetPTEMPO(pL);
 	switch (p->subType) {
 		case BREVE_L_DUR:
-			return 0xDD;			/* On Mac, 'Ý'=shift-option 4 */
+			return 0xDD;			/* On Mac, 'â€º'=shift-option 4 */
 		case WHOLE_L_DUR:
 			return 'w';
 		case HALF_L_DUR:
@@ -1978,9 +2081,9 @@ char TempoGlyph(LINK pL)
 		case THIRTY2ND_L_DUR:
 			return 'r';
 		case SIXTY4TH_L_DUR:
-			return 0xC6;			/* On Mac, 'Æ'=option j */
+			return 0xC6;			/* On Mac, 'âˆ†'=option j */
 		case ONE28TH_L_DUR:
-			return 0x8D;			/* On Mac, ''=option c */
+			return 0x8D;			/* On Mac, 'Ã§'=option c */
 		case NO_L_DUR:
 		default:
 			return '\0';
@@ -1988,7 +2091,7 @@ char TempoGlyph(LINK pL)
 }
 
 
-/* ------------------------ Functions to get drawing info for Graphics and Tempos -- */
+/* ----------------------------- Functions to get drawing info for Graphics and Tempos -- */
 /* GetXXXDrawInfo function for Graphics and Tempos. For Tempos, this simply uses the
 position of the object the Graphic or Tempo is attached to, not the subobject; for
 Graphics, it uses the position of the subobj in the Graphic's voice or on its staff
@@ -2006,7 +2109,7 @@ short GetGraphicOrTempoDrawInfo(
 	LINK measL;
 
 	if (PageTYPE(relObjL)) {
-		measL = LSSearch(relObjL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		measL = LSSearch(relObjL, MEASUREtype, ANYONE, GO_RIGHT, False);
 		GetContext(doc, measL, 1, pRelContext);
 		*xd = LinkXD(pL);
 		*yd = LinkYD(pL);
@@ -2064,7 +2167,8 @@ void GetGraphicFontInfo(
 			short *pFontStyle
 			)
 {
-	DDIST lnSpace; PGRAPHIC p;
+	DDIST lnSpace;
+	PGRAPHIC p;
 
 	lnSpace = LNSPACE(pRelContext);
 	if (GraphicSubType(pL)==GRChordFrame) {
@@ -2082,18 +2186,25 @@ void GetGraphicFontInfo(
 }
 
 
-/* ----------------------------------------------------------------- Voice2Color -- */
-/* Return an appropriate color for drawing the given internal voice number. If it's
-a default voice or an error is found, use black; otherwise, within each part's
-voices, cycle among a number of colors. Nightingale doesn't use Color QuickDraw,
-so this version uses original QuickDraw colors, and only a few colors with enough
-contrast are available (besides black and white). */
+/* ----------------------------------------------------------------------- Voice2Color -- */
+/* Return an appropriate color for drawing the given internal voice number. If
+doc->colorVoices=0 or there's an error, use black. Otherwise, cycle among a number
+of colors. (Nightingale doesn't use Color QuickDraw, so this version uses the original
+QuickDraw colors, and only a few colors with enough contrast to be readable in low
+resolution are available.) Specifically:
+	doc->colorVoices=1 means show the default voice for every staff of a multi-staff
+		part in black and start coloring voices beyond that;
+	=2 means show every voice other than voice 1 in color.
+
+Thus, in a 2-staff part, if doc->colorVoices=1, voices 1 and 2 -- the default voices for
+the two staves -- will be shown in black, all other voices in color. If colorVoices=2,
+only voice 1 will be in black. */
 
 #define COLOR_CYCLE_LEN 4
 
 short Voice2Color(Document *doc, short iVoice)
 {
-	short colors[COLOR_CYCLE_LEN] = { redColor, greenColor, cyanColor, magentaColor };
+	short colors[COLOR_CYCLE_LEN] = { greenColor, redColor, cyanColor, magentaColor };
 	LINK aPartL;
 	short userVoice;
 	short colorIndex, nPartStaves, extraVoice;
@@ -2123,33 +2234,33 @@ short Voice2Color(Document *doc, short iVoice)
 	}
 }
 
-/* ------------------------------------------------------------------- CheckZoom -- */
-/* If there is a mouse down event pending in the given Document's zoom box,
-deliver TRUE; otherwise FALSE. */
+/* ------------------------------------------------------------------------- CheckZoom -- */
+/* If there is a mouse down event pending in the given Document's zoom box, return
+True; otherwise return False. */
 
-static Boolean doingCheckZoom = TRUE;
+static Boolean doingCheckZoom = True;
 
 Boolean CheckZoom(Document *doc)
 {
-	EventRecord event; Boolean gotZoom = FALSE;
+	EventRecord event; Boolean gotZoom = False;
 	short part; WindowPtr w;
 	
 	if (doingCheckZoom)
 		if (EventAvail(mDownMask,&event)) {
 			part = FindWindow(event.where,&w);
 			if (w==doc->theWindow && (part==inZoomIn || part==inZoomOut))
-				gotZoom = TRUE;
+				gotZoom = True;
 		}
 	return(gotZoom);
 }
 
-/* ---------------------------------------------------------- DrawCheckInterrupt -- */
+/* ---------------------------------------------------------------- DrawCheckInterrupt -- */
 /*
 This scans the Operating System event queue for any of various command keys that
 should interrupt drawing. If one is found while the corresponding menu command is
-enabled, return TRUE to signify that the user thinks they have issued that command.
+enabled, return True to signify that the user thinks they have issued that command.
 Otherwise, we continue searching down the event queue for some other command that
-might be enabled.  If none are found, we return FALSE.  The problem this solves is,
+might be enabled.  If none are found, we return False.  The problem this solves is,
 for instance, that of changing magnification during the middle of updating. We
 want to stop drawing at the old magnification as soon as possible and start over
 at the new magnification. This is tricky for the following reason:
@@ -2173,11 +2284,11 @@ separate strings for the keys that have different enabling conditions. */
 
 Boolean DrawCheckInterrupt(Document */*doc*/)
 {
-	return FALSE;
+	return False;
 }
 
 
-/* ------------------------------------------------------------- MaySetPSMusSize -- */
+/* ------------------------------------------------------------------- MaySetPSMusSize -- */
 /* If we're writing PostScript and the score includes any nonstandard staff sizes,
 i.e., if it might have staves in two or more sizes, set the PostScript staff size. */
 
@@ -2192,9 +2303,6 @@ void MaySetPSMusSize(Document *doc, PCONTEXT pContext)
 		else {
 			short stfHeight = drSize[doc->srastral];
 			PS_MusSize(doc, d2pt(stfHeight)+config.musFontSizeOffset);			
-		}
-		
-		LogPrintf(LOG_NOTICE, "MaySetPSMusSize: calling PS_MusSize, stfHt %ld, musFontSzOffst %ld\n", pContext->staffHeight,
-																						config.musFontSizeOffset);		
+		}		
 	}
 }

@@ -1,38 +1,13 @@
-//
-// Prefix header for all source files of the 'Nightingale' target in the 'Nightingale' project.
-//
+/* Nightingale_Prefix.pch: Prefix header for all source files of the Nightingale target
+in the Nightingale project. */
 
 // MAS
 #pragma once
-#ifndef TARGET_API_MAC_CARBON
-#define TARGET_API_MAC_CARBON 1
-#endif
-// MAS
 
 #include <Carbon/Carbon.h>
 #include <ApplicationServices/ApplicationServices.h>
 
-//
-//#include "NLimits.h"
-//#include "CarbonCompat.h" // needed by FMData.h
-// #include "FMData.h" // pulls in FMTypes.h
-//#include "NTypes.h" // needs FMData.h above
-//#include "StringPool.h" // needed by applicationTypes
-//#include "OMSCompat.h" // needed by applicationTypes
 #include "MIDICompat.h"
-//#include "applicationTypes.h"
-//#include "FreeMIDIUtils.h" // needs applicationTypes
-//#include "CarbonTemplates.h"
-//
-//#include "OpcodeNightingaleDefs.h"
-//#include "defs.h"
-//
-//#include "MIDIRecUtils.h" // used in NightTemplates
-//#include "NightTemplates.h"
-//
-//#include "EssentialTools.h" // CapsLockKeyDown etc.
-//
-//#include "UIFUtils.h"
 
 /*
  * Nightingale.precomp.c
@@ -51,16 +26,13 @@
 
 #include "StringPool.h"
 
-#if TARGET_API_MAC_CARBON
-
-// 9.9.2002 1st Carbon Port attempt
-
 #include "FreeMIDICompat.h"
 //#include "FreeMIDI.h"
 #include "OMSCompat.h"
 //#include "OMSTypes.h"
 
-#endif
+// MAS
+#include "CarbonCompat.h"
 
 /* Define the platform. NB: When it wasn't running on a Motorola 680x0 family CPU, Mac
 OSs used to include an emulator for it, so we could use 680x0 code on any MacOS machine.
@@ -71,23 +43,14 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 /* General Nightingale headers */
 
 #include "NLimits.h"
-#include "NTypes.h"
+#include "NBasicTypes.h"
+#include "NObjTypes.h"
+#include "NMiscTypes.h"
 #include "Defs.h"
 #include "Style.h"
 
 // MAS -- copied from NResourceID.h
 #define TEST_SEARCH_NG
-
-#if TARGET_API_MAC_CARBON
-// MAS
-#define TARGET_API_MAC_CARBON_FILEIO 1
-#define TARGET_API_MAC_CARBON_MIDI   1
-// MAS
-#include "CarbonCompat.h"
-//#include "StandardFile.h"
-#endif
-
-#include "applicationTypes.h"
 
 /* Other Nightingale headers */
 
@@ -108,9 +71,8 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 #include "DSUtils.h"
 #include "DurationPopUp.h"
 #include "DynamicPopUp.h"
-#include "EndianUtils.h"
-#include "EssentialTools.h"
-#include "FileInput.h"
+#include "Endian.h"
+#include "InternalInput.h"
 #include "File.h"
 #include "GRBeam.h"
 #include "Heaps.h"
@@ -125,6 +87,7 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 #include "Merge.h"
 #include "MIDIGeneral.h"
 #include "MIDIRecUtils.h"
+#include "MiscUtils.h"
 #include "ModNRPopUp.h"
 #include "MPImportExport.h"
 #include "Multivoice.h"
@@ -134,6 +97,7 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 #include "Objects.h"
 #include "Octava.h"
 #include "PitchUtils.h"
+#include "PopUpUtils.h"
 #include "PS_Stdio.h"
 #include "Reconstruct.h"
 #include "RhythmDur.h"

@@ -51,8 +51,8 @@
 #include <Carbon.h>
 #endif
 
-#define kDoPrintOne			true
-#define kDoPrintWithPrintDialog		false
+#define kDoPrintOne			True
+#define kDoPrintWithPrintDialog		False
 
 typedef char char5200[5200];
 
@@ -60,13 +60,13 @@ typedef char char5200[5200];
 Boolean IsDocPrintInfoInstalled(Document *doc);
 OSStatus InstallDocPrintInfo(Document *doc);
 
-void NDoPageSetup(Document *doc);
+void DoPageSetup(Document *doc);
 void NDoCustomPageSetup(Document *doc);
-void NDoPrintScore(Document *doc);
+void DoPrintScore(Document *doc);
 
 OSStatus FlattenAndSavePageFormat(Document *doc);
 OSStatus	LoadAndUnflattenPageFormat(Document *doc);
 
-Boolean NDoPostScript(Document *doc);
+Boolean DoPostScript(Document *doc);
 
 #endif	// __MyCarbonPrinting__

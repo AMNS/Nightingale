@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -60,18 +60,19 @@ static void	VMShowSyncs(void);
 static void	VMShowInvisibles(void);
 static void	VMColorVoices(void);
 static void	VMPianoRoll(void);
+static void	VMToollPalette(void);
 static void	VMActivate(short);
 
 static void	PLRecord(Document *doc, Boolean merge);
 static void	PLStepRecord(Document *doc, Boolean merge);
 static void	PLMIDIDynPrefs(Document *);
 static void	PLMIDIModPrefs(Document *);
-static void	PLTransposeScore(Document *);
+static void	PLTransposedScore(Document *);
 
 static void InstallDebugMenuItems(Boolean installAll);
 
 static void	FixFileMenu(Document *doc, short nSel);
-static void	FixEditMenu(Document *doc, short nInSelRange, short nSel, Boolean isDA);
+static void	FixEditMenu(Document *doc, short nInSelRange, short nSel);
 static void	FixTestMenu(Document *doc, short nSel);
 static void	DisableSMMove(void);
 static void	FixMoveMeasSys(Document *doc);
@@ -89,38 +90,36 @@ static void	FixFormatMenu(Document *doc);
 static void DeleteObj(Document *, LINK);
 static void DeleteSelObjs(Document *);
 
-short		NumOpenDocuments(void);
-
 static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOttava;
 
-static Boolean	goUp=TRUE;								/* For "Transpose" dialog */
+static Boolean	goUp=True;								/* For "Transpose" dialog */
 static short	octaves=0, steps=0, semiChange=0;
-static Boolean	slashes=FALSE;
+static Boolean	slashes=False;
 
-static Boolean	dGoUp=TRUE;								/* For "Diatonic Transpose" dialog */
+static Boolean	dGoUp=True;								/* For "Diatonic Transpose" dialog */
 static short	dOctaves=0, dSteps=0;
-static Boolean	dSlashes=FALSE;
+static Boolean	dSlashes=False;
 
-static Boolean	kGoUp=TRUE;								/* For "Transpose Key" dialog */
+static Boolean	kGoUp=True;								/* For "Transpose Key" dialog */
 static short	kOctaves=0, kSteps=0, kSemiChange=0;
-static Boolean	kSlashes=FALSE, kNotes=TRUE, kChordSyms=TRUE;
+static Boolean	kSlashes=False, kNotes=True, kChordSyms=True;
 
 static Boolean	beforeFirst;
 
-static Boolean showDbgWin = FALSE;
+static Boolean showDbgWin = False;
 
-static Boolean debugItemsNeedInstall = TRUE;
+static Boolean debugItemsNeedInstall = True;
 
 
 Boolean DoMenu(long menuChoice)
 	{
-		register short choice; short menu;
-		Boolean keepGoing = TRUE;
+		short choice, menu;
+		Boolean keepGoing = True;
 		
 		menu = HiWord(menuChoice); choice = LoWord(menuChoice);
 		if (TopDocument) MEHideCaret(GetDocumentFromWindow(TopDocument));
 
-		switch(menu) {
+		switch (menu) {
 			case appleID:
 				DoAppleMenu(choice);
 				break;
@@ -168,50 +167,49 @@ Boolean DoMenu(long menuChoice)
  */
 
 static void DoAppleMenu(short choice)
-	{
-		switch(choice) {
-			case AM_About:
+{
+	switch (choice) {
+		case AM_About:
 #ifdef PUBLIC_VERSION
-				DoAboutBox(FALSE);
+			DoAboutBox(False);
 #else
-				if (ShiftKeyDown() && OptionKeyDown() && CmdKeyDown())
-					Debugger();
-				 else
-					DoAboutBox(FALSE);
+			if (ShiftKeyDown() && OptionKeyDown() && CmdKeyDown())
+				Debugger();
+			 else
+				DoAboutBox(False);
 #endif
-				break;
-			case AM_Help:
-				Do_Help(appVRefNum, appDirID);
-				UseResFile(appRFRefNum);				/* a precaution */
-				break;
-			default:
-				break;
-			}
-	}
+			break;
+		case AM_Help:
+			Do_Help(appVRefNum, appDirID);
+			UseResFile(appRFRefNum);				/* a precaution */
+			break;
+		default:
+			break;
+		}
+}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 Boolean IsSafeToQuit()
 {
-	Document *doc;  Boolean inMasterPage=FALSE;
+	Document *doc;  Boolean inMasterPage=False;
 	
 	for (doc=documentTable; doc<topTable; doc++)
 		if (doc->inUse)
 			if (doc->masterView)
-				{ inMasterPage = TRUE; break; }
+				{ inMasterPage = True; break; }
 	
 	if (inMasterPage) {
 		GetIndCString(strBuf, MENUCMDMSGS_STRS, 1);			/* "You can't quit now because at least one score is in Master Page." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	else
-		return TRUE;
+		return True;
 }
 
-#ifdef TARGET_API_MAC_CARBON_FILEIO
 
 static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD);
 static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD)
@@ -221,52 +219,33 @@ static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD)
 	
 	inputType[0] = 'TEXT';
 	err = OpenFileDialog(kNavGenericSignature, 1, inputType, pNSD);
-	if (err != noErr || pNSD->nsOpCancel) return FALSE;
+	if (err != noErr || pNSD->nsOpCancel) return False;
 	
 	FSSpec fsSpec = pNSD->nsFSSpec;
 	Pstrcpy(macfName, fsSpec.name);
-	return TRUE;
+	return True;
 }
-#else
-static Boolean GetNotelistFile(Str255 macfName, short *vRefNum);
-static Boolean GetNotelistFile(Str255 macfName, short *vRefNum)
-{
-	OSType 		myTypes[MAXINPUTTYPE];
-	SFReply		reply;
-	Point		dialogWhere = { 90, 82 };
-	
-	myTypes[0] = 'TEXT';
-	
-	SFGetFile(dialogWhere, "\p", 0L, 1, myTypes, 0L, &reply);
-	if (reply.good) {
-		Pstrcpy(macfName, reply.fName);
-		*vRefNum = reply.vRefNum;
-		return TRUE;
-	}
-
-	return FALSE;
-}
-#endif
 
 
 /*
- *	Handle a choice from the File Menu.  Return FALSE if it's time to quit.
+ *	Handle a choice from the File Menu.  Return False if it's time to quit.
  */
 
 Boolean DoFileMenu(short choice)
 	{
-		Boolean keepGoing = TRUE, doSymbol;  short vrefnum, returnCode;
+		Boolean keepGoing = True, doSymbol;  short vrefnum, returnCode;
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		char str[256];
 		NSClientData nscd;  FSSpec fsSpec;
 		
-		switch(choice) {
+		switch (choice) {
 			case FM_New:
 				doSymbol = (TopDocument==NULL);
-				DoOpenDocument(NULL, 0, FALSE, NULL);
+				DoOpenDocument(NULL, 0, False, NULL);
+				LogPrintf(LOG_INFO, "Opened new score.\n");
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
-					DoViewMenu(VM_SymbolPalette);
+					DoViewMenu(VM_ToollPalette);
 				}
 				break;
 			case FM_Open:
@@ -274,13 +253,13 @@ Boolean DoFileMenu(short choice)
 				 else {
 					UseStandardType(documentType);
 					GetIndCString(str, MENUCMDMSGS_STRS, 4);			/* "Which score do you want to open?" */
-					returnCode = GetInputName(str, TRUE, tmpStr, &vrefnum, &nscd);
+					returnCode = GetInputName(str, True, tmpStr, &vrefnum, &nscd);
 					if (returnCode) {
 						if (returnCode==OP_OpenFile) {
 							fsSpec = nscd.nsFSSpec;
 							vrefnum = nscd.nsFSSpec.vRefNum;
-							DoOpenDocument(tmpStr, vrefnum, FALSE, &fsSpec);
-							LogPrintf(LOG_INFO, "Opened file '%s'.\n", PToCString(tmpStr));
+							if (DoOpenDocument(tmpStr, vrefnum, False, &fsSpec))
+								LogPrintf(LOG_INFO, "Opened file '%s'.\n", PToCString(tmpStr));
 						 }
 						 else if (returnCode==OP_NewFile)
 						 	keepGoing = DoFileMenu(FM_New);
@@ -294,11 +273,11 @@ Boolean DoFileMenu(short choice)
 				 else {
 					UseStandardType(documentType);
 					GetIndCString(str, MENUCMDMSGS_STRS, 5);			/* "Which score do you want to open read-only?" */
-					returnCode = GetInputName(str, FALSE, tmpStr, &vrefnum, &nscd);
+					returnCode = GetInputName(str, False, tmpStr, &vrefnum, &nscd);
 					if (returnCode)
 						fsSpec = nscd.nsFSSpec;
 						vrefnum = nscd.nsFSSpec.vRefNum;
-						DoOpenDocument(tmpStr, vrefnum, TRUE, &fsSpec);
+						DoOpenDocument(tmpStr, vrefnum, True, &fsSpec);
 						LogPrintf(LOG_INFO, "Opened read-only file '%s'.\n", PToCString(tmpStr));
 				}
 				break;
@@ -323,7 +302,7 @@ Boolean DoFileMenu(short choice)
 				ClearStandardTypes();
 				
 				GetIndCString(str, MIDIFILE_STRS, 1);					/* "What MIDI file do you want to Import?" */
-				returnCode = GetInputName(str, FALSE, tmpStr, &vrefnum, &nscd);
+				returnCode = GetInputName(str, False, tmpStr, &vrefnum, &nscd);
 				if (returnCode) {
 					fsSpec = nscd.nsFSSpec;
 					ImportMIDIFile(&fsSpec);
@@ -364,34 +343,21 @@ Boolean DoFileMenu(short choice)
 				if (doc) DoSheetSetup(doc);
 				break;
 			case FM_PageSetup:
-#if TARGET_API_MAC_CARBON
-				if (doc) NDoPageSetup(doc);
-#else
 				if (doc) DoPageSetup(doc);
-#endif
 				break;
 			case FM_Print:
-#if TARGET_API_MAC_CARBON
-				if (doc) NDoPrintScore(doc);
-				LogPrintf(LOG_DEBUG, "FM_Print >NDoPrintScore\n");
-#else
 				if (doc) DoPrintScore(doc);
-#endif
 				break;
 			case FM_SavePostScript:
-#if TARGET_API_MAC_CARBON
-				if (doc) NDoPostScript(doc);
-#else
 				if (doc) DoPostScript(doc);
-#endif
 				break;
 			case FM_SaveText:
-				if (doc) SaveNotelist(doc, ANYONE, TRUE);
+				if (doc) SaveNotelist(doc, ANYONE, True);
 				break;
 			case FM_ScoreInfo:
 				/* For users of public versions that don't have the Test menu, provide
 					a way to access our debugging and emergency-repair facilities. */
-				if (OptionKeyDown()) {
+				if (OptionKeyDown() && CmdKeyDown()) {
 					InstallDebugMenuItems(ControlKeyDown());
 				}
 				else {					
@@ -403,9 +369,9 @@ Boolean DoFileMenu(short choice)
 				break;
 			case FM_Quit:
 				if (!IsSafeToQuit()) break;
-				if (!SaveToolPalette(TRUE)) break;
-				ShowHidePalettes(FALSE);
-				quitting = TRUE;
+				if (!SaveToolPalette(True)) break;
+				ShowHidePalettes(False);
+				quitting = True;
 				break;
 			}
 		
@@ -414,7 +380,7 @@ Boolean DoFileMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Edit Menu.
  */
@@ -424,7 +390,7 @@ void DoEditMenu(short choice)
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
 		
-		switch(choice) {
+		switch (choice) {
 			case EM_Undo:
 				DoUndo(doc);
 				break;
@@ -444,11 +410,11 @@ void DoEditMenu(short choice)
 				else if (lastCopy==COPYTYPE_PAGE)
 					PastePages(doc);
 				break;
-			case EM_Clear:
-				DoClear(doc);
-				break;
 			case EM_Merge:
 				DoMerge(doc);
+				break;
+			case EM_Clear:
+				DoClear(doc);
 				break;
 			case EM_Double:
 				Double(doc);
@@ -506,23 +472,23 @@ void DoEditMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 //#ifndef PUBLIC_VERSION
 
 /* Functions to delete selected objects from the score "stupidly", i.e., with almost
 no attempt to maintain consistency. This is intended to allow wizards to repair
 messed-up files and to help debug Nightingale, but it's obviously very dangerous:
-ordinary users should never be allowed to do it! */
+ordinary users should never do it! */
  
 static void DeleteObj(Document *doc, LINK pL)
 {
 	LogPrintf(LOG_NOTICE, "About to DeleteNode(%u) of type=%d...", pL, ObjLType(pL));
 
-	if (InDataStruct(doc, pL, MAIN_DSTR)) {
+	if (InObjectList(doc, pL, MAIN_DSTR)) {
 		DeleteNode(doc, pL);
 		LogPrintf(LOG_NOTICE, "done.\n");
-		doc->changed = TRUE;
+		doc->changed = True;
 	}
 	else
 		LogPrintf(LOG_WARNING, "NODE NOT IN MAIN OBJECT LIST.\n");
@@ -547,20 +513,18 @@ static void DeleteSelObjs(Document *doc)
 
 	/* Our only attempt to preserve consistency is to make the selection range legal. */
 	
-	if (!InDataStruct(doc, doc->selStartL, MAIN_DSTR)
-	||  !InDataStruct(doc, doc->selEndL, MAIN_DSTR)) {
-		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE);
+	if (!InObjectList(doc, doc->selStartL, MAIN_DSTR)
+	||  !InObjectList(doc, doc->selEndL, MAIN_DSTR)) {
+		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False);
 		doc->selStartL = doc->selEndL = RightLINK(firstMeasL);
 	}
 }
 
 
-void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset);
-void ResetAllMeasNumPos(Document *doc);
+static void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset);
+static void ResetAllMeasNumPos(Document *doc);
 
-void SetMeasNumPos(Document *doc,
-					LINK startL, LINK endL,
-					short xOffset, short yOffset)
+static void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset)
 {
 	PAMEASURE	aMeasure;
 	LINK		pL, aMeasureL;
@@ -573,13 +537,13 @@ void SetMeasNumPos(Document *doc,
 				aMeasure->xMNStdOffset = xOffset;
 				aMeasure->yMNStdOffset = yOffset;
 			}
-			doc->changed = TRUE;
+			doc->changed = True;
 		}
 	}
 }
 
 
-void ResetAllMeasNumPos(Document *doc)
+static void ResetAllMeasNumPos(Document *doc)
 {
 	SetMeasNumPos(doc, doc->headL, doc->tailL, 0, 0);
 	InvalWindow(doc);
@@ -594,7 +558,7 @@ static void DoTestMenu(short choice)
 #ifndef PUBLIC_VERSION
 		register Document *doc = GetDocumentFromWindow(TopDocument);			
 
-		switch(choice) {
+		switch (choice) {
 			case TS_Browser:
 				if (doc) {
 					if (OptionKeyDown())
@@ -624,20 +588,18 @@ static void DoTestMenu(short choice)
 				LogPrintf(LOG_INFO, "ClickMode set to ClickFrame\n");
 				break;
 			case TS_Debug:
-#ifndef PUBLIC_VERSION
 				DoDebug("Menu");
-#endif				
 				break;
 			case TS_ShowDebug:
-//				static Boolean showDbgWin = FALSE;
+//				static Boolean showDbgWin = False;
 				
 				showDbgWin = !showDbgWin;
 				if (showDbgWin) {
-//					ShowHideDebugWindow(TRUE);
+//					ShowHideDebugWindow(True);
 					LogPrintf(LOG_WARNING, "Show Debug Window isn't implemented.\n");					
 				}
 				else {				
-//					ShowHideDebugWindow(FALSE);
+//					ShowHideDebugWindow(False);
 				}
 				
 				break;
@@ -657,7 +619,7 @@ static void DoTestMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Score Menu.
  */
@@ -669,7 +631,7 @@ static void DoScoreMenu(short choice)
 		
 		if (doc==NULL) return;
 		
-		switch(choice) {
+		switch (choice) {
 			case SM_MasterSheet:
 				DoMasterSheet(doc);
 				break;
@@ -739,52 +701,52 @@ static void DoScoreMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 /* Collect information for the Transpose Key command: fill the <trStaff> array with
 flags indicating which staff nos. should be transposed (because they have something
 selected in the reserved area at the start of the selection). To keep users from
 getting confused with the Transpose Chromatic and Transpose Diatonic commands (which
-work very differently), if anything after the reserved area is selected, return FALSE
+work very differently), if anything after the reserved area is selected, return False
 to indicate Transpose Key shouldn't be allowed. */
 
 static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
 {
-	short s;  LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
+	short s;
+	LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
 	
-	/* If anything is selected after the initial reserved area, don't allow
-		Transpose Key. */
+	/* If anything is selected after the initial reserved area, don't allow Transpose Key. */
 	
-	measL = LSSearch(LeftLINK(doc->selEndL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
-	if (measL) return FALSE;
+	measL = LSSearch(LeftLINK(doc->selEndL), MEASUREtype, ANYONE, GO_LEFT, False);
+	if (measL) return False;
 
 	/* Decide which staves will be affected. */
 	
 	for (s = 1; s<=MAXSTAVES; s++)
-		trStaff[s] = FALSE;
+		trStaff[s] = False;
 		
 	for (pL = doc->selStartL; pL && !MeasureTYPE(pL); pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
 			case CLEFtype:
 				aClefL = FirstSubLINK(pL);
 				for ( ; aClefL; aClefL = NextCLEFL(aClefL))
-					if (ClefSEL(aClefL)) trStaff[ClefSTAFF(aClefL)] = TRUE;
+					if (ClefSEL(aClefL)) trStaff[ClefSTAFF(aClefL)] = True;
 				break;
 			case KEYSIGtype:
 				aKeySigL = FirstSubLINK(pL);
 				for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL))
-					if (KeySigSEL(aKeySigL)) trStaff[KeySigSTAFF(aKeySigL)] = TRUE;
+					if (KeySigSEL(aKeySigL)) trStaff[KeySigSTAFF(aKeySigL)] = True;
 				break;
 			case TIMESIGtype:
 				aTimeSigL = FirstSubLINK(pL);
 				for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL))
-					if (TimeSigSEL(aTimeSigL)) trStaff[TimeSigSTAFF(aTimeSigL)] = TRUE;
+					if (TimeSigSEL(aTimeSigL)) trStaff[TimeSigSTAFF(aTimeSigL)] = True;
 				break;
 			default:
 				;
 		}
 
-	return TRUE;
+	return True;
 }
 
 
@@ -801,7 +763,7 @@ static void DoNotesMenu(short choice)
 		
 		if (doc==NULL) return;
 		
-		switch(choice) {
+		switch (choice) {
 			case NM_SetDuration:
 				NMSetDuration(doc);
 				break;
@@ -865,7 +827,7 @@ static void DoNotesMenu(short choice)
 				addAccCode = Advise(ADDACCIDENTAL_ALRT);
 				if (addAccCode!=Cancel) {
 					PrepareUndo(doc, doc->selStartL, U_AddRedundAcc, 42);	/* "Add Redundant Accidentals" */
-					if (AddRedundantAccs(doc, ANYONE, addAccCode, TRUE))
+					if (AddRedundantAccs(doc, ANYONE, addAccCode, True))
 						InvalSelRange(doc);
 				}
 				break;
@@ -890,7 +852,7 @@ static void DoNotesMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Groups Menu.
  */
@@ -902,7 +864,7 @@ void DoGroupsMenu(short choice)
 		
 		if (doc==NULL) return;
 		
-		switch(choice) {
+		switch (choice) {
 			case GM_AutomaticBeam:
 				DoAutoBeam(doc);
 				break;
@@ -918,7 +880,7 @@ void DoGroupsMenu(short choice)
 				break;
 			case GM_Tuplet:
 				if (cmdIsTuplet) {
-					tParam.isFancy = FALSE;
+					tParam.isFancy = False;
 					DoTuple(doc, &tParam);
 					}
 				else {
@@ -927,8 +889,8 @@ void DoGroupsMenu(short choice)
 				break;
 			case GM_FancyTuplet:
 				if (FTupletCheck(doc, &tParam)) {
-					tParam.isFancy = TRUE;
-					okay = TupletDialog(doc, &tParam, TRUE);
+					tParam.isFancy = True;
+					okay = TupletDialog(doc, &tParam, True);
 					if (okay) DoTuple(doc, &tParam);
 					}
 				break;
@@ -942,7 +904,7 @@ void DoGroupsMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the View Menu.
  */
@@ -950,10 +912,8 @@ void DoGroupsMenu(short choice)
 void DoViewMenu(short choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
-		short palIndex;
-		Rect screen, pal, docRect;
 		
-		switch(choice) {
+		switch (choice) {
 			case VM_GoTo:
 				if (doc) GoTo(doc);
 				break;
@@ -1003,36 +963,11 @@ void DoViewMenu(short choice)
 			case VM_ShowClipboard:
 				ShowClipDocument();
 				break;
-			case VM_SymbolPalette:
-				palIndex = TOOL_PALETTE;
-				GetWindowPortBounds(palettes[palIndex], &pal);
-				OffsetRect(&pal,-pal.left, -pal.right);
-				if (TopDocument) {
-					/*
-					 *	Initial position is the offset in config.toolsPosition from
-					 *	the upper left corner of the document's window, but not
-					 *	offscreen.
-					 */					 
-					//docRect = (*((WindowPeek)TopDocument)->contRgn)->rgnBBox;
-					GetWindowRgnBounds(TopDocument, kWindowContentRgn, &docRect);					
-					docRect.right = docRect.left + pal.right;
-					docRect.bottom = docRect.top + pal.bottom;
-					GetMyScreen(&docRect,&screen);
-					OffsetRect(&docRect,config.toolsPosition.h,config.toolsPosition.v);
-					PullInsideRect(&docRect,&screen,2);
-				}
-				 else {
-					/* Initial position is upper left corner of main screen */
-					GetQDScreenBitsBounds(&docRect);
-				 	InsetRect(&docRect, 10, GetMBarHeight()+16);
-				}
-				(*paletteGlobals[palIndex])->position.h = docRect.left;
-				(*paletteGlobals[palIndex])->position.v = docRect.top;
-				MovePalette(palettes[palIndex],(*paletteGlobals[palIndex])->position);
-				palettesVisible[TOOL_PALETTE] = TRUE;
+			case VM_ToollPalette:
+				VMToollPalette();
 				break;
 			case VM_ShowSearchPattern:
-				//Do nothing; Nigthingale Search has been removed
+				//Do nothing; Nightingale Search has been temporarily removed
 				break;
 			default:
 				VMActivate(choice);
@@ -1041,22 +976,22 @@ void DoViewMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  * Handle the "MIDI Dynamics Preferences" command.
  */
 
-void PLMIDIDynPrefs(Document *doc)
+static void PLMIDIDynPrefs(Document *doc)
 {
-	static Boolean apply=FALSE;
+	static Boolean apply=False;
 	Boolean okay;
 	
 	okay = MIDIDynamDialog(doc, &apply);
 	if (okay)
-		DisableUndo(doc, FALSE);
+		DisableUndo(doc, False);
 	if (okay && apply) {
-		SetVelFromContext(doc, FALSE);
-		doc->changed = TRUE;
+		SetVelFromContext(doc, False);
+		doc->changed = True;
 	}
 }
 
@@ -1065,7 +1000,7 @@ void PLMIDIDynPrefs(Document *doc)
  * Handle the "MIDI Dynamics Preferences" command.
  */
 
-void PLMIDIModPrefs(Document *doc)
+static void PLMIDIModPrefs(Document *doc)
 {
 	Boolean okay;
 	
@@ -1077,10 +1012,11 @@ void PLMIDIModPrefs(Document *doc)
  * Toggle the document's "transposed score" flag.
  */
 
-void PLTransposeScore(Document *doc)
+static void PLTransposedScore(Document *doc)
 {
-	static Boolean warnedTransp = FALSE;
-	short partn, nparts;  LINK partL;
+	static Boolean warnedTransp = False;
+	short partn, nparts;
+	LINK partL;
 	PPARTINFO pPart;
 
 	if (!warnedTransp) {
@@ -1090,13 +1026,13 @@ void PLTransposeScore(Document *doc)
 			pPart = GetPPARTINFO(partL);
 			if (pPart->transpose!=0) {
 				NoteInform(TRANSP_ALRT);
-				warnedTransp = TRUE;
+				warnedTransp = True;
 				break;
 			}
 		}
 	}
 	doc->transposed = !doc->transposed;
-	doc->changed = TRUE;
+	doc->changed = True;
 }
 
 
@@ -1107,7 +1043,7 @@ void EditPartMIDI(Document *doc)
 	LINK partL, pMPartL;  PPARTINFO pPart, pMPart;
 	PARTINFO partInfo;  short firstStaff;
 	short partn;
-	Boolean allParts = FALSE;
+	Boolean allParts = False;
 
 	partL = GetSelPart(doc);
 	firstStaff = PartFirstSTAFF(partL);
@@ -1125,7 +1061,7 @@ void EditPartMIDI(Document *doc)
 			pMPart = GetPPARTINFO(pMPartL);
 			*pMPart = partInfo;
 			SetCMDeviceForPartn(doc, partn, device);
-			doc->changed = TRUE;
+			doc->changed = True;
 			
 			if (allParts) {
 				short partNum;
@@ -1156,7 +1092,7 @@ void EditPartMIDI(Document *doc)
 		pMPartL = Staff2PartL(doc, doc->masterHeadL, firstStaff);
 		pMPart = GetPPARTINFO(pMPartL);
 		*pMPart = partInfo;
-		doc->changed = TRUE;
+		doc->changed = True;
 	}
 }
 
@@ -1169,18 +1105,18 @@ void DoPlayRecMenu(short choice)
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 //		short oldMIDIThru;
 
-		switch(choice) {
+		switch (choice) {
 			case PL_PlayEntire:
 				MEHideCaret(doc);
 				if (doc) PlayEntire(doc);
 				break;
+			case PL_PlayFromSelection:
+				MEHideCaret(doc);
+				if (doc) PlaySequence(doc, doc->selStartL, doc->tailL, True, False);
+				break;
 			case PL_PlaySelection:
 				MEHideCaret(doc);
 				if (doc) PlaySelection(doc);
-				break;
-			case PL_PlayFromSelection:
-				MEHideCaret(doc);
-				if (doc) PlaySequence(doc, doc->selStartL, doc->tailL, TRUE, FALSE);
 				break;
 			case PL_MutePart:
 				MEHideCaret(doc);
@@ -1190,34 +1126,34 @@ void DoPlayRecMenu(short choice)
 				MEHideCaret(doc);
 				if (doc) SetPlaySpeedDialog();
 				break;
+			case PL_AllNotesOff:
+				if (useWhichMIDI==MIDIDR_CM)
+					CMAllNotesOff();
+				break;
 			case PL_RecordInsert:
-				if (doc) PLRecord(doc, FALSE);
+				if (doc) PLRecord(doc, False);
 				break;
 			case PL_Quantize:
 				if (doc) DoQuantize(doc);
 				break;
 			case PL_RecordMerge:
-				if (doc) PLRecord(doc, TRUE);
+				if (doc) PLRecord(doc, True);
 				break;
 			case PL_StepRecInsert:
-				if (doc) PLStepRecord(doc, FALSE);
+				if (doc) PLStepRecord(doc, False);
 				break;
 			case PL_StepRecMerge:
-				if (doc) PLStepRecord(doc, TRUE);
-				break;
-			case PL_AllNotesOff:
-				if (useWhichMIDI==MIDIDR_CM)
-					CMAllNotesOff();
+				if (doc) PLStepRecord(doc, True);
 				break;
 			case PL_MIDISetup:
 				MEHideCaret(doc);
 //				oldMIDIThru = config.midiThru;
-				if (doc) MIDIDialog(doc);
+				if (doc) MIDIPrefsDialog(doc);
 				break;
 			case PL_Metronome:
 				if (useWhichMIDI==MIDIDR_CM)
 					CMMetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
-									&config.metroVelo, &config.metroDur, &config.cmMetroDevice);
+									&config.metroVelo, &config.metroDur, &config.cmMetroDev);
 				else
 					MetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
 									&config.metroVelo, &config.metroDur);
@@ -1234,7 +1170,7 @@ void DoPlayRecMenu(short choice)
 				if (doc) EditPartMIDI(doc);
 				break;
 			case PL_Transpose:
-				if (doc) PLTransposeScore(doc);
+				if (doc) PLTransposedScore(doc);
 				break;
 
 			default:
@@ -1243,14 +1179,15 @@ void DoPlayRecMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 void MPInstrument(Document *doc)
 {
-	LINK staffL, aStaffL;  short partStaffn;
+	LINK staffL, aStaffL;
+	short partStaffn;
 	
 	partStaffn = -1;
-	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
 		if (StaffSEL(aStaffL)) {
@@ -1261,7 +1198,7 @@ void MPInstrument(Document *doc)
 	if (partStaffn<0) return;
 	
 	if (SDInstrDialog(doc, partStaffn)) {
-		doc->masterChanged = TRUE;
+		doc->masterChanged = True;
 		InvalWindow(doc);
 	}
 }
@@ -1278,7 +1215,7 @@ void MPCombineParts(Document *doc)
 	if (!GetPartSelRange(doc, &firstPartL, &lastPartL)) return;
 	
 	if (MPCombineParts(doc, firstPartL, lastPartL)) {
-		doc->masterChanged = TRUE;
+		doc->masterChanged = True;
 		InvalWindow(doc);
 	}
 }
@@ -1293,7 +1230,7 @@ static void DoMasterPgMenu(short choice)
 	Document *doc=GetDocumentFromWindow(TopDocument);
 	if (doc==NULL) return;
 	
-	switch(choice) {
+	switch (choice) {
 		case MP_AddPart:
 			MPAddPart(doc);
 			break;
@@ -1334,7 +1271,7 @@ static void DoMasterPgMenu(short choice)
 }
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Show Format Menu
  */
@@ -1344,7 +1281,7 @@ static void DoFormatMenu(short choice)
 	Document *doc=GetDocumentFromWindow(TopDocument);
 	if (doc==NULL) return;
 	
-	switch(choice) {
+	switch (choice) {
 		case FT_Invisify:
 			SFInvisify(doc);
 			break;
@@ -1353,11 +1290,11 @@ static void DoFormatMenu(short choice)
 			break;
 		default:
 			break;
-		}
+	}
 }
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Reduce/Enlarge To (Magnify) Menu
  */
@@ -1379,20 +1316,20 @@ static void DoMagnifyMenu(short choice)
 }
 
 
-/* ----------------------------------------------------------------- Miscellaneous --- */
+/* --------------------------------------------------------------------- Miscellaneous -- */
 
 static void MovePalette(WindowPtr whichPalette, Point position)
 {
 	PaletteGlobals *pg;  GrafPtr oldPort;  Rect portRect;
 	
 	if (GetWRefCon(whichPalette)==TOOL_PALETTE) {
-		ShowHide(whichPalette,FALSE);
-		MoveWindow(whichPalette, position.h, position.v, FALSE);
+		ShowHide(whichPalette,False);
+		MoveWindow(whichPalette, position.h, position.v, False);
 		pg = *paletteGlobals[TOOL_PALETTE];
-		ChangeToolSize(pg->firstAcross,pg->firstDown,TRUE);
+		ChangeToolSize(pg->firstAcross,pg->firstDown,True);
 	}
 	 else {
-		MoveWindow(whichPalette, position.h, position.v, FALSE);
+		MoveWindow(whichPalette, position.h, position.v, False);
 		GetPort(&oldPort); SetPort(GetWindowPort(whichPalette));
 		GetWindowPortBounds(whichPalette,&portRect);
 		InvalWindowRect(whichPalette,&portRect);
@@ -1417,8 +1354,8 @@ static void MovePalette(WindowPtr whichPalette, Point position)
 			ShowWindow(whichPalette);
 		 else {
 			/* Make the palette visible but don't generate an activate event. */
-			ShowHide(whichPalette, TRUE);
-			HiliteWindow(whichPalette, TRUE);
+			ShowHide(whichPalette, True);
+			HiliteWindow(whichPalette, True);
 		}
 	}
 }
@@ -1451,17 +1388,17 @@ static void EMAddCautionaryTimeSigs(Document *doc)
 	
 	numAdded = AddCautionaryTimeSigs(doc);
 	if (numAdded==0) {
-		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: No new time signatures needed.\n");
+		LogPrintf(LOG_INFO, "No new time signatures needed. (EMAddCautionaryTimeSigs)\n");
 		GetIndCString(strBuf, MENUCMDMSGS_STRS, 10);	/* "No new cautionary time signatures needed." */
+		CParamText(strBuf, "", "", "");
+		NoteInform(GENERIC_ALRT);
 	}
 	else {
-		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: added %d time signature(s).\n",
+		LogPrintf(LOG_INFO, "Added %d time signature set(s). (EMAddCautionaryTimeSigs)\n",
 					numAdded);
-		GetIndCString(fmtStr, MENUCMDMSGS_STRS, 9);	/* "Added %d cautionary time sig(s)." */
+		GetIndCString(fmtStr, MENUCMDMSGS_STRS, 9);	/* "Added %d cautionary time signature set(s)." */
 		sprintf(strBuf, fmtStr, numAdded);
 	}
-	CParamText(strBuf, "", "", "");
-	NoteInform(GENERIC_ALRT);
 	if (numAdded!=0) InvalWindow(doc);
 }
 
@@ -1472,35 +1409,41 @@ static void EMAddCautionaryTimeSigs(Document *doc)
  
 static void SMLeftEnd(Document *doc)
 {
-	short	changeFirstIndent, changeOtherIndent;
+	short	deltaFirstIndent, deltaOtherIndent;
+	Boolean	changedNameVis;
 	short	firstNames, firstDist, otherNames, otherDist;
 	
+	changedNameVis = False;
 	firstNames = doc->firstNames;
-	firstDist = d2pt(doc->firstIndent);
+	firstDist = d2pt(doc->dIndentFirst);
 	otherNames = doc->otherNames;
-	otherDist = d2pt(doc->otherIndent);
+	otherDist = d2pt(doc->dIndentOther);
+	
 	if (LeftEndDialog(&firstNames, &firstDist, &otherNames, &otherDist)) {
 		if (firstNames!=doc->firstNames) {
 			doc->firstNames = firstNames;
-			doc->changed = TRUE;
+			changedNameVis = True;
+			doc->changed = True;
 		}
-		changeFirstIndent = pt2d(firstDist)-doc->firstIndent;
-		if (changeFirstIndent!=0) {
-			doc->firstIndent = pt2d(firstDist);
-			IndentSystems(doc, changeFirstIndent, TRUE);
+		deltaFirstIndent = pt2d(firstDist)-doc->dIndentFirst;
+		if (deltaFirstIndent!=0) {
+			doc->dIndentFirst = pt2d(firstDist);
+			IndentSystems(doc, deltaFirstIndent, True);
 		}
 
 		if (otherNames!=doc->otherNames) {
 			doc->otherNames = otherNames;
-			doc->changed = TRUE;
+			changedNameVis = True;
+			doc->changed = True;
 		}
-		changeOtherIndent = pt2d(otherDist)-doc->otherIndent;
-		if (changeOtherIndent!=0) {
-			doc->otherIndent = pt2d(otherDist);
-			IndentSystems(doc, changeOtherIndent, FALSE);
+		deltaOtherIndent = pt2d(otherDist)-doc->dIndentOther;
+		if (deltaOtherIndent!=0) {
+			doc->dIndentOther = pt2d(otherDist);
+			IndentSystems(doc, deltaOtherIndent, False);
 		}
 
-		if (changeFirstIndent || changeOtherIndent) InvalWindow(doc);
+		if (deltaFirstIndent!=0 || deltaOtherIndent!=0 || changedNameVis)
+			InvalWindow(doc);
 	}
 }
 
@@ -1511,18 +1454,18 @@ static void SMLeftEnd(Document *doc)
  
 static void SMTextStyle(Document *doc)
 {
-	static Boolean firstCall=TRUE;
+	static Boolean firstCall=True;
 	static Str255 string;
 	Boolean okay;
 	CONTEXT context; LINK firstMeas;
 
-	firstMeas = LSSearch(doc->headL, MEASUREtype, ANYONE, FALSE, FALSE);
+	firstMeas = LSSearch(doc->headL, MEASUREtype, ANYONE, False, False);
 	GetContext(doc, firstMeas, 1, &context);
 
 	if (firstCall) {
 		GetIndString(tmpStr,MiscStringsID,6);	/* Get default sample string */
 		Pstrcpy(string,tmpStr);
-		firstCall = FALSE;
+		firstCall = False;
 	}
 	okay = DefineStyleDialog(doc, string, &context);
 }
@@ -1555,7 +1498,7 @@ static void SMRespace(Document *doc)
 		WaitCursor();
 		InitAntikink(doc, doc->selStartL, doc->selEndL);
 		if (RespaceBars(doc, doc->selStartL, doc->selEndL, 
-								RESFACTOR*(long)dval, TRUE, FALSE))
+								RESFACTOR*(long)dval, True, False))
 			doc->spacePercent = dval;
 			
 		/* NB: It would be much better not to Antikink if RespaceBars failed, but we
@@ -1572,12 +1515,12 @@ static void SMRespace(Document *doc)
 
 static void SMRealign(Document *doc)
 {
-	LINK pL; Boolean didSomething=FALSE;
+	LINK pL; Boolean didSomething=False;
 
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
-		if (RealignObj(pL, TRUE)) didSomething = TRUE;
+		if (RealignObj(pL, True)) didSomething = True;
 		
-	if (didSomething) doc->changed = TRUE;
+	if (didSomething) doc->changed = True;
 	InvalSelRange(doc);
 }
 
@@ -1589,7 +1532,7 @@ static void SMRealign(Document *doc)
 
 static void SMReformat(Document *doc)
 {
-	static Boolean firstCall=TRUE, changeSBreaks, careMeasPerSys, exactMPS,
+	static Boolean firstCall=True, changeSBreaks, careMeasPerSys, exactMPS,
 						careSysPerPage, justify;
 	short useMeasPerSys;
 	static short measPerSys, sysPerPage, titleMargin;
@@ -1597,16 +1540,16 @@ static void SMReformat(Document *doc)
 	LINK startSysL, endSysL;
 	
 	if (firstCall) {
-		changeSBreaks = TRUE;
-		careMeasPerSys = exactMPS = FALSE;
+		changeSBreaks = True;
+		careMeasPerSys = exactMPS = False;
 		measPerSys = 4;
 		
-		careSysPerPage = FALSE;
+		careSysPerPage = False;
 		sysPerPage = 6;
-		justify = FALSE;
+		justify = False;
 		titleMargin = config.titleMargin;
 		
-		firstCall = FALSE;
+		firstCall = False;
 	}
 
 	GetSysRange(doc, doc->selStartL, doc->selEndL, &startSysL, &endSysL);
@@ -1664,7 +1607,7 @@ static void NMAddModifiers(Document *doc)
 							MayErrMsg("NMAddModifiers: AutoNewModNR failed.");
 							goto stop;
 						}
-						doc->changed = TRUE;
+						doc->changed = True;
 					}
 stop:
 		InvalSelRange(doc);
@@ -1689,7 +1632,7 @@ static void NMStripModifiers(Document *doc)
 				if (aNote->selected && aNote->firstMod) {
 					DelModsForSync(pL, aNoteL);
 					aNote->firstMod = NILINK;
-					doc->changed = TRUE;
+					doc->changed = True;
 				}
 			}
 	InvalSelRange(doc);
@@ -1703,7 +1646,7 @@ static short CountSelVoices(Document *doc)
 	LINK pL, aNoteL, aGRNoteL;
 	
 	for (v = 1; v<=MAXVOICES; v++)
-		voiceUsed[v] = FALSE;
+		voiceUsed[v] = False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -1711,14 +1654,14 @@ static short CountSelVoices(Document *doc)
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					if (NoteSEL(aNoteL))
-						voiceUsed[NoteVOICE(aNoteL)] = TRUE;
+						voiceUsed[NoteVOICE(aNoteL)] = True;
 				}
 				break;
 			case GRSYNCtype:
 				aGRNoteL = FirstSubLINK(pL);
 				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 					if (GRNoteSEL(aGRNoteL))
-						voiceUsed[GRNoteVOICE(aGRNoteL)] = TRUE;
+						voiceUsed[GRNoteVOICE(aGRNoteL)] = True;
 				}
 				break;
 			default:
@@ -1753,8 +1696,8 @@ static void NMMultiVoice(Document *doc)
 static void NMSetDuration(Document *doc)
 {
 	static short lDur=QTR_L_DUR, nDots=0, pDurPct=-1, lDurAction=SET_DURS_TO;
-	static Boolean setLDur=TRUE, setPDur=TRUE, cptV=TRUE;
-	Boolean unbeam, didAnything=FALSE;
+	static Boolean setLDur=True, setPDur=True, cptV=True;
+	Boolean unbeam, didAnything=False;
 	
 	if (pDurPct<0) pDurPct = config.legatoPct;
 	
@@ -1765,13 +1708,13 @@ static void NMSetDuration(Document *doc)
 		if (setLDur) {
 			switch (lDurAction) {
 				case HALVE_DURS:
-					didAnything = SetDoubleHalveSelNoteDur(doc, FALSE, FALSE);
+					didAnything = SetDoubleHalveSelNoteDur(doc, False, False);
 					break;
 				case DOUBLE_DURS:
-					didAnything = SetDoubleHalveSelNoteDur(doc, TRUE, FALSE);
+					didAnything = SetDoubleHalveSelNoteDur(doc, True, False);
 					break;
 				case SET_DURS_TO:
-					didAnything = SetSelNoteDur(doc, lDur, nDots, FALSE);
+					didAnything = SetSelNoteDur(doc, lDur, nDots, False);
 					break;
 				default:
 					break;
@@ -1781,14 +1724,14 @@ static void NMSetDuration(Document *doc)
 				FixTimeStamps(doc, doc->selStartL, doc->selEndL);
 				if (doc->autoRespace)
 					RespaceBars(doc, doc->selStartL, doc->selEndL,
-								RESFACTOR*(long)doc->spacePercent, FALSE, FALSE);
+								RESFACTOR*(long)doc->spacePercent, False, False);
 				else
 					InvalMeasures(doc->selStartL, LeftLINK(doc->selEndL), ANYONE);	/* Force redrawing */
 			}
 		}
 		
 		if (setPDur)
-			SetPDur(doc, pDurPct, TRUE);
+			SetPDur(doc, pDurPct, True);
 	}
 }
 
@@ -1818,7 +1761,7 @@ static void NMSetMBRest(Document *doc)
 			UpdateMeasNums(doc, NILINK);
 			if (doc->autoRespace)
 				RespaceBars(doc, doc->selStartL, doc->selEndL,
-							RESFACTOR*(long)doc->spacePercent, FALSE, FALSE);
+							RESFACTOR*(long)doc->spacePercent, False, False);
 			else
 				InvalMeasures(doc->selStartL, LeftLINK(doc->selEndL), ANYONE);	/* Force redrawing */
 		}
@@ -1832,7 +1775,7 @@ static void NMSetMBRest(Document *doc)
 	
 static void NMFillEmptyMeas(Document *doc)
 {
-	short startMN, endMN;
+	short startMN, endMN, nFilled;
 	LINK startMeasL, endMeasL, aMeasureL, startL, endL;
 	
 	/* Get default start and end measures from the selection. */
@@ -1847,10 +1790,8 @@ static void NMFillEmptyMeas(Document *doc)
 	endMN = MeasMEASURENUM(aMeasureL)+doc->firstMNNumber;
 
 	if (FillEmptyDialog(doc, &startMN, &endMN)) {
-		LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMN=%d endMN=%d firstMNNumber=%d startL=%u endL=%u\n",
-					startMN, endMN, doc->firstMNNumber, startMeasL, endMeasL);
-		startL = MNSearch(doc, doc->headL, startMN-doc->firstMNNumber, GO_RIGHT, TRUE);
-		endL = MNSearch(doc, doc->headL, endMN-doc->firstMNNumber, GO_RIGHT, TRUE);
+		startL = MNSearch(doc, doc->headL, startMN-doc->firstMNNumber, GO_RIGHT, True);
+		endL = MNSearch(doc, doc->headL, endMN-doc->firstMNNumber, GO_RIGHT, True);
 		if (startL && endL) {
 			/* We have to change the selection range temporarily so PrepareUndo() knows
 				what to do. */
@@ -1861,10 +1802,16 @@ static void NMFillEmptyMeas(Document *doc)
 			doc->selStartL = saveSelStartL; doc->selEndL = saveSelEndL;
 
 			WaitCursor();
-			if (FillEmptyMeas(doc, startL, endL)) {
+			nFilled = FillEmptyMeas(doc, startL, endL);
+			if (nFilled>0) {
+				LogPrintf(LOG_INFO, "Filled %d empty staff-measure(s). startMN=%d endMN=%d (NMFillEmptyMeas)\n",
+							nFilled, startMN, endMN);
 				FixTimeStamps(doc, startL, endL);
 				UpdateMeasNums(doc, NILINK);
 			}
+			else
+				LogPrintf(LOG_INFO, "No empty staff-measure(s) to fill. startMN=%d endMN=%d (NMFillEmptyMeas)\n",
+							startMN, endMN);
 		}
 	}
 }
@@ -1986,12 +1933,12 @@ static void VMColorVoices()
 	Document *doc=GetDocumentFromWindow(TopDocument);
 
 	/*
-	 * Toggle with care: I'm not sure ISO C guarantees the "!" operator with
-	 * multibit fields like <colorVoices>.
+	 * Toggle with care: I'm not sure ISO C guarantees the "!" operator with multibit
+	 *	fields like <colorVoices>.
 	 */
 	if (doc) {
 		if (doc->colorVoices==0)
-			doc->colorVoices = ((CapsLockKeyDown() && ShiftKeyDown())? 1 : 2);
+			doc->colorVoices = ((ShiftKeyDown() && OptionKeyDown())? 1 : 2);
 		else
 			doc->colorVoices = 0;
 		CheckMenuItem(viewMenu, VM_ColorVoices, doc->colorVoices);
@@ -2013,6 +1960,41 @@ static void VMPianoRoll()
 		CheckMenuItem(viewMenu, VM_PianoRoll, doc->pianoroll);
 		InvalWindow(doc);
 	}
+}
+
+
+static void VMToollPalette()
+{
+	short palIndex;
+	Rect screen, pal, docRect;
+
+	palIndex = TOOL_PALETTE;
+	GetWindowPortBounds(palettes[palIndex], &pal);
+	OffsetRect(&pal, -pal.left, -pal.right);
+	if (TopDocument) {
+		/* Initial position is the offset in config.toolsPosition from the
+		   upper left corner of the document's window, but not offscreen. */
+							 
+		//docRect = (*((WindowPeek)TopDocument)->contRgn)->rgnBBox;
+		GetWindowRgnBounds(TopDocument, kWindowContentRgn, &docRect);					
+		docRect.right = docRect.left + pal.right;
+		docRect.bottom = docRect.top + pal.bottom;
+		GetMyScreen(&docRect, &screen);
+		OffsetRect(&docRect, config.toolsPosition.h, config.toolsPosition.v);
+		PullInsideRect(&docRect, &screen, 2);
+LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d\n", docRect.top);  // FIX ISSUE 67
+	}
+	else {
+		/* Initial position is upper left corner of main screen */
+		GetQDScreenBitsBounds(&docRect);
+		InsetRect(&docRect, 10, GetMBarHeight()+16);
+LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d GetMBarHeight()=%d\n", docRect.top,
+GetMBarHeight());														// FIX ISSUE 67
+	}
+	(*paletteGlobals[palIndex])->position.h = docRect.left;
+	(*paletteGlobals[palIndex])->position.v = docRect.top;
+	MovePalette(palettes[palIndex],(*paletteGlobals[palIndex])->position);
+	palettesVisible[TOOL_PALETTE] = True;
 }
 
 
@@ -2042,7 +2024,7 @@ static Boolean OKToRecord(Document *doc)
 	if (HasSmthgAcross(doc, doc->selStartL, str)) {
 		CParamText(str, "", "", "");
 		CautionAlert(EXTOBJ_ALRT, NULL);
-		return FALSE;
+		return False;
 	}
 	
 	if (doc->lookVoice>=0) {
@@ -2052,11 +2034,11 @@ static Boolean OKToRecord(Document *doc)
 			GetIndCString(strBuf, MENUCMDMSGS_STRS, 3);				/* "You can't Record onto a staff in one part while Looking..." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			return FALSE;
+			return False;
 		}
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -2102,7 +2084,7 @@ static void PLStepRecord(Document *doc, Boolean merge)
 		 */
 		NotesSel2TempFlags(doc);
 		if (merge) {
-			if (RespaceBars(doc, doc->selStartL, doc->selEndL, spaceProp, FALSE, TRUE))
+			if (RespaceBars(doc, doc->selStartL, doc->selEndL, spaceProp, False, True))
 				TempFlags2NotesSel(doc);
 		}
 		else {
@@ -2149,7 +2131,7 @@ void InstallDocMenus(Document *doc)
 static void InstallDebugMenuItems(Boolean installAll)
 {
 	if (debugItemsNeedInstall) {
-		LogPrintf(LOG_DEBUG, "InstallDebugMenuItems: installing debug menu items...\n");
+		LogPrintf(LOG_INFO, "Installing debug menu items...  (InstallDebugMenuItems)\n");
 		AppendMenu(editMenu, "\p(-");
 		AppendMenu(editMenu, "\pBrowser");
 		if (installAll) {
@@ -2158,7 +2140,7 @@ static void InstallDebugMenuItems(Boolean installAll)
 		}
 	}
 	else {
-		LogPrintf(LOG_DEBUG, "InstallDebugMenuItems: removing debug menu items...\n");
+		LogPrintf(LOG_INFO, "Removing debug menu items...  InstallDebugMenuItems)\n");
 		DeleteMenuItem(editMenu, EM_DeleteObjs);			
 		DeleteMenuItem(editMenu, EM_Debug);
 		DeleteMenuItem(editMenu, EM_Browser);
@@ -2169,7 +2151,7 @@ static void InstallDebugMenuItems(Boolean installAll)
 }
 
 
-/* ========================================================= MENU-UPDATING ROUTINES == */
+/* ============================================================ MENU-UPDATING ROUTINES == */
 
 /*
  * Force all menus to reflect internal state. This should be called when we're about to
@@ -2178,25 +2160,15 @@ static void InstallDebugMenuItems(Boolean installAll)
 
 void FixMenus()
 	{
-		Boolean isDA;  WindowPtr w;
+		WindowPtr w;
 		register Document *theDoc;
 		short nInRange=0, nSel=0;
 		LINK firstMeasL;
-		Boolean continSel=FALSE;
+		Boolean continSel=False;
 		
 		w = TopWindow;
-		if (w==NULL) {
-			theDoc = NULL;
-			isDA = FALSE;
-			}
-		 else {
-#ifdef TARGET_API_MAC_CARBON
-			isDA = FALSE;
-#else
-			isDA = ((WindowPeek)w)->windowKind < 0;
-#endif
-			theDoc = GetDocumentFromWindow(TopDocument);
-			}
+		if (w==NULL)	theDoc = NULL;
+		 else			theDoc = GetDocumentFromWindow(TopDocument);
 		
 		/*
 		 *	Precompute information about the current score and the clipboard for the
@@ -2217,16 +2189,16 @@ void FixMenus()
 				}
 			 else {								/* Clipboard is top document */
 			 	nInRange = nSel = 0;
-			 	beforeFirst = FALSE;
+			 	beforeFirst = False;
 			 }
 			InstallDoc(clipboard);
-			firstMeasL = SSearch(clipboard->headL, MEASUREtype, FALSE);
+			firstMeasL = SSearch(clipboard->headL, MEASUREtype, False);
 			clipboard->canCutCopy = RightLINK(firstMeasL)!=clipboard->tailL;
 			InstallDoc(theDoc);
 			}
 		
 		FixFileMenu(theDoc, nSel);
-		FixEditMenu(theDoc, nInRange, nSel, isDA);
+		FixEditMenu(theDoc, nInRange, nSel);
 		FixTestMenu(theDoc, nSel);
 		FixScoreMenu(theDoc, nSel);
 		FixNotesMenu(theDoc, continSel);
@@ -2244,7 +2216,7 @@ void FixMenus()
 static void FixFileMenu(Document *doc, short nSel)
 	{
 		//always disable Finale ETF import until it has been removed from menu (rsrc) entirely
-		XableItem(fileMenu,FM_GetETF,FALSE);        
+		XableItem(fileMenu,FM_GetETF,False);        
         
 		XableItem(fileMenu,FM_Close,doc!=NULL);
 		XableItem(fileMenu,FM_CloseAll,doc!=NULL);
@@ -2255,7 +2227,7 @@ static void FixFileMenu(Document *doc, short nSel)
 		XableItem(fileMenu,FM_Extract,doc!=NULL && doc!=clipboard);
 
 		// always disable NoteScan import until it has been removed from menu (rsrc) entirely
-		XableItem(fileMenu,FM_GetScan,FALSE);
+		XableItem(fileMenu,FM_GetScan,False);
 		XableItem(fileMenu,FM_SavePostScript,doc!=NULL && doc!=clipboard
 										&& !doc->masterView && !doc->showFormat);
 		XableItem(fileMenu,FM_SaveText,doc!=NULL && doc!=clipboard
@@ -2273,10 +2245,10 @@ static void FixFileMenu(Document *doc, short nSel)
 		XableItem(fileMenu,FM_ScoreInfo,doc!=NULL);
 		
 		//disable all Nightingale Search Menu items until it's re-implemented
-		XableItem(editMenu, EM_SearchMelody,FALSE);        
-		XableItem(editMenu, EM_SearchAgain,FALSE);        
-		XableItem(fileMenu, FM_SearchInFiles,FALSE);        
-		XableItem(viewMenu, VM_ShowSearchPattern, FALSE);
+		XableItem(editMenu, EM_SearchMelody,False);        
+		XableItem(editMenu, EM_SearchAgain,False);        
+		XableItem(fileMenu, FM_SearchInFiles,False);        
+		XableItem(viewMenu, VM_ShowSearchPattern, False);
 		
 	}
 
@@ -2293,12 +2265,12 @@ static short CountSelPages(Document *doc)
 		 * starts on, unless the selection starts on or before the first Page and ends
 		 *	after the first Page of the score.
 		 */
-		selAcrossFirst = FALSE;	
+		selAcrossFirst = False;	
 		for (pL = doc->headL; pL; pL = RightLINK(pL)) {
 			/* selStartL is in the selection, so test it before considering breaking */
-			if (pL==doc->selStartL) selAcrossFirst = TRUE;
+			if (pL==doc->selStartL) selAcrossFirst = True;
 			if (PageTYPE(pL)) break;
-			if (pL==doc->selEndL) selAcrossFirst = FALSE;
+			if (pL==doc->selEndL) selAcrossFirst = False;
 		}
 
 		nPages = (selAcrossFirst? 0 : 1);
@@ -2323,11 +2295,11 @@ static void GetUndoString(Document *doc, char undoMenuItem[])
 	}
 
 /*
- *	Enable or disable all items in the Edit menu; disable entire menu if the front
- * window isn't a DA and we're looking at the Master Page or Showing Format.
+ *	Enable or disable all items in the Edit menu; disable entire menu if we're looking
+ *  at the Master Page or Showing Format.
  */
 
-static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean isDA)
+static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 	{
 		Boolean mergeable,enablePaste,enableClearSys,enableClearPage;
 		char str[256], undoMenuItem[256], fmtStr[256];
@@ -2338,57 +2310,55 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 		/*
 		 * Unlike most other menus, we can't just disable the whole menu if there's
 		 * no score open, so the code below has to work even if doc==NULL!
-		 */
-		 
-		/*
+		 *
 		 *	Handle clipboard commands if either doc==NULL, or it exists and is in the
 		 * normal view (not Master Page or Work on Format).
 		 */
 		
 		if (doc==NULL || (!doc->masterView && !doc->showFormat)) {
-			XableItem(editMenu,EM_Undo,isDA || 
+			XableItem(editMenu,EM_Undo,False || 
 				(doc!=NULL && doc->undo.lastCommand!=U_NoOp && doc->undo.canUndo));
 			if (doc) {
 				GetUndoString(doc, undoMenuItem);
 				SetMenuItemCText(editMenu, EM_Undo, undoMenuItem);
 			}
 	
-			XableItem(editMenu,EM_Cut,isDA ||
+			XableItem(editMenu,EM_Cut,False ||
 				(doc!=NULL && doc!=clipboard && doc->canCutCopy && !beforeFirst));
-			XableItem(editMenu,EM_Copy,isDA ||
+			XableItem(editMenu,EM_Copy,False ||
 				(doc!=NULL && doc!=clipboard && doc->canCutCopy && !beforeFirst));
-			XableItem(editMenu,EM_Clear,isDA ||
+			XableItem(editMenu,EM_Clear,False ||
 				(doc!=NULL && doc!=clipboard && doc->canCutCopy
 						&& BFSelClearable(doc, beforeFirst)));
 					
 			nPages = CountSelPages(doc);
 			if (nPages>1) {
-				GetIndCString(fmtStr, MENUCMD_STRS, 1);						/* "Copy %d Pages" */
+				GetIndCString(fmtStr, MENUCMD_STRS, 1);					/* "Copy %d Pages" */
 				sprintf(str, fmtStr, nPages);
 			}
 			else
-				GetIndCString(str, MENUCMD_STRS, 2);						/* "Copy Page" */
+				GetIndCString(str, MENUCMD_STRS, 2);					/* "Copy Page" */
 			SetMenuItemCText(editMenu, EM_CopyPage, str);
 			if (nPages>1) {
-				GetIndCString(fmtStr, MENUCMD_STRS, 21);					/* "Clear %d Pages" */
+				GetIndCString(fmtStr, MENUCMD_STRS, 21);				/* "Clear %d Pages" */
 				sprintf(str, fmtStr, nPages);
 			}
 			else
-				GetIndCString(str, MENUCMD_STRS, 22);						/* "Clear Page" */
+				GetIndCString(str, MENUCMD_STRS, 22);					/* "Clear Page" */
 			SetMenuItemCText(editMenu, EM_ClearPage, str);
 
 			/* FIXME: How can you "Paste Insert" anything into a DA? (CER asks?) */
 
 			switch (lastCopy) {
 				case COPYTYPE_CONTENT:
-					GetIndCString(str, MENUCMD_STRS, 3);					/* "Paste Insert" */
+					GetIndCString(str, MENUCMD_STRS, 3);				/* "Paste Insert" */
 					SetMenuItemCText(editMenu, EM_Paste, str);
-					enablePaste = (isDA ||
-						(doc!=NULL && doc!=clipboard && clipboard->canCutCopy && !beforeFirst));
+					enablePaste = (doc!=NULL && doc!=clipboard && clipboard->canCutCopy
+									&& !beforeFirst);
 					XableItem(editMenu,EM_Paste,enablePaste);
 					break;
 				case COPYTYPE_SYSTEM:
-					GetIndCString(str, MENUCMD_STRS, 4);					/* "Paste System" */
+					GetIndCString(str, MENUCMD_STRS, 4);				/* "Paste System" */
 					SetMenuItemCText(editMenu, EM_Paste, str);
 					enablePaste = (doc!=NULL && doc!=clipboard && !beforeFirst);
 					XableItem(editMenu,EM_Paste,enablePaste);
@@ -2396,11 +2366,11 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 				case COPYTYPE_PAGE:
 					nPages = clipboard->numSheets;
 					if (nPages>1) {
-						GetIndCString(fmtStr, MENUCMD_STRS, 5);				/* "Paste %d Pages" */
+						GetIndCString(fmtStr, MENUCMD_STRS, 5);			/* "Paste %d Pages" */
 						sprintf(str, fmtStr, nPages);
 					}
 					else
-						GetIndCString(str, MENUCMD_STRS, 6);				/* "Paste Page" */
+						GetIndCString(str, MENUCMD_STRS, 6);			/* "Paste Page" */
 					SetMenuItemCText(editMenu, EM_Paste, str);
 					enablePaste = (doc!=NULL && doc!=clipboard && !beforeFirst);
 					XableItem(editMenu,EM_Paste,enablePaste);
@@ -2415,14 +2385,14 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 			XableItem(editMenu,EM_Double,
 				(doc!=NULL && doc!=clipboard && !beforeFirst && nSel>0));
 
-			enableClearSys = FALSE;
+			enableClearSys = False;
 			
 			if (doc) {
 				LINK firstMeasL;
 
-				firstMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+				firstMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 				if (IsAfter(doc->selStartL,firstMeasL))
-					enableClearSys = FALSE;
+					enableClearSys = False;
 				else {
 					enableClearSys = (doc!=NULL && doc!=clipboard);
 				}
@@ -2431,14 +2401,14 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 			XableItem(editMenu,EM_ClearSystem,enableClearSys);
 			XableItem(editMenu,EM_CopySystem,doc!=NULL && doc!=clipboard);
 			
-			enableClearPage = FALSE;
+			enableClearPage = False;
 			
 			if (doc) {
 				LINK firstMeasL;
 
-				firstMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+				firstMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 				if (IsAfter(doc->selStartL,firstMeasL))
-					enableClearPage = FALSE;
+					enableClearPage = False;
 				else {
 					enableClearPage = (doc!=NULL && doc!=clipboard);
 				}
@@ -2448,20 +2418,20 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 			XableItem(editMenu,EM_CopyPage,doc!=NULL && doc!=clipboard);
 
 			XableItem(editMenu, EM_SelAll,
-				(!isDA) && (doc!=NULL && doc!=clipboard && (RightLINK(doc->headL)!=doc->tailL)));
+				(doc!=NULL && doc!=clipboard && (RightLINK(doc->headL)!=doc->tailL)));
 			XableItem(editMenu, EM_ExtendSel,
-				(!isDA) && (doc!=NULL && doc!=clipboard && nSel>0));
+				(doc!=NULL && doc!=clipboard && nSel>0));
 
 			XableItem(editMenu, EM_GetInfo, doc!=NULL && nSel==1);
 
 			if (doc==NULL || nSel!=1)
-				XableItem(editMenu, EM_ModifierInfo, FALSE);
+				XableItem(editMenu, EM_ModifierInfo, False);
 			else
 				XableItem(editMenu, EM_ModifierInfo, SyncTYPE(doc->selStartL));
 
 			XableItem(editMenu, EM_Set, doc!=clipboard && IsSetEnabled(doc));
 			
-			XableItem(editMenu,EM_SearchMelody,searchPatDoc != NULL);
+			XableItem(editMenu,EM_SearchMelody,searchPatDoc!=NULL);
 		}
 	}
 
@@ -2469,15 +2439,15 @@ static void FixTestMenu(Document *doc, short nSel)
 	{
 #ifndef PUBLIC_VERSION
 		if (clickMode==ClickErase)
-			SetItemMark(testMenu, TS_ClickErase, '•');
+			SetItemMark(testMenu, TS_ClickErase, '*');
 		else
 			SetItemMark(testMenu, TS_ClickErase, noMark);
 		if (clickMode==ClickSelect)
-			SetItemMark(testMenu, TS_ClickSelect, '•');
+			SetItemMark(testMenu, TS_ClickSelect, '*');
 		else
 			SetItemMark(testMenu, TS_ClickSelect, noMark);
 		if (clickMode==ClickFrame)
-			SetItemMark(testMenu, TS_ClickFrame, '•');
+			SetItemMark(testMenu, TS_ClickFrame, '*');
 		else
 			SetItemMark(testMenu, TS_ClickFrame, noMark);
 
@@ -2518,7 +2488,7 @@ static void FixMoveMeasSys(Document *doc)
 			return;
 		}
 		
-		sysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+		sysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, False);
 
 		if (!sysL) {
 			DisableSMMove();
@@ -2527,11 +2497,11 @@ static void FixMoveMeasSys(Document *doc)
 
 		startBarL = NILINK;
 		if (LinkLSYS(sysL)!=NILINK)
-			startBarL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+			startBarL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE, GO_LEFT, False);
 
 		if (startBarL && LinkLSYS(sysL)!=NILINK) {
 			nextBarL = LinkRMEAS(startBarL);
-			measAfterSelStart = nextBarL ? (MeasSYSL(nextBarL)==sysL) : FALSE;
+			measAfterSelStart = nextBarL ? (MeasSYSL(nextBarL)==sysL) : False;
 			moveMeasUp = ( !beforeFirst && FirstMeasInSys(startBarL) &&
 					 			IsAfter(sysL,startBarL) && measAfterSelStart);
 			XableItem(scoreMenu, SM_MoveMeasUp, moveMeasUp);
@@ -2539,8 +2509,8 @@ static void FixMoveMeasSys(Document *doc)
 		else
 			DisableMenuItem(scoreMenu, SM_MoveMeasUp);
 
-		endBarL = LSISearch(LeftLINK(doc->selEndL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
-		measSysEnd = FALSE;
+		endBarL = LSISearch(LeftLINK(doc->selEndL), MEASUREtype, ANYONE, GO_LEFT, False);
+		measSysEnd = False;
 		if (endBarL)
 			measSysEnd = IsLastUsedMeasInSys(doc, endBarL);
 		XableItem(scoreMenu, SM_MoveMeasDown, !beforeFirst && endBarL && measSysEnd);
@@ -2557,7 +2527,7 @@ static void FixMoveMeasSys(Document *doc)
 		XableItem(scoreMenu, SM_MoveSystemUp,
 			(FirstSysInPage(sysL) && LinkLPAGE(pageL)!=NILINK));
 		XableItem(scoreMenu, SM_MoveSystemDown, 
-			(LastSysInPage(sysL) && LinkRPAGE(pageL)!=NILINK));
+			(IsLastSysInPage(sysL) && LinkRPAGE(pageL)!=NILINK));
 	}
 
 /*
@@ -2698,7 +2668,7 @@ static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 					if (NoteSTAFF(aNoteL)==staff) {
 						aNote = GetPANOTE(aNoteL);
-						if (aNote->inOttava) return TRUE;
+						if (aNote->inOttava) return True;
 						else break;
 					}
 				}
@@ -2706,12 +2676,12 @@ static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 				for (aGRNoteL=FirstSubLINK(pL); aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL))
 					if (GRNoteSTAFF(aGRNoteL)==staff) {
 						aGRNote = GetPAGRNOTE(aGRNoteL);
-						if (aGRNote->inOttava) return TRUE;
+						if (aGRNote->inOttava) return True;
 						else break;
 					}
 			}
 
-	return FALSE;
+	return False;
 }
 
 static void FixBeamCommands(Document *);
@@ -2727,12 +2697,12 @@ static void FixBeamCommands(Document *doc)
 	Boolean hasBeam, hasGRBeam; LINK pL, aNoteL, aGRNoteL;
 	short voice, nBeamable, nGRBeamable; Str255 str;
 	
-	hasBeam = FALSE;			
+	hasBeam = False;			
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 				if (NoteSEL(aNoteL) && NoteBEAMED(aNoteL))
-					{ hasBeam = TRUE; goto knowBeamed; }
+					{ hasBeam = True; goto knowBeamed; }
 		
 knowBeamed:
 	/*
@@ -2741,12 +2711,12 @@ knowBeamed:
 	 * is beamable/not beamable, Xable accordingly; then check for
 	 * GRbeam-able; if it is, enable it.
 	 */
-	hasGRBeam = FALSE;			
+	hasGRBeam = False;			
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && GRSyncTYPE(pL))
 			for (aGRNoteL=FirstSubLINK(pL); aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL))
 				if (GRNoteSEL(aGRNoteL) && GRNoteBEAMED(aGRNoteL))
-					{ hasGRBeam = TRUE; goto knowGRBeamed; }
+					{ hasGRBeam = True; goto knowGRBeamed; }
 
 knowGRBeamed:
 	/* Enable/disable the Break Beam cmd (easy) and the Beam/Unbeam cmd (not easy). */
@@ -2757,7 +2727,7 @@ knowGRBeamed:
 	DisableMenuItem(groupsMenu, GM_Beam);
 	
 	if (hasBeam || hasGRBeam) {
-		cmdIsBeam = FALSE;
+		cmdIsBeam = False;
 		GetIndString(str, MENUCMD_STRS, 13);							/* "Unbeam Notes" */
 		SetMenuItemText(groupsMenu, GM_Beam, str);
 		EnableMenuItem(groupsMenu, GM_Beam);
@@ -2772,7 +2742,7 @@ knowGRBeamed:
 	if (!beforeFirst)						/* Selection doesn't start before 1st measure? */
 		for (voice=1; voice<=MAXVOICES; voice++) {
 			if (VOICE_MAYBE_USED(doc, voice)) {
-				nBeamable = CountBeamable(doc, doc->selStartL, doc->selEndL, voice, TRUE);
+				nBeamable = CountBeamable(doc, doc->selStartL, doc->selEndL, voice, True);
 				if (nBeamable > 1) break;
 			}
 		}
@@ -2780,13 +2750,13 @@ knowGRBeamed:
 	if (!beforeFirst)						/* Selection doesn't start before 1st measure? */
 		for (voice=1; voice<=MAXVOICES; voice++) {
 			if (VOICE_MAYBE_USED(doc, voice)) {
-				nGRBeamable = CountGRBeamable(doc, doc->selStartL, doc->selEndL, voice, TRUE);
+				nGRBeamable = CountGRBeamable(doc, doc->selStartL, doc->selEndL, voice, True);
 				if (nGRBeamable > 1) break;
 			}
 		}
 
 	if (nBeamable>1 || nGRBeamable>1) {
-		cmdIsBeam = TRUE;
+		cmdIsBeam = True;
 		GetIndString(str, MENUCMD_STRS, 14);							/* "Beam Notes" */
 		SetMenuItemText(groupsMenu, GM_Beam, str);
 		EnableMenuItem(groupsMenu, GM_Beam);
@@ -2804,16 +2774,16 @@ static void FixTupletCommands(Document *doc)
 	Boolean hasTuplet; LINK pL, aNoteL, vStartL, vEndL;
 	short voice, tupleNum; Str255 str;
 	
-	hasTuplet = FALSE;
+	hasTuplet = False;
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 				if (NoteSEL(aNoteL) && NoteINTUPLET(aNoteL))
-					{ hasTuplet = TRUE; goto knowTupled; }
+					{ hasTuplet = True; goto knowTupled; }
 					
 knowTupled:
 	if (hasTuplet) {
-		cmdIsTuplet = FALSE;
+		cmdIsTuplet = False;
 		GetIndString(str, MENUCMD_STRS, 15);							/* "Remove Tuplet" */
 		SetMenuItemText(groupsMenu, GM_Tuplet, str);
 		EnableMenuItem(groupsMenu, GM_Tuplet);
@@ -2840,13 +2810,13 @@ knowTupled:
 		for (voice=1; voice<=MAXVOICES; voice++) {
 			if (VOICE_MAYBE_USED(doc, voice)) {
 				GetNoteSelRange(doc,voice,&vStartL,&vEndL, NOTES_ONLY);
-				tupleNum = (vStartL && vEndL) ? GetTupleNum(vStartL,vEndL,voice,TRUE) : 0;
+				tupleNum = (vStartL && vEndL) ? GetTupleNum(vStartL,vEndL,voice,True) : 0;
 				if (tupleNum>=2) break;
 			}
 		}
 
 	if (tupleNum>=2) {
-		cmdIsTuplet = TRUE;
+		cmdIsTuplet = True;
 		GetIndString(str, MENUCMD_STRS, 16);							/* "Create Tuplet" */
 		SetMenuItemText(groupsMenu, GM_Tuplet, str);
 		EnableMenuItem(groupsMenu, GM_Tuplet);
@@ -2873,21 +2843,21 @@ static void FixOttavaCommands(Document *doc, Boolean continSel)
 		return;
 	}
 	
-	hasOttava = FALSE;		
+	hasOttava = False;		
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && SyncTYPE(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 				if (NoteSEL(aNoteL) && NoteINOTTAVA(aNoteL))
-					{ hasOttava = TRUE; goto knowOttavad; }
+					{ hasOttava = True; goto knowOttavad; }
 		if (LinkSEL(pL) && GRSyncTYPE(pL))
 			for (aGRNoteL=FirstSubLINK(pL); aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL))
 				if (GRNoteSEL(aGRNoteL) && GRNoteINOTTAVA(aGRNoteL))
-					{ hasOttava = TRUE; goto knowOttavad; }				
+					{ hasOttava = True; goto knowOttavad; }				
 	}
 					
 knowOttavad:
 	if (hasOttava) {
-		cmdIsOttava = FALSE;
+		cmdIsOttava = False;
 		GetIndString(str, MENUCMD_STRS, 17);							/* "Remove Octave Sign" */
 		SetMenuItemText(groupsMenu, GM_Ottava, str);
 		EnableMenuItem(groupsMenu, GM_Ottava);
@@ -2905,18 +2875,18 @@ knowOttavad:
 		for (staff=1; staff<=doc->nstaves; staff++) {
 			GetStfSelRange(doc,staff,&stfStartL,&stfEndL);
 			if (stfStartL && stfEndL)
-				ottavaNum = OctCountNotesInRange(staff, stfStartL, stfEndL, FALSE);
+				ottavaNum = OctCountNotesInRange(staff, stfStartL, stfEndL, False);
 			else
 				ottavaNum = 0;
 			if (ottavaNum > 0) {
 				if (!SelRangeChkOct(staff, stfStartL, stfEndL)) break;
 				ottavaNum = 0;
-				}
+			}
 		}
 	}
 
 	if (ottavaNum>0) {
-		cmdIsOttava = TRUE;
+		cmdIsOttava = True;
 		GetIndString(str, MENUCMD_STRS, 18);							/* "Create Octave Sign" */
 		SetMenuItemText(groupsMenu, GM_Ottava, str);
 		EnableMenuItem(groupsMenu, GM_Ottava);
@@ -2992,108 +2962,108 @@ void AddWindowList()
 				InsertMenuItem(viewMenu, "\ptemp", itemNum);
 				GetWCTitle(doc->theWindow, strBuf);
 				SetMenuItemCText(viewMenu, itemNum+1, strBuf);
-				if (doc->theWindow==TopDocument) CheckMenuItem(viewMenu, itemNum+1, TRUE);
+				if (doc->theWindow==TopDocument) CheckMenuItem(viewMenu, itemNum+1, True);
 				itemNum++;
 			}
 	}
 }
 
-/* Fix all items in the View menu and add a list of open Documents (windows);
-disable the entire menu if there's nothing to view. */
+/* Fix all items in the View menu and add a list of open Documents (windows); disable
+the entire menu if there's nothing to view. */
 
 static void FixViewMenu(Document *doc)
-	{
+{
 //		Boolean disableWholeMenu;
-		
-		AddWindowList();
-		UpdateMenu(viewMenu, doc!=NULL);
-		/* FIXME: If doc is NULL, we should return at this point--continuing is dangerous! */
-		
-		XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));
-		XableItem(viewMenu,VM_GotoSel,ENABLE_GOTO(doc));
+	
+	AddWindowList();
+	UpdateMenu(viewMenu, doc!=NULL);
+	/* FIXME: If doc is NULL, we should return at this point--continuing is dangerous! */
+	
+	XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));
+	XableItem(viewMenu,VM_GotoSel,ENABLE_GOTO(doc));
 
-		XableItem(viewMenu,VM_Reduce,ENABLE_REDUCE(doc));
-		XableItem(viewMenu,VM_Enlarge,ENABLE_ENLARGE(doc));
-		
-		XableItem(viewMenu,VM_LookAtV,doc!=NULL && !doc->masterView && !doc->showFormat);
-		XableItem(viewMenu,VM_LookAtAllV,doc!=NULL && !doc->masterView && !doc->showFormat);
-		XableItem(viewMenu,VM_ShowDurProb,doc!=NULL && !doc->masterView);
-		XableItem(viewMenu,VM_ShowSyncL,doc!=NULL && !doc->masterView);
-		XableItem(viewMenu,VM_ShowInvis,doc!=NULL && doc!=clipboard && !doc->masterView);
-		XableItem(viewMenu,VM_ShowSystems,doc!=NULL && doc!=clipboard);
+	XableItem(viewMenu,VM_Reduce,ENABLE_REDUCE(doc));
+	XableItem(viewMenu,VM_Enlarge,ENABLE_ENLARGE(doc));
+	
+	XableItem(viewMenu,VM_LookAtV,doc!=NULL && !doc->masterView && !doc->showFormat);
+	XableItem(viewMenu,VM_LookAtAllV,doc!=NULL && !doc->masterView && !doc->showFormat);
+	XableItem(viewMenu,VM_ShowDurProb,doc!=NULL && !doc->masterView);
+	XableItem(viewMenu,VM_ShowSyncL,doc!=NULL && !doc->masterView);
+	XableItem(viewMenu,VM_ShowInvis,doc!=NULL && doc!=clipboard && !doc->masterView);
+	XableItem(viewMenu,VM_ShowSystems,doc!=NULL && doc!=clipboard);
 
-		XableItem(viewMenu,VM_PianoRoll,doc!=NULL && !doc->masterView);
-		
-		XableItem(viewMenu, VM_ShowClipboard, doc!=NULL && doc!=clipboard);
-		
-		XableItem(viewMenu, VM_SymbolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
+	XableItem(viewMenu,VM_PianoRoll,doc!=NULL && !doc->masterView);
+	
+	XableItem(viewMenu, VM_ShowClipboard, doc!=NULL && doc!=clipboard);
+	
+	XableItem(viewMenu, VM_ToollPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
 
-		CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
-		CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);
-		CheckMenuItem(viewMenu,VM_ShowDurProb,doc!=NULL && doc->showDurProb);
-		CheckMenuItem(viewMenu,VM_ShowSyncL,doc!=NULL && doc->showSyncs);
-		CheckMenuItem(viewMenu,VM_ShowInvis,doc!=NULL && doc->showInvis);
-		CheckMenuItem(viewMenu, VM_ShowSystems, doc!=NULL && doc->frameSystems);
-		CheckMenuItem(viewMenu,VM_PianoRoll,doc!=NULL && doc->pianoroll);
-	}
+	CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
+	CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);
+	CheckMenuItem(viewMenu,VM_ShowDurProb,doc!=NULL && doc->showDurProb);
+	CheckMenuItem(viewMenu,VM_ShowSyncL,doc!=NULL && doc->showSyncs);
+	CheckMenuItem(viewMenu,VM_ShowInvis,doc!=NULL && doc->showInvis);
+	CheckMenuItem(viewMenu, VM_ShowSystems, doc!=NULL && doc->frameSystems);
+	CheckMenuItem(viewMenu,VM_PianoRoll,doc!=NULL && doc->pianoroll);
+}
 
-/* Fix all items in Play/Record menu; disable entire menu if there's no score or
-we're looking at the Master Page. */
+/* Fix all items in Play/Record menu; disable entire menu if there's no score or we're
+looking at the Master Page. */
 
 static void FixPlayRecordMenu(Document *doc, short nSel)
-	{
-		Boolean disableWholeMenu, noteSel, haveMIDI=(useWhichMIDI!=MIDIDR_NONE);
+{
+	Boolean disableWholeMenu, noteSel, haveMIDI=(useWhichMIDI!=MIDIDR_NONE);
 
-		disableWholeMenu = (doc==NULL || doc->masterView);
+	disableWholeMenu = (doc==NULL || doc->masterView);
 
-		if (!disableWholeMenu) {
-			XableItem(playRecMenu, PL_PlayEntire, haveMIDI);
-			XableItem(playRecMenu, PL_PlaySelection, doc!=clipboard && nSel!=0 && haveMIDI);
-			XableItem(playRecMenu, PL_PlayFromSelection, doc!=clipboard && haveMIDI);
-			XableItem(playRecMenu, PL_MutePart, haveMIDI);
-			XableItem(playRecMenu, PL_PlayVarSpeed, haveMIDI);
-			XableItem(playRecMenu, PL_AllNotesOff, haveMIDI);
-	
-			noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
-			XableItem(playRecMenu, PL_Quantize, noteSel);
-	
-			XableItem(playRecMenu, PL_RecordInsert, doc!=clipboard && haveMIDI);
-			XableItem(playRecMenu, PL_RecordMerge, doc!=clipboard && haveMIDI);
-			XableItem(playRecMenu, PL_StepRecInsert, doc!=clipboard && haveMIDI);
-			XableItem(playRecMenu, PL_StepRecMerge, doc!=clipboard && haveMIDI);
-	 		XableItem(playRecMenu, PL_MIDISetup, doc!=clipboard);
-	 		XableItem(playRecMenu, PL_Metronome, haveMIDI);		/* Metro and thru are global options */
-			XableItem(playRecMenu, PL_MIDIDynPrefs, doc!=clipboard);
-			XableItem(playRecMenu, PL_MIDIModPrefs, doc!=clipboard);
-			XableItem(playRecMenu, PL_PartMIDI, doc!=clipboard);
-			XableItem(playRecMenu, PL_Transpose, doc!=clipboard);
-			CheckMenuItem(playRecMenu, PL_Transpose, doc->transposed);
-		}
-		else {
-			XableItem(playRecMenu, PL_PlayEntire, FALSE);
-			XableItem(playRecMenu, PL_PlaySelection, FALSE);
-			XableItem(playRecMenu, PL_PlayFromSelection, FALSE);
-			XableItem(playRecMenu, PL_MutePart, FALSE);
-			XableItem(playRecMenu, PL_PlayVarSpeed, FALSE);
-			XableItem(playRecMenu, PL_AllNotesOff, FALSE);	
-			XableItem(playRecMenu, PL_Quantize, FALSE);
-			XableItem(playRecMenu, PL_RecordInsert, FALSE);
-			XableItem(playRecMenu, PL_RecordMerge, FALSE);
-			XableItem(playRecMenu, PL_StepRecInsert, FALSE);
-			XableItem(playRecMenu, PL_StepRecMerge, FALSE);
-	 		XableItem(playRecMenu, PL_MIDISetup, FALSE);
-	 		XableItem(playRecMenu, PL_Metronome, FALSE);
-	 		XableItem(playRecMenu, PL_MIDIThru, FALSE);
-			XableItem(playRecMenu, PL_MIDIDynPrefs, FALSE);
-			XableItem(playRecMenu, PL_MIDIModPrefs, FALSE);
-			XableItem(playRecMenu, PL_PartMIDI, FALSE);
-			XableItem(playRecMenu, PL_Transpose, FALSE);
-			CheckMenuItem(playRecMenu, PL_Transpose, FALSE);
-		}
+	if (!disableWholeMenu) {
+		XableItem(playRecMenu, PL_PlayEntire, haveMIDI);
+		XableItem(playRecMenu, PL_PlaySelection, doc!=clipboard && nSel!=0 && haveMIDI);
+		XableItem(playRecMenu, PL_PlayFromSelection, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_MutePart, haveMIDI);
+		XableItem(playRecMenu, PL_PlayVarSpeed, haveMIDI);
+		XableItem(playRecMenu, PL_AllNotesOff, haveMIDI);
+
+		noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
+		XableItem(playRecMenu, PL_Quantize, noteSel);
+
+		XableItem(playRecMenu, PL_RecordInsert, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_RecordMerge, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_StepRecInsert, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_StepRecMerge, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_MIDISetup, doc!=clipboard);
+		XableItem(playRecMenu, PL_Metronome, haveMIDI);		/* Metro and thru are global options */
+		XableItem(playRecMenu, PL_MIDIDynPrefs, doc!=clipboard);
+		XableItem(playRecMenu, PL_MIDIModPrefs, doc!=clipboard);
+		XableItem(playRecMenu, PL_PartMIDI, doc!=clipboard);
+		XableItem(playRecMenu, PL_Transpose, doc!=clipboard);
+		CheckMenuItem(playRecMenu, PL_Transpose, doc->transposed);
 	}
+	else {
+		XableItem(playRecMenu, PL_PlayEntire, False);
+		XableItem(playRecMenu, PL_PlaySelection, False);
+		XableItem(playRecMenu, PL_PlayFromSelection, False);
+		XableItem(playRecMenu, PL_MutePart, False);
+		XableItem(playRecMenu, PL_PlayVarSpeed, False);
+		XableItem(playRecMenu, PL_AllNotesOff, False);	
+		XableItem(playRecMenu, PL_Quantize, False);
+		XableItem(playRecMenu, PL_RecordInsert, False);
+		XableItem(playRecMenu, PL_RecordMerge, False);
+		XableItem(playRecMenu, PL_StepRecInsert, False);
+		XableItem(playRecMenu, PL_StepRecMerge, False);
+		XableItem(playRecMenu, PL_MIDISetup, False);
+		XableItem(playRecMenu, PL_Metronome, False);
+		XableItem(playRecMenu, PL_MIDIThru, False);
+		XableItem(playRecMenu, PL_MIDIDynPrefs, False);
+		XableItem(playRecMenu, PL_MIDIModPrefs, False);
+		XableItem(playRecMenu, PL_PartMIDI, False);
+		XableItem(playRecMenu, PL_Transpose, False);
+		CheckMenuItem(playRecMenu, PL_Transpose, False);
+	}
+}
 
-/* Fix all items in Master Page menu. If no score or we're not in Master Page,
-this menu shouldn't be installed, so we don't even need to disable it. */
+/* Fix all items in Master Page menu. If no score or we're not in Master Page, this
+menu shouldn't be installed, so we don't need to disable it. */
 
 static void FixMasterPgMenu(Document *doc)
 {
@@ -3104,7 +3074,7 @@ static void FixMasterPgMenu(Document *doc)
 	groupIsSel = GroupIsSel(doc);
 	nstavesMP = doc->nstavesMP;
 
-	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);
 	GetIndString(str, MENUCMD_STRS,
 		LinkSEL(staffL)? 19 : 20);							/* "Add Parts Above/at Bottom" */
 	SetMenuItemText(masterPgMenu, MP_AddPart, str);

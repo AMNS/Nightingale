@@ -21,8 +21,8 @@ void SetTextSize(Document *);
 void BuildCharRectCache(Document *);
 Rect CharRect(short);
 
-void NumToSonataStr(long, unsigned char *);
-void GetMusicAscDesc(Document *, unsigned char *, short, short *, short *);
+void NumToSonataStr(long, StringPtr);
+void GetMusicAscDesc(Document *, StringPtr, short, short *, short *);
 short GetMFontSizeIndex(short);
 short GetMNamedFontSize(short);
 short Staff2MFontSize(DDIST);

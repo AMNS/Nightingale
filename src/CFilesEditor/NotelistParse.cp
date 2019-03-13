@@ -155,15 +155,14 @@ static enum {
 
 Boolean ParseNotelistFile(Str255 fileName, FSSpec *fsSpec)
 {
-	Boolean		ok, printNotelist = TRUE;
+	Boolean		ok, printNotelist = True;
 	short		refNum;
 
 	short errCode = FSOpenInputFile(fsSpec,&refNum);
-	if (errCode != noErr) return FALSE;
+	if (errCode != noErr) return False;
 	
 #if CNTLKEYFORPRINTNOTELIST
-	if (!CapsLockKeyDown() || !OptionKeyDown())
-		printNotelist = FALSE;
+	if (!DETAIL_SHOW) printNotelist = False;
 #endif
 
 	WaitCursor();
@@ -186,13 +185,13 @@ Boolean ParseNotelistFile(Str255 fileName, FSSpec *fsSpec)
 	if (printNotelist) PrintNotelistDS();
 #endif
 
-	return TRUE;
+	return True;
 
 Err:
 	ProgressMsg(0, "");					/* Remove progress window, if it hasn't already been removed. */
 	DisposNotelistMemory();
 
-	return FALSE;
+	return False;
 }
 
 static Boolean FSPreProcessNotelist(short refNum)
@@ -202,7 +201,7 @@ static Boolean FSPreProcessNotelist(short refNum)
 	Boolean	ok;
 		
 	gNotelistVersion = FSNotelistVersion(refNum);
-	if (gNotelistVersion<0) return FALSE;
+	if (gNotelistVersion<0) return False;
 	
 	/* Count the objects we're interested in. */
 	gNumNLItems = 0;
@@ -230,11 +229,11 @@ static Boolean FSPreProcessNotelist(short refNum)
 	}
 	
 	ok = AllocNotelistMemory();
-	if (!ok) return FALSE;
+	if (!ok) return False;
 	
 	FSRewind(refNum);
 
-	return TRUE;
+	return True;
 }
 
 
@@ -246,7 +245,7 @@ static Boolean FSProcessNotelist(short refNum)
 {
 	short	ans;
 	char	firstChar, secondChar;
-	Boolean	ok = TRUE;
+	Boolean	ok = True;
 	char	fmtStr[256], str[256];
 	
 	gLineCount = 0L;
@@ -294,33 +293,33 @@ static Boolean FSProcessNotelist(short refNum)
 				CParamText(str, "", "", ""); 
 				ok = (CautionAdvise(NOTELISTCODE_ALRT)!=Cancel);
 		}
-		if (!ok) return FALSE;								/* This may be too drastic in some cases. */
+		if (!ok) return False;								/* This may be too drastic in some cases. */
 	}
 	
 	LogPrintf(LOG_NOTICE, "Notelist file read: %ld lines.\n", gLineCount);
-	return TRUE;
+	return True;
 }
 
 
 /* ----------------------------------------------------------- PostProcessNotelist -- */
 /* Fill in various fields that cannot be computed before we read all the Notelist data.
-Returns TRUE if ok, FALSE if error. */
+Returns True if ok, False if error. */
 
 static Boolean PostProcessNotelist(void)
 {
-	Boolean	result, noErrors = TRUE;
+	Boolean	result, noErrors = True;
 	
 	result = CheckNLBarlines();
-	if (!result) noErrors = FALSE;
+	if (!result) noErrors = False;
 	
 	result = CheckNLTuplets();							// _Must_ come before CheckNLNoteRests?
-	if (!result) noErrors = FALSE;
+	if (!result) noErrors = False;
 	
 	result = CheckNLNoteRests();
-	if (!result) noErrors = FALSE;
+	if (!result) noErrors = False;
 	
 	result = CheckNLTimeSigs();
-	if (!result) noErrors = FALSE;
+	if (!result) noErrors = False;
 	
 	return noErrors;
 }
@@ -497,11 +496,11 @@ static Boolean ParseNRGR()
 	else pNRGR->firstMod = 0;
 
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 	
 broken:
 	ReportParseFailure("ParseNRGR", err);
-	return FALSE;
+	return False;
 }
 
 
@@ -557,7 +556,7 @@ static Boolean ParseTuplet()
 			"111" means numVis, denomVis, brackVis
 			"100" means numVis, !denomVis, !brackVis
 			"001" means !numVis, !denomVis, brackVis
-		and so on. Note that if denomVis is TRUE, numVis must also be TRUE.
+		and so on. Note that if denomVis is True, numVis must also be True.
 		(Nightingale's user interface for this is the Fancy Tuplet dialog.)
 	*/
 	err = NLERR_BADAPPEAR;
@@ -573,10 +572,10 @@ static Boolean ParseTuplet()
 	if (pTuplet->denomVis && !pTuplet->numVis) goto broken;
 
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 broken:
 	ReportParseFailure("ParseTuplet", err);
-	return FALSE;
+	return False;
 }
 
 
@@ -621,10 +620,10 @@ static Boolean ParseBarline()
 		pBarline->appear = BAR_SINGLE;
 
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 broken:
 	ReportParseFailure("ParseBarline", err);
-	return FALSE;
+	return False;
 }
 
 
@@ -663,10 +662,10 @@ static Boolean ParseClef()
 	pClef->type = along;
 
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 broken:
 	ReportParseFailure("ParseClef", err);
-	return FALSE;
+	return False;
 }
 
 
@@ -705,16 +704,16 @@ static Boolean ParseKeySig()
 	pKS->numAcc = along;
 
 	switch (acc) {
-		case '#':	pKS->sharp = TRUE;	break;
-		case 'b':	pKS->sharp = FALSE;	break;
+		case '#':	pKS->sharp = True;	break;
+		case 'b':	pKS->sharp = False;	break;
 		default:		err = NLERR_BADACC;	goto broken;
 	}
 	
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 broken:
 	ReportParseFailure("ParseKeySig", err);
-	return FALSE;
+	return False;
 }
 
 
@@ -770,10 +769,10 @@ static Boolean ParseTimeSig()
 		pTS->appear = N_OVER_D;
 
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 broken:
 	ReportParseFailure("ParseTimeSig", err);
-	return FALSE;
+	return False;
 }
 
 
@@ -853,11 +852,11 @@ static Boolean ParseTempoMark()
 				pTempo->durCode = i;
 		if (pTempo->durCode==0) goto broken;
 		if (*++p=='.') {
-			pTempo->dotted = TRUE;
+			pTempo->dotted = True;
 			p++;
 		}
 		else
-			pTempo->dotted = FALSE;
+			pTempo->dotted = False;
 		if (*p=='=') p++;
 		else goto broken;
 		
@@ -867,7 +866,7 @@ static Boolean ParseTempoMark()
 			pTempo->metroStr = offset;
 		else goto broken;
 
-		pTempo->hideMM = FALSE;
+		pTempo->hideMM = False;
 	}
 	else {											/* Assign a default tempo and hide it. */
 		Str255	metroStr;
@@ -880,15 +879,15 @@ static Boolean ParseTempoMark()
 		else goto broken;
 		
 		pTempo->durCode = QTR_L_DUR;
-		pTempo->dotted = FALSE;
-		pTempo->hideMM = TRUE;
+		pTempo->dotted = False;
+		pTempo->hideMM = True;
 	}
 	
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 broken:
 	ReportParseFailure("ParseTempoMark", err);
-	return FALSE;
+	return False;
 }
 
 
@@ -979,10 +978,10 @@ static Boolean ParseTextGraphic()
 	else goto broken;
 	
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 broken:
 	ReportParseFailure("ParseTextGraphic", err);
-	return FALSE;
+	return False;
 }
 
 
@@ -1021,15 +1020,15 @@ static Boolean ParseDynamic()
 	if (along>(long)SFP_DYNAM) {
 		gHairpinCount++;
 		gNumNLItems--;					/* so we later don't try to read empty node at end of list */
-		return TRUE;
+		return True;
 	}
 	pDynamic->type = along;
 
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 broken:
 	ReportParseFailure("ParseDynamic", err);
-	return FALSE;
+	return False;
 }
 
 
@@ -1046,7 +1045,7 @@ static char *ParseField(char *p, Boolean *pOkay)
 	char str[256];
 	short ans, number;
 
-	*pOkay = TRUE;
+	*pOkay = True;
 	
 	/* Point to first non-whitespace char. If there's nothing following, do nothing. */
 	for (p++; *p; p++)
@@ -1055,7 +1054,7 @@ static char *ParseField(char *p, Boolean *pOkay)
 	if (ans<1) return NULL;
 	
 	if (strcmp(str, "delaccs")==0) {
-		gDelAccs = TRUE;
+		gDelAccs = True;
 		p += strlen(str);
 		return p;
 	}
@@ -1070,7 +1069,7 @@ static char *ParseField(char *p, Boolean *pOkay)
 		return p;
 	}
 	else {
-		*pOkay = FALSE;
+		*pOkay = False;
 		return NULL;		/* Unrecognized field */
 	}
 }
@@ -1110,7 +1109,7 @@ static Boolean ParseStructComment()
 
 	/* Set defaults for values set by optional fields at the end of the line. */
 	gFirstMNNumber = 	1;
-	gDelAccs = FALSE;
+	gDelAccs = False;
 
 	/* Extract score name, which is enclosed in single-quotes and can contain whitespace.
 		First copy it into a temporary buffer (str); then store into gHStringPool.
@@ -1175,16 +1174,16 @@ static Boolean ParseStructComment()
 
 done:
 	gNextEmptyNode++;
-	return TRUE;
+	return True;
 broken:
 	ReportParseFailure("ParseStructComment", err);
-	return FALSE;
+	return False;
 }
 
 
 /* ------------------------------------------------------------------- ExtractVal -- */
 /* Given a string having the format "label=xxx", converts the "xxx" part to a
-numerical (long int) value. Returns TRUE if ok, FALSE if error. */
+numerical (long int) value. Returns True if ok, False if error. */
 
 static Boolean ExtractVal(char	*str,				/* source string */
 							long	*val)			/* pass back extracted value */
@@ -1198,19 +1197,19 @@ static Boolean ExtractVal(char	*str,				/* source string */
 		ans = sscanf(p, "%ld", val);	/* read numerical value in string as a long */
 										//???Should I use atol instead? Remember NCust OMSdeviceID problem!
 		if (ans > 0)
-			return TRUE;
+			return True;
 	}
 	
 	/* no '=' found in str, or sscanf error */
 	*val = 0L;
-	return FALSE;
+	return False;
 }
 
 
 /* ------------------------------------------------------------- ExtractNoteFlags -- */
 /* Function for decoding the flag field of a note, rest or grace note. Assigns values
 to the object passed in pNRGR. The function has a complete check for illegal characters
-in flagStr. Returns TRUE if ok, FALSE if error.
+in flagStr. Returns True if ok, False if error.
 
 Here's how the flags work for notes:
 								flag numbers:
@@ -1251,58 +1250,58 @@ static Boolean ExtractNoteFlags(char *flagStr,
 	
 	switch (*p) {
 		case '.':									/* not in chord; not main note */
-			pNRGR->inChord = FALSE;
-			pNRGR->mainNote = FALSE;
+			pNRGR->inChord = False;
+			pNRGR->mainNote = False;
 			break;
 		case '-':									/* in chord; not main note */
-			pNRGR->inChord = TRUE;
-			pNRGR->mainNote = FALSE;
+			pNRGR->inChord = True;
+			pNRGR->mainNote = False;
 			break;
 		case '+':									/* in chord; main note */
-			pNRGR->inChord = TRUE;
-			pNRGR->mainNote = TRUE;
+			pNRGR->inChord = True;
+			pNRGR->mainNote = True;
 			break;
 		default:									/* illegal char */
 			goto illegal;
 	}
 
-	if (pNRGR->objType==GRACE_TYPE) return TRUE;
+	if (pNRGR->objType==GRACE_TYPE) return True;
 	
 	switch (*++p) {
-		case '.':		pNRGR->tiedL = FALSE;	break;
-		case ')':		pNRGR->tiedL = TRUE;	break;
+		case '.':		pNRGR->tiedL = False;	break;
+		case ')':		pNRGR->tiedL = True;	break;
 		default:			goto illegal;
 	}
 
 	switch (*++p) {
-		case '.':		pNRGR->tiedR = FALSE;	break;
-		case '(':		pNRGR->tiedR = TRUE;	break;
+		case '.':		pNRGR->tiedR = False;	break;
+		case '(':		pNRGR->tiedR = True;	break;
 		default:			goto illegal;
 	}
 
 	switch (*++p) {
-		case '.':		pNRGR->slurredL = FALSE;	break;
-		case '>':		pNRGR->slurredL = TRUE;		break;
+		case '.':		pNRGR->slurredL = False;	break;
+		case '>':		pNRGR->slurredL = True;		break;
 		default:			goto illegal;
 	}
 
 	switch (*++p) {
-		case '.':		pNRGR->slurredR = FALSE;	break;
-		case '<':		pNRGR->slurredR = TRUE;		break;
+		case '.':		pNRGR->slurredR = False;	break;
+		case '<':		pNRGR->slurredR = True;		break;
 		default:			goto illegal;
 	}
 
 	switch (*++p) {
-		case '.':		pNRGR->inTuplet = FALSE;	break;
-		case 'T':		pNRGR->inTuplet = TRUE;		break;
+		case '.':		pNRGR->inTuplet = False;	break;
+		case 'T':		pNRGR->inTuplet = True;		break;
 		default:		goto illegal;
 	}
 
-	return TRUE;
+	return True;
 
 illegal:
 	AlwaysErrMsg("Illegal character %c in note flag string.\n", *p);
-	return FALSE;
+	return False;
 }
 
 
@@ -1314,8 +1313,8 @@ illegal:
 
 Stores each modifier parsed into gHModList, filling in the <next> field of these
 modifiers to form a chain. Stores the index of the first of these in the <firstMod>
-field of the given note (NRGR). If error, return FALSE without giving a message (but
-see comments below), else return TRUE. */
+field of the given note (NRGR). If error, return False without giving a message (but
+see comments below), else return True. */
 
 #define MAX_MODNRS 50		/* Max. modifiers per note/rest we can handle */
 
@@ -1327,7 +1326,7 @@ static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 	NL_MOD	tmpMod;
 	
 	if (strncmp(modStr, "mods=", (size_t)5))		/* it's not a mod string */
-		return FALSE;
+		return False;
 	
 	pNRGR->firstMod = NILINK;
 	
@@ -1360,7 +1359,7 @@ static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 		tmpMod.next = NILINK;
 		
 		offset = StoreModifier(&tmpMod);
-		if (!offset) return FALSE;					/* Error message already given */
+		if (!offset) return False;					/* Error message already given */
 		
 		/* If this is the first modifier, store its index (into gHModList) into
 			the owning note. Otherwise, store its index into the <next> field of the
@@ -1376,13 +1375,13 @@ static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 		if (modCount==MAX_MODNRS) break;			/* not likely */
 	} while (p);
 
-	return TRUE;
+	return True;
 
 broken:
 	/* It would be nice someday to give more information about the problem here, e.g.,
 		pNRGR->lStartTime, pNRGR->part, pNRGR->uVoice, pNRGR->staff. */
 		
-	return FALSE;
+	return False;
 }
 
 
@@ -1401,7 +1400,7 @@ NLINK NLSearch(NLINK		startL,		/* Place to start looking */
 					char	part,		/* target part number (or ANYONE) */
 					char	staff,		/* target staff number (or ANYONE) */
 					char	uVoice,		/* target user voice number (or ANYONE) */
-					Boolean	goLeft)		/* TRUE if we should search left */
+					Boolean	goLeft)		/* True if we should search left */
 {
 	PNL_GENERIC	pG;
 	NLINK pL;
@@ -1443,14 +1442,14 @@ static Boolean CheckNLNoteRests(void)
 			sprintf(str, fmtStr, pNR1->lStartTime);
 			CParamText(str, "", "", ""); 
 			CautionInform(GENERIC_ALRT);
-			return FALSE;
+			return False;
 		}
 		if (lDur==-1L) {
 			GetIndCString(fmtStr, NOTELIST_STRS, 33);	/* "Note at time %ld claims to be in a tuplet..." */
 			sprintf(str, fmtStr, pNR1->lStartTime);
 			CParamText(str, "", "", ""); 
 			CautionInform(GENERIC_ALRT);
-			return FALSE;
+			return False;
 		}
 		endTime = pNR1->lStartTime + lDur;
 
@@ -1474,10 +1473,10 @@ static Boolean CheckNLNoteRests(void)
 			sprintf(str, fmtStr, pNR1->lStartTime, pNR2->lStartTime);
 			CParamText(str, "", "", ""); 
 			CautionInform(GENERIC_ALRT);
-			return FALSE;
+			return False;
 		}
 	}
-	return TRUE;
+	return True;
 }
 
 
@@ -1486,13 +1485,13 @@ static Boolean CheckNLNoteRests(void)
 static Boolean CheckNLTuplets(void)
 {
 	NLINK	thisL, tupL;
-	Boolean	result, noErrors = TRUE;
+	Boolean	result, noErrors = True;
 	
 	for (thisL=0; thisL<=gNumNLItems; thisL = tupL) {
 		tupL = NLSearch(thisL+1, TUPLET_TYPE, ANYONE, ANYONE, ANYONE, GO_RIGHT);
 		if (!tupL) break;
 		result = AnalyzeNLTuplet(tupL);
-		if (!result) noErrors = FALSE;
+		if (!result) noErrors = False;
 	}
 	return noErrors;
 }
@@ -1501,7 +1500,7 @@ static Boolean CheckNLTuplets(void)
 /* -------------------------------------------------------------- CheckNLBarlines -- */
 /* Check the barlines in the Notelist data structure for timing consistency. If any
 barline's lStartTime comes before that of the previous barline or after that of the
-following barline, give an error message and return FALSE; else return TRUE. */
+following barline, give an error message and return False; else return True. */
 
 static Boolean CheckNLBarlines(void)
 {
@@ -1521,10 +1520,10 @@ static Boolean CheckNLBarlines(void)
 			sprintf(str, fmtStr, pBar1->lStartTime, pBar2->lStartTime);
 			CParamText(str, "", "", ""); 
 			CautionInform(GENERIC_ALRT);
-			return FALSE;
+			return False;
 		}
 	}
-	return TRUE;
+	return True;
 }
 
 
@@ -1543,8 +1542,8 @@ consecutive time sig. records in the Notelist, we set the <staff> of the first
 one to ANYONE and the <staff> of the others to NOONE. Doing so lets the converter
 create a single time sig. object with a subobject for each staff. (ConvertTimesig
 skips Notelist records whose <staff> is NOONE.) NB: The numerator and denominator
-used for all staves will be those stored into the first time sig. Return TRUE if
-all is well, FALSE if error. FIXME: ALWAYS RETURNS TRUE! */
+used for all staves will be those stored into the first time sig. Return True if
+all is well, False if error. FIXME: ALWAYS RETURNS True! */
 
 static Boolean CheckNLTimeSigs(void)
 {
@@ -1553,7 +1552,7 @@ static Boolean CheckNLTimeSigs(void)
 	PNL_TIMESIG	pTS;
 	Boolean		endOfRun;
 	
-	if (gNumNLStaves==1) return TRUE;				/* There's no problem to solve. */
+	if (gNumNLStaves==1) return True;				/* There's no problem to solve. */
 
 	count = 0;
 	saveL = 1;										/* Should never be neccessary, but just in case */
@@ -1561,11 +1560,11 @@ static Boolean CheckNLTimeSigs(void)
 		if (GetNL_TYPE(pL)==TIMESIG_TYPE) {
 			if (count==0) {
 				saveL = pL;
-				endOfRun = FALSE;
+				endOfRun = False;
 			}
 			count++;
 		}
-		else endOfRun = TRUE;
+		else endOfRun = True;
 		
 		if (count==gNumNLStaves) {
 			pTS = GetPNL_TIMESIG(saveL);
@@ -1578,7 +1577,7 @@ static Boolean CheckNLTimeSigs(void)
 		}
 		if (endOfRun) count = 0;
 	}
-	return TRUE;
+	return True;
 }
 
 
@@ -1586,7 +1585,7 @@ static Boolean CheckNLTimeSigs(void)
 /* Analyze the given Notelist tuplet record, fill in its <nInTuple> field, and check its
 <num> and <denom> fields for consistency with the notes that follow it. Also, fill in
 its staff field to match the staff of its first note. If error, give a message and
-return FALSE, else return TRUE. NB: we assume that note duration fields have already
+return False, else return True. NB: we assume that note duration fields have already
 been checked, so if NLSimpleLDur has trouble, it's an internal error. */
 
 static Boolean AnalyzeNLTuplet(NLINK tupletL)
@@ -1657,7 +1656,7 @@ static Boolean AnalyzeNLTuplet(NLINK tupletL)
 		sprintf(str, fmtStr, curTime, part, uVoice);
 		CParamText(str, "", "", ""); 
 		CautionInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	else {
 		pTuplet->nInTuple = nInTuple;
@@ -1666,15 +1665,15 @@ static Boolean AnalyzeNLTuplet(NLINK tupletL)
 			sprintf(str, fmtStr, curTime, part, uVoice);
 			CParamText(str, "", "", ""); 
 			CautionInform(GENERIC_ALRT);
-			return FALSE;
+			return False;
 		}
 	}
 	
-	return TRUE;
+	return True;
 	
 broken:
 	MayErrMsg("AnalyzeNLTuplet: error computing tuplet (tupletL=%d)", tupletL);
-	return FALSE;
+	return False;
 }
 
 
@@ -1782,7 +1781,7 @@ static short FSNotelistVersion(short refNum)
 	char	headerVerString[256];
 
 	/* Skip over any whitespace at beginning of file. */
-	while (TRUE) {
+	while (True) {
 		errCode = FSReadChar(refNum, (char*)&c);		
 		if (errCode != noErr || c==EOF) { errStage = 1; goto Err; }
 		else if (c==COMMENT_CHAR) {
@@ -2006,7 +2005,7 @@ static NLINK StoreString(char str[])
 	SetHandleSize(gHStringPool, hSize+bytesToAdd);
 	if (MemError()) {
 		NoMoreMemory();
-		return FALSE;
+		return False;
 	}
 	offset = (NLINK) hSize;
 	
@@ -2025,7 +2024,7 @@ static NLINK StoreString(char str[])
 /* ------------------------------------------------------------------ FetchString -- */
 /*	Make a copy of the C-string beginning at <offset> bytes from the start of gHStringPool.
 Copy into <str>, which must be large enough to hold MAX_CHARS (including terminating null).
-Returns FALSE if <offset> is odd or out of range; otherwise returns TRUE.
+Returns False if <offset> is odd or out of range; otherwise returns True.
 Note that gHStringPool begins with two bytes not used by any string, so a string will
 never have an offset less than FIRST_OFFSET. */
 
@@ -2037,17 +2036,17 @@ Boolean FetchString(NLINK	offset,		/* offset of requested string from start of g
 	Size	size;
 
 	size = GetHandleSize(gHStringPool);
-	if (offset<FIRST_OFFSET || offset>size-1 || odd(offset)) return FALSE;
+	if (offset<FIRST_OFFSET || offset>size-1 || odd(offset)) return False;
 	
 	HLock(gHStringPool);
 	p = (char *)*gHStringPool;
 	p += offset;
 	len = strlen(p);
-	if (len>MAX_CHARS-1L) return FALSE;
+	if (len>MAX_CHARS-1L) return False;
 	BlockMove(p, str, (Size)len);
 	str[len] = '\0';
 	HUnlock(gHStringPool);
-	return TRUE;
+	return True;
 }
 
 
@@ -2081,7 +2080,7 @@ static NLINK StoreModifier(PNL_MOD pMod)
 
 /* ---------------------------------------------------------------- FetchModifier -- */
 /*	Fill in the given modifier struct from the specified modifier in the gHModList array.
-(NB: gHModList is a relocatable 1-based array.) Return TRUE if ok, FALSE if error. */
+(NB: gHModList is a relocatable 1-based array.) Return True if ok, False if error. */
 
 Boolean FetchModifier(NLINK modL, PNL_MOD pMod)
 {
@@ -2089,7 +2088,7 @@ Boolean FetchModifier(NLINK modL, PNL_MOD pMod)
 	PNL_MOD	p;
 
 	size = GetHandleSize((Handle)gHModList);
-	if (modL<1 || modL>(size/sizeof(NL_MOD))-1) return FALSE;
+	if (modL<1 || modL>(size/sizeof(NL_MOD))-1) return False;
 
 	p = *gHModList + modL;
 	
@@ -2097,13 +2096,13 @@ Boolean FetchModifier(NLINK modL, PNL_MOD pMod)
 	pMod->code = p->code;
 	pMod->data = p->data;
 
-	return TRUE;
+	return True;
 }
 
 
 /* ---------------------------------------------------------- AllocNotelistMemory -- */
 /* Allocate memory for the intermediate Notelist data structure.
-Returns TRUE if ok, FALSE if error (after giving NoMoreMemory alert).
+Returns True if ok, False if error (after giving NoMoreMemory alert).
 NB: In the case of an error here, a function higher in the calling chain should dispose
 of whatever memory was allocated before the error by calling DisposNotelistMemory.
 CRUCIAL: We use NewPtrClear, rather than NewPtr, to insure that all fields will be set
@@ -2133,11 +2132,11 @@ static Boolean AllocNotelistMemory(void)
 	if (!GoodNewHandle(h)) goto broken;
 	gHStringPool = h;
 	
-	return TRUE;
+	return True;
 	
 broken:
 	NoMoreMemory();
-	return FALSE;
+	return False;
 }
 
 

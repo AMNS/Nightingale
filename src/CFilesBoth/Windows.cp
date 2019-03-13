@@ -6,69 +6,69 @@ box, Message box, etc. */
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
 void DoCloseWindow(WindowPtr w)
-	{
-		short kind; PaletteGlobals *pg;
-		
-		kind = GetWindowKind(w);
-		if (kind < 0) {
-			//CloseDeskAcc(kind);
+{
+	short kind; PaletteGlobals *pg;
+	
+	kind = GetWindowKind(w);
+	if (kind < 0) {
+		//CloseDeskAcc(kind);
+		return;
+	}
+							
+	if (kind == DOCUMENTKIND) {
+		if (!DoCloseDocument(GetDocumentFromWindow(w))) {
+			/* User canceled, or error */
+			quitting = False;
+			closingAll = False;
 			return;
-			}
-								
-		if (kind == DOCUMENTKIND) {
-			if (!DoCloseDocument(GetDocumentFromWindow(w))) {
-				/* User canceled, or error */
-				quitting = FALSE;
-				closingAll = FALSE;
-				return;
-				}
-			
-			if (TopPalette == TopWindow) {
-				/* Find the new TopDocument, and insure it and its controls are hilited properly. */
-				AnalyzeWindows();
-				if (TopDocument)
-					ActivateDocument(GetDocumentFromWindow(TopDocument), TRUE);
-				}
-			}
-		 else {
-		 	/* w is still defined here */
-			if (TopDocument) {
-				/*
-				 *	Force caret into off state, otherwise any invalid background bits
-				 *	covered by palette may about to become into view.
-				 */
-				MEHideCaret(GetDocumentFromWindow(TopDocument));
-				/* Don't generate any events that might cause the TopDocument to be unhilited. */
-				ShowHide(w, FALSE);
-				}
-			 else
-				/*
-				 *	Ensure an activate event is generated in case the next visible window
-				 *	does not belong to the application.
-				 */
-				HideWindow(w);
+		}
 		
-			/*
-			 *	Reset tool palette size back to default, after it's been hidden (closed).
-			 *	For all palettes, unload the palette-specific code segment.
-			 */
-			if (kind == PALETTEKIND)
-				switch (GetWRefCon(w)) {
-					case TOOL_PALETTE:
-						pg = *paletteGlobals[TOOL_PALETTE];
-						palettesVisible[TOOL_PALETTE] = FALSE;
-						ChangeToolSize(pg->firstAcross,pg->firstDown,TRUE);
-						break;
-					}
+		if (TopPalette == TopWindow) {
+			/* Find the new TopDocument, and insure it and its controls are hilited properly. */
+			AnalyzeWindows();
+			if (TopDocument)
+				ActivateDocument(GetDocumentFromWindow(TopDocument), True);
+		}
+	}
+	else {
+		/* w is still defined here */
+		if (TopDocument) {
+		
+			/* Force caret into off state, otherwise any invalid background bits
+			   covered by palette may about to become into view. */
+			   
+			MEHideCaret(GetDocumentFromWindow(TopDocument));
+			/* Don't generate any events that might cause the TopDocument to be unhilited. */
+			ShowHide(w, False);
+		}
+		
+		else
+		 
+			/* Ensure an activate event is generated in case the next visible window
+			   does not belong to the application. */
+			   
+			HideWindow(w);
+	
+		/* Reset tool palette size back to default, after it's been hidden (closed).
+		   For all palettes, unload the palette-specific code segment. */
+		   
+		if (kind == PALETTEKIND)
+			switch (GetWRefCon(w)) {
+				case TOOL_PALETTE:
+					pg = *paletteGlobals[TOOL_PALETTE];
+					palettesVisible[TOOL_PALETTE] = False;
+					ChangeToolSize(pg->firstAcross,pg->firstDown,True);
+					break;
 			}
 	}
+}
 
 
 /* Close all of our "normal" documents that have visible windows; leave special
@@ -91,7 +91,7 @@ short DoCloseAllDocWindows()
 		
 		if (kind == DOCUMENTKIND) {
 #ifdef TEST_SEARCH_NG
-                       if (w==clipboard->theWindow || w==searchPatDoc->theWindow) continue;
+				if (w==clipboard->theWindow || w==searchPatDoc->theWindow) continue;
 #else
 				if (w==clipboard->theWindow) continue;
 #endif
@@ -106,7 +106,7 @@ short DoCloseAllDocWindows()
 				/* Find the new TopDocument, and insure it and its controls are hilited properly. */
 				AnalyzeWindows();
 				if (TopDocument)
-					ActivateDocument(GetDocumentFromWindow(w), TRUE);
+					ActivateDocument(GetDocumentFromWindow(w), True);
 			}
 		}
 	}
@@ -154,7 +154,7 @@ void DoZoom(WindowPtr w, short part)
 				GetWindowPortBounds(w,&portRect);
 				ClipRect(&portRect);
 				EraseRect(&portRect);
-				ZoomWindow(w, part, FALSE);
+				ZoomWindow(w, part, False);
 				RecomputeWindow(w);
 				InvalWindowRect(w,&portRect);
 				ClipRect(&doc->viewRect);
@@ -176,10 +176,10 @@ void DoZoom(WindowPtr w, short part)
 						{ across = pg->zoomAcross; down = pg->zoomDown; }
 					if (pg->across==across && pg->down==down)
 						/* Zoom in or back to old values */
-						ChangeToolSize(pg->oldAcross,pg->oldDown,TRUE);
+						ChangeToolSize(pg->oldAcross,pg->oldDown,True);
 					 else
 						/* Zoom it to the macs */
-						ChangeToolSize(across,down,TRUE);
+						ChangeToolSize(across,down,True);
 					break;
 				}
 			break;
@@ -189,7 +189,7 @@ void DoZoom(WindowPtr w, short part)
 }
 
 
-/* --------------------------------------------------- DrawMessageBox and friends -- */
+/* -------------------------------------------------------- DrawMessageBox and friends -- */
 
 static void sprintfMagnify(Document *doc, char str[]);
 
@@ -202,7 +202,7 @@ static void sprintfMagnify(Document *doc, char str[])
 }
 
 
-/* Deliver the message box's bounds as defined here. If boundsOnly is TRUE, that's all;
+/* Deliver the message box's bounds as defined here. If boundsOnly is True, that's all;
 otherwise, also erase the message box; position the pen so that subsequent strings
 are drawn at an appropriate point; change the clipping to the message box; and change
 the font to the message box font (saving the old font in some local globals for
@@ -268,16 +268,16 @@ void DrawMessageString(Document *doc, char *msgStr)
 {
 	Rect messageRect;
 	
-	PrepareMessageDraw(doc,&messageRect,FALSE);
+	PrepareMessageDraw(doc,&messageRect,False);
 	DrawCString(msgStr);
 	FinishMessageDraw(doc);
 }
 
 
-/* Draw the normal contents of the message box (information like selection page
-and measure numbers, viewing magnification, and voice number and part name being
-Looked At) in the area to the left of the horizontal scroll bar in <doc>, if
-reallyDraw is TRUE; otherwise, just Inval the message box. */
+/* Draw the normal contents of the message box (information like selection page and
+measure numbers, viewing magnification, and voice number and part name being Looked
+At) in the area to the left of the horizontal scroll bar in <doc>, if reallyDraw is
+True; otherwise, just Inval the message box. */
 
 void DrawMessageBox(Document *doc, Boolean reallyDraw)
 {
@@ -292,7 +292,7 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 	
 	if (!reallyDraw) {
 		GetPort(&oldPort); SetPort(GetWindowPort(w));
-		PrepareMessageDraw(doc, &messageRect,TRUE);					/* Get messageRect only */
+		PrepareMessageDraw(doc, &messageRect,True);					/* Get messageRect only */
 		InvalWindowRect(w, &messageRect);
 		SetPort(oldPort);
 		return;
@@ -334,14 +334,14 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 		}
 	}
 
-	PrepareMessageDraw(doc, &messageRect, FALSE);
+	PrepareMessageDraw(doc, &messageRect, False);
 	DrawCString(strBuf);
 	TextFace(bold); DrawCString(strBuf2);
 	FinishMessageDraw(doc);
 }
 
 	
-/* ==================================================== FLOATING PALETTE ROUTINES == */
+/* ========================================================= FLOATING PALETTE ROUTINES == */
 
 /* Analyze the current window list in order to set the four globals that tell us about 
 it. The globals are TopWindow, TopPalette, BottomPallete, and TopDocument, which all
@@ -349,125 +349,48 @@ point to visible windows, or NULL. If the TopDocument is above any visible palet
 we adjust the order of the windows. If a visible non-application window is between any
 palettes and the TopDocument, adjust the order also. This function can replace most
 uses of FrontWindow() in the rest of the program. */
-
-#if TARGET_API_MAC_CARBON
 	
 void AnalyzeWindows()
-	{
-		short palettesFound; Boolean inOrder;
-		WindowPtr next;
-		//WindowPtr bottom;
-				
-		/*
-		 *	Make sure all SendBehind() and NewWindow() calls bring a window to the front
-		 *	if there are no visible palettes
-		 */
-		TopWindow = TopPalette = TopDocument = NULL;
-		BottomPalette = BRING_TO_FRONT;
-		
-		inOrder = TRUE;
-		palettesFound = 0;
-		
-		for (next=FrontWindow(); next; next=GetNextWindow(next)) {
-			if (IsWindowVisible(next)) {
-				if (TopWindow == NULL) TopWindow = next;				/* Record 1st visible window */
-				if (GetWindowKind(next) == DOCUMENTKIND) {
-					if (TopDocument == NULL) {
-						TopDocument = next;									/* Record 1st visible Document */
-						if (palettesFound == TOTAL_PALETTES) break;
-						}
-					}
-//				else if (GetWindowKind(next) == RESLISTKIND) {
-//					if (TopDocument == NULL) {
-//						TopDocument = next;									/* Record 1st visible Document */
-//						if (palettesFound == TOTAL_PALETTES) break;
-//						}
-//					}
-				 else if (GetWindowKind(next) == PALETTEKIND) {
-					if (TopPalette == NULL) TopPalette = next;		/* Record 1st visible palette */
-					BottomPalette = next;									/* Valid when we stop looping */
-					}
-				 else
-					if (TopDocument!=NULL || TopPalette!=NULL)
-						/* Some other (?) window is visible between the palettes and TopDocument */
-						inOrder = FALSE;
-				}
+{
+	short palettesFound;  Boolean inOrder;
+	WindowPtr next;
 			
-			/* All windows before the last palette get to this point */
-			
-			if (GetWindowKind(next) == PALETTEKIND) {
-				palettesFound++;
-				}
-			}
-		
-	}
-#else
-void AnalyzeWindows()
-	{
-		short palettesFound; Boolean inOrder;
-		WindowPtr next,bottom;
-		
-		/*
-		 *	Make sure all SendBehind() and NewWindow() calls bring a window to the front
-		 *	if there are no visible palettes
-		 */
-		TopWindow = TopPalette = TopDocument = NULL;
-		BottomPalette = BRING_TO_FRONT;
-		
-		inOrder = TRUE;
-		palettesFound = 0;
-		
-		for (next=FrontWindow(); next; next=GetNextWindow(next)) {
-		
-			if (IsWindowVisible(next)) {
-				if (TopWindow == NULL) TopWindow = next;				/* Record 1st visible window */
-				if (GetWindowKind(next) == DOCUMENTKIND) {
-					if (TopDocument == NULL) {
-						TopDocument = next;									/* Record 1st visible Document */
-						if (palettesFound == TOTAL_PALETTES) break;
-						}
-					}
-				 else if (GetWindowKind(next) == PALETTEKIND) {
-					if (TopPalette == NULL) TopPalette = next;		/* Record 1st visible palette */
-					BottomPalette = next;									/* Valid when we stop looping */
-					}
-				 else
-					if (TopDocument!=NULL || TopPalette!=NULL)
-						/* Some other (?) window is visible between the palettes and TopDocument */
-						inOrder = FALSE;
-				}
-			
-			/* All windows before the last palette get to this point */
-			
-			if (GetWindowKind(next) == PALETTEKIND) {
-				palettesFound++;
-				if (TopDocument!=NULL && IsWindowVisible(next)) {
-					/* A visible palette is beneath the TopDocument */
-					if (TopDocument == TopWindow) {
-						/* Bring the TopPalette to the front. */
-						SelectWindow(next);
-						TopWindow = next;
-						}
-					 else
-						SendBehind(TopDocument, next);					/* Send TopDocument behind BottomPalette */
-					next = TopDocument;
+	/* Make sure all SendBehind() and NewWindow() calls bring a window to the front
+	   if there are no visible palettes. */
+	   
+	TopWindow = TopPalette = TopDocument = NULL;
+	BottomPalette = BRING_TO_FRONT;
+	
+	inOrder = True;
+	palettesFound = 0;
+	
+	for (next=FrontWindow(); next; next=GetNextWindow(next)) {
+		if (IsWindowVisible(next)) {
+			if (TopWindow == NULL) TopWindow = next;				/* Record 1st visible window */
+			if (GetWindowKind(next) == DOCUMENTKIND) {
+				if (TopDocument == NULL) {
+					TopDocument = next;								/* Record 1st visible Document */
 					if (palettesFound == TOTAL_PALETTES) break;
-					}
 				}
 			}
-		
-		if (TopPalette!=NULL && !inOrder) {
-			bottom = TopDocument ? TopDocument : BottomPalette;
-			for (next=TopPalette; next!=NULL && next!=bottom; next=GetNextWindow(next))
-				if (GetWindowKind(next)<OURKIND || GetWindowKind(next)>=TOPKIND) {
-					/* Remove the non-application window. */
-					SendBehind(next, bottom);
-					/* Start over. */
-					next = TopPalette;
-					}
+			 else if (GetWindowKind(next) == PALETTEKIND) {
+				if (TopPalette == NULL) TopPalette = next;			/* Record 1st visible palette */
+				BottomPalette = next;								/* Valid when we stop looping */
 			}
+			 else
+				if (TopDocument!=NULL || TopPalette!=NULL)
+					/* Some other (?) window is visible between the palettes and TopDocument. */
+					inOrder = False;
+		}
+		
+		/* All windows before the last palette get to this point. */
+		
+		if (GetWindowKind(next) == PALETTEKIND) {
+			palettesFound++;
+		}
 	}
-#endif
+	
+}
 
 /* Make sure hilites are all proper for given window list state. */
 
@@ -492,14 +415,14 @@ void HiliteUserWindows()
 			/* Unhilite the remaining document windows */
 			for (next=GetNextWindow(TopDocument); next; next=GetNextWindow(next))
 				if (GetWindowKind(next) == DOCUMENTKIND) {
-					ActivateDocument(GetDocumentFromWindow(next), FALSE);
+					ActivateDocument(GetDocumentFromWindow(next), False);
 				}
 		}
 	}
 }
 
 
-/* Return TRUE if w is a palette in front, or it's TopDocument and the application is
+/* Return True if w is a palette in front, or it's TopDocument and the application is
 active. */
 
 Boolean ActiveWindow(WindowPtr w)
@@ -508,12 +431,12 @@ Boolean ActiveWindow(WindowPtr w)
 	
 	if (w) {
 		kind = GetWindowKind(TopWindow);
-		if (kind<OURKIND || kind>=TOPKIND) return(FALSE);			/* Not us */
+		if (kind<OURKIND || kind>=TOPKIND) return(False);			/* Not us */
 		if (w==TopDocument || (GetWindowKind(w)==PALETTEKIND && w==TopPalette))
-			return(TRUE);
+			return(True);
 	}
 		
-	return(FALSE);
+	return(False);
 }
 
 
@@ -563,11 +486,11 @@ void SendToBack(WindowPtr w)
 			SendBehind(w, NULL);		/* Send the document all the way to the back */
 			if (TopPalette == TopWindow) {
 				/* Ensure w and its controls are unhilited properly */
-				ActivateDocument(GetDocumentFromWindow(w), FALSE);
+				ActivateDocument(GetDocumentFromWindow(w), False);
 				/* Find the new TopDocument */
 				AnalyzeWindows();
 				/* Ensure the TopDocument and its controls are hilited properly */
-				ActivateDocument(GetDocumentFromWindow(TopDocument), TRUE);
+				ActivateDocument(GetDocumentFromWindow(TopDocument), True);
 			}
 		}
 	} 
@@ -578,101 +501,101 @@ void SendToBack(WindowPtr w)
 
 
 /* Since SelectWindow() brings any window to the front, we use our own version to
-keep palettes floating above documents. NB: if a palette is visible, this version
+keep palettes floating above documents. FIXME: if a palette is visible, this version
 erases and redraws all of the new front window (PaintOne does this, I think), even
-if NO window (including the palette) is overlapping any other! This should be fixed
-some day. */
+if NO window (including the palette) is overlapping any other! */
 
 void DoSelectWindow(WindowPtr w)
-	{
-		//RgnHandle updateRgn; short dx,dy;
-		
-		/* No Palettes, bring the document to the front and generate an activate event. */		
-		if (IsDocumentKind(w))
-			SelectWindow(w);
-		 else
-		 	if (IsDocumentKind(TopWindow))
-				/* Bring the palette to the front but don't generate an activate event. */
+{
+	//RgnHandle updateRgn; short dx,dy;
+	
+	/* No Palettes, bring the document to the front and generate an activate event. */		
+	if (IsDocumentKind(w))
+		SelectWindow(w);
+	else
+		if (IsDocumentKind(TopWindow))
+			/* Bring the palette to the front but don't generate an activate event. */
+			BringToFront(w);
+		else {
+			/* Bring the palette to the front and generate an activate event. */
+			if (IsPaletteKind(TopWindow) && IsPaletteKind(w))
 				BringToFront(w);
-			else {
-				/* Bring the palette to the front and generate an activate event. */
-				if (IsPaletteKind(TopWindow) && IsPaletteKind(w))
-					BringToFront(w);
-				 else
-					SelectWindow(w);
-				}
-	}
+			 else
+				SelectWindow(w);
+		}
+}
 
 
 /* Turn all palettes on or off together. */
 
 void ShowHidePalettes(Boolean show)
-	{
-		short *pv, index;
-		WindowPtr *wp;
-		
-		wp = palettes;
-		pv = palettesVisible;				/* ??This seems to be uninitialized, yet it works! */
+{
+	short *pv, index;
+	WindowPtr *wp;
+	
+	wp = palettes;
+	pv = palettesVisible;				/* ??This seems to be uninitialized, yet it works! */
 
-		for (index=0; index<TOTAL_PALETTES; index++, wp++, pv++) {
-			if (*wp) {
-				if (show) {
-					//ShowHide(*wp, *pv);
-					ShowHide(*wp, TRUE);
-					//*pv = FALSE;
-					}
-				else {
-//					*pv = (IsWindowVisible(*wp) != 0);
-					if (*pv)
-						ShowHide(*wp, FALSE);
-					}
-				}
-				if (index == TOOL_PALETTE) break;
+	for (index=0; index<TOTAL_PALETTES; index++, wp++, pv++) {
+		if (*wp) {
+			if (show) {
+				//ShowHide(*wp, *pv);
+				ShowHide(*wp, True);
+				//*pv = False;
 			}
+			else {
+//					*pv = (IsWindowVisible(*wp) != 0);
+				if (*pv)
+					ShowHide(*wp, False);
+			}
+		}
+
+		if (index == TOOL_PALETTE) break;
 	}
+}
 
 
 /* Update the given palette. */
 
 void UpdatePalette(WindowPtr whichPalette)
-	{
-		/* Use the palette's refCon to determine which palette needs updating */
-		
-		notMenu = TRUE;
-		switch (GetWRefCon(whichPalette)) {
-			case TOOL_PALETTE:
-				Rect portRect;
-				
-				GetWindowPortBounds(whichPalette, &portRect);
-				DrawToolMenu(&portRect);
-				HiliteToolItem(&portRect, (*paletteGlobals[TOOL_PALETTE])->currentItem);
-				break;
-			case HELP_PALETTE:
-			case CLAVIER_PALETTE:
-				SysBeep(60);
-				break;
-		}
-		notMenu = FALSE;
+{
+	/* Use the palette's refCon to determine which palette needs updating */
+	
+	notInMenu = True;
+	switch (GetWRefCon(whichPalette)) {
+		case TOOL_PALETTE:
+			Rect portRect;
+			
+			GetWindowPortBounds(whichPalette, &portRect);
+			DrawToolPalette(&portRect);
+			HiliteToolItem(&portRect, (*paletteGlobals[TOOL_PALETTE])->currentItem);
+			break;
+		case HELP_PALETTE:
+		case CLAVIER_PALETTE:
+			SysBeep(60);
+			break;
 	}
+	notInMenu = False;
+}
 
 
 /* Invalidate the window. */
  
 void InvalWindow(Document *doc)
-	{
-		GrafPtr	oldPort, ourPort;
-		
-		ourPort = GetWindowPort(doc->theWindow);
-		GetPort(&oldPort);
-		SetPort(ourPort);
-		MEHideCaret(doc);
-		/*
-		 *	DrawDocument fills in the background and erases each sheet being updated
-		 *	first, so there's no need to erase first. This reduces flash significantly.
-		 */
-		InvalWindowRect(doc->theWindow,&doc->viewRect);
-		SetPort(oldPort);
-	}
+{
+	GrafPtr	oldPort, ourPort;
+	
+	ourPort = GetWindowPort(doc->theWindow);
+	GetPort(&oldPort);
+	SetPort(ourPort);
+	MEHideCaret(doc);
+	
+	/* DrawDocument fills in the background and erases each sheet being updated
+	   first, so there's no need to erase first. This reduces flash significantly. */
+	
+	InvalWindowRect(doc->theWindow,&doc->viewRect);
+	SetPort(oldPort);
+}
 
 
 /* Erase and invalidate the message box. */

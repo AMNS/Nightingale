@@ -43,11 +43,11 @@ void InitSearchParam(SearchParam *pbSearch)
 {
 	pbSearch->id = ANYONE;
 	pbSearch->voice = 1;
-	pbSearch->needSelected = FALSE;
-	pbSearch->inSystem = FALSE;
+	pbSearch->needSelected = False;
+	pbSearch->inSystem = False;
 	pbSearch->subtype = ANYSUBTYPE;
-	pbSearch->optimize = TRUE;
-	pbSearch->needInMeasure = FALSE;
+	pbSearch->optimize = True;
+	pbSearch->needInMeasure = False;
 }
 
 /* ----------------------------------------------------------------- LPageSearch -- */
@@ -436,7 +436,7 @@ considered to match any voice. */
 LINK L_Search(
 			LINK		startL,					/* Place to start looking */
 			short		type,					/* target type (or ANYTYPE) */
-			Boolean		goLeft,					/* TRUE if we should search left */
+			Boolean		goLeft,					/* True if we should search left */
 			SearchParam	*pbSearch			 	/* ptr to parameter list */
 			)
 {
@@ -444,13 +444,13 @@ LINK L_Search(
 	PMEVENT		p;
 	PPAGE		pPage;
 	PSYSTEM		pSystem;
-	Boolean		anyType,		/* TRUE if they'll take any type */
-				anyStaff,		/* TRUE if they'll take any staff */
-				anyVoice,		/* TRUE if they'll take any voice */
-				anySelected,	/* TRUE if they don't need selected */
-				anySystem,		/* TRUE if they'll take any System */
-				anySubtype,		/* TRUE if they'll take any subtype */
-				anyInMeasure;	/* TRUE if they don't need inMeasure */
+	Boolean		anyType,		/* True if they'll take any type */
+				anyStaff,		/* True if they'll take any staff */
+				anyVoice,		/* True if they'll take any voice */
+				anySelected,	/* True if they don't need selected */
+				anySystem,		/* True if they'll take any System */
+				anySubtype,		/* True if they'll take any subtype */
+				anyInMeasure;	/* True if they don't need inMeasure */
 	GenSubObj 	*subObj;
 	char		pType;			/* pre-compute type of p */
 	Boolean 	pSel;			/* pre-compute p->selected */
@@ -696,8 +696,8 @@ LINK LSSearch(
 			short	type,			/* target type (or ANYTYPE) */
 			short	id,				/* target staff number (for Staff, Measure, Sync, etc) */
 									/* or page number (for Page) */
-			Boolean	goLeft,			/* TRUE if we should search left */
-			Boolean	needSelected 	/* TRUE if we only want selected items */
+			Boolean	goLeft,			/* True if we should search left */
+			Boolean	needSelected 	/* True if we only want selected items */
 			)
 {
 	SearchParam	pbSearch;
@@ -706,17 +706,17 @@ LINK LSSearch(
 	InitSearchParam(&pbSearch);
 	pbSearch.id = id;
 	pbSearch.needSelected = needSelected;
-	pbSearch.inSystem = FALSE;
+	pbSearch.inSystem = False;
 	pbSearch.subtype = ANYSUBTYPE;
 	pbSearch.voice = ANYONE;
-	pbSearch.needInMeasure = FALSE;
-	pbSearch.optimize = TRUE;
+	pbSearch.needInMeasure = False;
+	pbSearch.optimize = True;
 	foundL = L_Search(startL, type, goLeft, &pbSearch);
 	return foundL;
 }
 
 /* ------------------------------------------------------------------- LSISearch -- */
-/*	Simple search left or right thru object list, by staff, with inSystem TRUE. If
+/*	Simple search left or right thru object list, by staff, with inSystem True. If
 called with startL = System obj, will return NILINK. */
 
 LINK LSISearch(
@@ -724,8 +724,8 @@ LINK LSISearch(
 			short	type,			/* target type (or ANYTYPE) */
 			short	id,				/* target staff number (for Staff, Measure, Sync, etc) */
 											/* or page number (for Page) */
-			Boolean	goLeft,			/* TRUE if we should search left */
-			Boolean	needSelected 	/* TRUE if we only want selected items */
+			Boolean	goLeft,			/* True if we should search left */
+			Boolean	needSelected 	/* True if we only want selected items */
 			)
 {
 	SearchParam	pbSearch;
@@ -734,11 +734,11 @@ LINK LSISearch(
 	InitSearchParam(&pbSearch);
 	pbSearch.id = id;
 	pbSearch.needSelected = needSelected;
-	pbSearch.inSystem = TRUE;
+	pbSearch.inSystem = True;
 	pbSearch.subtype = ANYSUBTYPE;
 	pbSearch.voice = ANYONE;
-	pbSearch.needInMeasure = FALSE;
-	pbSearch.optimize = TRUE;
+	pbSearch.needInMeasure = False;
+	pbSearch.optimize = True;
 	foundL = L_Search(startL, type, goLeft, &pbSearch);
 	return foundL;
 }
@@ -751,8 +751,8 @@ LINK LVSearch(
 			LINK	startL,			/* Place to start looking */
 			short	type,			/* target type (or ANYTYPE) */
 			short	id,				/* target voice number (for Staff, Measure, Sync, etc) */
-			Boolean	goLeft,			/* TRUE if we should search left */
-			Boolean	needSelected 	/* TRUE if we only want selected items */
+			Boolean	goLeft,			/* True if we should search left */
+			Boolean	needSelected 	/* True if we only want selected items */
 			)
 {
 	SearchParam	pbSearch;
@@ -761,11 +761,11 @@ LINK LVSearch(
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.needSelected = needSelected;
-	pbSearch.inSystem = FALSE;
+	pbSearch.inSystem = False;
 	pbSearch.subtype = ANYSUBTYPE;
 	pbSearch.voice = id;
-	pbSearch.needInMeasure = FALSE;
-	pbSearch.optimize = TRUE;
+	pbSearch.needInMeasure = False;
+	pbSearch.optimize = True;
 	foundL = L_Search(startL, type, goLeft, &pbSearch);
 	return foundL;
 }
@@ -779,8 +779,8 @@ LINK LSUSearch(
 			short	type,				/* target type (or ANYTYPE) */
 			short	id,					/* target staff number (for Staff, Measure, Sync, etc) */
 										/* or page number (for Page) */
-			Boolean	goLeft,				/* TRUE if we should search left */
-			Boolean	needSelected		/* TRUE if we only want selected items */
+			Boolean	goLeft,				/* True if we should search left */
+			Boolean	needSelected		/* True if we only want selected items */
 			)
 {
 	SearchParam	pbSearch;
@@ -789,11 +789,11 @@ LINK LSUSearch(
 	InitSearchParam(&pbSearch);
 	pbSearch.id = id;
 	pbSearch.needSelected = needSelected;
-	pbSearch.inSystem = FALSE;
+	pbSearch.inSystem = False;
 	pbSearch.subtype = ANYSUBTYPE;
 	pbSearch.voice = ANYONE;
-	pbSearch.needInMeasure = FALSE;
-	pbSearch.optimize = FALSE;
+	pbSearch.needInMeasure = False;
+	pbSearch.optimize = False;
 	foundL = L_Search(startL, type, goLeft, &pbSearch);
 	return foundL;
 }
@@ -805,8 +805,8 @@ LINK LVUSearch(
 			LINK	startL,				/* Place to start looking */
 			short	type,				/* target type (or ANYTYPE) */
 			short	id,					/* target voice number (for Staff, Measure, Sync, etc) */
-			Boolean	goLeft,				/* TRUE if we should search left */
-			Boolean	needSelected 		/* TRUE if we only want selected items */
+			Boolean	goLeft,				/* True if we should search left */
+			Boolean	needSelected 		/* True if we only want selected items */
 			)
 {
 	SearchParam	pbSearch;
@@ -815,11 +815,11 @@ LINK LVUSearch(
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.needSelected = needSelected;
-	pbSearch.inSystem = FALSE;
+	pbSearch.inSystem = False;
 	pbSearch.subtype = ANYSUBTYPE;
 	pbSearch.voice = id;
-	pbSearch.needInMeasure = FALSE;
-	pbSearch.optimize = FALSE;
+	pbSearch.needInMeasure = False;
+	pbSearch.optimize = False;
 	foundL = L_Search(startL, type, goLeft, &pbSearch);
 	return foundL;
 }
@@ -835,26 +835,26 @@ LINK GSearch(
 			Document	*doc,
 			Point		pt,						/* x coordinate from which to search */
 			short		type,					/* target type (or ANYTYPE) */
-			Boolean		goLeft,					/* TRUE if we should search left */
-			Boolean		useJD,					/* TRUE if we should find type JD symbols */
-			Boolean		needVisible,			/* TRUE if only want visible symbols. */
+			Boolean		goLeft,					/* True if we should search left */
+			Boolean		useJD,					/* True if we should find type JD symbols */
+			Boolean		needVisible,			/* True if only want visible symbols. */
 			SearchParam	*pbSearch 				/* ptr to parameter list */
 			)
 {
 	short		i;
 	PMEVENT		p;
-	Boolean		anyType,		/* TRUE if they'll take any type */
-				anyStaff,		/* TRUE if they'll take any staff */
-				anyVoice,		/* TRUE if they'll take any voice */
-				anySelected,	/* TRUE if they don't need selected */
-				anySystem,		/* TRUE if they'll take any System */
-				anySubtype,		/* TRUE if they'll take any subtype */
-				anyVisible;		/* TRUE if they don't need visible */
+	Boolean		anyType,		/* True if they'll take any type */
+				anyStaff,		/* True if they'll take any staff */
+				anyVoice,		/* True if they'll take any voice */
+				anySelected,	/* True if they don't need selected */
+				anySystem,		/* True if they'll take any System */
+				anySubtype,		/* True if they'll take any subtype */
+				anyVisible;		/* True if they don't need visible */
 	GenSubObj	*subObj;
 	char		pType;			/* pre-compute type of p */
 	Boolean 	pSel,			/* pre-compute p->selected */
 				pVis,			/* pre-compute p->visible */
-				beyond;			/* TRUE if objRect.l/r is to l/r of h, based on goLeft */
+				beyond;			/* True if objRect.l/r is to l/r of h, based on goLeft */
 	LINK		pL, nextL, subObjL;
 	LINK		aNoteL, aGRNoteL, aRptL, startL;
 	HEAP		*tmpHeap;
@@ -1030,10 +1030,10 @@ LINK GSSearch(
 			short	type,			/* target type (or ANYTYPE) */
 			short	id,				/* target staff number (for Staff, Measure, Sync, etc) */
 											/* or page number (for Page) */
-			Boolean	goLeft,			/* TRUE if we should search left */
-			Boolean	needSelected,	/* TRUE if we only want selected items */
-			Boolean	useJD,			/* TRUE if we should find type JD symbols */
-			Boolean	needVisible		/* TRUE if only want visible symbols. */
+			Boolean	goLeft,			/* True if we should search left */
+			Boolean	needSelected,	/* True if we only want selected items */
+			Boolean	useJD,			/* True if we should find type JD symbols */
+			Boolean	needVisible		/* True if only want visible symbols. */
 			)
 {
 	SearchParam	pbSearch;
@@ -1042,7 +1042,7 @@ LINK GSSearch(
 	InitSearchParam(&pbSearch);
 	pbSearch.id = id;
 	pbSearch.needSelected = needSelected;
-	pbSearch.inSystem = TRUE;
+	pbSearch.inSystem = True;
 	pbSearch.subtype = ANYSUBTYPE;
 	pbSearch.voice = ANYONE;
 	foundL = GSearch(doc, pt, type, goLeft, useJD, needVisible, &pbSearch);
@@ -1055,8 +1055,8 @@ LINK StaffFindSymRight(Document *doc, Point pt, Boolean needVisible, short staff
 {
 	LINK pL;
 	
-	pL = FindSymRight(doc, pt, needVisible, FALSE);
-	return (pL ? LSSearch(pL, ANYTYPE, staffn, FALSE, FALSE) : NILINK);
+	pL = FindSymRight(doc, pt, needVisible, False);
+	return (pL ? LSSearch(pL, ANYTYPE, staffn, False, False) : NILINK);
 }
 
 /* ---------------------------------------------------------- StaffFindSyncRight -- */
@@ -1066,7 +1066,7 @@ LINK StaffFindSyncRight(Document *doc, Point pt, Boolean needVisible, short staf
 	LINK pL;
 	
 	pL = FindSyncRight(doc, pt, needVisible);
-	return (pL ? LSSearch(pL, SYNCtype, staffn, FALSE, FALSE) : NILINK);
+	return (pL ? LSSearch(pL, SYNCtype, staffn, False, False) : NILINK);
 }
 
 
@@ -1080,7 +1080,7 @@ LINK FindValidSymRight(Document *doc, LINK symRight, short staffn)
 	
 	for (pL = symRight;
 		  pL!=doc->tailL && !SystemTYPE(pL) && !PageTYPE(pL); 
-		  pL = LSSearch(RightLINK(pL), ANYTYPE, staffn, FALSE, FALSE))
+		  pL = LSSearch(RightLINK(pL), ANYTYPE, staffn, False, False))
 		if (!BeamsetTYPE(pL) && !SlurTYPE(pL) && !DynamTYPE(pL)) 
 			break;
 	return pL;
@@ -1093,8 +1093,8 @@ LINK StaffFindSymLeft(Document *doc, Point pt, Boolean needVisible, short staffn
 {
 	LINK pL;
 	
-	pL = FindSymRight(doc, pt, needVisible, FALSE);
-	return (pL ? LSSearch(LeftLINK(pL), ANYTYPE, staffn, TRUE, FALSE) : NILINK);
+	pL = FindSymRight(doc, pt, needVisible, False);
+	return (pL ? LSSearch(LeftLINK(pL), ANYTYPE, staffn, True, False) : NILINK);
 }
 
 
@@ -1111,7 +1111,7 @@ LINK StaffFindSyncLeft(Document *doc, Point pt, Boolean needVisible, short staff
 	/* If pL is a sync with subObj on staffn, LSSearch will find pL itself,
 		else the first sync with subObj on staffn to the left of pL. */
 
-	return (pL ? LSSearch(pL, SYNCtype, staffn, TRUE, FALSE) : NILINK);
+	return (pL ? LSSearch(pL, SYNCtype, staffn, True, False) : NILINK);
 }
 
 
@@ -1123,7 +1123,7 @@ LINK FindValidSymLeft(Document *doc, LINK symLeft, short staffn)
 	
 	for (qL = symLeft;
 		  qL!=doc->headL && !SystemTYPE(qL);
-		  qL = LSSearch(LeftLINK(qL), ANYTYPE, staffn, TRUE, FALSE))
+		  qL = LSSearch(LeftLINK(qL), ANYTYPE, staffn, True, False))
 		if (!J_DTYPE(qL))
 			break;
 	return qL;
@@ -1136,11 +1136,11 @@ LINK FindValidSymLeft(Document *doc, LINK symLeft, short staffn)
 LINK SyncInVoiceMeas(Document *doc,
 						LINK objL,
 						short voice,
-						Boolean other)	/* TRUE=need a Sync other than <objL> itself */
+						Boolean other)	/* True=need a Sync other than <objL> itself */
 {
 	LINK	pL, endL;
 	
-	pL = LSSearch(objL, MEASUREtype, ANYONE, TRUE, FALSE);
+	pL = LSSearch(objL, MEASUREtype, ANYONE, True, False);
 	endL = EndMeasSearch(doc, objL);
 	for ( ; pL!=endL; pL = RightLINK(pL))
 		if (SyncTYPE(pL))
@@ -1205,7 +1205,7 @@ LINK EndPageSearch(
 	
 	if (startL==doc->tailL) return doc->tailL;
 
-	pL = LSSearch(RightLINK(startL), PAGEtype, ANYONE, FALSE, FALSE);
+	pL = LSSearch(RightLINK(startL), PAGEtype, ANYONE, False, False);
 	return (pL ? pL : doc->tailL);
 }
 
@@ -1219,7 +1219,7 @@ LINK TimeSearchRight(
 			LINK		startL,		/* Place to start looking */
 			short		type,		/* object type needed or ANYTYPE */
 			long		lTime,		/* Logical time */
-			Boolean		exact 		/* TRUE means need time=lTime, else take any time>=lTime */
+			Boolean		exact 		/* True means need time=lTime, else take any time>=lTime */
 			)
 {
 	LINK pL; long time;
@@ -1416,18 +1416,18 @@ LINK XSysSlurMatch(LINK slurL)
 
 	firstPiece = SlurFirstIsSYSTEM(slurL);
 	if (firstPiece) {
-		otherSlurL = LVSearch(RightLINK(slurL), SLURtype, voice, GO_RIGHT, FALSE);
+		otherSlurL = LVSearch(RightLINK(slurL), SLURtype, voice, GO_RIGHT, False);
 		if (otherSlurL && !KIND_WANTED(otherSlurL))
 			while (otherSlurL && !KIND_WANTED(otherSlurL))
 				otherSlurL = LVSearch(RightLINK(otherSlurL), SLURtype, voice,
-												GO_RIGHT, FALSE);
+												GO_RIGHT, False);
 	}
 	else {
-		otherSlurL = LVSearch(LeftLINK(slurL), SLURtype, voice, GO_LEFT, FALSE);
+		otherSlurL = LVSearch(LeftLINK(slurL), SLURtype, voice, GO_LEFT, False);
 		if (otherSlurL && !KIND_WANTED(otherSlurL))
 			while (otherSlurL && !KIND_WANTED(otherSlurL))
 				otherSlurL = LVSearch(LeftLINK(otherSlurL), SLURtype, voice,
-												GO_LEFT, FALSE);
+												GO_LEFT, False);
 	}
 	
 	return otherSlurL;
@@ -1445,7 +1445,7 @@ this will require review. */
 LINK LeftSlurSearch(
 			LINK syncL,
 			short v,
-			Boolean isTie)	/* TRUE, FALSE, or ANYSUBTYPE (??ugh--need enum for tie/slur to clean up!) */
+			Boolean isTie)	/* True, False, or ANYSUBTYPE (??ugh--need enum for tie/slur to clean up!) */
 {
 	SearchParam pbSearch; LINK slurL;
 

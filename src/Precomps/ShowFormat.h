@@ -21,8 +21,8 @@ Boolean DoEditFormat(Document *doc,Point pt,short modifiers,short doubleClick);
 
 short FirstStaffn(LINK);
 short LastStaffn(LINK);
-short NextStaffn(Document *, LINK, short, short);
-short NextLimStaffn(Document *, LINK, short, short);
+short NextVisStaffn(Document *, LINK, short, short);
+short NextLimVisStaffn(Document *, LINK, short, short);
 short NumVisStaves(LINK);
 
 void InvisifySelStaves(Document *);

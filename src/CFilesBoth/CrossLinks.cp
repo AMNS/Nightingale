@@ -58,7 +58,7 @@ void FixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 						}
 					}
 					if (NoteVOICE(aNoteL)==BeamVOICE(pL) && aNote->beamed)
-						aNote->tempFlag = TRUE;
+						aNote->tempFlag = True;
 				}
 			}
 		}
@@ -98,7 +98,7 @@ void FixGRBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 						i++;
 					}
 					if (GRNoteVOICE(aGRNoteL)==BeamVOICE(pL) && aGRNote->beamed)
-						aGRNote->tempFlag = TRUE;
+						aGRNote->tempFlag = True;
 				}
 			}
 		}
@@ -141,7 +141,7 @@ void FixTupletLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 					}
 					if (NoteVOICE(aNoteL)==TupletVOICE(pL) && NoteINTUPLET(aNoteL)) {
 						aNote = GetPANOTE(aNoteL);
-						aNote->tempFlag = TRUE;
+						aNote->tempFlag = True;
 					}
 				}
 			}
@@ -184,7 +184,7 @@ void FixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 							i++;
 						}
 						if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && aNote->inOttava)
-							aNote->tempFlag = TRUE;
+							aNote->tempFlag = True;
 					}
 				}
 				else if (GRSyncTYPE(qL)) {
@@ -206,7 +206,7 @@ void FixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 							i++;
 						}
 						if (NoteSTAFF(aGRNoteL)==OttavaSTAFF(pL) && aGRNote->inOttava)
-							aGRNote->tempFlag = TRUE;
+							aGRNote->tempFlag = True;
 					}
 				}
 
@@ -235,8 +235,8 @@ void FixStructureLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 			
 				pageL = pL;
 				
-				lPage = SSearch(LeftLINK(pageL),PAGEtype,TRUE);
-				rPage = SSearch(RightLINK(pageL),PAGEtype,FALSE);
+				lPage = SSearch(LeftLINK(pageL),PAGEtype,True);
+				rPage = SSearch(RightLINK(pageL),PAGEtype,False);
 				
 				LinkLPAGE(pageL) = lPage;
 				LinkRPAGE(pageL) = rPage;
@@ -250,10 +250,10 @@ void FixStructureLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 				
 				sysL = pL;
 
-				lSys = SSearch(LeftLINK(sysL),SYSTEMtype,TRUE);
-				rSys = SSearch(RightLINK(sysL),SYSTEMtype,FALSE);
+				lSys = SSearch(LeftLINK(sysL),SYSTEMtype,True);
+				rSys = SSearch(RightLINK(sysL),SYSTEMtype,False);
 			
-				if (!pageL) pageL = SSearch(sysL, PAGEtype, TRUE);
+				if (!pageL) pageL = SSearch(sysL, PAGEtype, True);
 				
 				SysPAGE(sysL) = pageL;
 				LinkLSYS(sysL) = lSys;
@@ -268,10 +268,10 @@ void FixStructureLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 				/* Fix up cross links for the staff, and its neighbors. */
 				staffL = pL;
 			
-				lStaff = SSearch(LeftLINK(staffL),STAFFtype,TRUE);
-				rStaff = SSearch(RightLINK(staffL),STAFFtype,FALSE);
+				lStaff = SSearch(LeftLINK(staffL),STAFFtype,True);
+				rStaff = SSearch(RightLINK(staffL),STAFFtype,False);
 			
-				if (!sysL) sysL = SSearch(staffL, SYSTEMtype, TRUE);
+				if (!sysL) sysL = SSearch(staffL, SYSTEMtype, True);
 
 				StaffSYS(staffL) = sysL;
 				LinkLSTAFF(staffL) = lStaff;
@@ -283,18 +283,18 @@ void FixStructureLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 			
 			case MEASUREtype:
 			
-				prevMeasL = SSearch(LeftLINK(pL), MEASUREtype, TRUE);
+				prevMeasL = SSearch(LeftLINK(pL), MEASUREtype, True);
 				LinkLMEAS(pL) = prevMeasL;
 				if (prevMeasL)
 					LinkRMEAS(prevMeasL) = pL;
 			
-				nextMeasL = SSearch(RightLINK(pL), MEASUREtype, FALSE);
+				nextMeasL = SSearch(RightLINK(pL), MEASUREtype, False);
 				LinkRMEAS(pL) = nextMeasL;
 				if (nextMeasL)
 					LinkLMEAS(nextMeasL) = pL;				
 			
-				staffL = SSearch(LeftLINK(pL),STAFFtype,TRUE);
-				sysL = SSearch(LeftLINK(pL),SYSTEMtype,TRUE);
+				staffL = SSearch(LeftLINK(pL),STAFFtype,True);
+				sysL = SSearch(LeftLINK(pL),SYSTEMtype,True);
 				MeasSTAFFL(pL) = staffL;
 				MeasSYSL(pL) = sysL;
 				break;
@@ -319,7 +319,7 @@ void FixCrossLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 	FixAllBeamLinks(doc, fixDoc, startL, endL);
 	FixTupletLinks(doc, fixDoc, startL, endL);
 	FixOttavaLinks(doc, fixDoc, startL, endL);
-	SetTempFlags(doc, fixDoc, startL, endL, FALSE);
+	SetTempFlags(doc, fixDoc, startL, endL, False);
 }
 
 

@@ -1,11 +1,11 @@
 /* ChordSym.c for Nightingale, by John Gibson */
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -31,25 +31,23 @@ static ModalFilterUPP filterUPP;
 
 #define MORE_ACCURATE_CHAR_WIDTH
 
-#define DELIMITER	FWDDEL_KEY		/* MUST match CS_DELIMITER in File.c! */
-
 #define MAX_FLDLEN	31				/* max number of chars in each (of 6) chord sym chunks */
 
 /* Parse the chord symbol string <csStr> into several component strings, giving:
  * root name, chord quality, extensions that print from left to right after quality,
  * and extensions that print in a vertical stack at end of chord symbol. All strings
  * are allocated by caller. The C strings won't require anything like 256 bytes --
- * 32 should be more than enough. Returns TRUE if parsed successfully; otherwise
- * returns FALSE.
+ * 32 should be more than enough. Returns True if parsed successfully; otherwise
+ * returns False.
  * Note that if <csStr> contains no delimiters, we assume it's an old-style chord
- * symbol string, copy it into <rootStr> and return TRUE.
+ * symbol string, copy it into <rootStr> and return True.
  */
 
 Boolean ParseChordSym(
 			StringPtr csStr,	/* Pascal string stored by chord symbol graphic */
 			char *rootStr,		/* receives note name C string (e.g., "C", "Bb") */
 			char *qualStr,		/* receives quality C string (e.g., "Maj", "min", "dim") */
-			char *extStr,		/* receives extension C string (e.g., "7", "Æ7", "+6", "7#9") */
+			char *extStr,		/* receives extension C string (e.g., "7", "âˆ†7", "+6", "7#9") */
 			char *extStk1Str,	/* receives (bottom) extension stack C string */
 			char *extStk2Str,	/* receives (middle) extension stack C string */
 			char *extStk3Str,	/* receives (top) extension stack C string */
@@ -58,66 +56,66 @@ Boolean ParseChordSym(
 {
 	register Size	len;
 	register char	*p, *q;
-	char			tmpStr[256];
+	char			tempStr[256];
 	
 	*rootStr = *qualStr = *extStr = *extStk1Str = *extStk2Str = *extStk3Str = *bassStr = 0;
 
 	len = *(unsigned char *)csStr;
-	if (len==0) return FALSE;
+	if (len==0) return False;
 	
 	/* copy graphic's Pascal string into local C string */
-	BlockMove(&csStr[1], tmpStr, len);
-	tmpStr[len] = 0;
+	BlockMove(&csStr[1], tempStr, len);
+	tempStr[len] = 0;
 	
-	q = tmpStr;
-	p = strchr(tmpStr, DELIMITER);			/* p will point to first delimiter */
+	q = tempStr;
+	p = strchr(tempStr, CS_DELIMITER);		/* p will point to first delimiter */
 	if (p==NULL) {							/* if there's not one, it's an old-style chord symbol */
-		strcpy(rootStr, tmpStr);
-		return TRUE;						/* old-style is ok */
+		strcpy(rootStr, tempStr);
+		return True;						/* old-style is ok */
 	}
 	*p = 0;									/* terminate first chunk (replace delim with null) */
 	strcpy(rootStr, q);						/* copy first chunk into rootStr */
 
 	q = p+1;								/* q points to start of next chunk */
-	p = strchr(q, DELIMITER);				/* p will point to next delimiter */
-	if (p==NULL) return FALSE;				/* wrong number of delimiters */
+	p = strchr(q, CS_DELIMITER);			/* p will point to next delimiter */
+	if (p==NULL) return False;				/* wrong number of delimiters */
 	*p = 0;									/* terminate second chunk */
 	strcpy(qualStr, q);
 	
 	q = p+1;								/* same for the other strings */
-	p = strchr(q, DELIMITER);
-	if (p==NULL) return FALSE;
+	p = strchr(q, CS_DELIMITER);
+	if (p==NULL) return False;
 	*p = 0;
 	strcpy(extStr, q);
 	
 	q = p+1;
-	p = strchr(q, DELIMITER);
-	if (p==NULL) return FALSE;
+	p = strchr(q, CS_DELIMITER);
+	if (p==NULL) return False;
 	*p = 0;
 	strcpy(extStk1Str, q);
 	
 	q = p+1;
-	p = strchr(q, DELIMITER);
-	if (p==NULL) return FALSE;
+	p = strchr(q, CS_DELIMITER);
+	if (p==NULL) return False;
 	*p = 0;
 	strcpy(extStk2Str, q);
 	
 	q = p+1;
-	p = strchr(q, DELIMITER);
-	if (p==NULL) return FALSE;
+	p = strchr(q, CS_DELIMITER);
+	if (p==NULL) return False;
 	*p = 0;
 	strcpy(extStk3Str, q);
 	
 	q = p+1;
-	p = strchr(q, DELIMITER);
-	if (p) return FALSE;						/* too many delimiters! */
+	p = strchr(q, CS_DELIMITER);
+	if (p) return False;						/* too many delimiters! */
 	strcpy(bassStr, q);
 	
-	return TRUE;
+	return True;
 }
 
 
-/* ---------------------------------------------------------------------- IsCSAcc -- */
+/* --------------------------------------------------------------------------- IsCSAcc -- */
 /* Is <*p>, a character in the root portion of a chord symbol, an accidental? */
 
 static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
@@ -133,11 +131,11 @@ static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
 }
 
 
-/* ----------------------------------------------------------------- DrawChordSym -- */
+/* ---------------------------------------------------------------------- DrawChordSym -- */
 /* Parse the given string as a sequence of 6 chunks of text and draw them according
  * to a (rather complicated) chord symbol formatting scheme:
  * 	Chunk			Format											Typical use
- * 	øøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøø
+ * 	Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯
  * 	rootStr		Chord symbol font and size;							Chord sym root,
  * 					accidentals in music font (e.g. Sonata),		harp pedals,
  * 					with size config.chordSymMusSize percent		harmony exam figs.
@@ -232,7 +230,7 @@ void DrawChordSym(Document *doc,
 			GetPen(&pt);
 
 			/* Draw root string. */
-			hadAccident = FALSE;
+			hadAccident = False;
 			for (p=(unsigned char *)rootStr; *p; p++) {
 				if (IsCSAcc(rootStr, p)) {
 					/* Switch to the music font for this one character. Sonata's character
@@ -243,14 +241,14 @@ void DrawChordSym(Document *doc,
 					TextFont(doc->musicFontNum);  TextSize(musicSize);  TextFace(0);
 					yTweak = *p==SonataAcc[AC_FLAT]? musicSize/6 : musicSize/3;
 					Move(musicSize/10, -(yTweak+superScript));
-					if (dim) DrawMChar(doc, *p, NORMAL_VIS, TRUE);
+					if (dim) DrawMChar(doc, *p, NORMAL_VIS, True);
 					else		DrawChar(*p);
 					Move(musicSize/10, yTweak+superScript);
 					TextFont(csFont);  TextSize(csSize);  TextFace(csFace);
-					hadAccident = TRUE;
+					hadAccident = True;
 				}
 				else {
-					if (dim) DrawMChar(doc, *p, NORMAL_VIS, TRUE);
+					if (dim)	DrawMChar(doc, *p, NORMAL_VIS, True);
 					else		DrawChar(*p);
 				}
 			}
@@ -266,19 +264,19 @@ void DrawChordSym(Document *doc,
 			GetFontInfo(&finfo);					/* of csFont, csSmallSize */
 
 			/* Draw quality string (???no accidentals recognized). */
-			hadSuperscript = FALSE;
+			hadSuperscript = False;
 			if (*qualStr) {
 				Move(gap, 0);
 				for (p=(unsigned char *)qualStr; *p; p++) {
 					if (isdigit(*p)) {				/* superscript any digits (crude hack to allow C7sus4, etc.) */
 						yTweak = superScript;
-						hadSuperscript = TRUE;
+						hadSuperscript = True;
 					}
 					else
 						yTweak = 0;
 					Move(0, -yTweak);
-					if (dim) DrawMChar(doc, *p, NORMAL_VIS, TRUE);
-					else		DrawChar(*p);
+					if (dim)DrawMChar(doc, *p, NORMAL_VIS, True);
+					else	DrawChar(*p);
 					Move(0, yTweak);
 				}
 				
@@ -292,7 +290,7 @@ void DrawChordSym(Document *doc,
 
 			/* Draw extension string (no parentheses). */
 			if (*extStr) {
-				hadSuperscript = TRUE;
+				hadSuperscript = True;
 				Move(gap, 0);
 				for (p=(unsigned char *)extStr; *p; p++) {
 					if (Char2Acc(*p)>0) {
@@ -300,13 +298,13 @@ void DrawChordSym(Document *doc,
 						TextFont(doc->musicFontNum);  TextSize(musSmallSize);  TextFace(0);
 						yTweak = *p==SonataAcc[AC_FLAT]? musSmallSize/4 : musSmallSize/3;
 						Move(musSmallSize/10, -yTweak);
-						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, TRUE);
+						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, True);
 						else		DrawChar(*p);
 						Move(musSmallSize/10, yTweak);
 						TextFont(csFont);  TextSize(csSmallSize);  TextFace(csFace);
 					}
 					else {
-						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, TRUE);
+						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, True);
 						else		DrawChar(*p);
 					}
 				}
@@ -317,13 +315,12 @@ void DrawChordSym(Document *doc,
 				pt = newPt;
 			}
 
-
-			GetPen(&pt);						/* NB: pen reset by every call to Draw1Extension */
+			GetPen(&pt);								/* NB: pen reset by every call to Draw1Extension */
 			if (*extStk1Str || *extStk2Str || *extStk3Str)
-				pt.h += dblGap;					/* double the gap (it needs it) */
+				pt.h += dblGap;							/* double the gap (it needs it) */
 			
 			/* Draw 3 extension stack strings, each level center justified and enclosed in parentheses.
-			 * First determine justification by calling Draw1Extension with draw=FALSE.
+			 * First determine justification by calling Draw1Extension with draw=False.
 			 */
 			start2 = start3 = 0;
 			wid1 = wid2 = wid3 = 0;
@@ -339,18 +336,18 @@ void DrawChordSym(Document *doc,
 				baseline = pt.v + superScript;			/* put this on root baseline */
 				wid1 = Draw1Extension(doc, extStk1Str, pt.h, baseline, "\p", "\p",
 								musSmallSize, csFont, csSmallSize, csFace, parenTweak,
-								dim, showParens, TRUE);
+								dim, showParens, True);
 			}
 			else
 				baseline = pt.v + stkLineHt;
 			if (*extStk2Str)
 				wid2 = Draw1Extension(doc, extStk2Str, pt.h+start2, baseline-stkLineHt,
 								"\p", "\p", musSmallSize, csFont, csSmallSize, csFace,
-								parenTweak, dim, showParens, TRUE);
+								parenTweak, dim, showParens, True);
 			if (*extStk3Str)
 				wid3 = Draw1Extension(doc, extStk3Str, pt.h+start3, baseline-(stkLineHt<<1),
 								"\p", "\p", musSmallSize, csFont, csSmallSize, csFace,
-								parenTweak, dim, showParens, TRUE);
+								parenTweak, dim, showParens, True);
 
 			/* continue computation of dBox (for objRect) */
 			maxWid = max3(wid1, wid2, wid3);
@@ -368,7 +365,7 @@ void DrawChordSym(Document *doc,
 				if (*extStk1Str)
 					dBox->top = -(p2d(stkLineHt<<1));
 				else
-					hadSuperscript = TRUE;
+					hadSuperscript = True;
 			}
 			if (hadSuperscript) {
 				newTop = -(p2d(stkLineHt+superScript));
@@ -383,25 +380,25 @@ void DrawChordSym(Document *doc,
 
 				/* Draw slash */
 				MoveTo(pt.h+dblGap, rootPt.v);
-				if (dim) DrawMChar(doc, '/', NORMAL_VIS, TRUE);
+				if (dim)	DrawMChar(doc, '/', NORMAL_VIS, True);
 				else		DrawChar('/');
 				Move(dblGap+gap, 0);				/* move 3 gaps worth after slash */
 
-				hadNewAccident = FALSE;
+				hadNewAccident = False;
 				for (p=(unsigned char *)bassStr; *p; p++) {
 					if (IsCSAcc(bassStr, p)) {
 // FIXME: Note that the rest of this stuff doesn't map the acc char, etc.!
 						TextFont(doc->musicFontNum);  TextSize(musicSize);  TextFace(0);
 						yTweak = *p==SonataAcc[AC_FLAT]? musicSize/6 : musicSize/3;
 						Move(musicSize/10, -(yTweak+superScript));
-						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, TRUE);
+						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, True);
 						else		DrawChar(*p);
 						Move(musicSize/10, yTweak+superScript);
 						TextFont(csFont);  TextSize(csSize);  TextFace(csFace);
-						hadNewAccident = TRUE;
+						hadNewAccident = True;
 					}
 					else {
-						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, TRUE);
+						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, True);
 						else		DrawChar(*p);
 					}
 				}
@@ -539,7 +536,7 @@ void DrawChordSym(Document *doc,
 				xd += dblGapD;					/* double the gap (it needs it) */
 
 			/* Draw 3 extension stack strings, each level center justified and enclosed in parentheses.
-			 * First determine justification by calling Draw1Extension with draw=FALSE.
+			 * First determine justification by calling Draw1Extension with draw=False.
 			 */
 			start2 = start3 = 0;
 			wid1 = wid2 = wid3 = 0;
@@ -558,16 +555,16 @@ void DrawChordSym(Document *doc,
 				yd += superScriptD;								/* put this on root baseline */
 				baseline = d2pt(yd);
 				wid1 = Draw1Extension(doc, extStk1Str, d2pt(xd), baseline, musFontName, csName,
-								musSmallSize, csFont, csSmallSize, csFace, parenTweak, dim, showParens, TRUE);
+								musSmallSize, csFont, csSmallSize, csFace, parenTweak, dim, showParens, True);
 			}
 			else
 				baseline = d2pt(yd) + stkLineHt;
 			if (*extStk2Str)
 				wid2 = Draw1Extension(doc, extStk2Str, d2pt(xd)+start2, baseline-stkLineHt, musFontName, csName,
-								musSmallSize, csFont, csSmallSize, csFace, parenTweak, dim, showParens, TRUE);
+								musSmallSize, csFont, csSmallSize, csFace, parenTweak, dim, showParens, True);
 			if (*extStk3Str)
 				wid3 = Draw1Extension(doc, extStk3Str, d2pt(xd)+start3, baseline-(stkLineHt<<1), musFontName, csName,
-								musSmallSize, csFont, csSmallSize, csFace, parenTweak, dim, showParens, TRUE);
+								musSmallSize, csFont, csSmallSize, csFace, parenTweak, dim, showParens, True);
 
 			maxWid = max3(wid1, wid2, wid3);
 			extStackWidD = pt2d(maxWid);
@@ -641,7 +638,7 @@ void DrawChordSym(Document *doc,
 static short Draw1Extension(
 			Document *doc,
 			char *str,							/* C string to enclose in parentheses */
-			short xp, short yp,					/* paper-rel pixels (QD) or points (PS); ignored if draw==FALSE */
+			short xp, short yp,					/* paper-rel pixels (QD) or points (PS); ignored if draw==False */
 			const unsigned char musFontName[],	/* used only if drawing to PostScript */
 			const unsigned char csFontName[],	/* used only if drawing to PostScript */
 			short musSmallSize,
@@ -651,15 +648,14 @@ static short Draw1Extension(
 			short parenTweak,
 			Boolean dim,
 			Boolean showParens,
-			Boolean draw				/* if TRUE draw the string; else calculate and return width only */
+			Boolean draw				/* if True draw the string; else calculate and return width only */
 			)
 {
 	register unsigned char	*p;
-	short					yTweak, w=0, wid;
-	DDIST					yTweakD;
-	Point					pt;
-	DDIST					xd, yd;
-	unsigned char			substr[2];
+	short			yTweak, w=0, wid;
+	DDIST			yTweakD, xd, yd;
+	Point			pt;
+	unsigned char	substr[2];
 	
 	if (str[0]==0) return 0;
 
@@ -671,7 +667,7 @@ static short Draw1Extension(
 			if (showParens) {
 				if (draw) {
 					Move(0, -parenTweak);
-					if (dim)	DrawMChar(doc, '(', NORMAL_VIS, TRUE);
+					if (dim)	DrawMChar(doc, '(', NORMAL_VIS, True);
 					else		DrawChar('(');
 					Move(0, parenTweak);
 				}
@@ -684,7 +680,7 @@ static short Draw1Extension(
 					if (draw) {
 						yTweak = *p==SonataAcc[AC_FLAT]? musSmallSize/4 : musSmallSize/3;
 						Move(musSmallSize/10, -yTweak);
-						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, TRUE);
+						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, True);
 						else		DrawChar(*p);
 						Move(musSmallSize/10, yTweak);
 					}
@@ -694,7 +690,7 @@ static short Draw1Extension(
 				}
 				else {
 					if (draw) {
-						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, TRUE);
+						if (dim)	DrawMChar(doc, *p, NORMAL_VIS, True);
 						else		DrawChar(*p);
 					}
 					else
@@ -704,7 +700,7 @@ static short Draw1Extension(
 			if (showParens) {
 				if (draw) {
 					Move(0, -parenTweak);
-					if (dim)	DrawMChar(doc, ')', NORMAL_VIS, TRUE);
+					if (dim)	DrawMChar(doc, ')', NORMAL_VIS, True);
 					else		DrawChar(')');
 					Move(0, parenTweak);
 				}
@@ -789,10 +785,10 @@ static short Draw1Extension(
 }
 
 
-/* ------------------------------------------------------- ChordSymDialog & friends -- */
+/* ---------------------------------------------------------- ChordSymDialog & friends -- */
 
-/* WARNING: Code in CheckCSuserItems depends on popups following (by 1)
- * their associated edit fields in the item list.
+/* WARNING: Code in CheckCSuserItems depends on popups following (by 1) their
+ * associated edit fields in the item list.
  */
 static enum {
 	BUT1_OK = 1,
@@ -830,12 +826,12 @@ static Rect			displayBox;
 static Document		*localDoc;
 
 
-/* --------------------------------------------------------------- ChordSymDialog -- */
+/* -------------------------------------------------------------------- ChordSymDialog -- */
 
 Boolean ChordSymDialog(Document *doc, StringPtr string, short *auxInfo)
 {
 	short		item, type;
-	Boolean		showParens, keepGoing=TRUE;
+	Boolean		showParens, keepGoing=True;
 	Handle		hndl;
 	UserPopUp	*p;
 	Str255		str;
@@ -850,14 +846,14 @@ Boolean ChordSymDialog(Document *doc, StringPtr string, short *auxInfo)
 	filterUPP = NewModalFilterUPP(ChordSymFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(CHORDSYM_DLOG);
-		return FALSE;
+		return False;
 	}
 	GetPort(&oldPort);
 	dlog = GetNewDialog(CHORDSYM_DLOG, NULL, BRING_TO_FRONT);
 	if (dlog == NULL) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(CHORDSYM_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	localDoc = doc;						/* make doc available to DisplayChordSym via ChordSymFilter */
@@ -871,15 +867,15 @@ Boolean ChordSymDialog(Document *doc, StringPtr string, short *auxInfo)
 
 	/* initialize edit fields */
 	ParseChordSym(string, (char *)str, qualStr, extStr, extStk1Str, extStk2Str, extStk3Str, bassStr);
-	PutDlgString(dlog, EDIT6_Quality, (unsigned char *)CToPString(qualStr), TRUE);
-	PutDlgString(dlog, EDIT8_Ext, (unsigned char *)CToPString(extStr), TRUE);
-	PutDlgString(dlog, EDIT10_ExtStk2, (unsigned char *)CToPString(extStk2Str), TRUE);
-	PutDlgString(dlog, EDIT12_ExtStk1, (unsigned char *)CToPString(extStk1Str), TRUE);
-	PutDlgString(dlog, EDIT14_ExtStk3, (unsigned char *)CToPString(extStk3Str), TRUE);
-	PutDlgString(dlog, EDIT16_Bass, (unsigned char *)CToPString(bassStr), TRUE);
+	PutDlgString(dlog, EDIT6_Quality, (unsigned char *)CToPString(qualStr), True);
+	PutDlgString(dlog, EDIT8_Ext, (unsigned char *)CToPString(extStr), True);
+	PutDlgString(dlog, EDIT10_ExtStk2, (unsigned char *)CToPString(extStk2Str), True);
+	PutDlgString(dlog, EDIT12_ExtStk1, (unsigned char *)CToPString(extStk1Str), True);
+	PutDlgString(dlog, EDIT14_ExtStk3, (unsigned char *)CToPString(extStk3Str), True);
+	PutDlgString(dlog, EDIT16_Bass, (unsigned char *)CToPString(bassStr), True);
 	CToPString((char *)str);
 	if (str[0] > MAX_FLDLEN) str[0] = MAX_FLDLEN;		/* limit old-style chord sym to 31 chars */
-	PutDlgString(dlog, EDIT4_Root, str, TRUE);
+	PutDlgString(dlog, EDIT4_Root, str, True);
 
 	/* initialize popups */
 	rootPop.menu = qualPop.menu = extPop.menu = extstk1Pop.menu =
@@ -902,10 +898,10 @@ Boolean ChordSymDialog(Document *doc, StringPtr string, short *auxInfo)
 		ModalDialog(filterUPP, &item);
 		switch (item) {
 			case OK:
-				if (!AnyBadCSvalues(dlog)) keepGoing = FALSE;
+				if (!AnyBadCSvalues(dlog)) keepGoing = False;
 				break;
 			case Cancel:
-				keepGoing = FALSE;
+				keepGoing = False;
 				break;
 			case POP5_Root:		p = &rootPop;		goto loadField;
 			case POP7_Quality:	p = &qualPop;		goto loadField;
@@ -922,21 +918,21 @@ Boolean ChordSymDialog(Document *doc, StringPtr string, short *auxInfo)
 			case EDIT12_ExtStk1:
 			case EDIT14_ExtStk3:
 			case EDIT16_Bass:
-				DisplayChordSym(doc, dlog, FALSE);
+				DisplayChordSym(doc, dlog, False);
 				break;
 			case CHK20_ShowParens:
 				PutDlgChkRadio(dlog, CHK20_ShowParens, !GetDlgChkRadio(dlog, CHK20_ShowParens));
 				showParens = GetDlgChkRadio(dlog, CHK20_ShowParens);
 				ShowHideParens(dlog, showParens);
-				DisplayChordSym(doc, dlog, TRUE);
+				DisplayChordSym(doc, dlog, True);
 				break;
 		}
 		continue;
 loadField:
 		GetMenuItemText(p->menu, p->currentChoice, str);
 		if (str[0] > MAX_FLDLEN) str[0] = MAX_FLDLEN;		/* limit to 31 chars */
-		PutDlgString(dlog, item-1, str, TRUE);
-		DisplayChordSym(doc, dlog, FALSE);
+		PutDlgString(dlog, item-1, str, True);
+		DisplayChordSym(doc, dlog, False);
 	}
 	if (item==OK) {
 		BuildCSstring(dlog, (unsigned char *)string);
@@ -950,7 +946,7 @@ broken:
 	CloseCSDialog(dlog);
 	SetPort(oldPort);
 	NoMoreMemory();
-	return FALSE;
+	return False;
 }
 
 
@@ -961,7 +957,7 @@ static void BuildCSstring(DialogPtr dlog, unsigned char *str)
 	unsigned char delim[2];
 	Str255 tmp;
 	
-	delim[0] = 1;	delim[1] = DELIMITER;
+	delim[0] = 1;	delim[1] = CS_DELIMITER;
 	str[0] = 0;
 	
 	/* CAUTION: order of EDIT fields below is critical! */
@@ -1037,9 +1033,9 @@ static Boolean AnyBadCSvalues(DialogPtr dlog)
 		GetIndCString(strBuf, MISCERRS_STRS, 12);		/* "At least one text box must contain text" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return TRUE;
+		return True;
 	}
-	return FALSE;
+	return False;
 }
 
 
@@ -1064,7 +1060,7 @@ static void ShowHideParens(DialogPtr dlog, Boolean show)
 static void DisplayChordSym(
 				Document *doc,
 				DialogPtr dlog,
-				Boolean alwaysDraw	/* if FALSE, draw only if chord sym has changed */
+				Boolean alwaysDraw	/* if False, draw only if chord sym has changed */
 				)
 {
 	short			saveMagnify, saveSize, saveRelSize;
@@ -1088,7 +1084,7 @@ static void DisplayChordSym(
 
 	/* fiddle with chord symbol font size */
 	saveRelSize = doc->relFSizeCS;
-	doc->relFSizeCS = FALSE;
+	doc->relFSizeCS = False;
 	saveSize = doc->fontSizeCS;
 	doc->fontSizeCS = 18;
 	
@@ -1098,12 +1094,12 @@ static void DisplayChordSym(
 	
 	/* Create a phony context with just enough info to please DrawChordSym. */
 	context.paper = displayBox;
-	context.staffHeight = 256;					/* for rastral 5 (irrelevant because relFSizeCS==FALSE) */
+	context.staffHeight = 256;					/* for rastral 5 (irrelevant because relFSizeCS==False) */
 	context.staffLines = 5;
 	
 	/* Get bounding box (with left,baseline at 0,0). */ 
 	HidePen();
-	DrawChordSym(doc, 0, 0, fullStr, auxInfo, &context, FALSE, &dBox);
+	DrawChordSym(doc, 0, 0, fullStr, auxInfo, &context, False, &dBox);
 	ShowPen();
 	
 	rgnHdl = NewRgn();							/* save current clipping region */
@@ -1118,7 +1114,7 @@ static void DisplayChordSym(
 	yd = p2d(displayBox.bottom-displayBox.top-CS_BASELINE_FROMBOT);
 	xd = (p2d(displayBox.right-displayBox.left) - dBox.right)>>1;
 	
-	DrawChordSym(doc, xd, yd, fullStr, auxInfo, &context, FALSE, &dBox);
+	DrawChordSym(doc, xd, yd, fullStr, auxInfo, &context, False, &dBox);
 
 	SetClip(rgnHdl);							/* restore clipping rgn */
 
@@ -1132,7 +1128,7 @@ static void DisplayChordSym(
 }
 
 
-/* --------------------------------------------------------------- ChordSymFilter -- */
+/* -------------------------------------------------------------------- ChordSymFilter -- */
 
 static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord *evt, short *item)
 {
@@ -1144,7 +1140,7 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord *evt, short *it
 	Str255			helpStr;
 
 	/* This should be in response to a nullEvent, but we don't receive those reliably here. */
-	DialogAdjustCursor(dlog, evt, TRUE);
+	DialogAdjustCursor(dlog, evt, True);
 	
 	switch (evt->what) {
 		case updateEvt:
@@ -1175,7 +1171,7 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord *evt, short *it
 			TETextBox(&helpStr[1], (long)helpStr[0], &box, 0);
 			TextFont(oldFont);  TextSize(oldSize);  TextFace(oldStyle);
 			
-			FrameDefault(dlog, OK, TRUE);
+			FrameDefault(dlog, OK, True);
 
 			/* draw dotted line around chord symbol display */
 			PenPat(NGetQDGlobalsGray());
@@ -1186,21 +1182,21 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord *evt, short *it
 			LineTo(displayBox.left, displayBox.bottom);
 			PenPat(NGetQDGlobalsBlack());
 
-			DisplayChordSym(localDoc, dlog, TRUE);
+			DisplayChordSym(localDoc, dlog, True);
 
 			EndUpdate(GetDialogWindow(dlog));
 			*item = 0;
-			return TRUE;
+			return True;
 			break;
 		case mouseDown:
-			DialogAdjustCursor(dlog, evt, TRUE);
+			DialogAdjustCursor(dlog, evt, True);
 			where = evt->where;
 			GlobalToLocal(&where);
-			if (CheckCSuserItems(dlog, where, item)) return TRUE;
+			if (CheckCSuserItems(dlog, where, item)) return True;
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(dlog, evt, (short *)item, FALSE)) {
+			if (DlgCmdKey(dlog, evt, (short *)item, False)) {
 				Str255	str;
 				short	curField;
 				
@@ -1208,37 +1204,37 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord *evt, short *it
 				GetDlgString(dlog, curField, str);
 				if (str[0]>MAX_FLDLEN) {
 					str[0] = MAX_FLDLEN;								/* in case pasted too many chars */
-					PutDlgString(dlog, curField, str, TRUE);
+					PutDlgString(dlog, curField, str, True);
 				}
-				DisplayChordSym(localDoc, dlog, FALSE);
-				return TRUE;
+				DisplayChordSym(localDoc, dlog, False);
+				return True;
 			}
 			ch = evt->message & charCodeMask;
-			if (ch==DELIMITER) return TRUE;								/* filter out delimiter! */
+			if (ch==CS_DELIMITER) return True;							/* filter out delimiter! */
 			TEHandle textH = GetDialogTextEditHandle(dlog);
 			if ((*textH)->teLength >= MAX_FLDLEN)
 			//if ((**(*(DialogPeek)dlog).textH).teLength >= MAX_FLDLEN)	/* can't add any more chars */
 				if (ch!=CH_BS && ch!='\t' && ch!=LEFTARROWKEY &&
-									ch!=RIGHTARROWKEY && ch!=UPARROWKEY && ch!=DOWNARROWKEY) {
+						ch!=RIGHTARROWKEY && ch!=UPARROWKEY && ch!=DOWNARROWKEY) {
 					GetIndCString(strBuf, MISCERRS_STRS, 13);			/* "text has reached its maximum length" */
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
-					return TRUE;
+					return True;
 				}
 			break;
 	}
 
-	return FALSE;
+	return False;
 }
 
 
-/* ------------------------------------------------------------- CheckCSuserItems -- */
+/* ------------------------------------------------------------------ CheckCSuserItems -- */
 
 static Boolean CheckCSuserItems(DialogPtr dlog, Point where, short *itemHit)
 {
 	register short		i, numItems;
 	register UserPopUp	*p;
-	register Boolean	changeMenu=FALSE;
+	register Boolean	changeMenu=False;
 	Str255				eStr, mStr;
 	Rect 				portRect;
 	
@@ -1256,7 +1252,7 @@ static Boolean CheckCSuserItems(DialogPtr dlog, Point where, short *itemHit)
 		{ p = &extstk3Pop; *itemHit = POP15_ExtStk3; }
 	else if (PtInRect(where, &bassPop.shadow))
 		{ p = &bassPop; *itemHit = POP17_Bass; }
-	else { *itemHit = 0; return FALSE; }
+	else { *itemHit = 0; return False; }
 	
 	ClipRect(&p->shadow);								/* prevent drawing outside of popup */
 
@@ -1281,9 +1277,9 @@ static Boolean CheckCSuserItems(DialogPtr dlog, Point where, short *itemHit)
 				goto skipInsMenu;
 			}
 		}
-		changeMenu = TRUE;
+		changeMenu = True;
 		InsertMenuItem(p->menu, "\p ", 0);				/* use SetMenuItemText to ignore any meta-chars in eStr */
-		if (eStr[1]=='-') eStr[1] = 'Ð';				/* prevent dotted line in menu! */
+		if (eStr[1]=='-') eStr[1] = 'â€“';				/* prevent dotted line in menu! */
 		SetMenuItemText(p->menu, 1, eStr);
 		InsertMenuItem(p->menu, "\p(-", 1);
 		ChangePopUpChoice(p, 1);
@@ -1308,12 +1304,12 @@ skipInsMenu:
 
 	portRect = GetQDPortBounds();
 	ClipRect(&portRect);
-	return TRUE;
+	return True;
 }
 
 
 /* If mouse is over an edit field, and the field is either currently open or
- * <anyField> is TRUE, set cursor to I-beam. Otherwise, set to arrow.
+ * <anyField> is True, set cursor to I-beam. Otherwise, set to arrow.
  */
 
 void DialogAdjustCursor(DialogPtr dlog, EventRecord *evt, Boolean anyField)

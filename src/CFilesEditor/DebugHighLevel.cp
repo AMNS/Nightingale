@@ -3,7 +3,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* DebugHighLevel.c - Debug command and high-level functions:
@@ -24,10 +24,10 @@ short nerr, errLim;
 Boolean minDebugCheck;			/* Do only Most important checks? */
 
 
-/* -------------------------------------------------------------- DCheckEverything -- */
+/* ------------------------------------------------------------------ DCheckEverything -- */
 /* Do many or all available consistency checks on everything. Unfortunately, "all
 available consistency checks" don't come anywhere near checking everything that's
-checkable. Someday... Anyway, return FALSE normally, TRUE if things are dangerously
+checkable. Someday... Anyway, return False normally, True if things are dangerously
 f*cked up.
 
 There are four levels of checks:
@@ -37,8 +37,8 @@ There are four levels of checks:
 */
 
 Boolean DCheckEverything(Document *doc,
-			Boolean maxCheck,	/* TRUE=do even Least important checks */
-			Boolean minCheck	/* TRUE=print only results of More & Most important checks */
+			Boolean maxCheck,	/* True=do even Least important checks */
+			Boolean minCheck	/* True=print only results of More & Most important checks */
 			)
 {
 	LINK	pL;
@@ -50,7 +50,7 @@ Boolean DCheckEverything(Document *doc,
 #ifdef DDB
 	LogPrintf(LOG_INFO, "--CHECK MAIN:\n");
 #endif
-	if (DCheckHeaps(doc)) return TRUE;
+	if (DCheckHeaps(doc)) return True;
 	/*
 	 * First check individually all nodes in the main data structure (the object
 	 * list), including their links, since the "global" checks must assume they can
@@ -67,51 +67,51 @@ Boolean DCheckEverything(Document *doc,
 	 */
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		nTotal++;
-		if (DCheckNode(doc, pL, MAIN_DSTR, maxCheck)<0) return TRUE;
-		if (UserInterrupt()) return FALSE;
+		if (DCheckNode(doc, pL, MAIN_DSTR, maxCheck)<0) return True;
+		if (UserInterrupt()) return False;
 
-		DCheckNodeSel(doc, pL);		if (DErrLimit() || UserInterrupt()) return FALSE;
+		DCheckNodeSel(doc, pL);		if (DErrLimit() || UserInterrupt()) return False;
 	}
 	nTotal++;														/* Count tailL */
 	
 	/* PART 1. Check that data structures -- mostly the object list -- are legal. */
 	
-	if (DCheckNode(doc, doc->tailL, MAIN_DSTR, maxCheck)<0) return TRUE;
+	if (DCheckNode(doc, doc->tailL, MAIN_DSTR, maxCheck)<0) return True;
 	
-	DCheckNodeSel(doc, doc->tailL); if (DErrLimit() || UserInterrupt()) return FALSE;
+	DCheckNodeSel(doc, doc->tailL); if (DErrLimit() || UserInterrupt()) return False;
 
 	if (doc!=clipboard) {
-		DCheckVoiceTable(doc, maxCheck, &nvUsed); if (DErrLimit()) return FALSE;
+		DCheckVoiceTable(doc, maxCheck, &nvUsed); if (DErrLimit()) return False;
 	}
 
-	(void)DCheckHeirarchy(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckJDOrder(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckHeirarchy(doc);				if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckJDOrder(doc);				if (DErrLimit() || UserInterrupt()) return False;
 
-	(void)DCheckBeams(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckOttavas(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckSlurs(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckTuplets(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckHairpins(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckContext(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckBeams(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckOttavas(doc);				if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckSlurs(doc);					if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckTuplets(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckHairpins(doc);				if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckContext(doc);				if (DErrLimit() || UserInterrupt()) return False;
 
 	/* PART 2. Check that musical and music-notation constraints are obeyed. */
 	
-	(void)DCheckPlayDurs(doc, maxCheck);	if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckTempi(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckRedundantKS(doc);			if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckExtraTS(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckCautionaryTS(doc);			if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckPlayDurs(doc, maxCheck);	if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckTempi(doc);					if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckRedundantKS(doc);			if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckExtraTS(doc);				if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckCautionaryTS(doc);			if (DErrLimit() || UserInterrupt()) return False;
 	if (maxCheck) {
-		(void)DCheckMeasDur(doc);			if (DErrLimit() || UserInterrupt()) return FALSE;
+		(void)DCheckMeasDur(doc);			if (DErrLimit() || UserInterrupt()) return False;
 	}
-	(void)DCheckUnisons(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckNoteNums(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckUnisons(doc);				if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckNoteNums(doc);				if (DErrLimit() || UserInterrupt()) return False;
 
-	if (DCheckSel(doc, &nInRange, &nSel)) return TRUE;
+	if (DCheckSel(doc, &nInRange, &nSel)) return True;
 	
 #ifdef DDB
-	strictCont = ContinSelection(doc, TRUE);
-	if (!strictCont) looseCont = ContinSelection(doc, FALSE);
+	strictCont = ContinSelection(doc, True);
+	if (!strictCont) looseCont = ContinSelection(doc, False);
 	LogPrintf(LOG_INFO, "%s sel, %d objs in range, %d sel, %d total. %c%d voices.\n",
 					 (strictCont? "Strict contin." : (looseCont? "Loose contin." : "Discont.")),
 					 nInRange, nSel, nTotal,
@@ -122,8 +122,8 @@ Boolean DCheckEverything(Document *doc,
 	LogPrintf(LOG_INFO, "--CHECK MASTER: ");
 #endif
 	for (pL = doc->masterHeadL; pL!=doc->masterTailL; pL = RightLINK(pL)) {
-		if (DCheckNode(doc, pL, MP_DSTR, maxCheck)<0) return TRUE;
-		DCheckNodeSel(doc, pL);			if (DErrLimit() || UserInterrupt()) return FALSE;
+		if (DCheckNode(doc, pL, MP_DSTR, maxCheck)<0) return True;
+		DCheckNodeSel(doc, pL);			if (DErrLimit() || UserInterrupt()) return False;
 	}
 #ifdef DDB
 	LogPrintf(LOG_INFO, " Done.");
@@ -134,7 +134,7 @@ Boolean DCheckEverything(Document *doc,
 	for (pL = clipboard->headL; pL!=clipboard->tailL; pL = RightLINK(pL))
 		if (DCheckNode(clipboard, pL, CLIP_DSTR, maxCheck)<0) {
 			InstallDoc(doc);
-			return TRUE;
+			return True;
 		}
 	InstallDoc(doc);
 
@@ -144,11 +144,11 @@ Boolean DCheckEverything(Document *doc,
 	LogPrintf(LOG_INFO, "\n");
 #endif
 
-	return FALSE;
+	return False;
 }
 
 
-/* ------------------------------------------------------------------- DebugDialog -- */
+/* ----------------------------------------------------------------------- DebugDialog -- */
 /* Let user say what debug information they want checked and/or displayed. */
 
 #define DISABLE_CONTROLS {	\
@@ -217,10 +217,10 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 	strcat(strBuf, (char *)label);
 	strcat(strBuf, "\"");
 	CToPString(strBuf);
-	PutDlgString(dialogp,LABEL_DI, (unsigned char *)strBuf, FALSE);
+	PutDlgString(dialogp,LABEL_DI, (unsigned char *)strBuf, False);
 
 	/* Initialize: get Handles to controls, set initial values, etc. */
-	for (j=FULL; j<=LAST_RBUTTON; j++)						/* Get Hdls to radio btns */
+	for (j=FULL; j<=LAST_RBUTTON; j++)							/* Get Hdls to radio btns */
 		GetDialogItem(dialogp, j, &itype, (Handle *)&whatHdl[j], &tRect);
 	if (*what<FULL || *what>LAST_RBUTTON) {
 		SetControlValue(whatHdl[FULL], 1);						/* Set default */		  	
@@ -230,8 +230,8 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 		SetControlValue(whatHdl[*what], 1);		  	
 		whatval = *what;
 	}
-	PutDlgWord(dialogp, STARTNUM_DI, *istart, FALSE);
-	PutDlgWord(dialogp, STOPNUM_DI, *istop, FALSE);
+	PutDlgWord(dialogp, STARTNUM_DI, *istart, False);
+	PutDlgWord(dialogp, STOPNUM_DI, *istop, False);
 	GetDialogItem(dialogp, DISPLAY, &itype, (Handle *)&dispHdl, &tRect);
 	SetControlValue(dispHdl, (*disp? 1 : 0));
 	GetDialogItem(dialogp, CHECK, &itype, (Handle *)&checkHdl, &tRect);
@@ -243,7 +243,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 	SelectDialogItemText(dialogp, STOPNUM_DI, 0, ENDTEXT);			/* Hilite stop no. */
 	if (*what>=EVERYTHING) DISABLE_CONTROLS
 	else				   ENABLE_CONTROLS;
-	dialogOver = FALSE;
+	dialogOver = False;
 	GetPort(&oldPort);
 	SetPort(GetDialogWindowPort(dialogp));
 	
@@ -253,7 +253,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 		switch (ditem) {
 			case OK:
 			case Cancel:
-				dialogOver = TRUE;
+				dialogOver = True;
 				break;
 			case FULL:
 			case SELECTION:
@@ -313,8 +313,8 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 }
 
 
-/* ---------------------------------------------------------- DErrLimit and friend -- */
-/* DErrLimit returns TRUE if Debug should quit because the maximum no. of errors has
+/* -------------------------------------------------------------- DErrLimit and friend -- */
+/* DErrLimit returns True if Debug should quit because the maximum no. of errors has
 been exceeded. */
 
 static Boolean alreadyAsked, userSaidQuit;
@@ -326,7 +326,7 @@ void ResetDErrLimit()
 {
 	nerr = 0;
 	errLim = FIRST_ERRLIM;
-	alreadyAsked = userSaidQuit = FALSE;
+	alreadyAsked = userSaidQuit = False;
 }
 
 
@@ -334,29 +334,29 @@ Boolean DErrLimit()
 {
 	
 	if (nerr>errLim) {
-		if (alreadyAsked && userSaidQuit) return TRUE;
+		if (alreadyAsked && userSaidQuit) return True;
 		
-		alreadyAsked = TRUE;
+		alreadyAsked = True;
 		sprintf(strBuf, "%d", errLim);
 		CParamText(strBuf, "", "", "");
 		if (CautionAdvise(DEBUGERR_ALRT)==OK) {
-			alreadyAsked = userSaidQuit = FALSE;
+			alreadyAsked = userSaidQuit = False;
 			if (errLim==FIRST_ERRLIM) errLim = SECOND_ERRLIM;
 			else							  errLim = 31999;		/* To disable limit checking */
-			return FALSE;
+			return False;
 		}
 		else {
-			userSaidQuit = TRUE;			
-			return TRUE;
+			userSaidQuit = True;			
+			return True;
 		}
 	}
-	return FALSE;
+	return False;
 }
 
 
-/* ----------------------------------------------------------------------- DoDebug -- */
-/* Ask user what info they want and display/check it.  Returns FALSE normally,
-TRUE if things are so badly screwed up that quitting immediately is desirable. */
+/* --------------------------------------------------------------------------- DoDebug -- */
+/* Ask user what info they want and display/check it.  Returns False normally,
+True if things are so badly screwed up that quitting immediately is desirable. */
 
 Boolean DoDebug(
 			char *label			/* Identifying string to display */
@@ -366,7 +366,7 @@ Boolean DoDebug(
 	static short	what, istart, istop;
 	short			kount, inLine, nInRange, nSel, objList;
 	static Boolean	disp, check, showLinks, showSubs;
-	static Boolean firstCall = TRUE;
+	static Boolean	firstCall = True;
 	Boolean			selLinksBad;
 	Document 		*doc=GetDocumentFromWindow(TopDocument);
 	char			fullLabel[256];			/* Starting with close single quote */
@@ -375,19 +375,19 @@ Boolean DoDebug(
 		what = 0;
 		istart = 7;
 		istop = 15;
-		disp = check = TRUE;
-		showLinks = showSubs = FALSE;
+		disp = check = True;
+		showLinks = showSubs = False;
 		ResetDErrLimit();
-		firstCall = FALSE;
+		firstCall = False;
 	}
 	
 	if (doc==NULL) {
-		LogPrintf(LOG_WARNING, "•DoDebug: doc NULL");
-		return TRUE;
+		LogPrintf(LOG_ERR, "•DoDebug: doc NULL");
+		return True;
 	}
 	if (DebugDialog(label, &what, &istart, &istop, &disp, &check,	/* What does the */
 							&showLinks, &showSubs)==Cancel)			/*   user want? */
-		return FALSE;												/* If nothing, quit */
+		return False;												/* If nothing, quit */
 
 	WaitCursor();
 
@@ -413,11 +413,11 @@ Boolean DoDebug(
 		case MIN_THINGS:
 			if (DCheckEverything(doc, what==EVERYTHING, what==MIN_THINGS)) {
 					/* Things are in a disasterous state. Quit before we crash! */
-					LogPrintf(LOG_WARNING, "•DoDebug: CAN'T FINISH CHECKING.\n"); 					
-					return TRUE;							
+					LogPrintf(LOG_ERR, "•DoDebug: CAN'T FINISH CHECKING.\n"); 					
+					return True;							
 			}
 			else
-				return FALSE;
+				return False;
 				
 #ifdef DDB
 		case INDEX:
@@ -432,15 +432,15 @@ Boolean DoDebug(
 				||  ObjLType(pL)==SYSTEMtype
 				||  ObjLType(pL)==MEASUREtype) {
 					DisplayIndexNode(doc, pL, kount, &inLine);
-					if (DErrLimit()) return FALSE;
+					if (DErrLimit()) return False;
 				}
 				kount++;
 			}
-			return FALSE;
+			return False;
 		
 		case MEMORY:
 			MemUsageStats(doc);
-			return FALSE;
+			return False;
 			
 		case VOICETBL_DI:
 			short v; char str[300];
@@ -451,7 +451,7 @@ Boolean DoDebug(
 				strcat(str, "\n");
 				LogPrintf(LOG_INFO, str);
 			}
-			return FALSE;
+			return False;
 			
 		case FULL:
 			LogPrintf(LOG_INFO, "FULL%s: headL=%d tailL=%d", (check? "/CHK" : " "),
@@ -481,25 +481,25 @@ Boolean DoDebug(
 						(check? "/CHK" : " "),
 						doc->selStartL, doc->selEndL);
 			if (check) {
-				if (DCheckHeaps(doc)) return TRUE;
+				if (DCheckHeaps(doc)) return True;
 				selLinksBad = DCheckSel(doc, &nInRange, &nSel);
 				DCheckHeirarchy(doc);
 				if (selLinksBad) {
 					/* Things are in a disasterous state. Quit before we crash! */
-					LogPrintf(LOG_WARNING, "•DoDebug: CAN'T DISPLAY THE SELECTION.\n"); 	
-					return TRUE;
+					LogPrintf(LOG_ERR, "•DoDebug: CAN'T DISPLAY THE SELECTION.\n"); 	
+					return True;
 				}
 			}
 			startL = doc->selStartL;
 			stopL = doc->selEndL;
 	}
 	
-	if (disp && startL!=stopL) LogPrintf(LOG_INFO, " (Obj flags: SelVisSoftValidTwkd)");
+	if (disp && startL!=stopL) LogPrintf(LOG_INFO, " (Obj flags: SelVisSoftValidTwkdSpare)");
 	LogPrintf(LOG_INFO, "\n");
 	kount = 0;
 	ResetDErrLimit();
 
-	if (DCheckHeaps(doc)) return FALSE;							/* Situation is bad but maybe not hopeless */				
+	if (DCheckHeaps(doc)) return False;							/* Situation is bad but maybe not hopeless */				
 
 	switch (what) {
 		case CLIPBOARD:
@@ -516,11 +516,11 @@ Boolean DoDebug(
 		if (kount>=istart && kount<=istop) {
 			if (disp)  DisplayNode(doc, pL, kount, showLinks, showSubs,
 											(what==CLIPBOARD || what==UNDODSTR));
-			if (check) DCheckNode(doc, pL, objList, FALSE);
+			if (check) DCheckNode(doc, pL, objList, False);
 			if (check && objList==MAIN_DSTR) DCheckNodeSel(doc, pL);
 			if (DErrLimit()) {
 				if (what==CLIPBOARD) InstallDoc(doc);
-				return FALSE;
+				return False;
 			}
 		}
 		kount++;
@@ -529,7 +529,7 @@ Boolean DoDebug(
 	if (nerr>0) LogPrintf(LOG_WARNING, "%d ERROR(S). ", nerr); 	
 
 	if (what==CLIPBOARD) InstallDoc(doc);
-	return FALSE;
+	return False;
 #endif
 
 }

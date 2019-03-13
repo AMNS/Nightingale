@@ -135,17 +135,17 @@ static Boolean RecPlayAddAllClicks(
 		if (!BIMIDIAddNote(config.metroNote, config.metroChannel, startTime, endTime,
 									config.metroVelo)) {
 			MayErrMsg("RecPlayAddAllClicks: BIMIDIAddNote failed: too many notes for buffer.");
-			return FALSE;
+			return False;
 		}
 	}
 	
-	return TRUE;
+	return True;
 }
 
 static Boolean BIMIDIAddNote(short noteNum, short channel, long startTime, long endTime,
 										short velocity)
 {
-	if (npBufSize<=npBufInd+2) return FALSE;
+	if (npBufSize<=npBufInd+2) return False;
 
 	notePlayBuf[npBufInd].noteNum = noteNum;
 	notePlayBuf[npBufInd].channel = channel;
@@ -159,7 +159,7 @@ static Boolean BIMIDIAddNote(short noteNum, short channel, long startTime, long 
 	notePlayBuf[npBufInd].velocity = 0;
 	npBufInd++;	
 
-	return TRUE;
+	return True;
 }
 
 #ifdef DEBUG_MIDIOUT
@@ -173,7 +173,7 @@ LogPrintf(LOG_NOTICE, "voidDBGMidiOut(0x%x, %ld)\n", Midibyte, TimeStamp);
 #endif
 
 #define MAX_TCONVERT 100						/* Max. no. of tempo changes we handle */
-#define PLAY_CRITERION TRUE						/* Someday may change for, e.g., punch in/out */
+#define PLAY_CRITERION True						/* Someday may change for, e.g., punch in/out */
 
 /* Add to the play-while-recording buffer Note On and Note Off (or velocity zero Note
 On) events for all the notes we might have to play. */
@@ -211,7 +211,7 @@ static void RecPlayAddAllNotes(Document *doc, LINK fromL, LINK toL, TCONVERT tCo
 					if (PLAY_CRITERION) {
 						GetNotePlayInfo(doc, aNoteL, partTransp, partChannel, partVelo,
 												&useNoteNum, &useChan, &useVelo);
-						playDur = TiedDur(doc, pL, aNoteL, FALSE);
+						playDur = TiedDur(doc, pL, aNoteL, False);
 						plEndTime = plStartTime+playDur;						
 
 						/* If it's a real note (not rest or continuation), add it */
@@ -252,13 +252,13 @@ short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset)
 	long maxRecTime, toffset, lastStartTime;
 	TCONVERT tConvertTab[MAX_TCONVERT];
 	
-	recMeasL = EitherSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	recMeasL = EitherSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, False);
 
 	measNum = GetMeasNum(doc, doc->selStartL);
 	playFromL = MNSearch(doc, doc->headL, measNum-NUM_LEADIN_MEAS_PLAY-doc->firstMNNumber,
-							GO_RIGHT, TRUE);
+							GO_RIGHT, True);
 	if (!playFromL) playFromL = LSSearch(doc->selStartL, MEASUREtype, ANYONE,
-							GO_RIGHT, FALSE);
+							GO_RIGHT, False);
 	maxRecTime = MeasureTIME(recMeasL) + MAX_SAFE_MEASDUR;
 	playToL = AbsTimeSearchRight(doc, doc->selStartL, maxRecTime);
 
@@ -307,7 +307,7 @@ short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset)
 metronome "clicks". Return immediately, since playing is asynchronous. Assumes the event
 times are sorted.
 
-If we succeed, return TRUE; if not (probably not enough memory in the buffer), FALSE. */
+If we succeed, return True; if not (probably not enough memory in the buffer), False. */
 
 Boolean RecPlayNotes(unsigned short outBufSize)
 {
@@ -318,15 +318,15 @@ Boolean RecPlayNotes(unsigned short outBufSize)
 		switch (useWhichMIDI) {
 			case MIDIDR_CM:
 				AlwaysErrMsg("RecPlayNotes: only built-in MIDI is implemented.");
-				return FALSE;
+				return False;
 			default:
 				;
 		}
 	}
 	
-	return TRUE;
+	return True;
 	
 Overflow:
 	MayErrMsg("RecPlayNotes: BIMIDINoteAtTime failed (probably buffer overflow).");
-	return FALSE;
+	return False;
 }

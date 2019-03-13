@@ -69,7 +69,7 @@ static void ReplaceHeader(Document *srcDoc, Document *dstDoc)
 {
 	LINK headRight,copyL;
 	
-	copyL = DuplicateObject(HEADERtype, srcDoc->headL, FALSE, srcDoc, dstDoc, FALSE);
+	copyL = DuplicateObject(HEADERtype, srcDoc->headL, False, srcDoc, dstDoc, False);
 	
 	InstallDoc(dstDoc);
 
@@ -101,7 +101,7 @@ following system.
 
 Otherwise, return the insertion point unchanged.
 
-<paste> should be TRUE for pasting, FALSE for copying or clearing. */
+<paste> should be True for pasting, False for copying or clearing. */
 
 static LINK EditSysGetStartL(Document *doc, Boolean paste)
 {
@@ -117,7 +117,7 @@ static LINK EditSysGetStartL(Document *doc, Boolean paste)
 	}
 	
 	if (BeforeFirstMeas(doc->selStartL) && paste) {
-		sysL = LSSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,FALSE);
+		sysL = LSSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,False);
 		if (FirstSysInPage(sysL))
 			return (SysPAGE(sysL));
 		return (LinkLSYS(sysL));
@@ -148,10 +148,10 @@ static void InitStfMap(Boolean *staffMap)
 {
 	short s;
 	
-	for (s=0; s<=MAXSTAVES; s++) staffMap[s] = FALSE;
+	for (s=0; s<=MAXSTAVES; s++) staffMap[s] = False;
 }
 
-/* Return TRUE if the keySigs are the same. */
+/* Return True if the keySigs are the same. */
 
 static Boolean KeySigCompare(PCONTEXT oldContext, PCONTEXT newContext)
 {
@@ -187,15 +187,15 @@ static LINK CreateClefContext(Document *doc, LINK insertL, short nEntries, Boole
 		}
 
 	if (MeasureTYPE(prevL)) {
-		xd = SymDWidthRight(doc, prevL, ANYONE, FALSE, newContext[1]);
+		xd = SymDWidthRight(doc, prevL, ANYONE, False, newContext[1]);
 	}
 	else {
 		xd = LinkXD(prevL);
-		xd += SymDWidthRight(doc, prevL, ANYONE, FALSE, newContext[1]);
+		xd += SymDWidthRight(doc, prevL, ANYONE, False, newContext[1]);
 	}
 	LinkXD(clefL) = xd;
 	LinkYD(clefL) = 0;
-	ClefINMEAS(clefL) = TRUE;
+	ClefINMEAS(clefL) = True;
 
 	return clefL;
 }
@@ -233,15 +233,15 @@ static LINK CreateKSContext(Document *doc, LINK insertL, short nEntries, Boolean
 		}
 
 	if (MeasureTYPE(prevL)) {
-		xd = SymDWidthRight(doc, prevL, ANYONE, FALSE, newContext[1]);
+		xd = SymDWidthRight(doc, prevL, ANYONE, False, newContext[1]);
 	}
 	else {
 		xd = LinkXD(prevL);
-		xd += SymDWidthRight(doc, prevL, ANYONE, FALSE, newContext[1]);
+		xd += SymDWidthRight(doc, prevL, ANYONE, False, newContext[1]);
 	}
 	LinkXD(keySigL) = xd;
 	LinkYD(keySigL) = 0;
-	KeySigINMEAS(keySigL) = TRUE;
+	KeySigINMEAS(keySigL) = True;
 
 	return keySigL;
 }
@@ -264,15 +264,15 @@ static LINK CreateTSContext(Document *doc, LINK insertL, short nEntries, Boolean
 		}
 
 	if (MeasureTYPE(prevL)) {
-		xd = SymDWidthRight(doc, prevL, ANYONE, FALSE, newContext[1]);
+		xd = SymDWidthRight(doc, prevL, ANYONE, False, newContext[1]);
 	}
 	else {
 		xd = LinkXD(prevL);
-		xd += SymDWidthRight(doc, prevL, ANYONE, FALSE, newContext[1]);
+		xd += SymDWidthRight(doc, prevL, ANYONE, False, newContext[1]);
 	}
 	LinkXD(timeSigL) = xd;
 	LinkYD(timeSigL) = 0;
-	TimeSigINMEAS(timeSigL) = TRUE;
+	TimeSigINMEAS(timeSigL) = True;
 	
 	return timeSigL;
 }
@@ -313,7 +313,7 @@ static RMEASDATA *GetRMeasTable(Document */*doc*/, LINK sysL, short *nMeas)
 	LINK measL; DDIST mWidth;
 	short i=0; RMEASDATA *rmTable;
 
-	rmTable = (RMEASDATA *)NewPtr(MAX_MEASURES*sizeof(RMEASDATA));
+	rmTable = (RMEASDATA *)NewPtr(MAX_RSP_MEASURES*sizeof(RMEASDATA));
 	if (!GoodNewPtr((Ptr)rmTable)) { NoMoreMemory(); return NULL; }
 
 	measL = SSearch(sysL,MEASUREtype,GO_RIGHT);
@@ -366,10 +366,10 @@ void CopySystem(Document *doc)
 	LINK sysL, clipSys, lastL, startL, pL;
 	
 	ReplaceHeader(doc, clipboard);
-	SetupClipDoc(doc, FALSE);
+	SetupClipDoc(doc, False);
 
-	startL = EditSysGetStartL(doc, FALSE);
-	sysL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	startL = EditSysGetStartL(doc, False);
+	sysL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	lastL = LastObjInSys(doc, RightLINK(sysL));
 
 	InstallDoc(clipboard);
@@ -387,7 +387,7 @@ void CopySystem(Document *doc)
 	clipboard->nsystems = 1;
 
 	clipboard->selEndL = clipboard->selStartL =
-		LSUSearch(clipboard->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		LSUSearch(clipboard->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 
 	FixDelCrossSysObjs(clipboard);
 
@@ -409,7 +409,7 @@ static void MoveSystemY(LINK sysL, DDIST dy)
 
 	OffsetDRect(&SystemRECT(sysL), 0, dy);
 
-	measL = SSearch(sysL,MEASUREtype,FALSE);
+	measL = SSearch(sysL,MEASUREtype,False);
 	for ( ; measL; measL=LinkRMEAS(measL)) {
 		if (MeasSYSL(measL)!=sysL) break;
 		OffsetRect(&MeasureBBOX(measL), 0, d2p(dy));
@@ -431,7 +431,7 @@ static void PSysInvalSys(Document *doc, LINK sysL)
 	D2Rect(&invalDRect,&invalRect);
 	invalRect.left = 0;
 
-	pageL = LSSearch(sysL,PAGEtype,ANYONE,GO_LEFT,FALSE);
+	pageL = LSSearch(sysL,PAGEtype,ANYONE,GO_LEFT,False);
 	GetSheetRect(doc,SheetNUM(pageL),&paperRect);
 	OffsetRect(&invalRect,paperRect.left,paperRect.top);
 	EraseAndInval(&invalRect);
@@ -439,19 +439,19 @@ static void PSysInvalSys(Document *doc, LINK sysL)
 
 
 /* 
- * Update the system left indent to set the pasted-in system's left indent
- *	to doc->firstIndent.
+ * Update the system left indent to set the pasted-in system's left indent to
+ * doc->dIndentFirst.
  */
 
 static void PSysSetFirstIndent(Document *doc, LINK sysL)
 {
-	LINK masterSysL; DDIST change,firstIndent;
+	LINK masterSysL; DDIST change, firstIndent;
 	PSYSTEM pMasterSys,pSys;
 
-	masterSysL = SSearch(doc->masterHeadL,SYSTEMtype,GO_RIGHT);
+	masterSysL = SSearch(doc->masterHeadL, SYSTEMtype, GO_RIGHT);
 	pMasterSys = GetPSYSTEM(masterSysL);
 
-	firstIndent = doc->firstIndent - doc->otherIndent;
+	firstIndent = doc->dIndentFirst - doc->dIndentOther;
 	pSys = GetPSYSTEM(sysL);
 	change = pMasterSys->systemRect.left - pSys->systemRect.left + firstIndent;
 
@@ -496,7 +496,7 @@ static void P1stSysUpdateFirstMeas(Document *doc, LINK newSysL)
 	needWidth = GetKeySigWidth(doc,ksL,1);
 
 	change = needWidth-haveWidth;
-	if (change) ChangeSpaceBefFirst(doc,ksL,change,FALSE);
+	if (change) ChangeSpaceBefFirst(doc,ksL,change,False);
 }
 
 /*
@@ -520,7 +520,7 @@ static void PSysUpdateFirstMeas(Document *doc, LINK newSysL)
 	needWidth = GetKeySigWidth(doc,ksL,1);
 
 	change = needWidth-haveWidth;
-	if (change) ChangeSpaceBefFirst(doc,ksL,change,FALSE);
+	if (change) ChangeSpaceBefFirst(doc,ksL,change,False);
 }
 
 /*
@@ -599,7 +599,7 @@ static Boolean PSysFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContext
 	
 	/* The new context is gotten at the first invisible measure of the
 		contexted page. */
-	firstMeasL = LSSearch(rightL,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
+	firstMeasL = LSSearch(rightL,MEASUREtype,ANYONE,GO_RIGHT,False);
 	GetAllContexts(doc,newContext,firstMeasL);
 
 	/* Determine the staves for which the clef context has changed,
@@ -611,24 +611,24 @@ static Boolean PSysFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContext
 	InitStfMap(staffMap);
 	for (s=1; s<=MAXSTAVES; s++) {
 		if (oldContext[s].clefType!=newContext[s].clefType)
-			staffMap[s] = TRUE;
+			staffMap[s] = True;
 	}
 	nEntries = CountStfMap(staffMap);
 	if (nEntries>0) {
 		insertL = CreateClefContext(doc,rightL,nEntries,staffMap,newContext);
-		if (!insertL) return FALSE;
+		if (!insertL) return False;
 	}
 
 	/* Do same for keySigs as for clefs. */
 	InitStfMap(staffMap);
 	for (s=1; s<=MAXSTAVES; s++) {
 		if (!KeySigCompare(&oldContext[s],&newContext[s]))
-			staffMap[s] = TRUE;
+			staffMap[s] = True;
 	}
 	nEntries = CountStfMap(staffMap);
 	if (nEntries>0) {
 		insertL = CreateKSContext(doc,rightL,nEntries,staffMap,oldContext,newContext);
-		if (!insertL) return FALSE;
+		if (!insertL) return False;
 	}
 
 	/* Do same for timeSigs as for clefs. */
@@ -637,13 +637,13 @@ static Boolean PSysFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContext
 		if (oldContext[s].timeSigType!=newContext[s].timeSigType ||
 				oldContext[s].numerator!=newContext[s].numerator ||
 				oldContext[s].denominator!=newContext[s].denominator)
-			staffMap[s] = TRUE;
+			staffMap[s] = True;
 	}
 	nEntries = CountStfMap(staffMap);
 	if (nEntries>0)
-		if (!CreateTSContext(doc,rightL,nEntries,staffMap,newContext)) return FALSE;
+		if (!CreateTSContext(doc,rightL,nEntries,staffMap,newContext)) return False;
 	
-	sysL = LSSearch(prevL,SYSTEMtype,ANYONE,GO_LEFT,FALSE);
+	sysL = LSSearch(prevL,SYSTEMtype,ANYONE,GO_LEFT,False);
 	rmTable = GetRMeasTable(doc,sysL,&nMeas);
 	if (rmTable) {
 		RespaceSystem(doc,sysL,rmTable,nMeas);
@@ -651,7 +651,7 @@ static Boolean PSysFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContext
 	}
 
 	InvalSystem(prevL);
-	return TRUE;
+	return True;
 }
 
 
@@ -681,7 +681,7 @@ static void PSysFixContext(Document *doc, LINK prevL, LINK succL)
 	/* If no system after the system to be inserted, nothing more to
 		fix up. Otherwise, fix up context boundary of inserted system
 		and following system. */
-	nextSysL = LSSearch(succL,SYSTEMtype,ANYONE,GO_RIGHT,FALSE);
+	nextSysL = LSSearch(succL,SYSTEMtype,ANYONE,GO_RIGHT,False);
 	if (nextSysL)
 		PSysFixInitContext(doc,LeftLINK(succL),oldContext,newContext);
 
@@ -710,7 +710,7 @@ static void P1stSysFixContext(Document *doc, LINK succL)
 	/* Verify that a system exists after the system to be inserted. If not,
 		return. Otherwise, fix up boundary of inserted system and following
 		system. */
-	nextSysL = LSSearch(succL,SYSTEMtype,ANYONE,GO_RIGHT,FALSE);
+	nextSysL = LSSearch(succL,SYSTEMtype,ANYONE,GO_RIGHT,False);
 	if (nextSysL)
 		PSysFixInitContext(doc,LeftLINK(succL),oldContext,newContext);
 
@@ -736,14 +736,14 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 
 	/* Insert before the system following pageL. */
 
-	insertL = sysL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+	insertL = sysL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	prevL = LeftLINK(sysL);
 	firstInScore = !LinkLSYS(sysL);
 	if (firstInScore) {
 		InitSearchParam(&pbSearch);
 		pbSearch.voice = ANYONE;
-		pbSearch.needSelected = FALSE;
-		pbSearch.inSystem = TRUE;
+		pbSearch.needSelected = False;
+		pbSearch.inSystem = True;
 		timeSigL = L_Search(RightLINK(sysL), TIMESIGtype, GO_RIGHT, &pbSearch);
 
 		if (TimeSigINMEAS(timeSigL)) timeSigL = NILINK;
@@ -760,8 +760,8 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 
 	InitSearchParam(&pbSearch);
 	pbSearch.voice = ANYONE;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = TRUE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = True;
 	clipTimeSigL = L_Search(RightLINK(clipSys), TIMESIGtype, GO_RIGHT, &pbSearch);
 
 	if (TimeSigINMEAS(clipTimeSigL)) clipTimeSigL = NILINK;
@@ -807,7 +807,7 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 
 	/* Fix cross linkages from objects before the inserted system. */
 
-	lSys = LSSearch(LeftLINK(newSys),SYSTEMtype,ANYONE,GO_LEFT,FALSE);
+	lSys = LSSearch(LeftLINK(newSys),SYSTEMtype,ANYONE,GO_LEFT,False);
 	lStaff = lSys ? SSearch(lSys,SYSTEMtype,GO_RIGHT) : NILINK;
 
 	newFirstMeas = SSearch(newSys,MEASUREtype,GO_RIGHT);
@@ -842,7 +842,7 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 	UpdateSysNums(doc,doc->headL);
 	UpdateMeasNums(doc,NILINK);
 	FixTimeStamps(doc, newSys,NILINK);
-	doc->changed = TRUE;
+	doc->changed = True;
 
 	DeselRangeNoHilite(doc, doc->headL, doc->tailL);
 	lastL = LastObjInSys(doc,RightLINK(newSys));
@@ -858,7 +858,7 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 	PSysFixStfSize(doc,newSys,rSys);
 	
 	/* Update the system left indent to set the pasted-in system's left indent
-		to doc->firstIndent. */
+		to doc->dIndentFirst. */
 		
 	PSysSetFirstIndent(doc,newSys);
 
@@ -879,8 +879,8 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 	InvalWindow(doc);
 #endif
 
-	UpdateVoiceTable(doc, TRUE);
-	MEAdjustCaret(doc, TRUE);
+	UpdateVoiceTable(doc, True);
+	MEAdjustCaret(doc, True);
 }
 
 
@@ -936,13 +936,13 @@ void PasteSystem(Document *doc)
 		4. Anything else (including the tail): doc->selStartL.
 	*/
 
-	startL = EditSysGetStartL(doc,TRUE);
+	startL = EditSysGetStartL(doc,True);
 	if (PageTYPE(startL)) {
 		Paste1stSysInPage(doc, startL);
 		return;
 	}
 
-	sysL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	sysL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	prevL = lastL = LastObjInSys(doc, RightLINK(sysL));
 	insertL = RightLINK(lastL);
 
@@ -1013,7 +1013,7 @@ void PasteSystem(Document *doc)
 			DeleteNode(doc,newTS);
 
 	FixTimeStamps(doc,newSys,NILINK);
-	doc->changed = TRUE;
+	doc->changed = True;
 
 	DeselRangeNoHilite(doc, doc->headL, doc->tailL);
 	lastL = LastObjInSys(doc,RightLINK(newSys));
@@ -1042,13 +1042,13 @@ void PasteSystem(Document *doc)
 
 	PFixGraphicFont(doc,newSys,rSys);
 
-	UpdateVoiceTable(doc, TRUE);
-	MEAdjustCaret(doc,TRUE);
+	UpdateVoiceTable(doc, True);
+	MEAdjustCaret(doc,True);
 }
 
 	
-/* If prev, return TRUE if there is a xSys obj (Beamset or Slur) extending from
-the previous system to sysL; if not prev, return TRUE if a xSys obj extending from
+/* If prev, return True if there is a xSys obj (Beamset or Slur) extending from
+the previous system to sysL; if not prev, return True if a xSys obj extending from
 sysL to the following sys. */
 
 static Boolean GetXSysObj(LINK sysL, Boolean prev)
@@ -1060,15 +1060,15 @@ static Boolean GetXSysObj(LINK sysL, Boolean prev)
 
 	for (pL=sysL; pL!=rSys; pL=RightLINK(pL)) {
 		if (BeamsetTYPE(pL) && BeamCrossSYS(pL)) {
-			if (prev && !BeamFirstSYS(pL)) return TRUE;
-			if (!prev && BeamFirstSYS(pL)) return TRUE;
+			if (prev && !BeamFirstSYS(pL)) return True;
+			if (!prev && BeamFirstSYS(pL)) return True;
 		}
 		if (SlurTYPE(pL)) {
-			if (prev && SlurLastIsSYSTEM(pL)) return TRUE;
-			if (!prev && SlurFirstIsSYSTEM(pL)) return TRUE;
+			if (prev && SlurLastIsSYSTEM(pL)) return True;
+			if (!prev && SlurFirstIsSYSTEM(pL)) return True;
 		}
 	}
-	return FALSE;
+	return False;
 }
 
 /*
@@ -1088,8 +1088,8 @@ void ClearSystem(Document *doc)
 	/* If there is an insertion point at the end of the system, doc->selStartL
 		will be the following system or page object. Call EditSysGetStartL to get
 		startL. */
-	startL = EditSysGetStartL(doc,FALSE);
-	sysL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	startL = EditSysGetStartL(doc,False);
+	sysL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	lastL = LastObjInSys(doc, RightLINK(sysL));
 
 	if (LinkLSYS(sysL)==NILINK) {
@@ -1124,21 +1124,21 @@ void ClearSystem(Document *doc)
 	lStaff = LinkLSTAFF(staffL);
 
 	rMeas = rSys ? SSearch(rSys,MEASUREtype,GO_RIGHT) : NILINK;
-	lMeas = lSys ? LSSearch(sysL,MEASUREtype,ANYONE,GO_LEFT,FALSE) : NILINK;
+	lMeas = lSys ? LSSearch(sysL,MEASUREtype,ANYONE,GO_LEFT,False) : NILINK;
 
 	/* Inval the system before deleting it while its systemRect still exists. */
 	InvalSystem(sysL);
 	if (lSys) {
-		if (GetXSysObj(sysL,TRUE))
+		if (GetXSysObj(sysL,True))
 			InvalSystem(lSys);
 	}
 	if (rSys) {
-		if (GetXSysObj(sysL,FALSE))
+		if (GetXSysObj(sysL,False))
 			InvalSystem(rSys);
 	}
 	
 	/* Determine whether sysL is last system on its page before deleting it. */
-	samePage = rSys ? SamePage(sysL, rSys) : FALSE;
+	samePage = rSys ? SamePage(sysL, rSys) : False;
 
 	DeleteRange(doc,sysL,RightLINK(lastL));
 	
@@ -1160,20 +1160,20 @@ void ClearSystem(Document *doc)
 				InvalRange(succSys,LastObjInSys(doc,RightLINK(succSys)));
 			}
 
-		doc->selStartL = LSSearch(rSys,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
+		doc->selStartL = LSSearch(rSys,MEASUREtype,ANYONE,GO_RIGHT,False);
 		doc->selStartL = RightLINK(doc->selStartL);
 	}
 	else
 		doc->selStartL = doc->tailL;
 
 	doc->selEndL = doc->selStartL;
-	doc->changed = TRUE;
+	doc->changed = True;
 	UpdateSysNums(doc, doc->headL);
 	UpdateMeasNums(doc,NILINK);
 	FixTimeStamps(doc,(lSys? EndSystemSearch(doc, lSys) : pageL),NILINK);
 	
 	FixDelCrossSysObjs(doc);
-	MEAdjustCaret(doc,TRUE);
+	MEAdjustCaret(doc,True);
 }
 
 
@@ -1203,7 +1203,7 @@ static Boolean PPageFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContex
 	
 	/* The new context is gotten at the first invisible measure of the
 		contexted page. */
-	firstMeasL = LSSearch(rightL,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
+	firstMeasL = LSSearch(rightL,MEASUREtype,ANYONE,GO_RIGHT,False);
 	GetAllContexts(doc,newContext,firstMeasL);
 
 	/* Determine the staves for which the clef context has changed,
@@ -1215,24 +1215,24 @@ static Boolean PPageFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContex
 	InitStfMap(staffMap);
 	for (s=1; s<=MAXSTAVES; s++) {
 		if (oldContext[s].clefType!=newContext[s].clefType)
-			staffMap[s] = TRUE;
+			staffMap[s] = True;
 	}
 	nEntries = CountStfMap(staffMap);
 	if (nEntries>0) {
 		insertL = CreateClefContext(doc,rightL,nEntries,staffMap,newContext);
-		if (!insertL) return FALSE;
+		if (!insertL) return False;
 	}
 
 	/* Do same for keySigs as for clefs. */
 	InitStfMap(staffMap);
 	for (s=1; s<=MAXSTAVES; s++) {
 		if (!KeySigCompare(&oldContext[s],&newContext[s]))
-			staffMap[s] = TRUE;
+			staffMap[s] = True;
 	}
 	nEntries = CountStfMap(staffMap);
 	if (nEntries>0) {
 		insertL = CreateKSContext(doc,rightL,nEntries,staffMap,oldContext,newContext);
-		if (!insertL) return FALSE;
+		if (!insertL) return False;
 	}
 
 	/* Do same for timeSigs as for clefs. */
@@ -1241,15 +1241,15 @@ static Boolean PPageFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContex
 		if (oldContext[s].timeSigType!=newContext[s].timeSigType ||
 				oldContext[s].numerator!=newContext[s].numerator ||
 				oldContext[s].denominator!=newContext[s].denominator)
-			staffMap[s] = TRUE;
+			staffMap[s] = True;
 	}
 	nEntries = CountStfMap(staffMap);
 	if (nEntries>0)
-		if (!CreateTSContext(doc,rightL,nEntries,staffMap,newContext)) return FALSE;
+		if (!CreateTSContext(doc,rightL,nEntries,staffMap,newContext)) return False;
 	
 	/* Respace the previous system to make room for added context objects,
 		in case they extend off the end of the system. */
-	sysL = LSSearch(prevL,SYSTEMtype,ANYONE,GO_LEFT,FALSE);
+	sysL = LSSearch(prevL,SYSTEMtype,ANYONE,GO_LEFT,False);
 	rmTable = GetRMeasTable(doc,sysL,&nMeas);
 	if (rmTable) {
 		RespaceSystem(doc,sysL,rmTable,nMeas);
@@ -1258,13 +1258,13 @@ static Boolean PPageFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContex
 
 	/* Fix up measure rect x's for added system. Not clear why this is needed. */
 	
-	sysL = LSSearch(prevL,SYSTEMtype,ANYONE,GO_RIGHT,FALSE);
+	sysL = LSSearch(prevL,SYSTEMtype,ANYONE,GO_RIGHT,False);
 	firstMeasL = SSearch(sysL,MEASUREtype,GO_RIGHT);
 	lastMeasL = GetLastMeasInSys(sysL);
 	FixMeasRectXs(firstMeasL,lastMeasL);
 
 	InvalSystem(prevL);
-	return TRUE;
+	return True;
 }
 
 /*
@@ -1295,7 +1295,7 @@ static void PPagesFixContext(Document *doc, LINK prevL, LINK succL, Boolean newF
 	/* Fix up boundary of last inserted and following page, unless page was
 		inserted at end of score. */
 		
-	nextPageL = LSSearch(succL,PAGEtype,ANYONE,GO_RIGHT,FALSE);
+	nextPageL = LSSearch(succL,PAGEtype,ANYONE,GO_RIGHT,False);
 	if (nextPageL)
 		PPageFixInitContext(doc,LeftLINK(succL),oldContext,newContext);
 
@@ -1316,10 +1316,10 @@ void CopyPages(Document *doc)
 	WaitCursor();
 	
 	ReplaceHeader(doc,clipboard);
-	SetupClipDoc(doc,FALSE);
+	SetupClipDoc(doc,False);
 
-	pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, FALSE);
-	lastPageL = LSSearch(LeftLINK(doc->selEndL), PAGEtype, ANYONE, GO_LEFT, FALSE);
+	pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, False);
+	lastPageL = LSSearch(LeftLINK(doc->selEndL), PAGEtype, ANYONE, GO_LEFT, False);
 	lastL = LastObjOnPage(doc, lastPageL);
 	insertL = RightLINK(lastL);
 	
@@ -1344,7 +1344,7 @@ void CopyPages(Document *doc)
 	clipboard->nsystems = nSystem-1;
 
 	clipboard->selEndL = clipboard->selStartL =
-		LSUSearch(clipboard->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		LSUSearch(clipboard->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 
 	CopyFontTable(doc);
 
@@ -1363,7 +1363,7 @@ static LINK GetPageInsertL(Document *doc, Boolean *newFirstPage)
 {
 	LINK pageL;
 
-	*newFirstPage = FALSE;
+	*newFirstPage = False;
 
 	/* Insertion point is at end of last page; return tailL in order to insert page
 		at end of score. */
@@ -1376,12 +1376,12 @@ static LINK GetPageInsertL(Document *doc, Boolean *newFirstPage)
 		return doc->selStartL;
 	
 	if (BeforeFirstPageMeas(doc->selStartL)) {
-		pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, FALSE);
+		pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, False);
 		if (!LinkLPAGE(pageL))
-			*newFirstPage = TRUE;
+			*newFirstPage = True;
 	}
 	else
-		pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, FALSE);
+		pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, False);
 	
 	/* If we found no page, insertion point was after the first measure on the last
 		page, so insert at end of score. */
@@ -1400,7 +1400,7 @@ void PastePages(Document *doc)
 {
 	LINK prevL, insertL, oldFirstSys, pageL, sysL, masterSysL, timeSigL, clipTimeSigL,
 			clipSys, newFirstMeas;
-	Boolean newFirstPage=FALSE;
+	Boolean newFirstPage=False;
 	DDIST change;
 	SearchParam pbSearch;
 	Rect paper, result;  short pageNum;  Boolean appending;
@@ -1414,7 +1414,7 @@ void PastePages(Document *doc)
 		return;
 	}
 
-	DisableUndo(doc, FALSE);
+	DisableUndo(doc, False);
 
 	MEHideCaret(doc);
 
@@ -1422,12 +1422,12 @@ void PastePages(Document *doc)
 	appending = TailTYPE(insertL);
 	prevL = LeftLINK(insertL);
 	if (newFirstPage) {
-		oldFirstSys = LSSearch(insertL,SYSTEMtype,ANYONE,GO_RIGHT,FALSE);
+		oldFirstSys = LSSearch(insertL,SYSTEMtype,ANYONE,GO_RIGHT,False);
 
 		InitSearchParam(&pbSearch);
 		pbSearch.voice = ANYONE;
-		pbSearch.needSelected = FALSE;
-		pbSearch.inSystem = TRUE;
+		pbSearch.needSelected = False;
+		pbSearch.inSystem = True;
 		timeSigL = L_Search(RightLINK(oldFirstSys), TIMESIGtype, GO_RIGHT, &pbSearch);
 
 		if (TimeSigINMEAS(timeSigL)) timeSigL = NILINK;
@@ -1443,8 +1443,8 @@ void PastePages(Document *doc)
 
 	InitSearchParam(&pbSearch);
 	pbSearch.voice = ANYONE;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = TRUE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = True;
 	clipTimeSigL = L_Search(RightLINK(clipSys), TIMESIGtype, GO_RIGHT, &pbSearch);
 
 	if (TimeSigINMEAS(clipTimeSigL)) clipTimeSigL = NILINK;
@@ -1458,7 +1458,7 @@ void PastePages(Document *doc)
 	UpdateSysNums(doc,doc->headL);
 	UpdateMeasNums(doc,NILINK);
 	FixTimeStamps(doc,prevL,NILINK);
-	doc->changed = TRUE;
+	doc->changed = True;
 
 	/* Update the staff rastral size for the pasted-in pages. */
 
@@ -1488,7 +1488,7 @@ void PastePages(Document *doc)
 		it up here will not mess up its position. */
 
 	if (newFirstPage)
-		ChangeSysIndent(doc, oldFirstSys, doc->otherIndent-doc->firstIndent);
+		ChangeSysIndent(doc, oldFirstSys, doc->dIndentOther-doc->dIndentFirst);
 	else {
 		pageL = SSearch(prevL,PAGEtype,GO_RIGHT);
 		sysL = SSearch(pageL,SYSTEMtype,GO_RIGHT);
@@ -1521,14 +1521,14 @@ void PastePages(Document *doc)
 
 	PFixGraphicFont(doc,pageL,insertL);
 
-	UpdateVoiceTable(doc, TRUE);
+	UpdateVoiceTable(doc, True);
 
 	DeselRangeNoHilite(doc,doc->headL,doc->tailL);
 	InvalRange(prevL,insertL);
 	InvalWindow(doc);
 	GetAllSheets(doc);
 	RecomputeView(doc);		
-	MEAdjustCaret(doc,TRUE);
+	MEAdjustCaret(doc,True);
 
 	GetSheetRect(doc,SheetNUM(pageL),&paper);
 	SectRect(&paper, &doc->viewRect, &result);
@@ -1564,13 +1564,13 @@ void ClearPages(Document *doc)
 
 	startL = PageTYPE(doc->selStartL) ? LeftLINK(doc->selStartL) : doc->selStartL;
 
-	pageL = LSSearch(startL, PAGEtype, ANYONE, GO_LEFT, FALSE);
+	pageL = LSSearch(startL, PAGEtype, ANYONE, GO_LEFT, False);
 	lPageL = LinkLPAGE(pageL);
 	if (!lPageL) {
 		GetIndCString(strBuf, SYSPE_STRS, 4);		/* "can't Clear the first page of the score" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		MEAdjustCaret(doc,TRUE);
+		MEAdjustCaret(doc,True);
 		return;
 	}
 	
@@ -1582,7 +1582,7 @@ void ClearPages(Document *doc)
 	lStaffL = LinkLSTAFF(staffL);
 	lMeasL = LinkLMEAS(measL);
 
-	rPageL = LSSearch(LeftLINK(doc->selEndL), PAGEtype, ANYONE, GO_LEFT, FALSE);
+	rPageL = LSSearch(LeftLINK(doc->selEndL), PAGEtype, ANYONE, GO_LEFT, False);
 	rPageL = LinkRPAGE(rPageL);
 
 	doc->selStartL = pageL;
@@ -1599,7 +1599,7 @@ void ClearPages(Document *doc)
 	/* If the rPageL exists, get the last system prior to it, and the last obj
 		in that system, which is the last obj in pageL. */
 
-		sysL = LSSearch(rPageL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+		sysL = LSSearch(rPageL, SYSTEMtype, ANYONE, GO_LEFT, False);
 		lastL = LastObjInSys(doc, RightLINK(sysL));
 		doc->selStartL = rPageL;
 	}
@@ -1626,14 +1626,14 @@ void ClearPages(Document *doc)
 	doc->currentSheet = SheetNUM(lPageL);
 
 	UpdateSysNums(doc,doc->headL);
-	currSys = LSSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,FALSE);
+	currSys = LSSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,False);
 	doc->currentSystem = SystemNUM(currSys);
 
 	UpdateMeasNums(doc,NILINK);
 	FixTimeStamps(doc,doc->selStartL,NILINK);
 
 	doc->selEndL = doc->selStartL;
-	doc->changed = TRUE;
+	doc->changed = True;
 
 	/* Set selection range for FixDelCrossSysObjs. */
 
@@ -1647,5 +1647,5 @@ void ClearPages(Document *doc)
 
 	InvalWindow(doc);
 	doc->selEndL = doc->selStartL = doc->tailL;
-	MEAdjustCaret(doc,TRUE);
+	MEAdjustCaret(doc,True);
 }

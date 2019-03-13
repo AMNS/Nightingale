@@ -17,7 +17,7 @@ typedef struct {
 	Byte 			noteNumber;
 	Byte 			onVelocity;
 	Byte 			offVelocity;
-	Boolean			first;			/* TRUE=this note starts a new chord */
+	Boolean			first;			/* True=this note starts a new chord */
 	long 			duration;
 } NOTEAUX;
 

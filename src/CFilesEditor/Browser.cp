@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -61,17 +61,17 @@ static pascal Boolean BrowserFilter(DialogPtr, EventRecord *, short *);
 static Boolean DynamicToString(short dynamicType)
 {
 	switch (dynamicType) {
-		case PPP_DYNAM: strcpy(dynStr, "ppp"); return TRUE;
-		case PP_DYNAM: strcpy(dynStr, "pp"); return TRUE;
-		case P_DYNAM: strcpy(dynStr, "p"); return TRUE;
-		case MP_DYNAM: strcpy(dynStr, "mp"); return TRUE;
-		case MF_DYNAM: strcpy(dynStr, "mf"); return TRUE;
-		case F_DYNAM: strcpy(dynStr, "f"); return TRUE;
-		case FF_DYNAM: strcpy(dynStr, "ff"); return TRUE;
-		case FFF_DYNAM: strcpy(dynStr, "fff"); return TRUE;
-		case DIM_DYNAM: strcpy(dynStr, "hairpin dim."); return TRUE;
-		case CRESC_DYNAM: strcpy(dynStr, "hairpin cresc."); return TRUE;
-		default: strcpy(dynStr, "unknown"); return FALSE;
+		case PPP_DYNAM: strcpy(dynStr, "ppp"); return True;
+		case PP_DYNAM: strcpy(dynStr, "pp"); return True;
+		case P_DYNAM: strcpy(dynStr, "p"); return True;
+		case MP_DYNAM: strcpy(dynStr, "mp"); return True;
+		case MF_DYNAM: strcpy(dynStr, "mf"); return True;
+		case F_DYNAM: strcpy(dynStr, "f"); return True;
+		case FF_DYNAM: strcpy(dynStr, "ff"); return True;
+		case FFF_DYNAM: strcpy(dynStr, "fff"); return True;
+		case DIM_DYNAM: strcpy(dynStr, "hairpin dim."); return True;
+		case CRESC_DYNAM: strcpy(dynStr, "hairpin cresc."); return True;
+		default: strcpy(dynStr, "unknown"); return False;
 	}
 }
 
@@ -79,20 +79,20 @@ static Boolean DynamicToString(short dynamicType)
 static Boolean ClefToString(short clefType)
 {
 	switch (clefType) {
-		case TREBLE8_CLEF: strcpy(clefStr, "treble-8va"); return TRUE;
-		case FRVIOLIN_CLEF: strcpy(clefStr, "French violin"); return TRUE;
-		case TREBLE_CLEF: strcpy(clefStr, "treble"); return TRUE;
-		case SOPRANO_CLEF: strcpy(clefStr, "soprano"); return TRUE;
-		case MZSOPRANO_CLEF: strcpy(clefStr, "mezzo-soprano"); return TRUE;
-		case ALTO_CLEF: strcpy(clefStr, "alto"); return TRUE;
-		case TRTENOR_CLEF: strcpy(clefStr, "treble-tenor"); return TRUE;
-		case TENOR_CLEF: strcpy(clefStr, "tenor"); return TRUE;
-		case BARITONE_CLEF: strcpy(clefStr, "baritone"); return TRUE;
-		case BASS_CLEF: strcpy(clefStr, "bass"); return TRUE;
-		case BASS8B_CLEF: strcpy(clefStr, "bass-8vb"); return TRUE;
-		case PERC_CLEF: strcpy(clefStr, "percussion"); return TRUE;
+		case TREBLE8_CLEF: strcpy(clefStr, "treble-8va"); return True;
+		case FRVIOLIN_CLEF: strcpy(clefStr, "French violin"); return True;
+		case TREBLE_CLEF: strcpy(clefStr, "treble"); return True;
+		case SOPRANO_CLEF: strcpy(clefStr, "soprano"); return True;
+		case MZSOPRANO_CLEF: strcpy(clefStr, "mezzo-soprano"); return True;
+		case ALTO_CLEF: strcpy(clefStr, "alto"); return True;
+		case TRTENOR_CLEF: strcpy(clefStr, "treble-tenor"); return True;
+		case TENOR_CLEF: strcpy(clefStr, "tenor"); return True;
+		case BARITONE_CLEF: strcpy(clefStr, "baritone"); return True;
+		case BASS_CLEF: strcpy(clefStr, "bass"); return True;
+		case BASS8B_CLEF: strcpy(clefStr, "bass-8vb"); return True;
+		case PERC_CLEF: strcpy(clefStr, "percussion"); return True;
 		
-		default: strcpy(clefStr, "unknown"); return FALSE;
+		default: strcpy(clefStr, "unknown"); return False;
 	}
 }
 
@@ -122,7 +122,7 @@ enum {
 
 pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
-		Boolean ans = FALSE;
+		Boolean ans = False;
 		short itype; Handle tHdl; Rect textRect; Point where;
 		WindowPtr w = (WindowPtr)theEvent->message;
 		int part;
@@ -132,11 +132,11 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 				if (w == GetDialogWindow(theDialog)) {
 					BeginUpdate(GetDialogWindow(theDialog));
 					DrawDialog(theDialog);
-//					OutlineOKButton(theDialog,TRUE);
+//					OutlineOKButton(theDialog,True);
 					EndUpdate(GetDialogWindow(theDialog));
 					}
 				*item = 0;
-				ans = TRUE;
+				ans = True;
 				break;
 			case mouseDown:
 				where = theEvent->where;
@@ -144,7 +144,7 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 				GetDialogItem(theDialog, iText, &itype, &tHdl, &textRect);	
 				if (PtInRect(where, &textRect)) {
 					*item = iShowMore;
-					ans = TRUE;
+					ans = True;
 					break;
 				}
 				else {
@@ -161,18 +161,20 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 
 			case keyDown:
 			case autoKey:
-				if (DlgCmdKey(theDialog, theEvent, item, FALSE)) return TRUE;
+				if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
 				break;
 			}
 		return ans;
 	}
 
 
-/* ---------------------------------------------------------------------- Browser -- */
-/* Browser displays and handles interaction with a small window that lets the
-user (a Nightingale programmer, presumably) prowl around in an object list.
-tailL may be NILINK; in this case, the "go to tail" button will be inoperative,
-but everything else will work as usual. */
+/* --------------------------------------------------------------------------- Browser -- */
+/* Browser displays and handles interaction with a small window that lets the user
+(a Nightingale programmer, presumably) prowl around in an object list.
+
+If headL is anything other than doc->headL, the "Go to" button will be inoperative; if
+tailL is NILINK, the tiny "go to tail" button will be inoperative. In either case,
+everything else will work as usual. */
 
 void Browser(Document *doc, LINK headL, LINK tailL)
 {
@@ -184,9 +186,9 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	Boolean done;
 	Rect objRect;
 	GrafPtr oldPort;
-	LINK pL, oldL;
-	LINK oldpL;
-	ControlHandle scrollHdl;  short part;
+	LINK pL, oldL, oldpL;
+	ControlHandle scrollHdl;
+	short part;
 	Document *saveDoc;
 	ModalFilterUPP	filterUPP;
 
@@ -223,12 +225,13 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	else if (headL==doc->masterHeadL) strcpy(objList, "Master Page ");
 	else if (headL==doc->undo.headL) strcpy(objList, "Undo ");
 	
-	/* We support the "Go" button only for the main object list. */
+	/* We support the "Go" button only if headL is the head of the main object list. */
+	
 	if (headL!=doc->headL) {
 		GetDialogItem(dlog, iGo, &itype, (Handle *)&tHdl, &tRect);
 		HiliteControl(tHdl, CTL_INACTIVE);
 	}
-	else PutDlgWord(dlog, iGoNum, pL, TRUE);
+	else PutDlgWord(dlog, iGoNum, pL, True);
 
 	ArrowCursor();
 
@@ -243,11 +246,12 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	oldIndex = -1;
 	oldShowBPage = -1;
 
-	done = FALSE;
+	done = False;
 	ShowWindow(GetDialogWindow(dlog));
 	
 	do {
 		/* If the desired thing has changed or, for Header, may have changed... */
+		
 		if (pL!=oldpL || index!=oldIndex
 		|| (ObjLType(pL)==HEADERtype && index<0 && showBPage!=oldShowBPage)) {
 		
@@ -255,8 +259,6 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			
 			InvertObjRect(doc, &objRect);				/* Restore previous objRect */
 			ShowObject(doc, pL, index, &objRect); 		/* Write out info and get new objRect */
-//LogPrintf(LOG_DEBUG, "Browser: objRect (t l b r)=%d %d %d %d\n",
-//objRect.top, objRect.left, objRect.bottom, objRect.right);
 			InvertObjRect(doc, &objRect);				/* Hilite this objRect */
 			
 			if (ObjLType(pL)==HEADERtype
@@ -274,7 +276,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 		scrollHdl = NULL;
 		switch (ditem) {
 			case iOK:
-			  	done = TRUE;
+			  	done = True;
 				index = 0;
 			  	break;
 			case iHead:
@@ -399,7 +401,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			   break;
 			case iDeselect:
 			 	if (headL==doc->headL)
-					ChangeSelectObj(doc, pL, index, SMDeselect, FALSE, &objRect);
+					ChangeSelectObj(doc, pL, index, SMDeselect, False, &objRect);
 			 	break;
 			case iScrollUp:
 			 	scrollHdl = doc->vScroll; part = kControlPageUpPart;
@@ -416,7 +418,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			case iGo:
 				SelectDialogItemText(dlog, iGoNum, 0, ENDTEXT); 		/* hilite number */
 			 	if (GetDlgWord(dlog, iGoNum, &goLoc))
-					if (InDataStruct(doc, (LINK)goLoc, MAIN_DSTR)) {
+					if (InObjectList(doc, (LINK)goLoc, MAIN_DSTR)) {
 						pL = (LINK)goLoc;
 						index = 0;
 						break;
@@ -431,9 +433,10 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			 	;
 		}
 		if (scrollHdl) {
-			GrafPtr oldPort;  Rect box, portRect;
+			Rect box, portRect;
 			WindowPtr w; 
-			Point oldOrigin;  short dx, dy;
+			Point oldOrigin;
+			short dx, dy;
 			InvertObjRect(doc, &objRect);
 			
 			w = doc->theWindow;
@@ -476,18 +479,18 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 }
 
 
-/* ------------------------------------------------------------------ DrawTextLine -- */
+/* ---------------------------------------------------------------------- DrawTextLine -- */
 /* Draw the specified C string on the next line in Browser dialog. */
 
-void DrawTextLine(char *s)
+void DrawTextLine(char *str)
 {
 	MoveTo(bRect.left, bRect.top+linenum*LEADING);
-	DrawCString(s);
+	DrawCString(str);
 	++linenum;
 }
 
 
-/* ------------------------------------------------------------------ InvertObjRect -- */
+/* --------------------------------------------------------------------- InvertObjRect -- */
 
 static void InvertObjRect(Document *doc, Rect *pObjRect)
 {
@@ -500,7 +503,7 @@ static void InvertObjRect(Document *doc, Rect *pObjRect)
 }
 
 
-/* -------------------------------------------------------------------- SelSubObj -- */
+/* ------------------------------------------------------------------------- SelSubObj -- */
 
 static void SelSubObj(LINK, LINK);
 static void SelSubObj(LINK pL, LINK subL)
@@ -508,40 +511,39 @@ static void SelSubObj(LINK pL, LINK subL)
 	if (pL && subL)
 		switch (ObjLType(pL)) {
 			case CONNECTtype:
-				ConnectSEL(subL) = TRUE; break;
+				ConnectSEL(subL) = True; break;
 			case STAFFtype:
-				StaffSEL(subL) = TRUE; break;
+				StaffSEL(subL) = True; break;
 			case SYNCtype:
-				NoteSEL(subL) = TRUE; break;
+				NoteSEL(subL) = True; break;
 			case CLEFtype:
-				ClefSEL(subL) = TRUE; break;
+				ClefSEL(subL) = True; break;
 			case KEYSIGtype:
-				KeySigSEL(subL) = TRUE; break;
+				KeySigSEL(subL) = True; break;
 			case TIMESIGtype:
-				TimeSigSEL(subL) = TRUE; break;
+				TimeSigSEL(subL) = True; break;
 			case DYNAMtype:
-				DynamicSEL(subL) = TRUE; break;
+				DynamicSEL(subL) = True; break;
 			case MEASUREtype:
-				MeasureSEL(subL) = TRUE; break;
+				MeasureSEL(subL) = True; break;
 			case SLURtype:
-				SlurSEL(subL) = TRUE; break;
+				SlurSEL(subL) = True; break;
 			default:
 				SysBeep(1);
 				LogPrintf(LOG_WARNING, "Browser/SelSubObj: can't select subobject of this type.");
 		}	
 }
 
-/* -------------------------------------------------------------- ChangeSelectObj -- */
-/* If mode is SMSelect, select pL and (if it has any subobjects) either the
-current one or all of them; if mode is SMDeselect, deselect pL and all of its
-subobjects, if it has any. This function is designed to handle anomalous
-situations resulting (most likely) from bugs in Nightingale, so it tries to
-work in the safest possible way. */
+/* ------------------------------------------------------------------- ChangeSelectObj -- */
+/* If mode is SMSelect, select pL and (if it has any subobjects) either the current one
+or all of them; if mode is SMDeselect, deselect pL and all of its subobjects, if it has
+any. This function is designed to handle anomalous situations resulting (most likely)
+from bugs in Nightingale, so it tries to work in the safest possible way. */
 
 static void ChangeSelectObj(Document *doc, LINK pL,
 				short	index,		/* Index of subobject currently displayed */
 				short	mode,
-				Boolean selSub,		/* If SMSelect, TRUE=select only current subobject */
+				Boolean selSub,		/* If SMSelect, True=select only current subobject */
 				Rect *pObjRect
 				)
 {
@@ -593,13 +595,13 @@ static void ChangeSelectObj(Document *doc, LINK pL,
 	}
 	LinkSEL(pL) = (mode==SMSelect);
 	UpdateSelection(doc);
-	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,TRUE);
+	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,True);
 	EraseRect(&bRect);
 	ShowObject(doc, pL, index, pObjRect);						/*	Show the thing again */
 }
 
 
-/* ------------------------------------------------------------------- ShowObject -- */
+/* ------------------------------------------------------------------------ ShowObject -- */
 
 void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 {
@@ -613,7 +615,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	TextFont(SYSFONTID_MONOSPACED);
 	TextSize(9);
 
-	ps = NameNodeType(pL);
+	ps = NameObjType(pL);
 	sprintf(s, "%s%s [%d]", objList, ps, ObjLType(pL));
 	if (doc->selStartL==pL)
 		strcat(s, "  (selStartL)");
@@ -627,16 +629,12 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "@%lx xd,yd=%d,%d", p, p->xd, p->yd);
 	DrawTextLine(s);
 	strcpy(s, "flags=");
-	if (LinkSEL(pL))
-		strcat(s, "SELECTED ");
-	if (LinkVIS(pL))
-		strcat(s, "VISIBLE ");
-	if (LinkSOFT(pL))
-		strcat(s, "SOFT ");
-	if (LinkVALID(pL))
-		strcat(s, "VALID ");
-	if (LinkTWEAKED(pL))
-		strcat(s, "TWEAKED ");
+	if (LinkSEL(pL))		strcat(s, "SELECTED ");
+	if (LinkVIS(pL))		strcat(s, "VISIBLE ");
+	if (LinkSOFT(pL))		strcat(s, "SOFT ");
+	if (LinkVALID(pL))		strcat(s, "VALID ");
+	if (LinkTWEAKED(pL))	strcat(s, "TWEAKED ");
+	if (LinkSPAREFLAG(pL))	strcat(s, "SPARE ");
 	DrawTextLine(s);
 	r = LinkOBJRECT(pL);
 	sprintf(s, "objRect/t l b r=%d %d %d %d", r.top, r.left, r.bottom, r.right);
@@ -655,6 +653,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 		SetDRect(&systemRect, 0, 0, 0, 0);
 	
 	/* Get sheet this object is on so we can mark object's bounding box while browsing */
+	
 	pageL = pL;
 	while (pageL!=NILINK && ObjLType(pageL)!=PAGEtype) pageL = LeftLINK(pageL);
 	if (pageL)
@@ -738,7 +737,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	}
 }
 
-/* ---------------------------------------------------------------- ShowVoicePage -- */
+/* --------------------------------------------------------------------- ShowVoicePage -- */
 
 #define VOICEPAGESIZE 25		/* Max. no. of lines (voices) that fit in Browser window */ 
 
@@ -758,7 +757,7 @@ static void ShowVoicePage(Document *doc, short startV)
 }
 
 
-/* ----------------------------------------------------------------- BrowseHeader -- */
+/* ---------------------------------------------------------------------- BrowseHeader -- */
 
 void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 {
@@ -777,11 +776,11 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 		 */
 		startV = showBPage*VOICEPAGESIZE+1;
 		if (startV>MAXVOICES)
-			pageEmpty = TRUE;
+			pageEmpty = True;
 		else
-			for (pageEmpty = TRUE, v = startV;
+			for (pageEmpty = True, v = startV;
 				  v<=startV+VOICEPAGESIZE && v<=MAXVOICES; v++)
-				if (doc->voiceTab[v].partn!=0) pageEmpty = FALSE;
+				if (doc->voiceTab[v].partn!=0) pageEmpty = False;
 		if (pageEmpty) {
 			showBPage = 0;
 			startV = showBPage*VOICEPAGESIZE+1;
@@ -843,8 +842,8 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 		sprintf(s, "ledgerYSp=%d nFontRecs=%d spPercent=%d",
 					doc->ledgerYSp, doc->nFontRecords, doc->spacePercent);
 		DrawTextLine(s);
-		sprintf(s, "1stIndent=%d yBtwnSys=%d spTab=%d mag=%d",
-						doc->firstIndent, doc->yBetweenSys, doc->spaceTable,doc->magnify);
+		sprintf(s, "indentFirst=%d yBtwnSys=%d spTab=%d mag=%d",
+						doc->dIndentFirst, doc->yBetweenSys, doc->spaceTable,doc->magnify);
 		DrawTextLine(s);
 		sprintf(s, "comment='%s'", doc->comment);
 		DrawTextLine(s);
@@ -852,27 +851,24 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 						GetHandleSize((Handle)doc->stringPool), doc->nfontsUsed);
 		DrawTextLine(s);
 		
-	/* Show a max. of the first 10 fonts used because of dialog space limitations, but
-	 * actually, as of v. 99b6, that's all there can be anyway.
-	 */
+	/* Show at most the first 10 fonts used because of dialog space limitations. */
+	
 		for (i = 0; i<doc->nfontsUsed && i<=10; i++) {
 			Pstrcpy((StringPtr)string, (StringPtr)(doc->fontTable[i].fontName));
 			PToCString((StringPtr)string);
 			sprintf(s, "  (%d) name='%s' ID=%d", i, string, doc->fontTable[i].fontID);
 			DrawTextLine(s);
 		}
-		sprintf(s, "fmsInputDevice=%d",
-			doc->fmsInputDevice);
+		sprintf(s, "fmsInputDevice=%d", doc->fmsInputDevice);
 		DrawTextLine(s);
-		sprintf(s, "(matchType=%d name=%#s)",
-			doc->fmsInputDestination.basic.destinationType,
-			doc->fmsInputDestination.basic.name);
+		sprintf(s, "(matchType=%d name=%#s)", doc->fmsInputDestination.basic.destinationType,
+					doc->fmsInputDestination.basic.name);
 		DrawTextLine(s);
 		
 		sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 		DrawTextLine(s);
 	
-		if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+		if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 		for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPARTINFOL(qL)) ;
 	
@@ -899,7 +895,7 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------------- BrowsePage -- */
+/* ------------------------------------------------------------------------ BrowsePage -- */
 
 void BrowsePage(LINK pL, Rect *pObjRect)
 {
@@ -915,7 +911,7 @@ void BrowsePage(LINK pL, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseSystem -- */
+/* ---------------------------------------------------------------------- BrowseSystem -- */
 
 void BrowseSystem(LINK pL, Rect *pObjRect)
 {
@@ -942,7 +938,7 @@ void BrowseSystem(LINK pL, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------------ BrowseStaff -- */
+/* ----------------------------------------------------------------------- BrowseStaff -- */
 
 void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 {
@@ -967,8 +963,8 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 	q = GetPASTAFF(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
 	DrawTextLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "vis=%s sel=%s", q->visible ? "TRUE" : "false",
-									q->selected ? "TRUE" : "false");
+	sprintf(s, "vis=%s sel=%s", q->visible ? "True" : "False",
+									q->selected ? "True" : "False");
 	DrawTextLine(s); q = GetPASTAFF(qL);
 	
 	stfRect.left = q->staffLeft;  stfRect.right = systemRect.right-systemRect.left;
@@ -1009,7 +1005,7 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseConnect -- */
+/* --------------------------------------------------------------------- BrowseConnect -- */
 
 void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 {
@@ -1077,7 +1073,7 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------------- BrowseClef -- */
+/* ------------------------------------------------------------------------ BrowseClef -- */
 
 void BrowseClef(LINK pL, short index, Rect *pObjRect)
 {
@@ -1122,7 +1118,7 @@ void BrowseClef(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseKeySig -- */
+/* ---------------------------------------------------------------------- BrowseKeySig -- */
 
 void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 {
@@ -1165,7 +1161,7 @@ void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseTimeSig -- */
+/* --------------------------------------------------------------------- BrowseTimeSig -- */
 
 void BrowseTimeSig(LINK pL, short index, Rect *pObjRect)
 {
@@ -1211,7 +1207,7 @@ void BrowseTimeSig(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseMeasure -- */
+/* --------------------------------------------------------------------- BrowseMeasure -- */
 
 void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 {
@@ -1226,7 +1222,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);	p = GetPMEASURE(pL);
 	sprintf(s, "systemL=%d staffL=%d", p->systemL, p->staffL);
 	DrawTextLine(s);	p = GetPMEASURE(pL);
-	sprintf(s, "fake=%s spPercent=%d", (p->fakeMeas ? "TRUE" : "false"), p->spacePercent);
+	sprintf(s, "fake=%s spPercent=%d", (p->fakeMeas ? "True" : "False"), p->spacePercent);
 	DrawTextLine(s);	p = GetPMEASURE(pL);
 	bbox = p->measureBBox;
 	sprintf(s, "measureBBox=%d %d %d %d",
@@ -1280,6 +1276,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	/* measSizeRect really just gives the width and height of the Measure; its top and
 	   left should always be 0. So we convert is horizontal coords. to System-relative,
 	   then to screen coordinates. */
+	
 	OffsetDRect(&measSizeRect, xd, 0);
 	DRect2ScreenRect(measSizeRect, systemRect, paperRect, pObjRect);
 	
@@ -1287,7 +1284,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------- BrowsePseudoMeas -- */
+/* ------------------------------------------------------------------ BrowsePseudoMeas -- */
 
 void BrowsePseudoMeas(LINK pL, short index, Rect *pObjRect)
 {
@@ -1303,7 +1300,7 @@ void BrowsePseudoMeas(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
 
-	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPSMEASL(qL)) 
 		;
@@ -1321,7 +1318,7 @@ void BrowsePseudoMeas(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseSync -- */
+/* ------------------------------------------------------------------------ BrowseSync -- */
 
 void BrowseSync(LINK pL, short index, Rect *pObjRect)
 {
@@ -1340,7 +1337,7 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
 
-	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEL(qL)) 
 		;
@@ -1372,6 +1369,7 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	strcpy(s, "flags=");
 	if (q->inTuplet)		strcat(s, "INTUPLET ");
 	if (q->inOttava)		strcat(s, "INOTTAVA ");
+	if (q->playAsCue)		strcat(s, "PLAY-AS-CUE ");
 	if (q->small)			strcat(s, "SMALL ");
 	if (q->tempFlag)		strcat(s, "TEMPFLAG");
 	DrawTextLine(s);	q = GetPANOTE(qL);
@@ -1384,7 +1382,7 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
-														q->accSoft ? "TRUE" : "false",
+														q->accSoft ? "True" : "False",
 														q->xmoveAcc);
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
@@ -1401,7 +1399,7 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseGRSync -- */
+/* ---------------------------------------------------------------------- BrowseGRSync -- */
 
 void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 {
@@ -1417,7 +1415,7 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
 
-	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextGRNOTEL(qL)) 
 		;
@@ -1461,7 +1459,7 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	sprintf(s, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
-														q->accSoft ? "TRUE" : "false",
+														q->accSoft ? "True" : "False",
 														q->xmoveAcc);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	sprintf(s, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
@@ -1472,7 +1470,7 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseBeamset -- */
+/* --------------------------------------------------------------------- BrowseBeamset -- */
 
 void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 {
@@ -1496,7 +1494,7 @@ void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
 
-	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTEBEAML(qL)) 
 		;
@@ -1507,12 +1505,12 @@ void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
 	sprintf(s, "fracs=%d", q->fracs);
 	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "TRUE" : "false");
+	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "True" : "False");
 	DrawTextLine(s);
 }
 
 
-/* ----------------------------------------------------------------- BrowseTuplet -- */
+/* ---------------------------------------------------------------------- BrowseTuplet -- */
 
 void BrowseTuplet(LINK pL, short index, Rect *pObjRect)
 {
@@ -1541,7 +1539,7 @@ void BrowseTuplet(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
 
-	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTETUPLEL(qL)) 
 		;
@@ -1551,7 +1549,7 @@ void BrowseTuplet(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseOttava -- */
+/* ---------------------------------------------------------------------- BrowseOttava -- */
 
 void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 {
@@ -1576,7 +1574,7 @@ void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
 
-	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTEOTTAVAL(qL)) 
 		;
@@ -1585,7 +1583,7 @@ void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);
 }
 
-/* ---------------------------------------------------------------- BrowseDynamic -- */
+/* --------------------------------------------------------------------- BrowseDynamic -- */
 
 void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 {
@@ -1612,7 +1610,7 @@ void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
 
-	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextDYNAMICL(qL)) 
 		;
@@ -1635,7 +1633,7 @@ void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseRptEnd -- */
+/* ---------------------------------------------------------------------- BrowseRptEnd -- */
 
 void BrowseRptEnd(LINK pL, short index, Rect *pObjRect)
 {
@@ -1675,7 +1673,7 @@ void BrowseRptEnd(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseEnding -- */
+/* ---------------------------------------------------------------------- BrowseEnding -- */
 
 void BrowseEnding(LINK pL, short /*index*/, Rect *pObjRect)
 {
@@ -1699,7 +1697,7 @@ void BrowseEnding(LINK pL, short /*index*/, Rect *pObjRect)
 }
 
 
-/* --------------------------------------------------------------- ChordSym2Print -- */
+/* -------------------------------------------------------------------- ChordSym2Print -- */
 /* Convert in place a Pascal string representing a chord symbol to (semi-)readable
 form by replacing all delimiters with another character. */
 
@@ -1715,7 +1713,7 @@ void ChordSym2Print(StringPtr str)
 		if (str[i]==DELIMITER) str[i] = CH_SUBST;
 }
 
-/* ---------------------------------------------------------------- BrowseGraphic -- */
+/* --------------------------------------------------------------------- BrowseGraphic -- */
 
 void BrowseGraphic(LINK pL, Rect *pObjRect)
 {
@@ -1730,7 +1728,7 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 	
 	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
 	DrawTextLine (s);
-	strcpy(strBuf, NameGraphicType(pL, FALSE));
+	strcpy(strBuf, NameGraphicType(pL, False));
 	sprintf(s, "graphicType=%s", strBuf);
 	DrawTextLine (s);
 
@@ -1751,8 +1749,8 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 		case GRChordSym:
 		case GRChordFrame:
 		case GRMIDIPatch:
-		case GRMIDISustainOn:
-		case GRMIDISustainOff:		
+		case GRSusPedalDown:
+		case GRSusPedalUp:		
 			sprintf(s, "fontInd=%d fontStyle=%d encl=%d", p->fontInd, p->fontStyle,
 													p->enclosure);
 			DrawTextLine(s);	p = GetPGRAPHIC(pL);
@@ -1791,7 +1789,7 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------- BrowseTempo -- */
+/* ----------------------------------------------------------------------- BrowseTempo -- */
 
 void BrowseTempo(LINK pL, Rect *pObjRect)
 {
@@ -1865,7 +1863,7 @@ void BrowseTempo(LINK pL, Rect *pObjRect)
 	}
 }
 
-/* --------------------------------------------------------------- BrowseSpace -- */
+/* ----------------------------------------------------------------------- BrowseSpace -- */
 
 void BrowseSpace(LINK pL, Rect *pObjRect)
 {
@@ -1881,7 +1879,7 @@ void BrowseSpace(LINK pL, Rect *pObjRect)
 	DrawTextLine(s);
 }
 
-/* ---------------------------------------------------------------- BrowseSlur -- */
+/* ------------------------------------------------------------------------ BrowseSlur -- */
 
 void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 {
@@ -1896,7 +1894,7 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 	
 	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
 	DrawTextLine(s);	p = GetPSLUR(pL);
-	sprintf(s, "tie=%s", p->tie ? "TRUE" : "false");
+	sprintf(s, "tie=%s", p->tie ? "True" : "False");
 	DrawTextLine(s);	p = GetPSLUR(pL);
 	sprintf(s, "crossStf=%d crossStfBack=%d crossSys=%d",
 		p->crossStaff,p->crossStfBack,p->crossSystem);
@@ -1944,7 +1942,7 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------- ShowContext -- */
+/* ----------------------------------------------------------------------- ShowContext -- */
 
 #define iText 2
 
@@ -1988,7 +1986,7 @@ void ShowContext(Document *doc)
 
 	GetDialogItem(dlog, iText, &itype, &tHdl, &bRect);
 
-	done = FALSE;
+	done = False;
 	TextFont(SYSFONTID_MONOSPACED);
 	TextSize(9);
 	EraseRect(&bRect);
@@ -2046,9 +2044,10 @@ void ShowContext(Document *doc)
 	
 	/* Though they're not part of the CONTEXT object, the current tempo is really part
 		of the context in the normal sense, and the last previous Graphic may well be
-		(e.g., if it's "solo", "pizz.", etc.) and both are worth showing. */
+		(e.g., if it's "solo", "pizz.", etc.); both are worth showing. */
+	
 	DrawTextLine("----------------------------");
-	tempoL = LSSearch(pL, TEMPOtype, ANYONE, GO_LEFT, FALSE);
+	tempoL = LSSearch(pL, TEMPOtype, ANYONE, GO_LEFT, False);
 	if (tempoL==NILINK) {
 		DrawTextLine("No TEMPO object preceding this.");
 	}
@@ -2058,7 +2057,7 @@ void ShowContext(Document *doc)
 		DrawTextLine(s);
 	}
 
-	graphicL = LSSearch(pL, GRAPHICtype, doc->selStaff, GO_LEFT, FALSE);
+	graphicL = LSSearch(pL, GRAPHICtype, doc->selStaff, GO_LEFT, False);
 	if (graphicL==NILINK) {
 		DrawTextLine("No GRAPHIC obj on staff before this.");
 	}
@@ -2097,10 +2096,10 @@ void ShowContext(Document *doc)
 		}
 	}
 
-	done = FALSE;
+	done = False;
 	do {
 		ModalDialog(NULL, &ditem);					/* Handle dialog events */
-		if (ditem==OK) done = TRUE;
+		if (ditem==OK) done = True;
 	} while (!done);
 	DisposeDialog(dlog);
 	SetPort(oldPort);

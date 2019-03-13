@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -28,7 +28,7 @@ static LINK				startMeas, endMeas;
 static SPACETIMEINFO	*spTimeInfo;
 static long 			*stfTimeDiff;
 
-static PTIME			*pClDurArray,*qClDurArray;
+static PTIME			*pClDurArray, *qClDurArray;
 static LINK				startClMeas, endClMeas;
 static SPACETIMEINFO	*clSpTimeInfo;
 static long 			*clStfTimeDiff;
@@ -55,19 +55,19 @@ typedef struct {
 } MERGEARRAY;
 
 typedef struct {
-	LINK 		srcL;							/* Clip measure	*/
-	LINK 		dstL;							/* Doc measure		*/
-	long		startTime;					/* Zero for all but first		*/
-	long		measTime;					/* Start time of doc's measure	*/
-	short 	clipEmpty:1,				/* No objs in this clip measure	*/
-				clipNoSyncs:1,				/* No Syncs in this clip measure	*/
-				docEmpty:1,					/* No objs in this doc measure	*/
-				docNoSyncs:1,				/* No Syncs in this doc measure	*/
-				docLast:1,					/* Last doc measure; copy any remaining clip	*/
-				unused:11;
+	LINK 	srcL;					/* Clipboard measure */
+	LINK 	dstL;					/* Doc measure */
+	long	startTime;				/* Zero for all but first */
+	long	measTime;				/* Start time of doc's measure */
+	short 	clipEmpty:1,			/* No objs in this clipboard measure */
+			clipNoSyncs:1,			/* No Syncs in this clipboard measure */
+			docEmpty:1,				/* No objs in this doc measure	*/
+			docNoSyncs:1,			/* No Syncs in this doc measure	*/
+			docLast:1,				/* Last doc measure; copy any remaining clipboard */
+			unused:11;
 } MeasInfo;
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Prototypes for internal functions */
 
 static LINK GetSysEndL(LINK pL,Boolean goLeft);
@@ -98,8 +98,8 @@ static void SetupMergeArr(LINK, LINK, MERGEARRAY **, short *);
 
 static void SetMergedFlags(LINK startL, LINK endL, Boolean value);
 static COPYMAP *MergeSetupClip(Document *doc, short *numObjs);
-static MeasInfo	*SetupMeasInfo(Document *doc, short *nClipMeas);
-static void SetupDocMeasInfo(Document *doc, MeasInfo *measInfo, short nClipMeas);
+static MeasInfo	*SetupMeasInfo1(Document *doc, short *nClipMeas);
+static void SetupMeasInfo2(Document *doc, MeasInfo *measInfo, short nClipMeas);
 static MeasInfo *BuildMeasInfo(Document *doc);
 
 static void MDisposeArrays(void);
@@ -131,23 +131,26 @@ static LINK MMergeSync(Document *,PTIME *,PTIME **,PTIME *,PTIME **,short *,shor
 						short *,short,short *);
 
 static void GetMergeRange(LINK startMeas, LINK endMeas,LINK *prevL,LINK *lastL,Boolean first);
-static Boolean MRearrangeNotes(Document *doc, short, short, LINK, LINK *, LINK *, Boolean, short,
-								COPYMAP *, short *);
+static Boolean MRearrangeAll(Document *doc, short, short, LINK, LINK *, LINK *, Boolean, short,
+								COPYMAP *, short *, Boolean);
 
-static Boolean Merge1Measure(Document *doc,MeasInfo *measInfo,short i,LINK insertL,LINK *prevL,
-								LINK *lastL,short stfDiff,COPYMAP *mergeMap,short *vMap);
-static LINK MergeFromClip(Document *doc,LINK insertL,short *vMap,	VInfo *vInfo);
+static Boolean Merge1Measure(Document *doc,MeasInfo *measInfo,short clipMeasNum,LINK insertL,
+								LINK *prevL,LINK *lastL,short stfDiff,COPYMAP *mergeMap,
+								short *vMap,Boolean syncsOnly);
+static LINK MergeFromClip(Document *doc, LINK insertL, short *vMap, VInfo *vInfo,
+								Boolean syncsOnly);
 static void CleanupMerge(Document *doc, LINK prevMeasL, LINK lastL);
 
+static void SetPastedAsCue(Document *doc, LINK prevMeasL, LINK lastL, short velocity);
 
-/* ------------------------------------------------------------------ CheckMerge -- */
+/* ------------------------------------------------------------------------ CheckMerge -- */
 /* Utilities for CheckMerge. */
 
 static LINK GetSysEndL(LINK pL, Boolean goLeft)
 {
 	LINK sysL,endSysL;
 
-	sysL = LSSearch(pL,SYSTEMtype,ANYONE,goLeft,FALSE);
+	sysL = LSSearch(pL,SYSTEMtype,ANYONE,goLeft,False);
 	if (!sysL) return NILINK;
 
 	if (goLeft) return sysL;
@@ -159,13 +162,11 @@ static LINK GetSysEndL(LINK pL, Boolean goLeft)
 	return endSysL;
 }
 
-/* When called from GetClipVStf, pL is the clipFirstMeas, so calling GetSysEndL
-from LeftLINK(pL) will provide correct results.
-
-When called from GetVoiceStf, pL is the selEndL parameter, so calling GetSysEndL
-from pL will provide incorrect results if the insertion point is at the end of
-a system (will give the sysEndL of a following system, if one exists).
-Calling GetSysEndL from LeftLINK(pL) is correct in this case.
+/* When called from GetClipVStf, pL is the clipFirstMeas, so calling GetSysEndL from
+LeftLINK(pL) will provide correct results. But when called from GetVoiceStf, pL is
+the selEndL parameter, so calling GetSysEndL from pL will give incorrect results if
+the insertion point is at the end of a system (will give the sysEndL of a following
+system, if one exists). Calling GetSysEndL from LeftLINK(pL) is correct in this case.
 
 Cannot pass in the left LINK of pL, because must search from pL itself. */
 
@@ -192,12 +193,12 @@ static LINK VSyncSearch(LINK pL, LINK *subL, short v, Boolean goLeft, Boolean ne
 	return NILINK;
 }
 
-/* Search inSystem in direction goLeft for the next obj in a singleStf voice v.
-For a single stf voice, constraining L_Search by setting pbSearch.id to the stf
-of that voice will prevent L_Search from returning objects without voices on
-irrelevant staves. Ignore measures, which are on all staves, and are transparent
-for the sake of allowing multi-measure merges. May have to extend this test to
-other or all staff-spanning objects (rptEnds, psMeasures). */
+/* Search inSystem in direction goLeft for the next obj in a singleStf voice v. For a
+single stf voice, constraining L_Search by setting pbSearch.id to the stf of that
+voice will prevent L_Search from returning objects without voices on irrelevant
+staves. Ignore measures, which are on all staves, and are transparent for the sake of
+allowing multi-measure merges. We may have to extend this test to other or even all
+staff-spanning objects (RptEnds, pseudomeasures). */
 
 static LINK VoiceSearch(LINK pL, VInfo *vInfo, short v, Boolean goLeft)
 {
@@ -207,9 +208,9 @@ static LINK VoiceSearch(LINK pL, VInfo *vInfo, short v, Boolean goLeft)
 	InitSearchParam(&pbSearch);
 	pbSearch.id = vInfo[v].firstStf;
 	pbSearch.voice = v;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = TRUE;
-	pbSearch.optimize = TRUE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = True;
+	pbSearch.optimize = True;
 
 	qL = L_Search(pL, ANYTYPE, goLeft, &pbSearch);
 	while (qL && MeasureTYPE(qL))
@@ -225,20 +226,18 @@ static Boolean ObjInStfRange(LINK pL, short firstStf, short lastStf)
 	short i;
 
 	for (i=firstStf; i<=lastStf; i++)
-		if (ObjOnStaff(pL,i,FALSE)) return TRUE;
+		if (ObjOnStaff(pL,i,False)) return True;
 
-	return FALSE;
+	return False;
 }
 
-/* Search inSystem in direction goLeft for the next obj in a !singleStf voice v.
-For a single stf voice, constraining L_Search by setting pbSearch.id to the stf
-of that voice will prevent L_Search from returning objects without voices on
-irrelevant staves. Cannot do this here; must retrieve all objects without v and
-test if they are in the range of staves.
-
-Ignore measures, which are on all staves, and are transparent for the sake of
-allowing multi-measure merges. May have to extend this test to other or all
-staff-spanning objects (rptEnds, pseudoMeasures). */
+/* Search inSystem in direction goLeft for the next obj in a !singleStf voice v. For a
+single stf voice, constraining L_Search by setting pbSearch.id to the stf of that
+voice will prevent L_Search from returning objects without voices on irrelevant
+staves. We cannot do this here; must retrieve all objects without v and test if they
+are in the range of staves. Ignore measures, which are on all staves, and are
+transparent for the sake of allowing multi-measure merges. We may have to extend this
+test to other or even all staff-spanning objects (RptEnds, pseudomeasures). */
 
 static LINK VoiceRangeSearch(LINK pL, VInfo *vInfo, short v, Boolean goLeft)
 {
@@ -248,9 +247,9 @@ static LINK VoiceRangeSearch(LINK pL, VInfo *vInfo, short v, Boolean goLeft)
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.voice = v;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = TRUE;
-	pbSearch.optimize = TRUE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = True;
+	pbSearch.optimize = True;
 
 	qL = L_Search(pL, ANYTYPE, goLeft, &pbSearch);
 	while (qL && (MeasureTYPE(qL) || !ObjInStfRange(qL,vInfo[v].firstStf,vInfo[v].lastStf)))
@@ -267,9 +266,9 @@ static LINK ClipVRangeSearch(LINK pL, short v, short firstStf, short lastStf, Bo
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.voice = v;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = TRUE;
-	pbSearch.optimize = TRUE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = True;
+	pbSearch.optimize = True;
 
 	qL = L_Search(pL, ANYTYPE, goLeft, &pbSearch);
 	while (qL && (MeasureTYPE(qL) || !ObjInStfRange(qL,firstStf,lastStf)))
@@ -278,16 +277,16 @@ static LINK ClipVRangeSearch(LINK pL, short v, short firstStf, short lastStf, Bo
 	return qL;
 }
 
-/* Merge maps from voice v in the clipboard to voice v+stfDiff in the doc. The
-document voice v being filled in here is actually at v+stfDiff in the doc;
-vInfo[v+stfDiff] being filled in here holds info regarding singleStf,firstStf
-and lastStf for the destination voice in the doc. If it is singleStf, then
-firstStf = lastStf and is the staff of the voice.
+/* Merge maps from voice v in the clipboard to voice v+stfDiff in the doc. The document
+voice v being filled in here is actually at v+stfDiff in the doc; vInfo[v+stfDiff] being
+filled in here holds info regarding singleStf,firstStf and lastStf for the destination
+voice in the doc. If it is singleStf, then firstStf = lastStf and is the staff of the
+voice.
 
-It's only necessary to check Syncs and GRSyncs to get the stfRange of the voice,
-since any other objects are either objs without voices on staves or J_D objs
-with voices whose owning objs are Syncs or GRSyncs or objs without voices which
-will be in the default voice of their staff. */
+It's only necessary to check Syncs and GRSyncs to get the stfRange of the voice, since
+any other objects are either objs without voices on staves or J_D objs with voices whose
+owning objs are Syncs or GRSyncs or objs without voices which will be in the default
+voice of their staff. */
 
 static void GetVoiceStf(Document *doc, VInfo *vInfo, short v)
 {
@@ -296,13 +295,13 @@ static void GetVoiceStf(Document *doc, VInfo *vInfo, short v)
 	InstallDoc(doc);
 
 	startL = doc->selEndL;
-	sysL = LSSearch(LeftLINK(startL),SYSTEMtype,ANYONE,GO_LEFT,FALSE);
+	sysL = LSSearch(LeftLINK(startL),SYSTEMtype,ANYONE,GO_LEFT,False);
 
 	endSysL = GetSysEndL(LeftLINK(startL),GO_RIGHT);
 
-	firstL = VSyncSearch(startL,&subL,v,GO_RIGHT,FALSE);
+	firstL = VSyncSearch(startL,&subL,v,GO_RIGHT,False);
 	if (!firstL) {
-		vInfo[v].singleStf = TRUE; return;
+		vInfo[v].singleStf = True; return;
 	}
 
 	if (SyncTYPE(firstL)) {
@@ -316,7 +315,7 @@ static void GetVoiceStf(Document *doc, VInfo *vInfo, short v)
 	
 	for (pL=firstL; pL && pL!=endSysL; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
-			aNoteL=NoteInVoice(pL,v,FALSE);
+			aNoteL=NoteInVoice(pL,v,False);
 			if (aNoteL) {
 				if (vInfo[v].firstStf > NoteSTAFF(aNoteL))
 					vInfo[v].firstStf = NoteSTAFF(aNoteL);
@@ -325,7 +324,7 @@ static void GetVoiceStf(Document *doc, VInfo *vInfo, short v)
 			}
 		}
 		if (GRSyncTYPE(pL)) {
-			aGRNoteL=GRNoteInVoice(pL,v,FALSE);
+			aGRNoteL=GRNoteInVoice(pL,v,False);
 			if (aGRNoteL) {
 				if (vInfo[v].firstStf > GRNoteSTAFF(aGRNoteL))
 					vInfo[v].firstStf = GRNoteSTAFF(aGRNoteL);
@@ -338,18 +337,18 @@ static void GetVoiceStf(Document *doc, VInfo *vInfo, short v)
 	vInfo[v].singleStf = (vInfo[v].firstStf==vInfo[v].lastStf);
 }
 
-/* Get information singleStf,firstStf & lastStf for voice v in the clipboard.
-This is the src voice which is mapped to v+stfDiff in the doc. */
+/* Get information singleStf,firstStf & lastStf for voice v in the clipboard. This is
+the src voice which is mapped to v+stfDiff in the doc. */
 
 static void GetClipVStf(short v, short *singleStf, short *firstStf, short *lastStf)
 {
 	LINK startL,firstL,subL,pL,aNoteL,aGRNoteL;
 
-	startL = LSSearch(clipboard->headL,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
+	startL = LSSearch(clipboard->headL,MEASUREtype,ANYONE,GO_RIGHT,False);
 	
-	firstL = VSyncSearch(startL,&subL,v,GO_RIGHT,FALSE);
+	firstL = VSyncSearch(startL,&subL,v,GO_RIGHT,False);
 	if (!firstL) {
-		*singleStf = TRUE; return;
+		*singleStf = True; return;
 	}
 
 	if (SyncTYPE(firstL)) {
@@ -363,7 +362,7 @@ static void GetClipVStf(short v, short *singleStf, short *firstStf, short *lastS
 	
 	for (pL=firstL; pL; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
-			aNoteL=NoteInVoice(pL,v,FALSE);
+			aNoteL=NoteInVoice(pL,v,False);
 			if (aNoteL) {
 				if (*firstStf > NoteSTAFF(aNoteL))
 					*firstStf = NoteSTAFF(aNoteL);
@@ -372,7 +371,7 @@ static void GetClipVStf(short v, short *singleStf, short *firstStf, short *lastS
 			}
 		}
 		if (GRSyncTYPE(pL)) {
-			aGRNoteL=GRNoteInVoice(pL,v,FALSE);
+			aGRNoteL=GRNoteInVoice(pL,v,False);
 			if (aGRNoteL) {
 				if (*firstStf > GRNoteSTAFF(aGRNoteL))
 					*firstStf = GRNoteSTAFF(aGRNoteL);
@@ -385,12 +384,12 @@ static void GetClipVStf(short v, short *singleStf, short *firstStf, short *lastS
 	*singleStf = (*firstStf==*lastStf);
 }
 
-/* Return the total amount of time after doc->selEndL that voice vStfDiff in
-Document doc starts; fills in vInfo[v].startTime with that time.
+/* Return the total amount of time after doc->selEndL that voice vStfDiff in Document
+doc starts; fills in vInfo[v].startTime with that time.
 
-The vInfo struct handles the mapping by merge from src v to dst v+stfDiff
-by storing the startTime of voice v+stfDiff (=vStfDiff) at vInfo[v], since
-the endTime of clipboard voice v is compared to this startTime.
+The vInfo struct handles the mapping by merge from src v to dst v+stfDiff by storing
+the startTime of voice v+stfDiff (=vStfDiff) at vInfo[v], since the endTime of
+clipboard voice v is compared to this startTime.
 
 Leaves doc installed. */
 
@@ -403,7 +402,7 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 
 	vInfo[v].startTime = -1L;
 	startL = doc->selEndL;
-	startMeasL = LSSearch(startL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	startMeasL = LSSearch(startL,MEASUREtype,ANYONE,GO_LEFT,False);
 
 	if (vInfo[vStfDiff].singleStf) {
 		firstInVL = VoiceSearch(startL,vInfo,vStfDiff,GO_RIGHT);
@@ -414,21 +413,21 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 
 	if (!firstInVL) return -1L;
 
-	/* All merging is done on a single system; if the first obj in the voice
-		is on a following system, return -1 to indicate no further checking
-		needed.
-		If the insertion point is at the end of the system, doc->selEndL will
-		be the succeeding page or system object; use LeftLINK(startL) to
-		guarantee actually testing the system containing the insertion point.
-		This use of LeftLINK depends on startL not equalling doc->headL or
-		actually not being before the system object of the system to be merged
-		into; this is caught by testing beforeFirst in FixEditMenu. */
+	/* All merging is done on a single system; if the first obj in the voice is on a
+		following system, return -1 to indicate no further checking is needed.
+		
+		If the insertion point is at the end of the system, doc->selEndL will be the
+		succeeding page or system object; use LeftLINK(startL) to guarantee actually
+		testing the system containing the insertion point. This use of LeftLINK
+		depends on startL not equalling doc->headL or actually not being before the
+		system object of the system to be merged into; this is caught by testing
+		beforeFirst in FixEditMenu. */
 
 	if (!SamePage(LeftLINK(startL), firstInVL)) return -1L;
 
 	if (!SameSystem(LeftLINK(startL), firstInVL)) return -1L;
 
-	lastMeasL = LSSearch(firstInVL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	lastMeasL = LSSearch(firstInVL, MEASUREtype, ANYONE, GO_LEFT, False);
 
 	if (lastMeasL!=startMeasL)
 		for (measL=startMeasL; measL!=lastMeasL; measL = LinkRMEAS(measL))
@@ -445,12 +444,12 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 	if (J_DTYPE(firstInVL))
 		firstInVL = FirstValidxd(firstInVL, GO_RIGHT);
 		
-	/* If lastMeasL is not equal to startMeasL, there is an empty slot
-		for merging spanning multiple measures, and firstInVL will be the
-		first obj in the voice in the last measure. If lastMeasL is equal
-		to startMeasL, firstInVL is in the firstMeasure and the insertion pt
-		may not be at the first object in the measure; in this case we need its
-		lTime relative to the object before the insertion point. */
+	/* If lastMeasL is not equal to startMeasL, there is an empty slot for merging
+		spanning multiple measures, and firstInVL will be the first obj in the voice
+		in the last measure. If lastMeasL is equal to startMeasL, firstInVL is in the
+		firstMeasure and the insertion point may not be at the first object in the
+		measure; in this case we need its lTime relative to the object before the
+		insertion point. */
 
 	if (lastMeasL!=startMeasL)
 		startTime += GetLTime(doc, firstInVL);
@@ -468,11 +467,10 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 	return startTime;
 }
 
-/* Call this to get a staffn to pass to GetLDur.
-Given an obj with subObj in voice v, return the staff of that subObj.
-We have nothing reasonable to return for PAGEtype through CONNECTtype
-and MEASUREtype through ENDINGtype; but SYNCs are the only meaningful
-objects to pass to GetLDur, so it doesn't make any difference. If we
+/* Call this to get a staffn to pass to GetLDur. Given an obj with subObj in voice
+v, return the staff of that subObj. We have nothing reasonable to return for
+PAGEtype through CONNECTtype and MEASUREtype through ENDINGtype; but SYNCs are the
+only meaningful objects to pass to GetLDur, so it doesn't make any difference. If we
 wish to call this for any other reason, will have to review this. */
  
 static short Obj2Stf(LINK link, short v)
@@ -535,18 +533,19 @@ clipboard installed. */
 static long GetClipEndTime(VInfo *vInfo, MeasInfo *mInfo, short v)
 {
 	LINK firstMeasL,lastMeasL,lastInVL,measL;
-	long endTime=0L; Document *doc=clipboard;
+	long endTime=0L;
+	Document *doc=clipboard;
 	short singleStf,firstStf,lastStf,i;
 	
 	InstallDoc(doc);
 
-	firstMeasL = LSSearch(doc->headL,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
+	firstMeasL = LSSearch(doc->headL,MEASUREtype,ANYONE,GO_RIGHT,False);
 	
-	/* Get information about the src voice in the clipboard. No longer care
-		whether the dst voice in doc is singleStf, or about its stfRange;
-		here we are only concerned with the last obj in voice v in the
-		clipboard, and its endTime. Need to get voice info here: whether
-		singleStf or not, and stfRange, to handle non-Sync objects properly. */
+	/* Get information about the src voice in the clipboard. We no longer care
+		whether the dst voice in doc is singleStf, or about its stfRange; here we
+		are only concerned with the last obj in voice v in the clipboard, and its
+		endTime. Need to get voice info here: whether singleStf or not, and
+		stfRange, to handle non-Sync objects properly. */
 	
 	GetClipVStf(v,&singleStf,&firstStf,&lastStf);
 	if (singleStf) {
@@ -559,7 +558,7 @@ static long GetClipEndTime(VInfo *vInfo, MeasInfo *mInfo, short v)
 	/* If there are no objects at all in voice v, return endTime of 0. */
 	if (!lastInVL) return 0L;
 
-	lastMeasL = LSSearch(lastInVL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	lastMeasL = LSSearch(lastInVL,MEASUREtype,ANYONE,GO_LEFT,False);
 	
 	for (i=0,measL=firstMeasL; measL && measL!=lastMeasL; measL=LinkRMEAS(measL))
 		i++;
@@ -573,8 +572,8 @@ static long GetClipEndTime(VInfo *vInfo, MeasInfo *mInfo, short v)
 }
 
 
-/* Check the start time of voice v. Get the total duration of the voice v in
-in the clipboard, and return TRUE if it is less than startTime. */
+/* Check the start time of voice v. Get the total duration of the voice v in the
+clipboard, and return True if it is less than startTime. */
 
 static Boolean CheckStartTime(VInfo *vInfo, MeasInfo *mInfo, short v)
 {
@@ -585,9 +584,9 @@ static Boolean CheckStartTime(VInfo *vInfo, MeasInfo *mInfo, short v)
 	return (!vInfo[v].overlap);
 }
 
-/* If pL is in the voice v, return TRUE, with the following exceptions ??NOT REALLY: 
+/* If pL is in the voice v, return True, with the following exceptions ??NOT REALLY: 
 if pL is a Measure, keep traversing: can paste into range with Measures.
-if pL is a Graphic, ObjHasVoice returns TRUE, but L_Search doesn't check
+if pL is a Graphic, ObjHasVoice returns True, but L_Search doesn't check
 	its voice field, so treat it like an obj without a voice.
 if pL doesn't have a voice, keep traversing: we can't check it adequately.
 	e.g. if pL is a dynamic on stf 1, can't get which v (if > 1) on stf
@@ -600,17 +599,17 @@ if pL doesn't have a voice, keep traversing: we can't check it adequately.
 
 static Boolean ObjFillsV(LINK pL, short v)
 {
-	if (ObjHasVoice(pL)) return TRUE;
-	if (ObjOnStaff(pL,v,FALSE)) {
-		if (J_IPTYPE(pL)) return TRUE;
+	if (ObjHasVoice(pL)) return True;
+	if (ObjOnStaff(pL,v,False)) {
+		if (J_IPTYPE(pL)) return True;
 		
 		if (J_ITTYPE(pL)) return (!MeasureTYPE(pL));
 	}
-	return FALSE;
+	return False;
 }
 
 /* Determines if voice v is in use in the first system on the clipboard: iff so,
-returns TRUE. Intended for use in merging, which as of now is on one system only.
+returns True. Intended for use in merging, which as of now is on one system only.
 For determination of what is considered to use a voice, cf. ObjFillsV. Leaves
 clipboard installed. */
 
@@ -621,14 +620,14 @@ static Boolean ClipVInUse(short v)
 
 	InstallDoc(clipboard);
 
-	measL = LSSearch(clipboard->headL,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
+	measL = LSSearch(clipboard->headL,MEASUREtype,ANYONE,GO_RIGHT,False);
 
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.voice = v;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = TRUE;
-	pbSearch.optimize = TRUE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = True;
+	pbSearch.optimize = True;
 
 	pL = L_Search(RightLINK(measL), ANYTYPE, GO_RIGHT, &pbSearch);
 	while (pL && !ObjFillsV(pL,v))
@@ -638,9 +637,9 @@ static Boolean ClipVInUse(short v)
 }
 
 /* Determines if voice v is in use in doc in the system containing doc->selEndL: iff
-so, returns TRUE. Intended for use in merging, which as of now is on one system only.
-For determination of what is considered to use a voice, cf. ObjFillsV. Leaves
-doc installed. */
+so, returns True. Intended for use in merging, which as of now is on one system only.
+For determination of what is considered to use a voice, cf. ObjFillsV. Leaves doc
+installed. */
 
 static Boolean DocVInUse(Document *doc, short v)
 {
@@ -652,9 +651,9 @@ static Boolean DocVInUse(Document *doc, short v)
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.voice = v;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = TRUE;
-	pbSearch.optimize = TRUE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = True;
+	pbSearch.optimize = True;
 
 	pL = L_Search(doc->selEndL, ANYTYPE, GO_RIGHT, &pbSearch);
 	while (pL && !ObjFillsV(pL,v))
@@ -672,52 +671,49 @@ static LINK ClipTupletInV(short v)
 
 	InstallDoc(clipboard);
 
-	tupletL = LVSearch(clipboard->headL,TUPLETtype,v,GO_RIGHT,FALSE);
+	tupletL = LVSearch(clipboard->headL,TUPLETtype,v,GO_RIGHT,False);
 	return tupletL;
 }
 
-/* Returns TRUE if there is a rhythm conflict between clipV and docV, where
-conflicting rhythm means: there are syncs in clip that map to times where
-there are not syncs in score in that voice. Also returns TRUE if it can't
-allocate memory it needs ??not good: the caller can't distinguish the error
-from a rhythm conflict but no error. */
+/* Returns True if there is a rhythm conflict between clipV and docV, where conflicting
+rhythm means: there are Syncs in clipboard that map to times where there are not Syncs
+in score in that voice. Also returns True if it can't allocate memory it needs. */
 
 static Boolean RhythmConflictInV(Document *doc, VInfo *vInfo, short *vMap)
 {
-	LINK startL,measL,clMeasL,pL,cL,startMeasL,clFirstMeasL,
-			firstSyncL,measEndL;
+	LINK startL,measL,clMeasL,pL,cL,startMeasL,clFirstMeasL,firstSyncL,measEndL;
 	long startTime=0L,clipTime,docTime;
 	short nInClipMeas,nInDocMeas,i,j,v;
 	SPACETIMEINFO *docSpTimeInfo,*clSpTimeInfo;
-	Boolean needCheck,mergeOK=TRUE,syncOK,rhythmConflict,first;
+	Boolean needCheck,mergeOK=True,syncOK,rhythmConflict,first;
 
 	clSpTimeInfo = AllocSpTimeInfo();
-	if (!clSpTimeInfo) return TRUE;
+	if (!clSpTimeInfo) return True;
 	
 	docSpTimeInfo = AllocSpTimeInfo();
-	if (!docSpTimeInfo) return TRUE;
+	if (!docSpTimeInfo) return True;
 	
 	InstallDoc(clipboard);
-	clFirstMeasL = LSSearch(clipboard->headL,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
+	clFirstMeasL = LSSearch(clipboard->headL,MEASUREtype,ANYONE,GO_RIGHT,False);
 	
 	InstallDoc(doc);
 	startL = doc->selEndL;
-	startMeasL = LSSearch(startL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	startMeasL = LSSearch(startL,MEASUREtype,ANYONE,GO_LEFT,False);
 
 	/*
 	 * Get the first sync at or after the insertion point. It might not be in the
-	 * measure, or might not exist. If either case holds, return TRUE to indicate
+	 * measure, or might not exist. If either case holds, return True to indicate
 	 * rhythm conflict.
 	 */
-	firstSyncL = LSSearch(startL,SYNCtype,ANYONE,GO_RIGHT,FALSE);
+	firstSyncL = LSSearch(startL,SYNCtype,ANYONE,GO_RIGHT,False);
 	if (!firstSyncL)
-		return TRUE; 
+		return True; 
 	
 	measEndL = EndMeasSearch(doc, startMeasL);
 	if (IsAfter(measEndL,firstSyncL))
-		return TRUE;
+		return True;
 
-	first = TRUE;
+	first = True;
 	measL = startMeasL;
 	clMeasL = clFirstMeasL;
 	for ( ; measL && clMeasL; measL=LinkRMEAS(measL),
@@ -728,29 +724,29 @@ static Boolean RhythmConflictInV(Document *doc, VInfo *vInfo, short *vMap)
 				if (ClipVInUse(v) && DocVInUse(doc,vMap[v])) {
 					
 					/* Determine if this voice actually needs to be checked. It's in use
-						in both the clipboard and the system we're merging into, but if there
-						are no syncs in this voice in the measure, then no checking needs
-						to be done. */
+						in both the clipboard and the system we're merging into, but if
+						there are no syncs in this voice in the measure, then no checking
+						needs to be done. */
 					
 					InstallDoc(doc);
-					needCheck = FALSE;
+					needCheck = False;
 					measEndL = EndMeasSearch(doc, measL);
 					pL=first ? firstSyncL : measL;
 					for ( ; pL!=measEndL; pL=RightLINK(pL))
 						if (SyncTYPE(pL))
 							if (SyncInVoice(pL,vMap[v])) {
-								needCheck = TRUE; break;
+								needCheck = True; break;
 							}
 					
 					if (needCheck) {
 						InstallDoc(clipboard);
 						measEndL = EndMeasSearch(clipboard, clMeasL);
 						nInClipMeas = GetSpTimeInfo(clipboard,RightLINK(clMeasL),measEndL,
-																clSpTimeInfo,FALSE);
+																clSpTimeInfo,False);
 				
 						InstallDoc(doc);
 						measEndL = EndMeasSearch(doc, measL);
-						nInDocMeas = GetSpTimeInfo(doc,RightLINK(measL),measEndL,docSpTimeInfo,FALSE);
+						nInDocMeas = GetSpTimeInfo(doc,RightLINK(measL),measEndL,docSpTimeInfo,False);
 				
 						/* Check syncs in corresponding voices in rhythmic spines. To set
 							vBad flags for all voices which are bad, remove the goto done
@@ -771,25 +767,25 @@ static Boolean RhythmConflictInV(Document *doc, VInfo *vInfo, short *vMap)
 								clipTime = clSpTimeInfo[i].startTime;
 								if (first)
 									clipTime += startTime;
-								syncOK = FALSE;
+								syncOK = False;
 								for (j=0; j<nInDocMeas; j++) {
 									docTime = docSpTimeInfo[j].startTime;
 									if (docTime==clipTime) {
-										syncOK=TRUE; break;
+										syncOK = True; break;
 									}
 									else if (docTime>clipTime) {
-										vInfo[v].vBad = TRUE;
-										mergeOK=FALSE; goto done;
+										vInfo[v].vBad = True;
+										mergeOK = False; goto done;
 									}
 								}
 								if (!syncOK) {
-									vInfo[v].vBad = TRUE;
-									mergeOK=FALSE; goto done;
+									vInfo[v].vBad = True;
+									mergeOK = False; goto done;
 								}
 							}
 						}
 						
-						first = FALSE;
+						first = False;
 					}
 		
 				}
@@ -806,35 +802,37 @@ done:
 	return(rhythmConflict);
 }
 
-/* ------------------------------------------------------------------ CheckMerge -- */
-/* Check to see that the voices being pasted aren't already in use in the
-destination area. NB: also initializes the vInfo array! */
+
+/* ------------------------------------------------------------------------ CheckMerge -- */
+/* Check to see that the voices being pasted aren't already in use in the destination
+area. NB: also initializes the vInfo array! */
 
 static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *vInfo,
 									short *mergeErr)
 {
-	Boolean mergeOK=TRUE;
+	Boolean mergeOK=True;
 	short i,v,nClipMeas;
 	LINK docMeasL;
 	MeasInfo *measInfo;
 
 	*mergeErr = noErr;
 
-	measInfo = SetupMeasInfo(doc,&nClipMeas);
+	measInfo = SetupMeasInfo1(doc, &nClipMeas);
 	if (!measInfo) {
-		*mergeErr = Mrg_AllocErr; return FALSE;
+		*mergeErr = Mrg_AllocErr;
+		return False;
 	}
-	SetupDocMeasInfo(doc, measInfo, nClipMeas);
+	SetupMeasInfo2(doc, measInfo, nClipMeas);
 	
 	for (v=1; v<=MAXVOICES; v++) {
 		vInfo[v].startTime = -1L;
 		vInfo[v].firstStf = -1;
 		vInfo[v].lastStf = -1;
-		vInfo[v].singleStf = TRUE;
-		vInfo[v].hasV = FALSE;
-		vInfo[v].vOK = TRUE;
-		vInfo[v].vBad = FALSE;
-		vInfo[v].overlap = FALSE;
+		vInfo[v].singleStf = True;
+		vInfo[v].hasV = False;
+		vInfo[v].vOK = True;
+		vInfo[v].vBad = False;
+		vInfo[v].overlap = False;
 	}
 	
 	/* Initialize the vInfo array */
@@ -857,8 +855,8 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 			}
 	}
 
-	/* Check those start times against the end times of all corresponding
-		voices in the clipboard. */
+	/* Check those start times against the end times of all corresponding voices
+		in the clipboard. */
 	for (v=1; v<=MAXVOICES; v++)
 		if (VOICE_MAYBE_USED(clipboard, v) && VOICE_MAYBE_USED(doc, vMap[v])) {
 			if (ClipVInUse(v) && DocVInUse(doc, vMap[v])) {
@@ -868,12 +866,12 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 		}
 
 	/*
-	 * If all voices are OK to merge, mergeOK stays TRUE through the loop
-	 *	and CheckMerge returns TRUE. Otherwise, need to continue checking.
+	 * If all voices are OK to merge, mergeOK stays True through the loop and
+	 *	CheckMerge returns True. Otherwise, need to continue checking.
 	 */
 	for (v=1; v<=MAXVOICES && mergeOK; v++)
-		if (VOICE_MAYBE_USED(clipboard,v) && VOICE_MAYBE_USED(doc,vMap[v])) {
-			if (ClipVInUse(v) && DocVInUse(doc,vMap[v])) {
+		if (VOICE_MAYBE_USED(clipboard, v) && VOICE_MAYBE_USED(doc, vMap[v])) {
+			if (ClipVInUse(v) && DocVInUse(doc, vMap[v])) {
 				mergeOK = vInfo[v].vOK;
 			}
 		}
@@ -885,30 +883,30 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 	/*
 	 * One or more voices don't have enough temporal space to merge. Continue
 	 * checking to see if it is still possible to merge. Only need to check
-	 * voices for which vInfo[v].vOK is FALSE; vInfo[v].vOK will be TRUE for
-	 * unused voices and voices which are OK. Init mergeOK to TRUE again and
-	 * set it FALSE if any voices are bad.
+	 * voices for which vInfo[v].vOK is False; vInfo[v].vOK will be True for
+	 * unused voices and voices which are OK. Init mergeOK to True again and
+	 * set it False if any voices are bad.
 	 *
-	 * Set the vBad flag TRUE for all clipboard voices which have temporal
+	 * Set the vBad flag True for all clipboard voices which have temporal
 	 * overlap and which also contain tuplets.
 	 */
-	for (v=1,mergeOK=TRUE; v<=MAXVOICES; v++)
+	for (v=1, mergeOK=True; v<=MAXVOICES; v++)
 		if (!vInfo[v].vOK) {
 			if (ClipTupletInV(v)) {
 				*mergeErr = Mrg_TupletInV;
-				vInfo[v].vBad = TRUE;
-				mergeOK = FALSE;
+				vInfo[v].vBad = True;
+				mergeOK = False;
 			}
 		}
 	if (!mergeOK) goto done;
 
 	/*
-	 * Determine if there is rhythm conflict in any of the voices which have
+	 * Determine if there is a rhythm conflict in any of the voices which have
 	 * temporal overlap.
 	 */
-	if (RhythmConflictInV(doc,vInfo,vMap)) {
+	if (RhythmConflictInV(doc, vInfo, vMap)) {
 		*mergeErr = Mrg_RhythmConfl;
-		mergeOK = FALSE;
+		mergeOK = False;
 	}	
 
 done:
@@ -916,7 +914,8 @@ done:
 	return mergeOK;
 }
 
-/* --------------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------------------- */
 /* For prototypes for CheckMerge1 and for clipVInfo, see comments in CheckMerge.c. */
 
 short CheckMerge1(Document *doc, ClipVInfo *clipVInfo)
@@ -931,8 +930,8 @@ short CheckMerge1(Document *doc, ClipVInfo *clipVInfo)
 		vInfo[v].startTime = -1L;
 		vInfo[v].firstStf = -1;
 		vInfo[v].lastStf = -1;
-		vInfo[v].singleStf = TRUE;
-		vInfo[v].hasV = FALSE;
+		vInfo[v].singleStf = True;
+		vInfo[v].hasV = False;
 	}
 	stfDiff = GetStfDiff(doc,&partDiff,&stfOff);
 	for (v=1; v<=MAXVOICES; v++)
@@ -964,19 +963,25 @@ short CheckMerge1(Document *doc, ClipVInfo *clipVInfo)
 	return stfDiff;
 }
 
-/* -------------------------------------------------------------- MCopyClipRange -- */
-/* Copy the range (startL,endL) from the clipboard into the score; fill in
-mergeMap so that MergeFromClip can fix crosslinks for NBJD objects. Update
-cross links for BJD objects, and do not update them for NBJD objects, since
-MergeFromClip expects them to have their old values.
-Fix staff size for all objects copied in; if staff rastral for clipboard is
-different from score, update staff rastral of copied in objects.
-Leaves doc installed. */
+
+/* -------------------------------------------------------------------- MCopyClipRange -- */
+/* Copy the range (startL,endL) from the clipboard into the score; fill in mergeMap so
+that MergeFromClip can fix crosslinks for NBJD objects. Update cross links for BJD
+objects, and do not update them for NBJD objects, since MergeFromClip expects them to
+have their old values. Fix staff size for all objects copied in; if staff rastral for
+clipboard is different from score, update staff rastral of copied in objects. Leaves
+doc installed.
+
+It looks like this routine is designed for cases where the range -- normally a measure
+-- contains no Syncs in either the clipboard or the score; in other cases, MRearrangeAll
+is the function used.  --DAB, June 2017
+*/
 
 static LINK MCopyClipRange(Document *doc, LINK startL, LINK endL, LINK insertL,
 									COPYMAP *mergeMap, short stfDiff, short *vMap)
 {
-	LINK pL,copyL,firstMeasL,initL,firstL=NILINK; short numObjs;
+	LINK pL,copyL,firstMeasL,initL,firstL=NILINK;
+	short numObjs;
 	
 	numObjs = GetNumClObjs(doc);
 	initL = LeftLINK(insertL);
@@ -984,22 +989,22 @@ static LINK MCopyClipRange(Document *doc, LINK startL, LINK endL, LINK insertL,
 	InstallDoc(clipboard);
 	
 	for (pL=RightLINK(startL); pL!=endL; pL=RightLINK(pL)) {
-		copyL = DuplicateObject(ObjLType(pL),pL,FALSE,clipboard,doc,FALSE);
+		copyL = DuplicateObject(ObjLType(pL),pL,False,clipboard,doc,False);
 		if (!copyL) continue;
 
 		SetCopyMap(pL,copyL,numObjs,mergeMap);
-		if (!firstL) firstL = copyL;							/* Return first node copied	*/
+		if (!firstL) firstL = copyL;						/* Return first node copied	*/
 
 		InstallDoc(doc);
 
-		RightLINK(LeftLINK(insertL)) = copyL;				/* Link to previous object		*/
+		RightLINK(LeftLINK(insertL)) = copyL;				/* Link to previous object */
 		LeftLINK(copyL) = LeftLINK(insertL);
 		
 		RightLINK(copyL) = insertL;							/* Link to following object	*/
 		LeftLINK(insertL) = copyL;
 
 		DeselectNode(copyL);
-		LinkVALID(copyL) = FALSE;
+		LinkVALID(copyL) = False;
 
 		FixStfAndVoice(copyL,stfDiff,vMap);
 		if (GraphicTYPE(copyL)) FixGraphicFont(doc, copyL);
@@ -1021,9 +1026,9 @@ static LINK MCopyClipRange(Document *doc, LINK startL, LINK endL, LINK insertL,
 }
 
 
-/* ---------------------------------------------------------- FixMergeLinks et al -- */
-/* Initialize the copy map with the LINKs in the clipboard. Purpose is to fix up
-cross links for non-Beamset like J_D objects. Logic is: while there may end up
+/* --------------------------------------------------------------- FixMergeLinks et al -- */
+/* Initialize the copy map with the LINKs in the clipboard. The purpose is to fix
+up cross links for non-Beamset like J_D objects. Logic is: while there may end up
 being more LINKs in the main object list in the merged range than in the clipboard
 object of merged LINKs, every non-Beamset like J_D object merged in from the
 clipboard will have LINKs in the clipboard corresponding to its crosslink LINKs
@@ -1032,14 +1037,13 @@ clipboard LINKs will necessarily contain all needed info.
 
 Cf. Init/Set/GetCopyMap, GetNumClObjs.
 
-/* --------------------------------------------------------------- FixMergeLinks -- */
+/* --------------------------------------------------------------------- FixMergeLinks -- */
 /* Fix up cross links for non-Beamset-like J_D objects merged in. */
 
-static void FixMergeLinks(Document */*srcDoc*/, Document *dstDoc,
-									LINK startL, LINK endL,
-									COPYMAP *copyMap, short numObjs)
+static void FixMergeLinks(Document */*srcDoc*/, Document *dstDoc, LINK startL, LINK endL,
+							COPYMAP *copyMap, short numObjs)
 {
-	short i; LINK pL;
+	short i;  LINK pL;
 	
 	InstallDoc(dstDoc);
 
@@ -1122,11 +1126,12 @@ static void FixMergeLinks(Document */*srcDoc*/, Document *dstDoc,
 }
 
 
-/* -------------------------------------------------------- MeasGetSysRelLTimes -- */
+/* --------------------------------------------------------------- MeasGetSysRelLTimes -- */
 
 static void MeasGetSysRelLTimes(Document *doc, MERGEARRAY *mergeArr, LINK startL)
 {
-	LINK measEndL,pL; short i,ninMeasure;
+	LINK measEndL,pL;
+	short i,ninMeasure;
 	SPACETIMEINFO *spTimeInfo;
 
 	measEndL = EndMeasSearch(doc, startL);
@@ -1134,7 +1139,7 @@ static void MeasGetSysRelLTimes(Document *doc, MERGEARRAY *mergeArr, LINK startL
 	spTimeInfo = AllocSpTimeInfo();
 	if (!spTimeInfo) return;
 	
-	ninMeasure = GetSpTimeInfo(doc, startL, measEndL, spTimeInfo, FALSE);
+	ninMeasure = GetSpTimeInfo(doc, startL, measEndL, spTimeInfo, False);
 
 	for (i = 0; i<ninMeasure; i++) {
 		pL = spTimeInfo[i].link;
@@ -1147,15 +1152,16 @@ static void MeasGetSysRelLTimes(Document *doc, MERGEARRAY *mergeArr, LINK startL
 	DisposePtr((Ptr)spTimeInfo);
 }
 
-/* ---------------------------------------------------------------- InitMergeArr -- */
-/* Fill <mergeArr> with sysRel xds and lTimes for all valid xd LINKs starting
-with startL in startL's system. */
+
+/* --------------------------------------------------------------------- InitMergeArr -- */
+/* Fill <mergeArr> with sysRel xds and lTimes for all valid-xd LINKs starting with
+startL in startL's system. */
 
 static void InitMergeArr(Document *doc, LINK startL, LINK endL, MERGEARRAY *mergeArr)
 {
-	short i; LINK pL;
+	short i;  LINK pL;
 
-	pL=FirstValidxd(startL,GO_RIGHT);
+	pL = FirstValidxd(startL,GO_RIGHT);
 	for (i=0; pL!=endL; i++,pL=FirstValidxd(RightLINK(pL),GO_RIGHT)) {
 		mergeArr[i].link = pL;
 		mergeArr[i].xd = SysRelxd(pL);
@@ -1164,18 +1170,18 @@ static void InitMergeArr(Document *doc, LINK startL, LINK endL, MERGEARRAY *merg
 	MeasGetSysRelLTimes(doc, mergeArr, startL);
 }
 
-/* --------------------------------------------------------------- SetupMergeArr -- */
-/* Allocate an array of LINKs, lTimes and xds for all valid xd objects in
-the range [startL,endL). */
 
-static void SetupMergeArr(LINK startL, LINK endL,
-									MERGEARRAY **mergeArr, short *objCount)
+/* --------------------------------------------------------------------- SetupMergeArr -- */
+/* Allocate an array of LINKs, lTimes and xds for all valid-xd objects in the range
+[startL,endL). */
+
+static void SetupMergeArr(LINK startL, LINK endL, MERGEARRAY **mergeArr, short *objCount)
 {
 	LINK pL;
 	short i, numObjs=0;
 
 	for (pL=startL; pL!=endL; pL = FirstValidxd(RightLINK(pL),GO_RIGHT))
-		numObjs++;						
+			numObjs++;						
 	*mergeArr = (MERGEARRAY *)NewPtr((Size)(numObjs+10)*sizeof(MERGEARRAY));
 
 	if (GoodNewPtr((Ptr)mergeArr))
@@ -1201,122 +1207,139 @@ static void SetMergedFlags(LINK startL, LINK endL, Boolean value)
 		}
 }
 
-#define EXTRAMEAS	4
+
+/* Prepare for merging. Set <spareFlag> of every object in the clipboard, set <merged>
+flag of every note/rest in the clipboard, and create and return a COPYMAP. */
 
 static COPYMAP *MergeSetupClip(Document *doc, short *numObjs)
 {
 	COPYMAP *mergeMap;
-	LINK startL,endL;
+	LINK startL, endL;
  
 	InstallDoc(clipboard);
-	SetSpareFlags(clipboard->headL,clipboard->tailL,TRUE);
-	SetMergedFlags(clipboard->headL,clipboard->tailL,TRUE);
+	SetSpareFlags(clipboard->headL, clipboard->tailL, True);
+	SetMergedFlags(clipboard->headL, clipboard->tailL, True);
 
 	startL = RightLINK(clipFirstMeas);
 	endL = clipboard->tailL;
 
 	SetupCopyMap(startL, endL, &mergeMap, numObjs);
-	InitCopyMap(startL,endL,mergeMap);
+	InitCopyMap(startL, endL, mergeMap);
 
 	InstallDoc(doc);
 	return mergeMap;
 }
 
-/* -------------------------------------------------------- Setup MeasInfo arrays -- */
 
-static MeasInfo *SetupMeasInfo(Document *doc, short *nClipMeas)
+/* ------------------------------------------------------------ Set up MeasInfo arrays -- */
+
+#define EXTRAMEAS	4
+
+/* Create <measInfo> array and start filling it in. Return the number of Measure objects
+in the clipboard in <nClipMeas>. */
+
+static MeasInfo *SetupMeasInfo1(Document *doc, short *nClipMeas)
 {
-	LINK pL,rightL,syncL,nextL; short i,nMeas=0;
-	MeasInfo *measInfo,*pMeasInfo;
+	LINK pL, rightL, syncL, nextL;
+	short i, nMeas=0;
+	MeasInfo *measInfo, *pMeasInfo;
 
 	InstallDoc(clipboard);
 	for (pL=clipFirstMeas; pL; pL=LinkRMEAS(pL)) nMeas++;
 	
 	measInfo = (MeasInfo *)NewPtr((Size)(nMeas+EXTRAMEAS)*sizeof(MeasInfo));
 
-	if (!GoodNewPtr((Ptr)measInfo))
-		{ NoMoreMemory(); *nClipMeas=0; InstallDoc(doc); return NULL; }
+	if (!GoodNewPtr((Ptr)measInfo)) {
+		NoMoreMemory();
+		*nClipMeas = 0;
+		InstallDoc(doc);
+		return NULL;
+	}
 
 	for (i=0,pMeasInfo=measInfo; i<nMeas; i++,pMeasInfo++) {
 		pMeasInfo->srcL = pMeasInfo->dstL = NILINK;
 		pMeasInfo->startTime = 0L;
-		pMeasInfo->clipEmpty = FALSE;
-		pMeasInfo->clipNoSyncs = FALSE;
-		pMeasInfo->docEmpty = FALSE;
-		pMeasInfo->docNoSyncs = FALSE;
-		pMeasInfo->docLast = FALSE;
+		pMeasInfo->clipEmpty = False;
+		pMeasInfo->clipNoSyncs = False;
+		pMeasInfo->docEmpty = False;
+		pMeasInfo->docNoSyncs = False;
+		pMeasInfo->docLast = False;
 		pMeasInfo->unused = 0;
 	}
 
-	pMeasInfo=measInfo;
+	pMeasInfo = measInfo;
 	for (pL=clipFirstMeas; pL; pL=LinkRMEAS(pL),pMeasInfo++) {
 			pMeasInfo->srcL = pL;
 			
 			rightL = RightLINK(pL);
 			if (MeasureTYPE(rightL) || rightL==clipboard->tailL)
-				pMeasInfo->clipEmpty = TRUE;
+				pMeasInfo->clipEmpty = True;
 
-			/* Cf. comment in SetupDocMeasInfo. */
+			/* Cf. comment in SetupMeasInfo2. */
 
-			pMeasInfo->clipNoSyncs = TRUE;
+			pMeasInfo->clipNoSyncs = True;
 			nextL = LinkRMEAS(pL);
 			for (syncL=rightL; syncL!=nextL; syncL=RightLINK(syncL)) {
 				if (SyncTYPE(syncL))
-					{ pMeasInfo->clipNoSyncs = FALSE; break; }
+					{ pMeasInfo->clipNoSyncs = False; break; }
 			}
 	}
 	
-	*nClipMeas = nMeas;					/* Return number of objects in range. */
+	*nClipMeas = nMeas;					/* Return number of Measure objects in range. */
 	InstallDoc(doc);
 	return measInfo;
 }
 
-static void SetupDocMeasInfo(Document *doc, MeasInfo *measInfo, short nClipMeas)
+/* Finish filling in the <measInfo> array; also clear the <spareFlag> of every object
+and the <merged> flag of every note/rest in <doc>'s main object list. */
+
+static void SetupMeasInfo2(Document *doc, MeasInfo *measInfo, short nClipMeas)
 {
-	MeasInfo *pMeasInfo; short i;
+	MeasInfo *pMeasInfo;
+	short i;
 	LINK measL,firstMeasL,rightL,syncL,nextL;
 
-	SetSpareFlags(doc->headL,doc->tailL,FALSE);
-	SetMergedFlags(doc->headL,doc->tailL,FALSE);
+	SetSpareFlags(doc->headL,doc->tailL,False);
+	SetMergedFlags(doc->headL,doc->tailL,False);
 
-	firstMeasL = measL = LSSearch(LeftLINK(doc->selStartL),MEASUREtype,ANYONE,GO_LEFT,FALSE);
-	pMeasInfo=measInfo;
+	firstMeasL = measL = LSSearch(LeftLINK(doc->selStartL),MEASUREtype,ANYONE,GO_LEFT,False);
+	pMeasInfo = measInfo;
 
 	for (i=0; i<nClipMeas; i++,measL=LinkRMEAS(measL),pMeasInfo++) {
 		pMeasInfo->dstL = measL;
 		
 		rightL = RightLINK(measL);
 		if (MeasureTYPE(rightL) || SystemTYPE(rightL) || PageTYPE(rightL) || rightL==doc->tailL)
-			pMeasInfo->docEmpty = TRUE;
+			pMeasInfo->docEmpty = True;
 
 		/* If this is the last measure of a system before the last system, we don't
 			expect any syncs before the first measure of the following system, so the
-			traversal to LinkRMEAS should work ok. If it is the last measure of the
+			traversal to LinkRMEAS should work okay. If it is the last measure of the
 			score, LinkRMEAS will be NILINK, and the traversal will stop correctly at
 			RightLINK of the tail. */
 
-		pMeasInfo->docNoSyncs = TRUE;
+		pMeasInfo->docNoSyncs = True;
 		nextL = LinkRMEAS(measL);
 		for (syncL=rightL; syncL!=nextL; syncL=RightLINK(syncL)) {
 			if (SyncTYPE(syncL))
-				{ pMeasInfo->docNoSyncs = FALSE; break; }
+				{ pMeasInfo->docNoSyncs = False; break; }
 		}
 
 		if (!LinkRMEAS(measL) || !SameSystem(firstMeasL,LinkRMEAS(measL)))
-			{ pMeasInfo->docLast = TRUE; break; }
+			{ pMeasInfo->docLast = True; break; }
 	}
 }
 
 static MeasInfo *BuildMeasInfo(Document *doc)
 {
-	MeasInfo *measInfo; LINK docMeasL;
+	MeasInfo *measInfo;
+	LINK docMeasL;
 	short i,nClipMeas;
 
-	measInfo = SetupMeasInfo(doc,&nClipMeas);
-	if (!measInfo)
-		return NULL;
+	measInfo = SetupMeasInfo1(doc,&nClipMeas);
+	if (!measInfo) return NULL;
 
-	SetupDocMeasInfo(doc,measInfo,nClipMeas);
+	SetupMeasInfo2(doc,measInfo,nClipMeas);
 	
 	measInfo[0].measTime = 0L;
 	for (i=1; i<nClipMeas; i++) {
@@ -1329,9 +1352,9 @@ static MeasInfo *BuildMeasInfo(Document *doc)
 }
 
 
-/* ------------------------------------------------------- Disposing Merge arrays -- */
-/* Dispose merge arrays. pDurArray is allocated by MPrepareSelRange;
-qDurArray is allocated by MRearrangeNotes; the others by MComputePlayTimes. */
+/* ----------------------------------------------------------- Dispose of Merge arrays -- */
+/* Dispose merge arrays for doc. pDurArray is allocated by MPrepareSelRange; qDurArray
+is allocated by MRearrangeAll; the others by MComputePlayTimes. */
 
 static void MDisposeArrays()
 {
@@ -1362,7 +1385,7 @@ static void MDisposeClArrays()
 }
 
 /*
- * Dispose merge arrays for doc & clipboard.
+ * Dispose merge arrays for doc and clipboard.
  */
 
 static void MDisposeAllArrays()
@@ -1371,8 +1394,9 @@ static void MDisposeAllArrays()
 	MDisposeClArrays();
 }
 
-/* ------------------------------------------------------------------ SortPTimes -- */
-/* Shell sort durArray. */
+
+/* ------------------------------------------------------------------------ SortPTimes -- */
+/* Sort durArray via the Shell algorithm. */
 
 static void SortPTimes(PTIME *durArray, short n, short nvoices)
 {
@@ -1387,12 +1411,12 @@ static void SortPTimes(PTIME *durArray, short n, short nvoices)
 				  j-=gap) {
 				t = durArray[j];
 				durArray[j] = durArray[j+gap];
-				durArray[j+gap]=t;
+				durArray[j+gap] = t;
 			}
 }
 
 
-/* ------------------------------------------------------------------ CountSyncs -- */
+/* ------------------------------------------------------------------------ CountSyncs -- */
 /* ??Should cut this and replace call with a call to CountObjects.*/
 
 static short CountSyncs(LINK startL, LINK endL)
@@ -1405,7 +1429,8 @@ static short CountSyncs(LINK startL, LINK endL)
 	return numSyncs;
 }
 
-/* --------------------------------------------------------------- InsNewObjInto -- */
+
+/* --------------------------------------------------------------------- InsNewObjInto -- */
 
 static LINK InsNewObjInto(LINK newObjL, LINK prevL, LINK insertL)
 {
@@ -1417,53 +1442,53 @@ static LINK InsNewObjInto(LINK newObjL, LINK prevL, LINK insertL)
 	return newObjL;
 }
 		
-/* ------------------------------------------------------------- MPrepareSelRange -- */
-/* Prepare array for use by Merge. */
+/* ------------------------------------------------------------------ MPrepareSelRange -- */
+/* Prepare pDurArray for use by Merge. */
 
 static PTIME *MPrepareSelRange(Document *doc, LINK measL, short *nInRange)
 {
-	short nInMeas=0,numNotes;
+	short nInMeas=0, numNotes;
 	
 	startMeas = measL;
-	endMeas = EndMeasSearch(doc,startMeas);
+	endMeas = EndMeasSearch(doc, startMeas);
 
-	nInMeas = CountSyncs(startMeas,endMeas);
+	nInMeas = CountSyncs(startMeas, endMeas);
 
-	/* Allocate pDurArray[numNotes]. numNotes provides one note per
-		voice for all syncs in selection range. */
+	/* Allocate pDurArray[numNotes]. numNotes provides one note per voice for all
+		syncs in selection range. */
 
 	numNotes = nInMeas*(MAXVOICES+1);
 	pDurArray = (PTIME *)NewPtr((Size)numNotes*sizeof(PTIME));
 	if (!GoodNewPtr((Ptr)pDurArray)) { NoMoreMemory(); return NULL; }
 
-	InitDurArray(pDurArray,nInMeas);
+	InitDurArray(pDurArray, nInMeas);
 	*nInRange = nInMeas;
 
 	return pDurArray;
 }
 
-/* ----------------------------------------------------------- MPrepareClSelRange -- */
-/* Prepare array for use by Merge. */
+/* --------------------------------------------------------------- MPrepareClSelRange -- */
+/* Prepare pClDurArray for use by Merge. */
 
 static PTIME *MPrepareClSelRange(Document *doc, LINK measL, short *nInRange)
 {
-	short nInMeas=0,numNotes;
+	short nInMeas=0, numNotes;
 	
 	InstallDoc(clipboard);
 
 	startClMeas = measL;
-	endClMeas = EndMeasSearch(clipboard,startClMeas);
+	endClMeas = EndMeasSearch(clipboard, startClMeas);
 
-	nInMeas = CountSyncs(startClMeas,endClMeas);
+	nInMeas = CountSyncs(startClMeas, endClMeas);
 
-	/*  Allocate pClDurArray[numNotes]. numNotes provides one note per
-		voice for all syncs in selection range. */ 
+	/*  Allocate pClDurArray[numNotes]. numNotes provides one note per voice for all
+		syncs in selection range. */ 
 
 	numNotes = nInMeas*(MAXVOICES+1);
 	pClDurArray = (PTIME *)NewPtr((Size)numNotes*sizeof(PTIME));
 	if (!GoodNewPtr((Ptr)pClDurArray)) { InstallDoc(doc); NoMoreMemory(); return NULL; }
 
-	InitDurArray(pClDurArray,nInMeas);
+	InitDurArray(pClDurArray, nInMeas);
 	*nInRange = nInMeas;
 	
 	InstallDoc(doc);
@@ -1471,7 +1496,7 @@ static PTIME *MPrepareClSelRange(Document *doc, LINK measL, short *nInRange)
 }
 
 
-/* ----------------------------------------------------------- MComputePlayTimes -- */
+/* ----------------------------------------------------------------- MComputePlayTimes -- */
 /* Version of ComputePlayTimes for Merge */
 
 static Boolean MComputePlayTimes(Document *doc, short nInMeas)
@@ -1483,19 +1508,19 @@ static Boolean MComputePlayTimes(Document *doc, short nInMeas)
 	stfTimeDiff = (long *)NewPtr((Size)(MAXVOICES+1) * sizeof(long));
 	if (!GoodNewPtr((Ptr)stfTimeDiff)) goto broken;
 	
-	/* Set playDur values and pTime values for the pDurArray, and
-		set link values for owning beams, ottavas and tuplets. */
+	/* Set playDur values and pTime values for the pDurArray, and set link values
+		for owning beams, ottavas and tuplets. */
 
 	SetPlayDurs(doc,pDurArray,nInMeas,startMeas,endMeas);
 	SetPTimes(doc,pDurArray,nInMeas,spTimeInfo,startMeas,endMeas);
 	SetLinkOwners(pDurArray,nInMeas,startMeas,endMeas);
 	SortPTimes(pDurArray, nInMeas, MAXVOICES+1);
 
-	return TRUE;
+	return True;
 	
 broken:
 	NoMoreMemory();
-	return FALSE;
+	return False;
 }
 
 /* Compute playTimes for notes in the clipboard. */
@@ -1511,8 +1536,8 @@ static Boolean MComputeClipPlayTimes(Document *doc, short nInMeas)
 	clStfTimeDiff = (long *)NewPtr((Size)(MAXVOICES+1) * sizeof(long));
 	if (!GoodNewPtr((Ptr)clStfTimeDiff)) goto broken;
 	
-	/* Set playDur values and pTime values for the pDurArray, and
-		set link values for owning beams, ottavas and tuplets. */
+	/* Set playDur values and pTime values for the pDurArray, and set link values
+		for owning beams, ottavas and tuplets. */
 
 	SetPlayDurs(doc,pClDurArray,nInMeas,startClMeas,endClMeas);
 	SetPTimes(clipboard,pClDurArray,nInMeas,clSpTimeInfo,startClMeas,endClMeas);
@@ -1520,16 +1545,17 @@ static Boolean MComputeClipPlayTimes(Document *doc, short nInMeas)
 	SortPTimes(pClDurArray, nInMeas, MAXVOICES+1);
 
 	InstallDoc(doc);
-	return TRUE;
+	return True;
 	
 broken:
 
 	InstallDoc(doc);
 	NoMoreMemory();
-	return FALSE;
+	return False;
 }
 
-/* --------------------------------------------------------------- XLateDurArray -- */
+
+/* ------------------------------------------------------------------- XLateDurArray -- */
 /* Translate the time of durArray elements forward in time by startTime, in order
 to translate the range of notes indicated by those elements forward to start at
 the time of a note (the insertion pt) after the beginning of the measure. */
@@ -1544,16 +1570,17 @@ static void XLateDurArray(PTIME *durArray, long startTime, short /*nInMeas*/)
 		pTime->pTime += startTime;
 }
 
+
 #define SCALE(v)	((v) = sizeRatio*(v))
 
-/* ----------------------------------------------------------------- SetSyncSize -- */
-/* Scale sync's horizontal and vertical coordinates to reflect change in rastral
+/* ---------------------------------------------------------- SetSyncSize, SetNoteSize -- */
+/* Scale sync's horizontal and vertical coordinates to reflect change in staff rastral
 size of its environment. */
 
 static void SetSyncSize(Document */*doc*/, LINK pL, short oldRastral, short newRastral)
 {
 	FASTFLOAT sizeRatio;
-	PMEVENT p; PANOTE aNote;
+	PMEVENT p;  PANOTE aNote;
 	LINK aNoteL;
 	
 	if (oldRastral==newRastral) return;
@@ -1572,13 +1599,12 @@ static void SetSyncSize(Document */*doc*/, LINK pL, short oldRastral, short newR
 	}
 }
 
-/* ----------------------------------------------------------------- SetNoteSize -- */
-/* Scale note's horizontal and vertical coordinates to reflect change in rastral
+/* Scale note's horizontal and vertical coordinates to reflect change in staff rastral
 size of its environment. */
 
 static void SetNoteSize(Document */*doc*/, LINK aNoteL, short oldRastral, short newRastral)
 {
-	FASTFLOAT sizeRatio; PANOTE aNote;
+	FASTFLOAT sizeRatio;  PANOTE aNote;
 	
 	if (oldRastral==newRastral) return;
 
@@ -1590,7 +1616,8 @@ static void SetNoteSize(Document */*doc*/, LINK aNoteL, short oldRastral, short 
 	SCALE(aNote->ystem);
 }
 
-/* ----------------------------------------------------------------- MCreateSync -- */
+
+/* ----------------------------------------------------------------------- MCreateSync -- */
 /* Return a sync created out of all pTimes with the same pTime. If sync is created
 out of pTimes from the clipboard, need to fill in newObjL fields in the clipboard's
 durArray. 
@@ -1602,7 +1629,7 @@ CopyClSync (not already written). */
 static LINK MCreateSync(Document *doc, PTIME *pTime, PTIME **newPTime,
 								short *nEntries, short *nItems)
 {
-	short subCount,itemCount; PTIME *qTime; LINK newObjL;
+	short subCount,itemCount;  PTIME *qTime;  LINK newObjL;
 
 	/* Get the number of notes in this sync. */
 
@@ -1611,13 +1638,13 @@ static LINK MCreateSync(Document *doc, PTIME *pTime, PTIME **newPTime,
 	qTime = pTime;
 	subCount = itemCount = 0;
 	while (qTime->pTime==pTime->pTime) {
-		subCount += qTime->mult;								/* Handle chords */
-		itemCount++;												/* Count # of pTime structs to */
-		qTime++;														/*		allow caller to index array */
+		subCount += qTime->mult;						/* Handle chords */
+		itemCount++;									/* Count # of pTime structs to */
+		qTime++;										/*	 allow caller to index array */
 	}
 	
-	/* Create the sync object, and copy the first note's object
-		information into it. */
+	/* Create the sync object, and copy the first note's object information
+		into it. */
 
 	if (subCount) {
 		newObjL = CopySync(doc,subCount,pTime);
@@ -1633,7 +1660,7 @@ static LINK MCreateSync(Document *doc, PTIME *pTime, PTIME **newPTime,
 }
 
 
-/* ------------------------------------------------------------- CopyClSubObjs -- */
+/* ------------------------------------------------------------------- CopyClSubObjs -- */
 /* Copy the subObject information from each note at this time into the
 subObjects of the newly created object. Sets qTime->newObjL and qTime->newSubL,
 which provide the mapping from syncs in the clipboard to their counterparts
@@ -1643,15 +1670,15 @@ expected to be installed. */
 
 static LINK CopyClSubObjs(Document *doc, LINK newObjL, PTIME *pTime)
 {
-	LINK subL,newSubL,tempSubL; PTIME *qTime;
-	Boolean objSel=FALSE; short v;
+	LINK subL,newSubL,tempSubL;  PTIME *qTime;
+	Boolean objSel=False;  short v;
 
 	qTime = pTime;
 	subL = qTime->subL;
 	newSubL = DFirstSubLINK(doc,newObjL);
 
 	while (qTime->pTime==pTime->pTime) {
-		if (NoteSEL(subL)) objSel = TRUE;
+		if (NoteSEL(subL)) objSel = True;
 
 		if (qTime->mult > 1) {
 			v = NoteVOICE(subL);
@@ -1679,15 +1706,16 @@ static LINK CopyClSubObjs(Document *doc, LINK newObjL, PTIME *pTime)
 		subL = qTime->subL;
 	}
 
-	if (objSel) DLinkSEL(doc,newObjL) = TRUE;
+	if (objSel) DLinkSEL(doc,newObjL) = True;
 	return newSubL;
 }
 
 
-/* ------------------------------------------------------------------ CopyClSync -- */
-/* Create a new Sync with subCount nEntries and copy object level information
-from pTime into it. Sync is created in the document and information is copied
-from the clipboard. clipboard Heaps are expected to be installed. */
+/* ---------------------------------------------------------------------- CopyClSync -- */
+/* Create a new Sync with subCount nEntries and copy object level information from
+pTime into it. Sync is created in the document and information is copied from the
+clipboard. clipboard Heaps are expected to be installed. If we can't create the Sync,
+return NILINK. */
 
 static LINK CopyClSync(Document *doc, short subCount, PTIME *pTime)
 {
@@ -1699,21 +1727,21 @@ static LINK CopyClSync(Document *doc, short subCount, PTIME *pTime)
 	if (newObjL == NILINK)
 		{ InstallDoc(clipboard); return NILINK; }
 
-	pObj	  = (PMEVENT)LinkToPtr(clipboard->Heap+OBJtype,pTime->objL);
+	pObj = (PMEVENT)LinkToPtr(clipboard->Heap+OBJtype,pTime->objL);
 	pNewObj = (PMEVENT)LinkToPtr(doc->Heap+OBJtype,newObjL);
-	firstSubObjL = FirstSubLINK(newObjL);						/* Save it before it gets wiped out */
+	firstSubObjL = FirstSubLINK(newObjL);					/* Save it before it gets wiped out */
 	BlockMove(pObj, pNewObj, sizeof(SUPEROBJECT));
-	FirstSubLINK(newObjL) = firstSubObjL;						/* Restore it. */
-	LinkNENTRIES(newObjL) = subCount;							/* Set new nEntries. */
+	FirstSubLINK(newObjL) = firstSubObjL;					/* Restore it. */
+	LinkNENTRIES(newObjL) = subCount;						/* Set new nEntries. */
 	
 	InstallDoc(clipboard);
 	return newObjL;
 }
 
 
-/* --------------------------------------------------------------- MCreateClSync -- */
+/* --------------------------------------------------------------------- MCreateClSync -- */
 /* Return a sync created out of all clipboard pTimes with the same pTime.
-#1. SpareFlags in the dataStructure are set for two reasons: 
+#1. spareFlags in the object list are set for two reasons: 
 	a. To show range of nodes merged in so MergeFromClip can determine start
 		and end of range for sake of MergeFixContext (done by GetMergeRange).
 	b. To show which nodes come from the clipboard, so that FixMergeLinks can
@@ -1721,10 +1749,12 @@ static LINK CopyClSync(Document *doc, short subCount, PTIME *pTime)
 	This spareFlag is set for reason a.
 */
 
-static LINK MCreateClSync(Document *doc, PTIME *pTime, PTIME **newPTime,
-									short *nEntries, short *nItems)
+static LINK MCreateClSync(Document *doc, PTIME *pTime, PTIME **newPTime, short *nEntries,
+							short *nItems)
 {
-	short subCount,itemCount; PTIME *qTime; LINK newObjL;
+	short subCount,itemCount;
+	PTIME *qTime; 
+	LINK newObjL;
 
 	InstallDoc(clipboard);
 
@@ -1733,20 +1763,20 @@ static LINK MCreateClSync(Document *doc, PTIME *pTime, PTIME **newPTime,
 	qTime = pTime;
 	subCount = itemCount = 0;
 	while (qTime->pTime==pTime->pTime) {
-		subCount += qTime->mult;								/* Handle chords */
+		subCount += qTime->mult;							/* Handle chords */
 		itemCount++;
 		qTime++;
 	}
 	
-	/* Create the sync object, and copy the first note's object
-		information into it. CopyClSubObjs sets qTime->newObjL
-		& qTime->newSubL. */
+	/* Create the sync object, and copy the first note's object information into
+		it. CopyClSubObjs sets qTime->newObjL and qTime->newSubL. */
 
 	if (subCount) {
-		newObjL = CopyClSync(doc,subCount,pTime);
-		if (newObjL) CopyClSubObjs(doc,newObjL,pTime);
+		newObjL = CopyClSync(doc, subCount, pTime);
+		if (newObjL==NILINK) goto broken;
+		CopyClSubObjs(doc, newObjL, pTime);
 	
-		DLinkSPAREFLAG(doc,newObjL) = TRUE; 				/* #1. */
+		DLinkSPAREFLAG(doc,newObjL) = True; 				/* #1. */
 
 		*nEntries = subCount;
 		*nItems = itemCount;
@@ -1757,20 +1787,19 @@ static LINK MCreateClSync(Document *doc, PTIME *pTime, PTIME **newPTime,
 		return newObjL;
 	}
 
+broken:
 	InstallDoc(doc);
 	return NILINK;
 }
 
 
-/* -------------------------------------------------------------- MergeClSubObjs -- */
-/* Copy the subObject information from each note at this time from a
-sync in the clipboard into the subObjects of an already created object
-generated to hold the notes of a pair of syncs merged together, one from
-the doc and one from the clipboard.
-pTime is the PTIME array of notes from the clipboard.
-newObjL is the already generated sync object, and newSubL is the
-first subObj in the segment of the list into which the subObjs from
-the clipboard will be copied.
+/* -------------------------------------------------------------------- MergeClSubObjs -- */
+/* Copy the subObject information from each note at this time from a sync in the
+clipboard into the subObjects of an already created object generated to hold the
+notes of a pair of syncs merged together, one from the doc and one from the
+clipboard. pTime is the PTIME array of notes from the clipboard. newObjL is the
+already generated sync object, and newSubL is the first subObj in the segment of the
+list into which the subObjs from the clipboard will be copied.
 
 #1. If the subObj is selected, make sure that the selection status of
 object and subObj are consistent, so e.g. DeselRange will work correctly.
@@ -1781,8 +1810,8 @@ NextNOTEL(newSubL), and we need to increment staff and voice by stfDiff. */
 static void MergeClSubObjs(Document *doc, LINK newObjL, LINK newSubL, PTIME *pTime,
 				short stfDiff, short *vMap)
 {
-	LINK subL,tempSubL,aNoteL; PTIME *qTime;
-	Boolean objSel=FALSE; short v;
+	LINK subL,tempSubL,aNoteL;  PTIME *qTime;
+	Boolean objSel=False;  short v;
 
 	InstallDoc(clipboard);
 
@@ -1791,14 +1820,14 @@ static void MergeClSubObjs(Document *doc, LINK newObjL, LINK newSubL, PTIME *pTi
 	if (!newSubL) newSubL = DFirstSubLINK(doc,newObjL);
 
 	while (qTime->pTime==pTime->pTime) {
-		if (NoteSEL(subL)) objSel = TRUE;										/* #1. */
+		if (NoteSEL(subL)) objSel = True;									/* #1. */
 
 		if (qTime->mult > 1) {
 			v = NoteVOICE(subL);
 			subL = FirstSubLINK(qTime->objL);
 			for ( ; subL; subL = NextNOTEL(subL))
 				if (NoteVOICE(subL)==v) {
-					aNoteL = newSubL;													/* #2. */
+					aNoteL = newSubL;										/* #2. */
 					newSubL = CopyClipNotes(doc, subL, newSubL, qTime->pTime);
 					
 					InstallDoc(doc);
@@ -1827,7 +1856,7 @@ static void MergeClSubObjs(Document *doc, LINK newObjL, LINK newSubL, PTIME *pTi
 		else {
 			qTime->newObjL = newObjL;
 			qTime->newSubL = newSubL;
-			aNoteL = newSubL;															/* #2. */
+			aNoteL = newSubL;												/* #2. */
 			newSubL = CopyClipNotes(doc, subL, newSubL, qTime->pTime);
 
 			InstallDoc(doc);
@@ -1835,22 +1864,22 @@ static void MergeClSubObjs(Document *doc, LINK newObjL, LINK newSubL, PTIME *pTi
 			InstallDoc(clipboard);
 
 			DNoteSTAFF(doc,aNoteL) += stfDiff;
-			DNoteVOICE(doc,aNoteL) = vMap[DNoteVOICE(doc,aNoteL)];		/* #3. */
+			DNoteVOICE(doc,aNoteL) = vMap[DNoteVOICE(doc,aNoteL)];			/* #3. */
 		}
 		qTime++;
 		subL = qTime->subL;
 	}
 	
-	if (objSel) DLinkSEL(doc,newObjL) = TRUE;
+	if (objSel) DLinkSEL(doc,newObjL) = True;
 
 	InstallDoc(doc);
 }
 
-/* ------------------------------------------------------------------ MMergeSync -- */
+/* ------------------------------------------------------------------------ MMergeSync -- */
 /* Merge together two syncs, one from score, one from clipboard, occurring at the
 same time, into one sync.
 
-#1. SpareFlags in the dataStructure are set for two reasons: 
+#1. SpareFlags in the object list are set for two reasons: 
 	a. To show range of nodes merged in so MergeFromClip can determine start
 		and end of range for sake of MergeFixContext (done by GetMergeRange).
 	b. To show which nodes come from the clipboard, so that FixMergeLinks can
@@ -1868,14 +1897,15 @@ static LINK MMergeSync(
 						short *vMap
 						)
 {
-	short subCount=0,clSubCount=0,itemCount=0,clItemCount=0; PTIME *qTime,*qClTime;
+	short subCount=0,clSubCount=0,itemCount=0,clItemCount=0;
+	PTIME *qTime,*qClTime;
 	LINK newObjL,newSubL;
 
 	/* Get the number of notes in this sync from the main object list */
 
 	qTime = pTime;
 	while (qTime->pTime==pTime->pTime) {
-		subCount += qTime->mult;									/* Handle chords */
+		subCount += qTime->mult;								/* Handle chords */
 		itemCount++;
 		qTime++;
 	}
@@ -1886,7 +1916,7 @@ static LINK MMergeSync(
 
 	qClTime = pClTime;
 	while (qClTime->pTime==pTime->pTime) {
-		clSubCount += qClTime->mult;								/* Handle chords */
+		clSubCount += qClTime->mult;							/* Handle chords */
 		clItemCount++;
 		qClTime++;
 	}
@@ -1903,7 +1933,7 @@ static LINK MMergeSync(
 			MergeClSubObjs(doc,newObjL,newSubL,pClTime,stfDiff,vMap);
 		}
 
-		DLinkSPAREFLAG(doc,newObjL) = TRUE;						/* #1. */
+		DLinkSPAREFLAG(doc,newObjL) = True;						/* #1. */
 
 		*newPTime = qTime;
 		*newClPTime = qClTime;
@@ -1916,12 +1946,13 @@ static LINK MMergeSync(
 	return NILINK;
 }
 
-/* --------------------------------------------------------------- GetMergeRange -- */
+
+/* --------------------------------------------------------------------- GetMergeRange -- */
 /* Get actual range of nodes merged in so that an exact range of merged nodes
 can be returned to MergeFixContext and other routines which need one. Merged in
-nodes are distinguished from those in the score by setting their spareFlags TRUE
+nodes are distinguished from those in the score by setting their spareFlags True
 as they are merged in; nodes which are combinations of subObjs from clip and score
-are considered to be merged in. If <first> is TRUE, set prevL; set lastL for every
+are considered to be merged in. If <first> is True, set prevL; set lastL for every
 measure, since we will drop out of loop merging each measure with lastL set
 correctly. */
 
@@ -1944,46 +1975,53 @@ static void GetMergeRange(LINK startMeas, LINK endMeas, LINK *prevL, LINK *lastL
 }
 
 
-/* ------------------------------------------------------------- MRearrangeNotes -- */
-/* Need to pass mergeMap to RelocateClObjs, RelocateClGenlJDObjs, use to init copy map
-for updating of Slurs, Graphics, Tempos, Endings and Dynamics.
-FixCrossPtrs should update those types (NBJD) which originated in the score.
-Logic of FixCrossPtrs: all endpt links and cross links for Slur-type objs originating
-in score should be fixed up in this way, because if one of their endpt syncs is
-rearranged, the rearrangement will be mapped by some merged measure's durArray.
-If one of their endPt non-syncs is rearranged, it will just be re-linked into the
-d.s at the same link value. E.g. if a Graphic's firstObj is a Clef, it will be re-
-inserted with the same LINK value, so the firstObj field will not need to be
-updated.
-Remaining question: will this process run danger of over-writing previously updated
-links? Answer: No, since srcL maps from score, where pre-rearrangement link values are
-unique, to score, where post-rearrangement link values are unique. */
+/* --------------------------------------------------------------------- MRearrangeAll -- */
+/* This is the heart of the merging process; it handles one measure at a time. We need
+to pass mergeMap to RelocateClObjs, RelocateClGenlJDObjs, use to init copy map for
+updating of Slurs, Graphics, Tempos, Endings and Dynamics. FixCrossPtrs should update
+those types (NBJD) which originated in the score. Logic of FixCrossPtrs: all endpoint
+links and cross links for Slur-type objs originating in score should be fixed up in
+this way, because if one of their endpoint syncs is rearranged, the rearrangement will
+be mapped by some merged measure's durArray. If one of their endpoint non-syncs is
+rearranged, it will just be re-linked into the object list at the same link value. 
+E.g., if a Graphic's firstObj is a Clef, it will be re-inserted with the same LINK
+value, so the firstObj field won't need to be updated.
 
-static Boolean MRearrangeNotes(
-								Document *doc,
-								short nNotes, short nClNotes,
-								LINK insertL,
-								LINK *prevL1, LINK *lastL1,
-								Boolean first,
-								short stfDiff,
-								COPYMAP *mergeMap,
-								short *vMap
-								)
+Remaining question: Does this process run the danger of over-writing previously updated
+links? No, since srcL maps from score, where pre-rearrangement link values are unique,
+to score, where post-rearrangement link values are unique.
+
+The above comments are basically those of many years ago. It looks like this routine is
+designed for cases where the one-measure range contains Syncs in either the clipboard or
+the score or both, which is certainly the normal case; in other cases, MCopyClipRange is
+the function used. FIXME: when MCopyClipRange copies a Graphic, it calls FixGraphicFont;
+shouldn't we do that here too?  --DAB, June 2017 */
+
+static Boolean MRearrangeAll(
+						Document *doc,
+						short nNotes, short nClNotes,
+						LINK insertL,
+						LINK *prevL1, LINK *lastL1,
+						Boolean firstMeas,
+						short stfDiff,
+						COPYMAP *mergeMap,
+						short *vMap,
+						Boolean syncsOnly
+						)
 {
-	short i,j,numNotes,numClNotes,arrBound,clArrBound,
-			nEntries,nClEntries,numObjs,nItems,nClItems;
+	short i, j, numNotes, numClNotes, arrBound, clArrBound, nEntries, nClEntries,
+		numObjs, nItems, nClItems;
 	PTIME *pTime, *qTime, *pClTime, *qClTime;
-	LINK newObjL,headL,tailL,initL,prevL,
-			mInsertL,firstL,lastL;
+	LINK newObjL, headL, tailL, initL, prevL, mInsertL, firstL, lastL;
 	MERGEARRAY *mergeA;
 		
-	/* Compact the pDurArray: allocate qDurArray, copy into it only those
-		pTimes s.t. pTime->subL!= NILINK, and then fill in the rest of the
-		entries with default values. Likewise for pClDurArray. */
+	/* Compact the pDurArray: allocate qDurArray, copy into it only those pTimes s.t.
+		pTime->subL!= NILINK, and then fill in the rest of the entries with default
+		values. Likewise for pClDurArray. */
 
 	numNotes = nNotes*(MAXVOICES+1);
 	qDurArray = (PTIME *)NewPtr((Size)numNotes*sizeof(PTIME));
-	if (!GoodNewPtr((Ptr)qDurArray)) { NoMoreMemory(); return FALSE; }
+	if (!GoodNewPtr((Ptr)qDurArray)) { NoMoreMemory(); return False; }
 
 	arrBound = CompactDurArray(pDurArray,qDurArray,numNotes);
 
@@ -1993,7 +2031,7 @@ static Boolean MRearrangeNotes(
 
 	numClNotes = nClNotes*(MAXVOICES+1);
 	qClDurArray = (PTIME *)NewPtr((Size)numClNotes*sizeof(PTIME));
-	if (!GoodNewPtr((Ptr)qClDurArray)) { NoMoreMemory(); return FALSE; }
+	if (!GoodNewPtr((Ptr)qClDurArray)) { NoMoreMemory(); return False; }
 
 	clArrBound = CompactDurArray(pClDurArray,qClDurArray,numClNotes);
 
@@ -2001,23 +2039,23 @@ static Boolean MRearrangeNotes(
 	DebugDurArray(clArrBound,qClDurArray);
 #endif
 
-	/* If this is the first measure of the range of measures to be merged,
-		the merged nodes may not start at the temporal beginning of the
-		measure; get the time at which to start merging, and translate
-		the pTime->pTime fields of the merged range to start at this time. */
+	/* If this is the first measure of the range of measures to be merged, the merged
+		nodes may not start at the temporal beginning of the measure; get the time at
+		which to start merging, and translate the pTime->pTime fields of the merged
+		range to start at this time. */
 
-	if (first) {
-		short nDocObjs; long thisTime,startTime;
+	if (firstMeas) {
+		short nDocObjs;  long thisTime, startTime;
 		LINK validFirstL;
 
 		SetupMergeArr(RightLINK(startMeas), endMeas, &mergeA, &nDocObjs);
-		if (!mergeA) return FALSE;
+		if (!mergeA) return False;
 
 		if (nDocObjs > 0) {
 			InitMergeArr(doc, RightLINK(startMeas), endMeas, mergeA);
 	
 			startTime = mergeA[nDocObjs-1].lTime;
-			validFirstL = FirstValidxd(insertL,GO_RIGHT);
+			validFirstL = FirstValidxd(insertL, GO_RIGHT);
 	
 			for (i=0; i<nDocObjs; i++) {
 				thisTime = mergeA[i].lTime;
@@ -2025,8 +2063,8 @@ static Boolean MRearrangeNotes(
 					{ startTime = mergeA[i].lTime; break; }
 			}
 		
-			/* insertion pt at end of measure: translate merged range to time of
-				last obj in measure + logical dur of last obj */
+			/* insertion point at end of measure: translate merged range to time of
+				last object in measure + logical dur of last object. */
 	
 			if (MeasureTYPE(insertL) || TailTYPE(insertL) || J_STRUCTYPE(insertL))
 				startTime = thisTime + GetLDur(doc,mergeA[nDocObjs-1].link,0);
@@ -2042,15 +2080,18 @@ static Boolean MRearrangeNotes(
 	SetCopyMap(startClMeas,startMeas,numObjs,mergeMap);
 	SetCopyMap(endClMeas,endMeas,numObjs,mergeMap);
 
-	initL = prevL = startMeas;									/* Get insertion point for inserting */
-	mInsertL = endMeas;											/* 	newly created syncs */
+	initL = prevL = startMeas;								/* Get insertion point for inserting */
+	mInsertL = endMeas;										/* 	 newly created syncs */
 
 	firstL = RightLINK(startMeas);							/* Get boundary markers of preexisting */
-	lastL = LeftLINK(endMeas);									/* 	list between measure bounds */
+	lastL = LeftLINK(endMeas);								/* 	 list between measure bounds */
 
-	/* Link the selection range into a temporary object list. This is simply
-		to store the non-Sync nodes until they can be returned to the object
-		list, instead of calling DeleteRange(doc, startMeas, endMeas). */
+	/* The object list now looks like this, where "(|)" means the object is a Measure:
+			...  startMeas(|)  firstL  ...  lastL  endMeas(I)  ...
+		
+	   Move the section between <startMeas> and <endMeas> into a temporary object list.
+	   This is simply to store the non-Sync nodes until they can be returned to the "real"
+	   object list. */
 
 	headL = NewNode(doc, HEADERtype, 2);					/* Create new empty list */
 	if (!headL) goto broken1;
@@ -2061,21 +2102,22 @@ static Boolean MRearrangeNotes(
 	RightLINK(startMeas) = endMeas;							/* Detach list between measure bounds */
 	LeftLINK(endMeas) = startMeas;
 
-	RightLINK(headL) = firstL;									/* Reattach list betw measure bounds */
-	LeftLINK(tailL) = lastL;									/*		to temp list at headL */
-	
+	RightLINK(headL) = firstL;								/* Reattach list between measure bounds */
+	LeftLINK(tailL) = lastL;								/*   to the temporary list */
 	LeftLINK(firstL) = headL;
 	RightLINK(lastL) = tailL;
 
-	/* Loop through the qDurArray and pClDurArray, creating syncs out of notes
-		which have the same pTimes from each array, merging syncs from both arrays
-		into the main object list. */
+	/* The temporary object list now looks like this:
+			headL  firstL  ...  lastL  tailL
+	   
+		Loop through the qDurArray and pClDurArray, creating Syncs out of notes that
+		have the same pTimes from each array, and merging Syncs from both arrays into
+		the main object list. */
 		
-	pTime=qTime=qDurArray;
-	pClTime=qClTime=qClDurArray;
+	pTime = qTime = qDurArray;
+	pClTime = qClTime = qClDurArray;
 
 	for (i=0,j=0; i<arrBound && j<clArrBound; ) {
-
 		if (pClTime->pTime > pTime->pTime) {
 			newObjL = MCreateSync(doc,pTime,&qTime,&nEntries,&nItems);
 			pTime = qTime;
@@ -2090,38 +2132,33 @@ static Boolean MRearrangeNotes(
 		}
 		else {
 			newObjL = MMergeSync(doc,pTime,&qTime,pClTime,&qClTime,&nEntries,&nClEntries,
-																		&nItems,&nClItems,stfDiff,vMap);
+														&nItems,&nClItems,stfDiff,vMap);
 			SetCopyMap(pClTime->objL,newObjL,numObjs,mergeMap);
 			pTime = qTime;
 			pClTime = qClTime;
 			i += nItems;
 			j += nClItems;
 		}
-		if (newObjL)
-			prevL = InsNewObjInto(newObjL,prevL,mInsertL);
+		if (newObjL) prevL = InsNewObjInto(newObjL,prevL,mInsertL);
 	}
 	
 	if (i<arrBound)
 		for ( ; i<arrBound; ) {
-	
 			newObjL = MCreateSync(doc,pTime,&qTime,&nEntries,&nItems);
 			pTime = qTime;
 			i += nItems;
 
-			if (newObjL)
-				prevL = InsNewObjInto(newObjL,prevL,mInsertL);
+			if (newObjL) prevL = InsNewObjInto(newObjL,prevL,mInsertL);
 		}
 	else if (j<clArrBound)
 		for ( ; j<clArrBound; ) {
-
 			newObjL = MCreateClSync(doc,pClTime,&qClTime,&nClEntries,&nClItems);
 			FixStfAndVoice(newObjL,stfDiff,vMap);
 			SetCopyMap(pClTime->objL,newObjL,numObjs,mergeMap);
 			pClTime = qClTime;
 			j += nClItems;
 
-			if (newObjL)
-				prevL = InsNewObjInto(newObjL,prevL,mInsertL);
+			if (newObjL) prevL = InsNewObjInto(newObjL,prevL,mInsertL);
 		}
 
 	InstallDoc(doc);
@@ -2130,43 +2167,47 @@ static Boolean MRearrangeNotes(
 	DebugDurArray(clArrBound,qClDurArray);
 #endif
 
-	/* Relocate all J_IT & J_IP objects, and all J_D objects which can only be
-		relative to SYNCs. */
+	/* Now to move non-Sync doc nodes we saved in a temporary object list into their
+		proper places. Relocate all J_IT & J_IP objects, and all J_D objects which
+		can only be relative to SYNCs. */
 
-	RelocateObjs(doc,headL,tailL,startMeas,endMeas,qDurArray);
+	RelocateObjs(doc, headL, tailL, startMeas, endMeas, qDurArray);
 
 	/* Relocate all J_D objects which can be relative to J_IT objects other than
 		SYNCs or J_IP objects. */
 	
-	RelocateGenlJDObjs(doc,headL,tailL,qDurArray);
+	RelocateGenlJDObjs(doc, headL, tailL, qDurArray);
 	
-	/* Relocate clipboard objs as above */
+	/* Relocate clipboard objects as above, perhaps only Syncs (plus objects that
+		support them: beams, tuplets, etc.). */
 
 	InstallDoc(clipboard);
-
-	if (IsAfter(startClMeas,endClMeas)) {
-		RelocateClObjs(doc,startClMeas,endClMeas,startMeas,endMeas,qClDurArray,stfDiff,mergeMap,vMap);
-		RelocateClGenlJDObjs(doc,startClMeas,endClMeas,startMeas,endMeas,qClDurArray,stfDiff,mergeMap,vMap);
+	if (IsAfter(startClMeas, endClMeas)) {
+//LogPrintf(LOG_DEBUG, "MRearrangeAll: RelocateCl from %u to %u\n", startClMeas, endClMeas);
+//Browser(clipboard, startClMeas, endClMeas);
+		RelocateClObjs(doc, startClMeas, endClMeas, startMeas, endMeas, qClDurArray,
+						stfDiff, mergeMap, vMap, syncsOnly);
+		RelocateClGenlJDObjs(doc, startClMeas, endClMeas, startMeas, endMeas, qClDurArray,
+						stfDiff, mergeMap, vMap, syncsOnly);
 	}
-	
 	InstallDoc(doc);
 
-	GetMergeRange(startMeas,endMeas,prevL1,lastL1,first);
+	GetMergeRange(startMeas, endMeas, prevL1, lastL1, firstMeas);
 
-	/* Beams, ottavas and tuplets can be updated without reference
-		to their origin. - Not true anymore, because of overlapping voices.
+	/* Beams, ottavas and tuplets can be updated without reference to their
+		origin. - Not True anymore ??HUH?, because of overlapping voices.
 		NBJD objects are distinguished as to their origin by setting
-		spareFlags of those in score FALSE, those in clip TRUE. qDurArray
+		spareFlags of those in score False, those in clip True. qDurArray
 		is passed to MFixCrossPtrs and used to update ptrs of NBJD objects
 		originally in score; those merged from clipboard are updated using
 		mergeMap after all measures are merged in. */
 
-	MFixCrossPtrs(doc,startMeas,endMeas,qDurArray);
+	MFixCrossPtrs(doc, startMeas, endMeas, qDurArray);
 
 	DeleteRange(doc, RightLINK(headL), tailL);
 	DeleteNode(doc, headL);
 	DeleteNode(doc, tailL);
-	return TRUE;
+	return True;
 	
 broken:
 	DeleteRange(doc, RightLINK(headL), tailL);
@@ -2175,117 +2216,126 @@ broken:
 	
 broken1:
 	NoMoreMemory();
-	return FALSE;
+	return False;
 }
 
 
-/* --------------------------------------------------------------- Merge1Measure -- */
+/* --------------------------------------------------------------------- Merge1Measure -- */
 /* Merge one measure of the clipboard and the score. Update firstObj and lastObj
 links in pre-existing objects but not new ones. */
 
 static Boolean Merge1Measure(
-								Document *doc,
-								MeasInfo *measInfo,
-								short i,
-								LINK insertL, 
-								LINK *prevL, LINK *lastL,
-								short stfDiff,
-								COPYMAP *mergeMap,
-								short *vMap
-								)
+						Document *doc,
+						MeasInfo *measInfo,
+						short clipMeasNum,
+						LINK insertL, 
+						LINK *prevL, LINK *lastL,
+						short stfDiff,
+						COPYMAP *mergeMap,
+						short *vMap,
+						Boolean syncsOnly
+						)
 {
-	LINK clipMeasL,docMeasL,clipEndL,docEndL,docInsL,firstL;
-	short nInMeas,nInClMeas;
-	Boolean first; MeasInfo *pMeasInfo;
+	LINK clipMeasL, docMeasL, clipEndL, docEndL, docInsL, firstL;
+	short nInMeas, nInClMeas;
+	Boolean firstMeas;
+	MeasInfo *pMeasInfo;
 
-	first = i==0;
-	pMeasInfo = measInfo+i;
-	if (pMeasInfo->clipEmpty) return TRUE;
+	firstMeas = (clipMeasNum==0);
+	pMeasInfo = measInfo+clipMeasNum;
+	if (pMeasInfo->clipEmpty) return True;
 
 	InstallDoc(clipboard);
-	clipEndL = EndMeasSearch(clipboard,clipMeasL=pMeasInfo->srcL);
+	clipMeasL = pMeasInfo->srcL;
+	clipEndL = EndMeasSearch(clipboard, clipMeasL);
 
 	InstallDoc(doc);
-	docEndL = EndMeasSearch(doc,docMeasL=pMeasInfo->dstL);
+	docMeasL = pMeasInfo->dstL;
+	docEndL = EndMeasSearch(doc, docMeasL);
 	docInsL = docEndL;					/* Merge orphaned ranges at end of measure */
 
+	/* Handle oddball cases. */
+	
 	if (pMeasInfo->docEmpty || pMeasInfo->docNoSyncs || pMeasInfo->clipNoSyncs) {
-		firstL = MCopyClipRange(doc,clipMeasL,clipEndL,docInsL,mergeMap,stfDiff,vMap);
+		firstL = MCopyClipRange(doc, clipMeasL, clipEndL, docInsL, mergeMap, stfDiff, vMap);
 		
-		if (first) *prevL = LeftLINK(firstL);
+		if (firstMeas) *prevL = LeftLINK(firstL);
 		*lastL = docEndL;
 
-		return TRUE;
+		return True;
 	}
 
-	/* If there are no objects in the score's measure, simply copy the range
-		in from the clipboard.
-		Must update crosslinks in the same way as other measures: update links
-		of beamlike objs here, and set mergemap for NBJD objs so that MergeFromClip
-		can update them. */
+	/* Handle the usual case. If there are no objects in the score's measure, simply
+	   copy the range in from the clipboard. We must update crosslinks in the same way
+	   as other measures: update links of beamlike objs here, and set mergemap for NBJD
+	   objs so that MergeFromClip can update them. */
 
-	pDurArray = MPrepareSelRange(doc,docMeasL,&nInMeas);
+	pDurArray = MPrepareSelRange(doc, docMeasL, &nInMeas);
 	if (!pDurArray) goto broken;
-
-	pClDurArray = MPrepareClSelRange(doc,clipMeasL,&nInClMeas);
+	pClDurArray = MPrepareClSelRange(doc, clipMeasL, &nInClMeas);
 	if (!pClDurArray) goto broken;
 
 	if (!MComputePlayTimes(doc, nInMeas)) goto broken;
 	if (!MComputeClipPlayTimes(doc, nInClMeas)) goto broken;
 
-	if (!MRearrangeNotes(doc,nInMeas,nInClMeas,insertL,prevL,lastL,first,stfDiff,mergeMap,vMap))
+	if (!MRearrangeAll(doc, nInMeas, nInClMeas, insertL, prevL, lastL, firstMeas,
+													stfDiff, mergeMap, vMap, syncsOnly))
 		goto broken;
 
 	MDisposeAllArrays();
-	return TRUE;
+	return True;
 	
 broken:
 	MDisposeAllArrays();
-	return FALSE;
+	return False;
 }
 
-/* --------------------------------------------------------------- MergeFromClip -- */
-/* Merge the clipboard before <insertL>.
-#1. Clipboard operations occur within a single system; if there are nodes from
-more than a single system in the clipboard, lastCopy will equal COPYTYPE_PAGE in
-FixEditMenu and Paste Merge will be disabled, guaranteeing that all clipboard
-nodes are in 1 system; if traversal of score measure objects goes over into a
-second system, break and paste the rest of the clipboard at the end of the first
-system, after the measure by measure traversal of clipboard and score.
-This does not check to see if reformatting is needed, which is possible.
 
-#2. LeftLINK(measL): MCopyClipRange starts copying from RightLINK(startL);
-since there are no measure objects left in the score, we need to copy in the
-measure object from the clipboard.
+/* --------------------------------------------------------------------- MergeFromClip -- */
+/* This is the top-level function to merge the clipboard into <doc> before <insertL>.
+Return the end of the merged range so the calling function can respace, deselect, etc.
+to the end of it.
 
-#3. Fixing up of staff size for different rastral sizes of clip & doc is dispersed
-through the operation:
-MCopyClipRange, for ranges which are copied entire,
-InsertJIT/JIP/JDBefore, for non-sync objects, and
-MMergeSync or MCreateClSync for syncs in merged ranges. */
+#1. We assume the clipboard contains just a single system; if there are nodes from
+more than one system in the clipboard, lastCopy will equal COPYTYPE_PAGE in
+FixEditMenu and Paste Merge should be disabled, guaranteeing that. If traversal of
+score measure objects goes over into a second system, break and paste the rest of
+the clipboard at the end of the first system, after the measure-by-measure traversal
+of clipboard and score. Reformatting may be needed, but we don't check for it.
 
-static LINK MergeFromClip(Document *doc, LINK insertL, short *vMap, VInfo *vInfo)
+#2. LeftLINK(measL): MCopyClipRange starts copying from RightLINK(startL); since there
+are no measure objects left in the score, we need to copy in the measure object from
+the clipboard.
+
+#3. Fixing up of staff size for different rastral sizes of clipboard and doc is
+dispersed through the operation:
+	in MCopyClipRange, for ranges which are copied entire;
+	in InsertJIT/JIP/JDBefore, for non-sync objects; and
+	in MMergeSync or MCreateClSync for syncs in merged ranges. */
+
+static LINK MergeFromClip(Document *doc, LINK insertL, short *vMap, VInfo *vInfo,
+							Boolean syncsOnly)
 {
-	short minStf,maxStf,stfDiff,partDiff,stfOff,numObjs,nClipMeas,i;
-	LINK measL,prevL,lastL,insL;
+	short minStf, maxStf, stfDiff, partDiff, stfOff, numObjs,nClipMeas, i;
+	LINK measL, prevL, lastL, insL;
 	COPYMAP *mergeMap;
 	MeasInfo *measInfo;
 
-	mergeMap = MergeSetupClip(doc,&numObjs);
-	measInfo = SetupMeasInfo(doc,&nClipMeas);
+	mergeMap = MergeSetupClip(doc, &numObjs);
+	measInfo = SetupMeasInfo1(doc, &nClipMeas);
 
 	/* Get minStf and maxStf of nodes in clipboard (doc is the doc installed
 		before routines exit), and the stfDiff between clipboard and doc. */
 
 	minStf = GetClipMinStf(doc);
 	maxStf = GetClipMaxStf(doc);
-	stfDiff = GetStfDiff(doc,&partDiff,&stfOff);
+	stfDiff = GetStfDiff(doc, &partDiff, &stfOff);
 
-	SetupDocMeasInfo(doc,measInfo,nClipMeas);
+	SetupMeasInfo2(doc, measInfo, nClipMeas);
 	
 	/*
 	 * If there are nothing but empty measures in the clipboard, Merge1Measure
-	 * will always return TRUE before doing anything, leaving prevL and lastL
+	 * will always return True before doing anything, leaving prevL and lastL
 	 * as garbage unless they are set somewhere. It is more direct to set them
 	 * here before looping through the measures, and them resetting them if necessary
 	 * inside the loop, than trying to figure out how to set them inside the
@@ -2295,27 +2345,33 @@ static LINK MergeFromClip(Document *doc, LINK insertL, short *vMap, VInfo *vInfo
 	lastL = insertL;
 
 	for (i=0; i<nClipMeas; i++) {
-		
-		if (!Merge1Measure(doc,measInfo,i,insertL,&prevL,&lastL,stfDiff,mergeMap,vMap))
+		if (!Merge1Measure(doc,measInfo,i,insertL,&prevL,&lastL,stfDiff,mergeMap,vMap,syncsOnly))
 			goto broken;
 		
 		if (measInfo[i].docLast) {
 			InstallDoc(doc);
 			insL = EndMeasSearch(doc,measInfo[i].dstL);
-			i++;	break;											
+			i++;
+			break;										
 		}
 	}
 
+	/* If we exited the measure-merging loop before copying the entire clipboard, the
+	   clipboard contents are going to extend past the current end of the score. In
+	   that case, we finish copying the clipboard now. ??Actually, I'm not sure when
+	   the below code is used, if ever. */
+	   
 	if (i<nClipMeas) {
 		measL = measInfo[i].srcL;
-		MCopyClipRange(doc,DLeftLINK(clipboard,measL),clipboard->tailL,insL,mergeMap,stfDiff,vMap); /* #2. */
+		MCopyClipRange(doc,DLeftLINK(clipboard,measL),clipboard->tailL,insL,mergeMap,
+						stfDiff,vMap);										/* #2. */
 
 		/* Measure object crossLinks may need updating. */
 		FixStructureLinks(doc, doc, prevL, insL);
 	}
 
-	/* Fix NBJD objects: Non-Beamlike-J_D objects, J_D objects other than
-		Beams,Tuplets & Ottavas. */
+	/* Fix NBJD objects: Non-Beamlike-J_D objects, J_D objects other than Beams,
+		Tuplets and Ottavas. */
 
 	FixMergeLinks(clipboard, doc, prevL, lastL, mergeMap, numObjs);
 
@@ -2323,40 +2379,39 @@ static LINK MergeFromClip(Document *doc, LINK insertL, short *vMap, VInfo *vInfo
 	
 	MergeFixVOverlaps(doc, prevL, lastL, vMap, vInfo);
 
-	/* Must fix context only up to the final object merged in. MergeFixContext
-		expects the end node to be the first node after the range to be updated,
-		which is what is returned by Merge1Measure.
-		Return lastL so DoMerge can know how far merged range extends, and respace/
-		deselect, etc. all the way to the end of it. */
+	/* We must fix context only up to the final object merged in. MergeFixContext
+		expects the end node to be the first node after the range to be updated, which
+		is what Merge1Measure returns. */
 
 	MergeFixContext(doc, prevL, lastL, minStf, maxStf, stfDiff);
 
 	return lastL;
 
 broken:
-	DisableUndo(doc,TRUE);
+	DisableUndo(doc, True);
 	return NILINK;
 }
 
-/* ---------------------------------------------------------------- CleanupMerge -- */
-/* Clean up after the merge operation: fix whole rests, time stamps, voice
-table, respace or inval, and handle selRange and caret. */
+
+/* ------------------------------------------------------------------------- CleanupMerge -- */
+/* Clean up after the merge operation: fix whole rests, time stamps, voice table,
+respace or inval, and handle selection range and caret. */
 
 static void CleanupMerge(Document *doc, LINK prevMeasL, LINK lastL)
 {
 	LINK endMeasL;
 
-	endMeasL = LSSearch(LeftLINK(lastL),MEASUREtype,ANYONE,GO_LEFT,FALSE);		/* Cf. #2 in DoMerge */
+	endMeasL = LSSearch(LeftLINK(lastL), MEASUREtype, ANYONE, GO_LEFT, False);	/* Cf. #2 in DoMerge */
 	if (endMeasL)
-			endMeasL = EndMeasSearch(doc,endMeasL);
+			endMeasL = EndMeasSearch(doc, endMeasL);
 	else	endMeasL = doc->tailL;
 
 	FixWholeRests(doc, prevMeasL);
 	FixTimeStamps(doc, prevMeasL, doc->tailL);
-	UpdateVoiceTable(doc, TRUE);
+	UpdateVoiceTable(doc, True);
 
 	if (doc->autoRespace)
-		RespaceBars(doc, prevMeasL, endMeasL, 0L, FALSE, FALSE);
+		RespaceBars(doc, prevMeasL, endMeasL, 0L, False, False);
 	else 
 		InvalMeasures(prevMeasL, endMeasL, ANYONE);
 
@@ -2365,31 +2420,34 @@ static void CleanupMerge(Document *doc, LINK prevMeasL, LINK lastL)
 	/* Set insertion point following barline terminating merged range */
 
 	doc->selStartL = doc->selEndL = endMeasL;
-	MEAdjustCaret(doc,TRUE);
+	MEAdjustCaret(doc,True);
 }
 
-/* --------------------------------------------------------------------- DoMerge -- */
+
+/* --------------------------------------------------------------------------- DoMerge -- */
 /* Merge the contents of the clipboard into the score starting at doc->selStartL.
+User-interface level.
 
 #1. a. If there is an insertion point at the end of a measure, doc->selStartL
 	will be set to the following measure object.
 	b. If there is an insertion point at the start of a measure,
-	LeftLINK(doc->selStartL) will be the measure, and searching from it will
-	return it, which is correct.
+	LeftLINK(doc->selStartL) will be the measure object, and searching from it
+	will return it, which is correct.
 	c. If there is a non-empty selRange whose first selected object is a measure,
 	doc->selStartL will be set to that measure.
 		In this case, DeleteSelection will delete the measure obj and everything
 		else in the range, and if the insertion point is left at the end of
 		a new measure, the previous case will hold.
-	Therefore, can search for a prevMeasL from LeftLINK(doc->selStartL).
-#2. a,b & c hold for doc->selEndL as well. Therefore, can search for endMeasL
+	Therefore, we can search for a prevMeasL from LeftLINK(doc->selStartL).
+#2. a, b and c hold for doc->selEndL as well. Therefore, can search for endMeasL
 	in CleanupMerge from LeftLINK(doc->selEndL).
 */
 
 void DoMerge(Document *doc)
 {
-	LINK prevMeasL,lastL; Boolean dontResp;
-	short mergeType,stfDiff,partDiff,stfOff,mergeErr;
+	LINK prevMeasL, lastL;
+	Boolean dontResp;
+	short mergeType, stfDiff, partDiff, stfOff, mergeErr;
 	VInfo vInfo[MAXVOICES+1];
 
 	if (doc->selStartL==doc->tailL) {
@@ -2414,13 +2472,13 @@ void DoMerge(Document *doc)
 
 	mergeType = CheckMainClip(doc, DRightLINK(clipboard, clipFirstMeas), clipboard->tailL);
 	if (mergeType==MergePin) {
-		MayErrMsg("Sorry, this Merge feature not yet implemented.");
+		MayErrMsg("The Merge feature 'MergePin' is not yet implemented.");
 		return;
 	}
 	if (mergeType==MergeCancel) return;
 
 	/* Set up the voice-handling machinery, then check for problems with any voice; if
-		any exist, bring up a dialog to say so and give up. */
+	   any exist, bring up a dialog to say so and give up. */
 
 	stfDiff = GetStfDiff(doc,&partDiff,&stfOff);
 	SetupVMap(doc,voiceMap,stfDiff);
@@ -2443,14 +2501,115 @@ void DoMerge(Document *doc)
 		??Since we currently insist on an insertion pt before reaching here, this
 		does nothing. */
 		
-	if (DeselPartlySelMeasSubobjs(doc))
-		OptimizeSelection(doc);
+	if (DeselPartlySelMeasSubobjs(doc)) OptimizeSelection(doc);
 
 	/* #1. */
-	prevMeasL = LSSearch(LeftLINK(doc->selStartL),MEASUREtype,ANYONE,GO_LEFT,FALSE);	
+	prevMeasL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE, GO_LEFT, False);	
 
-	DeleteSelection(doc, TRUE, &dontResp);
-	lastL = MergeFromClip(doc,doc->selEndL,voiceMap,vInfo);
+	DeleteSelection(doc, True, &dontResp);
 
-	CleanupMerge(doc,prevMeasL,lastL);
+	/* Everything finally looks OK. Actually do the merge. */
+	
+	lastL = MergeFromClip(doc, doc->selEndL, voiceMap, vInfo, False);
+
+	CleanupMerge(doc, prevMeasL, lastL);
+}
+
+
+/* ---------------------------------------------------------------------- DoPasteAsCue -- */
+
+static void SetPastedAsCue(Document *doc, LINK prevMeasL, LINK lastL, short velocity)
+{
+	LINK pL, aNoteL;
+		
+	for (pL = prevMeasL; pL!=lastL; pL=RightLINK(pL)) {
+		if (SyncTYPE(pL) && LinkSPAREFLAG(pL))
+			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
+				if (NoteMERGED(aNoteL)) {
+					NoteSMALL(aNoteL) = True;
+					NotePLAYASCUE(aNoteL) = True;
+LogPrintf(LOG_DEBUG, "SetPastedAsCue: set note %u velocity to %d\n", aNoteL, velocity);
+				}
+			}
+	}
+}
+
+
+/* Merge the contents of the clipboard into the score starting at doc->selStartL,
+treating the content of the clipboard as a cue. User-interface level. See the comments
+on DoMerge(). */
+
+void DoPasteAsCue(Document *doc, short voice, short velocity)
+{
+	LINK prevMeasL, lastL;
+	Boolean dontResp;
+	short mergeType, stfDiff, partDiff, stfOff, mergeErr;
+	VInfo vInfo[MAXVOICES+1];
+
+	if (doc->selStartL==doc->tailL) {
+	
+		/* In this case, we simply paste at the end of the score. DoPasteAsCue is a user-
+			interface-level function, so it has to call PrepareUndo; however, we want the
+			Undo menu command to reflect what the user thinks they did, so that's done
+			here. */
+		
+		DoPaste(doc);
+		GetIndCString(strBuf, UNDO_STRS, 52);    				/* "Undo Paste as Cue" */
+		SetupUndo(doc, U_Merge, strBuf);
+		return;
+	}
+
+	if (doc->selStartL!=doc->selEndL) {
+		GetIndCString(strBuf, CLIPERRS_STRS, 10);    			/* "You can't Paste as Cue without an insertion point." */
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return;
+	}
+
+	mergeType = CheckMainClip(doc, DRightLINK(clipboard, clipFirstMeas), clipboard->tailL);
+	if (mergeType==MergePin) {
+		MayErrMsg("The Merge feature 'MergePin' is not yet implemented.");
+		return;
+	}
+	if (mergeType==MergeCancel) return;
+
+	/* Set up the voice-handling machinery, then check for problems with any voice; if
+	   any exist, bring up a dialog to say so and give up. */
+
+	stfDiff = GetStfDiff(doc,&partDiff,&stfOff);
+	SetupVMap(doc,voiceMap,stfDiff);
+
+	if (!CheckMerge(doc,stfDiff,voiceMap,vInfo,&mergeErr)) {
+		DoChkMergeDialog(doc);
+		return;
+	}
+
+	PrepareUndo(doc, doc->selStartL, U_PasteAsCue, 28);  			/* "Undo Paste as Cue" */
+	MEHideCaret(doc);
+	WaitCursor();
+
+	doc->selStaff = GetSelStaff(doc);
+
+	/* If any Measure objects are only partly selected, we have to do something so
+		we don't end up with a object list with Measure objs with subobjs on only
+		some staves, since that is illegal. Anyway, the user probably doesn't really
+		want to delete such Measures. ??Cf. Clear; for now, just avoid disasters.
+		??Since we currently insist on an insertion pt before reaching here, this
+		does nothing. */
+		
+	if (DeselPartlySelMeasSubobjs(doc)) OptimizeSelection(doc);
+
+	/* #1. */
+	prevMeasL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE, GO_LEFT, False);	
+
+	DeleteSelection(doc, True, &dontResp);
+
+	/* Everything finally looks OK. Actually do the merge, and make the merged-in notes
+	   small and with the desired velocity. */
+	
+	lastL = MergeFromClip(doc, doc->selEndL, voiceMap, vInfo, True);
+LogPrintf(LOG_INFO, "Calling SetPastedAsCue with prevMeasL=%u, lastL=%u...\n", prevMeasL, lastL);
+	SetPastedAsCue(doc, prevMeasL, lastL, velocity);
+	
+	CleanupMerge(doc, prevMeasL, lastL);
 }

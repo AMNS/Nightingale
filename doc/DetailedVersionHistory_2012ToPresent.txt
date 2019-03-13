@@ -143,8 +143,8 @@ the MIDI Modifier Effects dialog slightly smaller. Affects .rsrc.
 
 12 - 16 Sept.
 
-Fix bug (Issue #24) in MIDI file export where tempo changes after the first few are often ignored.
-Affects MIDIPlay.cp: PlaySequence().
+Fix bug (Issue #24) in MIDI file export where tempo changes after the first few are
+often ignored. Affects MIDIPlay.cp: PlaySequence().
 
 MIDIPlay.cp: Change most instances of "Midi" in function names to "MIDI"; improve
 comments; minor cleanup.
@@ -925,7 +925,7 @@ Nightingale if a copy is already running. Affects .rsrc.
 
 Remove obsolete LogPrintf's. Affects DialogsEditor.
 
-Move NewSlur.cp from CFilesBoth to CFilesEditor. Affects Nightingale.xcodeproj.
+Move NewSlur.cp from folder CFilesBoth to CFilesEditor. Affects Nightingale.xcodeproj.
 
 Minor cleanup. Affects DrawObject, NewSlur.
 
@@ -1350,8 +1350,8 @@ Minor cleanup. Affects MemMacros.h; DebugUtils, InsUtils, Slurs, SysPageEdit.
 
 6-11 Apr.
 
-Add an "Add Cautionary TimeSigs" command. Affects .rsrc, NResourceID.h, NTypes.h;
-Menu, Undo.
+Add an "Add Cautionary TimeSigs" command (Issue #132). Affects .rsrc, NResourceID.h,
+NTypes.h; Menu, Undo.
 
 Replace the "alternate" diagonal light gray shading pattern, indicating one type of
 rhythm/time signature conflict, with a rectangular-grid pattern. Affects .rsrc; vars.h;
@@ -1392,7 +1392,7 @@ NotelistSave, PS_Stdio, RTRhythmDur.
 
 -------------------------------------------------------------------------------
 
-20-23 Apr.		======== (FIRST) NIGHTINGALE 5.7 (23 April 2017) ========
+20-23 Apr.	======== (FIRST CANDIDATE) NIGHTINGALE 5.7 (23 April 2017) ========
 
 Changed version number from 5.7b12 to 5.7. Affects Info.plist.
 
@@ -1400,7 +1400,7 @@ The space percentage in the Extract dialog has always been initialized to
 doc->spacePercent, but at most 100; instead, we now initialize it to the mean of
 100 and doc->spacePercent, but at most 100. Affects ExtractHighLevel.
 
-Add to the Respace dialog a brief comment on how it works. Affects .rsrc. (HOWEVER,
+Added to the Respace dialog a brief comment on how it works. Affects .rsrc. (HOWEVER,
 SourceTree doesn't recognize that it's been modified! How to get it into the
 repository??)
 
@@ -1419,7 +1419,7 @@ HeaderFooterDialog, Initialize, Preferences, PS_Stdio, Search.
 Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects style.h;
 About, AutoBeam, Beam, Extract, StringUtils, Utility.
 
-Rename ExpandString() to ExpandPString() and other minor cleanup. Affects
+Renamed ExpandString() to ExpandPString() and other minor cleanup. Affects
 NightTemplates.h, Utility,h; About, AutoBeam, Beam, Dragging, DrawObject, Extract, File,
 PS_Stdio, StringUtils, TextDialog, Utility.
 
@@ -1433,6 +1433,936 @@ StringUtils.
 
 Minor cleanup. Affects ChordSym, StringUtils.
 
-Redefine version 5.7 by changing the version number from 5.8b1 back to 5.7; this is
+Redefined version 5.7 by changing the version number from 5.8b1 back to 5.7; this is
 desirable because I failed to preserve the 5.7 source (as previously defined) in the
 GitHub repository. Affects Info.plist.
+
+===============================================================================
+
+4-5 May
+
+Changed version number from 5.7 to 5.8b1 (again). Affects Info.plist.
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
+AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem.
+
+Moved HomogenizeSel() from SelUtils to SetUtils; other minor cleanup. Affects SelUtils.h;
+AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem, SelUtils, SetUtils.
+
+-------------------------------------------------------------------------------
+
+6-10 May
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects Check,
+Menu, PitchUtils, Tuplet, Undo.
+
+Moved ShellSort() from SelUtils to Utility; other minor cleanup. Affects Utility.h;
+SelUtils, Utility.
+
+Fixed bug: Editing text always, and the Untuple command in rare circumstances, leave Undo
+for the previous operation in place; now, both operations always just leave Undo
+disabled. Affects Check, Tuplet. (An abandoned attempt to implement Undo for editing
+text affects NTypes.h; .rsrc; Undo.)
+
+Replaced some "unsigned char [256]" with "Str255" and "unsigned char*" with "StringPtr";
+other minor cleanup. Affects Check, ChooseCharDlog, Menu, PitchUtils, TextDialog,
+Tuplet, Undo, Utility.
+
+-------------------------------------------------------------------------------
+
+11-13 May
+
+Fixed bug (Issue #146): Editing a tempo/metronome mark leaves the Undo command and data
+structures for the previous operation untouched; now, it just leave Undo disabled.
+Affects Check.
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
+CheckUtils, ChordSym.
+
+Renamed three data-structure utilities to clarify that they're Boolean-valued. Affects
+DSUtils.h; AccModNRMouse, CheckUtils, Clipboard, DSUtils, MergeUtils, MoveUpDown,
+Ottava, Score, SFormatHighLevel, Tuplet.
+
+Minor cleanup. Affects About, Check, CheckUtils, Clipboard, DSUtils, MergeUtils,
+MoveUpDown, Utility.
+
+-------------------------------------------------------------------------------
+
+17-21 May
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
+CompactVoices, Context, FileInput, Merge.
+
+Moved CompactVoices from folder CFilesBoth to CFilesEditor.
+
+Minor cleanup. Affects CompactVoices, Context, FileInput, Menu, Merge.
+
+-------------------------------------------------------------------------------
+
+25-26 May
+
+Removed code for handling Desk Accessories, which have been essentially obsolete for
+the entire 21st century. Affects Menu.
+
+Moved SetUtils from folder CFilesBoth to CFilesEditor, and Clipboard from CFilesEditor
+to CFilesBoth.
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects Clipboard,
+DSUtils, MoveUpDown.
+
+Minor cleanup. Affects Clipboard, FileInput, Menu, MoveUpDown, SetUtils.
+
+-------------------------------------------------------------------------------
+
+28-31 May
+
+Began implementation of the "Paste as Cue" command. Affects .rsrc, Merge.h; Menu,
+Merge.
+
+Reworded the very misleading "Can't merge" warning dialog so it's more accurate. Affects
+.rsrc.
+
+Moved AvoidUnisons() and AvoidUnisonsInRange() from MIDIRecUtils to PitchUtils. Also
+affects NightTemplates.h, PitchUtils.h.
+
+Reduced the height of shading on the screen indicating individual staves in measures with
+duration less than the time signature indicates. Affects DrawObject.
+
+Minor cleanup. Affects Clipboard, DrawObject, DSUtils, Menu, Merge, MergeUtils,
+MIDIFOCmd, Objects.
+
+-------------------------------------------------------------------------------
+
+1-7 June
+
+Continued implementation of "Paste as Cue" command. Affects .rsrc, Merge.
+
+Minor cleanup. Affects Merge, MergeUtils.
+
+-------------------------------------------------------------------------------
+
+8-15 June
+
+Continued implementation of "Paste as Cue" command. Affects Merge.
+
+Changed the initial setting of a score's <colorVoices> in new documents from 1 (color
+all non-default voices in each part) to 2 (color all voices but voice no. 1 in each
+part); clarified (in comments) that difference (which is controlled in an obscure
+way by the Look at Voices command). Affects NTypes.h; Documents, DrawUtils, 
+
+Affects Documents, DrawUtils.
+
+We've long been using two versions of DoOpenDocument() with different calling sequences.
+This is lovely in C++, and it works with the compilers we've been using, but I don't
+think it's so lovely in C, so renamed one to DoOpenDocumentX(). Affects NightTemplates;
+Documents, MIDIFOCmd.
+
+Minor cleanup. Affects Reconstruct.h; Browser, Delete, Documents, DrawUtils, Event,
+Menu, Merge, MIDIFOCmd, Nodes, Reconstruct.
+
+-------------------------------------------------------------------------------
+
+16-21 June
+
+Swapped the association of voice no. and color for red and green. Affects DrawUtils.
+
+Ngale now knows when a note is a cue note; that info is stored in a formerly ununsed bit
+in the ANOTE struct (not that it helps anything quite yet). Affects MemMacros.h,
+NTypes.h; Merge.
+
+Partly fixed bug: When notes are transposed or respelled, we always "normalize" the
+new notation according to the standard one-voice notation rules even if there are two
+voices on the staff. Affects PitchUtils.
+
+Minor cleanup, including renaming FixRespelledVoice() to FixVoiceForPitchChange().
+Affects PitchUtils.h; Delete, DrawUtils, Merge, Objects, PitchCmds, PitchUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+22-27 June
+
+Continued implementation of "Paste as Cue" command. Affects .rsrc: fix Edit menu
+shortcuts; Merge.
+
+In Browser and Debug Display, we now show the object <spareFlag> as well as the five
+flags we've always shown. Affects Browser, DebugDisplay, DebugHighLevel.
+
+Changed the bullet char as marker for the current mode in the Test menu to asterisk;
+aside from being needlessly charset dependent (bullet isn't in ASCII), it might be
+causing Xcode's repeated problems finding Menu.cp unreadable. Affects Menu.
+
+Minor cleanup. Affects Browser, DebugUtils, MCaret, Menu, Merge, Reconstruct.
+
+-------------------------------------------------------------------------------
+
+28 June-18 July
+
+Continued implementation of "Paste as Cue" command, including setting playback
+velocity for cue notes to CUENOTE_VELOCITY regardless of the value in the Note
+subobject. Affects MemMacros.h, Reconstruct.h; CoreMidiUtils, Merge, Objects,
+Reconstruct.
+
+Gave up on "Paste as Cue" command for the time being: remove user interface for and
+disable Paste as Cue. Affects .rsrc; NResourceID.h; Menu.
+
+Renamed the <noteCUE> flag of the aNote struct to <playAsCue>, since -- at least for
+the near future -- it affects only MIDI playback. Affects NTypes.h; Browser,
+CoreMIDIUtils, Merge, Objects.
+
+Renamed CoreMidiUtils to CoreMIDIUtils.
+
+Minor cleanup. Affects vars.h; Copy, CoreMIDIUtils, Error, Merge, Reconstruct.
+
+-------------------------------------------------------------------------------
+
+19-22 July			       ==== NIGHTINGALE 5.8b1 ====
+
+Renamed utility function IsMultiVoice() to IsSyncMultiVoice(). Affects DSutils.h;
+Clipboard, DSUtils, MergeUtils, Ottava, PitchUtils.
+
+Formerly, using the shift key while dragging a slur endpoint constrained it to
+move on one axis or the other, but using it while dragging a control point made the
+other control point move symmetrically. Now, using the shift key while dragging either
+an endpoint or a control point constrains it to move on an axis, and using the option
+key while dragging either makes the other move symmetrically. Affects Slurs.
+
+Minor cleanup. Affects DrawDocument, Merge, Reconstruct, Slurs.
+
+===============================================================================
+
+23-31 July
+
+Changed version number from 5.8b1 to 5.8b2. Affects Info.plist.
+
+Renamed file FileInput to InternalInput.
+
+Minor cleanup: Improved debug messages, moved def'n of CS_DELIMITER to a header, etc.
+Affects Defs.h; ChordSym, DebugUtils, Debug2Utils, File, InternalInput, Menu,
+PitchUtils, Slurs.
+
+-------------------------------------------------------------------------------
+
+2-8 Aug.
+
+Minor cleanup: replaced "TRUE" and "FALSE" with the more standard "true" and "false",
+improve error messages, etc. Affects DebugUtils, Debug2Utils, Scroll, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+9-14 Aug.
+
+Minor cleanup. Affects Utility.h; CarbonPrinting, DebugUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+15-20 Aug.
+
+Added to Score Info display of the no. of non-right-justified systems. Affects .rsrc;
+ScoreInfo, Utility.
+
+Fixed bug in Score Info: It finds a duration problem with every multibar rest. Affects
+ScoreInfo.
+
+Minor cleanup: in Score Info dialog code, remove silly shift-key option, stop
+immediately if no score is open; etc. Affects Utility,h; CarbonPrinting, DebugUtils,
+InternalInput, ScoreInfo, SpaceTime, Utility.
+
+-------------------------------------------------------------------------------
+
+24-26 Aug.			 ======== NIGHTINGALE 5.8b2 (26 Aug. 2017) ========
+
+Fixed bug (Issue #150): if the score ends with a multibar rest, the no. of measures Score
+Info reports is too low. Affects ScoreInfo.
+
+In Score Info, display the score duration in ticks as well as quarters. Affects .rsrc;
+ScoreInfo.
+
+Minor cleanup: refactor code slightly, etc. Affects .rsrc; ScoreInfo, SpaceTime.
+
+===============================================================================
+
+27 Aug. - 14 Sept.
+
+Changed version number from 5.8b2 to 5.8b3. Affects Info.plist.
+
+Fixed bug: Flipping the first piece of a cross-system tie/slur doesn't redraw the
+affected area (Issue #151). Affects PitchCmds.
+
+Reworded the "Delete stupidly?" alert. Affects .rsrc.
+
+Added a compile-time option to Save Notelist to write out only Measure objects
+(barlines) and time signatures; such "skeletons" could be useful for finding the
+differences between two versions of a score via direct text comparisons of the notelist
+files. Affects NotelistSave.
+
+Renamed NameNodeType() to NameObjType(). Affects UIFUtils.h; Browser, DebugDisplay,
+HeapBrowser, InfoDialog, SpaceHighLevel, UIFUtils.
+
+If the shift and option keys are down when the Score Info dialog is opened, the
+information it displays is also written to the log file (Issue #155). Affects ScoreInfo.
+
+Minor cleanup: in calls to LogPrintf, changed LOG_NOTICE to LOG_DEBUG or LOG_INFO; made
+modifier key usage, especially shift-option more consistent; etc. Affects CoreMidiUtils,
+DragDynamic, EssentialTools, File, HeapFileIO, Inval, Menu, MIDIFOCmd, MIDIRecord,
+RTRhythmDur, ScoreInfo, SpaceHighLevel, Transcribe, UIFUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+15-19 Sept.			 ======== NIGHTINGALE 5.8b3 (19 Sept. 2017) ========
+
+Save Notelist in "skeleton" mode now writes tempo mark/MMs as well as Measures and
+time signatures. Affects NotelistSave.
+
+Save Notelist now writes all tempo mark/MMs attached to a Measure (barline) before the
+Measure; previously it did that except for tempo/MMs attached to the invisible barline
+beginning a system. Affects NotelistSave.
+
+Made more changes to use of the shift-option modifier keys to increase consistency.
+Now (with no exceptions I know of) Nightingale writes additional information to the log
+if and only if those modifier keys are down and no others are. Affects DragBeam, GRBeam.
+
+Minor cleanup. Affects DSUtils, NotelistSave.
+
+===============================================================================
+
+30 Sept. - 2 Oct.
+
+Changed version number from 5.8b3 to 5.8b4. Affects Info.plist.
+
+Replaced all occurrences of "TRUE" and "FALSE" with "True" and "False": the latter may
+not be more standard, but they fit Nightingale conventions better and lead (I think) to
+more readable code. Affects ca. 53 files in CFilesEditor, 52 in CFilesBoth, 6 in
+Precomps, 6 in Headers, etc.
+
+Converted some C files with encoding ISO Latin-1 to UTF-8. Affects CarbonStubs, Double,
+DrawUtils.
+
+-------------------------------------------------------------------------------
+
+4 - 5 Oct.
+
+Converted some C files with other encodings to UTF-8. Affects About, ChordSym, MIDIFOCmd,
+UIFUtils.
+
+Replaced all occurrences of "true" and "false" (other than in comments) with "True" and
+"False": the latter are probably less standard, but they fit Nightingale conventions
+better and lead (I think) to more readable code. Affects at least 60 files.
+
+-------------------------------------------------------------------------------
+
+12 Oct.
+
+Fixed bug (Issue #156): "Neutral" apostrophes and quote marks in text entered are
+garbled. Affects UIFUtils.
+
+Minor cleanup. Affects UIFUtils.h; FlowInText, TEfield, TextDialog, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+16 - 19 Oct.
+
+Minor cleanup: changed unsigned char xxx[256] to Str255 xxx; renamed globals <minVal>
+and <maxVal> to <minDlogVal> and <maxDlogVal>; got rid of code relating to GetNextEvent(),
+which has been obsolete for 20 years or so; etc. Affects EssentialTools.h, Style.h;
+DialogsBoth, DialogsEditor, DialogUtils, EssentialTools, Event, Initialize, MIDIDialogs,
+TextDialog.
+
+-------------------------------------------------------------------------------
+
+21 - 23 Oct.
+
+Minor cleanup; change all references to NIL to NULL, get rid of long-obsolete MIDI
+cruft, avoid a possible uninitialized variable, etc. Affects Application.h,
+InternalInput.h (renamed from FileInput.h), NMiscTypes.h (renamed from
+applicationTypes.h), NTypes.h; CarbonStubs, CoreMIDIUtils, NotelistSave, TEField.
+
+-------------------------------------------------------------------------------
+
+25 - 28 Oct.
+
+Changed instances of the shift and control keys together displaying additional
+information in the log to our standard of shift and option keys. Affects DrawHighLevel,
+MIDIFOpen, MIDIFSave.
+
+Minor cleanup. Affects Beam, DrawHighLevel, GRBeam, MidiMap, MidiMapInfo, MIDIPlay.
+
+-------------------------------------------------------------------------------
+
+31 Oct. - 5 Nov.
+
+In multivoice (>=2 voices on the staff) notation, when notes are transposed or
+respelled, don't change stem direction, but try to preserve stem length (Issue #142).
+Affects DSUtils.h, DSUtils: add IsContextMultivoice() function; Beam.h; Beam,
+PitchCmds,PitchUtils.
+
+Minor cleanup. Affects MergeUtils, MIDIPlay, PitchCmds, PitchUtils, Utility, VoiceTable.
+
+-------------------------------------------------------------------------------
+
+7 - 9 Nov.			 ======== NIGHTINGALE 5.8b4 (9 Nov. 2017) ========
+
+When a new score is opened, write an INFO message to the log. Affects Menu.
+
+Fixed bug (Issue #142): Transposing/respelling ignores multivoice notation rules and
+messes up stem directions. We now decide whether notation is multivoice by some rather
+complex rules. Affects Beam, DSUtils, PitchUtils.
+
+Minor cleanup: renamed InDataStruct to InObjectList, avoid possibly uninitialized
+variables, etc. Affects Beam, Browser, DebugUtils, Delete, MasterPage, Menu, Utility.
+
+===============================================================================
+
+10 - 12 Nov.
+
+Changed version number from 5.8b4 to 5.8b5. Affects Info.plist.
+
+When hairpins are double clicked, they now show their attachment points the way
+other dynamics, Graphics, tuplets, etc. do. Affects Check.
+
+Fixed an oversight in the recent fix to Issue #142: When one voice in multivoice
+notation has a rest, it's not recognized as indicating multivoice notation. Affects
+DSUtils.
+
+Minor cleanup: cleaned the HiliteInsertNode/HiliteTwoNodesOn/HiliteAttPoints mess up
+(Issue #57), avoided possible uninitialized variables, etc. Affects NTypes.h,
+UIFUtils.h; Check, DialogsEditor, FlowInText, Initialize, Insert, InsUtils, MIDIRecord,
+NewSlur, Slurs, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+13 Nov.
+
+Minor cleanup: made voice role constants (now called VCROLE_xxx) independent of
+Multivoice dialog item numbers, etc. Affects Multivoice.h; Beam, Check, CombineParts,
+DebugUtils, InsNew, InternalInput, MeasFill, MPCombineParts, Multivoice, Objects,
+Part, PitchCmds, RhythmDur, SetUtils, Utility, VoiceTable.
+
+-------------------------------------------------------------------------------
+
+14 - 19 Nov.
+
+Fixed bug: Debug Check gives a spurious complaint "SYSTEM RECT EXTENDS INTO RIGHT
+MARGIN" if right margin is narrow than the default (Issue #160). Affects DebugUtils.
+
+Clarified the message about adding cautionary time signatures. Affects .rsrc: STR# 279.
+
+Clarified the messages about not being able to save the score the safest or best way
+to point out that the file may have been moved. Affects .rsrc: ALRT 380, 385.
+
+Minor cleanup: changed all instances of "while (1)" to "while (True)", avoid possibly
+uninitialized variables, etc. Affects DebugUtils, DialogsBoth, FlowInText, Menu,
+Multivoice.
+
+-------------------------------------------------------------------------------
+
+19 - 27 Nov.
+
+Clarified the message about being unable to open the Prefs file and the one about being
+unable to initialize Nightingale. Affects .rsrc.
+
+Score Info now displays the number of "sets" of symbols as well as individual symbols,
+and it displays info in a much more user-friendly way for key signatures, beams, ottavas,
+and tuplets. Affects .rsrc; ScoreInfo.
+
+Increased the default distance to the right for the right end of an ottava sign relative
+to the last note/chord in the ottava. Affects style.h.
+
+Fixed bug (Issue #162): Feedback while dragging a pedal-down mark shows a 128th note
+instead of a pedal-down mark. Affects Dragging.
+
+Minor cleanup: rename GRMIDISustainOn/Off to GRSustainOn/Off, avoid uninitialized
+variables, etc. Affects DSUtils.h, NTypes.h, style.h, vars.h; Browser, Check,
+CheckUtils, DebugUtils, Debug2Utils, DebugDisplay, Dragging, DrawObject, DSUtils, Event,
+File, FlowInText, Insert, InsNew, Inval, MIDIPlay, ScoreInfo, TextDialog, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+28 Nov. - 1 Dec.
+
+Minor cleanup: rename GRSustainOn/Off to GRSusPedalDown/Up; rename FindObject to
+FindAndActOnObject; change instances of "Midi" to "MIDI"; etc. Affects CheckUtils.h,
+MIDIGeneral.h, MidiMap.h, NTypes.h, vars.h; Browser, Check, CheckUtils, CoreMIDIUtils,
+Dragging, DrawObject, InitNightingale, Insert, InsNew, InsUtils, MasterMouse,
+MIDIDialogs, MIDIFSave, MIDIPlay, NewSlur, Select, SetCommand, SFormat, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+2 - 5 Dec.
+
+Minor cleanup. Affects DSUtils.h, MemMacros.h; Check, CheckUtils, DSUtils, InsUtils,
+MasterMouse, RfmtRaw, Score, SetCommand, SetUtils, SpaceHighLevel.
+
+-------------------------------------------------------------------------------
+
+6 - 8 Dec.
+
+Fixed bug (Issue #163): clicking on a barline should select all staves in its group,
+but -- notwithstanding the selection hilighting -- it may not, resulting in, e.g.,
+setting the type to (or from) repeat bar with the QuickChange command not affecting
+all staves in the group. Affects DSUtils.h; Check, DSUtils.
+
+Minor cleanup: rewrote some incredibly confusing code in DrawMEASURE(), etc. Affects
+Check, DrawObject, SetUtils.
+
+-------------------------------------------------------------------------------
+
+9 - 16 Dec.			 ======== NIGHTINGALE 5.8b5 (17 Dec. 2017) ========
+
+Move dialog-related routines from EssentialTools to DialogUtils, and other user-
+interface-related routines from EssentialTools to UIFUtils; rename EssentialTools to
+MiscUtils. Affects DialogUtils.h, MiscUtils.h, UIFUtils.h; DialogUtils, MiscUtils,
+UIFUtils.
+
+Minor cleanup: remove commented-out LogPrintf's, #define and use DEBUG_PRINT macro, etc.
+Affects Defs.h, ShowFormat.h; Browser, Check, CheckUtils, DelAddRedTimeSigs,
+DialogUtils, Double, DrawHighLevel, DrawObject, DrawUtils, DSUtils, EssentialTools,
+Event, Extract, ExtractHighLevel, GRBeam, HeapFileIO, InsNew, InstrDialog, InsUtils,
+MasterPage, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIUtils, Score, ScoreInfo,
+SelUtils, SFormat, SFormatHighLevel, SpaceHighLevel, SpaceTime, ToolPalette, Transcribe,
+UIFUtils.
+
+===============================================================================
+
+17 - 31 Dec.
+
+Changed version number from 5.8b5 to 5.8b6. Affects Info.plist.
+
+Fill Empty Measures now reports (in the log) the number of staff-measures it added
+whole rests to (Issue #59). Affects MeasFill, Menu.
+
+Minor cleanup. Affects DialogsBoth, MeasFill, Menu, MiscUtils, MPCommands, Score,
+ScoreInfo, SetCommand, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+7 Jan.
+
+Changed the keydown combination to add more detailed debug info to the log file from
+shift-option to shift-control. Affects Defs.h.
+
+Minor cleanup: removed all references to TARGET_API_MAC_CARBON_MIDI, etc. Affects
+Nightingale.precomp.pch, Defs.h, UIFUtils.h, Utility.h; InitNightingale, MIDIUtils,
+TrackVMove, UIFUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+8 Jan.
+
+Minor cleanup: removed all references to TARGET_API_MAC_CARBON_FILEIO, etc. Affects
+Nightingale.precomp.pch, NightTemplates.h; Documents, Event, Menu, MiscUtils,
+NotelistSave, StringToolbox.
+
+-------------------------------------------------------------------------------
+
+9 - 10 Jan.
+
+Minor cleanup: removed all references to TARGET_API_MAC_CARBON (Issue #76), etc. Affects
+ApplicData.h, CarbonPrinting.h, MiscUtils.h, NMiscTypes.h, NightTemplates.h;
+CarbonPrinting, CarbonStubs, Documents, DurationPopUp, Event, File, Initialize, Menu,
+MiscUtils, PS_Stdio, StringToolbox, UIFUtils, Utility, Windows; SampleMDEF.
+
+-------------------------------------------------------------------------------
+
+11-16 Jan.
+
+Increased max. no. of tempo changes on playback from 300 to 500. Affects MIDIPlay.
+
+Minor cleanup. Affects NightTemplates.h, OpcodeNightingaleData.h; Menu, MIDIDialogs,
+MIDIPlay, MIDIUtils, MusicFont.
+
+-------------------------------------------------------------------------------
+
+17 - 19 Jan.
+
+Renamed the "CoreAudio" folder to "MIDI". Affects the xcodeproj.
+
+Minor cleanup: removed references to and code and resources to handle FreeMIDI, renamed
+"OMS..." entities that support Core MIDI to "CM..."; changed LOG_NOTICE-level calls to
+LogPrintf to lower or higher levels; etc. Affects Check, CarbonStubs.h, CoreMIDIDefs.h,
+FreeMIDICompat.h, InstrDialog.h, MIDICompat.h, MIDIGeneral.h, NMiscTypes.h,
+NightTemplates.h, NMiscTypes.h, NResourceID.h, NTypes.h, OpcodeNightingaleData.h,
+OMSCompat.h, .rsrc; CarbonPrinting, CarbonStubs, CoreMIDIUtils, DebugDisplay,
+DelRedAccs, Documents, Double, Extract, InstrDialog, MIDIDialogs, MIDIFOCmd, MIDIPlay,
+MIDIRecord, MIDIRecUtils, MIDIUtils, MusicFont, Objects, PS_Stdio, RhythmDur, SpaceTime.
+
+-------------------------------------------------------------------------------
+
+21 - 24 Jan.
+
+Removed resources for FreeMIDI and OMS and #defines for them: 10 ALRTs, 2 DLOGs, 1 string.
+Affects .rsrc; NResource.h.
+
+Hacked the project file (project.pbxproj) so it builds a "Universal" binary instead of
+PowerPC-only! But NB: It's pretty much unusable with Intel processors so far, probably
+because of Endian issues.
+
+Minor cleanup: removed references to and code and resources to handle OMS and FreeMIDI,
+etc. Affects CoreMIDIUtils, MIDIDialogs, RhythmDur.
+
+-------------------------------------------------------------------------------
+
+25 - 26 Jan.
+
+Replaced hardcoded inline constants for checking CNFG fields with #defines. Affects
+Initialize.
+
+Enlarged a button in ALRT 190 whose text is wider than the button. Affects .rsrc.
+
+Minor cleanup: removed references to OMS; rename DEBUG_PRINT to DEBUG_SHOW; etc. Affects
+ApplicData.h, Defs.h, EndianUtils.h, NMiscTypes.h; CarbonStubs, DrawHighLevel, File,
+GRBeam, HeapFileIO, Initialize, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIUtils, Part,
+RTRhythmDur, ScoreInfo, SpaceHighLevel, StringPool, TextDialog, Transcribe.
+
+Built separately for PowerPC and Intel. Affects project.pbxproj (in Nightingale.xcodeproj).
+
+-------------------------------------------------------------------------------
+
+27 - 29 Jan.
+
+Added numerous calls to FIX_END to fix Endian byte order in config fields, for the
+benefit of the Intel version. Affects Initialize.
+
+Replaced tests involving the caps-lock key: with SHOW_DEBUG for displaying debug info;
+with shift-option for the alternative "Color Voices" method. Affects Check, DelAddRedAccs,
+Menu, MIDIRecord, NotelistParse, PS_Stdio.
+
+On startup, we now display more CNFG fields & check them more closely. Affects Initialize.
+
+Minor cleanup. Affects Defs.h, NightTemplates.h, NMiscTypes.h, NResourceID.h,
+VersionStrings.h; Check, CoreMIDIUtils, DebugDisplay, File, Finalize, Initialize,
+InstrDialog, MIDIDialogs, MIDIRecord, MiscUtils, Preferences, PS_Stdio, Score.
+
+-------------------------------------------------------------------------------
+
+30 Jan. - 1 Feb.
+
+Removed the 'vers' (version) resource. Affects .rsrc.
+
+Before quitting, we now undo Endian changes to config fields, for the benefit of the Intel
+version. Affects Finalize, MiscUtils.
+
+Minor cleanup: reworded an ALRT, added error checking, etc. Affects .rsrc, MiscUtils.h,
+MusicFont.h, NightTemplates.h, NMiscTypes.h; CoreMIDIUtils, DurationPopUp, File,
+Finalize, FontUtils, Initialize, Menu, MiscUtils, MusicFont, PrefsDialog, ToolPalette.
+
+-------------------------------------------------------------------------------
+
+1 - 6 Feb.
+
+Added calls to FIX_END to InitMusFontTables(), etc., for benefit of the Intel version.
+Affects InitNightingale.
+
+Fixed a mysterious bug in LogPrintf() that sometimes resulted in lines never appearing
+in the log. Affects UIFUtils.
+
+For Config field values, improved error checking and changed some defaults. Affects
+Initialize.
+
+Minor cleanup: moved UI utilities from MiscUtils to a better home, reword an alert, etc.
+Affects Defs.h, MiscUtils.h, NTypes.h, UIFUtils.h., .rsrc; CoreMIDIUtils, DrawObject,
+Finalize, GraphicMDEF, Initialize, InitNightingale, MiscUtils, ToolPalette, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+6 - 8 Feb.
+
+Fixed Endian-caused bug in Intel version: curly braces aren't drawn and the only staff
+line drawn is the bottom line of the bottom staff of the group; instead, there's just a
+hugely strrrrreched-out gray pattern. Affects DrawObject.
+
+Extracted a new function VersionString() from DoAboutBox(); we call it to get the
+version string for an initial log message and for the About box. Affects MiscUtils.h;
+About, MiscUtils.
+
+Before quitting, we now undo Endian changes to MIDI modNR tables, for the benefit of the
+Intel version. Affects Finalize, MiscUtils.
+
+Minor cleanup: renamed DrawToolMenu to DrawToolPalette, etc. Affects NightTemplates.h;
+About, DrawObject, Finalize, Initialize, ToolPalette, UIFUtils, Windows.
+
+-------------------------------------------------------------------------------
+
+10 - 12 Feb.
+
+Added EndianFixPaletteGlobals(), with numerous calls to FIX_END to fix "Endian" byte
+order, for the benefit of the Intel version. Affects MiscUtils.h; Initialize, MiscUtils.
+
+Fixed bug (Issue #170): changing instrument name display with Left End of Systems doesn't
+redraw the screen. Affects Menu.
+
+Added an error message for illegal tool palette values in the Prefs file, which we now
+check for; reworded error messages, include all referring to "AMNS Tech Support"; enlarged
+the "Generic" ALRTs. Affects .rsrc.
+
+Minor cleanup: removed comment referring to a 'TOMG' resource, etc. Affects
+PaletteGlobals.h; AccModNRMouse, Event, Initialize, MiscUtils, SpaceTime, ToolPalette,
+UIFUtils.
+
+-------------------------------------------------------------------------------
+
+12 - 14 Feb.			 ======== NIGHTINGALE 5.8b6 (15 Feb. 2018) ========
+
+Fixed newly-introduced bug in creating a doc's spacing table. Affects SpaceTime.
+
+Added calls to FIX_END, for the benefit of the Intel version. Affects PS_Stdio,
+ToolPalette.
+
+Minor cleanup: changed DEBUG_SHOW to DETAIL_SHOW, etc. Affects Defs.h;  Check,
+DelAddRedAccs, DrawHighLevel, Event, Finalize, GRBeam, HeapFileIO, Initialize,
+InitNightingale, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIRecord, MIDIUtils,
+NotelistParse, PS_Stdio, RTRhythmDur, ScoreInfo, SpaceHighLevel, SpaceTime, TextDialog,
+ToolPalette, Transcribe.
+
+===============================================================================
+
+15 - 17 Feb.
+
+Changed version number from 5.8b6 to 5.8b7. Affects Info.plist.
+
+Added calls to FIX_END, for the benefit of the Intel version. Affects DurationPopUp,
+GraphicMDEF, PS_Stdio.
+
+We now prefix a code for the level -- "d' = debug, "W" = warning, etc. -- to LogPrintf()
+messages. Affects UIFUtils.
+
+Minor cleanup; don't display the CNFG and tool palette params on startup unless
+DETAIL_SHOW, comment or remove obsolete LogPrint(LOG_DEBUG...)s, etc. Affects
+DurationPopUp.h, File.h, NightTemplates.h, UIFUtils.h, Utility.h; Check, CheckUtils,
+CoreMIDIUtils, Debug2Utils, DialogsEditor, Dragging, DrawUtils, DurationPopUp, File,
+GraphicMDEF, HeapFileIO, Initialize, InitNightingale, Insert, Menu, MIDIFOCmd,
+MIDIRecord, NotelistOpen, PS_Stdio, SpaceHighLevel, SpaceTime, StringUtils, TextDialog,
+UIFUtils.
+
+-------------------------------------------------------------------------------
+
+19 - 21 Feb.
+
+Added more calls to FIX_END, for the benefit of the Intel version. Affects GraphicMDEF.
+
+Got rid of two useless files. Affects SampleMDEF.h; SampleMDEF.
+
+Minor cleanup. Affects NightTemplates.h, Utility.h: Documents, DurationPopUp, FontUtils,
+GraphicMDEF, Initialize, Main, MiscUtils, NavServices, ToolPalette, UIFUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+22 - 25 Feb.
+
+Minor cleanup: renamed handler for graphic menus from <MyMDefProc> to <NMDefProc>,
+made most MIDI-related messages on startup only given if DETAIL_SHOW, etc. Affects
+GraphicMDEF.h; CoreMIDIUtils, DrawObject, DurationPopUp, GraphicMDEF, Initialize,
+ToolPalette.
+
+-------------------------------------------------------------------------------
+
+6 - 7 Mar.
+
+Log messages are now preceded by a word giving the priority level. Affects UIFUtils.
+
+Minor cleanup: on calls to LogPrintf(LOG_ERR... and LOG_WARNING, added SysBeep()s before,
+etc. Affects Double, DrawObject, DurationPopUp, File, HeaderFooterDialog, Initialize,
+UIFUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+8 - 14 Mar.
+
+Worked around an apparent bug in the Intel version of the Resource Manager that resulted
+in most symbols' bounding boxes being too low. Affects InitNightingale.
+
+Minor cleanup. Affects CheckUtils, Error, NavServices.
+
+-------------------------------------------------------------------------------
+
+18 - 19 Mar.
+
+Removed code to read ancient files in formats 'N100', 'N101', and 'N102'. Affects File.h;
+File.
+
+Most error messages now write a message of level LOG_ERR to the log. Affects Error.
+
+Minor cleanup: tweak log messages about music fonts, etc. Affects MiscUtils.h; File,
+Initialize, InitNightingle, MiscUtils, MusicFont, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+20 - 21 Mar.
+
+Added CheckDocumentHdr(), DisplayDocumentHdr(), EndianFixDocumentHdr(), for the benefit
+of the Intel version. Affects MiscUtils.h; File, MiscUtils.
+
+Minor cleanup. Affects File, Initialize, MiscUtils, StringPool, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+22-28 Mar.
+
+Moved Endian functions into a new file of their own. Affects NightingalePrefix.pch,
+Endian.h; Endian, MiscUtils.
+
+For the benefit of the Intel version, revised EndianFixDocumentHdr() and added call to
+it, and added DisplayScoreHdr(), EndianFixScoreHdr(), and EndianFixHeapHdr(). Affects
+Endian.h; Endian, HeapFileIO.
+
+Minor cleanup. Affects NMiscTypes.h; File, HeapFileIO, StringPool.
+
+-------------------------------------------------------------------------------
+
+29 - 2 April
+
+For the benefit of the Intel version, added CheckScoreHdr(), enhanced EndianFixScoreHdr().
+
+Fixed bug: the measure-number dialog accepts first measure number values up to 8000,
+but they're stored in a _signed_ 13-bit field, so the limit is really 4095. Affects
+NLimits.h; DialogsEditor.
+
+Minor cleanup: DisplayDocumentHdr() and DisplayScoreHdr() now display more, renamed a
+#define in NLimits, etc. Affects FileConversion.h, NLimits.h; File, HeapFileIO,
+SysPageEdit.
+
+-------------------------------------------------------------------------------
+
+3 - 11 April
+
+Enhanced CheckScoreHdr(). Affects File.
+
+Fixed the bug (Issue #165) where "notes entered on a new system aren't drawn until
+there's a barline following on the system". Affects DrawObject.
+
+Minor cleanup: rename a function, rearrange functions, rename header fields for
+consistency, etc. Affects Defs.h, FileConversion.h, NLimits.h, NTypes.h, NMiscTypes.h,
+Utility.h; Browser, Clipboard, DelAddRedTimeSigs, DialogsEditor, Documents, DrawObject,
+DSUtils, Endian, Extract, File, Initialize, InsNewUtils, MasterPage, Menu, MPCommands,
+NotelistOpen, Reformat, Score, SpaceHighLevel, SysPageEdit, Utility.
+
+-------------------------------------------------------------------------------
+
+12 - 16 April
+
+Minor cleanup: improve appearance of Page Numbers/Headers/Footers/ dialog, etc. Affects
+NMiscTypes.h, .rsrc; Beam, Browser, Check, Documents, Double, HeaderFooterDialog,
+Initialize, NotelistOpen.
+
+-------------------------------------------------------------------------------
+
+18 - 25 April			======== NIGHTINGALE 5.8b7 (25 April 2018) ========
+
+Minor cleanup: move a couple of MIDI-to-accidental functions to a new home, etc.
+Affects File.h, FileConversion.h, MIDIGeneral.h; AutoBeam, DelAddRedAccs, Documents,
+Endian, File, MidiMap, MIDIUtils, MiscUtils, NotelistOpen.
+
+===============================================================================
+
+26 April - 16 May
+
+Changed version number from 5.8b7 to 5.8b8. Affects Info.plist.
+
+Minor cleanup. Affects NResourceID.h; Event, File, InfoDialog, Main, Menu, MIDIUtils.
+
+-------------------------------------------------------------------------------
+
+21-29 May
+
+Began work on Issue #173 (allowing more horizontal space as needed for ledger lines).
+Affects DrawNRGR, DrawUtils, SpaceTime. 
+
+Minor cleanup. Affects DrawUtils.h; CarbonPrinting, DebugDisplay, DragBeam, DrawingEdit,
+DrawNRGR, DrawUtils, InstrDialog, Sheet, SpaceTime.
+
+-------------------------------------------------------------------------------
+
+31 May - 14 June
+
+Fixed bug (Issue #173): The minimum space between consecutive notes/chords with ledger
+lines is insufficient, resulting in the ledger lines merging. Affects DrawUtils,
+SpaceHighLevel.
+
+Minor cleanup. Affects DSUtils.h, NTypes.h; DrawUtils, DSUtils, SpaceHighLevel,
+SpaceTime.
+
+-------------------------------------------------------------------------------
+
+16 June			======== NIGHTINGALE 5.8b8 (16 June 2018) ========
+
+Minor cleanup. Affects Defs.h, Style.h; SpaceHighLevel.
+
+===============================================================================
+
+11-12 August
+
+Changed version number from 5.8b8 to 5.8b9. Affects Info.plist.
+
+Added a #define to control whether to add space to avoid ledger lines colliding.
+Affects SpaceHighLevel.
+
+Changed copyright date range in About box to extend into 2018.
+
+Fixed bug: if any note in a Sync has an accidental and any note in the Sync (whether
+that note or another) has ledger lines, the minimum space we leave before the Sync
+is too large. Affects SpaceHighLevel.
+
+-------------------------------------------------------------------------------
+
+16-23 August
+
+Moved typedefs and #defines for objects and subobjects to a new header, NObjectTypes.h.
+Affects NTypes.h; Nightingale_Prefix.pch.
+
+Moved typedefs and #defines for NIGHTSCOREHEADER to a different header. Affects NTypes.h,
+NMiscTypes.h.
+
+Minor cleanup: changed all LOG_NOTICE in DebugDisplay() to LOG_INFO, give more details
+if a file can't be opened because of heap header problems, etc. Affects Draw.h,
+NMiscTypes.h; DebugDisplay, DurationPopUp, HeapFileIO.
+
+-------------------------------------------------------------------------------
+
+25-30 August
+
+Fixed bug (Issue #67): The initial position of the tool palette is sometimes at the
+very top of the screen, stuck underneath the menu bar because the drag region is
+inaccessible. Affects Initialize. 
+
+Minor cleanup: Pulled VMToollPalette() out of DoViewMenu(), move a struct out of NTypes.h,
+etc. Affects ApplicData.h, NMiscTypes.h, NTypes.h; Event, Heaps, Initialize, Menu,
+ToolPalette, Windows.
+
+-------------------------------------------------------------------------------
+
+31 August - 1 Sept.
+
+Minor cleanup: moved some structs and enums out of NTypes.h, etc. Affects NMiscTypes.h,
+NObjectTypes.h, NTypes.h, OpcodeNightingaleDefs.h.
+
+-------------------------------------------------------------------------------
+
+9 Sept.
+
+Minor cleanup: removed some long-obsolete struct definitions; moved some structs and
+enums out of NTypes.h; renamed NTypes.h to NBasicTypes.h; etc. Affects Debug.h,
+NMiscTypes.h, Notelist.h, NTypes.h, OpcodeNightingaleDefs.h, vars.h; about eight .c
+files.
+
+-------------------------------------------------------------------------------
+
+10 Sept.			======== NIGHTINGALE 5.8b9 (10 Sept. 2018) ========
+
+Fixed very recent bug: graphic popups for changing dynamics and note duration and
+choosing note modifiers never appear because of a line in InitGPopUp() that was
+inadvertently commented out.
+
+Moved code for graphic and "regular" popups into a new file; minor cleanup. Adds
+PopUpUtils.h; PopUpUtils. Affects DurationPopUp.h, UIFUtils.h; DebugHighLevel,
+DurationPopUp, GraphicMDEF, UIFUtils.
+
+===============================================================================
+
+1-4 Nov.			======== NIGHTINGALE 5.8.9 (4 Nov. 2018) ========
+
+Move source files (but not headers) for utilities from the CFilesBoth and CFilesEditor
+folders to the Utilities folder.
+
+Changed version number from 5.8b9 to 5.8.9. Affects Info.plist.
+
+Minor cleanup: remove an item that's always hidden from the About box, etc. Affects
+.rsrc; About.

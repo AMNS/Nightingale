@@ -67,8 +67,8 @@
 #define BIMIDI_SMALLBUFSIZE 30		/* Our standard buffer size for built-in MIDI */
 
 
-/* Constants for Apple's Core MIDI, from CoreMidiUtils.c. (But now that MIDI is over 30
-years old, are these values _still_ not standardized?  --DAB, Sept. 2016) */
+/* Constants for Apple's Core MIDI, from CoreMidiUtils.c. (But MIDI is now over 30 years
+old. Are these values _still_ not standardized?  --DAB, Sept. 2016) */
 
 //#define CM_PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
 //#define CM_CHANNEL_BASE 0
@@ -97,7 +97,7 @@ typedef struct myEvent				/* MIDI event list item: */
 	SignedByte	channel;			/* MIDI channel number of note, in range [1..MAXCHANNEL] */
 	long		endTime;			/* Ending time of note, in milliseconds */
 	SignedByte	offVel;				/* Note Off velocity */
-	short		omsIORefNum;		/* Used by OMS to identify device to receive packet */
+	short		omsIORefNum;		/* Obsolete; was used by OMS to identify device to receive packet */
 } MIDIEvent;
 
 typedef struct myCMEvent			/* MIDI event list item: */
@@ -167,14 +167,17 @@ void MIDIFBNoteOff(Document *, short, short, short);
 Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly);
 Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly);
 
+short MIDI2EffectiveAcc(Document *doc, short clefType, short octType, LINK syncL, LINK theNoteL);
+short MIDI2EffectiveGRAcc(Document *doc, short clefType, short octType, LINK syncL, LINK theGRNoteL);
+
 /* High (UI)-level MIDI play routines */
 
-Boolean IsMidiSustainOn(LINK pL);
-Boolean IsMidiSustainOff(LINK pL);
-Boolean IsMidiPan(LINK pL);
-Boolean IsMidiController(LINK pL);
-Byte GetMidiControlNum(LINK pL);
-Byte GetMidiControlVal(LINK pL);
+Boolean IsPedalDown(LINK pL);
+Boolean isPedalUp(LINK pL);
+Boolean IsMIDIPan(LINK pL);
+Boolean IsMIDIController(LINK pL);
+Byte GetMIDIControlNum(LINK pL);
+Byte GetMIDIControlVal(LINK pL);
 
 void PlaySequence(Document *, LINK, LINK, Boolean, Boolean);
 void PlayEntire(Document *);

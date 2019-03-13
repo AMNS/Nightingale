@@ -22,7 +22,6 @@ short SymType(char);
 char Objtype2Char(SignedByte);
 
 Rect StrToObjRect(unsigned char *string);
-void GetNFontInfo(short, short, short, FontInfo *);
 short NStringWidth(Document *, const unsigned char *, short, short, short);
 short NPtStringWidth(Document *, const unsigned char *, short, short, short);
 void GetNPtStringBBox(Document *, unsigned char *, short, short, short, Boolean, Rect *);
@@ -45,15 +44,17 @@ void UnlockGWorld(GWorldPtr);
 
 GrafPtr NewGrafPort(short, short);
 void DisposGrafPort(GrafPtr);
+void LogPixMapInfo(char *name, PixMapPtr aPixMap, long len);
 
 void D2Rect(DRect *, Rect *);
 void Rect2D(Rect *, DRect *);
 void PtRect2D(Rect *, DRect *);
-void AddDPt(DPoint, DPoint *);
-void SetDPt(DPoint *, DDIST, DDIST);
 void SetDRect(DRect *, DDIST, DDIST, DDIST, DDIST);
 void OffsetDRect(DRect *, DDIST, DDIST);
 void InsetDRect(DRect *, DDIST, DDIST);
+Boolean RectIsValid(Rect aRect, short legalMin, short legalMax);
+void SetDPt(DPoint *, DDIST, DDIST);
+void OffsetDPt(DPoint, DPoint *);
 void DMoveTo(DDIST, DDIST);
 
 short GCD(short m, short n);
@@ -62,6 +63,7 @@ short RoundSignedInt(short value, short quantum);
 short InterpY(short, short, short, short, short);
 
 long FindIntInString(unsigned char *);
+void ShellSort(short [], short);
 short BlockCompare(void *src, void *dst, short len);
 short RelIndexToSize(short, DDIST);
 short GetTextSize(Boolean, short, DDIST);
@@ -83,14 +85,10 @@ void SleepMS(long millisec);
 void SleepTicks(unsigned long ticks);
 void SleepTicksWaitButton(unsigned long ticks);
 
-long NMIDIVersion(void);
 char *StdVerNumToStr(long verNum, char *verStr);
 
 short PlayResource(Handle, Boolean);
 Boolean TrapAvailable(short);
 
-Boolean VLogPrintf(const char *fmt, va_list argp);
-Boolean LogPrintf(short priLevel, const char *fmt, ...);
-short InitLogPrintf();
-
 Boolean FitStavesOnPaper(Document *);
+short CountUnjustifiedSystems(Document *doc, LINK startPageL, LINK endPageL, short *pfirstUnjustPg);

@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	InsNew.c
 *	PROJ:   Nightingale
 *	DESC:   Lower-level routines to add music symbols. These functions actually
@@ -12,7 +12,7 @@
 		NewDynamic				
 		NewRptEnd				NewEnding				NewTempo
 		XLoadInsertSeg
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -26,7 +26,7 @@
 #include "Nightingale.appl.h"
 
 
-/* -------------------------------------------------- Clef/KeySig/TimeSigBeforeBar -- */
+/* ------------------------------------------------------ Clef/KeySig/TimeSigBeforeBar -- */
 
 Boolean ClefBeforeBar(Document *doc,
 							LINK pLPIL,
@@ -39,11 +39,11 @@ Boolean ClefBeforeBar(Document *doc,
 	LINK		endL, doneL;
 	short		sym;
 	
-	if (!LinkBefFirstMeas(pLPIL)) return FALSE;
+	if (!LinkBefFirstMeas(pLPIL)) return False;
 
 	if (doc->currentSystem==1) {
-		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, FALSE, FALSE);
-		firstClefL = LSSearch(firstMeasL, CLEFtype, 1, TRUE, FALSE);
+		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, False, False);
+		firstClefL = LSSearch(firstMeasL, CLEFtype, 1, True, False);
 
 		if (firstClefL) {
 
@@ -62,13 +62,13 @@ Boolean ClefBeforeBar(Document *doc,
 				FixInitialxds(doc, firstClefL, LeftLINK(endL), CLEFtype);
 			}
 
-			LinkVALID(firstClefL) = FALSE;
+			LinkVALID(firstClefL) = False;
 			InvalSystems(firstClefL, doneL ? doneL : firstClefL);
 		}
 		else
 			MayErrMsg("ClefBeforeBar: no clef before 1st Measure.");
 	}
-	return TRUE;
+	return True;
 }
 
 
@@ -76,11 +76,11 @@ Boolean KeySigBeforeBar(Document *doc, LINK pLPIL, short staffn, short sharpsOrF
 {
 	LINK	firstMeasL, firstKeySigL=NILINK, endL=NILINK;
 	
-	if (!LinkBefFirstMeas(pLPIL)) return FALSE;
+	if (!LinkBefFirstMeas(pLPIL)) return False;
 
 	if (doc->currentSystem==1) {
-		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, FALSE, FALSE);
-		firstKeySigL = LSSearch(firstMeasL, KEYSIGtype, 1, TRUE, FALSE);
+		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, False, False);
+		firstKeySigL = LSSearch(firstMeasL, KEYSIGtype, 1, True, False);
 		if (firstKeySigL) {
 			endL = ReplaceKeySig(doc, firstKeySigL, staffn, sharpsOrFlats);
 			FixInitialKSxds(doc, firstKeySigL, endL, staffn);
@@ -89,9 +89,9 @@ Boolean KeySigBeforeBar(Document *doc, LINK pLPIL, short staffn, short sharpsOrF
 			MayErrMsg("KeySigBeforeBar: no keysig before 1st Measure.");
 	}
 
-	LinkVALID(firstKeySigL) = FALSE;
+	LinkVALID(firstKeySigL) = False;
 	InvalSystems(firstKeySigL, endL);
-	return TRUE;
+	return True;
 }
 
 
@@ -111,11 +111,11 @@ Boolean TimeSigBeforeBar(Document *doc, LINK pLPIL, short staffn, short type,
 	LINK firstMeasL,firstTSL,endL;
 	Boolean isTimeSig;
 	
-	if (!LinkBefFirstMeas(pLPIL)) return FALSE;								/* #1 */
+	if (!LinkBefFirstMeas(pLPIL)) return False;								/* #1 */
 
 	if (doc->currentSystem==1) {
-		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, FALSE, FALSE);
-		firstTSL = LSSearch(firstMeasL, TIMESIGtype, 1, TRUE, FALSE);
+		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, False, False);
+		firstTSL = LSSearch(firstMeasL, TIMESIGtype, 1, True, False);
 		if (firstTSL) {
 
 			/* If there was no timeSig prior to this replacement, then
@@ -133,16 +133,16 @@ Boolean TimeSigBeforeBar(Document *doc, LINK pLPIL, short staffn, short type,
 				InvalWindow(doc);					/* By far the simplest safe way! */
 			else
 				InvalSystem(firstTSL);
-			LinkVALID(firstTSL) = FALSE;
+			LinkVALID(firstTSL) = False;
 		}
 		else
 			MayErrMsg("TimeSigBeforeBar: no timesig before 1st Measure.");
 	}
-	return TRUE;
+	return True;
 }
 
 
-/* ---------------------------------------------------------------------- AddDot -- */
+/* ---------------------------------------------------------------------------- AddDot -- */
 /* Add an augmentation dot to the note/rest or chord in the given Sync and voice.
 If it's a chord, assumes all the notes have the same duration. */
 
@@ -183,20 +183,20 @@ void AddDot(Document *doc,
 			NoteNDOTS(aNoteL)++;
 			playDur = SimplePlayDur(aNoteL); 				/* Set physical dur. to default */
 			NotePLAYDUR(aNoteL) = playDur;
-			doc->changed = TRUE;
+			doc->changed = True;
 		}
 		
 	if (doc->autoRespace)
-		RespaceBars(doc, syncL, syncL, 0L, FALSE, FALSE);
+		RespaceBars(doc, syncL, syncL, 0L, False, False);
 	else
 		InvalMeasure(syncL, NoteSTAFF(aNoteL)); 			/* Just redraw the measure */
 
 	FixTimeStamps(doc, syncL, syncL);
-	MEAdjustCaret(doc, TRUE);
+	MEAdjustCaret(doc, True);
 }
 
 
-/* --------------------------------------------------------------------- AddNote -- */
+/* --------------------------------------------------------------------------- AddNote -- */
 /* Add a note or rest to the object list at <doc->selStartL> */
 
 LINK AddNote(Document *doc,
@@ -233,12 +233,12 @@ LINK AddNote(Document *doc,
 	 *	doesn't seem worth bothering with.
 	 */
 	if (isRest && noteDur==WHOLE_L_DUR
-	&&  !SyncInVoiceMeas(doc, doc->selStartL, voice, FALSE))
+	&&  !SyncInVoiceMeas(doc, doc->selStartL, voice, False))
 				noteDur = WHOLEMR_L_DUR;
 	noteNDots = 0;
 	
 	if (x>=0)													/* Adding note to an existing Sync? */
-		inChord = FALSE;
+		inChord = False;
 	else {														/* Yes */
 		if (LinkNENTRIES(doc->selStartL)>=MAXCHORD) {
 			GetIndCString(strBuf, INSERTERRS_STRS, 5);    		/* "The chord already contains the max no. of notes." */
@@ -247,11 +247,11 @@ LINK AddNote(Document *doc,
 			InvalMeasure(doc->selStartL, staff);
 			return aNoteL;
 		}
-		inChord = FALSE;
+		inChord = False;
 		aNoteL = FirstSubLINK(doc->selStartL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 			if (NoteVOICE(aNoteL)==voice)	{					/* This note/rest in desired voice? */
-				inChord = TRUE;
+				inChord = True;
 				midCpitchLev = pitchLev-ClefMiddleCHalfLn(context.clefType);
 				aNote = GetPANOTE(aNoteL);
 				if (!unisonsOK && !ControlKeyDown() && midCpitchLev==qd2halfLn(aNote->yqpit) ) {
@@ -281,14 +281,14 @@ LINK AddNote(Document *doc,
 			return aNoteL;
 		}
 		newL = doc->selStartL;
-		doc->changed = doc->used = LinkSEL(newL) = TRUE;
-	 	LinkTWEAKED(newL) = FALSE;
+		doc->changed = doc->used = LinkSEL(newL) = True;
+	 	LinkTWEAKED(newL) = False;
 	}
 	
 	SetupNote(doc, newL, aNoteL, staff, pitchLev, noteDur, noteNDots, voice,
 							isRest, acc, octType);
 	aNote = GetPANOTE(aNoteL);
-	aNote->selected = TRUE;											/* Select the subobject */
+	aNote->selected = True;											/* Select the subobject */
 	aNote->inChord = inChord;
 	if (inChord) aNote->ystem = aNote->yd;
 
@@ -314,9 +314,9 @@ LINK AddNote(Document *doc,
 	doc->selStartL = newL;										/* Update selection first ptr */
 	doc->selEndL = RightLINK(newL);								/* ...and last ptr */
 
-	LinkVALID(newL) = FALSE;
+	LinkVALID(newL) = False;
 	InsFixMeasNums(doc, newL);
-	UpdateVoiceTable(doc, TRUE);
+	UpdateVoiceTable(doc, True);
 
 	/*
 	 * If autoRespace is on, we need to update the graphic situation by respacing
@@ -326,10 +326,10 @@ LINK AddNote(Document *doc,
 	 *	Measure.
 	 */
 	if (doc->autoRespace)
-		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, FALSE, FALSE);
+		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, False, False);
 	else {
 		if (config.alwaysCtrWholeMR) {
-			measL = LSSearch(newL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+			measL = LSSearch(newL, MEASUREtype, ANYONE, GO_LEFT, False);
 			measWidth = MeasWidth(measL);
 			if (noteDur==WHOLEMR_L_DUR) CenterNR(doc, newL, aNoteL, measWidth/2);
 		}
@@ -340,7 +340,7 @@ LINK AddNote(Document *doc,
 }
 	
 
-/* --------------------------------------------------------------------- AddGRNote -- */
+/* ------------------------------------------------------------------------- AddGRNote -- */
 /* Add a grace note to the object list at doc->selStartL. */
 
 LINK AddGRNote(Document *doc,
@@ -370,7 +370,7 @@ LINK AddGRNote(Document *doc,
 	voice = USEVOICE(doc, staff);
 	
 	if (x>=0)													/* Adding grace note to an existing Sync? */
-		inChord = FALSE;
+		inChord = False;
 	else
 	{															/* Yes */
 		if (LinkNENTRIES(doc->selStartL)>=MAXCHORD) {
@@ -380,11 +380,11 @@ LINK AddGRNote(Document *doc,
 			InvalMeasure(doc->selStartL, staff);
 			return aNoteL;
 		}
-		inChord = FALSE;
+		inChord = False;
 		aNoteL = FirstSubLINK(doc->selStartL);
 		for ( ; aNoteL; aNoteL = NextGRNOTEL(aNoteL))
 			if (GRNoteVOICE(aNoteL)==voice)	{					/* This grace note in desired voice? */
-				inChord = TRUE;
+				inChord = True;
 				midCpitchLev = pitchLev-ClefMiddleCHalfLn(context.clefType);
 				aNote = GetPAGRNOTE(aNoteL);
 				if (!unisonsOK && !ControlKeyDown() && midCpitchLev==qd2halfLn(aNote->yqpit) ) {
@@ -413,14 +413,14 @@ LINK AddGRNote(Document *doc,
 			return aNoteL;
 		}
 		newL = doc->selStartL;
-		doc->changed = doc->used = LinkSEL(newL) = TRUE;
-	 	LinkTWEAKED(newL) = FALSE;
+		doc->changed = doc->used = LinkSEL(newL) = True;
+	 	LinkTWEAKED(newL) = False;
 	}
 	
 	SetupGRNote(doc, newL, aNoteL, staff, pitchLev, noteDur, noteNDots,
 								voice, acc, octType);
 	aNote = GetPAGRNOTE(aNoteL);
-	aNote->selected = TRUE;											/* Select the subobject */
+	aNote->selected = True;											/* Select the subobject */
 	aNote->inChord = inChord;
 	if (inChord) aNote->ystem = aNote->yd;
 
@@ -431,17 +431,17 @@ LINK AddGRNote(Document *doc,
 #endif
 
 	beamed = (Boolean)VCheckGRBeamAcrossIncl(newL, voice);
-	if (inChord) FixGRSyncForChord(doc, newL, voice, beamed, 0, TRUE, NULL);
+	if (inChord) FixGRSyncForChord(doc, newL, voice, beamed, 0, True, NULL);
 	if (beamed) AddGRNoteFixBeams(doc, newL, aNoteL);
 	
 	doc->selStartL = newL;											/* Update selection first ptr */
 	doc->selEndL = RightLINK(newL);									/* ...and last ptr */
 
 	InsFixMeasNums(doc, newL);
-	UpdateVoiceTable(doc, TRUE);
+	UpdateVoiceTable(doc, True);
 
 	if (doc->autoRespace)
-		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, FALSE, FALSE);
+		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, False, False);
 	else
 		InvalMeasure(newL, staff);									/* Just redraw the measure */
 
@@ -449,7 +449,7 @@ LINK AddGRNote(Document *doc,
 }
 	
 
-/* -------------------------------------------------------------- GetChordEndpts -- */
+/* -------------------------------------------------------------------- GetChordEndpts -- */
 
 Boolean GetChordEndpts(Document *, LINK, short, DDIST *, DDIST *);
 Boolean GetChordEndpts(Document */*doc*/, LINK syncL, short voice, DDIST *ydTop,
@@ -458,7 +458,7 @@ Boolean GetChordEndpts(Document */*doc*/, LINK syncL, short voice, DDIST *ydTop,
 	LINK aNoteL;
 	DDIST top, bottom;
 	
-	if (!syncL || !SyncTYPE(syncL)) return FALSE;
+	if (!syncL || !SyncTYPE(syncL)) return False;
 	
 	top = 9999; bottom = -9999;
 	aNoteL = FirstSubLINK(syncL);
@@ -470,11 +470,11 @@ Boolean GetChordEndpts(Document */*doc*/, LINK syncL, short voice, DDIST *ydTop,
 	}
 	
 	*ydTop = top; *ydBottom = bottom;
-	return TRUE;
+	return True;
 }
 
 
-/* ------------------------------------------------------------------ NewArpSign -- */
+/* ------------------------------------------------------------------------ NewArpSign -- */
 
 /* Ross says the arpeggio sign should be 3/4 space before note but that's much closer
 than his example shows; anyway, his arpeggio sign looks narrower than Sonata's.
@@ -494,7 +494,7 @@ Boolean NewArpSign(Document *doc,
 	short sym; LINK newL, aGraphicL; CONTEXT context;
 	DDIST xd, ydTop, ydBottom; QDIST height;
 	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
-	Boolean okay=FALSE;
+	Boolean okay=False;
 
 PushLock(OBJheap);
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);    					/* "Undo Insert" */
@@ -509,7 +509,7 @@ PushLock(OBJheap);
 	ydBottom += std2d(INCREASE_HEIGHT, context.staffHeight, context.staffLines);
 
 	NewObjSetup(doc, newL, staff, xd);
-	SetObject(newL, xd, ydTop, TRUE, TRUE, FALSE);
+	SetObject(newL, xd, ydTop, True, True, False);
 
 	InitGraphic(newL, GRArpeggio, staff, voice, 0, 0, 0, 0, 0);
 
@@ -533,7 +533,7 @@ PushLock(OBJheap);
 	doc->selEndL = RightLINK(newL);
 	
 	InvalMeasure(newL, staff);
-	okay = TRUE;
+	okay = True;
 		
 Cleanup:
 PopLock(OBJheap);
@@ -541,7 +541,7 @@ PopLock(OBJheap);
 }
 
 
-/* ---------------------------------------------------------- NewLine and helpers -- */
+/* --------------------------------------------------------------- NewLine and helpers -- */
 
 #define L_HDIST_TO_NOTE (2*STD_LINEHT/4)		/* Horiz. distance from attached line to note */
 #define L_VOFFSET (3*STD_LINEHT/8)				/* Vertical offset for within-Sync lines */
@@ -647,7 +647,7 @@ Boolean NewLine(Document *doc,
 	short sym; LINK newL, aGraphicL; CONTEXT context;
 	DDIST xd1, yd1, xd2, yd2;
 	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
-	Boolean okay=FALSE;
+	Boolean okay=False;
 
 PushLock(OBJheap);
 PushLock(GRAPHICheap);
@@ -663,7 +663,7 @@ PushLock(GRAPHICheap);
 	GetLineOffsets(doc->selStartL, lastL, pitchLev1, pitchLev2, context, voice,
 						&xd1, &xd2, &yd1, &yd2);
 	
-	SetObject(newL, xd1, yd1, TRUE, TRUE, FALSE);
+	SetObject(newL, xd1, yd1, True, True, False);
 
 	InitGraphic(newL, GRDraw, staff, voice, 0, 0, 0, 0, 0);
 	pGraphic = GetPGRAPHIC(newL);
@@ -685,7 +685,7 @@ PushLock(GRAPHICheap);
 	doc->selEndL = RightLINK(newL);
 	
 	InvalMeasures(newL, lastL, staff);
-	okay = TRUE;
+	okay = True;
 		
 Cleanup:
 PopLock(GRAPHICheap);
@@ -694,7 +694,7 @@ PopLock(OBJheap);
 }
 
 
-/* ------------------------------------------------------------------ NewGraphic -- */
+/* ------------------------------------------------------------------------ NewGraphic -- */
 /* Add a Graphic (including character or string) to the object list. */
 
 void NewGraphic(
@@ -737,7 +737,7 @@ PushLock(GRAPHICheap);
 	xd = 0;
 	yd = halfLn2d(pitchLev, context.staffHeight, context.staffLines);
 	NewObjSetup(doc, newL, staff, xd);
-	SetObject(newL, xd, yd, TRUE, TRUE, FALSE);
+	SetObject(newL, xd, yd, True, True, False);
 
 	fontInd = FontName2Index(doc, font);
 	if (fontInd<0) {
@@ -766,10 +766,10 @@ PushLock(GRAPHICheap);
 		panSetting = FindIntInString(string);
 		pGraphic->info = panSetting;
 	}
-	else if (graphicType==GRMIDISustainOn) {
+	else if (graphicType==GRSusPedalDown) {
 		pGraphic->info = MIDISustainOn;
 	}
-	else if (graphicType==GRMIDISustainOff) {
+	else if (graphicType==GRSusPedalUp) {
 		pGraphic->info = MIDISustainOff;
 	}
 
@@ -790,10 +790,10 @@ PushLock(GRAPHICheap);
 
 	if (graphicType==GRLyric || graphicType==GRString) {
 			short i;
-			pGraphic->multiLine = FALSE;
+			pGraphic->multiLine = False;
 			for (i = 1; i <= string[0]; i++)
 				if (string[i] == CH_CR) {
-					pGraphic->multiLine = TRUE;
+					pGraphic->multiLine = True;
 					break;
 				}
 			pGraphic->info = styleChoice;
@@ -810,7 +810,7 @@ PushLock(GRAPHICheap);
 		set here to be the page. */
 
 	if (SystemTYPE(doc->selStartL)) {
-		pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, FALSE);
+		pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, False);
 		pGraphic->firstObj = pageL;
 	}
 	else
@@ -829,7 +829,7 @@ PushLock(GRAPHICheap);
 	if (PageTYPE(GraphicFIRSTOBJ(newL)))
 		InvalWindow(doc);
 	else
-		InvalObject(doc, newL, FALSE);
+		InvalObject(doc, newL, False);
 		
 Cleanup:
 PopLock(GRAPHICheap);
@@ -837,7 +837,7 @@ PopLock(OBJheap);
 }
 
 
-/* ------------------------------------------------------------------ NewMeasure -- */
+/* ------------------------------------------------------------------------ NewMeasure -- */
 /*	Add a Measure to the object list for all staves. */
 
 void NewMeasure(Document *doc,
@@ -863,11 +863,11 @@ void NewMeasure(Document *doc,
 	if (doc->selEndL==doc->tailL) UpdateTailxd(doc);
 
 	/* The immediate neighbors of the new barline are now in two different measures.
-	 *	If auto-respace is TRUE, both must be respaced.
+	 *	If auto-respace is True, both must be respaced.
 	 */
 	if (doc->autoRespace)
 		RespaceBars(doc, LeftLINK(doc->selStartL), RightLINK(doc->selStartL), 0L,
-						FALSE, FALSE);
+						False, False);
 	else {
 		endL = EndSystemSearch(doc, measL);
 		InvalMeasures(measL, endL, ANYONE);
@@ -875,7 +875,7 @@ void NewMeasure(Document *doc,
 }
 
 
-/* --------------------------------------------------------------- NewPseudoMeas -- */
+/* --------------------------------------------------------------------- NewPseudoMeas -- */
 /*	Add a Pseudomeasure to the object list for all staves. */
 
 void NewPseudoMeas(Document *doc,
@@ -896,7 +896,7 @@ PushLock(PSMEASheap);
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
 	NewObjInit(doc, PSMEAStype, &sym, inchar, ANYONE, &context);
 	prevMeasL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE,
-									GO_LEFT, FALSE);
+									GO_LEFT, False);
 	if (!prevMeasL) {
 		AlwaysErrMsg("NewPseudoMeas: can't find previous measure");
 		return;
@@ -931,9 +931,9 @@ PushLock(PSMEASheap);
 		aprevMeas = GetPAMEASURE(aprevMeasL);
 		
 		aPseudoMeas->staffn = aprevMeas->staffn;
-		aPseudoMeas->selected = TRUE;
-		aPseudoMeas->visible = TRUE;
-		aPseudoMeas->soft = FALSE;
+		aPseudoMeas->selected = True;
+		aPseudoMeas->visible = True;
+		aPseudoMeas->soft = False;
 		aPseudoMeas->connAbove = aprevMeas->connAbove;
 		aPseudoMeas->connStaff = aprevMeas->connStaff;
 	}
@@ -944,7 +944,7 @@ PushLock(PSMEASheap);
 	if (doc->selEndL==doc->tailL) UpdateTailxd(doc);
 
 	if (doc->autoRespace)
-		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, FALSE, FALSE);
+		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, False, False);
 	else
 		InvalMeasure(doc->selStartL, ANYONE);
 
@@ -953,7 +953,7 @@ PopLock(OBJheap);
 PopLock(PSMEASheap);
 }
 
-/* ------------------------------------------------------------------- AddToClef -- */
+/* ------------------------------------------------------------------------- AddToClef -- */
 
 void AddToClef(Document *doc, char inchar, short staff)
 {
@@ -966,8 +966,8 @@ void AddToClef(Document *doc, char inchar, short staff)
 
 		aClef = GetPACLEF(aClefL);
 		aClef->small = ClefINMEAS(newL);
-		aClef->soft = FALSE;
-		LinkSEL(newL) = aClef->selected = TRUE;
+		aClef->soft = False;
+		LinkSEL(newL) = aClef->selected = True;
 		doc->selEndL = RightLINK(newL);
 
 		GetContext(doc, LeftLINK(doc->selStartL), staff, &context);
@@ -981,7 +981,7 @@ void AddToClef(Document *doc, char inchar, short staff)
 		NoMoreMemory();
 }
 
-/* --------------------------------------------------------------------- NewClef -- */
+/* --------------------------------------------------------------------------- NewClef -- */
 /* Add a Clef to the object list. */
 
 void NewClef(Document *doc,
@@ -1003,7 +1003,7 @@ void NewClef(Document *doc,
 	}
 	newL = NewObjPrepare(doc, CLEFtype, &sym, inchar, staff, x, &context);
 	newp = GetPCLEF(newL);
-	newp->inMeasure = TRUE;
+	newp->inMeasure = True;
 	
 	if (context.clefType<=0)
 		AlwaysErrMsg("NewClef: GetContext(%ld, %ld, ...) gives illegal clef=%ld",
@@ -1014,9 +1014,9 @@ void NewClef(Document *doc,
 	InitClef(aClefL, staff, 0, symtable[sym].subtype);
 
 	aClef = GetPACLEF(aClefL);
-	aClef->selected = TRUE;
+	aClef->selected = True;
 	aClef->small = ClefINMEAS(newL);
-	aClef->soft = FALSE;
+	aClef->soft = False;
 
 	doneL = FixContextForClef(doc, RightLINK(newL), staff, oldClefType,
 										symtable[sym].subtype);
@@ -1025,7 +1025,7 @@ void NewClef(Document *doc,
 }
 
 
-/* ---------------------------------------------- Utilities for inserting KeySigs -- */
+/* --------------------------------------------------- Utilities for inserting KeySigs -- */
 
 static Boolean ChkIns1KSCancel(LINK ksL, short staff);
 static Boolean ChkInsKSCancel(Document *doc, LINK insL, short staff);
@@ -1037,13 +1037,13 @@ static Boolean ChkIns1KSCancel(LINK ksL, short staff)
 
 	aKeySigL = KeySigOnStaff(ksL, staff);
 	aKeySig = GetPAKEYSIG(aKeySigL);
-  	if (aKeySig->nKSItems>0) return TRUE;
+  	if (aKeySig->nKSItems>0) return True;
 
 	GetIndCString(fmtStr, INSERTERRS_STRS, 22);    /* "Staff %d has no key signature to cancel." */
 	sprintf(strBuf, fmtStr, staff); 
 	CParamText(strBuf, "", "", "");
 	StopInform(GENERIC_ALRT);
-	return FALSE;
+	return False;
 }
 
 static Boolean ChkInsKSCancel(Document *doc, LINK insL, short staff)
@@ -1053,16 +1053,16 @@ static Boolean ChkInsKSCancel(Document *doc, LINK insL, short staff)
 	loopEnd = (staff==ANYONE ? doc->nstaves : 1);
 	for (i = 1; i <= loopEnd; i++) {
 		s = (staff==ANYONE ? i : staff);
-		prevKSL = LSSearch(LeftLINK(insL), KEYSIGtype, s, GO_LEFT, FALSE);
+		prevKSL = LSSearch(LeftLINK(insL), KEYSIGtype, s, GO_LEFT, False);
 		/* There should always be a previous key sig. obj; if not, just return */
-		if (!prevKSL) return FALSE;
-		if (!ChkIns1KSCancel(prevKSL, s)) return FALSE;
+		if (!prevKSL) return False;
+		if (!ChkIns1KSCancel(prevKSL, s)) return False;
 	}
 
-	return TRUE;
+	return True;
 }
 
-/* ------------------------------------------------------------------- NewKeySig -- */
+/* ------------------------------------------------------------------------- NewKeySig -- */
 /* Add a KeySig to the object list at the insertion point. Assumes the
 insertion point is not in the first system's reserved area! */
 
@@ -1097,23 +1097,23 @@ PushLock(KEYSIGheap);
 	GetAllContexts(doc, context, LeftLINK(doc->selStartL));
 
 	newL = NewObjPrepare(doc, KEYSIGtype, &sym, dummyInchar, staff, x, &aContext);
-	LinkVALID(newL) = FALSE;
+	LinkVALID(newL) = False;
 
 	endL = newL;
 	stfCount = (staff==ANYONE ? doc->nstaves : 1);
 	newp = GetPKEYSIG(newL);
-	newp->inMeasure = TRUE;
+	newp->inMeasure = True;
 	aKeySigL = FirstSubLINK(newL);
 	for (i = 1; i <= stfCount; i++,aKeySigL = NextKEYSIGL(aKeySigL)) {
 		useStaff = (staff==ANYONE ? i : staff);
 		InitKeySig(aKeySigL, useStaff, 0, sharpsOrFlats);
 		aKeySig = GetPAKEYSIG(aKeySigL);
-		aKeySig->selected = TRUE;									/* Select the subobj */
-		aKeySig->visible = TRUE;									/* Regardless of sharpsOrFlats */
+		aKeySig->selected = True;									/* Select the subobj */
+		aKeySig->visible = True;									/* Regardless of sharpsOrFlats */
 
 		SetupKeySig(aKeySigL, sharpsOrFlats);
 		if (sharpsOrFlats==0) {
-			prevKSL = LSSearch(LeftLINK(newL), KEYSIGtype, useStaff, GO_LEFT, FALSE);
+			prevKSL = LSSearch(LeftLINK(newL), KEYSIGtype, useStaff, GO_LEFT, False);
 			aPrevKeySigL = KeySigOnStaff(prevKSL,useStaff);			/* Should always find one */
 
 			aPrevKeySig = GetPAKEYSIG(aPrevKeySigL);
@@ -1135,7 +1135,7 @@ PushLock(KEYSIGheap);
 	 *	space before the initial Measure on that and all following Systems until the
 	 * end of the range of the new KeySig on all staves.
 	 */ 
-	initKSL = LSSearch(RightLINK(newL), KEYSIGtype, ANYONE, GO_RIGHT, FALSE);
+	initKSL = LSSearch(RightLINK(newL), KEYSIGtype, ANYONE, GO_RIGHT, False);
 	if (initKSL) FixInitialKSxds(doc, initKSL, endL, staff);
 
 	InvalSystems(newL, (endL? endL : newL));
@@ -1146,7 +1146,7 @@ PopLock(KEYSIGheap);
 }
 
 
-/* ------------------------------------------------------------------ NewTimeSig -- */
+/* ------------------------------------------------------------------------ NewTimeSig -- */
 /* Add a TimeSig to the object list. */
 
 #define TIMESIG_PALCHAR '8'		/* Substitute this for blank <inchar> */
@@ -1172,7 +1172,7 @@ void NewTimeSig(Document *doc,
 
 	newL = NewObjPrepare(doc, TIMESIGtype, &sym, inchar, staff, x, &context);
 	newp = GetPTIMESIG(newL);
-	newp->inMeasure = TRUE;
+	newp->inMeasure = True;
 
 	stfCount = (staff==ANYONE ? doc->nstaves : 1);
 	aTimeSigL = FirstSubLINK(newL);		
@@ -1180,8 +1180,8 @@ void NewTimeSig(Document *doc,
 		useStaff = (staff==ANYONE ? i : staff);
 		InitTimeSig(aTimeSigL, useStaff, 0, type, numerator, denominator);
 		aTimeSig = GetPATIMESIG(aTimeSigL);
-		aTimeSig->soft = FALSE;
-		aTimeSig->selected = TRUE;						/* Select the subobj */
+		aTimeSig->soft = False;
+		aTimeSig->selected = True;						/* Select the subobj */
 		timeSigInfo.TSType = aTimeSig->subType;
 		timeSigInfo.numerator = aTimeSig->numerator;
 		timeSigInfo.denominator = aTimeSig->denominator;
@@ -1193,7 +1193,7 @@ void NewTimeSig(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ ModNRPitchLev -- */
+/* --------------------------------------------------------------------- ModNRPitchLev -- */
 typedef struct {
 	Byte	canBeInStaff;	/* can put modifier inside staff, if note head pos. allows (boolean) */
 	Byte	alwaysAbove;	/* if only 1 voice on staff, put modifier above staff, even if stem is up (boolean) */
@@ -1281,37 +1281,32 @@ short ModNRPitchLev(Document *doc,
 		yOffsetAbove = modInfoTable[modCode].yOffsetAbove;
 	}
 	else {
-		canBeInStaff = TRUE;
-		alwaysAbove = FALSE;
+		canBeInStaff = True;
+		alwaysAbove = False;
 		yOffsetAbove = yOffsetBelow = 0;
 	}
-	alwaysBelow = FALSE;
+	alwaysBelow = False;
 
-	/* NB: <alwaysAbove> and <alwaysBelow> can both be FALSE, but only one can be TRUE. */
-	if (doc->voiceTab[voice].voiceRole==UPPER_DI)
-		alwaysAbove = TRUE;
-	else if (doc->voiceTab[voice].voiceRole==LOWER_DI)
-		alwaysBelow = TRUE;
+	/* NB: <alwaysAbove> and <alwaysBelow> can both be False, but only one can be True. */
+	if (doc->voiceTab[voice].voiceRole==VCROLE_UPPER) alwaysAbove = True;
+	else if (doc->voiceTab[voice].voiceRole==VCROLE_LOWER) alwaysBelow = True;
 
-	if (alwaysAbove)
-		putModAbove = TRUE;
-	else if (alwaysBelow)
-		putModAbove = FALSE;
-	else
-		putModAbove = stemDown;
+	if (alwaysAbove)		putModAbove = True;
+	else if (alwaysBelow)	putModAbove = False;
+	else					putModAbove = stemDown;
 
-	yqpit = NoteYQPIT(mainNoteL) + halfLn2qd(midCHalfLn);					/* main notehead: qtr-lines below stftop */
+	yqpit = NoteYQPIT(mainNoteL) + halfLn2qd(midCHalfLn);				/* main notehead: qtr-lines below stftop */
 	yqstem = d2qd(NoteYSTEM(mainNoteL), context.staffHeight, context.staffLines);	/* and its stem end in qtr-lines below stftop */
 
 	hasMod = (NoteFIRSTMOD(mainNoteL)!=NILINK);
 
 //say("yqpit=%d, yqpit%%4=%d, yqstem=%d, alwaysAbove=%d, alwaysBelow=%d, hasMod=%d\n",yqpit,yqpit%4,yqstem,alwaysAbove,alwaysBelow,hasMod);
 
-	useStemEnd = FALSE;
+	useStemEnd = False;
 
 	if (putModAbove) {
 		if (!stemDown) {
-			useStemEnd = TRUE;
+			useStemEnd = True;
 			yqpit = yqstem;							/* substitute stem end pos. for note head */
 		}
 		if (canBeInStaff) {							/* allow mod placement in staff */
@@ -1339,7 +1334,7 @@ short ModNRPitchLev(Document *doc,
 	}
 	else {
 		if (stemDown) {
-			useStemEnd = TRUE;
+			useStemEnd = True;
 			yqpit = yqstem;							/* substitute stem end pos. for note head */
 		}
 		if (canBeInStaff) {							/* allow mod placement in staff */
@@ -1384,7 +1379,7 @@ short ModNRPitchLev(Document *doc,
 }
 
 
-/* ----------------------------------------------------------------------- NewMODNR -- */
+/* -------------------------------------------------------------------------- NewMODNR -- */
 /*	Add a note/rest modifier. */
 
 void NewMODNR(Document *doc,
@@ -1425,8 +1420,8 @@ void NewMODNR(Document *doc,
 	aModNR = GetPAMODNR(aModNRL);
 	
 	sym = GetSymTableIndex(inchar);
-	aModNR->selected = aModNR->soft = FALSE;
-	aModNR->visible = TRUE;
+	aModNR->selected = aModNR->soft = False;
+	aModNR->visible = True;
 	if (symtable[sym].subtype==MOD_TREMOLO1)
 		aModNR->modCode = MOD_TREMOLO1+slashes-1;
 	else
@@ -1434,12 +1429,12 @@ void NewMODNR(Document *doc,
 	aModNR->xstd = 0+XSTD_OFFSET;
 	aModNR->ystdpit = qd2std(qPitchLev);
 	aModNR->data = 0;
-	doc->changed = TRUE;
+	doc->changed = True;
 	InvalMeasure(syncL, staff);									/* Redraw the measure */
-	MEAdjustCaret(doc, TRUE);
+	MEAdjustCaret(doc, True);
 }
 
-/* ------------------------------------------------------------------- AutoNewModNR -- */
+/* ---------------------------------------------------------------------- AutoNewModNR -- */
 /* Add the specified modifier to the given note. Return the LINK of the new
 modifier, or NILINK if error. (Based on NewMODNR(). FIXME: The two should be
 merged, at least in part.) */
@@ -1480,8 +1475,8 @@ LINK AutoNewModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNote
 	}
 
 	aModNR = GetPAMODNR(aModNRL);
-	aModNR->selected = aModNR->soft = FALSE;
-	aModNR->visible = TRUE;
+	aModNR->selected = aModNR->soft = False;
+	aModNR->visible = True;
 	aModNR->modCode = modCode;
 	aModNR->xstd = 0+XSTD_OFFSET;
 	aModNR->ystdpit = qd2std(qPitchLev);
@@ -1491,7 +1486,7 @@ LINK AutoNewModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNote
 }
 
 
-/* ------------------------------------------------------- Functions for NewDynamic -- */
+/* ---------------------------------------------------------- Functions for NewDynamic -- */
 
 /* Call to InvalMeasures takes measL rather than lastSyncL as a parameter in an
 effort to avoid passing one more parameter. */
@@ -1501,13 +1496,13 @@ LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
 {
 	LINK sysL, measL, newL; PSYSTEM pSystem; PDYNAMIC newp; short dtype;
 
-	sysL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, FALSE);
+	sysL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, False);
 	pSystem = GetPSYSTEM(sysL);
 	*sysLeft = pSystem->systemRect.left;
 
 	dtype = symtable[GetSymTableIndex(inchar)].subtype;
 	if (dtype>=FIRSTHAIRPIN_DYNAM) {
-		measL = LSSearch(doc->selStartL, MEASUREtype, staff, GO_RIGHT, FALSE);
+		measL = LSSearch(doc->selStartL, MEASUREtype, staff, GO_RIGHT, False);
 		if (measL && !crossSys && SameSystem(measL, doc->selStartL))
 			if (LinkXD(measL) < p2d(x)-*sysLeft) {
 				GetIndCString(strBuf, INSERTERRS_STRS, 8);			/* "Hairpin cannot start in a different measure from its first note." */
@@ -1526,7 +1521,7 @@ LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
 	return newL;
 }
 
-/* --------------------------------------------------------------------- NewDynamic -- */
+/* ------------------------------------------------------------------------ NewDynamic -- */
 /* Add a dynamic marking to the object list. */
 
 void NewDynamic(
@@ -1546,10 +1541,10 @@ void NewDynamic(
 	/* Insertion of crossSys dynamics is not currently undoable. */
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  						/* "Undo Insert" */
 
-	newL = AddNewDynamic(doc, staff, x, &sysLeft, inchar, &sym, &context, FALSE);
+	newL = AddNewDynamic(doc, staff, x, &sysLeft, inchar, &sym, &context, False);
 	if (!newL) return;
 	newp = GetPDYNAMIC(newL);
-	newp->crossSys = FALSE;
+	newp->crossSys = False;
 
 	InitDynamic(doc, newL, staff, x, sysLeft, pitchLev, &context);
 	SetupHairpin(newL, staff, lastSyncL, sysLeft, endx, crossSys);
@@ -1557,11 +1552,11 @@ void NewDynamic(
 	FixContextForDynamic(doc, RightLINK(newL), staff, context.dynamicType,
 									symtable[sym].subtype);
 
-	InvalObject(doc,newL,FALSE);
+	InvalObject(doc,newL,False);
 	NewObjCleanup(doc, newL, staff);
 }
 
-/* ------------------------------------------------------------------- NewRptEnd -- */
+/* ------------------------------------------------------------------------- NewRptEnd -- */
 /*	Add a Repeat/End to the object list. */
 
 void NewRptEnd(Document *doc,
@@ -1582,29 +1577,29 @@ void NewRptEnd(Document *doc,
 		
 	newL = NewObjPrepare(doc, RPTENDtype, &sym, inchar, ANYONE, x, &context);
 	
-	prevMeasL = LSSearch(newL, MEASUREtype, ANYONE, TRUE, FALSE);
+	prevMeasL = LSSearch(newL, MEASUREtype, ANYONE, True, False);
 	InitRptEnd(newL, staff, symtable[sym].subtype, prevMeasL);
 	
 	newp = GetPRPTEND(newL);
 	switch(newp->subType) {
 		case RPT_L:
-			pL = LSSearch(RightLINK(newL), RPTENDtype, ANYONE, FALSE, FALSE);
+			pL = LSSearch(RightLINK(newL), RPTENDtype, ANYONE, False, False);
 			if (pL) newp->endRpt = pL;
 			else	  newp->endRpt = NILINK;
 			newp->startRpt = NILINK;
 			break;
 		case RPT_R:
-			pL = LSSearch(LeftLINK(newL), RPTENDtype, ANYONE, TRUE, FALSE);
+			pL = LSSearch(LeftLINK(newL), RPTENDtype, ANYONE, True, False);
 			if (pL) newp->startRpt = pL;
 			else	  newp->startRpt = NILINK;
 			newp->endRpt = NILINK;
 			break;
 		case RPT_LR:
-			pL = LSSearch(RightLINK(newL), RPTENDtype, ANYONE, FALSE, FALSE);
+			pL = LSSearch(RightLINK(newL), RPTENDtype, ANYONE, False, False);
 			if (pL) newp->endRpt = pL;
 			else	  newp->endRpt = NILINK;
 
-			pL = LSSearch(LeftLINK(newL), RPTENDtype, ANYONE, TRUE, FALSE);
+			pL = LSSearch(LeftLINK(newL), RPTENDtype, ANYONE, True, False);
 			if (pL) newp->startRpt = pL;
 			else	  newp->startRpt = NILINK;
 			break;
@@ -1617,7 +1612,7 @@ void NewRptEnd(Document *doc,
 	NewObjCleanup(doc, newL, staff);
 }
 
-/* -------------------------------------------------------------------- NewEnding -- */
+/* ------------------------------------------------------------------------- NewEnding -- */
 /*	Add an ending to the object list. */
 
 void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clickStaff,
@@ -1661,9 +1656,9 @@ void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clic
 	InvalMeasures(firstL,lastL,ANYONE);
 }
 
-/* ----------------------------------------------------------------------- NewTempo -- */
+/* -------------------------------------------------------------------------- NewTempo -- */
 /*	Add a Tempo/metronome mark to the object list. One slightly tricky thing: if _noMM_
-is FALSE, the metronome mark is to be ignored. */
+is False, the metronome mark is to be ignored. */
 
 void NewTempo(Document *doc, Point pt, char inchar, short staff, STDIST pitchLev,
 				Boolean useMM, Boolean showMM, short dur, Boolean dotted, Boolean expanded,
@@ -1680,7 +1675,6 @@ PushLock(OBJheap);
 	pTempo = GetPTEMPO(pL);
 	pTempo->staffn = staff;
 	pTempo->expanded = expanded;
-//LogPrintf(LOG_DEBUG, "NewTempo: expanded=%d, pTempo->expanded=%d\n", expanded, pTempo->expanded);
 	pTempo->yd = halfLn2d(pitchLev, context.staffHeight, context.staffLines);
 	pTempo->xd = 0;											/* same horiz position as note */
 	pTempo->filler = 0;										/* Added in v. 5.6. --DAB */
@@ -1706,12 +1700,12 @@ PushLock(OBJheap);
 	pTempo->firstObjL = doc->selStartL;						/* tempo inserted relative to this obj */
 PopLock(OBJheap);
 
-	InvalObject(doc, pL, FALSE);
+	InvalObject(doc, pL, False);
 	NewObjCleanup(doc, pL, staff);
 }
 
 
-/* ----------------------------------------------------------------------- NewSpace -- */
+/* -------------------------------------------------------------------------- NewSpace -- */
 /*	Add a Space mark to the object list. */
 
 void NewSpace(Document *doc, Point pt, char inchar, short topStaff, short bottomStaff,

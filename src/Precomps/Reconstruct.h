@@ -21,11 +21,6 @@ void InsertJDBefore(LINK, LINK);
 void InsertJITBefore(LINK, LINK);
 void InsertJIPBefore(LINK, LINK);
 
-void LocateJITObj(Document *, LINK, LINK, LINK, PTIME *);
-void LocateJIPObj(Document *, LINK, LINK, LINK, PTIME *);
-void LocateGenlJDObj(Document *, LINK, PTIME *);
-void LocateJDObj(Document *, LINK, LINK, PTIME *);
-
 void DebugDurArray(short narrBound, PTIME *durArray);
 
 void RelocateObjs(Document *,LINK,LINK,LINK,LINK,PTIME *);
@@ -36,8 +31,8 @@ void SetCopyMap(LINK startL,LINK endL,short numObjs,COPYMAP *mergeMap);
 LINK GetCopyMap(LINK link,short numObjs,COPYMAP *mergeMap);
 short GetNumClObjs(Document *);
 
-void RelocateClObjs(Document *,LINK,LINK,LINK,LINK,PTIME *,short,COPYMAP *,short *);
-void RelocateClGenlJDObjs(Document *,LINK,LINK,LINK,LINK,PTIME *,short,COPYMAP *,short *);
+void RelocateClObjs(Document *,LINK,LINK,LINK,LINK,PTIME *,short,COPYMAP *,short *, Boolean);
+void RelocateClGenlJDObjs(Document *,LINK,LINK,LINK,LINK,PTIME *,short,COPYMAP *,short *, Boolean);
 
 LINK GetFirstBeam(LINK syncL);
 LINK GetFirstTuplet(LINK syncL);

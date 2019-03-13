@@ -68,7 +68,7 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 			FrameRect(&cellRect);
 			SetPenState(&pnState);
 
-	  		if (lDataLen > 0) { // && charPort != NIL) {  			  		
+	  		if (lDataLen > 0) { // && charPort != NULL) {  			  		
 				p = cellData + lDataOffset;
 				
 				cellRect.top++; cellRect.left++;
@@ -128,9 +128,9 @@ void GetCharBBox(GrafPtr port, Rect *bbox)
 	numBytes = portHt * rowBytes;
 	
 	p = portBits->baseAddr;
-	for (i=0, gotIt=FALSE; i<numBytes; i++, p++) {
+	for (i=0, gotIt=False; i<numBytes; i++, p++) {
 		if (*p) {
-			gotIt = TRUE;
+			gotIt = True;
 			break;
 		}
 	}
@@ -144,9 +144,9 @@ i.e., am I trying to access a WORD (or larger) value aligned on an odd address?
 I think the answer is "No". If I were doing "if (*(short *)p)" below, then I would be.
 */
 	p = portBits->baseAddr + numBytes-1;				/* point at last byte in bitmap */
-	for (i=numBytes-1, gotIt=FALSE; i>=0; i--, p--) {
+	for (i=numBytes-1, gotIt=False; i>=0; i--, p--) {
 		if (*p) {
-			gotIt = TRUE;
+			gotIt = True;
 			break;
 		}
 	}

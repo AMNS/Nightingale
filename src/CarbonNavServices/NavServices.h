@@ -44,7 +44,7 @@ OSStatus BeginSave( NavDialogRef inDialog, NavReplyRecord* outReply, FSRef* outF
 OSStatus CompleteSave( NavReplyRecord* inReply, FSRef* inFileRef, Boolean inDidWriteFile );
 // Call CompleteSave after savibg a documen,t passing back the reply returned by 
 // BeginSave. This call performs any file tranlation needed and disposes the reply.
-// If the save didn't succeed, pass false for inDidWriteFile to avoid
+// If the save didn't succeed, pass False for inDidWriteFile to avoid
 // translation but still dispose the reply.
  
 #endif // _NAVSERVICES_

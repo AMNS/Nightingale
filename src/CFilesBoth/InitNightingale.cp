@@ -1,11 +1,13 @@
-/* InitNightingale.c for Nightingale */
+/* InitNightingale.c for Nightingale
+One-time initialization of Nightingale-specific stuff. Assumes the Macintosh
+toolbox has already been initialized and the config struct filled in. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -27,13 +29,9 @@ static Boolean	InitMIDISystem(void);
 
 static void		NExitToShell(char *msg);
 
-/* ------------------------------------------------------------- InitNightingale -- */
-/* One-time initialization of Nightingale-specific stuff. Assumes the Macintosh
-toolbox has already been initialized and the config struct filled in. */
-
 void InitNightingale()
 {
-	InitNightFonts();									/* Do this first to be ready for dialogs */
+	InitNightFonts();								/* Do this first to be ready for dialogs */
 
 	if (!config.fastLaunch)
 		if (!DoSplashScreen()) NExitToShell("Splash Screen");
@@ -44,7 +42,7 @@ void InitNightingale()
 	if (!InitTables()) NExitToShell("Init Tables");
 	PrintInfo();
 	InitMusicFontStuff();
-	if (!InitMIDISystem()) NExitToShell("Init Midi");
+	if (!InitMIDISystem()) NExitToShell("Init MIDI");
 }
 
 static void NExitToShell(char *msg)
@@ -55,11 +53,11 @@ static void NExitToShell(char *msg)
 }
 
 
-/* Display splash screen. If all OK, return TRUE; if there's a problem, return FALSE.
+/* Display splash screen. If all OK, return True; if there's a problem, return False.
 
 In commercial versions of Nightingale, the splash screen we displayed shows the owner's
 name and organization, to discourage illegal copying. We also checked (but didn't display)
-the copy serial number: if it's wrong, return FALSE. */
+the copy serial number: if it's wrong, return False. */
 
 #define NAME_DI 1
 #define ABOUT_DI 2
@@ -71,7 +69,7 @@ static Boolean DoSplashScreen()
 
 	GetPort(&oldPort);
 	dlog = GetNewDialog(OWNER_DLOG, NULL, BRING_TO_FRONT);
-	if (!dlog) return FALSE;
+	if (!dlog) return False;
 	SetPort(GetDialogWindowPort(dlog));
 
 	GetDialogItem(dlog, NAME_DI, &aShort, &aHdl, &aRect);
@@ -89,7 +87,7 @@ static Boolean DoSplashScreen()
 	DisposeDialog(dlog);										/* Free heap space */
 	SetPort(oldPort);
 
-	return TRUE;
+	return True;
 }
 
 
@@ -108,7 +106,7 @@ static Boolean InitAllCursors()
 	if (nsyms>MAX_CURSORS) {
 		MayErrMsg("InitAllCursors: Need %ld cursors but only allocated %ld",
 					(long)nsyms, (long)MAX_CURSORS);
-		return FALSE;
+		return False;
 	}
 	
 	for (i = 0;i<nsyms; i++)							/* Fill in list of cursor handles */
@@ -117,13 +115,13 @@ static Boolean InitAllCursors()
 		else
 			cursorList[i] = (CursHandle)0;
 	arrowCursor = currentCursor = GetCursor(ARROW_CURS);
-	return TRUE;
+	return True;
 	
 Error:
 	GetIndCString(strBuf, INITERRS_STRS, 7);			/* "Can't find cursor resources" */
 	CParamText(strBuf, "", "", "");
 	StopInform(GENERIC_ALRT);
-	return FALSE;
+	return False;
 }
 
 
@@ -147,8 +145,8 @@ void InitNightFonts()
 }
 
 
-/* Allocate <endingString> and get label strings for Endings into it. Return the
-number of strings found, or -1 if there's an error (probably out of memory). */
+/* Allocate <endingString> and get label strings for Endings into it. Return the number
+of strings found, or -1 if there's an error (probably out of memory). */
 
 static short InitEndingStrings(void);
 static short InitEndingStrings()
@@ -185,11 +183,10 @@ static Boolean InitNightGlobals()
 	char	fmtStr[256];
 	short	j;
 	
-	/*
-	 *	Since initialization routines can (and as of this writing do) use the coordinate-
-	 * conversion macros, set up variables used by those macros as if no magnification
-	 * is in effect.
-	 */	
+	/* Since initialization routines can (and as of this writing do) use the coordinate-
+	   conversion macros, set up variables used by those macros as if no magnification
+	   is in effect. */
+	
 	magShift = 4;
 	magRound = 8;
 		
@@ -197,9 +194,9 @@ static Boolean InitNightGlobals()
 	clickMode = ClickSelect;
 	lastCopy = COPYTYPE_CONTENT;
 
-	doNoteheadGraphs = FALSE;							/* Normal noteheads, not tiny graphs */
+	doNoteheadGraphs = False;							/* Normal noteheads, not tiny graphs */
 	playTempoPercent = 100;								/* Play using the tempi as marked */
-	unisonsOK = TRUE;									/* Don't complain about perfect unisons */
+	unisonsOK = True;									/* Don't complain about perfect unisons */
 
 	/* Find input char. codes for important symbol table entries */
 	
@@ -217,7 +214,7 @@ static Boolean InitNightGlobals()
 	maxEndingNum = InitEndingStrings();
 	if (maxEndingNum<0) {
 		NoMoreMemory();
-		return FALSE;
+		return False;
 	}
 	else if (maxEndingNum<5) {
 		GetIndCString(fmtStr, INITERRS_STRS, 26);	/* "Found only %d Ending strings: Ending labels may not be shown." */
@@ -226,26 +223,31 @@ static Boolean InitNightGlobals()
 		NoteInform(GENERIC_ALRT);
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
-/* Read 'BBX#', 'MCMp' and 'MCOf' resources for alternative music fonts, and store
-their information in newly allocated musFontInfo[]. Return TRUE if OK; FALSE if error.
-Assumes that each font, including Sonata, has one of all three types of resource
-mentioned above, and that the resource ID's for a font's three types match.  For
-example, "Petrucci" should have 'BBX#' 129, 'MCMp' 129 and 'MCOf' 129.
--JGG, 4/25/01 */
+/* Read 'BBX#', 'MCMp', 'MCOf', and 'MFEx' resources for music fonts we can handle and
+store their information in newly allocated musFontInfo[]. Return True if OK; False if
+error. Assumes that each font has one of all four types of resource mentioned above,
+and that the resource ID's for a font's four types match.  For example, "Petrucci"
+should have 'BBX#' 129, 'MCMp' 129, 'MCOf' 129, and 'MFEx' 129. -JGG, 4/25/01; rev.
+by DAB, 2/1/18. */
+
+#define LPD(z)	if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG, "  %d", (z));
+#define LPDL(z)	if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG, "  %d\n", (z));
 
 static Boolean InitMusFontTables()
 {
 	short	i, nRes, resID, curResFile;
-	short	*w, ch, count, xw, xl, yt, xr, yb, index;
+	short	*w, index, xl, yt, xr, yb;
+	unsigned short ch, chCount, xw;
 	unsigned char *b;
 	Handle	resH;
 	Size	nBytes;
 	OSType	resType;
 	Str255	resName;
+	char	musFontName[32];
 
 	curResFile = CurResFile();
 	UseResFile(appRFRefNum);
@@ -258,45 +260,79 @@ static Boolean InitMusFontTables()
 	musFontInfo = (MusFontRec *)NewPtr(nBytes);
 	if (!GoodNewPtr((Ptr)musFontInfo)) {
 		OutOfMemory((long)nBytes);
-		return FALSE;
+		return False;
 	}
 
 	/* Read 'BBX#' (character bounding box) info. */
 	index = 0;
 	for (i = 1; i<=nRes; i++) {
-		resH = Get1IndResource('BBX#', i);
+		resH = Get1IndResource('BBX#', i); 
 		if (!GoodResource(resH)) goto error;
 		GetResInfo(resH, &resID, &resType, resName);
 		if (ReportResError()) goto error;
-		if (resName[0]>31)			/* font name must have < 32 chars */
+		if (resName[0]>31)					/* font name must have < 32 chars. */
 			goto error;
 		Pstrcpy(musFontInfo[index].fontName, resName);
 		GetFNum(resName, &musFontInfo[index].fontID);
 
-		for (ch = 0; ch<256; ch++)
+		/* Set all bounding boxes to empty, then fill in actual values for chars. that
+		   exist in this font. */
+		
+		for (ch = 0; ch<256; ch++) {
 			musFontInfo[index].cBBox[ch].left = 
 			musFontInfo[index].cBBox[ch].top = 
 			musFontInfo[index].cBBox[ch].right = 
 			musFontInfo[index].cBBox[ch].bottom = 0;
+		}
 
 		w = (short *)(*resH);
-		count = *w++;
-		while (count-- > 0) {
-			ch = *w++;
-			xw = *w++;
-			xl = *w++; yb = -(*w++); xr = *w++; yt = -(*w++);
+		chCount = *w++;
+		FIX_END(chCount);
+		Pstrcpy((StringPtr)musFontName, resName);
+		PToCString((StringPtr)musFontName);
+		LogPrintf(LOG_NOTICE, "Setting up music font '%s' (font no. %d): %d chars.  (InitMusFontTables)\n",
+						musFontName, musFontInfo[index].fontID, chCount);
+		while (chCount-- > 0) {
+			ch = *w++; FIX_END(ch);
+#if 0
+			xw = *w++; LPD(xw); FIX_END(xw); LPDL(xw);
+			xl = *w++; LPD(xl); FIX_END(xl); LPDL(xl);
+			yb = -(*w++); LPD(yb); FIX_END(yb); LPDL(yb);	yb -= 255;
+			xr = *w++; LPD(xr); FIX_END(xr); LPDL(xr);
+			yt = -(*w++); LPD(yt); FIX_END(yt); LPDL(yt);	yt -=255;
+#else
+			xw = *w++; FIX_END(xw);
+			xl = *w++; FIX_END(xl);
+			yb = -(*w++); FIX_END(yb);
+			xr = *w++; FIX_END(xr);
+			yt = -(*w++); FIX_END(yt);
+			
+			/* An incredibly weird thing I can only attribute (after much digging) to a
+			   bug in the Intel version of the Resource Manager is that values for yb and
+			   yt on Intel are consistently too large by 255! So correct for that. (We're
+			   only concerned with Intels and PowerPCs, so little Endian is equivalent to
+			   Intel.) */
+
+#if TARGET_RT_LITTLE_ENDIAN
+			yb -= 255; yt -= 255;
+#endif
+
+			//if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG,
+			//		"InitMusFontTables: ch=%c=%u yt=%d yb=%d\n", ch, ch, yt, yb);
+#endif
 			if (ch>=0 && ch<256)
 				SetRect(&musFontInfo[index].cBBox[ch], xl, yt, xr, yb);
 			else
-				MayErrMsg("InitMusFontTables: 'BBX#' %d: ch=%d IS ILLEGAL\n", resID);
+				MayErrMsg("Info on font '%s' refers to illegal char code %u.  (InitMusFontTables)\n",
+							musFontName, ch);
 		}
 		ReleaseResource(resH);
 		index++;
 	}
 
-	/* NOTE: For the other resources, we use Get1NamedResource instead of 
-		Count1Resources, because we can't rely on the order of resources in
-		the resource map being the same as with the 'BBX#' resource. */
+	/* For the other resources, we use Get1NamedResource instead of Count1Resources
+	   because we can't rely on the order of resources in the resource map being the
+	   same as with the 'BBX#' resource. */
 
 	/* Read 'MCMp' (music character mapping) info. */
 	for (i = 0; i < numMusFonts; i++) {
@@ -314,8 +350,8 @@ static Boolean InitMusFontTables()
 		if (!GoodResource(resH)) goto error;
 		w = (short *)(*resH);
 		for (ch = 0; ch<256; ch++) {
-			musFontInfo[i].xd[ch] = *w++;
-			musFontInfo[i].yd[ch] = *w++;
+			musFontInfo[i].xd[ch] = *w++; FIX_END(musFontInfo[i].xd[ch]);
+			musFontInfo[i].yd[ch] = *w++; FIX_END(musFontInfo[i].yd[ch]);
 		}
 		ReleaseResource(resH);
 	}
@@ -331,28 +367,28 @@ static Boolean InitMusFontTables()
 		musFontInfo[i].hasRepeatDotsChar = (*w++ != 0);
 		musFontInfo[i].upstemFlagsHaveXOffset = (*w++ != 0);
 		musFontInfo[i].hasStemSpaceChar = (*w++ != 0);
-		musFontInfo[i].stemSpaceWidth = *w++;
-		musFontInfo[i].upstemExtFlagLeading = *w++;
-		musFontInfo[i].downstemExtFlagLeading = *w++;
-		musFontInfo[i].upstem8thFlagLeading = *w++;
-		musFontInfo[i].downstem8thFlagLeading = *w++;
+		musFontInfo[i].stemSpaceWidth = *w++; FIX_END(musFontInfo[i].stemSpaceWidth);
+		musFontInfo[i].upstemExtFlagLeading = *w++; FIX_END(musFontInfo[i].upstemExtFlagLeading);
+		musFontInfo[i].downstemExtFlagLeading = *w++; FIX_END(musFontInfo[i].downstemExtFlagLeading);
+		musFontInfo[i].upstem8thFlagLeading = *w++; FIX_END(musFontInfo[i].upstem8thFlagLeading);
+		musFontInfo[i].downstem8thFlagLeading = *w++; FIX_END(musFontInfo[i].downstem8thFlagLeading);
 		Pstrcpy(musFontInfo[i].postscriptFontName, (StringPtr)w);
 		ReleaseResource(resH);
 	}
 
 	UseResFile(curResFile);
-	return TRUE;
+	return True;
 error:
-	GetIndCString(strBuf, INITERRS_STRS, 28);		/* "Trouble reading alternative music font information." */
+	GetIndCString(strBuf, INITERRS_STRS, 28);		/* "Nightingale can't get its information on music font..." */
 	CParamText(strBuf, "", "", "");
 	NoteInform(GENERIC_ALRT);
 	UseResFile(curResFile);
-	return FALSE;
+	return False;
 }
 
 
-/* Initialize duration, rastral size, dynam to MIDI velocity, etc. tables. If
-there's a serious problem, return FALSE, else TRUE. */
+/* Initialize duration, rastral size, dynam to MIDI velocity, etc. tables. If there's
+a serious problem, return False, else True. */
 
 static Boolean InitTables()
 {
@@ -360,7 +396,7 @@ static Boolean InitTables()
 	MIDIModNRPreferences **midiModNRH;
 	short i;
 
-	l2p_durs[MAX_L_DUR] = PDURUNIT;					/* Set up lookup table to convert; assign 15 to 128th for tuplets */
+	l2p_durs[MAX_L_DUR] = PDURUNIT;					/* Set up lookup table to convert */
 	for (i = MAX_L_DUR-1; i>0; i--)					/*   logical to physical durations */
 		l2p_durs[i] = 2*l2p_durs[i+1];
 		
@@ -370,45 +406,45 @@ static Boolean InitTables()
 		
 	if (LAST_DYNAM!=24) {
 		MayErrMsg("InitTables: dynam2velo table setup problem.");
-		return FALSE;
+		return False;
 	}
-	midiStuff = (MIDIPreferences **)GetResource('MIDI',PREFS_MIDI);
+	midiStuff = (MIDIPreferences **)GetResource('MIDI', PREFS_MIDI);
 	if (midiStuff==NULL || *midiStuff==NULL) {
 		GetIndCString(strBuf, INITERRS_STRS, 8);	/* "Can't find MIDI resource" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	for (i = 1; i<LAST_DYNAM; i++)						/* Set up dynamic-mark-to-MIDI-velocity table */
 		dynam2velo[i] = (*midiStuff)->velocities[i-1];
 
-	midiModNRH = (MIDIModNRPreferences **)GetResource('MIDM',PREFS_MIDI_MODNR);
+	midiModNRH = (MIDIModNRPreferences **)GetResource('MIDM', PREFS_MIDI_MODNR);
 	if (midiModNRH==NULL || *midiModNRH==NULL) {
 		GetIndCString(strBuf, INITERRS_STRS, 31);		/* "Can't find MIDM resource" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	/* Set up MIDI modifier velocity offset and duration factor tables */
 	for (i = 0; i<32; i++) {
-		modNRVelOffsets[i] = (*midiModNRH)->velocityOffsets[i];
-		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i];
+		modNRVelOffsets[i] = (*midiModNRH)->velocityOffsets[i];  FIX_END(modNRVelOffsets[i]);
+		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i];  FIX_END(modNRDurFactors[i]);
 	}
 
-	if (!InitMusFontTables())
-		return FALSE;
+	if (!InitMusFontTables()) return False;
+	
 	if (!InitStringPools(256L, 0)) {
 		NoMoreMemory();
-		return FALSE;
+		return False;
 	}
 	
 	contextA = (CONTEXT *)NewPtr((MAXSTAVES+1)*(Size)sizeof(CONTEXT));
 	if (!GoodNewPtr((Ptr)contextA)) {
 		OutOfMemory((long)(MAXSTAVES+1)*(Size)sizeof(CONTEXT));
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;	
+	return True;	
 }
 
 
@@ -419,17 +455,17 @@ static void PrintInfo()
 #ifndef PUBLIC_VERSION
 #ifdef IDEBUG
 
-	LogPrintf(LOG_NOTICE, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
+	LogPrintf(LOG_DEBUG, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
 	
-	LogPrintf(LOG_NOTICE, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
 		sizeof(HEADER), sizeof(TAIL), sizeof(SYNC), sizeof(RPTEND), sizeof(PAGE));
-	LogPrintf(LOG_NOTICE, "Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
 		sizeof(SYSTEM), sizeof(STAFF), sizeof(MEASURE), sizeof(CLEF), sizeof(KEYSIG));
-	LogPrintf(LOG_NOTICE, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
 		sizeof(TIMESIG), sizeof(BEAMSET), sizeof(CONNECT), sizeof(DYNAMIC));
-	LogPrintf(LOG_NOTICE, "Size of GRAPHIC=%ld OTTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of GRAPHIC=%ld OTTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
 		sizeof(GRAPHIC), sizeof(OTTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
-	LogPrintf(LOG_NOTICE, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
 		sizeof(TEMPO), sizeof(SPACER), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
 #endif
 #endif
@@ -437,11 +473,11 @@ static void PrintInfo()
 
 
 /* GetFontNumber returns in the <fontNum> parameter the number for the font with
-the given font name. If there's no such font, it returns TRUE. From Inside Mac VI,
+the given font name. If there's no such font, it returns True. From Inside Mac VI,
 12-16. */
 
-Boolean GetFontNumber(const Str255, short *);
-Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
+static Boolean GetFontNumber(const Str255, short *);
+static Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 {
 	Str255 systemFontName;
 	
@@ -449,10 +485,10 @@ Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 	if (*pFontNum==0) {
 		/* Either the font was not found, or it is the system font. */
 		GetFontName(0, systemFontName);
-		return EqualString(fontName, systemFontName, FALSE, FALSE);
+		return EqualString(fontName, systemFontName, False, False);
 	}
 	else
-		return TRUE;
+		return True;
 }
 
 
@@ -460,7 +496,7 @@ Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 
 static void CheckScreenFonts()
 {
-	short	origLen, foundSizes=0;
+	unsigned short	origLen, foundSizes=0;
 	short	fontNum;
 
 	if (!GetFontNumber("\pSonata", &fontNum)) {
@@ -472,9 +508,9 @@ static void CheckScreenFonts()
 
 	/* FIXME: The following comment obviously predates OS X. What's the situation now?
 		--DAB, Mar. 2016
-		Under System 7, it seems that only the first call to RealFont is meaningful:
-		following calls for any size always return TRUE! So it's not obvious how to find
-		out what sizes are really present without looking at the FONTs or NFNTs. */
+		"Under System 7, it seems that only the first call to RealFont is meaningful:
+		following calls for any size always return True! So it's not obvious how to find
+		out what sizes are really present without looking at the FONTs or NFNTs." */
 		
 	GetIndCString(strBuf, INITERRS_STRS, 16);			/* "Screen versions of the Sonata music font not available in size(s):" */
 	origLen = strlen(strBuf);
@@ -505,9 +541,9 @@ static void CheckScreenFonts()
 		StopInform(GENERIC_ALRT);
 	}
 
-	if (strlen(strBuf)<=origLen) LogPrintf(LOG_NOTICE,
-		"CheckScreenFonts: found all %d screen sizes of the Sonata music font.\n", foundSizes);
-	else LogPrintf(LOG_WARNING, "CheckScreenFonts: %s\n", strBuf);
+	if (strlen(strBuf)<=origLen) LogPrintf(LOG_INFO,
+		"Found all %d screen sizes of the Sonata music font.  (CheckScreenFonts)\n", foundSizes);
+	else LogPrintf(LOG_WARNING, "%s (CheckScreenFonts)\n", strBuf);
 }
 
 
@@ -534,7 +570,7 @@ void InitMusicFontStuff()
 	maxMCharHt = maxMCharWid;
 #ifdef USE_GWORLDS
 	/* We lock the pixmap inside MakeGWorld and leave it that way. */
-	fontPort = (GrafPtr)MakeGWorld(maxMCharWid, maxMCharHt, TRUE);
+	fontPort = (GrafPtr)MakeGWorld(maxMCharWid, maxMCharHt, True);
 #else
 	fontPort = NewGrafPort(maxMCharWid, maxMCharHt);
 #endif
@@ -542,16 +578,14 @@ void InitMusicFontStuff()
 }
 
 
-#ifdef TARGET_API_MAC_CARBON_MIDI
-
 static Boolean InitChosenMIDISystem()
 {
-	Boolean midiOK = TRUE;
+	Boolean midiOK = True;
 	
 	if (useWhichMIDI == MIDIDR_CM)
 		midiOK = InitCoreMIDI();
 	
-	LogPrintf(LOG_NOTICE, "useWhichMIDI=%d midiOK=%d\n", useWhichMIDI, midiOK);
+	LogPrintf(LOG_INFO, "useWhichMIDI=%d midiOK=%d  (InitChosenMIDISystem)\n", useWhichMIDI, midiOK);
 	return midiOK;
 }
 
@@ -562,7 +596,3 @@ Boolean InitMIDISystem()
 
 	return InitChosenMIDISystem();
 }
-
-#endif // TARGET_API_MAC_CARBON_MIDI
-
-

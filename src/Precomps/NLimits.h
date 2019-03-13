@@ -1,9 +1,12 @@
 /* NLimits.h for Nightingale */
 
-/* MacOS 9's limit on filename length was 31 characters; OS X's limit is 255, but
-problems have often been reported with anything over 31 chars. FIXME: FILENAME_MAXLEN
-should be used in several more places, e.g., DoPostScript, SaveNotelist, NameMFScore. */
-#define FILENAME_MAXLEN 31
+/* MacOS 9's limit on filename length was 31 characters; OS X's limit is 255. In the
+early days of OS X, problems were often reported with anything over 31 chars., but not
+in recent years. However, the Carbon toolkit seems to retain the OS 9 limit, so that's
+still all we can handle. --DAB, Oct. 2017.  FIXME: FILENAME_MAXLEN should be used in
+several more places, e.g., DoPostScript, NameMFScore. */
+
+#define FILENAME_MAXLEN 31	/* Max. number of chars. in a filename */
 
 #define MAXSTAVES 64		/* Maximum number of staves attached to a system */
 #define MAXSTPART 16		/* Maximum no. of staves in one part */
@@ -20,13 +23,15 @@ should be used in several more places, e.g., DoPostScript, SaveNotelist, NameMFS
 							/*   duration = 1/2^(MAX_L_DUR-WHOLE_L_DUR) */
 #define MAX_KSITEMS 7		/* Maximum no. of items in key signature */
 
+#define MAX_FONTSTYLENUM FONT_R9	/* Max. value of index into font style table */
 #define MAX_SCOREFONTS 20	/* Maximum no. of font families in one score */
 #define MAX_CURSORS 100		/* Maximum no. of cursors used by symtable */
 
 #define MAX_TSNUM 99		/* Maximum time signature numerator */
 #define MAX_TSDENOM 64		/* Maximum time signature denominator */
 
-#define MAX_MEASURES 5000	/* Max. no. of Measures we can respace per call */
+#define MAX_FIRSTMEASNUM 4000	/* Largest number for the first measure */
+#define MAX_RSP_MEASURES 5000	/* Max. no. of Measures we can respace per call */
 
 #define MAX_CHANGES 50		/* Max. no. of changes in one call to Master Page */
 
