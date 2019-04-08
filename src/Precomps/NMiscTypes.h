@@ -591,7 +591,7 @@ typedef struct {
 	short			nChangeMP,
 					npartsFiller,		/* Unused; formerly <nparts>, used in MPImportExport.c */
 					nstaves1Filler;		/* Unused; formerly <nstaves>, used in MPImportExport.c */
-	CHANGE_RECORD	change[MAX_CHANGES];
+	CHANGE_RECORD	change[MAX_MPCHANGES];
 
 	LINK			oldSelStartL,
 					oldSelEndL;

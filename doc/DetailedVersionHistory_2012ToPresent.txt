@@ -1935,7 +1935,7 @@ ScoreInfo, SetCommand, UIFUtils.
 
 -------------------------------------------------------------------------------
 
-7 Jan.
+7 Jan. 2018
 
 Changed the keydown combination to add more detailed debug info to the log file from
 shift-option to shift-control. Affects Defs.h.
@@ -2339,9 +2339,9 @@ NObjectTypes.h, NTypes.h, OpcodeNightingaleDefs.h.
 9 Sept.
 
 Minor cleanup: removed some long-obsolete struct definitions; moved some structs and
-enums out of NTypes.h; renamed NTypes.h to NBasicTypes.h; etc. Affects Debug.h,
-NMiscTypes.h, Notelist.h, NTypes.h, OpcodeNightingaleDefs.h, vars.h; about eight .c
-files.
+enums out of NTypes.h; renamed NTypes.h to NBasicTypes.h; re-allocate type declarations
+among three "NxxxTypes.h" headers; etc. Affects Debug.h, NMiscTypes.h, Notelist.h,
+NTypes.h, OpcodeNightingaleDefs.h, vars.h; about eight .c files.
 
 -------------------------------------------------------------------------------
 
@@ -2357,12 +2357,52 @@ DurationPopUp, GraphicMDEF, UIFUtils.
 
 ===============================================================================
 
-1-4 Nov.			======== NIGHTINGALE 5.8.9 (4 Nov. 2018) ========
+1-4 Nov.
 
-Move source files (but not headers) for utilities from the CFilesBoth and CFilesEditor
+Moved source files (but not headers) for utilities from the CFilesBoth and CFilesEditor
 folders to the Utilities folder.
 
 Changed version number from 5.8b9 to 5.8.9. Affects Info.plist.
 
-Minor cleanup: remove an item that's always hidden from the About box, etc. Affects
+Minor cleanup: removed an item that's always hidden from the About box, etc. Affects
 .rsrc; About.
+
+-------------------------------------------------------------------------------
+
+23-29 Nov.
+
+Minor cleanup: moved some file utilities to FileUtils; split File.cp into two chunks,
+one to open and one to save files; etc. Affects CarbonPrinting.h, compilerFlags.h,
+FileConversion.h, FileUtils.h; File (gone), FileOpen (new), FileSave (new), FileUtils.
+
+-------------------------------------------------------------------------------
+
+6-9 Jan. 2019			======== NIGHTINGALE 5.8.9 (8 Jan. 2019) ========
+
+Increased the max. number of notes/chords in a tuplet from 50 to 80. Affects NLimits.h.
+
+We now check for attempts to create tuplets with more than the max. number of notes/chords;
+if one is found, give an error message and ignore it. Affects Tuplet.
+
+Minor cleanup: #ifdef'ed out print statements to prepare for port to Intel CPUs;
+renamed global MAX_CHANGES to MAX_MPCHANGES; etc. Affects compilerFlags.h, NLimits.h,
+NMiscTypes.h; FileUtils, Inval, Menu, MIDIFOpen, MIDIPlay, MPImportExport, Tuplet.
+
+===============================================================================
+
+??THE BELOW CHANGES MUST BE REDONE.
+
+5-20 Nov. 2018
+
+Changed version number from 5.8.9 to 5.9.1. Affects Info.plist.
+
+To allow backward compatibility between Nightingale files written on PowerPC (like
+all existing files!) and files written on Intel, we'll have to remove all bit fields
+from files; to start, change the format code from 'N105' to 'N106', rename the
+headers containing the relevant declarations from "NxxxTypes.h" to "NxxxTypesN105.h";
+and add versions of those headers without bit fields. Affects Info.plist, NBasicTypes.h,
+NMiscTypes.h, NObjTypes.h.
+
+Minor cleanup: removed unreferenced "typedef struct" names, etc. Affects NObjTypes.h;
+File.
+

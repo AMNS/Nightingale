@@ -1,10 +1,10 @@
 /******************************************************************************************
 *	FILE:	Inval.c
 *	PROJ:	Nightingale
-*	DESC:	User-interface-level "Inval" functions of two types: the regular
-			QuickDraw type, which applies to pixels (as in InvalRect), and
-			our own, which applies to Nightingale objects. In either case,
-			"Inval"ing an area of the screen will cause it to be redrawn.
+*	DESC:	User-interface-level "Inval" functions of two types: the regular QuickDraw
+			type, which applies to pixels (as in InvalRect), and our own, which applies
+			to Nightingale objects. In either case, "Inval"ing an area of the screen
+			will cause it to be redrawn.
 
 		InvalMeasure			InvalMeasures			InvalSystem
 		InvalSystems			InvalSysRange			InvalSelRange
@@ -17,7 +17,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -27,7 +27,7 @@ static void AccumRect(Rect *, Rect *);
 
 /* -----------------------------------------------------------------------InvalMeasure -- */
 /*	Erase and Inval the entire System the specified object is in. Assumes the object
-is not doc->tailL! NB: As of v. 5.7, we require all barlines to align on every staff;
+is not doc->tailL! NB: As of v. 5.8, we require all barlines to align on every staff;
 as long as that's true, <theStaff> is irrelevant. */
 
 void InvalMeasure(LINK pL, short theStaff)
@@ -121,7 +121,7 @@ void InvalSystems(LINK fromL, LINK toL)
 
 
 /* --------------------------------------------------------------------- InvalSysRange -- */
-/* Inval all systems in the range [fromSys,toSys). fromSys and toSys must be
+/* Inval all systems in the range [fromSys, toSys). fromSys and toSys must be
 LINKs to System objects. */
 
 void InvalSysRange(LINK fromSys, LINK toSys)
@@ -134,8 +134,8 @@ void InvalSysRange(LINK fromSys, LINK toSys)
 
 /* --------------------------------------------------------------------- InvalSelRange -- */
 /* Inval all measures containing any of the selection range. Exception: If anything
-selected is attached to the page, it probably won't be in the music area at all,
-so inval the entire window. */
+selected is attached to the page, it probably won't be in the music area at all, so
+inval the entire window. */
 
 void InvalSelRange(Document *doc)
 {
@@ -179,8 +179,8 @@ void InvalRange(LINK fromL, LINK toL)
 }
 
 /* ---------------------------------------------------------------- EraseAndInvalRange -- */
-/*	Clear the valid flags, empty the objRects, and EraseAndInval all objects in
-the specified range. */
+/*	Clear the valid flags, empty the objRects, and EraseAndInval all objects in the
+specified range. */
 
 void EraseAndInvalRange(Document *doc, LINK fromL, LINK toL)
 {
@@ -198,8 +198,8 @@ void EraseAndInvalRange(Document *doc, LINK fromL, LINK toL)
 }
 
 /* ---------------------------------------------------------------------- InvalContent -- */
-/* Clear the valid flags and empty the objRects of all objects in the specified
-range that are not of type J_STRUC. */
+/* Clear the valid flags and empty the objRects of all objects in the specified range
+that are not of type J_STRUC. */
 
 void InvalContent(LINK fromL, LINK toL)
 {
@@ -217,18 +217,15 @@ void InvalContent(LINK fromL, LINK toL)
 
 
 /* ----------------------------------------------------------------------- InvalObject -- */
-/* Called to make sure objects are redrawn completely when inserted, deleted or
-otherwise require redrawing: particularly useful for objects which may extend
-outside the systemRect, since normally Nightingale only redraws the systemRect. 
+/* Called to make sure objects are redrawn completely when they're inserted, deleted or
+otherwise require redrawing: particularly useful for objects which may extend outside
+the systemRect, since normally Nightingale only redraws the systemRect. 
 Note:
-1. Uses the global array contextA, so cannot be called if this is already
-in use.
-2. Requires that the object list provide a system properly containing
-pL. E.g., if called while the object's system is being deleted, may not
-provide correct results.
-3. Can be called for any object to whose drawing routing you are willing to
-add a <doDraw> parameter.
-*/
+1. Uses the global array contextA, so cannot be called if it's is already in use.
+2. Requires that the object list provide a system properly containing <pL>. E.g., if
+called while the object's system is being deleted, may not provide correct results.
+3. Can be called for any object to whose drawing routing you are willing to add a
+<doDraw> parameter. */
 
 void InvalObject(Document *doc, LINK pL, short doErase)
 {
@@ -238,9 +235,11 @@ void InvalObject(Document *doc, LINK pL, short doErase)
 	GetAllContexts(doc,contextA,pL);
 	switch (ObjLType(pL)) {
 		case GRAPHICtype:
+#ifdef DEBUG_INTEL
 Str255 string;  short strlen;
 Pstrcpy((StringPtr)string, (StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset));
 LogPrintf(LOG_DEBUG, "InvalObject: pL=%u strlen=%d\n", pL, Pstrlen(string));
+#endif
 			DrawGRAPHIC(doc, pL, contextA, False);
 			break;
 		case TEMPOtype:
@@ -260,11 +259,13 @@ LogPrintf(LOG_DEBUG, "InvalObject: pL=%u strlen=%d\n", pL, Pstrlen(string));
 	}
 
 	r = LinkOBJRECT(pL);
+#ifdef DEBUG_INTEL
 LogPrintf(LOG_DEBUG, "InvalObject: r=%d,%d,%d,%d doErase=%d\n", r.top, r.left, r.bottom, r.right, doErase);
+#endif
 
 	/* The objRect of dynamics is not quite big enough; that is not our problem here,
-		but inset the rect to partially compensate. FIXME: The amount of inset should
-		really be dynamically determined, e.g., based on sRastral and magnify. */
+	   but inset the rect to partially compensate. FIXME: The amount of inset should
+	   really be dynamically determined, e.g., based on sRastral and magnify. */
 
 	inset = DynamTYPE(pL) ? -4 : -1;
 	InsetRect(&r, inset, inset);

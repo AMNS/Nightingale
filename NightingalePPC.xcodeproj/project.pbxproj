@@ -42,6 +42,8 @@
 		15A56895218C8B8C00236325 /* PitchUtils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15A56894218C8B8C00236325 /* PitchUtils.h */; };
 		15A56897218C8BE400236325 /* UIFUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A56896218C8BE400236325 /* UIFUtils.cp */; };
 		15A56899218C8C0B00236325 /* StringUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A56898218C8C0B00236325 /* StringUtils.cp */; };
+		15A94DE921E263EA005B3793 /* FileOpen.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A94DE821E263EA005B3793 /* FileOpen.cp */; };
+		15A94DF521E2640F005B3793 /* FileSave.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A94DF421E2640F005B3793 /* FileSave.cp */; };
 		15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B639401ECDA9E00029EDD7 /* CompactVoices.cp */; };
 		15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BCF5991E9D27D30069F7EB /* Undo.cp */; };
 		15BE10072063EAC900170274 /* Endian.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BE10062063EAC900170274 /* Endian.cp */; };
@@ -85,7 +87,6 @@
 		D03E6E0A0D5F986D005FD177 /* DSUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE40D5F986D005FD177 /* DSUtils.cp */; };
 		D03E6E0B0D5F986D005FD177 /* EditScore.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE50D5F986D005FD177 /* EditScore.cp */; };
 		D03E6E0E0D5F986D005FD177 /* Error.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE80D5F986D005FD177 /* Error.cp */; };
-		D03E6E0F0D5F986D005FD177 /* File.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE90D5F986D005FD177 /* File.cp */; };
 		D03E6E110D5F986D005FD177 /* Finalize.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEB0D5F986D005FD177 /* Finalize.cp */; };
 		D03E6E140D5F986D005FD177 /* GRBeam.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEE0D5F986D005FD177 /* GRBeam.cp */; };
 		D03E6E160D5F986D005FD177 /* Heaps.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DF00D5F986D005FD177 /* Heaps.cp */; };
@@ -261,6 +262,8 @@
 		15A56894218C8B8C00236325 /* PitchUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PitchUtils.h; sourceTree = "<group>"; };
 		15A56896218C8BE400236325 /* UIFUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UIFUtils.cp; sourceTree = "<group>"; };
 		15A56898218C8C0B00236325 /* StringUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtils.cp; sourceTree = "<group>"; };
+		15A94DE821E263EA005B3793 /* FileOpen.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FileOpen.cp; path = ../NightingaleDABVer_5p9/src/CFilesBoth/FileOpen.cp; sourceTree = SOURCE_ROOT; };
+		15A94DF421E2640F005B3793 /* FileSave.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FileSave.cp; path = ../NightingaleDABVer_5p9/src/CFilesEditor/FileSave.cp; sourceTree = SOURCE_ROOT; };
 		15B639401ECDA9E00029EDD7 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
 		15BCF5991E9D27D30069F7EB /* Undo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Undo.cp; sourceTree = "<group>"; };
 		15BE10062063EAC900170274 /* Endian.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Endian.cp; sourceTree = "<group>"; };
@@ -383,7 +386,6 @@
 		D03E6DE40D5F986D005FD177 /* DSUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DSUtils.cp; sourceTree = "<group>"; };
 		D03E6DE50D5F986D005FD177 /* EditScore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditScore.cp; sourceTree = "<group>"; };
 		D03E6DE80D5F986D005FD177 /* Error.cp */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Error.cp; sourceTree = "<group>"; };
-		D03E6DE90D5F986D005FD177 /* File.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = File.cp; sourceTree = "<group>"; };
 		D03E6DEB0D5F986D005FD177 /* Finalize.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Finalize.cp; sourceTree = "<group>"; };
 		D03E6DEE0D5F986D005FD177 /* GRBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GRBeam.cp; sourceTree = "<group>"; };
 		D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeapFileIO.cp; sourceTree = "<group>"; };
@@ -752,7 +754,7 @@
 				15BE10062063EAC900170274 /* Endian.cp */,
 				D03E6DE80D5F986D005FD177 /* Error.cp */,
 				D03E6DA40D5F95C8005FD177 /* Event.cp */,
-				D03E6DE90D5F986D005FD177 /* File.cp */,
+				15A94DE821E263EA005B3793 /* FileOpen.cp */,
 				D03E6DEB0D5F986D005FD177 /* Finalize.cp */,
 				D03E6DEE0D5F986D005FD177 /* GRBeam.cp */,
 				D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */,
@@ -876,6 +878,7 @@
 				D03E706E0D5FA5B2005FD177 /* DynamicPopUp.cp */,
 				D03E70700D5FA5B2005FD177 /* Extract.cp */,
 				D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */,
+				15A94DF421E2640F005B3793 /* FileSave.cp */,
 				D03E70720D5FA5B2005FD177 /* FlowInText.cp */,
 				D03E70730D5FA5B2005FD177 /* HairpinEdit.cp */,
 				D03E70750D5FA5B2005FD177 /* HeaderFooterDialog.cp */,
@@ -1067,7 +1070,6 @@
 				D03E6E0A0D5F986D005FD177 /* DSUtils.cp in Sources */,
 				D03E6E0B0D5F986D005FD177 /* EditScore.cp in Sources */,
 				D03E6E0E0D5F986D005FD177 /* Error.cp in Sources */,
-				D03E6E0F0D5F986D005FD177 /* File.cp in Sources */,
 				D03E6E110D5F986D005FD177 /* Finalize.cp in Sources */,
 				D03E6E140D5F986D005FD177 /* GRBeam.cp in Sources */,
 				D03E6E160D5F986D005FD177 /* Heaps.cp in Sources */,
@@ -1206,6 +1208,8 @@
 				15C46F7B218C978100D84142 /* DebugUtils.cp in Sources */,
 				15C46F7D218C978900D84142 /* InsNewUtils.cp in Sources */,
 				15C46F7F218C979200D84142 /* SetUtils.cp in Sources */,
+				15A94DE921E263EA005B3793 /* FileOpen.cp in Sources */,
+				15A94DF521E2640F005B3793 /* FileSave.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

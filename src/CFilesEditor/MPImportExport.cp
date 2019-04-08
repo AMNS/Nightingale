@@ -1,5 +1,5 @@
-/* MPImportExport.c - functions for importing/exporting editing done in Master
-Page, built on the ancient Score Dialog. */
+/* MPImportExport.c - functions for importing/exporting editing done in Master Page.
+This is built on the ancient Score Dialog. */
  
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -27,11 +27,11 @@ static void DelConnGroup(Document *, LINK, LINK);
 static void DelBadGroupConnects(Document *);
 
 
-/* ================================================================================= */
+/* ====================================================================================== */
 /* Functions for importing/exporting editing done in Master Page. Editing includes
 insertion and deletion of parts. */
 
-/* ================================================================================= */
+/* ====================================================================================== */
 /* Functions for exporting environment */
 
 /* Export Master Page's Part list to the score header. */
@@ -87,7 +87,7 @@ void ExportEnvironment(Document *doc,
 }
 
 
-/* ------------------------------------------------ MPStaff2Part, MPFindPartInfo -- */
+/* ------------------------------------------------------ MPStaff2Part, MPFindPartInfo -- */
 
 /* Given a staff number, returns part it belongs to. */
 
@@ -152,18 +152,18 @@ short SDInstrDialog(Document *doc, short firstStf)
 }
 
 
-/* ============================================== Functions to add change records == */
+/* =================================================== Functions to add change records == */
 /* Strategy: as the user is working in Master Page, giving commands that change the
 structure of the score -- Add Parts, Group Parts, etc. -- we update the Master Page
 object list immediately, but we don't want to touch the main object list till they're
 done, since they might cancel. So we just make a list of "change records" describing
-the changes to be made; then, if they tell us to keep the changes, we go thru the
-change records and execute them. */
+the changes to be made; then, if they tell us to keep the changes, we go thru the change
+records and execute them. */
 
 static Boolean TooManyChanges(Document *);
 static Boolean TooManyChanges(Document *doc)
 {
-	if (doc->nChangeMP>=MAX_CHANGES) {
+	if (doc->nChangeMP>=MAX_MPCHANGES) {
 		GetIndCString(strBuf, MPERRS_STRS, 12);    /* "Too many Adds, Deletes, Groups, Ungroups, and Make One-Staff Parts in one batch." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
@@ -207,7 +207,7 @@ void AddChangePart(Document *doc, short firstStf, short nadd, short nper, short 
 	else {
 		if (TooManyChanges(doc)) return;
 
-		doc->change[doc->nChangeMP].oper = SDAdd;				/* Save info to change */
+		doc->change[doc->nChangeMP].oper = SDAdd;			/* Save info to change */
 		doc->change[doc->nChangeMP].staff = firstStf;		/*   main object list */
 		doc->change[doc->nChangeMP].p1 = nper;
 		doc->change[doc->nChangeMP].p2 = nadd;
@@ -267,7 +267,7 @@ void UngroupChangeParts(Document *doc, short firstStf, short lastStf)
 }
 
 
-/* ================================================= Functions to export changes === */
+/* ====================================================== Functions to export changes === */
 
 /* Change the connStaff and connAbove fields of measure subobjects of measL on
 staves [firstStf,lastStf] to reflect the grouping or ungrouping of parts in that
@@ -344,7 +344,7 @@ static void GroupPart(Document *doc,
 							)
 {
 	LINK connectL,aConnectL,connList,measL;
-	PACONNECT aConnect; DDIST connWidth;
+	PACONNECT aConnect;  DDIST connWidth;
 
 	connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 
@@ -399,14 +399,15 @@ static void GroupPart(Document *doc,
 	doc->masterChanged = True;
 }
 
-/* Export a part ungrouping from Master Page by removing the appropriate subobject
-from every Connect in the given score, and by changing subobjects in every Measure
-so barlines no longer extend across the group. */
+/* Export a part ungrouping from Master Page by removing the appropriate subobject from
+every Connect in the given score, and by changing subobjects in every Measure so barlines
+no longer extend across the group. */
 
 static void UngroupPart(Document *doc, short firstStf, short lastStf)
 {
 	LINK connectL,aConnectL,bConnectL,nextConnL,measL;
-	PACONNECT aConnect,bConnect; DDIST connWidth; short minGrpStf,maxGrpStf; 
+	PACONNECT aConnect,bConnect; DDIST connWidth;
+	short minGrpStf,maxGrpStf; 
 
 	connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 
@@ -429,7 +430,7 @@ static void UngroupPart(Document *doc, short firstStf, short lastStf)
 				maxGrpStf = aConnect->staffBelow;
 
 				/* Move all Connect subObjs that were nested within the deleted Connect to
-					the right by the deleted Connect's width. */
+				   the right by the deleted Connect's width. */
 					
 				bConnectL = FirstSubLINK(connectL);
 				for ( ; bConnectL; bConnectL = NextCONNECTL(bConnectL)) {
@@ -555,13 +556,13 @@ nos. of parts below. */
 static Boolean Add1StaffParts(Document *, LINK, short, short);
 static Boolean Add1StaffParts(Document *doc, LINK prevPartL, short nadd, short /*showLines*/)
 {
-	LINK nextPartL,aPartL,partList,listHead;
-	short j,lastStf,nextStf;
+	LINK nextPartL, aPartL, partList, listHead;
+	short j, lastStf, nextStf;
 	
 	/* Allocate and initialize a list of <nadd> parts and insert it into the list of
-		parts after prevPartL. */
+	   parts after prevPartL. */
 
-	partList = HeapAlloc(PARTINFOheap,nadd);
+	partList = HeapAlloc(PARTINFOheap, nadd);
 	if (!partList) { NoMoreMemory(); return False; }
 
 	nextPartL = NextPARTINFOL(prevPartL);							/* OK if it's NILINK */
@@ -570,12 +571,12 @@ static Boolean Add1StaffParts(Document *doc, LINK prevPartL, short nadd, short /
 	for ( ; aPartL; aPartL = NextPARTINFOL(aPartL))
 		InitPart(aPartL, 0, 0);
 	
-	listHead = InsertLink(PARTINFOheap,FirstSubLINK(doc->headL),nextPartL,partList);
+	listHead = InsertLink(PARTINFOheap, FirstSubLINK(doc->headL), nextPartL, partList);
 	FirstSubLINK(doc->headL) = listHead;
 	LinkNENTRIES(doc->headL) += nadd;
 
 	/* Set the new parts' firstStaff and lastStaff fields from the part immediately
-		before them. */
+	   before them. */
 
 	aPartL = prevPartL;
 	lastStf = PartLastSTAFF(aPartL);
@@ -600,12 +601,13 @@ multistaff-part Connects with group Connects, and build a new voice table. */
 static void Finish1StaffParts(Document *, LINK, LINK);
 static void Finish1StaffParts(Document *doc, LINK origPartL, LINK lastPartL)
 {
-	LINK connectL, aConnectL; PACONNECT aConnect; DDIST squareWider; short firstStf;
+	LINK connectL, aConnectL;  PACONNECT aConnect;
+	DDIST squareWider;  short firstStf;
 	
-	connectL = LSSearch(doc->headL,CONNECTtype,ANYONE,GO_RIGHT,False);
+	connectL = LSSearch(doc->headL, CONNECTtype, ANYONE, GO_RIGHT, False);
 	
 	for ( ; connectL;
-			connectL = LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) {
+			connectL = LSSearch(RightLINK(connectL), CONNECTtype, ANYONE, GO_RIGHT, False)) {
 		aConnectL = FirstSubLINK(connectL);
 		for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
 			aConnect = GetPACONNECT(aConnectL);
@@ -649,13 +651,13 @@ short ExportChanges(Document *doc)
 {
 	short i, cstaff, npa, savedAutoRespace;
 
- 	if (doc->nChangeMP>=MAX_CHANGES) {
+ 	if (doc->nChangeMP>=MAX_MPCHANGES) {
  		MayErrMsg("ExportChanges: Too many changes: doc->nChangeMP=%ld.", (long)doc->nChangeMP);
  		return False;
  	}
 
 	/* Turn off autoRespace temporarily, to prevent bad meas XD's when deleting
-		parts that have content.  -JGG, 7/20/00 */
+	   parts that have content.  -JGG, 7/20/00 */
  	savedAutoRespace = doc->autoRespace;
 	doc->autoRespace = False;
 
@@ -691,18 +693,19 @@ short ExportChanges(Document *doc)
  	if (doc->masterChanged) {
 		WaitCursor();
 		if (doc->masterChanged || doc->partChangedMP)
-			ExportEnvironment(doc, doc->staffTopMP);			/* Export local version of score format */
+			ExportEnvironment(doc, doc->staffTopMP);		/* Export local version of score format */
 	 	StoreAllConnects(doc->headL);
-		/*
-		 * As a result of deleting parts, there may be Connect GroupLevel subobjs
-		 * around that have only one part left in their range (any that have no parts
-		 * left should have been removed by DeletePart). Get rid of them.
-		 */
+
+		/* As a result of deleting parts, there may be Connect GroupLevel subobjs
+		   around that have only one part left in their range (any that have no parts
+		   left should have been removed by DeletePart). Get rid of them. */
+		   
 	 	DelBadGroupConnects(doc);
 	 	
 	 	if (doc->partChangedMP || doc->fixMeasRectYs) {
+		
 			/* Call FixMeasRectYs to fix measure & system tops & bottoms. Tell it to fix
-				up the entire score and to derive information from the master System. */
+			   up the entire score and to derive information from the master System. */
 	
 			FixLedgerYSp(doc);
 	 		FixMeasRectYs(doc, NILINK, True, False, True);
