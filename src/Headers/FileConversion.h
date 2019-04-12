@@ -1,9 +1,10 @@
 /*	FileConversion.h - data structure elements for opening older file versions
-and converting them to the current format. This is mostly or entirely for handling
+and converting them to the current format. This was last used for handling
 files in format 'N102', but as of version 5.8b7, Nightingale doesn't handle formats
-that old, so this file could probably go away completely. However, it's likely we'll
-need something similar for converting 'N105' files to the upcoming 'N106'format, so
-keep this (#ifdef'd out)  for reference purposes. */
+that old. Converting from format 'N105' to 'N106" requires such extensive changes
+-- involving all three NxxxTypes.h headers -- that it's easier to simply have two
+versions of each header. However, we may want more limited changes in a future file-
+format conversion, so keep this (#ifdef'd out)  for reference purposes. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC

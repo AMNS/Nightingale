@@ -355,9 +355,11 @@ broken:
 
 
 /* -------------------------------------------------------------------- RearrangeNotes -- */
-/* This function sets the <playDur> of every note in its range - presumably an entire
+/* Rearrange notes and Syncs in the object list for creating or removing a tuplet.
+
+This function sets the <playDur> of every note in its range - presumably an entire
 measure - to the default for its logical duration. It would be much better if it
-left <playDurs> of notes not being tupled or untupled alone (see code before call
+left <playDur>s of notes not being tupled or untupled alone (see code before call
 to CopyNotes), but it's not obvious to me how it can tell. Probably a flag for this
 would have to be added to qDurArray. */
 
@@ -366,13 +368,12 @@ static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNot
 {
 	short i, v, notes, numNotes, subCount=0, arrBound;
 	PTIME *pTime, *qTime;
-	LINK pL, firstSubObj, newObjL, subL, newSubL, tempNewSubL, newSelStart;
+	LINK pL, firstSubObj, newObjL, subL, newSubL, tempNewSubL;
 	PMEVENT pObj, pNewObj;
 	Boolean objSel;
 	LINK headL=NILINK, tailL=NILINK, initL, prevL, insertL, firstL, lastL;
 
-	pTime=pDurArray;
-	newSelStart = NILINK;
+	pTime = pDurArray;
 	
 	/* Compact the pDurArray: allocate qDurArray, copy into it only those pTimes such
 	   that pTime->subL!= NILINK, and then fill in the rest of the entries with default
@@ -408,7 +409,7 @@ static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNot
 	pTime = qDurArray;
 
 #ifdef DEBUG_DURARRAY
-	DebugDurArray(arrBound,qDurArray);
+	DebugDurArray(arrBound, qDurArray);
 #endif
 	
 	initL = prevL = startMeas;
@@ -451,8 +452,7 @@ static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNot
 			qTime++; i++;
 		}
 		
-		/* Create the Sync object, and copy the first note's object information
-		   into it. */
+		/* Create the Sync object and copy the first note's object information into it. */
 		
 		if (subCount) {
 			newObjL = NewNode(doc, SYNCtype, subCount);
@@ -467,14 +467,14 @@ static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNot
 			LinkNENTRIES(newObjL) = subCount;				/* Set new nEntries */
 	
 			qTime = pTime;
-			subL 	  = qTime->subL;
+			subL = qTime->subL;
 			newSubL = FirstSubLINK(newObjL);
 	
-			/* Copy the subObject information from each note at this time into
-			   the subObjects of the newly created object. Decrement the nEntries
-			   field of the object from which the subObj is copied, and remove that
-			   subObject, or delete the object, if it has only one subObj left.
-			   This refers to the Sync still in the data structure. */
+			/* Copy the subobject information from each note at this time into the
+			   subobjects of the newly created object. Decrement the nEntries field
+			   of the object from which the subobj is copied, and remove that subobject,
+			   or delete the object if it has only one subobj left. This refers to the
+			   Sync still in the data structure. */
 
 			while (qTime->pTime==pTime->pTime) {
 				if (NoteSEL(subL)) objSel = True;
@@ -520,7 +520,7 @@ static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNot
 	
 	/* Relocate all J_IP objects and all J_D objects that can only be relative to SYNCs. */
 
-	RelocateObjs(doc,headL,tailL,startMeas,endMeas,qDurArray);
+	RelocateObjs(doc, headL, tailL, startMeas, endMeas, qDurArray);
 	
 	/* Relocate all J_D objects which can be relative to J_IT objects other than SYNCs
 	   or J_IP objects. */
@@ -572,12 +572,11 @@ static Boolean CheckContinSel(Document *doc)
 
 	lastNode = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, False);
 
-	/* For each voice in use <v>, traverse spTimeInfo's list of syncs. After
-		the first sync selected in v, each sync following <link> in v should be
-		at startTime equal to link's startTime plus its duration in the voice.
-		If it's at a greater time, there is a hole in the voice, so return False.
-		Note the confusing way we have to set the startL and endL params for
-		GetSpTimeInfo. */
+	/* For each voice in use <v>, traverse spTimeInfo's list of syncs. After the first
+	   sync selected in v, each sync following <link> in v should be at startTime equal
+	   to link's startTime plus its duration in the voice. If it's at a greater time,
+	   there is a hole in the voice, so return False. Note the confusing way we have to
+	   set the startL and endL params for GetSpTimeInfo. */
 
 	for (v = 1; v<=MAXVOICES; v++)
 		if (VOICE_MAYBE_USED(doc, v)) {
@@ -679,7 +678,9 @@ void DoTuple(Document *doc, TupleParam *tParam)
 	}
 	if (!ComputePlayDurs(doc, selRange, tupleNum, nInTuple, nInMeas, tParam))
 		goto broken;
+//LogPrintf(LOG_DEBUG, "DoTuple 1: selStartL=%u\n", doc->selStartL);
 	if (!RearrangeNotes(doc, selRange, nInMeas, baseMeasL)) goto broken;
+//LogPrintf(LOG_DEBUG, "DoTuple 2: selStartL=%u\n", doc->selStartL);
 
 	for (v = 1; v<=MAXVOICES; v++) {
 		if (tupleNum[v]>=2) {
@@ -880,12 +881,11 @@ LINK CreateTUPLET(
 	pbSearch.subtype = ANYSUBTYPE;
 	startL = L_Search(startL, SYNCtype, False, &pbSearch);	/* Start at 1st Sync in range */
 
-	/* ??If the tuplet is cross-staff, the following sets its staff no. to the staff of
-		its first note. Unfortunately, code in CrossStaff2CrossPart assumes the staff no. is of the
-		upper staff, which is the way cross-staff Beams and Slurs are handled. Change this?
-	 */
+	/* FIXME: If the tuplet is cross-staff, the following sets its staff no. to the staff of
+	   its first note. Unfortunately, code in CrossStaff2CrossPart assumes the staff no. is
+	   of the upper staff, which is the way cross-staff Beams and Slurs are handled. */
+	
 	staff = NoteSTAFF(pbSearch.pEntry);								/* Pick up tuplet's staff no. */
-
 	tupletL = InsertNode(doc, startL, TUPLETtype, nInTuple);
 	if (!tupletL) { NoMoreMemory(); return NILINK; }
 

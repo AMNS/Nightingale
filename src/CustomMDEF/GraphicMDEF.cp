@@ -252,8 +252,8 @@ static void DrawMenu(MenuHandle theMenu, Rect *menuRect, MenuTrackingData *track
 		/* draw menu chars into menuRect */
 		for (i=1; i<=gNumItems; i++) {
 			GetItemRect(i, menuRect, &theRect);
-LogPrintf(LOG_DEBUG, "DrawMenu: NOSCROLL i=%d theRect tlbr=%d,%d,%d,%d\n", i, theRect.top,
-theRect.left, theRect.bottom, theRect.right);
+//LogPrintf(LOG_DEBUG, "DrawMenu: NOSCROLL i=%d theRect tlbr=%d,%d,%d,%d\n", i, theRect.top,
+//theRect.left, theRect.bottom, theRect.right);
 			DrawItem(i, &theRect, theMenu, False);
 		}
 	}

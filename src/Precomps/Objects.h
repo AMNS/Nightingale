@@ -2,26 +2,17 @@
 
 #pragma options align=mac68k
 
-/*
- *	This is used to access fields that are found only in subobjects whose data
- *	begins with a SUBOBJHEADER (not all do: extend objects, pages and systems,
- * etc. don't).
- */
+/*  This is used to access fields that are found only in subobjects whose data begins
+with a SUBOBJHEADER. Not all do: Extend objects, Pages and Systems, etc., don't. */
 
 typedef struct {
-		LINK			next;					/* To next subobject in list */
-		char			staffn;				/* staff number */
-		char			subType;				/* subobject subtype. N.B. Signed--see ANOTE. */
-		Boolean		selected:1;			/* True if subobject is selected */
-		Boolean		visible:1;			/* True if subobject is visible */
-		Boolean		soft:1;				/* True if subobject is program-generated */
-		
+SUBOBJHEADER		
 } GenSubObj;
 
 #pragma options align=reset
 
 LINK CopyModNRList(Document *, Document *, LINK);
-LINK DuplicateObject(short,LINK,Boolean,Document *src,Document *dst,Boolean keepGraphics);
+LINK DuplicateObject(short, LINK, Boolean, Document *src, Document *dst, Boolean keepGraphics);
 LINK DuplicNC(Document *, LINK, short);
 
 void InitObject(LINK, LINK, LINK, DDIST, DDIST, Boolean, Boolean, Boolean);

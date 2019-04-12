@@ -290,7 +290,7 @@ short CountSelParts(LINK partList[])
 
 LINK GetSelPart(Document *doc)
 {
-	short selStaff; LINK partL;
+	short selStaff;  LINK partL;
 	
 	selStaff = GetSelStaff(doc);
 	if (selStaff==NOONE) selStaff = 1;
@@ -467,28 +467,30 @@ void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 
 
 /* ---------------------------------------------------------------------- Sel2MeasPage -- */
-/* Get the measure number and page number of the start of the selection in the given
-doc. */
+/* Get the measure number and page number of the start of the selection. */
 
 void Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 {
-	LINK measL, aMeasureL; PAMEASURE aMeasure;
+	LINK measL, aMeasureL;
+	PAMEASURE aMeasure;
 	
 	*pMeasNum = 0;
 	*pPageNum = doc->firstPageNumber;
 
 	if (doc->selStartL==doc->headL) return;
 
-	/*
-	 * The following is NOT equivalent to just searching left for a Measure
-	 * from doc->selStartL: it's different if selStartL==selEndL==a Measure.
-	 */
+	/* If the selection range is nonempty and the first selected object is a Measure,
+	   it's the Measure we want; else it's the first Measure to the left.
+	   FIXME: If the first selected object isn't a Measure but is _attached_ to a Measure,
+	   that Measure is the one we want, but it's to the right in the object list! (Issue
+	   #174) */
+	
 	if (doc->selStartL!=doc->selEndL && MeasureTYPE(doc->selStartL))
 		measL = doc->selStartL;
 	else
 		measL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE,
 							GO_LEFT, False);
-	if (!measL) return;
+	if (!measL) return;										/* Should never happen */
 
 	if (BeforeFirstMeas(doc->selStartL)) measL = LinkRMEAS(measL);
 
@@ -500,14 +502,13 @@ void Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 
 
 /* ------------------------------------------------------------------- GetSelMIDIRange -- */
-/* Return the lowest and highest MIDI note numbers in selected notes in the given
-score. */
+/* Return the lowest and highest MIDI note numbers in selected notes. */
 
 void GetSelMIDIRange(Document *doc, short *pLow, short *pHi)
 {
-	LINK		pL, aNoteL;
+	LINK	pL, aNoteL;
 	PANOTE	aNote;
-	short		low, hi;
+	short	low, hi;
 	
 	low = MAX_NOTENUM;
 	hi = 0;
@@ -563,19 +564,19 @@ LINK FindSelAcc(Document *doc, short acc)
 specified, ask user for permission to extend the selection to include all notes in
 them, and if they agree, extend it; if no alert is specified, just extend it.
 
-Return True if we end up with no partly-selected chords, regardless of how it
-happens. */
+Return True if we end up with no partly-selected chords, regardless of how it happens. */
 
 Boolean HomogenizeSel(
 				Document *doc,
 				short alertID 		/* 0=don't need permission */
 				)
 {
-	LINK pL, aNoteL; Boolean homoSel;
+	LINK pL, aNoteL;
+	Boolean homoSel=True;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
-			aNoteL = FirstSubLINK(pL); homoSel = True;
+			aNoteL = FirstSubLINK(pL);  homoSel = True;
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 				if (MainNote(aNoteL) && NoteINCHORD(aNoteL)) {
 					if (!ChordHomoSel(pL, NoteVOICE(aNoteL), NoteSEL(aNoteL))) {
@@ -597,7 +598,7 @@ Boolean HomogenizeSel(
 
 /* ------------------------------------------- Help Functions, etc. for TrackStaffRect -- */
 
-STAFFINFO staffInfo[MAXSTAVES+1+1];			/* Need 1 extra fake "staff" at bottom! */
+STAFFINFO staffInfo[MAXSTAVES+1+1];			/* Need an extra fake "staff" at bottom! */
 
 #define SWAP(a, b)	{	short temp; temp = (a); (a) = (b); (b) = temp; }
 
@@ -611,15 +612,13 @@ void UnemptyRect(register Rect *r)
 
 
 /* ----------------------------------------------------------- GetStaff, GetNextStaffn -- */
-/* Functions which find the staffn of the next visible staff, in relation to
-mousePt or staffn, using staff location and visibility as contained in the
-staffInfo array. */
- 
-/* Return the staff number of the staff containing the mousePt pt. Looks for the
-topmost visible staffTop at or below pt. If it finds one, it returns the first
-visible staff above the one it found, if there is a visible staff above the one
-it found; otherwise it returns the one it found. Otherwise, it returns the
-bottommost visible staff. */
+/* Functions which find the staffn of the next visible staff, in relation to mousePt or
+staffn, using staff location and visibility as contained in the staffInfo array. */
+
+/* Return the staff number of the staff containing the mousePt pt. Looks for the topmost
+visible staffTop at or below pt. If it finds one, it returns the first visible staff
+above the one it found, if there is a visible staff above the one it found; otherwise it
+returns the one it found. Otherwise, it returns the bottommost visible staff. */
 
 static short GetStaff(Document *doc, Point pt)
 {
@@ -664,17 +663,17 @@ static short GetNextStaffn(Document *doc, short base, Boolean up)
 
 
 /* -------------------------------------------------------------------- TrackStaffRect -- */
-/* Track mouse motion and give visual feedback by inverting a rectangle in the
-same way most Mac word processors do, but on one or more staves instead of one
-or more lines. Vertical positions are quantized to the staff level, inclusive;
-horizontal positions are taken at face value.  If the mouse is never moved more
-than 1 pixel horizontally, TrackStaffRect signals by returning pt.h equal to
-CANCEL_INT. Designed for "wipe" selection, e.g., selecting everything on one or
-more staves in an arbitrary horizontal extent. */
+/* Track mouse motion and give visual feedback by inverting a rectangle in the same way
+most Mac word processors do, but on one or more staves instead of one or more lines.
+Vertical positions are quantized to the staff level, inclusive; horizontal positions are
+taken at face value.  If the mouse is never moved more than 1 pixel horizontally,
+TrackStaffRect signals by returning pt.h equal to CANCEL_INT. Designed for "wipe"
+selection, e.g., selecting everything on one or more staves in an arbitrary horizontal
+extent.
 
-/* For any page, wipe selections on more than one system will involve inverting up
-to three rects, which need to be available to DrawTheSweepRects() below as well as
-as here.  For single-system sweeps, though (all we allow now), we only use topRect. */
+For any page, wipe selections on more than one system will involve inverting up to
+three rects, which need to be available to DrawTheSweepRects() below as well as as here.
+ For single-system sweeps, though (all we allow now), we only use topRect. */
 
 static Rect topRect;
 
@@ -685,7 +684,8 @@ static Point TrackStaffRect(
 					Rect *paper
 					)
 {
-	Point	pt; long ans;
+	Point	pt;
+	long	ans;
 	Rect	aR, oldR,paperOrig;
 	short	startStf, topStartStf, stf;
 	Boolean	cancelThis;
@@ -742,10 +742,9 @@ static Point TrackStaffRect(
 
 
 /* --------------------------------------------------------------------- ChangeInvRect -- */
-/* Change the InvertRect display of <pr1> to a display of <pr2> without
-unsightly flashing. N.B. If either rect has negative size along either axis,
-it is not considered empty; rather its bounds on that axis are assumed to be
-reversed.*/
+/* Change the InvertRect display of <pr1> to a display of <pr2> without unsightly
+flashing. NB: If either rect has negative size along either axis, it is not considered
+empty; rather, its bounds on that axis are assumed to be reversed.*/
 
 static void ChangeInvRect(Rect *pr1, Rect *pr2)
 {
@@ -793,10 +792,10 @@ void DrawTheSweepRects()
 
 
 /* ----------------------------------------------------------------- FixEmptySelection -- */
-/* If the selection is empty, set doc->selStaff to the staff <pt.v> is on or
-closest to, and set selStartL and selEndL to create an insertion point near <pt>;
-also move the caret there, but avoid putting it right in the middle of a symbol.
-If the selection isn't empty, do nothing. */  
+/* If the selection is empty, set doc->selStaff to the staff <pt.v> is on or closest to,
+and set selStartL and selEndL to create an insertion point near <pt>; also move the
+caret there, but avoid putting it right in the middle of a symbol. If the selection
+isn't empty, do nothing. */
 
 void FixEmptySelection(Document *doc, Point	pt)
 {
@@ -885,8 +884,8 @@ static void GetStaffLimits(Document *doc, Point pt, STAFFINFO staffInfo[],
 /* ------------------------------------------------------------------- SelectStaffRect -- */
 /* Track mouse dragging, give feedback by inverting one or more complete staves in
 the horizontal area, and (when the button is released) select enclosed symbols.
-Intended for "wipe" (one-dimensional) selection. Returns False if the mouse was
-never moved horizontally more than a couple pixels. */
+Intended for "wipe" (one-dimensional) selection. Returns False if the mouse was never
+moved horizontally more than a couple pixels. */
 
 Boolean SelectStaffRect(Document *doc, Point pt)
 {
@@ -912,8 +911,8 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 		return False;
 	}
 	
-	/* User dragged off the current page; set an insertion point at the end
-		of the system in the direction of the mouse drag, and return True. */
+	/* User dragged off the current page; set an insertion point at the end of the
+	   system in the direction of the mouse drag, and return True. */
 
 	lastPageL = GetCurrentPage(doc);
 	if (lastPageL!=pageL) {
@@ -926,10 +925,9 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 		return True;
 	}
 
-	/*
-	 * Set vertical bounds to "infinity", since what wiping selects is determined
-	 *	by logical position (staff and system), not graphic position.
-	 */
+	/* Set vertical bounds to "infinity", since what wiping selects is determined by
+	   logical position (staff and system), not graphic position. */
+	   
 	SetRect(&selRect, pt.h, -32767, endPt.h, 32767);											
 	UnemptyRect(&selRect);
 
@@ -1002,10 +1000,9 @@ void DoThreadSelect(Document *doc,
 	endL = RightLINK(endL);
 	ContextPage(doc, pageL, context);
 
-	/*
-	 *	Track the mouse and toggle selection of everything of the appropriate type(s)
-	 * that it touches.
-	 */
+	/* Track the mouse and toggle selection of everything of the appropriate type(s)
+	   that it touches. */
+	
 	StartThread();
 	while (StillDown()) {
 		found = False;
@@ -1086,10 +1083,12 @@ existing rectangle, as in the case of grow handles for objects, etc. */
 
 void GetUserRect(Document *doc, Point pt, Point other, short xoff, short yoff, Rect *box)
 {
-	Point last; Rect r,lastr,limit,portRect; PenState pn;
+	Point last;
+	Rect r,lastr,limit,portRect;
+	PenState pn;
 	long now;
 	
-	SetRect(&r,pt.h,pt.v,other.h+xoff,other.v+yoff);
+	SetRect(&r, pt.h, pt.v, other.h+xoff, other.v+yoff);
 	lastr = r; last = other;
 	GetWindowPortBounds(doc->theWindow,&portRect);
 	limit = portRect;
@@ -1105,20 +1104,20 @@ void GetUserRect(Document *doc, Point pt, Point other, short xoff, short yoff, R
 			if (other.h!=last.h || other.v!=last.v) {
 				if (other.h < pt.h)
 					if (other.v < pt.v) {
-						SetRect(&r,other.h,other.v,pt.h,pt.v);
+						SetRect(&r, other.h, other.v, pt.h, pt.v);
 						}
 					 else {
-						SetRect(&r,other.h,pt.v,pt.h,other.v);
+						SetRect(&r, other.h, pt.v, pt.h, other.v);
 						}
 				 else
 					if (other.v < pt.v) {
-						SetRect(&r,pt.h,other.v,other.h,pt.v);
+						SetRect(&r, pt.h, other.v, other.h, pt.v);
 						}
 					 else {
-						SetRect(&r,pt.h,pt.v,other.h,other.v);
+						SetRect(&r, pt.h, pt.v, other.h, other.v);
 						}
 						
-				OffsetRect(&r,doc->currentPaper.left,doc->currentPaper.top);
+				OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
 				/*
 				 *	Wait until a tick, which is synchronised with the start of a
 				 *	vertical raster scan. There is undoubtedly a better way to do
@@ -1134,12 +1133,12 @@ void GetUserRect(Document *doc, Point pt, Point other, short xoff, short yoff, R
 	FrameRect(&lastr);
 	SetPenState(&pn);
 	
-	SectRect(&r,&limit,box);
+	SectRect(&r, &limit, box);
 }
 
 
-/* Set tempFlags of notes and rests, but NOT grace notes, from their selection
-status, for the entire score. */
+/* Set tempFlags of notes and rests, but NOT grace notes, from their selection status,
+for the entire score. */
 
 void NotesSel2TempFlags(Document *doc)
 {

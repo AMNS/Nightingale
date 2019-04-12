@@ -2390,19 +2390,33 @@ NMiscTypes.h; FileUtils, Inval, Menu, MIDIFOpen, MIDIPlay, MPImportExport, Tuple
 
 ===============================================================================
 
-??THE BELOW CHANGES MUST BE REDONE.
-
-5-20 Nov. 2018
+10-13 Jan. 2019
 
 Changed version number from 5.8.9 to 5.9.1. Affects Info.plist.
 
-To allow backward compatibility between Nightingale files written on PowerPC (like
-all existing files!) and files written on Intel, we'll have to remove all bit fields
-from files; to start, change the format code from 'N105' to 'N106', rename the
-headers containing the relevant declarations from "NxxxTypes.h" to "NxxxTypesN105.h";
-and add versions of those headers without bit fields. Affects Info.plist, NBasicTypes.h,
-NMiscTypes.h, NObjTypes.h.
+To allow backward compatibility between Nightingale files written on PowerPC (like all
+existing files!) and files written on Intel, we'll remove all bit fields from files. To
+start, change the format code from 'N105' to 'N106', rename the headers containing the
+relevant declarations from "NxxxTypes.h" to "NxxxTypesN105.h"; and add versions of those
+headers without bit fields. Affects Info.plist, NBasicTypes.h, NMiscTypes.h,
+NObjTypes.h.
 
-Minor cleanup: removed unreferenced "typedef struct" names, etc. Affects NObjTypes.h;
-File.
+Minor cleanup: revised an obsolete error message; removed unreferenced "typedef struct"
+names, etc. Affects .rsrc; NObjTypes.h, NResourceID.h.
 
+-------------------------------------------------------------------------------
+
+14-30 March
+
+Minor cleanup: updated comments; added error check to L_Search(); changed declaration of
+GenSubObj to simply contain SUBOBJHEADER instead of the (fungible) fields of the
+SUBOBJHEADER. Affects NObjTypes.h, Objects.h; FileOpen, Search, Select, SelUtils, Tuplet.
+
+-------------------------------------------------------------------------------
+
+10-11 April
+
+Fixed bug: When Nightingale starts to convert a file in an older format in order to
+open it, it displays a message in the log saying so, but it always shows "T" as the
+file-format version instead of the 4-char. code (e.g., "N105"). Affects NightTemplates.h;
+FileOpen, StringUtils.

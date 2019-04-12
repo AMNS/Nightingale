@@ -467,8 +467,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 	char		*PToCString(StringPtr str);
 	StringPtr	CToPString(char *str);
-	StringPtr CtoPstr(StringPtr str);
-	StringPtr PtoCstr(StringPtr str);
+	StringPtr	CtoPstr(StringPtr str);
+	StringPtr	PtoCstr(StringPtr str);
 
 	StringPtr	Pstrcpy(StringPtr dst, ConstStringPtr src);
 	void		PStrncpy(StringPtr, ConstStringPtr, short);
@@ -482,6 +482,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean		ExpandPString(unsigned char *dstStr, unsigned char *srcStr, bool wider);
 	Boolean		GetFinalSubstring(char *str, char *substr, char delimChar);
 	Boolean		GetInitialSubstring(char *str, char *substr, short len);
+	void		MacTypeToString(OSType aMacType, char versionCString[]);
 
 /* SysPageEdit.c */
 

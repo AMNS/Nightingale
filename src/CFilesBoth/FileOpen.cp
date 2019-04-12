@@ -324,10 +324,12 @@ static void ConvertStaffLines(LINK startL)
 
 /* ---------------------------------------------------------------------- ConvertScore -- */
 /* Any file-format-conversion code that doesn't affect the length of the header or
-lengths of objects should go here. This function should only be called after the
-header and entire object list have been read. (Tweaks that affect lengths must be
-done earlier: to the header, in OpenFile; to objects, in ReadObjHeap.) Return True
-if all goes well, False if not. */
+lengths or offsets of fields in objects (or subobjects) should go here. Return True if
+all goes well, False if not.
+
+This function should not be called until the header and the entire object list have been
+read! Tweaks that affect lengths or offsets to the header should be done in OpenFile; to
+to objects (or subobjects), in ReadObjHeap. */
 
 static Boolean ConvertScore(Document *doc, long fileTime)
 {
@@ -1173,6 +1175,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	FSSpec 		fsSpec;
 	long		cmHdr, cmBufCount, cmDevSize;
 	FSSpec		*pfsSpecMidiMap;
+	char		versionCString[5];
 
 	WaitCursor();
 
@@ -1203,15 +1206,15 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	}
 
 	*fileVersion = version;
-	if (ACHAR(version,3)!='N') { errCode = BAD_VERSION_ERR; goto Error; }
-	if ( !isdigit(ACHAR(version,2))
-			|| !isdigit(ACHAR(version,1))
-			|| !isdigit(ACHAR(version,0)) )
+	MacTypeToString(version, versionCString);
+	if (versionCString[0]!='N') { errCode = BAD_VERSION_ERR; goto Error; }
+	if ( !isdigit(versionCString[1])
+			|| !isdigit(versionCString[2])
+			|| !isdigit(versionCString[3]) )
 		 { errCode = BAD_VERSION_ERR; goto Error; }
 	if (version<FIRST_FILE_VERSION) { errCode = LOW_VERSION_ERR; goto Error; }
 	if (version>THIS_FILE_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
-	// ??THERE'S NO "%T" OUTPUT FORMAT IN STANDARD C; THIS IS LEFT OVER FROM DOUG McKENNA!!!!
-	if (version!=THIS_FILE_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%T' FILE.\n", version);
+	if (version!=THIS_FILE_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%s' FILE.\n", versionCString);
 
 	count = sizeof(fileTime);									/* Time file was written */
 	errCode = FSRead(refNum, &count, &fileTime);

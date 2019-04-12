@@ -264,3 +264,15 @@ Boolean GetInitialSubstring(char *str, char *substr, short len)
 	*(substr+len) = '\0';
 	return True;
 }
+
+/* ------------------------------------------------------------------- MacTypeToString -- */
+/* Convert a MacOS type -- 4 chars in a nonstandard format -- into a valid C string. */
+
+void MacTypeToString(OSType aMacType, char aCString[])
+{
+	aCString[0] = ACHAR(aMacType, 3);
+	aCString[1] = ACHAR(aMacType, 2);
+	aCString[2] = ACHAR(aMacType, 1);
+	aCString[3] = ACHAR(aMacType, 0);
+	aCString[4] = '\0';
+}

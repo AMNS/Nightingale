@@ -1,4 +1,4 @@
-/***************************************************************************
+/*******************************************************************************************
 	FILE:	Search.c
 	PROJ:	Nightingale
 	DESC:	Object-list search routines. No user-interface implications.
@@ -16,7 +16,7 @@
 		MNSearch				RMSearch			SSearch
 		EitherSearch			FindUnknownDur		XSysSlurMatch
 		KSSearch				FindNoteNum
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -30,13 +30,13 @@
 #include "Nightingale.appl.h"
 
 
-/* A helpful hint: in general, as of v.3.1, functions whose names end with
-"Search" look for and return a LINK to an object. Those starting with or
-containing "Find" look for and return a LINK to either an object or a subobject.
-Those starting with "Locate" do a variety of things. */
+/* A helpful hint: in general, as of v. 5.8, functions whose names end with "Search"
+look for and return a LINK to an object. Those starting with or containing "Find" look
+for and return a LINK to either an object or a subobject. Those starting with "Locate"
+do a variety of things. */
 
 
-/* ------------------------------------------------------------- InitSearchParam -- */
+/* ------------------------------------------------------------------- InitSearchParam -- */
 /* Initialize all fields of the given SearchParam to reasonable defaults. */
 
 void InitSearchParam(SearchParam *pbSearch)
@@ -50,7 +50,7 @@ void InitSearchParam(SearchParam *pbSearch)
 	pbSearch->needInMeasure = False;
 }
 
-/* ----------------------------------------------------------------- LPageSearch -- */
+/* ----------------------------------------------------------------------- LPageSearch -- */
 /*	Optimized function to search left for a Page object. Special cases:
 	-	Systems contain links to their owning pages, which we can use to
 		traverse the page list.
@@ -94,7 +94,7 @@ LINK LPageSearch(
 }
 
 
-/* ----------------------------------------------------------------- RPageSearch -- */
+/* ----------------------------------------------------------------------- RPageSearch -- */
 /*	Optimized function to search right for a Page object. Special cases:
 	-	Systems contain links to their owning pages, which we can use to
 		traverse the page list, starting at the rPage of the owning page.
@@ -139,7 +139,7 @@ LINK RPageSearch(
 }
 
 
-/* ---------------------------------------------------------------- LSystemSearch -- */
+/* --------------------------------------------------------------------- LSystemSearch -- */
 /*	Optimized function to search left for a System object. Special cases:
 -	Systems don't belong to any staff, so we can traverse the system
 	list to locate a specific system.		
@@ -179,7 +179,7 @@ LINK LSystemSearch(
 }
 
 
-/* ---------------------------------------------------------------- RSystemSearch -- */
+/* --------------------------------------------------------------------- RSystemSearch -- */
 /*	Optimized function to search right for a System object. Special cases:
 	-	Systems don't belong to any staff, so we can traverse the system
 		list to locate a specific system.
@@ -222,7 +222,7 @@ LINK RSystemSearch(
 }
 
 
-/* ----------------------------------------------------------------- LStaffSearch -- */
+/* ---------------------------------------------------------------------- LStaffSearch -- */
 /*	Optimized function to search left for a Staff object. Special cases:
 	-	Staffs point left to the previous Staff, so we can traverse the
 		Staff list very quickly.
@@ -268,7 +268,7 @@ LINK LStaffSearch(
 }
 
 
-/* ----------------------------------------------------------------- RStaffSearch -- */
+/* ---------------------------------------------------------------------- RStaffSearch -- */
 /*	Optimized function to search right for a Page object. Special cases:
 	-	Staffs point right to the next Staff, so we can traverse the Staff
 		list quickly.
@@ -316,7 +316,7 @@ LINK RStaffSearch(
 }
 
 
-/* -------------------------------------------------------------- LMeasureSearch -- */
+/* -------------------------------------------------------------------- LMeasureSearch -- */
 /*	Optimized function to search left for a Measure object. Special cases:
 	-	Measures point back at the previous Measure, so we can quickly
 		traverse the Measure list.
@@ -357,7 +357,7 @@ LINK LMeasureSearch(
 }
 
 
-/* -------------------------------------------------------------- RMeasureSearch -- */
+/* -------------------------------------------------------------------- RMeasureSearch -- */
 /*	Optimized function to search right for a Measure object. Special cases:
 	-	Measures point forward to the next Measure, so we can quickly
 		traverse the Measure list.
@@ -400,7 +400,7 @@ LINK RMeasureSearch(
 }
 
 
-/* -------------------------------------------------------------------- L_Search -- */
+/* -------------------------------------------------------------------------- L_Search -- */
 /* Search for an object and (for objects that have them) subobject of the specified
 type, optionally on the specified staff, system, or page, and optionally meeting
 other criteria.  If more than one subobject of the object found fulfills the
@@ -434,23 +434,23 @@ Here are the object-specific features ("ign" = ignored).
 considered to match any voice. */
 
 LINK L_Search(
-			LINK		startL,					/* Place to start looking */
-			short		type,					/* target type (or ANYTYPE) */
-			Boolean		goLeft,					/* True if we should search left */
-			SearchParam	*pbSearch			 	/* ptr to parameter list */
+			LINK		startL,				/* Place to start looking */
+			short		type,				/* target type (or ANYTYPE) */
+			Boolean		goLeft,				/* True if we should search left */
+			SearchParam	*pbSearch			/* ptr to parameter list */
 			)
 {
 	short		i;
 	PMEVENT		p;
 	PPAGE		pPage;
 	PSYSTEM		pSystem;
-	Boolean		anyType,		/* True if they'll take any type */
-				anyStaff,		/* True if they'll take any staff */
-				anyVoice,		/* True if they'll take any voice */
-				anySelected,	/* True if they don't need selected */
-				anySystem,		/* True if they'll take any System */
-				anySubtype,		/* True if they'll take any subtype */
-				anyInMeasure;	/* True if they don't need inMeasure */
+	Boolean		anyType,		/* True if caller will take any type */
+				anyStaff,		/* True if caller will take any staff */
+				anyVoice,		/* True if caller will take any voice */
+				anySelected,	/* True if caller doesn't need selected */
+				anySystem,		/* True if caller will take any System */
+				anySubtype,		/* True if caller will take any subtype */
+				anyInMeasure;	/* True if caller doesn't need inMeasure */
 	GenSubObj 	*subObj;
 	char		pType;			/* pre-compute type of p */
 	Boolean 	pSel;			/* pre-compute p->selected */
@@ -460,11 +460,10 @@ LINK L_Search(
 	HEAP		*tmpHeap;
 
 	
-	if (!startL)
-		return NILINK;
+	if (!startL) return NILINK;
 
 	if (!pbSearch) {
-		MayErrMsg("L_Search: pbSearch NULL is illegal.");
+		MayErrMsg("pbSearch NULL is illegal.  (L_Search)");
 		return NILINK;
 	}
 	
@@ -473,13 +472,18 @@ LINK L_Search(
 	if (pbSearch->optimize)
 		switch (type) {
 		case PAGEtype:
-				return (goLeft ? LPageSearch(startL, pbSearch) :  RPageSearch(startL, pbSearch));
+			return (goLeft ? LPageSearch(startL, pbSearch) :  RPageSearch(startL, pbSearch));
 		case SYSTEMtype:
-				return (goLeft ? LSystemSearch(startL, pbSearch) : RSystemSearch(startL, pbSearch));
+			return (goLeft ? LSystemSearch(startL, pbSearch) : RSystemSearch(startL, pbSearch));
 		case STAFFtype:
-				return (goLeft ? LStaffSearch(startL, pbSearch) : RStaffSearch(startL, pbSearch));
+			return (goLeft ? LStaffSearch(startL, pbSearch) : RStaffSearch(startL, pbSearch));
 		case MEASUREtype:
-				return (goLeft ? LMeasureSearch(startL, pbSearch) : RMeasureSearch(startL, pbSearch));
+			return (goLeft ? LMeasureSearch(startL, pbSearch) : RMeasureSearch(startL, pbSearch));
+		default:
+			/* Do nothing: drop through to normal search. As of v. 5.8.9, Nightingale
+			   often requests optimized searching for types that can't be optimized, so
+			   we don't issue a warning; it's no big deal anyway. */
+			;
 		}
 	
 	/* Now all other cases. For these, assume <id> is staff number. */
@@ -492,6 +496,8 @@ LINK L_Search(
 	anySubtype = (pbSearch->subtype==ANYSUBTYPE);
 	anyInMeasure = (!pbSearch->needInMeasure);
 
+//LogPrintf(LOG_DEBUG, "L_Search 2: anyType=%d anyStaff=%d anyVoice=%d anySelected=%d anySystem=%d anySubtype=%d anyInMeasure=%d\n",
+//anyType, anyStaff, anyVoice, anySelected, anySystem, anySubtype, anyInMeasure);
 	for (pL = startL; pL; pL = nextL) {
 
 		if (!anySystem && SystemTYPE(pL)) break;
@@ -502,7 +508,6 @@ LINK L_Search(
 
 		if ((anyType || pType==type) && (anySelected || pSel)) {
 			switch (pType) {
-
 				case PAGEtype:
 					pPage = GetPPAGE(pL);
 					if (pbSearch->id==ANYONE || pbSearch->id==pPage->sheetNum)
@@ -536,7 +541,6 @@ LINK L_Search(
 			  					return pL;
 			  				}
 					break;
-
 				case PSMEAStype:
 					aPSMeasL = FirstSubLINK(pL);
 					for (i=0; aPSMeasL; i++,aPSMeasL = NextPSMEASL(aPSMeasL))
@@ -585,15 +589,20 @@ LINK L_Search(
 			  				}
 			  		}
 					break;
+
 				case SYNCtype:
 					tmpHeap = Heap + p->type;		/* p may not stay valid during loop */
 						
+//LogPrintf(LOG_DEBUG, "L_Search 4: CHECKING pL=%u FirstSubObjPtr=%u\n", pL, FirstSubObjPtr(p,pL));
 					for (i = 0, subObjL=FirstSubObjPtr(p,pL); subObjL; 
 							i++, subObjL = NextLink(tmpHeap,subObjL)) {
 						subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
+//LogPrintf(LOG_DEBUG, "L_Search 5: CHECKING subObjL=%u selected=%d voice=%d\n", subObjL,
+//subObj->selected, ((PANOTE)subObj)->voice);
 						if (anyStaff || subObj->staffn==pbSearch->id)
 							if (anyVoice || ((PANOTE)subObj)->voice==pbSearch->voice)
 								if (anySelected || subObj->selected) {
+//LogPrintf(LOG_DEBUG, "L_Search 6: MATCHED pL=%u subObjL=%u\n", pL, subObjL);
 									pbSearch->pEntry = subObjL;
 									pbSearch->entryNum = i;
 				  					return pL;
@@ -615,6 +624,7 @@ LINK L_Search(
 				  				}
 			  		}
 					break;
+
 				case RPTENDtype: {
 					LINK aRptL;
 						
@@ -679,7 +689,8 @@ LINK L_Search(
 				case TAILtype:
 					break;
 				default:
-					MayErrMsg("L_Search: unrecognized type %ld", (long)pType);
+					MayErrMsg("Unrecognized type %ld. startL=%u  (L_Search)",
+								(long)pType, startL);
 			}
 		}
 	}
@@ -688,7 +699,7 @@ LINK L_Search(
 }
 
 
-/* -------------------------------------------------------------------- LSSearch -- */
+/* -------------------------------------------------------------------------- LSSearch -- */
 /*	Simple search left or right thru object list, by staff. */
 
 LINK LSSearch(
@@ -715,7 +726,7 @@ LINK LSSearch(
 	return foundL;
 }
 
-/* ------------------------------------------------------------------- LSISearch -- */
+/* ------------------------------------------------------------------------- LSISearch -- */
 /*	Simple search left or right thru object list, by staff, with inSystem True. If
 called with startL = System obj, will return NILINK. */
 
@@ -744,7 +755,7 @@ LINK LSISearch(
 }
 
 
-/* -------------------------------------------------------------------- LVSearch -- */
+/* -------------------------------------------------------------------------- LVSearch -- */
 /* Like LSSearch but search by voice. */
 
 LINK LVSearch(
@@ -771,7 +782,7 @@ LINK LVSearch(
 }
 
 
-/* ------------------------------------------------------------------- LSUSearch -- */
+/* ------------------------------------------------------------------------- LSUSearch -- */
 /* Like LSSearch but Unoptimized. */
 
 LINK LSUSearch(
@@ -798,7 +809,7 @@ LINK LSUSearch(
 	return foundL;
 }
 
-/* ------------------------------------------------------------------- LVUSearch -- */
+/* ------------------------------------------------------------------------- LVUSearch -- */
 /* Like LVSearch but Unoptimized. */
 
 LINK LVUSearch(
@@ -825,7 +836,7 @@ LINK LVUSearch(
 }
 
 
-/* --------------------------------------------------------------------- GSearch -- */
+/* --------------------------------------------------------------------------- GSearch -- */
 /*	Search graphically for an object/subobject of the specified type, optionally
 on the  specified staff and meeting other criteria.  If more than one subobject
 of	the object found fulfills the criteria, the first one is found. Searches 
@@ -833,23 +844,23 @@ left or right depending on the value of <goLeft>. */
 
 LINK GSearch(
 			Document	*doc,
-			Point		pt,						/* x coordinate from which to search */
-			short		type,					/* target type (or ANYTYPE) */
-			Boolean		goLeft,					/* True if we should search left */
-			Boolean		useJD,					/* True if we should find type JD symbols */
-			Boolean		needVisible,			/* True if only want visible symbols. */
-			SearchParam	*pbSearch 				/* ptr to parameter list */
+			Point		pt,					/* x coordinate from which to search */
+			short		type,				/* target type (or ANYTYPE) */
+			Boolean		goLeft,				/* True if we should search left */
+			Boolean		useJD,				/* True if we should find type JD symbols */
+			Boolean		needVisible,		/* True if only want visible symbols. */
+			SearchParam	*pbSearch 			/* ptr to parameter list */
 			)
 {
 	short		i;
 	PMEVENT		p;
-	Boolean		anyType,		/* True if they'll take any type */
-				anyStaff,		/* True if they'll take any staff */
-				anyVoice,		/* True if they'll take any voice */
-				anySelected,	/* True if they don't need selected */
-				anySystem,		/* True if they'll take any System */
-				anySubtype,		/* True if they'll take any subtype */
-				anyVisible;		/* True if they don't need visible */
+	Boolean		anyType,		/* True if caller will take any type */
+				anyStaff,		/* True if caller will take any staff */
+				anyVoice,		/* True if caller will take any voice */
+				anySelected,	/* True if caller doesn't need selected */
+				anySystem,		/* True if caller will take any System */
+				anySubtype,		/* True if caller will take any subtype */
+				anyVisible;		/* True if caller doesn't need visible */
 	GenSubObj	*subObj;
 	char		pType;			/* pre-compute type of p */
 	Boolean 	pSel,			/* pre-compute p->selected */
@@ -1022,14 +1033,14 @@ LINK GSearch(
 }
 
 
-/* -------------------------------------------------------------------- GSSearch -- */
+/* -------------------------------------------------------------------------- GSSearch -- */
 
 LINK GSSearch(
 			Document *doc,
 			Point	pt,				/* x position from which to search */
 			short	type,			/* target type (or ANYTYPE) */
 			short	id,				/* target staff number (for Staff, Measure, Sync, etc) */
-											/* or page number (for Page) */
+									/* or page number (for Page) */
 			Boolean	goLeft,			/* True if we should search left */
 			Boolean	needSelected,	/* True if we only want selected items */
 			Boolean	useJD,			/* True if we should find type JD symbols */
@@ -1049,7 +1060,7 @@ LINK GSSearch(
 	return foundL;
 }
 
-/* ----------------------------------------------------------- StaffFindSymRight -- */
+/* ----------------------------------------------------------------- StaffFindSymRight -- */
 
 LINK StaffFindSymRight(Document *doc, Point pt, Boolean needVisible, short staffn)
 {
@@ -1059,7 +1070,7 @@ LINK StaffFindSymRight(Document *doc, Point pt, Boolean needVisible, short staff
 	return (pL ? LSSearch(pL, ANYTYPE, staffn, False, False) : NILINK);
 }
 
-/* ---------------------------------------------------------- StaffFindSyncRight -- */
+/* ---------------------------------------------------------------- StaffFindSyncRight -- */
 
 LINK StaffFindSyncRight(Document *doc, Point pt, Boolean needVisible, short staffn)
 {
@@ -1070,7 +1081,7 @@ LINK StaffFindSyncRight(Document *doc, Point pt, Boolean needVisible, short staf
 }
 
 
-/* ----------------------------------------------------------- FindValidSymRight -- */
+/* ----------------------------------------------------------------- FindValidSymRight -- */
 /* FIXME: It's hard to believe the <if> statement is correct: surely it wants to skip
 ALL J_D objects, including tuplets, not just the listed ones! */
 
@@ -1087,7 +1098,7 @@ LINK FindValidSymRight(Document *doc, LINK symRight, short staffn)
 }
 
 
-/* ------------------------------------------------------------- StaffFindSymLeft -- */
+/* ------------------------------------------------------------------ StaffFindSymLeft -- */
 
 LINK StaffFindSymLeft(Document *doc, Point pt, Boolean needVisible, short staffn)
 {
@@ -1098,7 +1109,7 @@ LINK StaffFindSymLeft(Document *doc, Point pt, Boolean needVisible, short staffn
 }
 
 
-/* ----------------------------------------------------------- StaffFindSyncLeft -- */
+/* ----------------------------------------------------------------- StaffFindSyncLeft -- */
 /* Return first sync whose objRect.left is to the left of pt.h.	*/
 
 LINK StaffFindSyncLeft(Document *doc, Point pt, Boolean needVisible, short staffn)
@@ -1115,7 +1126,7 @@ LINK StaffFindSyncLeft(Document *doc, Point pt, Boolean needVisible, short staff
 }
 
 
-/* ------------------------------------------------------------ FindValidSymLeft -- */
+/* ------------------------------------------------------------------ FindValidSymLeft -- */
 
 LINK FindValidSymLeft(Document *doc, LINK symLeft, short staffn)
 {
@@ -1130,7 +1141,7 @@ LINK FindValidSymLeft(Document *doc, LINK symLeft, short staffn)
 }
 
 
-/* ------------------------------------------------------------- SyncInVoiceMeas -- */
+/* ------------------------------------------------------------------- SyncInVoiceMeas -- */
 /* Look for a Sync in voice <voice> in <objL>'s Measure. */
 
 LINK SyncInVoiceMeas(Document *doc,
@@ -1151,7 +1162,7 @@ LINK SyncInVoiceMeas(Document *doc,
 }
 
 
-/* --------------------------------------------------------------- EndMeasSearch -- */
+/* --------------------------------------------------------------------- EndMeasSearch -- */
 /* EndMeasSearch searches forward for the object that terminates the Measure
 startL is in. The object is the next following Measure, System, or Page, or,
 if none of those is found, tailL. Does not assume cross-links are valid. */
@@ -1171,7 +1182,7 @@ LINK EndMeasSearch(
 }
 
 
-/* ------------------------------------------------------------- EndSystemSearch -- */
+/* ------------------------------------------------------------------- EndSystemSearch -- */
 /* EndSystemSearch searches forward for the object that terminates the System
 startL is in, or, if startL is a System, for the object that terminates startL.
 The object is the next following System or Page, or, if neither of those is
@@ -1192,7 +1203,7 @@ LINK EndSystemSearch(
 }
 
 
-/* --------------------------------------------------------------- EndPageSearch -- */
+/* --------------------------------------------------------------------- EndPageSearch -- */
 /* EndPageSearch searches forward for the object that terminates the Page
 startL is in. The object is the next following Page, or, if none is found,
 tailL. */
@@ -1210,7 +1221,7 @@ LINK EndPageSearch(
 }
 
 
-/* --------------------------------------------------------------TimeSearchRight -- */
+/* --------------------------------------------------------------------TimeSearchRight -- */
 /* Search object list to right, within the Measure only, for an object with the
 given type and Measure-relative time. */
 
@@ -1222,7 +1233,7 @@ LINK TimeSearchRight(
 			Boolean		exact 		/* True means need time=lTime, else take any time>=lTime */
 			)
 {
-	LINK pL; long time;
+	LINK pL; long time=0L;
 
 	if (type==MEASUREtype)
 		{ MayErrMsg("TimeSearchRight: MEASUREtype illegal."); return NILINK; }
@@ -1251,7 +1262,7 @@ LINK TimeSearchRight(
 }
 
 
-/* ------------------------------------------------------------AbsTimeSearchRight -- */
+/* -----------------------------------------------------------------AbsTimeSearchRight -- */
 /* Search object list to right for a Sync with given minimum logical time; if we don't
 find one, return NILINK. */
 
@@ -1275,7 +1286,7 @@ LINK AbsTimeSearchRight(
 }
 
 
-/* -------------------------------------------------------------------- MNSearch -- */
+/* -------------------------------------------------------------------------- MNSearch -- */
 /* Search for a Measure with measure number (if goLeft) less than or equal, or
 (if !goLeft) greater than or equal, to the given number. If measNum==ANYONE, accept
 any Measure regardless of number. If <preferNonFake>, first look for a Measure with
@@ -1287,7 +1298,7 @@ Return the Measure if it exists, else NILINK. Not optimized. */
 LINK MNSearch(
 			Document *doc,
 			LINK startL,
-			short measNum,						/* Measure no. or ANYONE */
+			short measNum,					/* Measure no. or ANYONE */
 			Boolean goLeft,
 			Boolean preferNonFake
 			)
@@ -1320,7 +1331,7 @@ LINK MNSearch(
 }
 
 
-/* -------------------------------------------------------------------- RMSearch -- */
+/* -------------------------------------------------------------------------- RMSearch -- */
 /* Search for a rehearsal mark with char string rMark. Return the rehearsal
 mark if it exists, else NILINK. */
 
@@ -1346,7 +1357,7 @@ LINK RMSearch(Document *doc, LINK startL, const unsigned char *rMark, Boolean go
 }
 
 
-/* --------------------------------------------------------------------- SSearch -- */
+/* --------------------------------------------------------------------------- SSearch -- */
 /* Non-optimized simple search. For use where we are not guaranteed validity of
 crossLinks of structural objects, and do not need to specify which staff, voice,
 system or page to search on nor to specify selected status: e.g. ANYONE,
@@ -1364,7 +1375,7 @@ LINK SSearch(LINK pL, short type, Boolean goLeft)
 }
 
 
-/* ---------------------------------------------------------------- EitherSearch -- */
+/* ---------------------------------------------------------------------- EitherSearch -- */
 /* EitherSearch is the same as LSSearch except that, if it doesn't find anything
 in the <goLeft> direction, it looks in the other direction.
 
@@ -1381,7 +1392,7 @@ LINK EitherSearch(LINK pL, short type, short id, Boolean goLeft, Boolean needSel
 }
 
 
-/* -------------------------------------------------------------- FindUnknownDur -- */
+/* -------------------------------------------------------------------- FindUnknownDur -- */
 /* Find the first Sync containing any unknown dur. notes starting at the given
 LINK. Returns the Sync's LINK or NILINK. */
 
@@ -1399,7 +1410,7 @@ LINK FindUnknownDur(LINK pL, Boolean goLeft)
 	return NILINK;
 }
 
-/* --------------------------------------------------------------- XSysSlurMatch -- */
+/* --------------------------------------------------------------------- XSysSlurMatch -- */
 /* Given either piece of a cross-system Slur (either tie set or slur), find its
 other piece. If there is none or the Slur isn't cross-system, return NILINK. */
 
@@ -1433,7 +1444,7 @@ LINK XSysSlurMatch(LINK slurL)
 	return otherSlurL;
 }
 
-/* -------------------------------------------------------------- LeftSlurSearch -- */
+/* -------------------------------------------------------------------- LeftSlurSearch -- */
 /* Finds the slur in voice v which ends at syncL. syncL must be a Sync. If the notes
 in syncL in voice v are tiedR, their slur will be in voice v and located prior to
 syncL in the object list. Therefore require either checking the mainNote's tiedR
@@ -1461,7 +1472,7 @@ LINK LeftSlurSearch(
 }
 
 
-/* -------------------------------------------------------------------- KSSearch -- */
+/* -------------------------------------------------------------------------- KSSearch -- */
 /* Search right for the next <inMeas>, <needSel> keysig on staffn. If staffn is
 ANYONE, search right for the most remote keysig on any staff. If the staff (or any
 of the staves) in question doesn't have a keysig following, return doc->tailL. Thus,
@@ -1503,7 +1514,7 @@ LINK KSSearch(
 }
 
 
-/* ------------------------------------------------------------------ ClefSearch -- */
+/* ------------------------------------------------------------------------ ClefSearch -- */
 /* Search right for the next <inMeas>, <needSel> clef on staffn. If staffn is
 ANYONE, search right for the most remote clef on any staff. If the staff (or any
 of the staves) in question doesn't have a clef following, return doc->tailL. Thus,
@@ -1545,7 +1556,7 @@ LINK ClefSearch(
 }
 
 
-/* ------------------------------------------------------------------ FindNoteNum -- */
+/* ----------------------------------------------------------------------- FindNoteNum -- */
 /* Look for a note with the given note number in the given Sync and voice and return
 the first one found; if there is none, return NILINK. */
 
