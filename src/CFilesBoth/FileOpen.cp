@@ -24,11 +24,13 @@ careful: It's neither a number nor a valid C string! */
 static unsigned long version;							/* File version code read/written */
 
 /* Prototypes for internal functions: */
-static Boolean ConvertScore(Document *, long);
-static void DisplayDocumentHdr(Document *doc);
+static Boolean ConvertScoreContent(Document *, long);
+static void DisplayDocumentHdr(short id, Document *doc);
 static short CheckDocumentHdr(Document *doc);
-static void DisplayScoreHdr(Document *doc);
+static void DisplayScoreHdr(short id, Document *doc);
 static short CheckScoreHdr(Document *doc);
+
+static void ConvertScoreHeader(Document *doc, DocumentN105 *docN105);
 
 static Boolean ModifyScore(Document *, long);
 static void SetTimeStamps(Document *);
@@ -56,7 +58,7 @@ enum {
 };
 
 
-/* -------------------------------------------------------------- ConvertScore helpers -- */
+/* ------------------------------------------------------- ConvertScoreContent helpers -- */
 
 static void OldGetSlurContext(Document *, LINK, Point [], Point []);
 static void ConvertChordSlurs(Document *);
@@ -322,7 +324,7 @@ static void ConvertStaffLines(LINK startL)
 }
 
 
-/* ---------------------------------------------------------------------- ConvertScore -- */
+/* --------------------------------------------------------------- ConvertScoreContent -- */
 /* Any file-format-conversion code that doesn't affect the length of the header or
 lengths or offsets of fields in objects (or subobjects) should go here. Return True if
 all goes well, False if not.
@@ -331,7 +333,7 @@ This function should not be called until the header and the entire object list h
 read! Tweaks that affect lengths or offsets to the header should be done in OpenFile; to
 to objects (or subobjects), in ReadObjHeap. */
 
-static Boolean ConvertScore(Document *doc, long fileTime)
+static Boolean ConvertScoreContent(Document *doc, long fileTime)
 {
 	LINK pL;  DateTimeRec date;
 	
@@ -997,10 +999,219 @@ static Boolean ModifyScore(Document * /*doc*/, long /*fileTime*/)
 }
 
 
+
+static void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
+{
+	doc->headL = docN105->headL;
+	doc->tailL = docN105->tailL;
+	doc->selStartL = docN105->selStartL;
+	doc->selEndL = docN105->selEndL;
+	doc->nstaves = docN105->nstaves;
+	doc->nsystems = docN105->nsystems;
+	//comment[MAX_COMMENT_LEN+1]
+	doc->feedback = docN105->feedback;
+	doc->dontSendPatches = docN105->dontSendPatches;
+	doc->saved = docN105->saved;
+	doc->named = docN105->named;
+	doc->used = docN105->used;
+	doc->transposed = docN105->transposed;
+	doc->lyricText = docN105->lyricText;
+	doc->polyTimbral = docN105->polyTimbral;
+	doc->currentPage = docN105->currentPage;
+	doc->spacePercent = docN105->spacePercent;
+	doc->srastral = docN105->srastral;
+	doc->altsrastral = docN105->altsrastral;
+	doc->tempo = docN105->tempo;
+	doc->channel = docN105->channel;
+	doc->velocity = docN105->velocity;
+	doc->headerStrOffset = docN105->headerStrOffset;
+	doc->footerStrOffset = docN105->footerStrOffset;
+	doc->topPGN = docN105->topPGN;
+	doc->hPosPGN = docN105->hPosPGN;
+	doc->alternatePGN = docN105->alternatePGN;
+	doc->useHeaderFooter = docN105->useHeaderFooter;
+	doc->fillerPGN = docN105->fillerPGN;
+	doc->fillerMB = docN105->fillerMB;
+	doc->filler2 = docN105->filler2;
+	doc->dIndentOther = docN105->dIndentOther;
+	doc->firstNames = docN105->firstNames;
+	doc->otherNames = docN105->otherNames;
+	doc->lastGlobalFont = docN105->lastGlobalFont;
+	doc->xMNOffset = docN105->xMNOffset;
+	doc->yMNOffset = docN105->yMNOffset;
+	doc->xSysMNOffset = docN105->xSysMNOffset;
+	doc->aboveMN = docN105->aboveMN;
+	doc->sysFirstMN = docN105->sysFirstMN;
+	doc->startMNPrint1 = docN105->startMNPrint1;
+	doc->firstMNNumber = docN105->firstMNNumber;
+	doc->masterHeadL = docN105->masterHeadL;
+	doc->masterTailL = docN105->masterTailL;
+	doc->filler1 = docN105->filler1;
+	doc->nFontRecords = docN105->nFontRecords;
+	
+	//fontNameMN[32]
+	doc->fillerMN = docN105->fillerMN;
+	doc->lyricMN = docN105->lyricMN;
+	doc->enclosureMN = docN105->enclosureMN;
+	doc->relFSizeMN = docN105->relFSizeMN;
+	doc->fontSizeMN = docN105->fontSizeMN;
+	doc->fontStyleMN = docN105->fontStyleMN;
+	
+	//fontNamePN[32]
+	doc->fillerPN = docN105->fillerPN;
+	doc->lyricPN = docN105->lyricPN;
+	doc->enclosurePN = docN105->enclosurePN;
+	doc->relFSizePN = docN105->relFSizePN;
+	doc->fontSizePN = docN105->fontSizePN;
+	doc->fontStylePN = docN105->fontStylePN;
+	
+	//fontNameRM[32]
+	doc->fillerRM = docN105->fillerRM;
+	doc->lyricRM = docN105->lyricRM;
+	doc->enclosureRM = docN105->enclosureRM;
+	doc->relFSizeRM = docN105->relFSizeRM;
+	doc->fontSizeRM = docN105->fontSizeRM;
+	doc->fontStyleRM = docN105->fontStyleRM;
+	
+	//fontName1[32]
+	doc->fillerR1 = docN105->fillerR1;
+	doc->lyric1 = docN105->lyric1;
+	doc->enclosure1 = docN105->enclosure1;
+	doc->relFSize1 = docN105->relFSize1;
+	doc->fontSize1 = docN105->fontSize1;
+	doc->fontStyle1 = docN105->fontStyle1;
+	
+	//fontName2[32]
+	doc->fillerR2 = docN105->fillerR2;
+	doc->lyric2 = docN105->lyric2;
+	doc->enclosure2 = docN105->enclosure2;
+	doc->relFSize2 = docN105->relFSize2;
+	doc->fontSize2 = docN105->fontSize2;
+	doc->fontStyle2 = docN105->fontStyle2;
+	
+	//fontName3[32]
+	doc->fillerR3 = docN105->fillerR3;
+	doc->lyric3 = docN105->lyric3;
+	doc->enclosure3 = docN105->enclosure3;
+	doc->relFSize3 = docN105->relFSize3;
+	doc->fontSize3 = docN105->fontSize3;
+	doc->fontStyle3 = docN105->fontStyle3;
+	
+	//fontName4[32]
+	doc->fillerR4 = docN105->fillerR4;
+	doc->lyric4 = docN105->lyric4;
+	doc->enclosure4 = docN105->enclosure4;
+	doc->relFSize4 = docN105->relFSize4;
+	doc->fontSize4 = docN105->fontSize4;
+	doc->fontStyle4 = docN105->fontStyle4;
+	
+	//fontNameTM[32]
+	doc->fillerTM = docN105->fillerTM;
+	doc->lyricTM = docN105->lyricTM;
+	doc->enclosureTM = docN105->enclosureTM;
+	doc->relFSizeTM = docN105->relFSizeTM;
+	doc->fontSizeTM = docN105->fontSizeTM;
+	doc->fontStyleTM = docN105->fontStyleTM;
+	
+	//fontNameCS[32]
+	doc->fillerCS = docN105->fillerCS;
+	doc->lyricCS = docN105->lyricCS;
+	doc->enclosureCS = docN105->enclosureCS;
+	doc->relFSizeCS = docN105->relFSizeCS;
+	doc->fontSizeCS = docN105->fontSizeCS;
+	doc->fontStyleCS = docN105->fontStyleCS;
+	
+	//fontNamePG[32]
+	doc->fillerPG = docN105->fillerPG;
+	doc->lyricPG = docN105->lyricPG;
+	doc->enclosurePG = docN105->enclosurePG;
+	doc->relFSizePG = docN105->relFSizePG;
+	doc->fontSizePG = docN105->fontSizePG;
+	doc->fontStylePG = docN105->fontStylePG;
+	
+	//fontName5[32]
+	doc->fillerR5 = docN105->fillerR5;
+	doc->lyric5 = docN105->lyric5;
+	doc->enclosure5 = docN105->enclosure5;
+	doc->relFSize5 = docN105->relFSize5;
+	doc->fontSize5 = docN105->fontSize5;
+	doc->fontStyle5 = docN105->fontStyle5;
+	
+	//fontName6[32]
+	doc->fillerR6 = docN105->fillerR6;
+	doc->lyric6 = docN105->lyric6;
+	doc->enclosure6 = docN105->enclosure6;
+	doc->relFSize6 = docN105->relFSize6;
+	doc->fontSize6 = docN105->fontSize6;
+	doc->fontStyle6 = docN105->fontStyle6;
+	
+	//fontName7[32]
+	doc->fillerR7 = docN105->fillerR7;
+	doc->lyric7 = docN105->lyric7;
+	doc->enclosure7 = docN105->enclosure7;
+	doc->relFSize7 = docN105->relFSize7;
+	doc->fontSize7 = docN105->fontSize7;
+	doc->fontStyle7 = docN105->fontStyle7;
+	
+	//fontName8[32]
+	doc->fillerR8 = docN105->fillerR8;
+	doc->lyric8 = docN105->lyric8;
+	doc->enclosure8 = docN105->enclosure8;
+	doc->relFSize8 = docN105->relFSize8;
+	doc->fontSize8 = docN105->fontSize8;
+	doc->fontStyle8 = docN105->fontStyle8;
+	
+	//fontName9[32]
+	doc->fillerR9 = docN105->fillerR9;
+	doc->lyric9 = docN105->lyric9;
+	doc->enclosure9 = docN105->enclosure9;
+	doc->relFSize9 = docN105->relFSize9;
+	doc->fontSize9 = docN105->fontSize9;
+	doc->fontStyle9 = docN105->fontStyle9;
+	
+	doc->nfontsUsed = docN105->nfontsUsed;
+	//fontTable[MAX_SCOREFONTS]
+	
+	//musFontName[32]
+	
+	doc->magnify = docN105->magnify;
+	doc->selStaff = docN105->selStaff;
+	doc->otherMNStaff = docN105->otherMNStaff;
+	doc->numberMeas = docN105->numberMeas;
+	doc->currentSystem = docN105->currentSystem;
+	doc->spaceTable = docN105->spaceTable;
+	doc->htight = docN105->htight;
+	doc->fillerInt = docN105->fillerInt;
+	doc->lookVoice = docN105->lookVoice;
+	doc->fillerHP = docN105->fillerHP;
+	doc->fillerLP = docN105->fillerLP;
+	doc->ledgerYSp = docN105->ledgerYSp;
+	doc->deflamTime = docN105->deflamTime;
+	
+	doc->autoRespace = docN105->autoRespace;
+	doc->insertMode = docN105->insertMode;
+	doc->beamRests = docN105->beamRests;
+	doc->pianoroll = docN105->pianoroll;
+	doc->showSyncs = docN105->showSyncs;
+	doc->frameSystems = docN105->frameSystems;
+	doc->fillerEM = docN105->fillerEM;
+	doc->colorVoices = docN105->colorVoices;
+	doc->showInvis = docN105->showInvis;
+	doc->showDurProb = docN105->showDurProb;
+	doc->recordFlats = docN105->recordFlats;
+	
+	//longspaceMap[MAX_L_DUR]
+	doc->dIndentFirst = docN105->dIndentFirst;
+	doc->yBetweenSys = docN105->yBetweenSys;
+	//voiceTab[MAXVOICES+1]
+	//expansion[256-(MAXVOICES+1)]
+}
+
+
 /* --------------------------------------------------------------------- SetTimeStamps -- */
 /* Recompute timestamps up to the first Measure that has any unknown durs. in it. */
 
-void SetTimeStamps(Document *doc)
+static void SetTimeStamps(Document *doc)
 {
 	LINK firstUnknown, stopMeas;
 	
@@ -1015,9 +1226,11 @@ void SetTimeStamps(Document *doc)
 
 #define in2d(x)	pt2d(in2pt(x))		/* Convert inches to DDIST */
 
-static void DisplayDocumentHdr(Document *doc)
+/* Display some Document header fields; there are about 20 in all. */
+
+static void DisplayDocumentHdr(short id, Document *doc)
 {
-	LogPrintf(LOG_INFO, "Displaying Document header:\n");
+	LogPrintf(LOG_INFO, "Displaying Document header (ID %d):\n", id);
 	LogPrintf(LOG_INFO, "  origin.h=%d", doc->origin.h);
 	LogPrintf(LOG_INFO, "  .v=%d", doc->origin.h);
 	
@@ -1046,7 +1259,7 @@ static void DisplayDocumentHdr(Document *doc)
 }
 
 /* Do a reality check for Document header values that might be bad. Return the number of
-problems found. */
+problems found. NB: We're not checking anywhere near everything we could! */
 
 static short CheckDocumentHdr(Document *doc)
 {
@@ -1065,20 +1278,26 @@ static short CheckDocumentHdr(Document *doc)
 	return nerr;
 }
 
-static void DisplayScoreHdr(Document *doc)
+/* Display some Score header fields, but nowhere near all: there are about 200. */
+
+static void DisplayScoreHdr(short id, Document *doc)
 {
-	LogPrintf(LOG_INFO, "Displaying Score header:\n");
+	Str255 tempStr;
+	
+	LogPrintf(LOG_INFO, "Displaying Score header (ID %d):\n", id);
 	LogPrintf(LOG_INFO, "  nstaves=%d", doc->nstaves);
 	LogPrintf(LOG_INFO, "  nsystems=%d", doc->nsystems);		
 	LogPrintf(LOG_INFO, "  spacePercent=%d", doc->spacePercent);
 	LogPrintf(LOG_INFO, "  srastral=%d", doc->srastral);				
-	LogPrintf(LOG_INFO, "  altsrastral=%d\n", doc->altsrastral);	
+	LogPrintf(LOG_INFO, "  altsrastral=%d\n", doc->altsrastral);
+		
 	LogPrintf(LOG_INFO, "  tempo=%d", doc->tempo);		
 	LogPrintf(LOG_INFO, "  channel=%d", doc->channel);			
 	LogPrintf(LOG_INFO, "  velocity=%d", doc->velocity);		
 	LogPrintf(LOG_INFO, "  headerStrOffset=%d", doc->headerStrOffset);	
 	LogPrintf(LOG_INFO, "  footerStrOffset=%d", doc->footerStrOffset);	
 	LogPrintf(LOG_INFO, "  dIndentOther=%d\n", doc->dIndentOther);
+	
 	LogPrintf(LOG_INFO, "  firstNames=%d", doc->firstNames);
 	LogPrintf(LOG_INFO, "  otherNames=%d", doc->otherNames);
 	LogPrintf(LOG_INFO, "  lastGlobalFont=%d\n", doc->lastGlobalFont);
@@ -1089,16 +1308,24 @@ static void DisplayScoreHdr(Document *doc)
 	LogPrintf(LOG_INFO, "  firstMNNumber=%d\n", doc->firstMNNumber);
 
 	LogPrintf(LOG_INFO, "  nfontsUsed=%d", doc->nfontsUsed);
+	Pstrcpy(tempStr, doc->musFontName); PToCString(tempStr);
+	LogPrintf(LOG_INFO, "  musFontName='%s'\n", tempStr);
+	
 	LogPrintf(LOG_INFO, "  magnify=%d", doc->magnify);
 	LogPrintf(LOG_INFO, "  selStaff=%d", doc->selStaff);
 	LogPrintf(LOG_INFO, "  currentSystem=%d", doc->currentSystem);
 	LogPrintf(LOG_INFO, "  spaceTable=%d", doc->spaceTable);
 	LogPrintf(LOG_INFO, "  htight=%d\n", doc->htight);
+	
 	LogPrintf(LOG_INFO, "  lookVoice=%d", doc->lookVoice);
 	LogPrintf(LOG_INFO, "  ledgerYSp=%d", doc->ledgerYSp);
 	LogPrintf(LOG_INFO, "  deflamTime=%d", doc->deflamTime);
+	LogPrintf(LOG_INFO, "  colorVoices=%d", doc->colorVoices);
 	LogPrintf(LOG_INFO, "  dIndentFirst=%d\n", doc->dIndentFirst);
 }
+
+/* Do a reality check for Score header values that might be bad. Return the number of
+problems found. NB: We're not checking anywhere near everything we could! */
 
 static short CheckScoreHdr(Document *doc)
 {
@@ -1176,6 +1403,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	long		cmHdr, cmBufCount, cmDevSize;
 	FSSpec		*pfsSpecMidiMap;
 	char		versionCString[5];
+	DocumentN105 docN105;
 
 	WaitCursor();
 
@@ -1194,19 +1422,19 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	errCode = FSRead(refNum, &count, &version);
 	FIX_END(version);
 	if (errCode) { errInfo = VERSIONobj; goto Error;}
+	*fileVersion = version;
+	MacTypeToString(version, versionCString);
 	
 	/* If user has the secret keys down, pretend file is in current version. */
 	
 	if (ShiftKeyDown() && OptionKeyDown() && CmdKeyDown() && ControlKeyDown()) {
-		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%T'.\n", version);
+		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%s'.\n", versionCString);
 		GetIndCString(strBuf, FILEIO_STRS, 6);					/* "IGNORING FILE'S VERSION CODE!" */
 		CParamText(strBuf, "", "", "");
 		CautionInform(GENERIC_ALRT);
 		version = THIS_FILE_VERSION;
 	}
 
-	*fileVersion = version;
-	MacTypeToString(version, versionCString);
 	if (versionCString[0]!='N') { errCode = BAD_VERSION_ERR; goto Error; }
 	if ( !isdigit(versionCString[1])
 			|| !isdigit(versionCString[2])
@@ -1221,54 +1449,54 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	FIX_END(fileTime);
 	if (errCode) { errInfo = VERSIONobj; goto Error; }
 		
-	/* Read and, if necessary, convert document (i.e., Sheets) and score headers. */
+	/* Read and, if necessary, convert Document (i.e., Sheets) and Score headers. */
 	
-	switch(version) {
-		case 'N103':
-		case 'N104':
-		case 'N105':
-			count = sizeof(DOCUMENTHDR);
-			errCode = FSRead(refNum, &count, &doc->origin);
-			if (errCode) { errInfo = HEADERobj; goto Error; }
-			
-			count = sizeof(SCOREHEADER);
-			errCode = FSRead(refNum, &count, &doc->headL);
-			if (errCode) { errInfo = HEADERobj; goto Error; }
-			break;
-		
-		default:
-			;
-	}
-
+	count = sizeof(DOCUMENTHDR);
+	errCode = FSRead(refNum, &count, &doc->origin);
+	if (errCode) { errInfo = HEADERobj; goto Error; }
 	EndianFixDocumentHdr(doc);
-	if (DETAIL_SHOW) DisplayDocumentHdr(doc);
+	if (DETAIL_SHOW) DisplayDocumentHdr(1, doc);
 	LogPrintf(LOG_NOTICE, "Checking Document header: ");
 	nDocErr = CheckDocumentHdr(doc);
 	if (nDocErr==0)
 		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
 	else {
-		if (!DETAIL_SHOW) DisplayDocumentHdr(doc);
+		if (!DETAIL_SHOW) DisplayDocumentHdr(2, doc);
 		sprintf(strBuf, "%d error(s) found in Document header.", nDocErr);
 		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_ERR, "%d error(s) found in Document header  (OpenFile).\n", nDocErr);
-		StopInform(GENERIC_ALRT);
-		errCode = HEADER_ERR;
-		errInfo = 0;
-		goto Error;
+		LogPrintf(LOG_ERR, "%d error(s) found in Document header.  (OpenFile)\n", nDocErr);
+		goto HeaderError;
 	}
 	
-//DisplayScoreHdr(doc);		// ??TEMPORARY, TO DEBUG INTEL VERSION!!!!
+	switch(version) {
+		case 'N103':
+		case 'N104':
+		case 'N105':
+			count = sizeof(SCOREHEADER_N105);
+			errCode = FSRead(refNum, &count, &docN105.headL);
+			if (errCode) { errInfo = HEADERobj; goto Error; }
+			ConvertScoreHeader(doc, &docN105);
+			break;
+		
+		default:											/* Must be 'N106', the current format */
+			count = sizeof(SCOREHEADER);
+			errCode = FSRead(refNum, &count, &doc->headL);
+			if (errCode) { errInfo = HEADERobj; goto Error; }
+	}
+
+	
+//DisplayScoreHdr(2, doc);		// ??TEMPORARY, TO DEBUG INTEL VERSION & FILE FORMAT CONVERSION!!!!
 	EndianFixScoreHdr(doc);
-	if (DETAIL_SHOW) DisplayScoreHdr(doc);
+	if (DETAIL_SHOW) DisplayScoreHdr(3, doc);
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");
 	nScoreErr = CheckScoreHdr(doc);
 	if (nScoreErr==0)
-		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
+		LogPrintf(LOG_NOTICE, "No errors found in Score header.  (OpenFile)\n");
 	else {
-		if (!DETAIL_SHOW) DisplayScoreHdr(doc);
-		sprintf(strBuf, "%d error(s) found.", nScoreErr);
+		if (!DETAIL_SHOW) DisplayScoreHdr(4, doc);
+		sprintf(strBuf, "%d error(s) found in Score header.", nScoreErr);
 		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_ERR, "%d error(s) found.  (OpenFile)\n", nScoreErr);
+		LogPrintf(LOG_ERR, "%d error(s) found in Score header.  (OpenFile)\n", nScoreErr);
 		StopInform(GENERIC_ALRT);
 		errCode = HEADER_ERR;
 		errInfo = 0;
@@ -1321,20 +1549,19 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	
 	if (!PreflightMem(40)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
-	ConvertScore(doc, fileTime);						/* Do any conversion of old files needed */
+	ConvertScoreContent(doc, fileTime);			/* Do any conversion of old files needed */
 
-	Pstrcpy(doc->name, filename);						/* Remember filename and vol refnum after scoreHead is overwritten */
+	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;
 	doc->changed = False;
-	doc->saved = True;									/* Has to be, since we just opened it! */
-	doc->named = True;									/* Has to have a name, since we just opened it! */
+	doc->saved = True;							/* Has to be, since we just opened it! */
+	doc->named = True;							/* Has to have a name, since we just opened it! */
 
-	ModifyScore(doc, fileTime);							/* Do any hacking needed, ordinarily none */
+	ModifyScore(doc, fileTime);					/* Do any hacking needed, ordinarily none */
 
-	/*
-	 * Read the document's OMS device numbers for each part. if "devc" signature block not
-	 * found at end of file, pack the document's omsPartDeviceList with default values.
-	 */
+	/* Read the document's OMS device numbers for each part. if "devc" signature block not
+	   found at end of file, pack the document's omsPartDeviceList with default values. */
+	
 	omsBufCount = sizeof(OMSSignature);
 	errCode = FSRead(refNum, &omsBufCount, &omsDevHdr);
 	if (!errCode && omsDevHdr == 'devc') {
@@ -1412,12 +1639,11 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	SetTimeStamps(doc);									/* Up to first meas. w/unknown durs. */
 
 
-	/*
-	 * Assume that no information in the score having to do with window-relative
-	 * positions is valid. Besides clearing the object <valid> flags to indicate
-	 * this, protect ourselves against functions that might not check the flags
-	 * properly by setting all such positions to safe values now.
-	 */
+	/* Assume that no information in the score having to do with window-relative
+	   positions is valid. Besides clearing the object <valid> flags to indicate this,
+	   protect ourselves against functions that might not check the flags properly by
+	   setting all such positions to safe values now. */
+	
 	InvalRange(doc->headL, doc->tailL);					/* Force computing all objRects */
 
 	doc->hasCaret = False;									/* Caret must still be set up */
@@ -1432,6 +1658,14 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	ArrowCursor();	
 	return 0;
 
+HeaderError:
+	sprintf(strBuf, "%d error(s) found in Document header.", nDocErr);
+	CParamText(strBuf, "", "", "");
+	LogPrintf(LOG_ERR, "%d error(s) found in Document header.  (OpenFile)\n", nDocErr);
+	StopInform(GENERIC_ALRT);
+	errCode = HEADER_ERR;
+	errInfo = 0;
+	/* drop through */
 Error:
 	OpenError(fileIsOpen, refNum, errCode, errInfo);
 	return errCode;

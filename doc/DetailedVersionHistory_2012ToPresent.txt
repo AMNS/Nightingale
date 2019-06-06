@@ -2414,9 +2414,20 @@ SUBOBJHEADER. Affects NObjTypes.h, Objects.h; FileOpen, Search, Select, SelUtils
 
 -------------------------------------------------------------------------------
 
-10-11 April
+10 April-3 June
 
 Fixed bug: When Nightingale starts to convert a file in an older format in order to
 open it, it displays a message in the log saying so, but it always shows "T" as the
 file-format version instead of the 4-char. code (e.g., "N105"). Affects NightTemplates.h;
-FileOpen, StringUtils.
+FileOpen, StringUtils. *NOT IN 5.8
+
+Fixed bug (Issue #174): If the first selected object is a tempo mark or graphic
+attached to a barline, the measure number displayed is the number of the preceding
+barline, not that of the barline it's attached to. Affects SelUtils. *IN 5.8 & 5.9
+
+Divided a header containing declarations for score headers and unrelated stuff in two;
+hacked code for opening files towards goal of converting "N105" format files to "N106".
+Affects NMiscTypes.h, (new) NDocAndCnfgTypes.h; FileOpen. *NOT IN 5.8
+
+Minor cleanup: move five xxxUtils files into the Utilities folder, etc. Affects
+CheckUtils, DialogUtils, DrawUtils, PopUpUtils, SelUtils, StringUtils. *IN 5.8 & 5.9
