@@ -56,8 +56,8 @@ StringPtr CToPString(char *str)
 
 
 /* FIXME: Here's another pair of P string <=> C string utils, with slightly different types.
-At the moment (April 2019), the other pair is used far more often. This is silly! Get rid
-of this pair! */
+At the moment (Feb. 2018), both pairs are used about equally often. This is silly! Get rid
+of one pair! */
 
 StringPtr CtoPstr(StringPtr str)
 {

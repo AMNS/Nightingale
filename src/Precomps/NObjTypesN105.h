@@ -814,6 +814,39 @@ typedef struct {
 } HEADER_5, *PHEADER_5;
 
 
+/* -------------------------------------------------------------------------- SUPEROBJ -- */
+/* This struct is the union of all Object structs, and its size is the maximum size of
+any record kept in the object heap. */
+
+typedef union uSUPEROBJ {	
+		HEADER_5		header;
+		TAIL_5		tail;
+		SYNC_5		sync;
+		RPTEND_5		rptEnd;
+		PAGE_5		page;
+		SYSTEM_5		system;
+		STAFF_5		staff;
+		MEASURE_5		measure;
+		CLEF_5		clef;
+		KEYSIG_5		keysig;
+		TIMESIG_5		timesig;
+		BEAMSET_5		beamset;
+		CONNECT_5		connect;
+		DYNAMIC_5		dynamic;
+		GRAPHIC_5		graphic;
+		OTTAVA_5		ottava;
+		SLUR_5		slur;
+		TUPLET_5		tuplet;
+		GRSYNC_5		grSync;
+		TEMPO_5		tempo;
+		SPACER_5		spacer;
+		} SUPEROBJ_5;
+
+typedef struct {
+	Byte bogus[sizeof(SUPEROBJ_5)];
+} SUPEROBJECT_5, *PSUPEROBJECT_5;
+
+
 /* --------------------------------------------------------------------------- CONTEXT -- */
 
 typedef struct {
@@ -869,5 +902,76 @@ typedef struct {
 	LINK dstL;
 } COPYMAP;
 #endif
+
+
+/* ----------------------------------------------------------------- Structs for Merge -- */
+
+typedef struct {
+	long		startTime;				/* Start time in this voice */
+	short		firstStf,				/* First staff occupied by objs in this voice */
+				lastStf;				/* Last staff occupied by objs in this voice */
+	unsigned short singleStf:1,			/* Whether voice in this sys is on more than 1 stf */
+				hasV:1,
+				vOK:1,					/* True if there is enough space in voice to merge */
+				vBad:1,					/* True if check of this voice caused abort */
+				overlap:1,
+				unused:11;
+} VInfo;
+
+typedef struct {
+	long		startTime;				/* Start time in this voice */
+	long		clipEndTime;			/* End time of clipboard in this voice */
+	short		firstStf,				/* First staff occupied by objs in this voice */
+				lastStf;				/* Last staff occupied by objs in this voice */
+	short		singleStf:1,			/* Whether voice in this sys on more than 1 stf */
+				hasV:1,
+				vBad:1,
+				unused:13;
+} ClipVInfo;
+
+
+/* ------------------------------------------------------------------------- CHORDNOTE -- */
+
+typedef struct {
+	SHORTQD		yqpit;
+	Byte		noteNum;	
+	LINK		noteL;
+} CHORDNOTE;
+
+
+/* ------------------------------------------------------------------ SYMDATA, OBJDATA -- */
+
+typedef struct						/* Symbol table data for a CMN symbol: */
+{
+	short		cursorID;			/* Resource ID of cursor */
+	SignedByte	objtype;			/* Object type for symbol's opcode */
+	SignedByte	subtype;			/* subtype */
+	char		symcode;			/* Input char. code for symbol (0=none) */
+	SignedByte	durcode;			/* Duration code for notes and rests */
+} SYMDATA;
+
+typedef struct						/* Symbol table data for an object-list object: */
+{
+	SignedByte	objType;			/* mEvent type for symbol's opcode */
+	short		justType;
+	short		minEntries;
+	short		maxEntries;
+	Boolean		objRectOrdered;		/* True=objRect meaningful & its .left should be in order */
+} OBJDATA;
+
+
+/* ---------------------------------------------------------------------------- MEVENT -- */
+
+typedef struct {
+	OBJECTHEADER_5
+} MEVENT, *PMEVENT;
+
+
+/* ---------------------------------------------------------------------------- EXTEND -- */
+
+typedef struct sEXTEND {
+	OBJECTHEADER_5
+	EXTOBJHEADER
+} EXTEND, *PEXTEND;
 
 #pragma options align=reset
