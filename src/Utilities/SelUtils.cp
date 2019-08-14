@@ -19,7 +19,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2019 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -41,8 +41,8 @@ static void StartThread(void);
 /* ----------------------------------------------------------------------- GetSelStaff -- */
 /* Get the staff number of the insertion point or selection. If anything is selected,
 if the first selected object or subobject actually has a staff number (almost always
-the case unless it's a page-relative Graphic) return that number; if it doesn't,
-return NOONE. */
+the case unless it's a page-relative Graphic) return that number; if it doesn't, return
+NOONE. */
 
 short GetSelStaff(Document *doc)
 {
@@ -56,10 +56,10 @@ short GetSelStaff(Document *doc)
 
 
 /* ------------------------------------------------------------------- GetStaffFromSel -- */
-/* Get staff number from selection. If the first selected object or subobject
-actually has a staff number (almost always the case unless it's a page-relative
-Graphic) return that number; if it doesn't or if nothing is selected, return
-NOONE. Also return in <pSelL> the first selected link (normally doc->selStartL). */
+/* Get staff number from selection. If the first selected object or subobject actually
+has a staff number (almost always the case unless it's a page-relative Graphic),
+return that number; if it doesn't or if nothing is selected, return NOONE. Also return
+in <pSelL> the first selected link (normally doc->selStartL). */
 
 short GetStaffFromSel(Document *doc, LINK *pSelL)
 {
@@ -164,8 +164,8 @@ short GetStaffFromSel(Document *doc, LINK *pSelL)
 /* -------------------------------------------------------------------- GetSelPartList -- */
 /*	Determine which parts contain selected items. Deliver an array, <partL>, of
 links to these parts. <partL> is an array of MAXSTAVES+1, dimensioned by caller.
-Caller should walk array until finding a NILINK element, which represents the
-end of the list of links.
+Caller should walk array until finding a NILINK element, which represents the end
+of the list of links.
 Note: This code is derived from GetStfRangeOfSel.  -JGG */
 
 void GetSelPartList(Document *doc, LINK partL[])
@@ -237,7 +237,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 	}
 
 	/* Gather the part links whose staves have selected items. (More than one staff
-		number can point to the same part.) */
+	   number can point to the same part.) */
 
 	for (i = 1; i<=MAXSTAVES; i++)
 		if (selStaves[i]) {
@@ -302,9 +302,9 @@ LINK GetSelPart(Document *doc)
 
 /* ------------------------------------------------------------------  GetVoiceFromSel -- */
 /* Get (internal) voice number from selection. If the first selected object or
-subobject actually has a voice number (see ObjHasVoice for the current list of
-types) return that number; otherwise return its staff number (since that's the
-default voice number for the staff). If nothing is selected, returns NOONE. */
+subobject actually has a voice number (see ObjHasVoice for the current list of types)
+return that number; otherwise return its staff number (since that's the default voice
+number for the staff). If nothing is selected, return NOONE. */
 
 short GetVoiceFromSel(Document *doc)
 {
@@ -472,22 +472,26 @@ doc. */
 
 void Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 {
-	LINK measL, aMeasureL; PAMEASURE aMeasure;
+	LINK measL, aMeasureL;  PAMEASURE aMeasure;
 	
 	*pMeasNum = 0;
 	*pPageNum = doc->firstPageNumber;
 
 	if (doc->selStartL==doc->headL) return;
 
-	/*
-	 * The following is NOT equivalent to just searching left for a Measure
-	 * from doc->selStartL: it's different if selStartL==selEndL==a Measure.
-	 */
+	/* If the first selected object is a Measure, it's the one we want. Otherwise,
+	   search for the first Measure to the left, unless there's a non-empty selection
+	   and the first selected object is attached to a barline (= Measure object); such
+	   objects precede their Measure in the object list, so search for the first
+	   Measure to the right. */
+	   
 	if (doc->selStartL!=doc->selEndL && MeasureTYPE(doc->selStartL))
 		measL = doc->selStartL;
+	else if (doc->selStartL!=doc->selEndL &&
+			(GraphicTYPE(doc->selStartL) || TempoTYPE(doc->selStartL)))
+		measL = LSSearch(RightLINK(doc->selStartL), MEASUREtype, ANYONE, GO_RIGHT, False);
 	else
-		measL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE,
-							GO_LEFT, False);
+		measL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE, GO_LEFT, False);
 	if (!measL) return;
 
 	if (BeforeFirstMeas(doc->selStartL)) measL = LinkRMEAS(measL);
@@ -563,19 +567,18 @@ LINK FindSelAcc(Document *doc, short acc)
 specified, ask user for permission to extend the selection to include all notes in
 them, and if they agree, extend it; if no alert is specified, just extend it.
 
-Return True if we end up with no partly-selected chords, regardless of how it
-happens. */
+Return True if we end up with no partly-selected chords. */
 
 Boolean HomogenizeSel(
 				Document *doc,
 				short alertID 		/* 0=don't need permission */
 				)
 {
-	LINK pL, aNoteL; Boolean homoSel;
+	LINK pL, aNoteL;  Boolean homoSel;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
-			aNoteL = FirstSubLINK(pL); homoSel = True;
+			aNoteL = FirstSubLINK(pL);  homoSel = True;
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 				if (MainNote(aNoteL) && NoteINCHORD(aNoteL)) {
 					if (!ChordHomoSel(pL, NoteVOICE(aNoteL), NoteSEL(aNoteL))) {
@@ -685,13 +688,12 @@ static Point TrackStaffRect(
 					Rect *paper
 					)
 {
-	Point	pt; long ans;
-	Rect	aR, oldR,paperOrig;
-	short	startStf, topStartStf, stf;
+	Point	pt;
+	long	ans;
+	Rect	aR, oldR, paperOrig;
+	short	startStf=1, topStartStf, stf=1;
 	Boolean	cancelThis;
-	
-	GrafPtr	oldPort;
-	GrafPtr	docPort;
+	GrafPtr	oldPort, docPort;
 	
 	GetPort(&oldPort);
 	
@@ -703,22 +705,22 @@ static Point TrackStaffRect(
 	SetRect(&oldR, 0, 0, 0, 0);							/* Nothing hilited yet */
 	cancelThis = True;
 	paperOrig = *paper;
-	OffsetRect(&paperOrig,-paperOrig.left,-paperOrig.top);
+	OffsetRect(&paperOrig, -paperOrig.left, -paperOrig.top);
 	while (Button()) {
 		GetPaperMouse(&pt,paper);
 		if (ABS(pt.h-startPt.h)>=2) {
 			cancelThis = False;
 		}
-		ans = PinRect(&paperOrig,pt);
+		ans = PinRect(&paperOrig, pt);
 		pt.h = LoWord(ans); pt.v = HiWord(ans);
 
 		stf = GetStaff(doc, pt);									/* Staff boundary above pt */
 		startStf = topStartStf;										/* Staff boundary above startPt */
 		if (stf<startStf)	startStf = GetNextStaffn(doc, startStf, True);	/* We want the inclusive */
-		else					stf = GetNextStaffn(doc, stf, True);		/*   range of staves */
+		else				stf = GetNextStaffn(doc, stf, True);			/*   range of staves */
 		SetRect(&aR, startPt.h, staffInfo[startStf].top, pt.h,
 							staffInfo[stf].top);
-		OffsetRect(&aR,paper->left,paper->top);
+		OffsetRect(&aR,paper->left, paper->top);
 		ChangeInvRect(&oldR, &aR);									/* Update the area hilited */
 		oldR = aR;
 		AutoScroll();
@@ -731,7 +733,7 @@ static Point TrackStaffRect(
 	else {
 		*topStf = 	 (startStf>stf? stf : startStf);
 		*bottomStf = (startStf>stf? GetNextStaffn(doc, startStf, False)
-										: GetNextStaffn(doc, stf, False));
+									: GetNextStaffn(doc, stf, False));
 	}
 	
 	UnlockPortBits(docPort);
@@ -742,10 +744,9 @@ static Point TrackStaffRect(
 
 
 /* --------------------------------------------------------------------- ChangeInvRect -- */
-/* Change the InvertRect display of <pr1> to a display of <pr2> without
-unsightly flashing. N.B. If either rect has negative size along either axis,
-it is not considered empty; rather its bounds on that axis are assumed to be
-reversed.*/
+/* Change the InvertRect display of <pr1> to a display of <pr2> without unsightly
+flashing. NB: If either rect has negative size along either axis, it is not considered
+empty; rather its bounds on that axis are assumed to be reversed.*/
 
 static void ChangeInvRect(Rect *pr1, Rect *pr2)
 {
@@ -762,12 +763,11 @@ static void ChangeInvRect(Rect *pr1, Rect *pr2)
 	vBound[2] = r2.top;		vBound[3] = r2.bottom;
 	ShellSort(vBound, 4);
 
-	/* 
-	 *	Look at each box in a grid whose gridpoints are at each boundary of either
-	 *	r1 or r2, so that each box is either filled by both, filled by one, or is
-	 * empty. If it's filled by both, we know it's already hilited; if by neither,
-	 *	we know it's already unhilited. If it's filled by just one, invert it.
-	 */
+	/* Look at each box in a grid whose gridpoints are at each boundary of either
+	   r1 or r2, so that each box is either filled by both, filled by one, or is
+	   empty. If it's filled by both, we know it's already hilited; if by neither,
+	   we know it's already unhilited. If it's filled by just one, invert it. */
+	
  	for (v = 1; v<4; v++)
  		for (h = 1; h<4; h++) {
  		SetRect(&gridBox, hBound[h-1], vBound[v-1], hBound[h], vBound[v]);
