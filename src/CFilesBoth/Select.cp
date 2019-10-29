@@ -852,7 +852,7 @@ void GetOptSelEnds(Document *doc, LINK *startL, LINK *endL)
 }
 
 
-/* -------------------------------------------------------------- CountSelection -- */
+/* -------------------------------------------------------------------- CountSelection -- */
 /* Scan the selection range and count the total number of objects and no. of objects
 with selection flags set. */
 
@@ -1028,7 +1028,7 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 				stNowSel[MAXSTAVES+1];				/* Is this thing in staff sel.? */
 	short		stStatus[MAXSTAVES+1];				/* -1=this not in stf, 1= sel., 0= unsel. */
 	LINK		startL1, endL1, startL2, endL2;		/* Checking stf selRange adjacency */
-	short		s1,s2;
+	short		s1, s2;
 	
 	if (!ContinSelChks(doc)) return False;
 
@@ -1205,7 +1205,7 @@ static Boolean NewContinSel(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ ContinSelection -- */
+/* ------------------------------------------------------------------- ContinSelection -- */
 /* Check whether the selection is nonempty, entirely within one system, and
 continuous in each staff (current version) or voice (someday); if so, return True. */
 
@@ -1410,18 +1410,18 @@ void GetVSelRange(Document *doc, short v, LINK *startL, LINK *endL)
 
 
 /* ------------------------------------------------------------------- GetNoteSelRange -- */
-/* Return the minimum range that includes all selected notes/rests/grace notes in
-a voice. If nothing is selected in that voice, returns NILINKs. */
+/* Return the minimum range that includes all selected notes/rests/grace notes in a
+voice. If nothing is selected in that voice, returns NILINKs. */
 
 void GetNoteSelRange(
 				Document *doc,
 				short voice,
-				LINK *startL, LINK *endL,
+				LINK *pStartL, LINK *pEndL,
 				Boolean notesGraceNotes)	/* Notes/rests only, grace notes only, or both */
 {
-	LINK 	pL, aNoteL, aGRNoteL;
+	LINK 	pL, aNoteL, aGRNoteL, startL, endL;
 	
-	*startL = *endL = NILINK;
+	startL = endL = NILINK;
 
 	if (VOICE_MAYBE_USED(doc, voice)) {
 		for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
@@ -1430,8 +1430,8 @@ void GetNoteSelRange(
 					aNoteL = FirstSubLINK(pL);
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 						if (NoteVOICE(aNoteL)==voice && NoteSEL(aNoteL)) {
-							if (!*startL) *startL = pL;
-							*endL = pL;
+							if (!startL) startL = pL;
+							endL = pL;
 						}
 				}
 				
@@ -1439,18 +1439,20 @@ void GetNoteSelRange(
 					aGRNoteL = FirstSubLINK(pL);
 					for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
 						if (GRNoteVOICE(aGRNoteL)==voice && GRNoteSEL(aGRNoteL)) {
-							if (!*startL) *startL = pL;
-							*endL = pL;
+							if (!startL) startL = pL;
+							endL = pL;
 						}
 				}
 			}
 	
-		if (*endL) *endL = RightLINK(*endL);
+		if (endL!=NILINK) endL = RightLINK(endL);
+		*pStartL = startL;
+		*pEndL = endL;
 	}
 }
 
 
-/* -------------------------------------------------------------- BFSelClearable -- */
+/* -------------------------------------------------------------------- BFSelClearable -- */
 /* Considering whether the selection is before the first Measure of its System,
 which System that is, and what object types are in the selection, is it clearable?
 Does not consider whether the selection is continuous, whether Master Page is in

@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017-2019 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -17,7 +17,8 @@
 #include "Nightingale.appl.h"
 #include "TEfieldPub.h"
 
-/* In debug versions of Nightingale, we #define in our "Handle Manager", an
+/* The below comment is ancient; I don't know if it's accurate anymore.  --DAB, 7/2019.
+In debug versions of Nightingale, we #define in our "Handle Manager", an
 intermediate layer of memory management routines that adds error checking: this
 could cause meaningless complaints since we don't use it in TEfield.c, the text-box
 routines the Flow In Text dialog uses. Avoid this annoyance (though at the cost of
@@ -39,7 +40,7 @@ static enum {
 	
 #define CANCEL_ITEM BUT2_Cancel
 
-#define DEFAULT_VPOS 14			/* Default vertical position (pitch level) for new lyrics */
+#define DEFAULT_VPOS 14			/* Default vertical position (pitch level) for new lyric or other text */
 
 
 /* local prototypes */
@@ -109,14 +110,12 @@ static Boolean FlowInDialog(Document *doc, short *font)
 	/* Entertain filtered user events until dialog is dismissed */
 
 	while (keepGoing) {
-		ModalDialog(dlogFilterUPP,&itemHit);
-		keepGoing = DoDialogItem(doc,dlog,itemHit);
+		ModalDialog(dlogFilterUPP, &itemHit);
+		keepGoing = DoDialogItem(doc, dlog, itemHit);
 	}
 	
-	/*
-	 *	Do final processing of item values, such as exporting them to caller.
-	 *	DoDialogItem() has already called AnyBadValues().
-	 */
+	/* Do final processing of item values, such as exporting them to caller.  DoDialogItem
+	   should have already called AnyBadValues(). */
 	
 	okay = (itemHit==BUT1_Flow);
 	if (okay) {
@@ -127,11 +126,11 @@ static Boolean FlowInDialog(Document *doc, short *font)
 		len = GetHandleSize(lyricBlk);
 		
 		currWord = (**myField.teH).selStart;
-		if (currWord==len) currWord = 0;					/* if selStart at end, move to beginning */
+		if (currWord==len) currWord = 0;				/* if selStart at end, move to beginning */
 		else if (currWord) {
 			p = *lyricBlk + currWord;
-			currWord++; p++;								/* wind up for loop */
-			while (p>*lyricBlk) {							/* if selStart in middle of word, set currWord to start of word */
+			currWord++; p++;							/* wind up for loop */
+			while (p>*lyricBlk) {						/* if selStart in middle of word, set currWord to start of word */
 				p--; currWord--;
 				if (IsFlowInDelim(*p)) break;
 			}
@@ -140,9 +139,9 @@ static Boolean FlowInDialog(Document *doc, short *font)
 		while (IsFlowInDelim(*p++) && currWord<len)		/* in case multiple whitespace precedes first syllable (not handled by GetWord, etc.) */
 			currWord++;
 		if (currWord==len) {
-			currWord = 0;									/* if currWord now at end, move to beginning */
+			currWord = 0;								/* if currWord now at end, move to beginning */
 			p = *lyricBlk + currWord;
-			while (IsFlowInDelim(*p++) && currWord<len)		/* do this yet again */
+			while (IsFlowInDelim(*p++) && currWord<len)	/* do this yet again */
 				currWord++;
 		}
 		
@@ -171,15 +170,15 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	switch (evt->what) {
 		case updateEvt:
 			if (w==GetDialogWindow(dlog)) {
+			
 				/* Update our dialog contents */
+				
 				DoDialogUpdate(dlog);
 				ans = True; *itemHit = 0;
 			}
 			else {
-				/*
-				 *	Call your main event loop DoUpdate(w) routine here if you
-				 *	don't want unsightly holes in background windows.
-				 */
+				/* Call your main event loop DoUpdate(w) routine here if you don't
+				   want unsightly holes in background windows. */
 			}
 			break;
 		case activateEvt:
@@ -189,11 +188,9 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				*itemHit = 0;
 			}
 			else {
-				/*
-				 *	Call your main event loop DoActivate(w) routine here if
-				 *	you want to deactivate the former frontmost window, in order
-				 *	to unhighlight any selection, scroll bars, etc.
-				 */
+				/* Call your main event loop DoActivate(w) routine here if you want to 
+				   deactivate the former frontmost window, in order to unhighlight any
+				   selection, scroll bars, etc. */
 			}
 			break;
 		case mouseDown:
@@ -211,7 +208,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				if (DoEditFieldClick(&myField, evt)) {
 					*itemHit = 0; ans = True;
 				}
-			ans = CheckUserItems(where,itemHit);
+			ans = CheckUserItems(where, itemHit);
 			break;
 		case autoKey:
 		case keyDown:
@@ -242,7 +239,8 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				}
 				ans = True;		/* Other cmd-chars ignored */
 			}
-			/* We expect DoTEFieldKeyEvent to call SmartenQuote.  */
+			/* We expect DoTEFieldKeyEvent to call SmartenQuote. */
+			
 			else DoTEFieldKeyEvent(&myField, evt);
 			break;
 		}
@@ -274,7 +272,8 @@ static void DoDialogUpdate(DialogPtr dlog)
 	BeginUpdate(GetDialogWindow(dlog));
 
 	/* No need to restore the previous font because the only item not in the system
-		font is the TE record, which has its own font. */
+	   font is the TE record, which has its own font. */
+		
 	TextFont(systemFont);
 	UpdateDialogVisRgn(dlog);
 	DrawPopUp(&popup5);
@@ -287,10 +286,8 @@ static void DoDialogUpdate(DialogPtr dlog)
 }
 
 
-/*
- * Build this dialog's window on desktop, and install initial item values.
- * Return the dlog opened, or NULL if error (no resource, no memory).
- */
+/* Build this dialog's window on desktop, and install initial item values. Return the
+dlog opened, or NULL if error (no resource, no memory). */
 
 static DialogPtr OpenThisDialog(Document *doc)
 {
@@ -305,7 +302,7 @@ static DialogPtr OpenThisDialog(Document *doc)
 	}
 
 	GetPort(&oldPort);
-	dlog = GetNewDialog(FLOWIN_DLOG,NULL,BRING_TO_FRONT);
+	dlog = GetNewDialog(FLOWIN_DLOG, NULL, BRING_TO_FRONT);
 	if (dlog == NULL) {
 		DisposeModalFilterUPP(dlogFilterUPP);
 		MissingDialog(FLOWIN_DLOG);
@@ -320,17 +317,17 @@ static DialogPtr OpenThisDialog(Document *doc)
 	/* Fill in dialog's values here */
 	WaitCursor();
 	GetDialogItem(dlog, EDIT4, &type, &hndl, &box);
-	if (!CreateEditField(GetDialogWindow(dlog), box, textFontNum, textFontSize, 0, NULL, False, &myField)) {
+	if (!CreateEditField(GetDialogWindow(dlog), box, textFontNum, textFontSize, 0, NULL,
+			False, &myField)) {
 		DisposeDialog(dlog);
 		return NULL;
 	}
-	if (lyricBlk)
-		SetEditFieldText(&myField, lyricBlk, NULL, False);
+	if (lyricBlk) SetEditFieldText(&myField, lyricBlk, NULL, False);
 
 	TESetSelect(currWord, currWord, myField.teH);
 	ScrollToSelection(&myField);
 
-	if (!InitPopUp(dlog,&popup5,POP5,0, FLOWTEXTSTYLE_POPUP, lastTextStyle))
+	if (!InitPopUp(dlog, &popup5, POP5, 0, FLOWTEXTSTYLE_POPUP, lastTextStyle))
 		goto broken;
 	ShowLyricStyle(doc, dlog, popup5.currentChoice);
 		
@@ -366,7 +363,7 @@ static Boolean DoDialogItem(Document *doc, DialogPtr dlog, short itemHit)
 
 	if (itemHit<1 || itemHit>=LASTITEM) return keepGoing;
 
-	GetDialogItem(dlog,itemHit,&type,&hndl,&box);
+	GetDialogItem(dlog, itemHit, &type, &hndl, &box);
 	switch (itemHit) {
 		case BUT1_Flow:
 			keepGoing = False;
@@ -408,9 +405,11 @@ static long GetWord(
 					long n					/* length of <buf> */
 					)
 {
-	char *p,*w; Size len=0;
+	char *p, *w;
+	Size len=0;
 
-	p = buf; w = theWord;
+	p = buf;
+	w = theWord;
 
 	while (!IsFlowInDelim(*p) && len++<n)
 		*w++ = *p++;
@@ -430,7 +429,7 @@ static long GetWord(
 static void FlowInFixCursor(Document *doc, Point pt, CursHandle flowInCursor)
 {
 	GlobalToLocal(&pt);
-	if (PtInRect(pt,&doc->viewRect) && flowInCursor)
+	if (PtInRect(pt, &doc->viewRect) && flowInCursor)
 		SetCursor(*flowInCursor);
 	else
 		ArrowCursor();
@@ -442,14 +441,14 @@ static void FlowInFixCursor(Document *doc, Point pt, CursHandle flowInCursor)
 static void FlowDrawMsgBox(Document *doc)
 {
 	WindowPtr wPtr=doc->theWindow;
-	Rect msgR,portRect; long wlen; char *p, w[256];
+	Rect msgR, portRect;  long wlen;  char *p, w[256];
 	Size currW, len;
 	short	oldFont, oldSize;
 	
 	oldSize = GetWindowTxSize(wPtr);
 	oldFont = GetWindowTxFont(wPtr);
 
-	GetWindowPortBounds(wPtr,&portRect);
+	GetWindowPortBounds(wPtr, &portRect);
 
 	SetRect(&msgR, portRect.left, 
 					portRect.bottom-14,
@@ -466,7 +465,7 @@ static void FlowDrawMsgBox(Document *doc)
 	p = *lyricBlk;
 	currW = currWord;
 	wlen = GetWord(p+currWord,w,len-currW);	
-	currW += wlen;													/* In case we want to draw more words */
+	currW += wlen;											/* In case we want to draw more words */
 	
 	if (currWord>=len) {
 		GetIndCString(strBuf, FLOWIN_STRS, 1);				/* "[end of text]" */
@@ -633,20 +632,18 @@ static void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, sho
 	long	wlen;
 	
 	if (firstFlowL) {
-		if (IsAfter(pL, firstFlowL))
-			firstFlowL = pL;
+		if (IsAfter(pL, firstFlowL)) firstFlowL = pL;
 	}
 	else firstFlowL = pL;
 	if (lastFlowL) {
-		if (IsAfter(lastFlowL, pL))
-			lastFlowL = pL;
+		if (IsAfter(lastFlowL, pL)) lastFlowL = pL;
 	}
 	else lastFlowL = pL;
 	
 	InvertSymbolHilite(doc, pL, stf, False);
 
 	/* If the user holds down the option key, don't increment the pointer to the next
-		word. This allows the user to insert the same word over and over again; for
+		word. This allows the user to insert the same word over and over again: for
 		example, into each of a number of voices. Rather, return to the word just
 		inserted, insert it again, and then increment the point back to the place it
 		was when we started the whole thing. */
@@ -675,16 +672,16 @@ static void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, sho
 	HUnlock(lyricBlk);
 	if (theStyle.lyric) StripHyphen(w);
 
+LogPrintf(LOG_DEBUG, "<InsertNewGraphic: pL=%u stf=%d v=%d w='%s'\n", pL, stf, v, w);
 	newL = InsertNewGraphic(doc, pL, stf, v, w, theFont, theStyle, pitchLev);
+LogPrintf(LOG_DEBUG, ">InsertNewGraphic: pL=%u stf=%d v=%d w='%s' newL=%u\n", pL, stf, v, w, newL);
 	*lastGrL = newL;
 	if (newL) {
-		if (theStyle.lyric && !ShiftKeyDown())
-			CenterTextGraphic(doc, newL);
+		if (theStyle.lyric && !ShiftKeyDown()) CenterTextGraphic(doc, newL);
 	
 		GetAllContexts(doc, contextA, pL);
 		DrawGRAPHIC(doc, newL, contextA, True);
-		if (!OptionKeyDown())
-			FlowDrawMsgBox(doc);
+		if (!OptionKeyDown()) FlowDrawMsgBox(doc);
 		
 		RegisterHyphen(newL, prevWord, True);
 	}
@@ -714,7 +711,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 	prevWord = currWord;
 	prevGrL = lastGrL = NILINK;
 
-	lyricLen = (short) GetHandleSize(lyricBlk);
+	lyricLen = (short)GetHandleSize(lyricBlk);
 	oldPitchLev = DEFAULT_VPOS;
 
 	FlowDrawMsgBox(doc);
@@ -765,12 +762,12 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 									/* Keep change a multiple of 8 */
 									if (change > 0) change += (8-(change&7));
 									 else			change -= (change & 7);
-								/*
-								 *	Reset it, because QuickScroll expects old value,
-								 *	but don't let user see us set it back.
-								 */
+									 
+								/* QuickScroll expects old value, so reset it, but don't
+								   let user see us set it back. */
 								SetControlValue(control, oldVal);
 								MEHideCaret(doc);
+								
 								/* OK, now go ahead */
 								if (control == doc->vScroll) QuickScroll(doc, 0, change, True, True);
 								 else						 QuickScroll(doc, change, 0, True, True);
@@ -791,7 +788,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 								pL = FindGraphicObject(doc, pt, &stf, &v);
 								
 								/* To allow attaching to objects other than notes, remove
-									the following test for SyncTYPE. */
+								   the following test for SyncTYPE. */
 								if (pL && SyncTYPE(pL) && (currWord<lyricLen || OptionKeyDown())) {
 									InvertSymbolHilite(doc, pL, stf, True);
 									status = InsTrackUpDown(doc, pt, &sym, pL, stf, &pitchLev);
@@ -800,8 +797,13 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 										if (status<0) pitchLev = oldPitchLev;
 										oldPitchLev = pitchLev;
 										prevGrL = lastGrL;
+LogPrintf(LOG_DEBUG,
+"<InsertSyllable: pL=%u lastGrL=%u stf=%d v=%d lyricLen=%d pitchLev=%d theFont=%d theStyle.fontSize=%d\n",
+pL, lastGrL, stf, v, lyricLen, pitchLev, theFont, theStyle.fontSize);
 										InsertSyllable(doc, pL, &lastGrL, stf, v,
 														lyricLen, pitchLev, theFont, theStyle);
+LogPrintf(LOG_DEBUG,
+">InsertSyllable: pL=%u lastGrL=%u\n", pL, lastGrL);
 									}
 								}
 							}
@@ -817,10 +819,9 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 				switch (ch) {
 					case CH_BS:								/* Handle backspace to delete */
 						if (lastGrL && lastGrL!=prevGrL) {
-							/* Erase and inval the objrect of this Graphic. */
 							Rect r = LinkOBJRECT(lastGrL);
 							r.left -= pt2p(2);
-							r.right += pt2p(4);				/* bbox often not wide enough on right */
+							r.right += pt2p(4);				/* bbox is often not wide enough on right */
 							OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
 							EraseAndInval(&r);
 							/* FIXME: DeleteNode doesn't get rid of string in StrMgr lib! */
@@ -835,7 +836,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
  						if ((evt.modifiers&cmdKey)!=0) goto done;
  						break;
 					case '\t':
-						/* We won't enter this block until user flows once via InsTrackUpDown */
+						/* We won't enter this block until user flows once via InsTrackUpDown. */
 						if (v && lastGrL && (currWord<lyricLen || OptionKeyDown())) {
 							pL = LVSearch(RightLINK(GraphicFIRSTOBJ(lastGrL)), SYNCtype, v, GO_RIGHT, False);
 							if (pL) {
@@ -900,13 +901,12 @@ void DoTextFlowIn(Document *doc)
 		
 		FlowInTextObjects(doc, theFont, style);
 		
-		/*
-		 * If auto-respacing is on, the text we've just flowed in is in a lyric
-		 * style, and we really did flow some in, then respace the entire area from
-		 * the first measure anything was added to thru the last. If any measures
-		 * within the range didn't have anything added to them, maybe they should
-		 * be left alone; but that would be pretty unusual, and this is simpler.
-		 */
+		/* If auto-respacing is on, the text we've just flowed in is in a lyric style,
+		and we really did flow some in, then respace the entire area from the first
+		measure anything was added to thru the last. If any measures within the range
+		didn't have anything added to them, maybe they should be left alone; but that
+		would be pretty unusual, and this is simpler. */
+		
 		if (doc->autoRespace && style.lyric) {
 			if (firstFlowL && lastFlowL) {
 				LINK firstMeasL, prevMeasL;
@@ -914,16 +914,14 @@ void DoTextFlowIn(Document *doc)
 				RespaceBars(doc, firstFlowL, lastFlowL, 0L, False, False);
 				
 				/* First Graphic might overlap previous measure. Inval that measure,
-				 * if it's on the same system, just in case.
-				 */
+				   if it's on the same system, just in case. */
+				   
 				firstMeasL = LSSearch(firstFlowL, MEASUREtype, ANYONE, GO_LEFT, False);
 				prevMeasL = LinkLMEAS(firstMeasL);
-				if (SameSystem(prevMeasL, firstMeasL))
-					InvalMeasure(prevMeasL, ANYONE);
+				if (SameSystem(prevMeasL, firstMeasL)) InvalMeasure(prevMeasL, ANYONE);
 			}
 		}
-		if (style.lyric)
-			AddHyphens(doc, theFont, style);
+		if (style.lyric) AddHyphens(doc, theFont, style);
 		DisposeHyphenList();
 	}
 }
@@ -959,7 +957,7 @@ static void RegisterHyphen(
 		}
 	}
 	
-	/* get syllable at charOffset from lyricBlk */ 
+	/* Get syllable at charOffset from lyricBlk */ 
 	len = GetHandleSize(lyricBlk);
 	HLock(lyricBlk);
 	p = *lyricBlk;
@@ -999,9 +997,9 @@ static void RegisterHyphen(
 		}
 
 		/* If this syllable has a hyphen, start a new record. Set its termL to NILINK so
-		 * we'll know it's incomplete later. NB: A syllable can both initiate and terminate
-		 * hyphens.
-		 */
+		   we'll know it's incomplete later. NB: A syllable can both initiate and terminate
+		   hyphens. */
+		   
 		if (hasHyphen) {
 			/* expand array if necessary */
 			numNodes = GetHandleSize((Handle)hyphens) / sizeof(HYPHENSPAN);
@@ -1105,16 +1103,17 @@ static short CreateHyphenRun(
 
 	emptySpace = endXD - startXD;
 	
-	/* The space between hyphen-separated syllables divided by dMaxHyphenDist gives
-	   the number of hyphens we place between the syllables. We center each hyphen
-	   within its slice of this space. */
+	/* The space between hyphen-separated syllables divided by dMaxHyphenDist gives the
+	   number of hyphens we place between the syllables. We center each hyphen within
+	   its slice of this space. */
 
 	if (emptySpace>hyphenWid) {
 		hyphenCnt = emptySpace / dMaxHyphenDist;
 		if (emptySpace % dMaxHyphenDist) hyphenCnt++;
 		subSpace = emptySpace / hyphenCnt;		/* equal-sized chunks of emptySpace */
 	
-		/* NB: attach hyphens only to Syncs; i.e., pL must be a Sync. */
+		/* Attach hyphens only to Syncs; i.e., pL must be a Sync. */
+		
 		prevL = startL;
 		for (i=0, spcLeft=startXD; i<hyphenCnt; i++, spcLeft+=subSpace) {	/* for each hyphen...*/
 			desiredXD = spcLeft + ((subSpace-hyphenWid)>>1);
@@ -1131,7 +1130,7 @@ static short CreateHyphenRun(
 				thisXD = SysRelxd(pL);
 				measL = LSISearch(pL, MEASUREtype, ANYONE, True, False);	/* get next meas on same sys */
 				if (measL) {
-					/* if hyphen appears before measL, attach to last sync */
+					/* if hyphen appears before measL, attach to last Sync */
 					if (LinkXD(measL)>desiredXD) {
 						pL = SyncTYPE(lastL)? lastL : pL;
 						break;
@@ -1192,7 +1191,7 @@ static short CreateHyphenRun(
 			PStrCat((StringPtr)hyphStr, (StringPtr)"\p-");
 			offset = PStore((unsigned char *)hyphStr);
 			if (offset<0L) {
-				NoMoreMemory();							/* ??but we've destroyed a syllable! */
+				NoMoreMemory();						/* FIXME: but we've destroyed a syllable! */
 				return -1;
 			}
 			else
@@ -1211,9 +1210,14 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 	LINK		firstSyncL, lastSyncL;
 	CONTEXT		context;
 	PGRAPHIC	pGraphic;
-	short		staff, voice, pitchLev, fontSize, fontNum, ans, errCnt=0;
+	short		staff, voice, pitchLev, fontSize, fontNum, hyphenErrCnt=0, errCnt=0;
 	DDIST		startRtEdge, endLeftEdge, startGrWid, hyphenWid;
 	DDIST		dMaxHyphenDist;					/* Maximum horiz. space one hyphen can span */
+	
+	if (hyphens==NULL) {
+		LogPrintf(LOG_WARNING, "Tried to add hyphens but there aren't any. (AddHyphens)\n");
+		return;
+	}
 	
 	WaitCursor();
 	
@@ -1232,7 +1236,8 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 		else                         dMaxHyphenDist = halfLn2d(config.maxHyphenDist,
 														context.staffHeight, context.staffLines);
 		
-		/* get hyphen width (Must follow GetContext!) */
+		/* Get hyphen width (must follow GetContext!) */
+		
 		pGraphic = GetPGRAPHIC(h->startL);
 		fontNum = doc->fontTable[pGraphic->fontInd].fontID;
 		fontSize = GetTextSize(theStyle.relFSize, theStyle.fontSize, LNSPACE(&context));
@@ -1243,7 +1248,7 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 		endLeftEdge = SysRelxd(lastSyncL) + LinkXD(h->termL);
 	
 		if (SameSystem(firstSyncL, lastSyncL))
-			ans = CreateHyphenRun(doc, h->startL, firstSyncL, lastSyncL, startRtEdge,
+			hyphenErrCnt = CreateHyphenRun(doc, h->startL, firstSyncL, lastSyncL, startRtEdge,
 									endLeftEdge, False, voice, hyphenWid, pitchLev, theFont,
 									/* NB: this  ^^^^^ doesn't matter in this case */
 									theStyle, dMaxHyphenDist);
@@ -1290,13 +1295,13 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 						endXD = SysRelxd(endL);
 				}
 		
-				ans = CreateHyphenRun(doc, firstSylL, startL, endL, startXD, endXD,
+				hyphenErrCnt = CreateHyphenRun(doc, firstSylL, startL, endL, startXD, endXD,
 									!lastMeasFake, voice, hyphenWid, pitchLev, theFont,
 									theStyle, dMaxHyphenDist);
 			}
 		}
-		if (ans==-1) { HUnlock((Handle)hyphens); return; }	/* fatal error in CreateHyphenRun */
-		else errCnt += ans;
+		if (hyphenErrCnt==-1) { HUnlock((Handle)hyphens); return; }	/* fatal error in CreateHyphenRun */
+		else errCnt += hyphenErrCnt;
 	}	
 	HUnlock((Handle)hyphens);
 	

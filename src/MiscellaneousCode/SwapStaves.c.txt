@@ -1,0 +1,131 @@
+	LINK	pL, aStaffL, aMeasureL, aPSMeasL, aClefL, aKeySigL, aTimeSigL, aNoteL,
+			aGRNoteL, aTupletL, aRptEndL, aDynamicL, aGRNoteL;
+
+		switch (ObjLType(pL)) {
+			case PAGEtype:
+				break;
+
+			case SYSTEMtype:
+				break;
+
+			case STAFFtype:
+				aStaffL = FirstSubLINK(pL);
+				for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
+					if (StaffSTAFF(aStaffL)==staffN1) StaffSTAFF(aStaffL) = staffN2;
+					else if (StaffSTAFF(aStaffL)==staffN2) StaffSTAFF(aStaffL) = staffN1;
+				}
+				break;
+
+			case CONNECTtype:
+				break;
+
+			case MEASUREtype:
+				aMeasureL = FirstSubLINK(pL);
+				for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
+					if (MeasureSTAFF(aMeasureL)==staffN1) MeasureSTAFF(aMeasureL) = staffN2;
+					else if (MeasureSTAFF(aMeasureL)==staffN2) MeasureSTAFF(aMeasureL) = staffN1;
+				}
+				break;
+
+			case PSMEAStype:
+				aPSMeasL = FirstSubLINK(pL);
+				for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
+					if (PSMeasSTAFF(aPSMeasL)==staffN1) PSMeasSTAFF(aPSMeasL) = staffN2;
+					else if (PSMeasSTAFF(aPSMeasL)==staffN2) PSMeasSTAFF(aPSMeasL) = staffN1;
+				}
+				break;
+
+			case CLEFtype:
+				aClefL = FirstSubLINK(pL);
+				for ( ; aClefL; aClefL = NextCLEFL(aClefL)) {
+					if (ClefSTAFF(aClefL)==staffN1) ClefSTAFF(aClefL) = staffN2;
+					else if (ClefSTAFF(aClefL)==staffN2) ClefSTAFF(aClefL) = staffN1;
+				}
+				break;
+
+			case KEYSIGtype:
+				aKeySigL = FirstSubLINK(pL);
+				for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL)) {
+					if (KeySigSTAFF(aKeySigL)==staffN1) KeySigSTAFF(aKeySigL) = staffN2;
+					else if (KeySigSTAFF(aKeySigL)==staffN2) KeySigSTAFF(aKeySigL) = staffN1;
+				break;
+
+			case TIMESIGtype:
+				aTimeSigL = FirstSubLINK(pL);
+				for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL)) {
+					if (TimeSigSTAFF(aTimeSigL)==staffN1) TimeSigSTAFF(aTimeSigL) = staffN2;
+					else if (TimeSigSTAFF(aTimeSigL)==staffN2) TimeSigSTAFF(aTimeSigL) = staffN1;
+				}
+				break;
+
+			case SYNCtype:
+				aNoteL = FirstSubLINK(pL);
+				for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
+					if (NoteSTAFF(aNoteL)==staffN1) NoteSTAFF(aNoteL) = staffN2;
+					else if (NoteSTAFF(aNoteL)==staffN2) NoteSTAFF(aNoteL) = staffN1;
+				}
+				break;
+
+			case BEAMSETtype:
+				if (BeamSTAFF(pL)==staffN1) BeamSTAFF((pL)) = staffN2;
+				else if (BeamSTAFF((pL))==staffN2) BeamSTAFF((pL)) = staffN1;
+				break;
+
+			case TUPLETtype:
+				if (TupletSTAFF(pL)==staffN1) TupletSTAFF((pL)) = staffN2;
+				else if (TupletSTAFF((pL))==staffN2) TupletSTAFF((pL)) = staffN1;
+				break;
+
+/*
+			case RPTENDtype:
+				?? = FirstSubLINK(pL);
+				for (??) {
+				}
+				break;
+
+			case ENDINGtype:
+				?!
+				break;
+*/
+			case DYNAMtype:
+				aDynamicL = FirstSubLINK(pL);
+				for ( ; aDynamicL; aDynamicL=NextDYNAMICL(aDynamicL)) {
+					if (DynamicSTAFF(aDynamicL)==staffN1) DynamicSTAFF(aDynamicL) = staffN2;
+					else if (DynamicSTAFF(aDynamicL)==staffN2) DynamicSTAFF(aDynamicL) = staffN1;
+				}
+				break;
+
+/*
+			case GRAPHICtype:
+				?!
+				break;
+	
+			case OCTAVAtype:
+				?!
+				break;
+*/
+			case SLURtype:
+				if (SlurSTAFF(pL)==staffN1) SlurSTAFF((pL)) = staffN2;
+				else if (SlurSTAFF((pL))==staffN2) SlurSTAFF((pL)) = staffN1;
+				break;
+
+/*
+			case GRSYNCtype:
+				?? = FirstSubLINK(pL);
+				for (??) {
+				}
+				break;
+
+			case TEMPOtype:
+				?!
+				break;
+
+			case SPACEtype:
+				?!
+				break;
+*/
+
+			default:
+				break;	
+		}
+

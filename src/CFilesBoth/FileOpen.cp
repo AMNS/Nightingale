@@ -324,10 +324,12 @@ static void ConvertStaffLines(LINK startL)
 
 /* ---------------------------------------------------------------------- ConvertScore -- */
 /* Any file-format-conversion code that doesn't affect the length of the header or
-lengths of objects should go here. This function should only be called after the
-header and entire object list have been read. (Tweaks that affect lengths must be
-done earlier: to the header, in OpenFile; to objects, in ReadObjHeap.) Return True
-if all goes well, False if not. */
+lengths or offsets of fields in objects (or subobjects) should go here. Return True if
+all goes well, False if not.
+
+This function should not be called until the header and the entire object list have been
+read! Tweaks that affect lengths or offsets to the header should be done in OpenFile; to
+to objects (or subobjects), in ReadObjHeap. */
 
 static Boolean ConvertScore(Document *doc, long fileTime)
 {
@@ -695,7 +697,7 @@ static void ShowStfTops(Document *doc, LINK pL, short staffN1, short staffN2)
 	staffTop1 =  context.staffTop;
 	GetContext(doc, pL, staffN2, &context);
 	staffTop2 =  context.staffTop;
-	LogPrintf(LOG_NOTICE, "ShowStfTops(%d): staffTop1=%d, staffTop2=%d\n", pL, staffTop1, staffTop2);
+	LogPrintf(LOG_INFO, "ShowStfTops(%d): staffTop1=%d, staffTop2=%d\n", pL, staffTop1, staffTop2);
 }
 
 static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2);
@@ -717,12 +719,12 @@ static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2)
 			break;
 
 		case STAFFtype:
-LogPrintf(LOG_NOTICE, "  Staff L%d\n", pL);
+LogPrintf(LOG_INFO, "  Staff L%d\n", pL);
 			GetContext(doc, pL, staffN1, &context);
 			staffTop1 =  context.staffTop;
 			GetContext(doc, pL, staffN2, &context);
 			staffTop2 =  context.staffTop;
-LogPrintf(LOG_NOTICE, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
+LogPrintf(LOG_INFO, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
 			aStaffL = FirstSubLINK(pL);
 			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 				if (StaffSTAFF(aStaffL)==staffN1) {
@@ -734,10 +736,10 @@ LogPrintf(LOG_NOTICE, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
 					StaffTOP(aStaffL) = staffTop1;
 				}
 //GetContext(doc, pL, staffN1, &context);
-//LogPrintf(LOG_NOTICE, "(1)    pL=%d staffTop1=%d\n", pL, staffTop1);
+//LogPrintf(LOG_INFO, "(1)    pL=%d staffTop1=%d\n", pL, staffTop1);
 			}
 //GetContext(doc, pL, staffN1, &context);
-//LogPrintf(LOG_NOTICE, "(2)    pL=%d staffTop1=%d\n", pL, staffTop1);
+//LogPrintf(LOG_INFO, "(2)    pL=%d staffTop1=%d\n", pL, staffTop1);
 //ShowStfTops(doc, pL, staffN1, staffN2);
 			break;
 
@@ -745,7 +747,7 @@ LogPrintf(LOG_NOTICE, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
 			break;
 
 		case MEASUREtype:
-LogPrintf(LOG_NOTICE, "  Measure L%d\n", pL);
+LogPrintf(LOG_INFO, "  Measure L%d\n", pL);
 			aMeasureL = FirstSubLINK(pL);
 			for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
 				if (MeasureSTAFF(aMeasureL)==staffN1) MeasureSTAFF(aMeasureL) = staffN2;
@@ -754,7 +756,7 @@ LogPrintf(LOG_NOTICE, "  Measure L%d\n", pL);
 			break;
 
 		case PSMEAStype:
-LogPrintf(LOG_NOTICE, "  PSMeas L%d\n", pL);
+LogPrintf(LOG_INFO, "  PSMeas L%d\n", pL);
 			aPSMeasL = FirstSubLINK(pL);
 			for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
 				if (PSMeasSTAFF(aPSMeasL)==staffN1) PSMeasSTAFF(aPSMeasL) = staffN2;
@@ -763,7 +765,7 @@ LogPrintf(LOG_NOTICE, "  PSMeas L%d\n", pL);
 			break;
 
 		case CLEFtype:
-LogPrintf(LOG_NOTICE, "  Clef L%d\n", pL);
+LogPrintf(LOG_INFO, "  Clef L%d\n", pL);
 			aClefL = FirstSubLINK(pL);
 			for ( ; aClefL; aClefL = NextCLEFL(aClefL)) {
 				if (ClefSTAFF(aClefL)==staffN1) ClefSTAFF(aClefL) = staffN2;
@@ -772,7 +774,7 @@ LogPrintf(LOG_NOTICE, "  Clef L%d\n", pL);
 			break;
 
 		case KEYSIGtype:
-LogPrintf(LOG_NOTICE, "  Keysig L%d\n", pL);
+LogPrintf(LOG_INFO, "  Keysig L%d\n", pL);
 			aKeySigL = FirstSubLINK(pL);
 			for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL)) {
 				if (KeySigSTAFF(aKeySigL)==staffN1) KeySigSTAFF(aKeySigL) = staffN2;
@@ -781,7 +783,7 @@ LogPrintf(LOG_NOTICE, "  Keysig L%d\n", pL);
 			break;
 
 		case TIMESIGtype:
-LogPrintf(LOG_NOTICE, "  Timesig L%d\n", pL);
+LogPrintf(LOG_INFO, "  Timesig L%d\n", pL);
 			aTimeSigL = FirstSubLINK(pL);
 			for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL)) {
 				if (TimeSigSTAFF(aTimeSigL)==staffN1) TimeSigSTAFF(aTimeSigL) = staffN2;
@@ -790,7 +792,7 @@ LogPrintf(LOG_NOTICE, "  Timesig L%d\n", pL);
 			break;
 
 		case SYNCtype:
-LogPrintf(LOG_NOTICE, "  Sync L%d\n", pL);
+LogPrintf(LOG_INFO, "  Sync L%d\n", pL);
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				if (NoteSTAFF(aNoteL)==staffN1) {
@@ -805,13 +807,13 @@ LogPrintf(LOG_NOTICE, "  Sync L%d\n", pL);
 			break;
 
 		case BEAMSETtype:
-LogPrintf(LOG_NOTICE, "  Beamset L%d\n", pL);
+LogPrintf(LOG_INFO, "  Beamset L%d\n", pL);
 			if (BeamSTAFF(pL)==staffN1) BeamSTAFF((pL)) = staffN2;
 			else if (BeamSTAFF((pL))==staffN2) BeamSTAFF((pL)) = staffN1;
 			break;
 
 		case TUPLETtype:
-LogPrintf(LOG_NOTICE, "  Tuplet L%d\n", pL);
+LogPrintf(LOG_INFO, "  Tuplet L%d\n", pL);
 			if (TupletSTAFF(pL)==staffN1) TupletSTAFF((pL)) = staffN2;
 			else if (TupletSTAFF((pL))==staffN2) TupletSTAFF((pL)) = staffN1;
 			break;
@@ -828,7 +830,7 @@ LogPrintf(LOG_NOTICE, "  Tuplet L%d\n", pL);
 			break;
 */
 		case DYNAMtype:
-LogPrintf(LOG_NOTICE, "  Dynamic L%d\n", pL);
+LogPrintf(LOG_INFO, "  Dynamic L%d\n", pL);
 			aDynamicL = FirstSubLINK(pL);
 			for ( ; aDynamicL; aDynamicL=NextDYNAMICL(aDynamicL)) {
 				if (DynamicSTAFF(aDynamicL)==staffN1) DynamicSTAFF(aDynamicL) = staffN2;
@@ -837,7 +839,7 @@ LogPrintf(LOG_NOTICE, "  Dynamic L%d\n", pL);
 			break;
 
 		case GRAPHICtype:
-LogPrintf(LOG_NOTICE, "  Graphic L%d\n", pL);
+LogPrintf(LOG_INFO, "  Graphic L%d\n", pL);
 			if (GraphicSTAFF(pL)==staffN1) GraphicSTAFF((pL)) = staffN2;
 			else if (GraphicSTAFF((pL))==staffN2) GraphicSTAFF((pL)) = staffN1;
 			break;
@@ -848,7 +850,7 @@ LogPrintf(LOG_NOTICE, "  Graphic L%d\n", pL);
 			break;
 */
 		case SLURtype:
-LogPrintf(LOG_NOTICE, "  Slur L%d\n", pL);
+LogPrintf(LOG_INFO, "  Slur L%d\n", pL);
 			if (SlurSTAFF(pL)==staffN1) SlurSTAFF((pL)) = staffN2;
 			else if (SlurSTAFF((pL))==staffN2) SlurSTAFF((pL)) = staffN1;
 			break;

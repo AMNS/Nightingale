@@ -489,17 +489,17 @@ pointers to Documents can be used anywhere a WindowPtr can.  Each Document consi
 a standard page size and margin for all pages, and between 1 and numSheets pages,
 called <sheets>.
 
- Sheets, the internal form of pages, are always numbered from 0 to (numSheets-1);
- pages are numbered according to the user's whim.  Sheets are laid out to tile the space
- in the window, extending first horizontally and then vertically into the window space. 
- There is always a currentSheet that we're editing, and whose upper left corner is always
- (0,0) with respect to any drawing routines that draw on the sheets. However, sheets are
- kept in an array whose upper left origin (sheetOrigin) is usually chosen very negative
- so that we can use as much of Quickdraws 16-bits space as possible. The coordinate
- system of the window is continually danced around as the current sheet changes, as well
- as during scrolling.  The bounding box of all sheets is used to compute the scrolling
- bounds.  The background region is used to paint a background pattern behind all sheets
- in the array. */
+Sheets, the internal form of pages, are always numbered from 0 to (numSheets-1);
+pages are numbered according to the user's whim.  Sheets are laid out to tile the space
+in the window, extending first horizontally and then vertically into the window space. 
+There is always a currentSheet that we're editing, and whose upper left corner is always
+(0,0) with respect to any drawing routines that draw on the sheets. However, sheets are
+kept in an array whose upper left origin (sheetOrigin) is usually chosen very negative
+so that we can use as much of Quickdraws 16-bits space as possible. The coordinate
+system of the window is continually danced around as the current sheet changes, as well
+as during scrolling.  The bounding box of all sheets is used to compute the scrolling
+bounds.  The background region is used to paint a background pattern behind all sheets
+in the array. */
 
 typedef struct {
 /* These first fields don't need to be saved. */
@@ -793,10 +793,10 @@ typedef struct {
 	
 	SignedByte	slurDashLen;		/* G: PostScript length of dashes in dashed slurs (points) */	
 	SignedByte	slurSpaceLen;		/* G: PostScript length of spaces in dashed slurs (points) */	
-	SignedByte	courtesyAccLXD;		/* G: Left paren. H offset for courtesy accidentals (8th-spaces) */
-	SignedByte	courtesyAccRXD;		/* G: Right paren. H offset for courtesy accidentals (8th-spaces) */
+	SignedByte	courtesyAccLXD;		/* G: Left paren. H offset from courtesy accidental (8th-spaces) */
+	SignedByte	courtesyAccRXD;		/* G: Courtesy accidental H offset from right paren. (8th-spaces) */
 	SignedByte	courtesyAccYD;		/* G: Paren. V offset for courtesy accidentals (8th-spaces) */
-	SignedByte	courtesyAccSize;	/* G: Paren. size for courtesy accidentals (% of normal) */
+	SignedByte	courtesyAccPSize;	/* G: Paren. size for courtesy accidentals (% of normal) */
 
 	/* Following fields were added after Nightingale 2.5. */
 	
@@ -848,10 +848,8 @@ typedef struct {
 	} Configuration;
 
 
-/*
- *	MIDI configuration information (currently, just the dynamic-mark-to-velocity table)
- * is kept in a 'MIDI' resource, with this structure.
- */
+/* MIDI configuration information (currently, just the dynamic-mark-to-velocity table)
+is kept in a 'MIDI' resource, with this structure. */
 
 typedef struct {
 	SignedByte	velocities[23];		/* Dynamic velocities */
@@ -870,9 +868,7 @@ typedef struct {
 } MIDIModNRPreferences;
 
 
-/*
- * The GridRec holds the information for the tool palette.
- */
+/* The GridRec holds the information for the tool palette. */
 
 typedef struct {
 	Point			cell;
@@ -881,6 +877,7 @@ typedef struct {
 
 
 /* For support of music fonts other than Sonata */
+
 typedef struct {
 	short			fontID;
 	Str31			fontName;

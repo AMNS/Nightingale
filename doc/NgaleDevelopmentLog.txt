@@ -3604,15 +3604,79 @@ the right paren and notehead! DrawAcc() positions the (left edge of) the right p
 (left edge of) the accidental would be if it wasn't in parens; but right paren is narrower
 than an accidental, so move it the right a bit => looks OK!
 
+Also, _courtesyAccSize_ controls the size of the PARENTHESES, not the accidental, so rename the
+field to _courtesyAccPSize_. (And it affects their size in PostScript only, not on screen.)
+
 -------------------------------------------------------------------------------
 
-9 Sept. - 9 Oct.
+9 Sept. - 13 Oct.
 
-Ugh. My new positioning of courtesy accidentals and their surrounding parentheses is worse than
-those in the score of my violin concerto %^&#%#%#(* !  Cf. e.g. 2nd movement, page 9. What
-happened? Would be nice to see when the problem was introduced; but the only old executables
-I still have are 5.5, 5.6, 5.8b6, and 5.8b8! %#$(*@^#%#$*  But _every_ old version for the last
-several years should be available from the git repository. How to retrieve? Ah: e.g.,
+Ugh. My new positioning of courtesy accidentals and their surrounding parentheses is
+worse than those in the score of my violin concerto %^&#%#%#(* !  Cf. e.g. 2nd movement,
+page 9. What happened? Would be nice to see when the problem was introduced (& it could
+be in the Prefs, not the executable!); but the only old executables I still have are
+5.5, 5.6, 5.8b6, and 5.8b8! %#$(*@^#%#$*  But _every_ old version for the last several
+years should be available from the git repository. How to retrieve? Ah: e.g.,
 
 	git show a2b95716c6136631990be7bcfd3ee01f20edf75e:Nightingale.app.zip > Ngale.zip
 
+OK. Check courtesy accidentals in violin concerto, II, p. 9, m. 68, fl. and m. 67, tr. =>
+w/ Ngale 5.7 and current Nightingale Prefs, parens are too small & too tight. W/ Ngale 5.7 and
+Nightingale Prefs of 16 May 2018 => parens are full size & the old spacing! So the
+problem is in the Prefs file, at least in part.
+
+W/ Ngale 5.7 and Nightingale Prefs of 31 Aug. 2019 (Nightingale AMNF Prefs_CAccsPblm) => parens
+are smaller & spacing is tighter but not too tight; so the real problem seems to be combination
+of changes to the Prefs & to the code. W/ Ngale 5.7:
+
+Prefs of 16 May 2018: (100)courtesyAccLXD=6  (101)courtesyAccRXD=8  (102)courtesyAccYD=8  (103)courtesyAccSize=100
+Prefs_CAccsPblm:	  (100)courtesyAccLXD=8  (101)courtesyAccRXD=6  (102)courtesyAccYD=8  (103)courtesyAccSize=70
+
+-------------------------------------------------------------------------------
+
+19-21 Oct.
+
+With Resorcerer, change courtesyAccLXD, courtesyAccRXD, & courtesyAccSize back to the
+values of 16 May 2018 => courtesy accidentals in violin concerto, II, p. 9, m. 68, fl.
+and m. 67, tr. are back to the way they were before! So now it looks like the only
+problem was the Prefs changes didn't do what I wanted! Try just changing RXD to 7, i.e.
+
+					  (100)courtesyAccLXD=6  (101)courtesyAccRXD=7  (102)courtesyAccYD=8  (103)courtesyAccSize=100
+
+Looks good, the best yet :-) . But that's with Ngale 5.8.9; try 5.8.10...
+
+					  (100)courtesyAccLXD=7  (101)courtesyAccRXD=6  (102)courtesyAccYD=8  (103)courtesyAccPSize=100
+					  
+%^#*$)#@$@)(#  Values of LXD and RXD are swapped!!!! What the....!?
+
+I'll be darned: the declarations of LXD and RXD are swapped in NMiscTypes.h!!! Swap them back =>
+OK, whew.
+
+-------------------------------------------------------------------------------
+
+24-27 Oct.
+
+Work on issue #180, flow-in text crashes.
+
+More from David A.:
+
+(1) When you OK the flow-in text dialog, the cursor should change to an upside-down “T” (more or
+less), and the box at the bottom left of the window should display the first syllable in
+boldface. Does that happen? Yes when Ngale doesn't crash; yes when it does.
+
+(2) When you click to place the first syllable, does the content of the box at bottom left
+change? Yes when Ngale doesn't crash; NO when it does!
+
+This suggests the crash is in InsertNewGraphic(), called from InsertSyllable().
+
+Try to flow in "Is operation in a torn off window or not" =>
+	debug. <InsertSyllable: pL=10 lastGrL=0 stf=1 v=1 lyricLen=40 pitchLev=14 theFont=4 theStyle.fontSize=4
+	debug. <InsertNewGraphic: pL=10 stf=1 v=1 w='Is'
+	debug. >InsertNewGraphic: pL=10 stf=1 v=1 w='^BIs' newL=29
+	debug. >InsertSyllable: pL=10 lastGrL=29
+	debug. <InsertNewGraphic: pL=11 stf=1 v=1 w='operation'
+	debug. >InsertNewGraphic: pL=11 stf=1 v=1 w='	operationgǖ�^_���V�' newL=30
+	debug. <InsertNewGraphic: pL=12 stf=1 v=1 w='in'
+	debug. >InsertNewGraphic: pL=12 stf=1 v=1 w='^BinԿ��' newL=31
+	debug. <InsertNewGraphic: pL=13 stf=1 v=1 w='a'
+	debug. >InsertNewGraphic: pL=13 stf=1 v=1 w='^Aa^_Կ��' newL=32

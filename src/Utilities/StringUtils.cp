@@ -56,8 +56,8 @@ StringPtr CToPString(char *str)
 
 
 /* FIXME: Here's another pair of P string <=> C string utils, with slightly different types.
-At the moment (Feb. 2018), both pairs are used about equally often. This is silly! Get rid
-of one pair! */
+At the moment (April 2019), the other pair is used far more often. This is silly! Get rid
+of this pair! */
 
 StringPtr CtoPstr(StringPtr str)
 {
@@ -263,4 +263,16 @@ Boolean GetInitialSubstring(char *str, char *substr, short len)
 	strcpy(substr, str);
 	*(substr+len) = '\0';
 	return True;
+}
+
+/* ------------------------------------------------------------------- MacTypeToString -- */
+/* Convert a MacOS type -- 4 chars in a nonstandard format -- into a valid C string. */
+
+void MacTypeToString(OSType aMacType, char aCString[])
+{
+	aCString[0] = ACHAR(aMacType, 3);
+	aCString[1] = ACHAR(aMacType, 2);
+	aCString[2] = ACHAR(aMacType, 1);
+	aCString[3] = ACHAR(aMacType, 0);
+	aCString[4] = '\0';
 }

@@ -1,0 +1,27 @@
+#define JUSTSLOP .001
+
+short CountRightUnjustSystems`(Document *doc, LINK startPageL, LINK endPageL)
+{
+	LINK pL, firstMeasL, termSysL, lastMeasL;
+	FASTFLOAT justFact;
+	DDIST staffWidth, lastMeasWidth;
+	short nUnjust;
+	
+	if (!endPageL) endPageL = doc->tailL;
+	if (!startPageL) {
+		MayErrMsg("IsRightJustOK: no startPageL given.");
+		return 0;
+	}
+	
+	nUnjust = 0;
+	for (pL = startPageL; pL!=endPageL; pL = RightLINK(pL))
+		if (SystemTYPE(pL)) {
+			firstMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+			termSysL = EndSystemSearch(doc, pL);
+			lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+			justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
+			if (justFact<1.0-JUSTSLOP || justFact>1.0+JUSTSLOP) nUnjust++;
+		}
+		
+	return nUnjust;
+}

@@ -1,0 +1,67 @@
+static void ThinNonSyncObjs(Document *doc, LINK prevMeasL, LINK lastL);
+
+/* ------------------------------------------------------------------- ThinNonSyncObjs -- */
+
+static void ThinNonSyncObjs(Document *doc, LINK startL, LINK endL)
+{
+	LINK pL, rightL;
+	
+		pL = startL;
+		while (pL!=endL) {
+			rightL = RightLINK(pL);		/* Save the right link in case we delete this node */
+LogPrintf(LOG_DEBUG, "ThinNonSyncObjs: pL=%u rightL=%u spareFlag=%d\n", pL, rightL, LinkSPAREFLAG(pL));
+		if (!LinkSPAREFLAG(pL)) goto next;			/* Skip if not from the clipboard */
+		switch (ObjLType(pL)) {
+			/* Ignore these; they should never appear in the merged range. */
+			case PAGEtype:
+			case SYSTEMtype:
+			case CONNECTtype:
+			case TAILtype:
+			case STAFFtype:
+				break;
+
+			/* If any of these appear in the merged range, leave them alone. */
+			case KEYSIGtype:
+			case TIMESIGtype:
+			case MEASUREtype:
+			case PSMEAStype:
+			case SYNCtype:
+			case GRSYNCtype:
+			case SLURtype:
+			case BEAMSETtype:
+			case TUPLETtype:
+			case OTTAVAtype:
+			case SPACERtype:
+				break;
+
+			/* If any of these appear in the merged range, remove them. */
+			case CLEFtype:
+LogPrintf(LOG_DEBUG, "ThinNonSyncObjs: about to delete Clef pL=%u\n", pL);
+				DeleteNode(doc, pL);		// ??IS THIS SAFE????
+				break;
+			case DYNAMtype:
+LogPrintf(LOG_DEBUG, "ThinNonSyncObjs: about to delete Dynamic pL=%u\n", pL);
+				DeleteNode(doc, pL);		// ??IS THIS SAFE????
+				break;
+			case RPTENDtype:
+				DeleteNode(doc, pL);		// ??IS THIS SAFE????
+				break;
+			case ENDINGtype:
+				DeleteNode(doc, pL);
+				break;
+			case GRAPHICtype:
+LogPrintf(LOG_DEBUG, "ThinNonSyncObjs: about to delete Graphic pL=%u\n", pL);
+				DeleteNode(doc, pL);
+				break;
+			case TEMPOtype:
+				DeleteNode(doc, pL);
+				break;
+			default:
+				;
+		}
+		
+next:
+		if (!rightL || rightL==endL || TailTYPE(rightL)) return;
+		pL = rightL;
+	}
+}

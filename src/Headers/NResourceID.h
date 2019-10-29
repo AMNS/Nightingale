@@ -449,34 +449,34 @@ enum {							/* Format menu */
 };
 
 /* Miscellaneous temporarily-installed popup menus */
-#define FONT_POPUP 20
-#define SIZE_POPUP 21
-#define STAFFREL_POPUP 22
-#define TEXTSTYLE_POPUP 35
-#define STYLECHOICE_POPUP 36
-#define FLOWTEXTSTYLE_POPUP 37
+#define FONT_POPUP				20
+#define SIZE_POPUP				21
+#define STAFFREL_POPUP			22
+#define TEXTSTYLE_POPUP			35
+#define STYLECHOICE_POPUP		36
+#define FLOWTEXTSTYLE_POPUP		37
 
 /* Popup menus for the QuickChange (formerly Set) command */
 #define LYRICSTYLE_POPUP FLOWTEXTSTYLE_POPUP	/* OK if they're never used together! */
-#define	MAINSET_POPUP		49
-#define	NOTEPROPERTY_POPUP	50
-#define	TEXTPROPERTY_POPUP	54
-#define TUPLETPROPERTY_POPUP 55
-#define	HEADSHAPE_POPUP		51
-#define	NOTESIZE_POPUP		52
-#define	VISIBILITY_POPUP	53
-#define ACCNUMVIS_POPUP		56
-#define CHORDSYMPROPERTY_POPUP 57
-#define NOTE_ACC_PARENS_POPUP 58
-#define SLURPROPERTY_POPUP 59
-#define SLUR_APPEARANCE_POPUP 60
-#define TEMPOPROPERTY_POPUP 62
-#define BARLINE_PROPERTY_POPUP 70
-#define BARLINE_TYPE_POPUP 71
-#define DYNAMIC_PROPERTY_POPUP 72
-#define DYNAMIC_SIZE_POPUP 73
-#define BEAMSET_PROPERTY_POPUP 74
-#define BEAMSET_THICKNESS_POPUP 75
+#define	MAINSET_POPUP			49
+#define	NOTEPROPERTY_POPUP		50
+#define	TEXTPROPERTY_POPUP		54
+#define TUPLETPROPERTY_POPUP	55
+#define	HEADSHAPE_POPUP			51
+#define	NOTESIZE_POPUP			52
+#define	VISIBILITY_POPUP		53
+#define ACCNUMVIS_POPUP			56
+#define CHORDSYMPROPERTY_POPUP	57
+#define NOTE_ACC_PARENS_POPUP	58
+#define SLURPROPERTY_POPUP		59
+#define SLUR_APPEARANCE_POPUP	60
+#define TEMPOPROPERTY_POPUP		62
+#define BARLINE_PROPERTY_POPUP	70
+#define BARLINE_TYPE_POPUP	71
+#define DYNAMIC_PROPERTY_POPUP	72
+#define DYNAMIC_SIZE_POPUP		73
+#define BEAMSET_PROPERTY_POPUP	74
+#define BEAMSET_THICKNESS_POPUP	75
 
 #define ENDING_MENU 80
 #define PARTS_MENU 101
@@ -532,7 +532,7 @@ enum {							/* Format menu */
 #define MEASFILLERRS_STRS 278			/* Fill Empty Measures error strings */
 #define MENUCMDMSGS_STRS 279			/* Misc. messages for menu commands */
 #define SET_STRS 280					/* QuickChange (formerly Set) non-error strings */
-#define ENIGMA_STRS 285					/* Enigma converter strings */
+#define ENIGMA_STRS 285					/* Enigma converter strings (no longer used) */
 #define NOTELIST_STRS 286				/* Open Notelist strings */
 #define MPGENERAL_STRS 290				/* Master Page general (non-error) strings */
 #define DIALOG_STRS 300					/* Misc. dialog non-error and feedback strings */
@@ -576,10 +576,9 @@ enum {							/* Format menu */
 
 #define RHAND_CURS 128					/* Right hand cursor */
 #define LHAND_CURS 129					/* Left hand cursor */
-#define PRINT_CURS 162					/* 'printing...' cursor (no longer used) */
 #define FLOWIN_CURS 280					/* Graphic-insertion cursor */
 #define THREAD_CURS 2004				/* 'Threader' cursor */
-#define ARROW_CURS 2005					/* arrow cursor (no longer used) */
+#define ARROW_CURS 2005					/* Arrow cursor */
 #define DRAG_CURS 2006					/* Cursor for beam & slur dragging */
 #define GENLDRAG_CURS 2008				/* Cursor for normal dragging */
 #define MIDIPLAY_CURS 3000				/* Cursor displayed while playing MIDI */
@@ -594,7 +593,7 @@ enum {							/* Format menu */
 
 #define THE_PLMP 128					/* Palette remapping resource */
 
-#define THE_BIMI 128					/* Built-in MIDI port and IF speed */
+#define THE_BIMI 128					/* Built-in MIDI port and interface speed (no longer used) */
 
 #define NGALE_ICON 128
 

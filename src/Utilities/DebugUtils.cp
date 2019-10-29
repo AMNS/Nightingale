@@ -191,11 +191,11 @@ Boolean DCheckSyncSlurs(Document *doc, LINK syncL, LINK aNoteL)
 
 	if (NoteSLURREDL(aNoteL)) {
 		/* If we start searching for the slur here, we may find one that starts with this
-			Sync, while we want one that ends with this Sync; instead, start searching
-			from the previous Sync in this voice. Exception: if the previous Sync is not
-			in the same System, the slur we want is the second piece of a cross-system
-			one; in this case, search to the right from the previous Measure.
-			Cf. LeftSlurSearch. */
+		   Sync, while we want one that ends with this Sync; instead, start searching
+		   from the previous Sync in this voice. Exception: if the previous Sync is not
+		   in the same System, the slur we want is the second piece of a cross-system
+		   one; in this case, search to the right from the previous Measure. Cf.
+		   LeftSlurSearch. */
 			
 		prevSyncL = LVSearch(LeftLINK(syncL), SYNCtype, voice, GO_LEFT, False);
 		if (prevSyncL && SameSystem(syncL, prevSyncL)) {
@@ -322,6 +322,7 @@ Boolean DCheckMBBox(
 
 	/* If Measure is of width zero, it can't contain anything, nor can it be followed by
 		another Measure until we've started a new System. */
+		
 	if (mBBox.right<=mBBox.left) {
 		for (checkL = RightLINK(pL); !SystemTYPE(checkL); checkL = RightLINK(checkL)) {
 			if (SystemTYPE(checkL) || TailTYPE(checkL)) break;
@@ -340,7 +341,7 @@ Boolean DCheckMBBox(
 //LogPrintf(LOG_DEBUG, "mBBox=%d %d %d %d, systemRect=%d %d %d %d\n", mBBox.top, mBBox.left,
 //mBBox.bottom, mBBox.right, sysRect.top, sysRect.left, sysRect.bottom, sysRect.right);
 	if (!EqualRect(&sysRect, &unRect)) {
-		sprintf(str, "(%s%s%s%s)\n",
+		sprintf(str, "(%s%s%s%s)",
 			(mBBox.top<sysRect.top? "top " : ""),
 			(mBBox.left<sysRect.left? "left " : ""),
 			(mBBox.bottom>sysRect.bottom? "bottom " : ""),

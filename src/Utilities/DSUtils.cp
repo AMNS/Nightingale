@@ -169,10 +169,10 @@ Boolean UpdateMeasNums(Document *doc, LINK startL)
 	} 
 	else {
 		pL = EitherSearch(startL, MEASUREtype, ANYONE, GO_LEFT, False);
-		/*
-		 * We might be able to use GetMeasNum, but we need internal measure nos. here;
-		 * also, there might be a performance issue.
-		 */
+		
+		/* We might be able to use GetMeasNum, but we need internal measure nos. here;
+		   also, there might be a performance issue. */
+		   
 		aMeasureL = FirstSubLINK(pL);
 		aMeasure = GetPAMEASURE(aMeasureL);
 		measNum = aMeasure->measureNum;
@@ -210,6 +210,7 @@ Boolean UpdateMeasNums(Document *doc, LINK startL)
 				/* If a multibar rest, add one less than no. of bars to next measure
 				   number. Note that all subobjs of the Sync should be identical
 				   multibar rests! */
+				   
 				aNoteL = FirstSubLINK(pL);
 				if (NoteREST(aNoteL) && NoteType(aNoteL)<-1) {
 					nMeasRest = ABS(NoteType(aNoteL));
@@ -259,14 +260,15 @@ Boolean IsPtInMeasure(Document */*doc*/, Point pt, LINK sL)
 
 /* --------------------------------------------------------------- PageRelxd,PageRelyd -- */
 /* Return object's xd and yd relative to the Page. These are not necessarily exact,
-and no single value could possibly be correct for all subobjs of Syncs, Slurs,
-etc.: they are intended for purposes like setting scaleCenter for enlarging, and
-the target position for Go to Selection. */
+and no single value could possibly be correct for all subobjs of Syncs, Slurs, etc.:
+they are intended for purposes like setting scaleCenter for enlarging, and the target
+position for Go to Selection. */
 
 DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 {
-	DDIST objXD, xd; PMEVENT p; LINK firstL, lastL;
-	PGRAPHIC pGraphic; PTEMPO pTempo;
+	DDIST objXD, xd;  PMEVENT p;
+	LINK firstL, lastL;
+	PGRAPHIC pGraphic;  PTEMPO pTempo;
 	
 	objXD = LinkXD(pL);
 	
@@ -289,20 +291,17 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 			return pContext->measureLeft + objXD;
 		case CLEFtype:
 			p = GetPMEVENT(pL);
-			if (((PCLEF)p)->inMeasure)
-				return pContext->measureLeft + objXD;
+			if (((PCLEF)p)->inMeasure) return pContext->measureLeft + objXD;
 			
 			return pContext->staffLeft + objXD;
 		case KEYSIGtype:
 			p = GetPMEVENT(pL);
-			if (((PKEYSIG)p)->inMeasure)
-				return pContext->measureLeft + objXD;
+			if (((PKEYSIG)p)->inMeasure) return pContext->measureLeft + objXD;
 			
 			return pContext->staffLeft + objXD;
 		case TIMESIGtype:
 			p = GetPMEVENT(pL);
-			if (((PTIMESIG)p)->inMeasure)
-				return pContext->measureLeft + objXD;
+			if (((PTIMESIG)p)->inMeasure) return pContext->measureLeft + objXD;
 			
 			return pContext->staffLeft + objXD;
 		case BEAMSETtype:
@@ -315,8 +314,7 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 		case GRAPHICtype:
 			pGraphic = GetPGRAPHIC(pL);
 			if (pGraphic->firstObj) {
-				if (PageTYPE(pGraphic->firstObj))
-					return objXD;
+				if (PageTYPE(pGraphic->firstObj)) return objXD;
 
 				xd = PageRelxd(pGraphic->firstObj, pContext);
 				return xd+objXD;
@@ -354,7 +352,8 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 
 DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 {
-	DDIST objYD, yd;  PMEVENT p;  LINK firstL, lastL;
+	DDIST objYD, yd;  PMEVENT p;
+	LINK firstL, lastL;
 	PGRAPHIC pGraphic;  PTEMPO pTempo;
 	
 	objYD = LinkYD(pL);
@@ -379,20 +378,17 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 			return pContext->measureTop + objYD;
 		case CLEFtype:
 			p = GetPMEVENT(pL);
-			if (((PCLEF)p)->inMeasure)
-				return pContext->measureTop + objYD;
+			if (((PCLEF)p)->inMeasure) return pContext->measureTop + objYD;
 			
 			return pContext->staffTop + objYD;
 		case KEYSIGtype:
 			p = GetPMEVENT(pL);
-			if (((PKEYSIG)p)->inMeasure)
-				return pContext->measureTop + objYD;
+			if (((PKEYSIG)p)->inMeasure) return pContext->measureTop + objYD;
 			
 			return pContext->staffTop + objYD;
 		case TIMESIGtype:
 			p = GetPMEVENT(pL);
-			if (((PTIMESIG)p)->inMeasure)
-				return pContext->measureTop + objYD;
+			if (((PTIMESIG)p)->inMeasure) return pContext->measureTop + objYD;
 			
 			return pContext->staffTop + objYD;
 		case BEAMSETtype:
@@ -404,8 +400,7 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 		case GRAPHICtype:
 			pGraphic = GetPGRAPHIC(pL);
 			if (pGraphic->firstObj) {
-				if (PageTYPE(pGraphic->firstObj))
-					return objYD;
+				if (PageTYPE(pGraphic->firstObj)) return objYD;
 
 				yd = PageRelyd(pGraphic->firstObj, pContext);
 				return yd+objYD;
@@ -443,8 +438,8 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 
 
 /* ------------------------------------------------------------------ GraphicPageRelxd -- */
-/* Return xd relative to the Page for a Graphic, whose position is relative to
-a subobject in its voice or on its staff. */
+/* Return xd relative to the Page for a Graphic, whose position is relative to a
+subobject in its voice or on its staff. */
 
 DDIST GraphicPageRelxd(Document */*doc*/,					/* unused */
 						LINK pL, LINK relObjL,
@@ -716,17 +711,17 @@ void ZeroXD(LINK pL, LINK subObjL)
 {
 	switch (ObjLType(pL)) {
 		case CLEFtype:
-			ClefXD(subObjL) = 0; return;
+			ClefXD(subObjL) = 0;  return;
 		case KEYSIGtype:
-			KeySigXD(subObjL) = 0; return;
+			KeySigXD(subObjL) = 0;  return;
 		case TIMESIGtype:
-			TimeSigXD(subObjL) = 0; return;
+			TimeSigXD(subObjL) = 0;  return;
 		case SYNCtype:
-			NoteXD(subObjL) = 0; return;
+			NoteXD(subObjL) = 0;  return;
 		case GRSYNCtype:
-			GRNoteXD(subObjL) = 0; return;
+			GRNoteXD(subObjL) = 0;  return;
 		case DYNAMtype:
-			DynamicXD(subObjL) = 0; return;
+			DynamicXD(subObjL) = 0;  return;
 	}
 }
 	
@@ -1120,8 +1115,8 @@ Boolean IsOutside(LINK theObj, LINK obj1, LINK obj2)
 	return (IsAfter(theObj, obj1) || IsAfter(obj2, theObj));
 }
 
-/* Is theObj between obj1 and obj2 or identical to one of them? N.B. This will
-misbehave if obj2 precedes obj1! */
+/* Is theObj between obj1 and obj2 or identical to one of them? NB: This will misbehave
+if obj2 precedes obj1! */
 
 Boolean BetweenIncl(LINK obj1, LINK theObj, LINK obj2)
 {	
@@ -1133,8 +1128,7 @@ Boolean BetweenIncl(LINK obj1, LINK theObj, LINK obj2)
 	return False;
 }
 
-/* Is theObj within the range obj1 to obj2 (including the first but not the
-second)? */
+/* Is theObj within the range obj1 to obj2 (including the first but not the second)? */
 
 Boolean WithinRange(LINK obj1, LINK theObj, LINK obj2)
 {
@@ -1546,8 +1540,8 @@ LINK LastObjInSys(Document *doc, LINK pL)
 
 Boolean IsLastSysInPage(LINK sysL)
 {
-	/* Either sysL is the last system of the score, on a different page
-		from the following system, or not the first system of its page. */
+	/* Either sysL is the last system of the score, on a different page from the
+	   following system, or not the first system of its page. */
 	
 	if (LinkRSYS(sysL))
 		return (SysPAGE(sysL) != SysPAGE(LinkRSYS(sysL)));		/* On different page from following system */
@@ -1574,12 +1568,13 @@ LINK GetLastSysInPage(LINK pageL)
 /* -------------------------------------------------------------------- FirstSysInPage -- */
 /* Determines if sysL is the first System of its page. Assumes that sysL is a LINK
 to an object of type SYSTEM. NB: We cannot assume that System always immediately
-follows Page, because of Page-relative Graphics. */
+follows Page, because of Page-relative Graphics. FIXME: Name should be changed to
+IsFirstSysInPage. Similarly for FirstSysInScore. */
 
 Boolean FirstSysInPage(LINK sysL)
 {
-	/* Either sysL is the first system of the score, on a different page
-		from the previous system, or not the first system of its page. */
+	/* Either sysL is the first system of the score, on a different page from the
+	   previous system, or not the first system of its page. */
 	
 	if (LinkLSYS(sysL))										
 		return (SysPAGE(sysL)!=SysPAGE(LinkLSYS(sysL)));	/* On different page from prev sys */
@@ -1601,7 +1596,7 @@ Boolean FirstSysInScore(LINK sysL)
 
 short NSysOnPage(LINK pageL)
 {
-	LINK sysL; short nSys;
+	LINK sysL;  short nSys;
 	
 	sysL = SSearch(pageL, SYSTEMtype, False);
 
@@ -1623,8 +1618,8 @@ LINK LastObjOnPage(Document *doc, LINK pageL)
 
 	rPage = LinkRPAGE(pageL);
 
-	/* If the rPage exists, get the last system prior to it, and the last obj
-		in that system, which is the last obj in pageL. */
+	/* If the rPage exists, get the last system prior to it, and the last obj in that
+	   system, which is the last obj in pageL. */
 
 	if (rPage) {
 		sysL = LSSearch(rPage, SYSTEMtype, ANYONE, True, False);
@@ -2337,15 +2332,13 @@ LINK FindMainNote(LINK pL,			/* Sync or GRSync */
 	if (SyncTYPE(pL)) {
 		aNoteL = FirstSubLINK(pL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-			if (NoteVOICE(aNoteL)==voice && MainNote(aNoteL))
-				return aNoteL;
+			if (NoteVOICE(aNoteL)==voice && MainNote(aNoteL)) return aNoteL;
 		}
 	}
 	else if (GRSyncTYPE(pL)) {
 		aGRNoteL = FirstSubLINK(pL);
 		for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
-			if (GRNoteVOICE(aGRNoteL)==voice && GRMainNote(aGRNoteL))
-				return aGRNoteL;
+			if (GRNoteVOICE(aGRNoteL)==voice && GRMainNote(aGRNoteL)) return aGRNoteL;
 		}
 	}
 
@@ -2369,9 +2362,9 @@ LINK FindGRMainNote(LINK pL,		/* GRSync */
 	return NILINK;
 }
 
-/* Return the MainNote of a chord (the one with a stem) in the given voice and
-Sync, or the only note in the voice and Syncif there is one; if there are no
-notes in the voice and Sync, return NILINK. */
+/* Return the MainNote of a chord (the one with a stem) in the given voice and Sync,
+or the only note in the voice and Syncif there is one; if there are no notes in the voice
+and Sync, return NILINK. */
 
 LINK FindMainOrOnlyNote(LINK pL,			/* Sync */
 						short voice
@@ -2382,10 +2375,8 @@ LINK FindMainOrOnlyNote(LINK pL,			/* Sync */
 	if (SyncTYPE(pL)) {
 		aNoteL = FirstSubLINK(pL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-			if (NoteVOICE(aNoteL)==voice && !NoteINCHORD(aNoteL))
-				return aNoteL;
-			if (NoteVOICE(aNoteL)==voice && MainNote(aNoteL))
-				return aNoteL;
+			if (NoteVOICE(aNoteL)==voice && !NoteINCHORD(aNoteL)) return aNoteL;
+			if (NoteVOICE(aNoteL)==voice && MainNote(aNoteL)) return aNoteL;
 		}
 	}
 

@@ -1,45 +1,8 @@
 /*
-	File:		CarbonPrinting.c
+	File:		CarbonPrinting.c for Nightingale
 	
-	Contains:	Routines needed to perform printing. This example uses sheets and provides for
-                        save as PDF. Based on Apple's MyCarbonPrinting.c .
-
-	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
-				("Apple") in consideration of your agreement to the following terms, and your
-				use, installation, modification or redistribution of this Apple software
-				constitutes acceptance of these terms.  If you do not agree with these terms,
-				please do not use, install, modify or redistribute this Apple software.
-
-				In consideration of your agreement to abide by the following terms, and subject
-				to these terms, Apple grants you a personal, non-exclusive license, under AppleÕs
-				copyrights in this original Apple software (the "Apple Software"), to use,
-				reproduce, modify and redistribute the Apple Software, with or without
-				modifications, in source and/or binary forms; provided that if you redistribute
-				the Apple Software in its entirety and without modifications, you must retain
-				this notice and the following text and disclaimers in all such redistributions of
-				the Apple Software.  Neither the name, trademarks, service marks or logos of
-				Apple Computer, Inc. may be used to endorse or promote products derived from the
-				Apple Software without specific prior written permission from Apple.  Except as
-				expressly stated in this notice, no other rights or licenses, express or implied,
-				are granted by Apple herein, including but not limited to any patent rights that
-				may be infringed by your derivative works or by other works in which the Apple
-				Software may be incorporated.
-
-				The Apple Software is provided by Apple on an "AS IS" basis.  APPLE MAKES NO
-				WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE IMPLIED
-				WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-				PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND OPERATION ALONE OR IN
-				COMBINATION WITH YOUR PRODUCTS.
-
-				IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL OR
-				CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-				GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-				ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION, MODIFICATION AND/OR DISTRIBUTION
-				OF THE APPLE SOFTWARE, HOWEVER CAUSED AND WHETHER UNDER THEORY OF CONTRACT, TORT
-				(INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN
-				ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-	Copyright © 1999-2001 Apple Computer, Inc., All Rights Reserved
+	Contains:	Routines needed to perform printing. This example uses sheets and provides
+				for save as PDF. Based on Apple's MyCarbonPrinting.c.
 */
 
 #include "Nightingale_Prefix.pch"
@@ -118,7 +81,7 @@ static OSStatus DocCreatePrintSessionProcs(PMSheetDoneUPP *pageSetupDoneUPP,
 
 
 /* -------------------------------------------------------------------------------------- */
-// Create DocPrintInfo record for the document.
+/* Create DocPrintInfo record for the document. */
 
 Boolean IsDocPrintInfoInstalled(Document *doc)
 {
@@ -126,7 +89,7 @@ Boolean IsDocPrintInfoInstalled(Document *doc)
 }
 
 /* -------------------------------------------------------------------------------------- */
-// Create DocPrintInfo record for the document.
+/* Create DocPrintInfo record for the document. */
 
 OSStatus InstallDocPrintInfo(Document *doc)
 {
@@ -232,7 +195,7 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 			LogPrintf(LOG_INFO, "NPageSetupDoneProc: origPaperRect= %d,%d,%d,%d\n", doc->origPaperRect.left,
 						doc->origPaperRect.top, doc->origPaperRect.right, doc->origPaperRect.bottom);
 			LogPrintf(LOG_INFO, "                    rPaper=        %d,%d,%d,%d\n", rPaper.left,
-							rPaper.top, rPaper.right, rPaper.bottom);
+						rPaper.top, rPaper.right, rPaper.bottom);
 			if (!EqualRect(&doc->origPaperRect, &rPaper)) {
 				short marginRight = doc->origPaperRect.right - doc->marginRect.right;
 				short marginBottom = doc->origPaperRect.bottom - doc->marginRect.bottom;
@@ -309,6 +272,17 @@ static pascal void NPrintDialogDoneProc(PMPrintSession /*printSession*/,
 
 
 /* -------------------------------------------------------------------------------------- */
+
+void ShowOutputDevice()
+{
+	if (outputTo==toBitmapPrint) LogPrintf(LOG_INFO, "device %d (BitMap (QuickDraw) printer)\n",
+			outputTo);
+	else if (outputTo==toPostScript) LogPrintf(LOG_INFO, "device %d (PostScript)\n", outputTo);
+	else LogPrintf(LOG_INFO, "device %d (unknown device)\n", outputTo);
+}
+
+
+/* -------------------------------------------------------------------------------------- */
 /* Despite its name, DoPrintScore doesn't actually do any printing; it handles interaction
 with the user and sets things up for printing. */
 
@@ -345,13 +319,15 @@ void DoPrintScore(Document *doc)
 	
 	if (status == noErr) {
 		PMSessionUseSheets(doc->docPrintInfo.docPrintSession,
-								doc->theWindow,
-								doc->docPrintInfo.docPrintDialogDoneUPP);
+							doc->theWindow,
+							doc->docPrintInfo.docPrintDialogDoneUPP);
 		
 		status = PMSessionPrintDialog(doc->docPrintInfo.docPrintSession,
-											doc->docPrintInfo.docPrintSettings,
-											doc->docPrintInfo.docPageFormat,
-											&accepted);
+										doc->docPrintInfo.docPrintSettings,
+										doc->docPrintInfo.docPageFormat,
+										&accepted);
+		LogPrintf(LOG_INFO, "Preparing to print via ");
+		ShowOutputDevice();
 	}
 	
 	if (status != noErr) {
@@ -408,7 +384,7 @@ static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPa
 }
 
 
-// ----------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 /* Check that systems in a range of pages are all justified. If SysJustFact() is
 significantly different from 1.0, tell user and give them a chance to cancel. Return
@@ -436,7 +412,7 @@ static Boolean IsRightJustOK(Document *doc,
 }
 
 
-// ----------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg)
 {
@@ -460,10 +436,9 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 			status = kPMNInvalidPageRange;
 		}
 		
-		/*
-		 * Check that systems to be printed are all justified; if not, tell user and
-		 * give them a chance to cancel.
-		 */
+		/* Check that systems to be printed are all justified; if not, tell user and
+		   give them a chance to cancel. */
+		   
 		if (config.printJustWarn)
 			if (!IsRightJustOK(doc, firstSheet, lastSheet)) {
 				status = kPMNSysJustifUserCancel;
@@ -488,10 +463,8 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 
 /* ------------------------------------------------------------------------------
  *   Function:	IncludePostScriptInSpoolFile
- *	
  *   Parameters:
  *      printSession	- current printing session
- *
  *  Description:
  *  	Check if current printer driver supports embedding of PostScript in the spool file, and
  *      if it does, instruct the Carbon Printing Manager to generate a PICT w/ PS spool file.
@@ -712,10 +685,8 @@ static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastShe
 												
 	if (status == noErr) {
 	
-		/*
-		 * Get physical size of paper (topleft should be (0,0)) and imageable area
-		 * (topleft should be something like (-31,-30))
-		 */
+		/* Get physical size of paper (topleft should be (0,0)) and imageable area
+		   (topleft should be something like (-31,-30)). */
 		//printRect = (**hPrint).prInfo.rPage;
 		//imageRect = (*hPrint)->rPaper;		
 		status = DocFormatGetAdjustedPaperRect(doc, &imageRect, True);
@@ -760,13 +731,13 @@ static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastShe
 						 *	be thrown away, so we must recreate them every time, and imageRect
 						 *	is needed for defining the transformation matrix we're using.
 						 */
-						PS_NewPage(doc,NULL,sheet+doc->firstPageNumber);
+						PS_NewPage(doc, NULL, sheet+doc->firstPageNumber);
 						
-						PS_OutOfQD(doc,True,&imageRect);
+						PS_OutOfQD(doc, True, &imageRect);
 						//PrintDemoBanner(doc, True);
 						DrawPageContent(doc, sheet, &paper, &doc->currentPaper);
 //						PS_Print("showpage\r");
-						PS_IntoQD(doc,True);
+						PS_IntoQD(doc, True);
 						
 						PS_EndPage();
 						SetPort(currPort);
@@ -896,18 +867,17 @@ static void DocSPFReleasePrintSession(Document *doc, PMPrintSession printSession
 	DocReleasePrintSession(doc);
 }
 
+
 /*------------------------------------------------------------------------------
 	Function:
 		FlattenAndSavePageFormat
-	
 	Parameters:
 		pageFormat	-	a PageFormat object
-	
 	Description:
 		Flattens a PageFormat object so it can be saved with the document.
 		Assumes caller passes a validated PageFormat object.
 		
-------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------ */
 
 OSStatus FlattenAndSavePageFormat(Document *doc)
 {
@@ -929,17 +899,15 @@ OSStatus FlattenAndSavePageFormat(Document *doc)
 
 /*------------------------------------------------------------------------------
     Function:	LoadAndUnflattenPageFormat
-	
     Parameters:
         pageFormat	- PageFormat object read from document file
-	
     Description:
         Gets flattened PageFormat data from the document and returns a PageFormat
         object.
         The function is not called in this sample code but your application
         will need to retrieve PageFormat data saved with documents.
 		
-------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------ */
 
 OSStatus LoadAndUnflattenPageFormat(Document *doc)
 {
@@ -1055,7 +1023,9 @@ Boolean DoPostScript(Document *doc)
 		
 		EPSFile = (type==1);
 		UpdateAllWindows();
-		
+
+		LogPrintf(LOG_INFO, "Preparing to create PostScript file.\n");
+
 		/*
 		 *	Create a default EPS filename by looking up the suffix string and appending
 		 *	it to the current name.  If the current name is so long that there would not
@@ -1063,7 +1033,7 @@ Boolean DoPostScript(Document *doc)
 		 *	suffix so that we don't run the risk of overwriting the original score file.
 		 */
 		sufIndex = EPSFile ? 4 : 8;
-		GetIndString(outname,MiscStringsID,sufIndex);		/* Get suffix (".EPSF" or ".ps") length */
+		GetIndString(outname, MiscStringsID, sufIndex);		/* Get suffix (".EPSF" or ".ps") length */
 		suffixLen = *(unsigned char *)outname;
 	
 		/* Get current name and its length, and truncate name to make room for suffix */

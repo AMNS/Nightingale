@@ -1,0 +1,30 @@
+From Documents.cp...
+
+#ifdef NOMORE	These functions might be useful in the future, so keep the code.
+static short NumFreeDocuments(void);
+static short NumOpenDocuments(void);
+
+static short NumFreeDocuments()
+{
+	Document *doc;  short n = 0;
+	
+	for (doc=documentTable; doc<topTable; doc++)
+		if (!doc->inUse) n++;
+	return(n);
+}
+	
+static short NumOpenDocuments()
+{
+	Document *doc;  short n = 0;
+	
+	for (doc=documentTable; doc<topTable; doc++)
+	
+	0
+	0
+		if (doc->inUse) n++;
+	if (clipboard->inUse) n--;
+	
+	return(n);
+}
+#endif
+

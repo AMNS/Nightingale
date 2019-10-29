@@ -1,0 +1,30 @@
+/* ---------------------------------------------------------------------- NCHasAccs -- */
+/* Does the note or chord in the given note's voice in the given Sync have any accidentals?
+NB: Works only for the MainNote of a chord! ??THIS BELONGS ELSEWHERE! */
+
+Boolean NCHasAccs( LINK, LINK, PCONTEXT);
+Boolean NCHasAccs(
+		LINK		syncL,
+		LINK		aNoteL,
+		PCONTEXT	pContext)
+{
+	LINK bNoteL;
+	
+	if (MainNote(aNoteL) || !NoteINCHORD(aNoteL)) {
+		bNoteL = FirstSubLINK(syncL);
+		for ( ; bNoteL; bNoteL = NextNOTEL(bNoteL)) {
+			if (NoteVOICE(bNoteL)==NoteVOICE(aNoteL)) {
+				if (NoteACC(bNoteL)!=0) return True;
+			}
+		}
+		return False;
+
+//LogPrintf(LOG_DEBUG, "NCHasLedgers: hiyqpit=%d lowyqpit=%d hiyqpitSus=%d lowyqpitSus=%d yqpitLowStaffLine=%d\n",
+//hiyqpit, lowyqpit, hiyqpitSus, lowyqpitSus, yqpitLowStaffLine);
+	}
+	else {
+		return False;
+	}
+}
+
+

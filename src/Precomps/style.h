@@ -1,17 +1,14 @@
 /* Style.h for Nightingale
 
-Some notation style parameters, for engravers and other fanatics. Numerous others
-are kept in the CNFG resource; cf. Initialize.c. (Those below that are constants
-should eventually be moved there, or put somewhere that lets users override them.)
+Some notation style parameters, for engravers and other fanatics. Numerous others are
+kept in the CNFG resource; cf. Initialize.c. (Those below that are constants should
+eventually be moved somewhere to let users override them.)
 
-Created by donbyrd on 25 May 2016. */
+Created by Don Byrd, May 2016. */
 
 #define CLEF8_ITAL True						/* Use italic digits (normal) instead of roman for clef '8's? */
 
 #define EXPAND_WIDER True					/* Stretch text in style Expand with two blanks btwn chars., else one */
-
-#define STD_ACCWIDTH (9*STD_LINEHT/8)		/* Width of common accidentals (STDIST). A bit less than Ross, p.131, says. */
-#define STD_KS_ACCSPACE STD_ACCWIDTH		/* Space between accidentals in key sigs. */
 
 /* Relative sizes for various types of symbols. Cf. Gould, _Behind Bars_, pp. 125, 569. */
 
@@ -20,6 +17,16 @@ Created by donbyrd on 25 May 2016. */
 #define METROSIZE(size)		(8*(size)/10)	/* For metronome marks */
 
 /* <lnSp> in the following #defines is DDIST staff interline space, e.g., LNSPACE(pContext). */
+
+/* -------------- Accidentals -------------- */
+
+#define STD_ACCWIDTH (9*STD_LINEHT/8)			/* Width of common accidentals (STDIST). A bit less than Ross, p.131, says. */
+#define STD_KS_ACCSPACE STD_ACCWIDTH			/* Space between accidentals in key sigs. */
+#define COURTESYACC_PARENWID(size) 4*(size)/5	/* For courtesy accidentals, right paren width rel. to accidental */
+
+#define ACC_IN_CONTEXT True						/* Do accidentals last to end of measure, as usual in CMN?
+													NB: Value of False is not fully implemented! */
+
 
 /* -------------- Notes/rests/grace notes -------------- */
 
@@ -30,6 +37,7 @@ Created by donbyrd on 25 May 2016. */
 
 #define WIDENOTEHEAD_PCT(whCode, width) (whCode==2? 160*(width)/100 : \
 											(whCode==1? 135*(width)/100 : (width)) )
+
 /* If notehead is wider or narrow than normal and note is upstemmed, distance to move to
 make right edge touch the stem. */
 
@@ -55,14 +63,11 @@ with stems away from the staff are shortened. */
 #define REST_STEMLET_LEN 4					/* For "stemlets" on beamed rests (quarter-spaces) */
 
 #define NOTEHEAD_GRAPH_WIDTH 5				/* Width of tiny graphs drawn for noteheads
-												if <doNoteheadGraphs> (staff spaces) */
-
-#define ACC_IN_CONTEXT True					/* Do accidentals last to end of measure, as usual in CMN?
-												NB: Value of False is not fully implemented! */
+											   if <doNoteheadGraphs> (staff spaces) */
 
 #define FlagLeading(lnSp)	(3*(lnSp)*4/16)	/* Vertical distance between flags */
 
-/* Note modifier sizes. Caveat: see the comment on GetModNRInfo before adjusting these. */
+/* Note modifier sizes. Caveat: see the comment on GetModNRInfo() before adjusting these. */
 
 #define FINGERING_SIZEPCT 65				/* Percent of normal font size for fingerings */
 #define CIRCLE_SIZEPCT 150					/* Percent of normal font size for circle */
@@ -76,7 +81,7 @@ in a file of notation style parameters, but where would be better?  --DAB, June 
 
 /* ---------------- Measures ---------------- */
 
-#define EMPTYMEAS_WIDTH 2*STD_LINEHT			/* STDIST width to use for measures with no J_IT or IP symbols */
+#define EMPTYMEAS_WIDTH 2*STD_LINEHT			/* Width to use for measures with no J_IT or IP symbols (STDIST) */
 
 
 /* ---------------- Dynamics ---------------- */
@@ -89,17 +94,17 @@ in a file of notation style parameters, but where would be better?  --DAB, June 
 
 #define CS_GAPBTWFIELDS		8				/* Distance between fields (e.g., btw. root & qual strings); % of csSmallSize */
 #define CS_PAREN_YOFFSET	18				/* Offset of parentheses from baseline (above); % of csSmallSize */
-#define CS_BASELINE_FROMBOT 16				/* pixels */
+#define CS_BASELINE_FROMBOT 16				/* To set vertical position (pixels) */
 
 /* ---------------- Octave signs ---------------- */
 
-#define OTTAVA_XDPOS_FIRST -pt2d(2)			/* Default x-position of left end rel. to first Sync */
-#define OTTAVA_XDPOS_LAST (pt2d(1))			/* Default x-position of right end rel. to last Sync */
+#define OTTAVA_XDPOS_FIRST -pt2d(2)				/* Default x-position of left end rel. to first Sync */
+#define OTTAVA_XDPOS_LAST (pt2d(1))				/* Default x-position of right end rel. to last Sync */
 
-#define OTTAVA_STANDOFF_ALTA 1				/* Minimum half-line distance from octave sign to staff */
+#define OTTAVA_STANDOFF_ALTA 1					/* Minimum distance from octave sign to staff (half-spaces) */
 #define OTTAVA_STANDOFF_BASSA 2
 
-#define OTTAVA_MARGIN_ALTA	3				/* Default half-line distance from octave sign to note */
+#define OTTAVA_MARGIN_ALTA	3					/* Default distance from octave sign to note (half-spaces) */
 #define OTTAVA_MARGIN_BASSA	5
 #define OTTAVA_THICK(lnSp)	((6*(lnSp))/50)		/* PostScript thickness of dotted lines in ottavas (DDIST) */
 #define OTTAVA_CUTOFFLEN(lnSp) (lnSp)			/* Length of vertical cutoff line (DDIST) */
@@ -107,14 +112,14 @@ in a file of notation style parameters, but where would be better?  --DAB, June 
 /* ---------------- Tuplets ---------------- */
 
 #define TUPLE_BRACKTHICK(lnSp) ((6*(lnSp))/50)	/* PostScript thickness of lines in tuplet bracket (DDIST) */
-#define TUPLE_CUTOFFLEN (STD_LINEHT/2)			/* Length of vertical cutoff line (NB: STDIST, not DDIST) */
+#define TUPLE_CUTOFFLEN (STD_LINEHT/2)			/* Length of vertical cutoff line (NB: STDIST, not DDIST!) */
 
 /* ---------------- Endings ---------------- */
 
 #define ENDING_THICK(lnSp)	((6*(lnSp))/50)		/* PostScript thickness of lines in Endings (DDIST) */
 #define ENDING_CUTOFFLEN(lnSp) (2*(lnSp))		/* Length of Ending's vertical cutoff line (DDIST) */
 
-/* ---------------- Nonarpeggio signs ---------------- */
+/* ---------------- Arpeggio/nonarpeggio signs ---------------- */
 
 #define NONARP_CUTOFF_LEN(lnSp) ((3*(lnSp))/4)	/* Nonarpeggio sign horiz. cutoff length (DDIST) */
 
