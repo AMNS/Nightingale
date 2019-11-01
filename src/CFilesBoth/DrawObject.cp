@@ -65,7 +65,7 @@ static void DrawHeaderFooter(Document *doc,
 	PPAGE		p;
 	short		pageNum, fontSize, fontInd, fontID, oldFont, oldSize, oldStyle,
 				xp, yp;
-	short		lxpt, chxpt, rhxpt, cfxpt, rfxpt, hypt, fypt;
+	short		lxpt, chxpt=0, rhxpt=0, cfxpt=0, rfxpt=0, hypt, fypt;
 	DDIST		lnSpace;
 	Str255		lhStr, chStr, rhStr, lfStr, cfStr, rfStr;
 
@@ -91,6 +91,7 @@ static void DrawHeaderFooter(Document *doc,
 	fypt = doc->origPaperRect.bottom - doc->headerFooterMargins.bottom;
 
 	/* Adjust positions to get approx. correct margin, since this is text baseline */
+	
 	hypt += fontSize/2;
 	fypt += fontSize/2;
 
@@ -243,12 +244,10 @@ static void DrawPageNum(Document *doc,
 
 
 /* -------------------------------------------------------------------------- DrawPAGE -- */
-/* Draw a PAGE object, including the page number, if it should be shown. */
+/* Draw a PAGE object, including the header/footer/page number, if they should be shown. */
 
 void DrawPAGE(Document *doc, LINK pL, Rect *paper, CONTEXT context[])
 {
-	/* As of v.2.1, theres's nothing to do but draw the page number. */
-	
 	if (!doc->masterView) {
 		if (doc->useHeaderFooter)
 			DrawHeaderFooter(doc, pL, paper, context);
@@ -259,8 +258,8 @@ void DrawPAGE(Document *doc, LINK pL, Rect *paper, CONTEXT context[])
 
 
 /* ------------------------------------------------------------------------ DrawSYSTEM -- */
-/* Draw a SYSTEM object from given document, in page whose window coordinates
-	are specified in paper.  */
+/* Draw a SYSTEM object from given document, in page whose window coordinates are
+specified in <paper>.  */
 
 void DrawSYSTEM(Document *doc,
 				LINK pL,					/* SYSTEM object */
@@ -383,10 +382,10 @@ static void DrawPartName(Document *doc, LINK staffL,
 					SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNamePN, LNSPACE(pContext));
 					
 					xname = paper->left+d2p(xd);
-					/*
-					 * To center vertically, one would expect to need to add txSize/2,
-					 * but that gives too low a position, maybe bcs of ascender/descender ht.
-					 */
+					
+					/* To center vertically, one would expect to need to add txSize/2, but
+					   that gives too low a position, maybe bcs of ascender/descender ht. */
+					   
 					short txSize = GetPortTxSize();
 					yname = paper->top+d2p(yd)+(txSize/3);
 					MoveTo(xname, yname);
@@ -399,10 +398,9 @@ static void DrawPartName(Document *doc, LINK staffL,
 				break;
 			case toPostScript:
                 {
-					/*
-					 * To center vertically, one would expect to need to add fontSize/2, but
-					 * again that gives too low a position, maybe bcs of ascender/descender ht.
-					 */
+					/* To center vertically, one would expect to need to add fontSize/2, but
+					   that gives too low a position, maybe bcs of ascender/descender ht. */
+					   
 					yd += pt2d(fontSize/4);
 					PS_FontString(doc, xd, yd, str, doc->fontNamePN, fontSize, doc->fontStylePN);
                 }
@@ -450,11 +448,11 @@ static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT cont
 			case toScreen:
 			case toBitmapPrint:
 			case toPICT:
-				/*
-				 *	To keep things from getting confused-looking, especially considering
-				 *	hiliting, the easiest thing is just to be sure the labelling is always
-				 *	entirely within the staff.
-				 */
+			
+				/* To keep things from getting confused-looking, especially considering
+				   hiliting, the easiest thing is just to be sure the labelling is always
+				   entirely within the staff. */
+				
 				staffHtPixels = d2p(LNSPACE(&context[staffn])*4);
 				if (staffHtPixels>=MIN_INSTRINFO_HT) {
 					oldFont = GetPortTxFont();
@@ -465,10 +463,10 @@ static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT cont
 					else if (staffHtPixels>=16) SetFont(1);
 					else if (staffHtPixels>=10) SetFont(3);
 					else {
-						/*
-						 * Probably too small to read but user will know there's something
-						 * there they can zoom in on.
-						 */
+					
+						/* Probably too small to read but user will be able to see there's
+						   something there they can zoom in on. */
+						   
 						TextFont(textFontNum);
 						fontSize = staffHtPixels-3;
 						if (fontSize<1) fontSize = 1;
@@ -576,7 +574,9 @@ void Draw1Staff(Document *doc,
 						PS_StaffLine(yd, pContext->staffLeft, pContext->staffRight);
 				}
 			}
-			// Leave the routine with point size as before calculated.
+			
+			/* Leave the routine with point size as before calculated. */
+			
 			PS_MusSize(doc, ptSize);
 			break;
 		default:
@@ -764,6 +764,7 @@ PushLock(CONNECTheap);
 							FIX_END(cBox.bottom); FIX_END(cBox.right);
 							
 							/* PICT 200 was created from the Sonata 36 brace. */
+							
 							width = ((cBox.right-cBox.left)*(UseTextSize(pContext->fontSize,
 																		doc->magnify))) / 36;
 							SetRect(&cBox, d2p(xd), d2p(dTop), d2p(xd)+width, d2p(dBottom));
@@ -771,6 +772,7 @@ PushLock(CONNECTheap);
 							
 							/* FIXME: DrawPicture OVERWRITES ANYTHING ALREADY THERE. Better to
 							   "or" in, probably via DrawPicture to bitmap, then CopyBits. */
+							   
 							DrawPicture(bracePicH, &cBox);
 							HUnlock((Handle)bracePicH); HPurge((Handle)bracePicH);
 							if (doc->masterView && ground==OTHERSYS_STAFF) {
@@ -812,6 +814,7 @@ PushLock(CONNECTheap);
 						if (doc->masterView && ground==OTHERSYS_STAFF) {
 							PenPat(NGetQDGlobalsGray());
 							PenMode(notPatBic);
+							
 							/* Assume brackets are almost square: good enuf for this */
 							brackHt = CharWidth(MCH_topbracket)+1;
 							SetRect(&cBox, px, pyTop-brackHt, px+2*xwidth, pyBot+brackHt);
@@ -1044,11 +1047,10 @@ PushLock(TIMESIGheap);
 		GetTimeSigDrawInfo(doc, pL, aTimeSigL, pContext, &xd, &yd);
 		subType = FillTimeSig(doc,aTimeSigL,pContext,nStr,dStr,xd,&xdN,&xdD,yd,&ydN,&ydD);
 
-		/*
-		 *	At this point, xdN is the "numerator" left edge, ydN is the numerator
-		 * y-baseline, and nStr the numerator character string. Also, if subType is
-		 * N_OVER_D, xdD, ydD, and dStr are the same for the "denominator".
-		 */
+		/* At this point, xdN is the "numerator" left edge, ydN is the numerator
+		   y-baseline, and nStr the numerator character string. Also, if subType is
+		   N_OVER_D, xdD, ydD, and dStr are the same for the "denominator". */
+		   
 		switch (outputTo) {
 			case toScreen:
 			case toBitmapPrint:
@@ -1557,11 +1559,10 @@ static Boolean GetGraphicDBox(Document *doc,
 			{
 				Handle picH;  Rect r;  short width, height;
 				
-				/*
-				 * Get the bounding box of the PICT resource. If the resource isn't available,
-				 * instead use a very small but legal box, so the Graphic can still be selected
-				 * (to be fixed, deleted, etc.) but won't cause any problems.
-				 */
+				/* Get the bounding box of the PICT resource. If the resource isn't available,
+				   instead use a very small but legal box, so the Graphic can still be selected
+				   (to be fixed, deleted, etc.) but won't cause any problems. */
+				   
 #ifdef NOTYET
 				/* FIXME: There are two problems with using GetPicture here. First, if the PICT
 				isn't in the score, it will try to get it from the app or from system
@@ -1590,11 +1591,11 @@ static Boolean GetGraphicDBox(Document *doc,
 			return True;
 		case GRArpeggio:
 			if (pContext==NILINK) {
-				LogPrintf(LOG_WARNING, "GetGraphicDBox: can't handle arpeggio sign attached to Page.\n");
+				LogPrintf(LOG_WARNING, "Can't handle arpeggio sign attached to Page.  (GetGraphicDBox)\n");
 				return False;
 			}
 			dHeight = qd2d(p->info, pContext->staffHeight, pContext->staffLines);
-			SetDRect(pDBox, 0, 0, pt2d(3), dHeight);			/* Width is crude but seems acceptable */
+			SetDRect(pDBox, 0, 0, pt2d(3), dHeight);		/* Width is crude but seems acceptable */
 			return True;
 		case GRChar:
 			string[0] = 1;
@@ -1603,13 +1604,13 @@ static Boolean GetGraphicDBox(Document *doc,
 			break;
 		case GRSusPedalDown:
 			string[0] = 1;
-			string[1] = 0xA1;								// Mac OS Roman keys: shift-option 8
+			string[1] = 0xA1;								/* Mac OS Roman keys: shift-option 8 */
 			pStr = string;
 			fontID = doc->musicFontNum;
 			break;
 		case GRSusPedalUp:
 			string[0] = 2;
-			string[1] = '*';								// Shift 8
+			string[1] = '*';								/* Shift 8 */
 			string[2] = '*';
 			pStr = string;
 			fontID = doc->musicFontNum;
@@ -1623,7 +1624,7 @@ static Boolean GetGraphicDBox(Document *doc,
 			
 			if (expandN) {
 				if (!ExpandPString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
-					LogPrintf(LOG_WARNING, "GetGraphicDBox: ExpandPString failed.\n");
+					LogPrintf(LOG_WARNING, "ExpandPString failed.  (GetGraphicDBox)\n");
 					return False;
 				}
 				
@@ -1639,12 +1640,11 @@ static Boolean GetGraphicDBox(Document *doc,
 //LogPrintf(LOG_DEBUG, "GetGraphicDBox: count lines=%d fontID, Size, Style=%d, %d, %d str='%s'\n",
 //CountTextLines(string), fontID, fontSize, fontStyle, cStr);
 
-	/* 
-	 *	Pure fudgery: for mysterious reasons, if the style is not plain, what we have
-	 *	now is too short by an amount that seems to increase with the length of the
-	 *	string, so add a little. 1 point per char. is slightly too much, but the code
-	 * below doesn't seem to be enough.
-	 */
+	/* Pure fudgery: for mysterious reasons, if the style is not plain, what we have
+	   now is too short by an amount that seems to increase with the length of the
+	   string, so add a little. 1 point per char. is slightly too much, but the code
+	   below doesn't seem to be enough. */
+	   
 	if (fontStyle!=0) bBox.right += 2*(*pStr)/3;
 
 	PtRect2D(&bBox, pDBox);	
@@ -1688,7 +1688,7 @@ static void DrawGRPICT(Document */*doc*/,
 			DrawPicture((PicHandle)picH,  &r);
 			break;
 		case toPostScript:
-			/* PostScript drawing is not implemented! */
+			LogPrintf(LOG_WARNING, "PostScript drawing is not implemented.  (DrawGRPICT)\n");
 			break;
 	}
 }
@@ -1700,7 +1700,7 @@ static void DrawGRPICT(Document */*doc*/,
 static void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
 					short subType, PCONTEXT pContext, Boolean /*dim*/)	/* <dim> is ignored */
 {
-	short xp, yp, yTop; DDIST lnSpace, nonarpThick; Byte glyph;
+	short xp, yp, yTop;  DDIST lnSpace, nonarpThick;  Byte glyph;
 	
 	lnSpace = LNSPACE(pContext);
 	yTop = pContext->paper.top;
@@ -2028,11 +2028,10 @@ void DrawGRAPHIC(Document *doc,
 	Boolean			expandN;				/* Stretch string out? */
 	Boolean			dim=False;
 
-	/*
-	 *	Compute Graphic's absolute position from its relative object's position.
-	 *	NOTE: For the time being, with PICTs, we ignore the firstObj field and
-	 *	position them relative to the page.
-	 */
+	/* Compute Graphic's absolute position from its relative object's position. NOTE:
+	   For the time being, with PICTs, we ignore the firstObj field and position them
+	   relative to the page. */
+	   
 PushLock(OBJheap);
 PushLock(GRAPHICheap);
  	p = GetPGRAPHIC(pL);
@@ -2048,8 +2047,10 @@ PushLock(GRAPHICheap);
 
 	expandN = False;
 	if (p->graphicType==GRString) expandN = (p->info2!=0);
+	
 	/* DrawChordSym gets the bounding box of chord symbols as well as drawing them, so
-		GetGraphicDBox doesn't handle chord symbols. */ 
+	   GetGraphicDBox doesn't handle chord symbols. */
+	   
 	if (p->graphicType!=GRChordSym &&
 			GetGraphicDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox))
 		OffsetDRect(&dEnclBox, xd, yd);
@@ -2157,14 +2158,14 @@ PushLock(GRAPHICheap);
 						break;
 					case GRSusPedalDown:
 						oneChar[0] = 1;
-						oneChar[1] = 0xA1;					// Mac OS Roman keys: shift-option 8
+						oneChar[1] = 0xA1;					/* Mac OS Roman keys: shift-option 8 */
 						TextFace(normal);
 						TextFont(doc->musicFontNum);
 						DrawString(oneChar);
 						break;
 					case GRSusPedalUp:
 						oneChar[0] = 1;
-						oneChar[1] = '*';					// Shift 8
+						oneChar[1] = '*';					/* Shift 8 */
 						TextFace(normal);
 						TextFont(doc->musicFontNum);
 						DrawString(oneChar);
@@ -2197,7 +2198,7 @@ PushLock(GRAPHICheap);
 					break;
 				case GRChordFrame:
 					PS_FontString(doc, xd, yd, PCopy(theStrOffset),
-										"\pSeville",						// FIXME: TEMPORARY
+										"\pSeville",					// FIXME: TEMPORARY
 										fontSize, fontStyle);
 					break;
 				case GRRehearsal:
@@ -2214,14 +2215,14 @@ PushLock(GRAPHICheap);
 				/* For pedal down and up, always use the document's music font. */
 				case GRSusPedalDown:
 					oneChar[0] = 1;
-					oneChar[1] = 0xA1;									// Mac OS Roman keys: shift-option 8
+					oneChar[1] = 0xA1;								/* Mac OS Roman keys: shift-option 8 */
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->musFontName,
 										fontSize, fontStyle);
 					break;
 				case GRSusPedalUp:
 					oneChar[0] = 1;
-					oneChar[1] = '*';									// Shift 8
+					oneChar[1] = '*';								/* Shift 8 */
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->musFontName,
 										fontSize, fontStyle);
@@ -2236,7 +2237,7 @@ DrawEnclosure:
 
 Cleanup:
 	/* Strings in Sonata have been seen with zero-height objRects. That's not good, so
-		avoid the possibility. */
+	   avoid the possibility. */
 
 	if (outputTo==toScreen && objRect.bottom==objRect.top) objRect.bottom++;
 	LinkOBJRECT(pL) = objRect;
@@ -2383,11 +2384,11 @@ PushLock(TEMPOheap);
 	}
 	
 	/* We'll cheat and get the width of the note and dot in the current font/size/style
-	 * instead of the ones it'll be drawn in. FIXME: This shouldn't make much difference,
-	 * but it would be better to to do smthg like what MaxPartNameWidth does, or to share
-	 * code with SymWidthRight (q.v.) -- or just call GetNPtStringBBox(). And using
-	 * pixel-based calculations is really bad, esp. for PostScript!
-	 */
+	   instead of the ones it'll be drawn in. FIXME: This shouldn't make much difference,
+	   but it would be better to to do smthg like what MaxPartNameWidth does, or to share
+	   code with SymWidthRight (q.v.) -- or just call GetNPtStringBBox(). And using
+	   pixel-based calculations is really bad, esp. for PostScript! */
+	
 	noteWidth = CharWidth(noteChar);
 	if (p->dotted) {
 		noteWidth += pt2p(2);
@@ -2412,8 +2413,9 @@ PushLock(TEMPOheap);
 		case toBitmapPrint:
 		case toPICT:
 			/* Perhaps draw the verbal tempo string. If the metronome mark is visible
-			and to its right, update the object's bounding box; otherwise, the bounding
-			box is already correct. */		
+			   and to its right, update the object's bounding box; otherwise, the bounding
+			   box is already correct. */
+			   		
 			if (doDraw) DrawTextBlock(doc, xd, yd, pL, pContext, False, fontID, fontSize,
 										fontStyle);
 			if (outputTo==toScreen) {
@@ -2577,13 +2579,12 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 static void ShadeMeasureInRect(Rect *pMRect, PCONTEXT pContext, Pattern *shadePat)
 {
 	OffsetRect(pMRect, pContext->paper.left, pContext->paper.top);
-	/*
-	 * Indent shading area horizontally to avoid covering up the barlines,
-	 * and vertically to separate this measure from those in adjacent systems.
-	 * The standard ltGray pattern covers up some things drawn after it, e.g.,
-	 * it often makes the blinking caret almost invisible, so use our own
-	 * diagonal stripes.
-	 */
+	
+	/* Indent shading area horizontally to avoid covering up the barlines, and
+	   vertically to separate this measure from those in adjacent systems. The standard
+	   ltGray pattern covers up some things drawn after it, e.g., it often makes the
+	   blinking caret almost invisible, so we use our own diagonal stripes. */
+	   
 	InsetRect(pMRect, 1, 2);
 	PenPat(shadePat);
 	PenMode(patOr);
@@ -2620,6 +2621,7 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 			   the "measure" is OK. (NB that if the "measure" we're checking contains no
 			   Syncs, the first Sync following won't be in it, but that shouldn't cause
 			   any problems.) */
+			   
 			aSyncL = SSearch(RightLINK(measureL), SYNCtype, GO_RIGHT);
 			if (aSyncL!=NILINK) {
 				aNoteL = FirstSubLINK(aSyncL);
@@ -2711,8 +2713,9 @@ void DrawBarline(Document *doc,
 
 #ifdef NOTYET
 			/* The "-1"s below are purely empirical and to be conservative. FIXME: Changing
-				this also requires changing code in CheckMEASURE for hit-testing and
-				hiliting. We should also make the analogous changes to repeat bars. */
+			   this also requires changing code in CheckMEASURE for hit-testing and
+			   hiliting. We should also make the analogous changes to repeat bars. */
+			   
 			betweenBars = d2p(lnSpace/2)-1;
 			if (betweenBars<2) betweenBars = 2;
 
@@ -2815,6 +2818,7 @@ PushLock(MEASUREheap);
 	drawn = False;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);
 	for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
+		drawBar = ShouldDrawBarline(doc, pL, aMeasureL, &connStaff);
 		aMeasure = GetPAMEASURE(aMeasureL);
 
 		staff = MeasureSTAFF(aMeasureL);
@@ -2880,7 +2884,6 @@ PushLock(MEASUREheap);
 		
 		if (pContext->visible || doc->showInvis) {
 			if (aMeasure->visible || doc->showInvis) {
-				drawBar = ShouldDrawBarline(doc, pL, aMeasureL, &connStaff);
 				switch (aMeasure->subType) {
 					case BAR_SINGLE:
 					case BAR_DOUBLE:
@@ -2964,10 +2967,10 @@ PushLock(MEASUREheap);
 	}
 
 	/* If we're showing measure duration problems, check whether this measure's notated
-	   and actual durations agree, and if they don't, shade over the measure. */
+	   and actual durations agree, and if they don't, shade over the measure. FIXME:
+	   If any staves are invisible, this is unreliable! */
 	   
-	if (doc->showDurProb)
-		ShadeDurPblmMeasure(doc, pL, lastContext);
+	if (doc->showDurProb) ShadeDurPblmMeasure(doc, pL, lastContext);
 
 	if (LinkSEL(pL))
 		if (doc->showFormat)

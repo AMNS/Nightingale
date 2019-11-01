@@ -76,34 +76,14 @@ void Initialize()
 	if (!GoodNewPtr((Ptr)strBuf))
 		{ OutOfMemory(256L); ExitToShell(); }
 	
-	/*
-	 *	FIXME: The following comment describes a trick we used with THINK C that I
-	 *  suspect not only no longer works, but isn't even necessary. On the other hand,
-	 *	it shouldn't have any effect except on Ngale developers running in a development
-	 *	system.
-	 *
-	 *	"For the benefit of AppleEvent handler installation, we attempt to
-	 *	figure out whether we are running on our own or under THINK C. 
-	 *	AppleEvents addressed to creatorType ('BYRD') never get to us when we
-	 *	are running under TC, since it looks to the outside world like we're
-	 *	THINK C (signature: 'KAHL').  We use the 'CODE' count at runtime to
-	 *	distinguish between the two environments: under THINK C the number of
-	 *	CODE resources should be either very small or 0.  In the following,
-	 *	16 is an arbitrary threshold. (Doug had 32, which I don't think qualifies
-	 *	as very small; in fact I think MapInfo counts on 0 for this purpose!)
-	 *	This may not work under future versions of THINK C, but it did with
-	 *	version 5.0.4 (the last version we tried it with)."
-	 */
-	
 	creatorType = CREATOR_TYPE_NORMAL;
 	documentType = DOCUMENT_TYPE_NORMAL;
 
-	/*
-	 *	Figure out our machine environment before doing anything more. This
-	 *	can't be done until after the various ToolBox calls above.
-	 */	
+	/* Figure out our machine environment before doing anything more. This can't be done
+	   until after the various ToolBox calls above. */
+	   	
 	thisMac.machineType = -1;
-	err = SysEnvirons(1,&thisMac);
+	err = SysEnvirons(1, &thisMac);
 	if (err) thisMac.machineType = -1;
 	
 	InstallCoreEventHandlers();
@@ -130,12 +110,12 @@ void Initialize()
 	if (!InitMemory(config.numMasters))				/* needs the CNFG resource */
 		{ BadInit(); ExitToShell(); }
 
-	/*
-	 *	Allocate a large grow zone handle, which gets freed when we run out of memory,
-	 *	so that whoever is asking for memory will probably get what they need without
-	 *	our having to crash or die prematurely except in the rarest occasions. (The
-	 *	"rainy day" memory fund.)
-	 */
+	/* Allocate a large grow zone handle, which gets freed when we run out of memory,
+	   so that whoever is asking for memory will probably get what they need without
+	   our having to crash or die prematurely except in the rarest occasions. (The
+	   "rainy day" memory fund. This is ancient, and it's highly unlikely it's useful
+	   any more.  --DAB, Sept. 2019) */
+	   
 	memoryBuffer = NewHandle(config.rainyDayMemory*1024L);
 	if (!GoodNewHandle(memoryBuffer)) {
 		OutOfMemory(config.rainyDayMemory*1024L);
@@ -159,13 +139,12 @@ void Initialize()
 		{ BadInit(); ExitToShell(); }
 	Init_Help();
 	
-	/*
-	 * See if we have enough memory that the user should be able to do SOMETHING
-	 * useful, and enough to get back to the main event loop, where we do our
-	 * regular low-memory checking. As of v.999, 250K was enough; but now, in the
-	 * 21st century, we might as well make the minimum a lot higher -- though it's
-	 * not clear if this is even meaningful anymore!
-	 */
+	/* See if we have enough memory that the user should be able to do SOMETHING
+	   useful, and enough to get back to the main event loop, where we do our
+	   regular low-memory checking. (As of v.999, 250K was enough; but now, in the
+	   21st century, we might as well make the minimum a lot higher -- though it's
+	   probably not even meaningful anymore!  --DAB, Feb. 2017) */
+	   
 	if (!PreflightMem(1000))
 		{ BadInit(); ExitToShell(); }
 }
@@ -183,11 +162,13 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 	OSStatus err;
 	
 	/* Find the preferences folder, normally ~/Library/Preferences */
+	
 	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
 	//LogPrintf(LOG_DEBUG, "FindFolder: err=%d  (FindPrefsFile)\n", err);
 	if (err!=noErr) return err;
 	
 	/* Search the folder for the file */
+	
 	BlockZero(&cat, sizeof(cat));
 	cat.hFileInfo.ioNamePtr = name;
 	cat.hFileInfo.ioVRefNum = pvol;
@@ -199,7 +180,7 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 				(cat.hFileInfo.ioFlFndrInfo.fdType == fType) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdCreator == fCreator) &&
 				Pstreql(name, fileName)) {
-			// make a fsspec referring to the file
+			/* make a fsspec referring to the file */
 			return FSMakeFSSpec(pvol, pdir, name, prefsSpec);
 		}
 		
@@ -229,7 +210,7 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	ScriptCode		scriptCode = smRoman;
 	
 	/* Create a new file in the ~/Library/Preferences and give it a resource fork.
-		If there is no Preferences folder in ~/Library, create it. */
+	   If there is no Preferences folder in ~/Library, create it. */
 	
 	Pstrcpy(rfSpec->name, PREFS_FILE_PATH);	
 	FSpCreateResFile(rfSpec, creatorType, 'NSET', scriptCode);
@@ -239,19 +220,18 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (theErr!=noErr) return False;
 	
 	/* Open it, setting global setupFileRefNum.  NB: HOpenResFile makes the file it
-		opens the current resource file. */
+	   opens the current resource file. */
 		
 	setupFileRefNum = FSpOpenResFile(rfSpec, fsRdWrPerm);
 	
 	theErr = ResError();
 	if (theErr!=noErr) return False;				/* Otherwise we'll write in the app's resource fork! */
 	
-	/*
-	 * Get various resources and copy them to the new Prefs file.  Since the Prefs
-	 * file has nothing in it yet, GetResource will look thru the other open resource
-	 * files for each resource we Get, and presumably find them in the application.
-	 * First copy the config and its template.
-	 */	
+	/* Get various resources and copy them to the new Prefs file.  Since the Prefs
+	   file has nothing in it yet, GetResource will look thru the other open resource
+	   files for each resource we Get, and presumably find them in the application.
+	   First copy the config and its template. */
+	   
 	resH = GetResource('CNFG', THE_CNFG);
 	if (!GoodResource(resH)) return False;	
 	if (!AddPrefsResource(resH)) return False;
@@ -319,10 +299,10 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (!AddPrefsResource(resH)) return False;
 
 	/* Copy all the spacing tables we can find into the Prefs file. We use Get1IndResource
-		instead of GetIndResource to avoid getting a resource from the Prefs file we've
-		just written out! (Of course, this means we have to be sure the current resource
-		file is the application; we're relying on AddPrefsResource to take care of that.)
-		Also copy the template. */
+	   instead of GetIndResource to avoid getting a resource from the Prefs file we've
+	   just written out! (Of course, this means we have to be sure the current resource
+	   file is the application; we're relying on AddPrefsResource to take care of that.)
+	   Also copy the template. */
 	
 	nSPTB = CountResources('SPTB');
 	for (i = 1; i<=nSPTB; i++) {
@@ -378,7 +358,7 @@ Boolean OpenPrefsFile()
 	rfVolDirID = dirID;
 	
 	/* Try to open the Prefs file. Under "classic" Mac OS (9 and before), it was normally
-	in  the System Folder; under OS X, it's in ~/Library/Preferences . */
+	   in the System Folder; under OS X, it's in ~/Library/Preferences . */
 	
 	Pstrcpy(setupFileName, PREFS_FILE_NAME);
 	theErr = FindPrefsFile(setupFileName, prefsFileType, creatorType, &rfSpec);
@@ -388,6 +368,7 @@ Boolean OpenPrefsFile()
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
 	
 	/* If we can't open it, create a new one using app's own CNFG and other resources. */
+	
 	if (theErr==noErr)
 		result = ResError();
 	else
@@ -396,9 +377,9 @@ Boolean OpenPrefsFile()
 //	if (result==fnfErr || result==dirNFErr) {
 	if (result==fnfErr) {
 		/* Note that the progress message has the setup filename embedded in it: this is
-		 * lousy--it should use PREFS_FILE_NAME, of course--but ProgressMsg() can't
-		 * handle that!
-		 */
+		   lousy--it should use PREFS_FILE_NAME, of course--but ProgressMsg() can't
+		   handle that!*/
+		   
 		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.\n", PToCString(setupFileName));
 		ProgressMsg(CREATE_PREFS_PMSTR, "");
 		SleepTicks((unsigned)(5*60L));					/* Give user time to read the msg */
@@ -410,6 +391,7 @@ Boolean OpenPrefsFile()
 			goto done;
 		}
 		/* Try opening the brand-new Prefs file. */
+		
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
 
 		ProgressMsg(0, "");
@@ -607,7 +589,7 @@ static void DisplayConfig()
 	LogPrintf(LOG_INFO, "  (100)courtesyAccLXD=%d", config.courtesyAccLXD);
 	LogPrintf(LOG_INFO, "  (101)courtesyAccRXD=%d", config.courtesyAccRXD);
 	LogPrintf(LOG_INFO, "  (102)courtesyAccYD=%d", config.courtesyAccYD);
-	LogPrintf(LOG_INFO, "  (103)courtesyAccSize=%d\n", config.courtesyAccSize);
+	LogPrintf(LOG_INFO, "  (103)courtesyAccPSize=%d\n", config.courtesyAccPSize);
 
 	LogPrintf(LOG_INFO, "  (104)quantizeBeamYPos=%d", config.quantizeBeamYPos);
 	LogPrintf(LOG_INFO, "  (105)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
@@ -947,7 +929,7 @@ static Boolean CheckConfig()
 	if (config.courtesyAccLXD < 0) { config.courtesyAccLXD = COURTESYACC_LXD_DFLT; ERR(100); }
 	if (config.courtesyAccRXD < 0) { config.courtesyAccRXD = COURTESYACC_RXD_DFLT; ERR(101); }
 	if (config.courtesyAccYD < 0) { config.courtesyAccYD = COURTESYACC_YD_DFLT; ERR(102); }
-	if (config.courtesyAccSize < 20) { config.courtesyAccSize = COURTESYACC_SIZE_DFLT; ERR(103); }
+	if (config.courtesyAccPSize < 20) { config.courtesyAccPSize = COURTESYACC_SIZE_DFLT; ERR(103); }
 
 #define QUANTIZEBEAMYPOS_DFLT 3
 	if (config.quantizeBeamYPos<0) { config.quantizeBeamYPos = QUANTIZEBEAMYPOS_DFLT; ERR(104); };
@@ -1100,7 +1082,7 @@ static Boolean GetConfig()
 
 		config.courtesyAccLXD = config.courtesyAccRXD = -127;
 		config.courtesyAccYD = -127;
-		config.courtesyAccSize = -127;
+		config.courtesyAccPSize = -127;
 
 		/* FIXME: What about Core MIDI fields (cmMetroDev thru cmDfltOutputChannel)? */
 		

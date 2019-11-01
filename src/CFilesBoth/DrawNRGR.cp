@@ -49,9 +49,8 @@ static void DrawSlashes(DDIST xdh, DDIST ydh,
 	/* Set the distance between slashes and their width, height, and thickness.
 	   According to Gould, they should fill the space between staff lines, but that's
 	   much too steep! */
+	   
 	slashLeading = (stemUp? 6*dEighthLn : -6*dEighthLn);
-	//slashWidth = 10*dEighthLn;
-	//slashHeight = 6*dEighthLn;
 	slashWidth = HeadWidth(lnSpace);
 	slashHeight = lnSpace/2;
 	slashThick = (long)(config.tremSlashLW*lnSpace) / 100L;
@@ -256,16 +255,15 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 {
 	PANOTE	theNote;
 	DDIST 	xdStart, xdDots, dhalfLn;
-	char		lDur;
+	char	lDur;
 
 	theNote = GetPANOTE(theNoteL);
 	if (theNote->ndots==0 || theNote->ymovedots==0) return 0;	/* If no dots or dots invisible */
 
-	/*
-	 * Ordinarily, the first dot is just to the right of a note on the "normal" side of
-	 * the stem. But if note is in a chord that's upstemmed and has notes to the right
-	 * of the stem, its dots must be moved to the right.
-	 */
+	/* Ordinarily, the first dot is just to the right of a note on the "normal" side of
+	   the stem. But if note is in a chord that's upstemmed and has notes to the right
+	   of the stem, its dots must be moved to the right. */
+	   
 	xdStart = 0;
 	if (chordNoteToR) xdStart += HeadWidth(LNSPACE(pContext));
 
@@ -287,8 +285,8 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 							pContext->staffLines);
 
 	/* If we're drawing notehead graphs, move aug. dots to the right by the appropriate factor.
-	 * (At the moment, the graphs are a bit wider than expected, so move them a bit further.)
-	 */
+	   (At the moment, the graphs are a bit wider than expected, so move them a bit further.) */
+	
 	if (doNoteheadGraphs) 
 	{
 		xdDots = xdDots*NOTEHEAD_GRAPH_WIDTH;
@@ -356,17 +354,16 @@ DDIST AccXOffset(short xmoveAcc, PCONTEXT pContext)
 {
 	DDIST dAccWidth, xOffset;
 
-	dAccWidth = std2d(STD_ACCWIDTH,
-							 pContext->staffHeight,
-							 pContext->staffLines);
-	xOffset = dAccWidth;									/* Set offset to default */
-	xOffset += (dAccWidth*(xmoveAcc-DFLT_XMOVEACC))/4;		/* Fine-tune it */
+	dAccWidth = std2d(STD_ACCWIDTH, pContext->staffHeight, pContext->staffLines);
+	xOffset = dAccWidth;										/* Set offset to default */
+	xOffset += (dAccWidth*(xmoveAcc-DFLT_XMOVEACC))/4;			/* Fine-tune it */
 	return xOffset;
 }
 
 
 /* --------------------------------------------------------------------------- DrawAcc -- */
-/* Draw an accidental, if there is one, for the given note. */
+/* Draw an accidental, if there is one, for the given note. If it's a courtesy accidental,
+also draw enclosing parentheses. */
 
 void DrawAcc(Document *doc,
 				PCONTEXT pContext,
@@ -379,8 +376,8 @@ void DrawAcc(Document *doc,
 {
 	PANOTE theNote;
 	DDIST accXOffset, d8thSp, xdAcc, xdLParen, xdRParen, ydParens, lnSpace;
-	short xmoveAcc, xp, yp, delta, scalePercent;
-	Byte accGlyph, lparenGlyph, rparenGlyph;
+	short xmoveAcc, xp, yp, deltaXR, deltaXL, deltaY, scalePercent=0;
+	Byte accGlyph, lParenGlyph, rParenGlyph;
 
 	theNote = GetPANOTE(theNoteL);
 	if (theNote->accident==0) return;
@@ -390,51 +387,59 @@ void DrawAcc(Document *doc,
 	lnSpace = LNSPACE(pContext);
 	d8thSp = LNSPACE(pContext)/8;
 
-	/*
-	 * Ordinarily, the accidental position is relative to a note on the "normal" side of
-	 * the stem. But if note is in a chord that's downstemmed and has notes to the left
-	 * of the stem, its accidental must be moved to the left.
-	 */
+	/* Ordinarily, the accidental position is relative to a note on the "normal" side of
+	   the stem. But if note is in a chord that's downstemmed and has notes to the left
+	   of the stem, its accidental must be moved to the left. */
+	
 	if (chordNoteToL) xdNorm -= SizePercentSCALE(HeadWidth(LNSPACE(pContext)));
 
-	/*
-	 * Consider user-specified offset <xmoveAcc>. Also, double flat is wider than the
-	 * other accidentals; just move it left a bit.
-	 */
+	/* Consider user-specified offset <xmoveAcc>. Also, double flat is wider than the
+	   other accidentals; just move it left a bit. */
+	 
 	xmoveAcc = (theNote->accident==AC_DBLFLAT? theNote->xmoveAcc+2 : theNote->xmoveAcc);
 	accXOffset = SizePercentSCALE(AccXOffset(xmoveAcc, pContext));
-
- 	/* If it's a courtesy accidental, position the parentheses and move the accidental.	*/
-
  	xdAcc = xdNorm-accXOffset;
 
+ 	/* If it's a courtesy accidental, position the (left edge of) right paren from
+	   <xmoveAcc>, but closer to the note because the paren is narrower than an accidental.
+	   Move the accidental to its left as specified by config.courtesyAccRXD, and the left
+	   paren as given by config.courtesyAccLXD. */
+
 	if (theNote->courtesyAcc) {
-		DDIST xoffset, yoffset;
+		DDIST xoffset, yoffset, dAccWidth;
+
+		lParenGlyph = MapMusChar(doc->musFontInfoIndex, MCH_lParen);  
+		rParenGlyph = MapMusChar(doc->musFontInfoIndex, MCH_rParen);
 
 		/* FIXME: These adjustments are probably not quite right, due to combination of 
-				sizePercent, scalePercent, and the various config tweaks. */
+		   sizePercent, scalePercent, and the various config tweaks. */
 
-		scalePercent = (short)(((long)config.courtesyAccSize*sizePercent)/100L);
+		scalePercent = (short)(((long)config.courtesyAccPSize*sizePercent)/100L);
 
-		lparenGlyph = MapMusChar(doc->musFontInfoIndex, MCH_lParen);  
-		rparenGlyph = MapMusChar(doc->musFontInfoIndex, MCH_rParen);
-
-		xoffset = MusCharXOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);
+		xoffset = MusCharXOffset(doc->musFontInfoIndex, rParenGlyph, lnSpace);
 		xdRParen = xdAcc + ((DDIST)(((long)scalePercent*xoffset)/100L));
+		dAccWidth = std2d(STD_ACCWIDTH, pContext->staffHeight, pContext->staffLines);
+		
+		/* Paren is narrower than an accidental; move it to right to compensate */
+		xdRParen += dAccWidth-(COURTESYACC_PARENWID(dAccWidth));
+//LogPrintf(LOG_DEBUG, "DrawAcc: xdAcc=%d xoffset=%d xdRParen=%d\n", xdAcc, xoffset, xdRParen);
 
-		delta = (short)(((long)scalePercent*config.courtesyAccRXD)/100L);
-		xdAcc = xdRParen-delta*d8thSp;
+		deltaXR = (short)(((long)scalePercent*config.courtesyAccRXD)/100L);
+		xdAcc = xdRParen-deltaXR*d8thSp;
 
-		delta = (short)(((long)scalePercent*config.courtesyAccLXD)/100L);
-		xdLParen = xdAcc-delta*d8thSp;
-
-		yoffset = MusCharYOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);	/* assume both parens have same yoffset */
-		delta = (short)(((long)scalePercent*config.courtesyAccYD)/100L);
-		ydParens = yd + delta*d8thSp + ((DDIST)(((long)scalePercent*yoffset)/100L));
+		deltaXL = (short)(((long)scalePercent*config.courtesyAccLXD)/100L);
+		xdLParen = xdAcc-deltaXL*d8thSp;
+//LogPrintf(LOG_DEBUG, "DrawAcc: courtesyAccLXD=%d deltaXL=%d xdLParen=%d deltaXR=%d xdRParen=%d\n",
+//config.courtesyAccLXD, deltaXL, xdLParen, deltaXR, xdRParen);
+		yoffset = MusCharYOffset(doc->musFontInfoIndex, rParenGlyph, lnSpace);	/* assume both parens have same yoffset */
+		deltaY = (short)(((long)scalePercent*config.courtesyAccYD)/100L);
+		ydParens = yd + deltaY*d8thSp + ((DDIST)(((long)scalePercent*yoffset)/100L));
 	}
 
 	xdAcc += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
 	yd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
+//LogPrintf(LOG_DEBUG, "DrawAcc: config.courtesyAccPSize=%d sizePercent=%d scalePercent=%d xdAcc=%d\n",
+//config.courtesyAccPSize, sizePercent, scalePercent, xdAcc);
 
 	switch (outputTo) {
 		case toScreen:
@@ -446,14 +451,15 @@ void DrawAcc(Document *doc,
 			DrawMChar(doc, accGlyph, NORMAL_VIS, dim);
 
 			/* If it's a courtesy accidental, draw parentheses around it. */
+			
 			if (theNote->courtesyAcc) {
 				xp = pContext->paper.left+d2p(xdLParen);
 				yp = pContext->paper.top+d2p(ydParens);
 				MoveTo(xp, yp);
-				DrawMChar(doc, lparenGlyph, NORMAL_VIS, dim);
+				DrawMChar(doc, lParenGlyph, NORMAL_VIS, dim);
 				xp = pContext->paper.left+d2p(xdRParen);
 				MoveTo(xp, yp);
-				DrawMChar(doc, rparenGlyph, NORMAL_VIS, dim);
+				DrawMChar(doc, rParenGlyph, NORMAL_VIS, dim);
 			}
 
 			break;
@@ -461,9 +467,10 @@ void DrawAcc(Document *doc,
 			PS_MusChar(doc, xdAcc, yd, accGlyph, True, sizePercent);
 
 			/* If it's a courtesy accidental, draw parentheses around it. */
+			
 			if (theNote->courtesyAcc) {
-				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, True, scalePercent);
-				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, True, scalePercent);
+				PS_MusChar(doc, xdLParen, ydParens, lParenGlyph, True, scalePercent);
+				PS_MusChar(doc, xdRParen, ydParens, rParenGlyph, True, scalePercent);
 			}
 
 			break;
@@ -846,7 +853,7 @@ void DrawNote(Document *doc,
 				breveFudgeHeadY,	/* Correction for error in Sonata breve origin (screen & PS) */
 				offset, lnSpace;
 	QDIST		qdLen;
-	Boolean	stemDown,				/* Does note have a down-turned stem? */
+	Boolean		stemDown,			/* Does note have a down-turned stem? */
 				dim,				/* Should it be dimmed bcs in a voice not being looked at? */
 				chordNoteToR, chordNoteToL;
 	Rect		spatialRect,
@@ -1691,7 +1698,7 @@ static void DrawGRAcc(Document *doc,
 	PAGRNOTE theGRNote;
 	DDIST accXOffset, d8thSp, xdAcc, xdLParen, xdRParen, ydParens, lnSpace;
 	short xmoveAcc, xp, yp, delta, scalePercent;
-	Byte accGlyph, lparenGlyph, rparenGlyph;
+	Byte accGlyph, lParenGlyph, rParenGlyph;
 
 	theGRNote = GetPAGRNOTE(theGRNoteL);
 	if (theGRNote->accident==0) return;
@@ -1718,12 +1725,12 @@ static void DrawGRAcc(Document *doc,
 		/* FIXME: These adjustments are probably not quite right, due to combination of 
 				sizePercent, scalePercent, and the various config tweaks. */
 
-		scalePercent = (short)(((long)config.courtesyAccSize*sizePercent)/100L);
+		scalePercent = (short)(((long)config.courtesyAccPSize*sizePercent)/100L);
 
-		lparenGlyph = MapMusChar(doc->musFontInfoIndex, MCH_lParen);
-		rparenGlyph = MapMusChar(doc->musFontInfoIndex, MCH_rParen);
+		lParenGlyph = MapMusChar(doc->musFontInfoIndex, MCH_lParen);
+		rParenGlyph = MapMusChar(doc->musFontInfoIndex, MCH_rParen);
 
-		xoffset = MusCharXOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);
+		xoffset = MusCharXOffset(doc->musFontInfoIndex, rParenGlyph, lnSpace);
 		xdRParen = xdAcc + ((DDIST)(((long)scalePercent*xoffset)/100L));
 
 		delta = (short)(((long)scalePercent*config.courtesyAccRXD)/100L);
@@ -1732,7 +1739,7 @@ static void DrawGRAcc(Document *doc,
 		delta = (short)(((long)scalePercent*config.courtesyAccLXD)/100L);
 		xdLParen = xdAcc-delta*d8thSp;
 
-		yoffset = MusCharYOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);	/* assuming both parens have same yoffset */
+		yoffset = MusCharYOffset(doc->musFontInfoIndex, rParenGlyph, lnSpace);	/* assuming both parens have same yoffset */
 		delta = (short)(((long)scalePercent*config.courtesyAccYD)/100L);
 		ydParens = yd + delta*d8thSp + ((DDIST)(((long)scalePercent*yoffset)/100L));;
 	}
@@ -1753,10 +1760,10 @@ static void DrawGRAcc(Document *doc,
 				yp = pContext->paper.top+d2p(ydParens);
 				xp = pContext->paper.left+d2p(xdLParen);
 				MoveTo(xp, yp);
-				DrawMChar(doc, lparenGlyph, NORMAL_VIS, dim);
+				DrawMChar(doc, lParenGlyph, NORMAL_VIS, dim);
 				xp = pContext->paper.left+d2p(xdRParen);
 				MoveTo(xp, yp);
-				DrawMChar(doc, rparenGlyph, NORMAL_VIS, dim);
+				DrawMChar(doc, rParenGlyph, NORMAL_VIS, dim);
 			}
 			
 			break;
@@ -1765,8 +1772,8 @@ static void DrawGRAcc(Document *doc,
 
 			/* If it's a courtesy accidental, draw parentheses around it. */
 			if (theGRNote->courtesyAcc) {
-				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, True, scalePercent);
-				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, True, scalePercent);
+				PS_MusChar(doc, xdLParen, ydParens, lParenGlyph, True, scalePercent);
+				PS_MusChar(doc, xdRParen, ydParens, rParenGlyph, True, scalePercent);
 			}
 			
 			break;
@@ -1863,7 +1870,7 @@ void DrawGRNote(Document *doc,
 				dGrSlashThick,
 				offset;
 	QDIST		qdLen;
-	Boolean	stemDown,				/* Does grace note have a down-turned stem? */
+	Boolean		stemDown,			/* Does grace note have a down-turned stem? */
 				dim,				/* Should it be dimmed bcs in a voice not being looked at? */
 				slashStem;
 	Rect		spatialRect,

@@ -642,10 +642,10 @@ typedef struct {
 	
 	SignedByte	slurDashLen;		/* G: PostScript length of dashes in dashed slurs (points) */	
 	SignedByte	slurSpaceLen;		/* G: PostScript length of spaces in dashed slurs (points) */	
-	SignedByte	courtesyAccLXD;		/* G: Left paren. H offset for courtesy accidentals (8th-spaces) */
-	SignedByte	courtesyAccRXD;		/* G: Right paren. H offset for courtesy accidentals (8th-spaces) */
+	SignedByte	courtesyAccLXD;		/* G: Left paren. H offset from courtesy accidental (8th-spaces) */
+	SignedByte	courtesyAccRXD;		/* G: Courtesy accidental H offset from right paren. (8th-spaces) */
 	SignedByte	courtesyAccYD;		/* G: Paren. V offset for courtesy accidentals (8th-spaces) */
-	SignedByte	courtesyAccSize;	/* G: Paren. size for courtesy accidentals (% of normal) */
+	SignedByte	courtesyAccPSize;	/* G: Paren. size for courtesy accidentals (% of normal) */
 
 	/* Following fields were added after Nightingale 2.5. */
 	

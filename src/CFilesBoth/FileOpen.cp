@@ -30,7 +30,7 @@ static short CheckDocumentHdr(Document *doc);
 static void DisplayScoreHdr(short id, Document *doc);
 static short CheckScoreHdr(Document *doc);
 
-static void ConvertScoreHeader(Document *doc, DocumentN105 *docN105);
+static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105);
 
 static Boolean ModifyScore(Document *, long);
 static void SetTimeStamps(Document *);
@@ -699,7 +699,7 @@ static void ShowStfTops(Document *doc, LINK pL, short staffN1, short staffN2)
 	staffTop1 =  context.staffTop;
 	GetContext(doc, pL, staffN2, &context);
 	staffTop2 =  context.staffTop;
-	LogPrintf(LOG_NOTICE, "ShowStfTops(%d): staffTop1=%d, staffTop2=%d\n", pL, staffTop1, staffTop2);
+	LogPrintf(LOG_INFO, "ShowStfTops(%d): staffTop1=%d, staffTop2=%d\n", pL, staffTop1, staffTop2);
 }
 
 static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2);
@@ -721,12 +721,12 @@ static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2)
 			break;
 
 		case STAFFtype:
-LogPrintf(LOG_NOTICE, "  Staff L%d\n", pL);
+LogPrintf(LOG_INFO, "  Staff L%d\n", pL);
 			GetContext(doc, pL, staffN1, &context);
 			staffTop1 =  context.staffTop;
 			GetContext(doc, pL, staffN2, &context);
 			staffTop2 =  context.staffTop;
-LogPrintf(LOG_NOTICE, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
+LogPrintf(LOG_INFO, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
 			aStaffL = FirstSubLINK(pL);
 			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 				if (StaffSTAFF(aStaffL)==staffN1) {
@@ -738,10 +738,10 @@ LogPrintf(LOG_NOTICE, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
 					StaffTOP(aStaffL) = staffTop1;
 				}
 //GetContext(doc, pL, staffN1, &context);
-//LogPrintf(LOG_NOTICE, "(1)    pL=%d staffTop1=%d\n", pL, staffTop1);
+//LogPrintf(LOG_INFO, "(1)    pL=%d staffTop1=%d\n", pL, staffTop1);
 			}
 //GetContext(doc, pL, staffN1, &context);
-//LogPrintf(LOG_NOTICE, "(2)    pL=%d staffTop1=%d\n", pL, staffTop1);
+//LogPrintf(LOG_INFO, "(2)    pL=%d staffTop1=%d\n", pL, staffTop1);
 //ShowStfTops(doc, pL, staffN1, staffN2);
 			break;
 
@@ -749,7 +749,7 @@ LogPrintf(LOG_NOTICE, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
 			break;
 
 		case MEASUREtype:
-LogPrintf(LOG_NOTICE, "  Measure L%d\n", pL);
+LogPrintf(LOG_INFO, "  Measure L%d\n", pL);
 			aMeasureL = FirstSubLINK(pL);
 			for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
 				if (MeasureSTAFF(aMeasureL)==staffN1) MeasureSTAFF(aMeasureL) = staffN2;
@@ -758,7 +758,7 @@ LogPrintf(LOG_NOTICE, "  Measure L%d\n", pL);
 			break;
 
 		case PSMEAStype:
-LogPrintf(LOG_NOTICE, "  PSMeas L%d\n", pL);
+LogPrintf(LOG_INFO, "  PSMeas L%d\n", pL);
 			aPSMeasL = FirstSubLINK(pL);
 			for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
 				if (PSMeasSTAFF(aPSMeasL)==staffN1) PSMeasSTAFF(aPSMeasL) = staffN2;
@@ -767,7 +767,7 @@ LogPrintf(LOG_NOTICE, "  PSMeas L%d\n", pL);
 			break;
 
 		case CLEFtype:
-LogPrintf(LOG_NOTICE, "  Clef L%d\n", pL);
+LogPrintf(LOG_INFO, "  Clef L%d\n", pL);
 			aClefL = FirstSubLINK(pL);
 			for ( ; aClefL; aClefL = NextCLEFL(aClefL)) {
 				if (ClefSTAFF(aClefL)==staffN1) ClefSTAFF(aClefL) = staffN2;
@@ -776,7 +776,7 @@ LogPrintf(LOG_NOTICE, "  Clef L%d\n", pL);
 			break;
 
 		case KEYSIGtype:
-LogPrintf(LOG_NOTICE, "  Keysig L%d\n", pL);
+LogPrintf(LOG_INFO, "  Keysig L%d\n", pL);
 			aKeySigL = FirstSubLINK(pL);
 			for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL)) {
 				if (KeySigSTAFF(aKeySigL)==staffN1) KeySigSTAFF(aKeySigL) = staffN2;
@@ -785,7 +785,7 @@ LogPrintf(LOG_NOTICE, "  Keysig L%d\n", pL);
 			break;
 
 		case TIMESIGtype:
-LogPrintf(LOG_NOTICE, "  Timesig L%d\n", pL);
+LogPrintf(LOG_INFO, "  Timesig L%d\n", pL);
 			aTimeSigL = FirstSubLINK(pL);
 			for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL)) {
 				if (TimeSigSTAFF(aTimeSigL)==staffN1) TimeSigSTAFF(aTimeSigL) = staffN2;
@@ -794,7 +794,7 @@ LogPrintf(LOG_NOTICE, "  Timesig L%d\n", pL);
 			break;
 
 		case SYNCtype:
-LogPrintf(LOG_NOTICE, "  Sync L%d\n", pL);
+LogPrintf(LOG_INFO, "  Sync L%d\n", pL);
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				if (NoteSTAFF(aNoteL)==staffN1) {
@@ -809,13 +809,13 @@ LogPrintf(LOG_NOTICE, "  Sync L%d\n", pL);
 			break;
 
 		case BEAMSETtype:
-LogPrintf(LOG_NOTICE, "  Beamset L%d\n", pL);
+LogPrintf(LOG_INFO, "  Beamset L%d\n", pL);
 			if (BeamSTAFF(pL)==staffN1) BeamSTAFF((pL)) = staffN2;
 			else if (BeamSTAFF((pL))==staffN2) BeamSTAFF((pL)) = staffN1;
 			break;
 
 		case TUPLETtype:
-LogPrintf(LOG_NOTICE, "  Tuplet L%d\n", pL);
+LogPrintf(LOG_INFO, "  Tuplet L%d\n", pL);
 			if (TupletSTAFF(pL)==staffN1) TupletSTAFF((pL)) = staffN2;
 			else if (TupletSTAFF((pL))==staffN2) TupletSTAFF((pL)) = staffN1;
 			break;
@@ -832,7 +832,7 @@ LogPrintf(LOG_NOTICE, "  Tuplet L%d\n", pL);
 			break;
 */
 		case DYNAMtype:
-LogPrintf(LOG_NOTICE, "  Dynamic L%d\n", pL);
+LogPrintf(LOG_INFO, "  Dynamic L%d\n", pL);
 			aDynamicL = FirstSubLINK(pL);
 			for ( ; aDynamicL; aDynamicL=NextDYNAMICL(aDynamicL)) {
 				if (DynamicSTAFF(aDynamicL)==staffN1) DynamicSTAFF(aDynamicL) = staffN2;
@@ -841,7 +841,7 @@ LogPrintf(LOG_NOTICE, "  Dynamic L%d\n", pL);
 			break;
 
 		case GRAPHICtype:
-LogPrintf(LOG_NOTICE, "  Graphic L%d\n", pL);
+LogPrintf(LOG_INFO, "  Graphic L%d\n", pL);
 			if (GraphicSTAFF(pL)==staffN1) GraphicSTAFF((pL)) = staffN2;
 			else if (GraphicSTAFF((pL))==staffN2) GraphicSTAFF((pL)) = staffN1;
 			break;
@@ -852,7 +852,7 @@ LogPrintf(LOG_NOTICE, "  Graphic L%d\n", pL);
 			break;
 */
 		case SLURtype:
-LogPrintf(LOG_NOTICE, "  Slur L%d\n", pL);
+LogPrintf(LOG_INFO, "  Slur L%d\n", pL);
 			if (SlurSTAFF(pL)==staffN1) SlurSTAFF((pL)) = staffN2;
 			else if (SlurSTAFF((pL))==staffN2) SlurSTAFF((pL)) = staffN1;
 			break;
@@ -1000,7 +1000,7 @@ static Boolean ModifyScore(Document * /*doc*/, long /*fileTime*/)
 
 
 
-static void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
+static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 {
 	doc->headL = docN105->headL;
 	doc->tailL = docN105->tailL;
@@ -1205,6 +1205,8 @@ static void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->yBetweenSys = docN105->yBetweenSys;
 	//voiceTab[MAXVOICES+1]
 	//expansion[256-(MAXVOICES+1)]
+
+	return 888;		// ??TO BE IMPLEMENTED!!!!!!!
 }
 
 
@@ -1282,8 +1284,6 @@ static short CheckDocumentHdr(Document *doc)
 
 static void DisplayScoreHdr(short id, Document *doc)
 {
-	Str255 tempStr;
-	
 	LogPrintf(LOG_INFO, "Displaying Score header (ID %d):\n", id);
 	LogPrintf(LOG_INFO, "  nstaves=%d", doc->nstaves);
 	LogPrintf(LOG_INFO, "  nsystems=%d", doc->nsystems);		
@@ -1308,8 +1308,7 @@ static void DisplayScoreHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  firstMNNumber=%d\n", doc->firstMNNumber);
 
 	LogPrintf(LOG_INFO, "  nfontsUsed=%d", doc->nfontsUsed);
-	Pstrcpy(tempStr, doc->musFontName); PToCString(tempStr);
-	LogPrintf(LOG_INFO, "  musFontName='%s'\n", tempStr);
+	LogPrintf(LOG_INFO, "  musFontName='%s'\n", PtoCstr(doc->musFontName));
 	
 	LogPrintf(LOG_INFO, "  magnify=%d", doc->magnify);
 	LogPrintf(LOG_INFO, "  selStaff=%d", doc->selStaff);
@@ -1451,9 +1450,31 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		
 	/* Read and, if necessary, convert Document (i.e., Sheets) and Score headers. */
 	
-	count = sizeof(DOCUMENTHDR);
-	errCode = FSRead(refNum, &count, &doc->origin);
-	if (errCode) { errInfo = HEADERobj; goto Error; }
+	switch(version) {
+		case 'N103':
+		case 'N104':
+		case 'N105':
+			count = sizeof(DOCUMENTHDR);
+			errCode = FSRead(refNum, &count, &doc->origin);
+			if (errCode) { errInfo = HEADERobj; goto Error; }
+			
+			count = sizeof(SCOREHEADER_N105);
+			errCode = FSRead(refNum, &count, &docN105.headL);
+			if (errCode) { errInfo = HEADERobj; goto Error; }
+			nDocErr = ConvertScoreHeader(doc, &docN105);
+			if (DETAIL_SHOW) DisplayScoreHdr(1, doc);
+			if (nDocErr!=0) {
+				sprintf(strBuf, "%d error(s) found in Score header.", nDocErr);
+				CParamText(strBuf, "", "", "");
+				LogPrintf(LOG_ERR, "%d error(s) found in Score header.  (OpenFile)\n", nDocErr);
+				goto HeaderError;
+			}
+			break;
+		
+		default:
+			;
+	}
+
 	EndianFixDocumentHdr(doc);
 	if (DETAIL_SHOW) DisplayDocumentHdr(1, doc);
 	LogPrintf(LOG_NOTICE, "Checking Document header: ");
@@ -1468,35 +1489,18 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		goto HeaderError;
 	}
 	
-	switch(version) {
-		case 'N103':
-		case 'N104':
-		case 'N105':
-			count = sizeof(SCOREHEADER_N105);
-			errCode = FSRead(refNum, &count, &docN105.headL);
-			if (errCode) { errInfo = HEADERobj; goto Error; }
-			ConvertScoreHeader(doc, &docN105);
-			break;
-		
-		default:											/* Must be 'N106', the current format */
-			count = sizeof(SCOREHEADER);
-			errCode = FSRead(refNum, &count, &doc->headL);
-			if (errCode) { errInfo = HEADERobj; goto Error; }
-	}
-
-	
-//DisplayScoreHdr(2, doc);		// ??TEMPORARY, TO DEBUG INTEL VERSION & FILE FORMAT CONVERSION!!!!
+//DisplayScoreHdr(2, doc);		// ??TEMPORARY, TO DEBUG INTEL VERSION!!!!
 	EndianFixScoreHdr(doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(3, doc);
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");
 	nScoreErr = CheckScoreHdr(doc);
 	if (nScoreErr==0)
-		LogPrintf(LOG_NOTICE, "No errors found in Score header.  (OpenFile)\n");
+		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
 	else {
 		if (!DETAIL_SHOW) DisplayScoreHdr(4, doc);
-		sprintf(strBuf, "%d error(s) found in Score header.", nScoreErr);
+		sprintf(strBuf, "%d error(s) found.", nScoreErr);
 		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_ERR, "%d error(s) found in Score header.  (OpenFile)\n", nScoreErr);
+		LogPrintf(LOG_ERR, "%d error(s) found.  (OpenFile)\n", nScoreErr);
 		StopInform(GENERIC_ALRT);
 		errCode = HEADER_ERR;
 		errInfo = 0;
