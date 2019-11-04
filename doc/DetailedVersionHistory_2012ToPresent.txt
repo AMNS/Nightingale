@@ -2390,7 +2390,7 @@ NMiscTypes.h; FileUtils, Inval, Menu, MIDIFOpen, MIDIPlay, MPImportExport, Tuple
 
 ===============================================================================
 
-10-13 Jan. 2019
+10-13 Jan. 2019	 *IN 5.9
 
 Changed version number from 5.8.9 to 5.9.1. Affects Info.plist.
 
@@ -2411,23 +2411,69 @@ names, etc. Affects .rsrc; NObjTypes.h, NResourceID.h.
 Minor cleanup: updated comments; added error check to L_Search(); changed declaration of
 GenSubObj to simply contain SUBOBJHEADER instead of the (fungible) fields of the
 SUBOBJHEADER. Affects NObjTypes.h, Objects.h; FileOpen, Search, Select, SelUtils, Tuplet.
+*MOST OF THESE IN 5.9 ONLY; SelUtils IN 5.8.
 
 -------------------------------------------------------------------------------
 
 10 April-3 June
 
-Fixed bug: When Nightingale starts to convert a file in an older format in order to
-open it, it displays a message in the log saying so, but it always shows "T" as the
-file-format version instead of the 4-char. code (e.g., "N105"). Affects NightTemplates.h;
-FileOpen, StringUtils. *NOT IN 5.8
-
 Fixed bug (Issue #174): If the first selected object is a tempo mark or graphic
 attached to a barline, the measure number displayed is the number of the preceding
 barline, not that of the barline it's attached to. Affects SelUtils. *IN 5.8 & 5.9
 
-Divided a header containing declarations for score headers and unrelated stuff in two;
-hacked code for opening files towards goal of converting "N105" format files to "N106".
-Affects NMiscTypes.h, (new) NDocAndCnfgTypes.h; FileOpen. *NOT IN 5.8
-
 Minor cleanup: move five xxxUtils files into the Utilities folder, etc. Affects
 CheckUtils, DialogUtils, DrawUtils, PopUpUtils, SelUtils, StringUtils. *IN 5.8 & 5.9
+
+Fixed bug: When Nightingale starts to convert a file in an older format in order to
+open it, it displays a message in the log saying so, but it always shows "T" as the
+file-format version instead of the 4-char. code (e.g., "N105"). Affects NightTemplates.h;
+FileOpen, StringUtils. *IN 5.9 ONLY
+
+Divided a header containing declarations for score headers and unrelated stuff in two;
+hacked code for opening files towards goal of converting "N105" format files to "N106".
+Affects NMiscTypes.h, (new) NDocAndCnfgTypes.h; FileOpen. *IN 5.9 ONLY
+
+-------------------------------------------------------------------------------
+
+9-15 July
+
+Before printing or saving a PostScript file, put an "info" message in the log file.
+Affects CarbonPrinting.
+
+Minor cleanup. Affects CarbonPrinting, DebugUtils, DrawObject.
+
+-------------------------------------------------------------------------------
+
+16-23 July
+
+Got code cleanup of Nightingale 5.9 of 14-30 March into 5.8. Affects Objects.h;
+Search, Select, SelUtils, Tuplet.
+
+Got some other changes from 5.9 into 5.8. Affects NightTemplates.h; DebugUtils, DrawObject,
+StringUtils.
+
+Got code cleanup of Nightingale 5.8 into 5.9. Affects CarbonPrinting, DebugUtils,
+DrawObject.
+
+-------------------------------------------------------------------------------
+
+24 July - 2 August	 *IN 5.8 & 5.9
+
+Minor cleanup. Affects DSUtils, FlowInText.
+
+-------------------------------------------------------------------------------
+
+18 August - 27 Oct.	 *IN 5.8 & 5.9
+
+Fixed bug (issue #169): courtesy accidentals are too obtrusive. Affects .rsrc: reduce
+courtesyAccLXD & courtesyAccPSize slightly; DrawNRGR.
+
+Minor cleanup. Affects Style.h; DrawNRGR, FlowInText, Initialize.
+
+-------------------------------------------------------------------------------
+
+4 Nov.	*IN 5.8 & 5.9
+
+Minor cleanup: The score header field <comment> is used as a C string, but it's declared
+"unsigned char", like a P string; etc. Affects NMiscTypes.h (5.8), NDocAndCnfgTypes.h
+(5.9); FileOpen (5.9 only?), MIDIFOCmd, NotelistOpen, Score, ScoreInfo.

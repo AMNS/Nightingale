@@ -1008,7 +1008,8 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->selEndL = docN105->selEndL;
 	doc->nstaves = docN105->nstaves;
 	doc->nsystems = docN105->nsystems;
-	//comment[MAX_COMMENT_LEN+1]
+	/* FIXME: <comment> is declared like a P string but seems actually to be a C string! */
+	strcpy((char *)doc->comment, (char *)docN105->comment);
 	doc->feedback = docN105->feedback;
 	doc->dontSendPatches = docN105->dontSendPatches;
 	doc->saved = docN105->saved;

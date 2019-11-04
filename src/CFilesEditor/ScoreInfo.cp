@@ -448,8 +448,8 @@ void ScoreInfo()
 			SIDrawTextLine(str);
 		}
 		
-		strcpy(commentOrig, (char *)doc->comment);
-		CToPString(strcpy(commentNew, (char *)commentOrig));
+		strcpy(commentOrig, doc->comment);
+		CToPString(strcpy(commentNew, commentOrig));
 		PutDlgString(dialogp, COMMENT_DI, (unsigned char *)commentNew, True);
 		keepGoing = True;
 
@@ -471,7 +471,7 @@ void ScoreInfo()
 				commentNew[MAX_COMMENT_LEN] = '\0';
 			}
 			if (doc && !streql(commentOrig, (char *)commentNew)) {
-				strcpy((char *)doc->comment, (char *)commentNew);
+				strcpy(doc->comment, (char *)commentNew);
 				doc->changed = True;
 			}
 		}

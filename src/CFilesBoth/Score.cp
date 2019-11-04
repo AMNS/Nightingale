@@ -265,7 +265,7 @@ Boolean NewDocScore(Document *doc)
 	doc->fillerInt = doc->fillerHP = doc->fillerLP = 0;
 	doc->fillerEM = 0;
 	
-	doc->comment[0] = 0;									/* (unused) */
+	doc->comment[0] = '\0';
 
 	doc->lastGlobalFont = 4;								/* Use regular1 as most recent */
 
@@ -353,7 +353,7 @@ void PageFixSysRects(
 {
 	LINK prevSysL, sysL, measL, aMeasL;
 	register PSYSTEM pSystem;
-	DDIST prevSysBottom, sysHeight;
+	DDIST prevSysBottom, sysHeight;		/* FIXME: prevSysBottom is and sysHeight may be used uninitialized! */
 
 	sysL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 
@@ -1691,9 +1691,9 @@ Clef, KeySig, TimeSig, Measure--and link it into the object list after prevL.
 The Clef, KeySig, and TimeSig are properly initialized from the context. If there is
 anything following the new objects, the calling routine is responsible for updating
 it appropriately, aside from links: CreateSystem does not update System numbers,
-coordinates, etc. Delivers LINK to the new System. Uses enum following comment
-for <where> to determine where to add the System. NB: If <FirstSystem>, assumes
-the System is exactly one part of two staves!
+coordinates, etc. Delivers LINK to the new System. Uses enum following comment for
+<where> to determine where to add the System. NB: If <FirstSystem>, assumes the System
+is exactly one part of two staves!
 */
 
 LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)

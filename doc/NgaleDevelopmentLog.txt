@@ -3490,3 +3490,223 @@ to. This is because DrawMessageBox() calls Sel2MeasPage() to get the measure no.
 Sel2MeasPage() searches to the left for the Measure object, but the objects in question
 appear in the object list _before_ their Measure... Fixed.
 
+-------------------------------------------------------------------------------
+
+12 June - 8 July
+
+Dammit. The last commits/pushes made a mess of things. One commit included some changes for
+both 5.8.x and 5.9.x and some for 5.9.x only! #6&*$%W$%*@22$()@
+
+Everything is OK _in source code_ till 10 January 2019, when I made the first changes for 5.9.x.
+I've done three commits/pushes since then; I think only the last two  are the troublesome ones.
+Plan: Reset both the <develop> and <develop5p8> branches to before the 1st improper commit! See
+
+    https://github.blog/2015-06-08-how-to-undo-almost-anything-with-git/
+
+Commit 42977a (8 April; "Merge pull request #176 from AMNS/develop") to <develop5p8>: OK.
+
+Commit 926dba1 (12 April; "Changed version number to 5.9.1; compatibility btwn files written
+on PowerPC Intel; fixed bug: When Ngale converts a file in an older format, its log message
+saying so always shows "T" as file-format version instead of the 4-char. code; minor
+cleanup") to <develop> (5.9): OK.
+
+Commit 94a763e (6 June; "Fixed bug: When Ngale converts a file... [?? this was in previous
+commit!); fixed bug (Issue #174): If 1st selected obj is a tempo mark or graphic attached to
+a barline, measure no. displayed is the no. of the preceding barline; divided a header with
+declarations for score headers and other stuff in two; hacked code for opening files towards
+goal of converting old-format files) to <develop>: WRONG! The fix to Issue #174 should go to
+both <develop> & <develop5p8>; the other changes only to <develop>, so need two commits.
+
+Action:
++ Make NightingaleGitRepo a copy of NightingaleDABVer_5p9 => done; now SourceTree should show
+"nothing to commit", and it does.
++ In SourceTree, checkout <develop>. (This is probably redundant.) It still shows "nothing to
+commit".
++ In SourceTree, reset to 926dba1 ...says files changed: info.plist, but 94a763e
+actually affected ca. 10 files, & info.plist wasn't among them!; go ahead anyway => it
+still shows "nothing to commit"!?
+
+Ah, that's wrong. Probably the safest way to do what I want to do is _revert_ 94a763e (not
+reset to it)! Have Patrick do that directly via git command line => looks OK. SourceTree now
+says 1 commit available for branch develop; pull => looks OK!
+
+-------------------------------------------------------------------------------
+
+9 - 16 July
+
+Back to development. NGALE 5.8: Before printing or saving a PostScript file, put an "info"
+message in the log file; this might help diagnose weird aspects of printing for Avid He.
+Affects CarbonPrinting. Also did minor cleanup in CarbonPrinting, DebugUtils, DrawObject.
+These changes _should_ work in 5.9 as is, but must check/test!
+
+-------------------------------------------------------------------------------
+
+17 - 20 July
+
+I was planning to stop 5.8 development with 5.8.9, but that's unrealistic; it's going to be
+a long time before 5.9 is usable! So should keep 5.8 & 5.9 code in sync as much as "practical".
+Move 5.9 changes into 5.8:
+	CFilesBoth: +Search, +Select, +Tuplet
+	Utilities: +StringUtils
+	Precomps: +NightTemplates.h, +Objects.h
+	CustomMDEF: +GraphicMDEF
+	Headers: NResourceID
+
+Move 5.8 changes into 5.9:
+	CFilesBoth: +DrawObject
+	Utilities: +DebugUtils
+	CarbonPrinting: +CarbonPrinting
+
+-------------------------------------------------------------------------------
+
+2 August
+
+To minimize differences between the <develop> (Ngale 5.9) and <develop5p8> branches, in the
+NightingaleDABVer_5p8 folder, move two files into the MiscellaneousCode subfolder.
+
+DSUtils.cp is in the Utilities pseudo-folder in the project, but not in the file system! Fix
+that in both Ngale 5.8 and 5.9.
+
+-------------------------------------------------------------------------------
+
+18 August - 8 Sept.
+
+Work on issue #169: courtesy accidentals are too obtrusive. Why? Maybe reduce the size
+of the accidentals? That's not as easy as I thought, but Gould doesn't say courtesy
+accidentals should or even can be smaller than normal. The main problem seems to be
+simply that, for a given horizontal offset, courtesy accidentals are further from their
+notes than normal accidentals! There's a config field for this -- courtesyAccLXD -- so
+just changing that (and courtesyAccRXD) should solve the problem. Currently courtesyAccLXD
+= 6, & courtesyAccRXD = 8; decrease both by 1 => ??
+
+	SignedByte	courtesyAccRXD;		/* G: Courtesy accidental H offset from right paren. (8th-spaces) */
+	SignedByte	courtesyAccLXD;		/* G: Left paren. H offset from courtesy accidental (8th-spaces) */
+
+Aug 31 01:58:34 DonDualG5 Ngale[77479]: debug. DrawAcc: config.courtesyAccSize=70 sizePercent=100 scalePercent=1536
+Aug 31 01:58:34 DonDualG5 Ngale[77479]: debug. DrawAcc: courtesyAccLXD=6 deltaXL=4 xdLParen=1946 deltaXR=5 xdRParen=2018
+Aug 31 01:58:34 DonDualG5 Ngale[77479]: debug. DrawAcc: config.courtesyAccSize=70 sizePercent=100 scalePercent=70
+Aug 31 01:58:34 DonDualG5 Ngale[77479]: debug. DrawAcc: courtesyAccLXD=6 deltaXL=3 xdLParen=2930 deltaXR=4 xdRParen=2986
+Aug 31 01:58:34 DonDualG5 Ngale[77479]: debug. DrawAcc: config.courtesyAccSize=70 sizePercent=75 scalePercent=52
+Aug 31 01:58:34 DonDualG5 Ngale[77479]: debug. DrawAcc: config.courtesyAccSize=70 sizePercent=75 scalePercent=1536
+Aug 31 01:58:38 DonDualG5 Ngale[77479]: debug. DrawAcc: config.courtesyAccSize=70 sizePercent=100 scalePercent=1536
+Aug 31 01:58:38 DonDualG5 Ngale[77479]: debug. DrawAcc: courtesyAccLXD=6 deltaXL=4 xdLParen=1946 deltaXR=5 xdRParen=2018
+Aug 31 01:58:38 DonDualG5 Ngale[77479]: debug. DrawAcc: config.courtesyAccSize=70 sizePercent=100 scalePercent=70
+Aug 31 01:58:38 DonDualG5 Ngale[77479]: debug. DrawAcc: courtesyAccLXD=6 deltaXL=3 xdLParen=2930 deltaXR=4 xdRParen=2986
+Aug 31 01:58:38 DonDualG5 Ngale[77479]: debug. DrawAcc: config.courtesyAccSize=70 sizePercent=75 scalePercent=52
+Aug 31 01:58:38 DonDualG5 Ngale[77479]: debug. DrawAcc: config.courtesyAccSize=70 sizePercent=75 scalePercent=1536
+Aug 31 01:58:38 DonDualG5 Ngale[77479]: debug. DrawAcc: courtesyAccLXD=6 deltaXL=4 xdLParen=3864 deltaXR=5 xdRParen=3936
+Aug 31 01:58:38 DonDualG5 Ngale[77479]: debug. DrawAcc: config.courtesyAccSize=70 sizePercent=100 scalePercent=70
+
+With courtesyAccLXD = 2, & courtesyAccRXD = 12:
+
+Oops, no, the comments on those fields are accurate; neither controls the distance between
+the right paren and notehead! DrawAcc() positions the (left edge of) the right paren where the
+(left edge of) the accidental would be if it wasn't in parens; but right paren is narrower
+than an accidental, so move it the right a bit => looks OK!
+
+Also, _courtesyAccSize_ controls the size of the PARENTHESES, not the accidental, so rename the
+field to _courtesyAccPSize_. (And it affects their size in PostScript only, not on screen.)
+
+-------------------------------------------------------------------------------
+
+9 Sept. - 13 Oct.
+
+Ugh. My new positioning of courtesy accidentals and their surrounding parentheses is
+worse than those in the score of my violin concerto %^&#%#%#(* !  Cf. e.g. 2nd movement,
+page 9. What happened? Would be nice to see when the problem was introduced (& it could
+be in the Prefs, not the executable!); but the only old executables I still have are
+5.5, 5.6, 5.8b6, and 5.8b8! %#$(*@^#%#$*  But _every_ old version for the last several
+years should be available from the git repository. How to retrieve? Ah: e.g.,
+
+	git show a2b95716c6136631990be7bcfd3ee01f20edf75e:Nightingale.app.zip > Ngale.zip
+
+OK. Check courtesy accidentals in violin concerto, II, p. 9, m. 68, fl. and m. 67, tr. =>
+w/ Ngale 5.7 and current Nightingale Prefs, parens are too small & too tight. W/ Ngale 5.7 and
+Nightingale Prefs of 16 May 2018 => parens are full size & the old spacing! So the
+problem is in the Prefs file, at least in part.
+
+W/ Ngale 5.7 and Nightingale Prefs of 31 Aug. 2019 (Nightingale AMNF Prefs_CAccsPblm) => parens
+are smaller & spacing is tighter but not too tight; so the real problem seems to be combination
+of changes to the Prefs & to the code. W/ Ngale 5.7:
+
+Prefs of 16 May 2018: (100)courtesyAccLXD=6  (101)courtesyAccRXD=8  (102)courtesyAccYD=8  (103)courtesyAccSize=100
+Prefs_CAccsPblm:	  (100)courtesyAccLXD=8  (101)courtesyAccRXD=6  (102)courtesyAccYD=8  (103)courtesyAccSize=70
+
+-------------------------------------------------------------------------------
+
+19-21 Oct.
+
+With Resorcerer, change courtesyAccLXD, courtesyAccRXD, & courtesyAccSize back to the
+values of 16 May 2018 => courtesy accidentals in violin concerto, II, p. 9, m. 68, fl.
+and m. 67, tr. are back to the way they were before! So now it looks like the only
+problem was the Prefs changes didn't do what I wanted! Try just changing RXD to 7, i.e.
+
+					  (100)courtesyAccLXD=6  (101)courtesyAccRXD=7  (102)courtesyAccYD=8  (103)courtesyAccSize=100
+
+Looks good, the best yet :-) . But that's with Ngale 5.8.9; try 5.8.10...
+
+					  (100)courtesyAccLXD=7  (101)courtesyAccRXD=6  (102)courtesyAccYD=8  (103)courtesyAccPSize=100
+					  
+%^#*$)#@$@)(#  Values of LXD and RXD are swapped!!!! What the....!?
+
+I'll be darned: the declarations of LXD and RXD are swapped in NMiscTypes.h!!! Swap them back =>
+OK, whew.
+
+-------------------------------------------------------------------------------
+
+24-27 Oct.
+
+Work on issue #180, flow-in text crashes.
+
+More from David A.:
+
+(1) When you OK the flow-in text dialog, the cursor should change to an upside-down “T” (more or
+less), and the box at the bottom left of the window should display the first syllable in
+boldface. Does that happen? Yes when Ngale doesn't crash; yes when it does.
+
+(2) When you click to place the first syllable, does the content of the box at bottom left
+change? Yes when Ngale doesn't crash; NO when it does!
+
+This suggests the crash is in InsertNewGraphic(), called from InsertSyllable().
+
+Try to flow in "Is operation in a torn off window or not" =>
+	debug. <InsertSyllable: pL=10 lastGrL=0 stf=1 v=1 lyricLen=40 pitchLev=14 theFont=4 theStyle.fontSize=4
+	debug. <InsertNewGraphic: pL=10 stf=1 v=1 w='Is'
+	debug. >InsertNewGraphic: pL=10 stf=1 v=1 w='^BIs' newL=29
+	debug. >InsertSyllable: pL=10 lastGrL=29
+	debug. <InsertNewGraphic: pL=11 stf=1 v=1 w='operation'
+	debug. >InsertNewGraphic: pL=11 stf=1 v=1 w='	operationgǖ�^_���V�' newL=30
+	debug. <InsertNewGraphic: pL=12 stf=1 v=1 w='in'
+	debug. >InsertNewGraphic: pL=12 stf=1 v=1 w='^BinԿ��' newL=31
+	debug. <InsertNewGraphic: pL=13 stf=1 v=1 w='a'
+	debug. >InsertNewGraphic: pL=13 stf=1 v=1 w='^Aa^_Կ��' newL=32
+
+-------------------------------------------------------------------------------
+
+28-29 Oct.
+
+Time to get code under control again!
+
+Commit everything... !? Changes to 41 files!? I don't understand, but oh well. Commit & push to
+both develop & develop5p8 => looks OK; but I haven't actually made the 5.8 changes of the last few
+months to 5.9 and compiled! Do that; changes to
+
+	NDocAndConfig??.h, Style.h
+	DrawNRGR, FlowInText, Initialize
+
+=> 5.9 compiles w/ 888 warnings, as expected! Run it => the palette is drawn, & the misbehaving
+dialogs (at least Add Modifier) work fine!! HOWEVER, this is on the G5 :-) . Need to test it on
+an Intel machine -- and soon, before I inadvertently upgrade past OS 10.13 :-( .
+
+-------------------------------------------------------------------------------
+
+4 Nov.
+
+I'm still not confident that both the repository <develop> branch (5.9.x) and <develop5p8> branch
+(5.8.x) are what they should be. Let's make a minor and very low-impact change to each, commit, and
+see what happens! What minor change? The score header <comment> field is declared
+
+		unsigned char comment[MAX_COMMENT_LEN+1];
+
+-- which indicates it's a P string; but it's actually a C string. ?? Fix that?
+

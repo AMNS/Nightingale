@@ -814,7 +814,7 @@ static Boolean OpenMIDIFile()
 		AnalyzeWindows();
 		InstallDoc(doc);
 		//doc = (Document *)TopDocument;
-		strcpy((char *)doc->comment, COMMENT_MIDIFILE);
+		strcpy(doc->comment, COMMENT_MIDIFILE);
 
 		durQuantum = (quantCode==UNKNOWN_L_DUR? 1 : Code2LDur(quantCode, 0));
 
