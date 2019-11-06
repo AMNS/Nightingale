@@ -3529,6 +3529,7 @@ still shows "nothing to commit"!?
 Ah, that's wrong. Probably the safest way to do what I want to do is _revert_ 94a763e (not
 reset to it)! Have Patrick do that directly via git command line => looks OK. SourceTree now
 says 1 commit available for branch develop; pull => looks OK!
+<<<<<<< HEAD
 
 -------------------------------------------------------------------------------
 
@@ -3710,3 +3711,5 @@ see what happens! What minor change? The score header <comment> field is declare
 
 -- which indicates it's a P string; but it's actually a C string. ?? Fix that?
 
+=======
+>>>>>>> 19ddba431998eb332ff071f19ae66f9b1b54ac3e
