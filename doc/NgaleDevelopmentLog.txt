@@ -3529,7 +3529,6 @@ still shows "nothing to commit"!?
 Ah, that's wrong. Probably the safest way to do what I want to do is _revert_ 94a763e (not
 reset to it)! Have Patrick do that directly via git command line => looks OK. SourceTree now
 says 1 commit available for branch develop; pull => looks OK!
-<<<<<<< HEAD
 
 -------------------------------------------------------------------------------
 
@@ -3709,7 +3708,46 @@ see what happens! What minor change? The score header <comment> field is declare
 
 		unsigned char comment[MAX_COMMENT_LEN+1];
 
--- which indicates it's a P string; but it's actually a C string. ?? Fix that?
+-- which indicates it's a P string; but it's actually a C string. ?? Fix that? Yes.
 
-=======
->>>>>>> 19ddba431998eb332ff071f19ae66f9b1b54ac3e
+-------------------------------------------------------------------------------
+
+6-7 Nov.
+
+Work on file-conversion code for OpenFile(), in FileOpen.cp.
+
+Test w/ violin concerto 2nd mvmt. =>
+
+	Notice. CONVERTING VERSION 'N105' FILE.
+	info. Displaying Document header (ID 1):
+	info.   origin.h=-20120  .v=-20120  paperRect.top=0  .left=1  .bottom=40  .right=-20480
+	info.   origPaperRect.top=0  .left=4  .bottom=0  .right=0
+	info.   marginRect.top=-16385  .left=-8464  .bottom=-24381  .right=1280
+	info.   currentSheet=0  numSheets=5  firstSheet=-16385  firstPageNumber=-8464  startPageNumber=0
+	info.   numRows=2  numCols=7108  pageType=-4704  measSystem=-26932
+	info. Displaying Score header (ID 1):
+	info.   nstaves=15  nsystems=36  spacePercent=72  srastral=7  altsrastral=2
+	info.   tempo=999  channel=1  velocity=1  headerStrOffset=156436  footerStrOffset=156440  dIndentOther=464
+	info.   firstNames=2  otherNames=1  lastGlobalFont=0
+	info.   aboveMN=1  sysFirstMN=1  startMNPrint1=0  firstMNNumber=1
+	info.   nfontsUsed=3  musFontName='Briard'
+	info.   magnify=1  selStaff=1  currentSystem=29  spaceTable=0  htight=100
+	info.   lookVoice=-1  ledgerYSp=12  deflamTime=50  colorVoices=2  dIndentFirst=1136
+	info. Displaying Document header (ID 2):
+	info.   origin.h=-20120  .v=-20120  paperRect.top=0  .left=1  .bottom=40  .right=-20480
+	info.   origPaperRect.top=0  .left=4  .bottom=0  .right=0
+	info.   marginRect.top=-16385  .left=-8464  .bottom=-24381  .right=1280
+	info.   currentSheet=0  numSheets=5  firstSheet=-16385  firstPageNumber=-8464  startPageNumber=0
+	info.   numRows=2  numCols=7108  pageType=-4704  measSystem=-26932
+	Notice. Checking Document header: 3 error(s) found in Document header.  (OpenFile)
+	ERROR. 3 error(s) found in Document header.  (OpenFile)
+	Warning. * StopInform alertID=464
+	ERROR. Can't open the file. errCode=-997 errInfo=0  (OpenError)
+	Warning. Error ID=-997 (error code=0).
+	
+The errors in the doc header we're catching are firstPageNumber, numCols, and pageType;
+those all look like garbage, and Ngale 5.8.9 says firstPageNumber is 0, not -8464.
+numSheets=5 looks reasonable, but 5.8.9 says it's 36.
+firstSheet=-16385 looks like trash; 5.8.9 says it's 0.
+paperRect doesn't make sense. Etc. etc.
+Are _any_ of the Document header fields correct? It's not obvious!

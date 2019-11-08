@@ -30,6 +30,8 @@ static short CheckDocumentHdr(Document *doc);
 static void DisplayScoreHdr(short id, Document *doc);
 static short CheckScoreHdr(Document *doc);
 
+static void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105);
+static void ConvertFontTable(Document *doc, DocumentN105 *docN105);
 static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105);
 
 static Boolean ModifyScore(Document *, long);
@@ -999,6 +1001,37 @@ static Boolean ModifyScore(Document * /*doc*/, long /*fileTime*/)
 }
 
 
+static void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105)
+{
+	doc->origin = docN105->origin;
+	doc->paperRect = docN105->paperRect;
+	doc->origPaperRect = docN105->origPaperRect;
+	doc->holdOrigin = docN105->holdOrigin;
+	doc->marginRect = docN105->marginRect;
+	doc->sheetOrigin = docN105->sheetOrigin;
+	
+	doc->currentSheet = docN105->currentSheet;
+	doc->numSheets = docN105->numSheets;
+	doc->firstSheet = docN105->firstSheet;
+	doc->firstPageNumber = docN105->firstPageNumber;
+	doc->startPageNumber = docN105->startPageNumber;
+	doc->numRows = docN105->numRows;
+	doc->numCols = docN105->numCols;
+	doc->pageType = docN105->pageType;
+	doc->measSystem = docN105->measSystem;
+	doc->headerFooterMargins = docN105->headerFooterMargins;
+	doc->currentPaper = docN105->currentPaper;
+}
+
+static void ConvertFontTable(Document *doc, DocumentN105 *docN105)
+{
+	short i;
+	
+	for (i = 0; i<doc->nfontsUsed; i++)
+		doc->fontTable[i] = docN105->fontTable[i];
+	doc->nfontsUsed = docN105->nfontsUsed;
+}
+
 
 static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 {
@@ -1008,7 +1041,6 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->selEndL = docN105->selEndL;
 	doc->nstaves = docN105->nstaves;
 	doc->nsystems = docN105->nsystems;
-	/* FIXME: <comment> is declared like a P string but seems actually to be a C string! */
 	strcpy((char *)doc->comment, (char *)docN105->comment);
 	doc->feedback = docN105->feedback;
 	doc->dontSendPatches = docN105->dontSendPatches;
@@ -1050,7 +1082,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->filler1 = docN105->filler1;
 	doc->nFontRecords = docN105->nFontRecords;
 	
-	//fontNameMN[32]
+	Pstrcpy(doc->fontNameMN, docN105->fontNameMN);			/* Measure no. font */
 	doc->fillerMN = docN105->fillerMN;
 	doc->lyricMN = docN105->lyricMN;
 	doc->enclosureMN = docN105->enclosureMN;
@@ -1058,7 +1090,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSizeMN = docN105->fontSizeMN;
 	doc->fontStyleMN = docN105->fontStyleMN;
 	
-	//fontNamePN[32]
+	Pstrcpy(doc->fontNamePN, docN105->fontNamePN);			/* Part name font */
 	doc->fillerPN = docN105->fillerPN;
 	doc->lyricPN = docN105->lyricPN;
 	doc->enclosurePN = docN105->enclosurePN;
@@ -1066,7 +1098,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSizePN = docN105->fontSizePN;
 	doc->fontStylePN = docN105->fontStylePN;
 	
-	//fontNameRM[32]
+	Pstrcpy(doc->fontNameRM, docN105->fontNameRM);			/* Rehearsal mark font */
 	doc->fillerRM = docN105->fillerRM;
 	doc->lyricRM = docN105->lyricRM;
 	doc->enclosureRM = docN105->enclosureRM;
@@ -1074,7 +1106,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSizeRM = docN105->fontSizeRM;
 	doc->fontStyleRM = docN105->fontStyleRM;
 	
-	//fontName1[32]
+	Pstrcpy(doc->fontName1, docN105->fontName1);			/* Regular font 1 */
 	doc->fillerR1 = docN105->fillerR1;
 	doc->lyric1 = docN105->lyric1;
 	doc->enclosure1 = docN105->enclosure1;
@@ -1082,7 +1114,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSize1 = docN105->fontSize1;
 	doc->fontStyle1 = docN105->fontStyle1;
 	
-	//fontName2[32]
+	Pstrcpy(doc->fontName2, docN105->fontName2);			/* Regular font 2 */
 	doc->fillerR2 = docN105->fillerR2;
 	doc->lyric2 = docN105->lyric2;
 	doc->enclosure2 = docN105->enclosure2;
@@ -1090,7 +1122,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSize2 = docN105->fontSize2;
 	doc->fontStyle2 = docN105->fontStyle2;
 	
-	//fontName3[32]
+	Pstrcpy(doc->fontName3, docN105->fontName3);			/* Regular font 3 */
 	doc->fillerR3 = docN105->fillerR3;
 	doc->lyric3 = docN105->lyric3;
 	doc->enclosure3 = docN105->enclosure3;
@@ -1098,7 +1130,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSize3 = docN105->fontSize3;
 	doc->fontStyle3 = docN105->fontStyle3;
 	
-	//fontName4[32]
+	Pstrcpy(doc->fontName4, docN105->fontName4);			/* Regular font 4 */
 	doc->fillerR4 = docN105->fillerR4;
 	doc->lyric4 = docN105->lyric4;
 	doc->enclosure4 = docN105->enclosure4;
@@ -1106,7 +1138,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSize4 = docN105->fontSize4;
 	doc->fontStyle4 = docN105->fontStyle4;
 	
-	//fontNameTM[32]
+	Pstrcpy(doc->fontNameTM, docN105->fontNameTM);			/* Tempo mark font */
 	doc->fillerTM = docN105->fillerTM;
 	doc->lyricTM = docN105->lyricTM;
 	doc->enclosureTM = docN105->enclosureTM;
@@ -1114,7 +1146,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSizeTM = docN105->fontSizeTM;
 	doc->fontStyleTM = docN105->fontStyleTM;
 	
-	//fontNameCS[32]
+	Pstrcpy(doc->fontNameCS, docN105->fontNameCS);			/* Chord symbol font */
 	doc->fillerCS = docN105->fillerCS;
 	doc->lyricCS = docN105->lyricCS;
 	doc->enclosureCS = docN105->enclosureCS;
@@ -1122,7 +1154,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSizeCS = docN105->fontSizeCS;
 	doc->fontStyleCS = docN105->fontStyleCS;
 	
-	//fontNamePG[32]
+	Pstrcpy(doc->fontNamePG, docN105->fontNamePG);			/* Page header/footer/no. font */
 	doc->fillerPG = docN105->fillerPG;
 	doc->lyricPG = docN105->lyricPG;
 	doc->enclosurePG = docN105->enclosurePG;
@@ -1130,7 +1162,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSizePG = docN105->fontSizePG;
 	doc->fontStylePG = docN105->fontStylePG;
 	
-	//fontName5[32]
+	Pstrcpy(doc->fontName5, docN105->fontName5);			/* Regular font 5 */
 	doc->fillerR5 = docN105->fillerR5;
 	doc->lyric5 = docN105->lyric5;
 	doc->enclosure5 = docN105->enclosure5;
@@ -1138,7 +1170,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSize5 = docN105->fontSize5;
 	doc->fontStyle5 = docN105->fontStyle5;
 	
-	//fontName6[32]
+	Pstrcpy(doc->fontName6, docN105->fontName6);			/* Regular font 6 */
 	doc->fillerR6 = docN105->fillerR6;
 	doc->lyric6 = docN105->lyric6;
 	doc->enclosure6 = docN105->enclosure6;
@@ -1146,7 +1178,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSize6 = docN105->fontSize6;
 	doc->fontStyle6 = docN105->fontStyle6;
 	
-	//fontName7[32]
+	Pstrcpy(doc->fontName7, docN105->fontName7);			/* Regular font 7 */
 	doc->fillerR7 = docN105->fillerR7;
 	doc->lyric7 = docN105->lyric7;
 	doc->enclosure7 = docN105->enclosure7;
@@ -1154,7 +1186,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSize7 = docN105->fontSize7;
 	doc->fontStyle7 = docN105->fontStyle7;
 	
-	//fontName8[32]
+	Pstrcpy(doc->fontName8, docN105->fontName8);			/* Regular font 8 */
 	doc->fillerR8 = docN105->fillerR8;
 	doc->lyric8 = docN105->lyric8;
 	doc->enclosure8 = docN105->enclosure8;
@@ -1162,7 +1194,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontSize8 = docN105->fontSize8;
 	doc->fontStyle8 = docN105->fontStyle8;
 	
-	//fontName9[32]
+	Pstrcpy(doc->fontName9, docN105->fontName9);			/* Regular font 9 */
 	doc->fillerR9 = docN105->fillerR9;
 	doc->lyric9 = docN105->lyric9;
 	doc->enclosure9 = docN105->enclosure9;
@@ -1171,9 +1203,9 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->fontStyle9 = docN105->fontStyle9;
 	
 	doc->nfontsUsed = docN105->nfontsUsed;
-	//fontTable[MAX_SCOREFONTS]
+	ConvertFontTable(doc, docN105);
 	
-	//musFontName[32]
+	Pstrcpy(doc->musFontName, docN105->musFontName);
 	
 	doc->magnify = docN105->magnify;
 	doc->selStaff = docN105->selStaff;
@@ -1207,7 +1239,7 @@ static short ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	//voiceTab[MAXVOICES+1]
 	//expansion[256-(MAXVOICES+1)]
 
-	return 888;		// ??TO BE IMPLEMENTED!!!!!!!
+	return 0;	// return 1729;		// ??TO BE IMPLEMENTED!!!!!!!
 }
 
 
@@ -1229,7 +1261,7 @@ static void SetTimeStamps(Document *doc)
 
 #define in2d(x)	pt2d(in2pt(x))		/* Convert inches to DDIST */
 
-/* Display some Document header fields; there are about 20 in all. */
+/* Display most Document header fields; there are about 18 in all. */
 
 static void DisplayDocumentHdr(short id, Document *doc)
 {
@@ -1250,6 +1282,7 @@ static void DisplayDocumentHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  .bottom=%d", doc->marginRect.bottom);
 	LogPrintf(LOG_INFO, "  .right=%d\n", doc->marginRect.right);
 
+	LogPrintf(LOG_INFO, "  currentSheet=%d", doc->currentSheet);
 	LogPrintf(LOG_INFO, "  numSheets=%d", doc->numSheets);
 	LogPrintf(LOG_INFO, "  firstSheet=%d", doc->firstSheet);
 	LogPrintf(LOG_INFO, "  firstPageNumber=%d", doc->firstPageNumber);
@@ -1458,6 +1491,8 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 			count = sizeof(DOCUMENTHDR);
 			errCode = FSRead(refNum, &count, &doc->origin);
 			if (errCode) { errInfo = HEADERobj; goto Error; }
+			ConvertDocumentHeader(doc, &docN105);
+			if (DETAIL_SHOW) DisplayDocumentHdr(1, doc);
 			
 			count = sizeof(SCOREHEADER_N105);
 			errCode = FSRead(refNum, &count, &docN105.headL);
@@ -1477,13 +1512,13 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	}
 
 	EndianFixDocumentHdr(doc);
-	if (DETAIL_SHOW) DisplayDocumentHdr(1, doc);
+	if (DETAIL_SHOW) DisplayDocumentHdr(2, doc);
 	LogPrintf(LOG_NOTICE, "Checking Document header: ");
 	nDocErr = CheckDocumentHdr(doc);
 	if (nDocErr==0)
 		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
 	else {
-		if (!DETAIL_SHOW) DisplayDocumentHdr(2, doc);
+		if (!DETAIL_SHOW) DisplayDocumentHdr(3, doc);
 		sprintf(strBuf, "%d error(s) found in Document header.", nDocErr);
 		CParamText(strBuf, "", "", "");
 		LogPrintf(LOG_ERR, "%d error(s) found in Document header.  (OpenFile)\n", nDocErr);
