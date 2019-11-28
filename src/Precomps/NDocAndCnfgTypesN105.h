@@ -247,7 +247,7 @@ typedef struct {
 	long			spaceMap[MAX_L_DUR];	/* Ideal spacing of basic (undotted, non-tuplet) durs. */ \
 	DDIST			dIndentFirst,		/* Amount to indent first System */						\
 					yBetweenSys;		/* obsolete, was vert. "dead" space btwn Systems */		\
-	VOICEINFO		voiceTab[MAXVOICES+1];	/* Descriptions of voices in use */					\
+	VOICEINFON105	voiceTab[MAXVOICES+1];	/* Descriptions of voices in use */					\
 	short			expansion[256-(MAXVOICES+1)];
 
 

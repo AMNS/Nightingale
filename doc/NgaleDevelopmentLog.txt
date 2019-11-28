@@ -3712,7 +3712,7 @@ see what happens! What minor change? The score header <comment> field is declare
 
 -------------------------------------------------------------------------------
 
-6-7 Nov.
+6-24 Nov.
 
 Work on file-conversion code for OpenFile(), in FileOpen.cp.
 
@@ -3750,4 +3750,59 @@ those all look like garbage, and Ngale 5.8.9 says firstPageNumber is 0, not -846
 numSheets=5 looks reasonable, but 5.8.9 says it's 36.
 firstSheet=-16385 looks like trash; 5.8.9 says it's 0.
 paperRect doesn't make sense. Etc. etc.
-Are _any_ of the Document header fields correct? It's not obvious!
+Are _any_ of the Document header fields correct? It's not obvious! Ah-hah: I'm doing
+
+			errCode = FSRead(refNum, &count, &doc->origin);
+
+-- i.e., reading into doc instead of docN105! Correct that => OK.
+
+Now, open violin concerto 2nd mvmt. =>  
+	info. Displaying Score header (ID 3):
+	info.   nstaves=15  nsystems=36  spacePercent=72  srastral=7  altsrastral=2
+	info.   tempo=999  channel=1  velocity=1  headerStrOffset=156436  footerStrOffset=156440  dIndentOther=464
+	info.   firstNames=2  otherNames=1  lastGlobalFont=0
+	info.   aboveMN=1  sysFirstMN=1  startMNPrint1=0  firstMNNumber=1
+	info.   nfontsUsed=3  musFontName='Briard'
+	info.   magnify=1  selStaff=1  currentSystem=29  spaceTable=0  htight=100
+	info.   lookVoice=-1  ledgerYSp=12  deflamTime=50  colorVoices=2  dIndentFirst=1136
+	Notice. Checking Score header: No errors found.  (CheckScoreHdr)
+	ERROR. LAST OBJECT TYPE=14384 BUT SHOULD BE 25.
+	ERROR. Can't open the file. errCode=-996 errInfo=-999  (OpenError)
+	
+Why? The "Files and Troubleshooting" doc says (referring to N105 format files) Score
+header size is 2148, but OpenFile() in v. 5.9.1 says:
+
+	info. Header size for Document=72, for Score=2492, for N105 Score=2350
+
+What is the N105 header size really?? OpenFile() in v. 5.8.10 says:
+
+	info. Header size for Document=72, for Score=2148
+
+So the 5.9.x SCOREHEADER_N105 takes 202 bytes more than the 5.8.x SCOREHEADER -- but the
+declarations are the same. ?!? To see where the discrepancy is:
+
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Offset of doc->tailL=%lu, ->nFontRecords=%lu, ->nfontsUsed=%lu, ->yBetweenSys=%lu\n",
+		(long)(&doc->tailL)-(long)(&doc->headL), (long)(&doc->nFontRecords)-(long)(&doc->headL),
+		(long)(&doc->nfontsUsed)-(long)(&doc->headL), (long)(&doc->yBetweenSys)-(long)(&doc->headL));
+
+In 5.8.10:
+	debug. Offset of doc->comment[0]=12, spacePercent=270, fillerMB=291, nFontRecords=309, nfontsUsed=850, yBetweenSys=1634
+
+In 5.9.1:
+	debug. Offset of doc->comment[0]=12, spacePercent=278, fillerMB=303, nFontRecords=327, nfontsUsed=988, yBetweenSys=1776
+
+At comment[0], there's no difference; at spacePercent it's 8. fillerMB it's 12, at nFontRecords
+18, at nfontsUsed 138, at yBetweenSys 142. It realllly looks like compiled code for 5.9.1 simply
+isn't packing bit fields at all! $@%&!#@&!#(^   BUT WAIT! I'm displaying offsets in <doc> (in
+N106 format); I want aDocN105! That gives
+
+	debug. Offset of aDocN105.comment[0]=12, spacePercent=270, fillerMB=291, nFontRecords=309, nfontsUsed=850, yBetweenSys=1634
+
+...just as with Ngale 5.8.10. So that was a wild goose chase -- but still, why does the 5.9.x
+SCOREHEADER_N105 take 202 bytes more than the 5.8.x SCOREHEADER? One reason: VOICEINFO in 5.9.x
+takes 3 bytes; in 5.8.x, it took only 2! Have SCOREHEADER_N105 include VOICEINFON105 instead of
+VOICEINFO =>
+
+	info. Header size for Document=72, for Score=2492, for N105 Score=2148
+
+...as it should be!

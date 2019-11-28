@@ -28,7 +28,7 @@ static Boolean ConvertScoreContent(Document *, long);
 static void DisplayDocumentHdr(short id, Document *doc);
 static short CheckDocumentHdr(Document *doc);
 static void DisplayScoreHdr(short id, Document *doc);
-static short CheckScoreHdr(Document *doc);
+static Boolean CheckScoreHdr(Document *doc);
 
 static void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105);
 static void ConvertFontTable(Document *doc, DocumentN105 *docN105);
@@ -1318,6 +1318,8 @@ static short CheckDocumentHdr(Document *doc)
 
 static void DisplayScoreHdr(short id, Document *doc)
 {
+	unsigned char tempFontName[32];
+	
 	LogPrintf(LOG_INFO, "Displaying Score header (ID %d):\n", id);
 	LogPrintf(LOG_INFO, "  nstaves=%d", doc->nstaves);
 	LogPrintf(LOG_INFO, "  nsystems=%d", doc->nsystems);		
@@ -1342,7 +1344,8 @@ static void DisplayScoreHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  firstMNNumber=%d\n", doc->firstMNNumber);
 
 	LogPrintf(LOG_INFO, "  nfontsUsed=%d", doc->nfontsUsed);
-	LogPrintf(LOG_INFO, "  musFontName='%s'\n", PtoCstr(doc->musFontName));
+	Pstrcpy(tempFontName, doc->musFontName);
+	LogPrintf(LOG_INFO, "  musFontName='%s'\n", PtoCstr(tempFontName));
 	
 	LogPrintf(LOG_INFO, "  magnify=%d", doc->magnify);
 	LogPrintf(LOG_INFO, "  selStaff=%d", doc->selStaff);
@@ -1357,42 +1360,55 @@ static void DisplayScoreHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  dIndentFirst=%d\n", doc->dIndentFirst);
 }
 
-/* Do a reality check for Score header values that might be bad. Return the number of
-problems found. NB: We're not checking anywhere near everything we could! */
+#define ERR(fn) { nerr++; LogPrintf(LOG_WARNING, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
 
-static short CheckScoreHdr(Document *doc)
+/* Do a reality check for Score header values that might be bad. Return False if any
+problems are found. NB: We're not checking anywhere near everything we could! */
+
+static Boolean CheckScoreHdr(Document *doc)
 {
-	short nerr = 0;
+	short nerr = 0, firstErr = 0;
 	
-	if (doc->nstaves<1 || doc->nstaves>MAXSTAVES) nerr++;
-	if (doc->nsystems<1 || doc->nsystems>2000) nerr++;
-	if (doc->spacePercent<MINSPACE || doc->spacePercent>MAXSPACE) nerr++;
-	if (doc->srastral<0 || doc->srastral>MAXRASTRAL) nerr++;
-	if (doc->altsrastral<1 || doc->altsrastral>MAXRASTRAL) nerr++;
-	if (doc->tempo<MIN_BPM || doc->tempo>MAX_BPM) nerr++;
-	if (doc->channel<1 || doc->channel>MAXCHANNEL) nerr++;
-	if (doc->velocity<-127 || doc->velocity>127) nerr++;
+	if (doc->nstaves<1 || doc->nstaves>MAXSTAVES) ERR(1);
+	if (doc->nsystems<1 || doc->nsystems>2000) ERR(2);
+	if (doc->spacePercent<MINSPACE || doc->spacePercent>MAXSPACE) ERR(3);
+	if (doc->srastral<0 || doc->srastral>MAXRASTRAL) ERR(4);
+	if (doc->altsrastral<1 || doc->altsrastral>MAXRASTRAL) ERR(5);
+	if (doc->tempo<MIN_BPM || doc->tempo>MAX_BPM) ERR(6);
+	if (doc->channel<1 || doc->channel>MAXCHANNEL) ERR(7);
+	if (doc->velocity<-127 || doc->velocity>127) ERR(8);
 
-	//if (doc->headerStrOffset<?? || doc->headerStrOffset>??) nerr++;
-	//if (doc->footerStrOffset<?? || doc->footerStrOffset>??) nerr++;
+	//if (doc->headerStrOffset<?? || doc->headerStrOffset>??) ERR(9);
+	//if (doc->footerStrOffset<?? || doc->footerStrOffset>??) ERR(10);
 	
-	if (doc->dIndentOther<0 || doc->dIndentOther>in2d(5)) nerr++;
-	if (doc->firstNames<0 || doc->firstNames>MAX_NAMES_TYPE) nerr++;
-	if (doc->otherNames<0 || doc->otherNames>MAX_NAMES_TYPE) nerr++;
-	if (doc->lastGlobalFont<FONT_THISITEMONLY || doc->lastGlobalFont>MAX_FONTSTYLENUM) nerr++;
-	if (doc->firstMNNumber<0 || doc->firstMNNumber>MAX_FIRSTMEASNUM) nerr++;
-	if (doc->nfontsUsed<1 || doc->nfontsUsed>MAX_SCOREFONTS) nerr++;
-	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) nerr++;
-	if (doc->selStaff<-1 || doc->selStaff>doc->nstaves) nerr++;
-	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) nerr++;
-	if (doc->spaceTable<0 || doc->spaceTable>32767) nerr++;
-	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) nerr++;
-	if (doc->lookVoice<-1 || doc->lookVoice>MAXVOICES) nerr++;
-	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) nerr++;
-	if (doc->deflamTime<1 || doc->deflamTime>1000) nerr++;
-	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) nerr++;
+	if (doc->dIndentOther<0 || doc->dIndentOther>in2d(5)) ERR(11);
+	if (doc->firstNames<0 || doc->firstNames>MAX_NAMES_TYPE) ERR(12);
+	if (doc->otherNames<0 || doc->otherNames>MAX_NAMES_TYPE) ERR(13);
+	if (doc->lastGlobalFont<FONT_THISITEMONLY || doc->lastGlobalFont>MAX_FONTSTYLENUM) ERR(14);
+	if (doc->firstMNNumber<0 || doc->firstMNNumber>MAX_FIRSTMEASNUM) ERR(15);
+	if (doc->nfontsUsed<1 || doc->nfontsUsed>MAX_SCOREFONTS) ERR(16);
+	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) ERR(17);
+	if (doc->selStaff<-1 || doc->selStaff>doc->nstaves) ERR(18);
+	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) ERR(19);
+	if (doc->spaceTable<0 || doc->spaceTable>32767) ERR(20);
+	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) ERR(21);
+	if (doc->lookVoice<-1 || doc->lookVoice>MAXVOICES) ERR(22);
+	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) ERR(23);
+	if (doc->deflamTime<1 || doc->deflamTime>1000) ERR(24);
+	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) ERR(25);
 	
-	return nerr;
+	if (nerr==0) {
+		LogPrintf(LOG_NOTICE, "No errors found.  (CheckScoreHdr)\n");
+		return True;
+	}
+	else {
+		if (!DETAIL_SHOW) DisplayScoreHdr(4, doc);
+		sprintf(strBuf, "%d error(s) found.", nerr);
+		CParamText(strBuf, "", "", "");
+		LogPrintf(LOG_ERR, " %d error(s) found.  (CheckScoreHdr)\n", nerr);
+		StopInform(GENERIC_ALRT);
+		return False;
+	}
 }
 
 
@@ -1436,7 +1452,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	long		cmHdr, cmBufCount, cmDevSize;
 	FSSpec		*pfsSpecMidiMap;
 	char		versionCString[5];
-	DocumentN105 docN105;
+	DocumentN105 aDocN105;
 
 	WaitCursor();
 
@@ -1477,6 +1493,14 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (version>THIS_FILE_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
 	if (version!=THIS_FILE_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%s' FILE.\n", versionCString);
 
+#define DIFF(addr1, addr2)	((long)(&addr1)-(long)(&addr2))
+if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Offset of aDocN105.comment[0]=%lu, spacePercent=%lu, fillerMB=%lu, nFontRecords=%lu, nfontsUsed=%lu, yBetweenSys=%lu\n",
+DIFF(aDocN105.comment[0], aDocN105.headL), DIFF(aDocN105.spacePercent, aDocN105.headL), DIFF(aDocN105.fillerMB, aDocN105.headL), DIFF(aDocN105.nFontRecords, aDocN105.headL),
+DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.headL));
+
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Header size for Document=%ld, for Score=%ld, for N105 Score=%ld\n",
+		sizeof(DOCUMENTHDR), sizeof(SCOREHEADER), sizeof(SCOREHEADER_N105));
+
 	count = sizeof(fileTime);									/* Time file was written */
 	errCode = FSRead(refNum, &count, &fileTime);
 	FIX_END(fileTime);
@@ -1489,15 +1513,15 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		case 'N104':
 		case 'N105':
 			count = sizeof(DOCUMENTHDR);
-			errCode = FSRead(refNum, &count, &doc->origin);
+			errCode = FSRead(refNum, &count, &aDocN105.origin);
 			if (errCode) { errInfo = HEADERobj; goto Error; }
-			ConvertDocumentHeader(doc, &docN105);
+			ConvertDocumentHeader(doc, &aDocN105);
 			if (DETAIL_SHOW) DisplayDocumentHdr(1, doc);
 			
 			count = sizeof(SCOREHEADER_N105);
-			errCode = FSRead(refNum, &count, &docN105.headL);
+			errCode = FSRead(refNum, &count, &aDocN105.headL);
 			if (errCode) { errInfo = HEADERobj; goto Error; }
-			nDocErr = ConvertScoreHeader(doc, &docN105);
+			nDocErr = ConvertScoreHeader(doc, &aDocN105);
 			if (DETAIL_SHOW) DisplayScoreHdr(1, doc);
 			if (nDocErr!=0) {
 				sprintf(strBuf, "%d error(s) found in Score header.", nDocErr);
@@ -1529,15 +1553,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	EndianFixScoreHdr(doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(3, doc);
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");
-	nScoreErr = CheckScoreHdr(doc);
-	if (nScoreErr==0)
-		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
-	else {
-		if (!DETAIL_SHOW) DisplayScoreHdr(4, doc);
-		sprintf(strBuf, "%d error(s) found.", nScoreErr);
-		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_ERR, "%d error(s) found.  (OpenFile)\n", nScoreErr);
-		StopInform(GENERIC_ALRT);
+	if (!CheckScoreHdr(doc)) {
 		errCode = HEADER_ERR;
 		errInfo = 0;
 		goto Error;
@@ -1549,6 +1565,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	FIX_END(lastType);
 
 	if (lastType!=LASTtype) {
+		LogPrintf(LOG_ERR, "LAST OBJECT TYPE=%d BUT SHOULD BE %d.\n", lastType, LASTtype);	
 		errCode = LASTTYPE_ERR;
 		errInfo = HEADERobj;
 		goto Error;
@@ -1558,6 +1575,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	errCode = FSRead(refNum, &count, &stringPoolSize);
 	if (errCode) { errInfo = STRINGobj; goto Error; }
 	FIX_END(stringPoolSize);
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "stringPoolSize=%ld\n", stringPoolSize);
 	if (doc->stringPool) DisposeStringPool(doc->stringPool);
 	
 	/* Allocate from the StringManager, not NewHandle, in case StringManager is tracking
@@ -1587,7 +1605,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 
 	/* Be sure we have enough memory left for a maximum-size segment and a bit more. */
 	
-	if (!PreflightMem(40)) { NoMoreMemory(); return LOWMEM_ERR; }
+	if (!PreflightMem(400)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
 	ConvertScoreContent(doc, fileTime);			/* Do any conversion of old files needed */
 

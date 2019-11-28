@@ -1,8 +1,8 @@
-NIGHTINGALE TECH NOTES - Don Byrd, rev. mid November 2016
+NIGHTINGALE TECH NOTES - Don Byrd, rev. late November 2019
 
 As compared to earlier versions of this list (through early 2016), I've added numbers to
 several of the formerly unnumbered tech notes, and re-organized the full collection into
-three categories: "User Oriented", "Mostly for Developers", and "Obsolete and/or Of
+three categories: "User Oriented", "Mostly for Developers", and "Obsolete and/or of
 Minimal Interest."
 
 NB: These still need a lot of work. One (#2), the Coding Guidelines, is now in the
@@ -13,7 +13,7 @@ really up-to-date.
 -------------
 USER ORIENTED
 
-4	Old	Nightingale Files and Troubleshooting Files Nightingale Can't Open (Files+Troubleshooting-TN4.RTF)
+4	OK?	Nightingale Files and Troubleshooting Files Nightingale Can't Open (Files+Troubleshooting-TN4.doc)
 6	OK?	To get rid of an extra system at the beginning of a score (GetRidOfExtraSysAtStart-TN6.txt)
 7	OK?	To get music from Nightingale into MS Word (GettingMusicIntoMSWord-TN7.txt)
 8	OK?	The Nightingale "Debug" Command, Especially for Finding Accidental Problems (DebugAndAccPblms-TN8.txt)

@@ -945,8 +945,8 @@ static Boolean CheckConfig()
 
 	if (nerr>0) {
 		LogPrintf(LOG_NOTICE, "\n");
-        LogPrintf(LOG_WARNING, "TOTAL OF %d ERROR(S) FOUND.\n", nerr);
-		GetIndCString(fmtStr, INITERRS_STRS, 5);		/* "CNFG resource in Prefs has [n] illegal value(s)" */
+        LogPrintf(LOG_WARNING, "%d ERROR(S) FOUND (first bad field is no. %d).\n", nerr, firstErr);
+		GetIndCString(fmtStr, INITERRS_STRS, 5);		/* "CNFG resource in Prefs has [n] illegal value(s) (first bad field is no. %d)" */
 		sprintf(strBuf, fmtStr, nerr, firstErr);
 		CParamText(strBuf, "", "", "");
 		if (CautionAdvise(CNFG_ALRT)==OK) ExitToShell();

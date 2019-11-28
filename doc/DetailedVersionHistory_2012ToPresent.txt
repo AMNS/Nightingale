@@ -2480,3 +2480,12 @@ Minor cleanup: The score header field <comment> is used as a C string, but it's 
 "unsigned char", like a P string, so make all consistent with a C string; etc. Affects
 NMiscTypes.h (5.8), NDocAndCnfgTypes.h (5.9); FileOpen (5.9 only?), MIDIFOCmd,
 NotelistOpen, Score, ScoreInfo.
+
+-------------------------------------------------------------------------------
+
+6? - 25 Nov.	*IN 5.9
+
+Worked on converting headers of format "N105" files to "N106". Affects NBasicTypesN105.h,
+NDocAndCnfgTypesN105.h; FileOpen.
+
+Minor cleanup. Affects NBasicTypesN105.h; Initialize.
