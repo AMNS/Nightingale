@@ -129,20 +129,6 @@ typedef struct {
 	LINK		connFiller;
 } CONNECT_5, *PCONNECT_5;
 
-#ifdef NOMORE
-enum {								/* Codes for connectType */
-	CONNECTLINE=1,
-	CONNECTBRACKET,
-	CONNECTCURLY
-};
-
-enum {								/* Codes for connLevel */
-	SystemLevel=0,
-	GroupLevel,
-	PartLevel=7
-};
-#endif
-
 
 /* ----------------------------------------------------------------------- ACLEF, CLEF -- */
 
@@ -213,23 +199,6 @@ typedef struct {
 	Boolean		inMeasure:1;		/* True if object is in a Measure, False if not */
 } TIMESIG_5, *PTIMESIG_5;
 
-#ifdef NOMORE
-enum {								/* subtypes: */
-	N_OVER_D=1,
-	C_TIME,
-	CUT_TIME,
-	N_ONLY,
-	ZERO_TIME,
-	N_OVER_QUARTER,
-	N_OVER_EIGHTH,
-	N_OVER_HALF,
-	N_OVER_DOTTEDQUARTER,
-	N_OVER_DOTTEDEIGHTH
-};
-
-#define LOW_TStype N_OVER_D
-#define HIGH_TStype N_OVER_DOTTEDEIGHTH
-#endif
 
 /* --------------------------------------------------------------------------- MEASURE -- */
 
@@ -266,19 +235,6 @@ typedef struct {
 	long			lTimeStamp;		/* P: PDURticks since beginning of score */
 } MEASURE_5, *PMEASURE_5;
 
-#ifdef NOMORE
-enum {								/* barline types */
-	BAR_SINGLE=1,
-	BAR_DOUBLE,
-	BAR_FINALDBL,
-	BAR_HEAVYDBL,					/* (unused) */
-	BAR_RPT_L,						/* Codes must be the same as equivalent RPTENDs! */
-	BAR_RPT_R,
-	BAR_RPT_LR,
-	BAR_LAST=BAR_RPT_LR
-};
-#endif
-
 
 /* ------------------------------------------------------------------------ PSEUDOMEAS -- */
 /* Pseudomeasures are symbols that have similar graphic appearance to barlines
@@ -296,14 +252,6 @@ typedef struct 	{
 	OBJECTHEADER_5
 	SignedByte	filler;
 } PSMEAS_5, *PPSMEAS_5;
-
-#ifdef NOMORE
-enum {								/* pseudomeasure types: codes follow those for MEASUREs */
-	PSM_DOTTED=BAR_LAST+1,
-	PSM_DOUBLE,
-	PSM_FINALDBL					/* unused */
-};
-#endif
 
 
 /* ------------------------------------------------------------------------ NOTE, SYNC -- */
@@ -357,22 +305,6 @@ typedef struct {
 	unsigned short timeStamp;		/* P: PDURticks since beginning of measure */
 } SYNC_5, *PSYNC_5;
 
-#ifdef NOMORE
-enum {								/* Notehead and rest appearances: */
-	NO_VIS=0,						/* Notehead/rest invisible */
-	NORMAL_VIS,						/* Normal appearance */
-	X_SHAPE,						/* "X" head (notes only) */
-	HARMONIC_SHAPE,					/* "Harmonic" hollow head (notes only) */
-	SQUAREH_SHAPE,					/* Square hollow head (notes only) */
-	SQUAREF_SHAPE,					/* Square filled head (notes only) */
-	DIAMONDH_SHAPE,					/* Diamond-shaped hollow head (notes only) */
-	DIAMONDF_SHAPE,					/* Diamond-shaped filled head (notes only) */
-	HALFNOTE_SHAPE,					/* Halfnote head (for Schenker, etc.) (notes only) */
-	SLASH_SHAPE,					/* Chord slash */
-	NOTHING_VIS						/* EVERYTHING (head/rest + stem, aug.dots, etc.) invisible */
-};
-#endif
-
 
 /* --------------------------------------------------------------------------- BEAMSET -- */
 
@@ -416,25 +348,6 @@ typedef struct {
 
 /* ---------------------------------------------------------------------------- TUPLET -- */
 
-#ifdef NOMORE
-/* This struct is used to get information from TupletDialog. */
-
-typedef struct {
-	Byte			accNum;			/* Accessory numeral (numerator) for Tuplet */
-	Byte			accDenom;		/* Accessory denominator */
-	short			durUnit;		/* Duration units of denominator */
-	Boolean			numVis:1,
-					denomVis:1,
-					brackVis:1,
-					isFancy:1;
-} TupleParam;
-
-typedef struct {
-	LINK			next;			/* index of next subobj */
-	LINK			tpSync;			/* link to Sync containing note/chord */
-} ANOTETUPLE, *PANOTETUPLE;
-#endif
-
 typedef struct {
 	OBJECTHEADER_5
 	EXTOBJHEADER
@@ -469,18 +382,6 @@ typedef struct {
 	SignedByte		subType;		/* Code from enum below */
 	Byte			count;			/* Number of times to repeat */
 } RPTEND_5, *PRPTEND_5;
-
-#ifdef NOMORE
-enum {
-	RPT_DC=1,
-	RPT_DS,
-	RPT_SEGNO1,
-	RPT_SEGNO2,
-	RPT_L,							/* Codes must be the same as equivalent MEASUREs! */
-	RPT_R,
-	RPT_LR
-};
-#endif
 
 
 /* ---------------------------------------------------------------------------- ENDING -- */
@@ -519,37 +420,6 @@ typedef struct {
 	LINK		lastSyncL;			/* Sync hairpin end is attached to or NILINK */
 } DYNAMIC_5, *PDYNAMIC_5;
 
-#ifdef NOMORE
-enum {								/* FIXME: NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
-	PPPP_DYNAM=1,
-	PPP_DYNAM,
-	PP_DYNAM,
-	P_DYNAM,
-	MP_DYNAM,							/* 5 */
-	MF_DYNAM,
-	F_DYNAM,
-	FF_DYNAM,
-	FFF_DYNAM,
-	FFFF_DYNAM,							/* 10 */
-	FIRSTREL_DYNAM,
-	PIUP_DYNAM=FIRSTREL_DYNAM,
-	MENOP_DYNAM,
-	MENOF_DYNAM,
-	PIUF_DYNAM,
-	FIRSTSF_DYNAM,
-	SF_DYNAM=FIRSTSF_DYNAM,				/* 15 */
-	FZ_DYNAM,
-	SFZ_DYNAM,
-	RF_DYNAM,
-	RFZ_DYNAM,
-	FP_DYNAM,							/* 20 */
-	SFP_DYNAM,
-	FIRSTHAIRPIN_DYNAM,					/* ONLY hairpins after this! */
-	DIM_DYNAM=FIRSTHAIRPIN_DYNAM,		/* Hairpin open at left ("diminuendo") */
-	CRESC_DYNAM,						/* Hairpin open at right ("crescendo") */
-	LAST_DYNAM
-};
-#endif
 
 /* ---------------------------------------------------------------------------- AMODNR -- */
 
@@ -563,36 +433,6 @@ typedef struct {
 	SignedByte	data;					/* Modifier-dependent */
 	SHORTSTD	ystdpit;				/* Clef-independent dist. below middle C ("pitch") */
 } AMODNR_5, *PAMODNR_5;
-
-#ifdef NOMORE
-#define XSTD_OFFSET 16				/* 2**(xstd fieldwidth-1) to fake signed value */
-
-enum {								/* modCode values */
-	MOD_FERMATA=10,					/* Leave 0 thru 9 for digits */
-	MOD_TRILL,
-	MOD_ACCENT,
-	MOD_HEAVYACCENT,
-	MOD_STACCATO,
-	MOD_WEDGE,
-	MOD_TENUTO,
-	MOD_MORDENT,
-	MOD_INV_MORDENT,
-	MOD_TURN,
-	MOD_PLUS,
-	MOD_CIRCLE,
-	MOD_UPBOW,
-	MOD_DOWNBOW,
-	MOD_TREMOLO1,
-	MOD_TREMOLO2,
-	MOD_TREMOLO3,
-	MOD_TREMOLO4,
-	MOD_TREMOLO5,
-	MOD_TREMOLO6,
-	MOD_HEAVYACC_STACC,
-	MOD_LONG_INVMORDENT,
-	MOD_FAKE_AUGDOT=127				/* Augmentation dot is not really a MODNR */
-};
-#endif
 
 
 /* --------------------------------------------------------------------------- GRAPHIC -- */
@@ -628,63 +468,6 @@ typedef struct {
 	LINK		lastObj;			/* link to object right end is relative to, or NULL */
 } GRAPHIC_5, *PGRAPHIC_5;
 
-#ifdef NOMORE
-#define ARPINFO(info2)	((unsigned short)(info2) >>13) 
-
-enum {								/* graphicType values: */
-	GRPICT=1,						/* 	(unimplemented) PICT */
-	GRChar,							/* 	(unimplemented) single character */
-	GRString,						/* 	character string */
-	GRLyric,						/* 	lyric character string */
-	GRDraw,							/* 	Pure graphic: so far, only lines; someday, MiniDraw */
-	GRMIDIPatch,					/*	(unimplemented) MIDI program change */
-	GRRehearsal,					/* 	rehearsal mark */
-	GRChordSym,						/* 	chord symbol */
-	GRArpeggio,						/*	arpeggio or non-arpeggio sign */
-	GRChordFrame,					/*	chord frame (for guitar, etc.) */
-	GRMIDIPan,
-	GRSusPedalDown,
-	GRSusPedalUp,
-	GRLastType=GRSusPedalUp
-};
-
-/* Our internal codes for sustain on/off. FIXME: Should these be here or in a header file
- (MIDIGeneral.h)? (Are these really MIDI specific, or do they apply to notation too?) */
-
-#define MIDISustainOn	127
-#define MIDISustainOff	0
-
-enum {
-	GRJustLeft=1,					/* Graphic is left justified */
-	GRJustRight,					/* Graphic is right justified */
-	GRJustBoth,						/* Graphic is left and right justified */
-	GRJustCenter					/* Graphic is centered */
-};
-
-enum {								/* Staff-relative text size codes */
-	GRTiny=1,
-	GRVSmall,
-	GRSmall,
-	GRMedium,
-	GRLarge,
-	GRVLarge,
-	GRJumbo,
-	GR_____1,
-	GRStaffHeight,
-	GRLastSize=GRStaffHeight
-};
-
-enum {								/* Enclosure types */
-	ENCL_NONE=0,
-	ENCL_BOX,
-	ENCL_CIRCLE
-};
-
-enum {								/* GRArpeggio sub-subtypes */
-	ARP=0,
-	NONARP
-};
-#endif
 
 
 /* ---------------------------------------------------------------------------- OTTAVA -- */
@@ -711,31 +494,8 @@ typedef struct {
 				xdLast, ydLast;
 } OTTAVA_5, *POTTAVA_5;
 
-#ifdef NOMORE
-enum {
-	OTTAVA8va = 1,
-	OTTAVA15ma,
-	OTTAVA22ma,
-	OTTAVA8vaBassa,
-	OTTAVA15maBassa,
-	OTTAVA22maBassa
-};
-#endif
-
 
 /* ------------------------------------------------------------------------------ SLUR -- */
-
-/* Types of Slursor behavior: */
-
-#ifdef NOMORE
-enum { S_New=0, S_Start, S_C0, S_C1, S_End, S_Whole, S_Extend };
-
-typedef struct {
-	DPoint knot;						/* Coordinates of knot relative to startPt */
-	DPoint c0;							/* Coordinates of first control point relative to knot */
-	DPoint c1;							/* Coordinates of second control pt relative to endpoint */
-} SplineSeg;
-#endif
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -814,6 +574,39 @@ typedef struct {
 } HEADER_5, *PHEADER_5;
 
 
+/* -------------------------------------------------------------------------- SUPEROBJ -- */
+/* This struct is the union of all Object structs, and its size is the maximum size of
+any record kept in the object heap. */
+
+typedef union uSUPEROBJ_5 {	
+		HEADER_5	header;
+		TAIL_5		tail;
+		SYNC_5		sync;
+		RPTEND_5	rptEnd;
+		PAGE_5		page;
+		SYSTEM_5	system;
+		STAFF_5		staff;
+		MEASURE_5	measure;
+		CLEF_5		clef;
+		KEYSIG_5	keysig;
+		TIMESIG_5	timesig;
+		BEAMSET_5	beamset;
+		CONNECT_5	connect;
+		DYNAMIC_5	dynamic;
+		GRAPHIC_5	graphic;
+		OTTAVA_5	ottava;
+		SLUR_5		slur;
+		TUPLET_5	tuplet;
+		GRSYNC_5	grSync;
+		TEMPO_5		tempo;
+		SPACER_5	spacer;
+		} SUPEROBJ_5;
+
+typedef struct {
+	Byte bogus[sizeof(SUPEROBJ_5)];
+} SUPEROBJECT_N105, *PSUPEROBJECT_N105;
+
+
 /* --------------------------------------------------------------------------- CONTEXT -- */
 
 typedef struct {
@@ -846,28 +639,5 @@ typedef struct {
 				denominator;
 } CONTEXT_5, *PCONTEXT_5;
 
-
-#ifdef NOMORE
-/* -------------------------------------------------------------------------- STFRANGE -- */
-
-typedef struct {					/* Staff range for staffRect selection mode. */
-	short		topStaff;
-	short		bottomStaff;
-} STFRANGE;
-
-
-/* ------------------------------------------------------------------------- Clipboard -- */
-
-enum {								/* Most recently copied objects */
-	COPYTYPE_CONTENT=0,
-	COPYTYPE_SYSTEM,
-	COPYTYPE_PAGE
-};
-
-typedef struct {
-	LINK srcL;
-	LINK dstL;
-} COPYMAP;
-#endif
 
 #pragma options align=reset

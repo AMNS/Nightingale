@@ -2489,3 +2489,12 @@ Worked on converting headers of format "N105" files to "N106". Affects NBasicTyp
 NDocAndCnfgTypesN105.h; FileOpen.
 
 Minor cleanup. Affects NBasicTypesN105.h; Initialize.
+
+-------------------------------------------------------------------------------
+
+1 - 11 Dec.	*IN 5.9
+
+Minor cleanup: remove code for handling obsolete file versions, rename a FreeMIDI-
+related global, add more helpful messages to log, etc. Affects FreeMIDICompat.h,
+MemMacros.h, NBasicTypes.h, NObjTypes.h, NObjTypesN105.h; Event, FileOpen, FileSave,
+HeapFileIO, Menu, Objects.

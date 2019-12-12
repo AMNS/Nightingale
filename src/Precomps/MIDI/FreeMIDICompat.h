@@ -2,7 +2,7 @@
 
 typedef unsigned short	fmsUniqueID;
 
-typedef union destinationMatch
+typedef union fmsDestinationMatch
 {
 	struct
 	{
@@ -45,7 +45,7 @@ typedef union destinationMatch
 		char		reserved[10];
 		Str255		name;
 	} directDest;
-} destinationMatch, *destinationMatchPtr;
+} fmsDestinationMatch, *fmsDestinationMatchPtr;
 
 #define	noUniqueID				0		/* uniqueID */
 

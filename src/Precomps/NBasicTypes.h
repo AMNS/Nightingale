@@ -194,7 +194,7 @@ typedef struct						/* A part (for an instrument or voice): */
 	/* The following fields were for FreeMIDI support. FreeMIDI is obsolete -- it's a
 		pre-OS X technology -- but we keep the fields for file compatibility. */
 	fmsUniqueID	fmsOutputDevice;
-	destinationMatch fmsOutputDestination;	/* NB: about 280 bytes */
+	fmsDestinationMatch fmsOutputDestination;	/* NB: about 280 bytes */
 } PARTINFO, *PPARTINFO;
 
 

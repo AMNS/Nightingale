@@ -884,7 +884,7 @@ PushLock(NOTEheap);
 	aNote->inOttava = False;
 	aNote->small = False;
 	aNote->tempFlag = False;
-	aNote->fillerN = 0;
+	aNote->reservedN = 0;
 	
 PopLock(NOTEheap);
 	return aNoteL;
@@ -971,7 +971,7 @@ PushLock(GRNOTEheap);
 	aGRNote->inOttava = False;
 	aGRNote->small = False;
 	aGRNote->tempFlag = False;
-	aGRNote->fillerN = 0;
+	aGRNote->reservedN = 0;
 	
 PopLock(GRNOTEheap);
 	return aGRNoteL;

@@ -342,7 +342,7 @@ static short WriteFile(Document *doc, short refNum)
 	/* Write info for FreeMIDI input device:
 			1) long having the value 'FMS_' (just a marker)
 			2) fmsUniqueID (unsigned short) giving input device ID
-			3) destinationMatch union giving info about input device */
+			3) fmsDestinationMatch union giving info about input device */
 	count = sizeof(long);
 	fmsDevHdr = FreeMIDISelector;
 	errCode = FSWrite(refNum, &count, &fmsDevHdr);
@@ -350,11 +350,11 @@ static short WriteFile(Document *doc, short refNum)
 	count = sizeof(fmsUniqueID);
 	errCode = FSWrite(refNum, &count, &doc->fmsInputDevice);
 	if (errCode) return SIZEobj;
-	count = sizeof(destinationMatch);
+	count = sizeof(fmsDestinationMatch);
 	errCode = FSWrite(refNum, &count, &doc->fmsInputDestination);
 	if (errCode) return SIZEobj;
 	
-	/* Write info for CoreMIDI [version >= N105] */
+	/* Write info for CoreMIDI (file version >= 'N105') */
 	
 	count = sizeof(long);
 	cmHdr = 'cmdi';
@@ -401,12 +401,12 @@ static Boolean GetOutputFile(Document *doc)
 			return False;
 		}
 
-		//HSetVol(NULL,vrefnum,0);
-		result = HSetVol(NULL,fsSpec.vRefNum,fsSpec.parID);
+		//HSetVol(NULL, vrefnum, 0);
+		result = HSetVol(NULL, fsSpec.vRefNum, fsSpec.parID);
 		/* Save the file under this name */
-		Pstrcpy(doc->name,name);
+		Pstrcpy(doc->name, name);
 		doc->vrefnum = vrefnum;
-		SetWTitle((WindowPtr)doc,name);
+		SetWTitle((WindowPtr)doc, name);
 		doc->changed = False;
 		doc->named = True;
 		doc->readOnly = False;

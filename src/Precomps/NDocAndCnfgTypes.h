@@ -411,7 +411,7 @@ typedef struct {
 	OMSUniqueID		omsInputDevice;  				/* OMS MIDI dev data for recording inputs */
 	/* FreeMIDI (obsolete) */
 	fmsUniqueID		fmsInputDevice;					/* FreeMIDI dev data for recording inputs */
-	destinationMatch	fmsInputDestination;		/* (See comment at PARTINFO in NBasicTypes.h.) */
+	fmsDestinationMatch	fmsInputDestination;		/* (See comment at PARTINFO in NBasicTypes.h.) */
 	/* Core MIDI */
 	MIDIUniqueID	cmPartDeviceList[MAXSTAVES];	/* CoreMIDI dev data for each part on MP, */
 													/*   indexed by partn associated with PARTINFOheap */

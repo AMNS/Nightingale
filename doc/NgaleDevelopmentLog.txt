@@ -3805,4 +3805,144 @@ VOICEINFO =>
 
 	info. Header size for Document=72, for Score=2492, for N105 Score=2148
 
-...as it should be!
+...as it should be! And Ngale seems now to read and convert 'N105' headers correctly.
+
+-------------------------------------------------------------------------------
+
+28 November - 10 December
+
+Continuing work on file-conversion code for OpenFile(), now to get Ngale to read and convert the
+subobject and object heaps.
+
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=4 blk=376078172 objSize=346 type=0 ff=8 nO=16 nf=9 ll=0 FPos:2558
+	debug. ReadHeapHdr: hp 1 (TAIL) nFObjs=0 blk=376078176 objSize=0 type=1 ff=0 nO=0 nf=0 ll=0 FPos:3960
+	ERROR. Header for heap 1 objSize is 0, but expected objSize 346 (ReadHeapHdr)
+	ERROR. Can't open the file. errCode=251 errInfo=1  (OpenError)
+
+What size should the code expect TAIL subobjs to be? Not that there are any :-) . With Ngale 5.8.9:
+
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=4 blk=3077504 objSize=346 type=0 ff=7 nO=8 nf=1 ll=0 FPos:2558
+	debug. ReadHeapHdr: hp 1 (TAIL) nFObjs=0 blk=3077508 objSize=0 type=1 ff=0 nO=0 nf=0 ll=0 FPos:3960
+	debug. ReadHeapHdr: hp 2 (SYNC) nFObjs=3 blk=3077512 objSize=30 type=2 ff=7 nO=64 nf=57 ll=0 FPos:3978
+	debug. etc. etc. etc.
+	
+So why do I now expect TAIL objSize to be the same as HEAD size?  This must result from my change
+of today in ReadSubHeaps(), which calls ReadHeapHdr()... Ah, got it. Now:
+
+	Notice. Checking Score header: No errors found.  (CheckScoreHdr)
+	info. stringPoolSize=306
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=4 blk=376078172 objSize=346 type=0 ff=8 nO=16 nf=9 ll=0 FPos:2558
+	debug. ReadHeapHdr: hp 1 (TAIL) nFObjs=0 blk=376078176 objSize=0 type=1 ff=0 nO=0 nf=0 ll=0 FPos:3960
+	debug. ReadHeapHdr: hp 2 (SYNC) nFObjs=23 blk=376078180 objSize=30 type=2 ff=26 nO=64 nf=17 ll=0 FPos:3978
+	ERROR. Header for heap 2 objSize is 30, but expected objSize 58 (ReadHeapHdr)
+	ERROR. Can't open the file. errCode=251 errInfo=2  (OpenError)
+
+?!? "Expected" sizes are set by InitAllHeaps(), via:
+
+			hp->objSize = subObjLength[i];
+
+...and vars.h says:
+
+short subObjLength[] = {
+		sizeof(PARTINFO),	/* HEADER subobject */
+		0,					/* No TAIL subobjects */
+		sizeof(ANOTE),		/* SYNC subobject */
+		sizeof(ARPTEND),	/* etc. */
+		...
+
+So we need:
+
+short subObjLengthN105[] = {
+		sizeof(PARTINFO_N105),	/* HEADER subobject */
+		0,						/* No TAIL subobjects */
+		sizeof(ANOTE_N105),		/* SYNC subobject */
+		sizeof(ARPTEND_N105),	/* etc. */
+		...
+
+Done. Now trying to open a valid N105 file dies with
+
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=4 blk=376078172 objSize=346 type=0 ff=8 nO=16 nf=9 ll=0 FPos:2558
+	debug. ReadHeapHdr: hp 1 (TAIL) nFObjs=0 blk=376078176 objSize=0 type=1 ff=0 nO=0 nf=0 ll=0 FPos:3960
+	debug. ReadHeapHdr: hp 2 (SYNC) nFObjs=23 blk=376078180 objSize=30 type=2 ff=26 nO=64 nf=17 ll=0 FPos:3978
+	debug. ReadHeapHdr: hp 3 (REPEATEND) nFObjs=1 blk=3067692 objSize=6 type=14 ff=3 nO=8 nf=5 ll=0 FPos:5330
+	ERROR. Header for heap 3 type is 14, but expected type 3 (ReadHeapHdr)
+	ERROR. Can't open the file. errCode=217 errInfo=3  (OpenError)
+	Warning. File is probably damaged: heap header contains incorrect type (heap object type=3).
+
+Since it's a valid file, the Header for heap 3 type is really 3, so we're looking for it in the
+wrong place.
+
+File 1CourtesyAcc.ngl has (besides the default stuff at the beginning of the 1st system)
+just one note on two staves. Open it with 5.8.9 =>
+
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=4 blk=3144892 objSize=346 type=0 ff=8 nO=16 nf=9 ll=0 FPos:2558
+	debug. ReadHeapHdr: hp 1 (TAIL) nFObjs=0 blk=3144896 objSize=0 type=1 ff=0 nO=0 nf=0 ll=0 FPos:3960
+	debug. ReadHeapHdr: hp 2 (SYNC) nFObjs=1 blk=3144900 objSize=30 type=2 ff=2 nO=64 nf=62 ll=0 FPos:3978
+	debug. ReadHeapHdr: hp 3 (REPEATEND) nFObjs=0 blk=3144904 objSize=6 type=3 ff=1 nO=8 nf=7 ll=0 FPos:4026
+	debug. ReadHeapHdr: hp 4 (PAGE) nFObjs=0 blk=3144908 objSize=0 type=4 ff=0 nO=0 nf=0 ll=0 FPos:4044
+	debug. ReadHeapHdr: hp 5 (SYSTEM) nFObjs=0 blk=3144912 objSize=0 type=5 ff=0 nO=0 nf=0 ll=0 FPos:4062
+	debug. ReadHeapHdr: hp 6 (STAFF) nFObjs=4 blk=3144916 objSize=50 type=6 ff=8 nO=16 nf=11 ll=0 FPos:4080
+	debug. ReadHeapHdr: hp 7 (MEASURE) nFObjs=2 blk=3144920 objSize=40 type=7 ff=3 nO=12 nf=9 ll=0 FPos:4298
+	debug. ReadHeapHdr: hp 8 (CLEF) nFObjs=2 blk=3144924 objSize=10 type=8 ff=3 nO=8 nf=5 ll=0 FPos:4396
+	debug. ReadHeapHdr: hp 9 (KEYSIG) nFObjs=2 blk=3144928 objSize=24 type=9 ff=3 nO=8 nf=5 ll=0 FPos:4434
+	debug. ReadHeapHdr: hp 10 (TIMESIG) nFObjs=2 blk=3144932 objSize=12 type=10 ff=3 nO=8 nf=5 ll=0 FPos:4500
+	debug. ReadHeapHdr: hp 11 (BEAMSET) nFObjs=0 blk=3144936 objSize=6 type=11 ff=1 nO=12 nf=11 ll=0 FPos:4542
+	debug. ReadHeapHdr: hp 12 (CONNECT) nFObjs=4 blk=3144940 objSize=12 type=12 ff=8 nO=16 nf=11 ll=0 FPos:4560
+	debug. ReadHeapHdr: hp 13 (DYNAMIC) nFObjs=0 blk=3144944 objSize=14 type=13 ff=1 nO=8 nf=7 ll=0 FPos:4626
+	debug. ReadHeapHdr: hp 14 (MODNR) nFObjs=0 blk=3144948 objSize=6 type=14 ff=1 nO=8 nf=7 ll=0 FPos:4644
+	debug. ReadHeapHdr: hp 15 (GRAPHIC) nFObjs=0 blk=3144952 objSize=6 type=15 ff=1 nO=8 nf=7 ll=0 FPos:4662
+	debug. ReadHeapHdr: hp 16 (OCTAVE) nFObjs=0 blk=3144956 objSize=4 type=16 ff=1 nO=8 nf=7 ll=0 FPos:4680
+	debug. ReadHeapHdr: hp 17 (SLUR) nFObjs=0 blk=3144960 objSize=42 type=17 ff=1 nO=8 nf=7 ll=0 FPos:4698
+	debug. ReadHeapHdr: hp 18 (TUPLET) nFObjs=0 blk=3144964 objSize=4 type=18 ff=1 nO=8 nf=7 ll=0 FPos:4716
+	debug. ReadHeapHdr: hp 19 (GRSYNC) nFObjs=0 blk=3144968 objSize=30 type=19 ff=1 nO=12 nf=11 ll=0 FPos:4734
+	debug. ReadHeapHdr: hp 20 (TEMPO) nFObjs=0 blk=3144972 objSize=0 type=20 ff=0 nO=0 nf=0 ll=0 FPos:4752
+	debug. ReadHeapHdr: hp 21 (SPACER) nFObjs=0 blk=3144976 objSize=0 type=21 ff=0 nO=0 nf=0 ll=0 FPos:4770
+	debug. ReadHeapHdr: hp 22 (ENDING) nFObjs=0 blk=3144980 objSize=0 type=22 ff=0 nO=0 nf=0 ll=0 FPos:4788
+	debug. ReadHeapHdr: hp 23 (PSEUDOMEAS) nFObjs=0 blk=3144984 objSize=6 type=23 ff=1 nO=8 nf=7 ll=0 FPos:4806
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+
+With the current 5.9.1 =>
+
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=4 blk=3144892 objSize=346 type=0 ff=8 nO=16 nf=9 ll=0 FPos:2558
+	debug. ReadHeapHdr: hp 1 (TAIL) nFObjs=0 blk=3144896 objSize=0 type=1 ff=0 nO=0 nf=0 ll=0 FPos:3960
+	debug. ReadHeapHdr: hp 2 (SYNC) nFObjs=1 blk=3144900 objSize=30 type=2 ff=2 nO=64 nf=62 ll=0 FPos:3978
+	debug. ReadHeapHdr: hp 3 (REPEATEND) nFObjs=0 blk=0 objSize=0 type=0 ff=47 nO=64720 nf=0 ll=5 FPos:4054
+	ERROR. Header for heap 3 type is 0, but expected type 3 (ReadHeapHdr)
+	ERROR. Can't open the file. errCode=217 errInfo=3  (OpenError)
+
+Yep: the REPEATEND heap starts at 4026, but we're looking for it at 4054, 28 bytes too far --
+and 28 is the increase in size of ANOTE from N105 to N106. ??
+
+For N105 files, ReadObjHeap() needs to use sizeof(N105 SUPEROBJECT) instead of (SUPEROBJECT)!
+Change that =>
+
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=4 blk=3144892 objSize=346 type=0 ff=8 nO=16 nf=9 ll=0 FPos:2558
+	debug. ReadHeapHdr: hp 1 (TAIL) nFObjs=0 blk=3144896 objSize=0 type=1 ff=0 nO=0 nf=0 ll=0 FPos:3960
+	debug. ReadHeapHdr: hp 2 (SYNC) nFObjs=1 blk=3144900 objSize=30 type=2 ff=2 nO=64 nf=62 ll=0 FPos:3978
+	debug. ReadHeapHdr: hp 3 (REPEATEND) nFObjs=0 blk=3144904 objSize=6 type=3 ff=1 nO=8 nf=7 ll=0 FPos:4026
+	debug. ReadHeapHdr: hp 4 (PAGE) nFObjs=0 blk=3144908 objSize=0 type=4 ff=0 nO=0 nf=0 ll=0 FPos:4044
+	debug. ReadHeapHdr: hp 5 (SYSTEM) nFObjs=0 blk=3144912 objSize=0 type=5 ff=0 nO=0 nf=0 ll=0 FPos:4062
+	debug. ReadHeapHdr: hp 6 (STAFF) nFObjs=4 blk=3144916 objSize=50 type=6 ff=8 nO=16 nf=11 ll=0 FPos:4080
+	debug. ReadHeapHdr: hp 7 (MEASURE) nFObjs=2 blk=3144920 objSize=40 type=7 ff=3 nO=12 nf=9 ll=0 FPos:4298
+	debug. ReadHeapHdr: hp 8 (CLEF) nFObjs=2 blk=3144924 objSize=10 type=8 ff=3 nO=8 nf=5 ll=0 FPos:4396
+	debug. ReadHeapHdr: hp 9 (KEYSIG) nFObjs=2 blk=3144928 objSize=24 type=9 ff=3 nO=8 nf=5 ll=0 FPos:4434
+	debug. ReadHeapHdr: hp 10 (TIMESIG) nFObjs=2 blk=3144932 objSize=12 type=10 ff=3 nO=8 nf=5 ll=0 FPos:4500
+	debug. ReadHeapHdr: hp 11 (BEAMSET) nFObjs=0 blk=3144936 objSize=6 type=11 ff=1 nO=12 nf=11 ll=0 FPos:4542
+	debug. ReadHeapHdr: hp 12 (CONNECT) nFObjs=4 blk=3144940 objSize=12 type=12 ff=8 nO=16 nf=11 ll=0 FPos:4560
+	debug. ReadHeapHdr: hp 13 (DYNAMIC) nFObjs=0 blk=3144944 objSize=14 type=13 ff=1 nO=8 nf=7 ll=0 FPos:4626
+	debug. ReadHeapHdr: hp 14 (MODNR) nFObjs=0 blk=3144948 objSize=6 type=14 ff=1 nO=8 nf=7 ll=0 FPos:4644
+	debug. ReadHeapHdr: hp 15 (GRAPHIC) nFObjs=0 blk=3144952 objSize=6 type=15 ff=1 nO=8 nf=7 ll=0 FPos:4662
+	debug. ReadHeapHdr: hp 16 (OCTAVE) nFObjs=0 blk=3144956 objSize=4 type=16 ff=1 nO=8 nf=7 ll=0 FPos:4680
+	debug. ReadHeapHdr: hp 17 (SLUR) nFObjs=0 blk=3144960 objSize=42 type=17 ff=1 nO=8 nf=7 ll=0 FPos:4698
+	debug. ReadHeapHdr: hp 18 (TUPLET) nFObjs=0 blk=3144964 objSize=4 type=18 ff=1 nO=8 nf=7 ll=0 FPos:4716
+	debug. ReadHeapHdr: hp 19 (GRSYNC) nFObjs=0 blk=3144968 objSize=30 type=19 ff=1 nO=12 nf=11 ll=0 FPos:4734
+	debug. ReadHeapHdr: hp 20 (TEMPO) nFObjs=0 blk=3144972 objSize=0 type=20 ff=0 nO=0 nf=0 ll=0 FPos:4752
+	debug. ReadHeapHdr: hp 21 (SPACER) nFObjs=0 blk=3144976 objSize=0 type=21 ff=0 nO=0 nf=0 ll=0 FPos:4770
+	debug. ReadHeapHdr: hp 22 (ENDING) nFObjs=0 blk=3144980 objSize=0 type=22 ff=0 nO=0 nf=0 ll=0 FPos:4788
+	debug. ReadHeapHdr: hp 23 (PSEUDOMEAS) nFObjs=0 blk=3144984 objSize=6 type=23 ff=1 nO=8 nf=7 ll=0 FPos:4806
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	ERROR. Header for heap 24 objSize is 46, but expected objSize 56 (ReadHeapHdr)
+	ERROR. Can't open the file. errCode=251 errInfo=24  (OpenError)
+	
+Better! ReadHeapHdr needs ??
+	

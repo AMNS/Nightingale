@@ -274,7 +274,7 @@
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 45}, {230, 761}}</string>
+							<string>{{0, 0}, {230, 761}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -358,7 +358,6 @@
 											<string>15A665A21EDCE282003D1FD4</string>
 											<string>15A665A41EDCE282003D1FD4</string>
 											<string>151797831EEE071000BFC258</string>
-											<string>15E0E5ED1EEE291F0067B09A</string>
 											<string>154FABFC1EFD643700666F3F</string>
 											<string>154FABFD1EFD643700666F3F</string>
 											<string>154FAC741F016BE000666F3F</string>
@@ -389,7 +388,6 @@
 											<string>15D04B471F966A3700D45868</string>
 											<string>15D04B731F9694D500D45868</string>
 											<string>157431E41F969EED0061539F</string>
-											<string>1573CCAB1F98D1D300C967E6</string>
 											<string>1573CCAE1F98D1D300C967E6</string>
 											<string>1573CCDB1F9B7CCD00C967E6</string>
 											<string>1573CD0F1F9C3A9400C967E6</string>
@@ -446,8 +444,6 @@
 											<string>153162302023BE5400C2AAB6</string>
 											<string>1555F11620276B2E00D749BE</string>
 											<string>1555F130202778C900D749BE</string>
-											<string>1555F13A20277A1E00D749BE</string>
-											<string>1555F14320277BE500D749BE</string>
 											<string>15EA067F202B971C00D18761</string>
 											<string>150CA572202C8C7A0024E081</string>
 											<string>150E9425202F986B00E0854A</string>
@@ -483,7 +479,6 @@
 											<string>157DC09E207137FB00DEDBE7</string>
 											<string>152E238C2073FEFB005AAB20</string>
 											<string>152E23902073FEFB005AAB20</string>
-											<string>1588D8172075149E00F0A4F0</string>
 											<string>1588D8182075149E00F0A4F0</string>
 											<string>1588D8192075149E00F0A4F0</string>
 											<string>1588D81A2075149E00F0A4F0</string>
@@ -498,7 +493,6 @@
 											<string>15A665771EDCC330003D1FD4</string>
 											<string>15A6658B1EDCC52B003D1FD4</string>
 											<string>151797861EEE071000BFC258</string>
-											<string>1517979B1EEE0B3300BFC258</string>
 											<string>15E0E6751EF020E70067B09A</string>
 											<string>15E0E69B1EF19D110067B09A</string>
 											<string>154FABE51EFB51D400666F3F</string>
@@ -561,7 +555,6 @@
 											<string>1542FDF01FB0F520004BF52F</string>
 											<string>1542FE6F1FB50787004BF52F</string>
 											<string>1542FE701FB50787004BF52F</string>
-											<string>1542FEE21FB69695004BF52F</string>
 											<string>1544A72A1FB72F2400CFE25D</string>
 											<string>1544A74D1FB77E2D00CFE25D</string>
 											<string>1544A8D41FBB2E8100CFE25D</string>
@@ -590,7 +583,6 @@
 											<string>150249C92022069F00418299</string>
 											<string>159304D0202350740089ED98</string>
 											<string>153879722024CB39006DF786</string>
-											<string>153879BE20255FD7006DF786</string>
 											<string>153879CE20256219006DF786</string>
 											<string>1555F11920276B2E00D749BE</string>
 											<string>150E9427202F986B00E0854A</string>
@@ -658,9 +650,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>1529AFF0218D3DE0004F6D73</string>
+				<string>15689D84238F666200243958</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>1529AFF1218D3DE0004F6D73</string>
+				<string>15689D85238F666200243958</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -797,7 +789,7 @@
 	<key>WindowOrderList</key>
 	<array>
 		<string>1C0AD2B3069F1EA900FABCE6</string>
-		<string>/Users/donbyrd/Documents/NightingaleDABVer/NightingaleIntel.xcodeproj</string>
+		<string>/Users/donbyrd/Documents/NightingaleDABVer_5p9/NightingaleIntel.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
 	<string>771 158 922 820 0 0 1920 1058 </string>
@@ -1241,9 +1233,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>1529AFF2218D3DE0004F6D73</string>
+				<string>15689D86238F666200243958</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>1529AFF3218D3DE0004F6D73</string>
+				<string>15689D87238F666200243958</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

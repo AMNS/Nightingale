@@ -16,9 +16,6 @@
 #include "Nightingale.appl.h"
 
 
-//#define N104_1TimeConvert	
-
-
 /* Error codes and error info codes */
 
 #define HDR_TYPE_ERR 217			/* Heap header in file contains incorrect type */
@@ -26,6 +23,64 @@
 #define MEM_ERRINFO 99				/* ExpandFreeList failed */
 
 #define EXTRAOBJS 10L
+
+
+short subObjLength_N105[] = {
+		sizeof(PARTINFO),	/* HEADER subobject */
+		0,					/* No TAIL subobjects */
+		sizeof(ANOTE_5),		/* SYNC subobject */
+		sizeof(ARPTEND_5),	/* etc. */
+		0,
+		0,
+		sizeof(ASTAFF_5),
+		sizeof(AMEASURE_5),
+		sizeof(ACLEF_5),
+		sizeof(AKEYSIG_5),
+		sizeof(ATIMESIG_5),
+		sizeof(ANOTEBEAM_5),
+		sizeof(ACONNECT_5),
+		sizeof(ADYNAMIC_5),
+		sizeof(AMODNR_5),
+		sizeof(AGRAPHIC_5),
+		sizeof(ANOTEOTTAVA_5),
+		sizeof(ASLUR_5),
+		sizeof(ANOTETUPLE),
+		sizeof(AGRNOTE_5),
+		0,
+		0,
+		0,
+		sizeof(APSMEAS_5),
+		sizeof(SUPEROBJECT_N105)
+	};
+		
+short objLength_5[] = {
+		sizeof(HEADER_5),
+		sizeof(TAIL_5),
+		sizeof(SYNC_5),
+		sizeof(RPTEND_5),
+		sizeof(PAGE_5),
+		sizeof(SYSTEM_5),
+		sizeof(STAFF_5),
+		sizeof(MEASURE_5),
+		sizeof(CLEF_5),
+		sizeof(KEYSIG_5),
+		sizeof(TIMESIG_5),
+		sizeof(BEAMSET_5),
+		sizeof(CONNECT_5),
+		sizeof(DYNAMIC_5),
+		0, 							/* No MODNR objects */
+		sizeof(GRAPHIC_5),
+		sizeof(OTTAVA_5),
+		sizeof(SLUR_5),
+		sizeof(TUPLET_5),
+		sizeof(GRSYNC_5),
+		sizeof(TEMPO_5),
+		sizeof(SPACER_5),
+		sizeof(ENDING_5),
+		sizeof(PSMEAS_5),
+		sizeof(SUPEROBJECT_N105)
+	};
+
 
 static unsigned short objCount[LASTtype];
 
@@ -75,8 +130,7 @@ short WriteHeaps(Document *doc, short refNum)
 
 /* Write the object heap to the given file. */
 
-static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
-								LINK *objA)
+static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK *objA)
 {
 	LINK			pL, oldFirstObj;
 	LINK			leftL, rightL, subL, oldLastObj,
@@ -87,19 +141,17 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 
 	PushLock(doc->Heap+OBJtype);
 
-	/*
-	 *	First write out the heap header, and 4 bytes that will contain the total number
-	 * of bytes written out for all (variable-sized) objects.  We must save the position
-	 *	in the file where this information is written so we can go back and fill it in
-	 *	after writing the objects.
-	 */
+	/* First write out the heap header, plus 4 bytes that will contain the total number
+	   of bytes written out for all (variable-sized) objects.  We must save the position
+	   in the file where this information is written so we can go back and fill it in
+	   after writing the objects. */
 
 	hdrErr = WriteHeapHdr(doc, refNum, OBJtype);
 	if (hdrErr) return hdrErr;
 	
-	GetFPos(refNum,&startPosition);
+	GetFPos(refNum, &startPosition);
 	count = sizeof(long);
-	ioErr = FSWrite(refNum,&count,&zero);
+	ioErr = FSWrite(refNum, &count, &zero);
 	if (ioErr) { SaveError(True, refNum, ioErr, OBJtype); return ioErr; }
 	
 	for (j=1, pL=doc->headL; ioErr==noErr && pL != NILINK; j++, pL=RightLINK(pL)) {
@@ -231,7 +283,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 		ioErr = SetFPos(refNum,fsFromStart,startPosition);
 		if (ioErr!=noError) return ioErr;
 		count = sizeof(long);
-		ioErr = FSWrite(refNum,&count,&sizeAllObjs);
+		ioErr = FSWrite(refNum, &count, &sizeAllObjs);
 		if (ioErr) { SaveError(True, refNum, ioErr, OBJtype); return ioErr; }
 		
 		/* And move back to where we just were so as not to truncate anything */
@@ -254,8 +306,8 @@ static void CreateModTable(Document *doc, LINK **modA)
 	if (myHeap->nObjs) {
 
 	/* j is a parameter passed to WriteSubObjs to indicate the initial LINK address 
-		of the subobj list written by WriteSubObjs. We start at 1 since the zeroth 
-		heap object is never used. */
+	   of the subobj list written by WriteSubObjs. We start at 1 since the zeroth 
+	   heap object is never used. */
 
 		for (j=1, pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL))
 			if (ObjLType(pL)==SYNCtype) {
@@ -353,6 +405,7 @@ static void MackeysDiseaseMsg(LINK pL, short subObjCount, char *objString)
 				(long)subObjCount);
 }
 
+
 /* Write all subobjects of all types to the file. For each heap, we write out the
 number of subobjects in that heap (as determined by ComputeObjCounts) as part of the
 heap header; then we traverse the object list and write out all the subobjects
@@ -380,10 +433,10 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 		if (hdrErr) return hdrErr;
 
 		/* Note modifiers (the only type with subobjects but no objects: note modifier
-			subobjects are attached to Sync subobjects) are a special case, so we
-			handle them separately. For all other types, traverse the main object list
-			and the Master Page object list once for each type and write the subobjects
-			of each object of that type we encounter. */
+		   subobjects are attached to Sync subobjects) are a special case, so we
+		   handle them separately. For all other types, traverse the main object list
+		   and the Master Page object list once for each type and write the subobjects
+		   of each object of that type we encounter. */
 		
 		if (i==MODNRtype) {
 			modErr = WriteModHeap(doc, refNum, &modA);
@@ -395,9 +448,9 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 		if (myHeap->nObjs) {
 
 			/* Write the subobjects for all objects in the main object list except the
-				tail, which has no subobjects. j is a parameter passed to WriteSubObjs to
-				indicate the initial LINK address of the subobj list written by WriteSubObjs.
-				We start at 1 since the zeroth heap object is never used. */
+			   tail, which has no subobjects. j is a parameter passed to WriteSubObjs to
+			   indicate the initial LINK address of the subobj list written by WriteSubObjs.
+			   We start at 1 since the zeroth heap object is never used. */
 
 			for (j=1, pL=doc->headL; ioErr==noErr && pL!=doc->tailL; pL=RightLINK(pL))
 				if (ObjLType(pL)==i) { 
@@ -414,7 +467,7 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 				}
 
 			/* Continue writing the subobjects for all objects in the Master Page data
-				structure except the tail. */
+			   structure except the tail. */
 
 			for (pL=doc->masterHeadL; ioErr==noErr && pL!=doc->masterTailL; pL=RightLINK(pL))
 				if (ObjLType(pL)==i) { 
@@ -470,9 +523,9 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 }
 
 
-/* Write the subobjects of an object to file, updating the object <firstSubObj>
-link and subobject <next> links to reflect the  new position of the subobjects in
-their in-file heap. */
+/* Write the subobjects of an object to file, updating the object <firstSubObj> link
+and subobject <next> links to reflect the new position of the subobjects in their
+in-file heap. */
 
 static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 									LINK *firstSubLINKA, LINK *objA, LINK *modA,
@@ -486,8 +539,8 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 	PANOTEOTTAVA aNoteOct;
 	short ioErr=noErr, count;
 	
-	/* The links are now being allocated sequentially, so that the <next> link
-		of the current link <link> is link+1. */
+	/* The links are now being allocated sequentially, so that the <next> link of the
+	   current link <link> is link+1. */
 		
 		nextL = link+1;
 		myHeap = Heap + heapIndex;
@@ -572,7 +625,7 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 
 /* Actually write a block, whether object or subobject, to file. Objects are of
 varying lengths: only write out the length of the particular type of object. Returns
-an I/O Error code or noErr. NB: The eap must be locked by the calling routine for the
+an I/O Error code or noErr. NB: The heap must be locked by the calling routine for the
 sake of FSWrite. */
  
 static short WriteObject(short refNum, short heapIndex, LINK pL)
@@ -583,8 +636,8 @@ static short WriteObject(short refNum, short heapIndex, LINK pL)
 	char *p;
 	
 	myHeap = Heap + heapIndex;
-	if (heapIndex==OBJtype) count = objLength[ObjLType(pL)];
-	else							count = myHeap->objSize;
+	if (heapIndex==OBJtype)	count = objLength[ObjLType(pL)];
+	else					count = myHeap->objSize;
 	
 	p = LinkToPtr(myHeap, pL);
 	ioErr = FSWrite(refNum, &count, p);
@@ -608,20 +661,23 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 		objCount[i] = 0;
 	
 	/* Compute the numbers of objects/subobjects in the main object list of each type. */
+	
 	for (pL = doc->headL; pL!=RightLINK(doc->tailL); pL = RightLINK(pL)) {
 		objCount[OBJtype]++;
 		objCount[ObjLType(pL)] += LinkNENTRIES(pL);
 	}
 
 	/* Add in the numbers of objects/subobjects in the Master Page of each object type. */
+	
 	for (pL = doc->masterHeadL; pL!=RightLINK(doc->masterTailL); pL = RightLINK(pL)) {
 		objCount[OBJtype]++;
 		objCount[ObjLType(pL)] += LinkNENTRIES(pL);
 	}
 
 	/* Compute the numbers of note modifiers (the only type with subobjects but no
-		objects: note modifier subobjects are attached to Sync subobjects) in the score
-		(the Master Page never contains any). */
+	   objects: note modifier subobjects are attached to Sync subobjects) in the score.
+	   (The Master Page never contains any.) */
+		
 	for (pL = doc->headL; pL!=RightLINK(doc->tailL); pL = RightLINK(pL))
 		if (ObjLType(pL)==SYNCtype) {
 			aNoteL = FirstSubLINK(pL);
@@ -644,7 +700,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 		{ OutOfMemory((OBJheap->nObjs+1)*sizeof(LINK)); return False; }
 
 	/* Allocate an array of links to temporarily hold the values of all objLinks to
-		be written to file. */
+	   be written to file. */
 	
 	*objA = (LINK *)NewPtr((Size)(OBJheap->nObjs+1)*sizeof(LINK));
 	if (*objA)
@@ -660,7 +716,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 		(*objA)[pL] = j;
 
 	/* Allocate an array of links to temporarily hold the values of all modNR's to
-		be written to file. */
+	   be written to file. */
 	
 	*modA = (LINK *)NewPtr((Size)(MODNRheap->nObjs+1)*sizeof(LINK));
 	if (*modA)
@@ -729,11 +785,12 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	if (hdrErr) return hdrErr;
 
 	heapSizeAllObjs = nFObjs * (long)sizeof(SUPEROBJECT);
+	if (version=='N105') heapSizeAllObjs = nFObjs * (long)sizeof(SUPEROBJECT_N105);
 	
 	/* Read in the 4 bytes that give the exact size of all objects written out. */
 	
 	count = sizeof(long);
-	FSRead(refNum,&count,&sizeAllObjs);
+	FSRead(refNum, &count, &sizeAllObjs);
 	FIX_END(sizeAllObjs);
 	if (sizeAllObjs>heapSizeAllObjs) {
 		AlwaysErrMsg("ReadObjHeap: sizeAllObjs=%ld but nFObjs=%ld gives heapSizeAllObjs=%ld",
@@ -770,21 +827,80 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 		type = ObjPtrType(src);
 		len  = objLength[type];
 		
-		/*
-		 * <len> is now the correct object length for the current file format. If any
-		 * object lengths were different in previous file formats, adjust <len> to
-		 * compensate here. (The CONTENT of the object should be fixed in ConvertObjList.) 
-		 */
-		if (version<='N099') {
-			if (type==MEASUREtype) len -= 4;
-			else if (type==SYNCtype) len += 2;
-		}
+		/* <len> is now the correct object length for the current file format. If any
+		   object lengths were different in previous file formats, adjust <len> to
+		   compensate here. (The _contents_ of the objects should be fixed in
+		   ConvertObjList.) */
+		   
+#ifdef NOMORE
 		if (version<='N100') {
 			if (type==TEMPOtype) len -= 4;
 			if (type==BEAMSETtype) len += 8;
 		}
+#endif
+		if (version=='N105') {
+			switch (type) {
+				case HEADERtype:
+					break;
+				case TAILtype:
+					break;
+				case SYNCtype:
+					len += 26;
+					break;
+				case RPTENDtype:
+					break;
+				case PAGEtype:
+					break;
+				case SYSTEMtype:
+					break;
+				case STAFFtype:
+					break;
+				case MEASUREtype:
+					break;
+				case CLEFtype:
+					break;
+				case KEYSIGtype:
+					break;
+				case TIMESIGtype:
+					break;
+				case BEAMSETtype:
+					break;
+				case CONNECTtype:
+					break;
+				case DYNAMtype:
+					break;
+				case MODNRtype:
+					break;
+				case GRAPHICtype:
+					break;
+				case OTTAVAtype:
+					break;
+				case SLURtype:
+					break;
+				case TUPLETtype:
+					break;
+				case GRSYNCtype:
+					break;
+				case TEMPOtype:
+					break;
+				case SPACERtype:
+					break;
+				case ENDINGtype:
+					break;
+				case PSMEAStype:
+					break;
+				case OBJtype:
+					break;
+				default:
+					return False;
+			
+			}
+			LogPrintf(LOG_DEBUG, "ReadObjHeap: can't handle version N105 file!!!\n");
+			ioErr = 1729;
+			break;
+		}
 
-		BlockMove(src,dst,len);
+		BlockMove(src, dst, len);
 		/* And go on to next object and next LINK slot */
 		src += len;
 		dst += sizeof(SUPEROBJECT);
@@ -792,83 +908,60 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	}
 	
 	PopLock(myHeap);
-	if (ioErr)
-		{ OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
+	if (ioErr) { OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
 	RebuildFreeList(doc, OBJtype, nFObjs);
 	return(ioErr);
 }
 
+
 /* Read all subobject heaps from file.
  
-Note: CER 9/5/2003, regarding PARTINFO conversion, HEADERtype heap. Format N103
-conversion to the N105 format.
-	* N103 appears to have been written with 2-byte alignment, yielding 
-		sizeof(destinationMatch) = 278.
+A note about PARTINFO conversion, HEADERtype heap, for converting from format N103 to N105:
+	* N103 files appear to have been written with 2-byte alignment, yielding 
+		sizeof(fmsDestinationMatch) = 278.
 	* N105 files are written in environment with 4-byte alignment, yielding
-		sizeof(destinationMatch) = 280.
+		sizeof(fmsDestinationMatch) = 280.
 So newPartFieldsSize and partObjSizeN103 will actually be off by 2 bytes when computed
 in the different environments. The test version<='N103' is therefore not really an
 authoritative test; it depends on this incidental occurrence, the alignment
 environment setting in force in the build environment of the apps which write the
-files of the respective formats.*/
+files of the respective formats. --CER, 9/5/2003 */
 
 static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
 	HEAP *myHeap;
 	short i, ioErr, hdrErr;
-	short dynamObjSizeN102, dynamObjSizeN103;
-	short partObjSizeN102, partObjSizeN103, partObjSizeN105;
+	short dynamObjSizeN103;
+	short partObjSizeN102, partObjSizeN103, partObjSizeN105, savePartObjSize;
 	unsigned short nFObjs;
 	long count, nExpand, newPartFieldsSize;
 	char *p, *q, *r;
-	short sizeDiff, newPartFieldsChunk1, destinationMatchSize2Byte;
+	short sizeDiff, newPartFieldsChunk1, fmsDestinationMatchSize2Byte;
 	
 	partObjSizeN105 = (doc->Heap+HEADERtype)->objSize;
 	partObjSizeN103 = partObjSizeN105-2;
 	newPartFieldsChunk1 = (sizeof(Byte)*2) + sizeof(fmsUniqueID);
-	newPartFieldsSize = newPartFieldsChunk1 + sizeof(destinationMatch);
+	newPartFieldsSize = newPartFieldsChunk1 + sizeof(fmsDestinationMatch);
 	partObjSizeN102 = partObjSizeN105 - newPartFieldsSize;	/* lacked bank select & FreeMIDI fields */
 //say("oldSize=%d, newSize=%d\n", partObjSizeN102, partObjSizeN103);
 
 	dynamObjSizeN103 = (doc->Heap+DYNAMtype)->objSize;
-	dynamObjSizeN102 = dynamObjSizeN103 - sizeof(DDIST);		/* lacked endyd field */
 //say("oldSize=%d, newSize=%d\n", dynamObjSizeN102, dynamObjSizeN103);
 
  	for (i=FIRSTtype; i<LASTtype-1; i++) {
 		myHeap = doc->Heap + i;
 		
 		/* Read the number of subobjects in the heap and the heap header. We must write
-			and read the heap header in all cases, regardless of whether there are any
-			objects/subobjects in the heap: we can't know beforehand whether there are any
-			in a given heap. If file version is old, ignore new fields soon to be added to
-			some subobjs when reading heap size. */
+		   and read the heap header in all cases, regardless of whether there are any
+		   objects/subobjects in the heap: we can't know beforehand whether there are any
+		   in a given heap. */
 
-		if (version<='N102' && i==HEADERtype) {
-			myHeap->objSize = partObjSizeN102;			/* So as not to trigger error in ReadHeapHdr. */
-			hdrErr = ReadHeapHdr(doc, refNum, version, isViewerFile, i, &nFObjs);
-			myHeap->objSize = partObjSizeN105;
-			if (hdrErr) return hdrErr;
-		}
-		else if (version =='N103' && i==HEADERtype) {
-			myHeap->objSize = partObjSizeN103;			/* So as not to trigger error in ReadHeapHdr. */
-			hdrErr = ReadHeapHdr(doc, refNum, version, isViewerFile, i, &nFObjs);
-			myHeap->objSize = partObjSizeN105;
-			if (hdrErr) return hdrErr;
-		}
-		else if (version<='N102' && i==DYNAMtype) {
-			myHeap->objSize = dynamObjSizeN102;			/* So as not to trigger error in ReadHeapHdr. */
-			hdrErr = ReadHeapHdr(doc, refNum, version, isViewerFile, i, &nFObjs);
-			myHeap->objSize = dynamObjSizeN103;
-			if (hdrErr) return hdrErr;
-		}
-		else {
-			hdrErr = ReadHeapHdr(doc, refNum, version, isViewerFile, i, &nFObjs);
-			if (hdrErr) return hdrErr;
-		}
+		hdrErr = ReadHeapHdr(doc, refNum, version, isViewerFile, i, &nFObjs);
+		if (hdrErr) return hdrErr;
 
 		if (nFObjs) {
 			/* Having found out how many objs are in the heap in the file, we can
-				expand, if necessary, the memory pool to accomodate them. */
+			   expand, if necessary, the memory pool to accomodate them. */
 
 			if (nFObjs+1 >= myHeap->nObjs) {
 				nExpand = (long)nFObjs - (long)myHeap->nObjs + EXTRAOBJS;
@@ -877,21 +970,15 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 			}
 
 			/* Read nFObjs+1 objects from the file, since the zeroth object is not used. */
-			if (version<='N102' && i==HEADERtype) {
-				count = (unsigned long)partObjSizeN102 * (unsigned long)nFObjs;
-				p = *(myHeap->block); p += myHeap->objSize + (nFObjs*newPartFieldsSize);
-			}
-			else if (version=='N103' && i==HEADERtype) {
+			if (version=='N103' && i==HEADERtype) {
 				count = (unsigned long)partObjSizeN103 * (unsigned long)nFObjs;
 				sizeDiff = partObjSizeN105-partObjSizeN103;
 				p = *(myHeap->block); p += myHeap->objSize + (nFObjs*sizeDiff);
 			}
-			else if (version<='N102' && i==DYNAMtype) {
-				count = (unsigned long)dynamObjSizeN102 * (unsigned long)nFObjs;
-				p = *(myHeap->block); p += myHeap->objSize + (nFObjs*sizeof(DDIST));
-			}
 			else {
-				count = (unsigned long)myHeap->objSize * (unsigned long)(nFObjs);
+				short expectedSize = myHeap->objSize;
+				if (version=='N105') expectedSize = subObjLength_N105[i];
+				count = (unsigned long)expectedSize * (unsigned long)(nFObjs);
 				/* Set p to point to LINK 1, since LINK 0 is never used. */
 				p = *(myHeap->block); p += myHeap->objSize;
 			}
@@ -900,32 +987,7 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 
 			/* To make room for new fields, we use the technique described in the comments
 				for ReadObjHeap. */
-			if (version<='N102') {
-				if (i==HEADERtype || i==DYNAMtype) {
-					unsigned long j; char *src, *dst;
-					short oldSize, newSize;
-
-					switch (i) {
-						case HEADERtype:
-							oldSize = partObjSizeN102;
-							newSize = partObjSizeN105;	// NB: Must track revision number when this size changes
-							break;
-						case DYNAMtype:
-							oldSize = dynamObjSizeN102;
-							newSize = dynamObjSizeN103;
-							break;
-					}
-					src = p;
-					dst = *(myHeap->block) + newSize;
-					for (j = 0; j < (unsigned long)nFObjs; j++) {
-						BlockMove(src, dst, oldSize);
-						src += oldSize;
-						dst += newSize;
-					}
-				}
-			}
-			else if (version == 'N103')
-			{
+			if (version == 'N103') {
 				if (i==HEADERtype) {
 					unsigned long j; char *src, *dst;
 					short oldSize, newSize;
@@ -941,16 +1003,15 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 					for (j = 0; j < (unsigned long)nFObjs; j++) {
 						BlockMove(src, dst, oldSize);
 						
-						/*
-						 * Code to realign destinationMatch depends on incidental aspect of
-						 * build process that N103 was built with 2-byte alignment. Caveat
-						 * programmer.
-						 */
+						/* Code to realign fmsDestinationMatch depends on incidental aspect
+						   of build process that N103 was built with 2-byte alignment. See
+						   comment above, and caveat programmer. */
+						
 						q = dst + partObjSizeN102 + newPartFieldsChunk1;
 						r = q + 2;
-						destinationMatchSize2Byte = sizeof(destinationMatch) - 2;
+						fmsDestinationMatchSize2Byte = sizeof(fmsDestinationMatch) - 2;
 						
-						BlockMove(q, r, destinationMatchSize2Byte);
+						BlockMove(q, r, fmsDestinationMatchSize2Byte);
 						
 						src += oldSize;
 						dst += newSize;
@@ -969,27 +1030,31 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 }
 
 /* Read the number of objects/subobjects in the heap and the heap header from the file.
-The header is used only for error checking. Return 0 if all OK, else an error code
-(either a system I/O error code or one of our own). */
+The header is used only for error checking. Deliver the number of objs/subobjs in
+*pnFObjs. Return value of 0 if all OK, else an error code (either a system I/O error
+code or one of our own). */
 
-static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean /*isViewerFile*/,
+static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*isViewerFile*/,
 								short heapIndex, unsigned short *pnFObjs)
 {
 	long count;
-	short  ioErr;
+	short  ioErr, expectedSize;
 	HEAP *myHeap, tempHeap;
 	
-	/* Read the total number of objects of type heapIndex */
+	/* Read the total number of objects/subobjects of type heapIndex */
+	
 	count = sizeof(short);
 	ioErr = FSRead(refNum, &count, pnFObjs);
 	FIX_END(*pnFObjs);
-	if (ioErr)
-		{ OpenError(True, refNum, ioErr, heapIndex); return ioErr; }
+	if (ioErr) { OpenError(True, refNum, ioErr, heapIndex);  return ioErr; }
+	
+	/* Read and check the heap header. Some objects/subobjects have changed size with
+	   file format, so if file version is old, check for the size expected in that
+	   format. */
 	
  	count = sizeof(HEAP);
 	ioErr = FSRead(refNum, &count, &tempHeap);
-	if (ioErr)
-		{ OpenError(True, refNum, ioErr, heapIndex); return ioErr; }
+	if (ioErr) { OpenError(True, refNum, ioErr, heapIndex);  return ioErr; }
 	EndianFixHeapHdr(doc, &tempHeap);
 	myHeap = doc->Heap + heapIndex;
 
@@ -1010,9 +1075,14 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 		return HDR_TYPE_ERR;
 	}
 		
-	if (myHeap->objSize!=tempHeap.objSize) {
+	expectedSize = myHeap->objSize;
+	if (version=='N103' && heapIndex==HEADERtype) expectedSize = 9999; // partObjSizeN103;
+	if (version=='N105' && heapIndex==OBJtype) expectedSize = sizeof(SUPEROBJECT_N105);
+	else if (version=='N105') expectedSize = subObjLength_N105[heapIndex];
+
+	if (tempHeap.objSize!=expectedSize) {
 		LogPrintf(LOG_ERR, "Header for heap %d objSize is %d, but expected objSize %d (ReadHeapHdr)\n",
-			heapIndex, tempHeap.objSize, myHeap->objSize);
+			heapIndex, tempHeap.objSize, expectedSize);
 		OpenError(True, refNum, HDR_SIZE_ERR, heapIndex);
 		return HDR_SIZE_ERR;
 	}
@@ -1153,10 +1223,9 @@ static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObj
 }
 
 
-/* Preserve the clipboard, and reset the undo and tempUndo clipboards, across
-a call to OpenFile. Note that we don't have to delete or free any of the nodes
-in any of the clipboards, since the call to RebuildFreeList() re-initializes
-all heaps. */
+/* Preserve the clipboard, and reset the undo and tempUndo clipboards, across a call to
+OpenFile. Note that we don't have to delete or free any of the nodes in any of the
+clipboards, since the call to RebuildFreeList() re-initializes all heaps. */
 
 static void PrepareClips()
 {

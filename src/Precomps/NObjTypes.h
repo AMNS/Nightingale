@@ -331,7 +331,7 @@ typedef struct {
 	Byte		offVelocity;		/* P: MIDI note-off (release) velocity (unused for rests) */
 	Boolean		tiedL;				/* True if tied to left */
 	Boolean		tiedR;				/* True if tied to right */
-	Byte		ymovedots;			/* G: Y-offset on aug. dot pos. (halflines, 2=same as note, except 0=invisible) */
+	Byte		ymovedots;			/* G: Y-offset on aug. dot pos. (half-spaces, 2=same as note, except 0=invisible) */
 	Byte		ndots;				/* LG: No. of aug. dots */
 	SignedByte	voice;				/* L: Voice number */
 	Byte		rspIgnore;			/* True if note's chord should not affect automatic spacing (unused as of v. 5.8) */
@@ -346,13 +346,13 @@ typedef struct {
 	Byte		headShape;			/* G: Special notehead or rest shape; see list below */
 	Byte		xmovedots;			/* G: X-offset on aug. dot position */
 	LINK		firstMod;			/* LG: Note-related symbols (articulation, fingering, etc.) */
-	Byte		slurredL;			/* True if endpoint of slur to left (extra bit for future use) */
-	Byte		slurredR;			/* True if endpoint of slur to right (extra bit for future use) */
+	Byte		slurredL;			/* True if endpoint of slur to left */
+	Byte		slurredR;			/* True if endpoint of slur to right */
 	Byte		inTuplet;			/* True if in a tuplet */
 	Byte		inOttava;			/* True if in an octave sign */
-	Byte		small;				/* True if a small (cue, etc.) note */
+	Byte		small;				/* True if a small (cue, cadenza-like, etc.) note */
 	Byte		tempFlag;			/* temporary flag for benefit of functions that need it */
-	SignedByte	fillerN;
+	long		reservedN;			/* For future use */
 } ANOTE, *PANOTE;
 
 typedef struct {

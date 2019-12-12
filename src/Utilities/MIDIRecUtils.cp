@@ -110,7 +110,7 @@ PushLock(NOTEheap);
 	aNote->inOttava = False;
 	aNote->small = False;
 	aNote->tempFlag = False;
-	aNote->fillerN = 0;
+	aNote->reservedN = 0;
 
 	aNote->playTimeDelta = 0;								/* For the moment */
 

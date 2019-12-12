@@ -235,7 +235,7 @@ Boolean DoFileMenu(short choice)
 	{
 		Boolean keepGoing = True, doSymbol;  short vrefnum, returnCode;
 		register Document *doc=GetDocumentFromWindow(TopDocument);
-		char str[256];
+		char str[256], tmpCStr[256];
 		NSClientData nscd;  FSSpec fsSpec;
 		
 		switch (choice) {
@@ -258,8 +258,10 @@ Boolean DoFileMenu(short choice)
 						if (returnCode==OP_OpenFile) {
 							fsSpec = nscd.nsFSSpec;
 							vrefnum = nscd.nsFSSpec.vRefNum;
+							Pstrcpy((unsigned char *)tmpCStr, tmpStr); PToCString((unsigned char *)tmpCStr);
+							LogPrintf(LOG_NOTICE, "Opening file '%s'...\n", tmpCStr);
 							if (DoOpenDocument(tmpStr, vrefnum, False, &fsSpec))
-								LogPrintf(LOG_INFO, "Opened file '%s'.\n", PToCString(tmpStr));
+								LogPrintf(LOG_NOTICE, "Opened file '%s'.\n", tmpCStr);
 						 }
 						 else if (returnCode==OP_NewFile)
 						 	keepGoing = DoFileMenu(FM_New);

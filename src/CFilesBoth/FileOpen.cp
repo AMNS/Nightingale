@@ -62,6 +62,7 @@ enum {
 
 /* ------------------------------------------------------- ConvertScoreContent helpers -- */
 
+#ifdef NOMORE
 static void OldGetSlurContext(Document *, LINK, Point [], Point []);
 static void ConvertChordSlurs(Document *);
 static void ConvertModNRVPositions(Document *, LINK);
@@ -325,6 +326,7 @@ static void ConvertStaffLines(LINK startL)
 	}
 }
 
+#endif
 
 /* --------------------------------------------------------------- ConvertScoreContent -- */
 /* Any file-format-conversion code that doesn't affect the length of the header or
@@ -333,7 +335,7 @@ all goes well, False if not.
 
 This function should not be called until the header and the entire object list have been
 read! Tweaks that affect lengths or offsets to the header should be done in OpenFile; to
-to objects (or subobjects), in ReadObjHeap. */
+objects (or subobjects), in ReadObjHeap. */
 
 static Boolean ConvertScoreContent(Document *doc, long fileTime)
 {
@@ -344,15 +346,6 @@ static Boolean ConvertScoreContent(Document *doc, long fileTime)
 	/* Put all Dynamic horizontal position info into object xd */
 	
 	if (version<='N100') {
-		LINK aDynamicL;  PADYNAMIC aDynamic;
-	
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==DYNAMtype) {
-				aDynamicL = FirstSubLINK(pL);
-				aDynamic = GetPADYNAMIC(aDynamicL);
-				LinkXD(pL) += aDynamic->xd;
-				aDynamic->xd = 0;
-			}
 	}
 
 	/* Convert Ottava position info to new form: if nxd or nyd is nonzero, it's in the
@@ -360,17 +353,6 @@ static Boolean ConvertScoreContent(Document *doc, long fileTime)
 	   ydLast also. */
 		
 	if (version<='N100') {
-		POTTAVA ottavap;
-	
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==OTTAVAtype) {
-				ottavap = GetPOTTAVA(pL);
-				if (ottavap->nxd!=0 || ottavap->nyd!=0) {
-					ottavap->xdFirst = ottavap->xdLast = ottavap->nxd;
-					ottavap->ydFirst = ottavap->ydLast = ottavap->nyd;
-					ottavap->nxd = ottavap->nyd = 0;
-				}
-			}
 	}
 
 	/* Move Measure "fake" flag from subobject to object. If file version code is
@@ -379,20 +361,6 @@ static Boolean ConvertScoreContent(Document *doc, long fileTime)
 	if (version<='N099'
 	|| (version=='N100' && date.year==1991
 		&& (date.month<=8 || (date.month==9 && date.day<=6))) ) {
-		LINK aMeasL; PAMEASURE aMeas;
-	
-		if (version>'N099') {
-			/* This is all but obsolete--it's not worth moving this string to a resource */
-			CParamText("File has a suspicious date, so converting measFake flags.", "", "", "");
-			CautionInform(GENERIC_ALRT);
-		}
-		
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==MEASUREtype) {
-				aMeasL = FirstSubLINK(pL);
-				aMeas = GetPAMEASURE(aMeasL);
-				MeasISFAKE(pL) = aMeas->oldFakeMeas;
-			}
 	}
 
 	/* Convert Tuplet position info to new form: if acnxd or acnyd is nonzero, it's in the
@@ -400,17 +368,6 @@ static Boolean ConvertScoreContent(Document *doc, long fileTime)
 	   ydLast also. */
 	   
 	if (version<='N100') {
-		PTUPLET pTuplet;
-	
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==TUPLETtype) {
-				pTuplet = GetPTUPLET(pL);
-				if (pTuplet->acnxd!=0 || pTuplet->acnyd!=0) {
-					pTuplet->xdFirst = pTuplet->xdLast = pTuplet->acnxd;
-					pTuplet->ydFirst = pTuplet->ydLast = pTuplet->acnyd;
-					pTuplet->acnxd = pTuplet->acnyd = 0;
-				}
-			}
 	}
 
 	/* Move all slurs to correct position in object list, immediately before their
@@ -418,104 +375,33 @@ static Boolean ConvertScoreContent(Document *doc, long fileTime)
 	   after the first invis meas, e.g. before the RightLINK of its firstSyncL. */
 		
 	if (version<='N100') {
-		LINK nextL;
-		
-		for (pL = doc->headL; pL; pL = nextL) {
-			nextL = RightLINK(pL);
-			if (SlurTYPE(pL))
-				if (!SlurLastIsSYSTEM(pL))
-					MoveNode(pL,SlurFIRSTSYNC(pL));
-				else
-					MoveNode(pL,RightLINK(SlurFIRSTSYNC(pL)));
-		}
 	}
 
 	/* Look for slurs with <dashed> flag set, which is probably spurious, and if we find
 	   any, offer to fix them. */
 		
 	if (version<='N100') {
-		LINK aSlurL;  PASLUR aSlur;  Boolean foundDashed=False;
-		
-		for (pL = doc->headL; pL && !foundDashed; pL = RightLINK(pL)) 
-			if (SlurTYPE(pL)) {
-				aSlurL = FirstSubLINK(pL);
-				for ( ; aSlurL; aSlurL = NextSLURL(aSlurL)) {
-					aSlur = GetPASLUR(aSlurL);
-					if (aSlur->dashed) { foundDashed = True; break; }
-				}
-			}
-
-		if (foundDashed) {
-			GetIndCString(strBuf, FILEIO_STRS, 4);		/* "Found dashed slurs that may be spurious" */
-			CParamText(strBuf, "", "", "");
-			if (CautionAdvise(GENERIC3_ALRT)==OK) {
-				for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-					if (SlurTYPE(pL)) {
-						aSlurL = FirstSubLINK(pL);
-						for ( ; aSlurL; aSlurL = NextSLURL(aSlurL)) {
-							aSlur = GetPASLUR(aSlurL);
-							aSlur->dashed = 0;
-						}
-					}
-			}
-		}
 	}
 
 	/* Set Clef <small> flag according to whether it's <inMeas>: this is to make
 		clef size explicit, so it can be overridden. */
 
 	if (version<='N100') {
-		Boolean inMeas; LINK aClefL; PACLEF aClef;
-		
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==CLEFtype) {
-				inMeas = ClefINMEAS(pL);
-				for (aClefL = FirstSubLINK(pL); aClefL; aClefL = NextCLEFL(aClefL)) {
-					aClef = GetPACLEF(aClefL);
-					aClef->small = inMeas;
-				}
-			}
 	}
 
 	/* Convert octave sign y-position to new representation */
 	
 	if (version<='N100') {
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==OTTAVAtype) {
-				SetOttavaYPos(doc, pL);
-			}
 	}
 
 	/* Convert Tempo metronome mark from int to string */
 	
 	if (version<='N100') {
-		PTEMPO pTempo;  long beatsPM;  Str255 string;
-		STRINGOFFSET offset;
-		
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==TEMPOtype) {
-				pTempo = GetPTEMPO(pL);
-				beatsPM = pTempo->tempoMM;
-				NumToString(beatsPM, string);
-				offset = PStore(string);
-				if (offset<0L)
-					{ NoMoreMemory(); return False; }
-				else
-					TempoMETROSTR(pL) = offset;
-			}
 	}
 
 	/* Move Beamset fields to adjust for removal of the <lGrip> and <rGrip> fields */
 	
 	if (version<='N100') {
-		PBEAMSET pBeamset;
-			
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==BEAMSETtype) {
-				pBeamset = GetPBEAMSET(pL);
-				/* Move fields from <voice> to end--many fields but only 2 bytes! */
-				BlockMove((Ptr)(&pBeamset->voice)+8, (Ptr)(&pBeamset->voice), 2);
-			}
 	}
 
 
@@ -527,145 +413,47 @@ static Boolean ConvertScoreContent(Document *doc, long fileTime)
 	if (version<='N100'
 	|| (version=='N101' && (fileTime & 0x80000000)!=0)
 	|| ShiftKeyDown()) {
-		short v;  LINK aNoteL;  Boolean foundChordSlur;
-		
-		for (foundChordSlur = False, pL = doc->headL; pL; pL = RightLINK(pL)) {
-			if (SlurTYPE(pL) && !SlurTIE(pL)) {
-				v = SlurVOICE(pL);
-				if (SyncTYPE(SlurFIRSTSYNC(pL))) {
-					aNoteL = FindMainNote(SlurFIRSTSYNC(pL), v); 
-					if (NoteINCHORD(aNoteL)) { foundChordSlur = True; break; }
-				}
-				if (SyncTYPE(SlurLASTSYNC(pL))) {
-					aNoteL = FindMainNote(SlurLASTSYNC(pL), v); 
-					if (NoteINCHORD(aNoteL)) { foundChordSlur = True; break; }
-				}
-			}
-		}
-		
-		if (foundChordSlur) {
-			if (version<='N100')
-				ConvertChordSlurs(doc);
-			else {
-				GetIndCString(strBuf, FILEIO_STRS, 5);		/* "Found slur(s) starting/ending with chords" */
-				CParamText(strBuf, "", "", "");
-				if (CautionAdvise(GENERIC3_ALRT)==OK)
-					ConvertChordSlurs(doc);
-			}
-		}
 	}
 
 	/* Fill in page no. position pseudo-Rect. */
 
-	if (version<='N101')
-		doc->headerFooterMargins = config.pageNumMarg;
+	if (version<='N101') ;
 
 	/* Update ModNR vertical positions to compensate for new centering. */
 	
-	if (version<='N101')
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (SyncTYPE(pL))
-				ConvertModNRVPositions(doc, pL);
+	if (version<='N101') ;
 		
 	/* Update Graphic horizontal positions to compensate for new subobj-relativity. */
 	
 	if (version<='N101') {
-		LINK firstObjL;  DDIST newxd, oldxd;  CONTEXT context;
-		
-		for (pL = doc->headL; pL; pL = RightLINK(pL))
-			if (GraphicTYPE(pL)) {
-				firstObjL = GraphicFIRSTOBJ(pL);
-				if (!firstObjL || PageTYPE(firstObjL)) continue;
-				
-				GetContext(doc, firstObjL, GraphicSTAFF(pL), &context);
-				newxd = GraphicPageRelxd(doc, pL,firstObjL, &context);
-				oldxd = PageRelxd(firstObjL, &context);
-				LinkXD(pL) += oldxd-newxd;		
-			}
 	}
 	
 	/* Initialize dynamic subobject endyd field. */
 
 	if (version<='N102') {
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==DYNAMtype) {
-				LINK aDynamicL = FirstSubLINK(pL);
-				if (IsHairpin(pL))
-					DynamicENDYD(aDynamicL) = DynamicYD(aDynamicL);
-				else
-					DynamicENDYD(aDynamicL) = 0;
-			}
 	}
 
 	/* Initialize header subobject (part) bank select and FreeMIDI fields for
 		both main data structure and master page. */
 
 	if (version<='N102') {
-		PPARTINFO pPart; LINK partL;
-
-		partL = NextPARTINFOL(FirstSubLINK(doc->headL));
-		for ( ; partL; partL = NextPARTINFOL(partL)) {
-			pPart = GetPPARTINFO(partL);
-			pPart->fmsOutputDevice = noUniqueID;
-			/* FIXME: We're probably not supposed to play with these fields... */
-			pPart->fmsOutputDestination.basic.destinationType = 0,
-			pPart->fmsOutputDestination.basic.name[0] = 0;
-		}
-
-		partL = NextPARTINFOL(FirstSubLINK(doc->masterHeadL));
-		for ( ; partL; partL = NextPARTINFOL(partL)) {
-			pPart = GetPPARTINFO(partL);
-			pPart->fmsOutputDevice = noUniqueID;
-			/* FIXME: We're probably not supposed to play with these fields... */
-			pPart->fmsOutputDestination.basic.destinationType = 0,
-			pPart->fmsOutputDestination.basic.name[0] = 0;
-		}
 	}
 
-	/* For GRChordSym graphics:
-		1)	Initialize info field. This is now used for chord symbol options -- currently
-			only whether to show parentheses around extensions -- so we set it to the
-			current config setting that used to be the only way to toggle showing 
-			parentheses. This seems like the best way to get what the user expects.
-		2) Append the chord symbol delimiter character to the graphic string, to represent
-			an empty substring for the new "/bass" field.
-																-JGG, 6/16/01 */
-	
 	if (version<='N102') {
-		Str255 string, delim;  LINK aGraphicL;  STRINGOFFSET offset;
-
-		delim[0] = 1; delim[1] = CS_DELIMITER;
-		for (pL = doc->headL; pL; pL = RightLINK(pL)) {
-			if (ObjLType(pL)==GRAPHICtype && GraphicSubType(pL)==GRChordSym) {
-				GraphicINFO(pL) = config.chordSymDrawPar? 1 : 0;
-
-				aGraphicL = FirstSubLINK(pL);
-				Pstrcpy((StringPtr)string, (StringPtr)PCopy(GraphicSTRING(aGraphicL)));
-				PStrCat(string, delim);
-				offset = PReplace(GraphicSTRING(aGraphicL), string);
-				if (offset<0L) {
-					NoMoreMemory();
-					return False;
-				}
-				else
-					GraphicSTRING(aGraphicL) = offset;
-			}
-		}
 	}
 
 	/* Convert old staff <oneLine> field to new <showLines> field, and initialize
 		new <showLedgers> field, for staves in the score and in master page. */
 
 	if (version<='N102') {
-		ConvertStaffLines(doc->headL);
-		ConvertStaffLines(doc->masterHeadL);
 	}
 
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
 	but (as of v.997), they sometimes were, probably because not exporting changes to
 	Master Page was implemented by reconstructing it from the 1st system of the score.
-	That was fixed in about .998a10, so it should be safe to remove this call
-	before too long, but making them visible here shouldn't cause any problems. */
+	That was fixed in about .998a10!, so it should certainly be safe to remove this call,
+	but the thought makes me nervous, and making them visible here shouldn't cause any
+	problems and never has. */
 
 	VisifyMasterStaves(doc);
 	
@@ -1415,9 +1203,9 @@ static Boolean CheckScoreHdr(Document *doc)
 /* -------------------------------------------------------------------------- OpenFile -- */
 /* Open and read in the specified file. If there's an error, normally (see comments in
 OpenError) gives an error message, and returns <errCode>; else returns noErr (0). Also
-sets *fileVersion to the Nightingale version that created the file. FIXME: even though
-vRefNum is a parameter, (routines called by) OpenFile assume the volume is already set!
-This should be changed. */
+sets *fileVersion to the Nightingale version that created the file. We assume doc exists
+and has had standard fields initialized. FIXME: even though vRefNum is a parameter,
+(routines called by) OpenFile assume the volume is already set! This should be changed. */
 
 enum {
 	LOW_VERSION_ERR=-999,
@@ -1446,7 +1234,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	OMSSignature omsDevHdr;
 	long		fmsDevHdr;
 	long		omsBufCount, omsDevSize;
-	short		i, nDocErr, nScoreErr;
+	short		i, nDocErr;
 	FInfo		fInfo;
 	FSSpec 		fsSpec;
 	long		cmHdr, cmBufCount, cmDevSize;
@@ -1493,10 +1281,10 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (version>THIS_FILE_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
 	if (version!=THIS_FILE_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%s' FILE.\n", versionCString);
 
-#define DIFF(addr1, addr2)	((long)(&addr1)-(long)(&addr2))
-if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Offset of aDocN105.comment[0]=%lu, spacePercent=%lu, fillerMB=%lu, nFontRecords=%lu, nfontsUsed=%lu, yBetweenSys=%lu\n",
-DIFF(aDocN105.comment[0], aDocN105.headL), DIFF(aDocN105.spacePercent, aDocN105.headL), DIFF(aDocN105.fillerMB, aDocN105.headL), DIFF(aDocN105.nFontRecords, aDocN105.headL),
-DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.headL));
+//#define DIFF(addr1, addr2)	((long)(&addr1)-(long)(&addr2))
+//if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Offset of aDocN105.comment[0]=%lu, spacePercent=%lu, fillerMB=%lu, nFontRecords=%lu, nfontsUsed=%lu, yBetweenSys=%lu\n",
+//DIFF(aDocN105.comment[0], aDocN105.headL), DIFF(aDocN105.spacePercent, aDocN105.headL), DIFF(aDocN105.fillerMB, aDocN105.headL), DIFF(aDocN105.nFontRecords, aDocN105.headL),
+//DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.headL));
 
 	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Header size for Document=%ld, for Score=%ld, for N105 Score=%ld\n",
 		sizeof(DOCUMENTHDR), sizeof(SCOREHEADER), sizeof(SCOREHEADER_N105));
@@ -1571,6 +1359,8 @@ DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.h
 		goto Error;
 	}
 
+	/* Read the string pool. */
+
 	count = sizeof(stringPoolSize);
 	errCode = FSRead(refNum, &count, &stringPoolSize);
 	if (errCode) { errInfo = STRINGobj; goto Error; }
@@ -1584,7 +1374,7 @@ DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.h
 	
 	doc->stringPool = NewStringPool();
 	if (doc->stringPool == NULL) { errInfo = STRINGobj; goto Error; }
-	SetHandleSize((Handle)doc->stringPool,stringPoolSize);
+	SetHandleSize((Handle)doc->stringPool, stringPoolSize);
 	
 	HLock((Handle)doc->stringPool);
 	errCode = FSRead(refNum, &stringPoolSize, *doc->stringPool);
@@ -1597,13 +1387,17 @@ DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.h
 		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (OpenFile)", (long)strPoolErrCode);
 	
 	//errCode = GetFInfo(filename, vRefNum, &fInfo);
-	errCode = FSpGetFInfo (&fsSpec, &fInfo);
+	errCode = FSpGetFInfo(&fsSpec, &fInfo);
 	if (errCode!=noErr) { errInfo = INFOcall; goto Error; }
 	
-	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);	/* Read the rest of the file! */
+	/* Read the subobject heaps and the object heap in the rest of the file, and if
+	   necessary, convert them. */
+	
+	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
 	if (errCode) return errCode;
 
-	/* Be sure we have enough memory left for a maximum-size segment and a bit more. */
+	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size
+	   segment and a bit more." Now we insist on a lot more, though it may be pointless. */
 	
 	if (!PreflightMem(400)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
@@ -1638,7 +1432,8 @@ DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.h
 
 	/* Read the FreeMIDI input device data. */
 	doc->fmsInputDevice = noUniqueID;
-	/* FIXME: We're probably not supposed to play with these fields... */
+	/* We're probably not supposed to play with these fields, but FreeMIDI is obsolete
+	   anyway, so the only change worth making is to remove these statements. */
 	doc->fmsInputDestination.basic.destinationType = 0,
 	doc->fmsInputDestination.basic.name[0] = 0;
 	count = sizeof(long);
@@ -1650,7 +1445,7 @@ DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.h
 			count = sizeof(fmsUniqueID);
 			errCode = FSRead(refNum, &count, &doc->fmsInputDevice);
 			if (errCode) return errCode;
-			count = sizeof(destinationMatch);
+			count = sizeof(fmsDestinationMatch);
 			errCode = FSRead(refNum, &count, &doc->fmsInputDestination);
 			if (errCode) return errCode;
 		}
