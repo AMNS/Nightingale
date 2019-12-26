@@ -1,6 +1,5 @@
 /* Score.h for Nightingale */
 
-void InitN103FontRecs(Document *);
 void InitFontRecs(Document *);
 void FixGraphicFont(Document *, LINK);
 Boolean NewDocScore(Document *);

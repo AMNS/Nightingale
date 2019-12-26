@@ -157,57 +157,52 @@ void GetPrintHandle(Document *doc, unsigned long version, short /*vRefNum*/, FSS
 		short refnum;
 		OSStatus err = noErr;
 		
-		if (version<'N104' || THIS_FILE_VERSION<'N104') {
-			doc->flatFormatHandle = NULL;
+		FSpOpenResFile(pfsSpec, fsRdWrPerm);	/* Open the resource file */	
+		
+		err = ResError();
+		if (err==noErr) {
+			refnum = CurResFile();
 		}
 		else {
-			FSpOpenResFile(pfsSpec, fsRdWrPerm);	/* Open the resource file */	
-			
-			err = ResError();
-			if (err==noErr) {
-				refnum = CurResFile();
-			}
-			else {
-				doc->flatFormatHandle = NULL;
-				if (err!=eofErr && err!=fnfErr) {
-					PrintHandleError(err);
-				}				
-				return;
-			}
+			doc->flatFormatHandle = NULL;
+			if (err!=eofErr && err!=fnfErr) {
+				PrintHandleError(err);
+			}				
+			return;
+		}
+	
+		doc->flatFormatHandle = (Handle)Get1Resource('PFMT', 128);
 		
-			doc->flatFormatHandle = (Handle)Get1Resource('PFMT', 128);
-			
-			/* Ordinarily, we'd now call ReportBadResource, which checks if the new Handle
-			   is NULL as well as checking ResError. But in this case, we don't want to report
-			   an error if it's NULL--or do we? */
-			   
-			err = ResError();
-			if (err==noErr) {
-				if (doc->flatFormatHandle) {
-					LoadResource(doc->flatFormatHandle);			/* Guarantee that it's in memory */
-					err = ResError();
-					if (err==noErr) {	
-						DetachResource(doc->flatFormatHandle);
-						HNoPurge(doc->flatFormatHandle);
-					}
+		/* Ordinarily, we'd now call ReportBadResource, which checks if the new Handle
+		   is NULL as well as checking ResError. But in this case, we don't want to report
+		   an error if it's NULL--or do we? */
+		   
+		err = ResError();
+		if (err==noErr) {
+			if (doc->flatFormatHandle) {
+				LoadResource(doc->flatFormatHandle);			/* Guarantee that it's in memory */
+				err = ResError();
+				if (err==noErr) {	
+					DetachResource(doc->flatFormatHandle);
+					HNoPurge(doc->flatFormatHandle);
 				}
 			}
-			
-			/* Close the resource file we just opened */
-			
-			CloseResFile(refnum);
-			
-			if (err == noErr) {				
-				LoadAndUnflattenPageFormat(doc);
+		}
+		
+		/* Close the resource file we just opened */
+		
+		CloseResFile(refnum);
+		
+		if (err == noErr) {				
+			LoadAndUnflattenPageFormat(doc);
+		}
+		else {
+			if (doc->flatFormatHandle != NULL) {
+				DisposeHandle(doc->flatFormatHandle);
+				doc->flatFormatHandle = NULL;
 			}
-			else {
-				if (doc->flatFormatHandle != NULL) {
-					DisposeHandle(doc->flatFormatHandle);
-					doc->flatFormatHandle = NULL;
-				}
-				if (err!=resNotFound) {
-					PrintHandleError(err);
-				}
+			if (err!=resNotFound) {
+				PrintHandleError(err);
 			}
 		}
 	}

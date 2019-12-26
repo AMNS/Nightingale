@@ -339,115 +339,6 @@ objects (or subobjects), in ReadObjHeap. */
 
 static Boolean ConvertScoreContent(Document *doc, long fileTime)
 {
-	LINK pL;  DateTimeRec date;
-	
-	SecondsToDate(fileTime, &date);
-
-	/* Put all Dynamic horizontal position info into object xd */
-	
-	if (version<='N100') {
-	}
-
-	/* Convert Ottava position info to new form: if nxd or nyd is nonzero, it's in the
-	   old form, so move values into xdFirst and ydFirst, and copy them into xdLast and
-	   ydLast also. */
-		
-	if (version<='N100') {
-	}
-
-	/* Move Measure "fake" flag from subobject to object. If file version code is
-	   N100, it's tricky to decide whether to do this, but we'll try. */
-	
-	if (version<='N099'
-	|| (version=='N100' && date.year==1991
-		&& (date.month<=8 || (date.month==9 && date.day<=6))) ) {
-	}
-
-	/* Convert Tuplet position info to new form: if acnxd or acnyd is nonzero, it's in the
-	   old form, so move values into xdFirst and ydFirst, and copy them into xdLast and
-	   ydLast also. */
-	   
-	if (version<='N100') {
-	}
-
-	/* Move all slurs to correct position in object list, immediately before their
-	   firstSyncL. If the slur is a SlurLastIsSYSTEM slur, move it immediately
-	   after the first invis meas, e.g. before the RightLINK of its firstSyncL. */
-		
-	if (version<='N100') {
-	}
-
-	/* Look for slurs with <dashed> flag set, which is probably spurious, and if we find
-	   any, offer to fix them. */
-		
-	if (version<='N100') {
-	}
-
-	/* Set Clef <small> flag according to whether it's <inMeas>: this is to make
-		clef size explicit, so it can be overridden. */
-
-	if (version<='N100') {
-	}
-
-	/* Convert octave sign y-position to new representation */
-	
-	if (version<='N100') {
-	}
-
-	/* Convert Tempo metronome mark from int to string */
-	
-	if (version<='N100') {
-	}
-
-	/* Move Beamset fields to adjust for removal of the <lGrip> and <rGrip> fields */
-	
-	if (version<='N100') {
-	}
-
-
-	/* Move endpoints of slurs on chords. If file version code is N101 and file was written
-	by .997a12 or later (flagged by top bit of <fileTime> off!), this should never be done;
-	if file version code is N101 and it was written by an earlier version, it probably
-	should be, but ask. */
-
-	if (version<='N100'
-	|| (version=='N101' && (fileTime & 0x80000000)!=0)
-	|| ShiftKeyDown()) {
-	}
-
-	/* Fill in page no. position pseudo-Rect. */
-
-	if (version<='N101') ;
-
-	/* Update ModNR vertical positions to compensate for new centering. */
-	
-	if (version<='N101') ;
-		
-	/* Update Graphic horizontal positions to compensate for new subobj-relativity. */
-	
-	if (version<='N101') {
-	}
-	
-	/* Initialize dynamic subobject endyd field. */
-
-	if (version<='N102') {
-	}
-
-	/* Initialize header subobject (part) bank select and FreeMIDI fields for
-		both main data structure and master page. */
-
-	if (version<='N102') {
-	}
-
-	if (version<='N102') {
-	}
-
-	/* Convert old staff <oneLine> field to new <showLines> field, and initialize
-		new <showLedgers> field, for staves in the score and in master page. */
-
-	if (version<='N102') {
-	}
-
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
 	but (as of v.997), they sometimes were, probably because not exporting changes to
 	Master Page was implemented by reconstructing it from the 1st system of the score.
@@ -1297,7 +1188,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	/* Read and, if necessary, convert Document (i.e., Sheets) and Score headers. */
 	
 	switch(version) {
-		case 'N103':
 		case 'N104':
 		case 'N105':
 			count = sizeof(DOCUMENTHDR);
@@ -1439,9 +1329,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	count = sizeof(long);
 	errCode = FSRead(refNum, &count, &fmsDevHdr);
 	if (!errCode) {
-		if (fmsDevHdr==0x00000000)
-			;					/* end marker, so file version is < N103, and we're done */
-		else if (fmsDevHdr==FreeMIDISelector) {
+		if (fmsDevHdr==FreeMIDISelector) {
 			count = sizeof(fmsUniqueID);
 			errCode = FSRead(refNum, &count, &doc->fmsInputDevice);
 			if (errCode) return errCode;

@@ -22,7 +22,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2019 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -38,48 +38,6 @@ static LINK MakeTimeSig(Document *, LINK, short, CONTEXT [], DDIST);
 static void CreateSysFixContext(Document *, LINK, LINK, short);
 
 static void ScrollToLink(Document *, LINK);
-
-
-/* ------------------------------------------------------------------ InitN103FontRecs -- */
-/* Init just the font records introduced in file version N103. Called when converting
-older files (in File.c) and from InitFontRecs below.   -JGG, 3/20/01 */
-
-void InitN103FontRecs(Document *doc)
-{
-	Str255 fontReg1;
-
-	GetIndString(fontReg1, FONT_STRS, 1);    						/* "Times" */
-
-	Pstrcpy((StringPtr)doc->fontName6, (StringPtr)fontReg1);		/* Regular font 6 */
-		doc->lyric6 = False;
-		doc->enclosure6 = ENCL_NONE;
-		doc->relFSize6 = True;													
-		doc->fontSize6 = GRMedium;						
-		doc->fontStyle6 = 0;										/* Plain */
-
-	Pstrcpy((StringPtr)doc->fontName7, (StringPtr)fontReg1);		/* Regular font 7 */
-		doc->lyric7 = False;
-		doc->enclosure7 = ENCL_NONE;
-		doc->relFSize7 = True;													
-		doc->fontSize7 = GRMedium;						
-		doc->fontStyle7 = 0;										/* Plain */
-
-	Pstrcpy((StringPtr)doc->fontName8, (StringPtr)fontReg1);		/* Regular font 8 */
-		doc->lyric8 = False;
-		doc->enclosure8 = ENCL_NONE;
-		doc->relFSize8 = True;													
-		doc->fontSize8 = GRMedium;						
-		doc->fontStyle8 = 0;										/* Plain */
-
-	Pstrcpy((StringPtr)doc->fontName9, (StringPtr)fontReg1);		/* Regular font 9 */
-		doc->lyric9 = False;
-		doc->enclosure9 = ENCL_NONE;
-		doc->relFSize9 = True;													
-		doc->fontSize9 = GRMedium;						
-		doc->fontStyle9 = 0;										/* Plain */
-
-	doc->fillerR6 = doc->fillerR7 = doc->fillerR8 = doc->fillerR9 = 0;
-}
 
 
 /* ---------------------------------------------------------------------- InitFontRecs -- */
@@ -172,12 +130,39 @@ void InitFontRecs(Document *doc)
 		doc->fontSize5 = 24;
 		doc->fontStyle5 = 0;										/* Plain */
 
+	Pstrcpy((StringPtr)doc->fontName6, (StringPtr)fontReg1);		/* Regular font 6 */
+		doc->lyric6 = False;
+		doc->enclosure6 = ENCL_NONE;
+		doc->relFSize6 = True;													
+		doc->fontSize6 = GRMedium;						
+		doc->fontStyle6 = 0;										/* Plain */
+
+	Pstrcpy((StringPtr)doc->fontName7, (StringPtr)fontReg1);		/* Regular font 7 */
+		doc->lyric7 = False;
+		doc->enclosure7 = ENCL_NONE;
+		doc->relFSize7 = True;													
+		doc->fontSize7 = GRMedium;						
+		doc->fontStyle7 = 0;										/* Plain */
+
+	Pstrcpy((StringPtr)doc->fontName8, (StringPtr)fontReg1);		/* Regular font 8 */
+		doc->lyric8 = False;
+		doc->enclosure8 = ENCL_NONE;
+		doc->relFSize8 = True;													
+		doc->fontSize8 = GRMedium;						
+		doc->fontStyle8 = 0;										/* Plain */
+
+	Pstrcpy((StringPtr)doc->fontName9, (StringPtr)fontReg1);		/* Regular font 9 */
+		doc->lyric9 = False;
+		doc->enclosure9 = ENCL_NONE;
+		doc->relFSize9 = True;													
+		doc->fontSize9 = GRMedium;						
+		doc->fontStyle9 = 0;										/* Plain */
+
 	doc->fillerMN = doc->fillerPN = doc->fillerRM = 0;
 	doc->fillerR1 = doc->fillerR2 = doc->fillerR3 = 0;
 	doc->fillerR4 = doc->fillerTM = doc->fillerCS = 0;
 	doc->fillerPG = doc->fillerR5 = 0;
-
-	InitN103FontRecs(doc);
+	doc->fillerR6 = doc->fillerR7 = doc->fillerR8 = doc->fillerR9 = 0;
 }
 
 
@@ -306,8 +291,7 @@ DDIST GetSysHeight(Document *doc,
 {
 	LINK baseSys;  DRect sysRect;
 
-	if (where==FirstSystem)
-		return (MEAS_BOTTOM(initStfTop1+initStfTop2, STHEIGHT));
+	if (where==FirstSystem) return (MEAS_BOTTOM(initStfTop1+initStfTop2, STHEIGHT));
 
 	baseSys = (where==BeforeFirstSys ? LinkRSYS(sysL) : LinkLSYS(sysL));	
 	sysRect = SystemRECT(baseSys);	
@@ -514,11 +498,10 @@ static void PageFixMeasRects(
 		if (useLedg)
 			aMeas->measSizeRect.bottom = MEAS_BOTTOM(aStaff->staffTop, aStaff->staffHeight);
 		else {
-			/*
-			 * Set the measSizeRect.bottom of the last measure subobj in the System.
-			 * measSizeRect is v-relative to systemTop, so the last meas subobj's
-			 * measSizeRect.bottom will just be the sysHeight.
-			 */
+			/* Set the measSizeRect.bottom of the last measure subobj in the System.
+			   measSizeRect is v-relative to systemTop, so the last meas subobj's
+			   measSizeRect.bottom will just be the sysHeight. */
+			   
 			if (masterPg)
 				sysL = SSearch(doc->masterHeadL, SYSTEMtype, GO_RIGHT);
 			else

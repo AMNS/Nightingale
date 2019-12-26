@@ -3944,5 +3944,165 @@ Change that =>
 	ERROR. Header for heap 24 objSize is 46, but expected objSize 56 (ReadHeapHdr)
 	ERROR. Can't open the file. errCode=251 errInfo=24  (OpenError)
 	
-Better! ReadHeapHdr needs ??
+Better! It looks like the problem isn't ReadHeapHdr(), but ReadObjHeap().
+
+-------------------------------------------------------------------------------
+
+11 - 26 Dec.
 	
+Work on ReadObjHeap(); now opening file '1CourtesyAcc.ngl' gives...
+
+	...
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=4 blk=3144892 objSize=346 type=0 ff=8 nO=16 nf=9 ll=0 FPos:2558
+	...
+	debug. ReadHeapHdr: hp 23 (PSEUDOMEAS) nFObjs=0 blk=3144984 objSize=6 type=23 ff=1 nO=8 nf=7 ll=0 FPos:4806
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	debug. ReadObjHeap: type 0 object objLength=30 objLength_5=24 len=24
+	debug. ReadObjHeap: type 4 object objLength=44 objLength_5=38 len=38
+	debug. ReadObjHeap: type 5 object objLength=50 objLength_5=44 len=44
+	debug. ReadObjHeap: type 6 object objLength=36 objLength_5=30 len=30
+	debug. ReadObjHeap: type 12 object objLength=32 objLength_5=26 len=26
+	debug. ReadObjHeap: type 8 object objLength=30 objLength_5=24 len=24
+	debug. ReadObjHeap: type 9 object objLength=30 objLength_5=24 len=24
+	debug. ReadObjHeap: type 10 object objLength=30 objLength_5=24 len=24
+	debug. ReadObjHeap: type 7 object objLength=54 objLength_5=46 len=46
+	debug. ReadObjHeap: type 2 object objLength=32 objLength_5=26 len=26
+	debug. ReadObjHeap: type 1 object objLength=30 objLength_5=24 len=24
+	debug. ReadObjHeap: type 0 object objLength=30 objLength_5=24 len=24
+	Dec 15 15:17:20: --- last message repeated 1 time ---
+	ERROR. Object type=50 is illegal. (ReadObjHeap)
+	ERROR. Can't open the file. errCode=998 errInfo=24  (OpenError)
+
+Much better! In fact, the object types are all just what they should be, except the type
+1 object is TAIL, so we've tried to parse a non-existent object at the end! The loop just
+tries to read nFObjs =17 objects; is that wrong? Nope; 5.8.9 also says
+
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+
+Not only nFObjs, but everything in the above line is exactly the same! But there are
+actually only 11 objects, 6 fewer, in the main object list. Is the difference the Master
+Page object list? Undoubtedly; the Master Page object list contains 6 objects!
+
+Need to add LogPrintf's to 5.8.x and open 1CourtesyAcc.ngl. Oops: 5.8.x doesn't compile!
+$*#)%$#%()#$  But just need to rename <destinationMatch> to <fmsDestinationMatch> in a
+few places... Done. Open open 1CourtesyAcc.ngl with 5.8.10 =>
+
+	debug. ReadHeapHdr: hp 23 (PSEUDOMEAS) nFObjs=0 blk=3144984 objSize=6 type=23 ff=1 nO=8 nf=7 ll=0 FPos:4806
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	debug. ReadObjHeap: type 0 object objLength=24 len=24
+	debug. ReadObjHeap: type 4 object objLength=38 len=38
+	debug. ReadObjHeap: type 5 object objLength=44 len=44
+	debug. ReadObjHeap: type 6 object objLength=30 len=30
+	debug. ReadObjHeap: type 12 object objLength=26 len=26
+	debug. ReadObjHeap: type 8 object objLength=24 len=24
+	debug. ReadObjHeap: type 9 object objLength=24 len=24
+	debug. ReadObjHeap: type 10 object objLength=24 len=24
+	debug. ReadObjHeap: type 7 object objLength=46 len=46
+	debug. ReadObjHeap: type 2 object objLength=26 len=26
+	debug. ReadObjHeap: type 1 object objLength=24 len=24
+	debug. ReadObjHeap: type 0 object objLength=24 len=24
+	debug. ReadObjHeap: type 4 object objLength=38 len=38
+	debug. ReadObjHeap: type 5 object objLength=44 len=44
+	debug. ReadObjHeap: type 6 object objLength=30 len=30
+	debug. ReadObjHeap: type 12 object objLength=26 len=26
+	debug. ReadObjHeap: type 1 object objLength=24 len=24
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	info. Opened file '1CourtesyAcc.ngl'.
+
+So 5.9.1 finds a 2nd type 0 object, then dies, where 5.8.10 finds a type 4, beginning the
+Master Page object list. Huh? Need more details.
+
+With 5.8.10:
+
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	debug. ReadObjHeap: src=ac8938 dst=ac882e offset:0 type=0
+	...
+	debug. ReadObjHeap: src=ac8a6a dst=ac89fa offset:306 type=1
+	debug. ReadObjHeap: src=ac8a82 dst=ac8a28 offset:330 type=0
+	debug. ReadObjHeap: src=ac8a9a dst=ac8a56 offset:354 type=4
+	debug. ReadObjHeap: src=ac8ac0 dst=ac8a84 offset:392 type=5
+	debug. ReadObjHeap: src=ac8aec dst=ac8ab2 offset:436 type=6
+	debug. ReadObjHeap: src=ac8b0a dst=ac8ae0 offset:466 type=12
+	debug. ReadObjHeap: src=ac8b24 dst=ac8b0e offset:492 type=1
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	info. Opened file '1CourtesyAcc.ngl'.
+
+With 5.9.1:
+
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	debug. ReadObjHeap: nFObjs=17 heapSizeAllObjs=782 count=4 sizeAllObjs=516
+	debug. ReadObjHeap: src=ace142 dst=ace038 offset:0 type=0
+	debug. ReadObjHeap: type 0 object objLength=30 objLength_5=24 len=24
+	...
+	debug. ReadObjHeap: type 2 object objLength=32 objLength_5=26 len=26
+	debug. ReadObjHeap: src=ace274 dst=ace268 offset:306 type=1				DELTA = -12 (base 10)
+	debug. ReadObjHeap: type 1 object objLength=30 objLength_5=24 len=24
+	debug. ReadObjHeap: src=ace28c dst=ace2a0 offset:330 type=0				DELTA = +20 " "
+	debug. ReadObjHeap: type 0 object objLength=30 objLength_5=24 len=24
+	debug. ReadObjHeap: src=ace2a4 dst=ace2d8 offset:354 type=0
+	debug. ReadObjHeap: type 0 object objLength=30 objLength_5=24 len=24
+	debug. ReadObjHeap: src=ace2bc dst=ace310 offset:378 type=50
+	ERROR. Object type=50 is illegal. (ReadObjHeap)
+	ERROR. Can't open the file. errCode=998 errInfo=24  (OpenError)
+
+What do we do once we have the src & dst addresses & len?
+
+		BlockMove(src, dst, len);
+
+So 5.8.10 is always moving blocks to lower addresses; 5.9.1 starts by doing that, but
+switches to moving them to higher addresses, undoubtedly clobbering yet-to-be-handled
+stuff! Why?
+
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	debug. ReadObjHeap: nFObjs=17 heapSizeAllObjs=782 count=4 sizeAllObjs=516
+	debug. ReadObjHeap: src=acbb42 dst=acba38 dst-src:-266 offset:0 type=0
+	debug. ReadObjHeap: src=acbb5a dst=acba70 dst-src:-234 offset:24 type=4		d(dst-src)=32
+	debug. ReadObjHeap: src=acbb80 dst=acbaa8 dst-src:-216 offset:62 type=5		d(dst-src)=18
+	debug. ReadObjHeap: src=acbbac dst=acbae0 dst-src:-204 offset:106 type=6	d(dst-src)=12
+	debug. ReadObjHeap: src=acbbca dst=acbb18 dst-src:-178 offset:136 type=12	d(dst-src)=26
+	debug. ReadObjHeap: src=acbbe4 dst=acbb50 dst-src:-148 offset:162 type=8	d(dst-src)=30
+	debug. ReadObjHeap: src=acbbfc dst=acbb88 dst-src:-116 offset:186 type=9	d(dst-src)=32
+	debug. ReadObjHeap: src=acbc14 dst=acbbc0 dst-src:-84 offset:210 type=10	d(dst-src)=32
+	debug. ReadObjHeap: src=acbc2c dst=acbbf8 dst-src:-52 offset:234 type=7		d(dst-src)=32
+	debug. ReadObjHeap: src=acbc5a dst=acbc30 dst-src:-42 offset:280 type=2		d(dst-src)=10
+	debug. ReadObjHeap: src=acbc74 dst=acbc68 dst-src:-12 offset:306 type=1		d(dst-src)=30
+	debug. ReadObjHeap: src=acbc8c dst=acbca0 dst-src:20 offset:330 type=0		d(dst-src)=32
+	debug. ReadObjHeap: src=acbca4 dst=acbcd8 dst-src:52 offset:354 type=0		d(dst-src)=32
+	debug. ReadObjHeap: src=acbcbc dst=acbd10 dst-src:84 offset:378 type=50		d(dst-src)=32
+	ERROR. Object type=50 is illegal. (ReadObjHeap)
+	ERROR. Can't open the file. errCode=998 errInfo=24  (OpenError)
+	
+Duh:
+
+	src += len { = objLength_5[type] }
+	dst += sizeof(SUPEROBJECT) { = 38(16) = 56 }
+
+Ah-hah! Objects of N105 length are packed in and need to be moved to have room to expand
+to N106 length -- but doing that from front to back results in clobbering later objs
+before they're moved. So either have to move them in reverse order, or copy them to a
+separate chunk of memory large enough to handle the expansion. By far the most space in
+the object heap of any reasonable Ngale file will be Syncs; they grow by a factor of 32/26.
+But much safer to use the max growth factor of any object; what is that?
+
+	type 0 objLength=30 objLength_5=24
+	type 1 objLength=30 objLength_5=24
+	type 2 objLength=32 objLength_5=26
+	type 3 RPTEND_5
+	type 4 objLength=44 objLength_5=38
+	type 5 objLength=50 objLength_5=44
+	type 6 objLength=36 objLength_5=30
+	type 7 objLength=54 objLength_5=46
+	type 8 objLength=30 objLength_5=24
+	type 9 objLength=30 objLength_5=24
+	type 10 objLength=30 objLength_5=24
+	type 11 objLength=38 objLength_5=26
+	type 12 objLength=32 objLength_5=26
+	type 13 objLength=36 objLength_5=30
+	type 14
+	type 15 objLength=56 objLength_5=44
+	type 18 objLength=50 objLength_5=40
+	type 19 objLength=30 objLength_5=24
+	type 20 objLength=48 objLength_5=38
+	type 21 objLength=34 objLength_5=28
+	type 22 objLength=40 objLength_5=32
+	type 23 objLength=30 objLength_5=24
