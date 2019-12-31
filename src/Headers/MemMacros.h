@@ -49,7 +49,7 @@
  *	PtrToLink(heap, ptr) delivers the LINK into a heap that a given pointer to an
  *	object corresponds to.  Since this is done generically, there's no reasonable
  *	way to avoid the divide (unless you know that heap->objSize is a power of 2).
- *	However, it rarely needs to be used--in fact, in Nightingale 1.0 thru 5.7 (at
+ *	However, it rarely needs to be used; in fact, in Nightingale 1.0 thru 5.8 (at
  *	least), it's not used at all.
  */
 
@@ -69,11 +69,11 @@
 #define NextLink(heap,link)  ( *(LINK *)LinkToPtr(heap,link) )
 
 /*
- *	Given a link to an object, deliver the links to the objects to its right or
- *	left. These macros depend (like above) on the right link being the first, and
- *	the left link being the second, fields in the object record.  Similarly, the
- *	macros to deliver the link to the first subobject and to the object xd depend
- *	on those values being respectively the third and fourth fields.
+ *	Given a link to an object, deliver the links to the objects to its right or left.
+ *	These macros depend (like above) on the right link being the 1st, and the left link
+ *	being the 2nd, fields in the object record.  Similarly, the macros to deliver the
+ *	link to the first subobject and to the object xd and yd depend on those values being
+ *	respectively the 3rd, 4th, and 5th fields.
  */
  
 #define RightLINK(link)		( *(LINK *)LinkToPtr(OBJheap,link) )
@@ -82,10 +82,15 @@
 #define LinkXD(link)		( *(DDIST *)((3*sizeof(LINK)) + LinkToPtr(OBJheap,link)) )
 #define LinkYD(link)		( *(DDIST *)((4*sizeof(LINK)) + LinkToPtr(OBJheap,link)) )
 
+/* Given a valid pointer to an object, deliver the type of object that it refers to.
+Note this depends on the sizes of fields preceding the type! */
+
+#define ObjPtrTYPE(p)	( *(char *)((3*sizeof(LINK)+2*sizeof(DDIST)) + p) )
+
 /*
  * Get the staff number of (depending on object type) an object or subject, or the
  * voice number of an object or subobject. For subobjects, the staffn field is in the
- * same place as ->left for objs, but staffn is a SignedByte.
+ * same place as ->left for objects, but staffn is a SignedByte.
  */
  
 #define StaffSTAFF(link)	( *(SignedByte *)(sizeof(LINK) + LinkToPtr(STAFFheap,link)) )

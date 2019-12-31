@@ -12,7 +12,7 @@ problem for backward compatibility.*/
 
 #pragma options align=mac68k
 
-/* Macros in MemMacros.h depend on the positions of the first five fields of the object
+/* Macros in MemMacros.h depend on the positions of the first six fields of the object
 header, which MUST NOT be re-positioned! In the future, this may apply to other fields
 as well. */
 
@@ -35,7 +35,7 @@ as well. */
 	
 #define SUBOBJHEADER \
 	LINK		next;				/* index of next subobj */								\
-	SignedByte	staffn;				/* staff number. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
+	SignedByte	staffn;				/* staff no. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
 	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */		\
 	Boolean		selected;			/* True if subobject is selected */						\
 	Boolean		visible;			/* True if subobject is visible */						\

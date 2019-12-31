@@ -19,8 +19,8 @@
 #include "FileUtils.h"
 #include "MidiMap.h"
 
-/* A version code is 'N' followed by three digits, e.g., 'N105': N-one-zero-five. Be
-careful: It's neither a number nor a valid C string! */
+/* A version code is four characters, specifically 'N' followed by three digits, e.g.,
+'N105': N-one-zero-five. Be careful: It's neither a number nor a valid C string! */
 static unsigned long version;							/* File version code read/written */
 
 /* Prototypes for internal functions: */
@@ -63,233 +63,13 @@ enum {
 /* ------------------------------------------------------- ConvertScoreContent helpers -- */
 
 #ifdef NOMORE
+/* Definitions of four functions to help convert 'N103' format and earlier files formerly
+appeared here. We keep the prototypes of all and body of one as examples for future use. */
+
 static void OldGetSlurContext(Document *, LINK, Point [], Point []);
 static void ConvertChordSlurs(Document *);
 static void ConvertModNRVPositions(Document *, LINK);
 static void ConvertStaffLines(LINK startL);
-
-/* Given a Slur object, return arrays of the paper-relative starting and ending
-positions (expressed in points) of the notes delimiting its subobjects. This is an
-ancient version of GetSlurContext, from Nightingale .996. */
-
-static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
-	{
-		CONTEXT 	localContext;
-		DDIST		dFirstLeft, dFirstTop, dLastLeft, dLastTop,
-					xdFirst, xdLast, ydFirst, ydLast;
-		PANOTE		aNote, firstNote, lastNote;
-		PSLUR		p;
-		PASLUR		aSlur;
-		LINK		aNoteL, firstNoteL, lastNoteL, aSlurL, firstSyncL, 
-					lastSyncL, pSystemL;
-		PSYSTEM		pSystem;
-		short		k, xpFirst, xpLast, ypFirst, ypLast, firstStaff, lastStaff;
-		SignedByte	firstInd, lastInd;
-		Boolean		firstMEAS, lastSYS;
-
-		firstMEAS = lastSYS = False;
-			
-		/* Handle special cases for crossSystem & crossStaff slurs. If p->firstSyncL is
-		   not a sync, it must be a measure; find the first sync to get the context from.
-		   If p->crossStaff, and slur drawn bottom to top, firstStaff is one greater, else
-		   lastStaff. */
-		   
-		p = GetPSLUR(pL);
-		firstStaff = lastStaff = p->staffn;
-		if (p->crossStaff) {
-			if (p->crossStfBack)
-					firstStaff += 1;
-			else	lastStaff += 1;
-		}
-
-		if (SyncTYPE(p->firstSyncL))
-			GetContext(doc, p->firstSyncL, firstStaff, &localContext);	/* Get left end context */
-		else {
-			if (MeasureTYPE(p->firstSyncL)) firstMEAS = True;
-			else MayErrMsg("OldGetSlurContextontext: for pL=%ld firstSyncL=%ld is bad",
-								(long)pL, (long)p->firstSyncL);
-			firstSyncL = LSSearch(p->firstSyncL, SYNCtype, firstStaff, GO_RIGHT, False);
-			GetContext(doc, firstSyncL, firstStaff, &localContext);
-		}
-		dFirstLeft = localContext.measureLeft;							/* abs. origin of left end coords. */
-		dFirstTop = localContext.measureTop;
-		
-		/* Handle special cases for crossSystem slurs. If p->lastSyncL is not a sync,
-		   it must be a system, and must have an RSYS; find the first sync to the left
-		   of RSYS to get the context from. */
-		   
-		p = GetPSLUR(pL);
-		if (SyncTYPE(p->lastSyncL))
-			GetContext(doc, p->lastSyncL, lastStaff, &localContext);	/* Get right end context */
-		else {
-			if (SystemTYPE(p->lastSyncL) && LinkRSYS(p->lastSyncL)) {
-				lastSYS = True;
-				pSystemL = p->lastSyncL;
-				lastSyncL = LSSearch(LinkRSYS(pSystemL), SYNCtype, lastStaff, GO_LEFT, False);
-				GetContext(doc, lastSyncL, lastStaff, &localContext);
-			}
-			else MayErrMsg("OldGetSlurContextontext: for pL=%ld lastSyncL=%ld is bad",
-								(long)pL, (long)p->lastSyncL);
-		}
-		if (!lastSYS)
-			dLastLeft = localContext.measureLeft;						/* abs. origin of right end coords. */
-		else {
-			pSystem = GetPSYSTEM(pSystemL);
-			dLastLeft = pSystem->systemRect.right;
-		}
-		dLastTop = localContext.measureTop;
-
-		/* Find the links to the first and last notes to which each slur/tie is attached */
-		
-		p = GetPSLUR(pL);
-		aSlurL = FirstSubLINK(pL);
-		for (k = 0; aSlurL; k++, aSlurL = NextSLURL(aSlurL)) {
-			firstInd = lastInd = -1;
-			if (!firstMEAS) {
-				aNoteL = FirstSubLINK(p->firstSyncL);
-				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-					aNote = GetPANOTE(aNoteL);
-					if (aNote->voice==p->voice) {
-						aSlur = GetPASLUR(aSlurL);
-						if (++firstInd == aSlur->firstInd) firstNoteL = aNoteL;
-					}
-				}
-			}
-		
-			if (!lastSYS) {
-				aNoteL = FirstSubLINK(p->lastSyncL);
-				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-					aNote = GetPANOTE(aNoteL);
-					if (aNote->voice==p->voice) {
-						aSlur = GetPASLUR(aSlurL);
-						if (++lastInd  == aSlur->lastInd) lastNoteL = aNoteL;
-					}
-				}
-			}
-			
-			if (firstMEAS) {
-				lastNote = GetPANOTE(lastNoteL);
-				xdFirst = dFirstLeft;
-				ydFirst = dFirstTop + lastNote->yd;
-			}
-			else {
-				firstNote = GetPANOTE(firstNoteL);
-				xdFirst = dFirstLeft + LinkXD(p->firstSyncL) + firstNote->xd;	/* abs. position of 1st note */
-				ydFirst = dFirstTop + firstNote->yd;
-			}
-			
-			if (lastSYS) {
-				firstNote = GetPANOTE(firstNoteL);
-				xdLast = dLastLeft;
-				ydLast = dLastTop + firstNote->yd;
-			}
-			else {
-				lastNote = GetPANOTE(lastNoteL);
-				xdLast = dLastLeft + LinkXD(p->lastSyncL) + lastNote->xd;		/* abs. position of last note */
-				ydLast = dLastTop + lastNote->yd;
-			}
-
-			xpFirst = d2p(xdFirst);
-			ypFirst = d2p(ydFirst);
-			xpLast = d2p(xdLast);
-			ypLast = d2p(ydLast);
-			SetPt(&startPt[k], xpFirst, ypFirst);
-			SetPt(&endPt[k], xpLast, ypLast);
-		}
-	}
-
-
-static void ConvertChordSlurs(Document *doc)
-{
-	LINK pL, aNoteL, aSlurL;  PASLUR aSlur;  Boolean foundChordSlur;
-	Point startPt[2],endPt[2], oldStartPt[2],oldEndPt[2];
-	short v, changeStart, changeEnd;
-	
-	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
-		if (SlurTYPE(pL) && !SlurTIE(pL)) {
-			foundChordSlur = False;
-			v = SlurVOICE(pL);
-			if (SyncTYPE(SlurFIRSTSYNC(pL))) {
-				aNoteL = FindMainNote(SlurFIRSTSYNC(pL), v); 
-				if (NoteINCHORD(aNoteL)) foundChordSlur = True;
-			}
-			if (SyncTYPE(SlurLASTSYNC(pL))) {
-				aNoteL = FindMainNote(SlurLASTSYNC(pL), v); 
-				if (NoteINCHORD(aNoteL)) foundChordSlur = True;
-			}
-
-			if (foundChordSlur) {
-				GetSlurContext(doc, pL, startPt, endPt);
-				OldGetSlurContext(doc, pL, oldStartPt, oldEndPt);
-				changeStart = startPt[0].v-oldStartPt[0].v;
-				changeEnd = endPt[0].v-oldEndPt[0].v;
-	
-				aSlurL = FirstSubLINK(pL);
-				aSlur = GetPASLUR(aSlurL);
-				aSlur->seg.knot.v -= p2d(changeStart);
-				aSlur->endKnot.v -= p2d(changeEnd);
-			}
-		}
-	}
-}
-
-static void ConvertModNRVPositions(Document */*doc*/, LINK syncL)
-{
-	LINK aNoteL, aModNRL;
-	PANOTE aNote;  PAMODNR aModNR;
-	short yOff;  Boolean above;
-	
-	aNoteL = FirstSubLINK(syncL);
-	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
-		aNote = GetPANOTE(aNoteL);
-		if (aNote->firstMod) {
-			aModNRL = aNote->firstMod;
-			for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL)) {
-				aModNR = GetPAMODNR(aModNRL);
-				switch (aModNR->modCode) {
-					case MOD_FERMATA:
-						above = (aModNR->ystdpit<=0);		/* Not guaranteed but usually right */
-						yOff = (above? 4 : -4);
-						break;
-					case MOD_TRILL:
-						yOff = 4;
-						break;
-					case MOD_ACCENT:
-						yOff = 3;
-						break;
-					case MOD_HEAVYACCENT:
-						yOff = 5;
-						break;
-					case MOD_WEDGE:
-						yOff = 2;
-						break;
-					case MOD_MORDENT:
-						yOff = 4;
-						break;
-					case MOD_INV_MORDENT:
-						yOff = 4;
-						break;
-					case MOD_UPBOW:
-						yOff = 6;
-						break;
-					case MOD_DOWNBOW:
-						yOff = 5;
-						break;
-					case MOD_HEAVYACC_STACC:
-						yOff = 5;
-						break;
-					case MOD_LONG_INVMORDENT:
-						yOff = 4;
-						break;
-					default:
-						yOff = 0;
-				}
-				
-				aModNR->ystdpit -= yOff;	/* Assumes ystdpit units (STDIST) = 1/8 spaces */
-			}
-		}
-	}
-}
 
 /* Convert old staff <oneLine> field to new <showLines> field. Also initialize new
 <showLedgers> field.
@@ -333,12 +113,17 @@ static void ConvertStaffLines(LINK startL)
 lengths or offsets of fields in objects (or subobjects) should go here. Return True if
 all goes well, False if not.
 
-This function should not be called until the header and the entire object list have been
-read! Tweaks that affect lengths or offsets to the header should be done in OpenFile; to
-objects (or subobjects), in ReadObjHeap. */
+This function should not be called until the headers and the entire object list have been
+read! Tweaks that affect lengths or offsets to the headers should be done in OpenFile; to
+objects or subobjects, in ReadHeaps. */
 
 static Boolean ConvertScoreContent(Document *doc, long fileTime)
 {
+	if (version<='N105') {
+		LogPrintf(LOG_NOTICE, "Can't convert 'N105' format files yet.\n");
+		// ??DO A LOT!!!!!!!
+	}
+
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
 	but (as of v.997), they sometimes were, probably because not exporting changes to
 	Master Page was implemented by reconstructing it from the 1st system of the score.
@@ -1255,7 +1040,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	errCode = FSRead(refNum, &count, &stringPoolSize);
 	if (errCode) { errInfo = STRINGobj; goto Error; }
 	FIX_END(stringPoolSize);
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "stringPoolSize=%ld\n", stringPoolSize);
+	LogPrintf(LOG_INFO, "stringPoolSize=%ld  (OpenFile)\n", stringPoolSize);
 	if (doc->stringPool) DisposeStringPool(doc->stringPool);
 	
 	/* Allocate from the StringManager, not NewHandle, in case StringManager is tracking
@@ -1273,21 +1058,22 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	SetStringPool(doc->stringPool);
 	StringPoolEndianFix(doc->stringPool);
 	strPoolErrCode = StringPoolProblem(doc->stringPool);
-	if (strPoolErrCode!=0)
+	if (strPoolErrCode!=0) {
 		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (OpenFile)", (long)strPoolErrCode);
+		errInfo = STRINGobj; goto Error;
+	}
 	
-	//errCode = GetFInfo(filename, vRefNum, &fInfo);
 	errCode = FSpGetFInfo(&fsSpec, &fInfo);
 	if (errCode!=noErr) { errInfo = INFOcall; goto Error; }
 	
 	/* Read the subobject heaps and the object heap in the rest of the file, and if
-	   necessary, convert them. */
+	   necessary, convert them to the current format. */
 	
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
 	if (errCode) return errCode;
 
 	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size
-	   segment and a bit more." Now we insist on a lot more, though it may be pointless. */
+	   segment and a bit more." Now we require a _lot_ more, though it may be pointless. */
 	
 	if (!PreflightMem(400)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
@@ -1321,9 +1107,13 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	}
 
 	/* Read the FreeMIDI input device data. */
+	
 	doc->fmsInputDevice = noUniqueID;
+	
 	/* We're probably not supposed to play with these fields, but FreeMIDI is obsolete
-	   anyway, so the only change worth making is to remove these statements. */
+	   anyway, so the only change worth making is to remove these statements some day.
+	   --DAB, December 2019 */
+	
 	doc->fmsInputDestination.basic.destinationType = 0,
 	doc->fmsInputDestination.basic.name[0] = 0;
 	count = sizeof(long);
