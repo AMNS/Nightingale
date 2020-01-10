@@ -24,7 +24,7 @@
 static unsigned long version;							/* File version code read/written */
 
 /* Prototypes for internal functions: */
-static Boolean ConvertScoreContent(Document *, long);
+static Boolean ConvertObjContent(Document *, long);
 static void DisplayDocumentHdr(short id, Document *doc);
 static short CheckDocumentHdr(Document *doc);
 static void DisplayScoreHdr(short id, Document *doc);
@@ -60,7 +60,7 @@ enum {
 };
 
 
-/* ------------------------------------------------------- ConvertScoreContent helpers -- */
+/* --------------------------------------------------------- ConvertObjContent helpers -- */
 
 #ifdef NOMORE
 /* Definitions of four functions to help convert 'N103' format and earlier files formerly
@@ -108,20 +108,39 @@ static void ConvertStaffLines(LINK startL)
 
 #endif
 
-/* --------------------------------------------------------------- ConvertScoreContent -- */
+
+/* ----------------------------------------------------------------- ConvertObjContent -- */
 /* Any file-format-conversion code that doesn't affect the length of the header or
 lengths or offsets of fields in objects (or subobjects) should go here. Return True if
 all goes well, False if not.
 
-This function should not be called until the headers and the entire object list have been
-read! Tweaks that affect lengths or offsets to the headers should be done in OpenFile; to
-objects or subobjects, in ReadHeaps. */
+This function should not be called until the headers and the entire object list have
+been read, all left and right links are valid, and all objects and subobjects are the
+correct lengths! Tweaks that affect lengths or offsets to the headers should be done in
+OpenFile(); to objects or subobjects, in ReadHeaps(). */
 
-static Boolean ConvertScoreContent(Document *doc, long fileTime)
+static Boolean ConvertObjContent(Document *doc, long /* fileTime */)
 {
+	HEAP *objHeap;
+	LINK pL;
+	short type;
+
 	if (version<='N105') {
-		LogPrintf(LOG_NOTICE, "Can't convert 'N105' format files yet.\n");
-		// ??DO A LOT!!!!!!!
+		objHeap = doc->Heap + OBJtype;
+
+#if 0
+		/* Set pObj to point to LINK 1, since LINK 0 is never used. */
+		char *p;
+		p = *(objHeap->block);  p += objHeap->objSize;
+		type = ObjPtrTYPE(p);
+LogPrintf(LOG_DEBUG, "ConvertObjContent: p=%lx type=%d\n", p, type);
+#else
+		DoDebug("ConvertObjContent");
+		fflush(stdout);
+		for (pL = doc->headL; pL; pL = RightLINK(pL)) {
+			;
+		}
+#endif	
 	}
 
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
@@ -160,6 +179,7 @@ static void ShowStfTops(Document *doc, LINK pL, short staffN1, short staffN2)
 {
 	CONTEXT context;
 	short staffTop1, staffTop2;
+	
 	pL = SSearch(doc->headL, STAFFtype, False);
 	GetContext(doc, pL, staffN1, &context);
 	staffTop1 =  context.staffTop;
@@ -351,15 +371,15 @@ static Boolean ModifyScore(Document * /*doc*/, long /*fileTime*/)
 #ifdef SWAP_STAVES
 #error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
 	/* DAB carelessly put a lot of time into orchestrating his violin concerto with a
-		template having the trumpet staff above the horn; this is intended to correct
+		template having the trumpet staff above the horn; this was intended to correct
 		that.
 		NB: To swap two staves, in addition to running this code, use Master Page to:
 			1. Fix the staves' vertical positions
 			2. If the staves are Grouped, un-Group and re-Group
 			3. Swap the Instrument info
 		NB2: If there's more than one voice on either of the staves, this is not
-		likely to work at all well. It never worked well enough to be useful for the
-		score I wrote it for.
+		likely to work at all well. In any case, it never worked well enough to be
+		useful for the purpose I intended it for.
 																--DAB, Jan. 2016 */
 	
 	short staffN1 = 5, staffN2 = 6;
@@ -1077,7 +1097,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	
 	if (!PreflightMem(400)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
-	ConvertScoreContent(doc, fileTime);			/* Do any conversion of old files needed */
+	ConvertObjContent(doc, fileTime);			/* Do any further conversion of old files needed */
 
 	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;
@@ -1085,7 +1105,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	doc->saved = True;							/* Has to be, since we just opened it! */
 	doc->named = True;							/* Has to have a name, since we just opened it! */
 
-	ModifyScore(doc, fileTime);					/* Do any hacking needed, ordinarily none */
+	ModifyScore(doc, fileTime);					/* Do any hacking needed: ordinarily none */
 
 	/* Read the document's OMS device numbers for each part. if "devc" signature block not
 	   found at end of file, pack the document's omsPartDeviceList with default values. */

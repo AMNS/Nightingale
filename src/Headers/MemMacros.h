@@ -9,15 +9,13 @@
 
 #define NILINK ((LINK)0)
 
-/*
- *	These macros are to lock a given heap's data at its location in memory temporarily;
- *  they should be used very sparingly! The first set of macros cannot be intermingled
- *	with the second, since the second set are designed to be nestable and the first
- *	aren't.
- *
- *	In the first set, the condition being maintained is that if heap->lockLevel is
- *	greater than 0, then the heap is assumed to be locked; if 0, then it's unlocked.
- */
+
+/* These macros are to lock a given heap's data at its location in memory temporarily;
+they should be used very sparingly! The first set of macros cannot be intermingled with
+the second, since the second set are designed to be nestable and the first aren't.
+
+In the first set, the condition being maintained is that if heap->lockLevel is greater
+than 0, then the heap is assumed to be locked; if 0, then it's unlocked. */
 
 #define PushLock(heap)	{ if ( (heap)->lockLevel++ <= 0) HLock((heap)->block); }
 #define PopLock(heap)	{ if (--(heap)->lockLevel <= 0) HUnlock((heap)->block); }
@@ -25,33 +23,30 @@
 #define PushLockHi(heap) { if ( (heap)->lockLevel++ <= 0) \
 								{ MoveHHi((heap)->block); HLock((heap)->block); } }
 
-/*
- *  The second set, HeapLock and HeapUnlock, also lock and unlock the block of
- *	the given heap. They leave the lockLevel alone, assuming that they will be
- *	called in pairs with no possibility of calls to PushLock or PopLock in between.	
- */
+/* The second set, HeapLock and HeapUnlock, also lock and unlock the block of the given
+heap. They leave the lockLevel alone, assuming that they will be called in pairs with no
+possibility of calls to PushLock or PopLock in between. */
  
 #define HeapLock(heap) 		HLock((heap)->block)
 #define HeapUnlock(heap)	HUnlock((heap)->block)
 
 /* ----------------------------------------------------------------------------------- */
-/*
- *	LinkToPtr(heap,link) delivers the address of the 0'th byte of the link'th
- *	object kept in a given heap.  This address is determined without type information
- *	by using the heap's own idea of how large the object is in bytes. The pointer
- *	The pointer so delivered is only valid as long as the heap block doesn't get
- *	relocated! This is a generic macro that should be avoided whenever it's possible
- *	to use one of the ones below. NB: For space and time efficiency reasons, we now
- *	use an equivalent function, located in Heaps.c. Long ago, we used an identical
- *	macro with its name slightly changed in the THINK Debugger. (I don't know if
- *	it'd be useful with a modern debugger. --DAB, Feb. 2017) See the end of this file.
- *
- *	PtrToLink(heap, ptr) delivers the LINK into a heap that a given pointer to an
- *	object corresponds to.  Since this is done generically, there's no reasonable
- *	way to avoid the divide (unless you know that heap->objSize is a power of 2).
- *	However, it rarely needs to be used; in fact, in Nightingale 1.0 thru 5.8 (at
- *	least), it's not used at all.
- */
+
+/* LinkToPtr(heap,link) delivers the address of the 0'th byte of the link'th object kept
+in a given heap.  This address is determined without type information by using the
+heap's own idea of how large the object is in bytes. The pointer The pointer so
+delivered is only valid as long as the heap block doesn't get relocated! This is a
+generic macro that should be avoided whenever it's possible to use one of the ones
+below. NB: For space and time efficiency reasons, we now use an equivalent function,
+located in Heaps.c. (Long ago, we used an identical macro with its name slightly changed
+in the THINK Debugger. I don't know if it'd be useful with a modern debugger. --DAB,
+Feb. 2017)
+
+PtrToLink(heap, ptr) delivers the LINK into a heap that a given pointer to an object
+corresponds to.  Since this is done generically, there's no reasonable way to avoid the
+time-consuming divide (unless you know that heap->objSize is a power of 2). However, it
+rarely needs to be used; in fact, in Nightingale 1.0 thru 5.8 (at least), it's not used
+at all. */
 
 #ifndef LinkToPtrFUNCTION	/* REPLACED BY EQUIVALENT FUNCTION */
 #define LinkToPtr(heap,link) ( ((char *)(*(heap)->block)) + ((heap)->objSize*(unsigned long)(link)) )
@@ -59,22 +54,19 @@
 
 #define PtrToLink(heap,p)	( (((char *)p) - (char *)(*(heap)->block)) / (heap)->objSize )
 
-/*
- *	Given a link to a generic subobject list, deliver the link to the next sub-
- *	object in list. This macro depends upon the fact that the next link field of
- *	a subobject header is the first in the record and thus has the same address
- *	as the subobject record itself.
- */
+
+/* Given a link to a generic subobject list, deliver the link to the next subobject in
+list. This macro depends upon the fact that the next link field of a subobject header is
+the first in the record and thus has the same address as the subobject record itself! */
 
 #define NextLink(heap,link)  ( *(LINK *)LinkToPtr(heap,link) )
 
-/*
- *	Given a link to an object, deliver the links to the objects to its right or left.
- *	These macros depend (like above) on the right link being the 1st, and the left link
- *	being the 2nd, fields in the object record.  Similarly, the macros to deliver the
- *	link to the first subobject and to the object xd and yd depend on those values being
- *	respectively the 3rd, 4th, and 5th fields.
- */
+
+/* Given a link to an object, deliver the links to the objects to its right or left.
+These macros depend (like above) on the right link being the 1st, and the left link
+being the 2nd, fields in the object record!  Similarly, the macros to deliver the link
+to the first subobject and to the object xd and yd depend on those values being
+respectively the 3rd, 4th, and 5th fields. */
  
 #define RightLINK(link)		( *(LINK *)LinkToPtr(OBJheap,link) )
 #define LeftLINK(link)		( *(LINK *)(sizeof(LINK) + LinkToPtr(OBJheap,link)) )
@@ -82,16 +74,16 @@
 #define LinkXD(link)		( *(DDIST *)((3*sizeof(LINK)) + LinkToPtr(OBJheap,link)) )
 #define LinkYD(link)		( *(DDIST *)((4*sizeof(LINK)) + LinkToPtr(OBJheap,link)) )
 
+
 /* Given a valid pointer to an object, deliver the type of object that it refers to.
-Note this depends on the sizes of fields preceding the type! */
+Note that this depends on the sizes of fields preceding the type! */
 
 #define ObjPtrTYPE(p)	( *(char *)((3*sizeof(LINK)+2*sizeof(DDIST)) + p) )
 
-/*
- * Get the staff number of (depending on object type) an object or subject, or the
- * voice number of an object or subobject. For subobjects, the staffn field is in the
- * same place as ->left for objects, but staffn is a SignedByte.
- */
+
+/* Get the staff number of (depending on object type) an object or subject, or the
+voice number of an object or subobject. For subobjects, the staffn field is in the
+same place as ->left for objects, but staffn is a SignedByte. */
  
 #define StaffSTAFF(link)	( *(SignedByte *)(sizeof(LINK) + LinkToPtr(STAFFheap,link)) )
 #define NoteSTAFF(link) 	( *(SignedByte *)(sizeof(LINK) + LinkToPtr(NOTEheap,link)) )
@@ -122,6 +114,7 @@ Note this depends on the sizes of fields preceding the type! */
 #define NoteVOICE(link) 	( (GetPANOTE(link))->voice )
 #define GRNoteVOICE(link) 	( (GetPAGRNOTE(link))->voice )
 #define SlurVOICE(link) 	( (GetPSLUR(link))->voice )
+
 
 /* Get various other fields that are common among different types of objects. */
 
@@ -154,12 +147,6 @@ Note this depends on the sizes of fields preceding the type! */
 #define NoteType(link)		( (GetPANOTE(link))->subType )
 #define GRNoteType(link)	( (GetPAGRNOTE(link))->subType )
 #define GraphicSubType(link)	( (GetPGRAPHIC(link))->graphicType )
-
-/* ----------------------------------------------------------------------------------- */
-
-#define SyncTIME(link)		( (GetPSYNC(link))->timeStamp )
-
-#define PartNAME(link)		( GetPPARTINFO(link)->name )
 
 /* ----------------------------------------------------------------------------------- */
 /*
@@ -277,6 +264,22 @@ Note this depends on the sizes of fields preceding the type! */
 #define GetKEYSIG(link)			GetObject(KEYSIGheap,link,PAKEYSIG)
 #define GetTIMESIG(link)		GetObject(TIMESIGheap,link,PATIMESIG)
 
+#define GetPARTINFOL(partInfo)		GetObjLink(PARTINFOheap,(partInfo),PARTINFO)
+#define GetASTAFFL(aStaff)			GetObjLink(STAFFheap,(aStaff),ASTAFF)
+#define GetAMEASUREL(aMeasure)		GetObjLink(MEASUREheap,(aMeasure),AMEASURE)
+#define GetAPSMEASL(aPSMeas)		GetObjLink(PSMEASheap,(aPSMeas),APSMEAS)
+#define GetANOTEL(aNote)			GetObjLink(NOTEheap,(aNote),ANOTE)
+#define GetAGRNOTEL(aNote)			GetObjLink(GRNOTEheap,(aNote),ANOTE)
+#define GetACLEFL(aClef)			GetObjLink(CLEFheap,(aClef),ACLEF)
+#define GetAKEYSIGL(aKeySig)		GetObjLink(KEYSIGheap,(aKeySig),AKEYSIG)
+#define GetATIMESIGL(aTimeSig)		GetObjLink(TIMESIGheap,(aTimeSig),ATIMESIG)
+#define GetANOTEBEAML(aNoteBeam) 	GetObjLink(NOTEBEAMheap,(aNoteBeam),ANOTEBEAM)
+#define GetACONNECTL(aConnect)		GetObjLink(CONNECTheap,(aConnect),ACONNECT)
+#define GetADYNAMICL(aDynamic)		GetObjLink(DYNAMheap,(aDynamic),ADYNAMIC)
+#define GetAGRAPHICL(aGraphic)		GetObjLink(GRAPHICheap,(aDynamic),ADYNAMIC)
+#define GetASLURL(aSlur)			GetObjLink(SLURheap,(aSlur),ASLUR)
+#define GetANOTETUPLEL(aNoteTuple)	GetObjLink(NOTETUPLEheap,(aNoteTuple),ANOTETUPLE)
+
 /* Type-specific macros for getting the next subobject via the next link field */
 
 #define NextPPARTINFO(partInfo)		GetPPARTINFO((partInfo)->next)
@@ -293,22 +296,6 @@ Note this depends on the sizes of fields preceding the type! */
 #define NextPADYNAMIC(aDynamic)		GetPADYNAMIC((aDynamic)->next)
 #define NextPASLUR(aSlur)			GetPASLUR((aSlur)->next)
 #define NextPANOTETUPLE(aNoteTuple)	GetPANOTETUPLE((aNoteTuple)->next)
-
-#define GetPARTINFOL(partInfo)		GetObjLink(PARTINFOheap,(partInfo),PARTINFO)
-#define GetASTAFFL(aStaff)			GetObjLink(STAFFheap,(aStaff),ASTAFF)
-#define GetAMEASUREL(aMeasure)		GetObjLink(MEASUREheap,(aMeasure),AMEASURE)
-#define GetAPSMEASL(aPSMeas)		GetObjLink(PSMEASheap,(aPSMeas),APSMEAS)
-#define GetANOTEL(aNote)			GetObjLink(NOTEheap,(aNote),ANOTE)
-#define GetAGRNOTEL(aNote)			GetObjLink(GRNOTEheap,(aNote),ANOTE)
-#define GetACLEFL(aClef)			GetObjLink(CLEFheap,(aClef),ACLEF)
-#define GetAKEYSIGL(aKeySig)		GetObjLink(KEYSIGheap,(aKeySig),AKEYSIG)
-#define GetATIMESIGL(aTimeSig)		GetObjLink(TIMESIGheap,(aTimeSig),ATIMESIG)
-#define GetANOTEBEAML(aNoteBeam) 	GetObjLink(NOTEBEAMheap,(aNoteBeam),ANOTEBEAM)
-#define GetACONNECTL(aConnect)		GetObjLink(CONNECTheap,(aConnect),ACONNECT)
-#define GetADYNAMICL(aDynamic)		GetObjLink(DYNAMheap,(aDynamic),ADYNAMIC)
-#define GetAGRAPHICL(aGraphic)		GetObjLink(GRAPHICheap,(aDynamic),ADYNAMIC)
-#define GetASLURL(aSlur)			GetObjLink(SLURheap,(aSlur),ASLUR)
-#define GetANOTETUPLEL(aNoteTuple)	GetObjLink(NOTETUPLEheap,(aNoteTuple),ANOTETUPLE)
 
 #define NextPARTINFOL(partInfoL) 	NextLink(PARTINFOheap,(partInfoL))
 #define NextSTAFFL(aStaffL) 		NextLink(STAFFheap,(aStaffL))
@@ -365,7 +352,8 @@ Note this depends on the sizes of fields preceding the type! */
 
 #define JustTYPE(link)			( objTable[ObjLType(link)].justType )
 
-/* These macros take specific Documents as arguments */
+/* These macros take a given Document as argument instead of assuming the currently-
+installed doc. */
 
 #define DGetPMEVENT(doc,link)		(PMEVENT)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
 
@@ -496,9 +484,14 @@ Note this depends on the sizes of fields preceding the type! */
 
 /* ----------------------------------------------------------------------------------- */
 /* Macros for acccessing various other fields of subobjects (mostly) or objects. (FWIW,
-170 of these are from the OMRAS "MemMacroizing" project, mostly by Steve Hart.) */
+170 of these are from the OMRAS "MemMacroizing" project of the late 1990s; most are by
+Steve Hart.) */
 
 #define FirstSubObjPtr(p,link)		(p = GetPMEVENT(link), p->firstSubObj)			
+
+#define SyncTIME(link)				( (GetPSYNC(link))->timeStamp )
+
+#define PartNAME(link)				( GetPPARTINFO(link)->name )
 
 #define BeamCrossSTAFF(link)		( (GetPBEAMSET(link))->crossStaff )			
 #define BeamCrossSYS(link)			( (GetPBEAMSET(link))->crossSystem )		

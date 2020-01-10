@@ -39,7 +39,7 @@
 /* Note: "Logical duration" herein refers to Nightingale's internal representation
 of a note or rest's symbolic duration, given in the same units as play duration:
 "PDUR ticks".  Cf. the definition of PDURUNIT. Thus, a triplet note of the shortest
-possible duration would have a logical duration of 2/3 of PDURUNIT.
+possible duration would have a logical duration of 2/3 of PDURUNIT.						
 
 
 /* Prototypes for functions local to this file */
@@ -765,7 +765,7 @@ STDIST IdealSpace(
 
 /* ------------------------------------------------------------------- CalcSpaceNeeded -- */
 /* Calculate the amount of space needed by the last object on the page before pL.
-??Should probably call SymLikelyWidthRight instead of doing most of the work
+FIXME: Should probably call SymLikelyWidthRight instead of doing most of the work
 itself. */
 
 DDIST CalcSpaceNeeded(Document *doc, LINK pL)
@@ -778,8 +778,8 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 	STDIST	symWidth,space;
 	
 	if (!(PageTYPE(pL) || SystemTYPE(pL) || TailTYPE(pL)))
-		MayErrMsg("CalcSpaceNeeded: link %ld is of the wrong type %ld",
-					(long)pL, (long)ObjLType(pL));
+		MayErrMsg("CalcSpaceNeeded: link L%ld type %ld is wrong", (long)pL,
+			(long)ObjLType(pL));
 
 	beforeL = FirstValidxd(LeftLINK(pL),True);
 	switch(ObjLType(beforeL)) {
@@ -810,7 +810,7 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 			return (SymWidthRight(doc, beforeL, ANYONE, False));
 		default:
 			if (TYPE_BAD(beforeL))
-				MayErrMsg("CalcSpaceNeeded: object at %ld has illegal type %ld",
+				MayErrMsg("CalcSpaceNeeded: object at L%ld has illegal type %ld",
 							(long)beforeL, (long)ObjLType(beforeL));
 			return 0;
 	}
@@ -951,7 +951,7 @@ long SimpleLDur(LINK aNoteL)
 
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->subType==UNKNOWN_L_DUR || aNote->subType<=WHOLEMR_L_DUR) {
-		MayErrMsg("SimpleLDur: can't handle unknown duration note or whole-measure rest, subobj %ld (ivoice %ld).",
+		MayErrMsg("SimpleLDur: can't handle unknown duration note or whole-measure rest, subobj L%ld (ivoice %ld).",
 					(long)aNoteL, (long)NoteVOICE(aNoteL));
 		return 0L;
 	}
@@ -969,7 +969,7 @@ long SimpleGRLDur(LINK aGRNoteL)
 
 	aGRNote = GetPAGRNOTE(aGRNoteL);
 	if (aGRNote->subType==UNKNOWN_L_DUR) {
-		MayErrMsg("SimpleGRLDur:can't handle unknown duration grace note at %ld.",
+		MayErrMsg("SimpleGRLDur:can't handle unknown duration grace note at L%ld.",
 					(long)aGRNoteL);
 		return 0L;
 	}
@@ -1199,19 +1199,17 @@ long GetLTime(Document *doc, LINK target)
 	short		last;
 	SPACETIMEINFO	*spTimeInfo;
 
-	spTimeInfo = (SPACETIMEINFO *)NewPtr((Size)MAX_MEASNODES *
-											sizeof(SPACETIMEINFO));
+	spTimeInfo = (SPACETIMEINFO *)NewPtr((Size)MAX_MEASNODES * sizeof(SPACETIMEINFO));
 	if (!GoodNewPtr((Ptr)spTimeInfo)) {
 		OutOfMemory((long)MAX_MEASNODES * sizeof(SPACETIMEINFO));
 		return -1L;
 	}
 
-	if (ObjLType(target)==MEASUREtype)
-		goto normalReturn;
+	if (ObjLType(target)==MEASUREtype) goto normalReturn;
 
 	startL = LSSearch(target, MEASUREtype, ANYONE, GO_LEFT, False); /* Find previous barline */
 	if (!startL) {
-		MayErrMsg("GetLTime: no Measure before %ld", (long)target);
+		MayErrMsg("GetLTime: no Measure before L%ld", (long)target);
 		goto errorReturn;
 	}
 
@@ -1305,7 +1303,7 @@ static void GetSpaceInfo(
 				}
 			}
 			if (earliestEnd>=9999999L)
-				MayErrMsg("GetSpaceInfo: can't find a note to set spacing in bar at %ld. k=%ld,timeHere=%ld",
+				MayErrMsg("GetSpaceInfo: can't find a note to set spacing in bar at L%ld. k=%ld,timeHere=%ld",
 							(long)LeftLINK(barFirst), (long)k, timeHere);
 			spaceTimeInfo[k].dur = vLDur[earlyVoice];
 			spaceTimeInfo[k].frac = (FASTFLOAT)(vLTimes[earlyVoice]-timeHere)/spaceTimeInfo[k].dur;
@@ -1574,7 +1572,7 @@ short GetSpTimeInfo(
 				break;
 				
 			default:
-				MayErrMsg("GetSpTimeInfo: can't handle object type %ld (at %ld)",
+				MayErrMsg("GetSpTimeInfo: can't handle object type %ld (at L%lu)",
 							(long)ObjLType(pL), (long)pL);
 				break;
 		}
@@ -1819,7 +1817,7 @@ long GetMeasDur(Document *doc,
 
 	startL = LSSearch(LeftLINK(endMeasL), MEASUREtype, ANYONE, GO_LEFT, False); /* Find previous barline */
 	if (!startL) {
-		MayErrMsg("GetMeasDur: no Measure before %ld", (long)endMeasL);
+		MayErrMsg("GetMeasDur: no Measure before L%ld", (long)endMeasL);
 		return -1L;
 	}
 	
@@ -1918,7 +1916,7 @@ long GetStaffMeasDur(Document *doc,
 
 	startL = LSSearch(LeftLINK(endMeasL), MEASUREtype, ANYONE, GO_LEFT, False); /* Find previous barline */
 	if (!startL) {
-		MayErrMsg("GetStaffMeasDur: no Measure before %ld", (long)endMeasL);
+		MayErrMsg("GetStaffMeasDur: no Measure before L%ld", (long)endMeasL);
 		return -1L;
 	}
 

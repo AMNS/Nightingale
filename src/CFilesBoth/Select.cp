@@ -118,7 +118,7 @@ void DeselRange(Document *doc, LINK startL, LINK endL)
 	short		index,oldSheet;
 	STFRANGE	stfRange={0,0};
 	Rect		oldPaper;
-	long		soon;
+	unsigned long		soon;
 
 	if (!startL || startL==endL) return;				/* check for empty selection */
 
@@ -225,8 +225,8 @@ static void DoAccumSelect(Document	*doc, LINK oldSelStartL, LINK oldSelEndL)
 
 /* -------------------------------------------------------------------- DoExtendSelect -- */
 /*	Handle user shift-selection: accumulate selected objects into selection range,
-optimize selection, and set blinking caret if user deselected everything. The
-resulting selection will be continuous. */
+optimize selection, and set blinking caret if user deselected everything. The resulting
+selection will be continuous. */
 
 static void DoExtendSelect(
 					Document	*doc,
@@ -243,7 +243,7 @@ static void DoExtendSelect(
 	Rect		paper, oldPaper, selRect;
 	STFRANGE	stfRange;
 	CONTEXT		context[MAXSTAVES+1];
-	long		soon;
+	unsigned long	soon;
 	
 	if (IsAfterIncl(oldSelStartL, doc->selStartL))				/* accumulate new selection */
 		doc->selStartL = oldSelStartL;
@@ -598,7 +598,7 @@ void DeselectNode(LINK pL)
 			break;
 			
 		default:
-			MayErrMsg("DeselectNode: type=%ld at %ld not supported", (long)ObjLType(pL),
+			MayErrMsg("DeselectNode: type=%ld at L%ld is not supported", (long)ObjLType(pL),
 							(long)pL);
 			break;
 	}
@@ -666,7 +666,7 @@ void SelAllSubObjs(LINK pL)
 		case ENDINGtype:
 			break;
 		default:
-			MayErrMsg("SelAllSubObjs: at %ld, type=%ld not supported", (long)pL,
+			MayErrMsg("SelAllSubObjs: at L%ld, type=%ld not supported", (long)pL,
 						(long)ObjLType(pL));
 			break;
 	}
@@ -865,7 +865,7 @@ void CountSelection(Document *doc, short *nInRange, short *nSelFlag)
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 	{
 		if (pL==doc->tailL) {
-			MayErrMsg("CountSelection: found tail before selEndL=%ld. selStartL=%ld",
+			MayErrMsg("CountSelection: found tail before selEndL=L%ld. selStartL=L%ld",
 				(long)doc->selEndL, (long)doc->selStartL);
 		}
 		nIn++;

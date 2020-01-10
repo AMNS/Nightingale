@@ -188,8 +188,8 @@ void DisplayNode(Document *doc, LINK pL,
 			;
 	}
 	
-	if (p->nEntries!=0) LogPrintf(LOG_INFO, " n=%d\n", p->nEntries);
-	else				     LogPrintf(LOG_INFO, "\n");
+	if (p->nEntries!=0)	LogPrintf(LOG_INFO, " n=%d\n", p->nEntries);
+	else				LogPrintf(LOG_INFO, "\n");
 
 	if (show_subs)
 		switch (ObjLType(pL))
@@ -210,7 +210,8 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				LogPrintf(LOG_INFO, "     ");
-/* Be careful with addresses provided by the following--they can change suddenly! */
+				
+/* Be careful with addresses provided by the following; they can change suddenly! */
 				if (OptionKeyDown())
 					LogPrintf(LOG_INFO, "@%lx:", aNote);
 					LogPrintf(LOG_INFO, 
@@ -429,7 +430,9 @@ void MemUsageStats(Document *doc)
 {
 	long heapSize=0L, objHeapMemSize=0L, objHeapFileSize=0L, heapHdrSize=0L,
 			subTotal, mTotal, fTotal;
-	const char *ps; LINK pL; register HEAP *theHeap;
+	const char *ps;
+	LINK pL;
+	register HEAP *theHeap;
 	unsigned short objCount[LASTtype], h;
 
 	/* Get the total number of objects of each type and the number of note modifiers
@@ -444,12 +447,11 @@ void MemUsageStats(Document *doc)
  		
 		ps = NameHeapType(h, False);
  		if (!OptionKeyDown())
- 			LogPrintf(LOG_INFO, "  %s Heap: %u in use (%d bytes each)\n", ps, objCount[h],
- 							subObjLength[h]);
-		/*
-		 * In memory, blocks of all types are of a constant size, but in files,
-		 * OBJECTs take only as much space as that type of object needs.
-		 */
+ 			LogPrintf(LOG_INFO, "  Heap %d (%s): %u in use (%d bytes each)\n", h, ps,
+							objCount[h], subObjLength[h]);
+							
+		/* In memory, blocks of all types are of a constant size, but in files, OBJECTs
+		   take only as much space as that type of object needs. */
  	}
  	
  	heapHdrSize = (2+(LASTtype-1-FIRSTtype))*(sizeof(short)+sizeof(HEAP));
@@ -473,13 +475,13 @@ void MemUsageStats(Document *doc)
 	mTotal = subTotal+heapSize+objHeapMemSize;
 	fTotal = subTotal+heapSize+objHeapFileSize;
 
- 	LogPrintf(LOG_INFO, "Size of *=%ld DOCHDR=%ld SCOREHDR=%ld *=%ld strPool=%ld\n"
-					"        *=%ld { heapHdrs=%ld HeapsMem/File=%ld/%ld }",
+ 	LogPrintf(LOG_INFO, "Size of *=%ld DOCHDR=%ld SCOREHDR=%ld *=%ld strPool=%ld\n",
  					sizeof(long)+sizeof(long),
  					sizeof(DOCUMENTHDR), sizeof(SCOREHEADER),
- 					sizeof(short), GetHandleSize((Handle)doc->stringPool), sizeof(long),
- 					heapHdrSize, heapSize+objHeapMemSize, heapSize+objHeapFileSize);
- 	LogPrintf(LOG_INFO, " TOTAL Mem/File=%ld/%ld\n", mTotal, fTotal);
+ 					sizeof(short), GetHandleSize((Handle)doc->stringPool));
+ 	LogPrintf(LOG_INFO, "        *=%ld { heapHdrs=%ld HeapsMem/File=%ld/%ld }\n",
+					sizeof(long), heapHdrSize, heapSize+objHeapMemSize, heapSize+objHeapFileSize);
+ 	LogPrintf(LOG_INFO, "TOTAL Mem/File=%ld/%ld\n", mTotal, fTotal);
 }
 
 
@@ -502,7 +504,7 @@ void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLin
 	p = GetPMEVENT(pL);
 	switch (ObjLType(pL)) {
 		case HEADERtype:
-			LogPrintf(LOG_INFO, "\t");						/* Align since info printed is short */
+			LogPrintf(LOG_INFO, "\t");					/* Align since info printed is short */
 			break;
 		case PAGEtype:
 			LogPrintf(LOG_INFO, " #%d", ((PPAGE)p)->sheetNum);

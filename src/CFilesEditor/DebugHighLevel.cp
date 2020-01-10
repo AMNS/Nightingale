@@ -382,7 +382,7 @@ Boolean DoDebug(
 	}
 	
 	if (doc==NULL) {
-		LogPrintf(LOG_ERR, "•DoDebug: doc NULL");
+		LogPrintf(LOG_ERR, "•DoDebug: doc is NULL!\n");
 		return True;
 	}
 	if (DebugDialog(label, &what, &istart, &istop, &disp, &check,	/* What does the */

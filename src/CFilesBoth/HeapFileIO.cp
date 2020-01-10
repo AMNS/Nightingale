@@ -22,8 +22,10 @@
 
 #define HDR_TYPE_ERR 217			/* Heap header in file contains incorrect type */
 #define HDR_SIZE_ERR 251			/* Heap header in file contains incorrect objSize */
-#define MEM_ERRINFO 99				/* ExpandFreeList failed */
+#define MEM_FULL_ERR 997			/* ExpandFreeList failed */
 #define MISC_HEAPIO_ERR 998
+
+#define MEM_ERRINFO 99				/* ExpandFreeList failed */
 
 #define EXTRAOBJS 10L
 
@@ -283,15 +285,15 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 	
 	if (ioErr==noErr) {
 		GetFPos(refNum,&endPosition);
-		sizeAllObjsFile = endPosition - startPosition - sizeof(long);
-		ioErr = SetFPos(refNum,fsFromStart,startPosition);
+		sizeAllObjsFile = endPosition-startPosition-sizeof(long);
+		ioErr = SetFPos(refNum, fsFromStart, startPosition);
 		if (ioErr!=noError) return ioErr;
 		count = sizeof(long);
 		ioErr = FSWrite(refNum, &count, &sizeAllObjsFile);
 		if (ioErr) { SaveError(True, refNum, ioErr, OBJtype); return ioErr; }
 		
 		/* And move back to where we just were so as not to truncate anything */
-		ioErr = SetFPos(refNum,fsFromStart,endPosition);
+		ioErr = SetFPos(refNum, fsFromStart, endPosition);
 		if (ioErr!=noError) return ioErr;
 	}
 		
@@ -506,7 +508,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	HEAP *myHeap;
 	myHeap = Heap + heapIndex;
 
-	/* Write the total number of objects of type heapIndex */
+	/* Write the total number of objects/subobjects of type heapIndex */
 	count = sizeof(short);
 	ioErr = FSWrite(refNum, &count, &objCount[heapIndex]);
 	if (ioErr) { SaveError(True, refNum, ioErr, heapIndex); return(ioErr); }
@@ -654,8 +656,9 @@ static short WriteObject(short refNum, short heapIndex, LINK pL)
 
 
 /* Compute the total number of objects/subobjects of each type and the number of note
-modifiers in the object list, and store them in the objCount[] array. Also allocate
-arrays for keeping track of object and note modifier links. */
+modifiers in the object list, and store them in the objCount[] array. Also allocate and
+initialize "arrays" for keeping track of firstSubLINKs and object and note modifier links.
+NB: The calling routine is responsible for freeing these chunks of memory. */
 
 Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK **modA)
 {
@@ -682,7 +685,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 
 	/* Compute the numbers of note modifiers (the only type with subobjects but no
 	   objects: note modifier subobjects are attached to Sync subobjects) in the score.
-	   (The Master Page never contains any.) */
+	   (The Master Page never contains note modifiers.) */
 		
 	for (pL = doc->headL; pL!=RightLINK(doc->tailL); pL = RightLINK(pL))
 		if (ObjLType(pL)==SYNCtype) {
@@ -757,63 +760,66 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 }
 
 
-/* Read the object heap from a file. The objects in the heap were written out without
-padding, so they're variable-length; but, for the sake of speed, we'll store them in
-memory as records of fixed length. So, after reading them in, they must be padded to
-sizeof(SUPEROBJECT). We do this by preallocating the entire heap; reading all the
-variable-sized objects into it (they are guaranteed to fit) preceded by the total
-padding; and then moving the objects, starting at the beginning of the heap, into their
-correct positions (followed by per-object padding, if any). This scheme is necessary
-because we are not explicitly recording the lengths of the objects we're writing out,
-and the only way we can tell what these lengths are is by looking at the type fields,
-which are at a known offset from the beginning of each object record.  Thus only a scan
-forwards through the block can work. */
+/* Read the objects from a file and make them into the object heap. The objects in the
+heap were written out without padding, so they're variable-length; but, for simplicity
+and speed, we'll store them in memory as records of fixed length (like the subobjects in
+the other heaps). So, after reading them in, they must be padded to sizeof(SUPEROBJECT),
+the maximum length for any object. We do this by preallocating the entire heap with room
+for all the objects plus all the padding; reading the variable-sized objects into it
+preceded by the total padding; and then moving the objects, starting at the beginning of
+the heap, down into their correct positions, followed by per-object padding as needed.
+This scheme is necessary because we are not explicitly recording the lengths of the
+objects we're writing out, and the only way we can tell what these lengths are is by
+looking at the type fields, which are at a known offset from the beginning of each
+object record. Thus only a scan forwards through the block can work.
+
+NB: If we're reading a file in an old format, the various objects' fields still need
+to be converted! That should be done in ConvertObjContent(). */
 
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
 	unsigned short nFObjs;
 	short ioErr, hdrErr;
-	char *p;
-	long count, sizeAllObjsFile, sizeAllObjsMem, blockSize, nExpand;
-	HEAP *myHeap;
-	char *startPos;
+	char *p, *startPos;
+	long count, sizeAllObjsFile, sizeAllObjsHeap, nExpand;
+	HEAP *objHeap;
 	char *src,*dst;
 	short type;
 	long len, n;
 
-	myHeap = doc->Heap + OBJtype;
+	objHeap = doc->Heap + OBJtype;
 	hdrErr = ReadHeapHdr(doc, refNum, version, isViewerFile, OBJtype, &nFObjs);
 	if (hdrErr) return hdrErr;
 
-	sizeAllObjsMem = nFObjs * (long)sizeof(SUPEROBJECT);
-	if (version=='N105') sizeAllObjsMem = nFObjs * (long)sizeof(SUPEROBJECT_N105);
-	
-	/* Read the exact total size of all objects in the file. */
-	
+	/* Calculate the eventual size of the object heap; read the total size of all objects
+	   in the file; and expand the object heap to the desired size. */
+	   
+	sizeAllObjsHeap = nFObjs * (long)sizeof(SUPEROBJECT);
+	//if (version=='N105') sizeAllObjsHeap = nFObjs * (long)sizeof(SUPEROBJECT_N105);
+		
 	count = sizeof(long);
 	FSRead(refNum, &count, &sizeAllObjsFile);
 	FIX_END(sizeAllObjsFile);
-	LogPrintf(LOG_INFO, "nFObjs=%d sizeAllObjsMem=%d sizeAllObjsFile=%d  (ReadObjHeap)\n",
-								nFObjs, sizeAllObjsMem, sizeAllObjsFile);
+	LogPrintf(LOG_INFO, "nFObjs=%d sizeAllObjsFile=%d sizeAllObjsHeap=%d  (ReadObjHeap)\n",
+								nFObjs, sizeAllObjsFile, sizeAllObjsHeap);
 
-	if (sizeAllObjsFile>sizeAllObjsMem) {
-		AlwaysErrMsg("File is inconsistent. sizeAllObjsFile=%ld is greater than sizeAllObjsMem=%ld  (ReadObjHeap)",
-					sizeAllObjsFile, sizeAllObjsMem);
+	if (sizeAllObjsFile>sizeAllObjsHeap) {
+		AlwaysErrMsg("File is inconsistent. sizeAllObjsFile=%ld is greater than sizeAllObjsHeap=%ld  (ReadObjHeap)",
+					sizeAllObjsFile, sizeAllObjsHeap);
 		OpenError(True, refNum, MISC_HEAPIO_ERR, OBJtype);
 		return(MISC_HEAPIO_ERR);
 	}
 	
-	nExpand = (long)nFObjs - (long)myHeap->nObjs + EXTRAOBJS;
-	if (!ExpandFreeList(myHeap, nExpand))
-		{ OpenError(True, refNum, memFullErr, MEM_ERRINFO); return memFullErr; }
+	nExpand = (long)nFObjs - (long)objHeap->nObjs + EXTRAOBJS;
+	if (!ExpandFreeList(objHeap, nExpand))
+		{ OpenError(True, refNum, MEM_FULL_ERR, MEM_ERRINFO); return MEM_FULL_ERR; }
 	
-	PushLock(myHeap);			/* Should lock it after expanding free list above */
+	PushLock(objHeap);			/* Should lock it after expanding free list above */
 	
 	/* Set p to point to LINK 1, since LINK 0 is never used. */
 	
-	blockSize = GetHandleSize(myHeap->block);
-	p = *(myHeap->block); p += myHeap->objSize;
-	startPos = p + (sizeAllObjsMem - sizeAllObjsFile);
+	p = *(objHeap->block);  p += objHeap->objSize;
+	startPos = p + (sizeAllObjsHeap - sizeAllObjsFile);
 	
 	ioErr = FSRead(refNum, &sizeAllObjsFile, startPos);
 	
@@ -827,24 +833,25 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 		/* Move object of whatever type at src down to its anointed LINK slot at dst */
 		
 		type = ObjPtrTYPE(src);
-//LogPrintf(LOG_DEBUG, "ReadObjHeap: src=%lx dst=%lx dst-src:%ld offset:%ld type=%d\n", src, dst,
-//(long)(dst-src), (long)(src-startPos), type);
+LogPrintf(LOG_DEBUG, "ReadObjHeap: src=%lx dst=%lx dst-src:%ld offset:%ld type=%d\n", src, dst,
+(long)(dst-src), (long)(src-startPos), type);
 		if (type<0 || type>LASTtype) {
 			LogPrintf(LOG_ERR, "Object type=%d is illegal. (ReadObjHeap)\n", type);
 			OpenError(True, refNum, MISC_HEAPIO_ERR, OBJtype);
 			return(MISC_HEAPIO_ERR);
 		}
+		
 		len  = objLength[type];
 		
 		/* <len> is now the correct object length for the current file format. If any
 		   object lengths were different in previous file formats, adjust <len> to
 		   compensate. (However, the _contents_ of the objects should be fixed in
-		   ConvertScoreContent.) */
+		   ConvertObjContent.) */
 		   
 		if (version=='N105') {
 			len = objLength_5[type];
-LogPrintf(LOG_DEBUG, "ReadObjHeap: type %d object objLength=%d objLength_5=%d\n",
-type, objLength[type], objLength_5[type]);
+//LogPrintf(LOG_DEBUG, "ReadObjHeap: type %d object objLength=%d objLength_5=%d\n",
+//type, objLength[type], objLength_5[type]);
 		}
 
 		BlockMove(src, dst, len);
@@ -854,10 +861,10 @@ type, objLength[type], objLength_5[type]);
 		/* NOTE: Padding is (sizeof(SUPEROBJECT)-len) bytes, and contains garbage */
 	}
 	
-	PopLock(myHeap);
+	PopLock(objHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
 	RebuildFreeList(doc, OBJtype, nFObjs);
-	return(ioErr);
+	return 0;
 }
 
 
@@ -913,7 +920,7 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 			if (nFObjs+1 >= myHeap->nObjs) {
 				nExpand = (long)nFObjs - (long)myHeap->nObjs + EXTRAOBJS;
 				if (!ExpandFreeList(myHeap, nExpand))
-					{ OpenError(True, refNum, memFullErr, MEM_ERRINFO); return memFullErr; }
+					{ OpenError(True, refNum, MEM_FULL_ERR, MEM_ERRINFO); return MEM_FULL_ERR; }
 			}
 
 			/* Read nFObjs+1 objects from the file, since the zeroth object is not used. */
@@ -1177,3 +1184,4 @@ clipboards, since the call to RebuildFreeList() re-initializes all heaps. */
 static void PrepareClips()
 {
 }
+

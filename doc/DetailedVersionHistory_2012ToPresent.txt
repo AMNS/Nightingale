@@ -2515,9 +2515,19 @@ Score.h; FileOpen, FileUtils, HeapFileIO, Score.
 
 -------------------------------------------------------------------------------
 
-27-29 Dec.	*IN 5.9
+27-30 Dec.	*IN 5.9
 
 Worked on opening format 'N105' files while using a new format internally: handling
 heaps. Affects HeapFileIO.
 
 Minor cleanup. Affects MemMacros.h, NObjTypes.h; FileOpen, HeapFileIO.
+
+-------------------------------------------------------------------------------
+
+31 Dec. - 9 Jan. 2020	*IN 5.9
+
+Worked on opening format 'N105' files while using a new format internally: handling
+heaps and converting fields of objects. Affects FileOpen, HeapFileIO.
+
+Minor cleanup. Affects MemMacros.h; Browser, DebugDisplay, DebugHighLevel, FileOpen,
+HeapFileIO, Select, SpaceTime.

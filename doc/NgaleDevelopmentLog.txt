@@ -3948,7 +3948,7 @@ Better! It looks like the problem isn't ReadHeapHdr(), but ReadObjHeap().
 
 -------------------------------------------------------------------------------
 
-11 - 26 Dec.
+11 - 27 Dec.
 	
 Work on ReadObjHeap(); now opening file '1CourtesyAcc.ngl' gives...
 
@@ -4111,4 +4111,119 @@ But much safer to use the max growth factor of any object!; what is that?
 	
 The greatest ratio is 1.462 (for type 11 objects). Let's round up to 1.5.
 ??
+
+-------------------------------------------------------------------------------
+
+28 Dec. - 8 Jan. 2020
+
+But wait! What we're reading in is objects of either N105 or N106 length, yes, but the
+length we want to expand to is the 5.9.x SUPEROBJECT size regardless!!
+
+So ReadObjHeap() is simpler than I thought. After reading the objects in, it just pads
+them to sizeof(SUPEROBJECT). The description of the process it appears it's been
+following is "We do this by preallocating the entire heap with room for all the objects
+plus all the padding; reading the variable-sized objects into it preceded by the total
+padding; and then moving the objects, starting at the beginning of the heap, down
+into their correct positions, followed by per-object padding as needed." That sounds
+exactly right! Why doesn't it work?
+
+Opening '1CourtesyAcc.ngl' with 5.8.10 gives...
+
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	debug. ReadObjHeap: src=aa3138 dst=aa302e dst-src:-266 offset:0 type=0
+	debug. ReadObjHeap: src=aa3150 dst=aa305c dst-src:-244 offset:24 type=4
+	debug. ReadObjHeap: src=aa3176 dst=aa308a dst-src:-236 offset:62 type=5
+	debug. ReadObjHeap: src=aa31a2 dst=aa30b8 dst-src:-234 offset:106 type=6
+	debug. ReadObjHeap: src=aa31c0 dst=aa30e6 dst-src:-218 offset:136 type=12
+	debug. ReadObjHeap: src=aa31da dst=aa3114 dst-src:-198 offset:162 type=8
+	debug. ReadObjHeap: src=aa31f2 dst=aa3142 dst-src:-176 offset:186 type=9
+	debug. ReadObjHeap: src=aa320a dst=aa3170 dst-src:-154 offset:210 type=10
+	debug. ReadObjHeap: src=aa3222 dst=aa319e dst-src:-132 offset:234 type=7
+	debug. ReadObjHeap: src=aa3250 dst=aa31cc dst-src:-132 offset:280 type=2
+	debug. ReadObjHeap: src=aa326a dst=aa31fa dst-src:-112 offset:306 type=1
+	debug. ReadObjHeap: src=aa3282 dst=aa3228 dst-src:-90 offset:330 type=0
+	debug. ReadObjHeap: src=aa329a dst=aa3256 dst-src:-68 offset:354 type=4
+	debug. ReadObjHeap: src=aa32c0 dst=aa3284 dst-src:-60 offset:392 type=5
+	debug. ReadObjHeap: src=aa32ec dst=aa32b2 dst-src:-58 offset:436 type=6
+	debug. ReadObjHeap: src=aa330a dst=aa32e0 dst-src:-42 offset:466 type=12
+	debug. ReadObjHeap: src=aa3324 dst=aa330e dst-src:-22 offset:492 type=1
+
+With 5.9.1 it now gives...
+
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	info. nFObjs=17 sizeAllObjsFile=516 sizeAllObjsHeap=782  (ReadObjHeap)
+	debug. ReadObjHeap: src=b84342 dst=b84238 dst-src:-266 offset:0 type=0
+	debug. ReadObjHeap: src=b84360 dst=b84270 dst-src:-240 offset:30 type=0
+	debug. ReadObjHeap: src=b8437e dst=b842a8 dst-src:-214 offset:60 type=2
+	debug. ReadObjHeap: src=b8439e dst=b842e0 dst-src:-190 offset:92 type=101
+	ERROR. Object type=101 is illegal. (ReadObjHeap)
+	ERROR. Can't open the file. errCode=998 errInfo=24  (OpenError)
+	
+Oops! For version=='N105', still need
+		len = objLength_5[type];
+
+With 5.9.1 now, we're back to...
+
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	info. nFObjs=17 sizeAllObjsFile=516 sizeAllObjsHeap=782  (ReadObjHeap)
+	debug. ReadObjHeap: src=ad7742 dst=ad7638 dst-src:-266 offset:0 type=0
+	debug. ReadObjHeap: type 0 object objLength=30 objLength_5=24
+	debug. ReadObjHeap: src=ad775a dst=ad7670 dst-src:-234 offset:24 type=4
+	debug. ReadObjHeap: type 4 object objLength=44 objLength_5=38
+	debug. ReadObjHeap: src=ad7780 dst=ad76a8 dst-src:-216 offset:62 type=5
+	debug. ReadObjHeap: type 5 object objLength=50 objLength_5=44
+	debug. ReadObjHeap: src=ad77ac dst=ad76e0 dst-src:-204 offset:106 type=6
+	debug. ReadObjHeap: type 6 object objLength=36 objLength_5=30
+	debug. ReadObjHeap: src=ad77ca dst=ad7718 dst-src:-178 offset:136 type=12
+	debug. ReadObjHeap: type 12 object objLength=32 objLength_5=26
+	debug. ReadObjHeap: src=ad77e4 dst=ad7750 dst-src:-148 offset:162 type=8
+	debug. ReadObjHeap: type 8 object objLength=30 objLength_5=24
+	debug. ReadObjHeap: src=ad77fc dst=ad7788 dst-src:-116 offset:186 type=9
+	debug. ReadObjHeap: type 9 object objLength=30 objLength_5=24
+	debug. ReadObjHeap: src=ad7814 dst=ad77c0 dst-src:-84 offset:210 type=10
+	debug. ReadObjHeap: type 10 object objLength=30 objLength_5=24
+	debug. ReadObjHeap: src=ad782c dst=ad77f8 dst-src:-52 offset:234 type=7
+	debug. ReadObjHeap: type 7 object objLength=54 objLength_5=46
+	debug. ReadObjHeap: src=ad785a dst=ad7830 dst-src:-42 offset:280 type=2
+	debug. ReadObjHeap: type 2 object objLength=32 objLength_5=26
+	debug. ReadObjHeap: src=ad7874 dst=ad7868 dst-src:-12 offset:306 type=1
+	debug. ReadObjHeap: type 1 object objLength=30 objLength_5=24
+	debug. ReadObjHeap: src=ad788c dst=ad78a0 dst-src:20 offset:330 type=0
+	debug. ReadObjHeap: type 0 object objLength=30 objLength_5=24
+	debug. ReadObjHeap: src=ad78a4 dst=ad78d8 dst-src:52 offset:354 type=0
+	debug. ReadObjHeap: type 0 object objLength=30 objLength_5=24
+	debug. ReadObjHeap: src=ad78bc dst=ad7910 dst-src:84 offset:378 type=50
+	ERROR. Object type=50 is illegal. (ReadObjHeap)
+	ERROR. Can't open the file. errCode=998 errInfo=24  (OpenError)
+
+The sequence of offsets & types agrees w/ 5.8.10 all the way to offset 354, where type
+should be 4 but is 0. Looks like a clobber -- makes sense; dst-src > 0 would do that!
+Ah-hah: sizeAllObjsHeap=782 is the same as w/ 5.8.10, but it has to be larger;
+sizeAllObjsHeap should always be based on the current SUPEROBJECT. Fix that =>
+ 
+	debug. ReadHeapHdr: hp 24 (OBJECT) nFObjs=17 blk=3144988 objSize=46 type=24 ff=29 nO=64 nf=44 ll=1 FPos:4824
+	info. nFObjs=17 sizeAllObjsFile=516 sizeAllObjsHeap=952  (ReadObjHeap)
+	debug. ReadObjHeap: src=accbec dst=acca38 dst-src:-436 offset:0 type=0
+	debug. ReadObjHeap: src=accc04 dst=acca70 dst-src:-404 offset:24 type=4
+	debug. ReadObjHeap: src=accc2a dst=accaa8 dst-src:-386 offset:62 type=5
+	debug. ReadObjHeap: src=accc56 dst=accae0 dst-src:-374 offset:106 type=6
+	debug. ReadObjHeap: src=accc74 dst=accb18 dst-src:-348 offset:136 type=12
+	debug. ReadObjHeap: src=accc8e dst=accb50 dst-src:-318 offset:162 type=8
+	debug. ReadObjHeap: src=accca6 dst=accb88 dst-src:-286 offset:186 type=9
+	debug. ReadObjHeap: src=acccbe dst=accbc0 dst-src:-254 offset:210 type=10
+	debug. ReadObjHeap: src=acccd6 dst=accbf8 dst-src:-222 offset:234 type=7
+	debug. ReadObjHeap: src=accd04 dst=accc30 dst-src:-212 offset:280 type=2
+	debug. ReadObjHeap: src=accd1e dst=accc68 dst-src:-182 offset:306 type=1
+	debug. ReadObjHeap: src=accd36 dst=accca0 dst-src:-150 offset:330 type=0
+	debug. ReadObjHeap: src=accd4e dst=acccd8 dst-src:-118 offset:354 type=4
+	debug. ReadObjHeap: src=accd74 dst=accd10 dst-src:-100 offset:392 type=5
+	debug. ReadObjHeap: src=accda0 dst=accd48 dst-src:-88 offset:436 type=6
+	debug. ReadObjHeap: src=accdbe dst=accd80 dst-src:-62 offset:466 type=12
+	debug. ReadObjHeap: src=accdd8 dst=accdb8 dst-src:-32 offset:492 type=1
+	Notice. Can't convert 'N105' format files yet.
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	ERROR. PROGRAM ERROR: GetSpTimeInfo: can't handle object type -7 (at 0)
+	
+Much better: looks like the heaps are getting set up correctly! Now to move the contents
+of the objects around, in ConvertObjContent()...
 
