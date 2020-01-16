@@ -53,6 +53,7 @@ static void InitToolbox()
 
 static GrowZoneUPP growZoneUPP;			/* permanent GZ UPP */
 
+#define STRBUF_SIZE 256
 
 void Initialize()
 {
@@ -72,9 +73,9 @@ void Initialize()
 			
 	/* We must allocate <strBuf> immediately: it's used to build error messages. */
 	
-	strBuf = (char *)NewPtr(256);
+	strBuf = (char *)NewPtr(STRBUF_SIZE);
 	if (!GoodNewPtr((Ptr)strBuf))
-		{ OutOfMemory(256L); ExitToShell(); }
+		{ OutOfMemory((long)STRBUF_SIZE); ExitToShell(); }
 	
 	creatorType = CREATOR_TYPE_NORMAL;
 	documentType = DOCUMENT_TYPE_NORMAL;

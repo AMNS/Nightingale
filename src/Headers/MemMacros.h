@@ -34,13 +34,12 @@ possibility of calls to PushLock or PopLock in between. */
 
 /* LinkToPtr(heap,link) delivers the address of the 0'th byte of the link'th object kept
 in a given heap.  This address is determined without type information by using the
-heap's own idea of how large the object is in bytes. The pointer The pointer so
-delivered is only valid as long as the heap block doesn't get relocated! This is a
-generic macro that should be avoided whenever it's possible to use one of the ones
-below. NB: For space and time efficiency reasons, we now use an equivalent function,
-located in Heaps.c. (Long ago, we used an identical macro with its name slightly changed
-in the THINK Debugger. I don't know if it'd be useful with a modern debugger. --DAB,
-Feb. 2017)
+heap's own idea of how large the object is in bytes. The pointer so delivered is only
+valid as long as the heap block doesn't get relocated! This is a generic macro that
+should be avoided whenever it's possible to use one of the ones below. NB: For space and
+time efficiency reasons, we now use an equivalent function, located in Heaps.c. (Long
+ago, we used an identical macro with its name slightly changed in the THINK Debugger. I
+don't know if it'd be useful with a modern debugger. --DAB, Feb. 2017)
 
 PtrToLink(heap, ptr) delivers the LINK into a heap that a given pointer to an object
 corresponds to.  Since this is done generically, there's no reasonable way to avoid the
@@ -57,7 +56,7 @@ at all. */
 
 /* Given a link to a generic subobject list, deliver the link to the next subobject in
 list. This macro depends upon the fact that the next link field of a subobject header is
-the first in the record and thus has the same address as the subobject record itself! */
+the first in the record and thus has the same address as the subobject record itself. */
 
 #define NextLink(heap,link)  ( *(LINK *)LinkToPtr(heap,link) )
 
@@ -352,7 +351,7 @@ same place as ->left for objects, but staffn is a SignedByte. */
 
 #define JustTYPE(link)			( objTable[ObjLType(link)].justType )
 
-/* These macros take a given Document as argument instead of assuming the currently-
+/* These macros take a given Document as argument instead of just using the currently-
 installed doc. */
 
 #define DGetPMEVENT(doc,link)		(PMEVENT)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)

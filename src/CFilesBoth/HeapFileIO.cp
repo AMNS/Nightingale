@@ -833,8 +833,8 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 		/* Move object of whatever type at src down to its anointed LINK slot at dst */
 		
 		type = ObjPtrTYPE(src);
-LogPrintf(LOG_DEBUG, "ReadObjHeap: src=%lx dst=%lx dst-src:%ld offset:%ld type=%d\n", src, dst,
-(long)(dst-src), (long)(src-startPos), type);
+//LogPrintf(LOG_DEBUG, "ReadObjHeap: src=%lx dst=%lx dst-src:%ld offset:%ld type=%d\n", src, dst,
+//(long)(dst-src), (long)(src-startPos), type);
 		if (type<0 || type>LASTtype) {
 			LogPrintf(LOG_ERR, "Object type=%d is illegal. (ReadObjHeap)\n", type);
 			OpenError(True, refNum, MISC_HEAPIO_ERR, OBJtype);

@@ -2406,7 +2406,7 @@ names, etc. Affects .rsrc; NObjTypes.h, NResourceID.h.
 
 -------------------------------------------------------------------------------
 
-14-30 March
+14-30 March	*IN 5.8 & 5.9
 
 Minor cleanup: updated comments; added error check to L_Search(); changed declaration of
 GenSubObj to simply contain SUBOBJHEADER instead of the (fungible) fields of the
@@ -2415,7 +2415,7 @@ SUBOBJHEADER. Affects NObjTypes.h, Objects.h; FileOpen, Search, Select, SelUtils
 
 -------------------------------------------------------------------------------
 
-10 April-3 June
+10 April-3 June	*IN 5.8 & 5.9
 
 Fixed bug (Issue #174): If the first selected object is a tempo mark or graphic
 attached to a barline, the measure number displayed is the number of the preceding
@@ -2444,7 +2444,7 @@ Minor cleanup. Affects CarbonPrinting, DebugUtils, DrawObject.
 
 -------------------------------------------------------------------------------
 
-16-23 July
+16-23 July	*IN 5.8 & 5.9
 
 Got code cleanup of Nightingale 5.9 of 14-30 March into 5.8. Affects Objects.h;
 Search, Select, SelUtils, Tuplet.
@@ -2531,3 +2531,13 @@ heaps and converting fields of objects. Affects FileOpen, HeapFileIO.
 
 Minor cleanup. Affects MemMacros.h; Browser, DebugDisplay, DebugHighLevel, FileOpen,
 HeapFileIO, Select, SpaceTime.
+
+-------------------------------------------------------------------------------
+
+10 - 15 Jan. 2020	*IN 5.9
+
+Worked on opening format 'N105' files while using a new format internally: converting
+fields of objects. New file FileConversion.c. Affects FileConversion.h; FileOpen.
+
+Minor cleanup: improvements to DHexDump(), etc. Affects Debug.h, MemMacros.h;
+DebugDisplay, HeapFileIO, Initialize, MIDIFOCmd.

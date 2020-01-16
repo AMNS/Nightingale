@@ -4114,7 +4114,7 @@ The greatest ratio is 1.462 (for type 11 objects). Let's round up to 1.5.
 
 -------------------------------------------------------------------------------
 
-28 Dec. - 8 Jan. 2020
+28 Dec. - 15 Jan. 2020
 
 But wait! What we're reading in is objects of either N105 or N106 length, yes, but the
 length we want to expand to is the 5.9.x SUPEROBJECT size regardless!!

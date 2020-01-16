@@ -1,9 +1,9 @@
-/*	FileConversion.h - data structure elements for opening older file versions
-and converting them to the current format. This was last used for handling
-files in format 'N102', but as of version 5.8b7, Nightingale doesn't handle formats
-that old. Converting from format 'N105' to 'N106" requires such extensive changes
--- involving all three NxxxTypes.h headers -- that it's easier to simply have two
-versions of each header. However, we may want more limited changes in a future file-
+/*	FileConversion.h - (1) Functrion prototypes and (2) data structure elements for
+opening older file versions and converting them to the current format. #2 was last used
+for handling files in format 'N102', but as of version 5.8b7, Nightingale doesn't handle
+formats that old. And converting from format 'N105' to 'N106" requires such extensive
+changes -- involving all three NxxxTypes.h headers -- that it's easier to simply have
+two versions of each header. However, we may want more limited changes in a future file-
 format conversion, so keep this (#ifdef'd out)  for reference purposes. */
 
 /*
@@ -11,8 +11,13 @@ format conversion, so keep this (#ifdef'd out)  for reference purposes. */
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2020 by Avian Music Notation Foundation. All Rights Reserved.
  */
+
+Boolean ConvertDocumentHeader(Document *doc, DocumentN105 *docN105);
+Boolean ConvertScoreHeader(Document *doc, DocumentN105 *docN105);
+Boolean ConvertObjContent(Document *, unsigned long, long);
+Boolean ModifyScore(Document *, long);
 
 #ifdef NOLONGER
 

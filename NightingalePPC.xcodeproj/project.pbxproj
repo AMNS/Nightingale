@@ -48,6 +48,7 @@
 		15A56897218C8BE400236325 /* UIFUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A56896218C8BE400236325 /* UIFUtils.cp */; };
 		15A56899218C8C0B00236325 /* StringUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A56898218C8C0B00236325 /* StringUtils.cp */; };
 		15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B639401ECDA9E00029EDD7 /* CompactVoices.cp */; };
+		15B6F8CB23CBADBE00A164AD /* FileConversion.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B6F8CA23CBADBE00A164AD /* FileConversion.cp */; };
 		15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BCF5991E9D27D30069F7EB /* Undo.cp */; };
 		15BE10072063EAC900170274 /* Endian.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BE10062063EAC900170274 /* Endian.cp */; };
 		15C46F75218C96C100D84142 /* Utility.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15C46F74218C96C100D84142 /* Utility.cp */; };
@@ -276,6 +277,7 @@
 		15A56896218C8BE400236325 /* UIFUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UIFUtils.cp; sourceTree = "<group>"; };
 		15A56898218C8C0B00236325 /* StringUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtils.cp; sourceTree = "<group>"; };
 		15B639401ECDA9E00029EDD7 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
+		15B6F8CA23CBADBE00A164AD /* FileConversion.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileConversion.cp; sourceTree = "<group>"; };
 		15BCF5991E9D27D30069F7EB /* Undo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Undo.cp; sourceTree = "<group>"; };
 		15BE10062063EAC900170274 /* Endian.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Endian.cp; sourceTree = "<group>"; };
 		15C46F74218C96C100D84142 /* Utility.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utility.cp; sourceTree = "<group>"; };
@@ -888,6 +890,7 @@
 				D03E706E0D5FA5B2005FD177 /* DynamicPopUp.cp */,
 				D03E70700D5FA5B2005FD177 /* Extract.cp */,
 				D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */,
+				15B6F8CA23CBADBE00A164AD /* FileConversion.cp */,
 				15EA1B9F21B07DB80041C5E8 /* FileSave.cp */,
 				D03E70720D5FA5B2005FD177 /* FlowInText.cp */,
 				D03E70730D5FA5B2005FD177 /* HairpinEdit.cp */,
@@ -1226,6 +1229,7 @@
 				15A13E1D22A5642B0037F95B /* CheckUtils.cp in Sources */,
 				15A13E1F22A564760037F95B /* DialogUtils.cp in Sources */,
 				15F5512B22F52C8E00B5FC19 /* DSUtils.cp in Sources */,
+				15B6F8CB23CBADBE00A164AD /* FileConversion.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

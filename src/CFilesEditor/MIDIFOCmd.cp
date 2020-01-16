@@ -846,17 +846,17 @@ static Boolean OpenMIDIFile()
 					if (trackInfo[td].pChunk) DisposePtr((Ptr)trackInfo[td].pChunk);
 				return False;
 			}
-			if (ShiftKeyDown() && CmdKeyDown()) {
+			if (DETAIL_SHOW) {
 				LogPrintf(LOG_INFO, "MTrk(%d) lenMF=%d:\n", t, lenMF);
-				DHexDump(pChunkMF, (lenMF>50L? 50L : lenMF), 5, 20);
+				DHexDump(LOG_INFO, "OpenMIDIFile", pChunkMF, (lenMF>50L? 50L : lenMF), 5, 20);
 			}
 
 			if (trackInfo[t].okay) {
 				LogPrintf(LOG_INFO, "OpenMIDIFile: Calling MF2MIDNight for track %d...\n", t);
 				len = MF2MIDNight(&pChunk);
-				if (ShiftKeyDown() && CmdKeyDown()) {
+				if (DETAIL_SHOW) {
 					LogPrintf(LOG_INFO, "OpenMIDIFile: MTrk(%d) MIDNightLen=%d:\n", t, len);
-					DHexDump(pChunk, (len>50L? 50L : len), 5, 20);
+					DHexDump(LOG_INFO, "OpenMIDIFile", pChunk, (len>50L? 50L : len), 5, 20);
 				}
 				if (len==0) {
 					if (pChunkMF) DisposePtr((Ptr)pChunkMF);

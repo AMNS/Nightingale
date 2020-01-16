@@ -3,7 +3,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2020 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* File DebugDisplay.c - printing functions for Debug:
@@ -526,36 +526,49 @@ void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLin
 
 
 /* -------------------------------------------------------------------------- DHexDump -- */
-/* Dump the specified area as bytes in hexadecimal into the log file. As of v. 5.8p8,
-this function is unused. */
+/* Dump the specified area as bytes in hexadecimal into the log file. NB: If <nPerLine> is
+unreasonably large, this function can overflow <strBuf>!  */
 
-void DHexDump(unsigned char *pBuffer,
-				long limit,
+void DHexDump(short logLevel,
+				char *label,
+				unsigned char *pBuffer,
+				long nBytes,
 				short nPerGroup,		/* Number of items to print in a group */
 				short nPerLine			/* Number of items to print in a line */
 				)
 {
 	long l;
+	unsigned short n;
+	char blankLabel[256];
+	Boolean firstTime=True;
 	
-	/* We'd like to just print one item at a time, but that's very slow, or at least
-	   it was when this function was written in the 1990's. So we assemble and print a
-	   whole line at a time. */
+	if (strlen(label)>255 || nPerLine>255) {
+		MayErrMsg("Illegal call to DHexDump: label or nPerLine is too large.\n");
+		return;
+	}
+		
+	for (n = 0; n<strlen(label); n++) blankLabel[n] = ' ';
+	blankLabel[strlen(label)] = 0;
+	
+	/* Assemble lines and display complete lines. */
 	
 	strBuf[0] = 0;
-	for (l = 0; l<limit; l++) {
-		sprintf(&strBuf[strlen(strBuf)], "%x", pBuffer[l]); 
+	for (l = 0; l<nBytes; l++) {
+		sprintf(&strBuf[strlen(strBuf)], "%02x", pBuffer[l]); 
 		if ((l+1)%(long)nPerLine==0L) {
 			sprintf(&strBuf[strlen(strBuf)], "\n");
-			LogPrintf(LOG_INFO, "%s", strBuf);
+			LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
 			strBuf[0] = 0;
+			firstTime = False;
 		}
-		else if ((l+1)%(long)nPerGroup==0L)	sprintf(&strBuf[strlen(strBuf)], "    ");
+		else if ((l+1)%(long)nPerGroup==0L)	sprintf(&strBuf[strlen(strBuf)], "   ");
 		else								sprintf(&strBuf[strlen(strBuf)], " ");
 	}
 	
+	/* Display anything left over. */
+
 	if (l%(long)nPerLine!=0L) {
 		sprintf(&strBuf[strlen(strBuf)], "\n");
-		LogPrintf(LOG_INFO, "%s", strBuf);
-		
+		LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
 	}
 }
