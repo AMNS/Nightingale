@@ -1,4 +1,4 @@
-/*	FileConversion.h - (1) Functrion prototypes and (2) data structure elements for
+/*	FileConversion.h - (1) Function prototypes and (2) data structure elements for
 opening older file versions and converting them to the current format. #2 was last used
 for handling files in format 'N102', but as of version 5.8b7, Nightingale doesn't handle
 formats that old. And converting from format 'N105' to 'N106" requires such extensive
@@ -14,8 +14,8 @@ format conversion, so keep this (#ifdef'd out)  for reference purposes. */
  * Copyright © 2020 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
-Boolean ConvertDocumentHeader(Document *doc, DocumentN105 *docN105);
-Boolean ConvertScoreHeader(Document *doc, DocumentN105 *docN105);
+void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105);
+void ConvertScoreHeader(Document *doc, DocumentN105 *docN105);
 Boolean ConvertObjContent(Document *, unsigned long, long);
 Boolean ModifyScore(Document *, long);
 
@@ -30,7 +30,7 @@ Boolean ModifyScore(Document *, long);
 	LINK 			headL,				/* links to header and tail objects */						\
 					tailL,																			\
 					selStartL,			/* currently selected range. */								\
-					selEndL;			/*		Also see the <selStaff> field. */					\
+					selEndL;			/* (Also see the <selStaff> field.) */					\
 																													\
 	short			nstaves,			/* number of staves in a system */							\
 					nsystems;			/* number of systems in score */							\

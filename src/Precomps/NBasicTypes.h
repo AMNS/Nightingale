@@ -87,16 +87,18 @@ enum {								/* Types of part names (to label left ends of systems) */
 };
 
 
-/* Generic subObj functions FirstSubObj(), NextSubObj() in Objects.c are dependent on
-the order of items in the following enum. Arrays subObjLength[]  and objLength[], in
-vars.h, MUST be updated if this enum is changed. */
+/* The following enum gives the types of objects and subobjects Nightingale has. It
+_must_ agree with the order of HEAPs given in vars.h. In addition, the generic subobjects
+functions FirstSubObj(), NextSubObj() in Objects.c depend on the order of items in it.
+Arrays subObjLength[] and objLength[], in vars.h, _must_ be updated if the enum is
+changed. */
 
 enum								/* Object types: */
 {
 			FIRSTtype = 0,
 /* 0 */		HEADERtype=FIRSTtype,
 			TAILtype,
-			SYNCtype,				/* Note/rest sync */
+			SYNCtype,				/* Note/rest Sync */
 			RPTENDtype,
 			PAGEtype,
 
@@ -116,13 +118,13 @@ enum								/* Object types: */
 			OTTAVAtype,
 			SLURtype,				/* Slur or set of ties */
 			TUPLETtype,
-			GRSYNCtype,				/* Grace note sync */
+			GRSYNCtype,				/* Grace note Sync */
 	
 /* 20 */	TEMPOtype,
 			SPACERtype,
 			ENDINGtype,
 			PSMEAStype,
-			OBJtype,				/* Object heap MUST be the last heap. */
+			OBJtype,				/* Object heap _must_ be the last heap. */
 			LASTtype
 };
 

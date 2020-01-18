@@ -17,6 +17,254 @@
 #include "FileConversion.h"			/* Must follow Nightingale.precomp.h! */
 
 
+void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105)
+{
+	doc->origin = docN105->origin;
+	doc->paperRect = docN105->paperRect;
+	doc->origPaperRect = docN105->origPaperRect;
+	doc->holdOrigin = docN105->holdOrigin;
+	doc->marginRect = docN105->marginRect;
+	doc->sheetOrigin = docN105->sheetOrigin;
+	
+	doc->currentSheet = docN105->currentSheet;
+	doc->numSheets = docN105->numSheets;
+	doc->firstSheet = docN105->firstSheet;
+	doc->firstPageNumber = docN105->firstPageNumber;
+	doc->startPageNumber = docN105->startPageNumber;
+	doc->numRows = docN105->numRows;
+	doc->numCols = docN105->numCols;
+	doc->pageType = docN105->pageType;
+	doc->measSystem = docN105->measSystem;
+	doc->headerFooterMargins = docN105->headerFooterMargins;
+	doc->currentPaper = docN105->currentPaper;
+}
+
+static void ConvertFontTable(Document *doc, DocumentN105 *docN105)
+{
+	short i;
+	
+	for (i = 0; i<doc->nfontsUsed; i++)
+		doc->fontTable[i] = docN105->fontTable[i];
+	doc->nfontsUsed = docN105->nfontsUsed;
+}
+
+
+void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
+{
+	short j, v;
+	
+	doc->headL = docN105->headL;
+	doc->tailL = docN105->tailL;
+	doc->selStartL = docN105->selStartL;
+	doc->selEndL = docN105->selEndL;
+	doc->nstaves = docN105->nstaves;
+	doc->nsystems = docN105->nsystems;
+	strcpy((char *)doc->comment, (char *)docN105->comment);
+	doc->feedback = docN105->feedback;
+	doc->dontSendPatches = docN105->dontSendPatches;
+	doc->saved = docN105->saved;
+	doc->named = docN105->named;
+	doc->used = docN105->used;
+	doc->transposed = docN105->transposed;
+	doc->lyricText = docN105->lyricText;
+	doc->polyTimbral = docN105->polyTimbral;
+	doc->currentPage = docN105->currentPage;
+	doc->spacePercent = docN105->spacePercent;
+	doc->srastral = docN105->srastral;
+	doc->altsrastral = docN105->altsrastral;
+	doc->tempo = docN105->tempo;
+	doc->channel = docN105->channel;
+	doc->velocity = docN105->velocity;
+	doc->headerStrOffset = docN105->headerStrOffset;
+	doc->footerStrOffset = docN105->footerStrOffset;
+	doc->topPGN = docN105->topPGN;
+	doc->hPosPGN = docN105->hPosPGN;
+	doc->alternatePGN = docN105->alternatePGN;
+	doc->useHeaderFooter = docN105->useHeaderFooter;
+	doc->fillerPGN = docN105->fillerPGN;
+	doc->fillerMB = docN105->fillerMB;
+	doc->filler2 = docN105->filler2;
+	doc->dIndentOther = docN105->dIndentOther;
+	doc->firstNames = docN105->firstNames;
+	doc->otherNames = docN105->otherNames;
+	doc->lastGlobalFont = docN105->lastGlobalFont;
+	doc->xMNOffset = docN105->xMNOffset;
+	doc->yMNOffset = docN105->yMNOffset;
+	doc->xSysMNOffset = docN105->xSysMNOffset;
+	doc->aboveMN = docN105->aboveMN;
+	doc->sysFirstMN = docN105->sysFirstMN;
+	doc->startMNPrint1 = docN105->startMNPrint1;
+	doc->firstMNNumber = docN105->firstMNNumber;
+	doc->masterHeadL = docN105->masterHeadL;
+	doc->masterTailL = docN105->masterTailL;
+	doc->filler1 = docN105->filler1;
+	doc->nFontRecords = docN105->nFontRecords;
+	
+	Pstrcpy(doc->fontNameMN, docN105->fontNameMN);			/* Measure no. font */
+	doc->fillerMN = docN105->fillerMN;
+	doc->lyricMN = docN105->lyricMN;
+	doc->enclosureMN = docN105->enclosureMN;
+	doc->relFSizeMN = docN105->relFSizeMN;
+	doc->fontSizeMN = docN105->fontSizeMN;
+	doc->fontStyleMN = docN105->fontStyleMN;
+	
+	Pstrcpy(doc->fontNamePN, docN105->fontNamePN);			/* Part name font */
+	doc->fillerPN = docN105->fillerPN;
+	doc->lyricPN = docN105->lyricPN;
+	doc->enclosurePN = docN105->enclosurePN;
+	doc->relFSizePN = docN105->relFSizePN;
+	doc->fontSizePN = docN105->fontSizePN;
+	doc->fontStylePN = docN105->fontStylePN;
+	
+	Pstrcpy(doc->fontNameRM, docN105->fontNameRM);			/* Rehearsal mark font */
+	doc->fillerRM = docN105->fillerRM;
+	doc->lyricRM = docN105->lyricRM;
+	doc->enclosureRM = docN105->enclosureRM;
+	doc->relFSizeRM = docN105->relFSizeRM;
+	doc->fontSizeRM = docN105->fontSizeRM;
+	doc->fontStyleRM = docN105->fontStyleRM;
+	
+	Pstrcpy(doc->fontName1, docN105->fontName1);			/* Regular font 1 */
+	doc->fillerR1 = docN105->fillerR1;
+	doc->lyric1 = docN105->lyric1;
+	doc->enclosure1 = docN105->enclosure1;
+	doc->relFSize1 = docN105->relFSize1;
+	doc->fontSize1 = docN105->fontSize1;
+	doc->fontStyle1 = docN105->fontStyle1;
+	
+	Pstrcpy(doc->fontName2, docN105->fontName2);			/* Regular font 2 */
+	doc->fillerR2 = docN105->fillerR2;
+	doc->lyric2 = docN105->lyric2;
+	doc->enclosure2 = docN105->enclosure2;
+	doc->relFSize2 = docN105->relFSize2;
+	doc->fontSize2 = docN105->fontSize2;
+	doc->fontStyle2 = docN105->fontStyle2;
+	
+	Pstrcpy(doc->fontName3, docN105->fontName3);			/* Regular font 3 */
+	doc->fillerR3 = docN105->fillerR3;
+	doc->lyric3 = docN105->lyric3;
+	doc->enclosure3 = docN105->enclosure3;
+	doc->relFSize3 = docN105->relFSize3;
+	doc->fontSize3 = docN105->fontSize3;
+	doc->fontStyle3 = docN105->fontStyle3;
+	
+	Pstrcpy(doc->fontName4, docN105->fontName4);			/* Regular font 4 */
+	doc->fillerR4 = docN105->fillerR4;
+	doc->lyric4 = docN105->lyric4;
+	doc->enclosure4 = docN105->enclosure4;
+	doc->relFSize4 = docN105->relFSize4;
+	doc->fontSize4 = docN105->fontSize4;
+	doc->fontStyle4 = docN105->fontStyle4;
+	
+	Pstrcpy(doc->fontNameTM, docN105->fontNameTM);			/* Tempo mark font */
+	doc->fillerTM = docN105->fillerTM;
+	doc->lyricTM = docN105->lyricTM;
+	doc->enclosureTM = docN105->enclosureTM;
+	doc->relFSizeTM = docN105->relFSizeTM;
+	doc->fontSizeTM = docN105->fontSizeTM;
+	doc->fontStyleTM = docN105->fontStyleTM;
+	
+	Pstrcpy(doc->fontNameCS, docN105->fontNameCS);			/* Chord symbol font */
+	doc->fillerCS = docN105->fillerCS;
+	doc->lyricCS = docN105->lyricCS;
+	doc->enclosureCS = docN105->enclosureCS;
+	doc->relFSizeCS = docN105->relFSizeCS;
+	doc->fontSizeCS = docN105->fontSizeCS;
+	doc->fontStyleCS = docN105->fontStyleCS;
+	
+	Pstrcpy(doc->fontNamePG, docN105->fontNamePG);			/* Page header/footer/no. font */
+	doc->fillerPG = docN105->fillerPG;
+	doc->lyricPG = docN105->lyricPG;
+	doc->enclosurePG = docN105->enclosurePG;
+	doc->relFSizePG = docN105->relFSizePG;
+	doc->fontSizePG = docN105->fontSizePG;
+	doc->fontStylePG = docN105->fontStylePG;
+	
+	Pstrcpy(doc->fontName5, docN105->fontName5);			/* Regular font 5 */
+	doc->fillerR5 = docN105->fillerR5;
+	doc->lyric5 = docN105->lyric5;
+	doc->enclosure5 = docN105->enclosure5;
+	doc->relFSize5 = docN105->relFSize5;
+	doc->fontSize5 = docN105->fontSize5;
+	doc->fontStyle5 = docN105->fontStyle5;
+	
+	Pstrcpy(doc->fontName6, docN105->fontName6);			/* Regular font 6 */
+	doc->fillerR6 = docN105->fillerR6;
+	doc->lyric6 = docN105->lyric6;
+	doc->enclosure6 = docN105->enclosure6;
+	doc->relFSize6 = docN105->relFSize6;
+	doc->fontSize6 = docN105->fontSize6;
+	doc->fontStyle6 = docN105->fontStyle6;
+	
+	Pstrcpy(doc->fontName7, docN105->fontName7);			/* Regular font 7 */
+	doc->fillerR7 = docN105->fillerR7;
+	doc->lyric7 = docN105->lyric7;
+	doc->enclosure7 = docN105->enclosure7;
+	doc->relFSize7 = docN105->relFSize7;
+	doc->fontSize7 = docN105->fontSize7;
+	doc->fontStyle7 = docN105->fontStyle7;
+	
+	Pstrcpy(doc->fontName8, docN105->fontName8);			/* Regular font 8 */
+	doc->fillerR8 = docN105->fillerR8;
+	doc->lyric8 = docN105->lyric8;
+	doc->enclosure8 = docN105->enclosure8;
+	doc->relFSize8 = docN105->relFSize8;
+	doc->fontSize8 = docN105->fontSize8;
+	doc->fontStyle8 = docN105->fontStyle8;
+	
+	Pstrcpy(doc->fontName9, docN105->fontName9);			/* Regular font 9 */
+	doc->fillerR9 = docN105->fillerR9;
+	doc->lyric9 = docN105->lyric9;
+	doc->enclosure9 = docN105->enclosure9;
+	doc->relFSize9 = docN105->relFSize9;
+	doc->fontSize9 = docN105->fontSize9;
+	doc->fontStyle9 = docN105->fontStyle9;
+	
+	doc->nfontsUsed = docN105->nfontsUsed;
+	ConvertFontTable(doc, docN105);
+	
+	Pstrcpy(doc->musFontName, docN105->musFontName);
+	
+	doc->magnify = docN105->magnify;
+	doc->selStaff = docN105->selStaff;
+	doc->otherMNStaff = docN105->otherMNStaff;
+	doc->numberMeas = docN105->numberMeas;
+	doc->currentSystem = docN105->currentSystem;
+	doc->spaceTable = docN105->spaceTable;
+	doc->htight = docN105->htight;
+	doc->fillerInt = docN105->fillerInt;
+	doc->lookVoice = docN105->lookVoice;
+	doc->fillerHP = docN105->fillerHP;
+	doc->fillerLP = docN105->fillerLP;
+	doc->ledgerYSp = docN105->ledgerYSp;
+	doc->deflamTime = docN105->deflamTime;
+	
+	doc->autoRespace = docN105->autoRespace;
+	doc->insertMode = docN105->insertMode;
+	doc->beamRests = docN105->beamRests;
+	doc->pianoroll = docN105->pianoroll;
+	doc->showSyncs = docN105->showSyncs;
+	doc->frameSystems = docN105->frameSystems;
+	doc->fillerEM = docN105->fillerEM;
+	doc->colorVoices = docN105->colorVoices;
+	doc->showInvis = docN105->showInvis;
+	doc->showDurProb = docN105->showDurProb;
+	doc->recordFlats = docN105->recordFlats;
+	
+	for (j = 0; j<MAX_L_DUR; j++)
+		doc->spaceMap[j] = docN105->spaceMap[j];
+	doc->dIndentFirst = docN105->dIndentFirst;
+	doc->yBetweenSys = docN105->yBetweenSys;
+
+	for (v = 1; v<=MAXVOICES; v++)
+		/* struct assignment here gives an incomprehensible compiler error
+		   while it works, e.g., in CopyToClip()! Oh well. */
+		doc->voiceTab[v].partn = doc->voiceTab[v].voiceRole = doc->voiceTab[v].relVoice = 0;
+	for (j = 0; j<256-(MAXVOICES+1); j++)
+		doc->expansion[j] = 0;	
+}
+
+
 /* --------------------------------------------------------- ConvertObjContent helpers -- */
 
 #ifdef NOMORE
@@ -67,13 +315,50 @@ static void ConvertStaffLines(LINK startL)
 
 
 /* ----------------------------------------------------------------- ConvertObjContent -- */
+
+/* Object headers in Nightingale 5.9.x contain exactly the same information as in 'N105'
+files, so converting them is just a matter of copying the fields to their new locations. */
+  
+void ConvertObjHeader(Document *doc, LINK objL, char *pSobj);
+void ConvertObjHeader(Document *doc, LINK objL, char *pSobj)
+{
+	typedef struct {
+	OBJECTHEADER_5
+	} OBJHEADER;
+	OBJHEADER objHeader_5;
+	
+	/* First, copy the entire object header from the object list to a temporary space. */
+	
+	BlockMove(pSobj, &objHeader_5, sizeof(OBJHEADER));
+	
+#if 0
+	FirstSubLINK(objL) = objHeader_5.firstSubObj;
+	LinkXD(objL) = objHeader_5.xd;
+	LinkYD(objL) = objHeader_5.yd;
+	ObjPtrTYPE(??objL) = objHeader_5.!!;
+#else
+	/* Convert away. The first six fields of the header are unchanged from 'N105' to
+	   'N106' format, so no need to do anything with them. */
+	   
+	//LinkXD(objL) = 1729;			// ??TEST!!!!!!!!!!!!!!
+	LinkSEL(objL) = objHeader_5.selected;				
+	LinkVIS(objL) = objHeader_5.visible;
+	LinkSOFT(objL) = objHeader_5.soft;
+	LinkVALID(objL) = objHeader_5.valid;
+	LinkTWEAKED(objL) = objHeader_5.tweaked;
+	LinkSPAREFLAG(objL) = objHeader_5.spareFlag;
+	LinkOBJRECT(objL) = objHeader_5.objRect;
+	LinkNENTRIES(objL) = objHeader_5.nEntries;
+#endif
+}
+
 /* Any file-format-conversion code that doesn't affect the length of the header or
 lengths or offsets of fields in objects (or subobjects) should go here. Return True if
 all goes well, False if not.
 
-This function should not be called until the headers and the entire object list have
-been read, all left and right links are valid, and all objects and subobjects are the
-correct lengths! Tweaks that affect lengths or offsets to the headers should be done in
+This function assumes that the headers and the entire object list have been read; all
+object and subobject links are valid; and all objects and subobjects are the correct
+lengths. Tweaks that affect lengths or offsets to the headers should be done in
 OpenFile(); to objects or subobjects, in ReadHeaps(). */
 
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
@@ -99,16 +384,16 @@ Boolean ConvertObjContent(Document *doc, unsigned long version, long /* fileTime
 		   place without having to worry about clobbering anything. */
 		   
 		p = (char *)GetPSUPEROBJECT(pL);
-DHexDump(LOG_DEBUG, "ConvertObjContent1", (unsigned char *)p, 40, 4, 16);
+//DHexDump(LOG_DEBUG, "ConvertObjContent1", (unsigned char *)p, 40, 4, 16);
 		pSobj = (char *)&superObj;
 		BlockMove(p, pSobj, sizeof(SUPEROBJECT));
 DHexDump(LOG_DEBUG, "ConvertObjContent2", (unsigned char *)pSobj, 40, 4, 16);
-//LogPrintf(LOG_DEBUG, "ConvertObjContent2: obj %u header=%x %x %x %x\n", pL, (char)*pSobj,
-//			(char)(*(pSobj+1)), (char)(*(pSobj+2)), (char)(*(pSobj+3)) );
 
-#ifdef NOTYET
-		ConvertObjHeader();
+		ConvertObjHeader(doc, pL, pSobj);
+LogPrintf(LOG_DEBUG, "ConvertObjContent: pL=%u xd=%d sel=%d vis=%d\n", pL, LinkXD(pL), LinkSEL(pL),
+LinkVIS(pL));
 		
+#ifdef NOTYET
 		switch (ObjLType(pL)) {
 			case HEADERtype:
 				continue;
@@ -520,248 +805,3 @@ Boolean ModifyScore(Document * /*doc*/, long /*fileTime*/)
 
 	return True;
 }
-
-
-Boolean ConvertDocumentHeader(Document *doc, DocumentN105 *docN105)
-{
-	doc->origin = docN105->origin;
-	doc->paperRect = docN105->paperRect;
-	doc->origPaperRect = docN105->origPaperRect;
-	doc->holdOrigin = docN105->holdOrigin;
-	doc->marginRect = docN105->marginRect;
-	doc->sheetOrigin = docN105->sheetOrigin;
-	
-	doc->currentSheet = docN105->currentSheet;
-	doc->numSheets = docN105->numSheets;
-	doc->firstSheet = docN105->firstSheet;
-	doc->firstPageNumber = docN105->firstPageNumber;
-	doc->startPageNumber = docN105->startPageNumber;
-	doc->numRows = docN105->numRows;
-	doc->numCols = docN105->numCols;
-	doc->pageType = docN105->pageType;
-	doc->measSystem = docN105->measSystem;
-	doc->headerFooterMargins = docN105->headerFooterMargins;
-	doc->currentPaper = docN105->currentPaper;
-	
-	return True;
-}
-
-static void ConvertFontTable(Document *doc, DocumentN105 *docN105)
-{
-	short i;
-	
-	for (i = 0; i<doc->nfontsUsed; i++)
-		doc->fontTable[i] = docN105->fontTable[i];
-	doc->nfontsUsed = docN105->nfontsUsed;
-}
-
-
-Boolean ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
-{
-	doc->headL = docN105->headL;
-	doc->tailL = docN105->tailL;
-	doc->selStartL = docN105->selStartL;
-	doc->selEndL = docN105->selEndL;
-	doc->nstaves = docN105->nstaves;
-	doc->nsystems = docN105->nsystems;
-	strcpy((char *)doc->comment, (char *)docN105->comment);
-	doc->feedback = docN105->feedback;
-	doc->dontSendPatches = docN105->dontSendPatches;
-	doc->saved = docN105->saved;
-	doc->named = docN105->named;
-	doc->used = docN105->used;
-	doc->transposed = docN105->transposed;
-	doc->lyricText = docN105->lyricText;
-	doc->polyTimbral = docN105->polyTimbral;
-	doc->currentPage = docN105->currentPage;
-	doc->spacePercent = docN105->spacePercent;
-	doc->srastral = docN105->srastral;
-	doc->altsrastral = docN105->altsrastral;
-	doc->tempo = docN105->tempo;
-	doc->channel = docN105->channel;
-	doc->velocity = docN105->velocity;
-	doc->headerStrOffset = docN105->headerStrOffset;
-	doc->footerStrOffset = docN105->footerStrOffset;
-	doc->topPGN = docN105->topPGN;
-	doc->hPosPGN = docN105->hPosPGN;
-	doc->alternatePGN = docN105->alternatePGN;
-	doc->useHeaderFooter = docN105->useHeaderFooter;
-	doc->fillerPGN = docN105->fillerPGN;
-	doc->fillerMB = docN105->fillerMB;
-	doc->filler2 = docN105->filler2;
-	doc->dIndentOther = docN105->dIndentOther;
-	doc->firstNames = docN105->firstNames;
-	doc->otherNames = docN105->otherNames;
-	doc->lastGlobalFont = docN105->lastGlobalFont;
-	doc->xMNOffset = docN105->xMNOffset;
-	doc->yMNOffset = docN105->yMNOffset;
-	doc->xSysMNOffset = docN105->xSysMNOffset;
-	doc->aboveMN = docN105->aboveMN;
-	doc->sysFirstMN = docN105->sysFirstMN;
-	doc->startMNPrint1 = docN105->startMNPrint1;
-	doc->firstMNNumber = docN105->firstMNNumber;
-	doc->masterHeadL = docN105->masterHeadL;
-	doc->masterTailL = docN105->masterTailL;
-	doc->filler1 = docN105->filler1;
-	doc->nFontRecords = docN105->nFontRecords;
-	
-	Pstrcpy(doc->fontNameMN, docN105->fontNameMN);			/* Measure no. font */
-	doc->fillerMN = docN105->fillerMN;
-	doc->lyricMN = docN105->lyricMN;
-	doc->enclosureMN = docN105->enclosureMN;
-	doc->relFSizeMN = docN105->relFSizeMN;
-	doc->fontSizeMN = docN105->fontSizeMN;
-	doc->fontStyleMN = docN105->fontStyleMN;
-	
-	Pstrcpy(doc->fontNamePN, docN105->fontNamePN);			/* Part name font */
-	doc->fillerPN = docN105->fillerPN;
-	doc->lyricPN = docN105->lyricPN;
-	doc->enclosurePN = docN105->enclosurePN;
-	doc->relFSizePN = docN105->relFSizePN;
-	doc->fontSizePN = docN105->fontSizePN;
-	doc->fontStylePN = docN105->fontStylePN;
-	
-	Pstrcpy(doc->fontNameRM, docN105->fontNameRM);			/* Rehearsal mark font */
-	doc->fillerRM = docN105->fillerRM;
-	doc->lyricRM = docN105->lyricRM;
-	doc->enclosureRM = docN105->enclosureRM;
-	doc->relFSizeRM = docN105->relFSizeRM;
-	doc->fontSizeRM = docN105->fontSizeRM;
-	doc->fontStyleRM = docN105->fontStyleRM;
-	
-	Pstrcpy(doc->fontName1, docN105->fontName1);			/* Regular font 1 */
-	doc->fillerR1 = docN105->fillerR1;
-	doc->lyric1 = docN105->lyric1;
-	doc->enclosure1 = docN105->enclosure1;
-	doc->relFSize1 = docN105->relFSize1;
-	doc->fontSize1 = docN105->fontSize1;
-	doc->fontStyle1 = docN105->fontStyle1;
-	
-	Pstrcpy(doc->fontName2, docN105->fontName2);			/* Regular font 2 */
-	doc->fillerR2 = docN105->fillerR2;
-	doc->lyric2 = docN105->lyric2;
-	doc->enclosure2 = docN105->enclosure2;
-	doc->relFSize2 = docN105->relFSize2;
-	doc->fontSize2 = docN105->fontSize2;
-	doc->fontStyle2 = docN105->fontStyle2;
-	
-	Pstrcpy(doc->fontName3, docN105->fontName3);			/* Regular font 3 */
-	doc->fillerR3 = docN105->fillerR3;
-	doc->lyric3 = docN105->lyric3;
-	doc->enclosure3 = docN105->enclosure3;
-	doc->relFSize3 = docN105->relFSize3;
-	doc->fontSize3 = docN105->fontSize3;
-	doc->fontStyle3 = docN105->fontStyle3;
-	
-	Pstrcpy(doc->fontName4, docN105->fontName4);			/* Regular font 4 */
-	doc->fillerR4 = docN105->fillerR4;
-	doc->lyric4 = docN105->lyric4;
-	doc->enclosure4 = docN105->enclosure4;
-	doc->relFSize4 = docN105->relFSize4;
-	doc->fontSize4 = docN105->fontSize4;
-	doc->fontStyle4 = docN105->fontStyle4;
-	
-	Pstrcpy(doc->fontNameTM, docN105->fontNameTM);			/* Tempo mark font */
-	doc->fillerTM = docN105->fillerTM;
-	doc->lyricTM = docN105->lyricTM;
-	doc->enclosureTM = docN105->enclosureTM;
-	doc->relFSizeTM = docN105->relFSizeTM;
-	doc->fontSizeTM = docN105->fontSizeTM;
-	doc->fontStyleTM = docN105->fontStyleTM;
-	
-	Pstrcpy(doc->fontNameCS, docN105->fontNameCS);			/* Chord symbol font */
-	doc->fillerCS = docN105->fillerCS;
-	doc->lyricCS = docN105->lyricCS;
-	doc->enclosureCS = docN105->enclosureCS;
-	doc->relFSizeCS = docN105->relFSizeCS;
-	doc->fontSizeCS = docN105->fontSizeCS;
-	doc->fontStyleCS = docN105->fontStyleCS;
-	
-	Pstrcpy(doc->fontNamePG, docN105->fontNamePG);			/* Page header/footer/no. font */
-	doc->fillerPG = docN105->fillerPG;
-	doc->lyricPG = docN105->lyricPG;
-	doc->enclosurePG = docN105->enclosurePG;
-	doc->relFSizePG = docN105->relFSizePG;
-	doc->fontSizePG = docN105->fontSizePG;
-	doc->fontStylePG = docN105->fontStylePG;
-	
-	Pstrcpy(doc->fontName5, docN105->fontName5);			/* Regular font 5 */
-	doc->fillerR5 = docN105->fillerR5;
-	doc->lyric5 = docN105->lyric5;
-	doc->enclosure5 = docN105->enclosure5;
-	doc->relFSize5 = docN105->relFSize5;
-	doc->fontSize5 = docN105->fontSize5;
-	doc->fontStyle5 = docN105->fontStyle5;
-	
-	Pstrcpy(doc->fontName6, docN105->fontName6);			/* Regular font 6 */
-	doc->fillerR6 = docN105->fillerR6;
-	doc->lyric6 = docN105->lyric6;
-	doc->enclosure6 = docN105->enclosure6;
-	doc->relFSize6 = docN105->relFSize6;
-	doc->fontSize6 = docN105->fontSize6;
-	doc->fontStyle6 = docN105->fontStyle6;
-	
-	Pstrcpy(doc->fontName7, docN105->fontName7);			/* Regular font 7 */
-	doc->fillerR7 = docN105->fillerR7;
-	doc->lyric7 = docN105->lyric7;
-	doc->enclosure7 = docN105->enclosure7;
-	doc->relFSize7 = docN105->relFSize7;
-	doc->fontSize7 = docN105->fontSize7;
-	doc->fontStyle7 = docN105->fontStyle7;
-	
-	Pstrcpy(doc->fontName8, docN105->fontName8);			/* Regular font 8 */
-	doc->fillerR8 = docN105->fillerR8;
-	doc->lyric8 = docN105->lyric8;
-	doc->enclosure8 = docN105->enclosure8;
-	doc->relFSize8 = docN105->relFSize8;
-	doc->fontSize8 = docN105->fontSize8;
-	doc->fontStyle8 = docN105->fontStyle8;
-	
-	Pstrcpy(doc->fontName9, docN105->fontName9);			/* Regular font 9 */
-	doc->fillerR9 = docN105->fillerR9;
-	doc->lyric9 = docN105->lyric9;
-	doc->enclosure9 = docN105->enclosure9;
-	doc->relFSize9 = docN105->relFSize9;
-	doc->fontSize9 = docN105->fontSize9;
-	doc->fontStyle9 = docN105->fontStyle9;
-	
-	doc->nfontsUsed = docN105->nfontsUsed;
-	ConvertFontTable(doc, docN105);
-	
-	Pstrcpy(doc->musFontName, docN105->musFontName);
-	
-	doc->magnify = docN105->magnify;
-	doc->selStaff = docN105->selStaff;
-	doc->otherMNStaff = docN105->otherMNStaff;
-	doc->numberMeas = docN105->numberMeas;
-	doc->currentSystem = docN105->currentSystem;
-	doc->spaceTable = docN105->spaceTable;
-	doc->htight = docN105->htight;
-	doc->fillerInt = docN105->fillerInt;
-	doc->lookVoice = docN105->lookVoice;
-	doc->fillerHP = docN105->fillerHP;
-	doc->fillerLP = docN105->fillerLP;
-	doc->ledgerYSp = docN105->ledgerYSp;
-	doc->deflamTime = docN105->deflamTime;
-	
-	doc->autoRespace = docN105->autoRespace;
-	doc->insertMode = docN105->insertMode;
-	doc->beamRests = docN105->beamRests;
-	doc->pianoroll = docN105->pianoroll;
-	doc->showSyncs = docN105->showSyncs;
-	doc->frameSystems = docN105->frameSystems;
-	doc->fillerEM = docN105->fillerEM;
-	doc->colorVoices = docN105->colorVoices;
-	doc->showInvis = docN105->showInvis;
-	doc->showDurProb = docN105->showDurProb;
-	doc->recordFlats = docN105->recordFlats;
-	
-	//spaceMap[MAX_L_DUR]						// ??NEED TO HANDLE THIS!
-	doc->dIndentFirst = docN105->dIndentFirst;
-	doc->yBetweenSys = docN105->yBetweenSys;
-	//voiceTab[MAXVOICES+1]						// ??NEED TO HANDLE THIS!
-	//expansion[256-(MAXVOICES+1)]				// ??NEED TO HANDLE THIS!
-
-	return True;
-}
-

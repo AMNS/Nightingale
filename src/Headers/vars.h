@@ -15,7 +15,9 @@
 
 /* ------------------------------------------------------------ Without Initialization -- */
 
-GLOBAL SysEnvRec	thisMac;				/* Our machine environment info */
+/* The HEAP pointers below are indexed by type; therefore, the list _must_ agree with the
+list of types in NBasicTypes.h, among other things! See comments there. */
+
 GLOBAL HEAP 		*Heap;					/* Pointer to current heap list */
 GLOBAL HEAP			*PARTINFOheap,			/* Precomputed pointers into above, indexed by type */
 					*TAILheap,
@@ -38,11 +40,12 @@ GLOBAL HEAP			*PARTINFOheap,			/* Precomputed pointers into above, indexed by ty
 					*NOTETUPLEheap,
 					*GRNOTEheap,
 					*TEMPOheap,
-					*SPACEheap,
+					*SPACERheap,
 					*ENDINGheap,
 					*PSMEASheap,
-					*OBJheap;
+					*OBJheap;				/* Object heap _must_ be the last heap. */
 			
+GLOBAL SysEnvRec	thisMac;				/* Our machine environment info */
 GLOBAL OSType		creatorType;			/* Application signature ('BYRD') */
 GLOBAL OSType		documentType;			/* Document file signature */
 
@@ -331,23 +334,23 @@ unsigned char MCH_notes[MAX_L_DUR] =
 unsigned char MCH_rests[MAX_L_DUR] =
 	{ 0xE3, 0xB7, 0xEE, 0xCE, 0xE4, 0xC5, 0xA8, 0xF4, 0xE5 };
 
-/* Coarse correction to font for rest Y-positions (half-lines) */
+/* Coarse correction to font for rest Y-positions (interline half-spaces) */
 
 short restYOffset[MAX_L_DUR+1] = 
 					{ 0, 0, 0, 0, 0, -1, 1, 1, 3, 3 };
 
 short noteOffset[] = { 7, 14, 21, -7, -14, -21 };				/* Vert. offset for ottavas, in half-lines */
 
-/*	Text sizes, in line spaces:
+/*	Text sizes, in interline spaces:
                              Tiny VSmall Small Medium Large VLarge Jumbo ------- StaffHt */
 							 
 FASTFLOAT relFSizeTab[] =  { 1.0, 1.5,   1.7,  2.0,   2.2,	2.5,   3.0,  3.6, 0,   4.0  };
 
 short subObjLength[] = {
-		sizeof(PARTINFO),	/* HEADER subobject */
-		0,					/* No TAIL subobjects */
-		sizeof(ANOTE),		/* SYNC subobject */
-		sizeof(ARPTEND),	/* etc. */
+		sizeof(PARTINFO),		/* HEADER subobject */
+		0,						/* No TAIL subobjects */
+		sizeof(ANOTE),			/* SYNC subobject */
+		sizeof(ARPTEND),		/* etc. */
 		0,
 		0,
 		sizeof(ASTAFF),
@@ -364,8 +367,8 @@ short subObjLength[] = {
 		sizeof(ASLUR),
 		sizeof(ANOTETUPLE),
 		sizeof(AGRNOTE),
-		0,
-		0,
+		0,						/* No TEMPO subobjects */
+		0,						/* etc. */
 		0,
 		sizeof(APSMEAS),
 		sizeof(SUPEROBJECT)
@@ -386,7 +389,7 @@ short objLength[] = {
 		sizeof(BEAMSET),
 		sizeof(CONNECT),
 		sizeof(DYNAMIC),
-		0, 							/* No MODNR objects */
+		0, 						/* No MODNR objects */
 		sizeof(GRAPHIC),
 		sizeof(OTTAVA),
 		sizeof(SLUR),

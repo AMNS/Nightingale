@@ -104,7 +104,7 @@ void InstallDocHeaps(Document *doc)
 	NOTETUPLEheap = hp++;
 	GRNOTEheap = hp++;
 	TEMPOheap = hp++;
-	SPACEheap = hp++;
+	SPACERheap = hp++;
 	ENDINGheap = hp++;
 	PSMEASheap = hp++;
 	OBJheap = hp++;

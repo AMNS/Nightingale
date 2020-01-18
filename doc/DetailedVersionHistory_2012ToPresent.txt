@@ -2541,3 +2541,13 @@ fields of objects. New file FileConversion.c. Affects FileConversion.h; FileOpen
 
 Minor cleanup: improvements to DHexDump(), etc. Affects Debug.h, MemMacros.h;
 DebugDisplay, HeapFileIO, Initialize, MIDIFOCmd.
+
+-------------------------------------------------------------------------------
+
+16 - 18 Jan. 2020
+
+Worked on opening format 'N105' files while using a new format internally: converting
+object headers. Affects FileConversion.h; FileConversion.
+
+Minor cleanup: rename SPACEheap, etc. Affects FileConversion.h, MemMacros.h, NBasicTypes.h,
+vars.h; Documents, FileConversion, FileOpen.

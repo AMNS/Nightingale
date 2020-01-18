@@ -4227,3 +4227,41 @@ sizeAllObjsHeap should always be based on the current SUPEROBJECT. Fix that =>
 Much better: looks like the heaps are getting set up correctly! Now to move the contents
 of the objects around, in ConvertObjContent()...
 
+-------------------------------------------------------------------------------
+
+16 - 17 Jan.
+
+ConvertObjContent() should go thru the object list:
+
+		for (pL = doc->headL; pL; pL = RightLINK(pL)) { ... }
+
+For each object, first convert the OBJECTHEADER -- but does every object have one?
+These objects have one:
+
+0	HEADER_5
+	TAIL_5
+	SYNC_5
+	RPTEND_5
+	PAGE_5
+5	SYSTEM_5
+	STAFF_5
+	MEASURE_5
+	CLEF_5
+	KEYSIG_5
+10	TIMESIG_5
+	BEAMSET_5
+	CONNECT_5
+	DYNAMIC_5
+	(MODNR)
+15	GRAPHIC_5
+	OTTAVA_5
+	SLUR_5
+	TUPLET_5
+	GRSYNC_5
+20	TEMPO_5
+	SPACER_5
+	ENDING_5
+	PSMEAS_5
+	(OBJECT)
+
+Yes: that's every type!

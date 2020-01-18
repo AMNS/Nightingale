@@ -266,14 +266,13 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 {
 	short		errCode, refNum, strPoolErrCode;
 	short 		errInfo=0,				/* Type of object being read or other info on error */
-				lastType;
+				lastType, i;
 	long		count, stringPoolSize,
 				fileTime;
-	Boolean		fileIsOpen, scoreHdrOK;
+	Boolean		fileIsOpen;
 	OMSSignature omsDevHdr;
 	long		fmsDevHdr;
 	long		omsBufCount, omsDevSize;
-	short		i, nDocErr;
 	FInfo		fInfo;
 	FSSpec 		fsSpec;
 	long		cmHdr, cmBufCount, cmDevSize;
@@ -347,14 +346,8 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 			count = sizeof(SCOREHEADER_N105);
 			errCode = FSRead(refNum, &count, &aDocN105.headL);
 			if (errCode) { errInfo = HEADERobj; goto Error; }
-			scoreHdrOK = ConvertScoreHeader(doc, &aDocN105);
+			ConvertScoreHeader(doc, &aDocN105);
 			if (DETAIL_SHOW) DisplayScoreHdr(1, doc);
-			if (!scoreHdrOK) {
-				sprintf(strBuf, "%d error(s) found in converting Score header.", nDocErr);
-				CParamText(strBuf, "", "", "");
-				LogPrintf(LOG_ERR, "%d error(s) found in converting Score header.  (OpenFile)\n", nDocErr);
-				goto HeaderError;
-			}
 			break;
 		
 		default:
@@ -364,11 +357,9 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	EndianFixDocumentHdr(doc);
 	if (DETAIL_SHOW) DisplayDocumentHdr(2, doc);
 	LogPrintf(LOG_NOTICE, "Checking Document header: ");
-	if (CheckDocumentHdr(doc))
-		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
-	else {
+	if (!CheckDocumentHdr(doc)) {
 		if (!DETAIL_SHOW) DisplayDocumentHdr(3, doc);
-		sprintf(strBuf, "%d error(s) found in Document header.", nDocErr);
+		sprintf(strBuf, "Error(s) found in Document header.");
 		CParamText(strBuf, "", "", "");
 		goto HeaderError;
 	}
@@ -377,11 +368,9 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	EndianFixScoreHdr(doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(3, doc);
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");
-	if (CheckScoreHdr(doc))
-		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
-	else {
+	if (!CheckScoreHdr(doc)) {
 		if (!DETAIL_SHOW) DisplayScoreHdr(3, doc);
-		sprintf(strBuf, "%d error(s) found in Score header.", nDocErr);
+		sprintf(strBuf, "Error(s) found in Score header.");
 		CParamText(strBuf, "", "", "");
 		goto HeaderError;
 	}
