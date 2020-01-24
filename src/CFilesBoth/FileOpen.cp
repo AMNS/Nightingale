@@ -430,7 +430,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	
 	if (!PreflightMem(400)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
-	ConvertObjContent(doc, version, fileTime);	/* Do any further conversion of old files needed */
+	ConvertObject(doc, version, fileTime);	/* Do any further conversion of old files needed */
 
 	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;

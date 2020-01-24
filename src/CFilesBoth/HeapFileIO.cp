@@ -774,7 +774,7 @@ looking at the type fields, which are at a known offset from the beginning of ea
 object record. Thus only a scan forwards through the block can work.
 
 NB: If we're reading a file in an old format, the various objects' fields still need
-to be converted! That should be done in ConvertObjContent(). */
+to be converted! That should be done in ConvertObject(). */
 
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
@@ -846,7 +846,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 		/* <len> is now the correct object length for the current file format. If any
 		   object lengths were different in previous file formats, adjust <len> to
 		   compensate. (However, the _contents_ of the objects should be fixed in
-		   ConvertObjContent.) */
+		   ConvertObject.) */
 		   
 		if (version=='N105') {
 			len = objLength_5[type];

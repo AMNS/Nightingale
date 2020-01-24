@@ -16,7 +16,7 @@ format conversion, so keep this (#ifdef'd out)  for reference purposes. */
 
 void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105);
 void ConvertScoreHeader(Document *doc, DocumentN105 *docN105);
-Boolean ConvertObjContent(Document *, unsigned long, long);
+Boolean ConvertObject(Document *, unsigned long, long);
 Boolean ModifyScore(Document *, long);
 
 #ifdef NOLONGER

@@ -96,7 +96,7 @@ void DisplayNode(Document *doc, LINK pL,
 	switch (ObjLType(pL)) {
 		case HEADERtype:
 			if (!abnormal)
-				LogPrintf(LOG_INFO, " sr=%d mrRect=p%d,%d,%d,%d nst=%d nsys=%d",
+				LogPrintf(LOG_INFO, " sr=%d mrRect(t,l,b,r)=p%d,%d,%d,%d nst=%d nsys=%d",
 					doc->srastral,
 					doc->marginRect.top, doc->marginRect.left,
 					doc->marginRect.bottom, doc->marginRect.right,
@@ -116,13 +116,13 @@ void DisplayNode(Document *doc, LINK pL,
 			LogPrintf(LOG_INFO, " p#=%d", ((PPAGE)p)->sheetNum);
 			break;
 		case SYSTEMtype:
-			LogPrintf(LOG_INFO, " sRect=d%d,%d,%d,%d s#=%d",
+			LogPrintf(LOG_INFO, " sRect(t,l,b,r)=d%d,%d,%d,%d s#=%d",
 				((PSYSTEM)p)->systemRect.top, ((PSYSTEM)p)->systemRect.left,
 				((PSYSTEM)p)->systemRect.bottom, ((PSYSTEM)p)->systemRect.right,
 								((PSYSTEM)p)->systemNum);
 			break;
 		case MEASUREtype:
-			LogPrintf(LOG_INFO, " Box=p%d,%d,%d,%d s%%=%d TS=%ld",
+			LogPrintf(LOG_INFO, " Box(t,l,b,r)=p%d,%d,%d,%d s%%=%d TS=%ld",
 				((PMEASURE)p)->measureBBox.top, ((PMEASURE)p)->measureBBox.left,
 				((PMEASURE)p)->measureBBox.bottom, ((PMEASURE)p)->measureBBox.right,
 				((PMEASURE)p)->spacePercent,

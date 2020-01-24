@@ -2544,10 +2544,20 @@ DebugDisplay, HeapFileIO, Initialize, MIDIFOCmd.
 
 -------------------------------------------------------------------------------
 
-16 - 18 Jan. 2020
+16 - 18 Jan.	*IN 5.9
 
 Worked on opening format 'N105' files while using a new format internally: converting
 object headers. Affects FileConversion.h; FileConversion.
 
 Minor cleanup: rename SPACEheap, etc. Affects FileConversion.h, MemMacros.h, NBasicTypes.h,
 vars.h; Documents, FileConversion, FileOpen.
+
+-------------------------------------------------------------------------------
+
+19 - 24 Jan.
+
+Worked on opening format 'N105' files while using a new format internally: converting
+objects. Affects FileConversion.
+
+Minor cleanup. Affects FileConversion.h; DebugDisplay, DebugUtils, FileConversion,
+FileOpen, HeapFileIO.

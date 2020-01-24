@@ -23,7 +23,7 @@
 #define DDB
 
 /* These functions implement three levels of checking:
-	Most important: messages about problems are prefixed with '�'
+	Most important: messages about problems are prefixed with '•'
 	More important: messages about problems are prefixed with '*'
 	Less & Least important: messages about problems have no prefix
 */
@@ -37,7 +37,7 @@ Boolean QDP(char *fmtStr)
 {
 	Boolean printAll = !minDebugCheck;
 
-	if (printAll || (*fmtStr=='*' || *fmtStr=='�')) {
+	if (printAll || (*fmtStr=='*' || *fmtStr=='•')) {
 		SysBeep(8);
 		nerr++;
 		return True;
@@ -49,12 +49,14 @@ Boolean QDP(char *fmtStr)
 #endif
 
 /* If we're looking at the Clipboard, Undo or Mstr Page, "flag" arg by adding a huge offset */
+
 #define FP(pL)	( abnormal ? 1000000L+(pL) : (pL) )
 
 /* Check whether a Rect is a valid 1st-quadrant rectangle with non-negative height
 and width. NB: a comment here used to say "Nightingale uses rectangles of zero width for
 empty key signatures." As far as I can see, that's not True anymore, so checking for
 positive height is probably pointless.  --DAB, April 2015 */
+
 #define GARBAGE_Q1RECT(r)	(  (r).left>(r).right || (r).top>(r).bottom				\
 									|| (r).left<0 || (r).right<0					\
 									|| (r).top<0 || (r).bottom<0)
@@ -62,9 +64,9 @@ positive height is probably pointless.  --DAB, April 2015 */
 
 
 /* ------------------------------------------------------------------------- DBadLink --- */
-/* Given a type and a LINK, check whether the LINK is bad and return True if so,
-False if it's OK. Checks whether the LINK is larger than the heap currently allows,
-and if LINK is on the freelist: in either case, it's not valid. */
+/* Given a type and a LINK, check whether the LINK is bad and return True if so, False
+if it's OK. Checks whether the LINK is larger than the heap currently allows, and if
+LINK is on the freelist: in either case, it's not valid. */
 
 Boolean DBadLink(
 			Document *doc, short type,
@@ -102,7 +104,7 @@ Boolean DCheckHeaps(Document *doc)
 	Boolean bad=False;
 	
 	if (doc->Heap!=Heap) {
-		COMPLAIN2("�DCheckHeaps: doc->Heap=%lx IS NOT EQUAL TO Heap=%lx.\n",
+		COMPLAIN2("•DCheckHeaps: doc->Heap=%lx IS NOT EQUAL TO Heap=%lx.\n",
 						doc->Heap, Heap);
 		return True;	
 	}
@@ -112,7 +114,7 @@ Boolean DCheckHeaps(Document *doc)
 
 
 /* -------------------------------------------------------------------- DCheckHeadTail -- */
-/* Do consistency check on head or tail of data structure (object list). */
+/* Do consistency check on head or tail of object list. */
 
 Boolean DCheckHeadTail(
 				Document *doc,
@@ -129,15 +131,15 @@ Boolean DCheckHeadTail(
 
 	if (pL==doc->headL || pL==doc->undo.headL || pL==doc->masterHeadL) {
 		if (LeftLINK(pL)!=NILINK || DBadLink(doc, OBJtype, RightLINK(pL), True))
-			COMPLAIN("�DCheckHeadTail: HEADER (L%u) HAS A BAD LINK.\n", pL);
+			COMPLAIN("•DCheckHeadTail: HEADER (L%u) HAS A BAD LINK.\n", pL);
 		if (ObjLType(pL)!=HEADERtype)
-			COMPLAIN("�DCheckHeadTail: HEADER (L%u) HAS BAD type.\n", pL);
+			COMPLAIN("•DCheckHeadTail: HEADER (L%u) HAS BAD type.\n", pL);
 				
 		if (pL==doc->headL) {
 			if (LinkNENTRIES(pL)<2 || LinkNENTRIES(pL)>MAXSTAVES+1)
-				COMPLAIN("�DCheckHeadTail: HEADER (L%u) HAS BAD nparts.\n", pL);
+				COMPLAIN("•DCheckHeadTail: HEADER (L%u) HAS BAD nparts.\n", pL);
 			if (doc->nstaves<1 || doc->nstaves>MAXSTAVES)
-				COMPLAIN("�DCheckHeadTail: HEADER (L%u) HAS BAD nstaves.\n", pL);
+				COMPLAIN("•DCheckHeadTail: HEADER (L%u) HAS BAD nstaves.\n", pL);
 
 			partL = FirstSubLINK(pL);										/* Skip zeroth part */
 			nextStaff = 1;
@@ -146,7 +148,7 @@ Boolean DCheckHeadTail(
 				if (pPartInfo->firstStaff!=nextStaff
 				||  pPartInfo->lastStaff>doc->nstaves
 				||  pPartInfo->firstStaff>pPartInfo->lastStaff)
-					COMPLAIN("�DCheckHeadTail: PART WITH partL=%d HAS BAD FIRST STAFF OR LAST STAFF.\n",
+					COMPLAIN("•DCheckHeadTail: PART WITH partL=%d HAS BAD FIRST STAFF OR LAST STAFF.\n",
 								partL);
 				nextStaff = pPartInfo->lastStaff+1;
 				if (pPartInfo->transpose<-24 || pPartInfo->transpose>24)
@@ -154,16 +156,16 @@ Boolean DCheckHeadTail(
 								partL, pPartInfo->transpose);
 			}
 			if (nextStaff-1!=doc->nstaves)
-				COMPLAIN("�DCheckHeadTail: LAST PART'S LAST STAFF OF %ld DISAGREES WITH nstaves.\n",
+				COMPLAIN("•DCheckHeadTail: LAST PART'S LAST STAFF OF %ld DISAGREES WITH nstaves.\n",
 					(long)nextStaff-1);
 		}
 	}
 
 	else if (pL==doc->tailL || pL==doc->undo.tailL || pL==doc->masterTailL) {
 		if (DBadLink(doc, OBJtype, LeftLINK(pL), True) || RightLINK(pL)!=NILINK)
-			COMPLAIN("�DCheckHeadTail: TAIL (L%u) HAS A BAD LINK.\n", pL);
+			COMPLAIN("•DCheckHeadTail: TAIL (L%u) HAS A BAD LINK.\n", pL);
 		if (ObjLType(pL)!=TAILtype)
-			COMPLAIN("�DCheckHeadTail: TAIL (L%u) HAS BAD type.\n", pL);
+			COMPLAIN("•DCheckHeadTail: TAIL (L%u) HAS BAD type.\n", pL);
 	}
 	return bad;
 }
@@ -436,8 +438,11 @@ consistency checks on an individual node. Returns:
 	+1 if less serious problems are found.
 */
 
-/* Set arbitrary limit for likely duration of a legitimate score, in whole notes */
+/* Set arbitrary but generous limit for likely duration of a legitimate score (in whole
+notes), and for number of pages in a legitimate score. */
+
 #define MAX_WHOLES_DUR	6000L
+#define MAX_PAGES 1000L
 
 short DCheckNode(
 			Document *doc,
@@ -497,25 +502,25 @@ short DCheckNode(
 /* CHECK self, left, and right links. ------------------------------------------- */
 
 		if (DBadLink(doc, OBJtype, pL, False)) {
-				COMPLAIN("�DCheckNode: Object L%u LINK IS GARBAGE.\n", pL);
+				COMPLAIN("•DCheckNode: Object L%u LINK IS GARBAGE.\n", pL);
 				terrible = True;
 		}
 
 		if (LeftLINK(pL)==NILINK || RightLINK(pL)==NILINK
 		||  DBadLink(doc, OBJtype, LeftLINK(pL), True)
 		||  DBadLink(doc, OBJtype, RightLINK(pL), True)) {
-				COMPLAIN("�DCheckNode: Object L%u HAS A GARBAGE L OR R LINK.\n", pL);
+				COMPLAIN("•DCheckNode: Object L%u HAS A GARBAGE L OR R LINK.\n", pL);
 				terrible = True;
 		}
 		else if (pLeft->right!=pL || pRight->left!=pL) {
-			COMPLAIN("�DCheckNode: Object L%u HAS AN INCONSISTENT LINK.\n", pL);
+			COMPLAIN("•DCheckNode: Object L%u HAS AN INCONSISTENT LINK.\n", pL);
 			terrible = True;
 		}
 		
 		if (terrible) return -1;									/* Give up now */
 
 		if (TYPE_BAD(pL) || ObjLType(pL)==HEADERtype || ObjLType(pL)==TAILtype)
-			COMPLAIN2("�DCheckNode: Object L%u HAS BAD type %d.\n", pL, ObjLType(pL));
+			COMPLAIN2("•DCheckNode: Object L%u HAS BAD type %d.\n", pL, ObjLType(pL));
 			
 		if (fullCheck)
 			if (DCheck1SubobjLinks(doc, pL)) bad = terrible = True;
@@ -526,7 +531,7 @@ short DCheckNode(
 
 		GetObjectLimits(ObjLType(pL), &minEntries, &maxEntries, &objRectOrdered);
 		if (LinkNENTRIES(pL)<minEntries || LinkNENTRIES(pL)>maxEntries)
-			COMPLAIN("�DCheckNode: Object L%u HAS BAD nEntries FOR ITS TYPE.\n", pL);
+			COMPLAIN("•DCheckNode: Object L%u HAS BAD nEntries FOR ITS TYPE.\n", pL);
 			
 /* CHECK object's absolute horizontal position (rather crudely) and objRect. ---------- */
 
@@ -539,6 +544,7 @@ short DCheckNode(
 		if (!abnormal && LinkVALID(pL)) {
 			if (GARBAGE_Q1RECT(p->objRect)) {
 				/* It's OK for initial keysigs to be unselectable. */
+				
 				pKeySig = GetPKEYSIG(pL);						/* FIXME: OR USE KeySigINMEAS? */
 				if (!(KeySigTYPE(pL) && !pKeySig->inMeasure))
 					COMPLAIN2("DCheckNode: Object L%u IN MEASURE %d HAS A GARBAGE (UNSELECTABLE) objRect.\n",
@@ -546,6 +552,7 @@ short DCheckNode(
 			}
 			
 			/* Valid initial objects, e.g., "deleted", can have zero-width objRects. */
+			
 			else if (!ClefTYPE(pL) && !KeySigTYPE(pL) && !TimeSigTYPE(pL)
 						&& ZERODIM_RECT(p->objRect)) {
 				COMPLAIN("DCheckNode: Object L%u HAS A ZERO-WIDTH/HEIGHT objRect.\n", pL);
@@ -556,7 +563,7 @@ short DCheckNode(
 /* CHECK the objRect's relative horizontal position. --------------------------------
  *	We first try find objects in this System to its left and/or right in the data
  *	structure that have meaningful objRects. If we find such object(s), we check whether
- *	their relative graphic positions agree with their relative data structure positions.
+ *	their relative graphic positions agree with their relative object-list positions.
  */
 				for (lRectOrdered = False, apLeftL = LeftLINK(pL);
 						apLeftL!=doc->headL; apLeftL = LeftLINK(apLeftL)) {
@@ -670,6 +677,7 @@ short DCheckNode(
 				}
 				
 				/* Check multibar rests: if any voice has one, all must be the same. */
+				
 				for (lDurCode = 0, v = 0; v<=MAXVOICES; v++)
 					if (vNotes[v]>0) {
 						if (lDurCode==0)
@@ -682,7 +690,9 @@ short DCheckNode(
 						}
 					}
 				
-				/* Check consistency of staff no. in chords, but complain about each no more than once. */
+				/* Check consistency of staff no. in chords, but complain about each no
+				   more than once. */
+				   
 				for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					if (vStaff[aNote->voice]!=-999 && aNote->staffn!=vStaff[aNote->voice]) {
@@ -692,7 +702,9 @@ short DCheckNode(
 						}
 				}
 
-				/* Check consistency of durations in chords, but complain about each no more than once. */
+				/* Check consistency of durations in chords, but complain about each no
+				   more than once. */
+				   
 				for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					if ( (vlDur[aNote->voice]!=-999 && aNote->subType!=vlDur[aNote->voice])
@@ -703,7 +715,9 @@ short DCheckNode(
 						}
 				}
 									
-				/* Check consistency of octave signs in chords, but complain about each no more than once. */
+				/* Check consistency of octave signs in chords, but complain about each
+				   no more than once. */
+				   
 				for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					if (vOct[aNote->voice]!=-999 && aNote->inOttava!=vOct[aNote->voice]) {
@@ -713,7 +727,8 @@ short DCheckNode(
 						}
 				}
 
-			/* Do all other checking on SYNCs. */
+				/* Do all other checking on SYNCs. */
+			
 				PushLock(NOTEheap);
 				
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
@@ -728,12 +743,13 @@ short DCheckNode(
 						COMPLAIN("*DCheckNode: NOTE/REST IN SYNC L%u HAS BAD ACCIDENTAL.\n", pL);
 
 					if (!aNote->rest) {
+						/* If noteNum is illegal, complain loudly; if it's simply outside
+						   the range of the piano, warn more gently. */
+					
 						if (aNote->noteNum<1 || aNote->noteNum>MAX_NOTENUM) {
 							COMPLAIN3("*DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS BAD noteNum %d.\n",
 											pL, GetMeasNum(doc, pL), aNote->noteNum);
-						}
-
-						/* If noteNum is outside the range of the piano, warn more gently. */
+						}						
 						else if (aNote->noteNum<21 || aNote->noteNum>108) {
 							COMPLAIN3("DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS SUSPICIOUS noteNum %d.\n",
 											pL, GetMeasNum(doc, pL), aNote->noteNum);
@@ -794,6 +810,16 @@ short DCheckNode(
 			}
 				break;
 
+
+			case PAGEtype:
+				/* Arbitrarily assume no legitimate score is likely to have more than a
+				   fixed number of pages. */
+				   
+				if (SheetNUM(pL)<0L || SheetNUM(pL)>MAX_PAGES)
+						COMPLAIN2("DCheckNode: PAGE L%u sheetNum %ld IS NEGATIVE OR SUSPICIOUSLY LARGE.\n",
+										pL, SheetNUM(pL));
+				break;
+			
 			case SYSTEMtype: {
 				PSYSTEM lSystem, rSystem;
 					PushLock(SYSTEMheap);
@@ -801,29 +827,30 @@ short DCheckNode(
 					if (pSystem->lSystem) {
 						lSystem = GetPSYSTEM(pSystem->lSystem);
 						if (lSystem->rSystem!=pL)
-							COMPLAIN("�DCheckNode: SYSTEM L%u HAS INCONSISTENT LEFT SYSTEM LINK.\n", pL);
+							COMPLAIN("•DCheckNode: SYSTEM L%u HAS INCONSISTENT LEFT SYSTEM LINK.\n", pL);
 					}
 					if (pSystem->rSystem) {
 						rSystem = GetPSYSTEM(pSystem->rSystem);
 						if (rSystem->lSystem!=pL)
-							COMPLAIN("�DCheckNode: SYSTEM L%u HAS INCONSISTENT RIGHT SYSTEM LINK.\n", pL);
+							COMPLAIN("•DCheckNode: SYSTEM L%u HAS INCONSISTENT RIGHT SYSTEM LINK.\n", pL);
 					}
 					if (GARBAGE_Q1RECT(pSystem->systemRect))
 							COMPLAIN("*DCheckNode: SYSTEM L%u HAS GARBAGE systemRect.\n", pL);
 
 					if (where!=CLIP_DSTR && d2pt(pSystem->systemRect.bottom)>doc->marginRect.bottom)
-							COMPLAIN3("*DCheckNode: SYSTEM L%u RECT BELOW BOTTOM MARGIN (%d vs. %d).\n", pL,
+							COMPLAIN3("*DCheckNode: SYSTEM L%u RECT BELOW BOTTOM MARGIN (pt%d vs. %d).\n", pL,
 								d2pt(pSystem->systemRect.bottom), doc->marginRect.bottom);
 							
-					/* The expression for checking systemRect.right has always involved subtracting
-						ExtraSysWidth(doc) , the width of the widest barline (final double). That's
-						not enough for documents that have had their staff size reduced because
-						ExtraSysWidth() is smaller, but SetStaffSizeMP() doesn't shorten systemRects.
-						Probably not hard to fix, but subtracting 2*ExtraSysWidth(doc) should
-						sidestep the problem with negligible side effects. --DAB, 10/2015
-					 */
+					/* The expression for checking systemRect.right has always involved
+					subtracting ExtraSysWidth(doc) , the width of the widest barline
+					(final double). That's not enough for documents that have had their
+					staff size reduced because ExtraSysWidth() is smaller, but
+					SetStaffSizeMP() doesn't shorten systemRects. Probably not hard to
+					fix, but subtracting 2*ExtraSysWidth(doc) should sidestep the
+					problem with negligible side effects. --DAB, 10/2015 */
+						
 					if (where!=CLIP_DSTR && d2pt(pSystem->systemRect.right-2*ExtraSysWidth(doc))>doc->marginRect.right)
-							COMPLAIN3("*DCheckNode: SYSTEM L%u RECT EXTENDS INTO RIGHT MARGIN (%d vs. %d).\n", pL,
+							COMPLAIN3("*DCheckNode: SYSTEM L%u RECT EXTENDS INTO RIGHT MARGIN (pt%d vs. %d).\n", pL,
 								d2pt(pSystem->systemRect.right), doc->marginRect.right);
 //LogPrintf(LOG_DEBUG, "sysR.right=%d=%d pt, ESWidth=%d, margR.right=%d\n", pSystem->systemRect.right, d2pt(pSystem->systemRect.right),
 //ExtraSysWidth(doc), doc->marginRect.right);
@@ -853,12 +880,12 @@ short DCheckNode(
 					if (pStaff->lStaff) {
 						lStaff = GetPSTAFF(pStaff->lStaff);
 						if (lStaff->rStaff != pL)
-							COMPLAIN("�DCheckNode: STAFF L%u LEFT STAFF HAS INCONSISTENT RIGHT LINK.\n", pL);
+							COMPLAIN("•DCheckNode: STAFF L%u LEFT STAFF HAS INCONSISTENT RIGHT LINK.\n", pL);
 					}
 					if (pStaff->rStaff) {
 						rStaff = GetPSTAFF(pStaff->rStaff);
 						if (rStaff->lStaff != pL)
-							COMPLAIN("�DCheckNode: STAFF L%u RIGHT STAFF HAS INCONSISTENT LEFT LINK.\n", pL);
+							COMPLAIN("•DCheckNode: STAFF L%u RIGHT STAFF HAS INCONSISTENT LEFT LINK.\n", pL);
 					}
 					isFirstStaff = !pStaff->lStaff;
 
@@ -925,9 +952,9 @@ short DCheckNode(
 							for (qL = LeftLINK(pL); qL; qL = LeftLINK(qL))
 								if (ObjLType(qL)==MEASUREtype) break;
 							if (!qL)
-								{ COMPLAIN("�DCheckNode: MEASURE L%u HAS A BAD MEASURE LLINK.\n", pL); }
+								{ COMPLAIN("•DCheckNode: MEASURE L%u HAS A BAD MEASURE LLINK.\n", pL); }
 							else if (qL!=pMeasure->lMeasure)
-								{ COMPLAIN("�DCheckNode: MEASURE L%u HAS INCONSISTENT MEASURE LLINK.\n", pL); }
+								{ COMPLAIN("•DCheckNode: MEASURE L%u HAS INCONSISTENT MEASURE LLINK.\n", pL); }
 							else if (LinkVALID(pL)
 								  &&  pMeasure->systemL==lMeasure->systemL
 								  &&  pMeasure->measureBBox.left!=lMeasure->measureBBox.right) {
@@ -943,9 +970,9 @@ short DCheckNode(
 							for (qL = RightLINK(pL); qL; qL = RightLINK(qL))
 								if (ObjLType(qL)==MEASUREtype) break;
 							if (!qL)
-								{ COMPLAIN("�DCheckNode: MEASURE L%u HAS A BAD MEASURE RLINK.\n", pL); }
+								{ COMPLAIN("•DCheckNode: MEASURE L%u HAS A BAD MEASURE RLINK.\n", pL); }
 							else if (qL!=pMeasure->rMeasure)
-								{ COMPLAIN("�DCheckNode: MEASURE L%u HAS INCONSISTENT MEASURE RLINK.\n", pL); }
+								{ COMPLAIN("•DCheckNode: MEASURE L%u HAS INCONSISTENT MEASURE RLINK.\n", pL); }
 							else if (LinkVALID(pL)
 								  &&  pMeasure->systemL==rMeasure->systemL
 								  &&  pMeasure->measureBBox.right!=rMeasure->measureBBox.left) {
@@ -955,36 +982,38 @@ short DCheckNode(
 						}
 	
 						if (DBadLink(doc, OBJtype, pMeasure->systemL, True)) {
-							COMPLAIN("�DCheckNode: MEASURE L%u HAS GARBAGE SYSTEM LINK.\n", pL);
+							COMPLAIN("•DCheckNode: MEASURE L%u HAS GARBAGE SYSTEM LINK.\n", pL);
 						}
 						else {
 						/* Can't use standard Search here because it assumes links are OK. */
 							for (qL = LeftLINK(pL); qL; qL = LeftLINK(qL))
 								if (ObjLType(qL)==SYSTEMtype) break;
 							if (!qL)
-								{ COMPLAIN("�DCheckNode: MEASURE L%u HAS A BAD SYSTEM LINK.\n", pL); }
+								{ COMPLAIN("•DCheckNode: MEASURE L%u HAS A BAD SYSTEM LINK.\n", pL); }
 							else if (qL!=pMeasure->systemL)
-								COMPLAIN("�DCheckNode: MEASURE L%u HAS INCONSISTENT SYSTEM LINK.\n", pL);
+								COMPLAIN("•DCheckNode: MEASURE L%u HAS INCONSISTENT SYSTEM LINK.\n", pL);
 							}
 
 						if (DBadLink(doc, OBJtype, pMeasure->staffL, True)) {
-							COMPLAIN("�DCheckNode: MEASURE L%u HAS GARBAGE STAFF LINK.\n", pL);
+							COMPLAIN("•DCheckNode: MEASURE L%u HAS GARBAGE STAFF LINK.\n", pL);
 						}
 						else {
 						/* Can't use standard Search here because it assumes links are OK. */
 							for (qL = LeftLINK(pL); qL; qL = LeftLINK(qL))
 								if (ObjLType(qL)==STAFFtype) break;
 							if (!qL)
-								{ COMPLAIN("�DCheckNode: MEASURE L%u HAS A BAD STAFF LINK.\n", pL); }
+								{ COMPLAIN("•DCheckNode: MEASURE L%u HAS A BAD STAFF LINK.\n", pL); }
 							else if (qL!=pMeasure->staffL)
-								COMPLAIN("�DCheckNode: MEASURE L%u HAS INCONSISTENT STAFF LINK.\n", pL);
+								COMPLAIN("•DCheckNode: MEASURE L%u HAS INCONSISTENT STAFF LINK.\n", pL);
 							}
 					}
 	
-					/* Arbitrarily assume no legitimate score is likely to be longer than a fixed length. */
+					/* Arbitrarily assume no legitimate score is likely to be longer
+					   than a fixed length. */
+					   
 					if (pMeasure->lTimeStamp<0L
 					||  pMeasure->lTimeStamp>MAX_WHOLES_DUR*1920)
-							COMPLAIN2("DCheckNode: MEASURE L%u HAS SUSPICIOUSLY LARGE lTimeStamp %ld.\n",
+							COMPLAIN2("DCheckNode: MEASURE L%u lTimeStamp %ld IS NEGATIVE OR SUSPICIOUSLY LARGE.\n",
 											pL, pMeasure->lTimeStamp);
 
 					if (pMeasure->spacePercent<MINSPACE
@@ -1079,13 +1108,13 @@ short DCheckNode(
 						aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
 					aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
 					if (DBadLink(doc, OBJtype, aNoteBeam->bpSync, False)) {
-						COMPLAIN("�DCheckNode: BEAMSET L%u HAS GARBAGE SYNC LINK.\n", pL);
+						COMPLAIN("•DCheckNode: BEAMSET L%u HAS GARBAGE SYNC LINK.\n", pL);
 					}
 					else if (!((PBEAMSET)p)->grace && ObjLType(aNoteBeam->bpSync)!=SYNCtype) {
-						COMPLAIN("�DCheckNode: BEAMSET L%u HAS A BAD SYNC LINK.\n", pL);
+						COMPLAIN("•DCheckNode: BEAMSET L%u HAS A BAD SYNC LINK.\n", pL);
 					}
 					else if (((PBEAMSET)p)->grace && ObjLType(aNoteBeam->bpSync)!=GRSYNCtype)
-						COMPLAIN("�DCheckNode: BEAMSET L%u HAS A BAD GRSYNC LINK.\n", pL);
+						COMPLAIN("•DCheckNode: BEAMSET L%u HAS A BAD GRSYNC LINK.\n", pL);
 
 					beamsNow += aNoteBeam->startend;
 					if ((NextNOTEBEAML(aNoteBeamL) && beamsNow<=0)
@@ -1111,11 +1140,11 @@ short DCheckNode(
 						aNoteTupleL = NextNOTETUPLEL(aNoteTupleL)) {
 					aNoteTuple = GetPANOTETUPLE(aNoteTupleL);
 					if (DBadLink(doc, OBJtype, aNoteTuple->tpSync, True)) {
-						COMPLAIN2("�DCheckNode: TUPLET L%u HAS GARBAGE SYNC LINK %d.\n",
+						COMPLAIN2("•DCheckNode: TUPLET L%u HAS GARBAGE SYNC LINK %d.\n",
 										pL, aNoteTuple->tpSync);
 					}
 					else if (ObjLType(aNoteTuple->tpSync)!=SYNCtype)
-						COMPLAIN2("�DCheckNode: TUPLET L%u HAS BAD SYNC LINK %d.\n",
+						COMPLAIN2("•DCheckNode: TUPLET L%u HAS BAD SYNC LINK %d.\n",
 										pL, aNoteTuple->tpSync);
 				}
 
@@ -1131,11 +1160,11 @@ short DCheckNode(
 						aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 					aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 					if (DBadLink(doc, OBJtype, aNoteOct->opSync, True)) {
-						COMPLAIN2("�DCheckNode: OTTAVA L%u HAS GARBAGE SYNC LINK %u.\n",
+						COMPLAIN2("•DCheckNode: OTTAVA L%u HAS GARBAGE SYNC LINK %u.\n",
 										pL, aNoteOct->opSync);
 					}
 					else if (!SyncTYPE(aNoteOct->opSync) && !GRSyncTYPE(aNoteOct->opSync))
-						COMPLAIN2("�DCheckNode: OTTAVA L%u HAS BAD SYNC LINK %u.\n",
+						COMPLAIN2("•DCheckNode: OTTAVA L%u HAS BAD SYNC LINK %u.\n",
 										pL, aNoteOct->opSync);
 				}
 				
@@ -1165,16 +1194,16 @@ short DCheckNode(
 				PushLock(DYNAMheap);
 				pDynamic = GetPDYNAMIC(pL);
 				if (DBadLink(doc, OBJtype, pDynamic->firstSyncL, False)) {
-					COMPLAIN("�DCheckNode: DYNAMIC L%u HAS GARBAGE firstSyncL.\n", pL);
+					COMPLAIN("•DCheckNode: DYNAMIC L%u HAS GARBAGE firstSyncL.\n", pL);
 				}
 				else {
 					if (ObjLType(pDynamic->firstSyncL)!=SYNCtype) {
-						COMPLAIN("�DCheckNode: DYNAMIC L%u firstSyncL IS NOT A SYNC.\n", pL);
+						COMPLAIN("•DCheckNode: DYNAMIC L%u firstSyncL IS NOT A SYNC.\n", pL);
 					}
 				}
 
 				if (DBadLink(doc, OBJtype, pDynamic->lastSyncL, !IsHairpin(pL))) {
-					COMPLAIN("�DCheckNode: DYNAMIC L%u HAS GARBAGE lastSyncL.\n", pL);
+					COMPLAIN("•DCheckNode: DYNAMIC L%u HAS GARBAGE lastSyncL.\n", pL);
 				}
 
 				for (aDynamicL=FirstSubLINK(pL); aDynamicL;
@@ -1209,7 +1238,7 @@ short DCheckNode(
 					COMPLAIN("*DCheckNode: NON-TIE SLUR L%u WITH MORE THAN ONE SUBOBJECT.\n", pL);
 				if (DBadLink(doc, OBJtype, pSlur->firstSyncL, True)
 				||  DBadLink(doc, OBJtype, pSlur->lastSyncL, True)) {
-					COMPLAIN("�DCheckNode: SLUR L%u HAS GARBAGE SYNC LINK.\n", pL);
+					COMPLAIN("•DCheckNode: SLUR L%u HAS GARBAGE SYNC LINK.\n", pL);
 					break;
 				}
 
@@ -1326,7 +1355,7 @@ short DCheckNode(
 					PushLock(GRAPHICheap);
 	 				pGraphic = GetPGRAPHIC(pL);
 					if (DBadLink(doc, OBJtype, pGraphic->firstObj, False))
-						COMPLAIN("�DCheckNode: GRAPHIC L%u HAS GARBAGE firstObj.\n", pL);
+						COMPLAIN("•DCheckNode: GRAPHIC L%u HAS GARBAGE firstObj.\n", pL);
 					if (!PageTYPE(pGraphic->firstObj))
 						if (STAFFN_BAD(doc, pGraphic->staffn)) {
 							COMPLAIN2("*DCheckNode: GRAPHIC L%u HAS BAD staffn %d.\n", pL, pGraphic->staffn);
@@ -1366,7 +1395,7 @@ short DCheckNode(
 							break;
 						case GRDraw:
 							if (DBadLink(doc, OBJtype, pGraphic->lastObj, False))
-								COMPLAIN("�DCheckNode: GRDraw GRAPHIC L%u HAS GARBAGE lastObj.\n", pL);
+								COMPLAIN("•DCheckNode: GRDraw GRAPHIC L%u HAS GARBAGE lastObj.\n", pL);
 							if (!ObjOnStaff(pGraphic->lastObj, pGraphic->staffn, False))
 								COMPLAIN2("*DCheckNode: GRDraw GRAPHIC L%u lastObj HAS NO SUBOBJS ON ITS STAFF %d.\n",
 												pL, pGraphic->staffn);
@@ -1384,7 +1413,7 @@ short DCheckNode(
 					
 					PushLock(TEMPOheap);
 					if (DBadLink(doc, OBJtype, ((PTEMPO)p)->firstObjL, False))
-						COMPLAIN("�DCheckNode: TEMPO L%u HAS GARBAGE firstObjL.\n", pL);
+						COMPLAIN("•DCheckNode: TEMPO L%u HAS GARBAGE firstObjL.\n", pL);
 						
 	 				pTempo = GetPTEMPO(pL);
 					if (!PageTYPE(pTempo->firstObjL))
@@ -1433,14 +1462,14 @@ short DCheckNode(
 					
 					pEnding = GetPENDING(pL);
 					if (DBadLink(doc, OBJtype, pEnding->firstObjL, False)) {
-						COMPLAIN("�DCheckNode: ENDING L%u HAS GARBAGE firstObjL.\n", pL);
+						COMPLAIN("•DCheckNode: ENDING L%u HAS GARBAGE firstObjL.\n", pL);
 					}
 					else if (!ObjOnStaff(pEnding->firstObjL, EndingSTAFF(pL), False))
 						COMPLAIN("*DCheckNode: ENDING L%u firstObjL HAS NO SUBOBJS ON ITS STAFF.\n",
 										pL);
 
 					if (DBadLink(doc, OBJtype, pEnding->lastObjL, False)) {
-						COMPLAIN("�DCheckNode: ENDING L%u HAS GARBAGE lastObjL.\n", pL);
+						COMPLAIN("•DCheckNode: ENDING L%u HAS GARBAGE lastObjL.\n", pL);
 					}
 					else if (!ObjOnStaff(pEnding->lastObjL, EndingSTAFF(pL), False))
 						COMPLAIN("*DCheckNode: ENDING L%u lastObjL HAS NO SUBOBJS ON ITS STAFF.\n",
@@ -1487,7 +1516,7 @@ Boolean DCheckNodeSel(Document *doc, LINK pL)
 	bad = False;
 
 	if (TYPE_BAD(pL) || ObjLType(pL)==HEADERtype || ObjLType(pL)==TAILtype) {
-			COMPLAIN("�DCheckNodeSel: Object L%u HAS BAD type.\n", pL);
+			COMPLAIN("•DCheckNodeSel: Object L%u HAS BAD type.\n", pL);
 			return bad;
 	}
 
@@ -1559,10 +1588,9 @@ Boolean DCheckNodeSel(Document *doc, LINK pL)
 
 
 /* ------------------------------------------------------------------------- DCheckSel -- */
-/* Do consistency checks on the selection: check selection start/end links,
-that no node outside the range they describe has its selected flag set, etc.
-Returns True if the selection start or end link is garbage or not even in the
-data structure (object list). */
+/* Do consistency checks on the selection: check selection start/end links, that no
+node outside the range they describe has its selected flag set, etc. Returns True if
+the selection start or end link is garbage or not even in the object list. */
  
 Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 {
@@ -1571,7 +1599,7 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 
 	if (DBadLink(doc, OBJtype, doc->selStartL, False)
 	||  DBadLink(doc, OBJtype, doc->selEndL, False)) {
-		COMPLAIN2("�DCheckSel: selStartL=%d OR selEndL=%d IS A GARBAGE LINK.\n",
+		COMPLAIN2("•DCheckSel: selStartL=%d OR selEndL=%d IS A GARBAGE LINK.\n",
 						doc->selStartL, doc->selEndL);
 		return True;
 	}
@@ -1580,11 +1608,11 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 
 	if (!doc->masterView) {
 		if (!InObjectList(doc, doc->selStartL, MAIN_DSTR))
-			COMPLAIN("�DCheckSel: selStartL=%d NOT IN MAIN OBJECT LIST.\n",
+			COMPLAIN("•DCheckSel: selStartL=%d NOT IN MAIN OBJECT LIST.\n",
 						doc->selStartL);
 	
 		if (!InObjectList(doc, doc->selEndL, MAIN_DSTR)) {
-			COMPLAIN("�DCheckSel: selEndL=%d NOT IN MAIN OBJECT LIST.\n",
+			COMPLAIN("•DCheckSel: selEndL=%d NOT IN MAIN OBJECT LIST.\n",
 						doc->selEndL);
 			return True;
 		}
@@ -1598,7 +1626,7 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 			if (LinkSEL(pL))
 				COMPLAIN("DCheckSel: NODE BEFORE SELECTION RANGE (L%u) SELECTED.\n", pL);
 			if (DBadLink(doc, OBJtype, RightLINK(pL), True) && doc->selStartL) {
-				COMPLAIN("�DCheckSel: GARBAGE RightLINK(%d) BEFORE SELECTION RANGE.\n", pL);
+				COMPLAIN("•DCheckSel: GARBAGE RightLINK(%d) BEFORE SELECTION RANGE.\n", pL);
 				break;
 			}
 		}
@@ -1621,12 +1649,12 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 
 /* ------------------------------------------------------------------ DCheckVoiceTable -- */
 /* Check the voice-mapping table and its relationship to the object list:
-		that the voice table contains no empty slots;
-		that every default voice belongs to the correct part;
-		that the voice no. of every note, rest, and grace note appears in the voice table;
-		agreement between voice table part numbers and note, rest, and grace note part
-			numbers;
-		the legality of voiceRole fields.
+	that the voice table contains no empty slots;
+	that every default voice belongs to the correct part;
+	that the voice no. of every note, rest, and grace note appears in the voice table;
+	agreement between voice table part numbers and note, rest, and grace note part
+		numbers;
+	the legality of voiceRole fields.
 We could also check other symbols with voice nos. */
 
 Boolean DCheckVoiceTable(Document *doc,
@@ -1673,11 +1701,10 @@ Boolean DCheckVoiceTable(Document *doc,
 	for (v = 1; v<=MAXVOICES; v++) {
 		voiceUseTab[v] = NILINK;
 
-	/*
-	 * The objects with voice numbers other than notes and grace notes always get
-	 * their voice numbers from the notes and grace notes they're attached to, so
-	 * we'll assume they're OK, though it would be better to look.
-	 */
+	/* The objects with voice numbers other than notes and grace notes always get their
+	   voice numbers from the notes and grace notes they're attached to, so we'll
+	   assume they're OK, though it would be better to look. */
+	   
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
 			case SYNCtype:
@@ -1760,7 +1787,7 @@ Boolean DCheckVoiceTable(Document *doc,
 	(2) that nodes appear on each page in the order (ignoring GRAPHICs and maybe
 			others) PAGE, SYSTEM, STAFF, everything else;
 	(3) that every staff number that should, and none that shouldn't, appears
-		somewhere in the data structure;
+		somewhere in the object list;
 	(4) that every STAFF has at least one MEASURE, and that nothing appears between
 		the STAFF and its first MEASURE except Clefs, KeySigs, TimeSigs, and Connects;
 	(5) that Clef, KeySig, and TimeSig inMeasure flags agree with their position in
@@ -1793,9 +1820,9 @@ Boolean DCheckHeirarchy(Document *doc)
 		switch (ObjLType(pL)) {
 			case SYNCtype:
 				if (!foundPage || !foundSystem || !foundStaff)
-					COMPLAIN("�DCheckHeirarchy: SYNC L%u PRECEDES PAGE, SYSTEM OR STAFF.\n", pL);
+					COMPLAIN("•DCheckHeirarchy: SYNC L%u PRECEDES PAGE, SYSTEM OR STAFF.\n", pL);
 				if (!foundClef || !foundKeySig || !foundTimeSig)
-					COMPLAIN("�DCheckHeirarchy: Object L%u PRECEDES CLEF, KEYSIG, OR TIMESIG.\n", pL);
+					COMPLAIN("•DCheckHeirarchy: Object L%u PRECEDES CLEF, KEYSIG, OR TIMESIG.\n", pL);
 				break;
 			case PAGEtype:
 				foundPage = True;
@@ -1808,11 +1835,11 @@ Boolean DCheckHeirarchy(Document *doc)
 				systemL = pL;
 				nsystems++;
 				if (SysPAGE(pL)!=pageL)
-					COMPLAIN("�DCheckHeirarchy: SYSTEM L%u HAS WRONG pageL.\n", pL);
+					COMPLAIN("•DCheckHeirarchy: SYSTEM L%u HAS WRONG pageL.\n", pL);
 				break;
 			case STAFFtype:
 				if (!foundPage || !foundSystem)
-					COMPLAIN("�DCheckHeirarchy: STAFF L%u PRECEDES PAGE OR SYSTEM.\n", pL);
+					COMPLAIN("•DCheckHeirarchy: STAFF L%u PRECEDES PAGE OR SYSTEM.\n", pL);
 				foundStaff = True;
 				for (aStaffL=FirstSubLINK(pL); aStaffL; 
 							aStaffL=NextSTAFFL(aStaffL)) {
@@ -1822,11 +1849,11 @@ Boolean DCheckHeirarchy(Document *doc)
 						aStaffFound[StaffSTAFF(aStaffL)] = True;
 				}
 				if (StaffSYS(pL)!=systemL)
-					COMPLAIN("�DCheckHeirarchy: STAFF L%u HAS WRONG systemL.\n", pL);
+					COMPLAIN("•DCheckHeirarchy: STAFF L%u HAS WRONG systemL.\n", pL);
 				break;
 			case MEASUREtype:
 				if (MeasSYSL(pL)!=systemL)
-					COMPLAIN("�DCheckHeirarchy: MEASURE L%u HAS WRONG systemL.\n", pL);
+					COMPLAIN("•DCheckHeirarchy: MEASURE L%u HAS WRONG systemL.\n", pL);
 				goto ChkAll;
 			case CLEFtype:
 				foundClef = True;
@@ -1842,14 +1869,14 @@ Boolean DCheckHeirarchy(Document *doc)
 			case OTTAVAtype:
 	ChkAll:
 				if (!foundClef || !foundKeySig || !foundTimeSig)
-					COMPLAIN("�DCheckHeirarchy: Object L%u PRECEDES CLEF, KEYSIG, OR TIMESIG.\n", pL);
+					COMPLAIN("•DCheckHeirarchy: Object L%u PRECEDES CLEF, KEYSIG, OR TIMESIG.\n", pL);
 	ChkPageSysStaff:
 				if (!foundPage || !foundSystem || !foundStaff)
-					COMPLAIN("�DCheckHeirarchy: Object L%u PRECEDES PAGE, SYSTEM OR STAFF.\n", pL);
+					COMPLAIN("•DCheckHeirarchy: Object L%u PRECEDES PAGE, SYSTEM OR STAFF.\n", pL);
 				break;
 			case CONNECTtype:
 				if (!foundPage || !foundSystem)
-					COMPLAIN("�DCheckHeirarchy: CONNECT L%u PRECEDES PAGE OR SYSTEM.\n", pL);
+					COMPLAIN("•DCheckHeirarchy: CONNECT L%u PRECEDES PAGE OR SYSTEM.\n", pL);
 				break;
 			case GRAPHICtype:
 				break;
@@ -1866,20 +1893,20 @@ Boolean DCheckHeirarchy(Document *doc)
 	for (nMissing = 0, i = 1; i<=doc->nstaves; i++)
 		if (!aStaffFound[i]) nMissing++;
 	if (nMissing!=0)	
-		COMPLAIN("�DCheckHeirarchy: %ld STAVES NOT FOUND.\n", (long)nMissing);
+		COMPLAIN("•DCheckHeirarchy: %ld STAVES NOT FOUND.\n", (long)nMissing);
 
 	foundMeasure = foundSystem = True;
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 	switch (ObjLType(pL)) {
 		case PAGEtype:
 			if (!foundSystem) {
-				COMPLAIN("�DCheckHeirarchy: PAGE L%u CONTAINS NO SYSTEMS.\n", LinkLPAGE(pL));
+				COMPLAIN("•DCheckHeirarchy: PAGE L%u CONTAINS NO SYSTEMS.\n", LinkLPAGE(pL));
 			}
 			foundSystem = False;
 			break;
 		case SYSTEMtype:
 			if (!foundMeasure) {
-				COMPLAIN("�DCheckHeirarchy: SYSTEM L%u CONTAINS NO MEASURES.\n", LinkLSYS(pL));
+				COMPLAIN("•DCheckHeirarchy: SYSTEM L%u CONTAINS NO MEASURES.\n", LinkLSYS(pL));
 			}
 			foundMeasure = False;
 			foundSystem = True;
@@ -1913,12 +1940,12 @@ Boolean DCheckHeirarchy(Document *doc)
 			if (!CapsLockKeyDown()) break;
 		default:
 			if (!foundMeasure)
-				COMPLAIN("�DCheckHeirarchy: OBJECT L%u PRECEDES ITS STAFF'S 1ST MEASURE.\n", pL);
+				COMPLAIN("•DCheckHeirarchy: OBJECT L%u PRECEDES ITS STAFF'S 1ST MEASURE.\n", pL);
 			break;
 	}
 	if (!foundMeasure) {												/* Any Measures in the last System? */
 		pL = LSSearch(doc->tailL, SYSTEMtype, ANYONE, True, False);		/* No */
-		COMPLAIN("�DCheckHeirarchy: SYSTEM L%u CONTAINS NO MEASURES.\n", pL);
+		COMPLAIN("•DCheckHeirarchy: SYSTEM L%u CONTAINS NO MEASURES.\n", pL);
 	}		
 
 	return bad;			
@@ -1942,7 +1969,7 @@ Boolean DCheckJDOrder(Document *doc)
 			for (qL = RightLINK(pL); qL!=attL; qL = RightLINK(qL))
 				if (!J_DTYPE(qL)) {
 					if (!InObjectList(doc, attL, MAIN_DSTR)) {
-						COMPLAIN3("�DCheckJDOrder: GRAPHIC ON STAFF %d L%u firstObj=%d NOT IN MAIN OBJECT LIST.\n",
+						COMPLAIN3("•DCheckJDOrder: GRAPHIC ON STAFF %d L%u firstObj=%d NOT IN MAIN OBJECT LIST.\n",
 									GraphicSTAFF(pL), pL, attL);
 					}
 					else {
@@ -2170,9 +2197,9 @@ short CountSyncVoicesOnStaff(LINK syncL, short staff)
 /* Check consistency of octave sign objects with notes/rests and grace notes they
 should be referring to.
 
-Note that we don't keep track of when the octave signs end: therefore, adding
-checking that Notes that don't have <inOttava> flags really shouldn't isn't as
-easy as it might look. */
+Note that we don't keep track of when the octave signs end: therefore, adding checking
+that Notes that don't have <inOttava> flags really shouldn't isn't as easy as it might
+look. */
  
 Boolean DCheckOttavas(Document *doc)
 {
@@ -2224,10 +2251,9 @@ Next:
 				aNoteL = NoteOnStaff(syncL, staff);
 				if (NoteREST(aNoteL)) goto Next;
 					
-				/*
-				 * If a Sync has 2 voices under the octave sign, the octave sign object
-				 * has 2 subobjects pointing to that Sync.
-				 */
+				/* If a Sync has 2 voices under the octave sign, the octave sign object
+				   has 2 subobjects pointing to that Sync. */
+				   
 				nVoice = CountSyncVoicesOnStaff(syncL, staff);
 				for (j = 1; j<=nVoice; j++) {
 					if (j>1) noteOctL = NextNOTEOTTAVAL(noteOctL);
@@ -2265,9 +2291,9 @@ Next:
 /* ----------------------------------------------------------------------- DCheckSlurs -- */
 /* For each slur, check:
 	-that the slur object (including ties) and its firstSyncL and lastSyncL appear in
-		the correct order in the data structure.
+		the correct order in the object list.
 	-that the next Sync after the slur has notes in the slur's voice.
-	-since we currently (as of v. 5.6) do not allow nested or overlapping slurs or ties
+	-since we currently (as of v. 5.8.x) do not allow nested or overlapping slurs or ties
 		(though we do allow a tie nested within a slur), that there's no other nesting
 		or overlapping.
 	-that cross-system slurs have their first piece on one system and their second on
@@ -2524,7 +2550,7 @@ Boolean DCheckTuplets(
 
 /* ------------------------------------------------------------------- DCheckHairpins -- */
 /* For each hairpin, check that the Dynamic object and its firstSyncL and lastSyncL
-appear in the correct order in the data structure. */
+appear in the correct order in the object list. */
 
 Boolean DCheckHairpins(Document *doc)
 {
@@ -2538,9 +2564,10 @@ Boolean DCheckHairpins(Document *doc)
 
 		if (ObjLType(pL)==DYNAMtype && IsHairpin(pL)) {
 			
-			/* Check that the hairpin and its first and last objects are in the correct order. 
-			They should be in the order <hairpin, first, last>, except <first> and <last> can be
-			identical. */
+			/* Check that the hairpin and its first and last objects are in the correct
+			   order. They should be in the order <hairpin, first, last>, except <first>
+			   and <last> can be identical. */
+			   
 			if (!IsAfter(pL, DynamFIRSTSYNC(pL)))
 				COMPLAIN("*DCheckHairpins: HAIRPIN L%u AND ITS firstSyncL ARE IN WRONG ORDER.\n",
 								pL);			 

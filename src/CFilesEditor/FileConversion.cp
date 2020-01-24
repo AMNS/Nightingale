@@ -257,15 +257,16 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->yBetweenSys = docN105->yBetweenSys;
 
 	for (v = 1; v<=MAXVOICES; v++)
-		/* struct assignment here gives an incomprehensible compiler error
-		   while it works, e.g., in CopyToClip()! Oh well. */
+		/* struct assignment works, e.g., in CopyToClip(); here, it gives an
+		   incomprehensible compiler error message! So copy individual fields. */
+		   
 		doc->voiceTab[v].partn = doc->voiceTab[v].voiceRole = doc->voiceTab[v].relVoice = 0;
 	for (j = 0; j<256-(MAXVOICES+1); j++)
 		doc->expansion[j] = 0;	
 }
 
 
-/* --------------------------------------------------------- ConvertObjContent helpers -- */
+/* ------------------------------------ Convert the content of objects (incl. headers) -- */
 
 #ifdef NOMORE
 /* Definitions of four functions to help convert 'N103' format and earlier files formerly
@@ -314,42 +315,59 @@ static void ConvertStaffLines(LINK startL)
 #endif
 
 
-/* ----------------------------------------------------------------- ConvertObjContent -- */
+/* --------------------------------------------------------------------- ConvertObject -- */
+
+	SUPEROBJECT tmpSuperObj;
 
 /* Object headers in Nightingale 5.9.x contain exactly the same information as in 'N105'
 files, so converting them is just a matter of copying the fields to their new locations. */
   
-void ConvertObjHeader(Document *doc, LINK objL, char *pSobj);
-void ConvertObjHeader(Document *doc, LINK objL, char *pSobj)
+static void ConvertObjHeader(Document *doc, LINK objL);
+static void ConvertObjHeader(Document *doc, LINK objL)
 {
 	typedef struct {
 	OBJECTHEADER_5
 	} OBJHEADER;
-	OBJHEADER objHeader_5;
+	OBJHEADER tmpObjHeader_5;
 	
 	/* First, copy the entire object header from the object list to a temporary space. */
 	
-	BlockMove(pSobj, &objHeader_5, sizeof(OBJHEADER));
+	BlockMove(&tmpSuperObj, &tmpObjHeader_5, sizeof(OBJHEADER));
 	
-#if 0
-	FirstSubLINK(objL) = objHeader_5.firstSubObj;
-	LinkXD(objL) = objHeader_5.xd;
-	LinkYD(objL) = objHeader_5.yd;
-	ObjPtrTYPE(??objL) = objHeader_5.!!;
-#else
-	/* Convert away. The first six fields of the header are unchanged from 'N105' to
-	   'N106' format, so no need to do anything with them. */
+	/* The first six fields of the header are in the same location in 'N105' and 'N106'
+	   format, so no need to do anything with them. Copy the others. */
 	   
-	//LinkXD(objL) = 1729;			// ??TEST!!!!!!!!!!!!!!
-	LinkSEL(objL) = objHeader_5.selected;				
-	LinkVIS(objL) = objHeader_5.visible;
-	LinkSOFT(objL) = objHeader_5.soft;
-	LinkVALID(objL) = objHeader_5.valid;
-	LinkTWEAKED(objL) = objHeader_5.tweaked;
-	LinkSPAREFLAG(objL) = objHeader_5.spareFlag;
-	LinkOBJRECT(objL) = objHeader_5.objRect;
-	LinkNENTRIES(objL) = objHeader_5.nEntries;
-#endif
+	LinkSEL(objL) = tmpObjHeader_5.selected;				
+	LinkVIS(objL) = tmpObjHeader_5.visible;
+	LinkSOFT(objL) = tmpObjHeader_5.soft;
+	LinkVALID(objL) = tmpObjHeader_5.valid;
+	LinkTWEAKED(objL) = tmpObjHeader_5.tweaked;
+	LinkSPAREFLAG(objL) = tmpObjHeader_5.spareFlag;
+	LinkOBJRECT(objL) = tmpObjHeader_5.objRect;
+	LinkNENTRIES(objL) = tmpObjHeader_5.nEntries;
+}
+
+
+static Boolean ConvertSYSTEM(Document *doc, LINK sysL);
+static Boolean ConvertSYSTEM(Document *doc, LINK sysL)
+{
+	char *pTmpSObj;
+	SYSTEM tempSys;
+	
+	pTmpSObj = (char *)&tmpSuperObj;
+	BlockMove(&tmpSuperObj, &tempSys, sizeof(SYSTEM));
+	//SysRectTOP(sysL) = (&tempSys)->systemRect.top;
+	SysRectTOP(sysL) = 0x1DAB;
+	SysRectLEFT(sysL) = (&tempSys)->systemRect.left;
+	SysRectBOTTOM(sysL) = (&tempSys)->systemRect.bottom;
+	SysRectRIGHT(sysL) = (&tempSys)->systemRect.right;
+	
+DHexDump(LOG_DEBUG, "ConvertSYSTEM", (unsigned char *)&tempSys, 40, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertSYSTEM: sysL=%u type=%d xd=%d sel=%d vis=%d\n", sysL, ObjLType(sysL),
+LinkXD(sysL), LinkSEL(sysL), LinkVIS(sysL));
+LogPrintf(LOG_DEBUG, "ConvertSYSTEM: SysRect(t,l,b,r)=%d,%d,%d,%d\n", SysRectTOP(sysL),
+SysRectLEFT(sysL), SysRectBOTTOM(sysL), SysRectRIGHT(sysL));
+	return True;
 }
 
 /* Any file-format-conversion code that doesn't affect the length of the header or
@@ -361,14 +379,13 @@ object and subobject links are valid; and all objects and subobjects are the cor
 lengths. Tweaks that affect lengths or offsets to the headers should be done in
 OpenFile(); to objects or subobjects, in ReadHeaps(). */
 
-#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
+#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 
-Boolean ConvertObjContent(Document *doc, unsigned long version, long /* fileTime */)
+Boolean ConvertObject(Document *doc, unsigned long version, long /* fileTime */)
 {
 	HEAP *objHeap;
 	LINK pL;
-	char *p, *pSobj;
-	SUPEROBJECT superObj;
+	char *pSObj;
 
 	if (version!='N105') {
 		AlwaysErrMsg("Can't convert file of any version but 'N105'.");
@@ -383,32 +400,34 @@ Boolean ConvertObjContent(Document *doc, unsigned long version, long /* fileTime
 		/* Copy the object to a separate SUPEROBJECT so we can move fields all over the
 		   place without having to worry about clobbering anything. */
 		   
-		p = (char *)GetPSUPEROBJECT(pL);
-//DHexDump(LOG_DEBUG, "ConvertObjContent1", (unsigned char *)p, 40, 4, 16);
-		pSobj = (char *)&superObj;
-		BlockMove(p, pSobj, sizeof(SUPEROBJECT));
-DHexDump(LOG_DEBUG, "ConvertObjContent2", (unsigned char *)pSobj, 40, 4, 16);
+		pSObj = (char *)GetPSUPEROBJECT(pL);
+//DHexDump(LOG_DEBUG, "ConvertObject1", (unsigned char *)pSObj, 40, 4, 16);
+		BlockMove(pSObj, &tmpSuperObj, sizeof(SUPEROBJECT));
+DHexDump(LOG_DEBUG, "ConvertObject", (unsigned char *)&tmpSuperObj, 40, 4, 16);
 
-		ConvertObjHeader(doc, pL, pSobj);
-LogPrintf(LOG_DEBUG, "ConvertObjContent: pL=%u xd=%d sel=%d vis=%d\n", pL, LinkXD(pL), LinkSEL(pL),
-LinkVIS(pL));
+		ConvertObjHeader(doc, pL);
+LogPrintf(LOG_DEBUG, "ConvertObject: pL=%u type=%d xd=%d sel=%d vis=%d\n", pL, ObjLType(pL),
+LinkXD(pL), LinkSEL(pL), LinkVIS(pL));
 		
-#ifdef NOTYET
 		switch (ObjLType(pL)) {
+#ifdef NOTYET
 			case HEADERtype:
 				continue;
 			case TAILtype:
 				continue;
 			case SYNCtype:
-				if (!ConvertSYNC(doc, versionn, pL))  ERROR;
+				if (!ConvertSYNC(doc, version, pL))  ERROR;
 				continue;
 			case RPTENDtype:
 				if (!ConvertRPTEND(doc, pL))  ERROR;
 				continue;
 			case PAGEtype:
 				continue;
+#endif
 			case SYSTEMtype:
+				ConvertSYSTEM(doc, pL);
 				continue;
+#ifdef NOTYET
 			case STAFFtype:
 				continue;
 			case MEASUREtype:
@@ -458,10 +477,10 @@ LinkVIS(pL));
 			case PSMEAStype:
 				if (!ConvertPSMEAS(doc, pL))  ERROR;
 				continue;
+#endif
 			default:
 				;
 		}
-#endif
 	}
 
 

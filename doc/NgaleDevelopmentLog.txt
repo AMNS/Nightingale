@@ -4229,7 +4229,7 @@ of the objects around, in ConvertObjContent()...
 
 -------------------------------------------------------------------------------
 
-16 - 17 Jan.
+16 - 18 Jan.
 
 ConvertObjContent() should go thru the object list:
 
@@ -4265,3 +4265,85 @@ These objects have one:
 	(OBJECT)
 
 Yes: that's every type!
+
+-------------------------------------------------------------------------------
+
+19 - 23 Jan.
+
+Comparing DoDebug() output for '1CourtesyAcc.ngl' from the latest to that from 5.8.x
+shows OBJECTHEADERs are being converted correctly, except for the flags and oRect.l!!
+E.g., the CLEF should be ".VSV.." but it's ".VS...": the _valid_ flag is different.
+Why?? Likewise the KEYSIG. Many of the objRect.left's are zero but should be nonzero
+-- or maybe it doesn't matter at this point?
+
+From the latest log for opening file '1CourtesyAcc.ngl':
+
+info. nFObjs=17 sizeAllObjsFile=516 sizeAllObjsHeap=952  (ReadObjHeap)
+debug. ConvertObject: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+debug.              : 00 00 00 00   1f 2f 02 30   00 00 42 d0   02 cc 43 8c
+debug.              : 00 00 02 80   f0 28 3c b0   
+debug. ConvertObject: pL=1 type=0 xd=0 sel=0 vis=0
+debug. ConvertObject: 00 03 00 01   00 00 00 00   00 00 04 67   00 00 00 00
+debug.              : 00 00 00 00   46 69 00 65   00 00 00 00   00 00 00 00
+debug.              : 00 00 72 53   61 76 00 00   
+debug. ConvertObject: pL=2 type=4 xd=0 sel=0 vis=1
+debug. ConvertObject: 00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+debug.              : 00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 00
+debug.              : 02 40 00 02   0e 20 23 d0   
+debug. ConvertObject: pL=3 type=5 xd=576 sel=0 vis=1
+debug. ConvertSYSTEM: 00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+debug.              : 00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 00
+debug.              : 02 40 00 02   0e 20 23 d0   
+debug. ConvertSYSTEM: sysL=3 type=5 xd=576 sel=0 vis=1
+debug. ConvertSYSTEM: SysRect(t,l,b,r)=7595,25971,22337,-4056
+debug. ConvertObject: 00 05 00 03   00 01 00 00   00 00 06 66   00 00 00 00
+debug.              : 00 00 00 00   65 4c 02 73   00 00 00 00   00 04 00 00
+debug.              : a0 8f 00 03   24 02 24 14   
+debug. ConvertObject: pL=4 type=6 xd=0 sel=0 vis=1
+debug. ConvertObject: 00 06 00 04   00 01 00 50   00 00 0c 61   00 00 00 00
+debug.              : 00 00 00 00   5f 10 02 4e   00 00 24 22   95 5a 53 38
+debug.              : 13 67 10 00   00 00 00 24   
+debug. ConvertObject: pL=5 type=12 xd=80 sel=0 vis=1
+debug. ConvertObject: 00 07 00 05   00 01 00 60   00 00 08 73   00 3c 00 71
+debug.              : 00 ca 00 82   2e 74 02 61   93 d0 6b d4   67 55 95 c0
+debug.              : 00 3b 5b 70   a0 65 6b d4   
+debug. ConvertObject: pL=6 type=8 xd=96 sel=0 vis=1
+debug. ConvertObject: 00 08 00 06   00 01 01 b0   00 00 09 71   00 00 00 00
+debug.              : 00 00 00 00   73 65 02 73   00 00 00 23   00 00 00 00
+debug.              : ff ff ff ff   00 00 00 00   
+debug. ConvertObject: pL=7 type=9 xd=432 sel=0 vis=1
+debug. ConvertObject: 00 09 00 07   00 01 01 b0   00 00 0a 76   00 48 00 86
+debug.              : 00 be 00 8e   65 4c 02 73   93 d0 6b d4   f0 28 3e 20
+debug.              : 00 00 00 00   93 d0 6e d8   
+debug. ConvertObject: pL=8 type=10 xd=432 sel=0 vis=1
+debug. ConvertObject: 00 0a 00 08   00 01 02 d0   00 00 07 34   00 24 00 96
+debug.              : 00 e2 00 9a   74 61 02 42   00 00 00 00   00 04 00 00
+debug.              : 00 64 00 03   00 04 00 e2   
+debug. ConvertObject: pL=9 type=7 xd=720 sel=0 vis=0
+debug. ConvertObject: 00 0b 00 09   00 01 00 90   00 00 02 5b   00 5e 00 a0
+debug.              : 00 64 00 a9   6e 74 01 6f   00 00 02 40   06 a8 0e 20
+debug.              : 23 d0 65 73   57 41 00 05   
+debug. ConvertObject: pL=10 type=2 xd=144 sel=0 vis=1
+debug. ConvertObject: 00 00 00 0a   00 00 ff ff   00 00 01 20   00 00 00 00
+debug.              : 00 00 00 00   00 00 00 6c   00 00 00 00   00 00 00 00
+debug.              : 5f 10 02 4e   00 00 00 07   
+debug. ConvertObject: pL=11 type=1 xd=-1 sel=0 vis=0
+Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+ERROR. PROGRAM ERROR: GetSpTimeInfo: can't handle object type 0 (at L0)
+
+The hex dumps from ConvertObject() and ConvertSYSTEM() of the first 40 bytes of the
+object. The one from ConvertSYSTEM() is after it's supposedly copied the SYSTEM's
+systemRect to its new location, but they're identical -- and both nonsense!
+According to 5.8.x, it should be d576,1704,3616,9168. But maybe it just hasn't been
+computed yet? Nope: After the file has been opened, DoDebug() says
+
+	info.  2 L 3 xd=576 yd=576 SYSTEM .VS... oRect.l=p0 sRect(t,l,b,r)=d7595,25971,22337,-4056 s#=3616
+	Warning. *DCheckNode: SYSTEM L3 HAS GARBAGE systemRect.
+
+Hmmm. On a previous run, it said
+
+	info.  2 L 3 xd=576 yd=576 SYSTEM .VS... oRect.l=p0 sRect(t,l,b,r)=d9168,25971,22337,-24143 s#=3616
+	Warning. *DCheckNode: SYSTEM L3 HAS GARBAGE systemRect.
+
+...an equally nonsensical sysRect, but w/ 2 values the same, and the same (nonsensical) systemNum. ??
+
