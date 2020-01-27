@@ -1,4 +1,4 @@
-NIGHTINGALE TECH NOTES - Don Byrd, rev. late November 2019
+NIGHTINGALE TECH NOTES - Don Byrd, rev. late January 2020
 
 As compared to earlier versions of this list (through early 2016), I've added numbers to
 several of the formerly unnumbered tech notes, and re-organized the full collection into
@@ -26,7 +26,7 @@ USER ORIENTED
 
 MOSTLY FOR DEVELOPERS
 
-1	OK?	Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt)
+1	OK	Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt)
 2	Rep	Nightingale Coding Conventions (NCodingConventions-TN2.txt, NCodingConventions-TN2GFM.txt)
 3	OK?	Nightingale Conventions for Use of Character Data Types (CharTypeConventions-TN3.txt)
 9	OK?	Nightingale Conventions for Modifier Keys (ModKeyConventions-TN9.txt)

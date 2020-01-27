@@ -1,6 +1,6 @@
-NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.7b8)
+NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.9)
 Nightingale Technical Note #1
-Don Byrd, rev. mid Februrary 2017
+Don Byrd, rev. late January 2020
 
 A general note:
 
@@ -8,9 +8,9 @@ Working on Nightingale is considerably more difficult than you might expect, and
 difficult than it should be, for several reasons, mostly related to its age. It was
 designed in the mid- and late-1980's to run on some of the first Macintosh computers,
 e.g., the Macintosh Plus and SE. Those machines were hundreds, perhaps thousands, of
-times slower than modern (2016) computers: their processors were Motorola 68000s, 16-bit
-CPUs running at 8 MHz. They also had a thousand or more times less memory than modern
-computers: typically one or two megabytes. As a result:
+times slower than modern (say, 2010 and later) computers: their processors were Motorola
+68000s, 16-bit CPUs running at 8 MHz. They also had a thousand or more times less memory
+than modern computers: typically one or two megabytes, four at the most. As a result:
 
 * For speed, Nightingale's main data structure, the object list, has cross links on
 	multiple levels. Of course the cross links can become inconsistent.
@@ -112,9 +112,10 @@ Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 20		TEMPOtype		38	-
 21		SPACEtype		28	-
 22		ENDINGtype		32	-
-23		PSMEAStype		24	6		pseudo-measure: dotted barline, repeat bar that isn't barline
-
-24		OBJtype			46	46 	(the size in RAM; in a file, it may be less, depending on type)
+23		PSMEAStype		24	6		pseudo-measure: dotted barline, repeat bar that isn't
+									a barline
+24		OBJtype			46	46		size in RAM = sizeof(SUPEROBJECT); in a file, usually
+									less, depending on type
 
 ---------------------------------------------------------------------------------------
 
@@ -148,7 +149,7 @@ other fields as well. */
 	Boolean		tweaked:1;			/* True if object dragged or position edited with Get Info */ \
 	Boolean		spareFlag:1;		/* available for general use */							\
 	char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */		\
-	Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ 	\
+	Rect		objRect;			/* (.+#12) enclosing rectangle of object (paper-rel.pixels) */ 	\
 	SignedByte	relSize;			/* (unused) size rel. to normal for object & context */	\
 	SignedByte	ohdrFiller2;		/* unused */											\
 	Byte		nEntries;			/* (.+#22) number of subobjects in object */
@@ -220,9 +221,22 @@ Boolean DoDebug(label, showWind)
 char	*label;						/* Identifying string to display */
 Boolean	showWind;					/* Bring info display window to front? */
 
+
+/* Dump the specified area as bytes in hexadecimal into the log file. NB: If <nPerLine> is
+unreasonably large, this function can overflow <strBuf>!  */
+
+void DHexDump(short logLevel,
+				char *label,
+				unsigned char *pBuffer,
+				long nBytes,
+				short nPerGroup,		/* Number of items to print in a group */
+				short nPerLine			/* Number of items to print in a line */
+				)
+
+
 ----------------------------------------------------------------------------------------
 
-Results of "Display memory usage" on a New score in Nightingale 5.6:
+Results of "Display memory usage" on a New score in Nightingale 5.8.9:
 
   HEAD Heap: 4 in use (346 bytes each)
   SYNC Heap: 0 in use (30 bytes each)
@@ -244,6 +258,7 @@ Results of "Display memory usage" on a New score in Nightingale 5.6:
   PSEUDOMEAS Heap: 0 in use (6 bytes each)
   OBJECT Heap: 0 in use (46 bytes each)
 Size of *=8 DOCHDR=72 SCOREHDR=2148 *=2 strPool=306
+		*=4 { heapHdrs=468 HeapsMem/File=2540/2294 } 
  TOTAL Mem/File=5552/5306
 
 "Mem/File=xxx/yyy" means size in memory is xxx, in a file yyy.
