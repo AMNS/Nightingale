@@ -16,7 +16,8 @@ format conversion, so keep this (#ifdef'd out)  for reference purposes. */
 
 void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105);
 void ConvertScoreHeader(Document *doc, DocumentN105 *docN105);
-Boolean ConvertObject(Document *, unsigned long, long);
+void HeapFixN105Links(Document *doc); 
+Boolean ConvertObjects(Document *, unsigned long, long);
 Boolean ModifyScore(Document *, long);
 
 #ifdef NOLONGER

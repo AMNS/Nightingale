@@ -616,7 +616,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	TextSize(9);
 
 	ps = NameObjType(pL);
-	sprintf(s, "%s%s [%d]", objList, ps, ObjLType(pL));
+	sprintf(s, "%s%s [type %d]", objList, ps, ObjLType(pL));
 	if (doc->selStartL==pL)
 		strcat(s, "  (selStartL)");
 	else if (doc->selEndL==pL)
@@ -817,13 +817,15 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 			DrawTextLine(s);
 		}
 
-		sprintf(s, "paperRect=p%d,%d,%d,%d marg=p%d,%d,%d,%d",
+		sprintf(s, "paperRect/t l b r=p%d,%d,%d,%d",
 			doc->paperRect.top, doc->paperRect.left,
-			doc->paperRect.bottom, doc->paperRect.right,
+			doc->paperRect.bottom, doc->paperRect.right);
+		DrawTextLine(s);
+		sprintf(s, "marginRect=pt%d,%d,%d,%d",
 			doc->marginRect.top, doc->marginRect.left,
 			doc->marginRect.bottom, doc->marginRect.right);
 		DrawTextLine(s);
-		sprintf(s, "origPaper=%d,%d,%d,%d",
+		sprintf(s, "origPaperRect=pt%d,%d,%d,%d",
 			doc->origPaperRect.top, doc->origPaperRect.left,
 			doc->origPaperRect.bottom, doc->origPaperRect.right);
 		DrawTextLine(s);
@@ -929,7 +931,7 @@ void BrowseSystem(LINK pL, Rect *pObjRect)
 	p = GetPSYSTEM(pL);
 	D2Rect(&p->systemRect, pObjRect);
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
-	sprintf(s, "systemRect=%d %d %d %d",
+	sprintf(s, "systemRect/t l b r=d%d %d %d %d",
 			p->systemRect.top,
 			p->systemRect.left,
 			p->systemRect.bottom,

@@ -423,6 +423,15 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	   necessary, convert them to the current format. */
 	
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
+{	unsigned char *pSObj;
+#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
+//pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+}
 	if (errCode) return errCode;
 
 	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size
@@ -430,7 +439,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	
 	if (!PreflightMem(400)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
-	ConvertObject(doc, version, fileTime);	/* Do any further conversion of old files needed */
+	ConvertObjects(doc, version, fileTime);		/* Do any further conversion of old files needed */
 
 	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;

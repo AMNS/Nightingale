@@ -1,8 +1,8 @@
 /*
  *	Initialize.c for Nightingale
- *	All one-time only initialization code is in this file or InitNightingale.c,
- *	so that it can be unloaded by the caller when we're through to reclaim heap
- *	space.
+ *	All one-time only initialization code is in this file or InitNightingale.c. (This
+ *	was originally so they could be unloaded by the caller when we're through to reclaim
+ *	heap space, but who cares anymore.  --DAB, Jan. 2020)
  */
 
 /*
@@ -96,7 +96,7 @@ void Initialize()
 	Pstrcpy((unsigned char *)strBuf, VersionString(versionPStr));
 	PToCString((unsigned char *)strBuf);
 	GoodStrncpy(applVerStr, strBuf, 15);			/* Allow one char. for terminator */
-	LogPrintf(LOG_NOTICE, "Running Nightingale %s  (Initialize)\n", applVerStr);
+	LogPrintf(LOG_NOTICE, "RUNNING NIGHTINGALE %s  (Initialize)\n", applVerStr);
 
 	if (!OpenPrefsFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }

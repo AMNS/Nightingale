@@ -16,6 +16,7 @@
  
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
+#include "FileConversion.h"			/* Must follow Nightingale.precomp.h! */
 
 
 /* Error codes and error info codes */
@@ -755,7 +756,8 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	errCode = ReadObjHeap(doc, refNum, version, isViewerFile);
 	if (errCode) return errCode;
 
-	HeapFixLinks(doc);
+	if (version=='N105')	HeapFixN105Links(doc);
+	else					HeapFixLinks(doc);
 	return 0;
 }
 
@@ -773,14 +775,14 @@ objects we're writing out, and the only way we can tell what these lengths are i
 looking at the type fields, which are at a known offset from the beginning of each
 object record. Thus only a scan forwards through the block can work.
 
-NB: If we're reading a file in an old format, the various objects' fields still need
-to be converted! That should be done in ConvertObject(). */
+NB: If the file is in an old format, the various objects' fields still need to be
+converted! That should be done in ConvertObjects(). */
 
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
 	unsigned short nFObjs;
 	short ioErr, hdrErr;
-	char *p, *startPos;
+	char *pLink1, *startPos;
 	long count, sizeAllObjsFile, sizeAllObjsHeap, nExpand;
 	HEAP *objHeap;
 	char *src,*dst;
@@ -816,18 +818,19 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	
 	PushLock(objHeap);			/* Should lock it after expanding free list above */
 	
-	/* Set p to point to LINK 1, since LINK 0 is never used. */
+	/* Set pLink1 to point to LINK 1, since LINK 0 is never used. */
 	
-	p = *(objHeap->block);  p += objHeap->objSize;
-	startPos = p + (sizeAllObjsHeap - sizeAllObjsFile);
+	pLink1 = *(objHeap->block);  pLink1 += objHeap->objSize;
+	startPos = pLink1 + (sizeAllObjsHeap - sizeAllObjsFile);
 	
 	ioErr = FSRead(refNum, &sizeAllObjsFile, startPos);
+DHexDump(LOG_DEBUG, "ReadObjHeap0", (unsigned char *)startPos, 24+38+44, 4, 16);
 	
 	/* Move the contents of the object heap around so each object is filled out to the
 	   expected SUPEROBJECT size. */
 	   
 	src = startPos;
-	dst = p;
+	dst = pLink1;
 	n = nFObjs;
 	while (n-- > 0) {
 		/* Move object of whatever type at src down to its anointed LINK slot at dst */
@@ -846,15 +849,17 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 		/* <len> is now the correct object length for the current file format. If any
 		   object lengths were different in previous file formats, adjust <len> to
 		   compensate. (However, the _contents_ of the objects should be fixed in
-		   ConvertObject.) */
+		   ConvertObjects.) */
 		   
 		if (version=='N105') {
 			len = objLength_5[type];
 //LogPrintf(LOG_DEBUG, "ReadObjHeap: type %d object objLength=%d objLength_5=%d\n",
 //type, objLength[type], objLength_5[type]);
+//DHexDump(LOG_DEBUG, "ReadObjHeap1", (unsigned char *)src, 46, 4, 16);
 		}
 
 		BlockMove(src, dst, len);
+DHexDump(LOG_DEBUG, "ReadObjHeap2", (unsigned char *)dst, 46, 4, 16);
 		/* And go on to next object and next LINK slot */
 		src += len;
 		dst += sizeof(SUPEROBJECT);
@@ -864,6 +869,18 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	PopLock(objHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
 	RebuildFreeList(doc, OBJtype, nFObjs);
+//DHexDump(LOG_DEBUG, "ReadObjHeap3", (unsigned char *)pLink1, 24+38+44, 4, 16);
+
+{	unsigned char *pSObj;
+#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
+//pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+//DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
+//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+//DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
+}
+
 	return 0;
 }
 
@@ -1048,7 +1065,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 /* Traverse the main object list and fix up the cross pointers. NB: This code assumes
 that headL is always at LINK 1. */
 
-void HeapFixLinks(Document *doc)
+static void HeapFixLinks(Document *doc)
 {
 	LINK 	pL, prevPage, prevSystem, prevStaff, prevMeasure;
 	Boolean tailFound=False;
@@ -1061,13 +1078,8 @@ void HeapFixLinks(Document *doc)
 		switch(DObjLType(doc, pL)) {
 			case TAILtype:
 				doc->tailL = pL;
-				
-				/* If there is no Master Page object list (this should happen only
-				   with ancient scores), then doc->masterHeadL will have just been
-				   read in as NILINK; do not set it here and confuse the "for"
-				   (pL = doc->masterHeadL... ) loop below. */
-
-				if (doc->masterHeadL) doc->masterHeadL = pL+1;
+				if (!doc->masterHeadL) goto Error;
+				doc->masterHeadL = pL+1;
 				tailFound = True;
 				DRightLINK(doc, doc->tailL) = NILINK;
 				break;
@@ -1103,6 +1115,15 @@ void HeapFixLinks(Document *doc)
 		}
 	}
 
+{	unsigned char *pSObj;
+#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
+//pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+DHexDump(LOG_DEBUG, "HeapFixLinks1", pSObj, 46, 4, 16);
+}
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
 	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL))
@@ -1143,9 +1164,9 @@ void HeapFixLinks(Document *doc)
 				break;
 		}
 		
-	/* In case we never got into the loop due to missing Master Page object list
-	   (normally, we return from within the loop when we get to the TAIL object). */
-	
+Error:
+	/* In case we never got into the Master Page loop or it didn't have a TAIL obj. */
+	AlwaysErrMsg("Can't set links in memory for the file!  (HeapFixLinks)");
 	doc->masterTailL = NILINK;
 }
 

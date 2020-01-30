@@ -2554,10 +2554,26 @@ vars.h; Documents, FileConversion, FileOpen.
 
 -------------------------------------------------------------------------------
 
-19 - 24 Jan.
+19 - 24 Jan.	*IN 5.9
 
 Worked on opening format 'N105' files while using a new format internally: converting
 objects. Affects FileConversion.
 
 Minor cleanup. Affects FileConversion.h; DebugDisplay, DebugUtils, FileConversion,
 FileOpen, HeapFileIO.
+
+-------------------------------------------------------------------------------
+
+25 - 29 Jan.		*IN 5.8 ONLY
+
+Minor cleanup to support debugging 5.9: improvements to DHexDump() (code from 5.9), etc.
+Affects Debug.h; DebugDisplay, FileOpen, HeapFileIO, MIDIDFOCmd.
+
+-------------------------------------------------------------------------------
+
+26 - 30 Jan.	*IN 5.9
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects. Affects FileConversion.h; FileConversion, FileOpen, HeapFileIO.
+
+Minor cleanup. Affects NObjTypesN105.h; Browser, Initialize.

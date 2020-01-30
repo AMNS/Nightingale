@@ -17,11 +17,11 @@ as well. */
 	Boolean		selected:1;			/* True if any part of object selected */				\
 	Boolean		visible:1;			/* True if any part of object is visible */				\
 	Boolean		soft:1;				/* True if object is program-generated */				\
-	Boolean		valid:1;			/* True if objRect (for Measures, measureBBox also) valid. */ \
+	Boolean		valid:1;			/* True if objRect (for Measures, measureBBox also) valid */ \
 	Boolean		tweaked:1;			/* True if object dragged or position edited with Get Info */ \
 	Boolean		spareFlag:1;		/* available for general use */							\
 	char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */		\
-	Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ 	\
+	Rect		objRect;			/* (.+#12) object's enclosing rectangle (paper-rel.pixels) */ \
 	SignedByte	relSize;			/* (unused) size rel. to normal for object & context */	\
 	SignedByte	ohdrFiller2;		/* unused */											\
 	Byte		nEntries;			/* (.+#22) number of subobjects in object */

@@ -265,6 +265,142 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 		doc->expansion[j] = 0;	
 }
 
+/* ------------------------------------------------------------------ HeapFixN105Links -- */
+
+/* Versions of standard memory macros for use with 'N105'-format objects. The first
+six fields of the object header -- right, left, firstSubObj, xd, yd, type -- are
+unchanged, so we don't need 'N105'-specific versions of them. */
+
+#define DGetPPAGE_5(doc,link)		(PPAGE_5)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
+#define DGetPSYSTEM_5(doc,link)		(PSYSTEM_5)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
+#define DGetPSTAFF_5(doc,link)		(PSTAFF_5)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
+#define DGetPMEASURE_5(doc,link)	(PMEASURE_5)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
+#define DGetPPSMEAS_5(doc,link)		(PPSMEAS_5)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
+
+#define DLinkLPAGE_5(doc,link)		( (DGetPPAGE_5(doc,link))->lPage )
+#define DLinkRPAGE_5(doc,link)		( (DGetPPAGE_5(doc,link))->rPage )
+#define DSysPAGE_5(doc,link)		( (DGetPSYSTEM_5(doc,link))->pageL )
+#define DLinkLSYS_5(doc,link)		( (DGetPSYSTEM_5(doc,link))->lSystem )
+#define DLinkRSYS_5(doc,link)		( (DGetPSYSTEM_5(doc,link))->rSystem )
+
+#define DStaffSYS_5(doc,link)		( (DGetPSTAFF_5(doc,link))->systemL )
+#define DLinkLSTAFF_5(doc,link)		( (DGetPSTAFF_5(doc,link))->lStaff )
+#define DLinkRSTAFF_5(doc,link)		( (DGetPSTAFF_5(doc,link))->rStaff )
+#define DMeasSYSL_5(doc,link)		( (DGetPMEASURE_5(doc,link))->systemL )
+#define DMeasSTAFFL_5(doc,link)		( (DGetPMEASURE_5(doc,link))->staffL )
+#define DLinkLMEAS_5(doc,link)		( (DGetPMEASURE_5(doc,link))->lMeasure )
+#define DLinkRMEAS_5(doc,link)		( (DGetPMEASURE_5(doc,link))->rMeasure )
+
+
+/* Traverse the main object list and fix up the cross pointers: a specialized version
+to fix links in 'N105' format files when they're opened. NB: This code assumes that
+headL is always at LINK 1. */
+
+void HeapFixN105Links(Document *doc)
+{
+	LINK 	pL, prevPage, prevSystem, prevStaff, prevMeasure;
+	Boolean tailFound=False;
+	
+	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
+
+	FIX_END(doc->headL);
+	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
+		FIX_END(DRightLINK(doc, pL));
+		switch(DObjLType(doc, pL)) {
+			case TAILtype:
+				doc->tailL = pL;
+				if (!doc->masterHeadL) goto Error;
+				doc->masterHeadL = pL+1;
+				tailFound = True;
+				DRightLINK(doc, doc->tailL) = NILINK;
+				break;
+			case PAGEtype:
+				DLinkLPAGE_5(doc, pL) = prevPage;
+				if (prevPage) DLinkRPAGE_5(doc, prevPage) = pL;
+				DLinkRPAGE_5(doc, pL) = NILINK;
+				prevPage = pL;
+				break;
+			case SYSTEMtype:
+				DSysPAGE_5(doc, pL) = prevPage;
+				DLinkLSYS_5(doc, pL) = prevSystem;
+				if (prevSystem) DLinkRSYS_5(doc, prevSystem) = pL;
+				prevSystem = pL;
+				break;
+			case STAFFtype:
+				DStaffSYS_5(doc, pL) = prevSystem;
+				DLinkLSTAFF_5(doc, pL) = prevStaff;
+				if (prevStaff) DLinkRSTAFF_5(doc, prevStaff) = pL;
+				prevStaff = pL;
+				break;
+			case MEASUREtype:
+				DMeasSYSL_5(doc, pL) = prevSystem;
+				DMeasSTAFFL_5(doc, pL) = prevStaff;
+				DLinkLMEAS_5(doc, pL) = prevMeasure;
+				if (prevMeasure) DLinkRMEAS_5(doc, prevMeasure) = pL;
+				prevMeasure = pL;
+				break;
+			case SLURtype:
+				break;
+			default:
+				break;
+		}
+	}
+
+{	unsigned char *pSObj;
+#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
+//pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+DHexDump(LOG_DEBUG, "HeapFixLinks1", pSObj, 46, 4, 16);
+}
+	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
+
+	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL))
+		switch(DObjLType(doc, pL)) {
+			case HEADERtype:
+				DLeftLINK(doc, doc->masterHeadL) = NILINK;
+				break;
+			case TAILtype:
+				doc->masterTailL = pL;
+				DRightLINK(doc, doc->masterTailL) = NILINK;
+				return;
+			case PAGEtype:
+				DLinkLPAGE_5(doc, pL) = prevPage;
+				if (prevPage) DLinkRPAGE_5(doc, prevPage) = pL;
+				DLinkRPAGE_5(doc, pL) = NILINK;
+				prevPage = pL;
+				break;
+			case SYSTEMtype:
+				DSysPAGE_5(doc, pL) = prevPage;
+				DLinkLSYS_5(doc, pL) = prevSystem;
+				if (prevSystem) DLinkRSYS_5(doc, prevSystem) = pL;
+				prevSystem = pL;
+				break;
+			case STAFFtype:
+				DStaffSYS_5(doc, pL) = prevSystem;
+				DLinkLSTAFF_5(doc, pL) = prevStaff;
+				if (prevStaff) DLinkRSTAFF_5(doc, prevStaff) = pL;
+				prevStaff = pL;
+				break;
+			case MEASUREtype:
+				DMeasSYSL_5(doc, pL) = prevSystem;
+				DMeasSTAFFL_5(doc, pL) = prevStaff;
+				DLinkLMEAS_5(doc, pL) = prevMeasure;
+				if (prevMeasure) DLinkRMEAS_5(doc, prevMeasure) = pL;
+				prevMeasure = pL;
+				break;
+			default:
+				break;
+		}
+		
+Error:
+	/* In case we never got into the Master Page loop or it didn't have a TAIL obj. */
+	AlwaysErrMsg("Can't set links in memory for the file!  (HeapFixN105Links)");
+	doc->masterTailL = NILINK;
+}
+
 
 /* ------------------------------------ Convert the content of objects (incl. headers) -- */
 
@@ -315,12 +451,17 @@ static void ConvertStaffLines(LINK startL)
 #endif
 
 
-/* --------------------------------------------------------------------- ConvertObject -- */
 
-	SUPEROBJECT tmpSuperObj;
 
-/* Object headers in Nightingale 5.9.x contain exactly the same information as in 'N105'
-files, so converting them is just a matter of copying the fields to their new locations. */
+/* -------------------------------------------------------------------- ConvertObjects -- */
+
+SUPEROBJECT tmpSuperObj;
+
+/* Convert the header of the object in <tmpSuperObj>, which is assumed to be in 'N105'
+format (equivalent to Nightingale 5.8 and earlier), to Nightingale 5.9.x format in
+<objL>. Object headers in the new format contain exactly the same information as in the
+old format, so converting them is just a matter of copying the fields to their new
+locations. */
   
 static void ConvertObjHeader(Document *doc, LINK objL);
 static void ConvertObjHeader(Document *doc, LINK objL)
@@ -330,7 +471,8 @@ static void ConvertObjHeader(Document *doc, LINK objL)
 	} OBJHEADER;
 	OBJHEADER tmpObjHeader_5;
 	
-	/* First, copy the entire object header from the object list to a temporary space. */
+	/* Copy the entire object header from the object list to a temporary space to
+	   avoid clobbering anything before it's copied. */
 	
 	BlockMove(&tmpSuperObj, &tmpObjHeader_5, sizeof(OBJHEADER));
 	
@@ -352,17 +494,17 @@ static Boolean ConvertSYSTEM(Document *doc, LINK sysL);
 static Boolean ConvertSYSTEM(Document *doc, LINK sysL)
 {
 	char *pTmpSObj;
-	SYSTEM tempSys;
+	SYSTEM_5 tempSys;
 	
 	pTmpSObj = (char *)&tmpSuperObj;
-	BlockMove(&tmpSuperObj, &tempSys, sizeof(SYSTEM));
-	//SysRectTOP(sysL) = (&tempSys)->systemRect.top;
-	SysRectTOP(sysL) = 0x1DAB;
+	BlockMove(&tmpSuperObj, &tempSys, sizeof(SYSTEM_5));
+	SysRectTOP(sysL) = (&tempSys)->systemRect.top;
 	SysRectLEFT(sysL) = (&tempSys)->systemRect.left;
 	SysRectBOTTOM(sysL) = (&tempSys)->systemRect.bottom;
 	SysRectRIGHT(sysL) = (&tempSys)->systemRect.right;
+	SystemNUM(sysL) = (&tempSys)->systemNum;
 	
-DHexDump(LOG_DEBUG, "ConvertSYSTEM", (unsigned char *)&tempSys, 40, 4, 16);
+DHexDump(LOG_DEBUG, "ConvertSYSTEM", (unsigned char *)&tempSys, 46, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertSYSTEM: sysL=%u type=%d xd=%d sel=%d vis=%d\n", sysL, ObjLType(sysL),
 LinkXD(sysL), LinkSEL(sysL), LinkVIS(sysL));
 LogPrintf(LOG_DEBUG, "ConvertSYSTEM: SysRect(t,l,b,r)=%d,%d,%d,%d\n", SysRectTOP(sysL),
@@ -381,33 +523,33 @@ OpenFile(); to objects or subobjects, in ReadHeaps(). */
 
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 
-Boolean ConvertObject(Document *doc, unsigned long version, long /* fileTime */)
+Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */)
 {
 	HEAP *objHeap;
 	LINK pL;
-	char *pSObj;
+	unsigned char *pSObj;
 
 	if (version!='N105') {
-		AlwaysErrMsg("Can't convert file of any version but 'N105'.");
+		AlwaysErrMsg("Can't convert file of any version but 'N105'.  (ConvertObjects)");
 		return False;
 	}
 	
 	objHeap = doc->Heap + OBJtype;
 
 	fflush(stdout);
+
+LogPrintf(LOG_DEBUG, "sizeof(SUPEROBJECT_N105)=%d (SUPEROBJECT)=%d\n", sizeof(SUPEROBJECT_N105), sizeof(SUPEROBJECT));
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
-	
 		/* Copy the object to a separate SUPEROBJECT so we can move fields all over the
 		   place without having to worry about clobbering anything. */
 		   
-		pSObj = (char *)GetPSUPEROBJECT(pL);
-//DHexDump(LOG_DEBUG, "ConvertObject1", (unsigned char *)pSObj, 40, 4, 16);
+		pSObj = (unsigned char *)GetPSUPEROBJECT(pL);
+//DHexDump(LOG_DEBUG, "ConvObjs1", pSObj, 46, 4, 16);
 		BlockMove(pSObj, &tmpSuperObj, sizeof(SUPEROBJECT));
-DHexDump(LOG_DEBUG, "ConvertObject", (unsigned char *)&tmpSuperObj, 40, 4, 16);
+DHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 
 		ConvertObjHeader(doc, pL);
-LogPrintf(LOG_DEBUG, "ConvertObject: pL=%u type=%d xd=%d sel=%d vis=%d\n", pL, ObjLType(pL),
-LinkXD(pL), LinkSEL(pL), LinkVIS(pL));
+//DHexDump(LOG_DEBUG, "ConvObjs2", pSObj, 46, 4, 16);
 		
 		switch (ObjLType(pL)) {
 #ifdef NOTYET
