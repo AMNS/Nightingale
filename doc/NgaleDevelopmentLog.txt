@@ -4109,8 +4109,7 @@ But much safer to use the max growth factor of any object!; what is that?
 	type 22 objLength=40 objLength_5=32	factor=1.250
 	type 23 objLength=30 objLength_5=24	factor=1.250
 	
-The greatest ratio is 1.462 (for type 11 objects). Let's round up to 1.5.
-??
+The greatest ratio is 1.462 (for type 11 objects). Let's round up to 1.5. ??
 
 -------------------------------------------------------------------------------
 
@@ -4268,7 +4267,7 @@ Yes: that's every type!
 
 -------------------------------------------------------------------------------
 
-19 - 23 Jan.
+19 - 23(?) Jan.
 
 Comparing DoDebug() output for '1CourtesyAcc.ngl' from the latest to that from 5.8.x
 shows OBJECTHEADERs are being converted correctly, except for the flags and oRect.l!!
@@ -4406,6 +4405,10 @@ type=6
 type=12
 type=1
 
+-------------------------------------------------------------------------------
+
+24 Nov.(?) - 2 Dec.
+
 Going back to the SYSTEM systemRect problem, in N105, the systemRect is 8 bytes after the
 object header = .+24+8 = .+32; systemNum is just before that, .+30. In 5.8.10:
 
@@ -4487,8 +4490,9 @@ systemRect and systemNum are definitely a problem. How does this happen between 
 & ConvertObjects()?
 
 Display LINK 3 (the SYSTEM) at very end of ReadObjHeap() => nothing changed yet.
-Display LINK 3 (the SYSTEM) just after call to ReadHeaps() => +31, +34, and +35 have changed.
+Display LINK 3 just after call to ReadHeaps() => +31, +34, and +35 have changed.
 After ReadObjHeap(), ReadHeaps() just calls HeapFixLinks().
+
 Halfway thru HeapFixLinks(), LINK 3 .+31, +34, and +35 have already changed. Cause:
 HeapFixLinks() uses the DSysPAGE & DLinkLSYS macros, which undoubtedly assume the 5.9.x
 objects! So write HeapFixN105Links(), using special-purpose macros => the SYSTEM comes
@@ -4497,4 +4501,32 @@ between ReadObjHeap3 and HeapFixLinks1. Well, scathed that way thru the LogPrint
 ConvertSYSTEM; after that, +34, and +35 get changed... because ConvertSYSTEM uses the
 locations of fields in "standard" (N106) files, not N105 files. Fix it => +34 and +35
 are OK!
+
+Debug Full display of all of 1CourtesyAcc.ngl finds 32 errors! E.g.,
+
+	Warning. •DCheckNode: SYSTEM L3 HAS INCONSISTENT LEFT SYSTEM LINK L41393.
+	Warning. •DCheckNode: SYSTEM L3 HAS INCONSISTENT RIGHT SYSTEM LINK L49619.
+
+Well, L3 is the only system in the score, so it should have lSystem = rSystem = 0;
+but Browser shows them as 1 and 576 => fixed.
+
+Add ConvertPAGE, ConvertSTAFF, ConvertMEASURE => Debug Full display finds only 21? errors,
+and all (or almost all) are in subobjects, which I haven't even started to convert.
+Hooray! Of course there's a _lot_ Debug doesn't check...
+
+So far I think I'm converting all fields of PAGE, SYSTEM, and STAFF objects correctly, and
+some fields of MEASURE objects, but only in the main object list. Still to do: other
+objects; all subobjects; and the Master Page object list.
+
+-------------------------------------------------------------------------------
+
+3 Feb.
+
+Contrary to the above claim, in 1CourtesyAcc.ngl, Debug Check Standard Things of Full finds
+about 99 to 102 errors (the number varies, and Ngale sometimes hangs trying to open it;
+clearly there's some random garbage there!). Debug Display finds about 63.
+
+Nothing should be selected when a file is open, but at the moment, lots of subobjects are.
+
+Hmmm. The voice table for 1CourtesyAcc.ngl ends up with zero voices!
 

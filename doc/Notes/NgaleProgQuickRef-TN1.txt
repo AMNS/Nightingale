@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.9)
 Nightingale Technical Note #1
-Don Byrd, rev. late January 2020
+Don Byrd, rev. early February 2020
 
 A general note:
 
@@ -32,15 +32,18 @@ than modern computers: typically one or two megabytes, four at the most. As a re
 	followed by at most 255 characters. Thus Nightingale frequently converts strings
 	from C to Pascal format and vice-versa.
 
-NB: Everything in this document applies to versions of Nightingale at least as far back as
-v. 2000.
+NB: Everything in this document except the description of header files applies to
+versions of Nightingale at least as far back as v. 2000.
 
 Also see the important header files:
 
 	precomp includes
-		applicationTypes.h: major structs including DOCUMENTHEADER, Document, Configuration
-		NTypes.h: structs and defines for most of the data structures in the object
-					list, etc., plus important constants and macros
+		NDocAndCnfgTypes.h: major structs including DOCUMENTHEADER, SCOREHEADER,
+					Document, Configuration
+		NBasicTypes.h & NMiscTypes.h: structs and defines for our basic data types plus
+					important constants, enums, and macros
+		NObjTypes.h: structs and defines for most of the data structures in the object list
+					(objects and subobjects)
 		NLimits.h: most limits, i.e., maximum and minimum values
 		defs.h: important #defines other than memory mgmt and the above, plus a few limits
 	
@@ -49,6 +52,9 @@ Also see the important header files:
 		vars.h: global variables and tables including the symbol table (symtable), the
 					object-properties table (objTable), staff sizes, and subObjLength[].
 
+Tech Note #4, "Nightingale Files and Troubleshooting Files Nightingale Can’t Open",
+describes the file format in detail.
+ 
 The voice-mapping table -- for the Document _*doc_, _doc->voiceTab[]_ -- is described in
 comments at the beginning of VoiceTable.c.
 

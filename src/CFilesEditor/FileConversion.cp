@@ -292,9 +292,10 @@ unchanged, so we don't need 'N105'-specific versions of them. */
 #define DLinkRMEAS_5(doc,link)		( (DGetPMEASURE_5(doc,link))->rMeasure )
 
 
-/* Traverse the main object list and fix up the cross pointers: a specialized version
-to fix links in 'N105' format files when they're opened. NB: This code assumes that
-headL is always at LINK 1. */
+/* Traverse the main object list and fix up the cross pointers. This is a specialized
+version of HeapFixLinks to fix links in 'N105' format files when they're opened and
+before the contents of objects are converted. NB: This code assumes that headL is
+always at LINK 1. */
 
 void HeapFixN105Links(Document *doc)
 {
@@ -402,7 +403,7 @@ Error:
 }
 
 
-/* ------------------------------------ Convert the content of objects (incl. headers) -- */
+/* -------------------------------- Convert the content of objects, including headers -- */
 
 #ifdef NOMORE
 /* Definitions of four functions to help convert 'N103' format and earlier files formerly
@@ -439,8 +440,9 @@ static void ConvertStaffLines(LINK startL)
 					StaffSHOWLINES(aStaffL) = SHOW_ALL_LINES;
 				StaffSHOWLEDGERS(aStaffL) = True;
 #ifdef STAFFRASTRAL
-				// NB: Bad if NightStaffSizer used! See StaffSize2Rastral in ResizeStaff.c
-				// from NightStaffSizer code as a way to a possible solution.
+				// NB: Bad if score has more than one staff size, e.g., via
+				// NightStaffSizer! See StaffSize2Rastral in ResizeStaff.c from
+				// NightStaffSizer code as a way to a possible solution.
 				StaffRASTRAL(aStaffL) = doc->srastral;
 #endif
 			}
@@ -451,10 +453,6 @@ static void ConvertStaffLines(LINK startL)
 #endif
 
 
-
-
-/* -------------------------------------------------------------------- ConvertObjects -- */
-
 SUPEROBJECT tmpSuperObj;
 
 /* Convert the header of the object in <tmpSuperObj>, which is assumed to be in 'N105'
@@ -464,7 +462,7 @@ old format, so converting them is just a matter of copying the fields to their n
 locations. */
   
 static void ConvertObjHeader(Document *doc, LINK objL);
-static void ConvertObjHeader(Document *doc, LINK objL)
+static void ConvertObjHeader(Document * /* doc */, LINK objL)
 {
 	typedef struct {
 	OBJECTHEADER_5
@@ -490,31 +488,127 @@ static void ConvertObjHeader(Document *doc, LINK objL)
 }
 
 
+/* Convert the bodies of objects of each type. */
+
+static Boolean ConvertPAGE(Document *doc, LINK pageL);
+static Boolean ConvertPAGE(Document * /* doc */, LINK pageL)
+{
+	char *pTmpSObj;
+	PAGE_5 tempPage;
+	
+	pTmpSObj = (char *)&tmpSuperObj;
+	BlockMove(&tmpSuperObj, &tempPage, sizeof(PAGE_5));
+	
+	LinkLPAGE(pageL) = (&tempPage)->lPage;
+	LinkRPAGE(pageL) = (&tempPage)->rPage;
+	SheetNUM(pageL) = (&tempPage)->sheetNum;
+
+//DHexDump(LOG_DEBUG, "ConvertPAGE", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertPAGE: pageL=%u lPage=%u rPage=%u sheetNum=%d\n", pageL,
+LinkLPAGE(pageL), LinkRPAGE(pageL), SheetNUM(pageL)); 
+	return True;
+}
+
 static Boolean ConvertSYSTEM(Document *doc, LINK sysL);
-static Boolean ConvertSYSTEM(Document *doc, LINK sysL)
+static Boolean ConvertSYSTEM(Document * /* doc */, LINK sysL)
 {
 	char *pTmpSObj;
 	SYSTEM_5 tempSys;
 	
 	pTmpSObj = (char *)&tmpSuperObj;
 	BlockMove(&tmpSuperObj, &tempSys, sizeof(SYSTEM_5));
+	
+	LinkLSYS(sysL) = (&tempSys)->lSystem;
+	LinkRSYS(sysL) = (&tempSys)->rSystem;
+	SysPAGE(sysL) = (&tempSys)->pageL;
+	SystemNUM(sysL) = (&tempSys)->systemNum;
 	SysRectTOP(sysL) = (&tempSys)->systemRect.top;
 	SysRectLEFT(sysL) = (&tempSys)->systemRect.left;
 	SysRectBOTTOM(sysL) = (&tempSys)->systemRect.bottom;
 	SysRectRIGHT(sysL) = (&tempSys)->systemRect.right;
-	SystemNUM(sysL) = (&tempSys)->systemNum;
 	
-DHexDump(LOG_DEBUG, "ConvertSYSTEM", (unsigned char *)&tempSys, 46, 4, 16);
+//DHexDump(LOG_DEBUG, "ConvertSYSTEM", (unsigned char *)&tempSys, 44, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertSYSTEM: sysL=%u type=%d xd=%d sel=%d vis=%d\n", sysL, ObjLType(sysL),
 LinkXD(sysL), LinkSEL(sysL), LinkVIS(sysL));
-LogPrintf(LOG_DEBUG, "ConvertSYSTEM: SysRect(t,l,b,r)=%d,%d,%d,%d\n", SysRectTOP(sysL),
-SysRectLEFT(sysL), SysRectBOTTOM(sysL), SysRectRIGHT(sysL));
+//LogPrintf(LOG_DEBUG, "ConvertSYSTEM: SysRect(t,l,b,r)=%d,%d,%d,%d\n", SysRectTOP(sysL),
+//SysRectLEFT(sysL), SysRectBOTTOM(sysL), SysRectRIGHT(sysL));
 	return True;
 }
 
-/* Any file-format-conversion code that doesn't affect the length of the header or
-lengths or offsets of fields in objects (or subobjects) should go here. Return True if
-all goes well, False if not.
+
+static Boolean ConvertSTAFF(Document *doc, LINK staffL);
+static Boolean ConvertSTAFF(Document * /* doc */, LINK staffL)
+{
+	char *pTmpSObj;
+	STAFF_5 tempStaff;
+	
+	pTmpSObj = (char *)&tmpSuperObj;
+	BlockMove(&tmpSuperObj, &tempStaff, sizeof(STAFF_5));
+	
+	LinkLSTAFF(staffL) = (&tempStaff)->lStaff;
+	LinkRSTAFF(staffL) = (&tempStaff)->rStaff;
+	StaffSYS(staffL) = (&tempStaff)->systemL;
+
+//DHexDump(LOG_DEBUG, "ConvertSTAFF", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertSTAFF: staffL=%u lStaff=%u rStaff=%u StaffSYS=%u\n", staffL,
+LinkLSTAFF(staffL), LinkRSTAFF(staffL), StaffSYS(staffL)); 
+	return True;
+}
+
+
+static Boolean ConvertMEASURE(Document *doc, LINK measL);
+static Boolean ConvertMEASURE(Document * /* doc */, LINK measL)
+{
+	char *pTmpSObj;
+	MEASURE_5 tempMeasure;
+	
+	pTmpSObj = (char *)&tmpSuperObj;
+	BlockMove(&tmpSuperObj, &tempMeasure, sizeof(MEASURE_5));
+	
+	LinkLMEAS(measL) = (&tempMeasure)->lMeasure;
+	LinkRMEAS(measL) = (&tempMeasure)->rMeasure;
+	MeasSYSL(measL) = (&tempMeasure)->systemL;
+	MeasSTAFFL(measL) = (&tempMeasure)->staffL;
+
+//DHexDump(LOG_DEBUG, "ConvertMEASURE", (unsigned char *)&tempSys, 46, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertMEASURE: measL=%u lMeasure=%u rMeasure=%u systemL=%u\n", measL,
+LinkLMEAS(measL), LinkRMEAS(measL), MeasSYSL(measL));
+	return True;
+}
+
+
+/* ------------------------------ Convert the content of subobjects, including headers -- */
+
+#ifdef NOTYET
+static Boolean Convert1STAFF(Document *doc, LINK staffL);
+static Boolean Convert1STAFF(Document *doc, LINK staffL)
+{
+	char *pTmpSObj;
+	ASTAFF_5 tempStaff;
+	
+	pTmpSObj = (char *)&tmpSuperObj;
+	BlockMove(&tmpSuperObj, &tempStaff, sizeof(STAFF_5));
+	
+	StaffCLEFTYPE(staffL) = (&tempStaff)->clefType;
+	StaffDENOM(staffL) = (&tempStaff)->denominator;
+	StaffNUM(staffL) = (&tempStaff)->numerator;
+	StaffSTAFFLINES(staffL) = (&tempStaff)->staffLines;
+	StaffSTAFFN(staffL) = (&tempStaff)->staffn;
+
+//DHexDump(LOG_DEBUG, "ConvertSTAFF", (unsigned char *)&tempSys, 46, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertSTAFF: staffL=%u staffLines=%d staffn=%d\n", staffL,
+StaffSTAFFLINES(staffL), StaffSTAFFN(staffL));
+	return True;
+}
+#endif
+
+
+/* -------------------------------------------------------------------- ConvertObjects -- */
+
+/* Convert the headers and bodies of objects in the main object list. Any file-format-
+conversion code that doesn't affect the length of the header or lengths or offsets of
+fields in objects (or subobjects) should go here. ??HOW ABOUT SUBOBJECTS? MASTER PAGE?
+Return True if all goes well, False if not.
 
 This function assumes that the headers and the entire object list have been read; all
 object and subobject links are valid; and all objects and subobjects are the correct
@@ -563,18 +657,20 @@ DHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 			case RPTENDtype:
 				if (!ConvertRPTEND(doc, pL))  ERROR;
 				continue;
-			case PAGEtype:
-				continue;
 #endif
+			case PAGEtype:
+				ConvertPAGE(doc, pL);
+				continue;
 			case SYSTEMtype:
 				ConvertSYSTEM(doc, pL);
 				continue;
-#ifdef NOTYET
 			case STAFFtype:
+				ConvertSTAFF(doc, pL);
 				continue;
 			case MEASUREtype:
-				if (!ConvertMEASURE(doc, pL))  ERROR;
+				ConvertMEASURE(doc, pL);
 				continue;
+#ifdef NOTYET
 			case CLEFtype:
 				if (!ConvertCLEF(doc, pL)) ERROR;
 				continue;
@@ -630,8 +726,8 @@ DHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 	but (as of v.997), they sometimes were, probably because not exporting changes to
 	Master Page was implemented by reconstructing it from the 1st system of the score.
 	That was fixed in about .998a10!, so it should certainly be safe to remove this call,
-	but the thought makes me nervous, and making them visible here shouldn't cause any
-	problems and never has. */
+	but the thought makes me nervous, and making them visible here really shouldn't cause
+	any problems (and, as far as I know, it never has). */
 
 	VisifyMasterStaves(doc);
 	

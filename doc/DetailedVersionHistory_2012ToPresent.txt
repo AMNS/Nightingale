@@ -2577,3 +2577,19 @@ Work on opening format 'N105' files while using a new format internally: convert
 objects. Affects FileConversion.h; FileConversion, FileOpen, HeapFileIO.
 
 Minor cleanup. Affects NObjTypesN105.h; Browser, Initialize.
+
+-------------------------------------------------------------------------------
+
+31 Jan. - 3 Feb.	*IN 5.9
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects. Affects FileConversion.
+
+Stopped Debug Check from giving up so easily if an object's subobject list is screwed
+up. Affects DebugUtils.
+
+Updated one tech note; add a doc describing how to update the GitHub repository.
+ 
+Minor cleanup: improved error messages, etc. Affects Context, DebugHighLevel, DebugUtils,
+HeapFileIO.
+

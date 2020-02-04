@@ -364,7 +364,7 @@ Boolean DoDebug(
 {
 	LINK			pL, startL, stopL;
 	static short	what, istart, istop;
-	short			kount, inLine, nInRange, nSel, objList;
+	short			kount, inLine, nInRange, nSel, objList, status;
 	static Boolean	disp, check, showLinks, showSubs;
 	static Boolean	firstCall = True;
 	Boolean			selLinksBad;
@@ -412,7 +412,7 @@ Boolean DoDebug(
 		case MOST_THINGS:
 		case MIN_THINGS:
 			if (DCheckEverything(doc, what==EVERYTHING, what==MIN_THINGS)) {
-					/* Things are in a disasterous state. Quit before we crash! */
+					/* Things are in a disastrous state. Quit before we crash or hang! */
 					LogPrintf(LOG_ERR, "•DoDebug: CAN'T FINISH CHECKING.\n"); 					
 					return True;							
 			}
@@ -445,7 +445,7 @@ Boolean DoDebug(
 		case VOICETBL_DI:
 			short v; char str[300];
 
-			LogPrintf(LOG_INFO, "VOICE TABLE:\n");
+			LogPrintf(LOG_INFO, "VOICE TABLE: there are %d voices.\n", CountVoices(doc));
 			for (v = 1; v<=CountVoices(doc); v++) {
 				GetVoiceTableLine(doc, v, str);
 				strcat(str, "\n");
@@ -454,7 +454,7 @@ Boolean DoDebug(
 			return False;
 			
 		case FULL:
-			LogPrintf(LOG_INFO, "FULL%s: headL=%d tailL=%d", (check? "/CHK" : " "),
+			LogPrintf(LOG_INFO, "FULL%s: headL=%d tailL=%d", (check? "/CHECK" : " "),
 						doc->headL, doc->tailL);
 			startL = doc->headL;
 			stopL = NILINK;
@@ -462,7 +462,7 @@ Boolean DoDebug(
 			
 		case CLIPBOARD:
 			LogPrintf(LOG_INFO, "CLIP%s: clipboard->headL=%d clipboard->tailL=%d",
-						(check? "/CHK" : " "),
+						(check? "/CHECK" : " "),
 						clipboard->headL, clipboard->tailL);
 			startL = clipboard->headL;
 			stopL = NILINK;
@@ -470,7 +470,7 @@ Boolean DoDebug(
 			
 		case UNDODSTR:
 			LogPrintf(LOG_INFO, "UNDO%s: undo.headL=%d undo.tailL=%d",
-						(check? "/CHK" : " "),
+						(check? "/CHECK" : " "),
 						doc->undo.headL, doc->undo.headL);
 			startL = doc->undo.headL;
 			stopL = NILINK;
@@ -478,14 +478,14 @@ Boolean DoDebug(
 			
 		default:
 			LogPrintf(LOG_INFO, "SELECT%s: selStartL=%d End=%d ",
-						(check? "/CHK" : " "),
+						(check? "/CHECK" : " "),
 						doc->selStartL, doc->selEndL);
 			if (check) {
 				if (DCheckHeaps(doc)) return True;
 				selLinksBad = DCheckSel(doc, &nInRange, &nSel);
 				DCheckHeirarchy(doc);
 				if (selLinksBad) {
-					/* Things are in a disasterous state. Quit before we crash! */
+					/* Things are in a disastrous state. Quit before we crash or hang! */
 					LogPrintf(LOG_ERR, "•DoDebug: CAN'T DISPLAY THE SELECTION.\n"); 	
 					return True;
 				}
@@ -516,7 +516,14 @@ Boolean DoDebug(
 		if (kount>=istart && kount<=istop) {
 			if (disp)  DisplayNode(doc, pL, kount, showLinks, showSubs,
 											(what==CLIPBOARD || what==UNDODSTR));
-			if (check) DCheckNode(doc, pL, objList, False);
+			if (check) {
+				status = DCheckNode(doc, pL, objList, False);
+				if (status<0) {
+					/* Things are in a disastrous state. Quit before we crash or hang! */
+					LogPrintf(LOG_ERR, "•DoDebug: CAN'T FINISH CHECKING.\n"); 					
+					return True;							
+				}
+			}
 			if (check && objList==MAIN_DSTR) DCheckNodeSel(doc, pL);
 			if (DErrLimit()) {
 				if (what==CLIPBOARD) InstallDoc(doc);
@@ -526,7 +533,7 @@ Boolean DoDebug(
 		kount++;
 	}
 
-	if (nerr>0) LogPrintf(LOG_WARNING, "%d ERROR(S). ", nerr); 	
+	if (nerr>0) LogPrintf(LOG_WARNING, "%d ERROR(S).\n", nerr); 	
 
 	if (what==CLIPBOARD) InstallDoc(doc);
 	return False;

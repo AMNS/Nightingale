@@ -431,8 +431,8 @@ Boolean DCheckMeasSubobjs(
 
 
 /* ------------------------------------------------------------------------ DCheckNode -- */
-/* Do legality and simple (context-free or dependent only on "local" context)
-consistency checks on an individual node. Returns:
+/* Do legality and simple (context-free or dependent only on "local" context) consistency
+checks on an individual node. Returns:
 	0 if no problems are found,
 	-1 if the left or right link is garbage or inconsistent,
 	+1 if less serious problems are found.
@@ -517,6 +517,7 @@ short DCheckNode(
 			terrible = True;
 		}
 		
+//LogPrintf(LOG_DEBUG, "DCheckNode1: OBJECT L%u\n", pL);
 		if (terrible) return -1;									/* Give up now */
 
 		if (TYPE_BAD(pL) || ObjLType(pL)==HEADERtype || ObjLType(pL)==TAILtype)
@@ -525,7 +526,7 @@ short DCheckNode(
 		if (fullCheck)
 			if (DCheck1SubobjLinks(doc, pL)) bad = terrible = True;
 
-		if (DCheck1NEntries(doc, pL)) bad = terrible = True;
+		if (DCheck1NEntries(doc, pL)) bad = True;
 
 		if (terrible) return -1;									/* Give up now */
 
@@ -606,6 +607,7 @@ short DCheckNode(
 
 /* CHECK everything else. Object type dependent. -------------------------------- */
 
+//LogPrintf(LOG_DEBUG, "DCheckNode2: OBJECT L%u\n", pL);
 		switch (ObjLType(pL)) {
 		
 			case SYNCtype:
@@ -827,12 +829,14 @@ short DCheckNode(
 					if (pSystem->lSystem) {
 						lSystem = GetPSYSTEM(pSystem->lSystem);
 						if (lSystem->rSystem!=pL)
-							COMPLAIN("•DCheckNode: SYSTEM L%u HAS INCONSISTENT LEFT SYSTEM LINK.\n", pL);
+							COMPLAIN2("•DCheckNode: SYSTEM L%u HAS INCONSISTENT LEFT SYSTEM LINK L%u.\n",
+								pL, lSystem->rSystem);
 					}
 					if (pSystem->rSystem) {
 						rSystem = GetPSYSTEM(pSystem->rSystem);
 						if (rSystem->lSystem!=pL)
-							COMPLAIN("•DCheckNode: SYSTEM L%u HAS INCONSISTENT RIGHT SYSTEM LINK.\n", pL);
+							COMPLAIN2("•DCheckNode: SYSTEM L%u HAS INCONSISTENT RIGHT SYSTEM LINK L%u.\n",
+								pL, rSystem->lSystem);
 					}
 					if (GARBAGE_Q1RECT(pSystem->systemRect))
 							COMPLAIN("*DCheckNode: SYSTEM L%u HAS GARBAGE systemRect.\n", pL);

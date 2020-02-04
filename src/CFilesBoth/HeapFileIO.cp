@@ -877,8 +877,8 @@ DHexDump(LOG_DEBUG, "ReadObjHeap2", (unsigned char *)dst, 46, 4, 16);
 //DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
 //DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
+//pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+//DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
 }
 
 	return 0;

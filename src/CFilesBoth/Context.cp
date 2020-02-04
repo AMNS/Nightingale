@@ -179,7 +179,7 @@ void ContextPage(Document *doc, LINK pL, CONTEXT context[])
 /*	Get the context at (including) the specified object on the specified staff.
 This is done by searching backwards for a Staff or Measure object, taking note of
 any Clef, KeySig, TimeSig, or Dynamic objects found along the way. Warning: in
-general, context at an object before the first measure will have undefined fields! */
+general, context at an object before the first Measure will have undefined fields! */
 
 void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 {
@@ -230,7 +230,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				found = True;
 				pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, False);
 				if (!pageL) {
-					MayErrMsg("GetContext: can't find Page for %ld. contextL=%ld, staff=%ld",
+					MayErrMsg("GetContext: can't find Page before L%ld. contextL=%ld, staff=%ld",
 											(long)pL, (long)contextL, (long)theStaff);
 					return;
 				}
@@ -259,7 +259,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 							pContext->clefType = StaffCLEFTYPE(aStaffL);
 						if (!foundKeySig) {
 							if (StaffNKSITEMS(aStaffL)<0 || StaffNKSITEMS(aStaffL)>MAX_KSITEMS) {
-								MayErrMsg("GetContext: Staff at %ld has illegal nKSItems %ld. staff=%ld",
+								MayErrMsg("GetContext: Staff L%ld has illegal nKSItems %ld. staff=%ld",
 											(long)pL, (long)(StaffNKSITEMS(aStaffL)), (long)theStaff);
 								return;
 							}
@@ -281,7 +281,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				found = True;
 				pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, False);
 				if (!pageL) {
-					MayErrMsg("GetContext: can't find Page for %ld. contextL=%ld, staff=%ld",
+					MayErrMsg("GetContext: can't find Page before L%ld. contextL=%ld, staff=%ld",
 											(long)pL, (long)contextL, (long)theStaff);
 					return;
 				}
@@ -335,7 +335,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 							pContext->clefType = MeasCLEFTYPE(aMeasureL);
 						if (!foundKeySig) {
 							if (MeasNKSITEMS(aMeasureL)<0 || MeasNKSITEMS(aMeasureL)>MAX_KSITEMS) {
-								MayErrMsg("GetContext: Measure at %ld has illegal nKSItems %ld. staff=%ld",
+								MayErrMsg("GetContext: Measure L%ld has illegal nKSItems %ld. staff=%ld",
 											(long)pL, (long)(MeasNKSITEMS(aMeasureL)), (long)theStaff);
 								return;
 							}
@@ -360,7 +360,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 						/* aKeySig = GetPAKEYSIG(aKeySigL); */
 						if (KeySigSTAFF(aKeySigL) == theStaff) {
 							if (KeySigNKSITEMS(aKeySigL)<0 || KeySigNKSITEMS(aKeySigL)>MAX_KSITEMS) {
-								MayErrMsg("GetContext: KeySig at %ld has illegal nKSItems %ld. staff=%ld",
+								MayErrMsg("GetContext: KeySig L%ld has illegal nKSItems %ld. staff=%ld",
 											(long)pL, (long)(KeySigNKSITEMS(aKeySigL)), (long)theStaff);
 								return;
 							}
