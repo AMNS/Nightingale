@@ -1387,17 +1387,16 @@ Pattern *NGetQDGlobalsWhite()
 
 /* -------------------------------------------------------------------------------------- */
 
-// Documents
+/* Documents */
 
-// See also GetDocumentFromWindow(WindowPtr w) in Documents.c
+/* See also GetDocumentFromWindow(WindowPtr w) in Documents.c */
 
 GrafPtr GetDocWindowPort(Document *doc)
 {
 	return GetWindowPort(doc->theWindow);
 }
 
-// Ports
-
+/* Ports */
 
 GrafPtr GetDialogWindowPort(DialogPtr dlog)
 {
@@ -1422,7 +1421,7 @@ void GetWindowRgnBounds(WindowPtr w, WindowRegionCode rgnCode, Rect *bounds)
 	DisposeRgn(wRgn);
 }
 	
-// Dialogs
+/* Dialogs */
 
 void UpdateDialogVisRgn(DialogPtr d)
 {
@@ -1445,7 +1444,7 @@ void UpdateDialogVisRgn(DialogPtr d)
 	DrawDialog(d);	
 }
 
-// Lists
+/* Lists */
 
 void LUpdateDVisRgn(DialogPtr d, ListHandle lHdl)
 {
@@ -1500,8 +1499,8 @@ void FlushDialogPortRect(DialogPtr d)
 	FlushWindowPortRect(GetDialogWindow(d));
 }
 
-// Port font, face, size
 
+/* Port font, face, size */
 
 short GetPortTxFont()
 {
@@ -1531,8 +1530,8 @@ short GetPortTxMode()
 	return GetPortTextMode(port);
 }
 
-// Window font, face, size
 
+/* Window font, face, size */
 
 short GetWindowTxFont(WindowPtr w)
 {
@@ -1564,7 +1563,8 @@ void SetWindowTxSize(WindowPtr w, short size)
 	SetPortTextSize(GetWindowPort(w), size);
 }
 
-// Dialog font, face, size
+
+/* Dialog font, face, size */
 
 short GetDialogTxFont(DialogPtr d)
 {
@@ -1597,7 +1597,7 @@ void SetDialogTxSize(DialogPtr d, short size)
 }
 
 
-// Window kinds
+/* Window kinds */
 
 short IsPaletteKind(WindowPtr w)
 {
@@ -1620,7 +1620,7 @@ void SetDocumentKind(WindowPtr w)
 }
 
 
-// Controls
+/* Controls */
 
 void OffsetContrlRect(ControlRef ctrl, short dx, short dy)
 {
@@ -1750,7 +1750,7 @@ short InitLogPrintf()
 	LogPrintf(LOG_INFO, "pieces.\n");
 #endif
 	
-	LogPrintf(LOG_NOTICE, "oldLevelMask = %d, MIN_LOG_LEVEL=%d  (InitLogPrintf)\n", oldLevelMask, MIN_LOG_LEVEL);
+	LogPrintf(LOG_INFO, "oldLevelMask = %d, MIN_LOG_LEVEL=%d  (InitLogPrintf)\n", oldLevelMask, MIN_LOG_LEVEL);
 	
 #ifdef TEST_LOGGING_LEVELS
 	SysBeep(1);

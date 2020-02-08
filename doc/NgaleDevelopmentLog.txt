@@ -4520,13 +4520,41 @@ objects; all subobjects; and the Master Page object list.
 
 -------------------------------------------------------------------------------
 
-3 Feb.
+3 - 8 Feb.
 
-Contrary to the above claim, in 1CourtesyAcc.ngl, Debug Check Standard Things of Full finds
-about 99 to 102 errors (the number varies, and Ngale sometimes hangs trying to open it;
-clearly there's some random garbage there!). Debug Display finds about 63.
+Contrary to the above claim, in 1CourtesyAcc.ngl, Debug Check Standard Things/Full finds
+(on different runs) 89, 99, 102 errors. The number varies, and Ngale sometimes hangs trying
+to open it; not surprisingly, there's some random garbage in the partially-converted object
+list!. Debug Display finds 63.
 
 Nothing should be selected when a file is open, but at the moment, lots of subobjects are.
 
-Hmmm. The voice table for 1CourtesyAcc.ngl ends up with zero voices!
+Hmmm. The voice table for 1CourtesyAcc.ngl ends up with zero voices, obviously because
+ConvertScoreHeader() sets every field  to 0 instead of copying them :-( . Fix that => Debug
+Check Standard Things finds 96, 89, 103, 101 errors; Debug Display/Full finds 67, 62.
+
+Lots of complaints about unconverted fields of MEASURE objs. Add code to ConvertMEASURE()
+=> Check Standard Things finds 110, 100, 87; Debug Display/Full finds 65, 66, 54. Think
+I'm now converting all fields of MEASUREs correctly.
+
+Implement Convert1STAFF() & call it for each staff subobj => YUCK! Ah: I'm declaring
+
+	SUPEROBJECT tmpSuperSubObj;
+
+-- but we really want either SUPERSUBOBJECT or type-specific variables. But that's not the
+whole problem! ??
+
+The GetSubObjectPtr() macro in MemMacros.h should do it:
+
+#define GetSubObjectPtr(link,type)	( ((type *)(*type/**/Heap)->block))+(link) )
+
+...but calls to it don't even compile, and it looks like it's never been used! It also
+looks over-complicated. For now at least, have a special-purpose macro for each subobject
+heap, e.g.
+
+	#define GetStaffPtr(link) ( ((STAFFheap)->block)+(link) )
+	
+and use it like this:
+
+	pSSubObj = (unsigned char *)GetStaffPtr(aStaffL);
 

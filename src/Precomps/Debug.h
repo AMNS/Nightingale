@@ -42,7 +42,7 @@ void DKSPrintf(PKSINFO);
 void DisplayNode(Document *, LINK, short, Boolean, Boolean, Boolean);
 void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, short, short *);
-void DHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
+void NHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
 				short nPerGroup, short nPerLine);
 
 /* If we're running inside Xcode, #define'ing _DebugPrintf_ as simply _printf_ is OK:

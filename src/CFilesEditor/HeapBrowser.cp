@@ -145,7 +145,7 @@ static void ShowHeap(short theHeap, register short itemIndex)
 	linenum = 1;
 	myHeap = Heap + theHeap;
 	ps = NameHeapType(theHeap, False);
-	sprintf(s, "%s Heap [%d]", ps, theHeap);
+	sprintf(s, "%s Heap [type %d]", ps, theHeap);
 	HeapDrawLine(s);
 
 	sprintf(s, "firstFree=%d nObjs=%d nFree=%d", 

@@ -426,11 +426,11 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 {	unsigned char *pSObj;
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 //pSObj = (unsigned char *)GetPSUPEROBJECT(1);
-//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "OpenFile L1", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "OpenFile L2", pSObj, 46, 4, 16);
 pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
 }
 	if (errCode) return errCode;
 

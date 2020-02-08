@@ -8,7 +8,7 @@
 
 /* File DebugDisplay.c - printing functions for Debug:
 	DKSPrintf				DisplayNode				MemUsageStats
-	DisplayIndexNode		DHexDump
+	DisplayIndexNode		NHexDump
 */
 
 #include "Nightingale_Prefix.pch"
@@ -525,11 +525,11 @@ void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLin
 }
 
 
-/* -------------------------------------------------------------------------- DHexDump -- */
+/* -------------------------------------------------------------------------- NHexDump -- */
 /* Dump the specified area as bytes in hexadecimal into the log file. NB: If <nPerLine> is
 unreasonably large, this function can overflow <strBuf>!  */
 
-void DHexDump(short logLevel,
+void NHexDump(short logLevel,
 				char *label,
 				unsigned char *pBuffer,
 				long nBytes,
@@ -543,7 +543,7 @@ void DHexDump(short logLevel,
 	Boolean firstTime=True;
 	
 	if (strlen(label)>255 || nPerLine>255) {
-		MayErrMsg("Illegal call to DHexDump: label or nPerLine is too large.\n");
+		MayErrMsg("Illegal call to NHexDump: label or nPerLine is too large.\n");
 		return;
 	}
 		

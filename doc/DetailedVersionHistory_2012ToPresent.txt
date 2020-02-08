@@ -2593,3 +2593,12 @@ Updated one tech note; add a doc describing how to update the GitHub repository.
 Minor cleanup: improved error messages, etc. Affects Context, DebugHighLevel, DebugUtils,
 HeapFileIO.
 
+-------------------------------------------------------------------------------
+
+4 -8 Feb.	*IN 5.9
+
+Work on opening format 'N105' files while using a new format internally: converting
+score header & subobjects. Affects MemMacros.h; FileConversion.
+
+Minor cleanup: rename DHexDump() to NHexDump(), etc. Affects Debug.h; DebugDisplay,
+FileConversion, FileOpen, HeapBrowser, HeapFileIO, MIDIFOCmd, UIFUtils.

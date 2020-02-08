@@ -824,7 +824,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	startPos = pLink1 + (sizeAllObjsHeap - sizeAllObjsFile);
 	
 	ioErr = FSRead(refNum, &sizeAllObjsFile, startPos);
-DHexDump(LOG_DEBUG, "ReadObjHeap0", (unsigned char *)startPos, 24+38+44, 4, 16);
+//NHexDump(LOG_DEBUG, "ReadObjHeap0", (unsigned char *)startPos, 24+38+44, 4, 16);
 	
 	/* Move the contents of the object heap around so each object is filled out to the
 	   expected SUPEROBJECT size. */
@@ -855,11 +855,11 @@ DHexDump(LOG_DEBUG, "ReadObjHeap0", (unsigned char *)startPos, 24+38+44, 4, 16);
 			len = objLength_5[type];
 //LogPrintf(LOG_DEBUG, "ReadObjHeap: type %d object objLength=%d objLength_5=%d\n",
 //type, objLength[type], objLength_5[type]);
-//DHexDump(LOG_DEBUG, "ReadObjHeap1", (unsigned char *)src, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "ReadObjHeap1", (unsigned char *)src, 46, 4, 16);
 		}
 
 		BlockMove(src, dst, len);
-DHexDump(LOG_DEBUG, "ReadObjHeap2", (unsigned char *)dst, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "ReadObjHeap2", (unsigned char *)dst, 46, 4, 16);
 		/* And go on to next object and next LINK slot */
 		src += len;
 		dst += sizeof(SUPEROBJECT);
@@ -869,16 +869,16 @@ DHexDump(LOG_DEBUG, "ReadObjHeap2", (unsigned char *)dst, 46, 4, 16);
 	PopLock(objHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
 	RebuildFreeList(doc, OBJtype, nFObjs);
-//DHexDump(LOG_DEBUG, "ReadObjHeap3", (unsigned char *)pLink1, 24+38+44, 4, 16);
+//NHexDump(LOG_DEBUG, "ReadObjHeap3", (unsigned char *)pLink1, 24+38+44, 4, 16);
 
 {	unsigned char *pSObj;
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 //pSObj = (unsigned char *)GetPSUPEROBJECT(1);
-//DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-//DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-//DHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
 }
 
 	return 0;
@@ -1118,11 +1118,11 @@ static void HeapFixLinks(Document *doc)
 {	unsigned char *pSObj;
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 //pSObj = (unsigned char *)GetPSUPEROBJECT(1);
-//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "HeapFixLinks L1", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-//DHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "HeapFixLinks L2", pSObj, 46, 4, 16);
 pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-DHexDump(LOG_DEBUG, "HeapFixLinks1", pSObj, 46, 4, 16);
+NHexDump(LOG_DEBUG, "HeapFixLinks L3", pSObj, 46, 4, 16);
 }
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
