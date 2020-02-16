@@ -62,12 +62,12 @@ static void DrawHeaderFooter(Document *doc,
 								Rect *paper,
 								CONTEXT context[])
 {
-	PPAGE		p;
-	short		pageNum, fontSize, fontInd, fontID, oldFont, oldSize, oldStyle,
-				xp, yp;
-	short		lxpt, chxpt=0, rhxpt=0, cfxpt=0, rfxpt=0, hypt, fypt;
-	DDIST		lnSpace;
-	Str255		lhStr, chStr, rhStr, lfStr, cfStr, rfStr;
+	PPAGE	p;
+	short	pageNum, fontSize, fontInd, fontID, oldFont, oldSize, oldStyle,
+			xp, yp;
+	short	lxpt, chxpt=0, rhxpt=0, cfxpt=0, rfxpt=0, hypt, fypt;
+	DDIST	lnSpace;
+	Str255	lhStr, chStr, rhStr, lfStr, cfStr, rfStr;
 
 	p = GetPPAGE(pL);
 	pageNum = p->sheetNum + doc->firstPageNumber;
@@ -316,12 +316,12 @@ void SetFontFromTEXTSTYLE(Document *doc, TEXTSTYLE *pTextStyle, DDIST lineSpace)
 
 
 /* ---------------------------------------------------------------------- DrawPartName -- */
-/* If the given staff is the last staff of its part, draw the part name at the
-left end of the system vertically centered between the top and bottom visible
-staves of the part. If no staves of the part are visible, do nothing. We draw the
-part name only for the last staff of the part to insure it's only drawn once and
-because, for unclear reasons, the context for the last staff seems not be known
-until it's drawn. */
+/* If the given staff is the last staff of its part, draw the part name at the left end
+of the system vertically centered between the top and bottom visible staves of the part.
+If no staves of the part are visible, do nothing. We draw the part name only for the
+last staff of the part to insure it's only drawn once and because, for unclear reasons,
+the context for the last staff seems not be known until it's drawn. */
+
 
 static void DrawPartName(Document *doc, LINK staffL,
 						short staffn,
@@ -704,7 +704,7 @@ PushLock(CONNECTheap);
 		entire = aConnect->connLevel==SystemLevel;
 
 		if (!entire && aConnect->staffBelow>doc->nstaves && !doc->masterView) {
-			MayErrMsg("DrawCONNECT: bad staffBelow at %ld", (long)pL);
+			MayErrMsg("DrawCONNECT: bad staffBelow at L%ld", (long)pL);
 			break;
 		}
 
@@ -807,10 +807,10 @@ PushLock(CONNECTheap);
 						/* Add fudge factor for weird round-off error at one magnification */
 						if (doc->magnify == 0) xwidth++;
 						PenSize(xwidth>1 ? xwidth : 2, 1);
-						MoveTo(px, pyTop); DrawChar(MCH_topbracket);
+						MoveTo(px, pyTop);  DrawChar(MCH_topbracket);
 						MoveTo(px, pyTop);
 						LineTo(px, pyBot);
-						Move(0,1); DrawChar(MCH_bottombracket);
+						Move(0,1);  DrawChar(MCH_bottombracket);
 						if (doc->masterView && ground==OTHERSYS_STAFF) {
 							PenPat(NGetQDGlobalsGray());
 							PenMode(notPatBic);
@@ -823,7 +823,7 @@ PushLock(CONNECTheap);
 						PenNormal();
 						break;
 					case toPostScript:
-						PS_Bracket(doc, xd,dTop,dBottom);
+						PS_Bracket(doc, xd, dTop, dBottom);
 						break;
 				}
 				break;
@@ -1119,8 +1119,8 @@ PopLock(TIMESIGheap);
 
 
 /* ----------------------------------------------------------------------- DrawHairpin -- */
-/* Draw a hairpin dynamic. X-coord. of left end = xd; x-coord. of right end
-(relative to the symbol it's attached to) = aDynamic->endxd. */
+/* Draw a hairpin dynamic. X-coord. of left end = xd; x-coord. of right end (relative
+to the symbol it's attached to) = aDynamic->endxd. */
 
 static void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DDIST yd,
 						Boolean reallyDraw)
@@ -1148,12 +1148,11 @@ static void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DD
 		case toScreen:
 		case toBitmapPrint:
 		case toPICT:
-			/*
-			 *	If staff size is large, thicken hairpin. Decide thickness in a crude way
-			 * similar to what we do for slurs; we could easily do better for hairpins
-			 * and probably should, though again, precise registration of anything against
-			 * hairpins is rarely important.
-			 */
+			/* If staff size is large, thicken hairpin. Decide thickness in a crude way
+			   similar to what we do for slurs; we could easily do better for hairpins
+			   and probably should, though again, precise registration of anything against
+			   hairpins is rarely important. */
+			   
 			penThick = d2p(lnSpace/6);
 			if (penThick<1) penThick = 1;
 			if (penThick>2) penThick = 2;
@@ -1217,8 +1216,8 @@ static void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DD
 
 
 /* ----------------------------------------------------------------------- DrawDYNAMIC -- */
-/* Draw a DYNAMIC object, a set (as of v. 5.7, always one) of hairpins and/or
-"simple" dynamics, and if necessary recompute its objRect. */
+/* Draw a DYNAMIC object, a set (as of v. 5.7, always one) of hairpins and/or "simple"
+dynamics, and if necessary recompute its objRect. */
 
 void DrawDYNAMIC(
 			Document *doc,
@@ -1463,10 +1462,9 @@ PushLock(OBJheap);
 				}
 			}
 
-			/*
-			 * Make the objRect a little smaller than the enclosing Rect so it's
-			 * easier to select unrelated symbols that happen to be nestled inside.
-			 */
+			/* Make the objRect a little smaller than the enclosing Rect so it's
+			   easier to select unrelated symbols that happen to be nestled inside. */
+			   
 			SetRect(&LinkOBJRECT(pL), xp, yp, endxp, yp+3*risePxl/4);
 			break;
 		case toPostScript:
@@ -1486,8 +1484,8 @@ PopLock(OBJheap);
 
 
 /* --------------------------------------------------------------------- DrawEnclosure -- */
-/* Draw an enclosure, e.g., around a rehearsal mark. At the moment, the only type
-is a rectangle. */
+/* Draw an enclosure, e.g., around a rehearsal mark. As of v. 5.8.x, the only type is
+a rectangle. */
 
 static void DrawEnclosure(Document */*doc*/,
 							short enclType,
@@ -1534,9 +1532,9 @@ static void DrawEnclosure(Document */*doc*/,
 
 
 /* -------------------------------------------------------------------- GetGraphicDBox -- */
-/* Return the DDIST bounding box for the given Graphic, with origin at (0,0). If
-the Graphic is a text type and _expandN_, it's stretched out. As function value,
-return True normally, False if we can't compute the bounding box. */
+/* Return the DDIST bounding box for the given Graphic, with origin at (0,0). If the
+Graphic is a text type and _expandN_, it's stretched out. As function value, return
+True normally, False if we can't compute the bounding box. */
 
 static Boolean GetGraphicDBox(Document *doc,
 					LINK pL,
@@ -1911,6 +1909,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 				/* Divide the Pascal string q[] into a series of substrings by repeatedly
 				   stuffing the length we want into the byte preceding the current
 				   substring. */
+				   
 				j = count = 0;
 				for (i = 1; i <= len; i++) {
 					count++;
@@ -1963,6 +1962,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 				/* Divide the Pascal string q[] into a series of substrings by repeatedly
 				   stuffing the length we want into the byte preceding the current
 				   substring. */
+				   
 				Byte *q = str;
 				j = count = 0;
 				for (i = 1; i <= len; i++) {
@@ -2325,7 +2325,7 @@ PushLock(TEMPOheap);
 
 	firstObjL = p->firstObjL;
 	if (!firstObjL) {
-		MayErrMsg("DrawTEMPO: tempo obj at %ld has NILINK firstObjL", (long)pL);
+		MayErrMsg("DrawTEMPO: tempo obj at L%ld has NILINK firstObjL", (long)pL);
 		goto Cleanup;
 	}
 
@@ -2352,8 +2352,8 @@ PushLock(TEMPOheap);
 	tempoStrlen = Pstrlen(tempoStr);
 	
 	/* If the tempo string ends with a new line, the metronome mark goes below the
-		bottom line of the tempo mark; else it goes to the right of the top line. (Of
-		course _dEnclBox_, the object's bounding box, should reflect this.) */
+	   bottom line of the tempo mark; else it goes to the right of the top line. (Of
+	   course _dEnclBox_, the object's bounding box, should reflect this.) */
 		
 	metroIsBelow = (tempoStr[tempoStrlen]==CH_CR);
 	if (GetTempoDBox(doc, pL, expandN, fontID, fontSize, fontStyle, &dEnclBox)) {
@@ -2363,6 +2363,7 @@ PushLock(TEMPOheap);
 	else goto Cleanup;
 		
 	/* Prepare M.M. duration unit note and M.M. string and find their positions. */
+	
 	noteChar = TempoGlyph(pL);
 	noteChar = MapMusChar(doc->musFontInfoIndex, noteChar);
 	sprintf(metroStr," = %s", PToCString(PCopy(p->metroStrOffset)));
@@ -2444,6 +2445,7 @@ PushLock(TEMPOheap);
 			}
 			
 			/* Perhaps draw the metronome mark number; maybe widen the bounding box */
+			
 			SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lnSpace);
 			if (doDrawMM) {
 				short tempoSize, mmSize;
@@ -2636,7 +2638,8 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 
 		if (okay) {
 			/* Overall measure duration is okay. Look for individual staves with
-				incomplete contents. */
+			   incomplete contents. */
+				
 			p = GetPMEASURE(measureL);
 			xd = p->xd;
 			sysL = LSSearch(measureL, SYSTEMtype, ANYONE, GO_LEFT, False);

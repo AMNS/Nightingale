@@ -308,6 +308,18 @@ void HeapFixN105Links(Document *doc)
 	
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
+{	unsigned char *pSObj;
+#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
+pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+NHexDump(LOG_DEBUG, "HeapFixLinks1 L1", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+NHexDump(LOG_DEBUG, "HeapFixLinks1 L2", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+NHexDump(LOG_DEBUG, "HeapFixLinks1 L3", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(4);
+NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
+}
+
 	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
@@ -354,13 +366,13 @@ void HeapFixN105Links(Document *doc)
 {	unsigned char *pSObj;
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 //pSObj = (unsigned char *)GetPSUPEROBJECT(1);
-//NHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "HeapFixLinks2 L1", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-//NHexDump(LOG_DEBUG, "OpenFile", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-NHexDump(LOG_DEBUG, "HeapFixLinks L3", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "HeapFixLinks2 L2", pSObj, 46, 4, 16);
+//pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+//NHexDump(LOG_DEBUG, "HeapFixLinks2 L3", pSObj, 46, 4, 16);
 pSObj = (unsigned char *)GetPSUPEROBJECT(4);
-NHexDump(LOG_DEBUG, "HeapFixLinks L4", pSObj, 46, 4, 16);
+NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 }
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
@@ -404,6 +416,7 @@ NHexDump(LOG_DEBUG, "HeapFixLinks L4", pSObj, 46, 4, 16);
 		
 Error:
 	/* In case we never got into the Master Page loop or it didn't have a TAIL obj. */
+	
 	AlwaysErrMsg("Can't set links in memory for the file!  (HeapFixN105Links)");
 	doc->masterTailL = NILINK;
 }
@@ -500,13 +513,13 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 static Boolean ConvertPAGE(Document *doc, LINK pageL);
 static Boolean ConvertPAGE(Document * /* doc */, LINK pageL)
 {
-	PAGE_5 tempPage;
+	PAGE_5 aPage;
 	
-	BlockMove(&tmpSuperObj, &tempPage, sizeof(PAGE_5));
+	BlockMove(&tmpSuperObj, &aPage, sizeof(PAGE_5));
 	
-	LinkLPAGE(pageL) = (&tempPage)->lPage;
-	LinkRPAGE(pageL) = (&tempPage)->rPage;
-	SheetNUM(pageL) = (&tempPage)->sheetNum;
+	LinkLPAGE(pageL) = (&aPage)->lPage;
+	LinkRPAGE(pageL) = (&aPage)->rPage;
+	SheetNUM(pageL) = (&aPage)->sheetNum;
 
 //NHexDump(LOG_DEBUG, "ConvertPAGE", (unsigned char *)&tempSys, 38, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertPAGE: pageL=%u lPage=%u rPage=%u sheetNum=%d\n", pageL,
@@ -517,20 +530,20 @@ LinkLPAGE(pageL), LinkRPAGE(pageL), SheetNUM(pageL));
 static Boolean ConvertSYSTEM(Document *doc, LINK sysL);
 static Boolean ConvertSYSTEM(Document * /* doc */, LINK sysL)
 {
-	SYSTEM_5 tempSys;
+	SYSTEM_5 aSys;
 	
-	BlockMove(&tmpSuperObj, &tempSys, sizeof(SYSTEM_5));
+	BlockMove(&tmpSuperObj, &aSys, sizeof(SYSTEM_5));
 	
-	LinkLSYS(sysL) = (&tempSys)->lSystem;
-	LinkRSYS(sysL) = (&tempSys)->rSystem;
-	SysPAGE(sysL) = (&tempSys)->pageL;
-	SystemNUM(sysL) = (&tempSys)->systemNum;
-	SysRectTOP(sysL) = (&tempSys)->systemRect.top;
-	SysRectLEFT(sysL) = (&tempSys)->systemRect.left;
-	SysRectBOTTOM(sysL) = (&tempSys)->systemRect.bottom;
-	SysRectRIGHT(sysL) = (&tempSys)->systemRect.right;
+	LinkLSYS(sysL) = (&aSys)->lSystem;
+	LinkRSYS(sysL) = (&aSys)->rSystem;
+	SysPAGE(sysL) = (&aSys)->pageL;
+	SystemNUM(sysL) = (&aSys)->systemNum;
+	SysRectTOP(sysL) = (&aSys)->systemRect.top;
+	SysRectLEFT(sysL) = (&aSys)->systemRect.left;
+	SysRectBOTTOM(sysL) = (&aSys)->systemRect.bottom;
+	SysRectRIGHT(sysL) = (&aSys)->systemRect.right;
 	
-//NHexDump(LOG_DEBUG, "ConvertSYSTEM", (unsigned char *)&tempSys, 44, 4, 16);
+//NHexDump(LOG_DEBUG, "ConvertSYSTEM", (unsigned char *)&aSys, 44, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertSYSTEM: sysL=%u type=%d xd=%d sel=%d vis=%d\n", sysL, ObjLType(sysL),
 LinkXD(sysL), LinkSEL(sysL), LinkVIS(sysL));
 //LogPrintf(LOG_DEBUG, "ConvertSYSTEM: SysRect(t,l,b,r)=%d,%d,%d,%d\n", SysRectTOP(sysL),
@@ -542,17 +555,17 @@ LinkXD(sysL), LinkSEL(sysL), LinkVIS(sysL));
 static Boolean ConvertSTAFF(Document *doc, LINK staffL);
 static Boolean ConvertSTAFF(Document * /* doc */, LINK staffL)
 {
-	STAFF_5 tempStaff;
+	STAFF_5 aStaff;
 	
-	BlockMove(&tmpSuperObj, &tempStaff, sizeof(STAFF_5));
+	BlockMove(&tmpSuperObj, &aStaff, sizeof(STAFF_5));
 	
-	LinkLSTAFF(staffL) = (&tempStaff)->lStaff;
-	LinkRSTAFF(staffL) = (&tempStaff)->rStaff;
-	StaffSYS(staffL) = (&tempStaff)->systemL;
+	LinkLSTAFF(staffL) = (&aStaff)->lStaff;
+	LinkRSTAFF(staffL) = (&aStaff)->rStaff;
+	StaffSYS(staffL) = (&aStaff)->systemL;
 
-//NHexDump(LOG_DEBUG, "ConvertSTAFF", (unsigned char *)&tempSys, 38, 4, 16);
-LogPrintf(LOG_DEBUG, "ConvertSTAFF: staffL=%u lStaff=%u rStaff=%u StaffSYS=%u\n", staffL,
-LinkLSTAFF(staffL), LinkRSTAFF(staffL), StaffSYS(staffL)); 
+//NHexDump(LOG_DEBUG, "ConvertSTAFF", (unsigned char *)&aStaff, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertSTAFF: nEntries=%d staffL=%u lStaff=%u rStaff=%u StaffSYS=%u\n",
+LinkNENTRIES(staffL), staffL, LinkLSTAFF(staffL), LinkRSTAFF(staffL), StaffSYS(staffL)); 
 	return True;
 }
 
@@ -560,18 +573,18 @@ LinkLSTAFF(staffL), LinkRSTAFF(staffL), StaffSYS(staffL));
 static Boolean ConvertMEASURE(Document *doc, LINK measL);
 static Boolean ConvertMEASURE(Document * /* doc */, LINK measL)
 {
-	MEASURE_5 tempMeasure;
+	MEASURE_5 aMeasure;
 	
-	BlockMove(&tmpSuperObj, &tempMeasure, sizeof(MEASURE_5));
+	BlockMove(&tmpSuperObj, &aMeasure, sizeof(MEASURE_5));
 	
-	LinkLMEAS(measL) = (&tempMeasure)->lMeasure;
-	LinkRMEAS(measL) = (&tempMeasure)->rMeasure;
-	MeasSYSL(measL) = (&tempMeasure)->systemL;
-	MeasSTAFFL(measL) = (&tempMeasure)->staffL;
-	MeasISFAKE(measL) = (&tempMeasure)->fakeMeas;
-	MeasSPACEPCT(measL) = (&tempMeasure)->spacePercent;
-	MeasureBBOX(measL) = (&tempMeasure)->measureBBox;
-	MeasureTIME(measL ) = (&tempMeasure)->lTimeStamp;
+	LinkLMEAS(measL) = (&aMeasure)->lMeasure;
+	LinkRMEAS(measL) = (&aMeasure)->rMeasure;
+	MeasSYSL(measL) = (&aMeasure)->systemL;
+	MeasSTAFFL(measL) = (&aMeasure)->staffL;
+	MeasISFAKE(measL) = (&aMeasure)->fakeMeas;
+	MeasSPACEPCT(measL) = (&aMeasure)->spacePercent;
+	MeasureBBOX(measL) = (&aMeasure)->measureBBox;
+	MeasureTIME(measL ) = (&aMeasure)->lTimeStamp;
 
 //NHexDump(LOG_DEBUG, "ConvertMEASURE", (unsigned char *)&tempSys, 46, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertMEASURE: measL=%u lMeasure=%u rMeasure=%u systemL=%u\n", measL,
@@ -585,20 +598,33 @@ LinkLMEAS(measL), LinkRMEAS(measL), MeasSYSL(measL));
 static Boolean Convert1STAFF(Document *doc, LINK aStaffL);
 static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
 {
-	ASTAFF_5 tempStaff;
+	ASTAFF_5 a1Staff;
 	
-	BlockMove(&tmpSuperObj, &tempStaff, sizeof(ASTAFF_5));
+	BlockMove(&tmpAStaff, &a1Staff, sizeof(ASTAFF_5));
 	
-	StaffCLEFTYPE(aStaffL) = (&tempStaff)->clefType;
-	StaffDENOM(aStaffL) = (&tempStaff)->denominator;
-	StaffNUM(aStaffL) = (&tempStaff)->numerator;
-	StaffHEIGHT(aStaffL) = (&tempStaff)->staffHeight;
-	StaffSTAFFLINES(aStaffL) = (&tempStaff)->staffLines;
-	StaffSTAFFN(aStaffL) = (&tempStaff)->staffn;
+	StaffCLEFTYPE(aStaffL) = (&a1Staff)->clefType;
+	StaffDENOM(aStaffL) = (&a1Staff)->denominator;
+	StaffNUM(aStaffL) = (&a1Staff)->numerator;
+	StaffHEIGHT(aStaffL) = (&a1Staff)->staffHeight;
+	StaffSTAFFLINES(aStaffL) = (&a1Staff)->staffLines;
+	StaffSTAFFN(aStaffL) = (&a1Staff)->staffn;
 
-//NHexDump(LOG_DEBUG, "ConvertSTAFF", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1STAFF: aStaffL=%u staffn=%d staffLines=%d staffHeight=%d\n",
-			aStaffL, StaffSTAFFN(aStaffL), StaffSTAFFLINES(aStaffL), StaffHEIGHT(aStaffL));
+//NHexDump(LOG_DEBUG, "Convert1STAFF", (unsigned char *)&tempSys, 46, 4, 16);
+//LogPrintf(LOG_DEBUG, "Convert1STAFF: aStaffL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
+//aStaffL, StaffSTAFFN(aStaffL), StaffTOP(aStaffL), StaffHEIGHT(aStaffL), StaffSTAFFLINES(aStaffL));
+{ PASTAFF			aStaff;
+aStaff = GetPASTAFF(aStaffL);
+LogPrintf(LOG_INFO, "Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+	aStaff->staffn, aStaff->staffTop,
+	aStaff->staffLeft, aStaff->staffHeight,
+	aStaff->staffRight, aStaff->staffLines,
+	aStaff->fontSize,
+	(aStaff->selected? 'S' : '.') ,
+	(aStaff->visible? 'V' : '.'),
+	aStaff->timeSigType,
+	aStaff->numerator,
+	aStaff->denominator );
+}
 	return True;
 }
 
@@ -616,7 +642,7 @@ lengths. Tweaks that affect lengths or offsets to the headers should be done in
 OpenFile(); to objects or subobjects, in ReadHeaps(). */
 
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
-#define GetPASTAFF(link)		(PASTAFF)GetSubObjectPtr(link, PASTAFF)
+//#define GetPASTAFF(link)		(PASTAFF)GetSubObjectPtr(link, PASTAFF)
 
 Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */)
 {
@@ -633,13 +659,12 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 
 	fflush(stdout);
 
-LogPrintf(LOG_DEBUG, "sizeof(SUPEROBJECT_N105)=%d (SUPEROBJECT)=%d\n", sizeof(SUPEROBJECT_N105), sizeof(SUPEROBJECT));
+//LogPrintf(LOG_DEBUG, "sizeof(SUPEROBJECT_N105)=%d (SUPEROBJECT)=%d\n", sizeof(SUPEROBJECT_N105), sizeof(SUPEROBJECT));
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
 		/* Copy the object to a separate SUPEROBJECT so we can move fields all over the
 		   place without having to worry about clobbering anything. */
 		   
 		pSObj = (unsigned char *)GetPSUPEROBJECT(pL);
-//NHexDump(LOG_DEBUG, "ConvObjs1", pSObj, 46, 4, 16);
 		BlockMove(pSObj, &tmpSuperObj, sizeof(SUPEROBJECT));
 NHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 
@@ -673,20 +698,24 @@ NHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 					/* Copy the subobj to a separate ASTAFF so we can move fields all over
 					the place without having to worry about clobbering anything. */
 //#define GetSubObjectPtrX(link,type)	( ((type *)(*type/**/Heap)->block)+(link) )
-//#define GetSubObjectPtrX(link,type)	( ((type *)(*type/**/Heap)->block)+(link) )
 //#define GetConnectPtr(link) ( ((ACONNECT *)(*ACONNECTheap)->block))+(link) )
-//#define GetStaffPtr(link) ( ((ASTAFF *)(STAFFheap)->block))+(link) )
-#define GetStaffPtr(link) ( ((STAFFheap)->block)+(link) )
+//#define GetStaffPtr(link) ( ((ASTAFF *)(STAFFheap)->block)+(link) )
 //HEAP *pStaffHeap;  pStaffHeap = STAFFheap;
 //#define GetStaffPtr(link) ( (pStaffHeap->block)+(link) )
+//#define GetStaffPtr(link) ( ((STAFFheap)->block)+(link) )
+//#define GetStaffPtr(link) ( ((STAFFheap)->block)+(link)*sizeof(ASTAFF) )
+#define GetStaffPtr(link) ( *((STAFFheap)->block)+(link)*sizeof(ASTAFF) )
 
 					//pSSubObj = (unsigned char *)GetSubObjectPtrX(aStaffL, PASTAFF);
 					//pSSubObj = (unsigned char *)GetPASTAFF(aStaffL);
-					pSSubObj = (unsigned char *)GetStaffPtr(aStaffL);
 					//pSSubObj = (unsigned char *)GetStaffPtr(2);
-//NHexDump(LOG_DEBUG, "ConvObjs1", pSSubObj, 46, 4, 16);
+					//pSSubObj = (unsigned char *)GetStaffPtr(aStaffL);
+					pSSubObj = (unsigned char *)GetObjectPtr(STAFFheap, aStaffL, PASTAFF);
+LogPrintf(LOG_DEBUG, "->block=%ld aStaffL=%d sizeof(ASTAFF)*aStaffL=%d pSSubObj=%ld\n", (STAFFheap)->block,
+aStaffL, sizeof(ASTAFF)*aStaffL, pSSubObj);
+//NHexDump(LOG_DEBUG, "ConvObjs/STF 1", pSSubObj, 46, 4, 16);
 					BlockMove(pSSubObj, &tmpAStaff, sizeof(ASTAFF));
-NHexDump(LOG_DEBUG, "ConvObjs/STAFF", (unsigned char *)&tmpAStaff, sizeof(ASTAFF), 4, 16);
+NHexDump(LOG_DEBUG, "ConvObjs/STF 2", (unsigned char *)&tmpAStaff, sizeof(ASTAFF_5), 4, 16);
 
 					Convert1STAFF(doc, aStaffL);
 				}

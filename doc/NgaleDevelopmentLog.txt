@@ -4431,22 +4431,22 @@ The only change from ReadObjHeap1 (before BlockMove(src, dst, len)) to ReadObjHe
 is .+44 & +45, but that's OK: for this type 5 object,objLength_5=44 & len=44. A (small)
 relief. Are they the same as what 5.8.10 reads in? The 1st 44 bytes, from 5.8.10:
 
-00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
-00 e2 02 3d   46 6f 00 53   00 00 00 00   00 02 00 01
-02 40 06 a8   0e 20 23 d0  
+	00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+	00 e2 02 3d   46 6f 00 53   00 00 00 00   00 02 00 01
+	02 40 06 a8   0e 20 23 d0  
 
 The 1st 44 bytes of ReadObjHeap1 & ReadObjHeap2 in 5.9.1:
 
-00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
-00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 01
-02 40 06 a8   0e 20 23 d0   65 73 57 41
+	00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+	00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 01
+	02 40 06 a8   0e 20 23 d0   65 73 57 41
 
 No! There's one difference, .+29 is 02 in 5.8.10, 03 in 5.9.1!  Y##$!%#!@#*!#(
 From ConvertObject in 5.9.1:
 
-00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
-00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 00
-02 40 00 02   0e 20 23 d0
+	00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+	00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 00
+	02 40 00 02   0e 20 23 d0
 
 Now +31, +34, and +35 have also changed!
 
@@ -4455,31 +4455,31 @@ Going back to the 1st change, at .+29, let's see what 5.9.1 has just after the F
 	ioErr = FSRead(refNum, &sizeAllObjsFile, startPos);
 DHexDump(LOG_DEBUG, "ReadObjHeap0", (unsigned char *)startPos, 24+38+44, 4, 16);
 
-debug. ReadObjHeap0: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
-debug.             : 00 00 00 00   1f 2f 02 30   00 03 00 01   00 00 00 00
-debug.             : 00 00 04 67   00 00 00 00   00 00 00 00   46 69 00 65
-debug.             : 00 00 00 00   00 00 64 65   46 6f 72 53   61 76 00 04
-debug.             : 00 02 00 00   02 40 02 40   05 61 00 24   00 6b 00 e2
-debug.             : 02 3d 46 6f   00 53 00 00   00 00 00 03   00 01 02 40
-debug.             : 06 a8 0e 20   23 d0 65 73   57 41 
+	debug. ReadObjHeap0: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	debug.             : 00 00 00 00   1f 2f 02 30   00 03 00 01   00 00 00 00
+	debug.             : 00 00 04 67   00 00 00 00   00 00 00 00   46 69 00 65
+	debug.             : 00 00 00 00   00 00 64 65   46 6f 72 53   61 76 00 04
+	debug.             : 00 02 00 00   02 40 02 40   05 61 00 24   00 6b 00 e2
+	debug.             : 02 3d 46 6f   00 53 00 00   00 00 00 03   00 01 02 40
+	debug.             : 06 a8 0e 20   23 d0 65 73   57 41 
 
 This is 24+38+44 for objs of type 0, 4, 5, so the last 44 bytes are the SYSTEM.
 
-00 04 00 02 00 00   02 40 02 40   05 61 00 24   00 6b
-00 e2 02 3d 46 6f   00 53 00 00   00 00 00 03   00 01
-02 40 06 a8 0e 20   23 d0 65 73   57 41
+	00 04 00 02 00 00   02 40 02 40   05 61 00 24   00 6b
+	00 e2 02 3d 46 6f   00 53 00 00   00 00 00 03   00 01
+	02 40 06 a8 0e 20   23 d0 65 73   57 41
 
 F*ck. Byte .+29 is different!!!!!!!!!!!!!!!!! Now what??
 
 Back to 5.8.10. Add DHexDump() as above just after the FSRead:
 
-debug. ReadObjHeap0: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
-debug.             : 00 00 00 00   1f 2f 02 30   00 03 00 01   00 00 00 00
-debug.             : 00 00 04 67   00 00 00 00   00 00 00 00   46 69 00 65
-debug.             : 00 00 00 00   00 00 64 65   46 6f 72 53   61 76 00 04
-debug.             : 00 02 00 00   02 40 02 40   05 61 00 24   00 6b 00 e2
-debug.             : 02 3d 46 6f   00 53 00 00   00 00 00 03   00 01 02 40
-debug.             : 06 a8 0e 20   23 d0 65 73   57 41 
+	debug. ReadObjHeap0: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	debug.             : 00 00 00 00   1f 2f 02 30   00 03 00 01   00 00 00 00
+	debug.             : 00 00 04 67   00 00 00 00   00 00 00 00   46 69 00 65
+	debug.             : 00 00 00 00   00 00 64 65   46 6f 72 53   61 76 00 04
+	debug.             : 00 02 00 00   02 40 02 40   05 61 00 24   00 6b 00 e2
+	debug.             : 02 3d 46 6f   00 53 00 00   00 00 00 03   00 01 02 40
+	debug.             : 06 a8 0e 20   23 d0 65 73   57 41 
 
 It's exactly the same as with 5.9.1!!! Byte .+29 of the SYSTEM is 03. So the discrepancy
 is because 5.8.10 is changing it to 02, not because 5.9.1 is changing it to 03! But
@@ -4557,4 +4557,286 @@ heap, e.g.
 and use it like this:
 
 	pSSubObj = (unsigned char *)GetStaffPtr(aStaffL);
+
+-------------------------------------------------------------------------------
+
+9-16 Feb.
+
+Using the above GetStaffPtr(), opening 1CourtesyAcc.ngl, STAFF subobjs are a disaster.
+
+debug. ConvObjs1: 00 05 00 03   00 01 00 00   00 00 06 66   00 00 00 00
+debug.          : 00 00 00 00   65 4c 02 73   00 00 00 00   00 03 00 00
+debug.          : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 
+debug. ConvertSTAFF: staffL=4 lStaff=0 rStaff=0 StaffSYS=3
+debug. ConvObjs/STAFF: 00 a6 82 00   16 90 15 c0   00 3c 9e 60   16 92 27 40
+debug.               : 00 3d 0b c0   16 92 2a 40   16 92 75 c0   00 3e e1 d0
+debug.               : 16 92 05 00   16 92 07 f0   00 3d 74 00   00 39 32 30
+debug.               : 00 a7 8e 00   00 3f 
+debug. Convert1STAFF: aStaffL=1 staffn=0 staffLines=0 staffHeight=1638
+debug. ConvObjs/STAFF: 16 90 15 c0   00 3c 9e 60   16 92 27 40   00 3d 0b c0
+debug.               : 16 92 2a 40   16 92 75 c0   00 3e e1 d0   16 92 05 00
+debug.               : 16 92 07 f0   00 3d 74 00   00 39 32 30   00 a7 8e 00
+debug.               : 00 3f 7d 80   00 39 
+debug. Convert1STAFF: aStaffL=2 staffn=0 staffLines=0 staffHeight=1638
+debug. ConvObjs/STAFF: 96 0d 83 44   95 c6 48 fc   95 8f c9 a0   96 0d 83 44
+debug.               : 95 ef 21 70   95 88 68 38   96 0d 83 44   95 ef 21 6c
+debug.               : 95 89 e1 24   96 0d 83 44   95 c7 2e 9c   95 90 6b e4
+debug.               : 96 0d 83 44   95 be 
+debug. Convert1STAFF: aStaffL=2080 staffn=0 staffLines=0 staffHeight=1638
+
+Of course the 3rd subobject is trash; there are really only 2, buit ignore that
+for now.
+
+The "ConvObjs/STAFF" dumps should be N105 ASTAFFs; do they look anything like 
+it? Nope! ?? Ah, a more plausible GetStaffPtr:
+
+	#define GetStaffPtr(link) ( *((STAFFheap)->block)+(link)*sizeof(ASTAFF) )
+
+Results:
+
+	debug. ConvObjs1: 00 05 00 03   00 01 00 00   00 00 06 66   00 00 00 00
+	debug.          : 00 00 00 00   65 4c 02 73   00 00 00 00   00 03 00 00
+	debug.          : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 
+	debug. ConvertSTAFF: nEntries=2 staffL=4 lStaff=0 rStaff=0 StaffSYS=3
+	debug. ->block=8383852 aStaffL=1 sizeof(ASTAFF)*aStaffL=54 pSSubObj=4043526
+	debug. ConvObjs/STF 2: 00 02 01 40   02 40 00 00   1c c8 01 80   05 34 00 18
+	debug.               : 00 00 00 00   00 00 00 6c   00 60 00 00   03 06 00 00
+	debug.               : 00 00 00 00   02 87 00 00   01 ac 00 00   00 01 04 04
+	debug.               : 1f 00 00 00   02 40 
+	debug. Convert1STAFF: aStaffL=1 staffn=0 staffLines=0 staffHeight=1638
+	debug. ->block=8383852 aStaffL=2 sizeof(ASTAFF)*aStaffL=108 pSSubObj=4043580
+	debug. ConvObjs/STF 2: 08 20 00 00   1c c8 01 80   05 ff 00 18   00 00 00 00
+	debug.               : 00 00 00 6c   00 60 00 00   0a 06 00 03   c5 a6 40 3b
+	debug.               : 00 27 00 00   00 00 00 00   00 01 04 04   1f 00 00 04
+	debug.               : 01 40 02 40   00 00 
+	debug. Convert1STAFF: aStaffL=2 staffn=0 staffLines=0 staffHeight=1638
+	debug. ->block=8383852 aStaffL=2080 sizeof(ASTAFF)*aStaffL=112320 pSSubObj=4155792
+	(etc. etc.)
+
+The 1st subobj starts very reasonably with "00 02 01 40" (next = 2, staffn = 1, then
+flags) but after that, I'm not sure. The 2nd starts with 08 20 00 00 (next = 2080,
+staffn = 0): nonsense.
+
+!! Despite its name, GetObjectPtr looks like it should work with subobjects; MemMacros.h
+even gives an example:
+
+	astaff = GetObjectPtr(heap+STAFFtype,n,ASTAFF);
+	
+Use it => the 1st subobj starts 
+
+	debug. ConvObjs1: 00 05 00 03   00 01 00 00   00 00 06 66   00 00 00 00
+	debug.          : 00 00 00 00   65 4c 02 73   00 00 00 00   00 03 c1 d3
+	debug.          : a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 
+	debug. ConvertSTAFF: nEntries=2 staffL=4 lStaff=0 rStaff=0 StaffSYS=3
+	debug. ->block=8383852 aStaffL=1 sizeof(ASTAFF)*aStaffL=54 pSSubObj=4028054
+	debug. ConvObjs/STF 2: 00 02 01 40   02 40 00 00   1c c8 01 80   05 34 00 18
+	debug.               : 00 00 00 00   00 00 00 6c   00 60 00 00   03 06 00 00
+	debug.               : 00 00 00 00   02 87 00 00   01 ac 00 00   00 01 04 04
+	debug.               : 1f 00 00 00   02 40 
+	debug. Convert1STAFF: aStaffL=1 staffn=1 staffLines=5 staffHeight=384
+	debug. ->block=8383852 aStaffL=2 sizeof(ASTAFF)*aStaffL=108 pSSubObj=4028108
+	debug. ConvObjs/STF 2: 08 20 00 00   1c c8 01 80   05 ff 00 18   00 00 00 00
+	debug.               : 00 00 00 6c   00 60 00 00   0a 06 00 03   c5 a6 40 3b
+	debug.               : 00 27 00 00   00 00 00 00   00 01 04 04   1f 00 00 04
+	debug.               : 01 40 02 40   00 00 
+	debug. Convert1STAFF: aStaffL=2 staffn=0 staffLines=0 staffHeight=24
+	debug. ->block=8383852 aStaffL=2080 sizeof(ASTAFF)*aStaffL=112320 pSSubObj=4140320
+	(etc. etc.)
+
+The 1st subobj is identical to the previous version; so is the 2nd! ??
+The 1st subobj says:
+	info. Convert1STAFF: st=1 top,left,ht,rt=d0,7368,384,384 lines=5 fontSz=0 SV TS=4,4/4
+
+Need to see what the STAFF subobjs really look like! Via 5.8.10:
+
+	debug. ConvertScore/STF: 00 02 01 40   02 40 00 00   1c c8 01 80   05 34 00 18
+	debug.                 : 00 00 00 00   00 00 00 6c   00 60 00 00   03 06 00 00
+	debug.                 : 00 00 00 00   02 87 00 00   01 ac 00 00   00 01 04 04
+	debug.                 : 1f 00 
+	debug. ConvertScore/STF: 00 00 02 40   08 20 00 00   1c c8 01 80   05 ff 00 18
+	debug.                 : 00 00 00 00   00 00 00 6c   00 60 00 00   0a 06 00 03
+	debug.                 : c5 a6 40 3b   00 27 00 00   00 00 00 00   00 01 04 04
+	debug.                 : 1f 00 
+	
+Back to 5.9.1, showing only sizeof(ASTAFF_5) bytes for (all that are significant):
+
+	debug. ConvObjs/STF 2: 00 02 01 40   02 40 00 00   1c c8 01 80   05 34 00 18
+	debug.               : 00 00 00 00   00 00 00 6c   00 60 00 00   03 06 00 00
+	debug.               : 00 00 00 00   02 87 00 00   01 ac 00 00   00 01 04 04
+	debug.               : 1f 00 
+	info. Convert1STAFF: st=1 top,left,ht,rt=d0,7368,384,384 lines=5 fontSz=0 SV TS=4,4/4
+	debug. ->block=8383852 aStaffL=2 sizeof(ASTAFF)*aStaffL=108 pSSubObj=4048684
+	debug. ConvObjs/STF 2: 08 20 00 00   1c c8 01 80   05 ff 00 18   00 00 00 00
+	debug.               : 00 00 00 6c   00 60 00 00   0a 06 00 03   c5 a6 40 3b
+	debug.               : 00 27 00 00   00 00 00 00   00 01 04 04   1f 00 00 04
+	debug.               : 01 40 
+	info. Convert1STAFF: st=0 top,left,ht,rt=d384,1535,24,24 lines=0 fontSz=0 .V TS=4,0/4
+
+The first is identical. The 2nd is identical, except it starts 4 bytes too late! And
+the N106 ASTAFF is 4 bytes longer than the N105. Reason: ReadSubHeaps() isn't moving
+subobjects around after they've been read in to allow for changes in their sizes the way
+ReadObjHeap() is!
+
+Let's pull the code to move stuff around out of ReadObjHeap() => MoveObjSubobjs().
+Run on 1CourtesyAcc.ngl => oops: it hangs in HeapFixN105Links()  :-( .
+
+Using the old ReadObjHeap() (works):
+	debug. HeapFixLinks1 L1: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	debug.                 : 00 00 00 00   1f 2f 02 30   00 00 c1 d3   02 b1 c1 d3
+	debug.                 : a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 
+	debug. HeapFixLinks1 L2: 00 03 00 01   00 00 00 00   00 00 04 67   00 00 00 00
+	debug.                 : 00 00 00 00   46 69 00 65   00 00 00 00   00 00 64 65
+	debug.                 : 46 6f 72 53   61 76 c1 d3   a1 b1 c1 d3   a1 b1 
+	debug. HeapFixLinks1 L3: 00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+	debug.                 : 00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 01
+	debug.                 : 02 40 06 a8   0e 20 23 d0   65 73 57 41   a1 b1 
+	debug. HeapFixLinks1 L4: 00 05 00 03   00 01 00 00   00 00 06 66   00 00 00 00
+	debug.                 : 00 00 00 00   65 4c 02 73   00 00 00 00   00 04 c1 d3
+	debug.                 : a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 
+
+Using new ReadObjHeap() (hangs):
+	debug. HeapFixLinks1 L1: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	debug.                 : 00 00 00 00   1f 2f 02 30   00 00 00 00   02 00 00 03
+	debug.                 : 00 01 00 00   00 00 00 00   04 67 00 00   00 00 
+	debug. HeapFixLinks1 L2: 00 00 00 00   64 65 46 6f   72 53 61 76   00 01 00 00
+	debug.                 : 00 00 00 04   00 02 00 00   02 40 02 40   05 61 00 24
+	debug.                 : 00 6b 00 e2   02 3d 46 6f   00 53 00 00   00 00 
+	debug. HeapFixLinks1 L3: 23 d0 65 73   57 41 00 00   00 00 00 00   00 05 00 03
+	debug.                 : 00 01 00 00   00 00 06 66   00 00 00 00   00 00 00 00
+	debug.                 : 65 4c 02 73   00 00 00 00   00 04 00 00   00 00 
+	debug. HeapFixLinks1 L4: 00 00 0c 61   00 00 00 00   00 00 00 00   5f 10 02 4e
+	debug.                 : 00 00 00 00   00 00 00 00   00 07 00 05   00 01 00 60
+	debug.                 : 00 00 08 73   00 3c 00 71   00 ca 00 82   2e 74 
+
+The 1st 26 bytes are identical; after that, they're wildly different. %^$@#&*(@*#$
+
+Let's look further back. Using the old ReadObjHeap() (works):
+
+	info. nFObjs=17 sizeAllObjsFile=516 sizeAllObjsHeap=952  (ReadObjHeap)
+	debug. ReadObjHeap: src=ace5ec dst=ace438 dst-src:-436 offset:0 type=0
+	debug. ReadObjHeap2: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	debug.             : 00 00 00 00   1f 2f 02 30   00 00 c1 d3   02 b1 c1 d3
+	debug.             : a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 
+	debug. ReadObjHeap: src=ace604 dst=ace470 dst-src:-404 offset:24 type=4
+	debug. ReadObjHeap2: 00 03 00 01   00 00 00 00   00 00 04 67   00 00 00 00
+	debug.             : 00 00 00 00   46 69 00 65   00 00 00 00   00 00 64 65
+	debug.             : 46 6f 72 53   61 76 c1 d3   a1 b1 c1 d3   a1 b1 
+	debug. ReadObjHeap: src=ace62a dst=ace4a8 dst-src:-386 offset:62 type=5
+	debug. ReadObjHeap2: 00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+	debug.             : 00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 01
+	debug.             : 02 40 06 a8   0e 20 23 d0   65 73 57 41   a1 b1 
+
+Using new ReadObjHeap() (hangs):
+
+	info. nFObjs=17 sizeAllObjsFile=516 sizeAllObjsHeap=952  (ReadObjHeap)
+	debug. ReadObjHeap0: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	debug.             : 00 00 00 00   1f 2f 02 30   00 03 00 01   00 00 00 00
+	debug.             : 00 00 04 67   00 00 00 00   00 00 00 00   46 69 00 65
+	debug.             : 00 00 00 00   00 00 64 65   46 6f 72 53   61 76 00 04
+	debug.             : 00 02 00 00   02 40 02 40   05 61 00 24   00 6b 00 e2
+	debug.             : 02 3d 46 6f   00 53 00 00   00 00 00 03   00 01 02 40
+	debug.             : 06 a8 0e 20   23 d0 65 73   57 41 
+	debug. MoveObjSubobjs: src=accdec dst=accc38 dst-src:-436 offset:0 type=0
+	debug. MoveObjSubobjs: type 0 obj: objLength=30 objLength_5=24 src=
+	debug. MoveObjSubobjs2: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	debug.                : 00 00 00 00   1f 2f 02 30   00 00 c1 d3   02 b1 c1 d3
+	debug.                : a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 
+	debug. MoveObjSubobjs: src=acce04 dst=accc56 dst-src:-430 offset:24 type=4
+	debug. MoveObjSubobjs: type 4 obj: objLength=44 objLength_5=38 src=
+	debug. MoveObjSubobjs2: 00 03 00 01   00 00 00 00   00 00 04 67   00 00 00 00
+	debug.                : 00 00 00 00   46 69 00 65   00 00 00 00   00 00 64 65
+	debug.                : 46 6f 72 53   61 76 00 01   00 00 a1 b1   00 00 
+	debug. MoveObjSubobjs: src=acce2a dst=accc82 dst-src:-424 offset:62 type=5
+	debug. MoveObjSubobjs: type 5 obj: objLength=50 objLength_5=44 src=
+	debug. MoveObjSubobjs2: 00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+	debug.                : 00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 01
+	debug.                : 02 40 06 a8   0e 20 23 d0   65 73 57 41   c1 d3 
+
+Let's strip away irrelevent stuff! The NHexDump()s are just after BlockMove().
+		
+		BlockMove(src, dst, len);
+	NHexDump(LOG_DEBUG, "(whatever)", (unsigned char *)dst, { 46* | len **} , 4, 16);
+
+Using the old ReadObjHeap() (works) [NHexDump 46 bytes]:
+
+	dst-src:-436 offset:0 type=0
+	00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	00 00 00 00   1f 2f 02 30   00 00 c1 d3   02 b1 c1 d3
+	a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 c1 d3   a1 b1 
+	dst-src:-404 offset:24 type=4
+	00 03 00 01   00 00 00 00   00 00 04 67   00 00 00 00
+	00 00 00 00   46 69 00 65   00 00 00 00   00 00 64 65
+	46 6f 72 53   61 76 c1 d3   a1 b1 c1 d3   a1 b1 
+	dst-src:-386 offset:62 type=5
+	00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+	00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 01
+	02 40 06 a8   0e 20 23 d0   65 73 57 41   a1 b1 
+
+Using new ReadObjHeap() (hangs) [NHexDump 46 bytes]:
+
+	dst-src:-436 offset:0 type=0
+	type 0 obj: objLength=30 objLength_5=24
+	00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	00 00 00 00   1f 2f 02 30   
+	dst-src:-430 offset:24 type=4
+	type 4 obj: objLength=44 objLength_5=38
+	00 03 00 01   00 00 00 00   00 00 04 67   00 00 00 00
+	00 00 00 00   46 69 00 65   00 00 00 00   00 00 64 65
+	46 6f 72 53   61 76 
+	dst-src:-424 offset:62 type=5
+	type 5 obj: objLength=50 objLength_5=44
+	00 04 00 02   00 00 02 40   02 40 05 61   00 24 00 6b
+	00 e2 02 3d   46 6f 00 53   00 00 00 00   00 03 00 01
+	02 40 06 a8   0e 20 23 d0   65 73 57 41   
+
+So just after the BlockMove(), the relevant bytes starting at dst are identical --
+but dst-src is different! In fact, for the new ReadObjHeap(), it changes by just
+6 each time, which is very suspicious! Ah: After the BlockMove, MoveObjSubobjs() is
+doing
+
+	dst += objLength[type];
+
+The equivalent of this was
+
+	dst += sizeof(SUPEROBJECT);
+
+...which is _not_ the same. Change that => OK!
+
+Modify MoveObjSubobjs() to handle subobject heaps as well as the object heap =>
+
+	debug. ReadObjHeap0: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	...
+	debug. MoveObjSubobjs: src=acd3ec dst=acd238 dst-src:-436 offset:0 curType=0
+	debug. MoveObjSubobjs: type 0 obj: objLength=30 objLength_5=24 src=
+	debug. MoveObjSubobjs2: 00 02 00 00   00 01 00 00   00 00 00 27   00 00 00 00
+	debug.                : 00 00 00 00   1f 2f 02 30   00 03 00 01   00 00 00 00
+	debug.                : 00 00 04 67   00 00 00 00   00 00 00 00   46 69 
+	debug. MoveObjSubobjs: src=acd41a dst=acd270 dst-src:-426 offset:46 curType=70
+	ERROR. Object type=70 is illegal. hType=24  (MoveObjSubobjs)
+	ERROR. Can't open the file. errCode=998 errInfo=24  (OpenError)
+	Warning. Error ID=998 (heap object type=24).
+	Warning. * StopInform alertID=370
+	debug. OpenFile L3: 00 04 00 00   00 00 00 00   00 00 00 00   00 00 00 00
+	debug.            : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 00 00
+	debug.            : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 
+
+Everything up to the 2nd "MoveObjSubobjs:" line looks OK, but that line has dst-src:-426,
+offset:46; they should be -404 and 24. Cause: for the object heap, MoveObjSubobjs() is
+setting len = subObjLength_5[curType], but it should use objLength_5[curType]! Fix =>
+1CourtesyAcc.ngl opens again & displays one staff (as it has for a few days); Debug Check
+usual => finds ca. 100 (105, 94) errors; Debug Display finds 64, 58 -- but now we have
+MoveObjSubobjs(), which can handle the subobject heaps too!
+
+Add to ReadSubHeaps() ??
+
+ReadSubHeaps() is a mess. Move the loop across heaps to ReadHeaps(); replace the body with
+code modified from ReadObjHeap() => it gets sizeAllInFile=131326 -- nonsense -- but it's at
+the same position, 2558, in the same file, 1CourtesyAcc.ngl! *@#$&*O@#QI$!@  How can this be?
+But 2558 is the beginning of the header, no?
+
+Ah. 131326 = 0x000200fe, the correct first four bytes of the first HEADER subobject! Explanation:
+Objects in the object heap in a file are variable-length, so the file precedes the objects with
+their total length; but subobjects in their heaps are fixed-length, and there's nothing between
+the heap header and the subobjects. Debug Check usual => finds 51, 50, 55 errors; Debug Display finds
+26, 26, 26. MUCH better! Yippee!
 
