@@ -17,6 +17,8 @@
 #include "FileConversion.h"			/* Must follow Nightingale.precomp.h! */
 
 
+/* -------------------------------------------------------------- Convert file headers -- */
+
 void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105)
 {
 	doc->origin = docN105->origin;
@@ -296,12 +298,12 @@ unchanged, so we don't need 'N105'-specific versions of them. */
 #define DLinkRMEAS_5(doc,link)		( (DGetPMEASURE_5(doc,link))->rMeasure )
 
 
-/* Traverse the main object list and fix up the cross pointers. This is a specialized
-version of HeapFixLinks to fix links in 'N105' format files when they're opened and
-before the contents of objects are converted. NB: This code assumes that headL is
-always at LINK 1. */
+/* Traverse the main and Master Page object lists and fix up the cross pointers. This
+is a specialized version of HeapFixLinks() to fix links in 'N105' format files when
+they're opened, before the contents of objects are converted. NB: This code assumes
+that headL is always at LINK 1. */
 
-void HeapFixN105Links(Document *doc)
+short HeapFixN105Links(Document *doc)
 {
 	LINK 	pL, prevPage, prevSystem, prevStaff, prevMeasure;
 	Boolean tailFound=False;
@@ -319,6 +321,8 @@ NHexDump(LOG_DEBUG, "HeapFixLinks1 L3", pSObj, 46, 4, 16);
 pSObj = (unsigned char *)GetPSUPEROBJECT(4);
 NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 }
+
+	/* First handle the main object list. */
 
 	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
@@ -376,6 +380,8 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 }
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
+	/* Now do the Master Page list. */
+
 	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL))
 		switch(DObjLType(doc, pL)) {
 			case HEADERtype:
@@ -384,7 +390,7 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 			case TAILtype:
 				doc->masterTailL = pL;
 				DRightLINK(doc, doc->masterTailL) = NILINK;
-				return;
+				return 0;
 			case PAGEtype:
 				DLinkLPAGE_5(doc, pL) = prevPage;
 				if (prevPage) DLinkRPAGE_5(doc, prevPage) = pL;
@@ -414,11 +420,14 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 				break;
 		}
 		
+	/* If we reach here, something is wrong: drop through. */
+
 Error:
 	/* In case we never got into the Master Page loop or it didn't have a TAIL obj. */
 	
 	AlwaysErrMsg("Can't set links in memory for the file!  (HeapFixN105Links)");
 	doc->masterTailL = NILINK;
+	return FIX_LINKS_ERR;
 }
 
 
@@ -472,8 +481,14 @@ static void ConvertStaffLines(LINK startL)
 #endif
 
 
+static Boolean Convert1NOTER(Document *doc, LINK aNoteRL);
+static Boolean Convert1STAFF(Document *doc, LINK aStaffL);
+static Boolean Convert1MEASURE(Document *doc, LINK aMeasureL);
+
 SUPEROBJECT tmpSuperObj;
+ANOTE tmpANoteR;
 ASTAFF tmpAStaff;
+AMEASURE tmpAMeasure;
 
 /* Convert the header of the object in <tmpSuperObj>, which is assumed to be in 'N105'
 format (equivalent to Nightingale 5.8 and earlier), to Nightingale 5.9.x format in
@@ -509,6 +524,38 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 
 
 /* Convert the bodies of objects of each type. */
+
+static Boolean ConvertSYNC(Document *doc, LINK syncL);
+static Boolean ConvertSYNC(Document *doc, LINK syncL)
+{
+	SYNC_5 aSync;
+	LINK aNoteRL;
+	unsigned char *pSSubObj;
+	
+	BlockMove(&tmpSuperObj, &aSync, sizeof(SYNC_5));
+	
+	SyncTIME(syncL) = (&aSync)->timeStamp;
+
+//NHexDump(LOG_DEBUG, "ConvertSYNC", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertSYNC: timeStamp=%d\n", syncL, SyncTIME(syncL)); 
+
+	aNoteRL = FirstSubLINK(syncL);
+	for ( ; aNoteRL; aNoteRL = NextNOTEL(aNoteRL)) {
+		/* Copy the subobj to a separate ANOTE so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+		pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aNoteRL, PANOTE);
+LogPrintf(LOG_DEBUG, "->block=%ld aNoteRL=%d sizeof(ANOTE)*aNoteRL=%d pSSubObj=%ld\n", (NOTEheap)->block,
+aNoteRL, sizeof(ANOTE)*aNoteRL, pSSubObj);
+		BlockMove(pSSubObj, &tmpANoteR, sizeof(ANOTE));
+NHexDump(LOG_DEBUG, "ConvObjs/SYNC 2", (unsigned char *)&tmpANoteR, sizeof(ANOTE_5), 4, 16);
+
+		Convert1NOTER(doc, aNoteRL);
+	}
+
+
+	return True;
+}
 
 static Boolean ConvertPAGE(Document *doc, LINK pageL);
 static Boolean ConvertPAGE(Document * /* doc */, LINK pageL)
@@ -553,9 +600,11 @@ LinkXD(sysL), LinkSEL(sysL), LinkVIS(sysL));
 
 
 static Boolean ConvertSTAFF(Document *doc, LINK staffL);
-static Boolean ConvertSTAFF(Document * /* doc */, LINK staffL)
+static Boolean ConvertSTAFF(Document *doc, LINK staffL)
 {
 	STAFF_5 aStaff;
+	LINK aStaffL;
+	unsigned char *pSSubObj;
 	
 	BlockMove(&tmpSuperObj, &aStaff, sizeof(STAFF_5));
 	
@@ -566,14 +615,31 @@ static Boolean ConvertSTAFF(Document * /* doc */, LINK staffL)
 //NHexDump(LOG_DEBUG, "ConvertSTAFF", (unsigned char *)&aStaff, 38, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertSTAFF: nEntries=%d staffL=%u lStaff=%u rStaff=%u StaffSYS=%u\n",
 LinkNENTRIES(staffL), staffL, LinkLSTAFF(staffL), LinkRSTAFF(staffL), StaffSYS(staffL)); 
+
+	aStaffL = FirstSubLINK(staffL);
+	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
+		/* Copy the subobj to a separate ASTAFF so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+		pSSubObj = (unsigned char *)GetObjectPtr(STAFFheap, aStaffL, PASTAFF);
+LogPrintf(LOG_DEBUG, "->block=%ld aStaffL=%d sizeof(ASTAFF)*aStaffL=%d pSSubObj=%ld\n", (STAFFheap)->block,
+aStaffL, sizeof(ASTAFF)*aStaffL, pSSubObj);
+		BlockMove(pSSubObj, &tmpAStaff, sizeof(ASTAFF));
+NHexDump(LOG_DEBUG, "ConvObjs/STF 2", (unsigned char *)&tmpAStaff, sizeof(ASTAFF_5), 4, 16);
+
+		Convert1STAFF(doc, aStaffL);
+	}
+
 	return True;
 }
 
 
 static Boolean ConvertMEASURE(Document *doc, LINK measL);
-static Boolean ConvertMEASURE(Document * /* doc */, LINK measL)
+static Boolean ConvertMEASURE(Document *doc, LINK measL)
 {
 	MEASURE_5 aMeasure;
+	LINK aMeasureL;
+	unsigned char *pSSubObj;
 	
 	BlockMove(&tmpSuperObj, &aMeasure, sizeof(MEASURE_5));
 	
@@ -589,25 +655,71 @@ static Boolean ConvertMEASURE(Document * /* doc */, LINK measL)
 //NHexDump(LOG_DEBUG, "ConvertMEASURE", (unsigned char *)&tempSys, 46, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertMEASURE: measL=%u lMeasure=%u rMeasure=%u systemL=%u\n", measL,
 LinkLMEAS(measL), LinkRMEAS(measL), MeasSYSL(measL));
+
+	aMeasureL = FirstSubLINK(measL);
+	for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
+		/* Copy the subobj to a separate AMEASURE so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+		pSSubObj = (unsigned char *)GetObjectPtr(MEASUREheap, aMeasureL, PAMEASURE);
+LogPrintf(LOG_DEBUG, "->block=%ld aMeasureL=%d sizeof(AMEASURE)*aMeasureL=%d pSSubObj=%ld\n", (MEASUREheap)->block,
+aMeasureL, sizeof(AMEASURE)*aMeasureL, pSSubObj);
+		BlockMove(pSSubObj, &tmpAMeasure, sizeof(AMEASURE));
+NHexDump(LOG_DEBUG, "ConvObjs/STF 2", (unsigned char *)&tmpAMeasure, sizeof(AMEASURE_5), 4, 16);
+
+		Convert1MEASURE(doc, aMeasureL);
+	}
 	return True;
 }
 
 
 /* ------------------------------ Convert the content of subobjects, including headers -- */
 
-static Boolean Convert1STAFF(Document *doc, LINK aStaffL);
+static Boolean Convert1NOTER(Document * /* doc */, LINK aNoteRL)
+{
+	ANOTE_5 a1NoteR;
+	
+	BlockMove(&tmpANoteR, &a1NoteR, sizeof(ANOTE_5));
+	
+	NoteSTAFF(aNoteRL) = (&a1NoteR)->staffn;
+	NoteSEL(aNoteRL) = (&a1NoteR)->selected;
+
+	NoteINCHORD(aNoteRL) = (&a1NoteR)->inChord;
+	NoteREST(aNoteRL) = (&a1NoteR)->rest;
+	NoteUNPITCHED(aNoteRL) = (&a1NoteR)->unpitched;
+	NoteBEAMED(aNoteRL) = (&a1NoteR)->beamed;
+	NoteOtherStemSide(aNoteRL) = (&a1NoteR)->otherStemSide;
+	NoteYQPIT(aNoteRL) = (&a1NoteR)->yqpit;
+	NoteACC(aNoteRL) = (&a1NoteR)->accident;
+	// DOZENS MORE FIELDS HERE!
+	NoteNUM(aNoteRL) = (&a1NoteR)->noteNum;
+	NoteVOICE(aNoteRL) = (&a1NoteR)->voice;
+	NoteFIRSTMOD(aNoteRL) = (&a1NoteR)->firstMod;
+	NoteSLURREDL(aNoteRL) = (&a1NoteR)->slurredL;
+	NoteSLURREDR(aNoteRL) = (&a1NoteR)->slurredR;
+	NoteINTUPLET(aNoteRL) = (&a1NoteR)->inTuplet;
+	NoteINOTTAVA(aNoteRL) = (&a1NoteR)->inOttava;
+	
+//NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
+//LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
+//aNoteRL, NoteSTAFF(aNoteRL), MeasureTOP(aNoteRL), MeasureHEIGHT(aNoteRL), MeasureMEASURELINES(aNoteRL));
+		return True;
+}
+
 static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
 {
 	ASTAFF_5 a1Staff;
 	
 	BlockMove(&tmpAStaff, &a1Staff, sizeof(ASTAFF_5));
 	
-	StaffCLEFTYPE(aStaffL) = (&a1Staff)->clefType;
-	StaffDENOM(aStaffL) = (&a1Staff)->denominator;
-	StaffNUM(aStaffL) = (&a1Staff)->numerator;
+	StaffSEL(aStaffL) =	(&a1Staff)->selected;
+	StaffSTAFFN(aStaffL) = (&a1Staff)->staffn;
 	StaffHEIGHT(aStaffL) = (&a1Staff)->staffHeight;
 	StaffSTAFFLINES(aStaffL) = (&a1Staff)->staffLines;
-	StaffSTAFFN(aStaffL) = (&a1Staff)->staffn;
+	StaffCLEFTYPE(aStaffL) = (&a1Staff)->clefType;
+	StaffDynamType(aStaffL) = (&a1Staff)->dynamicType;
+	StaffDENOM(aStaffL) = (&a1Staff)->denominator;
+	StaffNUMER(aStaffL) = (&a1Staff)->numerator;
 
 //NHexDump(LOG_DEBUG, "Convert1STAFF", (unsigned char *)&tempSys, 46, 4, 16);
 //LogPrintf(LOG_DEBUG, "Convert1STAFF: aStaffL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
@@ -629,12 +741,38 @@ LogPrintf(LOG_INFO, "Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d f
 }
 
 
+static Boolean Convert1MEASURE(Document * /* doc */, LINK aMeasureL)
+{
+	AMEASURE_5 a1Measure;
+	
+	BlockMove(&tmpAMeasure, &a1Measure, sizeof(AMEASURE_5));
+	
+	MeasureSEL(aMeasureL) = (&a1Measure)->selected;
+	MeasCLEFTYPE(aMeasureL) = (&a1Measure)->clefType;
+	MeasDynamType(aMeasureL) = (&a1Measure)->dynamicType;
+	MeasNUMER(aMeasureL) = (&a1Measure)->numerator;
+	MeasDENOM(aMeasureL) = (&a1Measure)->denominator;
+
+//NHexDump(LOG_DEBUG, "Convert1MEASURE", (unsigned char *)&tempSys, 46, 4, 16);
+//LogPrintf(LOG_DEBUG, "Convert1MEASURE: aMeasureL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
+//aMeasureL, MeasureMEASUREN(aMeasureL), MeasureTOP(aMeasureL), MeasureHEIGHT(aMeasureL), MeasureMEASURELINES(aMeasureL));
+#if 0
+{ PAMEASURE			aMeasure;
+aMeasure = GetPAMEASURE(aMeasureL);
+LogPrintf(LOG_INFO, "Convert1MEASURE: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+blah lorem ipsum );
+}
+#endif
+	return True;
+}
+
+
 /* -------------------------------------------------------------------- ConvertObjects -- */
 
-/* Convert the headers and bodies of objects in the main object list. Any file-format-
-conversion code that doesn't affect the length of the header or lengths or offsets of
-fields in objects (or subobjects) should go here. ??HOW ABOUT SUBOBJECTS? MASTER PAGE?
-Return True if all goes well, False if not.
+/* Convert the headers and bodies of objects in either the main or the Master Page
+object list. Any file-format-conversion code that doesn't affect the length of the header
+or lengths or offsets of fields in objects (or subobjects) should go here. ??HOW ABOUT
+SUBOBJECTS? Return True if all goes well, False if not.
 
 This function assumes that the headers and the entire object list have been read; all
 object and subobject links are valid; and all objects and subobjects are the correct
@@ -642,13 +780,13 @@ lengths. Tweaks that affect lengths or offsets to the headers should be done in
 OpenFile(); to objects or subobjects, in ReadHeaps(). */
 
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
-//#define GetPASTAFF(link)		(PASTAFF)GetSubObjectPtr(link, PASTAFF)
 
-Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */)
+Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */, Boolean
+			doMasterList)
 {
 	HEAP *objHeap;
-	LINK pL, aStaffL;
-	unsigned char *pSObj, *pSSubObj;
+	LINK pL, startL;
+	unsigned char *pSObj;
 
 	if (version!='N105') {
 		AlwaysErrMsg("Can't convert file of any version but 'N105'.  (ConvertObjects)");
@@ -659,14 +797,14 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 
 	fflush(stdout);
 
-//LogPrintf(LOG_DEBUG, "sizeof(SUPEROBJECT_N105)=%d (SUPEROBJECT)=%d\n", sizeof(SUPEROBJECT_N105), sizeof(SUPEROBJECT));
-	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
+	startL = (doMasterList?  doc->masterHeadL :  doc->headL);
+	for (pL = startL; pL; pL = RightLINK(pL)) {
 		/* Copy the object to a separate SUPEROBJECT so we can move fields all over the
 		   place without having to worry about clobbering anything. */
 		   
 		pSObj = (unsigned char *)GetPSUPEROBJECT(pL);
 		BlockMove(pSObj, &tmpSuperObj, sizeof(SUPEROBJECT));
-NHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 
 		ConvertObjHeader(doc, pL);
 //NHexDump(LOG_DEBUG, "ConvObjs2", pSObj, 46, 4, 16);
@@ -677,9 +815,11 @@ NHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 				continue;
 			case TAILtype:
 				continue;
+#endif
 			case SYNCtype:
-				if (!ConvertSYNC(doc, version, pL))  ERROR;
+				ConvertSYNC(doc, pL);
 				continue;
+#ifdef NOTYET
 			case RPTENDtype:
 				if (!ConvertRPTEND(doc, pL))  ERROR;
 				continue;
@@ -692,33 +832,6 @@ NHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 				continue;
 			case STAFFtype:
 				ConvertSTAFF(doc, pL);
-
-				aStaffL = FirstSubLINK(pL);
-				for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
-					/* Copy the subobj to a separate ASTAFF so we can move fields all over
-					the place without having to worry about clobbering anything. */
-//#define GetSubObjectPtrX(link,type)	( ((type *)(*type/**/Heap)->block)+(link) )
-//#define GetConnectPtr(link) ( ((ACONNECT *)(*ACONNECTheap)->block))+(link) )
-//#define GetStaffPtr(link) ( ((ASTAFF *)(STAFFheap)->block)+(link) )
-//HEAP *pStaffHeap;  pStaffHeap = STAFFheap;
-//#define GetStaffPtr(link) ( (pStaffHeap->block)+(link) )
-//#define GetStaffPtr(link) ( ((STAFFheap)->block)+(link) )
-//#define GetStaffPtr(link) ( ((STAFFheap)->block)+(link)*sizeof(ASTAFF) )
-#define GetStaffPtr(link) ( *((STAFFheap)->block)+(link)*sizeof(ASTAFF) )
-
-					//pSSubObj = (unsigned char *)GetSubObjectPtrX(aStaffL, PASTAFF);
-					//pSSubObj = (unsigned char *)GetPASTAFF(aStaffL);
-					//pSSubObj = (unsigned char *)GetStaffPtr(2);
-					//pSSubObj = (unsigned char *)GetStaffPtr(aStaffL);
-					pSSubObj = (unsigned char *)GetObjectPtr(STAFFheap, aStaffL, PASTAFF);
-LogPrintf(LOG_DEBUG, "->block=%ld aStaffL=%d sizeof(ASTAFF)*aStaffL=%d pSSubObj=%ld\n", (STAFFheap)->block,
-aStaffL, sizeof(ASTAFF)*aStaffL, pSSubObj);
-//NHexDump(LOG_DEBUG, "ConvObjs/STF 1", pSSubObj, 46, 4, 16);
-					BlockMove(pSSubObj, &tmpAStaff, sizeof(ASTAFF));
-NHexDump(LOG_DEBUG, "ConvObjs/STF 2", (unsigned char *)&tmpAStaff, sizeof(ASTAFF_5), 4, 16);
-
-					Convert1STAFF(doc, aStaffL);
-				}
 				continue;
 			case MEASUREtype:
 				ConvertMEASURE(doc, pL);

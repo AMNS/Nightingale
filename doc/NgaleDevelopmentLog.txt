@@ -4840,3 +4840,148 @@ their total length; but subobjects in their heaps are fixed-length, and there's 
 the heap header and the subobjects. Debug Check usual => finds 51, 50, 55 errors; Debug Display finds
 26, 26, 26. MUCH better! Yippee!
 
+Commited & pushed.
+
+-------------------------------------------------------------------------------
+
+16 - 19 Feb.
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED STAFF L4.
+	Feb 16 16:30:41: --- last message repeated 1 time ---
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF -1 OR 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L5.
+	Feb 16 16:30:41: --- last message repeated 1 time ---
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED CLEF L6.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED CLEF L6.
+	Warning. *DCheckNode: SUBOBJ IN TIMESIG L8 HAS BAD TIMESIG denom.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED TIMESIG L8.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED TIMESIG L8.
+	Warning. DCheckNode: Object L9 HAS A ZERO-WIDTH/HEIGHT objRect.
+	Warning. *DCheckMeasSubobjs: SUBOBJ IN MEASURE L9 HAS BAD clefType.
+	Warning. *DCheckMeasSubobjs: SUBOBJ IN MEASURE L9 HAS BAD TIMESIG denominator -104.
+	Warning. *DCheckMeasSubobjs: SUBOBJ ON STAFF 2 IN MEASURE L9 HAS BAD connStaff.
+	Warning. *DCheckMeasSubobjs: SUBOBJ IN MEASURE L9 HAS BAD clefType.
+	Warning. *DCheckMeasSubobjs: 1 SUBOBJS IN MEASURE L9 HAVE connAbove BUT NO CONNECTED STAFF.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED MEASURE L9.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED MEASURE L9.
+	Warning. *DCheckNode: CAN'T FIND TUPLET FOR VOICE 95 IN SYNC L10.
+	Warning. *DCheckNode: NOTE/REST IN SYNC L10 HAS BAD voice -4.
+	Warning. DCheckSyncSlurs: NOTE slurredL IN VOICE -4 IN SYNC L10, MEASURE 6649, HAS NO SLUR.
+	Warning. DCheckSyncSlurs: NOTE slurredR IN VOICE -4 IN SYNC L10, MEASURE 6649, HAS NO SLUR.
+	Warning. DCheckSyncSlurs: NOTE tiedR IN VOICE -4 IN SYNC L10, MEASURE 6649, HAS NO TIE.
+	Warning. DCheckNode: GARBAGE MODNR LINK 16203 IN VOICE -4 IN SYNC L10.
+	Warning. DCheckNodeSel: SELECTED NOTE IN VOICE -4 IN UNSELECTED SYNC L10.
+	Notice. * CautionAdvise alertID=550!
+	Warning. *DCheckVoiceTable: NOTE IN SYNC L10 STAFF 1 IN ANOTHER PART'S VOICE, -4.
+	Warning. *DCheckHeirarchy: CLEF L6 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: KEYSIG L7 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: TIMESIG L8 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckOttavas: OTTAVA'D NOTE IN SYNC L10 STAFF 1 WITHOUT OTTAVA.
+	Warning. *DCheckContext: clefType FOR STAFF 1 IN MEASURE 6649 (L9) INCONSISTENCY.
+	Warning. DCheckContext: TIMESIG FOR STAFF 1 IN MEASURE 6649 (L9) INCONSISTENCY.
+	Warning. *DCheckContext: clefType FOR STAFF 2 IN MEASURE 6649 (L9) INCONSISTENCY.
+	Warning. DCheckContext: dynamicType FOR STAFF 2 IN MEASURE 6649 (L9) INCONSISTENCY.
+	Warning. DCheckPlayDurs: Note in Sync L10 voice -4 in measure 6649 playDur is longer than full dur. of 0
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 1 (L8) not anticipated.
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 2 (L8) not anticipated.
+	info. Discont. sel, 0 objs in range, 0 sel, 11 total.  0 voices.
+	info. --CHECK MASTER: DCheckNode: PAGE L13 sheetNum 12895 IS NEGATIVE OR SUSPICIOUSLY LARGE.
+	Warning. •DCheckNode: SYSTEM L14 HAS INCONSISTENT LEFT SYSTEM LINK L41393.
+	Warning. •DCheckNode: SYSTEM L14 HAS INCONSISTENT RIGHT SYSTEM LINK L213.
+	Warning. *DCheckNode: SYSTEM L14 HAS GARBAGE systemRect.
+	Warning. *DCheckNode: SYSTEM L14 RECT BELOW BOTTOM MARGIN (pt1767 vs. 774).
+	Warning. •DCheck1NEntries: OBJ L15 HAS nEntries=0 BUT 2 SUBOBJECTS.
+	Warning. •DCheckNode: Object L15 HAS BAD nEntries FOR ITS TYPE.
+	Warning. *DCheckNode: SUBOBJ IN FIRST STAFF, L15 (staffn=1), staffHeight DISAGREES WITH srastral.
+	Warning. *DCheckNode: SUBOBJ IN STAFF L15 staffLeft IS ILLEGAL.
+	Warning. *DCheckNode: SUBOBJ IN STAFF L15 staffRight IS ILLEGAL.
+	Warning. *DCheckNode: SUBOBJ IN FIRST STAFF, L15 (staffn=2), staffHeight DISAGREES WITH srastral.
+	Warning. *DCheckNode: SUBOBJ IN STAFF L15 staffLeft IS ILLEGAL.
+	Warning. *DCheckNode: SUBOBJ IN STAFF L15 staffRight IS ILLEGAL.
+	Warning. •DCheck1NEntries: OBJ L16 HAS nEntries=116 BUT 2 SUBOBJECTS.
+	Warning. •DCheckNode: Object L16 HAS BAD nEntries FOR ITS TYPE.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF -1 OR 88.
+	info.  Done.    --CHECK CLIPBOARD:  Done. 55 ERROR(S). 
+
+Convert1MEASURE() should get rid of the 4 erros in "6649 (L9)". Implement & call Convert1MEASURE
+=> it does; down to 51 errors! Fix ASTAFF dynamType & AMEASURE selected => down to 45, 40,
+41! Implement ConvertSYNC and (very incomplete) Convert1NOTER => down to 31, 36, 31, 34! -- e.g.:
+
+	Notice. Opened file '1CourtesyAcc.ngl'.
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF -1 OR 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L5.
+	Feb 19 07:01:45: --- last message repeated 1 time ---
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED CLEF L6.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED CLEF L6.
+	Warning. *DCheckNode: SUBOBJ IN TIMESIG L8 HAS BAD TIMESIG denom.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED TIMESIG L8.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED TIMESIG L8.
+	Warning. DCheckNode: Object L9 HAS A ZERO-WIDTH/HEIGHT objRect.
+	Warning. *DCheckMeasSubobjs: SUBOBJ ON STAFF 2 IN MEASURE L9 HAS BAD connStaff.
+	Warning. *DCheckMeasSubobjs: 1 SUBOBJS IN MEASURE L9 HAVE connAbove BUT NO CONNECTED STAFF.
+	Warning. DCheckSyncSlurs: NOTE tiedR IN VOICE 1 IN SYNC L10, MEASURE 6649, HAS NO TIE.
+	Warning. *DCheckHeirarchy: KEYSIG L7 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: TIMESIG L8 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. DCheckContext: TIMESIG FOR STAFF 1 IN MEASURE 6649 (L9) INCONSISTENCY.
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 1 (L8) not anticipated.
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 2 (L8) not anticipated.
+	Warning. DCheckNoteNums: Note in Sync L10 in measure 6649, staff 1 notenum 63 and notation disagree.
+	info. Discont. sel, 0 objs in range, 0 sel, 11 total.  1 voices.
+	info. --CHECK MASTER: DCheckNode: PAGE L13 sheetNum 12895 IS NEGATIVE OR SUSPICIOUSLY LARGE.
+	Warning. •DCheckNode: SYSTEM L14 HAS INCONSISTENT LEFT SYSTEM LINK L99.
+	Warning. •DCheckNode: SYSTEM L14 HAS INCONSISTENT RIGHT SYSTEM LINK L213.
+	Warning. *DCheckNode: SYSTEM L14 HAS GARBAGE systemRect.
+	Warning. *DCheckNode: SYSTEM L14 RECT BELOW BOTTOM MARGIN (pt1767 vs. 774).
+	Notice. * CautionAdvise alertID=550!
+	Warning. •DCheck1NEntries: OBJ L15 HAS nEntries=0 BUT 2 SUBOBJECTS.
+	Warning. •DCheckNode: Object L15 HAS BAD nEntries FOR ITS TYPE.
+	Warning. *DCheckNode: SUBOBJ IN FIRST STAFF, L15 (staffn=1), staffHeight DISAGREES WITH srastral.
+	Warning. *DCheckNode: SUBOBJ IN STAFF L15 staffLeft IS ILLEGAL.
+	Warning. *DCheckNode: SUBOBJ IN FIRST STAFF, L15 (staffn=2), staffHeight DISAGREES WITH srastral.
+	Warning. *DCheckNode: SUBOBJ IN STAFF L15 staffLeft IS ILLEGAL.
+	Warning. •DCheck1NEntries: OBJ L16 HAS nEntries=116 BUT 2 SUBOBJECTS.
+	Warning. •DCheckNode: Object L16 HAS BAD nEntries FOR ITS TYPE.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF -1 OR 88.
+	info.  Done.    --CHECK CLIPBOARD:  Done. 34 ERROR(S). 
+
+Most of the errors now, and all of the most serious ones, are from checking the Master Page:
+no wonder, since I'm not converting anything in it! Add code to ConvertObjects() to convert
+the Master Page object list exactly the same way as the main list => only 23 errors, and
+none of "bullet" level! Voila:
+
+	Notice. Opened file '1CourtesyAcc.ngl'.
+	debug. DrawToolPalette: MemBitCount(palPortBits, 1000)=947 portRect tlbr=0,0,399,271
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF -1 OR 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L5.
+	Feb 19 16:14:51: --- last message repeated 1 time ---
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED CLEF L6.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED CLEF L6.
+	Warning. *DCheckNode: SUBOBJ IN TIMESIG L8 HAS BAD TIMESIG denom.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED TIMESIG L8.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED TIMESIG L8.
+	Warning. DCheckNode: Object L9 HAS A ZERO-WIDTH/HEIGHT objRect.
+	Warning. *DCheckMeasSubobjs: SUBOBJ ON STAFF 2 IN MEASURE L9 HAS BAD connStaff.
+	Warning. *DCheckMeasSubobjs: 1 SUBOBJS IN MEASURE L9 HAVE connAbove BUT NO CONNECTED STAFF.
+	Warning. DCheckSyncSlurs: NOTE tiedR IN VOICE 1 IN SYNC L10, MEASURE 6649, HAS NO TIE.
+	Warning. *DCheckHeirarchy: CLEF L6 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: KEYSIG L7 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: TIMESIG L8 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. DCheckContext: TIMESIG FOR STAFF 1 IN MEASURE 6649 (L9) INCONSISTENCY.
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 1 (L8) not anticipated.
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 2 (L8) not anticipated.
+	info. Discont. sel, 0 objs in range, 0 sel, 11 total.  1 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF -1 OR 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L16.
+	Feb 19 16:14:52: --- last message repeated 1 time ---
+	Notice. * CautionAdvise alertID=550!
+	info.  Done.    --CHECK CLIPBOARD:  Done. 23 ERROR(S). 
+	 

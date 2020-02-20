@@ -269,7 +269,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 						}
 						if (!foundTimeSig) {
 							pContext->timeSigType = StaffTIMESIGTYPE(aStaffL);
-							pContext->numerator = StaffNUM(aStaffL);
+							pContext->numerator = StaffNUMER(aStaffL);
 							pContext->denominator = StaffDENOM(aStaffL);
 						}
 						if (!foundDynamic)
@@ -809,7 +809,7 @@ void EFixContForTimeSig(LINK startL, LINK doneL,
 					if (StaffSTAFF(aStaffL)==staffn) {
 						/* aStaff = GetPASTAFF(aStaffL); */
 						StaffTIMESIGTYPE(aStaffL) = newTSInfo.TSType;			/* Copy the time sig. into the context */
-						StaffNUM(aStaffL) = newTSInfo.numerator;
+						StaffNUMER(aStaffL) = newTSInfo.numerator;
 						StaffDENOM(aStaffL) = newTSInfo.denominator;
 					}
 				break;
@@ -1053,7 +1053,7 @@ void FixStaffContext(LINK aStaffL, PCONTEXT pContext)
 	for (k = 0; k<pContext->nKSItems; k++)
 		(StaffKSITEM(aStaffL))[k] = pContext->KSItem[k];
 	StaffTIMESIGTYPE(aStaffL) = pContext->timeSigType;
-	StaffNUM(aStaffL) = pContext->numerator;
+	StaffNUMER(aStaffL) = pContext->numerator;
 	StaffDENOM(aStaffL) = pContext->denominator;
 	StaffDynamType(aStaffL) = pContext->dynamicType;
 }

@@ -19,15 +19,6 @@
 #include "FileConversion.h"			/* Must follow Nightingale.precomp.h! */
 
 
-/* Error codes and error info codes */
-
-#define HDR_TYPE_ERR 217			/* Heap header in file contains incorrect type */
-#define HDR_SIZE_ERR 251			/* Heap header in file contains incorrect objSize */
-#define MEM_FULL_ERR 997			/* ExpandFreeList failed */
-#define MISC_HEAPIO_ERR 998
-
-#define MEM_ERRINFO 99				/* ExpandFreeList failed */
-
 #define EXTRAOBJS 10L
 
 
@@ -106,7 +97,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, Boolean isViewerFile);
 static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean isViewerFile,
 						short heapIndex, unsigned short *pnFObjs);
-static void HeapFixLinks(Document *);
+static short HeapFixLinks(Document *);
 static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObjs);
 static void PrepareClips(void);
 
@@ -765,9 +756,10 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	errCode = ReadObjHeap(doc, refNum, version, isViewerFile);
 	if (errCode) return errCode;
 
-	if (version=='N105')	HeapFixN105Links(doc);
-	else					HeapFixLinks(doc);
-	return 0;
+	if (version=='N105')	errCode = HeapFixN105Links(doc);
+	else					errCode = HeapFixLinks(doc);
+	if (errCode)	return errCode;
+	else			return 0;
 }
 
 
@@ -1068,16 +1060,18 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 }
 
 
-/* Traverse the main object list and fix up the cross pointers. NB: This code assumes
-that headL is always at LINK 1. */
+/* Traverse the main and Master Page object lists and fix up the cross pointers. NB: This
+code assumes that headL is always at LINK 1. */
 
-static void HeapFixLinks(Document *doc)
+static short HeapFixLinks(Document *doc)
 {
 	LINK 	pL, prevPage, prevSystem, prevStaff, prevMeasure;
 	Boolean tailFound=False;
 	
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
+	/* First handle the main object list. */
+	
 	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
@@ -1132,6 +1126,8 @@ static void HeapFixLinks(Document *doc)
 }
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
+	/* Now do the Master Page list. */
+
 	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL))
 		switch(DObjLType(doc, pL)) {
 			case HEADERtype:
@@ -1140,7 +1136,7 @@ static void HeapFixLinks(Document *doc)
 			case TAILtype:
 				doc->masterTailL = pL;
 				DRightLINK(doc, doc->masterTailL) = NILINK;
-				return;
+				return 0;
 			case PAGEtype:
 				DLinkLPAGE(doc, pL) = prevPage;
 				if (prevPage) DLinkRPAGE(doc, prevPage) = pL;
@@ -1169,11 +1165,14 @@ static void HeapFixLinks(Document *doc)
 			default:
 				break;
 		}
-		
+
+	/* If we reach here, something is wrong: drop through. */
+	
 Error:
 	/* In case we never got into the Master Page loop or it didn't have a TAIL obj. */
 	AlwaysErrMsg("Can't set links in memory for the file!  (HeapFixLinks)");
 	doc->masterTailL = NILINK;
+	return FIX_LINKS_ERR;
 }
 
 

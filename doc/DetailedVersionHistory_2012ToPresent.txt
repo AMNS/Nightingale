@@ -2611,3 +2611,14 @@ Work on opening format 'N105' files while using a new format internally: convert
 subobjects. Affects FileConversion, HeapFileIO.
 
 Minor cleanup. Affects DrawObject, FileConversion.
+
+-------------------------------------------------------------------------------
+
+17 - 20 Feb.
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects & subobjects. Affects File.h, FileConversion.h; FileConversion, FileOpen,
+HeapFileIO.
+
+Minor cleanup: rename a macro, etc. Affects MemMacros.h; Context, DebugUtils,
+FileConversion, InsNewUtils, MasterPage.

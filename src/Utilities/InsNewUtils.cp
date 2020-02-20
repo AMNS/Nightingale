@@ -14,9 +14,9 @@
  */
 
 /*
-	UpdateBFClefStaff		UpdateBFKSStaff		UpdateBFTSStaff
+	UpdateBFClefStaff		UpdateBFKSStaff			UpdateBFTSStaff
 	ReplaceClef				ReplaceKeySig			ReplaceTimeSig
-	EnlargeResAreas		FixInitialxds			FixInitialKSxds
+	EnlargeResAreas			FixInitialxds			FixInitialKSxds
 	CreateMeasure
 */
 
@@ -32,7 +32,7 @@ void UpdateBFClefStaff(LINK firstClefL, short staffn, short subtype)
 {
 	LINK staffL, aStaffL;
 
-	staffL = LSSearch(firstClefL,STAFFtype,ANYONE,GO_LEFT,False);
+	staffL = LSSearch(firstClefL, STAFFtype, ANYONE, GO_LEFT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==staffn)
@@ -43,12 +43,12 @@ void UpdateBFKSStaff(LINK firstKSL, short staffn, KSINFO newKSInfo)
 {
 	LINK staffL, aStaffL;
 
-	staffL = LSSearch(firstKSL,STAFFtype,ANYONE,GO_LEFT,False);
+	staffL = LSSearch(firstKSL, STAFFtype, ANYONE, GO_LEFT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==staffn)
 			/* Copy new keysig. info: use a macro so memory can't get moved on us! */
-			KEYSIG_COPY(&newKSInfo,(PKSINFO)StaffKSITEM(aStaffL));
+			KEYSIG_COPY(&newKSInfo, (PKSINFO)StaffKSITEM(aStaffL));
 }
 
 void UpdateBFTSStaff(LINK firstTSL, short staffn, short /*subType*/, short /*numerator*/,
@@ -56,12 +56,12 @@ void UpdateBFTSStaff(LINK firstTSL, short staffn, short /*subType*/, short /*num
 {
 	LINK staffL, aStaffL;
 
-	staffL = LSSearch(firstTSL,STAFFtype,ANYONE,GO_LEFT,False);
+	staffL = LSSearch(firstTSL, STAFFtype, ANYONE, GO_LEFT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==staffn) {
 			StaffTIMESIGTYPE(aStaffL) = TimeSigType(firstTSL);
-			StaffNUM(aStaffL) = TimeSigNUMER(firstTSL);
+			StaffNUMER(aStaffL) = TimeSigNUMER(firstTSL);
 			StaffDENOM(aStaffL) = TimeSigDENOM(firstTSL);
 		}
 }
@@ -88,7 +88,7 @@ LINK ReplaceClef(Document *doc, LINK firstClefL, short staffn, char subtype)
 			ClefSEL(aClefL) = True;
 			ClefVIS(aClefL) = True;
 			
-			UpdateBFClefStaff(firstClefL,staffn,subtype);
+			UpdateBFClefStaff(firstClefL, staffn, subtype);
 
 			doc->changed = True;
 			break;
@@ -208,7 +208,7 @@ static Boolean EnlargeResAreas(Document *doc, LINK startL, LINK endL, DDIST shif
 	   area), and all following Measures till endSysL regardless of intervening
 	   Systems or Pages, to right by <shift>. */
 		
-	pL = MoveInMeasure(startL,endSysL,shift);
+	pL = MoveInMeasure(startL, endSysL, shift);
 	MoveAllMeasures(pL, endSysL, shift);
 			
 	InvalContent(startL, endSysL);						/* Force updating all objRects */
@@ -257,7 +257,7 @@ void FixInitialKSxds(
 	/* We cannot use xd of any Graphic or other J_D symbol inserted between keySig
 	   and timeSig. */
 
-	rightL = FirstValidxd(RightLINK(firstKeySigL),GO_RIGHT);
+	rightL = FirstValidxd(RightLINK(firstKeySigL), GO_RIGHT);
 	haveWidth = SysRelxd(rightL)-SysRelxd(firstKeySigL);
 	change = needWidth-haveWidth;
 	if (change) EnlargeResAreas(doc, RightLINK(firstKeySigL), endL, change);
@@ -308,7 +308,7 @@ PushLock(MEASUREheap);
 	NewObjSetup(doc, measureL, ANYONE, xd);
 
 	pMeasure = GetPMEASURE(measureL);
-	pMeasure->lMeasure = prevMeasL;									/* Update cross links */
+	pMeasure->lMeasure = prevMeasL;										/* Update cross links */
 	prevMeas = GetPMEASURE(prevMeasL);
 	prevMeas->rMeasure = measureL;
 	pMeasure->rMeasure = nextMeasureL;
@@ -366,34 +366,29 @@ PushLock(MEASUREheap);
 
 	endMeasL = EndMeasSearch(doc, measureL);
 
-	/*
-	 *	Notes that formerly inherited accidentals from preceding notes on their line/
-	 *	space in what is now the previous measure must have explicit accidentals added.
-	 */
+	/* Notes that formerly inherited accidentals from preceding notes on their line/
+	   space in what is now the previous measure must have explicit accidentals added. */
+	   
 	FixNewMeasAccs(doc, measureL);
 	
 	 /* Adjust coordinates of everything in the new Measure to be relative to it. */
 
 	MoveInMeasure(RightLINK(measureL), endMeasL, -prevMeasWidth);
 	
-	/*
-	 * Adjust timestamps of everything in the new Measure to be relative to it.
-	 * Subtracting the duration of the previous Measure from times in this Measure
-	 * may not work because adding the barline may actually change relative times;
-	 * instead, look for the first Sync in this Measure or following and make its rel.
-	 *	time zero. Also set the timestamp of this and update timestamps of following
-	 * Measures.
-	 */
+	/* Adjust timestamps of everything in the new Measure to be relative to it.
+	   Subtracting the duration of the previous Measure from times in this Measure
+	   may not work because adding the barline may actually change relative times;
+	   instead, look for the first Sync in this Measure or following and make its rel.
+	   time zero. Also set the timestamp of this and update timestamps of following
+	   Measures. */
 
 	nextSync = LSSearch(measureL, SYNCtype, ANYONE, GO_RIGHT, False);
 	if (nextSync) {
-		/*
-		 * nextSync may not even be in our new Measure, but the following code will still
-		 * work because MoveTimeInMeasure won't touch anything outside of our Measure.
-		 *	But if nextSync IS in our Measure and contains unknown durations, this may not
-		 *	be a good idea because there may be a pause before it that should be preserved!
-		 *	Comments, anyone?
-		 */
+		/* nextSync may not even be in our new Measure, but the following code will still
+		   work because MoveTimeInMeasure won't touch anything outside of our Measure.
+		   But if nextSync IS in our Measure and contains unknown durations, this may not
+		   be a good idea because there may be a pause before it that should be preserved!
+		   Comments, anyone? */
 		
 		offsetDur = SyncTIME(nextSync);
 		MoveTimeInMeasure(RightLINK(measureL), endMeasL, -offsetDur);
@@ -408,19 +403,18 @@ PushLock(MEASUREheap);
 		FixTimeStamps(doc, measureL, measureL);
 	}
 	else {
-		/*
-		 * Rhythm in the preceding Measure isn't understood, and there are no following
-		 *	Syncs. The only thing we need to do is set the timestamp of the new Measure;
-		 * the only obvious way to do that is from the end time of the last note of the
-		 *	previous Measure, if it contained any notes, else from the previous Measure
-		 *	itself.
-		 */
-		 	prevSync = LSSearch(measureL, SYNCtype, ANYONE, GO_LEFT, False);
-		 	if (IsAfter(prevMeasL, prevSync))
-		 		offsetDur = SyncTIME(prevSync)+SyncMaxDur(doc, prevSync);
-		 	else
-		 		offsetDur = 0L;
-			pMeasure->lTimeStamp = prevMeas->lTimeStamp+offsetDur; 
+		/* Rhythm in the preceding Measure isn't understood, and there are no following
+		   Syncs. The only thing we need to do is set the timestamp of the new Measure;
+		   the only obvious way to do that is from the end time of the last note of the
+		   previous Measure, if it contained any notes, else from the previous Measure
+		   itself. */
+		   
+		prevSync = LSSearch(measureL, SYNCtype, ANYONE, GO_LEFT, False);
+		if (IsAfter(prevMeasL, prevSync))
+			offsetDur = SyncTIME(prevSync)+SyncMaxDur(doc, prevSync);
+		else
+			offsetDur = 0L;
+		pMeasure->lTimeStamp = prevMeas->lTimeStamp+offsetDur;
 	}
 	
 	InsFixMeasNums(doc, measureL);

@@ -382,6 +382,9 @@ Boolean DCheckMeasSubobjs(
 			connStaff[aMeas->staffn] = aMeas->connStaff;
 		}
 
+		if (aMeas->measureNum > MAX_FIRSTMEASNUM+5000)
+			{ COMPLAIN("DCheckMeasSubobjs: Measure L%u has a suspicious measure number.\n", pL); }
+
 		if (aMeas->staffn==1 && aMeas->connAbove)
 			COMPLAIN("*DCheckMeasSubobjs: SUBOBJ ON STAFF 1 IN MEASURE L%u HAS connAbove.\n", pL);
 		if (aMeas->connStaff<0 ||
@@ -753,7 +756,7 @@ short DCheckNode(
 											pL, GetMeasNum(doc, pL), aNote->noteNum);
 						}						
 						else if (aNote->noteNum<21 || aNote->noteNum>108) {
-							COMPLAIN3("DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS SUSPICIOUS noteNum %d.\n",
+							COMPLAIN3("DCheckNode: Note in sync l%u in measure %d has suspicious noteNum %d.\n",
 											pL, GetMeasNum(doc, pL), aNote->noteNum);
 						}
 
@@ -765,10 +768,10 @@ short DCheckNode(
 											pL, GetMeasNum(doc, pL), aNote->offVelocity);
 						if (fullCheck) {
 							if (aNote->onVelocity==0)
-								COMPLAIN2("DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS ZERO onVelocity.\n",
+								COMPLAIN2("DCheckNode: Note in Sync L%u in measure %d has onVelocity zero.\n",
 												pL, GetMeasNum(doc, pL));
 							if (aNote->offVelocity==0)
-								COMPLAIN2("DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS ZERO offVelocity.\n",
+								COMPLAIN2("DCheckNode: Note in Sync L%u in measure %d has offVelocity zero.\n",
 												pL, GetMeasNum(doc, pL));
 						}
 					}

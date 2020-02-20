@@ -766,7 +766,7 @@ Steve Hart.) */
 #define StaffMINSTEMFREE(link)		( (GetPASTAFF(link))->minStemFree)		
 #define StaffNKSITEMS(link)			( (GetPASTAFF(link))->nKSItems )	
 #define StaffNOTEHEADWIDTH(link)	( (GetPASTAFF(link))->noteHeadWidth)			
-#define StaffNUM(link)				( (GetPASTAFF(link))->numerator )
+#define StaffNUMER(link)			( (GetPASTAFF(link))->numerator )
 #define StaffRIGHT(link)			( (GetPASTAFF(link))->staffRight )		
 #define StaffSHOWLEDGERS(link)		( (GetPASTAFF(link))->showLedgers)		
 #define StaffSHOWLINES(link)		( (GetPASTAFF(link))->showLines)		
