@@ -2622,3 +2622,14 @@ HeapFileIO.
 
 Minor cleanup: rename a macro, etc. Affects MemMacros.h; Context, DebugUtils,
 FileConversion, InsNewUtils, MasterPage.
+
+-------------------------------------------------------------------------------
+
+21 - 24 Feb.
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects & subobjects. Affects MemMacros.h; FileConversion.
+
+Minor cleanup: rename two macros and add one, etc. Affects Defs.h, MemMacros.h,
+NOjTypesN105.h; DebugUtils, Initialize, InsNewUtils, MIDIFOpen, NotelistParse, Ottava,
+PrefsDialog, RTRhythmDur.

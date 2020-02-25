@@ -751,7 +751,7 @@ static Boolean ParseTimeSig()
 	
 	err = NLERR_BADNUMDENOM;
 	if (!ExtractVal(numStr, &along)) goto broken;
-	if (TSNUM_BAD((short)along)) goto broken;
+	if (TSNUMER_BAD((short)along)) goto broken;
 	pTS->num = along;
 
 	err = NLERR_BADNUMDENOM;

@@ -481,14 +481,209 @@ static void ConvertStaffLines(LINK startL)
 #endif
 
 
-static Boolean Convert1NOTER(Document *doc, LINK aNoteRL);
-static Boolean Convert1STAFF(Document *doc, LINK aStaffL);
-static Boolean Convert1MEASURE(Document *doc, LINK aMeasureL);
+/* ---------------------------- Convert content of subobjects, including their headers -- */
 
 SUPEROBJECT tmpSuperObj;
 ANOTE tmpANoteR;
 ASTAFF tmpAStaff;
 AMEASURE tmpAMeasure;
+ATIMESIG tmpATimesig;
+
+static Boolean Convert1NOTER(Document *doc, LINK aNoteRL);
+static Boolean Convert1STAFF(Document *doc, LINK aStaffL);
+static Boolean Convert1MEASURE(Document *doc, LINK aMeasureL);
+static Boolean Convert1TIMESIG(Document *doc, LINK aTimesigL);
+
+static Boolean Convert1NOTER(Document * /* doc */, LINK aNoteRL)
+{
+	ANOTE_5 a1NoteR;
+	
+	BlockMove(&tmpANoteR, &a1NoteR, sizeof(ANOTE_5));
+	
+	/* The first three fields of the header are in the same location in 'N105' and 'N106'
+	   format, so no need to do anything with them. Copy the others. */
+	   
+	NoteSEL(aNoteRL) = (&a1NoteR)->selected;
+	NoteVIS(aNoteRL) = (&a1NoteR)->visible;
+	NoteSOFT(aNoteRL) = (&a1NoteR)->soft;
+
+	/* Now for the ANOTE-specific fields. */
+	
+	NoteINCHORD(aNoteRL) = (&a1NoteR)->inChord;
+	NoteREST(aNoteRL) = (&a1NoteR)->rest;
+	NoteUNPITCHED(aNoteRL) = (&a1NoteR)->unpitched;
+	NoteBEAMED(aNoteRL) = (&a1NoteR)->beamed;
+	NoteOtherStemSide(aNoteRL) = (&a1NoteR)->otherStemSide;
+	NoteYQPIT(aNoteRL) = (&a1NoteR)->yqpit;
+	NoteXD(aNoteRL) = (&a1NoteR)->xd;
+	NoteYD(aNoteRL) = (&a1NoteR)->yd;
+	NoteYSTEM(aNoteRL) = (&a1NoteR)->ystem;
+	NotePLAYTIMEDELTA(aNoteRL) = (&a1NoteR)->playTimeDelta;
+	NotePLAYDUR(aNoteRL) = (&a1NoteR)->playDur;
+	NotePTIME(aNoteRL) = (&a1NoteR)->pTime;
+	NoteNUM(aNoteRL) = (&a1NoteR)->noteNum;
+	NoteONVELOCITY(aNoteRL) = (&a1NoteR)->onVelocity;
+	NoteOFFVELOCITY(aNoteRL) = (&a1NoteR)->offVelocity;
+	NoteTIEDL(aNoteRL) = (&a1NoteR)->tiedL;
+	NoteTIEDR(aNoteRL) = (&a1NoteR)->tiedR;
+	NoteYMOVEDOTS(aNoteRL) = (&a1NoteR)->ymovedots;
+	NoteNDOTS(aNoteRL) = (&a1NoteR)->ndots;
+	NoteVOICE(aNoteRL) = (&a1NoteR)->voice;
+	NoteRSPIGNORE(aNoteRL) = (&a1NoteR)->rspIgnore;
+	NoteACC(aNoteRL) = (&a1NoteR)->accident;
+	NoteACCSOFT(aNoteRL) = (&a1NoteR)->accSoft;
+	NotePLAYASCUE(aNoteRL) = (&a1NoteR)->playAsCue;
+	NoteMICROPITCH(aNoteRL) = (&a1NoteR)->micropitch;
+	NoteXMOVEACC(aNoteRL) = (&a1NoteR)->xmoveAcc;
+	NoteMERGED(aNoteRL) = (&a1NoteR)->merged;
+	NoteCOURTESYACC(aNoteRL) = (&a1NoteR)->courtesyAcc;
+	NoteDOUBLEDUR(aNoteRL) = (&a1NoteR)->doubleDur;
+	NoteAPPEAR(aNoteRL) = (&a1NoteR)->headShape;
+	NoteXMOVEDOTS(aNoteRL) = (&a1NoteR)->xmovedots;
+	NoteFIRSTMOD(aNoteRL) = (&a1NoteR)->firstMod;
+	NoteSLURREDL(aNoteRL) = (&a1NoteR)->slurredL;
+	NoteSLURREDR(aNoteRL) = (&a1NoteR)->slurredR;
+	NoteINTUPLET(aNoteRL) = (&a1NoteR)->inTuplet;
+	NoteINOTTAVA(aNoteRL) = (&a1NoteR)->inOttava;
+	NoteSMALL(aNoteRL) = (&a1NoteR)->small;
+	(aNoteRL) = (&a1NoteR)->tempFlag;
+	
+//NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
+//LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
+//aNoteRL, NoteSTAFF(aNoteRL), MeasureTOP(aNoteRL), MeasureHEIGHT(aNoteRL), MeasureMEASURELINES(aNoteRL));
+		return True;
+}
+
+static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
+{
+	ASTAFF_5 a1Staff;
+	
+	BlockMove(&tmpAStaff, &a1Staff, sizeof(ASTAFF_5));
+	
+	StaffSTAFFN(aStaffL) = (&a1Staff)->staffn;
+	StaffSEL(aStaffL) =	(&a1Staff)->selected;
+	StaffVIS(aStaffL) = (&a1Staff)->visible;
+	StaffFILLERSTF(aStaffL) = (&a1Staff)->fillerStf;
+	StaffTOP(aStaffL) = (&a1Staff)->staffTop;
+	StaffLEFT(aStaffL) = (&a1Staff)->staffLeft;
+	StaffRIGHT(aStaffL) = (&a1Staff)->staffRight;
+	StaffHEIGHT(aStaffL) = (&a1Staff)->staffHeight;
+	StaffSTAFFLINES(aStaffL) = (&a1Staff)->staffLines;
+	StaffFONTSIZE(aStaffL) = (&a1Staff)->fontSize;
+	StaffFLAGLEADING(aStaffL) = (&a1Staff)->flagLeading;
+	StaffMINSTEMFREE(aStaffL) = (&a1Staff)->minStemFree;
+	StaffLEDGERWIDTH(aStaffL) = (&a1Staff)->ledgerWidth;
+	StaffNOTEHEADWIDTH(aStaffL) = (&a1Staff)->noteHeadWidth;
+	StaffFRACBEAMWIDTH(aStaffL) = (&a1Staff)->fracBeamWidth;
+	StaffSPACEBELOW(aStaffL) = (&a1Staff)->spaceBelow;
+	StaffCLEFTYPE(aStaffL) = (&a1Staff)->clefType;
+	StaffDynamType(aStaffL) = (&a1Staff)->dynamicType;
+	// ??NEED TO HANDLE WHOLE_KSINFO!!!!! */
+	StaffTIMESIGTYPE(aStaffL) = (&a1Staff)->timeSigType;
+	StaffNUMER(aStaffL) = (&a1Staff)->numerator;
+	StaffDENOM(aStaffL) = (&a1Staff)->denominator;
+	StaffFILLER(aStaffL) = (&a1Staff)->filler;
+	StaffSHOWLEDGERS(aStaffL) = (&a1Staff)->showLedgers;
+	StaffSHOWLINES(aStaffL) = (&a1Staff)->showLines;
+
+//NHexDump(LOG_DEBUG, "Convert1STAFF", (unsigned char *)&tempSys, 46, 4, 16);
+//LogPrintf(LOG_DEBUG, "Convert1STAFF: aStaffL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
+//aStaffL, StaffSTAFFN(aStaffL), StaffTOP(aStaffL), StaffHEIGHT(aStaffL), StaffSTAFFLINES(aStaffL));
+{ PASTAFF			aStaff;
+aStaff = GetPASTAFF(aStaffL);
+LogPrintf(LOG_INFO, "Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+	aStaff->staffn, aStaff->staffTop,
+	aStaff->staffLeft, aStaff->staffHeight,
+	aStaff->staffRight, aStaff->staffLines,
+	aStaff->fontSize,
+	(aStaff->selected? 'S' : '.') ,
+	(aStaff->visible? 'V' : '.'),
+	aStaff->timeSigType,
+	aStaff->numerator,
+	aStaff->denominator );
+}
+	return True;
+}
+
+
+static Boolean Convert1MEASURE(Document * /* doc */, LINK aMeasureL)
+{
+	AMEASURE_5 a1Measure;
+	
+	BlockMove(&tmpAMeasure, &a1Measure, sizeof(AMEASURE_5));
+	
+	/* The first three fields of the header are in the same location in 'N105' and 'N106'
+	   format, so no need to do anything with them. Copy the others. */
+	   
+	MeasureSEL(aMeasureL) = (&a1Measure)->selected;
+	MeasureVIS(aMeasureL) = (&a1Measure)->visible;
+	MeasureSOFT(aMeasureL) = (&a1Measure)->soft;
+
+	/* Now for the AMEASURE-specific fields. */
+	
+	MeasureMEASUREVIS(aMeasureL) = (&a1Measure)->measureVisible;
+	MeasCONNABOVE(aMeasureL) = (&a1Measure)->connAbove;
+	MeasFILLER1(aMeasureL) = (&a1Measure)->filler1;
+	MeasFILLER2(aMeasureL) = (&a1Measure)->filler2;
+	MeasOLDFAKEMEAS(aMeasureL) = (&a1Measure)->oldFakeMeas,
+	MeasMEASURENUM(aMeasureL) = (&a1Measure)->measureNum;
+	MeasMRECT(aMeasureL) = (&a1Measure)->measSizeRect;
+	MeasCONNSTAFF(aMeasureL) = (&a1Measure)->connStaff;
+	MeasCLEFTYPE(aMeasureL) = (&a1Measure)->clefType;
+	MeasDynamType(aMeasureL) = (&a1Measure)->dynamicType;
+	// ??NEED TO HANDLE WHOLE_KSINFO!!!!! */
+	MeasTIMESIGTYPE(aMeasureL) = (&a1Measure)->timeSigType;
+	MeasNUMER(aMeasureL) = (&a1Measure)->numerator;
+	MeasDENOM(aMeasureL) = (&a1Measure)->denominator;
+	MeasXMNSTDOFFSET(aMeasureL) = (&a1Measure)->xMNStdOffset;
+	MeasYMNSTDOFFSET(aMeasureL) = (&a1Measure)->yMNStdOffset;
+
+//NHexDump(LOG_DEBUG, "Convert1MEASURE", (unsigned char *)&tempSys, 46, 4, 16);
+//LogPrintf(LOG_DEBUG, "Convert1MEASURE: aMeasureL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
+//aMeasureL, MeasureMEASUREN(aMeasureL), MeasureTOP(aMeasureL), MeasureHEIGHT(aMeasureL), MeasureMEASURELINES(aMeasureL));
+#if 0
+{ PAMEASURE			aMeasure;
+aMeasure = GetPAMEASURE(aMeasureL);
+LogPrintf(LOG_INFO, "Convert1MEASURE: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+blah lorem ipsum );
+}
+#endif
+	return True;
+}
+
+
+static Boolean Convert1TIMESIG(Document * /* doc */, LINK aTimesigL)
+{
+	ATIMESIG_5 a1Timesig;
+	
+	BlockMove(&tmpATimesig, &a1Timesig, sizeof(ATIMESIG_5));
+	
+#if 1
+/* The first three fields of the header are in the same location in 'N105' and 'N106'
+	   format, so no need to do anything with them. Copy the others. */
+	   
+	TimeSigSEL(aTimesigL) = (&a1Timesig)->selected;
+	TimeSigVIS(aTimesigL) = (&a1Timesig)->visible;
+	TimeSigSOFT(aTimesigL) = (&a1Timesig)->soft;
+#endif
+
+	/* Now for the ATIMESIG-specific fields. */
+	
+	TimeSigFILLER(aTimesigL) = (&a1Timesig)->filler;
+	TimeSigSMALL(aTimesigL) = (&a1Timesig)->small;
+	TimeSigCONNSTAFF(aTimesigL) = (&a1Timesig)->connStaff;
+	TimeSigXD(aTimesigL) = (&a1Timesig)->xd;
+	TimeSigYD(aTimesigL) = (&a1Timesig)->yd;
+
+	TimeSigNUMER(aTimesigL) = (&a1Timesig)->numerator;
+	TimeSigDENOM(aTimesigL) = (&a1Timesig)->denominator;
+
+//NHexDump(LOG_DEBUG, "Convert1MEASURE", (unsigned char *)&tempSys, 46, 4, 16);
+//LogPrintf(LOG_DEBUG, "Convert1MEASURE: aMeasureL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
+//aMeasureL, MeasureMEASUREN(aMeasureL), MeasureTOP(aMeasureL), MeasureHEIGHT(aMeasureL), MeasureMEASURELINES(aMeasureL));
+	return True;
+}
+
 
 /* Convert the header of the object in <tmpSuperObj>, which is assumed to be in 'N105'
 format (equivalent to Nightingale 5.8 and earlier), to Nightingale 5.9.x format in
@@ -500,7 +695,7 @@ static void ConvertObjHeader(Document *doc, LINK objL);
 static void ConvertObjHeader(Document * /* doc */, LINK objL)
 {
 	typedef struct {
-	OBJECTHEADER_5
+		OBJECTHEADER_5
 	} OBJHEADER;
 	OBJHEADER tmpObjHeader_5;
 	
@@ -526,6 +721,14 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 /* Convert the bodies of objects of each type. */
 
 static Boolean ConvertSYNC(Document *doc, LINK syncL);
+static Boolean ConvertPAGE(Document *doc, LINK pageL);
+static Boolean ConvertSYSTEM(Document *doc, LINK sysL);
+static Boolean ConvertSTAFF(Document *doc, LINK staffL);
+static Boolean ConvertMEASURE(Document *doc, LINK measL);
+static Boolean ConvertTIMESIG(Document *doc, LINK measL);
+static Boolean ConvertCONNECT(Document *doc, LINK measL);
+
+
 static Boolean ConvertSYNC(Document *doc, LINK syncL)
 {
 	SYNC_5 aSync;
@@ -557,7 +760,6 @@ NHexDump(LOG_DEBUG, "ConvObjs/SYNC 2", (unsigned char *)&tmpANoteR, sizeof(ANOTE
 	return True;
 }
 
-static Boolean ConvertPAGE(Document *doc, LINK pageL);
 static Boolean ConvertPAGE(Document * /* doc */, LINK pageL)
 {
 	PAGE_5 aPage;
@@ -574,7 +776,6 @@ LinkLPAGE(pageL), LinkRPAGE(pageL), SheetNUM(pageL));
 	return True;
 }
 
-static Boolean ConvertSYSTEM(Document *doc, LINK sysL);
 static Boolean ConvertSYSTEM(Document * /* doc */, LINK sysL)
 {
 	SYSTEM_5 aSys;
@@ -599,7 +800,6 @@ LinkXD(sysL), LinkSEL(sysL), LinkVIS(sysL));
 }
 
 
-static Boolean ConvertSTAFF(Document *doc, LINK staffL);
 static Boolean ConvertSTAFF(Document *doc, LINK staffL)
 {
 	STAFF_5 aStaff;
@@ -634,7 +834,6 @@ NHexDump(LOG_DEBUG, "ConvObjs/STF 2", (unsigned char *)&tmpAStaff, sizeof(ASTAFF
 }
 
 
-static Boolean ConvertMEASURE(Document *doc, LINK measL);
 static Boolean ConvertMEASURE(Document *doc, LINK measL)
 {
 	MEASURE_5 aMeasure;
@@ -673,96 +872,67 @@ NHexDump(LOG_DEBUG, "ConvObjs/STF 2", (unsigned char *)&tmpAMeasure, sizeof(AMEA
 }
 
 
-/* ------------------------------ Convert the content of subobjects, including headers -- */
-
-static Boolean Convert1NOTER(Document * /* doc */, LINK aNoteRL)
+static Boolean ConvertTIMESIG(Document *doc, LINK timesigL)
 {
-	ANOTE_5 a1NoteR;
+	TIMESIG_5 aTimesig;
+	LINK aTimesigL;
+	unsigned char *pSSubObj;
 	
-	BlockMove(&tmpANoteR, &a1NoteR, sizeof(ANOTE_5));
+	BlockMove(&tmpSuperObj, &aTimesig, sizeof(TIMESIG_5));
 	
-	NoteSTAFF(aNoteRL) = (&a1NoteR)->staffn;
-	NoteSEL(aNoteRL) = (&a1NoteR)->selected;
+	TimeSigINMEAS(timesigL) = (&aTimesig)->inMeasure;
 
-	NoteINCHORD(aNoteRL) = (&a1NoteR)->inChord;
-	NoteREST(aNoteRL) = (&a1NoteR)->rest;
-	NoteUNPITCHED(aNoteRL) = (&a1NoteR)->unpitched;
-	NoteBEAMED(aNoteRL) = (&a1NoteR)->beamed;
-	NoteOtherStemSide(aNoteRL) = (&a1NoteR)->otherStemSide;
-	NoteYQPIT(aNoteRL) = (&a1NoteR)->yqpit;
-	NoteACC(aNoteRL) = (&a1NoteR)->accident;
-	// DOZENS MORE FIELDS HERE!
-	NoteNUM(aNoteRL) = (&a1NoteR)->noteNum;
-	NoteVOICE(aNoteRL) = (&a1NoteR)->voice;
-	NoteFIRSTMOD(aNoteRL) = (&a1NoteR)->firstMod;
-	NoteSLURREDL(aNoteRL) = (&a1NoteR)->slurredL;
-	NoteSLURREDR(aNoteRL) = (&a1NoteR)->slurredR;
-	NoteINTUPLET(aNoteRL) = (&a1NoteR)->inTuplet;
-	NoteINOTTAVA(aNoteRL) = (&a1NoteR)->inOttava;
-	
-//NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
-//LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
-//aNoteRL, NoteSTAFF(aNoteRL), MeasureTOP(aNoteRL), MeasureHEIGHT(aNoteRL), MeasureMEASURELINES(aNoteRL));
-		return True;
-}
+//NHexDump(LOG_DEBUG, "ConvertTIMESIG", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertTIMESIG: timesigL=%u inMeasure=%d\n", timesigL,
+TimeSigINMEAS(timesigL));
 
-static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
-{
-	ASTAFF_5 a1Staff;
-	
-	BlockMove(&tmpAStaff, &a1Staff, sizeof(ASTAFF_5));
-	
-	StaffSEL(aStaffL) =	(&a1Staff)->selected;
-	StaffSTAFFN(aStaffL) = (&a1Staff)->staffn;
-	StaffHEIGHT(aStaffL) = (&a1Staff)->staffHeight;
-	StaffSTAFFLINES(aStaffL) = (&a1Staff)->staffLines;
-	StaffCLEFTYPE(aStaffL) = (&a1Staff)->clefType;
-	StaffDynamType(aStaffL) = (&a1Staff)->dynamicType;
-	StaffDENOM(aStaffL) = (&a1Staff)->denominator;
-	StaffNUMER(aStaffL) = (&a1Staff)->numerator;
+	aTimesigL = FirstSubLINK(timesigL);
+	for ( ; aTimesigL; aTimesigL = NextTIMESIGL(aTimesigL)) {
+		/* Copy the subobj to a separate ATIMESIG so we can move fields all over
+		the place without having to worry about clobbering anything. */
 
-//NHexDump(LOG_DEBUG, "Convert1STAFF", (unsigned char *)&tempSys, 46, 4, 16);
-//LogPrintf(LOG_DEBUG, "Convert1STAFF: aStaffL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
-//aStaffL, StaffSTAFFN(aStaffL), StaffTOP(aStaffL), StaffHEIGHT(aStaffL), StaffSTAFFLINES(aStaffL));
-{ PASTAFF			aStaff;
-aStaff = GetPASTAFF(aStaffL);
-LogPrintf(LOG_INFO, "Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
-	aStaff->staffn, aStaff->staffTop,
-	aStaff->staffLeft, aStaff->staffHeight,
-	aStaff->staffRight, aStaff->staffLines,
-	aStaff->fontSize,
-	(aStaff->selected? 'S' : '.') ,
-	(aStaff->visible? 'V' : '.'),
-	aStaff->timeSigType,
-	aStaff->numerator,
-	aStaff->denominator );
-}
+		pSSubObj = (unsigned char *)GetObjectPtr(TIMESIGheap, aTimesigL, PATIMESIG);
+LogPrintf(LOG_DEBUG, "->block=%ld aTimesigL=%d sizeof(ATIMESIG)*aTimesigL=%d pSSubObj=%ld\n",
+(TIMESIGheap)->block, aTimesigL, sizeof(ATIMESIG)*aTimesigL, pSSubObj);
+		BlockMove(pSSubObj, &tmpATimesig, sizeof(ATIMESIG));
+NHexDump(LOG_DEBUG, "ConvTimesig", (unsigned char *)&tmpATimesig, sizeof(ATIMESIG_5), 4, 16);
+
+		Convert1TIMESIG(doc, aTimesigL);
+	}
+
 	return True;
 }
 
 
-static Boolean Convert1MEASURE(Document * /* doc */, LINK aMeasureL)
+static Boolean ConvertCONNECT(Document *doc, LINK connectL)
 {
-	AMEASURE_5 a1Measure;
+	CONNECT_5 aConnect;
+	LINK aConnectL;
+	unsigned char *pSSubObj;
 	
-	BlockMove(&tmpAMeasure, &a1Measure, sizeof(AMEASURE_5));
+	BlockMove(&tmpSuperObj, &aConnect, sizeof(CONNECT_5));
 	
-	MeasureSEL(aMeasureL) = (&a1Measure)->selected;
-	MeasCLEFTYPE(aMeasureL) = (&a1Measure)->clefType;
-	MeasDynamType(aMeasureL) = (&a1Measure)->dynamicType;
-	MeasNUMER(aMeasureL) = (&a1Measure)->numerator;
-	MeasDENOM(aMeasureL) = (&a1Measure)->denominator;
+	/* As v. 5.9.1, there's nothing to convert in the CONNECT object byt its header. */
 
-//NHexDump(LOG_DEBUG, "Convert1MEASURE", (unsigned char *)&tempSys, 46, 4, 16);
-//LogPrintf(LOG_DEBUG, "Convert1MEASURE: aMeasureL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
-//aMeasureL, MeasureMEASUREN(aMeasureL), MeasureTOP(aMeasureL), MeasureHEIGHT(aMeasureL), MeasureMEASURELINES(aMeasureL));
-#if 0
-{ PAMEASURE			aMeasure;
-aMeasure = GetPAMEASURE(aMeasureL);
-LogPrintf(LOG_INFO, "Convert1MEASURE: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
-blah lorem ipsum );
-}
+//NHexDump(LOG_DEBUG, "ConvertCONNECT", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertCONNECT: connectL=%u\n", connectL);
+
+	aConnectL = FirstSubLINK(connectL);
+	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
+		/* Copy the subobj to a separate ACONNECT so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+#ifdef NOTYET
+		pSSubObj = (unsigned char *)GetObjectPtr(CONNECTheap, aConnectL, PACONNECT);
+LogPrintf(LOG_DEBUG, "->block=%ld aConnectL=%d sizeof(ACONNECT)*aConnectL=%d pSSubObj=%ld\n",
+(CONNECTheap)->block, aConnectL, sizeof(ACONNECT)*aConnectL, pSSubObj);
+		BlockMove(pSSubObj, &tmpAConnect, sizeof(ACONNECT));
+NHexDump(LOG_DEBUG, "ConvConnect", (unsigned char *)&tmpAConnect, sizeof(ACONNECT_5), 4, 16);
+
+		Convert1CONNECT(doc, aConnectL);
 #endif
+	}
+
 	return True;
 }
 
@@ -843,14 +1013,19 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 			case KEYSIGtype:
 				if (!ConvertKEYSIG(doc, pL))  ERROR;
 				continue;
+#endif
 			case TIMESIGtype:
-				if (!ConvertTIMESIG(doc, pL))  ERROR;
+				ConvertTIMESIG(doc, pL);
 				continue;
+#ifdef NOTYET
 			case BEAMSETtype:
 				if (!ConvertBEAMSET(doc, pL))  ERROR;
 				continue;
+#endif
 			case CONNECTtype:
+				ConvertCONNECT(doc, pL);
 				continue;
+#ifdef NOTYET
 			case DYNAMtype:
 				if (!ConvertDYNAMIC(doc, pL))  ERROR;
 				continue;

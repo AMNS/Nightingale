@@ -7,7 +7,7 @@
  *
  * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
 
-	DoOttava				DoRemoveOttava			GetNoteyd
+	DoOttava				DoRemoveOttava			GetNoteYD
 	SetOttavaYPos			CreateOTTAVA			UnOttava
 	UnOttavaS
 	UnOttavaSync			UnOttavaGRSync			UnOttavaRange
@@ -24,7 +24,7 @@
 /* Prototypes for internal functions */
 static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEndL, Byte octType);
 static LINK GetOctStartL(LINK startL, short staff, Boolean needSel);
-static DDIST GetNoteyd(LINK syncL, short staff);
+static DDIST GetNoteYD(LINK syncL, short staff);
 static void UnOttava(Document *, LINK, LINK, short);
 static void UnOttavaS(Document *, LINK, LINK, short);
 static void UnOttavaSync(Document *, LINK, LINK, DDIST, short, CONTEXT);
@@ -54,7 +54,7 @@ void DoOttava(Document *doc)
 	}
 }
 
-/* -------------------------------------------------------------- DoRemoveOttava -- */
+/* -------------------------------------------------------------------- DoRemoveOttava -- */
 /* Remove the octave sign from the selection. */
 
 void DoRemoveOttava(Document *doc)
@@ -76,9 +76,9 @@ void DoRemoveOttava(Document *doc)
 		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, False, False);
 }
 
-/* ------------------------------------------------------------ CreateOctStfRange -- */
-/* Create octave sign for notes from stfStartL to stfEndL, excluding stfEndL,
-on staff <s>. */
+/* ----------------------------------------------------------------- CreateOctStfRange -- */
+/* Create octave sign for notes from stfStartL to stfEndL, excluding stfEndL, on
+staff <s>. */
 
 static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEndL,
 								Byte octType)
@@ -94,9 +94,9 @@ static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEn
 	}
 }
 
-/* ----------------------------------------------------------------- GetOctStartL -- */
-/* Get new startL in order to insert octave sign into object list before first
-sync or GRSync to right of <startL>. */
+/* ---------------------------------------------------------------------- GetOctStartL -- */
+/* Get new startL in order to insert octave sign into object list before first Sync
+or GRSync to right of <startL>. */
 
 static LINK GetOctStartL(LINK startL, short staff, Boolean needSel)
 {
@@ -115,12 +115,11 @@ static LINK GetOctStartL(LINK startL, short staff, Boolean needSel)
 	return octStartL;
 }
 
-/* -------------------------------------------------------------------- GetNoteyd -- */
-/* Given syncL, return the yd of a MainNote or GRMainNote on <staff>. Note that
-there may be more than one such MainNote/GRMainNote: we just use the first one
-we find. */
+/* ------------------------------------------------------------------------- GetNoteYD -- */
+/* Given syncL, return the yd of a MainNote or GRMainNote on <staff>. Note that there
+may be more than one such MainNote/GRMainNote: we just use the first one we find. */
 
-static DDIST GetNoteyd(LINK syncL,
+static DDIST GetNoteYD(LINK syncL,
 						short staffn)		/* Either Sync or GRSync */
 {
 	LINK aNoteL, aGRNoteL;
@@ -149,7 +148,7 @@ static DDIST GetNoteyd(LINK syncL,
 #define OTTAVA_BRACKET_ALTA_LIM(yd)		((yd)>octAltaYLim? octAltaYLim : (yd))
 #define OTTAVA_BRACKET_BASSA_LIM(yd)	((yd)<octBassaYLim? octBassaYLim : (yd))
 
-/* --------------------------------------------------------------- SetOttavaYPos -- */
+/* --------------------------------------------------------------------- SetOttavaYPos -- */
 /* Set the given octave sign to (a guess at) a reasonable vertical position, based
 on the position of the MainNote of its first note/chord. (FIXME: It'd surely be better
 to look at all of its notes/chords, and not difficult.) */
@@ -172,7 +171,7 @@ void SetOttavaYPos(Document *doc, LINK octL)
 	dhalfLn = lnSpace/2;
 
 	firstSyncL = FirstInOttava(octL);
-	firstyd = GetNoteyd(firstSyncL, staff);
+	firstyd = GetNoteYD(firstSyncL, staff);
 
 	octAltaYLim = -OTTAVA_STANDOFF_ALTA*dhalfLn;
 	octBassaYLim = context.staffHeight + OTTAVA_STANDOFF_BASSA*dhalfLn;
@@ -193,10 +192,9 @@ void SetOttavaYPos(Document *doc, LINK octL)
 			;
 	}
 
-	/*
-	 * Try to position the octave sign <margin> half-lines away from the 1st MainNote,
-	 *	but always put it at least <OTTAVA_STANDOFF_ALTA/BASSA> away from the staff.
-	 */
+	/* Try to position the octave sign <margin> half-lines away from the 1st MainNote,
+	   but always put it at least <OTTAVA_STANDOFF_ALTA/BASSA> away from the staff. */
+	   
  	if (isBassa)	margin = OTTAVA_MARGIN_BASSA*dhalfLn;
  	else			margin = OTTAVA_MARGIN_ALTA*dhalfLn;
 	if (isBassa)	octydFirst = OTTAVA_BRACKET_BASSA_LIM(firstyd+margin);
@@ -207,7 +205,7 @@ void SetOttavaYPos(Document *doc, LINK octL)
 }
 
 
-/* ---------------------------------------------------------------- CreateOTTAVA -- */
+/* ---------------------------------------------------------------------- CreateOTTAVA -- */
 /* Create octave sign in range [startL,endL) on staff <staff>. */
 
 LINK CreateOTTAVA(
@@ -309,7 +307,8 @@ LINK CreateOTTAVA(
 		}
 
 	if (octElem!=nInOttava) {
-		MayErrMsg("CreateOTTAVA expected %ld notes but found %ld.",(long)nInOttava,(long)octElem);
+		MayErrMsg("CreateOTTAVA expected %ld notes but found %ld.", (long)nInOttava,
+					(long)octElem);
 		return NILINK;
 	}
 	
@@ -328,20 +327,21 @@ LINK CreateOTTAVA(
 	for (pL = startL; pL!=endL; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
 			multiVoice = IsSyncMultiVoice(pL, staff); 		/* Are there multiple voices on staff? */
+			
 			/* Loop through the notes, simple-mindedly fixing up notehead, stem, and
-				aug. dot y-positions. Chords will need more attention once all their
-				constituent notes have been moved. */
+			   aug. dot y-positions. Chords will need more attention once all their
+			   constituent notes have been moved. */
+			   
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				if (!NoteREST(aNoteL) && NoteSTAFF(aNoteL)==staff) {
 					NoteYD(aNoteL) += yDelta;
 					NoteYQPIT(aNoteL) += halfLn2qd(noteOffset[octSignType-1]);
 					if (MainNote(aNoteL)) {
-						/*
-						 * If octave sign affects line/space status of notes (it does if it's
-						 *	an odd no. of octaves change), move visible aug. dots to correct
-						 * new positions.
-						 */
+						/* If octave sign affects line/space status of notes (it does if
+						   it's an odd no. of octaves change), move visible aug. dots to
+						   correct new positions. */
+						   
 						stemDown = GetStemInfo(doc, pL, aNoteL, &qStemLen);
 						NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
 														stemDown, 
@@ -358,8 +358,10 @@ LINK CreateOTTAVA(
 					if (config.moveModNRs) MoveModNRs(aNoteL, dystd);
 				}
 			}
+			
 			/* Loop through the notes again and fix up chords (for notes' stem sides,
-				accidental positions, etc.). */
+			   accidental positions, etc.). */
+			   
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				if (NoteINCHORD(aNoteL) && MainNote(aNoteL) && NoteSTAFF(aNoteL)==staff) {
@@ -371,8 +373,9 @@ LINK CreateOTTAVA(
 		}
 		else if (GRSyncTYPE(pL)) {
 			multiVoice = False; 							/* FIXME: For now; needs GetGRMultiVoice! */
-			/* Loop through the grace notes, fixing up notehead, stem, and aug.
-				dot y-positions. */
+
+			/* Loop through the grace notes, fixing up notehead, stem, and aug. dot
+			   y-positions. */
 			aGRNoteL = FirstSubLINK(pL);
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 				aGRNote = GetPAGRNOTE(aGRNoteL);
@@ -399,7 +402,8 @@ LINK CreateOTTAVA(
 				}
 			}
 			/* Loop through the grace notes again and fix up the ystems of the
-				non-extreme notes. */
+			   non-extreme notes. */
+			   
 			aGRNoteL = FirstSubLINK(pL);
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 				aGRNote = GetPAGRNOTE(aGRNoteL);
@@ -491,7 +495,7 @@ LINK CreateOTTAVA(
 }
 
 
-/* --------------------------------------------------------------- GetOctTypeNum -- */
+/* --------------------------------------------------------------------- GetOctTypeNum -- */
 /* Get octave-sign number corresponding to octSignType, and whether bassa. */
 
 long GetOctTypeNum(LINK pL, Boolean *isBassa)
@@ -520,13 +524,13 @@ long GetOctTypeNum(LINK pL, Boolean *isBassa)
 			*isBassa = True;
 			return 22L;
 		default:
-			MayErrMsg("GetOctTypeNum: illegal Ottava %ld", (long)p->octSignType);
+			MayErrMsg("GetOctTypeNum: illegal Ottava type %ld at L%u", (long)p->octSignType, pL);
 			return 0L;
 	}
 }
 
 
-/* ------------------------------------------------------------------ DrawOTTAVA -- */
+/* ------------------------------------------------------------------------ DrawOTTAVA -- */
 /* Draw OTTAVA object. */
 
 void DrawOTTAVA(Document *doc, LINK pL, CONTEXT context[])
@@ -762,7 +766,7 @@ static void UnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, shor
 }
 
 
-/* -------------------------------------------------------------- RemoveOctOnStf -- */
+/* -------------------------------------------------------------------- RemoveOctOnStf -- */
 /* Remove the given octave sign and change notes and grace notes it affected
 accordingly. */
 
@@ -844,7 +848,7 @@ void UnOttavaRange(Document *doc, LINK fromL, LINK toL, short staff)
 }
 
 
-/* ------------------------------------------------------ Miscellaneous Utilities -- */
+/* ----------------------------------------------------------- Miscellaneous Utilities -- */
 
 /* ------------------------------------------------- FirstInOttava, LastInOttava -- */
 
@@ -871,7 +875,7 @@ LINK LastInOttava(LINK ottavaL)
 }
 
 
-/* ---------------------------------------------------------- HasOctAcross, etc. -- */
+/* ---------------------------------------------------------------- HasOctAcross, etc. -- */
 /* Determines if there is an Ottava at <node> on <staff>. If <!skipNode>, checks
 the point just before <node>; if <skipNode>, checks whether there's an Ottava
 spanning <node>, ignoring <node> itself. The latter option is intended for use
@@ -1097,7 +1101,7 @@ LINK HasOttavaAcrossPt(Document *doc, Point pt, short staff)
 }
 
 
-/* ----------------------------------------------------------- SelRangeChkOttava -- */
+/* ----------------------------------------------------------------- SelRangeChkOttava -- */
 
 Boolean SelRangeChkOttava(short staff, LINK staffStartL, LINK staffEndL)
 {
@@ -1127,7 +1131,7 @@ Boolean SelRangeChkOttava(short staff, LINK staffStartL, LINK staffEndL)
 }
 
 
-/* -------------------------------------------------------- OctCountNotesInRange -- */
+/* -------------------------------------------------------------- OctCountNotesInRange -- */
 /* Return the total number of notes/chords on stf in the range from both Syncs and
 GRSyncs. Does NOT count rests. */
 
@@ -1144,7 +1148,7 @@ short OctCountNotesInRange(short stf,
 }
 
 
-/* ------------------------------------------------------------ QD_DrawDashedLine -- */
+/* ----------------------------------------------------------------- QD_DrawDashedLine -- */
 /* Draw a horizontal dashed line via QuickDraw. y2 is ignored. */
 
 #define DASH_LEN		4		/* in pixels */
@@ -1163,7 +1167,7 @@ void QD_DrawDashedLine(short x1, short y1, short x2, short /*y2*/)
 }
 
 
-/* -------------------------------------------------------------- DrawOctBracket -- */
+/* -------------------------------------------------------------------- DrawOctBracket -- */
 /* Draw octave sign bracket. firstPt and lastPt are the coordinates of the start
 and end points of the bracket, and octWidth is the width of the octave sign string.
 For now, lastPt.v is ignored and the bracket is always horizontal. */
@@ -1191,7 +1195,8 @@ void DrawOctBracket(
 			yCutoff = d2p(yCutoffLen);
 		
 		/* Start octWidth to right of firstPt. Draw a dotted line to the end of the
-		octave sign, and a solid line up or down yCutoff. */
+		   octave sign, and a solid line up or down yCutoff. */
+		   
 			MoveTo(firstx+octWidth+XFUDGE, firsty);
 			QD_DrawDashedLine(firstx+octWidth+XFUDGE, firsty, lastx, firsty);
 			if (yCutoff!=0) {

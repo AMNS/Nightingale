@@ -453,7 +453,7 @@ static Boolean AnyBadPrefs(DialogPtr dlog, short curCard)
 				goto hadError;
 			}
 			GetDlgWord(dlog, badField = EDIT13_numer, &newval);
-			if (TSNUM_BAD(newval)) {
+			if (TSNUMER_BAD(newval)) {
 				GetIndCString(strBuf, PREFSERRS_STRS, 5);    	/* "Time signature numerator must be from 1 to 99." */
 				goto hadError;
 			}

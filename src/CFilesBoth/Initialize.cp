@@ -772,7 +772,7 @@ static Boolean CheckConfig()
 #define RASTRAL0SIZE_DFLT pdrSize[0]
 	if (config.defaultLedgers < 1 || config.defaultLedgers > MAX_LEDGERS)
 			{ config.defaultLedgers = LEDGERS_DFLT; ERR(38); }
-	if (TSNUM_BAD(config.defaultTSNum)) 	{ config.defaultTSNum = TSNUM_DFLT; ERR(39); }
+	if (TSNUMER_BAD(config.defaultTSNum)) 	{ config.defaultTSNum = TSNUM_DFLT; ERR(39); }
 	if (TSDENOM_BAD(config.defaultTSDenom)) { config.defaultTSDenom = TSDENOM_DFLT; ERR(40); }
 	if (config.defaultRastral < 0 || config.defaultRastral > MAXRASTRAL)
 			{ config.defaultRastral = RASTRAL_DFLT; ERR(41); }

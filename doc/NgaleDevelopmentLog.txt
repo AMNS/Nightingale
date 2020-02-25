@@ -4844,7 +4844,7 @@ Commited & pushed.
 
 -------------------------------------------------------------------------------
 
-16 - 19 Feb.
+16 - 20 Feb.
 
 	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
 	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED STAFF L4.
@@ -4985,3 +4985,76 @@ none of "bullet" level! Voila:
 	Notice. * CautionAdvise alertID=550!
 	info.  Done.    --CHECK CLIPBOARD:  Done. 23 ERROR(S). 
 	 
+-------------------------------------------------------------------------------
+
+21 - 23 Feb.
+
+Add more conversion stuff to Convert1MEASURE() =>
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF -1 OR 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L5.
+	Feb 23 08:13:29: --- last message repeated 1 time ---
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED CLEF L6.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED CLEF L6.
+	Warning. *DCheckNode: SUBOBJ IN TIMESIG L8 HAS BAD TIMESIG denom.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED TIMESIG L8.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED TIMESIG L8.
+	Warning. *DCheckHeirarchy: CLEF L6 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: KEYSIG L7 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: TIMESIG L8 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. DCheckContext: TIMESIG FOR STAFF 1 IN MEASURE 1 (L9) INCONSISTENCY.
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 1 (L8) not anticipated.
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 2 (L8) not anticipated.
+	info. Discont. sel, 0 objs in range, 0 sel, 11 total.  1 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF -1 OR 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L16.
+	Feb 23 08:13:29: --- last message repeated 1 time ---
+	info.  Done.    --CHECK CLIPBOARD:  Done. 19 ERROR(S). 
+
+...but then:
+
+	Warning. DCheckNode: Object L6: objrect.left relative to next is suspicious.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED CLEF L6.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED CLEF L6.
+	Warning. DCheckNode: Object L7: objrect.left relative to previous is suspicious.
+	Warning. DCheckNode: Object L8: objrect.left relative to next is suspicious.
+	Warning. *DCheckNode: SUBOBJ IN TIMESIG L8 HAS BAD TIMESIG denom.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED TIMESIG L8.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED TIMESIG L8.
+	Warning. DCheckNode: Object L9: objrect.left relative to previous is suspicious.
+	Warning. DCheckVoiceTable: VOICE 2 HAS NO NOTES, RESTS, OR GRACE NOTES.
+	Warning. *DCheckHeirarchy: CLEF L6 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: KEYSIG L7 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: TIMESIG L8 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. DCheckContext: TIMESIG FOR STAFF 1 IN MEASURE 1 (L9) INCONSISTENCY.
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 1 (L8) not anticipated.
+	Warning. DCheckCautionaryTS: Timesig at start of system in measure 0, staff 2 (L8) not anticipated.
+	Warning. DCheckMeasDur: Measure 1 (L9) duration of 480 is  different from time sig.
+	Warning. DCheckMeasDur: Measure 1 (L9), staff 1 duration 480 is different from time sig.
+	Notice. * CautionAdvise alertID=550!
+	info. Discont. sel, 0 objs in range, 0 sel, 11 total.  1 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF -1 OR 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L16.
+	Feb 23 13:49:08: --- last message repeated 1 time ---
+	info.  Done.    --CHECK CLIPBOARD:  Done. 26 ERROR(S). 
+
+Time signatures are a big problem! Implement ConvertTIMESIG() & Convert1TIMESIG() =>
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD STAFF -1 OR 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L5.
+	Feb 23 14:25:48: --- last message repeated 1 time ---
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED CLEF L6.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED CLEF L6.
+	info. Discont. sel, 0 objs in range, 0 sel, 11 total.  1 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF 0 OR 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD STAFF -1 OR 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L16.
+	Feb 23 14:25:48: --- last message repeated 1 time ---
+	info.  Done.    --CHECK CLIPBOARD:  Done. 10 ERROR(S). 
+ 

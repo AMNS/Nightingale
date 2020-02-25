@@ -416,10 +416,10 @@ equiv. KSINFO is necessarily even, so BlockMove(ks1, ks2, sizeof(KSINFO)) doesn'
 /* Is the object type illegal? */
 #define TYPE_BAD(pL)			(ObjLType((pL))<LOWtype || ObjLType((pL))>HIGHtype)
 
-/* Check timeSigType, numerator, denominator for legality. TSDENOM_BAD must agree
-with MAX_TSDENOM, above! */
+/* Check timeSigType, numerator, denominator for legality. TSDENOM_BAD must not
+allow values forbidden by MAX_TSDENOM, defined elsewhere! */
 #define TSTYPE_BAD(t)			(	(t)<LOW_TStype || (t)>HIGH_TStype)
-#define TSNUM_BAD(t)			(	(t)<1 || (t)>MAX_TSNUM )
+#define TSNUMER_BAD(t)			(	(t)<1 || (t)>MAX_TSNUM )
 #define TSDENOM_BAD(t)			(	(t)!=1 && (t)!=2 && (t)!=4 && (t)!=8		\
 									&&	(t)!=16 && (t)!=32 && (t)!=64 )
 #define TSDUR_BAD(tn, td)		(TimeSigDur(N_OVER_D, (tn), (td))>MAX_SAFE_MEASDUR )

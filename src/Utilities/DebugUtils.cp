@@ -398,7 +398,7 @@ Boolean DCheckMeasSubobjs(
 		if (TSTYPE_BAD(MeasTIMESIGTYPE(aMeasL)))
 			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD timeSigType %d.\n",
 						pL, MeasTIMESIGTYPE(aMeasL));
-		if (TSNUM_BAD(MeasNUMER(aMeasL)))
+		if (TSNUMER_BAD(MeasNUMER(aMeasL)))
 			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD TIMESIG numerator %d.\n",
 						pL, MeasNUMER(aMeasL));
 		if (TSDENOM_BAD(MeasDENOM(aMeasL)))
@@ -1091,11 +1091,17 @@ short DCheckNode(
 						aTimeSigL=NextTIMESIGL(aTimeSigL)) {
 					aTimeSig = GetPATIMESIG(aTimeSigL);		
 					if (STAFFN_BAD(doc, aTimeSig->staffn))
-						COMPLAIN("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD staffn.\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD staffn %d.\n",
+								pL, aTimeSig->staffn);
 					if (TSTYPE_BAD(aTimeSig->subType))
-						COMPLAIN("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD timeSigType.\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD timeSigType %d.\n",
+								pL, aTimeSig->subType);
+					if (TSNUMER_BAD(aTimeSig->numerator))
+						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD TIMESIG numerator %d.\n",
+								pL, aTimeSig->numerator);
 					if (TSDENOM_BAD(aTimeSig->denominator))
-						COMPLAIN("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD TIMESIG denom.\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD TIMESIG denominator %d.\n",
+								pL, aTimeSig->denominator);
 					if (TSDUR_BAD(aTimeSig->numerator, aTimeSig->denominator))
 						COMPLAIN("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS TOO GREAT DURATION.\n", pL);
 				}
@@ -1184,13 +1190,16 @@ short DCheckNode(
 				for (aConnectL=FirstSubLINK(pL); aConnectL;
 						aConnectL=NextCONNECTL(aConnectL)) {
 					aConnect = GetPACONNECT(aConnectL);
-					if (aConnect->connLevel!=0)
-						if (STAFFN_BAD(doc, aConnect->staffAbove)
-						||  STAFFN_BAD(doc, aConnect->staffBelow)) {
-							COMPLAIN3("*DCheckNode: SUBOBJ IN CONNECT L%u HAS BAD STAFF %d OR %d.\n",
-											pL, aConnect->staffAbove, aConnect->staffBelow);
-						}
-						else if (aConnect->staffAbove>=aConnect->staffBelow)
+					if (aConnect->connLevel!=0) {
+						if (STAFFN_BAD(doc, aConnect->staffAbove))
+							COMPLAIN2("*DCheckNode: SUBOBJ IN CONNECT L%u HAS BAD staffAbove %d.\n",
+											pL, aConnect->staffAbove);
+						
+						if (STAFFN_BAD(doc, aConnect->staffBelow))
+							COMPLAIN2("*DCheckNode: SUBOBJ IN CONNECT L%u HAS BAD staffBelow %d.\n",
+											pL, aConnect->staffBelow);
+					}
+					else if (aConnect->staffAbove>=aConnect->staffBelow)
 							COMPLAIN("*DCheckNode: SUBOBJ IN CONNECT L%u staffAbove>=staffBelow.\n", pL);
 				}
 

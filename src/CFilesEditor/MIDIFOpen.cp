@@ -126,7 +126,7 @@ static Boolean IsTimeSigBad(short tsNum, short tsDenom)
 {
 	char fmtStr[256];
 
-	if (TSNUM_BAD(tsNum) || TSDENOM_BAD(tsDenom)) {
+	if (TSNUMER_BAD(tsNum) || TSDENOM_BAD(tsDenom)) {
 		GetIndCString(fmtStr, MIDIFILE_STRS, 20);    /* "Nightingale can't handle the time signature %d/%d." */
 		sprintf(strBuf, fmtStr, tsNum, tsDenom); 
 		CParamText(strBuf, "", "", "");

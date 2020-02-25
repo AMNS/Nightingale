@@ -41,7 +41,7 @@ static Boolean Add1Tuplet(Document *, short, LINKTIMEINFO [], short, short);
 /* ---------------------------------------------------------- Clarify to Measures -- */
 
 #define CHECK_TS(m)																								\
-if (TSNUM_BAD(measInfoTab[(m)].numerator) || TSDENOM_BAD(measInfoTab[(m)].denominator)) \
+if (TSNUMER_BAD(measInfoTab[(m)].numerator) || TSDENOM_BAD(measInfoTab[(m)].denominator)) \
 	MayErrMsg("Time signature %ld/%ld is illegal.",										\
 				(long)measInfoTab[(m)].numerator, (long)measInfoTab[(m)].denominator)
 
@@ -56,8 +56,8 @@ short FindTimeSig(long timeUsed, short m, MEASINFO measInfoTab[], short measTabL
 		*measDur = TimeSigDur(0, measInfoTab[m].numerator, measInfoTab[m].denominator);
 		
 		/* If we've reached the end of the time sig. table, let the last entry go to
-			"infinity". Various things including quantization might make the last notes
-			go beyond the supposed end of the file, and it doesn't much matter, anyway. */
+		   "infinity". Various things including quantization might make the last notes
+		   go beyond the supposed end of the file, and it doesn't much matter, anyway. */
 			 
 		if (m==measTabLen-1)	*tsEndTime = BIGNUM;
 		else					*tsEndTime += (*measDur)*measInfoTab[m].count;

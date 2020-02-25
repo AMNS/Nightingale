@@ -344,7 +344,7 @@ PushLock(MEASUREheap);
 
 		MeasSUBTYPE(aMeasureL) = symtable[sym].subtype;
 		MeasureSEL(aMeasureL) = True;									/* Select the subobj */
-		MeasSOFT(aMeasureL) = False;
+		MeasureSOFT(aMeasureL) = False;
 		
 		/* Make xd relative to the previous Measure. */
 	
