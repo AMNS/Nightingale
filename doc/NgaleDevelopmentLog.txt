@@ -4987,7 +4987,7 @@ none of "bullet" level! Voila:
 	 
 -------------------------------------------------------------------------------
 
-21 - 23 Feb.
+21 - 24 Feb.
 
 Add more conversion stuff to Convert1MEASURE() =>
 
@@ -5058,3 +5058,91 @@ Time signatures are a big problem! Implement ConvertTIMESIG() & Convert1TIMESIG(
 	Feb 23 14:25:48: --- last message repeated 1 time ---
 	info.  Done.    --CHECK CLIPBOARD:  Done. 10 ERROR(S). 
  
+ Give separate error messages for  staffAbove  and  staffBelow  in CONNECTs =>
+ 
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD staffAbove 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD staffBelow 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD staffAbove -1.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 HAS BAD staffBelow 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L5.
+	Feb 25 14:36:07: --- last message repeated 1 time ---
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED CLEF L6.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED CLEF L6.
+	info. Discont. sel, 0 objs in range, 0 sel, 11 total.  1 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD staffAbove 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD staffBelow 0.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD staffAbove -1.
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L16 HAS BAD staffBelow 88.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED CONNECT L16.
+	Feb 25 14:36:07: --- last message repeated 1 time ---
+	info.  Done.    --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
+	info.  Done. 15 ERROR(S). 
+ 
+-------------------------------------------------------------------------------
+
+25 - 28 Feb.
+
+Implement Convert1CONNECT() =>
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 staffAbove>=staffBelow.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 1 IN UNSELECTED CLEF L6.
+	Warning. DCheckNodeSel: SELECTED ITEM ON STAFF 2 IN UNSELECTED CLEF L6.
+	Warning. *DCheckHeirarchy: CLEF L6 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	Warning. *DCheckHeirarchy: KEYSIG L7 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	info. Discont. sel, 0 objs in range, 0 sel, 11 total.  1 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L16 staffAbove>=staffBelow.
+	info.  Done.    --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
+	info.  Done. 7 ERROR(S). 
+
+Implement ConvertCLEF & Convert1CLEF =>
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 staffAbove>=staffBelow.
+	Warning. *DCheckHeirarchy: KEYSIG L7 inMeasure FLAG DISAGREES WITH OBJECT ORDER.
+	info. Discont. sel, 0 objs in range, 0 sel, 11 total.  1 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L16 staffAbove>=staffBelow.
+	info.  Done.
+	info. --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
+	info.  Done. 4 ERROR(S). 
+
+Implement ConvertKEYSIG() => only 3 errors!; all for the same problem, and the error
+message is almost certainly wrong.
+
+Now for a more difficult test file: AllObjTypes.ngl => opens & draws something
+coherent; Check Standard gives 63 errors.
+
+Implement ConvertBEAMSET() & Convert1BEAMSET() => down to 54 errors.
+
+Status of converting object types (I think).
+. = no work needed; - = not done; + = done. 
+
+	obj
+	 subobj
+0	.. HEADER_5		Object has only OBJHEADER; subobjs are unchanged
+	++ TAIL_5		Has no subobjs & no fields other than header
+	++ SYNC_5
+	-- RPTEND_5
+	+. PAGE_5
+5	+. SYSTEM_5
+	++ STAFF_5
+	++ MEASURE_5
+	++ CLEF_5
+	++ KEYSIG_5
+10	++ TIMESIG_5
+	++ BEAMSET_5
+	++ CONNECT_5
+	+- DYNAMIC_5
+	.- (MODNR)		Has no objects, only subobjects
+15	-- GRAPHIC_5
+	-- OTTAVA_5
+	-- SLUR_5
+	-- TUPLET_5
+	-- GRSYNC_5
+20	-. TEMPO_5
+	-. SPACER_5
+	-. ENDING_5
+	-- PSMEAS_5
+	++ (OBJECT)
+

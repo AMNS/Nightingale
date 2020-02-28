@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.9)
 Nightingale Technical Note #1
-Don Byrd, rev. early February 2020
+Don Byrd, rev. late February 2020
 
 A general note:
 
@@ -85,7 +85,8 @@ Nightingale Can’t Open".
 
 ---------------------------------------------------------------------------------------
 
-Object Types (from NTypes.h)
+Object Types (from NTypes.h). The sizes correspond to Nightingale versions up to and
+including 5.8.x, and file format 'N105'.
 
 Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 							Subobject size  (- = type has no subobjs)
@@ -110,7 +111,7 @@ Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 14		MODNRtype		-	6		note/rest modifier
 
 15		GRAPHICtype		44	6		text, lyric, rehearsal mark, line (only 1 subobj/object)
-16		OCTAVAtype		40	4		Sync
+16		OTTAVAtype		40	4		Sync
 17		SLURtype		30	42		slur, tie (if a slur, only 1 subobj/object)
 18		TUPLETtype		40	4		Sync
 19		GRSYNCtype		24	30		grace note

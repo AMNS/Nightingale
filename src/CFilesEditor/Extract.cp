@@ -33,7 +33,7 @@ static void		FixConnects(Document *);
 
 /* FIXME: The check for illegal codes is in DCheckNode(); the one for suspicious links should
 probably be there, too -- and maybe Extract should call DCheckNode! Anyway, this function
-isn't used in v. 5.8b5. */
+isn't used in v. 5.8.x. */
 
 void DCheckSyncs(Document *doc)
 {
@@ -55,12 +55,12 @@ void DCheckSyncs(Document *doc)
 					aModNRL = aNote->firstMod;
 					for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL)) {
 						if (aModNRL >= nObjs)	/* very crude check on node validity  -JGG */
-							LogPrintf(LOG_WARNING, "DCheckSyncs: SUSPICIOUS MODNR LINK %d IN VOICE %d IN SYNC AT %u.\n",
+							LogPrintf(LOG_WARNING, "DCheckSyncs: SUSPICIOUS MODNR LINK %d IN VOICE %d IN SYNC AT L%u.\n",
 											aModNRL, aNote->voice, pL);
 						aModNR = GetPAMODNR(aModNRL);
 						if (!(aModNR->modCode>=MOD_FERMATA && aModNR->modCode<=MOD_LONG_INVMORDENT)
 						&&	 !(aModNR->modCode>=0 && aModNR->modCode<=5) )
-							LogPrintf(LOG_WARNING, "DCheckSyncs: ILLEGAL MODNR CODE %d IN VOICE %d IN SYNC AT %u.\n",
+							LogPrintf(LOG_WARNING, "DCheckSyncs: ILLEGAL MODNR CODE %d IN VOICE %d IN SYNC AT L%u.\n",
 											aModNR->modCode, aNote->voice, pL);
 					}
 				}

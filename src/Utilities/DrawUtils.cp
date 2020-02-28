@@ -311,7 +311,8 @@ void GetClefDrawInfo(
 			*glyph = MCH_percclef;
 			break;
 		default:
-			MayErrMsg("GetClefDrawInfo: illegal clef %ld", (long)aClef->subType);
+			MayErrMsg("GetClefDrawInfo: illegal clef %ld at L%ld", (long)aClef->subType,
+						pL);
 	}
 
  	dLnHeight = LNSPACE(pContext);
@@ -340,8 +341,8 @@ void GetClefDrawInfo(
 	The following code computes the Sonata origin so as to preserve the clef's "real" 
 	origin by moving down from the top line to the "real" origin, then scaling just the 
 	portion of the staff height remaining below that. If the clef is full-size, <ydR> is
-	the height of the staff; if it's small, <ydR> is somewhat less.
- */
+	the height of the staff; if it's small, <ydR> is somewhat less. */
+
 	switch (aClef->subType) {
 		case TREBLE8_CLEF:
 		case TREBLE_CLEF:
@@ -521,7 +522,7 @@ in subObject; LinkXD(pL) is set to 0 inside NewObjPrepare. */
 		case CRESC_DYNAM:
 			break;
 		default:
-			MayErrMsg("GetDynamicDrawInfo: unknown dynamic type %ld at %ld",
+			MayErrMsg("GetDynamicDrawInfo: unknown dynamic type %ld at L%ld",
 						(long)DynamType(pL), pL);
 	}
 	

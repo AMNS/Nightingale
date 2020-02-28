@@ -126,10 +126,10 @@ Boolean DCheckEverything(Document *doc,
 		DCheckNodeSel(doc, pL);			if (DErrLimit() || UserInterrupt()) return False;
 	}
 #ifdef DDB
-	LogPrintf(LOG_INFO, " Done.");
+	LogPrintf(LOG_INFO, " Done.\n");
 #endif
 	
-	LogPrintf(LOG_INFO, "    --CHECK CLIPBOARD: ");
+	LogPrintf(LOG_INFO, "--CHECK CLIPBOARD: ");
 	InstallDoc(clipboard);
 	for (pL = clipboard->headL; pL!=clipboard->tailL; pL = RightLINK(pL))
 		if (DCheckNode(clipboard, pL, CLIP_DSTR, maxCheck)<0) {

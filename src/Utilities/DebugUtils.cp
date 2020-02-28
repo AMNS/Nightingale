@@ -799,14 +799,14 @@ short DCheckNode(
 						aModNRL = aNote->firstMod;
 						for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL)) {
 							if (aModNRL >= nObjs) {    /* very crude check on node validity  -JGG */
-								COMPLAIN3("DCheckNode: GARBAGE MODNR LINK %d IN VOICE %d IN SYNC L%u.\n",
+								COMPLAIN3("*DCheckNode: GARBAGE MODNR LINK %d IN VOICE %d IN SYNC L%u.\n",
 												aModNRL, aNote->voice, pL);
 								break;						/* prevent possible infinite loop */
 							}
 							aModNR = GetPAMODNR(aModNRL);
 							if (!(aModNR->modCode>=MOD_FERMATA && aModNR->modCode<=MOD_LONG_INVMORDENT)
 							&&	 aModNR->modCode>5)
-								COMPLAIN3("DCheckNode: ILLEGAL MODNR CODE %d IN VOICE %d IN SYNC L%u.\n",
+								COMPLAIN3("DCheckNode: Illegal MODNR code %d in voice %d in Sync L%u.\n",
 												aModNR->modCode, aNote->voice, pL);
 						}
 					}

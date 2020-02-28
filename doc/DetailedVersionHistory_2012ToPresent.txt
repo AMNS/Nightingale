@@ -2633,3 +2633,13 @@ objects & subobjects. Affects MemMacros.h; FileConversion.
 Minor cleanup: rename two macros and add one, etc. Affects Defs.h, MemMacros.h,
 NOjTypesN105.h; DebugUtils, Initialize, InsNewUtils, MIDIFOpen, NotelistParse, Ottava,
 PrefsDialog, RTRhythmDur.
+
+-------------------------------------------------------------------------------
+
+25 - 28 Feb.
+
+Work on opening format 'N105' files while using a new format internally: converting
+subobjects. Affects MemMacros.h; FileConversion.
+
+Minor cleanup. Affects MemMacros.h, NObjTypes; AccModNRMouse, DebugHighLevel, DebugUtils,
+DrawNRGR, DrawUtils, Extract, HeapFileIO.

@@ -217,8 +217,8 @@ void DrawModNR(Document *doc,
 			ydMod = std2d(aModNR->ystdpit, pContext->staffHeight, pContext->staffLines);
 			if (!GetModNRInfo(code, aNote->subType, aNote->small,
 									(ydMod<=aNote->yd), &glyph, &xOffset, &yOffset, &sizePercent)) {
-				MayErrMsg("DrawModNR: illegal MODNR code %ld for note link=%ld",
-							(long)code, (long)aNoteL);
+				MayErrMsg("DrawModNR: illegal MODNR code %ld in voice %d, note/rest L%ld",
+							(long)code, NoteVOICE(aNoteL), (long)aNoteL);
 				return;
 			}
 
@@ -653,7 +653,7 @@ THAN 13 BITS AVAILABLE, & IT SHOULD BE EASY TO GET THE INFO IN VIA NOTELIST! E.G
 modCode = 60 => draw graph, OR 61:80 => draw graph OF 1:20 SEGMENTS. */
 
 static void DrawNoteheadGraph(Document *doc,
-				unsigned char glyph,
+				unsigned char /* glyph */,
 				Byte appearance,
 				Boolean dim,			/* Should notehead be dimmed? */
 				DDIST dhalfLn,

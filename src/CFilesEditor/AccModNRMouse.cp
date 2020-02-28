@@ -427,8 +427,8 @@ static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 
 	if (!GetModNRInfo(code, aNote->subType, aNote->small, (ydMod<=aNote->yd),
 									&glyph, &xOffset, &yOffset, &sizePercent)) {
-		MayErrMsg("GetModNRBbox: illegal MODNR code %ld for note link=%ld",
-					(long)code, (long)noteL);
+		MayErrMsg("GetModNRBbox: illegal MODNR code %ld in voice %d, note/rest L%ld",
+					(long)code, NoteVOICE(noteL), (long)noteL);
 		return False;
 	}
    if (glyph==' ') return False;			/* if it's a tremolo slash, can't drag it */
@@ -470,7 +470,7 @@ static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 
 
 /* Handle dragging the modifier. */
-/* ??NB: Shouldn't let user drag it off the page! */
+/* FIXME: Shouldn't let user drag it off the page! */
 
 static enum {
 	NOCONSTRAIN = 0,

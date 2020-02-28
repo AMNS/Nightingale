@@ -794,6 +794,7 @@ typedef struct {
 
 
 /* ---------------------------------------------------------------------------- HEADER -- */
+/* The HEADER's subobject, PARTINFO, is defined in NBasicTypes.h. */
 
 typedef struct {
 	OBJECTHEADER

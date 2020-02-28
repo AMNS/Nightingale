@@ -494,8 +494,11 @@ Steve Hart.) */
 
 #define BeamCrossSTAFF(link)		( (GetPBEAMSET(link))->crossStaff )			
 #define BeamCrossSYS(link)			( (GetPBEAMSET(link))->crossSystem )		
+#define BeamFEATHER(link)			( (GetPBEAMSET(link))->feather )		
 #define BeamFirstSYS(link)			( (GetPBEAMSET(link))->firstSystem )		
+#define BeamGRACE(link)				( (GetPBEAMSET(link))->grace )		
 #define BeamRESTS(link)				( (GetPBEAMSET(link))->beamRests )	
+#define BeamTHIN(link)				( (GetPBEAMSET(link))->thin )	
 
 #define ClefFILLER1(link)		 	( (GetPACLEF(link))->filler1)	
 #define ClefFILLER2(link)		 	( (GetPACLEF(link))->filler2)	
@@ -514,10 +517,7 @@ Steve Hart.) */
 #define ConnectSTAFFABOVE(link)		( (GetPACONNECT(link))->staffAbove )		
 #define ConnectSTAFFBELOW(link)		( (GetPACONNECT(link))->staffBelow )		
 #define ConnectXD(link)				( (GetPACONNECT(link))->xd )
-#define ConnectYD(link)				( (GetPACONNECT(link))->yd )
 
-#define DynamCrossSYS(link)			( (GetPDYNAMIC(link))->crossSys )		
-#define DynamFIRSTSYNC(link)		( (GetPDYNAMIC(link))->firstSyncL )			
 #define DynamicENDXD(link)			( (GetPADYNAMIC(link))->endxd)	
 #define DynamicENDYD(link)			( (GetPADYNAMIC(link))->endyd)	
 #define DynamicMOUTHWIDTH(link)		( (GetPADYNAMIC(link))->mouthWidth)		
@@ -525,14 +525,17 @@ Steve Hart.) */
 #define DynamicSMALL(link)			( (GetPADYNAMIC(link))->small )	
 #define DynamicSOFT(link)			( (GetPADYNAMIC(link))->soft)	
 #define DynamicSTAFFN(link)			( (GetPADYNAMIC(link))->staffn )	
-#define DynamicType(link)			( (GetPADYNAMIC(link))->subType)	
 #define DynamicVIS(link)			( (GetPADYNAMIC(link))->visible )	
 #define DynamicXD(link)				( (GetPADYNAMIC(link))->xd )	
 #define DynamicYD(link)		 	 	( (GetPADYNAMIC(link))->yd )
+
+#define DynamCrossSYS(link)			( (GetPDYNAMIC(link))->crossSys )		
+#define DynamFILLER(link)			( (GetPDYNAMIC(link))->filler )		
+#define DynamFIRSTSYNC(link)		( (GetPDYNAMIC(link))->firstSyncL )			
 #define DynamLASTSYNC(link)			( (GetPDYNAMIC(link))->lastSyncL )		
 #define DynamFirstIsSYSTEM(pL)		( (SystemTYPE(DynamLASTSYNC(pL))) )			/* Boolean, not link */
 #define DynamLastIsSYSTEM(pL)		( (MeasureTYPE(DynamFIRSTSYNC(pL))) )		/* Boolean, not link */
-#define DynamSubType(link)			( (GetPADYNAMIC(link))->subType)	
+#define DynamicType(link)			( (GetPDYNAMIC(link))->subType)	
 
 #define EndingFIRSTOBJ(link)		( (GetPENDING(link))->firstObjL )			
 #define EndingLASTOBJ(link)			( (GetPENDING(link))->lastObjL )		

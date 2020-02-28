@@ -895,7 +895,7 @@ if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadObjHeap0", (unsigned char *)startPos, 
 	PopLock(objHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
 	RebuildFreeList(doc, OBJtype, nFObjs);
-NHexDump(LOG_DEBUG, "ReadObjHeap3", (unsigned char *)pLink1, 24+38+44, 4, 16);
+//NHexDump(LOG_DEBUG, "ReadObjHeap3", (unsigned char *)pLink1, 24+38+44, 4, 16);
 
 {
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
@@ -903,8 +903,6 @@ NHexDump(LOG_DEBUG, "ReadObjHeap3", (unsigned char *)pLink1, 24+38+44, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(1);
 //NHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-//NHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(3);
 //NHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
 }
 
