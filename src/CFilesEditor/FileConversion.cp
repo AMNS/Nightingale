@@ -492,6 +492,8 @@ AKEYSIG tmpAKeySig;
 ATIMESIG tmpATimeSig;
 ANOTEBEAM tmpANotebeam;
 ACONNECT tmpAConnect;
+ADYNAMIC tmpADynamic;
+AGRNOTE tmpAGRNote;
 
 static Boolean Convert1NOTER(Document *doc, LINK aNoteRL);
 static Boolean Convert1STAFF(Document *doc, LINK aStaffL);
@@ -499,6 +501,9 @@ static Boolean Convert1MEASURE(Document *doc, LINK aMeasureL);
 static Boolean Convert1KEYSIG(Document *doc, LINK aKeySigL);
 static Boolean Convert1TIMESIG(Document *doc, LINK aTimeSigL);
 static Boolean Convert1CONNECT(Document *doc, LINK aConnectL);
+static Boolean Convert1DYNAMIC(Document *doc, LINK aDynamicL);
+static Boolean Convert1GRNOTE(Document *doc, LINK aGRNoteRL);
+
 
 static Boolean Convert1NOTER(Document * /* doc */, LINK aNoteRL)
 {
@@ -552,11 +557,11 @@ static Boolean Convert1NOTER(Document * /* doc */, LINK aNoteRL)
 	NoteINTUPLET(aNoteRL) = (&a1NoteR)->inTuplet;
 	NoteINOTTAVA(aNoteRL) = (&a1NoteR)->inOttava;
 	NoteSMALL(aNoteRL) = (&a1NoteR)->small;
-	(aNoteRL) = (&a1NoteR)->tempFlag;
+	NoteTEMPFLAG(aNoteRL) = (&a1NoteR)->tempFlag;
 	
 //NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
-//LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
-//aNoteRL, NoteSTAFF(aNoteRL), MeasureTOP(aNoteRL), MeasureHEIGHT(aNoteRL), MeasureMEASURELINES(aNoteRL));
+LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u voice=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+aNoteRL, NoteVOICE(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
 		return True;
 }
 
@@ -766,8 +771,6 @@ aBeamsetL, NoteBeamSTARTEND(aBeamsetL), NoteBeamFRACS(aBeamsetL));
 }
 
 
-
-
 static Boolean Convert1CONNECT(Document * /* doc */, LINK aConnectL)
 {
 	ACONNECT_5 a1Connect;
@@ -785,6 +788,94 @@ static Boolean Convert1CONNECT(Document * /* doc */, LINK aConnectL)
 //NHexDump(LOG_DEBUG, "Convert1CONNECT", (unsigned char *)&tempSys, 46, 4, 16);
 LogPrintf(LOG_DEBUG, "Convert1CONNECT: aConnectL=%u staffAbove=%d staffBelow=%d\n",
 aConnectL, ConnectSTAFFABOVE(aConnectL), ConnectSTAFFBELOW(aConnectL));
+	return True;
+}
+
+
+static Boolean Convert1DYNAMIC(Document * /* doc */, LINK aDynamicL)
+{
+	ADYNAMIC_5 a1Dynamic;
+	
+	BlockMove(&tmpADynamic, &a1Dynamic, sizeof(ADYNAMIC_5));
+	
+	/* The first three fields of the header are in the same location in 'N105' and 'N106'
+	   format, so no need to do anything with them. Copy the others. */
+	   
+	DynamicSEL(aDynamicL) = (&a1Dynamic)->selected;
+	DynamicVIS(aDynamicL) = (&a1Dynamic)->visible;
+	DynamicSOFT(aDynamicL) = (&a1Dynamic)->soft;
+
+	/* Now for the ADYNAMIC-specific fields. */
+	
+	DynamicMOUTHWIDTH(aDynamicL) = (&a1Dynamic)->mouthWidth;
+	DynamicSMALL(aDynamicL) = (&a1Dynamic)->small;
+	DynamicOTHERWIDTH(aDynamicL) = (&a1Dynamic)->otherWidth;
+	DynamicXD(aDynamicL) = (&a1Dynamic)->xd;
+	DynamicYD(aDynamicL) = (&a1Dynamic)->yd;
+	DynamicENDXD(aDynamicL) = (&a1Dynamic)->endxd;
+	DynamicENDYD(aDynamicL) = (&a1Dynamic)->endyd;
+
+//NHexDump(LOG_DEBUG, "Convert1DYNAMIC", (unsigned char *)&tempSys, 46, 4, 16);
+LogPrintf(LOG_DEBUG, "Convert1DYNAMIC: aDynamicL=%u mouthWidth=%d xd=%d\n",
+aDynamicL, DynamicMOUTHWIDTH(aDynamicL), DynamicXD(aDynamicL));
+	return True;
+}
+
+
+static Boolean Convert1GRNOTE(Document * /* doc */, LINK aGRNoteL)
+{
+	AGRNOTE_5 a1GRNote;
+	
+	BlockMove(&tmpAGRNote, &a1GRNote, sizeof(AGRNOTE_5));
+	
+	/* The first three fields of the header are in the same location in 'N105' and 'N106'
+	   format, so no need to do anything with them. Copy the others. */
+	   
+	NoteSEL(aGRNoteL) = (&a1GRNote)->selected;
+	NoteVIS(aGRNoteL) = (&a1GRNote)->visible;
+	NoteSOFT(aGRNoteL) = (&a1GRNote)->soft;
+
+	/* Now for the AGRNOTE-specific fields. */
+	
+	GRNoteINCHORD(aGRNoteL) = (&a1GRNote)->inChord;
+	GRNoteUNPITCHED(aGRNoteL) = (&a1GRNote)->unpitched;
+	GRNoteBEAMED(aGRNoteL) = (&a1GRNote)->beamed;
+	GRNoteOtherStemSide(aGRNoteL) = (&a1GRNote)->otherStemSide;
+	GRNoteYQPIT(aGRNoteL) = (&a1GRNote)->yqpit;
+	GRNoteXD(aGRNoteL) = (&a1GRNote)->xd;
+	GRNoteYD(aGRNoteL) = (&a1GRNote)->yd;
+	GRNoteYSTEM(aGRNoteL) = (&a1GRNote)->ystem;
+	//GRNotePLAYTIMEDELTA(aGRNoteL) = (&a1GRNote)->playTimeDelta;
+	GRNotePLAYDUR(aGRNoteL) = (&a1GRNote)->playDur;
+	GRNotePTIME(aGRNoteL) = (&a1GRNote)->pTime;
+	GRNoteNUM(aGRNoteL) = (&a1GRNote)->noteNum;
+	//GRNoteONVELOCITY(aGRNoteL) = (&a1GRNote)->onVelocity;
+	//GRNoteOFFVELOCITY(aGRNoteL) = (&a1GRNote)->offVelocity;
+	GRNoteTIEDL(aGRNoteL) = (&a1GRNote)->tiedL;
+	GRNoteTIEDR(aGRNoteL) = (&a1GRNote)->tiedR;
+	GRNoteYMOVEDOTS(aGRNoteL) = (&a1GRNote)->ymovedots;
+	GRNoteNDOTS(aGRNoteL) = (&a1GRNote)->ndots;
+	GRNoteVOICE(aGRNoteL) = (&a1GRNote)->voice;
+	GRNoteACC(aGRNoteL) = (&a1GRNote)->accident;
+	GRNoteACCSOFT(aGRNoteL) = (&a1GRNote)->accSoft;
+	//GRNoteMICROPITCH(aGRNoteL) = (&a1GRNote)->micropitch;
+	GRNoteXMOVEACC(aGRNoteL) = (&a1GRNote)->xmoveAcc;
+	//GRNoteMERGED(aGRNoteL) = (&a1GRNote)->merged;
+	GRNoteCOURTESYACC(aGRNoteL) = (&a1GRNote)->courtesyAcc;
+	GRNoteDOUBLEDUR(aGRNoteL) = (&a1GRNote)->doubleDur;
+	GRNoteAPPEAR(aGRNoteL) = (&a1GRNote)->headShape;
+	GRNoteXMOVEDOTS(aGRNoteL) = (&a1GRNote)->xmovedots;
+	GRNoteFIRSTMOD(aGRNoteL) = (&a1GRNote)->firstMod;
+	//GRNoteSLURREDL(aGRNoteL) = (&a1GRNote)->slurredL;
+	//GRNoteSLURREDR(aGRNoteL) = (&a1GRNote)->slurredR;
+	//GRNoteINTUPLET(aGRNoteL) = (&a1GRNote)->inTuplet;
+	GRNoteINOTTAVA(aGRNoteL) = (&a1GRNote)->inOttava;
+	GRNoteSMALL(aGRNoteL) = (&a1GRNote)->small;
+	GRNoteTEMPFLAG(aGRNoteL) = (&a1GRNote)->tempFlag;
+	
+//NHexDump(LOG_DEBUG, "Convert1GRNOTE", (unsigned char *)&tempSys, 46, 4, 16);
+//LogPrintf(LOG_DEBUG, "Convert1GRNOTE: aGRNoteL=%u voice=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+//aGRNoteL, GRNoteVOICE(aGRNoteL), GRNoteYQPIT(aGRNoteL), GRNoteXD(aGRNoteL), GRNoteYD(aGRNoteL), GRNotePLAYDUR(aGRNoteL));
 	return True;
 }
 
@@ -836,7 +927,8 @@ static Boolean ConvertCLEF(Document *doc, LINK clefL);
 static Boolean ConvertBEAMSET(Document *doc, LINK beamsetL);
 static Boolean ConvertCONNECT(Document *doc, LINK connectL);
 static Boolean ConvertDYNAMIC(Document *doc, LINK dynamicL);
-
+static Boolean ConvertGRSYNC(Document *doc, LINK grSyncL);
+static Boolean ConvertTEMPO(Document *doc, LINK tempoL);
 
 static Boolean ConvertSYNC(Document *doc, LINK syncL)
 {
@@ -860,11 +952,10 @@ LogPrintf(LOG_DEBUG, "ConvertSYNC: timeStamp=%d\n", syncL, SyncTIME(syncL));
 LogPrintf(LOG_DEBUG, "->block=%ld aNoteRL=%d sizeof(ANOTE)*aNoteRL=%d pSSubObj=%ld\n", (NOTEheap)->block,
 aNoteRL, sizeof(ANOTE)*aNoteRL, pSSubObj);
 		BlockMove(pSSubObj, &tmpANoteR, sizeof(ANOTE));
-NHexDump(LOG_DEBUG, "ConvObjs/SYNC 2", (unsigned char *)&tmpANoteR, sizeof(ANOTE_5), 4, 16);
+//NHexDump(LOG_DEBUG, "ConvertSYNC", (unsigned char *)&tmpANoteR, sizeof(ANOTE_5), 4, 16);
 
 		Convert1NOTER(doc, aNoteRL);
 	}
-
 
 	return True;
 }
@@ -934,7 +1025,7 @@ LinkNENTRIES(staffL), staffL, LinkLSTAFF(staffL), LinkRSTAFF(staffL), StaffSYS(s
 LogPrintf(LOG_DEBUG, "->block=%ld aStaffL=%d sizeof(ASTAFF)*aStaffL=%d pSSubObj=%ld\n", (STAFFheap)->block,
 aStaffL, sizeof(ASTAFF)*aStaffL, pSSubObj);
 		BlockMove(pSSubObj, &tmpAStaff, sizeof(ASTAFF));
-NHexDump(LOG_DEBUG, "ConvertSTAFF", (unsigned char *)&tmpAStaff, sizeof(ASTAFF_5), 4, 16);
+//NHexDump(LOG_DEBUG, "ConvertSTAFF", (unsigned char *)&tmpAStaff, sizeof(ASTAFF_5), 4, 16);
 
 		Convert1STAFF(doc, aStaffL);
 	}
@@ -1150,7 +1241,6 @@ NHexDump(LOG_DEBUG, "ConvertCONNECT", (unsigned char *)&tmpAConnect, sizeof(ACON
 }
 
 
-
 static Boolean ConvertDYNAMIC(Document *doc, LINK dynamicL)
 {
 	DYNAMIC_5 aDynamic;
@@ -1168,21 +1258,81 @@ static Boolean ConvertDYNAMIC(Document *doc, LINK dynamicL)
 //NHexDump(LOG_DEBUG, "ConvertDYNAMIC", (unsigned char *)&tempSys, 38, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertDYNAMIC: dynamicL=%u dynamicType=%d\n", dynamicL, DynamType(dynamicL));
 
-#if 0
+#if 1
 aDynamicL = FirstSubLINK(dynamicL);
 	for ( ; aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL)) {
 		/* Copy the subobj to a separate ADYNAMIC so we can move fields all over
 		the place without having to worry about clobbering anything. */
 
-		pSSubObj = (unsigned char *)GetObjectPtr(DYNAMICheap, aDynamicL, PADYNAMIC);
+		pSSubObj = (unsigned char *)GetObjectPtr(DYNAMheap, aDynamicL, PADYNAMIC);
 LogPrintf(LOG_DEBUG, "->block=%ld aDynamicL=%d sizeof(ADYNAMIC)*aDynamicL=%d pSSubObj=%ld\n",
-(DYNAMICheap)->block, aDynamicL, sizeof(ADYNAMIC)*aDynamicL, pSSubObj);
+(DYNAMheap)->block, aDynamicL, sizeof(ADYNAMIC)*aDynamicL, pSSubObj);
 		BlockMove(pSSubObj, &tmpADynamic, sizeof(ADYNAMIC));
 NHexDump(LOG_DEBUG, "ConvertDYNAMIC", (unsigned char *)&tmpADynamic, sizeof(ADYNAMIC_5), 4, 16);
 
 		Convert1DYNAMIC(doc, aDynamicL);
 	}
 #endif
+
+	return True;
+}
+
+
+
+static Boolean ConvertGRSYNC(Document *doc, LINK grSyncL)
+{
+	GRSYNC_5 aGRSync;
+	LINK aGRNoteRL;
+	unsigned char *pSSubObj;
+	
+	BlockMove(&tmpSuperObj, &aGRSync, sizeof(GRSYNC_5));
+	
+//NHexDump(LOG_DEBUG, "ConvertGRSYNC", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertGRSYNC: grSyncL=L%u\n", grSyncL); 
+
+#if 0
+	aGRNoteRL = FirstSubLINK(grSyncL);
+	for ( ; aGRNoteRL; aGRNoteRL = NextGRNOTEL(aGRNoteRL)) {
+		/* Copy the subobj to a separate AGRNOTE so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+		pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aGRNoteRL, PAGRNOTE);
+LogPrintf(LOG_DEBUG, "->block=%ld aGRNoteRL=%d sizeof(AGRNOTE)*aGRNoteRL=%d pSSubObj=%ld\n", (NOTEheap)->block,
+aGRNoteRL, sizeof(AGRNOTE)*aGRNoteRL, pSSubObj);
+		BlockMove(pSSubObj, &tmpANoteR, sizeof(AGRNOTE));
+//NHexDump(LOG_DEBUG, "ConvertGRSYNC", (unsigned char *)&tmpANoteR, sizeof(AGRNOTE_5), 4, 16);
+
+		Convert1GRNOTE(doc, aGRNoteRL);
+	}
+#endif
+
+	return True;
+}
+
+
+
+
+static Boolean ConvertTEMPO(Document *doc, LINK tempoL)
+{
+	TEMPO_5 aTempo;
+	
+	BlockMove(&tmpSuperObj, &aTempo, sizeof(TEMPO_5));
+	
+	TempoSTAFF(tempoL) = (&aTempo)->staffn;		/* EXTOBJHEADER */
+
+	TempoEXPANDED(tempoL) = (&aTempo)->expanded;
+	TempoNOMM(tempoL) = (&aTempo)->noMM;
+	TempoFILLER(tempoL) = (&aTempo)->filler;
+	TempoDOTTED(tempoL) = (&aTempo)->dotted;
+	TempoHIDEMM(tempoL) = (&aTempo)->hideMM;
+	TempoMM(tempoL) = (&aTempo)->tempoMM;
+	TempoSTRING(tempoL) = (&aTempo)->strOffset;
+	TempoFIRSTOBJ(tempoL) = (&aTempo)->firstObjL;
+	TempoMETROSTR(tempoL) = (&aTempo)->metroStrOffset;
+//NHexDump(LOG_DEBUG, "ConvertTEMPO", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertTEMPO: tempoL=%u tempoType=%d\n", tempoL, DynamType(tempoL));
+
+	return True;
 }
 
 
@@ -1225,6 +1375,8 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 		BlockMove(pSObj, &tmpSuperObj, sizeof(SUPEROBJECT));
 //NHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 
+		/* Convert the object header now so type-specific functions don't have to. */
+		
 		ConvertObjHeader(doc, pL);
 //NHexDump(LOG_DEBUG, "ConvObjs2", pSObj, 46, 4, 16);
 		
@@ -1287,12 +1439,14 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 			case TUPLETtype:
 				if (!ConvertTUPLET(doc, pL))  ERROR;
 				continue;
+#endif
 			case GRSYNCtype:
-				if (!ConvertGRSYNC(doc, pL))  ERROR;
+				ConvertGRSYNC(doc, pL);
 				continue;
 			case TEMPOtype:
-				if (!ConvertTEMPO(doc, pL))  ERROR;
+				ConvertTEMPO(doc, pL);
 				continue;
+#ifdef NOTYET
 			case SPACERtype:
 				if (!ConvertSPACER(doc, pL))  ERROR;
 				continue;

@@ -2639,7 +2639,16 @@ PrefsDialog, RTRhythmDur.
 25 - 28 Feb.
 
 Work on opening format 'N105' files while using a new format internally: converting
-subobjects. Affects MemMacros.h; FileConversion.
+objects & subobjects. Affects MemMacros.h; FileConversion.
 
 Minor cleanup. Affects MemMacros.h, NObjTypes; AccModNRMouse, DebugHighLevel, DebugUtils,
 DrawNRGR, DrawUtils, Extract, HeapFileIO.
+
+-------------------------------------------------------------------------------
+
+29 Feb. - 2 Mar.
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects & subobjects. Affects MemMacros.h; FileConversion.
+
+Minor cleanup. Affects NObjTypes.h, NObjTypesN105.h; DebugDisplay, DebugUtils, MergeUtils.

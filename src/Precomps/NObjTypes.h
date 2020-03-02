@@ -45,14 +45,14 @@ as well. */
 	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
 
 
-/* ------------------------------------------------------------------------------ TAIL -- */
+/* --------------------------------------------------------------------- Type 1 = TAIL -- */
 
 typedef struct {
 	OBJECTHEADER
 } TAIL, *PTAIL;
 
 
-/* ------------------------------------------------------------------------------ PAGE -- */
+/* --------------------------------------------------------------------- Type 4 = PAGE -- */
 
 typedef struct {
 	OBJECTHEADER
@@ -64,7 +64,7 @@ typedef struct {
 } PAGE, *PPAGE;
 
 
-/* ---------------------------------------------------------------------------- SYSTEM -- */
+/* ------------------------------------------------------------------- Type 5 = SYSTEM -- */
 
 typedef struct {
 	OBJECTHEADER
@@ -77,7 +77,7 @@ typedef struct {
 } SYSTEM, *PSYSTEM;
 
 
-/* ----------------------------------------------------------------------------- STAFF -- */
+/* -------------------------------------------------------------------- Type 6 = STAFF -- */
 
 #define SHOW_ALL_LINES	15
 
@@ -119,7 +119,7 @@ typedef struct {
 } STAFF, *PSTAFF;
 
 
-/* --------------------------------------------------------------------------- CONNECT -- */
+/* ---------------------------------------------------------------- Type 12 = CONNECT -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -152,7 +152,7 @@ enum {								/* Codes for connLevel */
 };
 
 
-/* ----------------------------------------------------------------------- ACLEF, CLEF -- */
+/* ------------------------------------------------------------- Type 8 = ACLEF, CLEF -- */
 
 typedef struct {
 	SUBOBJHEADER
@@ -186,7 +186,7 @@ enum {								/* clef subTypes: */
 #define HIGH_CLEF PERC_CLEF
 
 
-/* ---------------------------------------------------------------------------- KEYSIG -- */
+/* ------------------------------------------------------------------- Type 9 = KEYSIG -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=no. of naturals, if nKSItems==0 */
@@ -204,7 +204,7 @@ typedef struct {
 } KEYSIG, *PKEYSIG;
 
 
-/* --------------------------------------------------------------------------- TIMESIG -- */
+/* ----------------------------------------------------------------- Type 10 = TIMESIG -- */
 
 typedef struct {
 	SUBOBJHEADER
@@ -238,7 +238,7 @@ enum {								/* subtypes: */
 #define HIGH_TStype N_OVER_DOTTEDEIGHTH
 
 
-/* --------------------------------------------------------------------------- MEASURE -- */
+/* ------------------------------------------------------------------ Type 7 = MEASURE -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=barline type (see enum below) */
@@ -285,10 +285,9 @@ enum {								/* barline types */
 };
 
 
-/* ------------------------------------------------------------------------ PSEUDOMEAS -- */
-/* Pseudomeasures are symbols that have similar graphic appearance to barlines
-but have no semantics: dotted barlines and double bars that don't coincide with
-"real" barlines. */
+/* -------------------------------------------------------------- Type 23 = PSEUDOMEAS -- */
+/* Pseudomeasures are symbols that look like barlines but have no semantics, i.e., dotted
+barlines and double bars that don't coincide with "real" barlines. */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=barline type (see enum below) */
@@ -309,7 +308,7 @@ enum {								/* pseudomeasure types: codes follow those for MEASUREs */
 };
 
 
-/* ------------------------------------------------------------------------ NOTE, SYNC -- */
+/* --------------------------------------------------------------- Type 2 = NOTE, SYNC -- */
 /* A "note" is a normal or small note or rest, perhaps a cue note, but not a grace
 note. (The main reason is that grace notes have no logical duration.) */
 
@@ -375,7 +374,7 @@ enum {								/* Notehead and rest appearances: */
 };
 
 
-/* --------------------------------------------------------------------------- BEAMSET -- */
+/* ----------------------------------------------------------------- Type 11 = BEAMSET -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -413,7 +412,7 @@ typedef struct {
 } BEAMINFO;
 
 
-/* ---------------------------------------------------------------------------- TUPLET -- */
+/* ------------------------------------------------------------------ Type 18 = TUPLET -- */
 
 /* This struct is used to get information from TupletDialog. */
 
@@ -449,7 +448,7 @@ typedef struct {
 } TUPLET, *PTUPLET;
 
 
-/* ------------------------------------------------------------------------- REPEATEND -- */
+/* ---------------------------------------------------------------- Type 3 = REPEATEND -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType is in object so unused here */
@@ -478,7 +477,7 @@ enum {
 };
 
 
-/* ---------------------------------------------------------------------------- ENDING -- */
+/* ------------------------------------------------------------------ Type 22 = ENDING -- */
 
 typedef struct {
 	OBJECTHEADER
@@ -492,7 +491,7 @@ typedef struct {
 } ENDING, *PENDING;
 
 
-/* ----------------------------------------------------------------- ADYNAMIC, DYNAMIC -- */
+/* ------------------------------------------------------- Type 13 = ADYNAMIC, DYNAMIC -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType is unused */
@@ -545,7 +544,7 @@ enum {								/* FIXME: NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
 };
 
 
-/* ---------------------------------------------------------------------------- AMODNR -- */
+/* ------------------------------------------------------------------ Type 14 = AMODNR -- */
 
 typedef struct {
 	LINK		next;					/* index of next subobj */
@@ -587,7 +586,7 @@ enum {								/* modCode values */
 };
 
 
-/* --------------------------------------------------------------------------- GRAPHIC -- */
+/* ----------------------------------------------------------------- Type 15 = GRAPHIC -- */
 
 typedef struct {
 	LINK next;
@@ -677,7 +676,7 @@ enum {								/* GRArpeggio sub-subtypes */
 };
 
 
-/* ---------------------------------------------------------------------------- OTTAVA -- */
+/* ------------------------------------------------------------------ Type 16 = OTTAVA -- */
 
 typedef struct {
 	LINK		next;					/* index of next subobj */
@@ -711,7 +710,7 @@ enum {
 };
 
 
-/* ------------------------------------------------------------------------------ SLUR -- */
+/* -------------------------------------------------------------------- Type 17 = SLUR -- */
 
 /* Types of Slursor behavior: */
 
@@ -755,7 +754,7 @@ typedef struct {
 } SLUR, *PSLUR;
 
 
-/* -------------------------------------------------------------------- GRNOTE, GRSYNC -- */
+/* ---------------------------------------------------------- Type 19 = GRNOTE, GRSYNC -- */
 
 typedef ANOTE AGRNOTE;				/* Same struct, though not all fields are used here */
 typedef PANOTE PAGRNOTE;
@@ -765,7 +764,7 @@ typedef struct {
 } GRSYNC, *PGRSYNC;
 
 
-/* ----------------------------------------------------------------------------- TEMPO -- */
+/* ------------------------------------------------------------------- Type 20 = TEMPO -- */
 
 typedef struct {
 	OBJECTHEADER
@@ -783,7 +782,7 @@ typedef struct {
 } TEMPO, *PTEMPO;
 
 
-/* ---------------------------------------------------------------------------- SPACER -- */
+/* ------------------------------------------------------------------ Type 21 = SPACER -- */
 
 typedef struct {
 	OBJECTHEADER
@@ -793,7 +792,7 @@ typedef struct {
 } SPACER, *PSPACER;
 
 
-/* ---------------------------------------------------------------------------- HEADER -- */
+/* ------------------------------------------------------------------- Type 0 = HEADER -- */
 /* The HEADER's subobject, PARTINFO, is defined in NBasicTypes.h. */
 
 typedef struct {

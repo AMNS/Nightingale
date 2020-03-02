@@ -20,7 +20,7 @@ static void MFixOverlapSync(Document *doc, LINK syncL,short v);
 static void MergeFixBeamRange(Document *doc, LINK startL,LINK endL,short v);
 
 static void MUnOttavaSync(Document *,LINK,LINK,DDIST,short,CONTEXT,Boolean);
-static void MUnOttavaGRSync(Document *,LINK,LINK,DDIST,short,CONTEXT,Boolean);
+static void MUnOttavaGRSync(Document *,LINK,LINK,DDIST,short,CONTEXT);
 static void MRemoveOctOnStf(Document *doc,LINK octL,short s,Boolean merged);
 static void MergeFixOctRange(Document *doc,LINK startL,LINK endL,VInfo *vInfo,short v);
 
@@ -372,7 +372,7 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 }
 
 static void MUnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
-									short s, CONTEXT context, Boolean /*merged*/)
+									short s, CONTEXT context)
 {
 	LINK aGRNoteL;
 	PAGRNOTE aGRNote;
@@ -437,7 +437,7 @@ static void MRemoveOctOnStf(Document *doc, LINK octL,
 			MUnOttavaSync(doc,octL,syncL,yDelta,s,context,merged);
 		}
 		else if (GRSyncTYPE(syncL)) {
-			MUnOttavaGRSync(doc,octL,syncL,yDelta,s,context,merged);
+			MUnOttavaGRSync(doc,octL,syncL,yDelta,s,context);
 		}
 	}
 	

@@ -2134,11 +2134,11 @@ Next:
 		 		aNote = GetPANOTE(aNoteL);
 				if (aNote->beamed) {
 					if (!beamSetL[NoteVOICE(aNoteL)]) {
-						COMPLAIN3("*DCheckBeams: BEAMED NOTE IN SYNC %d (MEASURE %d) VOICE %d WITHOUT BEAMSET.\n",
+						COMPLAIN3("*DCheckBeams: BEAMED NOTE IN SYNC L%u (MEASURE %d) VOICE %d WITHOUT BEAMSET.\n",
 										pL, GetMeasNum(doc, pL), NoteVOICE(aNoteL));
 					}
 					else if (!SyncInBEAMSET(pL, beamSetL[aNote->voice]))
-						COMPLAIN3("*DCheckBeams: BEAMED NOTE IN SYNC %d (MEASURE %d) VOICE %d NOT IN VOICE'S LAST BEAMSET.\n",
+						COMPLAIN3("*DCheckBeams: BEAMED NOTE IN SYNC L%u (MEASURE %d) VOICE %d NOT IN VOICE'S LAST BEAMSET.\n",
 										pL, GetMeasNum(doc, pL), NoteVOICE(aNoteL));
 				}
 			}
@@ -2149,11 +2149,11 @@ Next:
 		 		aGRNote = GetPAGRNOTE(aGRNoteL);
 				if (aGRNote->beamed) {
 					if (!grBeamSetL[aGRNote->voice]) {
-						COMPLAIN2("*DCheckBeams: BEAMED NOTE IN GRSYNC %d VOICE %d WITHOUT BEAMSET.\n",
+						COMPLAIN2("*DCheckBeams: BEAMED NOTE IN GRSYNC L%u VOICE %d WITHOUT BEAMSET.\n",
 										pL, aGRNote->voice);
 					}
 					else if (!SyncInBEAMSET(pL, grBeamSetL[aGRNote->voice]))
-						COMPLAIN2("*DCheckBeams: BEAMED NOTE IN GRSYNC %d VOICE %d NOT IN VOICE'S LAST BEAMSET.\n",
+						COMPLAIN2("*DCheckBeams: BEAMED NOTE IN L%u VOICE %d NOT IN VOICE'S LAST BEAMSET.\n",
 										pL, aGRNote->voice);
 				}
 			}

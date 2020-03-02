@@ -790,9 +790,14 @@ Steve Hart.) */
 #define SysPAGE(link)				( (GetPSYSTEM(link))->pageL )
 #define SystemRECT(link)			( (GetPSYSTEM(link))->systemRect )	
 
+#define TempoDOTTED(link)			( (GetPTEMPO(link))->dotted )	
+#define TempoEXPANDED(link)			( (GetPTEMPO(link))->expanded )	
+#define TempoFILLER(link)			( (GetPTEMPO(link))->filler )	
 #define TempoFIRSTOBJ(link)			( (GetPTEMPO(link))->firstObjL )	
+#define TempoHIDEMM(link)			( (GetPTEMPO(link))->hideMM )	
 #define TempoMETROSTR(link)			( (GetPTEMPO(link))->metroStrOffset )	
 #define TempoNOMM(link)				( (GetPTEMPO(link))->noMM )
+#define TempoMM(link)				( (GetPTEMPO(link))->tempoMM )
 #define TempoSTRING(link)	 		( (GetPTEMPO(link))->strOffset )	
 
 #define TimeSigCONNSTAFF(link)		( (GetPATIMESIG(link))->connStaff)	

@@ -5146,3 +5146,95 @@ Status of converting object types (I think).
 	-- PSMEAS_5
 	++ (OBJECT)
 
+-------------------------------------------------------------------------------
+
+29 Feb.
+
+Implement Convert1Dynamic(). Open AllObjTypes.ngl =>
+
+	info.  24 L25 xd=-118 yd=0 DYNAMIC .V.V.. oRect.l=p482 type=4 1stS=L27 lastS=L0 n=1
+	info.      st=1 xd=0 yd=520 endxd=0 S..
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED DYNAMIC L25.
+
+...and Browser shows mouthWidth=0; can that be right?
+
+Oops, I didn't implement Convert1Dynamic() correctly :-) . Fix it => no complaint
+about SELECTED ITEM IN UNSELECTED DYNAMIC, but it still shows mouthWidth=0. And
+that _can_ be right, because this dynamic isn't a hairpin!
+
+	++ DYNAMIC_5
+
+Debug Check Standard of AllObjTypes.ngl gives:
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 staffAbove>=staffBelow.
+	Warning. •DCheckNode: TEMPO L8 HAS GARBAGE firstObjL.
+	Warning. *DCheckNode: TEMPO L8 HAS BAD staffn.
+	Warning. *DCheckNode: TEMPO L8 string IS BAD.
+	Warning. *DCheckNode: TEMPO L8 metroStr IS BAD.
+	Warning. DCheckNode: Illegal MODNR code 80 in voice 1 in Sync L11.
+	Warning. *DCheckNode: SUBOBJ ON STAFF 1 IN PSEUDOMEAS L12 HAS connAbove.
+	Warning. •DCheckNode: GRAPHIC L13 HAS GARBAGE firstObj.
+	Warning. *DCheckNode: GRAPHIC L13 HAS BAD staffn 4.
+	Warning. *DCheckNode: TUPLET L16 HAS BAD staffn.
+	Warning. DCheckNode: Object L17 IN MEASURE 1 HAS A GARBAGE (UNSELECTABLE) objRect.
+	Warning. *DCheckNode: SLUR L17 HAS BAD staffn.
+	Warning. *DCheckNode: SLUR L17 HAS BAD voice.
+	Warning. •DCheckNode: SLUR L17 HAS GARBAGE SYNC LINK.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED SLUR L17.
+	Warning. DCheckNode: SYNC L18: TIMESTAMP 1440 REL TO NEXT IS WRONG.
+	Warning. *DCheckNode: CAN'T FIND TUPLET FOR VOICE 1 IN SYNC L18.
+	Warning. DCheckSyncSlurs: NOTE slurredR IN VOICE 1 IN SYNC L18, MEASURE 1, HAS NO SLUR.
+	Warning. DCheckNode: SYNC L20: TIMESTAMP 1439 REL TO PREVIOUS IS WRONG.
+	Warning. DCheckNode: SYNC L20: TIMESTAMP 1439 REL TO NEXT IS WRONG.
+	Warning. *DCheckNode: CAN'T FIND TUPLET FOR VOICE 1 IN SYNC L20.
+	Notice. * CautionAdvise alertID=550!
+	Warning. DCheckNode: SYNC L21: TIMESTAMP 1438 REL TO PREVIOUS IS WRONG.
+	Warning. DCheckNode: SYNC L21: TIMESTAMP 1438 REL TO NEXT IS WRONG.
+	Warning. *DCheckNode: CAN'T FIND TUPLET FOR VOICE 1 IN SYNC L21.
+	Warning. DCheckNode: SYNC L22: TIMESTAMP 1437 REL TO PREVIOUS IS WRONG.
+	Warning. DCheckSyncSlurs: NOTE slurredL IN VOICE 1 IN SYNC L22, MEASURE 1, HAS NO SLUR.
+	Warning. *DCheckNode: SUBOBJ IN ENDING L26 HAS BAD staffn.
+	Warning. DCheckNode: Object L28 IN MEASURE 2 HAS A GARBAGE (UNSELECTABLE) objRect.
+	Warning. *DCheckNode: OTTAVA L29 HAS BAD staffn.
+	Warning. *DCheckNode: SUBOBJ IN ENDING L32 HAS BAD staffn.
+	Warning. *DCheckMeasSubobjs: SUBOBJ IN MEASURE L35 HAS BAD nKSItems.
+	Warning. *DCheckVoiceTable: NOTE IN GRSYNC L24 STAFF 1 IN ANOTHER PART'S VOICE, -18.
+	Warning. •DCheckJDOrder: GRAPHIC ON STAFF 4 L13 firstObj=41393 NOT IN MAIN OBJECT LIST.
+	Warning. *DCheckBeams: BEAMED NOTE IN GRSYNC 24 VOICE -18 WITHOUT BEAMSET.
+	Warning. *DCheckOttavas: OTTAVA L29 HAS BAD STAFF NUMBER 0.
+	Warning. *DCheckOttavas: OTTAVA'D NOTE IN SYNC L30 STAFF 1 WITHOUT OTTAVA.
+	Warning. *DCheckSlurs: SLUR L17 HAS BAD voice.
+	Warning. *DCheckSlurs: SLUR L17 IN MEASURE 1 AND ITS firstSyncL ARE IN WRONG ORDER.
+	Warning. *DCheckSlurs: SLUR L17 IN MEASURE 1 AND ITS lastSyncL ARE IN WRONG ORDER.
+	Warning. *DCheckTuplets: TUPLET L16 SYNC LINK INCONSISTENT.
+	Feb 29 21:28:00: --- last message repeated 2 times ---
+	Warning. *DCheckTuplets: TUPLET L16 HAS AN UNKNOWN OR ILLEGAL DURATION NOTE.
+	Warning. *DCheckContext: nKSItems FOR STAFF 2 IN MEASURE 1 (L10) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 2 (L23) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 2 IN MEASURE 3 (L31) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 4 (L35) INCONSISTENCY.
+	Warning. DCheckPlayDurs: Note in Sync L18 voice 1 in measure 1 playDur is longer than full dur. of 0
+	Warning. DCheckPlayDurs: Note in Sync L20 voice 1 in measure 1 playDur is longer than full dur. of 0
+	Warning. DCheckPlayDurs: Note in Sync L21 voice 1 in measure 1 playDur is longer than full dur. of 0
+	Warning. DCheckNoteNums: Note in Sync L11 in measure 1, staff 1 notenum 73 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L20 in measure 1, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L30 in measure 2, staff 1 notenum 90 and notation disagree.
+	info. Discont. sel, 0 objs in range, 0 sel, 36 total.  2 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L41 staffAbove>=staffBelow.
+	info.  Done.
+	info. --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
+	info.  Done. 55 ERROR(S).
+	
+Implement ConvertTEMPO() => down to 49 errors!
+Implement ConvertGRSYNC() => no change.
+
+What fields of GRNOTEs are unused? We don't seem to have a list! Besides those unused
+for NOTEs (rspIgnore, playAsCue, micropitch, ??), I'm pretty sure these aren't:
+
+	inTuplet
+	merged
+	playAsCue
+	playTimeDelta
+	slurredL
+	slurredR

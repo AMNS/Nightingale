@@ -35,14 +35,14 @@ as well. */
 	Boolean		soft:1;				/* True if subobject is program-generated */
 
 
-/* ------------------------------------------------------------------------------ TAIL -- */
+/* --------------------------------------------------------------------- Type 1 = TAIL -- */
 
 typedef struct {
 	OBJECTHEADER_5
 } TAIL_5, *PTAIL_5;
 
 
-/* ------------------------------------------------------------------------------ PAGE -- */
+/* --------------------------------------------------------------------- Type 4 = PAGE -- */
 
 typedef struct {
 	OBJECTHEADER_5
@@ -54,7 +54,7 @@ typedef struct {
 } PAGE_5, *PPAGE_5;
 
 
-/* ---------------------------------------------------------------------------- SYSTEM -- */
+/* ------------------------------------------------------------------- Type 5 = SYSTEM -- */
 
 typedef struct {
 	OBJECTHEADER_5
@@ -67,7 +67,7 @@ typedef struct {
 } SYSTEM_5, *PSYSTEM_5;
 
 
-/* ----------------------------------------------------------------------------- STAFF -- */
+/* -------------------------------------------------------------------- Type 6 = STAFF -- */
 
 #define SHOW_ALL_LINES	15
 
@@ -109,7 +109,7 @@ typedef struct {
 } STAFF_5, *PSTAFF_5;
 
 
-/* --------------------------------------------------------------------------- CONNECT -- */
+/* ---------------------------------------------------------------- Type 12 = CONNECT -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -130,7 +130,7 @@ typedef struct {
 } CONNECT_5, *PCONNECT_5;
 
 
-/* ----------------------------------------------------------------------- ACLEF, CLEF -- */
+/* ------------------------------------------------------------- Type 8 = ACLEF, CLEF -- */
 
 typedef struct {
 	SUBOBJHEADER_5
@@ -164,7 +164,7 @@ enum {								/* clef subTypes: */
 #define HIGH_CLEF_5 PERC_CLEF_5
 
 
-/* ---------------------------------------------------------------------------- KEYSIG -- */
+/* ------------------------------------------------------------------- Type 9 = KEYSIG -- */
 
 typedef struct {
 	SUBOBJHEADER_5					/* subType=no. of naturals, if nKSItems==0 */
@@ -182,7 +182,7 @@ typedef struct {
 } KEYSIG_5, *PKEYSIG_5;
 
 
-/* --------------------------------------------------------------------------- TIMESIG -- */
+/* ----------------------------------------------------------------- Type 10 = TIMESIG -- */
 
 typedef struct {
 	SUBOBJHEADER_5
@@ -200,7 +200,7 @@ typedef struct {
 } TIMESIG_5, *PTIMESIG_5;
 
 
-/* --------------------------------------------------------------------------- MEASURE -- */
+/* ------------------------------------------------------------------ Type 7 = MEASURE -- */
 
 typedef struct {
 	SUBOBJHEADER_5					/* subType=barline type (see enum below) */
@@ -236,10 +236,9 @@ typedef struct {
 } MEASURE_5, *PMEASURE_5;
 
 
-/* ------------------------------------------------------------------------ PSEUDOMEAS -- */
-/* Pseudomeasures are symbols that have similar graphic appearance to barlines
-but have no semantics: dotted barlines and double bars that don't coincide with
-"real" barlines. */
+/* -------------------------------------------------------------- Type 23 = PSEUDOMEAS -- */
+/* Pseudomeasures are symbols that look like barlines but have no semantics, i.e., dotted
+barlines and double bars that don't coincide with "real" barlines. */
 
 typedef struct {
 	SUBOBJHEADER_5					/* subType=barline type (see enum below) */
@@ -254,7 +253,7 @@ typedef struct 	{
 } PSMEAS_5, *PPSMEAS_5;
 
 
-/* ------------------------------------------------------------------------ NOTE, SYNC -- */
+/* --------------------------------------------------------------- Type 2 = NOTE, SYNC -- */
 /* A "note" is a normal or small note or rest, perhaps a cue note, but not a grace
 note. (The main reason is that grace notes have no logical duration.) */
 
@@ -306,7 +305,7 @@ typedef struct {
 } SYNC_5, *PSYNC_5;
 
 
-/* --------------------------------------------------------------------------- BEAMSET -- */
+/* ----------------------------------------------------------------- Type 11 = BEAMSET -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -346,7 +345,7 @@ typedef struct {
 #endif
 
 
-/* ---------------------------------------------------------------------------- TUPLET -- */
+/* ------------------------------------------------------------------ Type 18 = TUPLET -- */
 
 typedef struct {
 	OBJECTHEADER_5
@@ -365,7 +364,7 @@ typedef struct {
 } TUPLET_5, *PTUPLET_5;
 
 
-/* ------------------------------------------------------------------------- REPEATEND -- */
+/* ---------------------------------------------------------------- Type 3 = REPEATEND -- */
 
 typedef struct {
 	SUBOBJHEADER_5					/* subType is in object so unused here */
@@ -384,7 +383,7 @@ typedef struct {
 } RPTEND_5, *PRPTEND_5;
 
 
-/* ---------------------------------------------------------------------------- ENDING -- */
+/* ------------------------------------------------------------------ Type 22 = ENDING -- */
 
 typedef struct {
 	OBJECTHEADER_5
@@ -398,7 +397,7 @@ typedef struct {
 } ENDING_5, *PENDING_5;
 
 
-/* ----------------------------------------------------------------- ADYNAMIC, DYNAMIC -- */
+/* ------------------------------------------------------- Type 13 = ADYNAMIC, DYNAMIC -- */
 
 typedef struct {
 	SUBOBJHEADER_5					/* subType is unused */
@@ -421,7 +420,7 @@ typedef struct {
 } DYNAMIC_5, *PDYNAMIC_5;
 
 
-/* ---------------------------------------------------------------------------- AMODNR -- */
+/* ------------------------------------------------------------------ Type 14 = AMODNR -- */
 
 typedef struct {
 	LINK		next;					/* index of next subobj */
@@ -435,7 +434,7 @@ typedef struct {
 } AMODNR_5, *PAMODNR_5;
 
 
-/* --------------------------------------------------------------------------- GRAPHIC -- */
+/* ----------------------------------------------------------------- Type 15 = GRAPHIC -- */
 
 typedef struct {
 	LINK next;
@@ -470,7 +469,7 @@ typedef struct {
 
 
 
-/* ---------------------------------------------------------------------------- OTTAVA -- */
+/* ------------------------------------------------------------------ Type 16 = OTTAVA -- */
 
 typedef struct {
 	LINK		next;					/* index of next subobj */
@@ -495,7 +494,7 @@ typedef struct {
 } OTTAVA_5, *POTTAVA_5;
 
 
-/* ------------------------------------------------------------------------------ SLUR -- */
+/* -------------------------------------------------------------------- Type 17 = SLUR -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -529,7 +528,7 @@ typedef struct {
 } SLUR_5, *PSLUR_5;
 
 
-/* -------------------------------------------------------------------- GRNOTE, GRSYNC -- */
+/* ---------------------------------------------------------- Type 19 = GRNOTE, GRSYNC -- */
 
 typedef ANOTE_5 AGRNOTE_5;				/* Same struct, though not all fields are used here */
 typedef PANOTE_5 PAGRNOTE_5;
@@ -539,7 +538,7 @@ typedef struct {
 } GRSYNC_5, *PGRSYNC_5;
 
 
-/* ----------------------------------------------------------------------------- TEMPO -- */
+/* ------------------------------------------------------------------- Type 20 = TEMPO -- */
 
 typedef struct {
 	OBJECTHEADER_5
@@ -557,7 +556,7 @@ typedef struct {
 } TEMPO_5, *PTEMPO_5;
 
 
-/* ---------------------------------------------------------------------------- SPACER -- */
+/* ------------------------------------------------------------------ Type 21 = SPACER -- */
 
 typedef struct {
 	OBJECTHEADER_5
@@ -567,7 +566,7 @@ typedef struct {
 } SPACER_5, *PSPACER_5;
 
 
-/* ---------------------------------------------------------------------------- HEADER -- */
+/* ------------------------------------------------------------------- Type 0 = HEADER -- */
 
 typedef struct {
 	OBJECTHEADER_5
