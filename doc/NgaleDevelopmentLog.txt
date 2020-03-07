@@ -5148,9 +5148,9 @@ Status of converting object types (I think).
 
 -------------------------------------------------------------------------------
 
-29 Feb.
+29 Feb. - 2 Mar.
 
-Implement Convert1Dynamic(). Open AllObjTypes.ngl =>
+Implement Convert1Dynamic(). ((DYNAMIC status now: ++) Open AllObjTypes.ngl =>
 
 	info.  24 L25 xd=-118 yd=0 DYNAMIC .V.V.. oRect.l=p482 type=4 1stS=L27 lastS=L0 n=1
 	info.      st=1 xd=0 yd=520 endxd=0 S..
@@ -5226,15 +5226,104 @@ Debug Check Standard of AllObjTypes.ngl gives:
 	info. --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
 	info.  Done. 55 ERROR(S).
 	
-Implement ConvertTEMPO() => down to 49 errors!
-Implement ConvertGRSYNC() => no change.
+Implement ConvertTEMPO() => down to 49 errors! (TEMPO status now: +.)
+Implement ConvertGRSYNC() => no change. (GRSYNC status now: +-)
+
+-------------------------------------------------------------------------------
+
+3 - 5 Mar.
 
 What fields of GRNOTEs are unused? We don't seem to have a list! Besides those unused
 for NOTEs (rspIgnore, playAsCue, micropitch, ??), I'm pretty sure these aren't:
 
 	inTuplet
 	merged
-	playAsCue
 	playTimeDelta
 	slurredL
 	slurredR
+
+So make a list... Done; it's ANOTEFieldUsage.xls. But I'm not too confident of its
+accuracy!
+
+Implement Convert1GRNOTE() => no change in no. of errors. (GRSYNC status now: ++)
+
+Implement ConvertRPTEND() => 52, 51 errors, probably not a significant change.
+Implement Convert1RPTEND() => 50 errors, probably not a significant change.
+(RPTEND status now: ++)
+
+Implement ConvertTUPLET() => down to 34 errors! (TUPLET status now: +.)
+
+Debug Check Standard of AllObjTypes.ngl gives:
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 staffAbove>=staffBelow.
+	Warning. DCheckNode: Illegal MODNR code 80 in voice 1 in Sync L11.
+	Warning. *DCheckNode: SUBOBJ ON STAFF 1 IN PSEUDOMEAS L12 HAS connAbove.
+	Warning. •DCheckNode: GRAPHIC L13 HAS GARBAGE firstObj.
+	Warning. *DCheckNode: GRAPHIC L13 HAS BAD staffn 4.
+	Warning. DCheckNode: Object L17 IN MEASURE 1 HAS A GARBAGE (UNSELECTABLE) objRect.
+	Warning. *DCheckNode: SLUR L17 HAS BAD staffn.
+	Warning. *DCheckNode: SLUR L17 HAS BAD voice.
+	Warning. •DCheckNode: SLUR L17 HAS GARBAGE SYNC LINK.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED SLUR L17.
+	Warning. DCheckSyncSlurs: NOTE slurredR IN VOICE 1 IN SYNC L18, MEASURE 1, HAS NO SLUR.
+	Warning. DCheckSyncSlurs: NOTE slurredL IN VOICE 1 IN SYNC L22, MEASURE 1, HAS NO SLUR.
+	Warning. *DCheckNode: SUBOBJ IN ENDING L26 HAS BAD staffn.
+	Warning. *DCheckNode: OTTAVA L29 HAS BAD staffn.
+	Warning. *DCheckNode: SUBOBJ IN ENDING L32 HAS BAD staffn.
+	Warning. *DCheckMeasSubobjs: SUBOBJ IN MEASURE L35 HAS BAD nKSItems.
+	Warning. *DCheckVoiceTable: NOTE IN GRSYNC L24 STAFF 1 IN ANOTHER PART'S VOICE, 0.
+	Warning. •DCheckJDOrder: GRAPHIC ON STAFF 4 L13 firstObj=0 NOT IN MAIN OBJECT LIST.
+	Warning. *DCheckOttavas: OTTAVA L29 HAS BAD STAFF NUMBER 0.
+	Warning. *DCheckOttavas: OTTAVA'D NOTE IN SYNC L30 STAFF 1 WITHOUT OTTAVA.
+	Warning. *DCheckSlurs: SLUR L17 HAS BAD voice.
+	Warning. *DCheckSlurs: SLUR L17 IN MEASURE 1 AND ITS firstSyncL ARE IN WRONG ORDER.
+	Warning. *DCheckSlurs: SLUR L17 IN MEASURE 1 AND ITS lastSyncL ARE IN WRONG ORDER.
+	Notice. * CautionAdvise alertID=550!
+	Warning. *DCheckContext: nKSItems FOR STAFF 2 IN MEASURE 1 (L10) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 2 (L23) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 2 IN MEASURE 3 (L31) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 4 (L35) INCONSISTENCY.
+	Warning. DCheckNoteNums: Note in Sync L11 in measure 1, staff 1 notenum 73 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L20 in measure 1, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L30 in measure 2, staff 1 notenum 90 and notation disagree.
+	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 2 notenum 50 and notation disagree: wrong accidental?
+	info. Discont. sel, 0 objs in range, 0 sel, 36 total.  2 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L41 staffAbove>=staffBelow.
+	info.  Done.
+	info. --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
+	info.  Done. 34 ERROR(S). 
+ 
+
+Status of converting object types (I think).
+. = no work needed; - = not done; + = done. 
+
+	obj
+	 subobj
+0	.. HEADER_5		Object has only OBJHEADER; subobjs are unchanged
+	++ TAIL_5		Has no subobjs & no fields other than header
+	++ SYNC_5
+	++ RPTEND_5
+	+. PAGE_5
+5	+. SYSTEM_5
+	++ STAFF_5
+	++ MEASURE_5
+	++ CLEF_5
+	++ KEYSIG_5
+10	++ TIMESIG_5
+	++ BEAMSET_5
+	++ CONNECT_5
+	++ DYNAMIC_5
+	.- (MODNR)		Has no objects, only subobjects
+15	-- GRAPHIC_5
+	-- OTTAVA_5
+	-- SLUR_5
+	+- TUPLET_5
+	++ GRSYNC_5
+20	+. TEMPO_5
+	-. SPACER_5
+	-. ENDING_5
+	-- PSMEAS_5
+	++ (OBJECT)
+

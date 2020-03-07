@@ -718,13 +718,15 @@ Steve Hart.) */
 
 #define RptEndCONNABOVE(link)		( (GetPARPTEND(link))->connAbove )			
 #define RptEndCONNSTAFF(link)		( (GetPARPTEND(link))->connStaff )			
-#define RptEndENDRPT(link)			( (GetPRPTEND(link))->endRpt )		
 #define RptEndFILLER(link)			( (GetPARPTEND(link))->filler)	
-#define RptEndFIRSTOBJ(link)		( (GetPRPTEND(link))->firstObj )			
 #define RptEndSTAFFN(link) 			( (GetPARPTEND(link))->staffn )	
-#define RptEndSTARTRPT(link)		( (GetPRPTEND(link))->startRpt )			
 #define RptEndType(link)			( (GetPARPTEND(link))->subType)	
 #define RptEndVIS(link)				( (GetPARPTEND(link))->visible )
+
+#define RptEndCOUNT(link)			( (GetPRPTEND(link))->count )
+#define RptEndENDRPT(link)			( (GetPRPTEND(link))->endRpt )		
+#define RptEndFIRSTOBJ(link)		( (GetPRPTEND(link))->firstObj )			
+#define RptEndSTARTRPT(link)		( (GetPRPTEND(link))->startRpt )			
 
 #define SheetNUM(link)				( (GetPPAGE(link))->sheetNum )	
 
@@ -811,5 +813,19 @@ Steve Hart.) */
 #define TimeSigType(link)			( (GetPATIMESIG(link))->subType )	
 #define TimeSigXD(link)		 		( (GetPATIMESIG(link))->xd )	
 #define TimeSigYD(link)		  		( (GetPATIMESIG(link))->yd )				
+
+#define TupletACCNUM(link)			( (GetPTUPLET(link))->accNum)
+#define TupletACCDENOIM(link)		( (GetPTUPLET(link))->accDenom)
+#define TupletNUMVIS(link)			( (GetPTUPLET(link))->numVis)
+#define TupletDENOMVIS(link)		( (GetPTUPLET(link))->denomVis)
+#define TupletBRACKVIS(link)		( (GetPTUPLET(link))->brackVis)
+#define TupletSMALL(link)			( (GetPTUPLET(link))->small)
+#define TupletFILLER(link)			( (GetPTUPLET(link))->filler)
+#define TupletACNXD(link)			( (GetPTUPLET(link))->acnxd)
+#define TupletACNYD(link)			( (GetPTUPLET(link))->acnyd)
+#define TupletXDFIRST(link)			( (GetPTUPLET(link))->xdFirst)
+#define TupletYDFIRST(link)			( (GetPTUPLET(link))->ydFirst)
+#define TupletXDLAST(link)			( (GetPTUPLET(link))->xdLast)
+#define TupletYDLAST(link)			( (GetPTUPLET(link))->ydLast)
 
 #endif /* MemMacrosIncluded */

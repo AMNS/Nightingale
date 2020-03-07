@@ -804,10 +804,10 @@ src, dst, (long)(dst-src), (long)(src-startPos), curType);
 		   compensate. (However, the _contents_ of the objects should be fixed in
 		   ConvertObjects.) */
 		   
-LogPrintf(LOG_DEBUG, "MoveObjSubobjs: type %d obj: len=%d newLen=%d\n", curType, len, newLen);
+if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "MoveObjSubobjs: type %d obj: len=%d newLen=%d\n", curType, len, newLen);
 
 		BlockMove(src, dst, len);
-if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "MoveObjSubobjs2", (unsigned char *)dst, 72, 4, 16);
+//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "MoveObjSubobjs2", (unsigned char *)dst, 72, 4, 16);
 		/* And go on to next object and next LINK slot */
 		src += len;
 		dst += newLen;

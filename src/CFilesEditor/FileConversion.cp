@@ -314,10 +314,10 @@ short HeapFixN105Links(Document *doc)
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 pSObj = (unsigned char *)GetPSUPEROBJECT(1);
 NHexDump(LOG_DEBUG, "HeapFixLinks1 L1", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-NHexDump(LOG_DEBUG, "HeapFixLinks1 L2", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-NHexDump(LOG_DEBUG, "HeapFixLinks1 L3", pSObj, 46, 4, 16);
+//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+//NHexDump(LOG_DEBUG, "HeapFixLinks1 L2", pSObj, 46, 4, 16);
+//pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+//NHexDump(LOG_DEBUG, "HeapFixLinks1 L3", pSObj, 46, 4, 16);
 pSObj = (unsigned char *)GetPSUPEROBJECT(4);
 NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 }
@@ -485,6 +485,7 @@ static void ConvertStaffLines(LINK startL)
 
 SUPEROBJECT tmpSuperObj;
 ANOTE tmpANoteR;
+ARPTEND tmpARptEnd;
 ASTAFF tmpAStaff;
 AMEASURE tmpAMeasure;
 ACLEF tmpAClef;
@@ -564,6 +565,32 @@ LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u voice=%d yqpit=%d xd=%d yd=%d pl
 aNoteRL, NoteVOICE(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
 		return True;
 }
+
+
+static Boolean Convert1RPTEND(Document * /* doc */, LINK aRptEndL)
+{
+	ARPTEND_5 a1RptEnd;
+	
+	BlockMove(&tmpARptEnd, &a1RptEnd, sizeof(ARPTEND_5));
+	
+	/* The first three fields of the header are in the same location in 'N105' and 'N106'
+	   format, so no need to do anything with them. Copy the others. */
+	   
+	RptEndSEL(aRptEndL) = (&a1RptEnd)->selected;
+	RptEndVIS(aRptEndL) = (&a1RptEnd)->visible;
+
+	/* Now for the ARPTEND-specific fields. */
+	
+	RptEndCONNABOVE(aRptEndL) = (&a1RptEnd)->connAbove;
+	RptEndFILLER(aRptEndL) = (&a1RptEnd)->filler;
+	RptEndCONNSTAFF(aRptEndL) = (&a1RptEnd)->connStaff;
+	
+//NHexDump(LOG_DEBUG, "Convert1RPTEND", (unsigned char *)&tempSys, 46, 4, 16);
+LogPrintf(LOG_DEBUG, "Convert1RPTEND: aRptEndL=%u connAbove=%d connStaff=%d\n",
+aRptEndL, RptEndCONNABOVE(aRptEndL), RptEndCONNSTAFF(aRptEndL));
+		return True;
+}
+
 
 static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
 {
@@ -917,6 +944,7 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 /* Convert the bodies of objects of each type. */
 
 static Boolean ConvertSYNC(Document *doc, LINK syncL);
+static Boolean ConvertRPTEND(Document *doc, LINK rptendL);
 static Boolean ConvertPAGE(Document *doc, LINK pageL);
 static Boolean ConvertSYSTEM(Document *doc, LINK sysL);
 static Boolean ConvertSTAFF(Document *doc, LINK staffL);
@@ -927,6 +955,7 @@ static Boolean ConvertCLEF(Document *doc, LINK clefL);
 static Boolean ConvertBEAMSET(Document *doc, LINK beamsetL);
 static Boolean ConvertCONNECT(Document *doc, LINK connectL);
 static Boolean ConvertDYNAMIC(Document *doc, LINK dynamicL);
+static Boolean ConvertTUPLET(Document *doc, LINK tupletL);
 static Boolean ConvertGRSYNC(Document *doc, LINK grSyncL);
 static Boolean ConvertTEMPO(Document *doc, LINK tempoL);
 
@@ -959,6 +988,45 @@ aNoteRL, sizeof(ANOTE)*aNoteRL, pSSubObj);
 
 	return True;
 }
+
+
+static Boolean ConvertRPTEND(Document *doc, LINK rptEndL)
+{
+	RPTEND_5 aRptEnd;
+	LINK aRptEndL;
+	unsigned char *pSSubObj;
+	
+	BlockMove(&tmpSuperObj, &aRptEnd, sizeof(RPTEND_5));
+	
+	RptEndFIRSTOBJ(rptEndL) = (&aRptEnd)->firstObj;
+	RptEndSTARTRPT(rptEndL) = (&aRptEnd)->startRpt;
+	RptEndENDRPT(rptEndL) = (&aRptEnd)->endRpt;
+	RptType(rptEndL) = (&aRptEnd)->subType;
+	RptEndCOUNT(rptEndL) = (&aRptEnd)->count;
+
+//NHexDump(LOG_DEBUG, "ConvertRPTEND", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertRPTEND: firstObj=L%u subType=%d count=%d\n", RptEndFIRSTOBJ(rptEndL),
+RptType(rptEndL), RptEndCOUNT(rptEndL)); 
+
+#if 1
+	aRptEndL = FirstSubLINK(rptEndL);
+	for ( ; aRptEndL; aRptEndL = NextRPTENDL(aRptEndL)) {
+		/* Copy the subobj to a separate ARPTEND so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+		pSSubObj = (unsigned char *)GetObjectPtr(RPTENDheap, aRptEndL, PARPTEND);
+LogPrintf(LOG_DEBUG, "->block=%ld aRptEndL=%d sizeof(ARPTEND)*aRptEndL=%d pSSubObj=%ld\n", (RPTENDheap)->block,
+aRptEndL, sizeof(ARPTEND)*aRptEndL, pSSubObj);
+		BlockMove(pSSubObj, &tmpARptEnd, sizeof(ARPTEND));
+//NHexDump(LOG_DEBUG, "ConvertRPTEND", (unsigned char *)&tmpARptEnd, sizeof(ARPTEND_5), 4, 16);
+
+		Convert1RPTEND(doc, aRptEndL);
+	}
+#endif
+
+	return True;
+}
+
 
 static Boolean ConvertPAGE(Document * /* doc */, LINK pageL)
 {
@@ -1086,7 +1154,6 @@ static Boolean ConvertCLEF(Document *doc, LINK clefL)
 LogPrintf(LOG_DEBUG, "ConvertCLEF: clefL=%u inMeasure=%d\n", clefL,
 ClefINMEAS(clefL));
 
-#if 1
 aClefL = FirstSubLINK(clefL);
 	for ( ; aClefL; aClefL = NextCLEFL(aClefL)) {
 		/* Copy the subobj to a separate ACLEF so we can move fields all over
@@ -1100,7 +1167,6 @@ NHexDump(LOG_DEBUG, "ConvertCLEF", (unsigned char *)&tmpAClef, sizeof(ACLEF_5), 
 
 		Convert1CLEF(doc, aClefL);
 	}
-#endif
 
 	return True;
 }
@@ -1258,7 +1324,6 @@ static Boolean ConvertDYNAMIC(Document *doc, LINK dynamicL)
 //NHexDump(LOG_DEBUG, "ConvertDYNAMIC", (unsigned char *)&tempSys, 38, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertDYNAMIC: dynamicL=%u dynamicType=%d\n", dynamicL, DynamType(dynamicL));
 
-#if 1
 aDynamicL = FirstSubLINK(dynamicL);
 	for ( ; aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL)) {
 		/* Copy the subobj to a separate ADYNAMIC so we can move fields all over
@@ -1272,11 +1337,58 @@ NHexDump(LOG_DEBUG, "ConvertDYNAMIC", (unsigned char *)&tmpADynamic, sizeof(ADYN
 
 		Convert1DYNAMIC(doc, aDynamicL);
 	}
-#endif
 
 	return True;
 }
 
+
+static Boolean ConvertTUPLET(Document *doc, LINK tupletL)
+{
+	TUPLET_5 aTuplet;
+	LINK aTupletL;
+	unsigned char *pSSubObj;
+	
+	BlockMove(&tmpSuperObj, &aTuplet, sizeof(TUPLET_5));
+	
+	TupletSTAFF(tupletL) = (&aTuplet)->staffn;		/* EXTOBJHEADER */
+
+	TupletACCNUM(tupletL) = (&aTuplet)->accNum;
+	TupletACCDENOIM(tupletL) = (&aTuplet)->accDenom;
+	TupletVOICE(tupletL) = (&aTuplet)->voice;
+	TupletNUMVIS(tupletL) = (&aTuplet)->numVis;
+	TupletDENOMVIS(tupletL) = (&aTuplet)->denomVis;
+	TupletBRACKVIS(tupletL) = (&aTuplet)->brackVis;
+	TupletSMALL(tupletL) = (&aTuplet)->small;
+	TupletFILLER(tupletL) = (&aTuplet)->filler;
+	TupletACNXD(tupletL) = (&aTuplet)->acnxd;
+	TupletACNYD(tupletL) = (&aTuplet)->acnyd;
+	TupletXDFIRST(tupletL) = (&aTuplet)->xdFirst;
+	TupletYDFIRST(tupletL) = (&aTuplet)->ydFirst;
+	TupletXDLAST(tupletL) = (&aTuplet)->xdLast;
+	TupletYDLAST(tupletL) = (&aTuplet)->ydLast;
+
+//NHexDump(LOG_DEBUG, "ConvertTUPLET", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertTUPLET: accNum=%d accDenom=%d staff=%d\n", TupletACCNUM(tupletL),
+TupletACCDENOIM(tupletL), TupletSTAFF(tupletL)); 
+
+#if 0
+	aTupletL = FirstSubLINK(tupletL);
+	for ( ; aTupletL; aTupletL = NextTUPLETL(aTupletL)) {
+		/* Copy the subobj to a separate ATUPLET so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+		pSSubObj = (unsigned char *)GetObjectPtr(TUPLETheap, aTupletL, PATUPLET);
+LogPrintf(LOG_DEBUG, "->block=%ld aTupletL=%d sizeof(ATUPLET)*aTupletL=%d pSSubObj=%ld\n", (TUPLETheap)->block,
+aTupletL, sizeof(ATUPLET)*aTupletL, pSSubObj);
+		BlockMove(pSSubObj, &tmpATuplet, sizeof(ATUPLET));
+//NHexDump(LOG_DEBUG, "ConvertTUPLET", (unsigned char *)&tmpATuplet, sizeof(ATUPLET_5), 4, 16);
+
+		Convert1TUPLET(doc, aTupletL);
+	}
+#endif
+
+	return True;
+}
 
 
 static Boolean ConvertGRSYNC(Document *doc, LINK grSyncL)
@@ -1290,7 +1402,6 @@ static Boolean ConvertGRSYNC(Document *doc, LINK grSyncL)
 //NHexDump(LOG_DEBUG, "ConvertGRSYNC", (unsigned char *)&tempSys, 38, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertGRSYNC: grSyncL=L%u\n", grSyncL); 
 
-#if 0
 	aGRNoteRL = FirstSubLINK(grSyncL);
 	for ( ; aGRNoteRL; aGRNoteRL = NextGRNOTEL(aGRNoteRL)) {
 		/* Copy the subobj to a separate AGRNOTE so we can move fields all over
@@ -1304,7 +1415,6 @@ aGRNoteRL, sizeof(AGRNOTE)*aGRNoteRL, pSSubObj);
 
 		Convert1GRNOTE(doc, aGRNoteRL);
 	}
-#endif
 
 	return True;
 }
@@ -1391,11 +1501,9 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 			case SYNCtype:
 				ConvertSYNC(doc, pL);
 				continue;
-#ifdef NOTYET
 			case RPTENDtype:
-				if (!ConvertRPTEND(doc, pL))  ERROR;
+				ConvertRPTEND(doc, pL);
 				continue;
-#endif
 			case PAGEtype:
 				ConvertPAGE(doc, pL);
 				continue;
@@ -1436,10 +1544,10 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 			case SLURtype:
 				if (!ConvertSLUR(doc, pL))  ERROR;
 				continue;
-			case TUPLETtype:
-				if (!ConvertTUPLET(doc, pL))  ERROR;
-				continue;
 #endif
+			case TUPLETtype:
+				ConvertTUPLET(doc, pL);
+				continue;
 			case GRSYNCtype:
 				ConvertGRSYNC(doc, pL);
 				continue;

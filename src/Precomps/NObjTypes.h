@@ -36,7 +36,7 @@ as well. */
 #define SUBOBJHEADER \
 	LINK		next;				/* index of next subobj */								\
 	SignedByte	staffn;				/* staff no. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
-	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */		\
+	SignedByte	subType;			/* subobject subtype. NB: Signed; see ANOTE. */			\
 	Boolean		selected;			/* True if subobject is selected */						\
 	Boolean		visible;			/* True if subobject is visible */						\
 	Boolean		soft;				/* True if subobject is program-generated */
@@ -45,267 +45,19 @@ as well. */
 	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
 
 
+/* ------------------------------------------------------------------- Type 0 = HEADER -- */
+/* The HEADER's subobject, PARTINFO, is defined in NBasicTypes.h. */
+
+typedef struct {
+	OBJECTHEADER
+} HEADER, *PHEADER;
+
+
 /* --------------------------------------------------------------------- Type 1 = TAIL -- */
 
 typedef struct {
 	OBJECTHEADER
 } TAIL, *PTAIL;
-
-
-/* --------------------------------------------------------------------- Type 4 = PAGE -- */
-
-typedef struct {
-	OBJECTHEADER
-	LINK		lPage,				/* Links to left and right Pages */
-				rPage;
-	short		sheetNum;			/* Sheet number: indexed from 0 */
-	StringPtr	headerStrOffset,	/* (unused; when used, should be STRINGOFFSETs) */
-				footerStroffset;
-} PAGE, *PPAGE;
-
-
-/* ------------------------------------------------------------------- Type 5 = SYSTEM -- */
-
-typedef struct {
-	OBJECTHEADER
-	LINK		lSystem,			/* Links to left and right Systems */
-				rSystem;
-	LINK		pageL;				/* Link to previous (enclosing) Page */
-	short		systemNum;			/* System number: indexed from 1 */
-	DRect		systemRect;			/* DRect enclosing entire system, rel to Page */
-	Ptr			sysDescPtr;			/* (unused) ptr to data describing left edge of System */
-} SYSTEM, *PSYSTEM;
-
-
-/* -------------------------------------------------------------------- Type 6 = STAFF -- */
-
-#define SHOW_ALL_LINES	15
-
-typedef struct {
-	LINK		next;				/* index of next subobj */
-	SignedByte	staffn;				/* staff number */
-	Boolean		selected;			/* True if subobject is selected */
-	Boolean		visible;			/* True if object is visible */
-	Boolean		fillerStf;			/* unused */
-	DDIST		staffTop,			/* relative to systemRect.top */
-				staffLeft,			/* always 0 now; rel to systemRect.left */
-				staffRight;			/* relative to systemRect.left */
-	DDIST		staffHeight;		/* staff height */
-	SignedByte	staffLines;			/* number of lines in staff: 0..6 (always 5 for now) */
-	short		fontSize;			/* preferred font size for this staff */
-	DDIST		flagLeading;		/* (unused) vertical space between flags */
-	DDIST		minStemFree;		/* (unused) min. flag-free length of note stem */
-	DDIST		ledgerWidth;		/* (unused) Standard ledger line length */
-	DDIST		noteHeadWidth;		/* width of common note heads */
-	DDIST		fracBeamWidth;		/* Fractional beam length */
-	DDIST		spaceBelow;			/* Vert space occupied by stf; stored in case stf made invis */
-	SignedByte	clefType;			/* clef context */
-	SignedByte	dynamicType;		/* dynamic marking context */
-	WHOLE_KSINFO					/* key signature context */
-	SignedByte	timeSigType,		/* time signature context */
-				numerator,
-				denominator;
-	unsigned char filler,			/* unused */
-				showLedgers,		/* True if drawing ledger lines of notes on this staff (the default if showLines>0) */
-				showLines;			/* 0=show 0 staff lines, 1=only middle line (of 5-line staff), 2-14 unused,
-										SHOW_ALL_LINES=show all lines (default) */
-} ASTAFF, *PASTAFF;
-
-typedef struct {
-	OBJECTHEADER
-	LINK			lStaff,				/* links to left and right Staffs */
-					rStaff;
-	LINK			systemL;			/* link to previous (enclosing) System */
-} STAFF, *PSTAFF;
-
-
-/* ---------------------------------------------------------------- Type 12 = CONNECT -- */
-
-typedef struct {
-	LINK		next;				/* index of next subobj */
-	Boolean		selected;			/* True if subobject is selected */
-	Byte 		filler;
-	Byte		connLevel;			/* Code from list below */
-	Byte		connectType;		/* Code from list below */
-	SignedByte	staffAbove;			/* upper staff no. (top of line or curly) (valid if connLevel!=0) */
-	SignedByte	staffBelow;			/* lower staff no. (bottom of " ) (valid if connLevel!=0) */
-	DDIST		xd;					/* DDIST position */
-	LINK		firstPart;			/* (Unused) LINK to first part of group or connected part if not a group */
-	LINK		lastPart;			/* (Unused) LINK to last part of group or NILINK if not a group */
-} ACONNECT, *PACONNECT;
-
-typedef struct {
-	OBJECTHEADER
-	LINK		connFiller;
-} CONNECT, *PCONNECT;
-
-enum {								/* Codes for connectType */
-	CONNECTLINE=1,
-	CONNECTBRACKET,
-	CONNECTCURLY
-};
-
-enum {								/* Codes for connLevel */
-	SystemLevel=0,
-	GroupLevel,
-	PartLevel=7
-};
-
-
-/* ------------------------------------------------------------- Type 8 = ACLEF, CLEF -- */
-
-typedef struct {
-	SUBOBJHEADER
-	Byte		filler1;
-	Byte		small;				/* True to draw in small characters */
-	Byte		filler2;
-	DDIST		xd, yd;				/* DDIST position */
-} ACLEF, *PACLEF;
-
-typedef struct {
-	OBJECTHEADER
-	Boolean	inMeasure;				/* True if object is in a Measure, False if not */
-} CLEF, *PCLEF;
-
-enum {								/* clef subTypes: */
-	TREBLE8_CLEF=1,					/* unused */
-	FRVIOLIN_CLEF,					/* unused */
-	TREBLE_CLEF,
-	SOPRANO_CLEF,
-	MZSOPRANO_CLEF,
-	ALTO_CLEF,
-	TRTENOR_CLEF,
-	TENOR_CLEF,
-	BARITONE_CLEF,
-	BASS_CLEF,
-	BASS8B_CLEF,					/* unused */
-	PERC_CLEF
-};
-
-#define LOW_CLEF TREBLE8_CLEF
-#define HIGH_CLEF PERC_CLEF
-
-
-/* ------------------------------------------------------------------- Type 9 = KEYSIG -- */
-
-typedef struct {
-	SUBOBJHEADER					/* subType=no. of naturals, if nKSItems==0 */
-	Byte			nonstandard;	/* True if not a standard CMN key sig. */
-	Byte			filler1;
-	Byte			small;			/* (unused so far) True to draw in small characters */
-	SignedByte		filler2;
-	DDIST			xd;				/* DDIST horizontal position */
-	WHOLE_KSINFO
-} AKEYSIG, *PAKEYSIG;
-
-typedef struct {
-	OBJECTHEADER
-	Boolean	inMeasure;				/* True if object is in a Measure, False if not */
-} KEYSIG, *PKEYSIG;
-
-
-/* ----------------------------------------------------------------- Type 10 = TIMESIG -- */
-
-typedef struct {
-	SUBOBJHEADER
-	Byte		filler;				/* Unused--put simple/compound/other here? */
-	Byte		small;				/* (unused so far) True to draw in small characters */
-	SignedByte	connStaff;			/* (unused so far) bottom staff no. */
-	DDIST		xd, yd;				/* DDIST position */
-	SignedByte	numerator;			/* numerator */
-	SignedByte	denominator;		/* denominator */
-} ATIMESIG, *PATIMESIG;
-
-typedef struct {
-	OBJECTHEADER
-	Boolean		inMeasure;		/* True if object is in a Measure, False if not */
-} TIMESIG, *PTIMESIG;
-
-enum {								/* subtypes: */
-	N_OVER_D=1,
-	C_TIME,
-	CUT_TIME,
-	N_ONLY,
-	ZERO_TIME,
-	N_OVER_QUARTER,
-	N_OVER_EIGHTH,
-	N_OVER_HALF,
-	N_OVER_DOTTEDQUARTER,
-	N_OVER_DOTTEDEIGHTH
-};
-
-#define LOW_TStype N_OVER_D
-#define HIGH_TStype N_OVER_DOTTEDEIGHTH
-
-
-/* ------------------------------------------------------------------ Type 7 = MEASURE -- */
-
-typedef struct {
-	SUBOBJHEADER					/* subType=barline type (see enum below) */
-	Boolean		measureVisible;		/* True if measure contents are visible */
-	Boolean		connAbove;			/* True if connected to barline above */
-	char		filler1;
-	SignedByte	filler2;
-	short		oldFakeMeas,		/* OBSOLETE: now at the object level, so this is to be removed */
-				measureNum;			/* internal measure number; first is always 0 */
-	DRect		measSizeRect;		/* enclosing Rect of measure, V rel. to System top & H to meas. xd  */
-	SignedByte	connStaff;			/* staff to connect to (valid if >0 and !connAbove) */
-	SignedByte	clefType;			/* clef context */
-	SignedByte	dynamicType;		/* dynamic marking context */
-	WHOLE_KSINFO					/* key signature context */
-	SignedByte	timeSigType,		/* time signature context */
-				numerator,
-				denominator;
-	SHORTSTD	xMNStdOffset;		/* horiz. offset on measure number position */
-	SHORTSTD	yMNStdOffset;		/* vert. offset on measure number position */
-} AMEASURE, *PAMEASURE;
-
-typedef struct	{
-	OBJECTHEADER
-	SignedByte	fillerM;
-	LINK			lMeasure,		/* links to left and right Measures */
-					rMeasure;
-	LINK			systemL;		/* link to owning System */
-	LINK			staffL;			/* link to owning Staff */
-	short			fakeMeas,		/* True=not really a measure (i.e., barline ending system) */
-					spacePercent;	/* Percentage of normal horizontal spacing used */
-	Rect			measureBBox;	/* enclosing Rect of all measure subObjs, in pixels, paper-rel. */
-	long			lTimeStamp;		/* P: PDURticks since beginning of score */
-} MEASURE, *PMEASURE;
-
-enum {								/* barline types */
-	BAR_SINGLE=1,
-	BAR_DOUBLE,
-	BAR_FINALDBL,
-	BAR_HEAVYDBL,					/* (unused) */
-	BAR_RPT_L,						/* Codes must be the same as equivalent RPTENDs! */
-	BAR_RPT_R,
-	BAR_RPT_LR,
-	BAR_LAST=BAR_RPT_LR
-};
-
-
-/* -------------------------------------------------------------- Type 23 = PSEUDOMEAS -- */
-/* Pseudomeasures are symbols that look like barlines but have no semantics, i.e., dotted
-barlines and double bars that don't coincide with "real" barlines. */
-
-typedef struct {
-	SUBOBJHEADER					/* subType=barline type (see enum below) */
-	Boolean		connAbove;			/* True if connected to barline above */
-	char		filler1;			/* (unused) */
-	SignedByte	connStaff;			/* staff to connect to (valid if >0 and !connAbove) */
-} APSMEAS, *PAPSMEAS;
-
-typedef struct 	{
-	OBJECTHEADER
-	SignedByte	filler;
-} PSMEAS, *PPSMEAS;
-
-enum {								/* pseudomeasure types: codes follow those for MEASUREs */
-	PSM_DOTTED=BAR_LAST+1,
-	PSM_DOUBLE,
-	PSM_FINALDBL					/* unused */
-};
 
 
 /* --------------------------------------------------------------- Type 2 = NOTE, SYNC -- */
@@ -374,6 +126,235 @@ enum {								/* Notehead and rest appearances: */
 };
 
 
+/* ---------------------------------------------------------------- Type 3 = REPEATEND -- */
+
+typedef struct {
+	SUBOBJHEADER					/* subType is in object so unused here */
+	Byte			connAbove;		/* True if connected above */
+	Byte			filler;			/* (unused) */
+	SignedByte		connStaff;		/* staff to connect to; valid if connAbove True */
+} ARPTEND, *PARPTEND;
+
+typedef struct {
+	OBJECTHEADER
+	LINK			firstObj;		/* Beginning of ending or NILINK */
+	LINK			startRpt;		/* Repeat start point or NILINK */
+	LINK			endRpt;			/* Repeat end point or NILINK */
+	SignedByte		subType;		/* Code from enum below */
+	Byte			count;			/* Number of times to repeat */
+} RPTEND, *PRPTEND;
+
+enum {
+	RPT_DC=1,
+	RPT_DS,
+	RPT_SEGNO1,
+	RPT_SEGNO2,
+	RPT_L,							/* Codes must be the same as equivalent MEASUREs! */
+	RPT_R,
+	RPT_LR
+};
+
+
+/* --------------------------------------------------------------------- Type 4 = PAGE -- */
+
+typedef struct {
+	OBJECTHEADER
+	LINK		lPage,				/* Links to left and right Pages */
+				rPage;
+	short		sheetNum;			/* Sheet number: indexed from 0 */
+	StringPtr	headerStrOffset,	/* (unused; when used, should be STRINGOFFSETs) */
+				footerStroffset;
+} PAGE, *PPAGE;
+
+
+/* ------------------------------------------------------------------- Type 5 = SYSTEM -- */
+
+typedef struct {
+	OBJECTHEADER
+	LINK		lSystem,			/* Links to left and right Systems */
+				rSystem;
+	LINK		pageL;				/* Link to previous (enclosing) Page */
+	short		systemNum;			/* System number: indexed from 1 */
+	DRect		systemRect;			/* DRect enclosing entire system, rel to Page */
+	Ptr			sysDescPtr;			/* (unused) ptr to data describing left edge of System */
+} SYSTEM, *PSYSTEM;
+
+
+/* -------------------------------------------------------------------- Type 6 = STAFF -- */
+
+#define SHOW_ALL_LINES	15
+
+typedef struct {
+	LINK		next;				/* index of next subobj */
+	SignedByte	staffn;				/* staff number */
+	Boolean		selected;			/* True if subobject is selected */
+	Boolean		visible;			/* True if object is visible */
+	Boolean		fillerStf;			/* unused */
+	DDIST		staffTop,			/* relative to systemRect.top */
+				staffLeft,			/* always 0 now; rel to systemRect.left */
+				staffRight;			/* relative to systemRect.left */
+	DDIST		staffHeight;		/* staff height */
+	SignedByte	staffLines;			/* number of lines in staff: 0..6 (always 5 for now) */
+	short		fontSize;			/* preferred font size for this staff */
+	DDIST		flagLeading;		/* (unused) vertical space between flags */
+	DDIST		minStemFree;		/* (unused) min. flag-free length of note stem */
+	DDIST		ledgerWidth;		/* (unused) Standard ledger line length */
+	DDIST		noteHeadWidth;		/* width of common note heads */
+	DDIST		fracBeamWidth;		/* Fractional beam length */
+	DDIST		spaceBelow;			/* Vert space occupied by stf; stored in case stf made invis */
+	SignedByte	clefType;			/* clef context */
+	SignedByte	dynamicType;		/* dynamic marking context */
+	WHOLE_KSINFO					/* key signature context */
+	SignedByte	timeSigType,		/* time signature context */
+				numerator,
+				denominator;
+	unsigned char filler,			/* unused */
+				showLedgers,		/* True if drawing ledger lines of notes on this staff (the default if showLines>0) */
+				showLines;			/* 0=show 0 staff lines, 1=only middle line (of 5-line staff), 2-14 unused,
+										SHOW_ALL_LINES=show all lines (default) */
+} ASTAFF, *PASTAFF;
+
+typedef struct {
+	OBJECTHEADER
+	LINK			lStaff,			/* links to left and right Staffs */
+					rStaff;
+	LINK			systemL;		/* link to previous (enclosing) System */
+} STAFF, *PSTAFF;
+
+
+/* ------------------------------------------------------------------ Type 7 = MEASURE -- */
+
+typedef struct {
+	SUBOBJHEADER					/* subType=barline type (see enum below) */
+	Boolean		measureVisible;		/* True if measure contents are visible */
+	Boolean		connAbove;			/* True if connected to barline above */
+	char		filler1;
+	SignedByte	filler2;
+	short		oldFakeMeas,		/* OBSOLETE: now at the object level, so this is to be removed */
+				measureNum;			/* internal measure number; first is always 0 */
+	DRect		measSizeRect;		/* enclosing Rect of measure, V rel. to System top & H to meas. xd  */
+	SignedByte	connStaff;			/* staff to connect to (valid if >0 and !connAbove) */
+	SignedByte	clefType;			/* clef context */
+	SignedByte	dynamicType;		/* dynamic marking context */
+	WHOLE_KSINFO					/* key signature context */
+	SignedByte	timeSigType,		/* time signature context */
+				numerator,
+				denominator;
+	SHORTSTD	xMNStdOffset;		/* horiz. offset on measure number position */
+	SHORTSTD	yMNStdOffset;		/* vert. offset on measure number position */
+} AMEASURE, *PAMEASURE;
+
+typedef struct	{
+	OBJECTHEADER
+	SignedByte	fillerM;
+	LINK			lMeasure,		/* links to left and right Measures */
+					rMeasure;
+	LINK			systemL;		/* link to owning System */
+	LINK			staffL;			/* link to owning Staff */
+	short			fakeMeas,		/* True=not really a measure (i.e., barline ending system) */
+					spacePercent;	/* Percentage of normal horizontal spacing used */
+	Rect			measureBBox;	/* enclosing Rect of all measure subObjs, in pixels, paper-rel. */
+	long			lTimeStamp;		/* P: PDURticks since beginning of score */
+} MEASURE, *PMEASURE;
+
+enum {								/* barline types */
+	BAR_SINGLE=1,
+	BAR_DOUBLE,
+	BAR_FINALDBL,
+	BAR_HEAVYDBL,					/* (unused) */
+	BAR_RPT_L,						/* Codes must be the same as equivalent RPTENDs! */
+	BAR_RPT_R,
+	BAR_RPT_LR,
+	BAR_LAST=BAR_RPT_LR
+};
+
+
+/* -------------------------------------------------------------- Type 8 = ACLEF, CLEF -- */
+
+typedef struct {
+	SUBOBJHEADER
+	Byte		filler1;
+	Byte		small;				/* True to draw in small characters */
+	Byte		filler2;
+	DDIST		xd, yd;				/* DDIST position */
+} ACLEF, *PACLEF;
+
+typedef struct {
+	OBJECTHEADER
+	Boolean	inMeasure;				/* True if object is in a Measure, False if not */
+} CLEF, *PCLEF;
+
+enum {								/* clef subTypes: */
+	TREBLE8_CLEF=1,					/* unused */
+	FRVIOLIN_CLEF,					/* unused */
+	TREBLE_CLEF,
+	SOPRANO_CLEF,
+	MZSOPRANO_CLEF,
+	ALTO_CLEF,
+	TRTENOR_CLEF,
+	TENOR_CLEF,
+	BARITONE_CLEF,
+	BASS_CLEF,
+	BASS8B_CLEF,					/* unused */
+	PERC_CLEF
+};
+
+#define LOW_CLEF TREBLE8_CLEF
+#define HIGH_CLEF PERC_CLEF
+
+
+/* ------------------------------------------------------------------- Type 9 = KEYSIG -- */
+
+typedef struct {
+	SUBOBJHEADER					/* subType=no. of naturals, if nKSItems==0 */
+	Byte			nonstandard;	/* True if not a standard CMN key sig. */
+	Byte			filler1;
+	Byte			small;			/* (unused so far) True to draw in small characters */
+	SignedByte		filler2;
+	DDIST			xd;				/* DDIST horizontal position */
+	WHOLE_KSINFO
+} AKEYSIG, *PAKEYSIG;
+
+typedef struct {
+	OBJECTHEADER
+	Boolean	inMeasure;				/* True if object is in a Measure, False if not */
+} KEYSIG, *PKEYSIG;
+
+
+/* ----------------------------------------------------------------- Type 10 = TIMESIG -- */
+
+typedef struct {
+	SUBOBJHEADER
+	Byte		filler;				/* Unused--put simple/compound/other here? */
+	Byte		small;				/* (unused) True to draw in small characters */
+	SignedByte	connStaff;			/* (unused) bottom staff no. */
+	DDIST		xd, yd;				/* DDIST position */
+	SignedByte	numerator;			/* numerator */
+	SignedByte	denominator;		/* denominator */
+} ATIMESIG, *PATIMESIG;
+
+typedef struct {
+	OBJECTHEADER
+	Boolean		inMeasure;		/* True if object is in a Measure, False if not */
+} TIMESIG, *PTIMESIG;
+
+enum {								/* subtypes: */
+	N_OVER_D=1,
+	C_TIME,
+	CUT_TIME,
+	N_ONLY,
+	ZERO_TIME,
+	N_OVER_QUARTER,
+	N_OVER_EIGHTH,
+	N_OVER_HALF,
+	N_OVER_DOTTEDQUARTER,
+	N_OVER_DOTTEDEIGHTH
+};
+
+#define LOW_TStype N_OVER_D
+#define HIGH_TStype N_OVER_DOTTEDEIGHTH
+
+
 /* ----------------------------------------------------------------- Type 11 = BEAMSET -- */
 
 typedef struct {
@@ -412,83 +393,37 @@ typedef struct {
 } BEAMINFO;
 
 
-/* ------------------------------------------------------------------ Type 18 = TUPLET -- */
-
-/* This struct is used to get information from TupletDialog. */
+/* ----------------------------------------------------------------- Type 12 = CONNECT -- */
 
 typedef struct {
-	Byte			accNum;			/* Accessory numeral (numerator) for Tuplet */
-	Byte			accDenom;		/* Accessory denominator */
-	short			durUnit;		/* Duration units of denominator */
-	Boolean			numVis,
-					denomVis,
-					brackVis,
-					isFancy;
-} TupleParam;
-
-typedef struct {
-	LINK			next;			/* index of next subobj */
-	LINK			tpSync;			/* link to Sync containing note/chord */
-} ANOTETUPLE, *PANOTETUPLE;
+	LINK		next;				/* index of next subobj */
+	Boolean		selected;			/* True if subobject is selected */
+	Byte 		filler;
+	Byte		connLevel;			/* Code from list below */
+	Byte		connectType;		/* Code from list below */
+	SignedByte	staffAbove;			/* upper staff no. (top of line or curly) (valid if connLevel!=0) */
+	SignedByte	staffBelow;			/* lower staff no. (bottom of " ) (valid if connLevel!=0) */
+	DDIST		xd;					/* DDIST position */
+	LINK		firstPart;			/* (Unused) LINK to first part of group or connected part if not a group */
+	LINK		lastPart;			/* (Unused) LINK to last part of group or NILINK if not a group */
+} ACONNECT, *PACONNECT;
 
 typedef struct {
 	OBJECTHEADER
-	EXTOBJHEADER
-	Byte			accNum;			/* Accessory numeral (numerator) for Tuplet */
-	Byte			accDenom;		/* Accessory denominator */
-	SignedByte		voice;			/* Voice number */
-	Byte			numVis,
-					denomVis,
-					brackVis,
-					small,			/* (unused so far) True to draw in small characters */
-					filler;
-	DDIST			acnxd, acnyd;	/* DDIST position of accNum (now unused) */
-	DDIST			xdFirst, ydFirst,	/* DDIST position of bracket */
-					xdLast, ydLast;
-} TUPLET, *PTUPLET;
+	LINK		connFiller;
+} CONNECT, *PCONNECT;
 
-
-/* ---------------------------------------------------------------- Type 3 = REPEATEND -- */
-
-typedef struct {
-	SUBOBJHEADER					/* subType is in object so unused here */
-	Byte			connAbove;		/* True if connected above */
-	Byte			filler;			/* (unused) */
-	SignedByte		connStaff;		/* staff to connect to; valid if connAbove True */
-} ARPTEND, *PARPTEND;
-
-typedef struct {
-	OBJECTHEADER
-	LINK			firstObj;		/* Beginning of ending or NILINK */
-	LINK			startRpt;		/* Repeat start point or NILINK */
-	LINK			endRpt;			/* Repeat end point or NILINK */
-	SignedByte		subType;		/* Code from enum below */
-	Byte			count;			/* Number of times to repeat */
-} RPTEND, *PRPTEND;
-
-enum {
-	RPT_DC=1,
-	RPT_DS,
-	RPT_SEGNO1,
-	RPT_SEGNO2,
-	RPT_L,							/* Codes must be the same as equivalent MEASUREs! */
-	RPT_R,
-	RPT_LR
+enum {								/* Codes for connectType */
+	CONNECTLINE=1,
+	CONNECTBRACKET,
+	CONNECTCURLY
 };
 
-
-/* ------------------------------------------------------------------ Type 22 = ENDING -- */
-
-typedef struct {
-	OBJECTHEADER
-	EXTOBJHEADER
-	LINK		firstObjL;			/* Object left end of ending is attached to */
-	LINK		lastObjL;			/* Object right end of ending is attached to or NILINK */
-	Byte		noLCutoff;			/* True to suppress cutoff at left end of Ending */	
-	Byte		noRCutoff;			/* True to suppress cutoff at right end of Ending */	
-	Byte		endNum;				/* 0=no ending number or label, else code for the ending label */
-	DDIST		endxd;				/* Position offset from lastObjL */
-} ENDING, *PENDING;
+enum {								/* Codes for connLevel */
+	SystemLevel=0,
+	GroupLevel,
+	PartLevel=7
+};
 
 
 /* ------------------------------------------------------- Type 13 = ADYNAMIC, DYNAMIC -- */
@@ -508,7 +443,7 @@ typedef struct {
 	OBJECTHEADER
 	SignedByte	dynamicType;		/* Code for dynamic marking (see enum below) */
 	Boolean		filler;
-	Boolean		crossSys;			/* (unused) Whether crossSystem */
+	Boolean		crossSys;			/* (unused) Whether cross-system */
 	LINK		firstSyncL;			/* Sync dynamic or hairpin start is attached to */
 	LINK		lastSyncL;			/* Sync hairpin end is attached to or NILINK */
 } DYNAMIC, *PDYNAMIC;
@@ -622,7 +557,7 @@ typedef struct {
 #define ARPINFO(info2)	((unsigned short)(info2) >>13) 
 
 enum {								/* graphicType values: */
-	GRPICT=1,						/* 	(unimplemented) PICT */
+	GRPICT=1,						/* 	(unimplemented; anyway PICTs are obsolete) PICT */
 	GRChar,							/* 	(unimplemented) single character */
 	GRString,						/* 	character string */
 	GRLyric,						/* 	lyric character string */
@@ -754,6 +689,42 @@ typedef struct {
 } SLUR, *PSLUR;
 
 
+/* ------------------------------------------------------------------ Type 18 = TUPLET -- */
+
+/* This struct is used to get information from TupletDialog. */
+
+typedef struct {
+	Byte			accNum;			/* Accessory numeral (numerator) for Tuplet */
+	Byte			accDenom;		/* Accessory denominator */
+	short			durUnit;		/* Duration units of denominator */
+	Boolean			numVis,
+					denomVis,
+					brackVis,
+					isFancy;
+} TupleParam;
+
+typedef struct {
+	LINK			next;			/* index of next subobj */
+	LINK			tpSync;			/* link to Sync containing note/chord */
+} ANOTETUPLE, *PANOTETUPLE;
+
+typedef struct {
+	OBJECTHEADER
+	EXTOBJHEADER
+	Byte			accNum;			/* Accessory numeral (numerator) for Tuplet */
+	Byte			accDenom;		/* Accessory denominator */
+	SignedByte		voice;			/* Voice number */
+	Byte			numVis,
+					denomVis,
+					brackVis,
+					small,			/* (unused so far) True to draw in small characters */
+					filler;
+	DDIST			acnxd, acnyd;	/* DDIST position of accNum (now unused) */
+	DDIST			xdFirst, ydFirst,	/* DDIST position of bracket */
+					xdLast, ydLast;
+} TUPLET, *PTUPLET;
+
+
 /* ---------------------------------------------------------- Type 19 = GRNOTE, GRSYNC -- */
 
 typedef ANOTE AGRNOTE;				/* Same struct, though not all fields are used here */
@@ -792,12 +763,41 @@ typedef struct {
 } SPACER, *PSPACER;
 
 
-/* ------------------------------------------------------------------- Type 0 = HEADER -- */
-/* The HEADER's subobject, PARTINFO, is defined in NBasicTypes.h. */
+/* ------------------------------------------------------------------ Type 22 = ENDING -- */
 
 typedef struct {
 	OBJECTHEADER
-} HEADER, *PHEADER;
+	EXTOBJHEADER
+	LINK		firstObjL;			/* Object left end of ending is attached to */
+	LINK		lastObjL;			/* Object right end of ending is attached to or NILINK */
+	Byte		noLCutoff;			/* True to suppress cutoff at left end of Ending */	
+	Byte		noRCutoff;			/* True to suppress cutoff at right end of Ending */	
+	Byte		endNum;				/* 0=no ending number or label, else code for the ending label */
+	DDIST		endxd;				/* Position offset from lastObjL */
+} ENDING, *PENDING;
+
+
+/* -------------------------------------------------------------- Type 23 = PSEUDOMEAS -- */
+/* Pseudomeasures are symbols that look like barlines but have no semantics, i.e., dotted
+barlines and double bars that don't coincide with "real" barlines. */
+
+typedef struct {
+	SUBOBJHEADER					/* subType=barline type (see enum below) */
+	Boolean		connAbove;			/* True if connected to barline above */
+	char		filler1;			/* (unused) */
+	SignedByte	connStaff;			/* staff to connect to (valid if >0 and !connAbove) */
+} APSMEAS, *PAPSMEAS;
+
+typedef struct 	{
+	OBJECTHEADER
+	SignedByte	filler;
+} PSMEAS, *PPSMEAS;
+
+enum {								/* pseudomeasure types: codes follow those for MEASUREs */
+	PSM_DOTTED=BAR_LAST+1,
+	PSM_DOUBLE,
+	PSM_FINALDBL					/* unused */
+};
 
 
 /* -------------------------------------------------------------------------- SUPEROBJ -- */

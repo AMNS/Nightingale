@@ -148,11 +148,11 @@ Boolean DCheckHeadTail(
 				if (pPartInfo->firstStaff!=nextStaff
 				||  pPartInfo->lastStaff>doc->nstaves
 				||  pPartInfo->firstStaff>pPartInfo->lastStaff)
-					COMPLAIN("•DCheckHeadTail: PART WITH partL=%d HAS BAD FIRST STAFF OR LAST STAFF.\n",
+					COMPLAIN("•DCheckHeadTail: PART WITH partL=L%u HAS BAD FIRST STAFF OR LAST STAFF.\n",
 								partL);
 				nextStaff = pPartInfo->lastStaff+1;
 				if (pPartInfo->transpose<-24 || pPartInfo->transpose>24)
-					COMPLAIN2("DCheckHeadTail: PART WITH partL=%d HAS SUSPICIOUS TRANSPOSITION %d.\n",
+					COMPLAIN2("DCheckHeadTail: PART WITH partL=L%u HAS SUSPICIOUS TRANSPOSITION %d.\n",
 								partL, pPartInfo->transpose);
 			}
 			if (nextStaff-1!=doc->nstaves)
@@ -2153,7 +2153,7 @@ Next:
 										pL, aGRNote->voice);
 					}
 					else if (!SyncInBEAMSET(pL, grBeamSetL[aGRNote->voice]))
-						COMPLAIN2("*DCheckBeams: BEAMED NOTE IN L%u VOICE %d NOT IN VOICE'S LAST BEAMSET.\n",
+						COMPLAIN2("*DCheckBeams: BEAMED NOTE IN GRSYNC L%u VOICE %d NOT IN VOICE'S LAST BEAMSET.\n",
 										pL, aGRNote->voice);
 				}
 			}
@@ -2917,7 +2917,7 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 			break;
 	}
 	
-	if (bad) COMPLAIN2("•DCheck1SubobjLinks: A SUBOBJ OF OBJ L%u HAS A BAD LINK OF %d.\n",
+	if (bad) COMPLAIN2("•DCheck1SubobjLinks: A SUBOBJ OF OBJ L%u HAS A BAD LINK OF L%u.\n",
 								pL, badLink);
 	
 	return bad;

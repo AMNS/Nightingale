@@ -37,13 +37,13 @@ void DKSPrintf(PKSINFO KSInfo)
 
 /* ----------------------------------------------------------------------- DisplayNode -- */
 /* Show information about the given object (node), and optionally its subobjects. If
-<abnormal>, ignore <doc>. */
+<nonMain>, ignore <doc>. */
 
 void DisplayNode(Document *doc, LINK pL,
-				short kount,					/* Label to print for node */
-				Boolean show_links,				/* Show node addr., links, size? */
-				Boolean show_subs,				/* Show subobjects? */
-				Boolean abnormal				/* Somewhere besides doc's main object list? */
+				short kount,				/* Label to print for node */
+				Boolean showLinks,			/* Show node addr., links, size? */
+				Boolean showSubs,			/* Show subobjects? */
+				Boolean nonMain				/* Somewhere besides doc's main object list? */
 				)
 {
 	register PMEVENT	p;
@@ -72,14 +72,14 @@ void DisplayNode(Document *doc, LINK pL,
 	PushLock(OBJheap);
 	p = GetPMEVENT(pL);
 	selFlag = ' ';
-	if (!abnormal) {
+	if (!nonMain) {
 		if (pL==doc->selStartL && pL==doc->selEndL) selFlag = '&';
 		else if (pL==doc->selStartL)				selFlag = '{';
 		else if (pL==doc->selEndL)				 	selFlag = '}';
 	}	
 
 	LogPrintf(LOG_INFO, "%c%d", selFlag, kount);
-	if (show_links)
+	if (showLinks)
 		LogPrintf(LOG_INFO, " L%u", pL);
 
 	ps = NameObjType(pL);
@@ -95,7 +95,7 @@ void DisplayNode(Document *doc, LINK pL,
 
 	switch (ObjLType(pL)) {
 		case HEADERtype:
-			if (!abnormal)
+			if (!nonMain)
 				LogPrintf(LOG_INFO, " sr=%d mrRect(t,l,b,r)=p%d,%d,%d,%d nst=%d nsys=%d",
 					doc->srastral,
 					doc->marginRect.top, doc->marginRect.left,
@@ -104,7 +104,7 @@ void DisplayNode(Document *doc, LINK pL,
 					doc->nsystems);
 			break;
 		case SYNCtype:
-			if (!abnormal) LogPrintf(LOG_INFO, " TS=%u LT=%ld", SyncTIME(pL),
+			if (!nonMain) LogPrintf(LOG_INFO, " TS=%u LT=%ld", SyncTIME(pL),
 												GetLTime(doc, pL));
 			break;
 		case RPTENDtype:
@@ -142,13 +142,13 @@ void DisplayNode(Document *doc, LINK pL,
 			break;
 		case DYNAMtype:
 			LogPrintf(LOG_INFO, " type=%d", ((PDYNAMIC)p)->dynamicType);
-			if (show_links) LogPrintf(LOG_INFO, " 1stS=L%u lastS=L%u",
+			if (showLinks) LogPrintf(LOG_INFO, " 1stS=L%u lastS=L%u",
 									((PDYNAMIC)p)->firstSyncL, ((PDYNAMIC)p)->lastSyncL);
 			break;
 		case GRAPHICtype:
 			LogPrintf(LOG_INFO, " st=%d type=%d", ((PGRAPHIC)p)->staffn,
 								((PGRAPHIC)p)->graphicType);
-			if (show_links) {
+			if (showLinks) {
 				LogPrintf(LOG_INFO, " fObj=L%u", ((PGRAPHIC)p)->firstObj);
 				if (((PGRAPHIC)p)->graphicType==GRDraw)
 					LogPrintf(LOG_INFO, " lObj=L%u", ((PGRAPHIC)p)->lastObj);
@@ -164,7 +164,7 @@ void DisplayNode(Document *doc, LINK pL,
 			if (((PSLUR)p)->crossSystem) LogPrintf(LOG_INFO, " xSys");
 			if (((PSLUR)p)->crossStaff) LogPrintf(LOG_INFO, " xStf");
 			if (((PSLUR)p)->crossStfBack) LogPrintf(LOG_INFO, " xStfBk");
-			if (show_links) LogPrintf(LOG_INFO, " L%u->L%u", ((PSLUR)p)->firstSyncL,
+			if (showLinks) LogPrintf(LOG_INFO, " L%u->L%u", ((PSLUR)p)->firstSyncL,
 													((PSLUR)p)->lastSyncL);
 			break;
 		case TUPLETtype:
@@ -174,14 +174,14 @@ void DisplayNode(Document *doc, LINK pL,
 			break;
 		case TEMPOtype:
 			LogPrintf(LOG_INFO, " st=%d", ((PTEMPO)p)->staffn);
-			if (show_links) LogPrintf(LOG_INFO, " fObj=L%u", ((PTEMPO)p)->firstObjL);
+			if (showLinks) LogPrintf(LOG_INFO, " fObj=L%u", ((PTEMPO)p)->firstObjL);
 			break;
 		case SPACERtype:
 			LogPrintf(LOG_INFO, " spWidth=%d", ((PSPACER)p)->spWidth);
 			break;
 		case ENDINGtype:
 			LogPrintf(LOG_INFO, " st=%d num=%d", ((PENDING)p)->staffn, ((PENDING)p)->endNum);
-			if (show_links) LogPrintf(LOG_INFO, " L%u->L%u", ((PENDING)p)->firstObjL,
+			if (showLinks) LogPrintf(LOG_INFO, " L%u->L%u", ((PENDING)p)->firstObjL,
 												 				((PENDING)p)->lastObjL);
 			break;
 		default:
@@ -191,7 +191,7 @@ void DisplayNode(Document *doc, LINK pL,
 	if (p->nEntries!=0)	LogPrintf(LOG_INFO, " n=%d\n", p->nEntries);
 	else				LogPrintf(LOG_INFO, "\n");
 
-	if (show_subs)
+	if (showSubs)
 		switch (ObjLType(pL))
 	{
 		case HEADERtype:
@@ -344,7 +344,7 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aNoteBeamL=FirstSubLINK(pL); aNoteBeamL; 
 					aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
 				aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
-				if (show_links) LogPrintf(LOG_INFO, "     bpSync=L%u ", aNoteBeam->bpSync);
+				if (showLinks) LogPrintf(LOG_INFO, "     bpSync=L%u ", aNoteBeam->bpSync);
 				else				 LogPrintf(LOG_INFO, "     ");
 				LogPrintf(LOG_INFO, "startend=%d fracs=%d %c\n",
 					aNoteBeam->startend, aNoteBeam->fracs,
@@ -355,14 +355,14 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aNoteTupleL=FirstSubLINK(pL); aNoteTupleL; 
 					aNoteTupleL=NextNOTETUPLEL(aNoteTupleL)) {
 				aNoteTuple = GetPANOTETUPLE(aNoteTupleL);
-				if (show_links) LogPrintf(LOG_INFO, "     tpSync=L%u\n", aNoteTuple->tpSync);
+				if (showLinks) LogPrintf(LOG_INFO, "     tpSync=L%u\n", aNoteTuple->tpSync);
 			}
 			break;
 		case OTTAVAtype:
 			for (aNoteOctL=FirstSubLINK(pL); aNoteOctL; 
 					aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 				aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
-				if (show_links) LogPrintf(LOG_INFO, "     opSync=L%u\n", aNoteOct->opSync);
+				if (showLinks) LogPrintf(LOG_INFO, "     opSync=L%u\n", aNoteOct->opSync);
 			}
 			break;
 		case GRAPHICtype: {
