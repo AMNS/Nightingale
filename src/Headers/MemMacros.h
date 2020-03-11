@@ -460,13 +460,11 @@ installed doc. */
 #define DMainNote(doc,link)		(!DNoteINCHORD(doc,link) || DNoteYD(doc,link)!=DNoteYSTEM(doc,link))
 
 /* ----------------------------------------------------------------------------------- */
-/*
- * To facilitate debugging, define a macro version of LinkToPtr and versions of some
- *	basic macros that call it. This was useful long ago because the THINK C Debugger
- *	refused to evaluate expressions that call the LinkToPtr function because it didn't
- *	know there are no possible side effects; I doubt it's useful these days, but we'll
- *	keep them for now.  --DAB, Feb. 2017
- */
+/* To facilitate debugging, define a macro version of LinkToPtr and versions of some
+basic macros that call it. This was useful long ago because the THINK C Debugger
+refused to evaluate expressions that call the LinkToPtr function because it didn't
+know there are no possible side effects. I doubt it's useful these days, but we'll
+keep them for now.  --DAB, Feb. 2017  */
 
 #define _LinkToPtr(heap,link)	( ((char *)(*(heap)->block)) + ((heap)->objSize*(unsigned long)(link)) )
 
@@ -482,9 +480,9 @@ installed doc. */
 
 
 /* ----------------------------------------------------------------------------------- */
-/* Macros for acccessing various other fields of subobjects (mostly) or objects. (FWIW,
-170 of these are from the OMRAS "MemMacroizing" project of the late 1990s; most are by
-Steve Hart.) */
+/* Macros for acccessing various other fields of subobjects (mostly) or objects. (About
+170 of these are from the OMRAS "MemMacroizing" project of the late 1990s; most of those
+are by Steve Hart.) */
 
 #define FirstSubObjPtr(p,link)		(p = GetPMEVENT(link), p->firstSubObj)			
 
@@ -545,11 +543,23 @@ Steve Hart.) */
 
 #define GraceBEAM(link)				( (GetPBEAMSET(link))->grace )	
 
-#define GraphicFIRSTOBJ(link)		( (GetPGRAPHIC(link))->firstObj )			
-#define GraphicINFO(link)			( (GetPGRAPHIC(link))->info )
-#define GraphicLASTOBJ(link)		( (GetPGRAPHIC(link))->lastObj )		
 #define GraphicNEXT(link)			( (GetPAGRAPHIC(link))->next )
 #define GraphicSTRING(link)			( (GetPAGRAPHIC(link))->strOffset )	
+
+#define GraphicENCLOSURE(link)		( (GetPGRAPHIC(link))->enclosure )
+#define GraphicFIRSTOBJ(link)		( (GetPGRAPHIC(link))->firstObj )			
+#define GraphicFONTIND(link)		( (GetPGRAPHIC(link))->fontInd )
+#define GraphicFONTSIZE(link)		( (GetPGRAPHIC(link))->fontSize )
+#define GraphicFONTSTYLE(link)		( (GetPGRAPHIC(link))->fontStyle )
+#define GraphicHCONSTRAIN(link) 	( (GetPGRAPHIC(link))->hConstrain )
+#define GraphicINFO(link)			( (GetPGRAPHIC(link))->info )
+#define GraphicINFO2(link)			( (GetPGRAPHIC(link))->info2 )
+#define GraphicJUSTIFY(link)		( (GetPGRAPHIC(link))->justify )
+#define GraphicLASTOBJ(link)		( (GetPGRAPHIC(link))->lastObj )		
+#define GraphicMULTILINE(link)		( (GetPGRAPHIC(link))->multiLine )
+#define GraphicRELFSIZE(link)		( (GetPGRAPHIC(link))->relFSize )
+#define GraphicTHICKNESS(link)		( (GetPGRAPHIC(link))->thickness )
+#define GraphicVCONSTRAIN(link) 	( (GetPGRAPHIC(link))->vConstrain )
 
 #define GRNoteACC(link)				( (GetPAGRNOTE(link))->accident )
 #define GRNoteACCSOFT(link)			( (GetPAGRNOTE(link))->accSoft )	
@@ -710,6 +720,21 @@ Steve Hart.) */
 #define NoteYQPIT(link)				( (GetPANOTE(link))->yqpit )	
 #define NoteYSTEM(link)				( (GetPANOTE(link))->ystem )	
 
+#define OttavaNOCUTOFF(link)		( (GetPOTTAVA(link))->noCutoff )
+#define OttavaCROSSSTAFF(link)		( (GetPOTTAVA(link))->crossStaff)
+#define OttavaCROSSSYSTEM(link)		( (GetPOTTAVA(link))->crossSystem )
+#define OttavaFILLER(link)			( (GetPOTTAVA(link))->filler )
+#define OttavaNUMBERVIS(link)		( (GetPOTTAVA(link))->numberVis )
+#define OttavaUNUSED1(link)			( (GetPOTTAVA(link))->unused1 )
+#define OttavaBRACKVIS(link)		( (GetPOTTAVA(link))->brackVis )
+#define OttavaUNUSED2(link)			( (GetPOTTAVA(link))->numberVis )
+#define OttavaNXD(link)				( (GetPOTTAVA(link))->nxd )
+#define OttavaNYD(link)				( (GetPOTTAVA(link))->nyd )
+#define OttavaXDFIRST(link)			( (GetPOTTAVA(link))->xdFirst )
+#define OttavaYDFIRST(link)			( (GetPOTTAVA(link))->ydFirst )
+#define OttavaXDLAST(link)			( (GetPOTTAVA(link))->xdLast )
+#define OttavaYDLAST(link)			( (GetPOTTAVA(link))->ydLast )
+
 #define PSMeasCONNABOVE(link)		( (GetPAPSMEAS(link))->connAbove )			
 #define PSMeasCONNSTAFF(link)		( (GetPAPSMEAS(link))->connStaff )			
 #define PSMeasFILLER1(link)		 	( (GetPAPSMEAS(link))->filler1)	
@@ -801,6 +826,7 @@ Steve Hart.) */
 #define TempoNOMM(link)				( (GetPTEMPO(link))->noMM )
 #define TempoMM(link)				( (GetPTEMPO(link))->tempoMM )
 #define TempoSTRING(link)	 		( (GetPTEMPO(link))->strOffset )	
+#define TempoSUBTYPE(link)	 		( (GetPTEMPO(link))->subType )	
 
 #define TimeSigCONNSTAFF(link)		( (GetPATIMESIG(link))->connStaff)	
 #define TimeSigDENOM(link)			( (GetPATIMESIG(link))->denominator)	
@@ -815,7 +841,7 @@ Steve Hart.) */
 #define TimeSigYD(link)		  		( (GetPATIMESIG(link))->yd )				
 
 #define TupletACCNUM(link)			( (GetPTUPLET(link))->accNum)
-#define TupletACCDENOIM(link)		( (GetPTUPLET(link))->accDenom)
+#define TupletACCDENOM(link)		( (GetPTUPLET(link))->accDenom)
 #define TupletNUMVIS(link)			( (GetPTUPLET(link))->numVis)
 #define TupletDENOMVIS(link)		( (GetPTUPLET(link))->denomVis)
 #define TupletBRACKVIS(link)		( (GetPTUPLET(link))->brackVis)

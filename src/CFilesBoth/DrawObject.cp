@@ -1554,39 +1554,11 @@ static Boolean GetGraphicDBox(Document *doc,
 	p = GetPGRAPHIC(pL);
 	switch (GraphicSubType(pL)) {
 		case GRPICT:
-			{
-				Handle picH;  Rect r;  short width, height;
-				
-				/* Get the bounding box of the PICT resource. If the resource isn't available,
-				   instead use a very small but legal box, so the Graphic can still be selected
-				   (to be fixed, deleted, etc.) but won't cause any problems. */
-				   
-#ifdef NOTYET
-				/* FIXME: There are two problems with using GetPicture here. First, if the PICT
-				isn't in the score, it will try to get it from the app or from system
-				resources. This is not necessarily bad, but a way to avoid that would be
-				this. Just after opening the score, do:
-					scoreRFRefNum = CurResFile();
-				Then here do:
-					oldResFile = CurResFile();
-					UseResFile(scoreRFRefNum);
-					picH = Get1Resource('PICT', p->info);
-					UseResFile(oldResFile);
-				However, that brings up the second problem. I'm pretty sure that code won't
-				work because the score file isn't actually open at this point! Therefore,
-				the code as written now will _never_ draw a PICT from the score file. */
-#else
-				picH = (Handle)GetPicture(p->info);
-#endif
-				if (ResError() || picH==NULL)
-					SetRect(&r, 0, 0, 2, 2);
-				else
-					r = (*(PicHandle)picH)->picFrame;
-				width = r.right - r.left;					/* calculate width and height */
-				height = r.bottom - r.top;
-				SetDRect(pDBox, 0, 0, pt2d(width), pt2d(height));
-			}
-			return True;
+			/* There used to be a lot of code here, but GRPICTs have never worked, and
+			   Apple's PICT format is now obsolete, so don't even try to compute a
+			   bounding box. --DAB, March 2020 */
+
+			return False;
 		case GRArpeggio:
 			if (pContext==NILINK) {
 				LogPrintf(LOG_WARNING, "Can't handle arpeggio sign attached to Page.  (GetGraphicDBox)\n");
@@ -1653,7 +1625,8 @@ static Boolean GetGraphicDBox(Document *doc,
 
 /* ------------------------------------------------------------------------ DrawGRPICT -- */
 /* Draw the GRPICT Graphic with the given resource ID or handle. NB: PostScript
-drawing isn't yet implemented! */
+drawing was never implemented, but GRPICTs have never worked anyway, so this function
+should probably be removed one of these days. --DAB, March 2020 */
 
 static void DrawGRPICT(Document */*doc*/,
 				DDIST xd, DDIST yd,

@@ -496,6 +496,7 @@ ACONNECT tmpAConnect;
 ADYNAMIC tmpADynamic;
 AGRNOTE tmpAGRNote;
 
+
 static Boolean Convert1NOTER(Document *doc, LINK aNoteRL);
 static Boolean Convert1STAFF(Document *doc, LINK aStaffL);
 static Boolean Convert1MEASURE(Document *doc, LINK aMeasureL);
@@ -561,8 +562,8 @@ static Boolean Convert1NOTER(Document * /* doc */, LINK aNoteRL)
 	NoteTEMPFLAG(aNoteRL) = (&a1NoteR)->tempFlag;
 	
 //NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u voice=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
-aNoteRL, NoteVOICE(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
+LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
 		return True;
 }
 
@@ -955,6 +956,8 @@ static Boolean ConvertCLEF(Document *doc, LINK clefL);
 static Boolean ConvertBEAMSET(Document *doc, LINK beamsetL);
 static Boolean ConvertCONNECT(Document *doc, LINK connectL);
 static Boolean ConvertDYNAMIC(Document *doc, LINK dynamicL);
+static Boolean ConvertGRAPHIC(Document *doc, LINK graphicL);
+static Boolean ConvertOTTAVA(Document *doc, LINK ottavaL);
 static Boolean ConvertTUPLET(Document *doc, LINK tupletL);
 static Boolean ConvertGRSYNC(Document *doc, LINK grSyncL);
 static Boolean ConvertTEMPO(Document *doc, LINK tempoL);
@@ -970,7 +973,9 @@ static Boolean ConvertSYNC(Document *doc, LINK syncL)
 	SyncTIME(syncL) = (&aSync)->timeStamp;
 
 //NHexDump(LOG_DEBUG, "ConvertSYNC", (unsigned char *)&tempSys, 38, 4, 16);
-LogPrintf(LOG_DEBUG, "ConvertSYNC: timeStamp=%d\n", syncL, SyncTIME(syncL)); 
+LogPrintf(LOG_DEBUG, "ConvertSYNC: syncL=L%u timeStamp=%d\n", syncL, SyncTIME(syncL)); 
+LogPrintf(LOG_DEBUG, "ConvertSYNC1: for NOTE L1, voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+NoteVOICE(1), NoteVIS(1), NoteYQPIT(1), NoteXD(1), NoteYD(1), NotePLAYDUR(1));
 
 	aNoteRL = FirstSubLINK(syncL);
 	for ( ; aNoteRL; aNoteRL = NextNOTEL(aNoteRL)) {
@@ -984,6 +989,8 @@ aNoteRL, sizeof(ANOTE)*aNoteRL, pSSubObj);
 //NHexDump(LOG_DEBUG, "ConvertSYNC", (unsigned char *)&tmpANoteR, sizeof(ANOTE_5), 4, 16);
 
 		Convert1NOTER(doc, aNoteRL);
+LogPrintf(LOG_DEBUG, "ConvertSYNC2: for NOTE L1, voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+NoteVOICE(1), NoteVIS(1), NoteYQPIT(1), NoteXD(1), NoteYD(1), NotePLAYDUR(1));
 	}
 
 	return True;
@@ -1008,7 +1015,6 @@ static Boolean ConvertRPTEND(Document *doc, LINK rptEndL)
 LogPrintf(LOG_DEBUG, "ConvertRPTEND: firstObj=L%u subType=%d count=%d\n", RptEndFIRSTOBJ(rptEndL),
 RptType(rptEndL), RptEndCOUNT(rptEndL)); 
 
-#if 1
 	aRptEndL = FirstSubLINK(rptEndL);
 	for ( ; aRptEndL; aRptEndL = NextRPTENDL(aRptEndL)) {
 		/* Copy the subobj to a separate ARPTEND so we can move fields all over
@@ -1022,7 +1028,6 @@ aRptEndL, sizeof(ARPTEND)*aRptEndL, pSSubObj);
 
 		Convert1RPTEND(doc, aRptEndL);
 	}
-#endif
 
 	return True;
 }
@@ -1342,6 +1347,112 @@ NHexDump(LOG_DEBUG, "ConvertDYNAMIC", (unsigned char *)&tmpADynamic, sizeof(ADYN
 }
 
 
+
+static Boolean ConvertGRAPHIC(Document *doc, LINK graphicL)
+{
+	GRAPHIC_5 aGraphic;
+	LINK aGraphicL;
+	unsigned char *pSSubObj;
+	
+	BlockMove(&tmpSuperObj, &aGraphic, sizeof(GRAPHIC_5));
+	
+	GraphicSTAFF(graphicL) = (&aGraphic)->staffn;		/* EXTOBJHEADER */
+
+	GraphicSubType(graphicL) = (&aGraphic)->graphicType;
+	GraphicVOICE(graphicL) = (&aGraphic)->voice;
+	GraphicENCLOSURE(graphicL) = (&aGraphic)->enclosure;
+	GraphicJUSTIFY(graphicL) = (&aGraphic)->justify;
+	GraphicVCONSTRAIN(graphicL) = (&aGraphic)->vConstrain;
+	GraphicHCONSTRAIN(graphicL) = (&aGraphic)->hConstrain;
+	GraphicMULTILINE(graphicL) = (&aGraphic)->multiLine;
+	GraphicINFO(graphicL) = (&aGraphic)->info;
+	// GraphicTHICKNESS(graphicL) = (&aGraphic)->gu.thickness; ??COMPILER SEZ IT DOESN"T KNOW _thickness_!
+	GraphicFONTIND(graphicL) = (&aGraphic)->fontInd;
+	GraphicRELFSIZE(graphicL) = (&aGraphic)->relFSize;
+	GraphicFONTSIZE(graphicL) = (&aGraphic)->fontSize;
+	GraphicFONTSTYLE(graphicL) = (&aGraphic)->fontStyle;
+	GraphicINFO2(graphicL) = (&aGraphic)->info2;
+	GraphicFIRSTOBJ(graphicL) = (&aGraphic)->firstObj;
+	GraphicLASTOBJ(graphicL) = (&aGraphic)->lastObj;
+
+//NHexDump(LOG_DEBUG, "ConvertGRAPHIC", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertGRAPHIC: staff=%d type=%d info=%d\n", GraphicSTAFF(graphicL),
+GraphicSubType(graphicL), GraphicINFO(graphicL)); 
+
+#if 0
+	aGraphicL = FirstSubLINK(graphicL);
+	for ( ; aGraphicL; aGraphicL = NextGRAPHICL(aGraphicL)) {
+		/* Copy the subobj to a separate AGRAPHIC so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+		pSSubObj = (unsigned char *)GetObjectPtr(GRAPHICheap, aGraphicL, PAGRAPHIC);
+LogPrintf(LOG_DEBUG, "->block=%ld aGraphicL=%d sizeof(AGRAPHIC)*aGraphicL=%d pSSubObj=%ld\n", (GRAPHICheap)->block,
+aGraphicL, sizeof(AGRAPHIC)*aGraphicL, pSSubObj);
+		BlockMove(pSSubObj, &tmpAGraphic, sizeof(AGRAPHIC));
+//NHexDump(LOG_DEBUG, "ConvertGRAPHIC", (unsigned char *)&tmpAGraphic, sizeof(AGRAPHIC_5), 4, 16);
+
+		Convert1GRAPHIC(doc, aGraphicL);
+	}
+#endif
+
+	return True;
+}
+
+
+
+static Boolean ConvertOTTAVA(Document *doc, LINK ottavaL)
+{
+	OTTAVA_5 aOttava;
+	LINK aOttavaL;
+	unsigned char *pSSubObj;
+	
+	BlockMove(&tmpSuperObj, &aOttava, sizeof(OTTAVA_5));
+	
+	OttavaSTAFF(ottavaL) = (&aOttava)->staffn;		/* EXTOBJHEADER */
+
+	OttavaNOCUTOFF(ottavaL) = (&aOttava)->noCutoff;
+	OttavaCROSSSTAFF(ottavaL) = (&aOttava)->crossStaff;
+	OttavaCROSSSYSTEM(ottavaL) = (&aOttava)->crossSystem;
+	OctType(ottavaL) = (&aOttava)->octSignType;
+	OttavaFILLER(ottavaL) = 0;
+	OttavaNUMBERVIS(ottavaL) = (&aOttava)->numberVis;
+	OttavaUNUSED1(ottavaL) = 0;
+	OttavaBRACKVIS(ottavaL) = (&aOttava)->brackVis;
+	OttavaUNUSED2(ottavaL) = 0;
+
+	OttavaNXD(ottavaL) = (&aOttava)->nxd;
+	OttavaNYD(ottavaL) = (&aOttava)->nyd;
+	OttavaXDFIRST(ottavaL) = (&aOttava)->xdFirst;
+	OttavaYDFIRST(ottavaL) = (&aOttava)->ydFirst;
+	OttavaXDLAST(ottavaL) = (&aOttava)->xdLast;
+	OttavaYDLAST(ottavaL) = (&aOttava)->ydLast;
+
+//NHexDump(LOG_DEBUG, "ConvertOTTAVA", (unsigned char *)&tempSys, 38, 4, 16);
+LogPrintf(LOG_DEBUG, "ConvertOTTAVA: staff=%d type=%d xdFirst=%d\n", OttavaSTAFF(ottavaL),
+OctType(ottavaL), OttavaXDFIRST(ottavaL)); 
+
+#if 0
+	aOttavaL = FirstSubLINK(ottavaL);
+	for ( ; aOttavaL; aOttavaL = NextOTTAVAL(aOttavaL)) {
+		/* Copy the subobj to a separate AOTTAVA so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+		pSSubObj = (unsigned char *)GetObjectPtr(OTTAVAheap, aOttavaL, PAOTTAVA);
+LogPrintf(LOG_DEBUG, "->block=%ld aOttavaL=%d sizeof(AOTTAVA)*aOttavaL=%d pSSubObj=%ld\n", (OTTAVAheap)->block,
+aOttavaL, sizeof(AOTTAVA)*aOttavaL, pSSubObj);
+		BlockMove(pSSubObj, &tmpAOttava, sizeof(AOTTAVA));
+//NHexDump(LOG_DEBUG, "ConvertOTTAVA", (unsigned char *)&tmpAOttava, sizeof(AOTTAVA_5), 4, 16);
+
+		Convert1OTTAVA(doc, aOttavaL);
+	}
+#endif
+
+	return True;
+}
+
+
+
+
 static Boolean ConvertTUPLET(Document *doc, LINK tupletL)
 {
 	TUPLET_5 aTuplet;
@@ -1353,7 +1464,7 @@ static Boolean ConvertTUPLET(Document *doc, LINK tupletL)
 	TupletSTAFF(tupletL) = (&aTuplet)->staffn;		/* EXTOBJHEADER */
 
 	TupletACCNUM(tupletL) = (&aTuplet)->accNum;
-	TupletACCDENOIM(tupletL) = (&aTuplet)->accDenom;
+	TupletACCDENOM(tupletL) = (&aTuplet)->accDenom;
 	TupletVOICE(tupletL) = (&aTuplet)->voice;
 	TupletNUMVIS(tupletL) = (&aTuplet)->numVis;
 	TupletDENOMVIS(tupletL) = (&aTuplet)->denomVis;
@@ -1369,7 +1480,7 @@ static Boolean ConvertTUPLET(Document *doc, LINK tupletL)
 
 //NHexDump(LOG_DEBUG, "ConvertTUPLET", (unsigned char *)&tempSys, 38, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertTUPLET: accNum=%d accDenom=%d staff=%d\n", TupletACCNUM(tupletL),
-TupletACCDENOIM(tupletL), TupletSTAFF(tupletL)); 
+TupletACCDENOM(tupletL), TupletSTAFF(tupletL)); 
 
 #if 0
 	aTupletL = FirstSubLINK(tupletL);
@@ -1394,32 +1505,32 @@ aTupletL, sizeof(ATUPLET)*aTupletL, pSSubObj);
 static Boolean ConvertGRSYNC(Document *doc, LINK grSyncL)
 {
 	GRSYNC_5 aGRSync;
-	LINK aGRNoteRL;
+	LINK aGRNoteL;
 	unsigned char *pSSubObj;
 	
 	BlockMove(&tmpSuperObj, &aGRSync, sizeof(GRSYNC_5));
 	
 //NHexDump(LOG_DEBUG, "ConvertGRSYNC", (unsigned char *)&tempSys, 38, 4, 16);
 LogPrintf(LOG_DEBUG, "ConvertGRSYNC: grSyncL=L%u\n", grSyncL); 
+LogPrintf(LOG_DEBUG, "ConvertGRSYNC1: for NOTE L1, voice=%d vis=%d\n", NoteVOICE(1), NoteVIS(1));
 
-	aGRNoteRL = FirstSubLINK(grSyncL);
-	for ( ; aGRNoteRL; aGRNoteRL = NextGRNOTEL(aGRNoteRL)) {
+	aGRNoteL = FirstSubLINK(grSyncL);
+	for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 		/* Copy the subobj to a separate AGRNOTE so we can move fields all over
 		the place without having to worry about clobbering anything. */
 
-		pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aGRNoteRL, PAGRNOTE);
-LogPrintf(LOG_DEBUG, "->block=%ld aGRNoteRL=%d sizeof(AGRNOTE)*aGRNoteRL=%d pSSubObj=%ld\n", (NOTEheap)->block,
-aGRNoteRL, sizeof(AGRNOTE)*aGRNoteRL, pSSubObj);
-		BlockMove(pSSubObj, &tmpANoteR, sizeof(AGRNOTE));
+		pSSubObj = (unsigned char *)GetObjectPtr(GRNOTEheap, aGRNoteL, PAGRNOTE);
+LogPrintf(LOG_DEBUG, "->block=%ld aGRNoteL=%d sizeof(AGRNOTE)*aGRNoteL=%d pSSubObj=%ld\n", (NOTEheap)->block,
+aGRNoteL, sizeof(AGRNOTE)*aGRNoteL, pSSubObj);
+		BlockMove(pSSubObj, &tmpAGRNote, sizeof(AGRNOTE));
 //NHexDump(LOG_DEBUG, "ConvertGRSYNC", (unsigned char *)&tmpANoteR, sizeof(AGRNOTE_5), 4, 16);
 
-		Convert1GRNOTE(doc, aGRNoteRL);
+		Convert1GRNOTE(doc, aGRNoteL);
 	}
+LogPrintf(LOG_DEBUG, "ConvertGRSYNC2: for NOTE L1, voice=%d vis=%d\n", NoteVOICE(1), NoteVIS(1));
 
 	return True;
 }
-
-
 
 
 static Boolean ConvertTEMPO(Document *doc, LINK tempoL)
@@ -1430,6 +1541,7 @@ static Boolean ConvertTEMPO(Document *doc, LINK tempoL)
 	
 	TempoSTAFF(tempoL) = (&aTempo)->staffn;		/* EXTOBJHEADER */
 
+	TempoSUBTYPE(tempoL) = (&aTempo)->subType;
 	TempoEXPANDED(tempoL) = (&aTempo)->expanded;
 	TempoNOMM(tempoL) = (&aTempo)->noMM;
 	TempoFILLER(tempoL) = (&aTempo)->filler;
@@ -1534,10 +1646,10 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 			case DYNAMtype:
 				ConvertDYNAMIC(doc, pL);
 				continue;
-#ifdef NOTYET
 			case GRAPHICtype:
-				if (!ConvertGRAPHIC(doc, pL))  ERROR;
+				ConvertGRAPHIC(doc, pL);
 				continue;
+#ifdef NOTYET
 			case OTTAVAtype:
 				if (!ConvertOTTAVA(doc, pL))  ERROR;
 				continue;

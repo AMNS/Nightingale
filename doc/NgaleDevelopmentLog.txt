@@ -5295,6 +5295,54 @@ Debug Check Standard of AllObjTypes.ngl gives:
 	info. --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
 	info.  Done. 34 ERROR(S). 
  
+-------------------------------------------------------------------------------
+
+7 - 9 Mar.
+
+The tempo mark in AllObjTypes.ngl gets a duration unit (subType) 0, which is "unknown
+duration", but Browser doesn't know that... Fixed. Also, ConvertTEMPO() isn't
+converting the subType... Fixed.
+
+The 1st note on staff 1 of AllObjTypes.ngl isn't drawn because its VISIBLE flag isn't
+set... Fixed.
+
+Implement ConvertGRAPHIC() => down to 29 errors! (GRAPHIC status now: +-) (But it looks
+like AGRPAHICs need no conversion! So let's say tentatively +. )
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 staffAbove>=staffBelow.
+	Warning. DCheckNode: Illegal MODNR code 80 in voice 1 in Sync L11.
+	Warning. *DCheckNode: SUBOBJ ON STAFF 1 IN PSEUDOMEAS L12 HAS connAbove.
+	Warning. DCheckNode: Object L17 IN MEASURE 1 HAS A GARBAGE (UNSELECTABLE) objRect.
+	Warning. *DCheckNode: SLUR L17 HAS BAD staffn.
+	Warning. *DCheckNode: NON-CROSS-SYS SLUR L17 firstSync OR lastSync ISN'T A SYNC.
+	Warning. DCheckNodeSel: SELECTED ITEM IN UNSELECTED SLUR L17.
+	Warning. DCheckSyncSlurs: NOTE slurredR IN VOICE 1 IN SYNC L18, MEASURE 1, HAS NO SLUR.
+	Warning. DCheckSyncSlurs: NOTE slurredL IN VOICE 1 IN SYNC L22, MEASURE 1, HAS NO SLUR.
+	Warning. *DCheckNode: SUBOBJ IN ENDING L26 HAS BAD staffn.
+	Warning. *DCheckNode: OTTAVA L29 HAS BAD staffn.
+	Warning. *DCheckNode: SUBOBJ IN ENDING L32 HAS BAD staffn.
+	Warning. *DCheckMeasSubobjs: SUBOBJ IN MEASURE L35 HAS BAD nKSItems.
+	Warning. *DCheckOttavas: OTTAVA L29 HAS BAD STAFF NUMBER 0.
+	Warning. *DCheckOttavas: OTTAVA'D NOTE IN SYNC L30 STAFF 1 WITHOUT OTTAVA.
+	Warning. *DCheckSlurs: NEXT SYNC AFTER SLUR/TIE L17 HAS NO NOTES IN VOICE 0.
+	Warning. *DCheckSlurs: SLUR L17 IN MEASURE 1 AND ITS firstSyncL ARE IN WRONG ORDER.
+	Warning. *DCheckSlurs: SLUR L17 IN MEASURE 1 AND ITS lastSyncL ARE IN WRONG ORDER.
+	Warning. *DCheckContext: nKSItems FOR STAFF 2 IN MEASURE 1 (L10) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 2 (L23) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 2 IN MEASURE 3 (L31) INCONSISTENCY.
+	Notice. * CautionAdvise alertID=550!
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 4 (L35) INCONSISTENCY.
+	Warning. DCheckNoteNums: Note in Sync L11 in measure 1, staff 1 notenum 73 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L20 in measure 1, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L30 in measure 2, staff 1 notenum 90 and notation disagree.
+	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 2 notenum 50 and notation disagree: wrong accidental?
+	info. Strict contin. sel, 1 objs in range, 1 sel, 36 total.  2 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L41 staffAbove>=staffBelow.
+	info.  Done.
+	info. --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
+	info.  Done. 29 ERROR(S). 
 
 Status of converting object types (I think).
 . = no work needed; - = not done; + = done. 
@@ -5316,10 +5364,10 @@ Status of converting object types (I think).
 	++ CONNECT_5
 	++ DYNAMIC_5
 	.- (MODNR)		Has no objects, only subobjects
-15	-- GRAPHIC_5
+15	+. GRAPHIC_5
 	-- OTTAVA_5
 	-- SLUR_5
-	+- TUPLET_5
+	+. TUPLET_5		Subobject has two LINKs & that's all
 	++ GRSYNC_5
 20	+. TEMPO_5
 	-. SPACER_5

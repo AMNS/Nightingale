@@ -1365,7 +1365,7 @@ short DCheckNode(
 			
 			case GRAPHICtype:
 				{
-					LINK aGraphicL;		PAGRAPHIC aGraphic;
+					LINK aGraphicL;  PAGRAPHIC aGraphic;
 					PGRAPHIC pGraphic;	short len;
 
 					PushLock(GRAPHICheap);
@@ -1383,6 +1383,10 @@ short DCheckNode(
 					}
  
 					switch (pGraphic->graphicType) {
+						case GRPICT:
+							COMPLAIN("DCheckNode: GRAPHIC L%u is a GRPICT, BUT GRPICTs aren't implemented.\n",
+										pL);
+							break;
 						case GRString:
 						case GRLyric:
 						case GRRehearsal:

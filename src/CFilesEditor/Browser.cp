@@ -437,6 +437,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			WindowPtr w; 
 			Point oldOrigin;
 			short dx, dy;
+			
 			InvertObjRect(doc, &objRect);
 			
 			w = doc->theWindow;
@@ -770,16 +771,15 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 	
 	if (index<0) {
 		short startV; Boolean pageEmpty;
-		/*
-		 *	Show a "page" of the voice-mapping table. If the current page is empty
-		 * or it's past the end of the table, go back to the first page.
-		 */
+
+		/* Show a "page" of the voice-mapping table. If the current page is empty
+		   or it's past the end of the table, go back to the first page. */
+		   
 		startV = showBPage*VOICEPAGESIZE+1;
 		if (startV>MAXVOICES)
 			pageEmpty = True;
 		else
-			for (pageEmpty = True, v = startV;
-				  v<=startV+VOICEPAGESIZE && v<=MAXVOICES; v++)
+			for (pageEmpty = True, v = startV; v<=startV+VOICEPAGESIZE && v<=MAXVOICES; v++)
 				if (doc->voiceTab[v].partn!=0) pageEmpty = False;
 		if (pageEmpty) {
 			showBPage = 0;
@@ -1288,7 +1288,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 
 /* ------------------------------------------------------------------ BrowsePseudoMeas -- */
 
-void BrowsePseudoMeas(LINK pL, short index, Rect *pObjRect)
+void BrowsePseudoMeas(LINK pL, short index, Rect * /* pObjRect */)
 {
 	PPSMEAS p;
 	PAPSMEAS q;
@@ -1824,8 +1824,10 @@ void BrowseTempo(LINK pL, Rect *pObjRect)
 			strcpy(t, "64th"); break;
 		case ONE28TH_L_DUR:
 			strcpy(t, "128th"); break;
-		case NO_L_DUR:
-			strcpy(t, "Unknown Duration"); break;
+		case UNKNOWN_L_DUR:
+			strcpy(t, "unknown duration"); break;
+		default:
+			strcpy(t, "ILLEGAL DURATION"); break;		
 	}
 	sprintf(s, "subType=%d (%s) dotted=%d", p->subType, t, p->dotted);
 	DrawTextLine(s); p = GetPTEMPO(pL);

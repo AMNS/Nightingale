@@ -2662,3 +2662,13 @@ objects & subobjects. Affects MemMacros.h; FileConversion.
 
 Minor cleanup: rearrange object declarations by type code, etc. Affects NObjTypes.h,
 NObjTypesN105.h; DebugDisplay, DebugUtils, FileConversion, HeapFileIO.
+
+-------------------------------------------------------------------------------
+
+7 - 10 Mar.
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects & subobjects. Affects MemMacros.h; FileConversion.
+
+Minor cleanup: correct two messages from BrowseTempo(), etc. Affects MemMacros.h;
+Browser, DebugUtils, DrawObject.
