@@ -123,7 +123,7 @@ static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, short *sym, shor
 	/* Check if the note is being added into an ottava'd range; if so, get the ottava
 	 	type to correct for it when adding the note. */
 	octL = HasOttavaAcrossPt(doc, pt, staff);
-	if (octL) octType = OctType(octL);
+	if (octL) octType = OttavaType(octL);
 
 	/* Track the note insertion and if possible, add the new note to the data
 	 	structure. */
@@ -149,7 +149,7 @@ static Boolean TrkInsNote(Document *doc, Point pt, short *sym, short staff)
 	short octType=-1;
 
 	octL = OctOnStaff(doc->selStartL, staff);
-	if (octL) octType = OctType(octL);
+	if (octL) octType = OttavaType(octL);
 
 	if (InsTrackPitch(doc, pt, sym, doc->selStartL, staff, &pitchLev, &acc, octType)) {
 		if (symtable[*sym].subtype==2)
@@ -179,7 +179,7 @@ static Boolean TrkInsGRSync(Document *doc, LINK rightL, Point pt, short *sym, sh
 
 	doc->selStartL = doc->selEndL = qL;
 	octL = HasOttavaAcrossPt(doc, pt, staff);
-	if (octL) octType = OctType(octL);
+	if (octL) octType = OttavaType(octL);
 
 	if (InsTrackPitch(doc, pt, sym, doc->selStartL, staff, &pitchLev, &acc, octType)) {
 		AddGRNote(doc, pt.h, symtable[*sym].symcode, staff, pitchLev, acc, octType);
@@ -200,7 +200,7 @@ static Boolean TrkInsGRNote(Document *doc, Point pt, short *sym, short staff)
 	short octType=-1;
 
 	octL = OctOnStaff(doc->selStartL, staff);
-	if (octL) octType = OctType(octL);
+	if (octL) octType = OttavaType(octL);
 
 	if (InsTrackPitch(doc, pt, sym, doc->selStartL, staff, &pitchLev, &acc, octType)) {
 		AddGRNote(doc, -99, symtable[*sym].symcode, staff, pitchLev, acc, octType);

@@ -374,7 +374,7 @@ Boolean DCheckMeasSubobjs(
 	for (aMeasL = FirstSubLINK(pL); aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
 		aMeas = GetPAMEASURE(aMeasL);
 		if (STAFFN_BAD(doc, aMeas->staffn)) {
-			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD staffn=%d.\n",
+			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u staffn %d IS BAD.\n",
 							pL, aMeas->staffn);
 		}
 		else {
@@ -739,7 +739,7 @@ short DCheckNode(
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					if (STAFFN_BAD(doc, aNote->staffn))
-						COMPLAIN2("*DCheckNode: NOTE/REST IN SYNC L%u HAS BAD staffn %d.\n",
+						COMPLAIN2("*DCheckNode: NOTE/REST IN SYNC L%u staffn %d IS BAD.\n",
 										pL, aNote->staffn);
 					if (VOICE_BAD(aNote->voice))
 						COMPLAIN2("*DCheckNode: NOTE/REST IN SYNC L%u HAS BAD voice %d.\n",
@@ -902,7 +902,7 @@ short DCheckNode(
 
 					for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 						if (STAFFN_BAD(doc, StaffSTAFF(aStaffL)))
-							COMPLAIN2("*DCheckNode: SUBOBJ IN STAFF L%u HAS BAD staffn=%d.\n",
+							COMPLAIN2("*DCheckNode: SUBOBJ IN STAFF L%u staffn %d IS BAD.\n",
 											pL, StaffSTAFF(aStaffL));
 						aStaff = GetPASTAFF(aStaffL);
 						if (isFirstStaff) {
@@ -1048,7 +1048,8 @@ short DCheckNode(
 							aPSMeasL = NextPSMEASL(aPSMeasL)) {
 						aPSMeas = GetPAPSMEAS(aPSMeasL);
 						if (STAFFN_BAD(doc, aPSMeas->staffn))
-							COMPLAIN("*DCheckNode: SUBOBJ IN PSEUDOMEAS L%u HAS BAD staffn.\n", pL);
+							COMPLAIN2("*DCheckNode: SUBOBJ IN PSEUDOMEAS L%u staffn %d IS BAD.\n",
+										pL, aPSMeas->staffn);
 						if (aPSMeas->staffn==1 && aPSMeas->connAbove)
 							COMPLAIN("*DCheckNode: SUBOBJ ON STAFF 1 IN PSEUDOMEAS L%u HAS connAbove.\n", pL);
 						if (aPSMeas->connStaff>0 && (aPSMeas->connStaff<=aPSMeas->staffn || aPSMeas->connStaff>doc->nstaves))
@@ -1061,7 +1062,8 @@ short DCheckNode(
 			case CLEFtype:
 				for (aClefL=FirstSubLINK(pL); aClefL; aClefL=NextCLEFL(aClefL)) {
 					if (STAFFN_BAD(doc, ClefSTAFF(aClefL)))
-						COMPLAIN("*DCheckNode: SUBOBJ IN CLEF L%u HAS BAD staffn.\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN CLEF L%u staffn %d IS BAD.\n",
+									pL, ClefSTAFF(aClefL));
 					if (ClefType(aClefL)<LOW_CLEF || ClefType(aClefL)>HIGH_CLEF)
 						COMPLAIN("*DCheckNode: SUBOBJ IN CLEF L%u HAS BAD subType.\n", pL);
 				}
@@ -1072,9 +1074,10 @@ short DCheckNode(
 
 				for (aKeySigL=FirstSubLINK(pL); aKeySigL; 
 						aKeySigL=NextKEYSIGL(aKeySigL)) {
-					aKeySig = GetPAKEYSIG(aKeySigL);		
+					aKeySig = GetPAKEYSIG(aKeySigL);
 					if (STAFFN_BAD(doc, aKeySig->staffn))
-						COMPLAIN("*DCheckNode: SUBOBJ IN KEYSIG L%u HAS BAD staffn.\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN KEYSIG L%u staffn %d IS BAD.\n",
+									pL, aKeySig->staffn);
 					if (aKeySig->nKSItems>7)
 						COMPLAIN("*DCheckNode: SUBOBJ IN KEYSIG L%u HAS SUSPICIOUS nKSItems.\n", pL);
 					if (aKeySig->nKSItems==0 && aKeySig->subType>7)
@@ -1091,7 +1094,7 @@ short DCheckNode(
 						aTimeSigL=NextTIMESIGL(aTimeSigL)) {
 					aTimeSig = GetPATIMESIG(aTimeSigL);		
 					if (STAFFN_BAD(doc, aTimeSig->staffn))
-						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD staffn %d.\n",
+						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u staffn %d IS BAD.\n",
 								pL, aTimeSig->staffn);
 					if (TSTYPE_BAD(aTimeSig->subType))
 						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD timeSigType %d.\n",
@@ -1115,7 +1118,8 @@ short DCheckNode(
 				PushLock(NOTEBEAMheap);
 
 				if (STAFFN_BAD(doc, BeamSTAFF(pL)))
-						COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD staffn.\n", pL);
+						COMPLAIN2("*DCheckNode: BEAMSET L%u staffn %d IS BAD.\n",
+									pL, BeamSTAFF(pL));
 				beamsNow = 0;
 				for (aNoteBeamL=FirstSubLINK(pL); aNoteBeamL; 
 						aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
@@ -1145,7 +1149,8 @@ short DCheckNode(
 				PushLock(NOTETUPLEheap);
 				
 				if (STAFFN_BAD(doc, ((PTUPLET)p)->staffn))
-						COMPLAIN("*DCheckNode: TUPLET L%u HAS BAD staffn.\n", pL);
+						COMPLAIN2("*DCheckNode: TUPLET L%u staffn %d IS BAD.\n",
+									pL, ((PTUPLET)p)->staffn);
 				if (VOICE_BAD(((PTUPLET)p)->voice))
 						COMPLAIN("*DCheckNode: TUPLET L%u HAS BAD voice.\n", pL);
 
@@ -1164,26 +1169,6 @@ short DCheckNode(
 				PopLock(NOTETUPLEheap);
 				break;
 			
-			case OTTAVAtype:
-				PushLock(NOTEOTTAVAheap);
-				if (STAFFN_BAD(doc, ((POTTAVA)p)->staffn))
-					COMPLAIN("*DCheckNode: OTTAVA L%u HAS BAD staffn.\n", pL);
-
-				for (aNoteOctL=FirstSubLINK(pL);	aNoteOctL;
-						aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
-					aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
-					if (DBadLink(doc, OBJtype, aNoteOct->opSync, True)) {
-						COMPLAIN2("•DCheckNode: OTTAVA L%u HAS GARBAGE SYNC LINK %u.\n",
-										pL, aNoteOct->opSync);
-					}
-					else if (!SyncTYPE(aNoteOct->opSync) && !GRSyncTYPE(aNoteOct->opSync))
-						COMPLAIN2("•DCheckNode: OTTAVA L%u HAS BAD SYNC LINK %u.\n",
-										pL, aNoteOct->opSync);
-				}
-				
-				PopLock(NOTEOTTAVAheap);
-				break;
-
 			case CONNECTtype:
 				PushLock(CONNECTheap);
 
@@ -1225,7 +1210,8 @@ short DCheckNode(
 				for (aDynamicL=FirstSubLINK(pL); aDynamicL;
 						aDynamicL = NextDYNAMICL(aDynamicL)) {
 					if (STAFFN_BAD(doc, DynamicSTAFF(aDynamicL))) {
-						COMPLAIN("*DCheckNode: SUBOBJ IN DYNAMIC L%u HAS BAD staffn.\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN DYNAMIC L%u staffn %d IS BAD.\n",
+									pL, DynamicSTAFF(aDynamicL));
 					}
 					else {
 						if (!ObjOnStaff(pDynamic->firstSyncL, DynamicSTAFF(aDynamicL), False))
@@ -1237,6 +1223,27 @@ short DCheckNode(
 				PopLock(DYNAMheap);
 				break;
 				
+			case OTTAVAtype:
+				PushLock(NOTEOTTAVAheap);
+				if (STAFFN_BAD(doc, ((POTTAVA)p)->staffn))
+					COMPLAIN2("*DCheckNode: OTTAVA L%u staffn %d IS BAD.\n",
+								pL, ((POTTAVA)p)->staffn);
+
+				for (aNoteOctL=FirstSubLINK(pL);	aNoteOctL;
+						aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
+					aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
+					if (DBadLink(doc, OBJtype, aNoteOct->opSync, True)) {
+						COMPLAIN2("•DCheckNode: OTTAVA L%u HAS GARBAGE SYNC LINK %u.\n",
+										pL, aNoteOct->opSync);
+					}
+					else if (!SyncTYPE(aNoteOct->opSync) && !GRSyncTYPE(aNoteOct->opSync))
+						COMPLAIN2("•DCheckNode: OTTAVA L%u HAS BAD SYNC LINK %u.\n",
+										pL, aNoteOct->opSync);
+				}
+				
+				PopLock(NOTEOTTAVAheap);
+				break;
+
 			case SLURtype: {
 				short theInd, firstNoteNum=-1, lastNoteNum=-1;
 				PANOTE firstNote, lastNote;
@@ -1470,13 +1477,25 @@ short DCheckNode(
 				break;
 
 
+			case SPACERtype:
+				PSPACER pSpacer;
+				
+					PushLock(SPACERheap);
+					if (STAFFN_BAD(doc, SpacerSTAFF(pL))) {
+						COMPLAIN2("*DCheckNode: SPACER L%u staffn %d IS BAD.\n", pL,
+									SpacerSTAFF(pL));
+						PopLock(SPACERheap);
+						break;
+					}
+				break;
+				
 			case ENDINGtype:
 				{
 					PENDING pEnding;
 					
 					PushLock(ENDINGheap);
 					if (STAFFN_BAD(doc, EndingSTAFF(pL))) {
-						COMPLAIN("*DCheckNode: SUBOBJ IN ENDING L%u HAS BAD staffn.\n", pL);
+						COMPLAIN2("*DCheckNode: ENDING L%u staffn %d IS BAD.\n", pL, EndingSTAFF(pL));
 						break;
 					}
 					
@@ -1485,15 +1504,13 @@ short DCheckNode(
 						COMPLAIN("•DCheckNode: ENDING L%u HAS GARBAGE firstObjL.\n", pL);
 					}
 					else if (!ObjOnStaff(pEnding->firstObjL, EndingSTAFF(pL), False))
-						COMPLAIN("*DCheckNode: ENDING L%u firstObjL HAS NO SUBOBJS ON ITS STAFF.\n",
-										pL);
+						COMPLAIN("*DCheckNode: ENDING L%u firstObjL HAS NO SUBOBJS ON ITS STAFF.\n", pL);
 
 					if (DBadLink(doc, OBJtype, pEnding->lastObjL, False)) {
 						COMPLAIN("•DCheckNode: ENDING L%u HAS GARBAGE lastObjL.\n", pL);
 					}
 					else if (!ObjOnStaff(pEnding->lastObjL, EndingSTAFF(pL), False))
-						COMPLAIN("*DCheckNode: ENDING L%u lastObjL HAS NO SUBOBJS ON ITS STAFF.\n",
-										pL);
+						COMPLAIN("*DCheckNode: ENDING L%u lastObjL HAS NO SUBOBJS ON ITS STAFF.\n", pL);
 
 					if (pEnding->endNum>MAX_ENDING_STRINGS) {
 						COMPLAIN2("*DCheckNode: ENDING L%u HAS BAD endNum %d.\n", pL,
@@ -1864,7 +1881,7 @@ Boolean DCheckHeirarchy(Document *doc)
 				for (aStaffL=FirstSubLINK(pL); aStaffL; 
 							aStaffL=NextSTAFFL(aStaffL)) {
 					if (STAFFN_BAD(doc, StaffSTAFF(aStaffL)))
-						COMPLAIN("*DCheckHeirarchy: STAFF L%u HAS BAD staffn.\n", pL)
+						COMPLAIN2("*DCheckHeirarchy: STAFF L%u HAS BAD STAFF NUMBER %d.\n", pL, StaffSTAFF(aStaffL))
 					else
 						aStaffFound[StaffSTAFF(aStaffL)] = True;
 				}

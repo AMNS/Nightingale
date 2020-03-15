@@ -439,8 +439,11 @@ NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
 	
 	if (!PreflightMem(400)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
-	ConvertObjects(doc, version, fileTime, False);	/* Do any further conversion of old files needed */
-	ConvertObjects(doc, version, fileTime, True);	/* Do any further conversion of old files needed */
+	/* Do any further conversion needed of both the main and the Master Page object lists
+	   in old files. */
+	   
+	ConvertObjects(doc, version, fileTime, False);
+	ConvertObjects(doc, version, fileTime, True);
 
 	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;

@@ -141,7 +141,7 @@ same place as ->left for objects, but staffn is a SignedByte. */
 #define PSMeasType(link)	( (GetPAPSMEAS(link))->subType )
 #define DynamType(link) 	( (GetPDYNAMIC(link))->dynamicType )
 #define RptType(link) 		( (GetPRPTEND(link))->subType )
-#define OctType(link)		( (GetPOTTAVA(link))->octSignType )
+#define OttavaType(link)	( (GetPOTTAVA(link))->octSignType )
 #define ClefType(link)		( (GetPACLEF(link))->subType )
 #define NoteType(link)		( (GetPANOTE(link))->subType )
 #define GRNoteType(link)	( (GetPAGRNOTE(link))->subType )
@@ -756,31 +756,38 @@ are by Steve Hart.) */
 #define SheetNUM(link)				( (GetPPAGE(link))->sheetNum )	
 
 #define SlurBOUNDS(link)			( (GetPASLUR(link))->bounds )	
-#define SlurCrossSTAFF(link)		( (GetPSLUR(link))->crossStaff )			
-#define SlurCrossSYS(link)			( (GetPSLUR(link))->crossSystem )		
 #define SlurDASHED(link)			( (GetPASLUR(link))->dashed)	
 #define SlurENDKNOT(link)			( (GetPASLUR(link))->endKnot)	
 #define SlurENDPT(link)				( (GetPASLUR(link))->endPt)
 #define SlurFILLER(link)			( (GetPASLUR(link))->filler)	
 #define SlurFIRSTIND(link)			( (GetPASLUR(link))->firstInd)	
-#define SlurFIRSTSYNC(link)			( (GetPSLUR(link))->firstSyncL )
-	
+#define SlurKNOT(link)				( (GetPASLUR(link))->seg.knot)
+#define SlurLASTIND(link)			( (GetPASLUR(link))->lastInd)	
+#define SlurRESERVED(link)			( (GetPASLUR(link))->reserved)	
+#define SlurSEG(link)				( (GetPASLUR(link))->seg)
+#define SlurSOFT(link)				( (GetPASLUR(link))->soft)
+#define SlurSTARTPT(link)			( (GetPASLUR(link))->startPt)	
+#define SlurVIS(link)				( (GetPASLUR(link))->visible)
+
 /* SlurFirstIsSYSTEM considers the possibility of SlurLASTSYNC being non-existent: this can
    never occur in a normal valid object list, but it does inside RfmtSystems, and handling
    that condition makes it possible for FixCrossSysSlurs to use SlurFirstIsSYSTEM. */
  
 #define _SlurFirstSYSTEM(pL)		( (SystemTYPE(SlurLASTSYNC(pL))) )			/* Boolean, not link */
 #define SlurFirstIsSYSTEM(pL)		(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : True)	/* Boolean, not link */		
-#define SlurKNOT(link)				( (GetPASLUR(link))->seg.knot)
-#define SlurLASTIND(link)			( (GetPASLUR(link))->lastInd)	
-#define SlurLASTSYNC(link)	 		( (GetPSLUR(link))->lastSyncL )		
 #define SlurLastIsSYSTEM(pL)	 	( (MeasureTYPE(SlurFIRSTSYNC(pL))) )		/* Boolean, not link */
-#define SlurRESERVED(link)			( (GetPASLUR(link))->reserved)	
-#define SlurSEG(link)				( (GetPASLUR(link))->seg)
-#define SlurSOFT(link)				( (GetPASLUR(link))->soft)
-#define SlurSTARTPT(link)			( (GetPASLUR(link))->startPt)	
+
+#define SlurCrossSTAFF(link)		( (GetPSLUR(link))->crossStaff )			
+#define SlurCrossSTFBACK(link)		( (GetPSLUR(link))->crossStfBack )			
+#define SlurCrossSYS(link)			( (GetPSLUR(link))->crossSystem )		
+#define SlurFIRSTSYNC(link)			( (GetPSLUR(link))->firstSyncL )
+#define SlurLASTSYNC(link)	 		( (GetPSLUR(link))->lastSyncL )		
+#define SlurTempFLAG(link)	 		( (GetPSLUR(link))->tempFlag )		
 #define SlurTIE(link)				( (GetPSLUR(link))->tie )	
-#define SlurVIS(link)				( (GetPASLUR(link))->visible)
+#define SlurUSED(link)				( (GetPSLUR(link))->used )	
+
+#define SpacerBOTSTAFF(link)		( (GetPSPACER(link))->bottomStaff)
+#define SpacerSPWIDTH(link)			( (GetPSPACER(link))->spWidth)
 
 #define StaffCLEFTYPE(link)			( (GetPASTAFF(link))->clefType )		
 #define StaffDENOM(link)			( (GetPASTAFF(link))->denominator)	

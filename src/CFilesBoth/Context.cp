@@ -1,7 +1,7 @@
 /****************************************************************************************
 	FILE:	Context.c
 	PROJ:	Nightingale
-	DESC:	Context-related routines. There should be no user-interface effects;
+	DESC:	Context-related routines. There should be no user-interface effects at all;
 	at the moment, some routines can Inval, which should be changed.
 		ContextKeySig				ContextMeasure				Context1Staff
 		ContextStaff				ContextSystem				ContextTimeSig				
@@ -26,7 +26,7 @@
 #include "Nightingale.appl.h"
 
 
-/* ------------------------------------------------------------------ ContextClef -- */
+/* ----------------------------------------------------------------------- ContextClef -- */
 /* Update the current context using this Clef object. */
 
 void ContextClef(LINK pL, CONTEXT context[])
@@ -41,7 +41,7 @@ void ContextClef(LINK pL, CONTEXT context[])
 }
 
 
-/* ---------------------------------------------------------------- ContextKeySig -- */
+/* --------------------------------------------------------------------- ContextKeySig -- */
 /*	Update the current context using this KeySig object. */
 
 void ContextKeySig(LINK pL, CONTEXT	context[])
@@ -63,7 +63,7 @@ void ContextKeySig(LINK pL, CONTEXT	context[])
 }
 
 
-/* ---------------------------------------------------------------- ContextMeasure -- */
+/* -------------------------------------------------------------------- ContextMeasure -- */
 /*	Update the current context using this Measure object. */
 
 void ContextMeasure(LINK pL, CONTEXT context[])
@@ -83,7 +83,7 @@ void ContextMeasure(LINK pL, CONTEXT context[])
 }
 
 
-/* ---------------------------------------------------------------- Context1Staff -- */
+/* --------------------------------------------------------------------- Context1Staff -- */
 
 void Context1Staff(LINK aStaffL, PCONTEXT pContext)
 {
@@ -103,7 +103,7 @@ void Context1Staff(LINK aStaffL, PCONTEXT pContext)
 }
 
 
-/* ----------------------------------------------------------------- ContextStaff -- */
+/* ---------------------------------------------------------------------- ContextStaff -- */
 /*	Update the current context using this Staff object. */
 
 void ContextStaff(LINK pL, CONTEXT context[])
@@ -117,7 +117,7 @@ void ContextStaff(LINK pL, CONTEXT context[])
 }
 
 
-/* ---------------------------------------------------------------- ContextSystem -- */
+/* --------------------------------------------------------------------- ContextSystem -- */
 /*	Update the current context using this System object. */
 
 void ContextSystem(LINK pL, CONTEXT	context[])
@@ -137,7 +137,7 @@ void ContextSystem(LINK pL, CONTEXT	context[])
 }
 
 
-/* --------------------------------------------------------------- ContextTimeSig -- */
+/* -------------------------------------------------------------------- ContextTimeSig -- */
 /*	Update the current context using this TimeSig object.	*/
 
 void ContextTimeSig(LINK pL, CONTEXT context[])
@@ -157,7 +157,7 @@ void ContextTimeSig(LINK pL, CONTEXT context[])
 }
 
 
-/* ------------------------------------------------------------------ ContextPage -- */
+/* ----------------------------------------------------------------------- ContextPage -- */
 /*	Update the current context using this Page object. */
 
 void ContextPage(Document *doc, LINK pL, CONTEXT context[])
@@ -175,7 +175,7 @@ void ContextPage(Document *doc, LINK pL, CONTEXT context[])
 }
 
 
-/* ------------------------------------------------------------------- GetContext -- */
+/* ------------------------------------------------------------------------ GetContext -- */
 /*	Get the context at (including) the specified object on the specified staff.
 This is done by searching backwards for a Staff or Measure object, taking note of
 any Clef, KeySig, TimeSig, or Dynamic objects found along the way. Warning: in
@@ -203,7 +203,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 	}
 	
 	if (STAFFN_BAD(doc, theStaff)) {
-		MayErrMsg("GetContext: illegal staff number %ld. contextL=%ld", (long)theStaff,
+		MayErrMsg("GetContext: illegal staff number %ld. contextL=L%ld", (long)theStaff,
 					(long)contextL);
 		return;
 	}
@@ -230,7 +230,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				found = True;
 				pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, False);
 				if (!pageL) {
-					MayErrMsg("GetContext: can't find Page before L%ld. contextL=%ld, staff=%ld",
+					MayErrMsg("GetContext: can't find Page before L%ld. contextL=L%ld, staff=%ld",
 											(long)pL, (long)contextL, (long)theStaff);
 					return;
 				}
@@ -281,7 +281,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				found = True;
 				pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, False);
 				if (!pageL) {
-					MayErrMsg("GetContext: can't find Page before L%ld. contextL=%ld, staff=%ld",
+					MayErrMsg("GetContext: can't find Page before L%ld. contextL=L%ld, staff=%ld",
 											(long)pL, (long)contextL, (long)theStaff);
 					return;
 				}
@@ -420,7 +420,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 }
 
 
-/* ---------------------------------------------------------------- GetAllContexts -- */
+/* -------------------------------------------------------------------- GetAllContexts -- */
 /*	Fill in the specified context[] array at a particular point in the score. */
 
 void GetAllContexts(Document *doc, CONTEXT context[], LINK pAtL)
@@ -438,7 +438,7 @@ void GetAllContexts(Document *doc, CONTEXT context[], LINK pAtL)
 }
 
 
-/* ----------------------------------------------------------- ClefFixBeamContext -- */
+/* ---------------------------------------------------------------- ClefFixBeamContext -- */
 /* Remove and re-beam every beamset that has elements in the given range on the given
 staff. This was written to handle a change of clef context. */
 
@@ -485,9 +485,8 @@ void ClefFixBeamContext(Document *doc, LINK startL, LINK doneL, short staffn)
 		 firstBeamL = startL;												/* No beams before range on staff */
 
 	/* Now remove and recreate all beamsets in the (possibly extended) range. Rebeam
-		can recreate the beamset object to the right of its original position in the
-		data structure, so we have to be careful to avoid processing beamsets
-		repeatedly. */
+	   can recreate the beamset object to the right of its original position in the
+	   object list, so we have to be careful to avoid processing beamsets repeatedly. */
 	
 	for (v = 1; v<=MAXVOICES; v++)
 		if (VOICE_MAYBE_USED(doc, v)) {
@@ -509,7 +508,7 @@ void ClefFixBeamContext(Document *doc, LINK startL, LINK doneL, short staffn)
 }
 
 
-/* -------------------------------------------------------- ToggleAugDotPosInRange -- */
+/* ------------------------------------------------------------ ToggleAugDotPosInRange -- */
 /* Toggle augmentation dot y-positions for all notes in the given range and staff. */
 
 static void ToggleAugDotPosInRange(Document *doc, LINK startL, LINK endL, short staffn);
@@ -538,7 +537,7 @@ static void ToggleAugDotPosInRange(Document *doc, LINK startL, LINK endL, short 
 }
 
 
-/* -------------------------------------------------------------- EFixContForClef -- */
+/* ------------------------------------------------------------------- EFixContForClef -- */
 /* In the range [startL,doneL), update (1) the clef in context fields of following
 STAFFs and MEASUREs for the given staff, (2) note y-positions, (3) note stem directions
 and chord layouts including stem directions, and (4) beam positions to match the new
@@ -659,7 +658,7 @@ Cleanup:
 }
 
 
-/* ----------------------------------------------------------- FixContextForClef --- */
+/* ---------------------------------------------------------------- FixContextForClef --- */
 /* From (and including) <startL> until the next clef for the staff, update (1) the
 clef in context fields of following STAFFs and MEASUREs for the given staff, (2)
 notes' y-positions, (3) note stem directions and chord layouts including stem
@@ -698,7 +697,7 @@ LINK FixContextForClef(
 }
 
 
-/* ------------------------------------------------------------ EFixContForKeySig -- */
+/* ----------------------------------------------------------------- EFixContForKeySig -- */
 /* In the range [startL,doneL), update the key signature in context fields of
 following STAFFs and MEASUREs for the given staff. If we find another key sig-
 nature on the staff before doneL, we stop at that point. */
@@ -748,7 +747,7 @@ void EFixContForKeySig(LINK startL, LINK doneL,
 }
 
 
-/* ---------------------------------------------------------- FixContextForKeySig -- */
+/* --------------------------------------------------------------- FixContextForKeySig -- */
 /* Until the next key signature for the staff, update the key sig. in context
 fields of following STAFFs and MEASUREs for the given staff. Returns the first
 LINK after the range affected or, if nothing is affected, NILINK. */
@@ -784,13 +783,13 @@ LINK FixContextForKeySig(Document *doc, LINK startL,
 }
 
 
-/* ----------------------------------------------------------- EFixContForTimeSig -- */
-/* /* In the range [startL,doneL), update the time sig. in context fields of
+/* ---------------------------------------------------------------- EFixContForTimeSig -- */
+/* In the range [startL,doneL), update the time sig. in context fields of
 following STAFFs and MEASUREs for the given staff, and update the physical durations
 of whole rests.  If we find another time signature on the staff before doneL, we stop
 at that point. Only the time sig.'s timeSigType, numerator, and denominator are
-used. N.B. Unlike the similar routines for clefs and key sigs., this routine doesn't
-even know if there's actually been a change of time sig.--it forges ahead regardless.
+used. NB: Unlike the similar routines for clefs and key sigs., this routine doesn't
+even know if there's actually been a change of time sig.; it forges ahead regardless.
 Problems with this: mild inefficiency; replaces <playDur>s of whole rests that may
 have been tweaked with vanilla ones (but rests don't play anyway, and never will). */
 
@@ -846,14 +845,13 @@ void EFixContForTimeSig(LINK startL, LINK doneL,
 }
 
 
-/* --------------------------------------------------------- FixContextForTimeSig -- */
-/* Until the next time signature for the staff, update the time sig. in con-
-text fields of following STAFFs and MEASUREs for the given staff, and update
-the physical durations of whole rests.  Only the time sig.'s timeSigType,
-numerator, and denominator are used. N.B. Unlike the similar routines for
-clefs and key sigs., this routine doesn't even know if there's actually been
-a change of time sig.--it forges ahead regardless.  See comments on the (minor)
-problems with this in EFixContForTimeSig. */
+/* -------------------------------------------------------------- FixContextForTimeSig -- */
+/* Until the next time signature for the staff, update the time sig. in con- text fields
+of following STAFFs and MEASUREs for the given staff, and update the physical durations
+of whole rests.  Only the time sig.'s timeSigType, numerator, and denominator are used.
+NB: Unlike the similar routines for clefs and key sigs., this routine doesn't even know
+if there's actually been a change of time sig.; it forges ahead regardless.  See
+comments on the (minor) problems with this in EFixContForTimeSig. */
 
 LINK FixContextForTimeSig(Document *doc, LINK startL,
 							short staffn,			/* Desired staff no. */
@@ -878,7 +876,7 @@ LINK FixContextForTimeSig(Document *doc, LINK startL,
 }
 
 
-/* ----------------------------------------------------------- EFixContForDynamic -- */
+/* ---------------------------------------------------------------- EFixContForDynamic -- */
 /* In the range [startL,doneL), update (1) the dynamic in context fields of
 following STAFFs and MEASUREs for the given staff, and (2) notes' On velocities. 
 If we find another non-hairpin dynamic on the staff before doneL, we stop at that
@@ -921,7 +919,7 @@ void EFixContForDynamic(LINK startL, LINK doneL,
 #ifdef RELDYNCHANGE
 						NoteONVELOCITY(aNoteL) += veloChange;
 						if (NoteONVELOCITY(aNoteL)<1 || NoteONVELOCITY(aNoteL)>MAX_VELOCITY)
-							MayErrMsg("EFixContForDynamic: at %ld change=%ld gives new vel.=%ld",
+							MayErrMsg("EFixContForDynamic: at L%ld change=%ld gives new vel.=%ld",
 										(long)pL, (long)veloChange, (long)(NoteONVELOCITY(aNoteL)));
 #else
 						NoteONVELOCITY(aNoteL) = newVelocity;
@@ -961,7 +959,7 @@ void EFixContForDynamic(LINK startL, LINK doneL,
 }
 
 
-/* ------------------------------------------------------------- NonHPDynamSearch -- */
+/* ------------------------------------------------------------------ NonHPDynamSearch -- */
 /* Starting at <link>, search for the next non-hairpin dynamic. */
 
 static LINK NonHPDynamSearch(LINK link, short staffn);
@@ -977,7 +975,7 @@ static LINK NonHPDynamSearch(LINK link, short staffn)
 	return link;
 }
 
-/* --------------------------------------------------------- FixContextForDynamic -- */
+/* -------------------------------------------------------------- FixContextForDynamic -- */
 /* Until the next dynamic for the staff, update (1) the dynamic in context fields of
 following STAFFs and MEASUREs for the given staff, and (2) notes' On velocities. */
 
@@ -1013,7 +1011,7 @@ LINK FixContextForDynamic(
 }
 
 
-/* -------------------------------------------------------------- FixMeasureContext -- */
+/* ----------------------------------------------------------------- FixMeasureContext -- */
 /*	Fix clef/key sig./meter/dynamic context fields of a Measure subobject. */
 
 void FixMeasureContext(LINK aMeasureL, PCONTEXT pContext)
@@ -1021,7 +1019,8 @@ void FixMeasureContext(LINK aMeasureL, PCONTEXT pContext)
 	short k;
 
 	if (pContext->nKSItems > MAX_KSITEMS) {
-		MayErrMsg("FixMeasureContext: called w/ %ld nKSItems", (long)pContext->nKSItems);
+		MayErrMsg("FixMeasureContext: called with %ld nKSItems for Measure subobj L%ld",
+					(long)pContext->nKSItems, (long)aMeasureL);
 		pContext->nKSItems = MAX_KSITEMS;
 	}
 	
@@ -1036,7 +1035,7 @@ void FixMeasureContext(LINK aMeasureL, PCONTEXT pContext)
 }
 
 
-/* ---------------------------------------------------------------- FixStaffContext -- */
+/* ------------------------------------------------------------------- FixStaffContext -- */
 /*	Fix clef/key sig./meter context fields of a Staff subobject. */
 
 void FixStaffContext(LINK aStaffL, PCONTEXT pContext)
@@ -1044,7 +1043,8 @@ void FixStaffContext(LINK aStaffL, PCONTEXT pContext)
 	short k;
 	
 	if (pContext->nKSItems > MAX_KSITEMS) {
-		MayErrMsg("FixStaffContext: called w/ %ld nKSItems", (long)pContext->nKSItems);
+		MayErrMsg("FixStaffContext: called w/ %ld nKSItems for Staff subobj L%ld",
+					(long)pContext->nKSItems, (long)aStaffL);
 		pContext->nKSItems = MAX_KSITEMS;
 	}
 
@@ -1083,7 +1083,7 @@ void UpdateTSContext(Document *doc, LINK pL, short stf, CONTEXT newContext)
 }
 
 
-/* ----------------------------------------------- Utilities for FixAccsForKeySig -- */
+/* ---------------------------------------------------- Utilities for FixAccsForKeySig -- */
 
 /* Merge accidental table KSTab into oldKSTab. */
 
@@ -1118,7 +1118,7 @@ void CopyTables(SignedByte KSTab[], SignedByte accTab[])
 }
 
 
-/* ------------------------------------------------------------ EndMeasRangeSearch -- */
+/* ---------------------------------------------------------------- EndMeasRangeSearch -- */
 /* Return endL, the LINK ending the measure startL is in, clipped to doneL: if
 doneL is before endL, return doneL, else endL. */
 
@@ -1131,7 +1131,7 @@ LINK EndMeasRangeSearch(Document *doc, LINK startL, LINK doneL)
 	return (IsAfter(doneL, endL) ? doneL : endL);
 }
 
-/* ------------------------------------------------------------- EFixAccsForKeySig -- */
+/* ----------------------------------------------------------------- EFixAccsForKeySig -- */
 /* Go through staff in range [startL,doneL) and change accidentals where
 appropriate to keep notes' pitches the same, and return the next key signature
 or, if there is none, tailL. */
@@ -1145,25 +1145,25 @@ LINK EFixAccsForKeySig(Document *doc, LINK startL, LINK doneL,
 	LINK barFirstL,barLastL;
 
 	/* Compute an accidental table that converts the pitch modifer table after the
-	 *	insert into the table before it, so we can correct notes to be the same
-	 *	in the new pitch modifier environment as they were in the old environment.
- 	 */
+	   insert into the table before it, so we can correct notes to be the same in the
+	   new pitch modifier environment as they were in the old environment. */
+	   
  	InitPitchModTable(oldKSTab, &oldKSInfo);
  	InitPitchModTable(KSTab, &newKSInfo);
  	CombineTables(oldKSTab, KSTab);
 
-	/*
-	 * Now use the table <oldKSTab> to correct accidentals of notes on the staff, one
-	 * measure at a time. 
-	 */
+	/* Now use the table <oldKSTab> to correct accidentals of notes on the staff, one
+	   measure at a time. */
+	   
 	barFirstL = startL;
 	barLastL = EndMeasSearch(doc, RightLINK(startL));
 	if (IsAfter(doneL, barLastL)) barLastL = doneL;
 
-	/* Until the next key sig., fix the accidentals, one measure at a time. */
+	/* Until the next key signature, fix the accidentals, one measure at a time. */
+	
 	while (IsAfter(barFirstL, barLastL)) {					
 		/* Initialize accTable for each bar, since (ugh) FixAllAccidentals destroys it! */
-		CopyTables(oldKSTab,accTable);
+		CopyTables(oldKSTab, accTable);
 	
 		FixAllAccidentals(barFirstL, barLastL, staffn, False);
 		if (barLastL==doc->tailL) break;
@@ -1175,7 +1175,7 @@ LINK EFixAccsForKeySig(Document *doc, LINK startL, LINK doneL,
 }
 
 
-/* ------------------------------------------------------------- FixAccsForKeySig -- */
+/* ------------------------------------------------------------------ FixAccsForKeySig -- */
 /* See whether new key signature is different from the previous one in effect here.
 If so, go through staff till its next key signature and change accidentals where
 appropriate to keep notes' pitches the same, and return the next key signature
@@ -1191,7 +1191,7 @@ LINK FixAccsForKeySig(Document *doc,
 
 	if (KeySigEqual(&oldKSInfo, &newKSInfo)) return NILINK;
 
-	nextKSL = KSSearch(doc,RightLINK(keySigL),staffn,True,False);
+	nextKSL = KSSearch(doc,RightLINK(keySigL), staffn, True, False);
 
 	lastFixL = EFixAccsForKeySig(doc, keySigL, nextKSL, staffn, oldKSInfo, newKSInfo);
 	return lastFixL;

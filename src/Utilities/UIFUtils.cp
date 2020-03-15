@@ -91,12 +91,11 @@ void FixCursor()
 	
 	toolPalette = *paletteGlobals[TOOL_PALETTE];
 	
-	/*
-	 * <currentCursor> is a global that Nightingale uses elsewhere to keep track of
-	 * the cursor. <newCursor> is a temporary variable used solely to set the cursor
-	 * here. They'll always be the same except when a modifier key is down that forces
-	 * a specific cursor temporarily -- at the moment, only the <genlDragCursor>.
-	 */
+	/* <currentCursor> is a global that Nightingale uses elsewhere to keep track of
+	   the cursor. <newCursor> is a temporary variable used solely to set the cursor
+	   here. They'll always be the same except when a modifier key is down that forces
+	   a specific cursor temporarily -- at the moment, only the <genlDragCursor>. */
+	   
 	GetMouse(&mousept);
 	globalpt = mousept;
 	LocalToGlobal(&globalpt);
@@ -121,7 +120,7 @@ void FixCursor()
 				DisposeRgn(strucRgn);
 				foundPalette = True;
 			}
-				else {
+			else {
 				DisposeRgn(strucRgn);
 			}
 		}
@@ -214,27 +213,29 @@ void FixCursor()
 		dxOld = dx; xOld = x;
 	}
 	
-	/*
-	 * If option key is down and shift key is NOT down, use "general drag" cursor, no
-	 * matter what. The shift key test is unfortunately necessary so we can use
-	 * shift-option-E (for example) as the keyboard equivalent for eighth grace
-	 * note without confusing users by having the wrong cursor as long they actually
-	 * have the option key down. */
+	/* If option key is down and shift key is NOT down, use "general drag" cursor, no
+	   matter what. The shift key test is unfortunately necessary so we can use
+	   shift-option-E (for example) as the keyboard equivalent for eighth grace
+	   note without confusing users by having the wrong cursor as long they actually
+	   have the option key down. */
 
 	if (OptionKeyDown() && !ShiftKeyDown()) newCursor = genlDragCursor;
 	
 	FixCursorLogPrint("7. Installing current cursor\n");
 	
 	/* Install the new cursor, whatever it may be. */
+	
 	SetCursor(*newCursor);
 }
 
 
 /* ----------------------------------------------------------------------------- Menus -- */
 
-/* Enable or disable a menu item .*/
+/* Enable or disable a menu item. FIXME: <enable> should be Boolean. In fact, in the vast
+majority of the well-over-100 calls to it, it already is, and changing the declaration
+here shouldn't cause any problems. Why not change it?  --DAB, March 2020 */
 
-void XableItem(MenuHandle menu, short item, short enable)	/* ??<enable> should be Boolean */
+void XableItem(MenuHandle menu, short item, short enable)
 {
 	if (enable) EnableMenuItem(menu,item);
 	 else		DisableMenuItem(menu,item);
@@ -290,77 +291,67 @@ void CenterRect(Rect *r, Rect *inside, Rect *ans)
 	iy = inside->top + ((inside->bottom - inside->top) / 2);
 	
 	*ans = *r;
-	OffsetRect(ans,ix-rx,iy-ry);
+	OffsetRect(ans, ix-rx, iy-ry);
 }
 
-/*
- *	Force a rectangle to be entirely enclosed by another (presumably) larger one.
- *	If the "enclosed" rectangle is larger, then we leave the bottom right within.
- *	margin is a slop factor to bring the rectangle a little farther in than just
- *	to the outer rectangle's border.
- */
+/* Force a rectangle to be entirely enclosed by another (presumably) larger one. If
+the "enclosed" rectangle is larger, then we leave the bottom right within. <margin>
+margin is a slop factor to bring the rectangle a little farther in than just to the
+outer rectangle's border. */
 
 void PullInsideRect(Rect *r, Rect *inside, short margin)
 {
-	Rect ans,tmp;
+	Rect ans, tmp;
 	
 	tmp = *inside;
-	InsetRect(&tmp,margin,margin);
+	InsetRect(&tmp, margin, margin);
 	
-	SectRect(r,&tmp,&ans);
-	if (!EqualRect(r,&ans)) {
-		if (r->top < tmp.top)
-			OffsetRect(r,0,tmp.top-r->top);
-		 else if (r->bottom > tmp.bottom)
-			OffsetRect(r,0,tmp.bottom-r->bottom);
+	SectRect(r, &tmp, &ans);
+	if (!EqualRect(r, &ans)) {
+		if (r->top < tmp.top) OffsetRect(r, 0, tmp.top-r->top);
+		 else if (r->bottom > tmp.bottom) OffsetRect(r, 0, tmp.bottom-r->bottom);
 			
-		if (r->left < tmp.left)
-			OffsetRect(r,tmp.left-r->left,0);
-		 else if (r->right > tmp.right)
-			OffsetRect(r,tmp.right-r->right,0);
+		if (r->left < tmp.left) OffsetRect(r, tmp.left-r->left, 0);
+		 else if (r->right > tmp.right) OffsetRect(r, tmp.right-r->right, 0);
 	}
 }
 
-/*
- *	Deliver True if r is completely inside the bounds rect; False if outside or
- *	partially outside.
- */
+/*	Return True if r is completely inside the bounds rect; False if outside or
+partially outside. */
 
 Boolean ContainedRect(Rect *r, Rect *bounds)
 {
 	Rect tmp;
 	
-	UnionRect(r,bounds,&tmp);
-	return (EqualRect(bounds,&tmp));
+	UnionRect(r, bounds, &tmp);
+	return (EqualRect(bounds, &tmp));
 }
 
 
-/*
- *	Draw a series of rectangles interpolated between two given rectangles, from
- *	small to big if zoomUp, from big to small if not zoomUp.  As described in
- *	TechNote 194, we draw not into WMgrPort, but into a new port covering the
- *	same area.  Both rectangles should be specified in global screen coordinates.
- */
+/*	Draw a series of rectangles interpolated between two given rectangles, from small
+to big if <zoomUp>, from big to small if not. As described in TechNote 194, we draw not
+into WMgrPort, but into a new port covering the same area. Both rectangles should be
+specified in global screen coordinates. */
 
 static short blend1(short sc, short bc);
-static Fixed fract,factor,one;
+static Fixed fract, factor, one;
 
 static short blend1(short smallCoord, short bigCoord)
 {
-	Fixed smallFix,bigFix,tmpFix;
+	Fixed smallFix, bigFix, tmpFix;
 	
 	smallFix = one * smallCoord;		/* Scale up to fixed point */
 	bigFix	 = one * bigCoord;
-	tmpFix	 = FixMul(fract,bigFix) + FixMul(one-fract,smallFix);
+	tmpFix	 = FixMul(fract, bigFix) + FixMul(one-fract, smallFix);
 	
 	return(FixRound(tmpFix));
 }
 
 void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 {
-	short i,zoomSteps = 16;
-	Rect r1,r2,r3,r4,rgnBBox;
-	GrafPtr oldPort,deskPort;
+	short i, zoomSteps = 16;
+	Rect r1, r2, r3, r4, rgnBBox;
+	GrafPtr oldPort, deskPort;
 	
 	RgnHandle grayRgn = NewRgn();
 	RgnHandle deskPortVisRgn = NewRgn();		
@@ -375,10 +366,10 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 	
 	if (!grayRgn) { LogPrintf(LOG_WARNING, "ZoomRect: can't create grayRgn\n"); Debugger(); }
 	
-	CopyRgn(grayRgn,deskPortVisRgn);
+	CopyRgn(grayRgn, deskPortVisRgn);
 	
-	GetRegionBounds(grayRgn,&rgnBBox);  		
-	SetPortBounds(deskPort,&rgnBBox);
+	GetRegionBounds(grayRgn, &rgnBBox);  		
+	SetPortBounds(deskPort, &rgnBBox);
 	
 	DisposeRgn(grayRgn);
 	DisposeRgn(deskPortVisRgn);
@@ -390,12 +381,12 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 	one = 65536;						/* fixed point 'const' */
 	if (zoomUp) {
 		r1 = *smallRect;
-		factor = FixRatio(6,5);			/* Make bigger each time */
-		fract =  FixRatio(541,10000);	/* 5/6 ^ 16 = 0.540877 */
+		factor = FixRatio(6, 5);		/* Make bigger each time */
+		fract =  FixRatio(541, 10000);	/* 5/6 ^ 16 = 0.540877 */
 	}
 	 else {
 		r1 = *bigRect;
-		factor = FixRatio(5,6);			/* Make smaller each time */
+		factor = FixRatio(5, 6);		/* Make smaller each time */
 		fract  = one;
 	}
 	
@@ -404,16 +395,16 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 	FrameRect(&r1);						/* Draw initial image */
 
 	for (i=0; i<zoomSteps; i++) {
-		r4.left   = blend1(smallRect->left,bigRect->left);
-		r4.right  = blend1(smallRect->right,bigRect->right);
-		r4.top	  = blend1(smallRect->top,bigRect->top);
-		r4.bottom = blend1(smallRect->bottom,bigRect->bottom);
+		r4.left   = blend1(smallRect->left, bigRect->left);
+		r4.right  = blend1(smallRect->right, bigRect->right);
+		r4.top	  = blend1(smallRect->top, bigRect->top);
+		r4.bottom = blend1(smallRect->bottom, bigRect->bottom);
 		
 		FrameRect(&r4);					/* Draw newest */
 		FrameRect(&r1);					/* Erase oldest */
 		r1 = r2; r2 = r3; r3 = r4;
 		
-		fract = FixMul(fract,factor);	/* Bump interpolation factor */
+		fract = FixMul(fract, factor);	/* Bump interpolation factor */
 	}
 	
 	FrameRect(&r1);						/* Erase final image */
@@ -1072,7 +1063,7 @@ const char *NameHeapType(
 		case DYNAMtype:		ps = (friendly? "dynamic" : "DYNAMIC"); break;
 		case MODNRtype:		ps = (friendly? "note modifier" : "MODNR"); break;
 		case GRAPHICtype:	ps = (friendly? "Graphic" : "GRAPHIC"); break;
-		case OTTAVAtype:	ps = (friendly? "octave sign" : "OCTAVE"); break;
+		case OTTAVAtype:	ps = (friendly? "octave sign" : "OTTAVA"); break;
 		case SLURtype:		ps = (friendly? "slur and tie" : "SLUR"); break;
 		case GRSYNCtype:	ps = (friendly? "grace note" : "GRSYNC"); break;
 		case TEMPOtype:		ps = (friendly? "tempo/MM" : "TEMPO"); break;

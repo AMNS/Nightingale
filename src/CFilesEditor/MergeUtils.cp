@@ -344,17 +344,17 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 		if (aNote->staffn==staffn && aNote->inOttava && aNote->merged==merged) {
 			aNote->inOttava = False;
 			aNote->yd -= yDelta;
-			aNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
+			aNote->yqpit -= halfLn2qd(noteOffset[OttavaType(octL)-1]);
 
 			stemDown = GetStemInfo(doc, pL, aNoteL, &qStemLen);
 			NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
 											stemDown,
 											context.staffHeight, context.staffLines,
 											qStemLen, False);
-			if (odd(noteOffset[OctType(octL)-1]))
+			if (odd(noteOffset[OttavaType(octL)-1]))
 				ToggleAugDotPos(doc, aNoteL, stemDown);
 
-			dystd = -halfLn2std(noteOffset[OctType(octL)-1]);
+			dystd = -halfLn2std(noteOffset[OttavaType(octL)-1]);
 			if (config.moveModNRs) MoveModNRs(aNoteL, dystd);
 		}
 	}
@@ -386,7 +386,7 @@ static void MUnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
 		if (aGRNote->staffn==s && aGRNote->inOttava) {
 			aGRNote->inOttava = False;
 			aGRNote->yd -= yDelta;
-			aGRNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
+			aGRNote->yqpit -= halfLn2qd(noteOffset[OttavaType(octL)-1]);
 			stemLen = QSTEMLEN(!multiVoice, ShortenStem(aGRNoteL, context, stemDown));
 			aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(aGRNote->subType),
 											stemDown,
@@ -426,7 +426,7 @@ static void MRemoveOctOnStf(Document *doc, LINK octL,
 
 	/* Update note's y position. */
 	GetContext(doc, octL, s, &context);
-	yDelta = halfLn2d(noteOffset[OctType(octL)-1],context.staffHeight,context.staffLines);
+	yDelta = halfLn2d(noteOffset[OttavaType(octL)-1],context.staffHeight,context.staffLines);
 							
 	aNoteOttavaL = FirstSubLINK(octL);
 	for ( ; aNoteOttavaL; aNoteOttavaL = NextNOTEOTTAVAL(aNoteOttavaL)) {
@@ -547,7 +547,7 @@ doneCheck1:
 						firstSyncL = FirstInOttava(pL);
 						lastSyncL = LastInOttava(pL);
 						nInOct = LinkNENTRIES(pL);
-						octType = OctType(pL);
+						octType = OttavaType(pL);
 						MRemoveOctOnStf(doc, pL, s, False);
 						CreateOTTAVA(doc,firstSyncL,lastSyncL,s,nInOct,octType,False,False);
 					}

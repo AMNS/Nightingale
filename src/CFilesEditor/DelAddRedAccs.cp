@@ -357,7 +357,7 @@ Boolean AddMIDIRedundantAccs(
 				}
 				break;
 			case OTTAVAtype:
-				if (OttavaSTAFF(pL)==staff) octType[staff] = OctType(pL);
+				if (OttavaSTAFF(pL)==staff) octType[staff] = OttavaType(pL);
 				break;
 			default:
 				;

@@ -1929,7 +1929,7 @@ static Boolean SymDragLoop(
 
 				octL = OctOnStaff(doc->selStartL, staff);
 				if (octL) {
-					octType = OctType(octL);
+					octType = OttavaType(octL);
 					octTransp = (octType>0? noteOffset[octType-1] : 0);	/* Set feedback transposition */
 				}
 				else {
@@ -1994,7 +1994,7 @@ static Boolean SymDragLoop(
 
 			octL = OctOnStaff(doc->selStartL, staff);
 			if (octL) {
-				octType = OctType(octL);
+				octType = OttavaType(octL);
 				octTransp = (octType>0? noteOffset[octType-1] : 0);	/* Set feedback transposition */
 			}
 			else {

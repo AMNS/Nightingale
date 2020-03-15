@@ -2672,3 +2672,14 @@ objects & subobjects. Affects MemMacros.h; FileConversion.
 
 Minor cleanup: correct two messages from BrowseTempo(), etc. Affects MemMacros.h;
 Browser, DebugUtils, DrawObject.
+
+-------------------------------------------------------------------------------
+
+11 - 15 Mar.
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects & subobjects. Affects MemMacros.h; FileConversion.
+
+Minor cleanup. Affects Clipboard, Context, CrossSystem, DebugUtils, Debug2Utils,
+DelRedAccs, Dragging, DragSet, FileConversion, FileOpen, Insert, MergeUtils, Ottava,
+UIFUtils.

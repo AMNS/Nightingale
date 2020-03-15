@@ -592,7 +592,7 @@ static void MakeOctCrossSys(Document *doc, LINK octL, LINK firstSys,
 	firstSyncL = FirstInOttava(octL);
 	lastSyncL = LastInOttava(octL);
 	s = OttavaSTAFF(octL);
-	octType = OctType(octL);
+	octType = OttavaType(octL);
 
 	noteOctL = FirstSubLINK(octL);
 	prevL = qL = firstSyncL;

@@ -331,7 +331,7 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 			/* Update MIDI note number, considering effect of octave signs. */
 			effectiveAcc = EffectiveAcc(doc, pL, subObjL);
 			octL = FindOttava(pL, staffn);
-			octType = (octL? OctType(octL) : -1);
+			octType = (octL? OttavaType(octL) : -1);
 			aNote = GetPANOTE(subObjL);
 			if (octType>0)
 				halfLn = -qd2halfLn(aNote->yqpit)+noteOffset[octType-1];
@@ -503,7 +503,7 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 		/* Update MIDI note number, considering effect of octave signs. */
 		effectiveAcc = EffectiveGRAcc(doc, pL, subObjL);
 		octL = FindOttava(pL, staffn);
-		octType = (octL? OctType(octL) : -1);
+		octType = (octL? OttavaType(octL) : -1);
 		aGRNote = GetPAGRNOTE(subObjL);
 		if (octType>0)
 			halfLn = -qd2halfLn(aGRNote->yqpit)+noteOffset[octType-1];

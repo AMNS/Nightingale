@@ -486,7 +486,7 @@ Boolean DCheckNoteNums(Document *doc)
 					break;
 				case OTTAVAtype:
 					if (OttavaSTAFF(pL)==staff)
-						octType[staff] = OctType(pL);
+						octType[staff] = OttavaType(pL);
 					break;
 				default:
 					;

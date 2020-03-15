@@ -201,7 +201,7 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 					InstallDoc(doc);
 
 					ottavaL = LSSearch(qL, OTTAVAtype, staff, GO_LEFT, False);
-					octType = OctType(ottavaL);
+					octType = OttavaType(ottavaL);
 
 					/* Update note's y position. */
 					GetContext(doc, qL, staff, &context);
@@ -2868,7 +2868,7 @@ void FixOctNotes(Document *doc,LINK octL,short s);
 static void FixOctNotes(Document *doc, LINK octL, short s)
 {
 	LINK firstL,lastL; short numNotes;
-	Byte octType = OctType(octL);
+	Byte octType = OttavaType(octL);
 
 	firstL = FirstInOttava(octL);
 	lastL = LastInOttava(octL);

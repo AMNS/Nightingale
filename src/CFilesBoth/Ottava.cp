@@ -9,7 +9,7 @@
 
 	DoOttava				DoRemoveOttava			GetNoteYD
 	SetOttavaYPos			CreateOTTAVA			UnOttava
-	UnOttavaS
+	UnOttavaStaff
 	UnOttavaSync			UnOttavaGRSync			UnOttavaRange
 	GetOctTypeNum			DrawOTTAVA
 	FirstInOttava 			LastInOttava
@@ -26,7 +26,7 @@ static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEn
 static LINK GetOctStartL(LINK startL, short staff, Boolean needSel);
 static DDIST GetNoteYD(LINK syncL, short staff);
 static void UnOttava(Document *, LINK, LINK, short);
-static void UnOttavaS(Document *, LINK, LINK, short);
+static void UnOttavaStaff(Document *, LINK, LINK, short);
 static void UnOttavaSync(Document *, LINK, LINK, DDIST, short, CONTEXT);
 static void UnOttavaGRSync(Document *, LINK, LINK, DDIST, short, CONTEXT);
 static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short s);
@@ -211,7 +211,8 @@ void SetOttavaYPos(Document *doc, LINK octL)
 LINK CreateOTTAVA(
 			Document *doc,
 			LINK startL, LINK endL,
-			short staff, short nInOttava,
+			short staff,
+			short nInOttava,
 			Byte octSignType,
 			Boolean needSelected,	/* True if we only want selected items */
 			Boolean doOct			/* True if we're explicitly octaving notes (so Ottava will be selected) */
@@ -236,7 +237,8 @@ LINK CreateOTTAVA(
 	char		fmtStr[256];
 	
 	if (nInOttava<1) {
-		MayErrMsg("CreateOTTAVA: tried to make Ottava with %ld notes/chords.", (long)nInOttava);
+		MayErrMsg("CreateOTTAVA: tried to make Ottava on staff %ld with zero or negative no. of notes/chords.",
+					(long)staff);
 		return NILINK;
 	}
 	if (nInOttava>MAXINOTTAVA) {
@@ -248,6 +250,7 @@ LINK CreateOTTAVA(
 	}
 	
 	/* Insert Ottava into object list before first Sync or GRSync to right of <startL>. */
+	
 	startL = GetOctStartL(startL, staff, needSelected);
 	
 	ottavaL = InsertNode(doc, startL, OTTAVAtype, nInOttava);
@@ -383,10 +386,10 @@ LINK CreateOTTAVA(
 					stemDown = False;						/* Assume grace notes stem up--FIXME: not always true */
 					aGRNote->yd += yDelta;
 					aGRNote->yqpit += halfLn2qd(noteOffset[octSignType-1]);
-					/*
-					 * If octave sign affects line/space status of notes, move visible aug.
-					 * dots to correct new positions.
-					 */
+					
+					/* If octave sign affects line/space status of notes, move visible
+					   aug. dots to correct new positions. */
+					   
 					if (odd(noteOffset[octSignType-1])) {
 						if (aGRNote->ymovedots==1 || aGRNote->ymovedots==3)
 								aGRNote->ymovedots = 2;
@@ -401,8 +404,8 @@ LINK CreateOTTAVA(
 												stemLen, False);
 				}
 			}
-			/* Loop through the grace notes again and fix up the ystems of the
-			   non-extreme notes. */
+			/* Loop through the grace notes again and fix up the ystems of the non-
+			   extreme notes. */
 			   
 			aGRNoteL = FirstSubLINK(pL);
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
@@ -440,6 +443,7 @@ LINK CreateOTTAVA(
 						}
 					}
 				}
+				
 				/* FIXME: BLOCKS ARE WRONG. FOLLOWING "else" IS *INSIDE* THE "if (SyncTYPE(pL))"
 					SO IT'LL NEVER DO ANYTHING. BUT GRACE BEAMS GET REBEAMED ANYWAY. ?? */
 				else if (GRSyncTYPE(pL)) {
@@ -573,7 +577,7 @@ PushLock(OBJheap);
 	number = GetOctTypeNum(pL, &isBassa);
 
 	/* For the forseeable future, nxd and nyd are always zero, but we're keeping them
-		 as potential offsets for moving the number independently of the octave sign. */
+	   as potential offsets for moving the number independently of the octave sign. */
 		
 	octxdFirst = firstxd+p->xdFirst;
 	octydFirst = dTop+p->ydFirst;
@@ -600,7 +604,7 @@ PushLock(OBJheap);
 		dBrackMin = 4*dhalfLn;
 		if (lastPt.h-firstPt.h>dBrackMin)
 			DrawOctBracket(firstPt, lastPt, octRect.right-octRect.left, yCutoffLen,
-									isBassa, pContext);
+							isBassa, pContext);
 
 		switch (outputTo) {
 			case toScreen:
@@ -639,7 +643,7 @@ void UnOttava(Document *doc, LINK stfStartL, LINK stfEndL, short s)
 	if (BetweenIncl(stfStartL, doc->selStartL, stfEndL) && OttavaTYPE(doc->selStartL))
 		newSelStart = FirstInOttava(doc->selStartL);
 
-	UnOttavaS(doc, stfStartL, stfEndL, s);
+	UnOttavaStaff(doc, stfStartL, stfEndL, s);
 	doc->selStartL = newSelStart;
 
 	BoundSelRange(doc);
@@ -648,13 +652,13 @@ void UnOttava(Document *doc, LINK stfStartL, LINK stfEndL, short s)
 
 /* Remove Ottavas in range [fromL,toL) on staff s. */
  
-static void UnOttavaS(Document *doc, LINK fromL, LINK toL, short s)
+static void UnOttavaStaff(Document *doc, LINK fromL, LINK toL, short s)
 {
 	LINK rOctL, lOctL, octToL, octFromL;
 	short nInOttava;
 	
-	/* If any Ottavas cross the endpoints of the range, remove them first and,
-		if possible, reOttava the portion outside the range. */
+	/* If any Ottavas cross the endpoints of the range, remove them first and, if
+	   possible, reOttava the portion outside the range. */
 
 	rOctL = HasOttavaAcross(toL, s);
 	lOctL = HasOttavaAcross(fromL, s);
@@ -684,7 +688,7 @@ static void UnOttavaS(Document *doc, LINK fromL, LINK toL, short s)
 
 
 static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short s,
-									CONTEXT context)
+							CONTEXT context)
 {
 	LINK aNoteL; 
 	PANOTE aNote;
@@ -701,20 +705,20 @@ static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short 
 		if (aNote->staffn==s && aNote->inOttava) {
 			aNote->inOttava = False;
 			aNote->yd -= yDelta;
-			aNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
+			aNote->yqpit -= halfLn2qd(noteOffset[OttavaType(octL)-1]);
 			stemDown = GetStemInfo(doc, pL, aNoteL, &qStemLen);
 			NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
 											stemDown, 
 											context.staffHeight, context.staffLines,
 											qStemLen, False);
-			if (odd(noteOffset[OctType(octL)-1]))
-				ToggleAugDotPos(doc, aNoteL, stemDown);
-			dystd = -halfLn2std(noteOffset[OctType(octL)-1]);
+			if (odd(noteOffset[OttavaType(octL)-1])) ToggleAugDotPos(doc, aNoteL, stemDown);
+			dystd = -halfLn2std(noteOffset[OttavaType(octL)-1]);
 			if (config.moveModNRs) MoveModNRs(aNoteL, dystd);
 		}
 	}
 
 	/* Loop through the notes again and fix up the ystems of the non-extreme notes. */
+	
 	aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
@@ -736,13 +740,14 @@ static void UnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, shor
 	short stemLen;
 	
 	/* Loop through the grace notes and set their yds and ystems. */
+	
 	aGRNoteL = FirstSubLINK(pL);
 	for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 		aGRNote = GetPAGRNOTE(aGRNoteL);
 		if (aGRNote->staffn==s && aGRNote->inOttava) {
 			aGRNote->inOttava = False;
 			aGRNote->yd -= yDelta;
-			aGRNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
+			aGRNote->yqpit -= halfLn2qd(noteOffset[OttavaType(octL)-1]);
 			stemLen = QSTEMLEN(!multiVoice, ShortenStem(aGRNoteL, context, stemDown));
 			aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(aGRNote->subType),
 									   stemDown, context.staffHeight,
@@ -750,8 +755,9 @@ static void UnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, shor
 		}
 	}
 
-	/* Loop through the grace notes again and fix up the ystems of the
-		non-extreme notes. */
+	/* Loop through the grace notes again and fix up the ystems of the non-extreme
+	   notes. */
+	   
 	aGRNoteL = FirstSubLINK(pL);
 	for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 		aGRNote = GetPAGRNOTE(aGRNoteL);
@@ -774,12 +780,14 @@ void RemoveOctOnStf(Document *doc,
 							LINK octL, LINK fromL, LINK toL,
 							short s)								/* staff no. */
 {
-	DDIST yDelta; CONTEXT context; LINK syncL, aNoteOttavaL;
+	DDIST yDelta; CONTEXT context;
+	LINK syncL, aNoteOttavaL;
 	PANOTEOTTAVA aNoteOttava;
 
 	/* Update note's y position. */
+	
 	GetContext(doc, octL, s, &context);
-	yDelta = halfLn2d(noteOffset[OctType(octL)-1], context.staffHeight, context.staffLines);
+	yDelta = halfLn2d(noteOffset[OttavaType(octL)-1], context.staffHeight, context.staffLines);
 							
 	aNoteOttavaL = FirstSubLINK(octL);
 	for ( ; aNoteOttavaL; aNoteOttavaL = NextNOTEOTTAVAL(aNoteOttavaL)) {
@@ -803,7 +811,7 @@ void RemoveOctOnStf(Document *doc,
 
 static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short s)
 {
-	LINK aNoteL,aGRNoteL,ottavaL;
+	LINK aNoteL, aGRNoteL, ottavaL;
 	PANOTE aNote; PAGRNOTE aGRNote;
 
 	if (SyncTYPE(pL)) {
@@ -813,7 +821,8 @@ static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short 
 			if (aNote->staffn==s && aNote->inOttava) {
 				ottavaL = LSSearch(pL, OTTAVAtype, s, True, False);
 				if (ottavaL==NILINK) {
-					MayErrMsg("UnOttavaRange: can't find Ottava for note in sync %ld on staff %ld",(long)pL,(long)s);
+					MayErrMsg("UnOttavaRange: can't find Ottava for note in sync L%ld on staff %ld",
+								(long)pL, (long)s);
 					return;
 				}
 				RemoveOctOnStf(doc, ottavaL, fromL, toL, s);
@@ -827,7 +836,8 @@ static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short 
 			if (aGRNote->staffn==s && aGRNote->inOttava) {
 				ottavaL = LSSearch(pL, OTTAVAtype, s, True, False);
 				if (ottavaL==NILINK) {
-					MayErrMsg("UnOttavaRange: can't find Ottava for note in sync %ld on staff %ld", (long)pL,(long)s);
+					MayErrMsg("UnOttavaRange: can't find Ottava for grace note in sync L%ld on staff %ld",
+								(long)pL,(long)s);
 					return;
 				}
 				RemoveOctOnStf(doc, ottavaL, fromL, toL, s);
@@ -836,21 +846,21 @@ static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short 
 	}
 }
 
-/* Remove Ottavas in the range from <from> to <toL> on <staff>. */
+/* Remove Ottavas in the range from <from> to <toL> on <staffn>. */
 
-void UnOttavaRange(Document *doc, LINK fromL, LINK toL, short staff)
+void UnOttavaRange(Document *doc, LINK fromL, LINK toL, short staffn)
 {
 	LINK pL;
 	
 	for (pL = fromL; pL!=toL; pL = RightLINK(pL))
 		if (SyncTYPE(pL) || GRSyncTYPE(pL))
-			RemoveItsOttava(doc, fromL, toL, pL, staff);
+			RemoveItsOttava(doc, fromL, toL, pL, staffn);
 }
 
 
 /* ----------------------------------------------------------- Miscellaneous Utilities -- */
 
-/* ------------------------------------------------- FirstInOttava, LastInOttava -- */
+/* ------------------------------------------------------- FirstInOttava, LastInOttava -- */
 
 LINK FirstInOttava(LINK ottavaL)
 {
@@ -1011,8 +1021,8 @@ LINK OctOnStaff(LINK node, short staff)
 }
 
 
-/* If the node is a GRsync, return the Ottava if it has an inOttava GRnote on 
-<staff>, else return NILINK. */
+/* If the node is a GRsync, return the Ottava if it has an inOttava GRnote on  <staff>,
+else return NILINK. */
 
 LINK GROctOnStaff(LINK node, short staff)	
 {
@@ -1033,9 +1043,9 @@ LINK GROctOnStaff(LINK node, short staff)
 	return NILINK;
 }
 
-/* Determines if there is an Ottava across the insertion point on <staff> into 
-which <node> is inserted. Returns NILINK if there is not, and the LINK to the 
-Ottava if there is. */
+/* Determines if there is an Ottava across the insertion point on <staff> into which
+<node> is inserted. Returns NILINK if there is not, and the LINK to the Ottava if
+there is. */
 
 LINK HasOttavaAcrossIncl(LINK node, short staff)	
 {
@@ -1132,8 +1142,8 @@ Boolean SelRangeChkOttava(short staff, LINK staffStartL, LINK staffEndL)
 
 
 /* -------------------------------------------------------------- OctCountNotesInRange -- */
-/* Return the total number of notes/chords on stf in the range from both Syncs and
-GRSyncs. Does NOT count rests. */
+/* Return the total number of notes/chords on staff no. stf in the given range from both
+Syncs and GRSyncs. Does not count rests. */
 
 short OctCountNotesInRange(short stf,
 							LINK startL, LINK endL,
@@ -1168,9 +1178,9 @@ void QD_DrawDashedLine(short x1, short y1, short x2, short /*y2*/)
 
 
 /* -------------------------------------------------------------------- DrawOctBracket -- */
-/* Draw octave sign bracket. firstPt and lastPt are the coordinates of the start
-and end points of the bracket, and octWidth is the width of the octave sign string.
-For now, lastPt.v is ignored and the bracket is always horizontal. */
+/* Draw octave sign bracket. firstPt and lastPt are the coordinates of the start and
+end points of the bracket, and octWidth is the width of the octave sign string. For now,
+lastPt.v is ignored and the bracket is always horizontal. */
 
 #define XFUDGE	4	/* in pixels or points */
 
