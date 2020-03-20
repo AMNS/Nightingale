@@ -2683,3 +2683,12 @@ objects & subobjects. Affects MemMacros.h; FileConversion.
 Minor cleanup. Affects Clipboard, Context, CrossSystem, DebugUtils, Debug2Utils,
 DelRedAccs, Dragging, DragSet, FileConversion, FileOpen, Insert, MergeUtils, Ottava,
 UIFUtils.
+
+-------------------------------------------------------------------------------
+
+16 - 19 Mar.
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects & subobjects. Affects MemMacros.h; FileConversion.
+
+Minor cleanup. Affects DebugUtils, FileOpen, HeapFileIO, PitchUtils.

@@ -24,7 +24,7 @@
 
 short subObjLength_5[] = {
 		sizeof(PARTINFO),		/* HEADER subobject */
-		0,						/* No TAIL subobjects */
+		0,						/* TAIL objects can't have subobjects */
 		sizeof(ANOTE_5),		/* SYNC subobject */
 		sizeof(ARPTEND_5),		/* etc. */
 		0,

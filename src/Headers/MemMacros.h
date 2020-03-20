@@ -537,6 +537,10 @@ are by Steve Hart.) */
 
 #define EndingFIRSTOBJ(link)		( (GetPENDING(link))->firstObjL )			
 #define EndingLASTOBJ(link)			( (GetPENDING(link))->lastObjL )		
+#define EndingNoLCUTOFF(link)		( (GetPENDING(link))->noLCutoff )			
+#define EndingNoRCUTOFF(link)		( (GetPENDING(link))->noRCutoff )			
+#define EndingENDNUM(link)			( (GetPENDING(link))->endNum )			
+#define EndingENDXD(link)			( (GetPENDING(link))->endxd )			
 
 #define FirstGraphicSTRING(link)	( (GetPAGRAPHIC(FirstSubLINK(link)))->strOffset )			
 #define FirstMeasMEASURENUM(link)	( (GetPAMEASURE(FirstSubLINK(link)))->measureNum )			
@@ -735,25 +739,27 @@ are by Steve Hart.) */
 #define OttavaXDLAST(link)			( (GetPOTTAVA(link))->xdLast )
 #define OttavaYDLAST(link)			( (GetPOTTAVA(link))->ydLast )
 
-#define PSMeasCONNABOVE(link)		( (GetPAPSMEAS(link))->connAbove )			
-#define PSMeasCONNSTAFF(link)		( (GetPAPSMEAS(link))->connStaff )			
-#define PSMeasFILLER1(link)		 	( (GetPAPSMEAS(link))->filler1)	
-#define PSMeasSOFT(link)			( (GetPAPSMEAS(link))->soft)	
-#define PSMeasSTAFFN(link)			( (GetPAPSMEAS(link))->staffn )	
+#define PSMeasCONNABOVE(link)		( (GetPAPSMEAS(link))->connAbove )
+#define PSMeasCONNSTAFF(link)		( (GetPAPSMEAS(link))->connStaff )
+#define PSMeasFILLER1(link)		 	( (GetPAPSMEAS(link))->filler1)
+#define PSMeasSOFT(link)			( (GetPAPSMEAS(link))->soft)
+#define PSMeasSTAFFN(link)			( (GetPAPSMEAS(link))->staffn )
 
-#define RptEndCONNABOVE(link)		( (GetPARPTEND(link))->connAbove )			
-#define RptEndCONNSTAFF(link)		( (GetPARPTEND(link))->connStaff )			
-#define RptEndFILLER(link)			( (GetPARPTEND(link))->filler)	
-#define RptEndSTAFFN(link) 			( (GetPARPTEND(link))->staffn )	
-#define RptEndType(link)			( (GetPARPTEND(link))->subType)	
+#define PSMeasFILLER(link)			( (GetPPSMEAS(link))->filler )
+
+#define RptEndCONNABOVE(link)		( (GetPARPTEND(link))->connAbove )
+#define RptEndCONNSTAFF(link)		( (GetPARPTEND(link))->connStaff )
+#define RptEndFILLER(link)			( (GetPARPTEND(link))->filler)
+#define RptEndSTAFFN(link) 			( (GetPARPTEND(link))->staffn )
+#define RptEndType(link)			( (GetPARPTEND(link))->subType)
 #define RptEndVIS(link)				( (GetPARPTEND(link))->visible )
 
 #define RptEndCOUNT(link)			( (GetPRPTEND(link))->count )
-#define RptEndENDRPT(link)			( (GetPRPTEND(link))->endRpt )		
-#define RptEndFIRSTOBJ(link)		( (GetPRPTEND(link))->firstObj )			
-#define RptEndSTARTRPT(link)		( (GetPRPTEND(link))->startRpt )			
+#define RptEndENDRPT(link)			( (GetPRPTEND(link))->endRpt )
+#define RptEndFIRSTOBJ(link)		( (GetPRPTEND(link))->firstObj )
+#define RptEndSTARTRPT(link)		( (GetPRPTEND(link))->startRpt )
 
-#define SheetNUM(link)				( (GetPPAGE(link))->sheetNum )	
+#define SheetNUM(link)				( (GetPPAGE(link))->sheetNum )
 
 #define SlurBOUNDS(link)			( (GetPASLUR(link))->bounds )	
 #define SlurDASHED(link)			( (GetPASLUR(link))->dashed)	
@@ -822,7 +828,7 @@ are by Steve Hart.) */
 
 #define SystemNUM(link)				( (GetPSYSTEM(link))->systemNum )
 #define SysPAGE(link)				( (GetPSYSTEM(link))->pageL )
-#define SystemRECT(link)			( (GetPSYSTEM(link))->systemRect )	
+#define SystemRECT(link)			( (GetPSYSTEM(link))->systemRect )
 
 #define TempoDOTTED(link)			( (GetPTEMPO(link))->dotted )	
 #define TempoEXPANDED(link)			( (GetPTEMPO(link))->expanded )	

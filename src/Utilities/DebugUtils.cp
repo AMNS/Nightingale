@@ -374,8 +374,8 @@ Boolean DCheckMeasSubobjs(
 	for (aMeasL = FirstSubLINK(pL); aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
 		aMeas = GetPAMEASURE(aMeasL);
 		if (STAFFN_BAD(doc, aMeas->staffn)) {
-			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u staffn %d IS BAD.\n",
-							pL, aMeas->staffn);
+			COMPLAIN3("*DCheckMeasSubobjs: SUBOBJ L%u IN MEASURE L%u staffn %d IS BAD.\n",
+							aMeasL, pL, aMeas->staffn);
 		}
 		else {
 			haveMeas[aMeas->staffn] = True;
@@ -392,12 +392,12 @@ Boolean DCheckMeasSubobjs(
 			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ ON STAFF %d IN MEASURE L%u HAS BAD connStaff.\n",
 							aMeas->staffn, pL);
 		if (aMeas->clefType<LOW_CLEF ||  aMeas->clefType>HIGH_CLEF)
-			COMPLAIN("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD clefType.\n", pL);
+			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ L%u IN MEASURE L%u HAS BAD clefType.\n", aMeasL, pL);
 		if (aMeas->nKSItems<0 ||  aMeas->nKSItems>7)
-			COMPLAIN("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD nKSItems.\n", pL);
+			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ L%u IN MEASURE L%u HAS BAD nKSItems.\n", aMeasL, pL);
 		if (TSTYPE_BAD(MeasTIMESIGTYPE(aMeasL)))
-			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD timeSigType %d.\n",
-						pL, MeasTIMESIGTYPE(aMeasL));
+			COMPLAIN3("*DCheckMeasSubobjs: SUBOBJ L%u IN MEASURE L%u HAS BAD timeSigType %d.\n",
+						aMeasL, pL, MeasTIMESIGTYPE(aMeasL));
 		if (TSNUMER_BAD(MeasNUMER(aMeasL)))
 			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD TIMESIG numerator %d.\n",
 						pL, MeasNUMER(aMeasL));
@@ -1065,7 +1065,7 @@ short DCheckNode(
 						COMPLAIN2("*DCheckNode: SUBOBJ IN CLEF L%u staffn %d IS BAD.\n",
 									pL, ClefSTAFF(aClefL));
 					if (ClefType(aClefL)<LOW_CLEF || ClefType(aClefL)>HIGH_CLEF)
-						COMPLAIN("*DCheckNode: SUBOBJ IN CLEF L%u HAS BAD subType.\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN CLEF L%u subType %d IS BAD.\n", pL, ClefType(aClefL));
 				}
 				break;
 			
@@ -1079,9 +1079,9 @@ short DCheckNode(
 						COMPLAIN2("*DCheckNode: SUBOBJ IN KEYSIG L%u staffn %d IS BAD.\n",
 									pL, aKeySig->staffn);
 					if (aKeySig->nKSItems>7)
-						COMPLAIN("*DCheckNode: SUBOBJ IN KEYSIG L%u HAS SUSPICIOUS nKSItems.\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN KEYSIG L%u nKSItems %d IS SUSPICIOUS.\n", pL, aKeySig->nKSItems);
 					if (aKeySig->nKSItems==0 && aKeySig->subType>7)
-						COMPLAIN("*DCheckNode: SUBOBJ IN KEYSIG L%u HAS SUSPICIOUS subType (nNatItems).\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN KEYSIG L%u subType (nNatItems) %d IS SUSPICIOUS.\n", pL, aKeySig->nKSItems);
 				}
 
 				PopLock(KEYSIGheap);
@@ -1177,15 +1177,15 @@ short DCheckNode(
 					aConnect = GetPACONNECT(aConnectL);
 					if (aConnect->connLevel!=0) {
 						if (STAFFN_BAD(doc, aConnect->staffAbove))
-							COMPLAIN2("*DCheckNode: SUBOBJ IN CONNECT L%u HAS BAD staffAbove %d.\n",
+							COMPLAIN2("*DCheckNode: SUBOBJ IN CONNECT L%u staffAbove %d IS BAD.\n",
 											pL, aConnect->staffAbove);
 						
 						if (STAFFN_BAD(doc, aConnect->staffBelow))
-							COMPLAIN2("*DCheckNode: SUBOBJ IN CONNECT L%u HAS BAD staffBelow %d.\n",
+							COMPLAIN2("*DCheckNode: SUBOBJ IN CONNECT L%u staffBelow %d IS BAD.\n",
 											pL, aConnect->staffBelow);
-					}
-					else if (aConnect->staffAbove>=aConnect->staffBelow)
+						if (aConnect->staffAbove>=aConnect->staffBelow)
 							COMPLAIN("*DCheckNode: SUBOBJ IN CONNECT L%u staffAbove>=staffBelow.\n", pL);
+					}
 				}
 
 				PopLock(CONNECTheap);

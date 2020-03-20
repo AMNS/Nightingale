@@ -5346,7 +5346,7 @@ like AGRAPHICs need no conversion! So let's say tentatively +. )
 	
 -------------------------------------------------------------------------------
 
-11 - 14 March
+11 - 15 March
 
 SPACERs definitely need work; do 'em next.
 
@@ -5419,6 +5419,99 @@ looks OK in Browser, & Debug has no complaints. ??
 	info. --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
 	info.  Done. 26 ERROR(S).
 
+Implement ConvertSLUR() => only 17-18 errors! And the slur is drawn, though it's the wrong
+dashedness and shape. (SLUR status now: +- )
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 staffAbove>=staffBelow.
+	Warning. DCheckNode: Illegal MODNR code 80 in voice 1 in Sync L11.
+	Warning. *DCheckNode: SUBOBJ ON STAFF 1 IN PSEUDOMEAS L12 HAS connAbove.
+	Warning. *DCheckNode: ENDING L26 staffn 0 IS BAD.
+	Warning. *DCheckNode: ENDING L32 staffn 17 IS BAD.
+	Warning. *DCheckMeasSubobjs: SUBOBJ IN MEASURE L35 HAS BAD nKSItems.
+	Warning. *DCheckContext: nKSItems FOR STAFF 2 IN MEASURE 1 (L10) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 2 (L23) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 2 IN MEASURE 3 (L31) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 4 (L35) INCONSISTENCY.
+	Warning. DCheckNoteNums: Note in Sync L11 in measure 1, staff 1 notenum 73 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L20 in measure 1, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L30 in measure 2, staff 1 notenum 90 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 2 notenum 50 and notation disagree: wrong accidental?
+	info. Strict contin. sel, 1 objs in range, 1 sel, 36 total.  2 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L41 staffAbove>=staffBelow.
+	info.  Done.
+	info. --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
+	info.  Done. 17 ERROR(S). 
+
+-------------------------------------------------------------------------------
+
+	16 - 19 Mar.
+
+Implement Convert1SLUR() => still 17 errors, but the slur is now drawn correctly.
+(SLUR status now: ++ )
+
+Looks like the AMEASURE nKSItems is garbage. Ah: Convert1MEASURE isn't copying the
+WHOLE_KSINFO... Fixed.
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN CONNECT L5 staffAbove>=staffBelow.
+	Warning. DCheckNode: Illegal MODNR code 80 in voice 1 in Sync L11.
+	Warning. *DCheckNode: SUBOBJ ON STAFF 1 IN PSEUDOMEAS L12 HAS connAbove.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 1 (L10) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 2 (L23) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 3 (L31) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 1 IN MEASURE 4 (L35) INCONSISTENCY.
+	Warning. DCheckNoteNums: Note in Sync L11 in measure 1, staff 1 notenum 73 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L20 in measure 1, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L30 in measure 2, staff 1 notenum 90 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 1 notenum 66 and notation disagree: wrong accidental?
+	info. Discont. sel, 0 objs in range, 0 sel, 36 total.  2 voices.
+	info. --CHECK MASTER: *DCheckNode: SUBOBJ IN CONNECT L41 staffAbove>=staffBelow.
+	info.  Done.
+	info. --CHECK CLIPBOARD: *DCheckNode: SUBOBJ IN CONNECT L6 staffAbove>=staffBelow.
+	info.  Done. 13 ERROR(S).
+	 
+Implement ConvertENDING() => only 13 errors, and none for ENDINGs!
+(ENDING status now: +. )
 
 
-Implement ConvertSLUR() => only 18 errors!  (SLUR status now: +- )
+Implement ConvertPSMEAS() => still 13 errors. (PSMEAS status now: +- )
+
+Hmmm. DCheckNode() has been giving incorrect complaints "SUBOBJ IN CONNECT L%u staffAbove>=staffBelow."
+for awhile, Why? I see... Fixed. Now only 10 errors for AllObjTypes.ngl (and none for
+1CourtesyAcc.ngl).
+
+Implement Convert1PSMEAS() => only 9 errors; the PSMEAS complaint went away! (PSMEAS
+status now: ++ )
+
+Status of converting object types (I think).
+. = no work needed; - = not done; ? = not done but may not need work; + = done. 
+
+	obj
+	 subobj
+0	.. HEADER_5		Object has only OBJHEADER; subobjs are unchanged
+	++ TAIL_5		Has no subobjs & no fields other than header
+	++ SYNC_5
+	++ RPTEND_5
+	+. PAGE_5
+5	+. SYSTEM_5
+	++ STAFF_5
+	++ MEASURE_5
+	++ CLEF_5
+	++ KEYSIG_5		But we end up with nKSItems=0 on staff 1! ??
+10	++ TIMESIG_5
+	++ BEAMSET_5
+	++ CONNECT_5
+	++ DYNAMIC_5
+	.- (MODNR)		Has no objects, only subobjects
+15	+? GRAPHIC_5	Subobject has only LINK & STRINGOFFSET. Is it really OK as is?
+	±? OTTAVA_5		Subobject has two LINKs & that's all. But isn't drawn! ??
+	++ SLUR_5
+	+? TUPLET_5		Subobject has two LINKs & that's all. Is it OK as is?
+	++ GRSYNC_5
+20	+. TEMPO_5
+	+. SPACER_5
+	+. ENDING_5
+	++ PSMEAS_5
+	++ (OBJECT)

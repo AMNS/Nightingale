@@ -55,7 +55,7 @@ void MoveModNRs(LINK aNoteL, STDIST dystd)
 			aModNR = GetPAMODNR(aModNRL);
 			if (aModNR->modCode<MOD_TREMOLO1 || aModNR->modCode>MOD_TREMOLO6) {
 				newystd = aModNR->ystdpit+dystd;
-				if (newystd<-128) newystd = -128;	/* Clip new position to legal range */
+				if (newystd<-128) newystd = -128;		/* Clip new position to legal range */
 				if (newystd>127) newystd = 127;
 				aModNR->ystdpit = newystd;
 			}
@@ -64,8 +64,8 @@ void MoveModNRs(LINK aNoteL, STDIST dystd)
 
 /* ------------------------------------------------------------------ GetSharpsOrFlats -- */
 /* Deliver the signed number of sharps or flats in the standard key signature: >0 =
-sharps, <0 = flats. Should not be called for nonstandard key signatures (as of v3.0,
-not implemented, anyway). */ 
+sharps, <0 = flats. Should not be called for nonstandard key signatures (as of v. 5.8,
+not implemented anyway). */ 
 
 short GetSharpsOrFlats(PCONTEXT pContext)
 {
@@ -97,10 +97,10 @@ Boolean KeySigEqual(PKSINFO ks1, PKSINFO ks2)
 
 /* ------------------------------------------------------------------------ KeySigCopy -- */
 /* Copy key signature info from ks1 into ks2. NB: Should not be used when either
-argument is an address of something in a Nightingale heap unless that heap is
-locked, since merely calling this function can load a segment and move memory,
-resulting in this function storing into an unpredicatable place! In such cases,
-use the KEYSIG_COPY macro (BlockMove is impractical: see comments on KEYSIG_COPY). */
+argument is an address of something in a Nightingale heap unless that heap is locked,
+since merely calling this function can load a segment and move memory, resulting in
+this function storing into an unpredicatable place! In such cases, use the KEYSIG_COPY
+macro. (BlockMove is impractical: see comments on KEYSIG_COPY.) */
 
 void KeySigCopy(PKSINFO ks1, PKSINFO ks2)
 {
@@ -136,7 +136,7 @@ short ClefMiddleCHalfLn(SignedByte clefType)
 }
 
 
-/* ----------------------------------------------------------------- Char2Acc,Acc2Char -- */
+/* ---------------------------------------------------------------- Char2Acc, Acc2Char -- */
 
 short Char2Acc(unsigned char charAcc)
 {
@@ -157,8 +157,8 @@ unsigned char Acc2Char(short acc)
 /* ---------------------------------------------------------------------- EffectiveAcc -- */
 /* Given a note, return its effective accidental, considering its explicit accidental,
 the key signature, and previous accidentals on its staff position in its measure, but
-NOT considering the possibility that its pitch is affected by a note it's tied to.
-To take the latter into account, first call FirstTiedNote. */
+NOT considering the possibility that its pitch is affected by a note it's tied to. To
+take the latter into account, first call FirstTiedNote. */
 
 short EffectiveAcc(Document *doc, LINK syncL, LINK aNoteL)
 {
@@ -180,8 +180,8 @@ short EffectiveAcc(Document *doc, LINK syncL, LINK aNoteL)
 
 /* -------------------------------------------------------------------- EffectiveGRAcc -- */
 /* Given a grace note, return its effective accidental. The same comments apply as for
-EffectiveAcc, except there's no problem with ties because (as of v.3.1) we don't
-allow tied grace notes. */
+EffectiveAcc, except there's no problem with ties because (as of v. 5.8) we don't allow
+tied grace notes. */
 
 short EffectiveGRAcc(Document *doc, LINK grSyncL, LINK aGRNoteL)
 {
@@ -215,14 +215,13 @@ short Pitch2MIDI(
 {
 	short letterName, octave, halfSteps;
 	
-	letterName = halfLines % 7;					/* Convert to note letter (C=0, D=1...) */
-	if (letterName<0) letterName += 7;			/* Correct stupidity in mod operator */
-	octave = halfLines/7;						/* Get octave number */
-	if (halfLines<0 && letterName!=0)			/* Truncate downwards */
-		octave -= 1;
-	halfSteps = halfLine2semi[letterName];		/* Convert letter name to halfsteps */
-	if (acc!=0)
-		halfSteps += acc-AC_NATURAL;			/* If an accidental, add it in */
+	letterName = halfLines % 7;						/* Convert to note letter (C=0, D=1...) */
+	if (letterName<0) letterName += 7;				/* Correct stupidity in mod operator */
+	octave = halfLines/7;							/* Get octave number */
+	if (halfLines<0 && letterName!=0) octave -= 1;		/* Truncate downwards */
+		
+	halfSteps = halfLine2semi[letterName];			/* Convert letter name to halfsteps */
+	if (acc!=0) halfSteps += acc-AC_NATURAL;		/* If an accidental, add it in */
 	return MIDI_MIDDLE_C+(12*octave+halfSteps);
 }
 
@@ -295,10 +294,10 @@ short GetRespell(
 	notePC = Pitch2PC(letName, acc);						/* Get note's pitch class */
 	
 	/* Try the sharp spelling first, then the flat one. The order matters only where
-	 *	both work, i.e., with Cbb, Fbb, B##, E##. Trying sharp first will make them
-	 *	respell to A#, D#, C#, F# rather than Bb, Eb, Db, Gb; this seems inconsistent.
-	 *	Oh well.
-	 */
+	   both work, i.e., with Cbb, Fbb, B##, E##. Trying sharp first will make them
+	   respell to A#, D#, C#, F# rather than Bb, Eb, Db, Gb; this seems inconsistent.
+	   Oh well. */
+	   
 	if (letName!=sharpSpelling[notePC][0]					/* Given anything but sharpSpelling? */
 	||  acc!=sharpSpelling[notePC][1]) {
 		*pNewLetName = sharpSpelling[notePC][0];			/* Yes. Use sharpSpelling */
@@ -328,12 +327,12 @@ short GetRespell(
 /* Set the graphic parameters of all notes or grace notes in the given voice in the
 given Sync or GRSync to reasonable values, whether there's a chord or not. If there
 aren't two voices on the staff for this sync/voice, or, if it's beamed, for any note in
-its beam, consider changing the stem direction (presumably because
-one or more of the notes has been respelled or transposed). For a single note, "graphic
-parameters" is a simple matter; for a chord, much less so -- see comments on
-FixSyncForChord(). NB: if notes have been moved into or out of the voice, I think will
-still give correct results, but maybe not; cf. FixSyncVoice in SetUtils.c, which probably
-should be combined with this. */
+its beam, consider changing the stem direction (presumably because one or more of the
+notes has been respelled or transposed). For a single note, "graphic parameters" is a
+simple matter; for a chord, much less so -- see comments on FixSyncForChord(). NB: if
+notes have been moved into or out of the voice, I think will still give correct results,
+but maybe not; cf. FixSyncVoice in SetUtils.c, which probably should be combined with
+this. */
 
 void FixVoiceForPitchChange(
 				Document *doc,
@@ -350,9 +349,11 @@ void FixVoiceForPitchChange(
 		aNoteL = FindMainNote(pL, voice);
 		if (!aNoteL) return;
 		GetContext(doc, pL, NoteSTAFF(aNoteL), &context);
+		
 		/* See if the "neighborhood" -- everything in the note's beam if it's beamed, else
-			just the note/chord -- is in multivoice (>=2 voices on the staff) notation.
-			If so, keep the stem's current direction and try to preserve its length. */
+		   just the note/chord -- is in multivoice (>=2 voices on the staff) notation.
+		   If so, keep the stem's current direction and try to preserve its length. */
+			
 //LogPrintf(LOG_DEBUG, "FixVoiceForPitchChange: pL=%u voice=%d staff=%d\n",
 //	pL,  voice, NoteSTAFF(aNoteL));
 		if (IsNeighborhoodMultiVoice(pL, NoteSTAFF(aNoteL), voice)) {
@@ -405,17 +406,16 @@ void FixVoiceForPitchChange(
 
 /* --------------------------------------------------------- Char2LetName,LetName2Char -- */
 /* Functions to convert a character from A thru G to or from a letter-name code, with
-C=0, D=1...B=6. They do no error checking! */
+C=0, D=1...B=6. Caveat: They do no error checking! */
 
 short letNameCodes[7] = { 5, 6, 0, 1, 2, 3, 4 };
 
 short Char2LetName(char charLet)
 {
-	/*
-	 * The following depends on the assumption that character codes for letter A thru
-	 * G are consecutive integers: this is True in every character set I know of, even
-	 * EBCDIC. And it's very fast. Still, I'm not totally happy with it. --DAB
-	 */
+	/* The following depends on the assumption that character codes for letter A thru
+	   G are consecutive integers: this is True in every character set I know of, even
+	   EBCDIC. And it's very fast. Still, I'm not totally happy with it. --DAB */
+	   
 	return letNameCodes[charLet-'A'];
 }
 
@@ -430,8 +430,8 @@ char LetName2Char(short letName)
 
 /* ------------------------------------------------------------------- RespellChordSym -- */
 /* Respell chord symbol <pL> in the "obvious" way, if there is one; if not, leave it
-alone. This does exactly the same thing Respell does to notes, described below.
-Delivers True if it changes the chord symbol. */
+alone. This does exactly the same thing Respell does to notes, described below. Returns
+True if it changes the chord symbol. */
 
 Boolean RespellChordSym(Document */*doc*/, LINK pL)
 {
@@ -525,13 +525,13 @@ Boolean RespellNote(Document *doc, LINK syncL, LINK aNoteL, PCONTEXT pContext)
 
 	effectiveAcc = EffectiveAcc(doc, syncL, aNoteL);
 	if (NoteACC(aNoteL)!=0 && NoteACC(aNoteL)!=AC_NATURAL) {
-	/*
-	 * We have a note with an accidental other than natural. Get a new spelling for
-	 * it, and consider updating accidentals on the next following notes on both its
-	 *	old and its new line/spaces. If the new spelling requires no accidental, put
-	 *	a natural on it anyway in case the line/space is affected by a previous note.
-	 *	(As described above, this will tend to produce redundant accidentals.)
-	 */
+	
+	/* We have a note with an accidental other than natural. Get a new spelling for
+	   it, and consider updating accidentals on the next following notes on both its
+	   old and its new line/spaces. If the new spelling requires no accidental, put
+	   a natural on it anyway in case the line/space is affected by a previous note.
+	   (As described above, this will tend to produce redundant accidentals.) */
+	   
 		aNote = GetPANOTE(aNoteL);
 		halfLn = qd2halfLn(aNote->yqpit);
 		letName = (7-halfLn) % 7;								/* Get note letter (C=0, D=1...) */
@@ -571,13 +571,12 @@ Boolean RespellGRNote(Document *doc, LINK grSyncL, LINK aGRNoteL, PCONTEXT pCont
 
 	effectiveAcc = EffectiveGRAcc(doc, grSyncL, aGRNoteL);
 	if (GRNoteACC(aGRNoteL)!=0 && GRNoteACC(aGRNoteL)!=AC_NATURAL) {
-	/*
-	 * Have a grace note with an accidental other than natural. Get a new spelling for
-	 * it, and consider updating accidentals on the next following notes on both its
-	 *	old and its new line/spaces. If the new spelling requires no accidental, put
-	 *	a natural on it anyway in case the line/space is affected by a previous note.
-	 *	(As described above, this will tend to produce redundant accidentals.)
-	 */
+	/* Have a grace note with an accidental other than natural. Get a new spelling for
+	   it, and consider updating accidentals on the next following notes on both its
+	   old and its new line/spaces. If the new spelling requires no accidental, put
+	   a natural on it anyway in case the line/space is affected by a previous note.
+	   (As described above, this will tend to produce redundant accidentals.) */
+
 		aGRNote = GetPAGRNOTE(aGRNoteL);
 		halfLn = qd2halfLn(aGRNote->yqpit);
 		letName = (7-halfLn) % 7;								/* Get note letter (C=0, D=1...) */
@@ -825,13 +824,12 @@ Boolean TranspNote(
 
 /* ---------------------------------------------------------------------- TranspGRNote -- */
 /* Given a grace note that needs to be transposed, get a new spelling for it, and
-consider updating accidentals on the next following notes on both its old and
-its new line/spaces. If the new spelling requires no accidental, put a natural
-on it anyway in case the new line/space is affected by a previous note. (Both
-the iterative process with repeated notes and the "natural just in case" will
-produce redundant accidentals, which should be removed at a higher level than
-this routine.) Also move the notehead up or down; this will leave the stem in
-need of updating.
+consider updating accidentals on the next following notes on both its old and its new
+line/spaces. If the new spelling requires no accidental, put a natural on it anyway in
+case the new line/space is affected by a previous note. (Both the iterative process with
+repeated notes and the "natural just in case" will produce redundant accidentals, which
+should be removed at a higher level than this routine.) Also move the notehead up or
+down; this will leave the stem in need of updating.
 
 This does not check that the resulting note has a legal MIDI note number! */
 
@@ -923,14 +921,13 @@ void DTranspChordSym(Document */*doc*/,
 
 
 /* ----------------------------------------------------------------------- DTranspNote -- */
-/* Given a note that needs to be diatonically transposed, transpose it, and
-consider updating accidentals on the next following notes on both its old and
-its new line/spaces. If the new spelling requires no accidental, put a natural
-on it anyway in case the new line/space is affected by a previous note. (Both
-the iterative process with repeated notes and the "natural just in case" will
-produce redundant accidentals, which should be removed at a higher level than
-this routine.) Also move the notehead up or down; this will leave the stem in
-need of updating.
+/* Given a note that needs to be diatonically transposed, transpose it, and consider
+updating accidentals on the next following notes on both its old and its new
+line/spaces. If the new spelling requires no accidental, put a natural on it anyway in
+case the new line/space is affected by a previous note. (Both the iterative process with
+repeated notes and the "natural just in case" will produce redundant accidentals, which
+should be removed at a higher level than this routine.) Also move the notehead up or
+down; this will leave the stem in need of updating.
 
 This does not check that the resulting note has a legal MIDI note number! */
 
@@ -981,13 +978,12 @@ void DTranspNote(
 
 /* --------------------------------------------------------------------- DTranspGRNote -- */
 /* Given a grace note that needs to be diatonically transposed, transpose it, and
-consider updating accidentals on the next following notes on both its old and
-its new line/spaces. If the new spelling requires no accidental, put a natural
-on it anyway in case the new line/space is affected by a previous note. (Both
-the iterative process with repeated notes and the "natural just in case" will
-produce redundant accidentals, which should be removed at a higher level than
-this routine.) Also move the notehead up or down; this will leave the stem in
-need of updating.
+consider updating accidentals on the next following notes on both its old and its new
+line/spaces. If the new spelling requires no accidental, put a natural on it anyway in
+case the new line/space is affected by a previous note. (Both the iterative process with
+repeated notes and the "natural just in case" will produce redundant accidentals, which
+should be removed at a higher level than this routine.) Also move the notehead up or
+down; this will leave the stem in need of updating.
 
 This does not check that the resulting note has a legal MIDI note number! */
 
@@ -1056,8 +1052,8 @@ static short DiatonicSteps(
 	if (ind==newInd) return 0;
 	 	
 	/* Find out how many diatonic steps we'll cover if we stick with the sharpness or
-		flatness of the original. NB: All indices are 1 higher than they would otherwise
-		be, to compensate for the dummy entries. */
+	   flatness of the original. NB: All indices are 1 higher than they would otherwise
+	   be, to compensate for the dummy entries. */
 	
 	stepCount = 0;
 	if (goUp)
@@ -1106,7 +1102,8 @@ static short TranspKS(
 	useSharps = (sharpsOrFlats>=0);
 
 	/* Find index in our array of original and new key sigs. For the moment, we'll
-		let the new key sig. index go past the array end, but correct it later. */
+	   let the new key sig. index go past the array end, but correct it later. */
+	   
 	if (useSharps) {
 		for (ind = 0; ind<12; ind++)
 			if (nSOFSharp[ind]==sharpsOrFlats) break;
@@ -1118,7 +1115,7 @@ static short TranspKS(
 	newInd = ind+semiChange;								/* May be negative or >12 */
 
 	/* Find out how many diatonic steps we'll cover if we stick with the sharpness
-		or flatness of the original key sig. */
+	   or flatness of the original key sig. */
 	
 	stepCount = DiatonicSteps(useSharps, ind, newInd);
 	
@@ -1127,11 +1124,11 @@ static short TranspKS(
 	newInd = (newInd+12) % 12;
 
 	/* If the original key was sharp, we can get an extra step by switching to
-		flats; if the original key was flat, we can get rid of a step by switching
-		to sharps. For example, with an original key of 2 sharps: if steps=2 and
-		semiChange=4 (a major third), we'll get newSOF=6 (sharps); if steps=3 and
-		semiChange=4 (a diminished fourth), we switch to flats and get newSOF=-6
-		(flats). Assuming a major key, this is changing from D to F# or to Gb. */
+	   flats; if the original key was flat, we can get rid of a step by switching
+	   to sharps. For example, with an original key of 2 sharps: if steps=2 and
+	   semiChange=4 (a major third), we'll get newSOF=6 (sharps); if steps=3 and
+	   semiChange=4 (a diminished fourth), we switch to flats and get newSOF=-6
+	   (flats). Assuming a major key, this is changing from D to F# or to Gb. */
 		
 	needSteps = stepCount-steps;
 	enharmSwitch = False;
@@ -1161,9 +1158,8 @@ static short TranspKS(
 
 
 /* ----------------------------------------------------------------- XGetSharpsOrFlats -- */
-/* Deliver the number of sharps or flats in the standard key signature. Should not
-be called for nonstandard key signatures (which aren't implemented as of v. 5.7,
-anyway). */ 
+/* Deliver the number of sharps or flats in the standard key signature. Should not be
+called for nonstandard key signatures (which aren't implemented as of v. 5.8 anyway). */ 
 
 short XGetSharpsOrFlats(PKSINFO pKSInfo)
 {

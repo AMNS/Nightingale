@@ -429,8 +429,8 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 //NHexDump(LOG_DEBUG, "OpenFile L1", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
 //NHexDump(LOG_DEBUG, "OpenFile L2", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
+//pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+//NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
 }
 	if (errCode) return errCode;
 
