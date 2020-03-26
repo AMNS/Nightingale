@@ -2692,3 +2692,13 @@ Work on opening format 'N105' files while using a new format internally: convert
 objects & subobjects. Affects MemMacros.h; FileConversion.
 
 Minor cleanup. Affects DebugUtils, FileOpen, HeapFileIO, PitchUtils.
+
+-------------------------------------------------------------------------------
+
+21 - 25 Mar.
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects & subobjects. Affects NBasicTypesN105.h, NObjTypesN105.h; FileConversion.
+
+Minor cleanup. Affects Debug.h, Defs.h, MemMacros.h; DebugDisplay, DebugUtils,
+FileConversion, HeapFileIO, PitchUtils.

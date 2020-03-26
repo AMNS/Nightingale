@@ -783,8 +783,8 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, 
 
 		if (hType==OBJtype)	curType = ObjPtrTYPE(src);
 		else				curType = hType;
-if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "MoveObjSubobjs: src=%lx dst=%lx dst-src:%ld offset:%ld curType=%d\n",
-src, dst, (long)(dst-src), (long)(src-startPos), curType);
+//if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "MoveObjSubobjs: src=%lx dst=%lx dst-src:%ld offset:%ld curType=%d\n",
+//src, dst, (long)(dst-src), (long)(src-startPos), curType);
 		if (curType<0 || curType>LASTtype) {
 			LogPrintf(LOG_ERR, "Object type=%d is illegal. hType=%d  (MoveObjSubobjs)\n", curType, hType);
 			return False;
@@ -804,10 +804,9 @@ src, dst, (long)(dst-src), (long)(src-startPos), curType);
 		   compensate. (However, the _contents_ of the objects should be fixed in
 		   ConvertObjects.) */
 		   
-if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "MoveObjSubobjs: type %d obj: len=%d newLen=%d\n", curType, len, newLen);
+//if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "MoveObjSubobjs: type %d obj: len=%d newLen=%d\n", curType, len, newLen);
 
 		BlockMove(src, dst, len);
-//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "MoveObjSubobjs2", (unsigned char *)dst, 72, 4, 16);
 		/* And go on to next object and next LINK slot */
 		src += len;
 		dst += newLen;
@@ -955,7 +954,7 @@ sizeAllInFile = nFObjs*myHeap->objSize;
 LogPrintf(LOG_DEBUG, "count=%ld sizeAllInFile=%ld\n", count, sizeAllInFile);
 	FIX_END(sizeAllInFile);
 #endif
-	LogPrintf(LOG_INFO, "heap %d: nFObjs=%d sizeAllInFile=%ld sizeAllInHeap=%ld  (ReadSubHeap)\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "heap %d: nFObjs=%d sizeAllInFile=%ld sizeAllInHeap=%ld  (ReadSubHeap)\n",
 							iHp, nFObjs, sizeAllInFile, sizeAllInHeap);
 	if (sizeAllInFile>sizeAllInHeap) {
 		AlwaysErrMsg("File is inconsistent. sizeAllInFile=%ld is greater than sizeAllInHeap=%ld  (ReadSubHeap)",
@@ -991,7 +990,7 @@ LogPrintf(LOG_DEBUG, "count=%ld sizeAllInFile=%ld\n", count, sizeAllInFile);
 	PopLock(myHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, iHp); return ioErr; }
 	RebuildFreeList(doc, iHp, nFObjs);
-if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadSubHeap3", (unsigned char *)pLink1, 78, 4, 16);
+//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadSubHeap3", (unsigned char *)pLink1, 78, 4, 16);
 	
 	return 0;
 }

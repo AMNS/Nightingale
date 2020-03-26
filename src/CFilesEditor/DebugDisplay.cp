@@ -7,7 +7,7 @@
  */
 
 /* File DebugDisplay.c - printing functions for Debug:
-	DKSPrintf				DisplayNode				MemUsageStats
+	DKeySigPrintf			DisplayNode				MemUsageStats
 	DisplayIndexNode		NHexDump
 */
 
@@ -16,21 +16,22 @@
 
 #define DDB
 
-/* ------------------------------------------------------------------------- DKSPrintf -- */
+/* --------------------------------------------------------------------- DKeySigPrintf -- */
 /* Print the context-independent information on a key signature. */
 
-void DKSPrintf(PKSINFO KSInfo)
+void DKeySigPrintf(PKSINFO KSInfo)
 {
 	short	k;
 	
-	if (KSInfo->nKSItems>0)
-		LogPrintf(LOG_INFO, " lets=%d:%c",
-			KSInfo->KSItem[0].letcode,
-			(KSInfo->KSItem[0].sharp? '#' : 'b') );
-	for (k = 1; k<KSInfo->nKSItems; k++) 			
-		LogPrintf(LOG_INFO, " %d:%c",
-			KSInfo->KSItem[k].letcode,
-			(KSInfo->KSItem[k].sharp? '#' : 'b') );
+	if (KSInfo->nKSItems>0) {
+		LogPrintf(LOG_INFO, " lets=%d:%c", KSInfo->KSItem[0].letcode,
+					(KSInfo->KSItem[0].sharp? '#' : 'b') );
+		for (k = 1; k<KSInfo->nKSItems; k++) 			
+			LogPrintf(LOG_INFO, " %d:%c", KSInfo->KSItem[k].letcode,
+					(KSInfo->KSItem[k].sharp? '#' : 'b') );
+	}
+	else
+		LogPrintf(LOG_INFO, " (0 sharps/flats)"); 
 	LogPrintf(LOG_INFO, "\n");
 }
 
@@ -325,7 +326,9 @@ void DisplayNode(Document *doc, LINK pL,
 					aKeySig->nKSItems );
 				if (aKeySig->nKSItems==0)
 					LogPrintf(LOG_INFO, " nNatItems=%d", aKeySig->subType);
-				DKSPrintf((PKSINFO)(&aKeySig->KSItem[0]));
+				DKeySigPrintf((PKSINFO)(&aKeySig->KSItem[0]));
+if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayNode/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
+					sizeof(AKEYSIG), 4, 16);
 			}
 			break;
 		case TIMESIGtype:

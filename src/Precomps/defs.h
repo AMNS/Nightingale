@@ -387,14 +387,15 @@ moved there eventually). */
 #define LNSPACE(pCont) ((pCont)->staffHeight/((pCont)->staffLines-1))
 
 /* Copy a WHOLE_KSINFO. Unfortunately, a WHOLE_KSINFO has odd length, while the struct
-equiv. KSINFO is necessarily even, so BlockMove(ks1, ks2, sizeof(KSINFO)) doesn't work. */
+equivalent KSINFO is necessarily even, so BlockMove(srcKS, dstKS, sizeof(KSINFO)) doesn't
+work. */
 
-#define KEYSIG_COPY(ks1, ks2)						\
-{	int i;											\
-													\
-	(ks2)->nKSItems = (ks1)->nKSItems;				\
-	for (i = 0; i<(ks1)->nKSItems; i++)				\
-		(ks2)->KSItem[i] = (ks1)->KSItem[i];		\
+#define KEYSIG_COPY(srcKS, dstKS)						\
+{	int i;												\
+														\
+	(dstKS)->nKSItems = (srcKS)->nKSItems;				\
+	for (i = 0; i<(srcKS)->nKSItems; i++)				\
+		(dstKS)->KSItem[i] = (srcKS)->KSItem[i];		\
 }
 
 /* Simple compound-meter identifying heuristic. Better for fast tempi than slow ones! */

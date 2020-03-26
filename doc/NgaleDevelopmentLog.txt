@@ -5446,7 +5446,7 @@ dashedness and shape. (SLUR status now: +- )
 
 -------------------------------------------------------------------------------
 
-	16 - 19 Mar.
+16 - 19 March
 
 Implement Convert1SLUR() => still 17 errors, but the slur is now drawn correctly.
 (SLUR status now: ++ )
@@ -5475,7 +5475,6 @@ WHOLE_KSINFO... Fixed.
 Implement ConvertENDING() => only 13 errors, and none for ENDINGs!
 (ENDING status now: +. )
 
-
 Implement ConvertPSMEAS() => still 13 errors. (PSMEAS status now: +- )
 
 Hmmm. DCheckNode() has been giving incorrect complaints "SUBOBJ IN CONNECT L%u staffAbove>=staffBelow."
@@ -5484,6 +5483,10 @@ for awhile, Why? I see... Fixed. Now only 10 errors for AllObjTypes.ngl (and non
 
 Implement Convert1PSMEAS() => only 9 errors; the PSMEAS complaint went away! (PSMEAS
 status now: ++ )
+
+-------------------------------------------------------------------------------
+
+21 - 23 March
 
 Status of converting object types (I think).
 . = no work needed; - = not done; ? = not done but may not need work; + = done. 
@@ -5515,3 +5518,129 @@ Status of converting object types (I think).
 	+. ENDING_5
 	++ PSMEAS_5
 	++ (OBJECT)
+
+Now, almost all of the remaining error messages for AllObjTypes.ngl obviously result
+from the zero-sharp/flat key sig. on staff 1. Is this a bug in Convert1KEYSIG()? Ah,
+Convert1KEYSIG is doing nothing with several fields, including subType and WHOLE_KSINFO!
+Fix that => results are different, alright; now both staves get nonsensical keysigs :-( .
+In fact, the AKEYSIG_5 looks bad before Convert1KEYSIG massages it. I'll bet this is
+related to the strange comment about WHOLE_KSINFO in NBasicTypes.h ??
+
+	typedef struct						/* Key signature item: */
+	{
+		char letcode;					/* LG: Code for letter name: A=5,B=4,C=3,D=2,E=1,F=0,G=6  */
+		Boolean sharp;					/* LG: Is it a sharp? (False=flat) */
+	} KSITEM;
+
+	#define MAX_KSITEMS 7		/* Maximum no. of items in key signature */
+
+	#define WHOLE_KSINFO					/* Complete key sig. w/o context. */			\
+		KSITEM		KSItem[MAX_KSITEMS];	/* The sharps and flats */						\
+		SignedByte	nKSItems;				/* No. of sharps and flats in key sig. */
+		
+	typedef struct						/* Complete key sig. */
+	{
+		WHOLE_KSINFO
+	} KSINFO, *PKSINFO;
+
+Console output for AllObjTypes.ngl 
+	debug. ConvertKEYSIG: keySigL=L7 inMeasure=0
+	debug. Convert1KEYSIG<:  lets=0:# 1:b
+	debug. Convert1KEYSIG: 00 02 01 00   40 00 00 00   01 00 07 00   00 00 02 87
+	debug.               : 00 00 01 ac   00 00 02 04   00 00 02 87   00 00 00 00
+	debug.               : 02 0a 40 00   
+	debug. Convert1KEYSIG: aKeySigL=1 small=0 xd=0 lets=1:b 7:b
+	debug. Convert1KEYSIG<:  (0 sharps/flats)
+	debug. Convert1KEYSIG: 00 00 02 00   40 00 00 00   01 00 07 bb   00 00 00 02
+	debug.               : 7f ff ff ff   16 8a 02 60   ff ff 16 8a   02 60 00 00
+	debug.               : 02 0a 40 00   
+	debug. Convert1KEYSIG: aKeySigL=2 small=0 xd=0 lets=1:b 7:#
+
+Debug/Full sez:
+
+	info.  6 L7 xd=360 yd=0 KEYSIG .VSV.. oRect.l=p159 . n=2
+	info.      st=1 xd=0 .V. nKSItems=2 lets=1:b 7:b
+	info.      st=2 xd=0 .V. nKSItems=2 lets=1:b 7:#
+	Warning. *DCheckNode: ILLEGAL LETTER CODES FOR SUBOBJ IN KEYSIG L7 staffn 1 ACCIDENTAL NO(S).:  1.
+	Warning. *DCheckNode: ILLEGAL LETTER CODES FOR SUBOBJ IN KEYSIG L7 staffn 2 ACCIDENTAL NO(S).:  1.
+
+
+00 02 01 00   40			next=02 staffn=1 subType=0 .V. (SUBOBJHEADER_5): OK
+00 00 00					1 byte of bitfields (nonstandard, etc.); xd=0: OK
+01 00 07 00					apparently interpreted as KSItem[0 & 1]: 1:b 7:b . ?!?
+00 00 02 87					...so interpreted as KSItem[2 & 3]
+00 00 01 ac   00 00 02 04	...and KSItem[4, 5, & 6] and nKSItems=2. 
+
+Ah-hah! Neither KeysigCopy nor KEYSIG_COPY knows about AKEYSIG's N105 format!! Duh. Need
+KeySigN105Copy(PAKEYSIG_5 pAKeySig, PKSINFO pKSDst) => done. But it doesn't change anything!
+
+Can running Ngale 5.8.x help? With 5.8.9, Debug/Full sez:
+
+	info.  6 L 7 xd=360 yd=0 KEYSIG .VSV.. oRect.l=p159 . n=2
+	info.      st=1 xd=0 .V. nKSItems=2 lets=0:# 3:#
+	info.      st=2 xd=0 .V. nKSItems=2 lets=0:# 3:#
+
+..exactly as expected, and not helpful.
+
+Create KeySigs.ngl, with keysigs of 1 sharp, 3 flags, & 5 sharps. From 5.8.9:
+
+	info.  6 L 7 xd=288 yd=0 KEYSIG .VSV.. oRect.l=p151 . n=2
+	info.      st=1 xd=0 .V. nKSItems=1 lets=0:#
+	info.      st=2 xd=0 .V. nKSItems=1 lets=0:#
+	
+	info.  10 L11 xd=192 yd=0 KEYSIG .V.V.. oRect.l=p196 M n=2
+	info.      st=1 xd=0 .V. nKSItems=3 lets=4:b 1:b 5:b
+	info.      st=2 xd=0 .V. nKSItems=3 lets=4:b 1:b 5:b
+	
+	info.  12 L13 xd=696 yd=0 KEYSIG .V.V.. oRect.l=p244 M n=2
+	info.      st=1 xd=0 .V. nKSItems=5 lets=0:# 3:# 6:# 2:# 5:#
+	info.      st=2 xd=0 .V. nKSItems=5 lets=0:# 3:# 6:# 2:# 5:#
+	
+But need to see the entire AKEYSIG! Here 'tis for AllObjTypes.ngl, from 5.8.10:
+
+	info.  6 L 7 xd=360 yd=0 KEYSIG .VSV.. oRect.l=p159 . n=2
+	info.      st=1 xd=0 .V. nKSItems=2 lets=0:# 3:#
+	debug. DisplayNode/aKeySig->KSItem[]: 01 00 07 00   00 00 02 87   00 00 01 ac   00 00 02 04
+	debug.                              : 00 00 02 00   40 00 00 00   
+	info.      st=2 xd=0 .V. nKSItems=2 lets=0:# 3:#
+	debug. DisplayNode/aKeySig->KSItem[]: 01 00 07 bb   00 00 00 02   7f ff ff ff   16 8a 02 60
+	debug.                              : 00 04 49 44   20 32 30 5d   
+
+Looks like the "01 00 07 00" is the first bytes of the AKEYSIG, not of the WHOLE_KSINFO!
+
+Create KeySigs.ngl, with keysigs of 1 sharp, 3 flags, & 5 sharps. From 5.8.10:
+	info.  6 L 7 xd=288 yd=0 KEYSIG .VSV.. oRect.l=p151 . n=2
+	info.      st=1 xd=0 .V. nKSItems=1 lets=0:#
+	debug. DisplayNode/aKeySig->KSItem[]: 01 00 00 00   00 00 02 78   00 00 01 bb   00 00 01 02
+	debug.                              : 00 00 02 00   40 00 00 00   
+	info.      st=2 xd=0 .V. nKSItems=1 lets=0:#
+	debug. DisplayNode/aKeySig->KSItem[]: 01 00 00 00   00 00 00 02   c0 00 00 03   c0 00 01 03
+	debug.                              : 00 04 01 00   40 00 00 00   
+	
+	info.  10 L11 xd=192 yd=0 KEYSIG .V.V.. oRect.l=p196 M n=2
+	info.      st=1 xd=0 .V. nKSItems=3 lets=4:b 1:b 5:b
+	debug. DisplayNode/aKeySig->KSItem[]: 08 00 02 01   0a 83 ed 90   00 00 00 01   16 83 03 20
+	debug.                              : 00 00 02 00   40 00 00 00   
+	info.      st=2 xd=0 .V. nKSItems=3 lets=4:b 1:b 5:b
+	debug. DisplayNode/aKeySig->KSItem[]: 08 00 02 00   0a 00 00 06   80 00 00 00   00 00 03 02
+	debug.                              : 00 06 01 00   40 00 00 00   
+	
+	info.  12 L13 xd=696 yd=0 KEYSIG .V.V.. oRect.l=p244 M n=2
+	info.      st=1 xd=0 .V. nKSItems=5 lets=0:# 3:# 6:# 2:# 5:#
+	debug. DisplayNode/aKeySig->KSItem[]: 01 ff 07 00   0d ff 05 00   0b 00 04 38   00 01 05 07
+	debug.                              : 00 00 02 00   40 00 00 00   
+	info.      st=2 xd=0 .V. nKSItems=5 lets=0:# 3:# 6:# 2:# 5:#
+	debug. DisplayNode/aKeySig->KSItem[]: 01 00 07 00   0d 02 05 01   0b 00 00 00   00 00 05 00
+	debug.                              : 00 00 20 5b   46 61 63 69   
+
+Ah-hah! The declaration of 	AKEYSIG_5  includes a  WHOLE_KSINFO; but WHOLE_KSINFO includes
+an array of KSITEMs, and an N105 KSITEM is not the same as a N106 one. Fix that => only 5
+errors in AllObjTypes.ngl!
+
+	Warning. DCheckNode: Illegal MODNR code 80 in voice 1 in Sync L11.
+	Warning. DCheckNoteNums: Note in Sync L11 in measure 1, staff 1 notenum 73 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L20 in measure 1, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L30 in measure 2, staff 1 notenum 90 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 1 notenum 66 and notation disagree: wrong accidental?
+	info. Discont. sel, 0 objs in range, 0 sel, 36 total.  2 voices.
+

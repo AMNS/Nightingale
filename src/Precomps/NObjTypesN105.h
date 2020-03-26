@@ -266,7 +266,7 @@ typedef struct {
 	Byte			small:2;		/* (unused so far) True to draw in small characters */
 	SignedByte		filler2;
 	DDIST			xd;				/* DDIST horizontal position */
-	WHOLE_KSINFO
+	WHOLE_KSINFO_5
 } AKEYSIG_5, *PAKEYSIG_5;
 
 typedef struct {

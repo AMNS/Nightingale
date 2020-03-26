@@ -96,19 +96,19 @@ Boolean KeySigEqual(PKSINFO ks1, PKSINFO ks2)
 
 
 /* ------------------------------------------------------------------------ KeySigCopy -- */
-/* Copy key signature info from ks1 into ks2. NB: Should not be used when either
+/* Copy key signature info from srcKS into dstKS. NB: Should not be used when either
 argument is an address of something in a Nightingale heap unless that heap is locked,
 since merely calling this function can load a segment and move memory, resulting in
 this function storing into an unpredicatable place! In such cases, use the KEYSIG_COPY
 macro. (BlockMove is impractical: see comments on KEYSIG_COPY.) */
 
-void KeySigCopy(PKSINFO ks1, PKSINFO ks2)
+void KeySigCopy(PKSINFO srcKS, PKSINFO dstKS)
 {
 	short i;
 	
-	ks2->nKSItems = ks1->nKSItems;			
-	for (i = 0; i<ks1->nKSItems; i++)
-		ks2->KSItem[i] = ks1->KSItem[i];
+	dstKS->nKSItems = srcKS->nKSItems;			
+	for (i = 0; i<srcKS->nKSItems; i++)
+		dstKS->KSItem[i] = srcKS->KSItem[i];
 }
 
 

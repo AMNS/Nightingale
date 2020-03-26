@@ -607,7 +607,6 @@ are by Steve Hart.) */
 
 #define KeySigFILLER1(link)		 	( (GetPAKEYSIG(link))->filler1)	
 #define KeySigFILLER2(link)			( (GetPAKEYSIG(link))->filler2)	
-
 #define KeySigINMEAS(link)			( (GetPKEYSIG(link))->inMeasure )		
 #define KeySigKSITEM(link)			( (GetPAKEYSIG(link))->KSItem)	
 #define KeySigNKSITEMS(link)		( (GetPAKEYSIG(link))->nKSItems ) 		
@@ -615,7 +614,7 @@ are by Steve Hart.) */
 #define KeySigSMALL(link)		 	( (GetPAKEYSIG(link))->small)
 #define KeySigSOFT(link)			( (GetPAKEYSIG(link))->soft)
 #define KeySigSTAFFN(link)			( (GetPAKEYSIG(link))->staffn )
-#define KeySigType(link)			( (GetPAKEYSIG(link))->subType )
+#define KeySigSUBTYPE(link)			( (GetPAKEYSIG(link))->subType )
 #define KeySigXD(link)		 		( (GetPAKEYSIG(link))->xd )
 
 #define LinkSEL(link)				( (GetPMEVENT(link))->selected )	

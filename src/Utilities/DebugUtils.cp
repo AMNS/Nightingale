@@ -1078,10 +1078,22 @@ short DCheckNode(
 					if (STAFFN_BAD(doc, aKeySig->staffn))
 						COMPLAIN2("*DCheckNode: SUBOBJ IN KEYSIG L%u staffn %d IS BAD.\n",
 									pL, aKeySig->staffn);
-					if (aKeySig->nKSItems>7)
-						COMPLAIN2("*DCheckNode: SUBOBJ IN KEYSIG L%u nKSItems %d IS SUSPICIOUS.\n", pL, aKeySig->nKSItems);
-					if (aKeySig->nKSItems==0 && aKeySig->subType>7)
-						COMPLAIN2("*DCheckNode: SUBOBJ IN KEYSIG L%u subType (nNatItems) %d IS SUSPICIOUS.\n", pL, aKeySig->nKSItems);
+					if (aKeySig->nKSItems>7) {
+						COMPLAIN3("*DCheckNode: SUBOBJ IN KEYSIG L%u staffn %d nKSItems %d IS SUSPICIOUS.\n",
+									pL, aKeySig->staffn, aKeySig->nKSItems);
+					} else if (aKeySig->nKSItems==0 && aKeySig->subType>7) {
+						COMPLAIN3("*DCheckNode: SUBOBJ IN KEYSIG L%u staffn %d subType (nNatItems) %d IS SUSPICIOUS.\n",
+									pL, aKeySig->staffn, aKeySig->nKSItems);
+					} else {
+						short k;  char tempStr[256];
+						tempStr[0] = '\0';								/* Set tempStr to empty */
+						for (k = 0; k<aKeySig->nKSItems; k++) 			
+							if (aKeySig->KSItem[k].letcode>6)
+								sprintf(&tempStr[strlen(tempStr)], " %d", k);
+						if (strlen(tempStr)>0)
+							COMPLAIN3("*DCheckNode: ILLEGAL LETTER CODES FOR SUBOBJ IN KEYSIG L%u staffn %d ACCIDENTAL NO(S).: %s.\n",
+								pL, aKeySig->staffn, tempStr);
+					}
 				}
 
 				PopLock(KEYSIGheap);

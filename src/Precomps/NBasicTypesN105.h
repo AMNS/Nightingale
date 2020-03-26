@@ -28,6 +28,26 @@ to get bit fields out of files to let Nightingale on Intel read older files. */
 	typedef signed char SignedByte;
 */
 
+typedef struct						/* Key signature item: */
+{
+	char letcode:7;					/* LG: Code for letter name: A=5,B=4,C=3,D=2,E=1,F=0,G=6  */
+	Boolean sharp:1;				/* LG: Is it a sharp? (False=flat) */
+} KSITEM_5;
+
+/* NB: We #define a WHOLE_KSINFO macro, then a struct that consists of nothing but an
+invocation of that macro; why? I'm don't remember, but old comments here pointed out that
+with THINK C 5 the macro takes 15 bytes, but the struct takes 16. */
+
+#define WHOLE_KSINFO_5					/* Complete key sig. w/o context. */			\
+	KSITEM_5	KSItem[MAX_KSITEMS];	/* The sharps and flats */						\
+	SignedByte	nKSItems;				/* No. of sharps and flats in key sig. */
+	
+typedef struct						/* Complete key sig. */
+{
+	WHOLE_KSINFO_5
+} KSINFO_5, *PKSINFO_5;
+
+
 /* ------------------------------------------------------------------------- TEXTSTYLE -- */
 
 typedef struct xTEXTSTYLEN105 {
