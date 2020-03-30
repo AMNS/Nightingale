@@ -5486,7 +5486,7 @@ status now: ++ )
 
 -------------------------------------------------------------------------------
 
-21 - 23 March
+21 - 25 March
 
 Status of converting object types (I think).
 . = no work needed; - = not done; ? = not done but may not need work; + = done. 
@@ -5644,3 +5644,71 @@ errors in AllObjTypes.ngl!
 	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 1 notenum 66 and notation disagree: wrong accidental?
 	info. Discont. sel, 0 objs in range, 0 sel, 36 total.  2 voices.
 
+-------------------------------------------------------------------------------
+
+27-30 March
+
+The only thing we're not even trying to convert yet is MODNRs, which have no objects,
+just subobjects attached to notes/rests (ANOTEs). So conversion code can't be invoked by
+encountering a MODNR object; instead, add it to Convert1NOTER => Done, but: in AllObjTypes.ngl,
+it says (for the only noter modifier)
+
+	debug. Convert1MODNR: aModNRL=1 code=3 x=1 yqpit=-14
+
+Heap Browser agrees on the values of coe, xstd, & ystdpit. 
+The correct values are code, 12; xstd, 16; yqpit, -8. The modifier is displayed far to
+the left of the note, and Modifier Info says x = -15, but Heap Browser shows it as being
+1. Open ExuberentT+N.ngl => all modifiers display as "3" or "4" (codes are 3 & 4, natch), and
+way too far to left. ??
+
+
+	debug. ConvertSYNC: syncL=L11 timeStamp=0
+	debug. Convert1NOTER:MODNR: 00 00 50 0c   00 f8 
+	debug. Convert1MODNR: aModNRL=1 code=3 xstd=1 ystdpit=-14
+	debug. Convert1NOTER: aNoteRL=1 voice=1 vis=1 yqpit=-14 xd=0 yd=120 playDur=912
+
+The hex dump in "Convert1NOTER:MODNR" is correct. Ah, the BlockMove in Convert1MODNR
+is wrong! Fix that => all OK!  (MODNR status now: ++ )
+
+Status of converting object types (I think).
+. = no work needed; - = not done; ? = not done but may not need work; + = done. 
+
+	obj
+	 subobj
+0	.. HEADER_5		Object has only OBJHEADER; subobjs are unchanged
+	++ TAIL_5		Has no subobjs & no fields other than header
+	++ SYNC_5
+	++ RPTEND_5
+	+. PAGE_5
+5	+. SYSTEM_5
+	++ STAFF_5
+	++ MEASURE_5
+	++ CLEF_5
+	++ KEYSIG_5		But we end up with nKSItems=0 on staff 1! ??
+10	++ TIMESIG_5
+	++ BEAMSET_5
+	++ CONNECT_5
+	++ DYNAMIC_5
+	.+ (MODNR)		Has no objects, only subobjects
+15	+? GRAPHIC_5	Subobject has only LINK & STRINGOFFSET. Is it really OK as is?
+	±? OTTAVA_5		Subobject has two LINKs & that's all. But isn't drawn! ??
+	++ SLUR_5
+	+? TUPLET_5		Subobject has two LINKs & that's all. Is it OK as is?
+	++ GRSYNC_5
+20	+. TEMPO_5
+	+. SPACER_5
+	+. ENDING_5
+	++ PSMEAS_5
+	++ (OBJECT)
+
+What about the question marks? Well, first, I'm still getting lots of complaints
+like these, for AllObjTypes.ngl:
+
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. DCheckNoteNums: Note in Sync L11 in measure 1, staff 1 notenum 73 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L20 in measure 1, staff 1 notenum 66 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L30 in measure 2, staff 1 notenum 90 and notation disagree: wrong accidental?
+	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 1 notenum 66 and notation disagree: wrong accidental?
+
+Staff 1 has two sharps, and the above notes are all the C#'s and F#'s on that staff. So
+??

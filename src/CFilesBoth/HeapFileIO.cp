@@ -783,8 +783,6 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, 
 
 		if (hType==OBJtype)	curType = ObjPtrTYPE(src);
 		else				curType = hType;
-//if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "MoveObjSubobjs: src=%lx dst=%lx dst-src:%ld offset:%ld curType=%d\n",
-//src, dst, (long)(dst-src), (long)(src-startPos), curType);
 		if (curType<0 || curType>LASTtype) {
 			LogPrintf(LOG_ERR, "Object type=%d is illegal. hType=%d  (MoveObjSubobjs)\n", curType, hType);
 			return False;
@@ -804,8 +802,6 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, 
 		   compensate. (However, the _contents_ of the objects should be fixed in
 		   ConvertObjects.) */
 		   
-//if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "MoveObjSubobjs: type %d obj: len=%d newLen=%d\n", curType, len, newLen);
-
 		BlockMove(src, dst, len);
 		/* And go on to next object and next LINK slot */
 		src += len;
@@ -1118,8 +1114,6 @@ static short HeapFixLinks(Document *doc)
 //NHexDump(LOG_DEBUG, "HeapFixLinks L1", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
 //NHexDump(LOG_DEBUG, "HeapFixLinks L2", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-//NHexDump(LOG_DEBUG, "HeapFixLinks L3", pSObj, 46, 4, 16);
 }
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 

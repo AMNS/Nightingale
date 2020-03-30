@@ -2702,3 +2702,14 @@ objects & subobjects. Affects NBasicTypesN105.h, NObjTypesN105.h; FileConversion
 
 Minor cleanup. Affects Debug.h, Defs.h, MemMacros.h; DebugDisplay, DebugUtils,
 FileConversion, HeapFileIO, PitchUtils.
+
+-------------------------------------------------------------------------------
+
+26 - 30 Mar.
+
+Work on opening format 'N105' files while using a new format internally: converting
+subobjects. Affects FileConversion.
+
+Minor cleanup. Affects MemMacros.h; DebugDisplay, FileConversion, HeapBrowser,
+HeapFileIO, InsNew.
+

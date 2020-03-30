@@ -18,10 +18,10 @@
 
 static Rect bRect;
 static short linenum;
-static char s[256];
+static char str[256];
 
 static void ShowHeap(short, short);
-static void HeapDrawLine(char * s);
+static void HeapDrawLine(char *s);
 static void HeapBrowsePartInfo(short);
 static void HeapBrowseStaff(short);
 static void HeapBrowseConnect(short);
@@ -145,19 +145,19 @@ static void ShowHeap(short theHeap, register short itemIndex)
 	linenum = 1;
 	myHeap = Heap + theHeap;
 	ps = NameHeapType(theHeap, False);
-	sprintf(s, "%s Heap [type %d]", ps, theHeap);
-	HeapDrawLine(s);
+	sprintf(str, "%s Heap [type %d]", ps, theHeap);
+	HeapDrawLine(str);
 
-	sprintf(s, "firstFree=%d nObjs=%d nFree=%d", 
+	sprintf(str, "firstFree=%d nObjs=%d nFree=%d", 
 		myHeap->firstFree, myHeap->nObjs, myHeap->nFree);
-	HeapDrawLine(s);
+	HeapDrawLine(str);
 	
-	sprintf(s, "objSize=%d type=%d lockLevel=%d", 
+	sprintf(str, "objSize=%d type=%d lockLevel=%d", 
 		myHeap->objSize, myHeap->type, myHeap->lockLevel);
-	HeapDrawLine(s);
+	HeapDrawLine(str);
 	
-	sprintf(s, "block=%lx", myHeap->block);
-	HeapDrawLine(s);
+	sprintf(str, "block=%lx", myHeap->block);
+	HeapDrawLine(str);
 	
 	HeapDrawLine("------------------");
 	
@@ -238,66 +238,66 @@ void HeapBrowsePartInfo(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPPARTINFO(qL);
-	sprintf(s, "link=%d addr=%lx next=%d", qL, q, q->next);
-	HeapDrawLine(s); q = GetPPARTINFO(qL);
-	sprintf(s, "firstStaff=%d lastStaff=%d", q->firstStaff, q->lastStaff);
-	HeapDrawLine(s);
+	sprintf(str, "link=%d addr=%lx next=%d", qL, q, q->next);
+	HeapDrawLine(str); q = GetPPARTINFO(qL);
+	sprintf(str, "firstStaff=%d lastStaff=%d", q->firstStaff, q->lastStaff);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseStaff(short itemIndex)
 {
-	register LINK qL;
-	register PASTAFF q;
+	LINK qL;
+	PASTAFF q;
 	
 	qL = itemIndex;
 	
 	q = GetPASTAFF(qL);
-	sprintf(s, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
-	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "visible=%s", q->visible ? "True" : "False");
-	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "staff top/left/right=%d %d %d",
+	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	HeapDrawLine(str); q = GetPASTAFF(qL);
+	sprintf(str, "visible=%s", q->visible ? "True" : "False");
+	HeapDrawLine(str); q = GetPASTAFF(qL);
+	sprintf(str, "staff top/left/right=%d %d %d",
 				q->staffTop,
 				q->staffLeft,
 				q->staffRight);
-	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "staffHeight/Lines=%d  %d",
+	HeapDrawLine(str); q = GetPASTAFF(qL);
+	sprintf(str, "staffHeight/Lines=%d  %d",
 				q->staffHeight,
 				q->staffLines);
-	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "fontSize=%d", q->fontSize);
-	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "ledger/noteHead/fracBeam=%d %d %d",
+	HeapDrawLine(str); q = GetPASTAFF(qL);
+	sprintf(str, "fontSize=%d", q->fontSize);
+	HeapDrawLine(str); q = GetPASTAFF(qL);
+	sprintf(str, "ledger/noteHead/fracBeam=%d %d %d",
 				q->ledgerWidth,
 				q->noteHeadWidth,
 				q->fracBeamWidth);
-	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "clefType=%d", q->clefType);
-	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "nKSItems=%hd", q->nKSItems);
-	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "timeSigType/n/d=%hd %hd/%hd",
+	HeapDrawLine(str); q = GetPASTAFF(qL);
+	sprintf(str, "clefType=%d", q->clefType);
+	HeapDrawLine(str); q = GetPASTAFF(qL);
+	sprintf(str, "nKSItems=%hd", q->nKSItems);
+	HeapDrawLine(str); q = GetPASTAFF(qL);
+	sprintf(str, "timeSigType/n/d=%hd %hd/%hd",
 				q->timeSigType,
 				q->numerator,
 				q->denominator);
-	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "dynamicType=%hd", q->dynamicType);
-	HeapDrawLine(s);
+	HeapDrawLine(str); q = GetPASTAFF(qL);
+	sprintf(str, "dynamicType=%hd", q->dynamicType);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseConnect(short itemIndex)
 {
-	register LINK qL;
-	register PACONNECT q;
+	LINK qL;
+	PACONNECT q;
 	
 	qL = itemIndex;
 	
 	q = GetPACONNECT(qL);
-	sprintf(s, "link=%d next=%d", qL, q->next);
-	HeapDrawLine(s); q = GetPACONNECT(qL);
+	sprintf(str, "link=%d next=%d", qL, q->next);
+	HeapDrawLine(str); q = GetPACONNECT(qL);
 	
-	sprintf(s, "connLevel=%hd", q->connLevel);
-	HeapDrawLine(s); 	q = GetPACONNECT(qL);
+	sprintf(str, "connLevel=%hd", q->connLevel);
+	HeapDrawLine(str); 	q = GetPACONNECT(qL);
 	switch (q->connectType) {
 	case CONNECTLINE:
 		HeapDrawLine("connectType=CONNECTLINE");
@@ -306,217 +306,217 @@ void HeapBrowseConnect(short itemIndex)
 		HeapDrawLine("connectType=CONNECTCURLY");
 		break;
 	}
-	sprintf(s, "staffAbove=%hd", q->staffAbove);
-	HeapDrawLine(s); 	q = GetPACONNECT(qL);
-	sprintf(s, "staffBelow=%hd", q->staffBelow);
-	HeapDrawLine(s); 	q = GetPACONNECT(qL);
-	sprintf(s, "firstPart=%d lastPart=%d", q->firstPart,q->lastPart);
-	HeapDrawLine(s);
+	sprintf(str, "staffAbove=%hd", q->staffAbove);
+	HeapDrawLine(str); 	q = GetPACONNECT(qL);
+	sprintf(str, "staffBelow=%hd", q->staffBelow);
+	HeapDrawLine(str); 	q = GetPACONNECT(qL);
+	sprintf(str, "firstPart=%d lastPart=%d", q->firstPart,q->lastPart);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseClef(short itemIndex)
 {
 	LINK qL;
-	register PACLEF q;
+	PACLEF q;
 	
 	qL = itemIndex;
 	
 	q = GetPACLEF(qL);
-	sprintf(s, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
-	HeapDrawLine(s); 	q = GetPACLEF(qL);
-	strcpy(s, "flags=");
+	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	HeapDrawLine(str); 	q = GetPACLEF(qL);
+	strcpy(str, "flags=");
 	if (q->selected)
-		strcat(s, "SELECTED ");
+		strcat(str, "SELECTED ");
 	if (q->visible)
-		strcat(s, "VISIBLE ");
+		strcat(str, "VISIBLE ");
 	if (q->soft)
-		strcat(s, "SOFT ");
-	HeapDrawLine(s); 	q = GetPACLEF(qL);
-	sprintf(s, "xd=%d", q->xd);
-	HeapDrawLine(s); 	q = GetPACLEF(qL);
-	sprintf(s, "clefType=%d", q->subType);
-	HeapDrawLine(s);
+		strcat(str, "SOFT ");
+	HeapDrawLine(str); 	q = GetPACLEF(qL);
+	sprintf(str, "xd=%d", q->xd);
+	HeapDrawLine(str); 	q = GetPACLEF(qL);
+	sprintf(str, "clefType=%d", q->subType);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseKeySig(short itemIndex)
 {
 	LINK qL;
-	register PAKEYSIG q;
+	PAKEYSIG q;
 	
 	qL = itemIndex;
 	
 	q = GetPAKEYSIG(qL);
-	sprintf(s, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
-	HeapDrawLine(s);	q = GetPAKEYSIG(qL);
-	strcpy(s, "flags=");
+	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	HeapDrawLine(str);	q = GetPAKEYSIG(qL);
+	strcpy(str, "flags=");
 	if (q->selected)
-		strcat(s, "SELECTED ");
+		strcat(str, "SELECTED ");
 	if (q->visible)
-		strcat(s, "VISIBLE ");
+		strcat(str, "VISIBLE ");
 	if (q->soft)
-		strcat(s, "SOFT ");
-	HeapDrawLine(s); 	q = GetPAKEYSIG(qL);
-	sprintf(s, "xd=%d", q->xd);
-	HeapDrawLine(s);	q = GetPAKEYSIG(qL);
-	sprintf(s, "nKSItems=%hd", q->nKSItems);
-	HeapDrawLine(s);
+		strcat(str, "SOFT ");
+	HeapDrawLine(str); 	q = GetPAKEYSIG(qL);
+	sprintf(str, "xd=%d", q->xd);
+	HeapDrawLine(str);	q = GetPAKEYSIG(qL);
+	sprintf(str, "nKSItems=%hd", q->nKSItems);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseTimeSig(short itemIndex)
 {
 	LINK qL;
-	register PATIMESIG q;
+	PATIMESIG q;
 	
 	qL = itemIndex;
 	
 	q = GetPATIMESIG(qL);
-	sprintf(s, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
-	HeapDrawLine(s);	q = GetPATIMESIG(qL);
-	strcpy(s, "flags=");
+	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	HeapDrawLine(str);	q = GetPATIMESIG(qL);
+	strcpy(str, "flags=");
 	if (q->selected)
-		strcat(s, "SELECTED ");
+		strcat(str, "SELECTED ");
 	if (q->visible)
-		strcat(s, "VISIBLE ");
+		strcat(str, "VISIBLE ");
 	if (q->soft)
-		strcat(s, "SOFT ");
-	HeapDrawLine(s);	q = GetPATIMESIG(qL);
-	sprintf(s, "xd=%d", q->xd);
-	HeapDrawLine(s);	q = GetPATIMESIG(qL);
-	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd",
+		strcat(str, "SOFT ");
+	HeapDrawLine(str);	q = GetPATIMESIG(qL);
+	sprintf(str, "xd=%d", q->xd);
+	HeapDrawLine(str);	q = GetPATIMESIG(qL);
+	sprintf(str, "timeSigType,n/d=%hd,%hd/%hd",
 				q->subType,
 				q->numerator,
 				q->denominator);
-	HeapDrawLine(s);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseMeasure(short itemIndex)
 {
 	LINK qL;
-	register PAMEASURE q;
+	PAMEASURE q;
 
 	qL = itemIndex;
 	
 	q = GetPAMEASURE(qL);
-	sprintf(s, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
-	HeapDrawLine(s);	q = GetPAMEASURE(qL);
-	strcpy(s, "flags=");
+	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	HeapDrawLine(str);	q = GetPAMEASURE(qL);
+	strcpy(str, "flags=");
 	if (q->selected)
-		strcat(s, "SELECTED ");
+		strcat(str, "SELECTED ");
 	if (q->visible)
-		strcat(s, "VISIBLE ");
+		strcat(str, "VISIBLE ");
 	if (q->soft)
-		strcat(s, "SOFT ");
+		strcat(str, "SOFT ");
 	if (q->measureVisible)
-		strcat(s, "MEASUREVIS ");
+		strcat(str, "MEASUREVIS ");
 	if (q->connAbove)
-		strcat(s, "CONNABOVE ");
-	HeapDrawLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "measSizeRect=%d %d %d %d",
+		strcat(str, "CONNABOVE ");
+	HeapDrawLine(str);	q = GetPAMEASURE(qL);
+	sprintf(str, "measSizeRect=%d %d %d %d",
 			q->measSizeRect.top, q->measSizeRect.left,
 			q->measSizeRect.bottom, q->measSizeRect.right);
-	HeapDrawLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "measureNum=%hd", q->measureNum);
-	HeapDrawLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "connStaff=%hd barlineType=%hd", q->connStaff,
+	HeapDrawLine(str);	q = GetPAMEASURE(qL);
+	sprintf(str, "measureNum=%hd", q->measureNum);
+	HeapDrawLine(str);	q = GetPAMEASURE(qL);
+	sprintf(str, "connStaff=%hd barlineType=%hd", q->connStaff,
 						q->subType);
-	HeapDrawLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "clefType=%d", q->clefType);
-	HeapDrawLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "nKSItems=%hd", q->nKSItems);
-	HeapDrawLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "timeSigType/n/d=%hd %hd/%hd",
+	HeapDrawLine(str);	q = GetPAMEASURE(qL);
+	sprintf(str, "clefType=%d", q->clefType);
+	HeapDrawLine(str);	q = GetPAMEASURE(qL);
+	sprintf(str, "nKSItems=%hd", q->nKSItems);
+	HeapDrawLine(str);	q = GetPAMEASURE(qL);
+	sprintf(str, "timeSigType/n/d=%hd %hd/%hd",
 			q->timeSigType,
 			q->numerator,
 			q->denominator);
-	HeapDrawLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "dynamicType=%hd", q->dynamicType);
-	HeapDrawLine(s);
+	HeapDrawLine(str);	q = GetPAMEASURE(qL);
+	sprintf(str, "dynamicType=%hd", q->dynamicType);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseSync(short itemIndex)
 {
 	LINK qL;
-	register PANOTE q;
+	PANOTE q;
 	
 	qL = itemIndex;
 	
 	q = GetPANOTE(qL);
-	sprintf(s, "link=%d staffn=%d voice=%hd next=%d", qL,
+	sprintf(str, "link=%d staffn=%d voice=%hd next=%d", qL,
 				 q->staffn, q->voice, q->next);
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	strcpy(s, "flags=");
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	strcpy(str, "flags=");
 	if (q->selected)
-		strcat(s, "SELECTED ");
+		strcat(str, "SELECTED ");
 	if (q->visible)
-		strcat(s, "VISIBLE ");
+		strcat(str, "VISIBLE ");
 	if (q->soft)
-		strcat(s, "SOFT ");
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "l_dur=%hd headShape=%d", q->subType, q->headShape);
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
+		strcat(str, "SOFT ");
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "l_dur=%hd headShape=%d", q->subType, q->headShape);
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
 														q->noteNum);
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "ndots=%hd xmovedots=%hd ymovedots=%hd", q->ndots, q->xmovedots,
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "ndots=%hd xmovedots=%hd ymovedots=%hd", q->ndots, q->xmovedots,
 					q->ymovedots);
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "rest=%s", q->rest ? "True" : "False");
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "accident=%hd accSoft=%s", q->accident,
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "rest=%s", q->rest ? "True" : "False");
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "accident=%hd accSoft=%s", q->accident,
 													  q->accSoft ? "True" : "False");
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "xmoveAcc=%hd", q->xmoveAcc);
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "beamed=%s otherStemSide==%s", q->beamed ? "True" : "False",
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "xmoveAcc=%hd", q->xmoveAcc);
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "beamed=%s otherStemSide==%s", q->beamed ? "True" : "False",
 															q->otherStemSide ? "True" : "False");
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "inTuplet=%s inOttava=%s", q->inTuplet ? "True" : "False",
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "inTuplet=%s inOttava=%s", q->inTuplet ? "True" : "False",
 														 q->inOttava ? "True" : "False");
-	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "firstMod=%d", q->firstMod);
-	HeapDrawLine(s);
+	HeapDrawLine(str);	q = GetPANOTE(qL);
+	sprintf(str, "firstMod=%d", q->firstMod);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseBeamset(short itemIndex)
 {
 	LINK qL;
-	register PANOTEBEAM q;
+	PANOTEBEAM q;
 	
 	qL = itemIndex;
 	
 	q = GetPANOTEBEAM(qL);
-	sprintf(s, "link=%d @%lx bpSync=%d next=%d", qL, q, q->bpSync, q->next);
-	HeapDrawLine(s);
+	sprintf(str, "link=%d @%lx bpSync=%d next=%d", qL, q, q->bpSync, q->next);
+	HeapDrawLine(str);
 	
-	sprintf(s, "startend=%d", q->startend);
-	HeapDrawLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "fracs=%d", q->fracs);
-	HeapDrawLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "True" : "False");
-	HeapDrawLine(s);
+	sprintf(str, "startend=%d", q->startend);
+	HeapDrawLine(str);	q = GetPANOTEBEAM(qL);
+	sprintf(str, "fracs=%d", q->fracs);
+	HeapDrawLine(str);	q = GetPANOTEBEAM(qL);
+	sprintf(str, "fracGoLeft=%s", q->fracGoLeft ? "True" : "False");
+	HeapDrawLine(str);
 }
 
 void HeapBrowseDynamic(short itemIndex)
 {
 	LINK qL;
-	register PADYNAMIC q;
+	PADYNAMIC q;
 	
 	qL = itemIndex;
 	
 	q = GetPADYNAMIC(qL);
-	sprintf(s, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
-	HeapDrawLine(s);	q = GetPADYNAMIC(qL);
-	strcpy(s, "flags=");
-	if (q->selected) strcat(s, "SELECTED ");
-	if (q->visible) strcat(s, "VISIBLE ");
-	if (q->soft) strcat(s, "SOFT ");
-	HeapDrawLine(s);	q = GetPADYNAMIC(qL);
-	sprintf(s, "xd,yd=%d,%d", q->xd, q->yd);
-	HeapDrawLine(s);	q = GetPADYNAMIC(qL);
+	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	HeapDrawLine(str);	q = GetPADYNAMIC(qL);
+	strcpy(str, "flags=");
+	if (q->selected) strcat(str, "SELECTED ");
+	if (q->visible) strcat(str, "VISIBLE ");
+	if (q->soft) strcat(str, "SOFT ");
+	HeapDrawLine(str);	q = GetPADYNAMIC(qL);
+	sprintf(str, "xd,yd=%d,%d", q->xd, q->yd);
+	HeapDrawLine(str);	q = GetPADYNAMIC(qL);
 }
 
 void HeapBrowseMODNR(short itemIndex)
@@ -527,58 +527,58 @@ void HeapBrowseMODNR(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPAMODNR(qL);
-	sprintf(s, "link=%d next=%d", qL, q->next);
-	HeapDrawLine(s);	q = GetPAMODNR(qL);
-	strcpy(s, "flags=");
-	if (q->selected) strcat(s, "SELECTED ");
-	if (q->visible) strcat(s, "VISIBLE ");
-	if (q->soft) strcat(s, "SOFT ");
-	HeapDrawLine(s);	q = GetPAMODNR(qL);
-	sprintf(s, "xstd,ystdpit=%d,%d", q->xstd, q->ystdpit);
-	HeapDrawLine(s);	q = GetPAMODNR(qL);
-	sprintf(s, "modCode=%hd", q->modCode);
-	HeapDrawLine(s);
+	sprintf(str, "link=%d next=%d", qL, q->next);
+	HeapDrawLine(str);	q = GetPAMODNR(qL);
+	strcpy(str, "flags=");
+	if (q->selected) strcat(str, "SELECTED ");
+	if (q->visible) strcat(str, "VISIBLE ");
+	if (q->soft) strcat(str, "SOFT ");
+	HeapDrawLine(str);	q = GetPAMODNR(qL);
+	sprintf(str, "xstd,ystdpit=%d,%d", q->xstd, q->ystdpit);
+	HeapDrawLine(str);	q = GetPAMODNR(qL);
+	sprintf(str, "modCode=%hd data=%d", q->modCode, q->data);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseRepeatEnd(short itemIndex)
 {
 	LINK qL;
-	register PARPTEND q;
+	PARPTEND q;
 	
 	qL = itemIndex;
 	
 	q = GetPARPTEND(qL);
-	sprintf(s, "link=%d staff=%d next=%d", qL, q->next);
-	HeapDrawLine(s);	q = GetPARPTEND(qL);
-	strcpy(s, "flags=");
-	if (q->selected) strcat(s, "SELECTED ");
-	if (q->visible) strcat(s, "VISIBLE ");
-	if (q->soft) strcat(s, "SOFT ");
-	HeapDrawLine(s);	q = GetPARPTEND(qL);
-	sprintf(s, "connAbove=%d connStaff=%d", q->connAbove, q->connStaff);
-	HeapDrawLine(s);
+	sprintf(str, "link=%d staff=%d next=%d", qL, q->next);
+	HeapDrawLine(str);	q = GetPARPTEND(qL);
+	strcpy(str, "flags=");
+	if (q->selected) strcat(str, "SELECTED ");
+	if (q->visible) strcat(str, "VISIBLE ");
+	if (q->soft) strcat(str, "SOFT ");
+	HeapDrawLine(str);	q = GetPARPTEND(qL);
+	sprintf(str, "connAbove=%d connStaff=%d", q->connAbove, q->connStaff);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseSlur(short itemIndex)
 {
 	LINK qL;
-	register PASLUR q;
+	PASLUR q;
 	
 	qL = itemIndex;
 	
 	q = GetPASLUR(qL);
 	
-	sprintf(s, "link=%d next=%d", qL, q->next);
-	HeapDrawLine(s);
+	sprintf(str, "link=%d next=%d", qL, q->next);
+	HeapDrawLine(str);
 		
-	sprintf(s, "knot=%d %d", q->seg.knot.h, q->seg.knot.v);
-	HeapDrawLine(s);	q = GetPASLUR(qL);
-	sprintf(s, "c0=%d %d", q->seg.c0.h, q->seg.c0.v);
-	HeapDrawLine(s);	q = GetPASLUR(qL);
-	sprintf(s, "c1=%d %d", q->seg.c1.h, q->seg.c1.v);
-	HeapDrawLine(s);	q = GetPASLUR(qL);
-	sprintf(s, "endKnot=%d %d", q->endKnot.h, q->endKnot.v);
-	HeapDrawLine(s);
+	sprintf(str, "knot=%d %d", q->seg.knot.h, q->seg.knot.v);
+	HeapDrawLine(str);	q = GetPASLUR(qL);
+	sprintf(str, "c0=%d %d", q->seg.c0.h, q->seg.c0.v);
+	HeapDrawLine(str);	q = GetPASLUR(qL);
+	sprintf(str, "c1=%d %d", q->seg.c1.h, q->seg.c1.v);
+	HeapDrawLine(str);	q = GetPASLUR(qL);
+	sprintf(str, "endKnot=%d %d", q->endKnot.h, q->endKnot.v);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseTuplet(short itemIndex)
@@ -589,8 +589,8 @@ void HeapBrowseTuplet(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPANOTETUPLE(qL);
-	sprintf(s, "link=%d next=%d", qL, q->next);
-	HeapDrawLine(s);
+	sprintf(str, "link=%d next=%d", qL, q->next);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseOttava(short itemIndex)
@@ -601,8 +601,8 @@ void HeapBrowseOttava(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPANOTEOTTAVA(qL);
-	sprintf(s, "link=%d @%lx opSync=%d next=%d", qL, q, q->opSync, q->next);
-	HeapDrawLine(s);
+	sprintf(str, "link=%d @%lx opSync=%d next=%d", qL, q, q->opSync, q->next);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseGRSync(short itemIndex)
@@ -613,33 +613,33 @@ void HeapBrowseGRSync(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPAGRNOTE(qL);
-	sprintf(s, "link=%d next=%d", qL, q->next);
-	HeapDrawLine(s);
+	sprintf(str, "link=%d next=%d", qL, q->next);
+	HeapDrawLine(str);
 }
 
 void HeapBrowseObject(short itemIndex)
 {
 	LINK qL;
-	register PMEVENT q;
+	PMEVENT q;
 	Rect r;
 
 	qL = itemIndex;
 	
 	q = GetPMEVENT(qL);
-	sprintf(s, "link=%d right=%d left=%d", qL, q->right, q->left);
-	HeapDrawLine(s); q = GetPMEVENT(qL);
+	sprintf(str, "link=%d right=%d left=%d", qL, q->right, q->left);
+	HeapDrawLine(str); q = GetPMEVENT(qL);
 	
-	sprintf(s, "xd=%d yd=%d type=%s nEntries=%d", 
+	sprintf(str, "xd=%d yd=%d type=%s nEntries=%d", 
 		q->xd, q->yd, NameObjType(qL), q->nEntries);
-	HeapDrawLine(s); q = GetPMEVENT(qL);
-	sprintf(s, "selected=%d visible=%d soft=%d", 
+	HeapDrawLine(str); q = GetPMEVENT(qL);
+	sprintf(str, "selected=%d visible=%d soft=%d", 
 		q->selected, q->visible, q->soft);
-	HeapDrawLine(s); q = GetPMEVENT(qL);
-	sprintf(s, "valid=%d tweaked=%d", q->valid, q->tweaked);
-	HeapDrawLine(s); q = GetPMEVENT(qL); r = q->objRect;
-	sprintf(s, "rect.l,t,r,b=%d %d %d %d", 
+	HeapDrawLine(str); q = GetPMEVENT(qL);
+	sprintf(str, "valid=%d tweaked=%d", q->valid, q->tweaked);
+	HeapDrawLine(str); q = GetPMEVENT(qL); r = q->objRect;
+	sprintf(str, "rect.l,t,r,b=%d %d %d %d", 
 		r.left, r.top, r.right, r.bottom);
-	HeapDrawLine(s);
+	HeapDrawLine(str);
 }
 
 #endif /* PUBLIC_VERSION */

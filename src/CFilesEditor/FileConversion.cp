@@ -511,7 +511,9 @@ ADYNAMIC tmpADynamic;
 ASLUR tmpASlur;
 AGRNOTE tmpAGRNote;
 APSMEAS tmpAPSMeas;
+AMODNR tmpModNR;
 
+static void Convert1MODNR(Document *doc, LINK aModNRL);
 static Boolean Convert1NOTER(Document *doc, LINK aNoteRL);
 static Boolean Convert1STAFF(Document *doc, LINK aStaffL);
 static Boolean Convert1MEASURE(Document *doc, LINK aMeasureL);
@@ -524,9 +526,31 @@ static Boolean Convert1GRNOTE(Document *doc, LINK aGRNoteRL);
 static Boolean Convert1PSMEAS(Document * /* doc */, LINK aPSMeasL);
 
 
-static Boolean Convert1NOTER(Document * /* doc */, LINK aNoteRL)
+static void Convert1MODNR(Document * /* doc */, LINK aModNRL)
+{
+	AMODNR_5 a1ModNR;
+	
+	BlockMove(&tmpModNR, &a1ModNR, sizeof(ANOTE_5));
+
+	ModNRSEL(aModNRL) = (&a1ModNR)->selected;
+	ModNRSOFT(aModNRL) = (&a1ModNR)->soft;
+	ModNRVIS(aModNRL) = (&a1ModNR)->visible;
+
+	ModNRXSTD(aModNRL) = (&a1ModNR)->xstd;
+	ModNRMODCODE(aModNRL) = (&a1ModNR)->modCode;
+	ModNRDATA(aModNRL) = (&a1ModNR)->data;
+	ModNRYSTDPIT(aModNRL) = (&a1ModNR)->ystdpit;
+
+LogPrintf(LOG_DEBUG, "Convert1MODNR: aModNRL=%u code=%d xstd=%d ystdpit=%d\n",
+aModNRL, ModNRMODCODE(aModNRL), ModNRXSTD(aModNRL), ModNRYSTDPIT(aModNRL));
+}
+
+
+static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 {
 	ANOTE_5 a1NoteR;
+	LINK aModNRL;
+	unsigned char *pSSubObj;
 	
 	BlockMove(&tmpANoteR, &a1NoteR, sizeof(ANOTE_5));
 	
@@ -577,6 +601,24 @@ static Boolean Convert1NOTER(Document * /* doc */, LINK aNoteRL)
 	NoteINOTTAVA(aNoteRL) = (&a1NoteR)->inOttava;
 	NoteSMALL(aNoteRL) = (&a1NoteR)->small;
 	NoteTEMPFLAG(aNoteRL) = (&a1NoteR)->tempFlag;
+	
+#if 1
+	/* AMODNR subobjs are attached directly to ANOTEs, so convert them here. */
+
+	aModNRL = NoteFIRSTMOD(aNoteRL);
+	for ( ; aModNRL; aModNRL = NextMODNRL(aModNRL)) {
+		/* Copy the subobj to a separate AMODNR so we can move fields all over
+		the place without having to worry about clobbering anything. */
+
+		pSSubObj = (unsigned char *)GetObjectPtr(MODNRheap, aModNRL, PAMODNR);
+//LogPrintf(LOG_DEBUG, "->block=%ld aModNRL=%d sizeof(AMODNR)*aModNRL=%d pSSubObj=%ld\n", (MODNRheap)->block,
+//aModNRL, sizeof(AMODNR)*aModNRL, pSSubObj);
+		BlockMove(pSSubObj, &tmpModNR, sizeof(AMODNR));
+NHexDump(LOG_DEBUG, "Convert1NOTER:MODNR", (unsigned char *)&tmpModNR, sizeof(AMODNR_5), 4, 16);
+
+		Convert1MODNR(doc, aModNRL);
+	}
+#endif
 	
 //NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
 LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
@@ -647,7 +689,7 @@ static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
 //aStaffL, StaffSTAFFN(aStaffL), StaffTOP(aStaffL), StaffHEIGHT(aStaffL), StaffSTAFFLINES(aStaffL));
 { PASTAFF			aStaff;
 aStaff = GetPASTAFF(aStaffL);
-LogPrintf(LOG_INFO, "Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+LogPrintf(LOG_DEBUG, "Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
 	aStaff->staffn, aStaff->staffTop,
 	aStaff->staffLeft, aStaff->staffHeight,
 	aStaff->staffRight, aStaff->staffLines,
@@ -735,7 +777,6 @@ LogPrintf(LOG_DEBUG, "Convert1CLEF: aClefL=%u xd=%d\n", aClefL, ClefXD(aClefL));
 }
 
 
-
 static Boolean Convert1KEYSIG(Document * /* doc */, LINK aKeySigL)
 {
 	AKEYSIG_5 a1KeySig;
@@ -760,14 +801,12 @@ static Boolean Convert1KEYSIG(Document * /* doc */, LINK aKeySigL)
 	KeySigN105Copy(&a1KeySig, GetPAKEYSIG(aKeySigL));
 	//KEYSIG_COPY((PKSINFO_5)a1KeySig.KSItem, (PKSINFO)(KeySigKSITEM(aKeySigL)));
 
-NHexDump(LOG_DEBUG, "Convert1KEYSIG", (unsigned char *)&tmpAKeySig, 36, 4, 16);
+//NHexDump(LOG_DEBUG, "Convert1KEYSIG", (unsigned char *)&tmpAKeySig, 36, 4, 16);
 LogPrintf(LOG_DEBUG, "Convert1KEYSIG: aKeySigL=%u small=%d xd=%d", aKeySigL,
 KeySigSMALL(aKeySigL), KeySigXD(aKeySigL));
 DKeySigPrintf((PKSINFO)(KeySigKSITEM(aKeySigL)));
 	return True;
 }
-
-
 
 
 static Boolean Convert1TIMESIG(Document * /* doc */, LINK aTimeSigL)
@@ -799,7 +838,6 @@ LogPrintf(LOG_DEBUG, "Convert1TIMESIG: aTimeSigL=%u numer=%d denom=%d\n", aTimeS
 TimeSigNUMER(aTimeSigL), TimeSigDENOM(aTimeSigL));
 	return True;
 }
-
 
 
 static Boolean Convert1BEAMSET(Document * /* doc */, LINK aBeamsetL)
@@ -964,7 +1002,6 @@ static Boolean Convert1GRNOTE(Document * /* doc */, LINK aGRNoteL)
 }
 
 
-
 static Boolean Convert1PSMEAS(Document * /* doc */, LINK aPSMeasL)
 {
 	APSMEAS_5 a1PSMeas;
@@ -985,7 +1022,7 @@ static Boolean Convert1PSMEAS(Document * /* doc */, LINK aPSMeasL)
 	PSMeasCONNSTAFF(aPSMeasL) = (&a1PSMeas)->connStaff;	
 	
 //NHexDump(LOG_DEBUG, "Convert1PSMEAS", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1PSMEAS: staffn=%u connAbove=%d connStaff=%d\n",
+LogPrintf(LOG_DEBUG, "Convert1PSMEAS: aPSMeasL=%u staffn=%d connAbove=%d connStaff=%d\n",
 aPSMeasL, PSMeasSTAFFN(aPSMeasL), PSMeasCONNABOVE(aPSMeasL), PSMeasCONNSTAFF(aPSMeasL));
 		return True;
 }
@@ -1051,13 +1088,15 @@ static Boolean ConvertTEMPO(Document *doc, LINK tempoL);
 static Boolean ConvertSPACER(Document *doc, LINK spacerL);
 
 
-static Boolean ConvertHEADER(Document *doc, LINK headL)
+static Boolean ConvertHEADER(Document * /* doc */, LINK headL)
 {
 	LogPrintf(LOG_DEBUG, "ConvertHEADER: headL=L%u\n", headL);
 
 	/* The HEADER itself has nothing but the OBJECTHEADER, so there's nothing to
 	   here for that. And, as of March 2020, its subobjects, PARTINFOs, are identical
 	   in N105 and N106 formats, though that could change. */
+	   
+	return True;
 }
 
 
@@ -1394,8 +1433,8 @@ static Boolean ConvertCONNECT(Document *doc, LINK connectL)
 		the place without having to worry about clobbering anything. */
 
 		pSSubObj = (unsigned char *)GetObjectPtr(CONNECTheap, aConnectL, PACONNECT);
-LogPrintf(LOG_DEBUG, "->block=%ld aConnectL=%d sizeof(ACONNECT)*aConnectL=%d pSSubObj=%ld\n",
-(CONNECTheap)->block, aConnectL, sizeof(ACONNECT)*aConnectL, pSSubObj);
+//LogPrintf(LOG_DEBUG, "->block=%ld aConnectL=%d sizeof(ACONNECT)*aConnectL=%d pSSubObj=%ld\n",
+//(CONNECTheap)->block, aConnectL, sizeof(ACONNECT)*aConnectL, pSSubObj);
 		BlockMove(pSSubObj, &tmpAConnect, sizeof(ACONNECT));
 //NHexDump(LOG_DEBUG, "ConvertCONNECT", (unsigned char *)&tmpAConnect, sizeof(ACONNECT_5), 4, 16);
 
@@ -1430,8 +1469,8 @@ aDynamicL = FirstSubLINK(dynamicL);
 		the place without having to worry about clobbering anything. */
 
 		pSSubObj = (unsigned char *)GetObjectPtr(DYNAMheap, aDynamicL, PADYNAMIC);
-LogPrintf(LOG_DEBUG, "->block=%ld aDynamicL=%d sizeof(ADYNAMIC)*aDynamicL=%d pSSubObj=%ld\n",
-(DYNAMheap)->block, aDynamicL, sizeof(ADYNAMIC)*aDynamicL, pSSubObj);
+//LogPrintf(LOG_DEBUG, "->block=%ld aDynamicL=%d sizeof(ADYNAMIC)*aDynamicL=%d pSSubObj=%ld\n",
+//(DYNAMheap)->block, aDynamicL, sizeof(ADYNAMIC)*aDynamicL, pSSubObj);
 		BlockMove(pSSubObj, &tmpADynamic, sizeof(ADYNAMIC));
 //NHexDump(LOG_DEBUG, "ConvertDYNAMIC", (unsigned char *)&tmpADynamic, sizeof(ADYNAMIC_5), 4, 16);
 
@@ -1442,8 +1481,7 @@ LogPrintf(LOG_DEBUG, "->block=%ld aDynamicL=%d sizeof(ADYNAMIC)*aDynamicL=%d pSS
 }
 
 
-
-static Boolean ConvertGRAPHIC(Document *doc, LINK graphicL)
+static Boolean ConvertGRAPHIC(Document * /* doc */, LINK graphicL)
 {
 	GRAPHIC_5 aGraphic;
 	LINK aGraphicL;
@@ -1494,7 +1532,7 @@ aGraphicL, sizeof(AGRAPHIC)*aGraphicL, pSSubObj);
 }
 
 
-static Boolean ConvertOTTAVA(Document *doc, LINK ottavaL)
+static Boolean ConvertOTTAVA(Document * /* doc */, LINK ottavaL)
 {
 	OTTAVA_5 aOttava;
 	LINK aOttavaL;
@@ -1589,9 +1627,7 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 }
 
 
-
-
-static Boolean ConvertTUPLET(Document *doc, LINK tupletL)
+static Boolean ConvertTUPLET(Document * /* doc */, LINK tupletL)
 {
 	TUPLET_5 aTuplet;
 	LINK aTupletL;
@@ -1669,7 +1705,7 @@ static Boolean ConvertGRSYNC(Document *doc, LINK grSyncL)
 }
 
 
-static Boolean ConvertTEMPO(Document *doc, LINK tempoL)
+static Boolean ConvertTEMPO(Document * /* doc */, LINK tempoL)
 {
 	TEMPO_5 aTempo;
 	
@@ -1694,7 +1730,7 @@ static Boolean ConvertTEMPO(Document *doc, LINK tempoL)
 }
 
 
-static Boolean ConvertSPACER(Document *doc, LINK spacerL)
+static Boolean ConvertSPACER(Document * /* doc */, LINK spacerL)
 {
 	SPACER_5 aSpacer;
 	
@@ -1712,11 +1748,9 @@ static Boolean ConvertSPACER(Document *doc, LINK spacerL)
 }
 
 
-static Boolean ConvertENDING(Document *doc, LINK endingL)
+static Boolean ConvertENDING(Document * /* doc */, LINK endingL)
 {
 	ENDING_5 aEnding;
-	LINK aEndingL;
-	unsigned char *pSSubObj;
 	
 	BlockMove(&tmpSuperObj, &aEnding, sizeof(ENDING_5));
 	
@@ -1735,7 +1769,6 @@ static Boolean ConvertENDING(Document *doc, LINK endingL)
 
 	return True;
 }
-
 
 
 static Boolean ConvertPSMEAS(Document *doc, LINK psMeasL)

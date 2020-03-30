@@ -29,15 +29,15 @@
 /* ------------------------------------------------------ Clef/KeySig/TimeSigBeforeBar -- */
 
 Boolean ClefBeforeBar(Document *doc,
-							LINK pLPIL,
-							char inchar,						/* Symbol to add */
-							short staffn
-							)
+						LINK pLPIL,
+						char inchar,						/* Symbol to add */
+						short staffn
+						)
 {
-	LINK		firstMeasL, firstClefL;
-	Boolean 	isClef;
-	LINK		endL, doneL;
-	short		sym;
+	LINK	firstMeasL, firstClefL;
+	Boolean isClef;
+	LINK	endL, doneL;
+	short	sym;
 	
 	if (!LinkBefFirstMeas(pLPIL)) return False;
 
@@ -46,17 +46,15 @@ Boolean ClefBeforeBar(Document *doc,
 		firstClefL = LSSearch(firstMeasL, CLEFtype, 1, True, False);
 
 		if (firstClefL) {
-
 			isClef = InitialClefExists(firstClefL);
 			sym = GetSymTableIndex(inchar);
 			doneL = ReplaceClef(doc,firstClefL,staffn,symtable[sym].subtype);
 
 			if (!isClef) {
-
-				/* EndSystemSearch gives the object which terminates pLPIL's
-					system; FixInitialxds calls EndSystemSearch again with
-					its endL parameter; if we pass endL rather than LeftLINK(endL)
-					it moves xds on the system following pLPIL's as well as pLPIL's */
+				/* EndSystemSearch gives the object which terminates pLPIL's system.
+				   FixInitialxds calls EndSystemSearch again with its endL parameter;
+				   if we pass endL rather than LeftLINK(endL) it moves xds on the
+				   system following pLPIL's as well as pLPIL's */
 
 				endL = EndSystemSearch(doc, pLPIL);
 				FixInitialxds(doc, firstClefL, LeftLINK(endL), CLEFtype);
@@ -106,9 +104,9 @@ Boolean KeySigBeforeBar(Document *doc, LINK pLPIL, short staffn, short sharpsOrF
  */
 
 Boolean TimeSigBeforeBar(Document *doc, LINK pLPIL, short staffn, short type,
-									short numerator, short denominator)
+							short numerator, short denominator)
 {
-	LINK firstMeasL,firstTSL,endL;
+	LINK firstMeasL, firstTSL, endL;
 	Boolean isTimeSig;
 	
 	if (!LinkBefFirstMeas(pLPIL)) return False;								/* #1 */
@@ -159,6 +157,7 @@ void AddDot(Document *doc,
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->subType+aNote->ndots>=MAX_L_DUR)	{
 		SysBeep(10);
+		LogPrintf(LOG_WARNING, "Can't add more augmentation dots to note/rest of this duration.  (AddDot)\n");
 		return;
 	}
 
@@ -1398,16 +1397,15 @@ void NewMODNR(Document *doc,
 	
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
 
-	/* Insert the current note modifier into the note's linked modifier list. 
-		If the list exists, traverse to the end, & insert the new MODNR LINK
-		into LastMODNR's next field, else into aNote->firstMod. */
+	/* Insert the current note modifier into the note's linked modifier list. If the
+	   list exists, traverse to the end, & insert the new MODNR LINK into LastMODNR's
+	   next field, else into aNote->firstMod. */
 
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->firstMod) {
 		aModNRL = aNote->firstMod;
 		for ( ; aModNRL; aModNRL = NextMODNRL(aModNRL))
-			if (!NextMODNRL(aModNRL))
-				lastModNRL = aModNRL;
+			if (!NextMODNRL(aModNRL)) lastModNRL = aModNRL;
 		aModNRL = NextMODNRL(lastModNRL) = HeapAlloc(MODNRheap, 1);
 		if (!aModNRL) MayErrMsg("NewMODNR: HeapAlloc failed.");
 	}
@@ -1449,9 +1447,9 @@ LINK AutoNewModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNote
 	/* Get vertical position of new modifier. Must do this before allocating new one! */
 	qPitchLev = ModNRPitchLev(doc, modCode, syncL, aNoteL);
 
-	/* Insert the new note modifier into the note's linked modifier list. 
-		If the list exists, traverse to the end, & insert the new MODNR LINK
-		into LastMODNR's next field, else into aNote->firstMod. */
+	/* Insert the new note modifier into the note's linked modifier list. If the
+	   list exists, traverse to the end, & insert the new MODNR LINK into LastMODNR's
+	   next field, else into aNote->firstMod. */
 
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->firstMod) {
@@ -1494,7 +1492,8 @@ effort to avoid passing one more parameter. */
 LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
 						char inchar, short *sym, PCONTEXT pContext, Boolean crossSys)
 {
-	LINK sysL, measL, newL; PSYSTEM pSystem; PDYNAMIC newp; short dtype;
+	LINK sysL, measL, newL;  PSYSTEM pSystem;
+	PDYNAMIC newp;  short dtype;
 
 	sysL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, False);
 	pSystem = GetPSYSTEM(sysL);
@@ -1535,7 +1534,8 @@ void NewDynamic(
 			Boolean	crossSys		/* (Ignored for now) Whether cross system */
 			)
 {
-	short	sym; LINK newL; CONTEXT context; DDIST sysLeft;
+	short sym;  LINK newL;
+	CONTEXT context;  DDIST sysLeft;
 	PDYNAMIC newp;
 
 	/* Insertion of crossSys dynamics is not currently undoable. */
@@ -1584,14 +1584,14 @@ void NewRptEnd(Document *doc,
 	switch(newp->subType) {
 		case RPT_L:
 			pL = LSSearch(RightLINK(newL), RPTENDtype, ANYONE, False, False);
-			if (pL) newp->endRpt = pL;
-			else	  newp->endRpt = NILINK;
+			if (pL)	newp->endRpt = pL;
+			else	newp->endRpt = NILINK;
 			newp->startRpt = NILINK;
 			break;
 		case RPT_R:
 			pL = LSSearch(LeftLINK(newL), RPTENDtype, ANYONE, True, False);
-			if (pL) newp->startRpt = pL;
-			else	  newp->startRpt = NILINK;
+			if (pL)	newp->startRpt = pL;
+			else	newp->startRpt = NILINK;
 			newp->endRpt = NILINK;
 			break;
 		case RPT_LR:

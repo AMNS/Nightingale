@@ -216,7 +216,7 @@ void DisplayNode(Document *doc, LINK pL,
 				if (OptionKeyDown())
 					LogPrintf(LOG_INFO, "@%lx:", aNote);
 					LogPrintf(LOG_INFO, 
-						"st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c\n",
+						"st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
 						aNote->staffn, aNote->voice,
 						aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
 						aNote->subType,
@@ -233,14 +233,15 @@ void DisplayNode(Document *doc, LINK pL,
 						(aNote->tiedR? '(' : '.'),
 						(aNote->slurredL? '>' : '.'),
 						(aNote->slurredR? '<' : '.'),
-						(aNote->inTuplet? 'T' : '.') );
+						(aNote->inTuplet? 'T' : '.'),
+						aNote->firstMod );
 			}
 			break;
 		case GRSYNCtype:
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextGRNOTEL(aNoteL)) {
 				aNote = GetPAGRNOTE(aNoteL);
 				LogPrintf(LOG_INFO, 
-					"     st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c %c%c%c\n",
+					"     st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
 					aNote->staffn, aNote->voice,
 					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
 					aNote->subType,
@@ -253,7 +254,8 @@ void DisplayNode(Document *doc, LINK pL,
 					(aNote->inChord? 'C' : '.') ,
 					(aNote->beamed? 'B' : '.'),
 					(aNote->slurredL? '>' : '.'),
-					(aNote->slurredR? '<' : '.') );
+					(aNote->slurredR? '<' : '.'),
+					aNote->firstMod );
 			}
 			break;
 		case STAFFtype:

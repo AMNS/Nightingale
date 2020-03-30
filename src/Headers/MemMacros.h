@@ -484,36 +484,36 @@ keep them for now.  --DAB, Feb. 2017  */
 170 of these are from the OMRAS "MemMacroizing" project of the late 1990s; most of those
 are by Steve Hart.) */
 
-#define FirstSubObjPtr(p,link)		(p = GetPMEVENT(link), p->firstSubObj)			
+#define FirstSubObjPtr(p,link)		(p = GetPMEVENT(link), p->firstSubObj)
 
 #define SyncTIME(link)				( (GetPSYNC(link))->timeStamp )
 
 #define PartNAME(link)				( GetPPARTINFO(link)->name )
 
-#define BeamCrossSTAFF(link)		( (GetPBEAMSET(link))->crossStaff )			
-#define BeamCrossSYS(link)			( (GetPBEAMSET(link))->crossSystem )		
-#define BeamFEATHER(link)			( (GetPBEAMSET(link))->feather )		
-#define BeamFirstSYS(link)			( (GetPBEAMSET(link))->firstSystem )		
-#define BeamGRACE(link)				( (GetPBEAMSET(link))->grace )		
-#define BeamRESTS(link)				( (GetPBEAMSET(link))->beamRests )	
-#define BeamTHIN(link)				( (GetPBEAMSET(link))->thin )	
+#define BeamCrossSTAFF(link)		( (GetPBEAMSET(link))->crossStaff )
+#define BeamCrossSYS(link)			( (GetPBEAMSET(link))->crossSystem )
+#define BeamFEATHER(link)			( (GetPBEAMSET(link))->feather )
+#define BeamFirstSYS(link)			( (GetPBEAMSET(link))->firstSystem )
+#define BeamGRACE(link)				( (GetPBEAMSET(link))->grace )
+#define BeamRESTS(link)				( (GetPBEAMSET(link))->beamRests )
+#define BeamTHIN(link)				( (GetPBEAMSET(link))->thin )
 
 #define ClefFILLER1(link)		 	( (GetPACLEF(link))->filler1)	
 #define ClefFILLER2(link)		 	( (GetPACLEF(link))->filler2)	
-#define ClefINMEAS(link)			( (GetPCLEF(link))->inMeasure )		
+#define ClefINMEAS(link)			( (GetPCLEF(link))->inMeasure )
 #define ClefSMALL(link)				( (GetPACLEF(link))->small )
 #define ClefSOFT(link)				( (GetPACLEF(link))->soft)
 #define ClefSTAFFN(link)			( (GetPACLEF(link))->staffn )	
 #define ClefXD(link)				( (GetPACLEF(link))->xd )	
 #define ClefYD(link)		 	 	( (GetPACLEF(link))->yd )
 
-#define ConnectCONNLEVEL(link)		( (GetPACONNECT(link))->connLevel )		
-#define ConnectCONNTYPE(link)		( (GetPACONNECT(link))->connectType )		
+#define ConnectCONNLEVEL(link)		( (GetPACONNECT(link))->connLevel )
+#define ConnectCONNTYPE(link)		( (GetPACONNECT(link))->connectType )
 #define ConnectFILLER(link)		 	( (GetPACONNECT(link))->filler)	
-#define ConnectFIRSTPART(link)		( (GetPACONNECT(link))->firstPart)		
-#define ConnectLASTPART(link)		( (GetPACONNECT(link))->lastPart)		
-#define ConnectSTAFFABOVE(link)		( (GetPACONNECT(link))->staffAbove )		
-#define ConnectSTAFFBELOW(link)		( (GetPACONNECT(link))->staffBelow )		
+#define ConnectFIRSTPART(link)		( (GetPACONNECT(link))->firstPart)
+#define ConnectLASTPART(link)		( (GetPACONNECT(link))->lastPart)
+#define ConnectSTAFFABOVE(link)		( (GetPACONNECT(link))->staffAbove )
+#define ConnectSTAFFBELOW(link)		( (GetPACONNECT(link))->staffBelow )
 #define ConnectXD(link)				( (GetPACONNECT(link))->xd )
 
 #define DynamicENDXD(link)			( (GetPADYNAMIC(link))->endxd)	
@@ -657,12 +657,12 @@ are by Steve Hart.) */
 #define MeasXMNSTDOFFSET(link)		( (GetPAMEASURE(link))->xMNStdOffset )		
 #define MeasYMNSTDOFFSET(link)		( (GetPAMEASURE(link))->yMNStdOffset )		
 
-#define MeasISFAKE(link)			( (GetPMEASURE(link))->fakeMeas )		
-#define MeasSPACEPCT(link)			( (GetPMEASURE(link))->spacePercent )			
-#define MeasSTAFFL(link)			( (GetPMEASURE(link))->staffL )			
-#define MeasSYSL(link)				( (GetPMEASURE(link))->systemL )	
-#define MeasureBBOX(link)			( (GetPMEASURE(link))->measureBBox )			
-#define MeasureTIME(link)			( (GetPMEASURE(link))->lTimeStamp )			
+#define MeasISFAKE(link)			( (GetPMEASURE(link))->fakeMeas )
+#define MeasSPACEPCT(link)			( (GetPMEASURE(link))->spacePercent )
+#define MeasSTAFFL(link)			( (GetPMEASURE(link))->staffL )
+#define MeasSYSL(link)				( (GetPMEASURE(link))->systemL )
+#define MeasureBBOX(link)			( (GetPMEASURE(link))->measureBBox )	
+#define MeasureTIME(link)			( (GetPMEASURE(link))->lTimeStamp )
 
 #define ModNRDATA(link)				( (GetPAMODNR(link))->data)
 #define ModNRMODCODE(link)			( (GetPAMODNR(link))->modCode )	
@@ -670,9 +670,9 @@ are by Steve Hart.) */
 #define ModNRSOFT(link)				( (GetPAMODNR(link))->soft)
 #define ModNRVIS(link)				( (GetPAMODNR(link))->visible)
 #define ModNRXSTD(link)				( (GetPAMODNR(link))->xstd )
-#define ModNRYSTDPIT(link)			( (GetPAMODNR(link))->ystdpit)	
+#define ModNRYSTDPIT(link)			( (GetPAMODNR(link))->ystdpit)
 
-#define NextGraphic(aGraphic)		( (GetPAGRAPHIC((aGraphic))->next )		
+#define NextGraphic(aGraphic)		( (GetPAGRAPHIC((aGraphic))->next )
 
 #define NoteACC(link)				( (GetPANOTE(link))->accident )	
 #define NoteACCSOFT(link)			( (GetPANOTE(link))->accSoft )		
