@@ -7,8 +7,8 @@
  */
 
 /* File DebugDisplay.c - printing functions for Debug:
-	DKeySigPrintf			DisplayNode				MemUsageStats
-	DisplayIndexNode		NHexDump
+	KeySigSprintf			DKeySigPrintf			DisplayNode
+	MemUsageStats			DisplayIndexNode		NHexDump
 */
 
 #include "Nightingale_Prefix.pch"
@@ -16,23 +16,34 @@
 
 #define DDB
 
-/* --------------------------------------------------------------------- DKeySigPrintf -- */
-/* Print the context-independent information on a key signature. */
+/* --------------------------------------------------------------------- KeySigSprintf -- */
 
-void DKeySigPrintf(PKSINFO KSInfo)
+void KeySigSprintf(PKSINFO KSInfo, char ksStr[])
 {
-	short	k;
+	short k;
 	
 	if (KSInfo->nKSItems>0) {
-		LogPrintf(LOG_INFO, " lets=%d:%c", KSInfo->KSItem[0].letcode,
+		sprintf(ksStr, " lets=%d:%c", KSInfo->KSItem[0].letcode,
 					(KSInfo->KSItem[0].sharp? '#' : 'b') );
 		for (k = 1; k<KSInfo->nKSItems; k++) 			
-			LogPrintf(LOG_INFO, " %d:%c", KSInfo->KSItem[k].letcode,
+			sprintf(&ksStr[strlen(ksStr)], " %d:%c", KSInfo->KSItem[k].letcode,
 					(KSInfo->KSItem[k].sharp? '#' : 'b') );
 	}
 	else
-		LogPrintf(LOG_INFO, " (0 sharps/flats)"); 
-	LogPrintf(LOG_INFO, "\n");
+		sprintf(ksStr, " (0 sharps/flats)");
+}
+
+
+/* --------------------------------------------------------------------- DKeySigPrintf -- */
+/* Print the context-independent information on a key signature. */
+
+void DKeySigPrintf(PKSINFO ksInfo)
+{
+	char ksStr[256];
+	
+	KeySigSprintf(ksInfo, ksStr);
+	sprintf(&ksStr[strlen(ksStr)], "\n");
+	LogPrintf(LOG_INFO, ksStr);
 }
 
 
@@ -139,7 +150,7 @@ void DisplayNode(Document *doc, LINK pL,
 			LogPrintf(LOG_INFO, " %c", (((PTIMESIG)p)->inMeasure? 'M' : '.') );
 			break;
 		case BEAMSETtype:
-			LogPrintf(LOG_INFO, " st=%d v=%d", ((PBEAMSET)p)->staffn, ((PBEAMSET)p)->voice);
+			LogPrintf(LOG_INFO, " stf=%d v=%d", ((PBEAMSET)p)->staffn, ((PBEAMSET)p)->voice);
 			break;
 		case DYNAMtype:
 			LogPrintf(LOG_INFO, " type=%d", ((PDYNAMIC)p)->dynamicType);
@@ -147,7 +158,7 @@ void DisplayNode(Document *doc, LINK pL,
 									((PDYNAMIC)p)->firstSyncL, ((PDYNAMIC)p)->lastSyncL);
 			break;
 		case GRAPHICtype:
-			LogPrintf(LOG_INFO, " st=%d type=%d", ((PGRAPHIC)p)->staffn,
+			LogPrintf(LOG_INFO, " stf=%d type=%d", ((PGRAPHIC)p)->staffn,
 								((PGRAPHIC)p)->graphicType);
 			if (showLinks) {
 				LogPrintf(LOG_INFO, " fObj=L%u", ((PGRAPHIC)p)->firstObj);
@@ -156,11 +167,11 @@ void DisplayNode(Document *doc, LINK pL,
 			}
 			break;
 		case OTTAVAtype:
-			LogPrintf(LOG_INFO, " st=%d octType=%d", ((POTTAVA)p)->staffn,
+			LogPrintf(LOG_INFO, " stf=%d octType=%d", ((POTTAVA)p)->staffn,
 								((POTTAVA)p)->octSignType);
 			break;
 		case SLURtype:
-			LogPrintf(LOG_INFO, " st=%d v=%d", ((PSLUR)p)->staffn, ((PSLUR)p)->voice);
+			LogPrintf(LOG_INFO, " stf=%d v=%d", ((PSLUR)p)->staffn, ((PSLUR)p)->voice);
 			if (((PSLUR)p)->tie) LogPrintf(LOG_INFO, " Tie");
 			if (((PSLUR)p)->crossSystem) LogPrintf(LOG_INFO, " xSys");
 			if (((PSLUR)p)->crossStaff) LogPrintf(LOG_INFO, " xStf");
@@ -169,19 +180,19 @@ void DisplayNode(Document *doc, LINK pL,
 													((PSLUR)p)->lastSyncL);
 			break;
 		case TUPLETtype:
-			LogPrintf(LOG_INFO, " st=%d v=%d num=%d denom=%d", ((PTUPLET)p)->staffn,
+			LogPrintf(LOG_INFO, " stf=%d v=%d num=%d denom=%d", ((PTUPLET)p)->staffn,
 								((PTUPLET)p)->voice,
 								((PTUPLET)p)->accNum, ((PTUPLET)p)->accDenom);
 			break;
 		case TEMPOtype:
-			LogPrintf(LOG_INFO, " st=%d", ((PTEMPO)p)->staffn);
+			LogPrintf(LOG_INFO, " stf=%d", ((PTEMPO)p)->staffn);
 			if (showLinks) LogPrintf(LOG_INFO, " fObj=L%u", ((PTEMPO)p)->firstObjL);
 			break;
 		case SPACERtype:
 			LogPrintf(LOG_INFO, " spWidth=%d", ((PSPACER)p)->spWidth);
 			break;
 		case ENDINGtype:
-			LogPrintf(LOG_INFO, " st=%d num=%d", ((PENDING)p)->staffn, ((PENDING)p)->endNum);
+			LogPrintf(LOG_INFO, " stf=%d num=%d", ((PENDING)p)->staffn, ((PENDING)p)->endNum);
 			if (showLinks) LogPrintf(LOG_INFO, " L%u->L%u", ((PENDING)p)->firstObjL,
 												 				((PENDING)p)->lastObjL);
 			break;
@@ -216,7 +227,7 @@ void DisplayNode(Document *doc, LINK pL,
 				if (OptionKeyDown())
 					LogPrintf(LOG_INFO, "@%lx:", aNote);
 					LogPrintf(LOG_INFO, 
-						"st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
+						"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
 						aNote->staffn, aNote->voice,
 						aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
 						aNote->subType,
@@ -241,7 +252,7 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextGRNOTEL(aNoteL)) {
 				aNote = GetPAGRNOTE(aNoteL);
 				LogPrintf(LOG_INFO, 
-					"     st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
+					"     stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
 					aNote->staffn, aNote->voice,
 					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
 					aNote->subType,
@@ -261,7 +272,7 @@ void DisplayNode(Document *doc, LINK pL,
 		case STAFFtype:
 			for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 				aStaff = GetPASTAFF(aStaffL);
-				LogPrintf(LOG_INFO, "     st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+				LogPrintf(LOG_INFO, "     stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
 					aStaff->staffn, aStaff->staffTop,
 					aStaff->staffLeft, aStaff->staffHeight,
 					aStaff->staffRight, aStaff->staffLines,
@@ -278,7 +289,7 @@ void DisplayNode(Document *doc, LINK pL,
 					aMeasureL=NextMEASUREL(aMeasureL)) {
 				aMeasure = GetPAMEASURE(aMeasureL);
 				LogPrintf(LOG_INFO, 
-					"     st=%d m#=%d barTp=%d cnst=%d clf=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
+					"     stf=%d m#=%d barTp=%d conStf=%d clef=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
 					aMeasure->staffn, aMeasure->measureNum,
 					aMeasure->subType,
 					aMeasure->connStaff, aMeasure->clefType,
@@ -300,7 +311,7 @@ void DisplayNode(Document *doc, LINK pL,
 					aPseudoMeasL=NextPSMEASL(aPseudoMeasL)) {
 				aPseudoMeas = GetPAPSMEAS(aPseudoMeasL);
 				LogPrintf(LOG_INFO, 
-					"     st=%d subTp=%d cnst=%d\n",
+					"     stf=%d subTp=%d conStf=%d\n",
 					aPseudoMeas->staffn,
 					aPseudoMeas->subType,
 					aPseudoMeas->connStaff );
@@ -309,7 +320,7 @@ void DisplayNode(Document *doc, LINK pL,
 		case CLEFtype:
 			for (aClefL=FirstSubLINK(pL); aClefL; aClefL=NextCLEFL(aClefL)) {
 				aClef = GetPACLEF(aClefL);
-				LogPrintf(LOG_INFO, "     st=%d xd=%d clef=%d %c%c%c\n",
+				LogPrintf(LOG_INFO, "     stf=%d xd=%d clef=%d %c%c%c\n",
 					aClef->staffn, aClef->xd, aClef->subType,
 					(aClef->selected? 'S' : '.'),
 					(aClef->visible? 'V' : '.'),
@@ -319,7 +330,7 @@ void DisplayNode(Document *doc, LINK pL,
 		case KEYSIGtype:
 			for (aKeySigL=FirstSubLINK(pL); aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL)) {
 				aKeySig = GetPAKEYSIG(aKeySigL);
-				LogPrintf(LOG_INFO, "     st=%d xd=%d %c%c%c nKSItems=%d",
+				LogPrintf(LOG_INFO, "     stf=%d xd=%d %c%c%c nKSItems=%d",
 					aKeySig->staffn, 
 					aKeySig->xd,
 					(aKeySig->selected? 'S' : '.'),
@@ -336,7 +347,7 @@ if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayNode/aKeySig", (unsigned char *)(&a
 		case TIMESIGtype:
 			for (aTimeSigL=FirstSubLINK(pL); aTimeSigL; aTimeSigL=NextTIMESIGL(aTimeSigL)) {
 				aTimeSig = GetPATIMESIG(aTimeSigL);
-				LogPrintf(LOG_INFO, "     st=%d xd=%d type=%d,%d/%d %c%c%c\n",
+				LogPrintf(LOG_INFO, "     stf=%d xd=%d type=%d,%d/%d %c%c%c\n",
 					aTimeSig->staffn, 
 					aTimeSig->xd, aTimeSig->subType,
 					aTimeSig->numerator, aTimeSig->denominator,
@@ -399,7 +410,7 @@ if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayNode/aKeySig", (unsigned char *)(&a
 			for (aDynamicL=FirstSubLINK(pL); aDynamicL; 
 					aDynamicL=NextDYNAMICL(aDynamicL)) {
 				aDynamic = GetPADYNAMIC(aDynamicL);
-				LogPrintf(LOG_INFO, "     st=%d xd=%d yd=%d endxd=%d %c%c%c\n",
+				LogPrintf(LOG_INFO, "     stf=%d xd=%d yd=%d endxd=%d %c%c%c\n",
 					aDynamic->staffn, aDynamic->xd, aDynamic->yd,
 					aDynamic->endxd,
 					(aDynamic->selected? 'S' : '.'),

@@ -38,6 +38,7 @@ Boolean DoDebug(char *);
 void ResetDErrLimit(void);
 Boolean DErrLimit(void);
 
+void KeySigSprintf(PKSINFO, char []);
 void DKeySigPrintf(PKSINFO);
 void DisplayNode(Document *, LINK, short, Boolean, Boolean, Boolean);
 void MemUsageStats(Document *);

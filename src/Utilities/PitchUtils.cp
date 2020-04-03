@@ -39,7 +39,7 @@ static void GSortNotes(CHORDNOTE [], short, Boolean);
 
 /* ------------------------------------------------------------------------ MoveModNRs -- */
 /* Move all MODNRs attached to the given note/rest up or down by the given distance.
-Not really a "pitch" utility but this seems to be the best place for this. */
+(Not really a "pitch" utility but this seems to be the best place for it.) */
 
 void MoveModNRs(LINK aNoteL, STDIST dystd)
 {
@@ -113,7 +113,7 @@ void KeySigCopy(PKSINFO srcKS, PKSINFO dstKS)
 
 
 /* ----------------------------------------------------------------- ClefMiddleCHalfLn -- */
-/*	Given clef, get staff half-line number of middle C. */
+/*	Given a clef, get the staff half-line number of middle C. */
 
 short ClefMiddleCHalfLn(SignedByte clefType)
 {
@@ -1281,10 +1281,10 @@ Boolean CompareNCNotes(
 		}
 		else if (!sameMeas || tiedAcrossMeas) {
 			/* No match of note numbers. But either the notes/chords are in different
-				measures, or there's a tie into the measure in this voice, so try for
-				an accidental-created match. If <lastL> has a note in the same line/space
-				(or its equivalent in another clef!) and that note doesn't have an explicit
-				accidental, this note can be tied to it. */
+			   measures, or there's a tie into the measure in this voice, so try for
+			   an accidental-created match. If <lastL> has a note in the same line/space
+			   (or its equivalent in another clef!) and that note doesn't have an explicit
+			   accidental, this note can be tied to it. */
 				
 			for (lMatch = -1, l = 0; l<lCount; l++)
 				if (tlChordNote[l].noteNum<=MAX_NOTENUM) {
@@ -1310,10 +1310,9 @@ Boolean CompareNCNotes(
 
 
 /* ----------------------------------------------------------------- CompareNCNoteNums -- */
-/* Compare the MIDI note numbers in the given single notes or chords and deliver
-the number of matches found. Each note is counted only once: if a note number
-occurs (e.g.) twice in one chord and five times in the other, two matches are
-counted. */
+/* Compare the MIDI note numbers in the given single notes or chords and return the
+number of matches found. Each note is counted only once: if a note number occurs (e.g.)
+twice in one chord and five times in the other, two matches are counted. */
 
 short CompareNCNoteNums(LINK firstL, LINK lastL, short voice)
 {
@@ -1383,8 +1382,8 @@ static void PSortNotes(CHORDNOTE chordNote[], short nsize, Boolean ascending)
 
 
 /* ------------------------------------------------------------------- PSortChordNotes -- */
-/* Make a table of all the notes in the voice in the Sync, sort it by note
-number, and deliver the number of notes. */
+/* Make a table of all the notes in the voice in the Sync, sort it by note number, and
+return the number of notes. */
 
 short PSortChordNotes(LINK pSyncL, short voice, Boolean stemDown, CHORDNOTE chordNote[])
 {
@@ -1446,8 +1445,8 @@ static void GSortNotes(CHORDNOTE chordNote[], short nsize, Boolean ascending)
 
 
 /* ------------------------------------------------------------------- GSortChordNotes -- */
-/* Make a table of all the notes in the voice in the Sync, sort it by yqpit
-(vertical position relative to middle C), and deliver the number of notes. */
+/* Make a table of all the notes in the voice in the Sync, sort it by yqpit (vertical
+position relative to middle C), and deliver the number of notes. */
 
 short GSortChordNotes(
 				LINK	syncL,
@@ -1510,8 +1509,8 @@ short GSortChordGRNotes(
 
 
 /* --------------------------------------------------------------------- ArrangeNCAccs -- */
-/* Move all accidentals on the notes described by chordNote[0..noteCount-1]
-to reasonable positions. */
+/* Move all accidentals on the notes described by chordNote[0..noteCount-1] to
+reasonable positions. */
 
 #define QD_SECOND 2
 
@@ -1793,15 +1792,15 @@ distinguish between "no accidental" and "natural": it has AC_NATURAL for both. *
 /* Correct accidentals of notes and grace notes in given range for given staff to
 reflect the pitch modifier or accidental situation at the beginning of the range
 described in global <accTable> (which it destroys! FIXME: this is ugly and should be
-changed; in fact <accTable> should be an argument instead of a global).
-N.B. FixAllAccidentals does not understand barlines within its range. */
+changed; in fact <accTable> should be an argument instead of a global). NB: Does not
+understand barlines within its range. */
 
 void FixAllAccidentals(
-				LINK fixFirstL,
-				LINK fixLastL,
-				short staff,
-				Boolean pitchMod		/* True=<accTable> has pitch modifers, else accidentals */
-				)
+			LINK fixFirstL,
+			LINK fixLastL,
+			short staff,
+			Boolean pitchMod		/* True=<accTable> has pitch modifers, else accidentals */
+			)
 {
 	PANOTE		aNote;
 	PAGRNOTE	aGRNote;
@@ -1880,10 +1879,8 @@ void KeySig2AccTable(
 /* ----------------------------------------------------------------------- GetAccTable -- */
 /* Fill in an accidental table for the given staff just BEFORE the given object. NB:
 does not consider effects of accidentals on notes in previous measures that are
-tied ino this measure! ??This could well be considered a bug, but before fixing it,
-consider possibility that handling it here might hurt performance noticably; also,
-some places calling this (e.g., ProcessNRGR in NotelistSave.c) are already handling
-this. */
+tied ino this measure! FIXME: This is bug, but some functions that call this (e.g.,
+ProcessNRGR in NotelistSave.c) are already handling it. */
 
 void GetAccTable(
 				Document *doc,
@@ -1903,8 +1900,7 @@ void GetAccTable(
 							GO_LEFT, False);
 	if (!fromL) fromL = doc->headL;
 
-	for (thisL = fromL; thisL!=target; thisL = RightLINK(thisL))
-	{
+	for (thisL = fromL; thisL!=target; thisL = RightLINK(thisL)) {
 		switch (ObjLType(thisL)) {
 			case SYNCtype:
 				aNoteL = FirstSubLINK(thisL);
@@ -1954,7 +1950,7 @@ void GetPitchTable(
 /* -------------------------------------------------------------------- DelNoteFixAccs -- */
 /* For a note or grace note about to be deleted in <pL> on <staffn>, propogate the
 effect of its accidental, i.e., if necessary, compensate for it by adding its
-accidental to the next note/grace note in the same line/space. N.B. This should NOT
+accidental to the next note/grace note in the same line/space. NB: This should NOT
 be used to update accidentals upon deleting an arbitrary selection, which can
 contain key signatures and barlines; for that, use FixDelAccidentals. */
 
@@ -1973,11 +1969,10 @@ void DelNoteFixAccs(
 
 
 /* -------------------------------------------------------------------- InsNoteFixAccs -- */
-/* For a new note in <pL> on <staffn>, propogate the effect of its accidental,
-i.e., if necessary, compensate for it by adding the correct accidental to the
-next note in the same line/space; and return the effective accidental for the new
-note (it may have no accidental itself but is affected by a previous accidental
-on its line/space). */
+/* For a new note in <pL> on <staffn>, propogate the effect of its accidental, i.e.,
+if necessary, compensate for it by adding the correct accidental to the next note in
+the same line/space; and return the effective accidental for the new note (it may have
+no accidental itself but be affected by a previous accidental on its line/space). */
 
 short InsNoteFixAccs(
 				Document *doc,
@@ -2008,11 +2003,10 @@ short InsNoteFixAccs(
 }
 
 
-
 /* ---------------------------------------------------------------------- AvoidUnisons -- */
 /* In the given chord, try to avoid any kind of unisons by respelling. Returns False
 if there's at least one unison it can't get rid of. Assumes the chord doesn't contain
-any fancy spellings (see below).  Handles only chords of normal notes, not grace notes. */
+any fancy spellings (see below). Handles only chords of normal notes, not grace notes. */
 
 Boolean AvoidUnisons(Document *doc, LINK syncL, short voice, PCONTEXT pContext)
 {
@@ -2084,11 +2078,10 @@ void AvoidUnisonsInRange(Document *doc, LINK startL, LINK endL, short staff)
 	short nProblems=0;
 	char fmtStr[256];
 	
-	/*
-	 * Using the context before the first Measure is dangerous and there can't be
-	 * any Syncs there, anyway, so if <startL> is before the first Measure,
-	 * instead start at the first Measure.
-	 */
+	/* Using the context before the first Measure is dangerous and there can't be
+	   any Syncs there, anyway, so if <startL> is before the first Measure, start
+	   at the first Measure instead. */
+	 
 	if (!SSearch(startL, MEASUREtype, GO_LEFT))
 		startL = SSearch(startL, MEASUREtype, GO_RIGHT);
 

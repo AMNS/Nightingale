@@ -201,7 +201,7 @@ typedef struct {
 	SignedByte	connStaff;			/* staff to connect to (valid if >0 and !connAbove) */
 	SignedByte	clefType;			/* clef context */
 	SignedByte	dynamicType;		/* dynamic marking context */
-	WHOLE_KSINFO					/* key signature context */
+	WHOLE_KSINFO_5					/* key signature context */
 	SignedByte	timeSigType,		/* time signature context */
 				numerator,
 				denominator;

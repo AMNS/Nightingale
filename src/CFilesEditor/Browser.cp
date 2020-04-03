@@ -1025,7 +1025,7 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 	
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextCONNECTL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextCONNECTL(qL)) 
 		;
 	q = GetPACONNECT(qL);
 	sprintf(s, "link=%u @%lx next=%d", qL, (long unsigned int)q, q->next);
@@ -1096,7 +1096,7 @@ void BrowseClef(LINK pL, short index, Rect *pObjRect)
 	
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextCLEFL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextCLEFL(qL)) 
 		;
 	q = GetPACLEF(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
@@ -1128,6 +1128,7 @@ void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 	PAKEYSIG q;
 	LINK qL;
 	short i;
+	char ksStr[256];
 
 	p = GetPKEYSIG(pL);
 	*pObjRect = p->objRect;
@@ -1141,7 +1142,7 @@ void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextKEYSIGL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextKEYSIGL(qL)) 
 		;
 	q = GetPAKEYSIG(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
@@ -1158,6 +1159,9 @@ void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);	q = GetPAKEYSIG(qL);
 	sprintf(s, "nKSItems=%hd subType(nNats)=%d", q->nKSItems, q->subType);
 	DrawTextLine(s);
+	KeySigSprintf((PKSINFO)(KeySigKSITEM(qL)), ksStr);
+	DrawTextLine(ksStr);
+//NHexDump(LOG_DEBUG, "BrowseKeySig", (unsigned char *)&q->KSItem, 30, 4, 16);
 	
 	subL = qL;
 }
@@ -1184,7 +1188,7 @@ void BrowseTimeSig(LINK pL, short index, Rect *pObjRect)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextTIMESIGL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextTIMESIGL(qL)) 
 		;
 	q = GetPATIMESIG(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
@@ -1265,6 +1269,13 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "clefType=%d (%s)", q->clefType, clefStr);
 	DrawTextLine(s);	q = GetPAMEASURE(qL);
 	sprintf(s, "nKSItems=%hd", q->nKSItems);
+//LogPrintf(LOG_DEBUG, "BrowseMeasure1: link=%u nKSItems=%hd &q=%d &q->KSItem=%d\n", qL, q->nKSItems,
+//&q, &q->KSItem);
+//NHexDump(LOG_DEBUG, "BrowseMeasure1:q->KSitem", (unsigned char *)&q->KSItem, 30, 4, 16);
+//NHexDump(LOG_DEBUG, "BrowseMeasure1:q", (unsigned char *)&q, 30, 4, 16);
+	DrawTextLine(s);	q = GetPAMEASURE(qL); 
+	KeySigSprintf((PKSINFO)(MeasKSITEM(qL)), s);
+	//KeySigSprintf((PKSINFO)(&q->KSItem), s);
 	DrawTextLine(s);	q = GetPAMEASURE(qL);
 	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd",
 			q->timeSigType,
@@ -1419,7 +1430,7 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextGRNOTEL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextGRNOTEL(qL)) 
 		;
 	q = GetPAGRNOTE(qL);
 	sprintf(s, "link=%u @%lx stf=%d iv=%hd next=%d", qL, (long unsigned int)q, q->staffn,
@@ -1498,7 +1509,7 @@ void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTEBEAML(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEBEAML(qL)) 
 		;
 	q = GetPANOTEBEAM(qL);
 	sprintf(s, "link=%u @%lx bpSync=%d next=%d", qL, (long unsigned int)q, q->bpSync, q->next);
@@ -1543,7 +1554,7 @@ void BrowseTuplet(LINK pL, short index, Rect *pObjRect)
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTETUPLEL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTETUPLEL(qL)) 
 		;
 	q = GetPANOTETUPLE(qL);
 	sprintf(s, "link=%u @%lx tpSync=%d next=%d", qL, (long unsigned int)q, q->tpSync, q->next);
@@ -1578,7 +1589,7 @@ void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTEOTTAVAL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEOTTAVAL(qL)) 
 		;
 	q = GetPANOTEOTTAVA(qL);
 	sprintf(s, "link=%u @%lx opSync=%d next=%d", qL, (long unsigned int)q, q->opSync, q->next);
@@ -1614,7 +1625,7 @@ void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextDYNAMICL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextDYNAMICL(qL)) 
 		;
 	q = GetPADYNAMIC(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
@@ -1660,7 +1671,7 @@ void BrowseRptEnd(LINK pL, short index, Rect *pObjRect)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextRPTENDL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextRPTENDL(qL)) 
 		;
 	q = GetPARPTEND(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
@@ -1918,7 +1929,7 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 	
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,aSlurL=FirstSubLINK(pL); i<index; i++,aSlurL=NextSLURL(aSlurL)) 
+	for (i=0,aSlurL=FirstSubLINK(pL); i<index; i++, aSlurL=NextSLURL(aSlurL)) 
 		;
 	aSlur = GetPASLUR(aSlurL);
 

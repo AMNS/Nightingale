@@ -483,15 +483,21 @@ static void ConvertStaffLines(LINK startL)
 
 /* ---------------------------- Convert content of subobjects, including their headers -- */
 
-static void KeySigN105Copy(PAKEYSIG_5 pAKeySig, PAKEYSIG pAKSDst);
-static void KeySigN105Copy(PAKEYSIG_5 pAKeySig, PAKEYSIG pAKSDst)
+static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS);
+static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS)
 {
 	short i;
 	
-	pAKSDst->nKSItems = pAKeySig->nKSItems;		
-	for (i = 0; i<pAKeySig->nKSItems; i++) {
-		pAKSDst->KSItem[i].letcode = pAKeySig->KSItem[i].letcode;
-		pAKSDst->KSItem[i].sharp = pAKeySig->KSItem[i].sharp;
+	dstKS->nKSItems = srcKS->nKSItems;		
+	for (i = 0; i<srcKS->nKSItems; i++) {
+	
+		/* Copy the fields individually. Using struct assignment here fails to
+		   compile, saying "no match for 'operator=' in 'dstKS->KSINFO::KSItem, blah
+		   blah etc.', while struct assignment compiles and works in KeySigCopy()!
+		   The difference is the structs are identical there; here they're not. */
+		   
+		dstKS->KSItem[i].letcode = srcKS->KSItem[i].letcode;
+		dstKS->KSItem[i].sharp = srcKS->KSItem[i].sharp;
 	}
 }
 
@@ -602,7 +608,6 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteSMALL(aNoteRL) = (&a1NoteR)->small;
 	NoteTEMPFLAG(aNoteRL) = (&a1NoteR)->tempFlag;
 	
-#if 1
 	/* AMODNR subobjs are attached directly to ANOTEs, so convert them here. */
 
 	aModNRL = NoteFIRSTMOD(aNoteRL);
@@ -618,7 +623,6 @@ NHexDump(LOG_DEBUG, "Convert1NOTER:MODNR", (unsigned char *)&tmpModNR, sizeof(AM
 
 		Convert1MODNR(doc, aModNRL);
 	}
-#endif
 	
 //NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
 LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
@@ -729,21 +733,23 @@ static Boolean Convert1MEASURE(Document * /* doc */, LINK aMeasureL)
 	MeasCONNSTAFF(aMeasureL) = (&a1Measure)->connStaff;
 	MeasCLEFTYPE(aMeasureL) = (&a1Measure)->clefType;
 	MeasDynamType(aMeasureL) = (&a1Measure)->dynamicType;
-	KeySigCopy((PKSINFO)a1Measure.KSItem, (PKSINFO)(MeasKSITEM(aMeasureL)));
+	KeySigN105Copy((PKSINFO_5)a1Measure.KSItem, (PKSINFO)(MeasKSITEM(aMeasureL)));
+	//KeySigN105Copy((PKSINFO)(&a1Measure.KSItem), (PKSINFO)(MeasKSITEM(aMeasureL)));
 	MeasTIMESIGTYPE(aMeasureL) = (&a1Measure)->timeSigType;
 	MeasNUMER(aMeasureL) = (&a1Measure)->numerator;
 	MeasDENOM(aMeasureL) = (&a1Measure)->denominator;
 	MeasXMNSTDOFFSET(aMeasureL) = (&a1Measure)->xMNStdOffset;
 	MeasYMNSTDOFFSET(aMeasureL) = (&a1Measure)->yMNStdOffset;
 
-//NHexDump(LOG_DEBUG, "Convert1MEASURE", (unsigned char *)&tempSys, 46, 4, 16);
-//LogPrintf(LOG_DEBUG, "Convert1MEASURE: aMeasureL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
-//aMeasureL, MeasureMEASUREN(aMeasureL), MeasureTOP(aMeasureL), MeasureHEIGHT(aMeasureL), MeasureMEASURELINES(aMeasureL));
-#if 0
-{ PAMEASURE			aMeasure;
-aMeasure = GetPAMEASURE(aMeasureL);
-LogPrintf(LOG_INFO, "Convert1MEASURE: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
-blah lorem ipsum );
+//NHexDump(LOG_DEBUG, "Convert1MEASURE", (unsigned char *)&a1Measure, sizeof(AMEASURE_5)+2, 4, 16);
+LogPrintf(LOG_DEBUG, "Convert1MEASURE: aMeasureL=%u staffn=%d measNum=%d connStaff=%d\n",
+aMeasureL, MeasureSTAFFN(aMeasureL), MeasMEASURENUM(aMeasureL), MeasCONNSTAFF(aMeasureL));
+#if 1
+{ PAMEASURE aMeasure;   char str[256];
+//aMeasure = GetPAMEASURE(aMeasureL);
+//LogPrintf(LOG_INFO, "Convert1MEASURE: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+//blah lorem ipsum );
+KeySigSprintf((PKSINFO)(MeasKSITEM(aMeasureL)), str);
 }
 #endif
 	return True;
@@ -798,13 +804,13 @@ static Boolean Convert1KEYSIG(Document * /* doc */, LINK aKeySigL)
 	KeySigSMALL(aKeySigL) = (&a1KeySig)->small;
 	KeySigFILLER2(aKeySigL) = 0;
 	KeySigXD(aKeySigL) = (&a1KeySig)->xd;
-	KeySigN105Copy(&a1KeySig, GetPAKEYSIG(aKeySigL));
+	//KeySigN105Copy(&a1KeySig, GetPAKEYSIG(aKeySigL));
+	KeySigN105Copy((PKSINFO_5)a1KeySig.KSItem, (PKSINFO)(KeySigKSITEM(aKeySigL)));
 	//KEYSIG_COPY((PKSINFO_5)a1KeySig.KSItem, (PKSINFO)(KeySigKSITEM(aKeySigL)));
 
-//NHexDump(LOG_DEBUG, "Convert1KEYSIG", (unsigned char *)&tmpAKeySig, 36, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1KEYSIG: aKeySigL=%u small=%d xd=%d", aKeySigL,
-KeySigSMALL(aKeySigL), KeySigXD(aKeySigL));
-DKeySigPrintf((PKSINFO)(KeySigKSITEM(aKeySigL)));
+//LogPrintf(LOG_DEBUG, "Convert1KEYSIG: aKeySigL=%u small=%d xd=%d", aKeySigL,
+//KeySigSMALL(aKeySigL), KeySigXD(aKeySigL));
+//DKeySigPrintf((PKSINFO)(KeySigKSITEM(aKeySigL)));
 	return True;
 }
 
@@ -1839,13 +1845,15 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 		   
 		pSObj = (unsigned char *)GetPSUPEROBJECT(pL);
 		BlockMove(pSObj, &tmpSuperObj, sizeof(SUPEROBJECT));
-//NHexDump(LOG_DEBUG, "ConvObjs1", (unsigned char *)&tmpSuperObj, 46, 4, 16);
 
 		/* Convert the object header now so type-specific functions don't have to. */
 		
 		ConvertObjHeader(doc, pL);
-//NHexDump(LOG_DEBUG, "ConvObjs2", pSObj, 46, 4, 16);
 		
+
+//LogPrintf(LOG_DEBUG, "ConvObjs1/AMEASURE 1");
+//DKeySigPrintf((PKSINFO)(MeasKSITEM(1)));
+
 		switch (ObjLType(pL)) {
 			case HEADERtype:
 				ConvertHEADER(doc, pL);
@@ -1921,6 +1929,9 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 		}
 	}
 
+
+LogPrintf(LOG_DEBUG, "ConvObjs2/AMEASURE 1");
+DKeySigPrintf((PKSINFO)(MeasKSITEM(1)));
 
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
 	but (as of v.997), they sometimes were, probably because not exporting changes to

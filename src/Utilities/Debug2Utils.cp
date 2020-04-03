@@ -434,7 +434,8 @@ short DBadNoteNum(
 
 /* -------------------------------------------------------------------- DCheckNoteNums -- */
 /* Check whether the MIDI note numbers of Notes agree with their notation. Ignores
-both grace notes and rests. */
+grace notes for no good reason; ideally this should be fixed, but if notes have a problem,
+it'll draw attention to nearby grace notes. */
 
 Boolean DCheckNoteNums(Document *doc)
 {
@@ -443,19 +444,16 @@ Boolean DCheckNoteNums(Document *doc)
 	LINK pL, aNoteL, aClefL;
 	SignedByte accTable[MAX_STAFFPOS];
 
-	/*
-	 * We keep track of where octave signs begin. But keeping track of where they end
-	 * is a bit messy: to avoid doing that, we'll just rely on each Note subobj's
-	 * inOttava flag to say whether it's in one.
-	 */
+	/* We keep track of where octave signs begin. But keeping track of where they end
+	   is a bit messy: to avoid doing that, we'll just rely on each Note subobj's
+	   inOttava flag to say whether it's in one. */
+	   
 	for (staff = 1; staff<=doc->nstaves; staff++)
 		octType[staff] = 0;											/* Initially, no octave sign */
 
 	for (staff = 1; staff<=doc->nstaves; staff++) {
-
 		for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 			switch (ObjLType(pL)) {
-	
 				case SYNCtype:
 					aNoteL = FirstSubLINK(pL);
 					haveAccs = False;

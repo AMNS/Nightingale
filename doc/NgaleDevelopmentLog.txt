@@ -5543,7 +5543,8 @@ related to the strange comment about WHOLE_KSINFO in NBasicTypes.h ??
 		WHOLE_KSINFO
 	} KSINFO, *PKSINFO;
 
-Console output for AllObjTypes.ngl 
+Console output for AllObjTypes.ngl:
+
 	debug. ConvertKEYSIG: keySigL=L7 inMeasure=0
 	debug. Convert1KEYSIG<:  lets=0:# 1:b
 	debug. Convert1KEYSIG: 00 02 01 00   40 00 00 00   01 00 07 00   00 00 02 87
@@ -5701,8 +5702,13 @@ Status of converting object types (I think).
 	++ PSMEAS_5
 	++ (OBJECT)
 
-What about the question marks? Well, first, I'm still getting lots of complaints
-like these, for AllObjTypes.ngl:
+What about the question marks in the status list?
+
+-------------------------------------------------------------------------------
+
+31 March - 3 April
+
+First, I'm still getting lots of complaints like these, for AllObjTypes.ngl:
 
 	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
 	Warning. DCheckNoteNums: Note in Sync L11 in measure 1, staff 1 notenum 73 and notation disagree: wrong accidental?
@@ -5710,5 +5716,51 @@ like these, for AllObjTypes.ngl:
 	Warning. DCheckNoteNums: Note in Sync L30 in measure 2, staff 1 notenum 90 and notation disagree: wrong accidental?
 	Warning. DCheckNoteNums: Note in Sync L33 in measure 3, staff 1 notenum 66 and notation disagree: wrong accidental?
 
-Staff 1 has two sharps, and the above notes are all the C#'s and F#'s on that staff. So
-??
+Staff 1 has two sharps, and the above notes are all the C#'s and F#'s on that staff. Well, the
+MEASUREs after the 1st say the keysig is no sharps/flats -- a weird bug -- but that doesn't explain
+the complaint about the note in L11!
+
+From Browser, for KEYSIG L7 (subobjs 1 & 2), then MEASURE L10 (subobj 1 twice):
+
+	debug. BrowseKeySig: 00 01 03 01   01 ac 00 00   02 04 00 00   02 87 02 00
+	debug.             : 00 00 02 00   00 01 00 00   00 00 00 bb   00 00 
+	debug. BrowseKeySig: 00 01 03 01   ff ff 16 8a   02 60 ff ff   16 8a 02 60
+	debug.             : 00 04 00 00   00 00 c0 00   00 03 c0 0d   ec 37 
+	debug. BrowseMeasure1: link=1 nKSItems=2
+	debug. BrowseMeasure1: 01 00 07 00   00 00 02 01   05 04 00 00   00 00 02 01
+	debug.               : 05 04 00 00   00 00 02 01   00 00 00 01   01 00 
+	debug. BrowseMeasure2: link=1 nKSItems=2
+	debug. BrowseMeasure2: 01 00 07 00   00 00 02 01   05 04 00 00   00 00 02 01
+	debug.               : 05 04 00 00   00 00 02 01   00 00 00 01   01 00 
+ 
+The 1st row of each BrowseKeySig dump is a complete WHOLE_KSINFO:
+ 		KSITEM		KSItem[7];	/* The sharps and flats */
+		SignedByte	nKSItems;	/* No. of sharps and flats */
+		
+KSITEM is:
+		char letcode;					/* LG: Code for letter name: A=5,B=4,C=3,D=2,E=1,F=0,G=6  */
+		Boolean sharp;					/* LG: Is it a sharp? (False=flat) */
+
+KSItem[0] = 00 01, KSItem[1] = 03 01 (C#, F#); after 10 garbage bytes, nKSItems = 2.
+Nothing in the BrowseMeasure dumps looks anything like that! But for each MEASURE subobj,
+Browser shows nKSItems=2, lets=1:b 7:b ..and that's what "01 00 07 00" means! Try a new
+score w/ 4 flats => Browser displays that correctly too. So Browser is OK.
+
+Add to ConvertObjects()
+
+	DKeySigPrintf((PKSINFO)(MeasKSITEM(1)));
+
+before converting each object. Result for the 1st few objects:
+
+	debug. ConvObjs1/AMEASURE 1 (0 sharps/flats)
+
+Starting after the Convert1MEASURE():
+
+	debug. ConvObjs1/AMEASURE 1 lets=1:b 7:b
+
+...all the way to the end.  $#&**)(^*$%^%*&^^$*  Conclusion: Convert1MEASURE() stores
+garbage where the WHOLE_KEYSIG should be! Likely cause: I'm using KeySigCopy() :-( .
+Per above, it assumes N106 keysigs, which differ from N105. But KeySigN105Copy() isn't
+right either: it expects an AKEYSIG object, and all we have is a WHOLE_KSINFO -- unlike
+KeySigCopy. Change KeySigN105Copy to use WHOLE_KSINFO => all OK!
+
