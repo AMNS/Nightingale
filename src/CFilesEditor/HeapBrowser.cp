@@ -42,7 +42,7 @@ static void HeapBrowseObject(short);
 
 /* ------------------------------------------------------------------ HeapBrowser -- */
 
-void HeapBrowser()
+void HeapBrowser(short heapNum)
 {
 enum {
 	hOK = 1,
@@ -56,14 +56,12 @@ enum {
 	hPicture
 };
 
-	register DialogPtr dlog;
-	short itype;
+	DialogPtr dlog;
+	short itype, ditem;
 	Handle tHdl;
-	short ditem;
 	Boolean done;
 	GrafPtr oldPort;
-	register short heapIndex, itemIndex;
-	short oldHeapIndex, oldItemIndex;
+	short heapIndex, itemIndex, oldHeapIndex, oldItemIndex;
 	
 /* --- 1. Create the dialog and initialize its contents. --- */
 
@@ -81,7 +79,8 @@ enum {
 	done = False;
 	TextFont(SYSFONTID_MONOSPACED);
 	TextSize(9);
-	itemIndex = heapIndex = 0;
+	heapIndex = heapNum;
+	itemIndex = 0;
 	oldItemIndex = oldHeapIndex = -1;
 	do {
 		if (heapIndex!=oldHeapIndex || itemIndex!=oldItemIndex) {	/* If the desired thing changed... */
@@ -137,7 +136,7 @@ enum {
 
 /* --------------------------------------------------------------------- ShowHeap -- */
 
-static void ShowHeap(short theHeap, register short itemIndex)
+static void ShowHeap(short theHeap, short itemIndex)
 {
 	const char *ps;
 	HEAP *myHeap;
@@ -156,7 +155,7 @@ static void ShowHeap(short theHeap, register short itemIndex)
 		myHeap->objSize, myHeap->type, myHeap->lockLevel);
 	HeapDrawLine(str);
 	
-	sprintf(str, "block=%lx", myHeap->block);
+	sprintf(str, "block=%lx", (unsigned long)myHeap->block);
 	HeapDrawLine(str);
 	
 	HeapDrawLine("------------------");
@@ -238,7 +237,7 @@ void HeapBrowsePartInfo(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPPARTINFO(qL);
-	sprintf(str, "link=%d addr=%lx next=%d", qL, q, q->next);
+	sprintf(str, "link=%d addr=%lx next=%d", qL, (unsigned long)q, q->next);
 	HeapDrawLine(str); q = GetPPARTINFO(qL);
 	sprintf(str, "firstStaff=%d lastStaff=%d", q->firstStaff, q->lastStaff);
 	HeapDrawLine(str);
@@ -489,7 +488,7 @@ void HeapBrowseBeamset(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPANOTEBEAM(qL);
-	sprintf(str, "link=%d @%lx bpSync=%d next=%d", qL, q, q->bpSync, q->next);
+	sprintf(str, "link=%d @%lx bpSync=%d next=%d", qL, (unsigned long)q, q->bpSync, q->next);
 	HeapDrawLine(str);
 	
 	sprintf(str, "startend=%d", q->startend);
@@ -548,7 +547,7 @@ void HeapBrowseRepeatEnd(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPARPTEND(qL);
-	sprintf(str, "link=%d staff=%d next=%d", qL, q->next);
+	sprintf(str, "link=%d staff=%d next=%d", qL, q->staffn, q->next);
 	HeapDrawLine(str);	q = GetPARPTEND(qL);
 	strcpy(str, "flags=");
 	if (q->selected) strcat(str, "SELECTED ");
@@ -601,7 +600,7 @@ void HeapBrowseOttava(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPANOTEOTTAVA(qL);
-	sprintf(str, "link=%d @%lx opSync=%d next=%d", qL, q, q->opSync, q->next);
+	sprintf(str, "link=%d @%lx opSync=%d next=%d", qL, (unsigned long)q, q->opSync, q->next);
 	HeapDrawLine(str);
 }
 

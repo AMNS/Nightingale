@@ -88,10 +88,10 @@ enum {								/* Types of part names (to label left ends of systems) */
 
 
 /* The following enum gives the types of objects and subobjects Nightingale has. It
-_must_ agree with the order of HEAPs given in vars.h. In addition, the generic subobjects
+_must_ agree with the order of HEAPs given in vars.h! In addition, the generic subobjects
 functions FirstSubObj(), NextSubObj() in Objects.c depend on the order of items in it.
 Arrays subObjLength[] and objLength[], in vars.h, _must_ be updated if the enum is
-changed. */
+changed! */
 
 enum								/* Object types: */
 {

@@ -948,6 +948,7 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 	LINK qL;
 	short i;
 	DRect stfRect;
+	char ksStr[256];
 
 	p = GetPSTAFF(pL);
 	sprintf(s, "l/r Staff=%d/%d", p->lStaff, p->rStaff);
@@ -996,6 +997,8 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s); q = GetPASTAFF(qL);
 	sprintf(s, "nKSItems=%hd", q->nKSItems);
 	DrawTextLine(s); q = GetPASTAFF(qL);
+	KeySigSprintf((PKSINFO)(KeySigKSITEM(qL)), ksStr);
+	DrawTextLine(ksStr);
 	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd",
 				q->timeSigType,
 				q->numerator,

@@ -572,7 +572,7 @@ static void DoTestMenu(short choice)
 				}
 				break;
 			case TS_HeapBrowser:
-				HeapBrowser();
+				HeapBrowser(SYNCtype);
 				break;
 			case TS_Context:
 				if (doc) ShowContext(doc);

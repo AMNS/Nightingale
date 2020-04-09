@@ -5702,7 +5702,7 @@ Status of converting object types (I think).
 	++ PSMEAS_5
 	++ (OBJECT)
 
-What about the question marks in the status list?
+What about the question marks in the status list? TBDone.
 
 -------------------------------------------------------------------------------
 
@@ -5764,3 +5764,128 @@ Per above, it assumes N106 keysigs, which differ from N105. But KeySigN105Copy()
 right either: it expects an AKEYSIG object, and all we have is a WHOLE_KSINFO -- unlike
 KeySigCopy. Change KeySigN105Copy to use WHOLE_KSINFO => all OK!
 
+-------------------------------------------------------------------------------
+
+3 - 9 April
+
+What about the question marks in the status list? TBDone again.
+
+Open T+MInCounterpoint.ngl, Debug Check => dozens of messages about inconsistent nKSItems
+in STAFF objects; that should be easy to fix! Add to Convert1STAFF() a call to KeySigN105Copy;
+open T+MInCounterpoint.ngl => no such complaints! -- but now Debug Check says
+
+	Warning. *DCheckMeasSubobjs: SUBOBJ L109 IN MEASURE L526 staffn 0 IS BAD.
+	Warning. *DCheckMeasSubobjs: MEASURE L526 HAS 1 MISSING STAVES.
+	Warning. DCheckContext: dynamicType FOR STAFF 1 IN MEASURE 9 (L167) INCONSISTENCY.
+	Warning. *DCheckContext: clefType FOR STAFF 0 IN MEASURE 31 (L526) INCONSISTENCY.
+	Warning. *DCheckContext: nKSItems FOR STAFF 0 IN MEASURE 31 (L526) INCONSISTENCY.
+	Warning. DCheckContext: TIMESIG FOR STAFF 0 IN MEASURE 31 (L526) INCONSISTENCY.
+	Warning. DCheckContext: dynamicType FOR STAFF 0 IN MEASURE 31 (L526) INCONSISTENCY.
+	info. Discont. sel, 0 objs in range, 0 sel, 904 total. *4 voices.
+	info. --CHECK MASTER:  Done.
+	info. --CHECK CLIPBOARD:  Done. 7 ERROR(S). 
+
+It might have had one of those complaints last time, I forget, but no more than one! ??
+
+Open it again, Debug Check =>  no complaints.
+
+Quit Ngale, relaunch it, open T+MInCounterpoint.ngl, Debug Check =>
+
+	Warning. *DCheckMeasSubobjs: 1 SUBOBJS IN MEASURE L328 HAVE connAbove BUT NO CONNECTED STAFF.
+
+That's all.
+
+Open it again, Debug Check =>  no complaints.  Again => same thing.
+
+Quit Ngale, relaunch it, open T+MInCounterpoint.ngl, Debug Check =>
+
+	Warning. *DCheckMeasSubobjs: 1 SUBOBJS IN MEASURE L328 HAVE connAbove BUT NO CONNECTED STAFF.
+
+Same message as a few minutes ago. L328 is the barline ending m. 18, at the bottom of p.
+1; the AMEASURE for staff 3 correctly says _connAbove_, but the one for staff 2 has
+connStaff=0; it should be 3.
+
+Open it again, Debug Check =>  no complaints.
+
+Ah, all the complaints in all these runs are about AMEASUREs!
+
+!! Every ConvertMEASURE up to L307 is followed by three calls to Convert1MEASURE, one
+for each of the three staves; but L307 has only two calls to Convert1MEASURE, as do many
+following measures, and some have only one! However, the score ends up with every
+MEASURE object having three subobjects. So the problem is that somehow Convert1MEASURE
+isn't getting called for every AMEASURE. Which could explain all of these problems. Why?
+
+Cut T+MInCounterpoint.ngl to half its length => T+MInCounterpointBug.ngl; open it; Debug
+Check => the only complaint is
+
+	Warning. *DCheckContext: clefType FOR STAFF 3 IN STAFF L169 INCONSISTENCY.
+
+!! The clef type should be 10, but it's 0. In the next STAFF it's back to 10. ??
+
+Back to the full T+MInCounterpointBug.ngl. Open, Debug Check =>
+
+	Warning. *DCheckBeams: BEAMSET L803 SYNC LINK INCONSISTENT.
+	Warning. *DCheckBeams: BEAMED NOTE IN SYNC L804 (MEASURE 50) VOICE 2 NOT IN VOICE'S LAST BEAMSET.
+	Warning. DCheckContext: TIMESIG FOR STAFF 2 IN STAFF L332 INCONSISTENCY.
+
+Open it again, Debug Check => no complaints.
+
+Back to T+MInCounterpointBug.ngl. Open, Debug Check => no complaints.
+
+Same thing again =>
+
+	Warning. *DCheckContext: clefType FOR STAFF 3 IN STAFF L169 INCONSISTENCY.
+
+Somewhat of a pattern here! Again the clef type should be 10, but it's 0; again, in the
+next STAFF it's back to 10. But we have
+
+	debug. ConvertSTAFF: staffL=L169 nEntries=3 lStaff=L96 rStaff=L251 StaffSYS=L168
+	debug. Convert1STAFF: st=2 top,left,ht,rt=d1024,0,256,8496 lines=5 fontSz=14 .V clef=3 TS=1,5/4
+	debug. Convert1STAFF: st=3 top,left,ht,rt=d1664,0,256,8496 lines=5 fontSz=14 .V clef=10 TS=1,5/4
+	debug. Convert1STAFF: st=1 top,left,ht,rt=d384,0,256,8496 lines=5 fontSz=14 .V clef=3 TS=1,5/4
+
+So Convert1STAFF() _is_ getting called for each staff (which strongly suggests we have
+two bugs, not one :-( ), and it had the correct clefType! Where does it get changed?
+
+Open T+MInCounterpointBug.ngl again, Debug Check => no complaints.
+
+Open (full) T+MInCounterpoint.ngl, Check =>
+
+	Warning. *DCheckMeasSubobjs: 1 SUBOBJ(S) IN MEASURE L328 HAVE connAbove BUT NO CONNECTED STAFF.
+
+Back to T+MInCounterpointBug.ngl: open, Debug Check =>
+
+	Warning. *DCheckContext: clefType FOR STAFF 3 IN STAFF L169 INCONSISTENCY.
+
+Let's keep a closer eye on staff 3 in L169. Add code to ConvertObject to display ASTAFF 8 =>
+
+	debug. Convert1NOTER: aNoteRL=154 voice=3 vis=1 yqpit=26 xd=0 yd=352 playDur=228
+	debug. ConvObjs1/ASTAFF 8: st=3 top,left,ht,rt=d1664,0,256,8496 clef=10
+	debug. ConvertSLUR: slurL=L188 staff=1 voice=1 tie=1
+	debug. Convert1SLUR: aSlurL=10 dashed=0 firstInd=0 lastInd=0
+	debug. ConvObjs1/ASTAFF 8: st=3 top,left,ht,rt=d1664,0,256,8496 clef=0
+	debug. ConvertSYNC: syncL=L189 timeStamp=1200
+
+Sure looks like somewhere in ConvertSLUR!! Another try:
+
+	debug. Convert1DYNAMIC: aDynamicL=9 mouthWidth=0 xd=0
+	debug. ConvObjs1/ASTAFF 8: st=3 top,left,ht,rt=d1664,0,256,8496 clef=10
+	debug. ConvertBEAMSET: beamsetL=L186
+	debug. Convert1BEAMSET: aBeamsetL=61 startend=1 fracs=0
+	debug. Convert1BEAMSET: aBeamsetL=62 startend=-1 fracs=0
+	debug. Convert1MEASURE: aMeasureL=35 staffn=2 measNum=9 connStaff=3
+	debug. ConvObjs1/ASTAFF 8: st=3 top,left,ht,rt=d1664,0,256,8496 clef=0
+	debug. ConvertTIMESIG: timeSigL=L196 inMeasure=1
+
+Oops. No. I forgot this problem occurs inconsistently; it also seems to surface at
+inconsistent points in the code. :-(
+
+Add code elsewhere to check staff. Open T+MInCounterpointBug.ngl & Debug Check repeatedly
+=> the first four times, no complaints; the fifth, just
+
+	Warning. *DCheckMeasSubobjs: 1 SUBOBJ(S) IN MEASURE L328 HAVE connAbove BUT NO CONNECTED STAFF.
+
+...which doesm't help.
+
+Add code to optionally call HeapBrowser() from ConvertObject(); open T+MInCounterpointBug.ngl
+several times => no complaints, and it's not at all clear that'll help :-( .

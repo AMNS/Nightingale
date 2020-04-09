@@ -412,7 +412,7 @@ Boolean DCheckMeasSubobjs(
 	for (missing = 0, s = 1; s<=doc->nstaves; s++)
 		if (!haveMeas[s]) missing++;					
 	if (missing>0) {
-		COMPLAIN2("*DCheckMeasSubobjs: MEASURE L%u HAS %d MISSING STAVES.\n", pL, missing);
+		COMPLAIN2("*DCheckMeasSubobjs: MEASURE L%u HAS %d MISSING STAFF/STAVES.\n", pL, missing);
 	}
 	else {
 		nBadConns = 0;
@@ -425,7 +425,7 @@ Boolean DCheckMeasSubobjs(
 			}
 		}
 		if (nBadConns>0)
-			COMPLAIN2("*DCheckMeasSubobjs: %d SUBOBJS IN MEASURE L%u HAVE connAbove BUT NO CONNECTED STAFF.\n",
+			COMPLAIN2("*DCheckMeasSubobjs: %d SUBOBJ(S) IN MEASURE L%u HAVE connAbove BUT NO CONNECTED STAFF.\n",
 							nBadConns, pL);
 	}
 

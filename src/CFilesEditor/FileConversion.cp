@@ -433,6 +433,18 @@ Error:
 
 /* -------------------------------- Convert the content of objects, including headers -- */
 
+static void DebugConversion(LINK pL);
+static void DebugConversion(LINK pL)
+{
+	PASTAFF aStaff = GetPASTAFF(8);
+	LogPrintf(LOG_DEBUG, "ConvObjs1/ASTAFF 8: st=%d top,left,ht,rt=d%d,%d,%d,%d clef=%d\n",
+	aStaff->staffn, aStaff->staffTop, aStaff->staffLeft, aStaff->staffHeight,
+	aStaff->staffRight, aStaff->clefType);
+	
+	if (OptionKeyDown() && pL>160) HeapBrowser(STAFFtype);
+}
+
+
 #ifdef NOMORE
 /* Definitions of four functions to help convert 'N103' format and earlier files formerly
 appeared here. We keep the prototypes of all and body of one as examples for future use. */
@@ -680,7 +692,7 @@ static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
 	StaffSPACEBELOW(aStaffL) = (&a1Staff)->spaceBelow;
 	StaffCLEFTYPE(aStaffL) = (&a1Staff)->clefType;
 	StaffDynamType(aStaffL) = (&a1Staff)->dynamicType;
-	// ??NEED TO HANDLE WHOLE_KSINFO!!!!! */
+	KeySigN105Copy((PKSINFO_5)a1Staff.KSItem, (PKSINFO)(StaffKSITEM(aStaffL)));
 	StaffTIMESIGTYPE(aStaffL) = (&a1Staff)->timeSigType;
 	StaffNUMER(aStaffL) = (&a1Staff)->numerator;
 	StaffDENOM(aStaffL) = (&a1Staff)->denominator;
@@ -693,13 +705,15 @@ static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
 //aStaffL, StaffSTAFFN(aStaffL), StaffTOP(aStaffL), StaffHEIGHT(aStaffL), StaffSTAFFLINES(aStaffL));
 { PASTAFF			aStaff;
 aStaff = GetPASTAFF(aStaffL);
-LogPrintf(LOG_DEBUG, "Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+LogPrintf(LOG_DEBUG,
+		"Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
 	aStaff->staffn, aStaff->staffTop,
 	aStaff->staffLeft, aStaff->staffHeight,
 	aStaff->staffRight, aStaff->staffLines,
 	aStaff->fontSize,
 	(aStaff->selected? 'S' : '.') ,
 	(aStaff->visible? 'V' : '.'),
+	aStaff->clefType,
 	aStaff->timeSigType,
 	aStaff->numerator,
 	aStaff->denominator );
@@ -734,7 +748,6 @@ static Boolean Convert1MEASURE(Document * /* doc */, LINK aMeasureL)
 	MeasCLEFTYPE(aMeasureL) = (&a1Measure)->clefType;
 	MeasDynamType(aMeasureL) = (&a1Measure)->dynamicType;
 	KeySigN105Copy((PKSINFO_5)a1Measure.KSItem, (PKSINFO)(MeasKSITEM(aMeasureL)));
-	//KeySigN105Copy((PKSINFO)(&a1Measure.KSItem), (PKSINFO)(MeasKSITEM(aMeasureL)));
 	MeasTIMESIGTYPE(aMeasureL) = (&a1Measure)->timeSigType;
 	MeasNUMER(aMeasureL) = (&a1Measure)->numerator;
 	MeasDENOM(aMeasureL) = (&a1Measure)->denominator;
@@ -804,9 +817,7 @@ static Boolean Convert1KEYSIG(Document * /* doc */, LINK aKeySigL)
 	KeySigSMALL(aKeySigL) = (&a1KeySig)->small;
 	KeySigFILLER2(aKeySigL) = 0;
 	KeySigXD(aKeySigL) = (&a1KeySig)->xd;
-	//KeySigN105Copy(&a1KeySig, GetPAKEYSIG(aKeySigL));
 	KeySigN105Copy((PKSINFO_5)a1KeySig.KSItem, (PKSINFO)(KeySigKSITEM(aKeySigL)));
-	//KEYSIG_COPY((PKSINFO_5)a1KeySig.KSItem, (PKSINFO)(KeySigKSITEM(aKeySigL)));
 
 //LogPrintf(LOG_DEBUG, "Convert1KEYSIG: aKeySigL=%u small=%d xd=%d", aKeySigL,
 //KeySigSMALL(aKeySigL), KeySigXD(aKeySigL));
@@ -1850,9 +1861,7 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 		
 		ConvertObjHeader(doc, pL);
 		
-
-//LogPrintf(LOG_DEBUG, "ConvObjs1/AMEASURE 1");
-//DKeySigPrintf((PKSINFO)(MeasKSITEM(1)));
+		DebugConversion(pL);
 
 		switch (ObjLType(pL)) {
 			case HEADERtype:
@@ -1929,9 +1938,8 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 		}
 	}
 
-
-LogPrintf(LOG_DEBUG, "ConvObjs2/AMEASURE 1");
-DKeySigPrintf((PKSINFO)(MeasKSITEM(1)));
+//LogPrintf(LOG_DEBUG, "ConvObjs2/AMEASURE 1");
+//DKeySigPrintf((PKSINFO)(MeasKSITEM(1)));
 
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
 	but (as of v.997), they sometimes were, probably because not exporting changes to

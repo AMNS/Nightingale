@@ -2722,3 +2722,13 @@ objects & subobjects. Affects NObjTypesN105.h; FileConversion.
 
 Minor cleanup: improve debug info, etc. Affects Debug.h; Browser, DebugDisplay,
 Debug2Utils, PitchUtils.
+
+-------------------------------------------------------------------------------
+
+4 - 9 April
+
+Work on opening format 'N105' files while using a new format internally: converting
+objects & subobjects. Affects FileConversion.
+
+Minor cleanup: improve Debug info and HeapBrowser(), etc. Affects Browser.h, NBasicTypes.h;
+Browser, DebugDisplay, DebugUtils, HeapBrowser, Menu.

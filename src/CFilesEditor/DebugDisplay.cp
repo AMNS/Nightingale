@@ -272,13 +272,14 @@ void DisplayNode(Document *doc, LINK pL,
 		case STAFFtype:
 			for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 				aStaff = GetPASTAFF(aStaffL);
-				LogPrintf(LOG_INFO, "     stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+				LogPrintf(LOG_INFO, "     stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
 					aStaff->staffn, aStaff->staffTop,
 					aStaff->staffLeft, aStaff->staffHeight,
 					aStaff->staffRight, aStaff->staffLines,
 					aStaff->fontSize,
 					(aStaff->selected? 'S' : '.') ,
 					(aStaff->visible? 'V' : '.'),
+					aStaff->clefType,
 					aStaff->timeSigType,
 					aStaff->numerator,
 					aStaff->denominator );
