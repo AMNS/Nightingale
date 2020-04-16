@@ -630,7 +630,7 @@ typedef struct {
 				unused1,
 				brackVis,
 				unused2;
-	DDIST		nxd, nyd;				/* DDIST position of number */
+	DDIST		nxd, nyd;				/* (unused) DDIST position of number */
 	DDIST		xdFirst, ydFirst,		/* DDIST position of bracket */
 				xdLast, ydLast;
 } OTTAVA, *POTTAVA;

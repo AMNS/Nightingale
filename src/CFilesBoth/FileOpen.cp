@@ -49,12 +49,13 @@ enum {
 	SETVOLcall,
 	BACKUPcall,
 	MAKEFSSPECcall,
-	NENTRIESerr = -899
+	NENTRIESerr = -899,
+	READHEAPScall
 };
 
 
 /* A version code is four characters, specifically 'N' followed by three digits, e.g.,
-'N105': N-one-zero-five. Be careful: It's neither a number nor a valid C string! */
+'N105': N-one-zero-five. Be careful: It's not a valid C or Pascal string! */
 static unsigned long version;							/* File version code read/written */
 
 /* --------------------------------------------------------------------- SetTimeStamps -- */
@@ -81,32 +82,32 @@ static void SetTimeStamps(Document *doc)
 static void DisplayDocumentHdr(short id, Document *doc)
 {
 	LogPrintf(LOG_INFO, "Displaying Document header (ID %d):\n", id);
-	LogPrintf(LOG_INFO, "  origin.h=%d", doc->origin.h);
-	LogPrintf(LOG_INFO, "  .v=%d", doc->origin.h);
+	LogPrintf(LOG_INFO, "  (1)origin.h=%d", doc->origin.h);
+	LogPrintf(LOG_INFO, "  (2).v=%d", doc->origin.h);
 	
-	LogPrintf(LOG_INFO, "  paperRect.top=%d", doc->paperRect.top);
+	LogPrintf(LOG_INFO, "  (3)paperRect.top=%d", doc->paperRect.top);
 	LogPrintf(LOG_INFO, "  .left=%d", doc->paperRect.left);
 	LogPrintf(LOG_INFO, "  .bottom=%d", doc->paperRect.bottom);
 	LogPrintf(LOG_INFO, "  .right=%d\n", doc->paperRect.right);
-	LogPrintf(LOG_INFO, "  origPaperRect.top=%d", doc->origPaperRect.top);
+	LogPrintf(LOG_INFO, "  (4)origPaperRect.top=%d", doc->origPaperRect.top);
 	LogPrintf(LOG_INFO, "  .left=%d", doc->origPaperRect.left);
 	LogPrintf(LOG_INFO, "  .bottom=%d", doc->origPaperRect.bottom);
 	LogPrintf(LOG_INFO, "  .right=%d\n", doc->origPaperRect.right);
-	LogPrintf(LOG_INFO, "  marginRect.top=%d", doc->marginRect.top);
+	LogPrintf(LOG_INFO, "  (5)marginRect.top=%d", doc->marginRect.top);
 	LogPrintf(LOG_INFO, "  .left=%d", doc->marginRect.left);
 	LogPrintf(LOG_INFO, "  .bottom=%d", doc->marginRect.bottom);
 	LogPrintf(LOG_INFO, "  .right=%d\n", doc->marginRect.right);
 
-	LogPrintf(LOG_INFO, "  currentSheet=%d", doc->currentSheet);
-	LogPrintf(LOG_INFO, "  numSheets=%d", doc->numSheets);
-	LogPrintf(LOG_INFO, "  firstSheet=%d", doc->firstSheet);
-	LogPrintf(LOG_INFO, "  firstPageNumber=%d", doc->firstPageNumber);
-	LogPrintf(LOG_INFO, "  startPageNumber=%d\n", doc->startPageNumber);
+	LogPrintf(LOG_INFO, "  (6)currentSheet=%d", doc->currentSheet);
+	LogPrintf(LOG_INFO, "  (7)numSheets=%d", doc->numSheets);
+	LogPrintf(LOG_INFO, "  (8)firstSheet=%d", doc->firstSheet);
+	LogPrintf(LOG_INFO, "  (9)firstPageNumber=%d", doc->firstPageNumber);
+	LogPrintf(LOG_INFO, "  (10)startPageNumber=%d\n", doc->startPageNumber);
 	
-	LogPrintf(LOG_INFO, "  numRows=%d", doc->numRows);
-	LogPrintf(LOG_INFO, "  numCols=%d", doc->numCols);
-	LogPrintf(LOG_INFO, "  pageType=%d", doc->pageType);
-	LogPrintf(LOG_INFO, "  measSystem=%d\n", doc->measSystem);	
+	LogPrintf(LOG_INFO, "  (11)numRows=%d", doc->numRows);
+	LogPrintf(LOG_INFO, "  (12)numCols=%d", doc->numCols);
+	LogPrintf(LOG_INFO, "  (13)pageType=%d", doc->pageType);
+	LogPrintf(LOG_INFO, "  (14)measSystem=%d\n", doc->measSystem);
 }
 
 /* Do a reality check for Document header values that might be bad. If any problems are
@@ -117,16 +118,16 @@ static Boolean CheckDocumentHdr(Document *doc)
 	short nerr = 0, firstErr = 0;
 	
 #ifdef NOTYET
-	if (!RectIsValid(doc->paperRect, 4??, in2pt(5)??)) ERR(1);
-	if (!RectIsValid(doc->origPaperRect, 4??, in2pt(5)??))  ERR(2);
-	if (!RectIsValid(doc->marginRect, 4??, in2pt(5)??))  ERR(3);
+	if (!RectIsValid(doc->paperRect, 4??, in2pt(5)??)) ERR(3);
+	if (!RectIsValid(doc->origPaperRect, 4??, in2pt(5)??))  ERR(4);
+	if (!RectIsValid(doc->marginRect, 4??, in2pt(5)??))  ERR(5);
 #endif
-	if (doc->numSheets<1 || doc->numSheets>250)  ERR(4);
-	if (doc->firstPageNumber<0 || doc->firstPageNumber>250)  ERR(5);
-	if (doc->startPageNumber<0 || doc->startPageNumber>250)  ERR(6);
-	if (doc->numRows < 1 || doc->numRows > 250)  ERR(7);
-	if (doc->numCols < 1 || doc->numCols > 250)  ERR(8);
-	if (doc->pageType < 0 || doc->pageType > 20)  ERR(9);
+	if (doc->numSheets<1 || doc->numSheets>250)  ERR(7);
+	if (doc->firstPageNumber<0 || doc->firstPageNumber>250)  ERR(9);
+	if (doc->startPageNumber<0 || doc->startPageNumber>250)  ERR(10);
+	if (doc->numRows < 1 || doc->numRows > 250)  ERR(11);
+	if (doc->numCols < 1 || doc->numCols > 250)  ERR(12);
+	if (doc->pageType < 0 || doc->pageType > 20)  ERR(13);
 	if (nerr==0) {
 		LogPrintf(LOG_NOTICE, "No errors found.  (CheckDocumentHdr)\n");
 		return True;
@@ -149,43 +150,43 @@ static void DisplayScoreHdr(short id, Document *doc)
 	unsigned char tempFontName[32];
 	
 	LogPrintf(LOG_INFO, "Displaying Score header (ID %d):\n", id);
-	LogPrintf(LOG_INFO, "  nstaves=%d", doc->nstaves);
-	LogPrintf(LOG_INFO, "  nsystems=%d", doc->nsystems);		
-	LogPrintf(LOG_INFO, "  spacePercent=%d", doc->spacePercent);
-	LogPrintf(LOG_INFO, "  srastral=%d", doc->srastral);				
-	LogPrintf(LOG_INFO, "  altsrastral=%d\n", doc->altsrastral);
+	LogPrintf(LOG_INFO, "  (1)nstaves=%d", doc->nstaves);
+	LogPrintf(LOG_INFO, "  (2)nsystems=%d", doc->nsystems);		
+	LogPrintf(LOG_INFO, "  (3)spacePercent=%d", doc->spacePercent);
+	LogPrintf(LOG_INFO, "  (4)srastral=%d", doc->srastral);				
+	LogPrintf(LOG_INFO, "  (5)altsrastral=%d\n", doc->altsrastral);
 		
-	LogPrintf(LOG_INFO, "  tempo=%d", doc->tempo);		
-	LogPrintf(LOG_INFO, "  channel=%d", doc->channel);			
-	LogPrintf(LOG_INFO, "  velocity=%d", doc->velocity);		
-	LogPrintf(LOG_INFO, "  headerStrOffset=%d", doc->headerStrOffset);	
-	LogPrintf(LOG_INFO, "  footerStrOffset=%d", doc->footerStrOffset);	
-	LogPrintf(LOG_INFO, "  dIndentOther=%d\n", doc->dIndentOther);
+	LogPrintf(LOG_INFO, "  (6)tempo=%d", doc->tempo);		
+	LogPrintf(LOG_INFO, "  (7)channel=%d", doc->channel);			
+	LogPrintf(LOG_INFO, "  (8)velocity=%d", doc->velocity);		
+	LogPrintf(LOG_INFO, "  (9)headerStrOffset=%d", doc->headerStrOffset);	
+	LogPrintf(LOG_INFO, "  (10)footerStrOffset=%d\n", doc->footerStrOffset);	
 	
-	LogPrintf(LOG_INFO, "  firstNames=%d", doc->firstNames);
-	LogPrintf(LOG_INFO, "  otherNames=%d", doc->otherNames);
-	LogPrintf(LOG_INFO, "  lastGlobalFont=%d\n", doc->lastGlobalFont);
+	LogPrintf(LOG_INFO, "  (11)dIndentOther=%d", doc->dIndentOther);
+	LogPrintf(LOG_INFO, "  (12)firstNames=%d", doc->firstNames);
+	LogPrintf(LOG_INFO, "  (13)otherNames=%d", doc->otherNames);
+	LogPrintf(LOG_INFO, "  (14)lastGlobalFont=%d\n", doc->lastGlobalFont);
 
-	LogPrintf(LOG_INFO, "  aboveMN=%c", (doc->aboveMN? '1' : '0'));
-	LogPrintf(LOG_INFO, "  sysFirstMN=%c", (doc->sysFirstMN? '1' : '0'));
-	LogPrintf(LOG_INFO, "  startMNPrint1=%c", (doc->startMNPrint1? '1' : '0'));
-	LogPrintf(LOG_INFO, "  firstMNNumber=%d\n", doc->firstMNNumber);
+	LogPrintf(LOG_INFO, "  (15)aboveMN=%c", (doc->aboveMN? '1' : '0'));
+	LogPrintf(LOG_INFO, "  (16)sysFirstMN=%c", (doc->sysFirstMN? '1' : '0'));
+	LogPrintf(LOG_INFO, "  (17)startMNPrint1=%c", (doc->startMNPrint1? '1' : '0'));
+	LogPrintf(LOG_INFO, "  (18)firstMNNumber=%d\n", doc->firstMNNumber);
 
-	LogPrintf(LOG_INFO, "  nfontsUsed=%d", doc->nfontsUsed);
+	LogPrintf(LOG_INFO, "  (19)nfontsUsed=%d", doc->nfontsUsed);
 	Pstrcpy(tempFontName, doc->musFontName);
-	LogPrintf(LOG_INFO, "  musFontName='%s'\n", PtoCstr(tempFontName));
+	LogPrintf(LOG_INFO, "  (20)musFontName='%s'\n", PtoCstr(tempFontName));
 	
-	LogPrintf(LOG_INFO, "  magnify=%d", doc->magnify);
-	LogPrintf(LOG_INFO, "  selStaff=%d", doc->selStaff);
-	LogPrintf(LOG_INFO, "  currentSystem=%d", doc->currentSystem);
-	LogPrintf(LOG_INFO, "  spaceTable=%d", doc->spaceTable);
-	LogPrintf(LOG_INFO, "  htight=%d\n", doc->htight);
+	LogPrintf(LOG_INFO, "  (21)magnify=%d", doc->magnify);
+	LogPrintf(LOG_INFO, "  (22)selStaff=%d", doc->selStaff);
+	LogPrintf(LOG_INFO, "  (23)currentSystem=%d", doc->currentSystem);
+	LogPrintf(LOG_INFO, "  (24)spaceTable=%d", doc->spaceTable);
+	LogPrintf(LOG_INFO, "  (25)htight=%d\n", doc->htight);
 	
-	LogPrintf(LOG_INFO, "  lookVoice=%d", doc->lookVoice);
-	LogPrintf(LOG_INFO, "  ledgerYSp=%d", doc->ledgerYSp);
-	LogPrintf(LOG_INFO, "  deflamTime=%d", doc->deflamTime);
-	LogPrintf(LOG_INFO, "  colorVoices=%d", doc->colorVoices);
-	LogPrintf(LOG_INFO, "  dIndentFirst=%d\n", doc->dIndentFirst);
+	LogPrintf(LOG_INFO, "  (26)lookVoice=%d", doc->lookVoice);
+	LogPrintf(LOG_INFO, "  (27)ledgerYSp=%d", doc->ledgerYSp);
+	LogPrintf(LOG_INFO, "  (28)deflamTime=%d", doc->deflamTime);
+	LogPrintf(LOG_INFO, "  (29)colorVoices=%d", doc->colorVoices);
+	LogPrintf(LOG_INFO, "  (30)dIndentFirst=%d\n", doc->dIndentFirst);
 }
 
 /* Do a reality check for Score header values that might be bad. If any problems are
@@ -211,17 +212,17 @@ static Boolean CheckScoreHdr(Document *doc)
 	if (doc->firstNames<0 || doc->firstNames>MAX_NAMES_TYPE) ERR(12);
 	if (doc->otherNames<0 || doc->otherNames>MAX_NAMES_TYPE) ERR(13);
 	if (doc->lastGlobalFont<FONT_THISITEMONLY || doc->lastGlobalFont>MAX_FONTSTYLENUM) ERR(14);
-	if (doc->firstMNNumber<0 || doc->firstMNNumber>MAX_FIRSTMEASNUM) ERR(15);
-	if (doc->nfontsUsed<1 || doc->nfontsUsed>MAX_SCOREFONTS) ERR(16);
-	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) ERR(17);
-	if (doc->selStaff<-1 || doc->selStaff>doc->nstaves) ERR(18);
-	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) ERR(19);
-	if (doc->spaceTable<0 || doc->spaceTable>32767) ERR(20);
-	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) ERR(21);
-	if (doc->lookVoice<-1 || doc->lookVoice>MAXVOICES) ERR(22);
-	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) ERR(23);
-	if (doc->deflamTime<1 || doc->deflamTime>1000) ERR(24);
-	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) ERR(25);
+	if (doc->firstMNNumber<0 || doc->firstMNNumber>MAX_FIRSTMEASNUM) ERR(18);
+	if (doc->nfontsUsed<1 || doc->nfontsUsed>MAX_SCOREFONTS) ERR(19);
+	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) ERR(21);
+	if (doc->selStaff<-1 || doc->selStaff>doc->nstaves) ERR(22);
+	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) ERR(23);
+	if (doc->spaceTable<0 || doc->spaceTable>32767) ERR(24);
+	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) ERR(25);
+	if (doc->lookVoice<-1 || doc->lookVoice>MAXVOICES) ERR(26);
+	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) ERR(27);
+	if (doc->deflamTime<1 || doc->deflamTime>1000) ERR(28);
+	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) ERR(30);
 	
 	if (nerr==0) {
 		LogPrintf(LOG_NOTICE, "No errors found.  (CheckScoreHdr)\n");
@@ -398,7 +399,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	
 	/* Allocate from the StringManager, not NewHandle, in case StringManager is tracking
 	   its allocations. Then, since we're going to overwrite everything with stuff from
-	   file below, we can resize it to what it was when saved. */
+	   the file below, we can resize it to what it was when saved. */
 	
 	doc->stringPool = NewStringPool();
 	if (doc->stringPool == NULL) { errInfo = STRINGobj; goto Error; }
@@ -423,16 +424,18 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	   necessary, convert them to the current format. */
 	
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
+#if 0
 {	unsigned char *pSObj;
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
-//pSObj = (unsigned char *)GetPSUPEROBJECT(1);
-//NHexDump(LOG_DEBUG, "OpenFile L1", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-//NHexDump(LOG_DEBUG, "OpenFile L2", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-//NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+NHexDump(LOG_DEBUG, "OpenFile L1", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+NHexDump(LOG_DEBUG, "OpenFile L2", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
 }
-	if (errCode) return errCode;
+#endif
+	if (errCode!=noErr) { errInfo = READHEAPScall; goto Error; }
 
 	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size
 	   segment and a bit more." Now we require a _lot_ more, though it may be pointless. */

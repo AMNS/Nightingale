@@ -1053,8 +1053,9 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 }
 
 
-/* Traverse the main and Master Page object lists and fix up the cross pointers. NB: This
-code assumes that headL is always at LINK 1. */
+/* Traverse the main and Master Page object lists and fix up the cross pointers.  Return
+0 if all is well, else return FIX_LINKS_ERR. NB: This code assumes that headL is at
+LINK 1. */
 
 static short HeapFixLinks(Document *doc)
 {

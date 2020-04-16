@@ -1587,6 +1587,8 @@ void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);	p = GetPOTTAVA(pL);
 	sprintf(s, "octSignType=%d noCutoff=%d", p->octSignType, p->noCutoff);
 	DrawTextLine(s);
+	sprintf(s, "numberVis=%d brackVis=%d", p->numberVis, p->brackVis);
+	DrawTextLine(s);
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
 

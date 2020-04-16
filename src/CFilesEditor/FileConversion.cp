@@ -300,8 +300,8 @@ unchanged, so we don't need 'N105'-specific versions of them. */
 
 /* Traverse the main and Master Page object lists and fix up the cross pointers. This
 is a specialized version of HeapFixLinks() to fix links in 'N105' format files when
-they're opened, before the contents of objects are converted. NB: This code assumes
-that headL is always at LINK 1. */
+they're opened, before the contents of objects are converted. Return 0 if all is well,
+else return FIX_LINKS_ERR. NB: This code assumes that headL is at LINK 1. */
 
 short HeapFixN105Links(Document *doc)
 {
@@ -433,9 +433,25 @@ Error:
 
 /* -------------------------------- Convert the content of objects, including headers -- */
 
-static void DebugConversion(LINK pL);
-static void DebugConversion(LINK pL)
+#include "DebugUtils.h"		/* for DCheck1NEntries() */
+
+static void DebugConversion(Document *doc, LINK pL);
+static void DebugConversion(Document *doc, LINK pL)
 {
+	short nSubobjs;
+	LINK pSubL;
+	
+	/* Check subobject list against the no. of subobjects the object says it has. */
+	
+#if 1
+	DCheck1NEntries(doc, pL);
+#else
+	for (nSubobjs = 0, pSubL = FirstSubLINK(pL); pSubL; pSubL = Next??(pSubL)) {
+		nSubobjs++;
+	if (nSubobjs!=LinkNENTRIES(pL)) LogPrintf(LOG_ERR, "DebugConversion: BIG PROBLEM!\n");
+#endif
+
+	/* Check anything else to help find current bugs. */
 	PASTAFF aStaff = GetPASTAFF(8);
 	LogPrintf(LOG_DEBUG, "ConvObjs1/ASTAFF 8: st=%d top,left,ht,rt=d%d,%d,%d,%d clef=%d\n",
 	aStaff->staffn, aStaff->staffTop, aStaff->staffLeft, aStaff->staffHeight,
@@ -559,7 +575,7 @@ static void Convert1MODNR(Document * /* doc */, LINK aModNRL)
 	ModNRDATA(aModNRL) = (&a1ModNR)->data;
 	ModNRYSTDPIT(aModNRL) = (&a1ModNR)->ystdpit;
 
-LogPrintf(LOG_DEBUG, "Convert1MODNR: aModNRL=%u code=%d xstd=%d ystdpit=%d\n",
+LogPrintf(LOG_DEBUG, "  Convert1MODNR: aModNRL=%u code=%d xstd=%d ystdpit=%d\n",
 aModNRL, ModNRMODCODE(aModNRL), ModNRXSTD(aModNRL), ModNRYSTDPIT(aModNRL));
 }
 
@@ -620,6 +636,10 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteSMALL(aNoteRL) = (&a1NoteR)->small;
 	NoteTEMPFLAG(aNoteRL) = (&a1NoteR)->tempFlag;
 	
+//NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
+LogPrintf(LOG_DEBUG, "  Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
+
 	/* AMODNR subobjs are attached directly to ANOTEs, so convert them here. */
 
 	aModNRL = NoteFIRSTMOD(aNoteRL);
@@ -636,10 +656,7 @@ NHexDump(LOG_DEBUG, "Convert1NOTER:MODNR", (unsigned char *)&tmpModNR, sizeof(AM
 		Convert1MODNR(doc, aModNRL);
 	}
 	
-//NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
-aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
-		return True;
+	return True;
 }
 
 
@@ -662,7 +679,7 @@ static Boolean Convert1RPTEND(Document * /* doc */, LINK aRptEndL)
 	RptEndCONNSTAFF(aRptEndL) = (&a1RptEnd)->connStaff;
 	
 //NHexDump(LOG_DEBUG, "Convert1RPTEND", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1RPTEND: aRptEndL=%u connAbove=%d connStaff=%d\n",
+LogPrintf(LOG_DEBUG, "  Convert1RPTEND: aRptEndL=%u connAbove=%d connStaff=%d\n",
 aRptEndL, RptEndCONNABOVE(aRptEndL), RptEndCONNSTAFF(aRptEndL));
 		return True;
 }
@@ -701,7 +718,7 @@ static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
 	StaffSHOWLINES(aStaffL) = (&a1Staff)->showLines;
 
 //NHexDump(LOG_DEBUG, "Convert1STAFF", (unsigned char *)&tempSys, 46, 4, 16);
-//LogPrintf(LOG_DEBUG, "Convert1STAFF: aStaffL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
+//LogPrintf(LOG_DEBUG, "  Convert1STAFF: aStaffL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
 //aStaffL, StaffSTAFFN(aStaffL), StaffTOP(aStaffL), StaffHEIGHT(aStaffL), StaffSTAFFLINES(aStaffL));
 { PASTAFF			aStaff;
 aStaff = GetPASTAFF(aStaffL);
@@ -755,7 +772,7 @@ static Boolean Convert1MEASURE(Document * /* doc */, LINK aMeasureL)
 	MeasYMNSTDOFFSET(aMeasureL) = (&a1Measure)->yMNStdOffset;
 
 //NHexDump(LOG_DEBUG, "Convert1MEASURE", (unsigned char *)&a1Measure, sizeof(AMEASURE_5)+2, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1MEASURE: aMeasureL=%u staffn=%d measNum=%d connStaff=%d\n",
+LogPrintf(LOG_DEBUG, "  Convert1MEASURE: aMeasureL=%u staffn=%d measNum=%d connStaff=%d\n",
 aMeasureL, MeasureSTAFFN(aMeasureL), MeasMEASURENUM(aMeasureL), MeasCONNSTAFF(aMeasureL));
 #if 1
 { PAMEASURE aMeasure;   char str[256];
@@ -791,7 +808,7 @@ static Boolean Convert1CLEF(Document * /* doc */, LINK aClefL)
 	ClefYD(aClefL) = (&a1Clef)->yd;
 
 //NHexDump(LOG_DEBUG, "Convert1CLEF", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1CLEF: aClefL=%u xd=%d\n", aClefL, ClefXD(aClefL));
+LogPrintf(LOG_DEBUG, "  Convert1CLEF: aClefL=%u xd=%d\n", aClefL, ClefXD(aClefL));
 	return True;
 }
 
@@ -819,7 +836,7 @@ static Boolean Convert1KEYSIG(Document * /* doc */, LINK aKeySigL)
 	KeySigXD(aKeySigL) = (&a1KeySig)->xd;
 	KeySigN105Copy((PKSINFO_5)a1KeySig.KSItem, (PKSINFO)(KeySigKSITEM(aKeySigL)));
 
-//LogPrintf(LOG_DEBUG, "Convert1KEYSIG: aKeySigL=%u small=%d xd=%d", aKeySigL,
+//LogPrintf(LOG_DEBUG, "  Convert1KEYSIG: aKeySigL=%u small=%d xd=%d", aKeySigL,
 //KeySigSMALL(aKeySigL), KeySigXD(aKeySigL));
 //DKeySigPrintf((PKSINFO)(KeySigKSITEM(aKeySigL)));
 	return True;
@@ -851,7 +868,7 @@ static Boolean Convert1TIMESIG(Document * /* doc */, LINK aTimeSigL)
 	TimeSigDENOM(aTimeSigL) = (&a1TimeSig)->denominator;
 
 //NHexDump(LOG_DEBUG, "Convert1TIMESIG", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1TIMESIG: aTimeSigL=%u numer=%d denom=%d\n", aTimeSigL,
+LogPrintf(LOG_DEBUG, "  Convert1TIMESIG: aTimeSigL=%u numer=%d denom=%d\n", aTimeSigL,
 TimeSigNUMER(aTimeSigL), TimeSigDENOM(aTimeSigL));
 	return True;
 }
@@ -870,7 +887,7 @@ static Boolean Convert1BEAMSET(Document * /* doc */, LINK aBeamsetL)
 	NoteBeamFILLER(aBeamsetL) = 0;
 
 //NHexDump(LOG_DEBUG, "Convert1BEAMSET", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1BEAMSET: aBeamsetL=%u startend=%d fracs=%d\n",
+LogPrintf(LOG_DEBUG, "  Convert1BEAMSET: aBeamsetL=%u startend=%d fracs=%d\n",
 aBeamsetL, NoteBeamSTARTEND(aBeamsetL), NoteBeamFRACS(aBeamsetL));
 	return True;
 }
@@ -891,7 +908,7 @@ static Boolean Convert1CONNECT(Document * /* doc */, LINK aConnectL)
 	ConnectXD(aConnectL) = (&a1Connect)->xd;
 
 //NHexDump(LOG_DEBUG, "Convert1CONNECT", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1CONNECT: aConnectL=%u staffAbove=%d staffBelow=%d\n",
+LogPrintf(LOG_DEBUG, "  Convert1CONNECT: aConnectL=%u staffAbove=%d staffBelow=%d\n",
 aConnectL, ConnectSTAFFABOVE(aConnectL), ConnectSTAFFBELOW(aConnectL));
 	return True;
 }
@@ -921,7 +938,7 @@ static Boolean Convert1DYNAMIC(Document * /* doc */, LINK aDynamicL)
 	DynamicENDYD(aDynamicL) = (&a1Dynamic)->endyd;
 
 //NHexDump(LOG_DEBUG, "Convert1DYNAMIC", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1DYNAMIC: aDynamicL=%u mouthWidth=%d xd=%d\n",
+LogPrintf(LOG_DEBUG, "  Convert1DYNAMIC: aDynamicL=%u mouthWidth=%d xd=%d\n",
 aDynamicL, DynamicMOUTHWIDTH(aDynamicL), DynamicXD(aDynamicL));
 	return True;
 }
@@ -955,9 +972,9 @@ static Boolean Convert1SLUR(Document * /* doc */, LINK aSlurL)
 //	SlurKNOT(aSlurL) = (&a1Slur)->seg.knot); ??
 	
 //NHexDump(LOG_DEBUG, "Convert1SLUR", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1SLUR: aSlurL=%u dashed=%d firstInd=%d lastInd=%d\n",
+LogPrintf(LOG_DEBUG, "  Convert1SLUR: aSlurL=%u dashed=%d firstInd=%d lastInd=%d\n",
 aSlurL, SlurDASHED(aSlurL), SlurFIRSTIND(aSlurL), SlurLASTIND(aSlurL));
-		return True;
+	return True;
 }
 
 
@@ -1013,8 +1030,10 @@ static Boolean Convert1GRNOTE(Document * /* doc */, LINK aGRNoteL)
 	GRNoteTEMPFLAG(aGRNoteL) = (&a1GRNote)->tempFlag;
 	
 //NHexDump(LOG_DEBUG, "Convert1GRNOTE", (unsigned char *)&tempSys, 46, 4, 16);
-//LogPrintf(LOG_DEBUG, "Convert1GRNOTE: aGRNoteL=%u voice=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
-//aGRNoteL, GRNoteVOICE(aGRNoteL), GRNoteYQPIT(aGRNoteL), GRNoteXD(aGRNoteL), GRNoteYD(aGRNoteL), GRNotePLAYDUR(aGRNoteL));
+LogPrintf(LOG_DEBUG, "  Convert1GRNOTE: aGRNoteL=%u voice=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+aGRNoteL, GRNoteVOICE(aGRNoteL), GRNoteYQPIT(aGRNoteL), GRNoteXD(aGRNoteL),
+GRNoteYD(aGRNoteL), GRNotePLAYDUR(aGRNoteL));
+
 	return True;
 }
 
@@ -1039,7 +1058,7 @@ static Boolean Convert1PSMEAS(Document * /* doc */, LINK aPSMeasL)
 	PSMeasCONNSTAFF(aPSMeasL) = (&a1PSMeas)->connStaff;	
 	
 //NHexDump(LOG_DEBUG, "Convert1PSMEAS", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "Convert1PSMEAS: aPSMeasL=%u staffn=%d connAbove=%d connStaff=%d\n",
+LogPrintf(LOG_DEBUG, "  Convert1PSMEAS: aPSMeasL=%u staffn=%d connAbove=%d connStaff=%d\n",
 aPSMeasL, PSMeasSTAFFN(aPSMeasL), PSMeasCONNABOVE(aPSMeasL), PSMeasCONNSTAFF(aPSMeasL));
 		return True;
 }
@@ -1572,13 +1591,14 @@ static Boolean ConvertOTTAVA(Document * /* doc */, LINK ottavaL)
 	OttavaNXD(ottavaL) = (&aOttava)->nxd;
 	OttavaNYD(ottavaL) = (&aOttava)->nyd;
 	OttavaXDFIRST(ottavaL) = (&aOttava)->xdFirst;
-	OttavaYDFIRST(ottavaL) = (&aOttava)->ydFirst;
 	OttavaXDLAST(ottavaL) = (&aOttava)->xdLast;
+	OttavaYDFIRST(ottavaL) = (&aOttava)->ydFirst;
 	OttavaYDLAST(ottavaL) = (&aOttava)->ydLast;
 
 //NHexDump(LOG_DEBUG, "ConvertOTTAVA", (unsigned char *)&tempSys, 38, 4, 16);
-	LogPrintf(LOG_DEBUG, "ConvertOTTAVA: ottavaL=L%u staff=%d type=%d xdFirst=%d\n",
-				ottavaL, OttavaSTAFF(ottavaL), OttavaType(ottavaL), OttavaXDFIRST(ottavaL)); 
+	LogPrintf(LOG_DEBUG, "ConvertOTTAVA: ottavaL=L%u staff=%d type=%d nVis=%d xdFirst=%d xdLast=%d\n",
+				ottavaL, OttavaSTAFF(ottavaL), OttavaType(ottavaL), OttavaNUMBERVIS(ottavaL),
+				OttavaXDFIRST(ottavaL), OttavaXDLAST(ottavaL)); 
 
 #if 0
 	aOttavaL = FirstSubLINK(ottavaL);
@@ -1828,8 +1848,9 @@ SUBOBJECTS? Return True if all goes well, False if not.
 
 This function assumes that the headers and the entire object list have been read; all
 object and subobject links are valid; and all objects and subobjects are the correct
-lengths. Tweaks that affect lengths or offsets to the headers should be done in
-OpenFile(); to objects or subobjects, in ReadHeaps(). */
+lengths. Tweaks that affect lengths or offsets to the headers should be done before
+calling this, in OpenFile(); to objects or subobjects, before calling it, in
+ReadHeaps(). */
 
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 
@@ -1861,7 +1882,7 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 		
 		ConvertObjHeader(doc, pL);
 		
-		DebugConversion(pL);
+		DebugConversion(doc, pL);
 
 		switch (ObjLType(pL)) {
 			case HEADERtype:
@@ -1934,7 +1955,7 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 				ConvertPSMEAS(doc, pL);
 				continue;
 			default:
-				;
+				LogPrintf(LOG_ERR, "PROGRAM ERROR: Object L%u has illegal type %d\n", pL, ObjLType(pL));
 		}
 	}
 

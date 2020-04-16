@@ -78,25 +78,25 @@ void DoRemoveOttava(Document *doc)
 
 /* ----------------------------------------------------------------- CreateOctStfRange -- */
 /* Create octave sign for notes from stfStartL to stfEndL, excluding stfEndL, on
-staff <s>. */
+staff <stf>. */
 
-static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEndL,
+static void CreateOctStfRange(Document *doc, short stf, LINK stfStartL, LINK stfEndL,
 								Byte octType)
 {
 	short nInOttava;  LINK ottavaL;
 
-	nInOttava = OctCountNotesInRange(s, stfStartL, stfEndL, True);
+	nInOttava = OctCountNotesInRange(stf, stfStartL, stfEndL, True);
 
 	if (nInOttava>0) {
-		ottavaL = CreateOTTAVA(doc,stfStartL,stfEndL,s,nInOttava,octType,True,True);
+		ottavaL = CreateOTTAVA(doc, stfStartL, stfEndL, stf, nInOttava, octType, True, True);
 		if (doc->selStartL==FirstInOttava(ottavaL))
 			doc->selStartL = ottavaL;
 	}
 }
 
 /* ---------------------------------------------------------------------- GetOctStartL -- */
-/* Get new startL in order to insert octave sign into object list before first Sync
-or GRSync to right of <startL>. */
+/* Get new startL in order to insert octave sign into object list before first Sync or
+GRSync to right of <startL>. */
 
 static LINK GetOctStartL(LINK startL, short staff, Boolean needSel)
 {
@@ -543,7 +543,7 @@ void DrawOTTAVA(Document *doc, LINK pL, CONTEXT context[])
 	short		staff;
 	PCONTEXT	pContext;
 	DDIST		dTop, dLeft, firstxd, lastxd,
-				lastNoteWidth, yCutoffLen, dBrackMin; 
+				lastNoteWidth, yCutoffLen, dBrackMinLen; 
 	DDIST		octxdFirst, octxdLast, octydFirst, octydLast,
 				lnSpace, dhalfLn;
 	DPoint		firstPt, lastPt;
@@ -562,7 +562,6 @@ PushLock(OBJheap);
 	MaySetPSMusSize(doc, pContext);
 	lnSpace = LNSPACE(pContext);
 	dhalfLn = lnSpace/2;
-
 	dTop = pContext->measureTop;
 	dLeft = pContext->measureLeft;
 	firstSyncL = FirstInOttava(pL);
@@ -578,31 +577,37 @@ PushLock(OBJheap);
 
 	/* For the forseeable future, nxd and nyd are always zero, but we're keeping them
 	   as potential offsets for moving the number independently of the octave sign. */
-		
+
+LogPrintf(LOG_DEBUG, "DrawOTTAVA1\n");
+
 	octxdFirst = firstxd+p->xdFirst;
 	octydFirst = dTop+p->ydFirst;
 	lastNoteWidth = SymDWidthRight(doc, lastSyncL, staff, False, *pContext);
 	octxdLast = lastxd+lastNoteWidth+p->xdLast;
 	octydLast = dTop+p->ydLast;
 	
+	/* FIXME: if !<numberVis>, nothing is drawn, regardless of <brackVis>. But this is
+	   a very minor bug because <numberVis> is set to True when an ottava is created
+	   and never changed. */
+	   
 	if (p->numberVis) {
+LogPrintf(LOG_DEBUG, "DrawOTTAVA2\n");
 		NumToSonataStr(number, ottavaStr);
 
 		octRect = StrToObjRect(ottavaStr);
 		OffsetRect(&octRect, d2p(octxdFirst), d2p(octydFirst));
 
-		/*
-		 * Draw bracket if it's long enough.
-		 * If ottava alta, raise the bracket to about the top of the number.
-		 */
+		/* Draw bracket if it's long enough. If ottava alta, raise the bracket to
+		   about the top of the number. */
+		   
 		SetDPt(&firstPt, octxdFirst, octydFirst);
 		SetDPt(&lastPt, octxdLast, octydLast);
 		if (!isBassa) {
 			firstPt.v -= 2*dhalfLn;
 			lastPt.v -= 2*dhalfLn;
 		}
-		dBrackMin = 4*dhalfLn;
-		if (lastPt.h-firstPt.h>dBrackMin)
+		dBrackMinLen = 4*dhalfLn;
+		if (lastPt.h-firstPt.h > dBrackMinLen)
 			DrawOctBracket(firstPt, lastPt, octRect.right-octRect.left, yCutoffLen,
 							isBassa, pContext);
 
@@ -632,10 +637,10 @@ PopLock(OBJheap);
 }
 
 
-/* Remove Ottavas in range [stfStartL,stfEndL) on staff s and make selection range
+/* Remove Ottavas in range [stfStartL,stfEndL) on staff stf and make selection range
 consistent. */
 
-void UnOttava(Document *doc, LINK stfStartL, LINK stfEndL, short s)
+void UnOttava(Document *doc, LINK stfStartL, LINK stfEndL, short stf)
 {
 	LINK newSelStart;
 
@@ -643,16 +648,16 @@ void UnOttava(Document *doc, LINK stfStartL, LINK stfEndL, short s)
 	if (BetweenIncl(stfStartL, doc->selStartL, stfEndL) && OttavaTYPE(doc->selStartL))
 		newSelStart = FirstInOttava(doc->selStartL);
 
-	UnOttavaStaff(doc, stfStartL, stfEndL, s);
+	UnOttavaStaff(doc, stfStartL, stfEndL, stf);
 	doc->selStartL = newSelStart;
 
 	BoundSelRange(doc);
 }
 
 
-/* Remove Ottavas in range [fromL,toL) on staff s. */
+/* Remove Ottavas in range [fromL,toL) on staff stf. */
  
-static void UnOttavaStaff(Document *doc, LINK fromL, LINK toL, short s)
+static void UnOttavaStaff(Document *doc, LINK fromL, LINK toL, short stf)
 {
 	LINK rOctL, lOctL, octToL, octFromL;
 	short nInOttava;
@@ -660,30 +665,30 @@ static void UnOttavaStaff(Document *doc, LINK fromL, LINK toL, short s)
 	/* If any Ottavas cross the endpoints of the range, remove them first and, if
 	   possible, reOttava the portion outside the range. */
 
-	rOctL = HasOttavaAcross(toL, s);
-	lOctL = HasOttavaAcross(fromL, s);
+	rOctL = HasOttavaAcross(toL, stf);
+	lOctL = HasOttavaAcross(fromL, stf);
 
 	if (lOctL) {
 		octFromL = FirstInOttava(lOctL);
-		UnOttavaRange(doc, octFromL, RightLINK(LastInOttava(lOctL)), s);
-		nInOttava = OctCountNotesInRange(s, octFromL, fromL, False);
+		UnOttavaRange(doc, octFromL, RightLINK(LastInOttava(lOctL)), stf);
+		nInOttava = OctCountNotesInRange(stf, octFromL, fromL, False);
 		if (nInOttava>0)
-			CreateOTTAVA(doc, octFromL, fromL, s, nInOttava, OTTAVA8va, False, False);
+			CreateOTTAVA(doc, octFromL, fromL, stf, nInOttava, OTTAVA8va, False, False);
 	}	
 
 	if (rOctL)	{
 		octToL = RightLINK(LastInOttava(rOctL));
 
 		if (rOctL!=lOctL)
-			UnOttavaRange(doc, FirstInOttava(rOctL), octToL, s);
-		nInOttava = OctCountNotesInRange(s, toL, octToL, False);
+			UnOttavaRange(doc, FirstInOttava(rOctL), octToL, stf);
+		nInOttava = OctCountNotesInRange(stf, toL, octToL, False);
 		if (nInOttava>0)
-			CreateOTTAVA(doc, toL, octToL, s, nInOttava, OTTAVA8va, False, False);
+			CreateOTTAVA(doc, toL, octToL, stf, nInOttava, OTTAVA8va, False, False);
 	}
 	
 	/* Main loop: un-Ottava every octaved note within the range. */
 
-	UnOttavaRange(doc, fromL, toL, s);
+	UnOttavaRange(doc, fromL, toL, stf);
 }
 
 

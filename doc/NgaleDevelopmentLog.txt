@@ -5677,7 +5677,7 @@ Status of converting object types (I think).
 	obj
 	 subobj
 0	.. HEADER_5		Object has only OBJHEADER; subobjs are unchanged
-	++ TAIL_5		Has no subobjs & no fields other than header
+	+. TAIL_5		Has no subobjs & no fields other than header
 	++ SYNC_5
 	++ RPTEND_5
 	+. PAGE_5
@@ -5889,3 +5889,84 @@ Add code elsewhere to check staff. Open T+MInCounterpointBug.ngl & Debug Check r
 
 Add code to optionally call HeapBrowser() from ConvertObject(); open T+MInCounterpointBug.ngl
 several times => no complaints, and it's not at all clear that'll help :-( .
+
+-------------------------------------------------------------------------------
+
+10 - 13 April
+
+Open T+MInCounterpointBug.ngl & Debug Check repeatedly =>
+* the 1st time, warning "clefType FOR STAFF 3 IN STAFF L169 INCONSISTENCY", and clef in
+	ASTAFF 8 changed from 10 to 0 in ConvertSLUR for slur L188, as it did a couple days ago
+* 2nd time, no complaints
+* 3rd time, warning the usual clef in staff L169 is inconsistent, & clef in ASTAFF 8
+	changed from 10 to 0 in ConvertSLUR for SLUR L188 -- but Convert1SLUR wasn't called!!
+	I wonder if HeapFixN105Links() is doing everything it should? Almost surely yes: it's
+	just the standard HeapFixN105Links but with the N105 object format.
+* 4th time: warning "*DCheckNode: TEMPO L370 HAS AN EMPTY metroStr."
+* 5th time: warning the usual clef in staff L169 is inconsistent, & clef in ASTAFF 8 changed
+	from 10 to 0 in ConvertSLUR for slur L188. As a couple of days ago and in the 1st time
+	just above, Convert1SLUR was called for SLUR L188.
+* 6th time: no complaints.
+* 7th time: Ngale crashes in InstallDocMenus().
+
+Re-launch Ngale; open T+MInCounterpointBug.ngl & Debug Check repeatedly =>
+*1. no complaints
+*2. crashed in DoEvent!
+
+Quit & re-launch Xcode. Re-launch Ngale; open T+MInCounterpointBug.ngl, Debug Check
+repeatedly =>
+*1. no complaints
+*2. no complaints
+*3. warning "*DCheckNode: TEMPO L370 HAS AN EMPTY metroStr."
+*4. no complaints
+*5. no complaints
+*6. no complaints
+*7. warning "*DCheckContext: clefType FOR STAFF 3 IN STAFF L169 INCONSISTENCY."
+
+	debug. ConvertDYNAMIC: dynamicL=L185 dynamicType=5
+	debug. Convert1DYNAMIC: aDynamicL=9 mouthWidth=0 xd=0
+	debug. ConvObjs1/ASTAFF 8: st=3 top,left,ht,rt=d1664,0,256,8496 clef=10
+	debug. ConvertBEAMSET: beamsetL=L186
+	debug. ConvertSYNC: syncL=L187 timeStamp=960
+	debug. Convert1NOTER: aNoteRL=151 voice=4 vis=1 yqpit=-10 xd=0 yd=160 playDur=912
+	debug. Convert1NOTER: aNoteRL=158 voice=2 vis=1 yqpit=-18 xd=0 yd=32 playDur=228
+	debug. Convert1NOTER: aNoteRL=159 voice=3 vis=1 yqpit=12 xd=0 yd=128 playDur=228
+	debug. ConvObjs1/ASTAFF 8: st=3 top,left,ht,rt=d1664,0,256,8496 clef=0
+	debug. ConvertSYNC: syncL=L191 timeStamp=1680
+	
+!! ConvertObjects() seems to have skipped _objects_, not just subobjs!, going from L187
+to L191!! How is it possible to do that yet end up with a valid object list???? Of course
+this is just what I've been seeing with subobjects. Ah, but I don't know it skipped L188
+thru 190: ConvertObjects isn't guaranteed to display anything for every object! Add
+display for "default" type.
+
+Status of ConvertObjects() DISPLAYING MESSAGES for object & subobj types.
+. = non-existent; - = no; + = yes. 
+
+	obj
+	 subobj
+0	+- HEADER_5		Object has only OBJHEADER; subobjs are unchanged
+	-. TAIL_5		Has no subobjs & no fields other than header
+	++ SYNC_5
+	++ RPTEND_5
+	+. PAGE_5
+5	+. SYSTEM_5
+	++ STAFF_5
+	++ MEASURE_5
+	++ CLEF_5
+	++ KEYSIG_5		
+10	++ TIMESIG_5
+	++ BEAMSET_5
+	++ CONNECT_5
+	++ DYNAMIC_5
+	.+ (MODNR)		Has no objects, only subobjects
+15	+? GRAPHIC_5	Subobject has only LINK & STRINGOFFSET
+	+? OTTAVA_5		Subobject has two LINKs & that's all. But isn't drawn! ??
+	++ SLUR_5
+	+? TUPLET_5		Subobject has two LINKs & that's all
+	++ GRSYNC_5
+20	+. TEMPO_5
+	+. SPACER_5
+	+. ENDING_5
+	++ PSMEAS_5
+	+. (DEFAULT)	I.e., illegal object type

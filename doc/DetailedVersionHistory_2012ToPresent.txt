@@ -2730,5 +2730,13 @@ Debug2Utils, PitchUtils.
 Work on opening format 'N105' files while using a new format internally: converting
 objects & subobjects. Affects FileConversion.
 
-Minor cleanup: improve Debug info and HeapBrowser(), etc. Affects Browser.h, NBasicTypes.h;
-Browser, DebugDisplay, DebugUtils, HeapBrowser, Menu.
+Minor cleanup: improve Debug info and HeapBrowser(), etc. Affects Browser.h,
+NBasicTypes.h; Browser, DebugDisplay, DebugUtils, HeapBrowser, Menu.
+
+-------------------------------------------------------------------------------
+
+10 - 15 April
+
+Minor cleanup: improve error checking, reporting of document and score header errors,
+etc. Affects NObjTypes.h; Browser, DebugUtils, FileConversion, FileOpen, HeapFileIO,
+Ottava.

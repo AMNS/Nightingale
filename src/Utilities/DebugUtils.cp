@@ -152,7 +152,7 @@ Boolean DCheckHeadTail(
 								partL);
 				nextStaff = pPartInfo->lastStaff+1;
 				if (pPartInfo->transpose<-24 || pPartInfo->transpose>24)
-					COMPLAIN2("DCheckHeadTail: PART WITH partL=L%u HAS SUSPICIOUS TRANSPOSITION %d.\n",
+					COMPLAIN2("DCheckHeadTail: part with partL=L%u has suspicious transposition %d.\n",
 								partL, pPartInfo->transpose);
 			}
 			if (nextStaff-1!=doc->nstaves)
@@ -565,10 +565,10 @@ short DCheckNode(
 			else if (objRectOrdered) {
 
 /* CHECK the objRect's relative horizontal position. --------------------------------
- *	We first try find objects in this System to its left and/or right in the data
- *	structure that have meaningful objRects. If we find such object(s), we check whether
- *	their relative graphic positions agree with their relative object-list positions.
- */
+We first try find objects in this System to its left and/or right in the object list
+that have meaningful objRects. If we find such object(s), we check whether their relative
+ positions agree with their relative object-list positions. */
+
 				for (lRectOrdered = False, apLeftL = LeftLINK(pL);
 						apLeftL!=doc->headL; apLeftL = LeftLINK(apLeftL)) {
 					if (ObjLType(apLeftL)==SYSTEMtype) break;
@@ -849,12 +849,12 @@ short DCheckNode(
 								d2pt(pSystem->systemRect.bottom), doc->marginRect.bottom);
 							
 					/* The expression for checking systemRect.right has always involved
-					subtracting ExtraSysWidth(doc) , the width of the widest barline
-					(final double). That's not enough for documents that have had their
-					staff size reduced because ExtraSysWidth() is smaller, but
-					SetStaffSizeMP() doesn't shorten systemRects. Probably not hard to
-					fix, but subtracting 2*ExtraSysWidth(doc) should sidestep the
-					problem with negligible side effects. --DAB, 10/2015 */
+					   subtracting ExtraSysWidth(doc) , the width of the widest barline
+					   (final double). That's not enough for documents that have had their
+					   staff size reduced because ExtraSysWidth() is smaller, but
+					   SetStaffSizeMP() doesn't shorten systemRects. Probably not hard to
+					   fix, but subtracting 2*ExtraSysWidth(doc) should sidestep the
+					   problem with negligible side effects. --DAB, 10/2015 */
 						
 					if (where!=CLIP_DSTR && d2pt(pSystem->systemRect.right-2*ExtraSysWidth(doc))>doc->marginRect.right)
 							COMPLAIN3("*DCheckNode: SYSTEM L%u RECT EXTENDS INTO RIGHT MARGIN (pt%d vs. %d).\n", pL,
@@ -929,7 +929,7 @@ short DCheckNode(
 								COMPLAIN2("*DCheckNode: SUBOBJ IN STAFF L%u (staffn=%d) spaceBelow IS ILLEGAL.\n",
 												pL, aStaff->staffn);
 							if (aStaff->spaceBelow>sysHeight-aStaff->staffHeight)
-								COMPLAIN2("*DCheckNode: SUBOBJ IN STAFF L%u (staffn=%d) spaceBelow IS SUSPICIOUS.\n",
+								COMPLAIN2("*DCheckNode: subobj in staff L%u (staffn=%d) spaceBelow is suspicious.\n",
 												pL, aStaff->staffn);
 						}
 					}
@@ -1079,10 +1079,10 @@ short DCheckNode(
 						COMPLAIN2("*DCheckNode: SUBOBJ IN KEYSIG L%u staffn %d IS BAD.\n",
 									pL, aKeySig->staffn);
 					if (aKeySig->nKSItems>7) {
-						COMPLAIN3("*DCheckNode: SUBOBJ IN KEYSIG L%u staffn %d nKSItems %d IS SUSPICIOUS.\n",
+						COMPLAIN3("*DCheckNode: subobj in keysig L%u staffn %d nKSItems %d is suspicious.\n",
 									pL, aKeySig->staffn, aKeySig->nKSItems);
 					} else if (aKeySig->nKSItems==0 && aKeySig->subType>7) {
-						COMPLAIN3("*DCheckNode: SUBOBJ IN KEYSIG L%u staffn %d subType (nNatItems) %d IS SUSPICIOUS.\n",
+						COMPLAIN3("*DCheckNode: subobj in keysig L%u staffn %d subType (nNatItems) %d is suspicious.\n",
 									pL, aKeySig->staffn, aKeySig->nKSItems);
 					} else {
 						short k;  char tempStr[256];
@@ -1238,10 +1238,13 @@ short DCheckNode(
 			case OTTAVAtype:
 				PushLock(NOTEOTTAVAheap);
 				if (STAFFN_BAD(doc, ((POTTAVA)p)->staffn))
-					COMPLAIN2("*DCheckNode: OTTAVA L%u staffn %d IS BAD.\n",
-								pL, ((POTTAVA)p)->staffn);
+					COMPLAIN2("*DCheckNode: OTTAVA L%u staffn %d IS BAD.\n", pL,
+								((POTTAVA)p)->staffn);
 
-				for (aNoteOctL=FirstSubLINK(pL);	aNoteOctL;
+				if (((POTTAVA)p)->xdFirst>=((POTTAVA)p)->xdLast)
+					COMPLAIN2("*DCheckNode: OTTAVA L%u ON staffn %d XD1ST >= XDLAST.\n",
+								pL, ((POTTAVA)p)->staffn);
+				for (aNoteOctL=FirstSubLINK(pL); aNoteOctL;
 						aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 					aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 					if (DBadLink(doc, OBJtype, aNoteOct->opSync, True)) {
@@ -1327,7 +1330,7 @@ short DCheckNode(
 								}
 							}
 							theInd = -1;
-							for (lastNoteL = FirstSubLINK(pSlur->lastSyncL);lastNoteL;
+							for (lastNoteL = FirstSubLINK(pSlur->lastSyncL); lastNoteL;
 									lastNoteL = NextNOTEL(lastNoteL)) {
 								lastNote = GetPANOTE(lastNoteL);
 								if (lastNote->voice==pSlur->voice) {
@@ -2813,7 +2816,7 @@ Boolean DCheck1NEntries(
 	for (subCount = 0, subL = FirstSubLINK(pL); subL!=NILINK;
 			subL = tempL, subCount++) {
 		if (subCount>255) {
-			COMPLAIN2("•DCheck1NEntries: OBJ L%u HAS nEntries=%d  BUT SEEMS TO HAVE OVER 255 SUBOBJECTS.\n",
+			COMPLAIN2("•DCheck1NEntries: OBJ L%u HAS nEntries=%d BUT SEEMS TO HAVE OVER 255 SUBOBJECTS.\n",
 							pL, LinkNENTRIES(pL));
 			break;
 		}
@@ -2836,7 +2839,8 @@ protects itself against other simple data structure problems. */
 
 Boolean DCheckNEntries(Document *doc)
 {
-	LINK pL;  Boolean bad;  unsigned long soon=TickCount()+60L;
+	LINK pL;  Boolean bad;
+	unsigned long soon=TickCount()+60L;
 	
 	bad = False;
 		
