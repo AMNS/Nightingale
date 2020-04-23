@@ -1548,20 +1548,10 @@ static Boolean ConvertGRAPHIC(Document * /* doc */, LINK graphicL)
 	LogPrintf(LOG_DEBUG, "ConvertGRAPHIC: graphicL=L%u staff=%d type=%d info=%d\n", graphicL,
 				GraphicSTAFF(graphicL), GraphicSubType(graphicL), GraphicINFO(graphicL)); 
 
-#if 0
 	aGraphicL = FirstSubLINK(graphicL);
-	for ( ; aGraphicL; aGraphicL = NextGRAPHICL(aGraphicL)) {
-		/* Copy the subobj to a separate AGRAPHIC so we can move fields all over
-		the place without having to worry about clobbering anything. */
-
-		pSSubObj = (unsigned char *)GetObjectPtr(GRAPHICheap, aGraphicL, PAGRAPHIC);
-LogPrintf(LOG_DEBUG, "->block=%ld aGraphicL=%d sizeof(AGRAPHIC)*aGraphicL=%d pSSubObj=%ld\n", (GRAPHICheap)->block,
-aGraphicL, sizeof(AGRAPHIC)*aGraphicL, pSSubObj);
-		BlockMove(pSSubObj, &tmpAGraphic, sizeof(AGRAPHIC));
-//NHexDump(LOG_DEBUG, "ConvertGRAPHIC", (unsigned char *)&tmpAGraphic, sizeof(AGRAPHIC_5), 4, 16);
-
-		Convert1GRAPHIC(doc, aGraphicL);
-	}
+#define DEBUG_SKIPPING_LINKS
+#ifdef DEBUG_SKIPPING_LINKS
+LogPrintf(LOG_DEBUG, "  ConvertGRAPHIC subobj: aGraphicL=%u\n", aGraphicL);
 #endif
 
 	return True;
@@ -1600,21 +1590,12 @@ static Boolean ConvertOTTAVA(Document * /* doc */, LINK ottavaL)
 				ottavaL, OttavaSTAFF(ottavaL), OttavaType(ottavaL), OttavaNUMBERVIS(ottavaL),
 				OttavaXDFIRST(ottavaL), OttavaXDLAST(ottavaL)); 
 
-#if 0
 	aOttavaL = FirstSubLINK(ottavaL);
-	for ( ; aOttavaL; aOttavaL = NextOTTAVAL(aOttavaL)) {
-		/* Copy the subobj to a separate AOTTAVA so we can move fields all over
-		the place without having to worry about clobbering anything. */
-
-		pSSubObj = (unsigned char *)GetObjectPtr(OTTAVAheap, aOttavaL, PAOTTAVA);
-LogPrintf(LOG_DEBUG, "->block=%ld aOttavaL=%d sizeof(AOTTAVA)*aOttavaL=%d pSSubObj=%ld\n", (OTTAVAheap)->block,
-aOttavaL, sizeof(AOTTAVA)*aOttavaL, pSSubObj);
-		BlockMove(pSSubObj, &tmpAOttava, sizeof(AOTTAVA));
-//NHexDump(LOG_DEBUG, "ConvertOTTAVA", (unsigned char *)&tmpAOttava, sizeof(AOTTAVA_5), 4, 16);
-
-		Convert1OTTAVA(doc, aOttavaL);
-	}
+	for ( ; aOttavaL; aOttavaL = NextNOTEOTTAVAL(aOttavaL)) {
+#ifdef DEBUG_SKIPPING_LINKS
+LogPrintf(LOG_DEBUG, "  ConvertOTTAVA subobj: aOttavaL=%u\n", aOttavaL);
 #endif
+	}
 
 	return True;
 }
@@ -1693,21 +1674,12 @@ static Boolean ConvertTUPLET(Document * /* doc */, LINK tupletL)
 	LogPrintf(LOG_DEBUG, "ConvertTUPLET: tupletL=L%u accNum=%d accDenom=%d staff=%d\n",
 				tupletL, TupletACCNUM(tupletL), TupletACCDENOM(tupletL), TupletSTAFF(tupletL)); 
 
-#if 0
 	aTupletL = FirstSubLINK(tupletL);
-	for ( ; aTupletL; aTupletL = NextTUPLETL(aTupletL)) {
-		/* Copy the subobj to a separate ATUPLET so we can move fields all over
-		   the place without having to worry about clobbering anything. */
-
-		pSSubObj = (unsigned char *)GetObjectPtr(TUPLETheap, aTupletL, PATUPLET);
-//LogPrintf(LOG_DEBUG, "->block=%ld aTupletL=%d sizeof(ATUPLET)*aTupletL=%d pSSubObj=%ld\n", (TUPLETheap)->block,
-//aTupletL, sizeof(ATUPLET)*aTupletL, pSSubObj);
-		BlockMove(pSSubObj, &tmpATuplet, sizeof(ATUPLET));
-//NHexDump(LOG_DEBUG, "ConvertTUPLET", (unsigned char *)&tmpATuplet, sizeof(ATUPLET_5), 4, 16);
-
-		Convert1TUPLET(doc, aTupletL);
-	}
+	for ( ; aTupletL; aTupletL = NextNOTETUPLEL(aTupletL)) {
+#ifdef DEBUG_SKIPPING_LINKS
+		LogPrintf(LOG_DEBUG, "  ConvertTUPLET subobj: aTupletL=%u\n", aTupletL);
 #endif
+	}
 
 	return True;
 }
@@ -1842,7 +1814,8 @@ static Boolean ConvertPSMEAS(Document *doc, LINK psMeasL)
 /* -------------------------------------------------------------------- ConvertObjects -- */
 
 /* Convert the headers and bodies of objects in either the main or the Master Page
-object list. Any file-format-conversion code that doesn't affect the length of the header
+object list read from 'N105' format files to the current structure for that type of
+object. Any file-format-conversion code that doesn't affect the length of the header
 or lengths or offsets of fields in objects (or subobjects) should go here. ??HOW ABOUT
 SUBOBJECTS? Return True if all goes well, False if not.
 
@@ -1858,7 +1831,7 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 			doMasterList)
 {
 	HEAP *objHeap;
-	LINK pL, startL;
+	LINK pL, startL, prevL;
 	unsigned char *pSObj;
 
 	if (version!='N105') {
@@ -1871,7 +1844,16 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 	fflush(stdout);
 
 	startL = (doMasterList?  doc->masterHeadL :  doc->headL);
+	prevL = startL-1;
 	for (pL = startL; pL; pL = RightLINK(pL)) {
+	
+		/* When this function is called, objects must have sequential links; check that. */
+		LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
+		 
+		if (pL!=prevL+1) LogPrintf(LOG_ERR, "PROGRAM ERROR: ConvertObject: pL=%u BUT prevL=%u INSTEAD OF %u!\n",
+									pL, prevL, prevL-1);
+		prevL = pL;
+
 		/* Copy the object to a separate SUPEROBJECT so we can move fields all over the
 		   place without having to worry about clobbering anything. */
 		   
@@ -1889,8 +1871,11 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 				ConvertHEADER(doc, pL);
 				continue;
 			case TAILtype:
-				/* TAIL objects have no subobjs & no fields but header, so there's nothing to do. */
-				continue;
+				/* TAIL objects have no subobjs & no fields but header, so there's nothing
+				   to do except to stop: we're at the end of this object list. */
+				   
+				LogPrintf(LOG_DEBUG, "ConvertObject: pL=%u is TAIL.\n", pL);
+				break;
 			case SYNCtype:
 				ConvertSYNC(doc, pL);
 				continue;
@@ -1955,7 +1940,8 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 				ConvertPSMEAS(doc, pL);
 				continue;
 			default:
-				LogPrintf(LOG_ERR, "PROGRAM ERROR: Object L%u has illegal type %d\n", pL, ObjLType(pL));
+				LogPrintf(LOG_ERR, "PROGRAM ERROR: ConvertObject: OBJECT L%u TYPE %d IS ILLEGAL.\n",
+							pL, ObjLType(pL));
 		}
 	}
 

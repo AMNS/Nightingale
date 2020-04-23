@@ -1044,8 +1044,7 @@ that have meaningful objRects. If we find such object(s), we check whether their
 
 			case PSMEAStype:
 				PushLock(PSMEASheap);
-					for (aPSMeasL = FirstSubLINK(pL); aPSMeasL;
-							aPSMeasL = NextPSMEASL(aPSMeasL)) {
+					for (aPSMeasL = FirstSubLINK(pL); aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
 						aPSMeas = GetPAPSMEAS(aPSMeasL);
 						if (STAFFN_BAD(doc, aPSMeas->staffn))
 							COMPLAIN2("*DCheckNode: SUBOBJ IN PSEUDOMEAS L%u staffn %d IS BAD.\n",
@@ -1072,8 +1071,7 @@ that have meaningful objRects. If we find such object(s), we check whether their
 			case KEYSIGtype:
 				PushLock(KEYSIGheap);
 
-				for (aKeySigL=FirstSubLINK(pL); aKeySigL; 
-						aKeySigL=NextKEYSIGL(aKeySigL)) {
+				for (aKeySigL=FirstSubLINK(pL); aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL)) {
 					aKeySig = GetPAKEYSIG(aKeySigL);
 					if (STAFFN_BAD(doc, aKeySig->staffn))
 						COMPLAIN2("*DCheckNode: SUBOBJ IN KEYSIG L%u staffn %d IS BAD.\n",
@@ -1102,23 +1100,23 @@ that have meaningful objRects. If we find such object(s), we check whether their
 			case TIMESIGtype:
 				PushLock(TIMESIGheap);
 
-				for (aTimeSigL=FirstSubLINK(pL); aTimeSigL; 
-						aTimeSigL=NextTIMESIGL(aTimeSigL)) {
+				for (aTimeSigL=FirstSubLINK(pL); aTimeSigL; aTimeSigL=NextTIMESIGL(aTimeSigL)) {
 					aTimeSig = GetPATIMESIG(aTimeSigL);		
 					if (STAFFN_BAD(doc, aTimeSig->staffn))
 						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u staffn %d IS BAD.\n",
 								pL, aTimeSig->staffn);
 					if (TSTYPE_BAD(aTimeSig->subType))
-						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD timeSigType %d.\n",
-								pL, aTimeSig->subType);
+						COMPLAIN3("*DCheckNode: SUBOBJ IN TIMESIG L%u staffn %d HAS BAD timeSigType %d.\n",
+								pL, aTimeSig->staffn, aTimeSig->subType);
 					if (TSNUMER_BAD(aTimeSig->numerator))
-						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD TIMESIG numerator %d.\n",
-								pL, aTimeSig->numerator);
+						COMPLAIN3("*DCheckNode: SUBOBJ IN TIMESIG L%u staffn %d HAS BAD TIMESIG numerator %d.\n",
+								pL, aTimeSig->staffn, aTimeSig->numerator);
 					if (TSDENOM_BAD(aTimeSig->denominator))
-						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS BAD TIMESIG denominator %d.\n",
-								pL, aTimeSig->denominator);
+						COMPLAIN3("*DCheckNode: SUBOBJ IN TIMESIG L%u staffn %d  HAS BAD TIMESIG denominator %d.\n",
+								pL, aTimeSig->staffn, aTimeSig->denominator);
 					if (TSDUR_BAD(aTimeSig->numerator, aTimeSig->denominator))
-						COMPLAIN("*DCheckNode: SUBOBJ IN TIMESIG L%u HAS TOO GREAT DURATION.\n", pL);
+						COMPLAIN2("*DCheckNode: SUBOBJ IN TIMESIG L%u staffn %d HAS TOO GREAT DURATION.\n",
+								pL, aTimeSig->staffn);
 				}
 
 				PopLock(TIMESIGheap);
@@ -2702,12 +2700,12 @@ Boolean DCheckContext(Document *doc)
 						if (timeSigType[aStaff->staffn]!=aStaff->timeSigType
 						||  numerator[aStaff->staffn]!=aStaff->numerator
 						||  denominator[aStaff->staffn]!=aStaff->denominator) {
-							COMPLAIN2("DCheckContext: TIMESIG FOR STAFF %d IN STAFF L%u INCONSISTENCY.\n",
+							COMPLAIN2("*DCheckContext: TIMESIG FOR STAFF %d IN STAFF L%u INCONSISTENCY.\n",
 											aStaff->staffn, pL);
 							aStaff = GetPASTAFF(aStaffL);
 						}
 						if (dynamicType[aStaff->staffn]!=aStaff->dynamicType)
-							COMPLAIN2("DCheckContext: dynamicType FOR STAFF %d IN STAFF L%u INCONSISTENCY.\n",
+							COMPLAIN2("*DCheckContext: dynamicType FOR STAFF %d IN STAFF L%u INCONSISTENCY.\n",
 											aStaff->staffn, pL);
 					}
 				}
@@ -2730,12 +2728,12 @@ Boolean DCheckContext(Document *doc)
 					if (timeSigType[aMeas->staffn]!=aMeas->timeSigType
 					||  numerator[aMeas->staffn]!=aMeas->numerator
 					||  denominator[aMeas->staffn]!=aMeas->denominator) {
-						COMPLAIN3("DCheckContext: TIMESIG FOR STAFF %d IN MEASURE %d (L%u) INCONSISTENCY.\n",
+						COMPLAIN3("*DCheckContext: TIMESIG FOR STAFF %d IN MEASURE %d (L%u) INCONSISTENCY.\n",
 										aMeas->staffn, GetMeasNum(doc, pL), pL);
 						aMeas = GetPAMEASURE(aMeasL);
 					}
 					if (dynamicType[aMeas->staffn]!=aMeas->dynamicType)
-						COMPLAIN3("DCheckContext: dynamicType FOR STAFF %d IN MEASURE %d (L%u) INCONSISTENCY.\n",
+						COMPLAIN3("*DCheckContext: dynamicType FOR STAFF %d IN MEASURE %d (L%u) INCONSISTENCY.\n",
 										aMeas->staffn, GetMeasNum(doc, pL), pL);
 					aMeasureFound[aMeas->staffn] = True;
 				}

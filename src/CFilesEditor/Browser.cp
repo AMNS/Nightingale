@@ -26,8 +26,6 @@ static char clefStr[40];		/* for clefs only */
 static char objList[16];
 static LINK subL;
 
-static Boolean DynamicToString(short dynamicType);
-static Boolean ClefToString(short clefType);
 static void DrawTextLine(char *);
 static void InvertObjRect(Document *, Rect *);
 static void ChangeSelectObj(Document *, LINK, short, short, Boolean, Rect *);
@@ -56,45 +54,6 @@ static void BrowseTempo(LINK, Rect *);
 static void BrowseSpace(LINK, Rect *);
 static void BrowseSlur(LINK, short, Rect *);
 static pascal Boolean BrowserFilter(DialogPtr, EventRecord *, short *);
-
-
-static Boolean DynamicToString(short dynamicType)
-{
-	switch (dynamicType) {
-		case PPP_DYNAM: strcpy(dynStr, "ppp"); return True;
-		case PP_DYNAM: strcpy(dynStr, "pp"); return True;
-		case P_DYNAM: strcpy(dynStr, "p"); return True;
-		case MP_DYNAM: strcpy(dynStr, "mp"); return True;
-		case MF_DYNAM: strcpy(dynStr, "mf"); return True;
-		case F_DYNAM: strcpy(dynStr, "f"); return True;
-		case FF_DYNAM: strcpy(dynStr, "ff"); return True;
-		case FFF_DYNAM: strcpy(dynStr, "fff"); return True;
-		case DIM_DYNAM: strcpy(dynStr, "hairpin dim."); return True;
-		case CRESC_DYNAM: strcpy(dynStr, "hairpin cresc."); return True;
-		default: strcpy(dynStr, "unknown"); return False;
-	}
-}
-
-
-static Boolean ClefToString(short clefType)
-{
-	switch (clefType) {
-		case TREBLE8_CLEF: strcpy(clefStr, "treble-8va"); return True;
-		case FRVIOLIN_CLEF: strcpy(clefStr, "French violin"); return True;
-		case TREBLE_CLEF: strcpy(clefStr, "treble"); return True;
-		case SOPRANO_CLEF: strcpy(clefStr, "soprano"); return True;
-		case MZSOPRANO_CLEF: strcpy(clefStr, "mezzo-soprano"); return True;
-		case ALTO_CLEF: strcpy(clefStr, "alto"); return True;
-		case TRTENOR_CLEF: strcpy(clefStr, "treble-tenor"); return True;
-		case TENOR_CLEF: strcpy(clefStr, "tenor"); return True;
-		case BARITONE_CLEF: strcpy(clefStr, "baritone"); return True;
-		case BASS_CLEF: strcpy(clefStr, "bass"); return True;
-		case BASS8B_CLEF: strcpy(clefStr, "bass-8vb"); return True;
-		case PERC_CLEF: strcpy(clefStr, "percussion"); return True;
-		
-		default: strcpy(clefStr, "unknown"); return False;
-	}
-}
 
 
 enum {
@@ -992,7 +951,7 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 				q->noteHeadWidth,
 				q->fracBeamWidth);
 	DrawTextLine(s); q = GetPASTAFF(qL);
-	ClefToString(q->clefType);	
+	ClefToString(q->clefType, clefStr);	
 	sprintf(s, "clefType=%d (%s)", q->clefType, clefStr);
 	DrawTextLine(s); q = GetPASTAFF(qL);
 	sprintf(s, "nKSItems=%hd", q->nKSItems);
@@ -1004,7 +963,7 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 				q->numerator,
 				q->denominator);
 	DrawTextLine(s); q = GetPASTAFF(qL);
-	DynamicToString(q->dynamicType);	
+	DynamicToString(q->dynamicType, dynStr);	
 	sprintf(s, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
 	DrawTextLine(s);
 }
@@ -1114,7 +1073,7 @@ void BrowseClef(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);  	q = GetPACLEF(qL);
 	sprintf(s, "xd=%d yd=%d", q->xd, q->yd);
 	DrawTextLine(s); 	q = GetPACLEF(qL);
-	ClefToString(q->subType);	
+	ClefToString(q->subType, clefStr);	
 	sprintf(s, "clefType=%d (%s) small=%d", q->subType, clefStr, q->small);
 
 	DrawTextLine(s);
@@ -1268,7 +1227,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "barlineType=%hd connStaff=%hd", q->subType, q->connStaff);
 	if (q->connAbove) strcat(s, " CONNABOVE");
 	DrawTextLine(s);	q = GetPAMEASURE(qL);
-	ClefToString(q->clefType);	
+	ClefToString(q->clefType, clefStr);	
 	sprintf(s, "clefType=%d (%s)", q->clefType, clefStr);
 	DrawTextLine(s);	q = GetPAMEASURE(qL);
 	sprintf(s, "nKSItems=%hd", q->nKSItems);
@@ -1285,7 +1244,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 			q->numerator,
 			q->denominator);
 	DrawTextLine(s);	q = GetPAMEASURE(qL);
-	DynamicToString(q->dynamicType);	
+	DynamicToString(q->dynamicType, dynStr);	
 	sprintf(s, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
 	DrawTextLine(s);
 	
@@ -1619,7 +1578,7 @@ void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 					DynamFIRSTSYNC(pL), DynamLASTSYNC(pL));
 	DrawTextLine(s);
 
-	DynamicToString(DynamType(pL));	
+	DynamicToString(DynamType(pL), dynStr);	
 	sprintf(s, "dynamicType=%d (%s) IsHairpin=%d", DynamType(pL), dynStr, IsHairpin(pL));
 	DrawTextLine(s);
 	p = GetPDYNAMIC(pL);
@@ -2049,7 +2008,7 @@ void ShowContext(Document *doc)
 	DrawTextLine(s);
 	sprintf(s, "measureTop,Left=%d,%d", context.measureTop, context.measureLeft);
 	DrawTextLine(s);
-	ClefToString(context.clefType);	
+	ClefToString(context.clefType, clefStr);	
 	sprintf(s, "clefType=%hd (%s)", context.clefType, clefStr);
 	DrawTextLine(s);
 	sprintf(s, "nKSItems=%hd", context.nKSItems);
@@ -2058,7 +2017,7 @@ void ShowContext(Document *doc)
 		context.denominator);
 	DrawTextLine(s);
 
-	DynamicToString(context.dynamicType);	
+	DynamicToString(context.dynamicType, dynStr);	
 	sprintf(s, "dynamicType=%hd (%s)", context.dynamicType, dynStr);
 	DrawTextLine(s);
 	

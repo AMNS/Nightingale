@@ -2740,3 +2740,10 @@ NBasicTypes.h; Browser, DebugDisplay, DebugUtils, HeapBrowser, Menu.
 Minor cleanup: improve error checking, reporting of document and score header errors,
 etc. Affects NObjTypes.h; Browser, DebugUtils, FileConversion, FileOpen, HeapFileIO,
 Ottava.
+
+-------------------------------------------------------------------------------
+
+16 - 22 April
+
+Minor cleanup. Affects MemMacros.h, UIFUtils.h; Browser, DebugUtils, FileConversion,
+Ottava, UIFUtils.

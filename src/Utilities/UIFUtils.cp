@@ -17,7 +17,8 @@
 		StopAdvise				Inform					NoteInform
 		CautionInform			StopInform				ProgressMsg
 		UserInterrupt			UserInterruptAndSel
-		NameHeapType			NameObjType				NameGraphicType	
+		NameHeapType			NameObjType				NameGraphicType
+		DynamicToString			ClefToString
 		SmartenQuote			DrawBox					DrawGrowBox
 		DrawTheSelection		HiliteRect
 		Voice2UserStr			Staff2UserStr
@@ -1115,6 +1116,47 @@ const char *NameGraphicType(
 	}
 
 	return ps;
+}
+
+
+/* ----------------------------------------------------- DynamicToString, ClefToString -- */
+
+Boolean DynamicToString(short dynamicType, char dynStr[])
+{
+	switch (dynamicType) {
+		case PPP_DYNAM: strcpy(dynStr, "ppp"); return True;
+		case PP_DYNAM: strcpy(dynStr, "pp"); return True;
+		case P_DYNAM: strcpy(dynStr, "p"); return True;
+		case MP_DYNAM: strcpy(dynStr, "mp"); return True;
+		case MF_DYNAM: strcpy(dynStr, "mf"); return True;
+		case F_DYNAM: strcpy(dynStr, "f"); return True;
+		case FF_DYNAM: strcpy(dynStr, "ff"); return True;
+		case FFF_DYNAM: strcpy(dynStr, "fff"); return True;
+		case DIM_DYNAM: strcpy(dynStr, "hairpin dim."); return True;
+		case CRESC_DYNAM: strcpy(dynStr, "hairpin cresc."); return True;
+		default: strcpy(dynStr, "unknown"); return False;
+	}
+}
+
+
+Boolean ClefToString(short clefType, char clefStr[])
+{
+	switch (clefType) {
+		case TREBLE8_CLEF: strcpy(clefStr, "treble-8va"); return True;
+		case FRVIOLIN_CLEF: strcpy(clefStr, "French violin"); return True;
+		case TREBLE_CLEF: strcpy(clefStr, "treble"); return True;
+		case SOPRANO_CLEF: strcpy(clefStr, "soprano"); return True;
+		case MZSOPRANO_CLEF: strcpy(clefStr, "mezzo-soprano"); return True;
+		case ALTO_CLEF: strcpy(clefStr, "alto"); return True;
+		case TRTENOR_CLEF: strcpy(clefStr, "treble-tenor"); return True;
+		case TENOR_CLEF: strcpy(clefStr, "tenor"); return True;
+		case BARITONE_CLEF: strcpy(clefStr, "baritone"); return True;
+		case BASS_CLEF: strcpy(clefStr, "bass"); return True;
+		case BASS8B_CLEF: strcpy(clefStr, "bass-8vb"); return True;
+		case PERC_CLEF: strcpy(clefStr, "percussion"); return True;
+		
+		default: strcpy(clefStr, "unknown"); return False;
+	}
 }
 
 

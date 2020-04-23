@@ -56,6 +56,8 @@ Boolean UserInterruptAndSel(void);
 const char *NameHeapType(short, Boolean);
 const char *NameObjType(LINK);
 const char *NameGraphicType(LINK, Boolean);
+Boolean DynamicToString(short dynamicType, char dynStr[]);
+Boolean ClefToString(short clefType, char clefStr[]);
 
 short SmartenQuote(TEHandle textH, short ch);
 

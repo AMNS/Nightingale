@@ -5892,7 +5892,7 @@ several times => no complaints, and it's not at all clear that'll help :-( .
 
 -------------------------------------------------------------------------------
 
-10 - 13 April
+10 - 15 April
 
 Open T+MInCounterpointBug.ngl & Debug Check repeatedly =>
 * the 1st time, warning "clefType FOR STAFF 3 IN STAFF L169 INCONSISTENCY", and clef in
@@ -5940,7 +5940,26 @@ this is just what I've been seeing with subobjects. Ah, but I don't know it skip
 thru 190: ConvertObjects isn't guaranteed to display anything for every object! Add
 display for "default" type.
 
-Status of ConvertObjects() DISPLAYING MESSAGES for object & subobj types.
+-------------------------------------------------------------------------------
+	
+16 - 22 April
+
+Hmmm. I haven't seen (1) the utterly bizarre bug of objects or subobjects being skipped
+in quite awhile, and I haven't seen the so-far unexplained bug of (2a) "clefType FOR STAFF
+3 IN STAFF L169 INCONSISTENCY" or (2b) "TIMESIG FOR STAFF 2 IN STAFF L332 INCONSISTENCY"
+in a few days -- and I don't know why either would have gone away! Try opening
+T+MInCounterpointBug.ngl and T+MInCounterpoint.ngl each a few times => with
+T+MInCounterpointBug.ngl, one occurrence of #2b:
+
+	Warning. *DCheckContext: clefType FOR STAFF 2 IN STAFF L332 INCONSISTENCY.
+
+...and the log, T+MInCounterpointBugLog.txt, indicates neither ConvertSTAFF nor Convert1STAFF
+was ever called; that's the utterly bizarre bug #1!  $@%*^!$@$^%&*$@$*(*&^^%#@
+
+Need to give a message for remaining subobjs even they don't need conversion. Add LogPrintf()
+for subobjs of GRAPHICs, OTTAVAs, TUPLETs => done.
+
+Status of ConvertObjects() (and functions it calls) DISPLAYING MESSAGES for object & subobj types.
 . = non-existent; - = no; + = yes. 
 
 	obj
@@ -5960,13 +5979,87 @@ Status of ConvertObjects() DISPLAYING MESSAGES for object & subobj types.
 	++ CONNECT_5
 	++ DYNAMIC_5
 	.+ (MODNR)		Has no objects, only subobjects
-15	+? GRAPHIC_5	Subobject has only LINK & STRINGOFFSET
-	+? OTTAVA_5		Subobject has two LINKs & that's all. But isn't drawn! ??
+15	++ GRAPHIC_5	Subobject has only LINK & STRINGOFFSET
+	++ OTTAVA_5		Subobject has two LINKs & that's all. But isn't drawn! ??
 	++ SLUR_5
-	+? TUPLET_5		Subobject has two LINKs & that's all
+	++ TUPLET_5		Subobject has two LINKs & that's all
 	++ GRSYNC_5
 20	+. TEMPO_5
 	+. SPACER_5
 	+. ENDING_5
 	++ PSMEAS_5
 	+. (DEFAULT)	I.e., illegal object type
+	
+OK, Rename it T+MInCounterpointBug1p5p.ngl & open again ??
+
+Trim it w/ 5.8.x => T+MInCounterpointBug.ngl (NB: later renamed T+MInCounterpointBug25mm.ngl).
+Open =>
+
+	Warning. *DCheckNode: SUBOBJ IN FIRST STAFF, L6 (staffn=2), staffHeight DISAGREES WITH srastral.
+
+In the 1st System (L6), staff 2 has height zero!
+
+Open again => no more messages appear in the System log!!! Quit Ngale & Xcode, relaunch => 
+no change. I don't think _any_ new messages from any program are appearing there!
+
+Reboot, launch Xcode, run Ngale => messages appear normally in the System log. Open
+T+MInCounterpointBug.ngl, Debug Check =>
+
+	Warning. *DCheckMeasSubobjs: SUBOBJ IN MEASURE L431 HAS BAD TIMESIG numerator 0.
+	Warning. *DCheckContext: TIMESIG FOR STAFF 2 IN MEASURE 25 (L431) INCONSISTENCY.
+
+Tweak debug messages, recompile, re-run, open T+MInCounterpointBug.ngl, Debug Check =>
+
+	Warning. *DCheckMeasSubobjs: 1 SUBOBJ(S) IN MEASURE L328 HAVE connAbove BUT NO CONNECTED STAFF.
+
+Open it again, Debug Check => no complaints.
+Open it again, Debug Check =>
+
+	Warning. *DCheckMeasSubobjs: 1 SUBOBJ(S) IN MEASURE L328 HAVE connAbove BUT NO CONNECTED STAFF.
+
+Open it again, Debug Check => no complaints.
+
+Quit Ngale; relaunch it; open T+MInCounterpointBug.ngl, Debug Check => no complaints.
+Open it again, Debug Check => no complaints.
+Open it again, Debug Check => no complaints.
+Open it again, Debug Check => no complaints.
+Open it again, Debug Check =>
+
+Apr 21 07:02:33 DonDualG5 Ngale[737]: info. --CHECK MASTER: *DCheckNode: SUBOBJ IN FIRST STAFF, L449 (staffn=2), staffHeight DISAGREES WITH srastral.
+
+But L449 is in Master Page -- and the log ends like this:
+
+	debug. ConvertMEASURE: measL=L444 lMeasure=L431 rMeasure=L0 systemL=L410
+	debug. ConvertHEADER: headL=L446
+	debug. ConvObjs1/ASTAFF 8: st=3 top,left,ht,rt=d1664,0,256,8496 clef=10
+	debug. Convert1STAFF: st=2 top,left,ht,rt=d1024,0,0,8496 lines=5 fontSz=14 .V clef=3 TS=1,4/4
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	Notice. Opened file 'T+MInCounterpointBug.ngl'.
+
+L445 is TAIL of the main object list, which ConvertObject() doesn't mention. But what
+happened to Master Page??
+
+Quit; make ConvertObject() list TAIL. Re-launch, open T+MInCounterpointBug.ngl, Debug
+Check => no complaints -- but ConvertObject is skipping objects _all over the place_!
+356 jumps to 371,then 373, then 378; 432 jumps to 435, 437, 444, 448, 449. So it skipped
+main obj list TAIL and resumed in the middle of Master Page, but didn't finish Master
+Page either. What????? Links 1 thru 54 are all there. From 188 it jumps to 192; this may
+be the first jump.
+
+Add code to ConvertObject() to print a message for jumps => there are still jumps, but it
+doesn't print them! Huh???? Print out the link number every time through => there are
+still jumps -- the first is 159 to 164 -- but the jump-detecting code still doesn't print,
+though there are print statements for objects between. Even worse, sometimes print
+statements for subobjects without their objects :-( . The only explanations I can think
+of: a bizarre software bug, an even more bizarre CPU hardware problem, or a clobber. If
+it's the 1st two, I'm dead; fortunately a clobber is much more likely.
+
+A minimal test file might help. Trim T+MInCounterpointBug25mm.ngl => T+MInCp14mm.ngl and
+T+MInCp12mm.ngl.
+
+Open T+MInCp12mm.ngl => crashes in ShowWindow called from ShowDocument() (line 388 of
+Documents.c). What does this mean? Unclear.
+
+Open T+MInCp12mm.ngl again => opens & looks OK, but it skipped obj 230? No; just a bug in
+my checking.
+

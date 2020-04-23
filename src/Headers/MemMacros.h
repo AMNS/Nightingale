@@ -282,11 +282,9 @@ same place as ->left for objects, but staffn is a SignedByte. */
 /* Type-specific macros for getting the next subobject via the next link field */
 
 #define NextPPARTINFO(partInfo)		GetPPARTINFO((partInfo)->next)
+#define NextPANOTE(aNote)			GetPANOTE((aNote)->next)
 #define NextPASTAFF(aStaff)			GetPASTAFF((aStaff)->next)
 #define NextPAMEASURE(aMeasure)		GetPAMEASURE((aMeasure)->next)
-#define NextPAPSMEAS(aPSMeas)		GetPAPSMEAS((aPSMeas)->next)
-#define NextPANOTE(aNote)			GetPANOTE((aNote)->next)
-#define NextPAGRNOTE(aNote)			GetPAGRNOTE((aNote)->next)
 #define NextPACLEF(aClef)			GetPACLEF((aClef)->next)
 #define NextPAKEYSIG(aKeySig)		GetPAKEYSIG((aKeySig)->next)
 #define NextPATIMESIG(aTimeSig)		GetPATIMESIG((aTimeSig)->next)
@@ -295,13 +293,14 @@ same place as ->left for objects, but staffn is a SignedByte. */
 #define NextPADYNAMIC(aDynamic)		GetPADYNAMIC((aDynamic)->next)
 #define NextPASLUR(aSlur)			GetPASLUR((aSlur)->next)
 #define NextPANOTETUPLE(aNoteTuple)	GetPANOTETUPLE((aNoteTuple)->next)
+#define NextPAGRNOTE(aNote)			GetPAGRNOTE((aNote)->next)
+#define NextPAPSMEAS(aPSMeas)		GetPAPSMEAS((aPSMeas)->next)
 
 #define NextPARTINFOL(partInfoL) 	NextLink(PARTINFOheap,(partInfoL))
+#define NextNOTEL(aNoteL) 			NextLink(NOTEheap,(aNoteL))
+#define NextRPTENDL(aRptL) 			NextLink(RPTENDheap,(aRptL))
 #define NextSTAFFL(aStaffL) 		NextLink(STAFFheap,(aStaffL))
 #define NextMEASUREL(aMeasureL) 	NextLink(MEASUREheap,(aMeasureL))
-#define NextPSMEASL(aPSMeasL) 		NextLink(PSMEASheap,(aPSMeasL))
-#define NextNOTEL(aNoteL) 			NextLink(NOTEheap,(aNoteL))
-#define NextGRNOTEL(aNoteL) 		NextLink(GRNOTEheap,(aNoteL))
 #define NextCLEFL(aClefL) 			NextLink(CLEFheap,(aClefL))
 #define NextKEYSIGL(aKeySigL) 		NextLink(KEYSIGheap,(aKeySigL))
 #define NextTIMESIGL(aTimeSigL) 	NextLink(TIMESIGheap,(aTimeSigL))
@@ -309,10 +308,11 @@ same place as ->left for objects, but staffn is a SignedByte. */
 #define NextCONNECTL(aConnectL) 	NextLink(CONNECTheap,(aConnectL))
 #define NextDYNAMICL(aDynamicL) 	NextLink(DYNAMheap,(aDynamicL))
 #define NextMODNRL(aModNRL) 		NextLink(MODNRheap,(aModNRL))
-#define NextRPTENDL(aRptL) 			NextLink(RPTENDheap,(aRptL))
+#define NextNOTEOTTAVAL(aNoteOttavaL) 	NextLink(NOTEOTTAVAheap,(aNoteOttavaL))
 #define NextSLURL(aSlurL) 			NextLink(SLURheap,(aSlurL))
 #define NextNOTETUPLEL(aNoteTupleL) NextLink(NOTETUPLEheap,(aNoteTupleL))
-#define NextNOTEOTTAVAL(aNoteOttavaL) 	NextLink(NOTEOTTAVAheap,(aNoteOttavaL))
+#define NextGRNOTEL(aNoteL) 		NextLink(GRNOTEheap,(aNoteL))
+#define NextPSMEASL(aPSMeasL) 		NextLink(PSMEASheap,(aPSMeasL))
 
 /* Type-specific macros to say if an obj is of that type, two objs are the same type, etc. */
 

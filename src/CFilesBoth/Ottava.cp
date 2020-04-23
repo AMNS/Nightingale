@@ -22,14 +22,15 @@
 #include "Nightingale.appl.h"
 
 /* Prototypes for internal functions */
-static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEndL, Byte octType);
+
+static void CreateOctStfRange(Document *doc, short stf, LINK stfStartL, LINK stfEndL, Byte octType);
 static LINK GetOctStartL(LINK startL, short staff, Boolean needSel);
 static DDIST GetNoteYD(LINK syncL, short staff);
 static void UnOttava(Document *, LINK, LINK, short);
 static void UnOttavaStaff(Document *, LINK, LINK, short);
 static void UnOttavaSync(Document *, LINK, LINK, DDIST, short, CONTEXT);
 static void UnOttavaGRSync(Document *, LINK, LINK, DDIST, short, CONTEXT);
-static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short s);
+static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short stf);
 static LINK HasGROctAcross(LINK node, short staff);
 static LINK HasOctAcrossPt(Document *, Point, short);
 static LINK HasGROctAcrossPt(Document *, Point, short);
@@ -578,8 +579,6 @@ PushLock(OBJheap);
 	/* For the forseeable future, nxd and nyd are always zero, but we're keeping them
 	   as potential offsets for moving the number independently of the octave sign. */
 
-LogPrintf(LOG_DEBUG, "DrawOTTAVA1\n");
-
 	octxdFirst = firstxd+p->xdFirst;
 	octydFirst = dTop+p->ydFirst;
 	lastNoteWidth = SymDWidthRight(doc, lastSyncL, staff, False, *pContext);
@@ -587,11 +586,10 @@ LogPrintf(LOG_DEBUG, "DrawOTTAVA1\n");
 	octydLast = dTop+p->ydLast;
 	
 	/* FIXME: if !<numberVis>, nothing is drawn, regardless of <brackVis>. But this is
-	   a very minor bug because <numberVis> is set to True when an ottava is created
-	   and never changed. */
+	   a very minor bug because, as of v. 5.8.x, <numberVis> is set to True when an
+	   ottava is created and never changed. */
 	   
 	if (p->numberVis) {
-LogPrintf(LOG_DEBUG, "DrawOTTAVA2\n");
 		NumToSonataStr(number, ottavaStr);
 
 		octRect = StrToObjRect(ottavaStr);
@@ -814,7 +812,7 @@ void RemoveOctOnStf(Document *doc,
 
 /* Find the octave sign Sync or GRSync pL belongs to and remove it. */
 
-static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short s)
+static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short stf)
 {
 	LINK aNoteL, aGRNoteL, ottavaL;
 	PANOTE aNote; PAGRNOTE aGRNote;
@@ -823,14 +821,14 @@ static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short 
 		aNoteL = FirstSubLINK(pL);
 		for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 			aNote = GetPANOTE(aNoteL);
-			if (aNote->staffn==s && aNote->inOttava) {
-				ottavaL = LSSearch(pL, OTTAVAtype, s, True, False);
+			if (aNote->staffn==stf && aNote->inOttava) {
+				ottavaL = LSSearch(pL, OTTAVAtype, stf, True, False);
 				if (ottavaL==NILINK) {
 					MayErrMsg("UnOttavaRange: can't find Ottava for note in sync L%ld on staff %ld",
-								(long)pL, (long)s);
+								(long)pL, (long)stf);
 					return;
 				}
-				RemoveOctOnStf(doc, ottavaL, fromL, toL, s);
+				RemoveOctOnStf(doc, ottavaL, fromL, toL, stf);
 			}
 		}
 	}
@@ -838,18 +836,19 @@ static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short 
 		aGRNoteL = FirstSubLINK(pL);
 		for ( ; aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL)) {
 			aGRNote = GetPAGRNOTE(aGRNoteL);
-			if (aGRNote->staffn==s && aGRNote->inOttava) {
-				ottavaL = LSSearch(pL, OTTAVAtype, s, True, False);
+			if (aGRNote->staffn==stf && aGRNote->inOttava) {
+				ottavaL = LSSearch(pL, OTTAVAtype, stf, True, False);
 				if (ottavaL==NILINK) {
 					MayErrMsg("UnOttavaRange: can't find Ottava for grace note in sync L%ld on staff %ld",
-								(long)pL,(long)s);
+								(long)pL,(long)stf);
 					return;
 				}
-				RemoveOctOnStf(doc, ottavaL, fromL, toL, s);
+				RemoveOctOnStf(doc, ottavaL, fromL, toL, stf);
 			}
 		}
 	}
 }
+
 
 /* Remove Ottavas in the range from <from> to <toL> on <staffn>. */
 
