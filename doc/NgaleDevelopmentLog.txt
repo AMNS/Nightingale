@@ -6061,5 +6061,73 @@ Open T+MInCp12mm.ngl => crashes in ShowWindow called from ShowDocument() (line 3
 Documents.c). What does this mean? Unclear.
 
 Open T+MInCp12mm.ngl again => opens & looks OK, but it skipped obj 230? No; just a bug in
-my checking.
+my checking, sigh.
+
+-------------------------------------------------------------------------------
+
+23 - 24 April
+
+Stuff missing from the log always seems to be worst at the end; with larger files, I
+don't think it ever shows all 6 Master Page objects! What's the smallest file that
+happens with?
+
+Launch Ngale, open AllObjTypes.ngl (36 objs) 2x => both times, shows all 6, and 2 subobjs
+each for STAFF & CONNECT; shows all 6 "******* ConvertObject:" messages.
+
+Launch Ngale, open T+MInCounterpointBug12mm.ngl (229 objs) 2x => the 1st time, shows only
+4 objs, and 1 subobj each for STAFF & CONNECT; shows 5 "******* ConvertObject:" messages.
+
+	debug. ConvertObject: pL=229 is TAIL.
+	debug.  ******************** ConvertObject: pL=230 prevL=229
+	debug. ConvertHEADER: headL=L230
+	debug.  ******************** ConvertObject: pL=231 prevL=230
+	debug.  ******************** ConvertObject: pL=232 prevL=231
+	debug. ConvertSYSTEM: sysL=L232 type=5 xd=576 sel=0 vis=1
+	debug.  ******************** ConvertObject: pL=233 prevL=232
+	debug. ConvertSTAFF: staffL=L233 nEntries=3 lStaff=L0 rStaff=L0 StaffSYS=L232
+	debug.     Convert1STAFF: st=1 top,left,ht,rt=d384,0,256,8496 lines=5 fontSz=14 .V clef=3 TS=1,4/4
+	debug.  ******************** ConvertObject: pL=234 prevL=233
+	debug.     Convert1CONNECT: aConnectL=8 staffAbove=2 staffBelow=3
+	debug. ConvertObject: pL=235 is TAIL.
+
+The 2nd time, shows considerably less:
+
+	debug.  ******************** ConvertObject: pL=228 prevL=227
+	debug.     Convert1MEASURE: aMeasureL=43 staffn=1 measNum=12 connStaff=0
+	debug.  ******************** ConvertObject: pL=230 prevL=229
+	debug.  ******************** ConvertObject: pL=231 prevL=230
+	debug.  ******************** ConvertObject: pL=232 prevL=231
+	debug.  ******************** ConvertObject: pL=233 prevL=232
+	debug.     Convert1STAFF: st=1 top,left,ht,rt=d384,0,256,8496 lines=5 fontSz=14 .V clef=3 TS=1,4/4
+	debug.     Convert1STAFF: st=3 top,left,ht,rt=d1664,0,256,8496 lines=5 fontSz=14 .V clef=3 TS=1,4/4
+	debug. ConvertObject: pL=235 is TAIL.
+ 
+Launch Ngale, open T+MInCounterpointBug5mm.ngl (121 objs) 2x => both times, shows all 6
+objs, 3 subobjs for STAFF and 2 for CONNECT; shows all 6 "******* ConvertObject:" messages.
+
+Launch Ngale, open T+MInCounterpointBug8mm.ngl (168 objs) 2x => both times, shows all 6,
+3 subobjs for STAFF and 2 for CONNECT; shows all 6 "******* ConvertObject:" messages.
+
+Looks like it's fine with 168 objs or less but not with 229. How reliable is that, in
+slightly different contexts?
+
+W/o quitting, open T+MInCounterpointBug12mm.ngl (229 objs) 2x more => the 1st time,
+system.log shows _no_ messages for opening; the 2nd, 4 of the 6 "******* ConvertObject:"
+messages; a different 4 of the 6 objects; and 4 of the 5 subobjs. Open
+T+MInCounterpointBug8mm.ngl (168 objs) again => shows all 6 objects, 3 subobjs for STAFF
+and 2 for CONNECT; shows all 6 "******* ConvertObject:" messages. Open
+T+MInCounterpointBug8mm.ngl yet again => "PROGRAM ERROR: BuildBeamDrawTable: couldn't find
+an unfinished segment", then other misbehavior. ?!? But this could be the result of damage
+from opening the 229-object file.
+
+Quit Ngale, relaunch, open AllObjTypes.ngl 3x => no problems. Open T+MInCounterpointBug8mm.ngl
+3x => no problems; open it a 4th time => shows only 4 objects, 2 subobjs for STAFF
+and none for CONNECT; shows only 5 "******* ConvertObject:" messages; in display of score
+"Donald Byrd (2020)" is much too small; Debug Check has two complaints. Okay, so opening
+three 36-object and four 168-object scores causes problems.
+
+The morning of 22 April, I opened T+MInCounterpointBug2p.ngl (723 objects); not only did
+the log show only 3 objects in the Master Page list, but it skipped many objects in the
+main list, including in the main list 671 to 679 and 696 to 712. Hypothesis: the longer
+the object list, the more skipping.
 

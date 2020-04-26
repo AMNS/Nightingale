@@ -136,7 +136,7 @@ typedef struct {
 	short		spacePercent,		/* Percentage of normal horizontal spacing used */			\
 				srastral,			/* Standard staff size rastral no. */						\
 				altsrastral,		/* (unused) Alternate staff size rastral no. */				\
-				tempo,				/* playback speed in beats per minute */					\
+				tempo,				/* (unused?) playback speed in beats per minute */			\
 				channel,			/* Basic MIDI channel number */								\
 				velocity;			/* global playback velocity offset */						\
 	STRINGOFFSET headerStrOffset;	/* index returned by String Manager */						\

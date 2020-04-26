@@ -114,7 +114,7 @@ static Boolean FlowInDialog(Document *doc, short *font)
 		keepGoing = DoDialogItem(doc, dlog, itemHit);
 	}
 	
-	/* Do final processing of item values, such as exporting them to caller.  DoDialogItem
+	/* Do final processing of item values, such as exporting them to caller. DoDialogItem
 	   should have already called AnyBadValues(). */
 	
 	okay = (itemHit==BUT1_Flow);
@@ -141,7 +141,7 @@ static Boolean FlowInDialog(Document *doc, short *font)
 		if (currWord==len) {
 			currWord = 0;								/* if currWord now at end, move to beginning */
 			p = *lyricBlk + currWord;
-			while (IsFlowInDelim(*p++) && currWord<len)	/* do this yet again */
+			while (IsFlowInDelim(*p++) && currWord<len)	/* do this again */
 				currWord++;
 		}
 		
@@ -390,12 +390,12 @@ static Boolean AnyBadValues(DialogPtr /*dlog*/)
 }
 
 
-/* Return True if c is a delimiter for the units to be Flowed In: words (any white
+/* Return True if <ch> is a delimiter for the units to be Flowed In: words (any white
 space is a delimiter) or explicitly-marked syllables ('-' is the delimiter). */
 
-static short IsFlowInDelim(char c)
+static short IsFlowInDelim(char ch)
 {
-	return (isspace(c) || c == '-');
+	return (isspace(ch) || ch == '-');
 }
 
 
@@ -419,10 +419,10 @@ static long GetWord(
 	*w = '\0';
 
 	return len;					/* length of theWord (excluding NULL terminator) */
-	/* ??NB: len will not include any final '-',
-	 * and len will be wrong for last word unless it's terminated by whitespace.
-	 * Neither of these now create any problems for dependent code. Later, who knows.
-	 */
+
+	/* Note: len will not include any final '-', and len will be wrong for last word
+	   unless it's terminated by whitespace. Neither of these now create any problems
+	   for dependent code. Later, who knows. */
 }
 
 
@@ -802,8 +802,7 @@ LogPrintf(LOG_DEBUG,
 pL, lastGrL, stf, v, lyricLen, pitchLev, theFont, theStyle.fontSize);
 										InsertSyllable(doc, pL, &lastGrL, stf, v,
 														lyricLen, pitchLev, theFont, theStyle);
-LogPrintf(LOG_DEBUG,
-">InsertSyllable: pL=%u lastGrL=%u\n", pL, lastGrL);
+LogPrintf(LOG_DEBUG, ">InsertSyllable: pL=%u lastGrL=%u\n", pL, lastGrL);
 									}
 								}
 							}
@@ -890,7 +889,7 @@ done:
 
 void DoTextFlowIn(Document *doc)
 {
-	short theFont;				/* NB: this is itemNumber of text style popup in FlowInDialog! 
+	short theFont=0;			/* NB: this is itemNumber of text style popup in FlowInDialog! 
 								for use in 1 call to User2HeaderFontNum. */
 	TEXTSTYLE style;
 
@@ -1159,18 +1158,20 @@ static short CreateHyphenRun(
 			stf = NoteSTAFF(aNoteL);
 
 			/* create one hyphen Graphic */
+			
 			hyphStr[0] = '-'; hyphStr[1] = 0;				/* InsertNewGraphic changes this to Pascal str */
-			newL = InsertNewGraphic(doc, pL, stf, v, hyphStr,
-														theFont, theStyle, pitchLev);
+			newL = InsertNewGraphic(doc, pL, stf, v, hyphStr, theFont,
+										 theStyle, pitchLev);
 			if (newL==NILINK) { continue; errCnt++; }
 			
 			/* center it within its slice of horizontal space */
+			
 			LinkXD(newL) = -(SysRelxd(pL) - desiredXD);
 			
 			/* This prevents hyphens from continuing to end of system when the last
 			   Sync in the system is substantially to the left of the end of the
-			   system. If we don't do this and user later justifies the system,
-			   hyphens will end up off the right side of the page. */
+			   system. If we don't do this and user later justifies the system, hyphens
+			   will end up off the right side of the page. */
 			
 			if (openSys) {
 				LINK syncL = LVSearch(RightLINK(pL), SYNCtype, v, GO_RIGHT, False);

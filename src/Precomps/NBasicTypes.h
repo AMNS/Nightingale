@@ -55,7 +55,7 @@ typedef struct						/* Key signature item: */
 
 /* NB: We #define a WHOLE_KSINFO macro, then a struct that consists of nothing but an
 invocation of that macro; why? I'm don't remember, but old comments here pointed out that
-with THINK C 5 the macro takes 15 bytes, but the struct takes 16. */
+with THINK C 5 the macro takes 15 bytes, but the struct takes 16.  --DAB */
 
 #define WHOLE_KSINFO					/* Complete key sig. w/o context. */			\
 	KSITEM		KSItem[MAX_KSITEMS];	/* The sharps and flats */						\
@@ -194,7 +194,8 @@ typedef struct						/* A part (for an instrument or voice): */
 									/* NB: some devices use both cntl 0 and cntl 32 */
 
 	/* The following fields were for FreeMIDI support. FreeMIDI is obsolete -- it's a
-		pre-OS X technology -- but we keep the fields for file compatibility. */
+	   pre-OS X technology -- but we keep the fields for file compatibility. */
+		
 	fmsUniqueID	fmsOutputDevice;
 	fmsDestinationMatch fmsOutputDestination;	/* NB: about 280 bytes */
 } PARTINFO, *PPARTINFO;

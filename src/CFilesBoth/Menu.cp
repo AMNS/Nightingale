@@ -233,7 +233,8 @@ static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD)
 
 Boolean DoFileMenu(short choice)
 	{
-		Boolean keepGoing = True, doSymbol;  short vrefnum, returnCode;
+		Boolean keepGoing = True, doSymbol;
+		short vrefnum, returnCode;
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		char str[256], tmpCStr[256];
 		NSClientData nscd;  FSSpec fsSpec;
@@ -457,7 +458,7 @@ void DoEditMenu(short choice)
 			/* These debug commands may be added to this menu: cf. InstallDebugMenuItems */
 			case EM_Browser:
 				if (OptionKeyDown())
-					Browser(doc,doc->masterHeadL, doc->masterTailL);
+					Browser(doc, doc->masterHeadL, doc->masterTailL);
 				else if (ShiftKeyDown())
 					Browser(doc, doc->undo.headL, doc->undo.tailL);
 				else
@@ -498,7 +499,8 @@ static void DeleteObj(Document *doc, LINK pL)
 
 static void DeleteSelObjs(Document *doc)
 {
-	short nInRange, nSelFlag;  LINK pL, nextL, firstMeasL;
+	short nInRange, nSelFlag;
+	LINK pL, nextL, firstMeasL;
 	
 	CountSelection(doc, &nInRange, &nSelFlag);
 	LogPrintf(LOG_INFO, "DeleteSelObjs: nInRange=%d nSelFlag=%d\n", nInRange, nSelFlag);
@@ -564,11 +566,11 @@ static void DoTestMenu(short choice)
 			case TS_Browser:
 				if (doc) {
 					if (OptionKeyDown())
-						Browser(doc,doc->masterHeadL, doc->masterTailL);
+						Browser(doc, doc->masterHeadL, doc->masterTailL);
 					else if (ShiftKeyDown())
-						Browser(doc,doc->undo.headL, doc->undo.tailL);
+						Browser(doc, doc->undo.headL, doc->undo.tailL);
 					else
-						Browser(doc,doc->headL, doc->tailL);
+						Browser(doc, doc->headL, doc->tailL);
 				}
 				break;
 			case TS_HeapBrowser:

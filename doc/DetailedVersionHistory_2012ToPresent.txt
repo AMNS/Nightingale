@@ -2745,5 +2745,13 @@ Ottava.
 
 16 - 22 April
 
-Minor cleanup. Affects MemMacros.h, UIFUtils.h; Browser, DebugUtils, FileConversion,
-Ottava, UIFUtils.
+Minor cleanup to support debugging, etc. Affects MemMacros.h, UIFUtils.h; Browser,
+DebugUtils, FileConversion, Ottava, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+23 - 25 April
+
+Minor cleanup: integrate teensy changes from 5.8.10, etc. Affects NBasicTypes.h,
+NDocAndCnfgTypes.h, NMiscTypes.h; DebugDisplay, FileConversion, FileOpen, FlowInText,
+HeapFileIO, Menu.

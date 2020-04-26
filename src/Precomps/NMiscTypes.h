@@ -1,9 +1,14 @@
 /* NMiscTypes.h (formerly applicationTypes.h) for Nightingale: declarations for user-
-interface stuff and a few other things. */
+interface stuff and a few other things.
+
+The comment "Gourlay" below refers to a series of publications on music formatting from
+the late 1980's by John Gourlay and his coworkers at the Ohio State University. */
 
 /* An old comment here by MAS: "we want to /always/ use mac68k alignment." Why? I suspect
-for compatibility of files containing bitfields, which we no longer use. Still, it
-shouldn't cause any problems, so leave as is until there's a reason to change it. */ 
+for compatibility of files containing bitfields, which (as of v. 5.9) we no longer use.
+Still, it shouldn't cause any problems, so leave as is until there's a reason to change
+it. --DAB  */ 
+
 #pragma options align=mac68k
 
 /* ----------------------------------------------------------- JUSTTYPE, SPACETIMEINFO -- */

@@ -58,9 +58,9 @@ void DisplayNode(Document *doc, LINK pL,
 				Boolean nonMain				/* Somewhere besides doc's main object list? */
 				)
 {
-	register PMEVENT	p;
+	PMEVENT			p;
 	PPARTINFO		pPartInfo;
-	register PANOTE aNote;
+	PANOTE			aNote;
 	PASTAFF			aStaff;
 	PAMEASURE		aMeasure;
 	PAPSMEAS		aPseudoMeas;
@@ -73,7 +73,7 @@ void DisplayNode(Document *doc, LINK pL,
 	PACONNECT		aConnect;
 	PASLUR			aSlur;
 	PANOTEOTTAVA	aNoteOct;
-	register LINK	aNoteL;
+	LINK			aNoteL;
 	LINK			aStaffL, aMeasureL, aPseudoMeasL, aClefL, aKeySigL, aNoteBeamL,
 					aNoteTupleL, aTimeSigL, aDynamicL, aConnectL, aSlurL, 
 					aNoteOctL, partL;
@@ -224,28 +224,27 @@ void DisplayNode(Document *doc, LINK pL,
 				LogPrintf(LOG_INFO, "     ");
 				
 /* Be careful with addresses provided by the following; they can change suddenly! */
-				if (OptionKeyDown())
-					LogPrintf(LOG_INFO, "@%lx:", aNote);
-					LogPrintf(LOG_INFO, 
-						"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
-						aNote->staffn, aNote->voice,
-						aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
-						aNote->subType,
-						aNote->ndots,
-						aNote->accident,
-						aNote->onVelocity,
-						(aNote->selected? 'S' : '.') ,
-						(aNote->visible? 'V' : '.') ,
-						(aNote->soft? 'S' : '.') ,
-						(aNote->inChord? 'C' : '.') ,
-						(aNote->rest? 'R' : '.'),
-						(aNote->beamed? 'B' : '.'),
-						(aNote->tiedL? ')' : '.'),
-						(aNote->tiedR? '(' : '.'),
-						(aNote->slurredL? '>' : '.'),
-						(aNote->slurredR? '<' : '.'),
-						(aNote->inTuplet? 'T' : '.'),
-						aNote->firstMod );
+				if (OptionKeyDown()) LogPrintf(LOG_INFO, "@%lx:", aNote);
+				LogPrintf(LOG_INFO, 
+					"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
+					aNote->staffn, aNote->voice,
+					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
+					aNote->subType,
+					aNote->ndots,
+					aNote->accident,
+					aNote->onVelocity,
+					(aNote->selected? 'S' : '.') ,
+					(aNote->visible? 'V' : '.') ,
+					(aNote->soft? 'S' : '.') ,
+					(aNote->inChord? 'C' : '.') ,
+					(aNote->rest? 'R' : '.'),
+					(aNote->beamed? 'B' : '.'),
+					(aNote->tiedL? ')' : '.'),
+					(aNote->tiedR? '(' : '.'),
+					(aNote->slurredL? '>' : '.'),
+					(aNote->slurredR? '<' : '.'),
+					(aNote->inTuplet? 'T' : '.'),
+					aNote->firstMod );
 			}
 			break;
 		case GRSYNCtype:

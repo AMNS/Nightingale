@@ -252,10 +252,12 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 	for (pL=doc->masterHeadL; ioErr==noErr && pL != NILINK; j++, pL=RightLINK(pL)) {
 	
 		/* Store old link values. */
+		
 		leftL = LeftLINK(pL); rightL = RightLINK(pL);
 		subL = FirstSubLINK(pL);
 
 		/* Write the link values for the in-file objects. */
+		
 		FirstSubLINK(pL) = firstSubLINKA[pL];
 		LeftLINK(pL) = j-1;
 		RightLINK(pL) = j+1;
@@ -319,9 +321,9 @@ static void CreateModTable(Document *doc, LINK **modA)
 							nMods++;
 
 						/* Increment the index to be passed to the next call to
-							WriteSubObjs() to reflect the number of subobjs just
-							written to file, i.e., keep j in sync with the index in
-							the file of the next subobject to be written. */
+						   WriteSubObjs() to reflect the number of subobjs just
+						   written to file, i.e., keep j in sync with the index in
+						   the file of the next subobject to be written. */
 
 						(*modA)[aNote->firstMod] = j;
 						j += nMods;
@@ -372,7 +374,8 @@ static short WriteModSubs(short refNum, LINK aNoteL, LINK	link, LINK **/*modA*/,
 	short	ioErr = noErr;
 	
 	/* The links are now being allocated sequentially, so that the <next> link of
-		the current link <link> is link+1. */	
+	   the current link <link> is link+1. */
+			
 	nextL = link+1;
 	myHeap = Heap + MODNRtype;
 	PushLock(myHeap);

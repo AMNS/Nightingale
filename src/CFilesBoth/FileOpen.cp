@@ -110,6 +110,7 @@ static void DisplayDocumentHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  (14)measSystem=%d\n", doc->measSystem);
 }
 
+
 /* Do a reality check for Document header values that might be bad. If any problems are
 found, say so and Return False. NB: We're not checking anywhere near everything we could! */
 
@@ -142,6 +143,7 @@ static Boolean CheckDocumentHdr(Document *doc)
 		return False;
 	}
 }
+
 
 /* Display some Score header fields, but nowhere near all: there are about 200. */
 
@@ -189,12 +191,14 @@ static void DisplayScoreHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  (30)dIndentFirst=%d\n", doc->dIndentFirst);
 }
 
+
 /* Do a reality check for Score header values that might be bad. If any problems are
 found, say so and Return False. NB: We're not checking anywhere near everything we could! */
 
 static Boolean CheckScoreHdr(Document *doc)
 {
 	short nerr = 0, firstErr = 0;
+	long stringPoolSize;
 	
 	if (doc->nstaves<1 || doc->nstaves>MAXSTAVES) ERR(1);
 	if (doc->nsystems<1 || doc->nsystems>2000) ERR(2);
@@ -205,8 +209,11 @@ static Boolean CheckScoreHdr(Document *doc)
 	if (doc->channel<1 || doc->channel>MAXCHANNEL) ERR(7);
 	if (doc->velocity<-127 || doc->velocity>127) ERR(8);
 
-	//if (doc->headerStrOffset<?? || doc->headerStrOffset>??) ERR(9);
-	//if (doc->footerStrOffset<?? || doc->footerStrOffset>??) ERR(10);
+	/* We can't check if headerStrOffset and footerStrOffset are too large: we don't
+	   know the size of the stringPool yet. */
+	   
+	if (doc->headerStrOffset<0) ERR(9);
+	if (doc->footerStrOffset<0) ERR(10);
 	
 	if (doc->dIndentOther<0 || doc->dIndentOther>in2d(5)) ERR(11);
 	if (doc->firstNames<0 || doc->firstNames>MAX_NAMES_TYPE) ERR(12);
@@ -388,13 +395,23 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		goto Error;
 	}
 
-	/* Read the string pool. */
+	/* Read and check string pool size, and read string pool. */
 
 	count = sizeof(stringPoolSize);
 	errCode = FSRead(refNum, &count, &stringPoolSize);
 	if (errCode) { errInfo = STRINGobj; goto Error; }
 	FIX_END(stringPoolSize);
 	LogPrintf(LOG_INFO, "stringPoolSize=%ld  (OpenFile)\n", stringPoolSize);
+	if (doc->headerStrOffset > stringPoolSize) {
+		LogPrintf(LOG_ERR, "headerStrOffset is %ld but stringPoolSize is only %ld.  (OpenFile)",
+					doc->headerStrOffset, stringPoolSize);
+		errInfo = STRINGobj; goto Error;
+	}
+	if (doc->footerStrOffset > stringPoolSize) {
+		LogPrintf(LOG_ERR, "footerStrOffset is %ld but stringPoolSize is only %ld.  (OpenFile)",
+					doc->footerStrOffset, stringPoolSize);
+		errInfo = STRINGobj; goto Error;
+	}
 	if (doc->stringPool) DisposeStringPool(doc->stringPool);
 	
 	/* Allocate from the StringManager, not NewHandle, in case StringManager is tracking
