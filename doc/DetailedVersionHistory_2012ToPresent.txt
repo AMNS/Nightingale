@@ -2755,3 +2755,14 @@ DebugUtils, FileConversion, Ottava, UIFUtils.
 Minor cleanup: integrate teensy changes from 5.8.10, etc. Affects NBasicTypes.h,
 NDocAndCnfgTypes.h, NMiscTypes.h; DebugDisplay, FileConversion, FileOpen, FlowInText,
 HeapFileIO, Menu.
+
+-------------------------------------------------------------------------------
+
+26 - 30 April
+
+Work on opening format 'N105' files while using a new format internally: fixed a bug
+in converting Ottavas. Affects MemMacros.h.
+
+Minor cleanup: improved error checking, reporting of document and score header errors,
+etc. Affects File.h, NDocAndCnfgTypes.h; FileConversion, FileOpen, FlowInText, Ottava,
+Utility.

@@ -20,7 +20,7 @@
 		DisposGrafPort			SamePoint
 		D2Rect					Rect2D					PtRect2D
 		SetDRect				OffsetDRect				InsetDRect
-		SetDPt					OffsetDPt
+		RectIsValid				SetDPt					OffsetDPt
 		DMoveTo
 		GCD						RoundDouble				RoundSignedInt
 		InterpY					FindIntInString			ShellSort
@@ -798,9 +798,8 @@ void UnlockGWorld(GWorldPtr theGWorld)
 
 
 /* ---------------------------------------------------------------- GrafPort functions -- */
-/* Create a new GrafPort large enough to hold a bit image of the specified width
-and height.  Returns a pointer to the GrafPort, but does NOT set it to be the
-current port.
+/* Create a new GrafPort large enough to hold a bit image of the specified width and
+height.  Returns a pointer to the GrafPort, but does NOT set it to be the current port.
 
 The GrafPort thus created should be disposed of with the DisposGrafPort function. */
 
@@ -846,7 +845,7 @@ void LogPixMapInfo(char *name, PixMapPtr aPixMap, long len)
 
 /* ------------------------------------------------------------- D2Rect, Rect/PtRect2D -- */
 
-/* Convert DRect to Rect in pixels */
+/* Convert DRect to Rect in pixels. */
 
 void D2Rect(DRect *dRect, Rect *rRect)
 {
@@ -856,7 +855,7 @@ void D2Rect(DRect *dRect, Rect *rRect)
 	rRect->right = d2p(dRect->right);
 }
 
-/* Convert Rect in pixels to DRect */
+/* Convert Rect in pixels to DRect. */
 
 void Rect2D(Rect *rRect, DRect *dRect)
 {
@@ -866,7 +865,7 @@ void Rect2D(Rect *rRect, DRect *dRect)
 	dRect->right = p2d(rRect->right);
 }
 
-/* Convert Rect in points to DRect */
+/* Convert Rect in points to DRect. */
 
 void PtRect2D(Rect *rRect, DRect *dRect)
 {
@@ -878,7 +877,7 @@ void PtRect2D(Rect *rRect, DRect *dRect)
 
 
 /* -------------------------------------------------------------------------- SetDRect -- */
-/* Initialize a DRect with the given DDIST coordinates */
+/* Initialize a DRect with the given DDIST coordinates. */
 
 void SetDRect(DRect *dRect, DDIST dLeft, DDIST dTop, DDIST dRight, DDIST dBottom)
 {
@@ -891,7 +890,7 @@ void SetDRect(DRect *dRect, DDIST dLeft, DDIST dTop, DDIST dRight, DDIST dBottom
 
 /* ----------------------------------------------------------- OffsetDRect, InsetDRect -- */
 
-/* Offset (move) a DRect by the specified DDIST amounts */
+/* Offset (move) a DRect by the specified DDIST amounts. */
 
 void OffsetDRect(DRect *dRect, DDIST dx, DDIST dy)
 {
@@ -902,7 +901,7 @@ void OffsetDRect(DRect *dRect, DDIST dx, DDIST dy)
 }
 
 
-/* Inset a DRect by the specified DDIST amounts */
+/* Inset a DRect by the specified DDIST amounts. */
 
 void InsetDRect(DRect *dRect, DDIST dx, DDIST dy)
 {
@@ -914,13 +913,14 @@ void InsetDRect(DRect *dRect, DDIST dx, DDIST dy)
 
 
 /* ----------------------------------------------------------------------- RectIsValid -- */
+/* Are all four corners of the given Rect within the given bounds? */
 
 Boolean RectIsValid(Rect aRect, short legalMin, short legalMax)
 {
 	if (aRect.top<legalMin || aRect.top>legalMax) return False;
-	if (aRect.left<legalMin || aRect.top>legalMax) return False;
-	if (aRect.bottom<legalMin || aRect.top>legalMax) return False;
-	if (aRect.right<legalMin || aRect.top>legalMax) return False;
+	if (aRect.left<legalMin || aRect.left>legalMax) return False;
+	if (aRect.bottom<legalMin || aRect.bottom>legalMax) return False;
+	if (aRect.right<legalMin || aRect.right>legalMax) return False;
 	
 	return True;
 }
@@ -928,7 +928,7 @@ Boolean RectIsValid(Rect aRect, short legalMin, short legalMax)
 
 /* ---------------------------------------------------------------------------- Points -- */
 
-/* Initialize a DPoint with the given DDIST coordinates */
+/* Initialize a DPoint with the given DDIST coordinates. */
 
 void SetDPt(DPoint *dPoint, DDIST dx, DDIST dy)
 {
@@ -936,7 +936,7 @@ void SetDPt(DPoint *dPoint, DDIST dx, DDIST dy)
 	dPoint->v = dy;
 }
 
-/* Offset (move) DPoint <*dest> by <src> */
+/* Offset (move) DPoint <*dest> by <src>, */
 
 void OffsetDPt(DPoint src, DPoint *dest)
 {

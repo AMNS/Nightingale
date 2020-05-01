@@ -93,6 +93,7 @@ static void DisplayDocumentHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  .left=%d", doc->origPaperRect.left);
 	LogPrintf(LOG_INFO, "  .bottom=%d", doc->origPaperRect.bottom);
 	LogPrintf(LOG_INFO, "  .right=%d\n", doc->origPaperRect.right);
+
 	LogPrintf(LOG_INFO, "  (5)marginRect.top=%d", doc->marginRect.top);
 	LogPrintf(LOG_INFO, "  .left=%d", doc->marginRect.left);
 	LogPrintf(LOG_INFO, "  .bottom=%d", doc->marginRect.bottom);
@@ -108,6 +109,11 @@ static void DisplayDocumentHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  (12)numCols=%d", doc->numCols);
 	LogPrintf(LOG_INFO, "  (13)pageType=%d", doc->pageType);
 	LogPrintf(LOG_INFO, "  (14)measSystem=%d\n", doc->measSystem);
+	
+	LogPrintf(LOG_INFO, "  (15)headerFooterMargins.top=%d", doc->headerFooterMargins.top);
+	LogPrintf(LOG_INFO, "  .left=%d", doc->headerFooterMargins.left);
+	LogPrintf(LOG_INFO, "  .bottom=%d", doc->headerFooterMargins.bottom);
+	LogPrintf(LOG_INFO, "  .right=%d\n", doc->headerFooterMargins.right);
 }
 
 
@@ -119,25 +125,29 @@ static Boolean CheckDocumentHdr(Document *doc)
 	short nerr = 0, firstErr = 0;
 	
 #ifdef NOTYET
-	if (!RectIsValid(doc->paperRect, 4??, in2pt(5)??)) ERR(3);
-	if (!RectIsValid(doc->origPaperRect, 4??, in2pt(5)??))  ERR(4);
-	if (!RectIsValid(doc->marginRect, 4??, in2pt(5)??))  ERR(5);
+	/* paperRect considers magnification. This is difficult to handle before <doc> is
+	   fully installed and ready to draw, so skip checking for now. --DAB, April 2020 */
+	   
+	if (!RectIsValid(doc->paperRect, pt2p(0), pt2p(in2pt(12)))) ERR(3);
 #endif
+	if (!RectIsValid(doc->origPaperRect, 0, in2pt(12)))  ERR(4);
+	if (!RectIsValid(doc->marginRect, 4, in2pt(12)))  ERR(5);
 	if (doc->numSheets<1 || doc->numSheets>250)  ERR(7);
 	if (doc->firstPageNumber<0 || doc->firstPageNumber>250)  ERR(9);
 	if (doc->startPageNumber<0 || doc->startPageNumber>250)  ERR(10);
 	if (doc->numRows < 1 || doc->numRows > 250)  ERR(11);
 	if (doc->numCols < 1 || doc->numCols > 250)  ERR(12);
 	if (doc->pageType < 0 || doc->pageType > 20)  ERR(13);
+
 	if (nerr==0) {
 		LogPrintf(LOG_NOTICE, "No errors found.  (CheckDocumentHdr)\n");
 		return True;
 	}
 	else {
-		if (!DETAIL_SHOW) DisplayScoreHdr(4, doc);
+		if (!DETAIL_SHOW) DisplayDocumentHdr(4, doc);
 		sprintf(strBuf, "%d error(s) found.", nerr);
 		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_ERR, " %d error(s) found (first bad field is no. %d).  (CheckDocumentHdr)\n",
+		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (CheckDocumentHdr)\n",
 					nerr, firstErr);
 		StopInform(GENERIC_ALRT);
 		return False;
@@ -193,7 +203,9 @@ static void DisplayScoreHdr(short id, Document *doc)
 
 
 /* Do a reality check for Score header values that might be bad. If any problems are
-found, say so and Return False. NB: We're not checking anywhere near everything we could! */
+found, say so and Return False. NB: We're not checking anywhere near everything we could!
+But we assume we're called as soon as the score header is read, and before the stringPool
+size is, so we can't fully check numbers that depend on it. */
 
 static Boolean CheckScoreHdr(Document *doc)
 {
@@ -239,7 +251,7 @@ static Boolean CheckScoreHdr(Document *doc)
 		if (!DETAIL_SHOW) DisplayScoreHdr(4, doc);
 		sprintf(strBuf, "%d error(s) found.", nerr);
 		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_ERR, " %d error(s) found (first bad field is no. %d).  (CheckScoreHdr)\n",
+		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (CheckScoreHdr)\n",
 					nerr, firstErr);
 		StopInform(GENERIC_ALRT);
 		return False;
@@ -343,7 +355,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	/* Read and, if necessary, convert Document (i.e., Sheets) and Score headers. */
 	
 	switch(version) {
-		case 'N104':
 		case 'N105':
 			count = sizeof(DOCUMENTHDR);
 			errCode = FSRead(refNum, &count, &aDocN105.origin);
@@ -608,7 +619,7 @@ void OpenError(Boolean fileIsOpen,
 	short strNum;
 	
 	SysBeep(1);
-	LogPrintf(LOG_ERR, "Can't open the file. errCode=%d errInfo=%d  (OpenError)\n", errCode, errInfo);
+	LogPrintf(LOG_ERR, "CAN'T OPEN THE FILE. errCode=%d errInfo=%d  (OpenError)\n", errCode, errInfo);
 	if (fileIsOpen) FSClose(refNum);
 
 	if (errCode!=0) {

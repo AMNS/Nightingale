@@ -299,9 +299,9 @@ unchanged, so we don't need 'N105'-specific versions of them. */
 
 
 /* Traverse the main and Master Page object lists and fix up the cross pointers. This
-is a specialized version of HeapFixLinks() to fix links in 'N105' format files when
-they're opened, before the contents of objects are converted. Return 0 if all is well,
-else return FIX_LINKS_ERR. NB: This code assumes that headL is at LINK 1. */
+is a specialized version of HeapFixLinks() intended to fix links in 'N105' format files
+when they're opened, before the contents of objects are converted. Return 0 if all is
+well, else FIX_LINKS_ERR. */
 
 short HeapFixN105Links(Document *doc)
 {
@@ -533,7 +533,6 @@ static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS)
 }
 
 
-
 SUPEROBJECT tmpSuperObj;
 ANOTE tmpANoteR;
 ARPTEND tmpARptEnd;
@@ -578,7 +577,7 @@ static void Convert1MODNR(Document * /* doc */, LINK aModNRL)
 	ModNRDATA(aModNRL) = (&a1ModNR)->data;
 	ModNRYSTDPIT(aModNRL) = (&a1ModNR)->ystdpit;
 
-LogPrintf(LOG_DEBUG, "  Convert1MODNR: aModNRL=%u code=%d xstd=%d ystdpit=%d\n",
+LogPrintf(LOG_DEBUG, "    Convert1MODNR: aModNRL=%u code=%d xstd=%d ystdpit=%d\n",
 aModNRL, ModNRMODCODE(aModNRL), ModNRXSTD(aModNRL), ModNRYSTDPIT(aModNRL));
 }
 
@@ -640,7 +639,7 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteTEMPFLAG(aNoteRL) = (&a1NoteR)->tempFlag;
 	
 //NHexDump(LOG_DEBUG, "Convert1NOTER", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "  Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
 aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
 
 	/* AMODNR subobjs are attached directly to ANOTEs, so convert them here. */
@@ -682,7 +681,7 @@ static Boolean Convert1RPTEND(Document * /* doc */, LINK aRptEndL)
 	RptEndCONNSTAFF(aRptEndL) = (&a1RptEnd)->connStaff;
 	
 //NHexDump(LOG_DEBUG, "Convert1RPTEND", (unsigned char *)&tempSys, 46, 4, 16);
-LogPrintf(LOG_DEBUG, "  Convert1RPTEND: aRptEndL=%u connAbove=%d connStaff=%d\n",
+LogPrintf(LOG_DEBUG, "    Convert1RPTEND: aRptEndL=%u connAbove=%d connStaff=%d\n",
 aRptEndL, RptEndCONNABOVE(aRptEndL), RptEndCONNSTAFF(aRptEndL));
 		return True;
 }
@@ -721,7 +720,7 @@ static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
 	StaffSHOWLINES(aStaffL) = (&a1Staff)->showLines;
 
 //NHexDump(LOG_DEBUG, "Convert1STAFF", (unsigned char *)&tempSys, 46, 4, 16);
-//LogPrintf(LOG_DEBUG, "  Convert1STAFF: aStaffL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
+//LogPrintf(LOG_DEBUG, "    Convert1STAFF: aStaffL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
 //aStaffL, StaffSTAFFN(aStaffL), StaffTOP(aStaffL), StaffHEIGHT(aStaffL), StaffSTAFFLINES(aStaffL));
 { PASTAFF			aStaff;
 aStaff = GetPASTAFF(aStaffL);

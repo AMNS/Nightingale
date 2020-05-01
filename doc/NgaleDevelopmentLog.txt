@@ -6050,9 +6050,9 @@ Add code to ConvertObject() to print a message for jumps => there are still jump
 doesn't print them! Huh???? Print out the link number every time through => there are
 still jumps -- the first is 159 to 164 -- but the jump-detecting code still doesn't print,
 though there are print statements for objects between. Even worse, sometimes print
-statements for subobjects without their objects :-( . The only explanations I can think
+statements for subobjects without their objects! :-( The only explanations I can think
 of: a bizarre software bug, an even more bizarre CPU hardware problem, or a clobber. If
-it's the 1st two, I'm dead; fortunately a clobber is much more likely.
+it's the 1st two, I'm dead; fortunately a clobber is much more likely than either.
 
 A minimal test file might help. Trim T+MInCounterpointBug25mm.ngl => T+MInCp14mm.ngl and
 T+MInCp12mm.ngl.
@@ -6065,7 +6065,7 @@ my checking, sigh.
 
 -------------------------------------------------------------------------------
 
-23 - 24 April
+23 - 25 April
 
 Stuff missing from the log always seems to be worst at the end; with larger files, I
 don't think it ever shows all 6 Master Page objects! What's the smallest file that
@@ -6130,4 +6130,38 @@ The morning of 22 April, I opened T+MInCounterpointBug2p.ngl (723 objects); not 
 the log show only 3 objects in the Master Page list, but it skipped many objects in the
 main list, including in the main list 671 to 679 and 696 to 712. Hypothesis: the longer
 the object list, the more skipping.
+
+-------------------------------------------------------------------------------
+
+26 - 30 April
+
+Ottavas are never drawn because their <numberVis> is always False. How does that happen?
+It's set to True when the Ottava is created; anyway, it's obviously a file conversion
+problem. ConvertOTTAVA() says
+
+		OttavaNUMBERVIS(ottavaL) = (&aOttava)->numberVis;
+
+...but the log output for AllObjTypes.ngl is
+
+	debug. ConvertOTTAVA: ottavaL=L29 staff=1 type=1 nVis=0 xdFirst=-32 xdLast=8
+	
+So it"s not getting converted correctly, but xdFirst & xdLast are what they should be!
+Ah: It _is_ converted correctly, but gets stomped on by a mistaken definition of
+OttavaUNUSED2! Fixed.
+
+Back to Flow in Text for the moment. With the latest, Pasting a few words into the Flow
+In dialog doesn't work, i.e., no text appears in the dialog; I'm quite sure it used to!
+In fact, I think it worked yesterday w/ v. 5.8.9 but not 5.8.10.
+W/ 5.9 (inside Xcode), open AllObjTypes.obj, Paste " found all 7 screen sizes of the
+Sonata music font." appears to do nothing.  W/ Ngale 5.8.9, likewise. W/ 5.7, Paste
+" found all 7 screen sizes of the Sonata music font." works.  Back to 5.8.9 => fails.
+Hmmm; this isn't behaving consistently!
+
+Test with the same string minus the initial space, i.e., "Found all 7 screen sizes of the Sonata music font."
+Log out, log back in, same test w/ 5.8.9 => it's OK; same w/ 5.8.10 => fails as before.
+Log out, log back in, same test w/ 5.8.10 => OK!
+Log out, log back in, same test w/ 5.9.1 (built, 25 Apr. version) => OK!
+Log out, log back in, same test w/ 5.9.1 inside Xcode => OK!
+So it's context sensitive in some way, at least as far back as 5.8.9. A pretty minor
+bug, and maybe not _our_ bug -- though it probably is :-) .
 

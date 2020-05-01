@@ -730,7 +730,7 @@ are by Steve Hart.) */
 #define OttavaNUMBERVIS(link)		( (GetPOTTAVA(link))->numberVis )
 #define OttavaUNUSED1(link)			( (GetPOTTAVA(link))->unused1 )
 #define OttavaBRACKVIS(link)		( (GetPOTTAVA(link))->brackVis )
-#define OttavaUNUSED2(link)			( (GetPOTTAVA(link))->numberVis )
+#define OttavaUNUSED2(link)			( (GetPOTTAVA(link))->unused2 )
 #define OttavaNXD(link)				( (GetPOTTAVA(link))->nxd )
 #define OttavaNYD(link)				( (GetPOTTAVA(link))->nyd )
 #define OttavaXDFIRST(link)			( (GetPOTTAVA(link))->xdFirst )

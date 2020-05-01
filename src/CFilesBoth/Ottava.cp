@@ -579,6 +579,7 @@ PushLock(OBJheap);
 	/* For the forseeable future, nxd and nyd are always zero, but we're keeping them
 	   as potential offsets for moving the number independently of the octave sign. */
 
+//LogPrintf(LOG_DEBUG, "DrawOTTAVA1\n");
 	octxdFirst = firstxd+p->xdFirst;
 	octydFirst = dTop+p->ydFirst;
 	lastNoteWidth = SymDWidthRight(doc, lastSyncL, staff, False, *pContext);
@@ -590,6 +591,7 @@ PushLock(OBJheap);
 	   ottava is created and never changed. */
 	   
 	if (p->numberVis) {
+//LogPrintf(LOG_DEBUG, "DrawOTTAVA2\n");
 		NumToSonataStr(number, ottavaStr);
 
 		octRect = StrToObjRect(ottavaStr);

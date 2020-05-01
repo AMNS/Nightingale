@@ -55,7 +55,7 @@ static Boolean CheckUserItems(Point, short *);
 static Boolean AnyBadValues(DialogPtr);
 
 static short IsFlowInDelim(char);
-static long GetWord(char *, char *, long);
+static long GetSyllable(char *, char *, long);
 static void FlowInFixCursor(Document *, Point, CursHandle);
 static void FlowDrawMsgBox(Document *);
 static void ShowLyricStyle(Document *, DialogPtr, short);
@@ -136,7 +136,7 @@ static Boolean FlowInDialog(Document *doc, short *font)
 			}
 		}
 		p = *lyricBlk + currWord;
-		while (IsFlowInDelim(*p++) && currWord<len)		/* in case multiple whitespace precedes first syllable (not handled by GetWord, etc.) */
+		while (IsFlowInDelim(*p++) && currWord<len)		/* in case mult. whitespace before 1st syl. (not handled by GetSyllable, etc.) */
 			currWord++;
 		if (currWord==len) {
 			currWord = 0;								/* if currWord now at end, move to beginning */
@@ -399,7 +399,7 @@ static short IsFlowInDelim(char ch)
 }
 
 
-static long GetWord(
+static long GetSyllable(
 					char *buf,				/* buffer to find word in */
 					char *theWord,			/* receives first word of <buf> */
 					long n					/* length of <buf> */
@@ -464,7 +464,7 @@ static void FlowDrawMsgBox(Document *doc)
 	HLock(lyricBlk);
 	p = *lyricBlk;
 	currW = currWord;
-	wlen = GetWord(p+currWord,w,len-currW);	
+	wlen = GetSyllable(p+currWord,w,len-currW);	
 	currW += wlen;											/* In case we want to draw more words */
 	
 	if (currWord>=len) {
@@ -544,13 +544,13 @@ static LINK InsertNewGraphic(Document *doc, LINK pL,
 						short pitchLev
 						)
 {
-	DDIST				xd, yd;
-	LINK				newpL, aGraphicL;
-	short				graphicType, fontInd;
-	CONTEXT				context;
-	PGRAPHIC			pGraphic;
-	PAGRAPHIC			aGraphic;
-	STRINGOFFSET		offset;
+	DDIST			xd, yd;
+	LINK			newpL, aGraphicL;
+	short			graphicType, fontInd;
+	CONTEXT			context;
+	PGRAPHIC		pGraphic;
+	PAGRAPHIC		aGraphic;
+	STRINGOFFSET	offset;
 
 PushLock(OBJheap);
 	GetContext(doc, LeftLINK(pL), stf, &context);
@@ -602,8 +602,6 @@ PopLock(OBJheap);
 }
 
 
-#define EXIT_NOW -1
-
 static short HandleOptionKeyMsgBox(Document *, Size);
 static short HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
 {
@@ -628,8 +626,8 @@ static void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, sho
 						short lyricLen, short pitchLev, short theFont, TEXTSTYLE theStyle)
 {
 	LINK	newL;
-	char	w[256], *p;
-	long	wlen;
+	char	str[256], *p;
+	long	sylLen;
 	
 	if (firstFlowL) {
 		if (IsAfter(pL, firstFlowL)) firstFlowL = pL;
@@ -653,8 +651,8 @@ static void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, sho
 		currWord = prevWord;
 
 		p = *lyricBlk;
-		wlen = GetWord(p+currWord, w, lyricLen-currWord);	
-		currWord += wlen;
+		sylLen = GetSyllable(p+currWord, str, lyricLen-currWord);	
+		currWord += sylLen;
 		p = *lyricBlk + currWord;
 
 		while (IsFlowInDelim(*p++)) currWord++;
@@ -662,19 +660,19 @@ static void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, sho
 	else {
 		prevWord = currWord;
 		p = *lyricBlk;
-		wlen = GetWord(p+currWord, w, lyricLen-currWord);
+		sylLen = GetSyllable(p+currWord, str, lyricLen-currWord);
 	
-		currWord += wlen;
+		currWord += sylLen;
 		p = *lyricBlk + currWord;
 	
-		while (IsFlowInDelim(*p++)) currWord++;			/* advance to next word */
+		while (IsFlowInDelim(*p++)) currWord++;			/* advance to next syllable */
 	}
 	HUnlock(lyricBlk);
-	if (theStyle.lyric) StripHyphen(w);
+	if (theStyle.lyric) StripHyphen(str);
 
-LogPrintf(LOG_DEBUG, "<InsertNewGraphic: pL=%u stf=%d v=%d w='%s'\n", pL, stf, v, w);
-	newL = InsertNewGraphic(doc, pL, stf, v, w, theFont, theStyle, pitchLev);
-LogPrintf(LOG_DEBUG, ">InsertNewGraphic: pL=%u stf=%d v=%d w='%s' newL=%u\n", pL, stf, v, w, newL);
+LogPrintf(LOG_DEBUG, "<InsertNewGraphic: pL=%u stf=%d v=%d str='%s'\n", pL, stf, v, str);
+	newL = InsertNewGraphic(doc, pL, stf, v, str, theFont, theStyle, pitchLev);
+LogPrintf(LOG_DEBUG, ">InsertNewGraphic: pL=%u stf=%d v=%d str='%s' newL=%u\n", pL, stf, v, str, newL);
 	*lastGrL = newL;
 	if (newL) {
 		if (theStyle.lyric && !ShiftKeyDown()) CenterTextGraphic(doc, newL);
@@ -800,8 +798,8 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 LogPrintf(LOG_DEBUG,
 "<InsertSyllable: pL=%u lastGrL=%u stf=%d v=%d lyricLen=%d pitchLev=%d theFont=%d theStyle.fontSize=%d\n",
 pL, lastGrL, stf, v, lyricLen, pitchLev, theFont, theStyle.fontSize);
-										InsertSyllable(doc, pL, &lastGrL, stf, v,
-														lyricLen, pitchLev, theFont, theStyle);
+										InsertSyllable(doc, pL, &lastGrL, stf, v, lyricLen,
+														pitchLev, theFont, theStyle);
 LogPrintf(LOG_DEBUG, ">InsertSyllable: pL=%u lastGrL=%u\n", pL, lastGrL);
 									}
 								}
@@ -960,7 +958,7 @@ static void RegisterHyphen(
 	len = GetHandleSize(lyricBlk);
 	HLock(lyricBlk);
 	p = *lyricBlk;
-	GetWord(p+charOffset, syllable, len-charOffset);	
+	GetSyllable(p+charOffset, syllable, len-charOffset);	
 	HUnlock(lyricBlk);
 	
 	/* find out if it ends with hyphen */

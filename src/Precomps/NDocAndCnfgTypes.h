@@ -59,7 +59,7 @@ typedef struct {
 /* "Change part" record for exporting operations (add/delete, group/ungroup, etc.)
 from Master Page. */
 
-enum {								/* Opcodes for change part records. */
+enum {								/* Opcodes for change part records */
 	SDAdd,
 	SDDelete,
 	SDGroup,
@@ -68,7 +68,7 @@ enum {								/* Opcodes for change part records. */
 };
 
 typedef struct	{
-	short		oper;				/* Operation: SDAdd,SDDelete,SDGroup,SDUngroup. */
+	short		oper;				/* Opcode, from enum: SDAdd or whatever  */
 	short		staff;				/* Starting staff no. */
 	short		p1;					/* Operation-dependent */
 	short		p2;					/* Operation-dependent */
@@ -79,11 +79,11 @@ typedef struct	{
 /* -------------------------------------------------------------------- Major headers -- */
 
 /* DOCUMENTHEADER is generic: it contains fields appropriate for any program that displays
-displays pages of documents. */
+pages of documents. */
 
 #define DOCUMENTHEADER	\
 	Point		origin;				/* Current origin of Document window */						\
-	Rect		paperRect;			/* Size of virtual paper sheet in current mag.(pixels) */	\
+	Rect		paperRect;			/* Size of virtual paper sheet in current mag. (pixels) */	\
 	Rect		origPaperRect;		/* Size of paper sheet (points) */							\
 	Point		holdOrigin;			/* Holds position during pick mode */						\
 	Rect		marginRect;			/* Size of area within margins on sheet (points) */			\
@@ -521,11 +521,11 @@ typedef struct {
 	SignedByte	slashGraceStems;	/* G: !0 = slash stems of (normally unbeammed 8th) grace notes */
 	SignedByte	bracketsForBraces;	/* G: !0 = substitute square brackets for curly braces */
 
-	SignedByte	titleMargin;		/* G: Additional margin at top of first page, in points */
+	SignedByte	titleMargin;		/* G: Additional margin at top of first page (points) */
 	
-	Rect		paperRect;			/* G: Default paper size, in points */
-	Rect		pageMarg;			/* G: Default page top/left/bottom/right margins, in points */
-	Rect		pageNumMarg;		/* G: Page number top/left/bottom/right margins, in points */
+	Rect		paperRect;			/* G: Default paper size (points) */
+	Rect		pageMarg;			/* G: Default page top/left/bottom/right margins (points) */
+	Rect		pageNumMarg;		/* G: Page number top/left/bottom/right margins (points) */
 
 	SignedByte	defaultLedgers;		/* G: Default max. no. of ledger lines to position systems for */
 
