@@ -77,7 +77,7 @@ static void SetTimeStamps(Document *doc)
 #define in2d(x)	pt2d(in2pt(x))		/* Convert inches to DDIST */
 #define ERR(fn) { nerr++; LogPrintf(LOG_WARNING, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
 
-/* Display most Document header fields; there are about 18 in all. */
+/* Display almost all Document header fields; there are about 18 in all. */
 
 static void DisplayDocumentHdr(short id, Document *doc)
 {
@@ -155,7 +155,8 @@ static Boolean CheckDocumentHdr(Document *doc)
 }
 
 
-/* Display some Score header fields, but nowhere near all: there are about 200. */
+/* Display some Score header fields, but nowhere near all. There are around 200 fields;
+about half give information about fonts. */
 
 static void DisplayScoreHdr(short id, Document *doc)
 {
@@ -163,42 +164,47 @@ static void DisplayScoreHdr(short id, Document *doc)
 	
 	LogPrintf(LOG_INFO, "Displaying Score header (ID %d):\n", id);
 	LogPrintf(LOG_INFO, "  (1)nstaves=%d", doc->nstaves);
-	LogPrintf(LOG_INFO, "  (2)nsystems=%d", doc->nsystems);		
-	LogPrintf(LOG_INFO, "  (3)spacePercent=%d", doc->spacePercent);
-	LogPrintf(LOG_INFO, "  (4)srastral=%d", doc->srastral);				
-	LogPrintf(LOG_INFO, "  (5)altsrastral=%d\n", doc->altsrastral);
+	LogPrintf(LOG_INFO, "  (2)nsystems=%d", doc->nsystems);
+	LogPrintf(LOG_INFO, "  (3)feedback=%d", doc->feedback);
+	LogPrintf(LOG_INFO, "  (4)used=%d", doc->used);
+	LogPrintf(LOG_INFO, "  (5)transposed=%d\n", doc->transposed);
+	
+	LogPrintf(LOG_INFO, "  (6)polyTimbral=%d", doc->polyTimbral);
+	LogPrintf(LOG_INFO, "  (7)spacePercent=%d", doc->spacePercent);
+	LogPrintf(LOG_INFO, "  (8)srastral=%d", doc->srastral);	
+	LogPrintf(LOG_INFO, "  (9)altsrastral=%d\n", doc->altsrastral);
 		
-	LogPrintf(LOG_INFO, "  (6)tempo=%d", doc->tempo);		
-	LogPrintf(LOG_INFO, "  (7)channel=%d", doc->channel);			
-	LogPrintf(LOG_INFO, "  (8)velocity=%d", doc->velocity);		
-	LogPrintf(LOG_INFO, "  (9)headerStrOffset=%d", doc->headerStrOffset);	
-	LogPrintf(LOG_INFO, "  (10)footerStrOffset=%d\n", doc->footerStrOffset);	
+	LogPrintf(LOG_INFO, "  (10)tempo=%d", doc->tempo);
+	LogPrintf(LOG_INFO, "  (11)channel=%d", doc->channel);
+	LogPrintf(LOG_INFO, "  (12)velocity=%d", doc->velocity);
+	LogPrintf(LOG_INFO, "  (13)headerStrOffset=%d", doc->headerStrOffset);
+	LogPrintf(LOG_INFO, "  (14)footerStrOffset=%d\n", doc->footerStrOffset);
 	
-	LogPrintf(LOG_INFO, "  (11)dIndentOther=%d", doc->dIndentOther);
-	LogPrintf(LOG_INFO, "  (12)firstNames=%d", doc->firstNames);
-	LogPrintf(LOG_INFO, "  (13)otherNames=%d", doc->otherNames);
-	LogPrintf(LOG_INFO, "  (14)lastGlobalFont=%d\n", doc->lastGlobalFont);
+	LogPrintf(LOG_INFO, "  (15)dIndentOther=%d", doc->dIndentOther);
+	LogPrintf(LOG_INFO, "  (16)firstNames=%d", doc->firstNames);
+	LogPrintf(LOG_INFO, "  (17)otherNames=%d", doc->otherNames);
+	LogPrintf(LOG_INFO, "  (18)lastGlobalFont=%d\n", doc->lastGlobalFont);
 
-	LogPrintf(LOG_INFO, "  (15)aboveMN=%c", (doc->aboveMN? '1' : '0'));
-	LogPrintf(LOG_INFO, "  (16)sysFirstMN=%c", (doc->sysFirstMN? '1' : '0'));
-	LogPrintf(LOG_INFO, "  (17)startMNPrint1=%c", (doc->startMNPrint1? '1' : '0'));
-	LogPrintf(LOG_INFO, "  (18)firstMNNumber=%d\n", doc->firstMNNumber);
+	LogPrintf(LOG_INFO, "  (19)aboveMN=%c", (doc->aboveMN? '1' : '0'));
+	LogPrintf(LOG_INFO, "  (20)sysFirstMN=%c", (doc->sysFirstMN? '1' : '0'));
+	LogPrintf(LOG_INFO, "  (21)startMNPrint1=%c", (doc->startMNPrint1? '1' : '0'));
+	LogPrintf(LOG_INFO, "  (22)firstMNNumber=%d\n", doc->firstMNNumber);
 
-	LogPrintf(LOG_INFO, "  (19)nfontsUsed=%d", doc->nfontsUsed);
+	LogPrintf(LOG_INFO, "  (23)nfontsUsed=%d", doc->nfontsUsed);
 	Pstrcpy(tempFontName, doc->musFontName);
-	LogPrintf(LOG_INFO, "  (20)musFontName='%s'\n", PtoCstr(tempFontName));
+	LogPrintf(LOG_INFO, "  (24)musFontName='%s'\n", PtoCstr(tempFontName));
 	
-	LogPrintf(LOG_INFO, "  (21)magnify=%d", doc->magnify);
-	LogPrintf(LOG_INFO, "  (22)selStaff=%d", doc->selStaff);
-	LogPrintf(LOG_INFO, "  (23)currentSystem=%d", doc->currentSystem);
-	LogPrintf(LOG_INFO, "  (24)spaceTable=%d", doc->spaceTable);
-	LogPrintf(LOG_INFO, "  (25)htight=%d\n", doc->htight);
+	LogPrintf(LOG_INFO, "  (25)magnify=%d", doc->magnify);
+	LogPrintf(LOG_INFO, "  (26)selStaff=%d", doc->selStaff);
+	LogPrintf(LOG_INFO, "  (27)currentSystem=%d", doc->currentSystem);
+	LogPrintf(LOG_INFO, "  (28)spaceTable=%d", doc->spaceTable);
+	LogPrintf(LOG_INFO, "  (29)htight=%d\n", doc->htight);
 	
-	LogPrintf(LOG_INFO, "  (26)lookVoice=%d", doc->lookVoice);
-	LogPrintf(LOG_INFO, "  (27)ledgerYSp=%d", doc->ledgerYSp);
-	LogPrintf(LOG_INFO, "  (28)deflamTime=%d", doc->deflamTime);
-	LogPrintf(LOG_INFO, "  (29)colorVoices=%d", doc->colorVoices);
-	LogPrintf(LOG_INFO, "  (30)dIndentFirst=%d\n", doc->dIndentFirst);
+	LogPrintf(LOG_INFO, "  (30)lookVoice=%d", doc->lookVoice);
+	LogPrintf(LOG_INFO, "  (31)ledgerYSp=%d", doc->ledgerYSp);
+	LogPrintf(LOG_INFO, "  (32)deflamTime=%d", doc->deflamTime);
+	LogPrintf(LOG_INFO, "  (33)colorVoices=%d", doc->colorVoices);
+	LogPrintf(LOG_INFO, "  (34)dIndentFirst=%d\n", doc->dIndentFirst);
 }
 
 
@@ -214,34 +220,34 @@ static Boolean CheckScoreHdr(Document *doc)
 	
 	if (doc->nstaves<1 || doc->nstaves>MAXSTAVES) ERR(1);
 	if (doc->nsystems<1 || doc->nsystems>2000) ERR(2);
-	if (doc->spacePercent<MINSPACE || doc->spacePercent>MAXSPACE) ERR(3);
-	if (doc->srastral<0 || doc->srastral>MAXRASTRAL) ERR(4);
-	if (doc->altsrastral<1 || doc->altsrastral>MAXRASTRAL) ERR(5);
-	if (doc->tempo<MIN_BPM || doc->tempo>MAX_BPM) ERR(6);
-	if (doc->channel<1 || doc->channel>MAXCHANNEL) ERR(7);
-	if (doc->velocity<-127 || doc->velocity>127) ERR(8);
+	if (doc->spacePercent<MINSPACE || doc->spacePercent>MAXSPACE) ERR(7);
+	if (doc->srastral<0 || doc->srastral>MAXRASTRAL) ERR(8);
+	if (doc->altsrastral<1 || doc->altsrastral>MAXRASTRAL) ERR(9);
+	if (doc->tempo<MIN_BPM || doc->tempo>MAX_BPM) ERR(10);
+	if (doc->channel<1 || doc->channel>MAXCHANNEL) ERR(11);
+	if (doc->velocity<-127 || doc->velocity>127) ERR(12);
 
 	/* We can't check if headerStrOffset and footerStrOffset are too large: we don't
 	   know the size of the stringPool yet. */
 	   
-	if (doc->headerStrOffset<0) ERR(9);
-	if (doc->footerStrOffset<0) ERR(10);
+	if (doc->headerStrOffset<0) ERR(13);
+	if (doc->footerStrOffset<0) ERR(14);
 	
-	if (doc->dIndentOther<0 || doc->dIndentOther>in2d(5)) ERR(11);
-	if (doc->firstNames<0 || doc->firstNames>MAX_NAMES_TYPE) ERR(12);
-	if (doc->otherNames<0 || doc->otherNames>MAX_NAMES_TYPE) ERR(13);
-	if (doc->lastGlobalFont<FONT_THISITEMONLY || doc->lastGlobalFont>MAX_FONTSTYLENUM) ERR(14);
-	if (doc->firstMNNumber<0 || doc->firstMNNumber>MAX_FIRSTMEASNUM) ERR(18);
-	if (doc->nfontsUsed<1 || doc->nfontsUsed>MAX_SCOREFONTS) ERR(19);
-	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) ERR(21);
-	if (doc->selStaff<-1 || doc->selStaff>doc->nstaves) ERR(22);
-	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) ERR(23);
-	if (doc->spaceTable<0 || doc->spaceTable>32767) ERR(24);
-	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) ERR(25);
-	if (doc->lookVoice<-1 || doc->lookVoice>MAXVOICES) ERR(26);
-	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) ERR(27);
-	if (doc->deflamTime<1 || doc->deflamTime>1000) ERR(28);
-	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) ERR(30);
+	if (doc->dIndentOther<0 || doc->dIndentOther>in2d(5)) ERR(15);
+	if (doc->firstNames<0 || doc->firstNames>MAX_NAMES_TYPE) ERR(16);
+	if (doc->otherNames<0 || doc->otherNames>MAX_NAMES_TYPE) ERR(17);
+	if (doc->lastGlobalFont<FONT_THISITEMONLY || doc->lastGlobalFont>MAX_FONTSTYLENUM) ERR(18);
+	if (doc->firstMNNumber<0 || doc->firstMNNumber>MAX_FIRSTMEASNUM) ERR(22);
+	if (doc->nfontsUsed<1 || doc->nfontsUsed>MAX_SCOREFONTS) ERR(23);
+	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) ERR(25);
+	if (doc->selStaff<-1 || doc->selStaff>doc->nstaves) ERR(26);
+	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) ERR(27);
+	if (doc->spaceTable<0) ERR(28);
+	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) ERR(29);
+	if (doc->lookVoice<-1 || doc->lookVoice>MAXVOICES) ERR(30);
+	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) ERR(31);
+	if (doc->deflamTime<1 || doc->deflamTime>1000) ERR(32);
+	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) ERR(34);
 	
 	if (nerr==0) {
 		LogPrintf(LOG_NOTICE, "No errors found.  (CheckScoreHdr)\n");
@@ -344,7 +350,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 //DIFF(aDocN105.comment[0], aDocN105.headL), DIFF(aDocN105.spacePercent, aDocN105.headL), DIFF(aDocN105.fillerMB, aDocN105.headL), DIFF(aDocN105.nFontRecords, aDocN105.headL),
 //DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.headL));
 
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Header size for Document=%ld, for Score=%ld, for N105 Score=%ld\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Header size for Document=%ld, for Score=%ld, for N105 Score=%ld  (OpenFile)\n",
 		sizeof(DOCUMENTHDR), sizeof(SCOREHEADER), sizeof(SCOREHEADER_N105));
 
 	count = sizeof(fileTime);									/* Time file was written */
@@ -373,6 +379,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 			;
 	}
 
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing headers for CPU's Endian property...  (OpenFile)\n");	
 	EndianFixDocumentHdr(doc);
 	if (DETAIL_SHOW) DisplayDocumentHdr(2, doc);
 	LogPrintf(LOG_NOTICE, "Checking Document header: ");
@@ -414,12 +421,12 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	FIX_END(stringPoolSize);
 	LogPrintf(LOG_INFO, "stringPoolSize=%ld  (OpenFile)\n", stringPoolSize);
 	if (doc->headerStrOffset > stringPoolSize) {
-		LogPrintf(LOG_ERR, "headerStrOffset is %ld but stringPoolSize is only %ld.  (OpenFile)",
+		LogPrintf(LOG_ERR, "headerStrOffset is %ld but stringPoolSize is only %ld.  (OpenFile)\n",
 					doc->headerStrOffset, stringPoolSize);
 		errInfo = STRINGobj; goto Error;
 	}
 	if (doc->footerStrOffset > stringPoolSize) {
-		LogPrintf(LOG_ERR, "footerStrOffset is %ld but stringPoolSize is only %ld.  (OpenFile)",
+		LogPrintf(LOG_ERR, "footerStrOffset is %ld but stringPoolSize is only %ld.  (OpenFile)\n",
 					doc->footerStrOffset, stringPoolSize);
 		errInfo = STRINGobj; goto Error;
 	}
@@ -441,7 +448,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	StringPoolEndianFix(doc->stringPool);
 	strPoolErrCode = StringPoolProblem(doc->stringPool);
 	if (strPoolErrCode!=0) {
-		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (OpenFile)", (long)strPoolErrCode);
+		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (OpenFile)\n", (long)strPoolErrCode);
 		errInfo = STRINGobj; goto Error;
 	}
 	
@@ -547,8 +554,7 @@ NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
 	errCode = FSClose(refNum);
 	if (errCode) { errInfo = CLOSEcall; goto Error; }
 	
-	if (!IsDocPrintInfoInstalled(doc))
-		InstallDocPrintInfo(doc);
+	if (!IsDocPrintInfoInstalled(doc)) InstallDocPrintInfo(doc);
 	
 	GetPrintHandle(doc, version, vRefNum, pfsSpec);		/* doc->name must be set before this */
 	

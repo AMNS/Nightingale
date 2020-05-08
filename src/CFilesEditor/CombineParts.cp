@@ -15,7 +15,7 @@ sense to have the Combine Parts command in Master Page! Cf. MPCombineParts.c. */
 
 static short NumPartStaves(LINK partL);
 
-/* ------------------------------------------------- CombinePartsDlog and DoExtract -- */
+/* ---------------------------------------------------- CombinePartsDlog and DoExtract -- */
 
 static enum {
 	COMBINEINPLACE_DI=4,
@@ -40,9 +40,9 @@ this procedure so it'll be called automatically by the dialog filter. */
 static void DimSpacePanel(DialogPtr dlog,
 									short item)		/* the userItem number */
 {
-	short			type;
+	short		type;
 	Handle		hndl;
-	Rect			box, tempR;
+	Rect		box, tempR;
 	Boolean		checked;
 	
 	checked = GetDlgChkRadio(dlog, REFORMAT_DI);
@@ -165,7 +165,7 @@ static Boolean CombinePartsDlog(unsigned char *firstPartName, unsigned char *las
 	return (ditem==OK);
 }
 
-/* ------------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------------------- */
 
 /* Normalize the part's format by making all staves visible and giving all systems
 the same dimensions. For details of what we do to measure and system positions and
@@ -216,7 +216,7 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	RespaceBars(doc, pL, doc->tailL,
 					RESFACTOR*(long)spacePercent, False, False);		/* Don't reformat! */
 	doc->spacePercent = spacePercent;
-	Antikink();															/* ??SHOULD BE AFTER Reformat! */
+	Antikink();															/* FIXME: SHOULD BE AFTER Reformat! */
 
 	Reformat(doc, RightLINK(doc->headL), doc->tailL,
 				changeSBreaks, (careMeasPerSys? measPerSys : 9999),
@@ -228,49 +228,44 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 /* Need one document to hold combined parts */
 
 static Boolean EnoughFreeDocs()
-	{
-		return True;		
-	}
+{
+	return True;		
+}
 	
 static Boolean CheckMultivoiceRoles(Document *doc, LINK firstPartL, LINK lastPartL)
-	{
-		Boolean ok = True;
-		Boolean hasUpperVoice = False;
-		Boolean hasLowerVoice = False;
-		
-		LINK partL = firstPartL;
-		while (ok && partL != lastPartL) 		/* handle all the parts after the first */
-		{
-			short partn = PartL2Partn(doc, partL);
-			for (short v = 0; v<MAXVOICES+1; v++) 
-			{
-				if (doc->voiceTab[v].voiceRole == VCROLE_UPPER) 
-				{
-					if (hasUpperVoice)
-						ok = False;
-					else
-						hasUpperVoice = True;
-				}
-						
-				if (doc->voiceTab[v].voiceRole == VCROLE_LOWER) 
-				{
-					if (hasLowerVoice)
-						ok = False;
-					else
-						hasLowerVoice = True;
-				}
-			}
-			
-			partL = NextPARTINFOL(partL);			
-		}
+{
+	Boolean ok = True;
+	Boolean hasUpperVoice = False;
+	Boolean hasLowerVoice = False;
 	
-		return ok;
+	LINK partL = firstPartL;
+	while (ok && partL != lastPartL) {		/* handle all the parts after the first */
+		for (short v = 0; v<MAXVOICES+1; v++) {
+			if (doc->voiceTab[v].voiceRole == VCROLE_UPPER) {
+				if (hasUpperVoice)
+					ok = False;
+				else
+					hasUpperVoice = True;
+			}
+					
+			if (doc->voiceTab[v].voiceRole == VCROLE_LOWER) {
+				if (hasLowerVoice)
+					ok = False;
+				else
+					hasLowerVoice = True;
+			}
+		}
+		
+		partL = NextPARTINFOL(partL);			
 	}
+
+	return ok;
+}
 	
 static Boolean WithinStfRange(short stf, short start, short end) 
-	{
-		return (stf >= start && stf <= end);
-	}
+{
+	return (stf >= start && stf <= end);
+}
 	
 static Boolean HasGroupConnect(LINK connectL) 
 	{
@@ -507,21 +502,18 @@ static void DeselectCONNECT(LINK pL)
 }
 
 static void UpdateMasterConnectsForPart(Document *doc, LINK firstPartL, LINK partL)
+{
+	Boolean connectSel = False;
+	
+	LINK connectL = SSearch(doc->masterHeadL,CONNECTtype,GO_RIGHT);
+	LINK firstConnL = GetConnectForFirstPart(doc, firstPartL, connectL);
+	
+	connectSel = UpdateConnect(connectL, firstPartL, partL);
+	if (connectSel) 
 	{
-		short firstStf = PartFirstSTAFF(partL);
-		short lastStf = PartLastSTAFF(partL);		
-
-		Boolean connectSel = False;
-		
-		LINK connectL = SSearch(doc->masterHeadL,CONNECTtype,GO_RIGHT);
-		LINK firstConnL = GetConnectForFirstPart(doc, firstPartL, connectL);
-		
-		connectSel = UpdateConnect(connectL, firstPartL, partL);
-		if (connectSel) 
-		{
-			LinkSEL(connectL) = True;
-		}
+		LinkSEL(connectL) = True;
 	}
+}
 	
 static void DelSelectedMasterConnects(Document *doc) 
 	{
@@ -674,34 +666,26 @@ static void FixMeasureForPart(LINK firstPartL, LINK measL)
 	
 		
 static void FixMasterMeasureForPart(Document *doc, LINK firstPartL)
-	{
-		short firstStf = PartFirstSTAFF(firstPartL);
-		short lastStf = PartLastSTAFF(firstPartL);	
-			
-		LINK measL = SSearch(doc->masterHeadL,MEASUREtype,GO_RIGHT);
-		FixMeasureForPart(firstPartL, measL);		
-	}
+{
+	LINK measL = SSearch(doc->masterHeadL,MEASUREtype,GO_RIGHT);
+	FixMeasureForPart(firstPartL, measL);		
+}
 
 static void UpdateConnectsForPart(Document *doc, LINK firstPartL, LINK partL)
-	{
-		short firstStf = PartFirstSTAFF(partL);
-		short lastStf = PartLastSTAFF(partL);		
-
-		Boolean connectSel = False;
-		
-		LINK connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
-		
-		for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) 
-		{
-			LINK aConnectL = GetConnectForFirstPart(doc, firstPartL, connectL);
-		
-			connectSel = UpdateConnect(connectL, firstPartL, partL);
-			if (connectSel) 
-			{
-				LinkSEL(connectL) = True;
-			}				
-		}	
-	}
+{
+	Boolean connectSel = False;
+	
+	LINK connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
+	
+	for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) {
+		LINK aConnectL = GetConnectForFirstPart(doc, firstPartL, connectL);
+	
+		connectSel = UpdateConnect(connectL, firstPartL, partL);
+		if (connectSel) {
+			LinkSEL(connectL) = True;
+		}				
+	}	
+}
 		
 static void DelSelectedConnects(Document *doc) 
 	{
@@ -853,36 +837,33 @@ static void RenumberRelVoices(Document *doc, VOICEINFO *vTable, LINK firstPartL)
 
 static void FixPartStaffNumbers(Document *doc, LINK firstPartL, LINK lastPartL) 
 {
- 		LINK partL = firstPartL;
-		while (partL != NILINK && partL != lastPartL) 		// handle all the parts after the first
-		{
-			partL = NextPARTINFOL(partL);
-			
-			short stfDiff = FixStavesForPart(firstPartL, partL);
-			UpdateConnectsForPart(doc, firstPartL, partL);
-		}
-		DelSelectedConnects(doc);
-		FixConnStaffsForPart(doc, firstPartL);
+	LINK partL = firstPartL;
+	while (partL != NILINK && partL != lastPartL) { 		// handle all the parts after the first
+		partL = NextPARTINFOL(partL);
+		
+		short stfDiff = FixStavesForPart(firstPartL, partL);
+		UpdateConnectsForPart(doc, firstPartL, partL);
+	}
+	DelSelectedConnects(doc);
+	FixConnStaffsForPart(doc, firstPartL);
 }
 
 static void CombinePartsInPlace(Document *doc, LINK firstPartL, LINK lastPartL) 
 {		
-		if (firstPartL == lastPartL)
-			return;
-		
-		VOICEINFO voiceTab[MAXVOICES+1];							// Descriptions of voices in use
-		short numVoices = NumVoices(doc);
-		
-		CopyVoiceTable(doc->voiceTab, voiceTab);
-		
-		short totalDiff = TotalPartDiff(firstPartL, lastPartL);
-		UpdatePartNums(doc, voiceTab, firstPartL, lastPartL, totalDiff);
-		RenumberRelVoices(doc, voiceTab, firstPartL);
-		
-		CopyVoiceTable(voiceTab, doc->voiceTab);
-		FixPartStaffNumbers(doc, firstPartL, lastPartL);
-		
-		DeletePartInfoList(doc, doc->headL, firstPartL, lastPartL);			
+	if (firstPartL == lastPartL) return;
+	
+	VOICEINFO voiceTab[MAXVOICES+1];							// Descriptions of voices in use
+	
+	CopyVoiceTable(doc->voiceTab, voiceTab);
+	
+	short totalDiff = TotalPartDiff(firstPartL, lastPartL);
+	UpdatePartNums(doc, voiceTab, firstPartL, lastPartL, totalDiff);
+	RenumberRelVoices(doc, voiceTab, firstPartL);
+	
+	CopyVoiceTable(voiceTab, doc->voiceTab);
+	FixPartStaffNumbers(doc, firstPartL, lastPartL);
+	
+	DeletePartInfoList(doc, doc->headL, firstPartL, lastPartL);			
 }
 
 static void FixMasterPartStaffNumbers(Document *doc, LINK firstPartL, LINK lastPartL) 
@@ -1037,14 +1018,12 @@ static void RedrawDocument(Document *doc)
  */
 Boolean DoCombineParts(Document *doc)
 	{
-		Str255 firstPartName;
-		Str255 lastPartName;
+		Str255 firstPartName, lastPartName;
 		short spacePercent, numParts;
 		LINK firstPartL, lastPartL;
 		//LINK partL; 
 		PPARTINFO pPart;
 		LINK selPartList[MAXSTAVES+1];
-		Boolean keepGoing=True;
 		static Boolean inPlace=True, closeAndSave=False, reformat=True;
 		static Boolean firstCall=True, careMeasPerSys;
 		static short measPerSys;
@@ -1110,6 +1089,5 @@ Boolean DoCombineParts(Document *doc)
 		}
 		RedrawDocument(doc);
 		
-Done:
 		return True;
 	}

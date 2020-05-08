@@ -1217,8 +1217,7 @@ that have meaningful objRects. If we find such object(s), we check whether their
 					COMPLAIN("•DCheckNode: DYNAMIC L%u HAS GARBAGE lastSyncL.\n", pL);
 				}
 
-				for (aDynamicL=FirstSubLINK(pL); aDynamicL;
-						aDynamicL = NextDYNAMICL(aDynamicL)) {
+				for (aDynamicL=FirstSubLINK(pL); aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL)) {
 					if (STAFFN_BAD(doc, DynamicSTAFF(aDynamicL))) {
 						COMPLAIN2("*DCheckNode: SUBOBJ IN DYNAMIC L%u staffn %d IS BAD.\n",
 									pL, DynamicSTAFF(aDynamicL));
@@ -1239,11 +1238,11 @@ that have meaningful objRects. If we find such object(s), we check whether their
 					COMPLAIN2("*DCheckNode: OTTAVA L%u staffn %d IS BAD.\n", pL,
 								((POTTAVA)p)->staffn);
 
-				if (((POTTAVA)p)->xdFirst>=((POTTAVA)p)->xdLast)
+				if (p->nEntries<=1 && ((POTTAVA)p)->xdFirst>=((POTTAVA)p)->xdLast)
 					COMPLAIN2("*DCheckNode: OTTAVA L%u ON staffn %d XD1ST >= XDLAST.\n",
 								pL, ((POTTAVA)p)->staffn);
-				for (aNoteOctL=FirstSubLINK(pL); aNoteOctL;
-						aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
+								
+				for (aNoteOctL=FirstSubLINK(pL); aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 					aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 					if (DBadLink(doc, OBJtype, aNoteOct->opSync, True)) {
 						COMPLAIN2("•DCheckNode: OTTAVA L%u HAS GARBAGE SYNC LINK %u.\n",
@@ -1491,8 +1490,6 @@ that have meaningful objRects. If we find such object(s), we check whether their
 
 
 			case SPACERtype:
-				PSPACER pSpacer;
-				
 					PushLock(SPACERheap);
 					if (STAFFN_BAD(doc, SpacerSTAFF(pL))) {
 						COMPLAIN2("*DCheckNode: SPACER L%u staffn %d IS BAD.\n", pL,

@@ -6162,6 +6162,66 @@ Log out, log back in, same test w/ 5.8.9 => it's OK; same w/ 5.8.10 => fails as 
 Log out, log back in, same test w/ 5.8.10 => OK!
 Log out, log back in, same test w/ 5.9.1 (built, 25 Apr. version) => OK!
 Log out, log back in, same test w/ 5.9.1 inside Xcode => OK!
-So it's context sensitive in some way, at least as far back as 5.8.9. A pretty minor
-bug, and maybe not _our_ bug -- though it probably is :-) .
 
+So it's context sensitive in some way, at least as far back as 5.8.9: it seems to always
+work after rebooting, otherwise it very often, maybe always fails. A nasty bug, and
+maybe Apple's bug, not ours -- though it probably is ours :-) .
+
+-------------------------------------------------------------------------------
+
+1 - 5 May
+
+Back to the bizaare and inconsistent bug in opening longer 'N105' format files. To review,
+symptoms are: towards the end of the call to ConvertObjects() for the main obj list, lines
+missing from the log file, apparently more & more; in the call to ConvertObjects() for
+the Master Page obj list that follows, lots of lines missing. Bizarre. In addition, rare
+problems like "clefType FOR STAFF 3 IN STAFF L169 INCONSISTENCY", "TIMESIG FOR STAFF 2 IN
+STAFF L332 INCONSISTENCY", or messed-up beams, e.g., the beam itself invisible with stems
+extending off the page!
+
+The only explanations I can think of: (1) a bizarre software bug, (2) an even more bizarre
+CPU hardware problem, or (3) a clobber. If it's the 1st two, I'm dead; fortunately a clobber
+is much more likely than either. Let's look for evidence of #2 and (to some extent) #1
+by using Torrey's old white MacBook: Copy Ngale PPC of 30 April and test files to it.
+
+<<<<<<<< FOLLOWING TESTS RUN ON TORREY'S OLD WHITE MACBOOK >>>>>>>>
+Open AllObjTypes => looks OK; Debug Check => no complaints.
+Open T+MInCounterpointBug5mm.ngl => looks OK; Debug Check => no complaints.
+Open T+MInCounterpointBug12mm.ngl => looks OK; Debug Check => no complaints, BUT log
+is truncated after 1st note of Sync L131 w/ message
+	*** process 257 exceeded 500 log message per second limit -- remaining messages this
+		second discarded ***
+!! Could smthg like that be the cause of missing log messages on the G5? Seems very
+unlikely, but...
+
+Open T+MInCounterpointBug2p.ngl => looks OK; log is truncated after 1st note of Sync
+L681 w/ the same message "exceeded 500 log message per second limit". Debug Check
+=> 6 complaints "TIMESTAMP REL. TO NEXT/PREVIOUS IS WRONG", 1 about tuplet total
+duration, 3 about playDur longer than dur. of 0; also,  Play it => sounds fine.
+Open it again => looks OK; log is truncated after 1st note of Sync L345 w/ the
+""exceeded 500 log message per second limit" message. Debug Check => one complaint about
+note no. of note in Sync L280 and two about note no./notation disagree in other Syncs.
+Similar (enough) symptoms to on my MacBook!, so explanation #1 is even less likely &
+#2 is way, way unlikely!
+
+So almost certainly a clobber; that'd almost have to be in ReadHeaps(). Are there any
+tools to help find it, like Even Better Bus Error of decades ago? There's a lot of stuff
+in the Xcode Debug menu!
+
+??
+
+-------------------------------------------------------------------------------
+
+6 May
+
+Let's tighten up compiler warnings; it might reveal something!
+
+Clean up CombineParts.c, recompile all => 859 warnings instead of 868.
+
+Turn on checking everywhere Mismatched Return Type, Missing Function Prototypes,
+Typecheck calls to printf/scanf, Initializer Not Fully Bracketed, Missing Braces and
+Parentheses, Check Switch Statements, Unused Functions/Labels/Parameters/Variables/Values,
+Uninitialized Automatic Variables, Unknown Pragma, Hidden Local Variables, Sign
+Comparison => no new warnings, so nothing revealed. Oh well.
+
+Clean up a few details => 852 warnings.

@@ -2539,7 +2539,7 @@ HeapFileIO, Select, SpaceTime.
 Worked on opening format 'N105' files while using a new format internally: converting
 fields of objects. New file FileConversion.c. Affects FileConversion.h; FileOpen.
 
-Minor cleanup: improvements to DHexDump(), etc. Affects Debug.h, MemMacros.h;
+Minor cleanup: made improvements to DHexDump(), etc. Affects Debug.h, MemMacros.h;
 DebugDisplay, HeapFileIO, Initialize, MIDIFOCmd.
 
 -------------------------------------------------------------------------------
@@ -2549,7 +2549,7 @@ DebugDisplay, HeapFileIO, Initialize, MIDIFOCmd.
 Worked on opening format 'N105' files while using a new format internally: converting
 object headers. Affects FileConversion.h; FileConversion.
 
-Minor cleanup: rename SPACEheap, etc. Affects FileConversion.h, MemMacros.h, NBasicTypes.h,
+Minor cleanup: renamed SPACEheap, etc. Affects FileConversion.h, MemMacros.h, NBasicTypes.h,
 vars.h; Documents, FileConversion, FileOpen.
 
 -------------------------------------------------------------------------------
@@ -2600,7 +2600,7 @@ HeapFileIO.
 Work on opening format 'N105' files while using a new format internally: converting
 score header & subobjects. Affects MemMacros.h; FileConversion.
 
-Minor cleanup: rename DHexDump() to NHexDump(), etc. Affects Debug.h; DebugDisplay,
+Minor cleanup: renamed DHexDump() to NHexDump(), etc. Affects Debug.h; DebugDisplay,
 FileConversion, FileOpen, HeapBrowser, HeapFileIO, MIDIFOCmd, UIFUtils.
 
 -------------------------------------------------------------------------------
@@ -2620,7 +2620,7 @@ Work on opening format 'N105' files while using a new format internally: convert
 objects & subobjects. Affects File.h, FileConversion.h; FileConversion, FileOpen,
 HeapFileIO.
 
-Minor cleanup: rename a macro, etc. Affects MemMacros.h; Context, DebugUtils,
+Minor cleanup: renamed a macro, etc. Affects MemMacros.h; Context, DebugUtils,
 FileConversion, InsNewUtils, MasterPage.
 
 -------------------------------------------------------------------------------
@@ -2630,7 +2630,7 @@ FileConversion, InsNewUtils, MasterPage.
 Work on opening format 'N105' files while using a new format internally: converting
 objects & subobjects. Affects MemMacros.h; FileConversion.
 
-Minor cleanup: rename two macros and add one, etc. Affects Defs.h, MemMacros.h,
+Minor cleanup: renamed two macros and added one, etc. Affects Defs.h, MemMacros.h,
 NOjTypesN105.h; DebugUtils, Initialize, InsNewUtils, MIDIFOpen, NotelistParse, Ottava,
 PrefsDialog, RTRhythmDur.
 
@@ -2670,7 +2670,7 @@ NObjTypesN105.h; DebugDisplay, DebugUtils, FileConversion, HeapFileIO.
 Work on opening format 'N105' files while using a new format internally: converting
 objects & subobjects. Affects MemMacros.h; FileConversion.
 
-Minor cleanup: correct two messages from BrowseTempo(), etc. Affects MemMacros.h;
+Minor cleanup: corrected two messages from BrowseTempo(), etc. Affects MemMacros.h;
 Browser, DebugUtils, DrawObject.
 
 -------------------------------------------------------------------------------
@@ -2720,7 +2720,7 @@ HeapFileIO, InsNew.
 Work on opening format 'N105' files while using a new format internally: converting
 objects & subobjects. Affects NObjTypesN105.h; FileConversion.
 
-Minor cleanup: improve debug info, etc. Affects Debug.h; Browser, DebugDisplay,
+Minor cleanup: improved debug info, etc. Affects Debug.h; Browser, DebugDisplay,
 Debug2Utils, PitchUtils.
 
 -------------------------------------------------------------------------------
@@ -2730,14 +2730,14 @@ Debug2Utils, PitchUtils.
 Work on opening format 'N105' files while using a new format internally: converting
 objects & subobjects. Affects FileConversion.
 
-Minor cleanup: improve Debug info and HeapBrowser(), etc. Affects Browser.h,
+Minor cleanup: improved Debug info and HeapBrowser(), etc. Affects Browser.h,
 NBasicTypes.h; Browser, DebugDisplay, DebugUtils, HeapBrowser, Menu.
 
 -------------------------------------------------------------------------------
 
 10 - 15 April
 
-Minor cleanup: improve error checking, reporting of document and score header errors,
+Minor cleanup: improved error checking, reporting of document and score header errors,
 etc. Affects NObjTypes.h; Browser, DebugUtils, FileConversion, FileOpen, HeapFileIO,
 Ottava.
 
@@ -2752,7 +2752,7 @@ DebugUtils, FileConversion, Ottava, UIFUtils.
 
 23 - 25 April
 
-Minor cleanup: integrate teensy changes from 5.8.10, etc. Affects NBasicTypes.h,
+Minor cleanup: integrated teensy changes from 5.8.10, etc. Affects NBasicTypes.h,
 NDocAndCnfgTypes.h, NMiscTypes.h; DebugDisplay, FileConversion, FileOpen, FlowInText,
 HeapFileIO, Menu.
 
@@ -2766,3 +2766,10 @@ in converting Ottavas. Affects MemMacros.h.
 Minor cleanup: improved error checking, reporting of document and score header errors,
 etc. Affects File.h, NDocAndCnfgTypes.h; FileConversion, FileOpen, FlowInText, Ottava,
 Utility.
+
+-------------------------------------------------------------------------------
+
+1 - 7 May
+
+Minor cleanup. Affects settings for project warnings; NDocAndCnfgTypes.h; CombineParts,
+DebugUtils, FileConversion, FileOpen, HeapFileIO, Inval.

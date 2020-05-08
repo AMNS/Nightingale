@@ -27,10 +27,10 @@ static void AccumRect(Rect *, Rect *);
 
 /* -----------------------------------------------------------------------InvalMeasure -- */
 /*	Erase and Inval the entire System the specified object is in. Assumes the object
-is not doc->tailL! NB: As of v. 5.8, we require all barlines to align on every staff;
+is not doc->tailL! NB: As of v. 5.8.x, we require all barlines to align on every staff;
 as long as that's true, <theStaff> is irrelevant. */
 
-void InvalMeasure(LINK pL, short theStaff)
+void InvalMeasure(LINK pL, short /* theStaff */)
 {	
 	InvalSystems(pL, RightLINK(pL));
 }
@@ -53,17 +53,17 @@ static void AccumRect(Rect *r, Rect *tempR)
 in (or, if it's not in a Measure, the next Measure) through and including the one the
 second specified object is in. Actually, since computers now are hundreds (if not
 thousands!) of times faster than when this routine was written (in the 1980's or
-1990's), we just Inval every system involved in its entirety. NB: As of v. 5.7, we
+1990's), we just Inval every system involved in its entirety. NB: As of v. 5.8.x, we
 require all barlines to align on every staff; as long as that's True, <theStaff> is
 irrelevant.
 
 Going beyond the specified Measures is helpful because objects of some types --
 especially Tempo/metronom marks and text Graphics -- quite often extend beyond their
-Measure. We tried going a Measure further on each end but, fairly often, that
-still isn't enough. */
+Measure. We've  tried going a Measure further on each end but, fairly often, that still
+isn't enough. */
 
 void InvalMeasures(LINK fromL, LINK toL,
-							short theStaff)			/* Staff no. or ANYONE */
+							short /* theStaff */)			/* Staff no. or ANYONE */
 {
 	InvalSystems(fromL, toL);
 }
@@ -148,10 +148,10 @@ void InvalSelRange(Document *doc)
 
 /* ------------------------------------------------------------------------ InvalRange -- */
 /*	Clear the valid flags and empty the objRects of all objects in the specified
-specified range. This should be used with care: for example, if InvalRange is
-followed by InvalSystems of systems in the range, the InvalSystems won't do much.
-In such cases, use InvalContent. ??NOT JUST objRects: set information about the
-screen bounding boxes of everything to empty.  */
+range. This should be used with care: for example, if InvalRange is followed by
+InvalSystems of systems in the range, the InvalSystems won't do much. In such cases,
+use InvalContent. ??NOT JUST objRects: set information about the screen bounding boxes
+of everything to empty.  */
 
 void InvalRange(LINK fromL, LINK toL)
 {

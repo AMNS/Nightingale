@@ -76,7 +76,7 @@ typedef struct	{
 } CHANGE_RECORD;
 
 
-/* -------------------------------------------------------------------- Major headers -- */
+/* --------------------------------------------------------------------- Major headers -- */
 
 /* DOCUMENTHEADER is generic: it contains fields appropriate for any program that displays
 pages of documents. */
@@ -85,7 +85,7 @@ pages of documents. */
 	Point		origin;				/* Current origin of Document window */						\
 	Rect		paperRect;			/* Size of virtual paper sheet in current mag. (pixels) */	\
 	Rect		origPaperRect;		/* Size of paper sheet (points) */							\
-	Point		holdOrigin;			/* Holds position during pick mode */						\
+	Point		holdOrigin;			/* (unused) Holds position during pick mode */				          \
 	Rect		marginRect;			/* Size of area within margins on sheet (points) */			\
 	Point		sheetOrigin;		/* Where in Quickdraw space to place sheet array */			\
 																								\
@@ -344,7 +344,7 @@ called <sheets>.
  There is always a currentSheet that we're editing, and whose upper left corner is always
  (0,0) with respect to any drawing routines that draw on the sheets. However, sheets are
  kept in an array whose upper left origin (sheetOrigin) is usually chosen very negative
- so that we can use as much of Quickdraws 16-bits space as possible. The coordinate
+ so that we can use as much of Quickdraw's 16-bits space as possible. The coordinate
  system of the window is continually danced around as the current sheet changes, as well
  as during scrolling.  The bounding box of all sheets is used to compute the scrolling
  bounds.  The background region is used to paint a background pattern behind all sheets
@@ -456,7 +456,7 @@ typedef struct {
 } Document;
 
 
-/* -------------------------------------------------------------------- Configuration -- */
+/* --------------------------------------------------------------------- Configuration -- */
 
 /* General configuration information is kept in a 'CNFG' resource, with the structure
  given below; its size is 256 bytes.

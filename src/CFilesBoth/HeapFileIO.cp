@@ -771,7 +771,7 @@ heap or a subobject heap -- around so each object or subobject has the space it 
 in the current format. */
 
 static Boolean MoveObjSubobjs(short, long, unsigned short, char *, char *);
-static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, char
+static Boolean MoveObjSubobjs(short hType, long /* version */, unsigned short nFObjs, char
 				*startPos, char *pLink1)
 {
 	char *src, *dst;
@@ -1057,8 +1057,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 
 
 /* Traverse the main and Master Page object lists and fix up the cross pointers.  Return
-0 if all is well, else return FIX_LINKS_ERR. NB: This code assumes that headL is at
-LINK 1. */
+0 if all is well, else return FIX_LINKS_ERR. */
 
 static short HeapFixLinks(Document *doc)
 {
@@ -1171,7 +1170,7 @@ Error:
 }
 
 
-/* Rebuild the free list of the heapIndex'th heap */
+/* Rebuild the free list of the heapIndex'th heap. */
 
 static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObjs)
 {
@@ -1198,13 +1197,12 @@ static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObj
 }
 
 
-/* "Preserve the clipboard, and reset the undo and tempUndo clipboards, across a call to
-OpenFile. Note that we don't have to delete or free any of the nodes in any of the
-clipboards, since the call to RebuildFreeList() re-initializes all heaps." That's the
-comment that's been here for a very long time, but, to my knowledge, this function does
-absolutely nothing and it never has! --DAB, Feb. 2020 */
+/* A comment that's been here for many years: "Preserve the clipboard, and reset the undo
+and tempUndo clipboards, across a call to OpenFile. Note that we don't have to delete or
+free any of the nodes in any of the clipboards, since the call to RebuildFreeList()
+re-initializes all heaps." But this function obviously doesn't do anything and, to my
+knowledge, it never has! --DAB, Feb. 2020 */
 
 static void PrepareClips()
 {
 }
-
