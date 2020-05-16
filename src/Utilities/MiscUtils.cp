@@ -52,6 +52,11 @@ Boolean GoodResource(Handle hndl)
 	return( hndl!=NULL && ResError()==noErr && *hndl!=NULL );
 }
 
+/* The below functions date back to the 1980's, when machines had just a few megabytes
+of memory. Now that machines have gigabytes, running out of memory has hardly worth
+worrying about, but I doubt if the code (which to my knowledge has worked for decades
+now) is worth touching.  --DAB, May 2020 */
+
 /* This requests a non-relocatable n-byte block of memory from the Toolbox, and zeroes
 it prior to delivering.  If not enough memory, it goes to error code -- which may not
 work, since the error dialog needs memory too. */
@@ -61,11 +66,11 @@ void *NewZPtr(Size n)		/* Allocate n bytes of zeroed memory; deliver ptr */
 	char *p, *q;  void *ptr;
 
 	ptr = NewPtr(n);
-	if (!ptr) /* NoMemory(memFullErr) */ SysBeep(1);
+	if (!ptr) { SysBeep(1);  NoMoreMemory(); }
 	 else {
-		p = (char *)ptr; q = p + n;
+		p = (char *)ptr;  q = p + n;
 		while (p < q) *p++ = '\0';
-		}
+	}
 	return(ptr);
 }
 
@@ -74,7 +79,7 @@ resident software from generating out-of-memory errors. GrowMemory assumes we've
 pre-allocated an otherwise unused block of memory (this should normally be done at
 initialize time); we free it here when the Memory Manager calls this routine as the
 installed Grow Zone procedure. We also note that memory is low for the benefit of
-possible error messages to the user. See Inside Macintosh vol. 2, p.42-3. */
+possible error messages to the user. See Inside Macintosh vol. 2, p.42-43. */
 
 pascal long GrowMemory(Size /*nBytes*/)		/* nBytes is unused */
 {
@@ -185,8 +190,8 @@ Boolean IsDoubleClick(Point pt, short tol, long now)
 
 /* -------------------------------------------------------------------- Other routines -- */
 
-/* If any of the variable argument scrap types are available for pasting from the
-scrap, deliver the first one.  Otherwise, deliver 0.  For example,
+/* If any of the variable argument scrap types are available for pasting from the scrap,
+deliver the first one.  Otherwise, deliver 0.  For example,
 
     if (whichType = CanPaste(3,'TEXT','PICT','STUF')) ...
 
@@ -249,7 +254,8 @@ void ClearStandardTypes()
 }
 
 
-short GetInputName(char */*prompt*/, Boolean /*newButton*/, unsigned char *name, short */*wd*/, NSClientDataPtr nsData)
+short GetInputName(char */*prompt*/, Boolean /*newButton*/, unsigned char *name,
+					short */*wd*/, NSClientDataPtr nsData)
 {
 	OSStatus err = noErr;
 	
@@ -269,7 +275,8 @@ short GetInputName(char */*prompt*/, Boolean /*newButton*/, unsigned char *name,
 	return OP_Cancel;
 }
 
-Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *name, short */*wd*/, NSClientDataPtr nsData)
+Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *name,
+						short */*wd*/, NSClientDataPtr nsData)
 {
 	OSStatus anErr;
 	CFStringRef	defaultName;
@@ -294,6 +301,7 @@ StringPtr VersionString(StringPtr verPStr)
 	
 	/* Get version number from main bundle (Info.plist); this is the string value
 	   for key "CFBundleVersion", a.k.a. "Bundle version". */
+	
 	CFStringRef verRef = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(),
 										kCFBundleVersionKey);
 	bundleVersionStr = CFStringGetCStringPtr(verRef, kCFStringEncodingMacRoman);

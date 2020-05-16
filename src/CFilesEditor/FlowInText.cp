@@ -43,7 +43,8 @@ static enum {
 #define DEFAULT_VPOS 14			/* Default vertical position (pitch level) for new lyric or other text */
 
 
-/* local prototypes */
+/* Local prototypes */
+
 static Boolean FlowInDialog(Document *, short *);
 static DialogPtr OpenThisDialog(Document *);
 static void CloseThisDialog(DialogPtr);
@@ -84,7 +85,7 @@ typedef struct {
 	LINK		startL;	/* if NILINK, was a node that was deleted but never freed */
 	LINK		termL;	/* if NILINK, we never got hyphen completor syllable in same voice */
 	SignedByte	voice;
-	char		filler;	/* ??numHyphens between startL and termL? */
+	char		filler;	/* ??maybe use for numHyphens between startL and termL? */
 } HYPHENSPAN;
 
 static HYPHENSPAN	**hyphens = NULL;
@@ -311,7 +312,7 @@ static DialogPtr OpenThisDialog(Document *doc)
 	
 	SetDialogDefaultItem(dlog,BUT1_Flow);
 
-	CenterWindow(GetDialogWindow(dlog),0);
+	CenterWindow(GetDialogWindow(dlog), 0);
 	SetPort(GetDialogWindowPort(dlog));
 
 	/* Fill in dialog's values here */
@@ -358,8 +359,8 @@ Returns whether or not to the dialog should be closed (keepGoing). */
 static Boolean DoDialogItem(Document *doc, DialogPtr dlog, short itemHit)
 {
 	short type;
-	Boolean okay=False,keepGoing=True;
-	Handle hndl; Rect box;
+	Boolean okay=False, keepGoing=True;
+	Handle hndl;  Rect box;
 
 	if (itemHit<1 || itemHit>=LASTITEM) return keepGoing;
 
@@ -518,19 +519,19 @@ static void CopyStyle(Document *doc, short theFont, TEXTSTYLE *pStyle)
 {
 	switch (theFont) {
 		case TSRegular1STYLE:
-			BlockMove(doc->fontName1,pStyle,sizeof(TEXTSTYLE));
+			BlockMove(doc->fontName1, pStyle, sizeof(TEXTSTYLE));
 			return;
 		case TSRegular2STYLE:
-			BlockMove(doc->fontName2,pStyle,sizeof(TEXTSTYLE));
+			BlockMove(doc->fontName2, pStyle, sizeof(TEXTSTYLE));
 			return;
 		case TSRegular3STYLE:
-			BlockMove(doc->fontName3,pStyle,sizeof(TEXTSTYLE));
+			BlockMove(doc->fontName3, pStyle, sizeof(TEXTSTYLE));
 			return;
 		case TSRegular4STYLE:
-			BlockMove(doc->fontName4,pStyle,sizeof(TEXTSTYLE));
+			BlockMove(doc->fontName4, pStyle, sizeof(TEXTSTYLE));
 			return;
 		case TSRegular5STYLE:
-			BlockMove(doc->fontName5,pStyle,sizeof(TEXTSTYLE));
+			BlockMove(doc->fontName5, pStyle, sizeof(TEXTSTYLE));
 			return;
 	}
 }
@@ -602,8 +603,8 @@ PopLock(OBJheap);
 }
 
 
-static short HandleOptionKeyMsgBox(Document *, Size);
-static short HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
+static void HandleOptionKeyMsgBox(Document *, Size);
+static void HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
 {
 	static Boolean	optDownNow, optDownBefore=False;
 	Size tmpCurrWord;
@@ -618,7 +619,7 @@ static short HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
 	
 	currWord = tmpCurrWord;
 	optDownBefore = optDownNow;
-	return 1;
+	return;
 }
 
 
@@ -641,10 +642,10 @@ static void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, sho
 	InvertSymbolHilite(doc, pL, stf, False);
 
 	/* If the user holds down the option key, don't increment the pointer to the next
-		word. This allows the user to insert the same word over and over again: for
-		example, into each of a number of voices. Rather, return to the word just
-		inserted, insert it again, and then increment the point back to the place it
-		was when we started the whole thing. */
+	   word. This allows the user to insert the same word over and over again: for
+	   example, into each of a number of voices. Rather, return to the word just
+	   inserted, insert it again, and then increment the point back to the place it
+	   was when we started the whole thing. */
 
 	HLock(lyricBlk);
 	if (OptionKeyDown()) {
@@ -681,7 +682,7 @@ LogPrintf(LOG_DEBUG, ">InsertNewGraphic: pL=%u stf=%d v=%d str='%s' newL=%u\n", 
 		DrawGRAPHIC(doc, newL, contextA, True);
 		if (!OptionKeyDown()) FlowDrawMsgBox(doc);
 		
-		RegisterHyphen(newL, prevWord, True);
+		if (theStyle.lyric) RegisterHyphen(newL, prevWord, True);
 	}
 }
 
@@ -780,13 +781,15 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 								doc->currentPaper = paper;
 							
 								/* Transform to paper relative coords */
+								
 								pt.h -= paper.left;
 								pt.v -= paper.top;
 					
 								pL = FindGraphicObject(doc, pt, &stf, &v);
 								
-								/* To allow attaching to objects other than notes, remove
-								   the following test for SyncTYPE. */
+								/* To allow attaching to objects other than notes (and
+								   rests), remove the following test for SyncTYPE. */
+								   
 								if (pL && SyncTYPE(pL) && (currWord<lyricLen || OptionKeyDown())) {
 									InvertSymbolHilite(doc, pL, stf, True);
 									status = InsTrackUpDown(doc, pt, &sym, pL, stf, &pitchLev);
@@ -821,10 +824,12 @@ LogPrintf(LOG_DEBUG, ">InsertSyllable: pL=%u lastGrL=%u\n", pL, lastGrL);
 							r.right += pt2p(4);				/* bbox is often not wide enough on right */
 							OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
 							EraseAndInval(&r);
+							
 							/* FIXME: DeleteNode doesn't get rid of string in StrMgr lib! */
+							
 							DeleteNode(doc, lastGrL);
 							currWord = prevWord;
-							RegisterHyphen(lastGrL, currWord, False);
+							if (theStyle.lyric) RegisterHyphen(lastGrL, currWord, False);
 							lastGrL = prevGrL;
 							FlowDrawMsgBox(doc);
 						}
@@ -834,6 +839,7 @@ LogPrintf(LOG_DEBUG, ">InsertSyllable: pL=%u lastGrL=%u\n", pL, lastGrL);
  						break;
 					case '\t':
 						/* We won't enter this block until user flows once via InsTrackUpDown. */
+						
 						if (v && lastGrL && (currWord<lyricLen || OptionKeyDown())) {
 							pL = LVSearch(RightLINK(GraphicFIRSTOBJ(lastGrL)), SYNCtype, v, GO_RIGHT, False);
 							if (pL) {
@@ -845,6 +851,7 @@ LogPrintf(LOG_DEBUG, ">InsertSyllable: pL=%u lastGrL=%u\n", pL, lastGrL);
 													lyricLen, pitchLev, theFont, theStyle);
 
 								/* if new Graphic is offscreen, scroll it into view */
+								
 								pt = LinkToPt(doc, pL, True);
 								if (!PtInRect(pt, &doc->viewRect)) {
 									LINK tmpSelStartL = doc->selStartL;
@@ -891,34 +898,36 @@ void DoTextFlowIn(Document *doc)
 								for use in 1 call to User2HeaderFontNum. */
 	TEXTSTYLE style;
 
-	if (FlowInDialog(doc, &theFont)) {
-		CopyStyle(doc, theFont, &style);
-		DisableUndo(doc, False);
-		firstFlowL = lastFlowL = NILINK;
-		
-		FlowInTextObjects(doc, theFont, style);
-		
-		/* If auto-respacing is on, the text we've just flowed in is in a lyric style,
-		and we really did flow some in, then respace the entire area from the first
-		measure anything was added to thru the last. If any measures within the range
-		didn't have anything added to them, maybe they should be left alone; but that
-		would be pretty unusual, and this is simpler. */
-		
-		if (doc->autoRespace && style.lyric) {
-			if (firstFlowL && lastFlowL) {
-				LINK firstMeasL, prevMeasL;
-				
-				RespaceBars(doc, firstFlowL, lastFlowL, 0L, False, False);
-				
-				/* First Graphic might overlap previous measure. Inval that measure,
-				   if it's on the same system, just in case. */
-				   
-				firstMeasL = LSSearch(firstFlowL, MEASUREtype, ANYONE, GO_LEFT, False);
-				prevMeasL = LinkLMEAS(firstMeasL);
-				if (SameSystem(prevMeasL, firstMeasL)) InvalMeasure(prevMeasL, ANYONE);
-			}
+	if (!FlowInDialog(doc, &theFont)) return;
+	
+	CopyStyle(doc, theFont, &style);
+	DisableUndo(doc, False);
+	firstFlowL = lastFlowL = NILINK;
+	
+	FlowInTextObjects(doc, theFont, style);
+	
+	/* If auto-respacing is on, the text we've just flowed in is in a lyric style, and
+	   we really did flow some in, then respace the entire area from the first measure
+	   anything was added to thru the last. If any measures within the range didn't have
+	   anything added to them, maybe they should be left alone; but that would be pretty
+	   unusual, and this is simpler. */
+	
+	if (doc->autoRespace && style.lyric) {
+		if (firstFlowL && lastFlowL) {
+			LINK firstMeasL, prevMeasL;
+			
+			RespaceBars(doc, firstFlowL, lastFlowL, 0L, False, False);
+			
+			/* First Graphic might overlap previous measure. If it's on the same system,
+			   Inval that measure, just in case. */
+			   
+			firstMeasL = LSSearch(firstFlowL, MEASUREtype, ANYONE, GO_LEFT, False);
+			prevMeasL = LinkLMEAS(firstMeasL);
+			if (SameSystem(prevMeasL, firstMeasL)) InvalMeasure(prevMeasL, ANYONE);
 		}
-		if (style.lyric) AddHyphens(doc, theFont, style);
+	}
+	if (style.lyric) {
+		AddHyphens(doc, theFont, style);
 		DisposeHyphenList();
 	}
 }
@@ -926,9 +935,11 @@ void DoTextFlowIn(Document *doc)
 
 /* -------------------------- Functions for creating hyphens ------------------------ */
 
-/* Every time the user adds or deletes a syllable, the code above calls RegisterHyphen.
-RegisterHyphen maintains an array of HYPHENSPAN structs, each of which contains links
-to the Graphics that initiate and terminate a hyphen, as well as their voice number. */
+/* If we're doing lyrics, RegisterHyphen should be called every time the user adds or
+deletes a syllable. It maintains an array of HYPHENSPAN structs, each containing links
+to the Graphics that initiate and terminate a hyphen, as well as their voice number. If
+a new syllable ends with a hyphen, it adds a HYPHENSPAN so we have the info we need to
+add as many hyphens as needed when the user finishes flowing in text. */
 
 static void RegisterHyphen(
 				LINK	grL,			/* Graphic just inserted */
@@ -949,42 +960,43 @@ static void RegisterHyphen(
 	if (hyphens==NULL) {
 		hyphens = (HYPHENSPAN **)NewHandle((Size)(sizeof(HYPHENSPAN) * 4));
 		if (hyphens==NULL) {
-			MayErrMsg("RegisterHyphen: can't allocate hyphen list");
+			MayErrMsg("Can't allocate hyphen list.  (RegisterHyphen)");
 			return;
 		}
 	}
 	
-	/* Get syllable at charOffset from lyricBlk */ 
+	/* Get syllable at charOffset from lyricBlk */
+	
 	len = GetHandleSize(lyricBlk);
 	HLock(lyricBlk);
 	p = *lyricBlk;
 	GetSyllable(p+charOffset, syllable, len-charOffset);	
 	HUnlock(lyricBlk);
 	
-	/* find out if it ends with hyphen */
-	if (syllable[strlen(syllable)-1]=='-')							/* test last letter of syllable */
-		hasHyphen = True;
-	else
-		hasHyphen = False;
+	/* Find out if it ends with hyphen */
+	
+	if (syllable[strlen(syllable)-1]=='-') hasHyphen = True;
+	else hasHyphen = False;
 	
 	voice = GraphicVOICE(grL);
 	
 	if (add) {
 		if (numHyphens>0) {
 			/* search for last incomplete HYPHENSPAN struct in this voice */
+			
 			HLock((Handle)hyphens);
 			for (i=numHyphens-1, h=*hyphens+i; i>=0; i--, h--) {
 				if (h->voice==voice) {
 					if (h->termL==NILINK) {
 						if (IsAfter(h->startL, grL)) {
-							h->termL=grL;							/* our grL is a completor */
+							h->termL = grL;							/* our grL is a completor */
 							break;
 						}
 						else {
 							GetIndCString(strBuf, FLOWIN_STRS, 4);	/* "Lyrics must go from left to right within the voice" */
 							CParamText(strBuf, "", "", "");
 							StopInform(GENERIC_ALRT);
-							/* ??offer to delete? */
+							/* FIXME: offer to delete it? */
 							return; /*???*/
 						}
 					}
@@ -998,20 +1010,22 @@ static void RegisterHyphen(
 		   hyphens. */
 		   
 		if (hasHyphen) {
-			/* expand array if necessary */
+			/* Expand array if necessary */
+
 			numNodes = GetHandleSize((Handle)hyphens) / sizeof(HYPHENSPAN);
-			if (numHyphens==numNodes) {					/* array full; allocate more nodes */
+			if (numHyphens==numNodes) {						/* array full; allocate more nodes */
 				SetHandleSize((Handle)hyphens, (Size)(sizeof(HYPHENSPAN) * (numNodes + 4)));
 				if (MemError()) {
-					MayErrMsg("RegisterHyphen: can't expand hyphen list");
+					MayErrMsg("Can't expand hyphen list.  (RegisterHyphen)");
 					return;
 				}
 			}
 			
-			/* start new record in 0-based array */
+			/* Start new record in 0-based array */
+			
 			h = *hyphens + numHyphens;
 			h->startL = grL;
-			h->termL = NILINK;							/* so we'll recognize it when completor follows */
+			h->termL = NILINK;								/* so we'll recognize it when completor follows */
 			h->voice = voice;
 			h->filler = 0;
 			numHyphens++;
@@ -1019,9 +1033,11 @@ static void RegisterHyphen(
 	}
 	
 	/* This syllable has just been deleted. Clean up any hyphen record it was part of. */
+	
 	else {
 		if (numHyphens>0) {
-			/* search for last HYPHENSPAN struct in this voice */
+			/* Search for last HYPHENSPAN struct in this voice */
+			
 			HLock((Handle)hyphens);
 			for (i=numHyphens-1, h=*hyphens+i; i>=0; i--, h--) {
 				if (h->voice==voice) {
@@ -1033,7 +1049,8 @@ static void RegisterHyphen(
 						h->startL = h->termL = NILINK;
 						h->voice = 0;
 						if (i==numHyphens-1) numHyphens--;	/* if node is last, we can free it */
-						/* don't break; grL may also be a termL in prev record in this voice */
+						
+						/* Don't break; grL may also be a termL in previous record in this voice */
 					}
 				}
 			}
@@ -1067,9 +1084,9 @@ measure as their firstObj. Otherwise, if we have this:
 1) moving 2nd measure down might put hypen in or to left of reserved area, or 2) respace
 might push 2nd note to right in order to place hyphen after barline! (Try it.) */
 
-/* Create a run of hyphens within one system. The syllables surrounding the hyphen may
-not even be in this system. Returns number of errors encountered, or -1 in case of a
-fatal error. */
+/* Create a run of hyphens within one system. Note that the syllables surrounding the
+hyphen may not even be in this system! Returns number of errors encountered, or -1 in
+case of a fatal error. */
 
 static short CreateHyphenRun(Document *, LINK, LINK, LINK, DDIST, DDIST, Boolean, short, DDIST,
 								short, short, TEXTSTYLE, DDIST);
@@ -1202,6 +1219,8 @@ static short CreateHyphenRun(
 }
 
 
+/* Add strings of hyphens between notes as indicated by HYPHENSPAN records. */
+
 static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 {
 	short		i, j;
@@ -1214,7 +1233,7 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 	DDIST		dMaxHyphenDist;					/* Maximum horiz. space one hyphen can span */
 	
 	if (hyphens==NULL) {
-		LogPrintf(LOG_WARNING, "Tried to add hyphens but there aren't any. (AddHyphens)\n");
+		LogPrintf(LOG_WARNING, "Tried to add hyphens but there are no hyphen records.  (AddHyphens)\n");
 		return;
 	}
 	
@@ -1305,7 +1324,7 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 	HUnlock((Handle)hyphens);
 	
 	if (errCnt)
-		MayErrMsg("%s couldn't create %d hyphen%s.", PROGRAM_NAME, errCnt, errCnt==1? "":"s");
+		MayErrMsg("%s couldn't create %d hyphen%s.  (AddHyphens)", PROGRAM_NAME, errCnt, errCnt==1? "":"s");
 }
 
 
@@ -1320,13 +1339,13 @@ static void DisposeHyphenList()
 /* Given a pointer to a non-relocatable block <pText>, place a copy of this text into
 the relocatable block used by the Flow In Text dialog (the static global lyricBlk).
 Do this by allocating a handle and assigning it lyricBlk. If lyricBlk was not NULL,
-first dispose it, without warning the user. NB: As of Nov. 2017, this function is not
-used by the Flow in Text command: it was written for the old Open ETF command.
+first dispose it, without warning the user. NB: This function was written for the old
+Open ETF command; as of v. 5.8.x, it's unused. 
 
 If <pText> contains too much text, return False. FIXME: Probably we should truncate the
 text in this case.
 
-Returns True if all okay. Gives an error msg and returns False if error. */
+Returns True if all is well. Gives an error msg and returns False if error. */
 
 Boolean SetFlowInText(Ptr pText)
 {
@@ -1334,16 +1353,16 @@ Boolean SetFlowInText(Ptr pText)
 	OSErr	err;
 	
 	if (!pText) {
-		MayErrMsg("SetFlowInText: <pText> is NULL!");
+		MayErrMsg("<pText> is NULL!  (SetFlowInText)");
 		return False;
 	}
 	pTextSize = GetPtrSize(pText);
 	if (pTextSize==0L) {
-		MayErrMsg("SetFlowInText: <pText> is empty.");
+		MayErrMsg("<pText> is empty.  (SetFlowInText)");
 		return False;
 	}
 	if (pTextSize>(long)SHRT_MAX) {
-		MayErrMsg("SetFlowInText: <pText> contains more than 32K bytes.");
+		MayErrMsg("<pText> contains more than 32K bytes.  (SetFlowInText)");
 		return False;
 	}
 	
@@ -1351,7 +1370,7 @@ Boolean SetFlowInText(Ptr pText)
 		DisposeHandle(lyricBlk);
 		err = MemError();
 		if (err) {
-			MayErrMsg("SetFlowInText: DisposHandle on <lyricBlk> failed (%d)", err);
+			MayErrMsg("DisposHandle on <lyricBlk> failed (error %d).  (SetFlowInText)", err);
 			return False;
 		}
 	}

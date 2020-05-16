@@ -1703,6 +1703,7 @@ void DrawBEAMSET(Document *doc, LINK beamL, CONTEXT context[])
 												stemUpDown, beamTab, BEAMTABLEN);
 	if (beamCount<0) {
 		SysBeep(1);
+		LogPrintf(LOG_ERR, "NO BEAM ELEMENTS FOR beamL=L%u  (DrawBEAMSET)\n");
 		return;
 	}
 	

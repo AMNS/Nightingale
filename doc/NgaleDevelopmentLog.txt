@@ -6225,3 +6225,43 @@ Uninitialized Automatic Variables, Unknown Pragma, Hidden Local Variables, Sign
 Comparison => no new warnings, so nothing revealed. Oh well.
 
 Clean up a few details => 852 warnings.
+
+-------------------------------------------------------------------------------
+
+9 - 14 May
+
+Back to Flow in Text. David Alpher reported Flow In Text tends to crash when he uses two
+consecutive hyphens at the end of a phrase; but he later reported there's no pattern
+he can see. Oh well. He's now using a version of Ngale 5.8.10 that puts info to debug
+this in the log file. Awaiting more info from him.
+
+Back to bug in opening longer 'N105' format files.
+
+It seems likely the problem is in ReadHeaps(). It relies on ReadObjHeap() and
+ReadSubHeap(); both use our own ExpandFreeList() to get more memory. The latter calls
+Apple's SetHandleSize; I don't see a variant of SetHandleSize that sets memory to 0
+or anything else. I should be able to make SetHandleSize use GuardMalloc via Xcode.
+But as an alternative, I could set all of the allocated memory to, e.g., 0 or 0xFF, or
+(if I cast it to short or long) other values likely to crash quickly.
+
+Clean Heaps.c slightly, test => opening 2ndMovement9-2017V.ngl hangs; from the log, looks
+like it finished converting the file & was trying to draw it. Open same file again =>
+crashes into gdb, but I can't get anything more from gdb !@TU!@$@#&*( . Still, this is
+interesting. Same thing again => hangs; this time, the last log message is ConvertSLUR
+with slurL=L4009, not very close to the end of the file, so it looks like it died while
+converting -- but maybe not! How to tell when log messages are all f*cked up??
+
+Let's try GuardMalloc as described in the Xcode 2 User Guide, using the Xcode Debugger! I
+gave up on the Xcode Debugger years ago -- it never seemed to do anything useful -- but
+it's worth another try. Turn it on; then Debug Executable => says "Nightingale exited with
+status(1). The Debugger is still running. Use 'Restart' to debug again.", apparently
+instantly. But Restart is greyed out! Build and Debug => no change. Set a breakpoint at
+1st stmt of main() => no change! #@$^%@*)(#!*%^&*=  Ngale occasionally crashes into the
+Debugger, and then it's at least somewhat usable, though it tends to say "value
+temporarily available" a lot. But I can't see how to get into it otherwise. Sigh.
+
+It's probably time to add a way to optionally have ExpandFreeList initialize newly
+allocated memory; this could be useful in the future for similar bugs, so it should be
+something the user can control, maybe w/ modifier keys.
+
+??

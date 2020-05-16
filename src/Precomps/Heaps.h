@@ -1,9 +1,5 @@
 /* Heaps.h for Nightingale - Header file for Heaps.c */
 
-#ifdef LinkToPtrFUNCTION
-char *LinkToPtr(HEAP *, LINK);
-#endif
-
 Boolean		InitAllHeaps(Document *doc);
 void		DestroyAllHeaps(Document *doc);
 Boolean		ExpandFreeList(HEAP *heap, long nObjs);

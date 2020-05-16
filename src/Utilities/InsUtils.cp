@@ -748,7 +748,7 @@ Boolean AddCheckVoiceTable(Document *doc, short staff)
 
 /* ---------------------------------------------------------------------- AddNoteCheck -- */
 /*	Check whether it's OK to add a note/rest in the current voice and the given staff
-to the given Sync, and deliver True if it is OK. (As of v. 5.7, the insertion user
+to the given Sync, and deliver True if it is OK. (As of v. 5.8, the insertion user
 interface distinguishes chord slashes, but they're really just funny notes.) */
 
 Boolean AddNoteCheck(Document *doc,
@@ -763,8 +763,11 @@ Boolean AddNoteCheck(Document *doc,
 	char	fmtStr[256];
 	
 	voice = USEVOICE(doc, staff);
-	if (addToSyncL==NILINK) { SysBeep(30);	return False; }		/* No Sync to check */
-	
+	if (addToSyncL==NILINK) {	/* No Sync to check */
+		SysBeep(30);
+		LogPrintf(LOG_ERR, "No Sync to check  (AddNoteCheck)\n");
+		return False;
+	}	
 	isRest = (symtable[symIndex].subtype==1);
 	isChordSlash = (symtable[symIndex].subtype==2);
 
@@ -1471,7 +1474,7 @@ void AddNoteFixBeams(Document *doc,
 {
 	short 		nBeamable, voice;
 	LINK		firstSyncL, lastSyncL;
-	LINK		aNoteL, beamL, farNoteL, newBeamL;
+	LINK		aNoteL, beamL, farNoteL, newBeamL=NILINK;
 	PBEAMSET	pBeam, newBeam;
 	DDIST		ystem, maxLength;
 	Boolean		crossSys, firstSys;

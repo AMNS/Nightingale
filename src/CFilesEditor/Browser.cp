@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2020 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -93,7 +93,7 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 					DrawDialog(theDialog);
 //					OutlineOKButton(theDialog,True);
 					EndUpdate(GetDialogWindow(theDialog));
-					}
+				}
 				*item = 0;
 				ans = True;
 				break;
@@ -246,7 +246,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			case iLeftJump:
 				if (pL == tailL) {
 					if (LeftLINK(tailL)) pL = LeftLINK(tailL);
-					}
+				}
 				 else {
 					/* Search back for previous or (with mod key) 1st obj of same type as pL */
 					type = ObjLType(pL);
@@ -255,11 +255,11 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 						pL = LeftLINK(pL);
 						if (ObjLType(pL) == type) {
 							oldL = pL;
-							if (!(OptionKeyDown() || CmdKeyDown())) break;
-							}
+							if (!OptionKeyDown()) break;
 						}
-					pL = oldL;
 					}
+					pL = oldL;
+				}
 				index = 0;
 				break;
 			case iLeft:
@@ -276,7 +276,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			case iRightJump:
 				if (pL == headL) {
 					if (RightLINK(headL)) pL = RightLINK(headL);
-					}
+				}
 				 else {
 					/* Search ahead for next or (with mod key) last object of same type as pL */
 					type = ObjLType(pL);
@@ -285,11 +285,11 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 						pL = RightLINK(pL);
 						if (ObjLType(pL) == type) {
 							oldL = pL;
-							if (!(OptionKeyDown() || CmdKeyDown())) break;
-							}
+							if (!OptionKeyDown()) break;
 						}
-					pL = oldL;
 					}
+					pL = oldL;
+				}
 				index = 0;
 				break;
 			case iRight:

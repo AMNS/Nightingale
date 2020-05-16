@@ -19,6 +19,7 @@
 /* This array gives the initial guess at the size, in objects, of each object/subobject
 heap.  These can be tweaked however is appropriate. */
 
+#define LARGE_INITIAL_HEAPS
 #ifdef LARGE_INITIAL_HEAPS
 static short initialNumbers[LASTtype] = {
 		32,		/* HEADERtype */
@@ -78,214 +79,172 @@ static short initialNumbers[LASTtype] = {
 #endif
 
 
-#ifdef LinkToPtrFUNCTION
-
-/* FIXME: CUT ALL THIS PLUS ALL REFERENCES TO _LinkToPtrFUNCTION_ ELSEWHERE!
-LinkToPtr(heap,link) delivers the address of the 0'th byte of the link'th
-object kept in a given heap.  This address is determined without typing
-information by using the heap's own idea of how large the object is in bytes.
-The pointer so delivered is only valid as long as the heap block doesn't get
-relocated! This is a generic routine that should be avoided whenever it's
-possible to use one of the specific ones in MemMacros.h .
-
-N.B. This function, in 68K assembly language, replaces the C macro of the same name.
-LinkToPtr is/was called in over 3,000 places (mostly by other macros). Using a
-function saves a lot of memory, since it only takes 14 bytes to call (2 MOVEs
-to push arguments on stack, JSR, MOVEQ to pop stack), while the macro takes 30
-bytes. This version is also much faster than the macro, while a function version
-written in C turned out to be considerably slower than the C macro. */
- 
-char *LinkToPtr(HEAP *heap, LINK link)
-//HEAP *heap;
-//LINK link;
-{
-	/*
-	 *	Rough C equivalent (this throws away high-order 16 bits, which we need to keep):
-	 *		return ( ((char *)(*(heap)->block)) + ((heap)->objSize*(link)) );
-	 */
-	asm {
-		MOVEA.L    heap,A0               
-		MOVE.W     OFFSET(HEAP,objSize)(A0),D0               
-		MULU.W     link,D0               
-		MOVEA.L    OFFSET(HEAP,block)(A0),A0                    
-		ADD.L      (A0),D0                    
-		}
-}
-#endif /* LinkToPtrFUNCTION */
-
-
 /* Allocate all the object heaps for a given document, with initial free list sizes
-taken from the initialNumbers array, and deliver True or False according to
-success or not. */
+taken from the initialNumbers array. Return True or False according to success or not. */
 
 Boolean InitAllHeaps(Document *doc)
-	{
-		short i; HEAP *hp;
+{
+	short i;  HEAP *hp;
+	
+	/* For each heap in the document's heap array... */
+	
+	for (hp=doc->Heap, i=FIRSTtype; i<LASTtype; i++, hp++) {
+		hp->type = i;
+		hp->objSize = subObjLength[i];
+		hp->lockLevel = 0;
+		hp->block = NULL;
+		hp->nObjs = 0;
+		hp->nFree = 0;
+		hp->firstFree = NILINK;
+		hp->block = NewHandle(0L);			/* Initially empty data block */
+		if (MemError()) return(False);
+		if (!ExpandFreeList(hp, initialNumbers[i])) return(False);
+		}
 		
-		/* For each heap in the document's heap array... */
-		
-		for (hp=doc->Heap,i=FIRSTtype; i<LASTtype; i++,hp++) {
-			hp->type = i;
-			hp->objSize = subObjLength[i];
-			hp->lockLevel = 0;
-			hp->block = NULL;
-			hp->nObjs = 0;
-			hp->nFree = 0;
-			hp->firstFree = NILINK;
-			hp->block = NewHandle(0L);			/* Initially empty data block */
-			if (MemError()) return(False);
-			if (!ExpandFreeList(hp,initialNumbers[i])) return(False);
-			}
-			
-		return(True);
-	}
+	return(True);
+}
 
 /* Dispose of all heap blocks in a given document record.  This routine can be (but
-really shouldn't be) called more than once. */
+probably shouldn't be) called more than once. */
 
 void DestroyAllHeaps(Document *doc)
-	{
-		short i; HEAP *hp;
-		
-		/* For each heap in the document's heap array... */
-		
-		for (hp=doc->Heap,i=FIRSTtype; i<LASTtype; i++,hp++) {
-			if (hp->block) DisposeHandle(hp->block);
-			hp->block = NULL;
-			}
+{
+	short i;  HEAP *hp;
+	
+	/* For each heap in the document's heap array... */
+	
+	for (hp=doc->Heap, i=FIRSTtype; i<LASTtype; i++, hp++) {
+		if (hp->block) DisposeHandle(hp->block);
+		hp->block = NULL;
 	}
+}
 
-/* This is called to expand the size of a given heap by deltaObjs objects of the size
+/* ExpandFreeList expands the size of a given heap by deltaObjs objects of the size
 associated with the given heap.  It links these into the freelist, and delivers True if
-okay, False on an error (LINK count overflow or memory wasn't available).  This routine
-works whether or not there are any free objects left in the heap's freelist.
+okay, False on an error (LINK count overflow or memory wasn't available).  It works
+whether or not there are any free objects left in the heap's freelist.
 
 The objects in each heap are all the same objSize, and can initially be treated as an
-array of free objects; however, we use the link field (at the same spot in all object
+array of free objects; however, we use the link field (at the same offset in all object
 records) to turn the array into a singly-linked list of free objects. Note that the 0'th
-object is always unused, so that we can rely on a LINK value of NILINK to mean boundary
+object is never used, so that we can rely on a LINK value of NILINK to mean boundary
 conditions of various kinds.
 
 This code depends on the fact that object's right LINK field is the first field of the
-object header (so that its address is the same as the whole object's).
+object header, so that its address is the same as the whole object's.
 
-Never allow more objects than we can access with a LINK used as an index (USHRT_MAX =
-65535L); in fact, the number of objects should always be at least a few less so very
-large values can be used as codes for whatever reason. It's also possible to limit the
-number to a much smaller number, e.g., for a "Lite" version. */
+The number of objects in a heap can never be more than we can access with a LINK used as
+an index (USHRT_MAX = 65535L); in fact, the number should always be at least a few less
+so the largest values can be used as codes for whatever reason. It's also possible to
+limit the number to a much smaller value, e.g., for a "Lite" version. */
 
 /* FIXME: To allow more helpful error msgs, especially for a "Lite" version, if this
 fails, it should return info as to the reason! */
 
-#define MAX_HEAPSIZE 65500L							/* Maximum objects of any type */
+#define MAX_HEAPSIZE 65500L							/* Maximum no. of objects of one type */
 
 Boolean ExpandFreeList(HEAP *heap,
 						long deltaObjs)				/* <=0 = do nothing, else <MAX_HEAPSIZE */ 
-	{
-		long newSize;  unsigned short i;
-		char *p;  short err;
+{
+	long newSize;  unsigned short i;
+	char *p;  short err;
+	
+	if (deltaObjs<=0 || heap->objSize<=0) return(True);		/* Do nothing */
+	
+	/* Add space for deltaObjs objects at the end of this Heap's block, but don't allow
+	   too many objects: see comment above. */
+	   
+	newSize = ((long)heap->nObjs) + deltaObjs;
+	if (newSize>=MAX_HEAPSIZE) {
+		char str[256];
 		
-		if (deltaObjs<=0 || heap->objSize<=0) return(True);		/* Do nothing */
-		
-		/*
-		 *	Add extra space for deltaObjs>0 objects at the end of this Heap's block, but
-		 *	don't allow too many objects: see comment above. 
-		 */
-		newSize = ((long)heap->nObjs) + deltaObjs;
-		if (newSize>=MAX_HEAPSIZE) {
-			char str[256];
-			
-			GetIndCString(str, ErrorStringsID, 16);	/* "The operation failed because the score requires more objects... */
-			CParamText(str, "", "", "");
-			StopInform(GENERIC_ALRT);
-	 				return(False);
- 		}
-		
-		/* Temporarily unlock the data block, if necessary, and expand it. */
-		
-		if (heap->lockLevel != 0) {
-#ifdef DEBUG
-			SysBeep(1);
-			AlwaysErrMsg("ExpandFreeList: Heap was locked");
-#endif
-			HUnlock(heap->block);
-			}
-		SetHandleSize(heap->block,newSize * heap->objSize);
-		err = MemError();
-		if (heap->lockLevel != 0) HLock(heap->block);
-		if (err) return(False);
-		
-		/*
-		 *	For all but last added object, link object to following object.
-		 *	p is left pointing to the last added object.
-		 */
-		p = (char *)(*heap->block);
-		p += ((long)heap->nObjs) * (long)heap->objSize;	/* Addr of first added object */
-		
-		for (i=heap->nObjs; i<newSize-1; i++) {
-			*(LINK *)p = i+1; p += heap->objSize;
-			}
-			
-		/* Now paste these new objects in at the head of the free list */
-		
-		*(LINK *)p = heap->firstFree;
-		heap->firstFree = heap->nObjs;
-		heap->nFree += deltaObjs;
-		
-		/*
-		 *	However, if this heap was empty, then we should have one fewer object,
-		 *	since 0'th object is never available to be allocated.  So we allocate it
-		 *	here and forget it, using the fact that we know list elements are still
-		 *	in array order.
-		 */
-		if (heap->nObjs == 0)
-			if (--heap->nFree > 0) heap->firstFree = 1;
-
-		heap->nObjs = newSize;
-		return(True);
+		GetIndCString(str, ErrorStringsID, 16);	/* "The operation failed because the score requires more objects... */
+		CParamText(str, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return(False);
 	}
+	
+	/* Temporarily unlock the data block, if necessary, and expand it. */
+	
+	if (heap->lockLevel != 0) {
+		AlwaysErrMsg("ExpandFreeList: Heap was locked.");
+		HUnlock(heap->block);
+	}
+	SetHandleSize(heap->block, newSize * heap->objSize);
+	err = MemError();
+	if (heap->lockLevel != 0) HLock(heap->block);
+	if (err) return(False);
+	
+	/* For all but last added object, link object to following object. p is left pointing
+	   to the last added object. */
+	 
+	p = (char *)(*heap->block);
+	p += ((long)heap->nObjs) * (long)heap->objSize;			/* Addr of first added object */
+	
+	for (i=heap->nObjs; i<newSize-1; i++) {
+		*(LINK *)p = i+1;
+		p += heap->objSize;
+	}
+		
+	/* Now paste these new objects in at the head of the free list */
+	
+	*(LINK *)p = heap->firstFree;
+	heap->firstFree = heap->nObjs;
+	heap->nFree += deltaObjs;
+	
+	/* However, if this heap was empty, then we should have one fewer object, since 0'th
+	   object is never available to be allocated.  So we allocate it here and forget it,
+	   using the fact that we know list elements are still in array order. */
+	
+	if (heap->nObjs == 0)
+		if (--heap->nFree > 0) heap->firstFree = 1;
+
+	heap->nObjs = newSize;
+	return(True);
+}
 
 
-/* Deliver the index (LINK) of the first object of a linked list of nObjs objects
-from a given heap, or NILINK if no more memory.  nObjs must be positive! */
+/* Deliver the index (LINK) of the first object of a linked list of nObjs objects from
+a given heap, or NILINK if no more memory.  nObjs must be positive! */
 
 #define GROWFACTOR 4		/* When more memory needed, get a chunk this many times as big */
 
 LINK HeapAlloc(HEAP *heap, unsigned short nObjs)
-	{
-		LINK link, head;
-		char *p, *start;
-		
-		if (nObjs <= 0) {
-		 	MayErrMsg("HeapAlloc: nObjs=%ld is illegal. heap=%ld", (long)nObjs, heap-Heap);
-		 	return(NILINK);
-		 	}
-		if (heap->objSize == 0) {
-			MayErrMsg("HeapAlloc: object size is 0.  heap=%ld", heap-Heap);
-			return(NILINK);
-			}
-		
-		/* Expand the free list, if necessary */
-		
-		if (nObjs > heap->nFree)
-			if (!ExpandFreeList(heap,GROWFACTOR*nObjs))
-				return(NILINK);
-			
-		/* Find the last of the first nObjs in the free list */
-		
-		start = (char *)(*heap->block);
-		head = link = heap->firstFree;
-		/* Snip first nObjs free objects from free list, and deliver head */
-		heap->nFree -= nObjs;
-		while (nObjs-- > 0) {						/* Find the last object in snipped list */
-			p = start + ((unsigned long)heap->objSize * (unsigned long)link);
-			link = *(LINK *)p;
-			}
-		*(LINK *)p = NILINK;							/* Terminate list */
-
-		heap->firstFree = link;						/* Reset the head of the free list */
-		return(head);
+{
+	LINK link, head;
+	char *p=NILINK, *start;
+	
+	if (nObjs <= 0) {
+		MayErrMsg("HeapAlloc: nObjs=%ld is illegal. heap=%ld", (long)nObjs, heap-Heap);
+		return(NILINK);
 	}
+	if (heap->objSize == 0) {
+		MayErrMsg("HeapAlloc: object size is 0.  heap=%ld", heap-Heap);
+		return(NILINK);
+	}
+	
+	/* Expand the free list, if necessary */
+	
+	if (nObjs > heap->nFree)
+		if (!ExpandFreeList(heap,GROWFACTOR*nObjs)) return(NILINK);
+		
+	/* Find the last of the first nObjs in the free list */
+	
+	start = (char *)(*heap->block);
+	head = link = heap->firstFree;
+	
+	/* Snip first nObjs free objects from free list, and deliver head */
+	
+	heap->nFree -= nObjs;
+	while (nObjs-- > 0) {							/* Find the last object in snipped list */
+		p = start + ((unsigned long)heap->objSize * (unsigned long)link);
+		link = *(LINK *)p;
+	}
+	*(LINK *)p = NILINK;							/* Terminate list */
+
+	heap->firstFree = link;							/* Reset the head of the free list */
+	return(head);
+}
 
 /* Add a given list whose first LINK is head to the freelist of the given heap. If we're
 keeping track of the last object in the heap's free list, we can just tack this list

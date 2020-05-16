@@ -36,8 +36,9 @@ possibility of calls to PushLock or PopLock in between. */
 in a given heap.  This address is determined without type information by using the
 heap's own idea of how large the object is in bytes. The pointer so delivered is only
 valid as long as the heap block doesn't get relocated! This is a generic macro that
-should be avoided whenever it's possible to use one of the ones below. NB: For space and
-time efficiency reasons, we now use an equivalent function, located in Heaps.c. (Long
+should be avoided whenever it's possible to use one of the others below. NB: For space
+and time efficiency reasons, early versions of Nightingale used an equivalent function,
+written in Motorola 68000 assembly language and located in Heaps.c. (Long ago, we also
 ago, we used an identical macro with its name slightly changed in the THINK Debugger. I
 don't know if it'd be useful with a modern debugger. --DAB, Feb. 2017)
 
@@ -47,9 +48,7 @@ time-consuming divide (unless you know that heap->objSize is a power of 2). Howe
 rarely needs to be used; in fact, in Nightingale 1.0 thru 5.8 (at least), it's not used
 at all. */
 
-#ifndef LinkToPtrFUNCTION	/* REPLACED BY EQUIVALENT FUNCTION */
 #define LinkToPtr(heap,link) ( ((char *)(*(heap)->block)) + ((heap)->objSize*(unsigned long)(link)) )
-#endif
 
 #define PtrToLink(heap,p)	( (((char *)p) - (char *)(*(heap)->block)) / (heap)->objSize )
 

@@ -362,6 +362,7 @@ Boolean OpenPrefsFile()
 	   in the System Folder; under OS X, it's in ~/Library/Preferences . */
 	
 	Pstrcpy(setupFileName, PREFS_FILE_NAME);
+
 	theErr = FindPrefsFile(setupFileName, prefsFileType, creatorType, &rfSpec);
 	LogPrintf(LOG_INFO, "FindPrefsFile (filename '%s') returned theErr=%d  (OpenPrefsFile)\n",
 				PToCString(setupFileName), theErr);

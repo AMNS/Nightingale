@@ -2773,3 +2773,16 @@ Utility.
 
 Minor cleanup. Affects settings for project warnings; NDocAndCnfgTypes.h; CombineParts,
 DebugUtils, FileConversion, FileOpen, HeapFileIO, Inval.
+
+-------------------------------------------------------------------------------
+
+9 - 15 May
+
+In Flow In Text, we now skip everything involving hyphens if text style isn't lyric.
+Affects FlowInText.
+
+We now use "large" initial heaps. Affects Heaps.
+
+Minor cleanup: removed the _long_ obsolete LinkToPtr function (in 68000 assembly
+language!) and references to it; etc. Affects Heaps.h, MemMacros.h; Beam, Browser,
+FlowInText, Heaps, InsUtils, MiscUtils.

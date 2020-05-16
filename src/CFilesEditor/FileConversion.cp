@@ -1961,7 +1961,7 @@ length of the header or lengths of objects should go here. This function should 
 called after the header and entire object list have been read. Return True if all goes
 well, False if not.
 
-NB: If code here considers changing something, and especially if it ends up actually
+FIXME: If code here considers changing something, and especially if it ends up actually
 doing so, it should call LogPrintf to display at least one very prominent message
 in the console window, and SysBeep to draw attention to it! It should perhaps also
 set doc->changed, though this will make it easier for people to accidentally overwrite
