@@ -52,7 +52,7 @@ the operation and puts us in a position where the next call to DoUndo, again cal
 SwapSystems, will redo the operation -- which is exactly what we want.
 
 There are two problems with this approach:
-- For very simple operations,PrepareUndo is very inefficient, especially since most
+- For very simple operations, PrepareUndo is very inefficient, especially since most
   operations are never undone. We used to avoid it simply by disabling undo for many
   simple operations, but computers are fast enough these days (April 2017) that this
   isn't much of a problem. FIXME: We still disable undo for dragging; this should
@@ -112,8 +112,8 @@ static Boolean CheckCrossSys(LINK startL, LINK endL)
 }
 
 
-/* Check selRange and clipboard for cross-system objects; if either contains any,
-return False to indicate the clipboard operation will not be undoable. */
+/* Check selRange and clipboard for cross-system objects; if either contains any, return
+False to indicate the clipboard operation will not be undoable. */
 
 static Boolean CheckClipUndo(Document *doc, short /*theCommand*/)
 {
@@ -137,9 +137,9 @@ static Boolean CheckClipUndo(Document *doc, short /*theCommand*/)
 /* Check to see if the beaming operation is undoable. If the command is a Beam command,
 and the selStart and selEnd links are not in the same system, then a cross-system beam
 is being created; for now, this is not undoable. If the command in an Unbeam command,
-then check the range to see if any of the beamsets are cross-system; unbeaming
-cross-system beamsets is not currently undoable. Return False indicates the operation
-won't be undoable. */
+then check the range to see if any of the beamsets are cross-system; unbeaming cross-
+system beamsets is not currently undoable. Return False indicates the operation won't
+be undoable. */
 
 static Boolean CheckBeamUndo(Document *doc, short theCommand)
 {
@@ -271,7 +271,12 @@ static long GetRangeMemAlloc(LINK startL, LINK endL)
 }
 
 
-/* Check whether enough memory is available. Return True if so, False if not. */
+/* Check whether enough memory is available. Return True if so, False if not. (We check
+by calling Apple's FreeMem(). Comments on FreeMem say "On Mac OS X, this function always
+returns a large value, because virtual memory is always available to fulfill any request
+for memory. This function is deprecated on Mac OS X and later. You can assume that any
+reasonable memory allocation will succeed." So this function should probably always
+return True. --DAB, May 2020) */
 
 static Boolean UndoChkMemory(Document *doc, LINK firstL, LINK lastL)
 {
@@ -320,8 +325,8 @@ static void UndoDeselRange(Document */*doc*/, LINK startL, LINK endL)
 			DeselectNode(pL);
 }
 
-/* Return the last Object of pL's System. If pL is a System, will return the last
-Object of the previous system. */
+/* Return the last Object of pL's System. If pL is a System, return the last object
+of the previous system. */
 
 static LINK UndoLastObjInSys(Document *doc, LINK pL)
 {
@@ -353,8 +358,7 @@ static LINK UndoGetStartSys(Document *doc)
 		startL = doc->selStartL;
 
 	sysL = SSearch(startL, SYSTEMtype, GO_LEFT);
-	if (!sysL)
-		sysL = SSearch(doc->headL, SYSTEMtype, GO_RIGHT);
+	if (!sysL) sysL = SSearch(doc->headL, SYSTEMtype, GO_RIGHT);
 		
 	return sysL;
 }
@@ -371,7 +375,7 @@ static LINK UndoGetLastMergePoint(Document *doc)
 	long startTime, maxEndTime;
 	
 	startSyncL = SSearch(doc->selStartL, SYNCtype, GO_RIGHT);
-	if (!startSyncL) { extremeEndL = doc->selStartL; goto Finish; }
+	if (!startSyncL) { extremeEndL = doc->selStartL;  goto Finish; }
 
 	startTime = SyncAbsTime(startSyncL);
 	maxEndTime = startTime+MAX_SAFE_MEASDUR;
@@ -402,6 +406,7 @@ static void GetUndoRange(
 	switch (theCommand) {
 
 		/* There is nothing to undo for these operations. */
+		
 		case U_NoOp:
 		case U_Copy:
 		case U_LeftEnd:
@@ -409,6 +414,7 @@ static void GetUndoRange(
 			return;
 
 		/* Specify two systems or some global range (not yet implemented) */
+		
 		case U_BreakSystems:
 		case U_GlobalText:
 		case U_MeasNum:
@@ -416,6 +422,7 @@ static void GetUndoRange(
 			return;
 
 		/* Specify two systems or some global range */
+		
 		case U_MoveMeasUp:
 			pL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, False);
 			*sysL = LinkLSYS(pL);				/* Must exist, otherwise couldn't move meas up. */
@@ -448,21 +455,24 @@ static void GetUndoRange(
 			return;
 		
 		/* <startChangeL> is the same as that passed to AddSystem: the page, system, or
-			tail before which we insert the new system. We save everything from the
-			system before <startChangeL> to the end of the score: potentially grossly
-			inefficient, but the score might've been reformatted to the end during the
-			process of adding the system. -JGG */
+		   tail before which we insert the new system. We save everything from the system
+		   before <startChangeL> to the end of the score: potentially grossly inefficient,
+		   but the score might've been reformatted to the end during the process of adding
+		   the system. -JGG */
+			
 		case U_AddSystem:
 			*sysL = SSearch(startChangeL, SYSTEMtype, GO_LEFT);
 			*lastL = LeftLINK(doc->tailL);
 			return;
 
 		/* Either the page added or no range (not yet implemented) */
+		
 		case U_AddPage:
 			*sysL = *lastL = NILINK;
 			return;
 		
 		/* The entire score. */
+		
 		case U_TranspKey:
 		case U_AddCautionaryTS:
 			*sysL = SSearch(doc->headL, SYSTEMtype, GO_RIGHT);
@@ -470,6 +480,7 @@ static void GetUndoRange(
 			return;
 		
 		/* Possibly discontinuous selection: affects all Systems in selection range */
+		
 		case U_Set:
 		case U_Respace:
 		case U_SetDuration:
@@ -502,21 +513,20 @@ static void GetUndoRange(
 			*lastL = UndoLastObjInSys(doc, endSysL);
 			return;
 
-		/* Save the rest of the page, so that we can put systems back in the right place,
-			graphically. Also, if there are any cross-system objects, save previous and
-			following systems. Note that Copy System will have insured that the Clipboard
-			doesn't have any cross-system objects. Still, must check destination range. */
+		/* Save the rest of the page, so that we can put systems back in the right place
+		   graphically. Also, if there are any cross-system objects, save previous and
+		   following systems. Note that Copy System should have insured that the Clipboard
+		   doesn't have any cross-system objects. Still, must check destination range. */
+			
 		case U_PasteSystem:
 			{
 				LINK curSysL, rightSysL, rightPageL;
 
 				curSysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, False);
 				rightPageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, False);
-				if (rightPageL==NILINK)
-					rightPageL = doc->tailL;
+				if (rightPageL==NILINK) rightPageL = doc->tailL;
 				rightSysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_RIGHT, False);
-				if (rightSysL==NILINK)
-					rightSysL = doc->tailL;
+				if (rightSysL==NILINK) rightSysL = doc->tailL;
 				if (CheckCrossSys(curSysL, rightSysL)) {
 					LINK prevSysL = LinkLSYS(curSysL);
 					*sysL = prevSysL? prevSysL : curSysL;
@@ -536,6 +546,7 @@ static void GetUndoRange(
 			return;
 
 		/* Continuous selection: affects only selStartL's System */
+		
 		case U_Paste:
 		case U_Merge:
 		case U_Insert:
@@ -546,7 +557,8 @@ static void GetUndoRange(
 			return;
 
 		/* Affects selStartL's System, as well as all following Systems that would
-			be affected by undoing removal of a clef or keysig change. */
+		   be affected by undoing removal of a clef or keysig change. */
+			
 		case U_Cut:
 		case U_Clear:
 			{
@@ -578,22 +590,23 @@ static void GetUndoRange(
 			return;
 
 		/* Continuous selection, but can affect well past selEndL. */
+		
 		case U_RecordMerge:
 			*sysL = UndoGetStartSys(doc);
 			*lastL = UndoGetLastMergePoint(doc);
 			return;
 		
 		/* Directly affect Systems or Pages: effects can extend well past sel. range */
+		
 		case U_ClearSystem:
 			{
 				LINK thisSysL, nextPageL;
 				
-				/*
-				 * To undo Clear System, we have to save Systems starting with the one
-				 * preceding the one to be cleared. All following Systems on its page
-				 * will be moved up, so we have to save all following Systems to the end
-				 * of the page.
-				 */ 
+				/* To undo Clear System, we have to save Systems starting with the one
+				   preceding the one to be cleared. All following Systems on its page
+				   will be moved up, so we have to save all following Systems to the end
+				   of the page. */
+				    
 				thisSysL = UndoGetStartSys(doc);
 				*sysL = LinkLSYS(thisSysL);			/* Must exist: you can't clear the 1st System */
 				nextPageL = SSearch(thisSysL, PAGEtype, GO_RIGHT);
@@ -604,11 +617,11 @@ static void GetUndoRange(
 			{
 				LINK nextSysL;
 				
-				/* To undo Clear Pages, we have to save the range from the last System before
-				 * the range of Pages thru the first System following. Important: we assume
-				 * that, by the time we get here, doc->selStartL and selEndL have been set to
-				 * Pages delimiting the appropriate range! 
-				 */
+				/* To undo Clear Pages, we have to save the range from the last System
+				   before the range of Pages thru the first System following. Important:
+				   we assume that, by the time we get here, doc->selStartL and selEndL
+				   have been set to Pages delimiting the appropriate range! */
+				   
 				*sysL = SSearch(doc->selStartL, SYSTEMtype, GO_LEFT);	/* Must exist: you can't clear the 1st Page */
 				nextSysL = SSearch(doc->selEndL, SYSTEMtype, GO_RIGHT);
 				*lastL = UndoLastObjInSys(doc, (nextSysL? nextSysL : doc->tailL));
@@ -699,7 +712,7 @@ void PrepareUndo(
 			short stringInd					/* Index into the Undo stringlist */
 			)
 {
-	LINK sysL, lastL, prevSysL;
+	LINK sysL=NILINK, lastL=NILINK, prevSysL;
 	Boolean cantUndo=False;
 	char menuItem[256];						/* Undo menu command, excluding "Undo"/"Redo" (C string) */
 
@@ -710,10 +723,9 @@ void PrepareUndo(
 
 	GetIndCString(menuItem, UNDO_STRS, stringInd);
 	
-	/*
-	 * Verify that the operation is undoable for <theCommand> in the current situation;
-	 * if not, disable the undo command and return.
-	 */
+	/* Verify that the operation is undoable for <theCommand> in the current situation;
+	   if not, disable the undo command and return. */
+	   
 	switch (theCommand) {
 		case U_Cut:
 		case U_Paste:
@@ -808,13 +820,13 @@ void PrepareUndo(
 		case U_EditText:
 
 			/* Set up fields for the command that's about to be performed. */
+			
 			SetupUndo(doc, theCommand, menuItem);
 			
-			/*
-			 * Get the range of objects we need to save in case we later have to undo
-			 * the operation. scorePrevL is the link before the first system; scoreEndL
-			 * is the first object following the last object in the last system.
-			 */
+			/* Get the range of objects we need to save in case we later have to undo
+			   the operation. scorePrevL is the link before the first system; scoreEndL
+			   is the first object following the last object in the last system. */
+			   
 			GetUndoRange(doc, startChangeL, &sysL, &lastL, theCommand);
 			prevSysL = LeftLINK(sysL);
 			
@@ -827,12 +839,14 @@ void PrepareUndo(
 			doc->undo.scoreEndL = RightLINK(lastL);
 			doc->undo.insertL = lastL;
 
-			/* If necessary, delete the range from the undo record */
+			/* If necessary, delete the range from the undo record. */
+			
 			if (doc->undo.hasUndo)
 				DeleteRange(doc, RightLINK(doc->undo.headL), doc->undo.tailL);
 			doc->undo.selStartL = doc->undo.selEndL = NILINK;
 		
 			/* Copy the range from the score into the undo record. */
+			
 			if (CopyUndoRange(doc, prevSysL, RightLINK(lastL), doc->undo.tailL, TO_UNDO)) {
 				doc->undo.hasUndo = True;
 				doc->undo.redo = False;
@@ -846,10 +860,12 @@ void PrepareUndo(
 		case U_AddPage:
 		case U_BreakSystems:
 			/* Cannot handle undo for these operations. */
+			
 			DisableUndo(doc, False);
 			break;
+
 		default:
-			LogPrintf(LOG_INFO, "PrepareUndo: unknown command code %d; stringInd=%d\n",
+			LogPrintf(LOG_WARNING, "PrepareUndo: unknown command code %d; stringInd=%d\n",
 							theCommand, stringInd);
 			DisableUndo(doc, False);			
 	}
@@ -948,8 +964,8 @@ static void SwapSystems(
 	FixExtCrossLinks(doc, doc, startL, undoPrevSysL);
 
 	/* If the command being undone could have created or destroyed Pages, Systems,
-		or Measures, update numbers of all of these. Also recompute everything about
-		the screen view and redraw all of it. */
+	   or Measures, update numbers of all of these. Also recompute everything about
+	   the screen view and redraw all of it. */
 
 	switch (doc->undo.lastCommand) {
 		case U_Quantize:
@@ -1008,7 +1024,7 @@ static void SwapSystems(
 	doc->selStartL = doc->selEndL = RightLINK(firstSysMeas);	
 	
 	/* ??It certainly seems like we should be setting undo.selStartL and undo.selEndL,
-		but not doing so doesn't seem to cause any problems. ?? */
+	   but not doing so doesn't seem to cause any problems. ?? */
 }
 
 
@@ -1023,7 +1039,7 @@ void DoUndo(Document *doc)
 		return;
 	}
 	
-	InvalSystems(RightLINK(doc->undo.scorePrevL),doc->undo.scoreEndL);
+	InvalSystems(RightLINK(doc->undo.scorePrevL), doc->undo.scoreEndL);
 
 	tempStartL = RightLINK(doc->undo.headL);						/* Range to be swapped in */
 	tempEndL = LeftLINK(doc->undo.tailL);
@@ -1034,8 +1050,8 @@ void DoUndo(Document *doc)
 	doc->undo.scoreEndL = RightLINK(tempEndL);
 	doc->undo.insertL = LeftLINK(doc->undo.scoreEndL);				/* insertL is now last obj in system */
 
-	InvalSystems(RightLINK(doc->undo.scorePrevL),doc->undo.scoreEndL);
+	InvalSystems(RightLINK(doc->undo.scorePrevL), doc->undo.scoreEndL);
 
 	ToggleUndo(doc); 												/* Next iteration in cycle */
-	MEAdjustCaret(doc,True);
+	MEAdjustCaret(doc, True);
 }

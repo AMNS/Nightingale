@@ -1841,8 +1841,11 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 	prevL = startL-1;
 	for (pL = startL; pL; pL = RightLINK(pL)) {
 	
-		/* When this function is called, objects must have sequential links; check that. */
-		LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
+SleepMS(3);
+LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
+
+		/* If this function is called in the situation described above, consecutive objects
+		   must have sequential links; check that. */
 		 
 		if (pL!=prevL+1) LogPrintf(LOG_ERR, "PROGRAM ERROR: ConvertObject: pL=%u BUT prevL=%u INSTEAD OF %u!\n",
 									pL, prevL, prevL-1);

@@ -8,11 +8,9 @@
  * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
-/* This code is heavily Macintosh-dependent. More specifically, it requires the
-extended (System 7) version of the Time Manager! Before calling these routines,
-you should check that the extended Time Manager is available with something like:
-		Gestalt(gestaltTimeMgrVersion, &gestaltAnswer);
-gestaltAnswer = 3 (gestaltExtendedTimeMgr) for the extended Time Manager. */
+/* NB: This code is heavily Mac OS-dependent. (I deleted a comment here explaining
+it requires the extended (System 7) version of the Time Manager and explaining
+how to check its availabilty via Gestalt(). --DAB, May 2020) */
 
 // MAS include Carbon
 #include <Carbon/Carbon.h>
@@ -43,10 +41,11 @@ static pascal void NTMTask(TMTaskPtr tmTaskPtr);
 static pascal void NTMTask(TMTaskPtr tmTaskPtr)
 {
 	/* The heart of the task: just increment the count! */
-	if (timerRunning)	theCount++;
+	if (timerRunning) theCount++;
 
 	PrimeTime((QElemPtr)tmTaskPtr, theDelay);		/* re-install task to repeat it indefinitely */
 }
+
 
 /* Initialize Nightingale Time Manager. */
 
@@ -55,16 +54,18 @@ void NTMInit()
 	theTMInfo.atmTask.tmAddr = NewTimerUPP(NTMTask);	/* get UPP for our task */
 	theTMInfo.atmTask.tmWakeUp = 0;
 	theTMInfo.atmTask.tmReserved = 0;
-	InsXTime((QElemPtr)&theTMInfo);					/* install the task record */
+	InsXTime((QElemPtr)&theTMInfo);						/* install the task record */
 }
 
-/* Close Nightingale Time Manager. If an application initializes NTM and quits
-without calling NTMClose, something unpleasant is likely to happen later. */
+
+/* Close Nightingale Time Manager. If an application initializes NTM and quits without
+calling this, something unpleasant is likely to happen later. */
  
 void NTMClose()
 {
 	RmvTime((QElemPtr)&theTMInfo);
 }
+
 
 /* Start the timer ticking at the given rate. NTMInit must have been called first! */
  
@@ -77,11 +78,13 @@ void NTMStartTimer(
 	PrimeTime((QElemPtr)&theTMInfo, theDelay);	/* activate the task record */
 }
 
+
 /* Temporarily or permanently stop the timer, leaving current time unchanged. */
 void NTMStopTimer()
 {
 	timerRunning = False;
 }
+
 
 /* Return the timer's current time, in milliseconds. */
 

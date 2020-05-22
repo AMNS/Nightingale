@@ -98,8 +98,12 @@ Boolean InitAllHeaps(Document *doc)
 		hp->firstFree = NILINK;
 		hp->block = NewHandle(0L);			/* Initially empty data block */
 		if (MemError()) return(False);
-		if (!ExpandFreeList(hp, initialNumbers[i])) return(False);
+//LogPrintf(LOG_DEBUG, "InitAllHeaps: i=%d initialNumbers=%d\n", i, initialNumbers[i]); 
+		if (!ExpandFreeList(hp, initialNumbers[i])) {
+			OpenError(True, 0, MISC_HEAPIO_ERR, OBJtype);
+			return(False);
 		}
+	}
 		
 	return(True);
 }
@@ -167,7 +171,7 @@ Boolean ExpandFreeList(HEAP *heap,
 	/* Temporarily unlock the data block, if necessary, and expand it. */
 	
 	if (heap->lockLevel != 0) {
-		AlwaysErrMsg("ExpandFreeList: Heap was locked.");
+		AlwaysErrMsg("Heap was locked. Unlocking it and proceeding.  (ExpandFreeList)");
 		HUnlock(heap->block);
 	}
 	SetHandleSize(heap->block, newSize * heap->objSize);
@@ -181,8 +185,10 @@ Boolean ExpandFreeList(HEAP *heap,
 	p = (char *)(*heap->block);
 	p += ((long)heap->nObjs) * (long)heap->objSize;			/* Addr of first added object */
 	
+LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld deltaObjs=%ld\n", heap, heap->nObjs, deltaObjs);  
 	for (i=heap->nObjs; i<newSize-1; i++) {
 		*(LINK *)p = i+1;
+//NHexDump(LOG_DEBUG, "    ExpandFreeList", (unsigned char *)p, 14, 4, 16);
 		p += heap->objSize;
 	}
 		

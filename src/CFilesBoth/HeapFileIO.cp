@@ -740,7 +740,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 
 /* =============================== Functions for Reading Heaps ========================== */
 
-/* Read all heaps from the given file: one subobject heap for each type of object that
+/* Read all heaps from file <refNum>: one subobject heap for each type of object that
 has subobjects (almost all of them), and one object heap. Returns 0 if no error, else an
 error code (either a system result code or one of our own codes). */
 

@@ -2786,3 +2786,9 @@ We now use "large" initial heaps. Affects Heaps.
 Minor cleanup: removed the _long_ obsolete LinkToPtr function (in 68000 assembly
 language!) and references to it; etc. Affects Heaps.h, MemMacros.h; Beam, Browser,
 FlowInText, Heaps, InsUtils, MiscUtils.
+
+-------------------------------------------------------------------------------
+
+17 - 21 May
+
+Minor cleanup. Affects FileOpen, Finalize, HeapFileIO, Heaps, NTimeMgr, Undo, Utility.

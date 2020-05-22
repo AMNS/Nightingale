@@ -268,12 +268,12 @@ short GetLineAugDotPos(
 
 /* --------------------------------------------------------------------- ExtraSysWidth -- */
 /* Compute extra space needed at the right end of the system to allow space for
-objRects of right-justified barlines. In DrawMeasure the width allowed for the
-widest barline (final double) is 5 ( ? pixels). A lineSp equals 4 pixels at default
-rastral/mag (= 5, 100), so allow 5/4 of a lineSp here, so that user can click on
+objRects of right-justified barlines. In DrawMeasure the width allowed for the widest
+barline (final double) is 5 ( ? pixels). A lineSp equals 4 pixels at default rastral
+and magnification (= 5, 100%), so allow 5/4 of a lineSp here, so that user can click on
 any part of the widest barline's objRect (e.g. for insertion of graphics). This code
-should be reviewed when barline's objRects are properly computed. Empirically,
-however, as of v.995, 1 lnSpace is perfect for all barline types. */
+should be reviewed when barline's objRects are properly computed. But empirically,
+as of v.995, 1 lnSpace is fine for all barline types. */
 
 DDIST ExtraSysWidth(Document *doc)
 {
@@ -286,8 +286,9 @@ DDIST ExtraSysWidth(Document *doc)
 
 /* --------------------------------------------------------------------- ApplHeapCheck -- */
 /* Mac-specific: Check the heap at a location of your choice in the code. Breaks into
-MacsBug, checks the heap, and continues if the heap is OK. Unfortunately, also makes
-the screen flash. */
+MacsBug, checks the heap, and continues if the heap is OK. Unfortunately, it also makes
+the screen flash. (NB: This function is probably obsolete; if it works at all, it surely
+doesn't use MacsBug! --DAB, May 2020) */
 
 void ApplHeapCheck()
 {
@@ -296,7 +297,7 @@ void ApplHeapCheck()
 
 
 /* -------------------------------------------------------------------------- Char2Dur -- */
-/*	Convert input character to duration code */
+/*	Convert input character to duration code. */
 
 short Char2Dur(char token)
 {
@@ -310,7 +311,7 @@ short Char2Dur(char token)
 
 
 /* -------------------------------------------------------------------------- Dur2Char -- */
-/*	Convert duration code to input character */
+/*	Convert duration code to input character. */
 
 short Dur2Char(short dur)
 {
@@ -402,7 +403,7 @@ given font, size and style. */
 short NStringWidth(Document */*doc*/, const Str255 string, short font, short size,
 					short style)
 {
-	short	oldFont, oldSize, oldStyle, width;
+	short oldFont, oldSize, oldStyle, width;
 
 	oldFont = GetPortTxFont();
 	oldSize = GetPortTxSize();
@@ -620,7 +621,9 @@ double PartNameMargin(
 	
 	if (nameCode>0) {
 		nameWidth = MaxPartNameWidth(doc, nameCode);
+		
 		/* Need more space for Connects. Add enough for a CONNECTCURLY as an approximation */
+		
 		nameWidth += d2pt(ConnectDWidth(doc->srastral, CONNECTCURLY));
 		inchDist = pt2in(nameWidth);
 		inchDist = RoundDouble(inchDist, .01);
@@ -695,8 +698,8 @@ SPACETIMEINFO *AllocSpTimeInfo()
 
 /* ------------------------------------------------------------ MakeGWorld and friends -- */
 /* Functions for managing offscreen graphics ports using Apple's GWorld mechanism.
-These make it easy to work with color images.  See Apple documentation
-("Offscreen Graphics Worlds.pdf") for more.   JGG, 8/11/01 */
+These make it easy to work with color images.  See Apple documentation ("Offscreen
+Graphics Worlds.pdf") for more.   JGG, 8/11/01 */
 
 /* Create a new graphics world (GWorld) for offscreen drawing, having the given
 dimensions.  If <lock> is True, the PixMap of this GWorld will be locked on return.
@@ -772,7 +775,7 @@ Boolean SaveGWorld()
 Boolean RestoreGWorld()
 {
 	if (savePort==NULL || saveDevice==NULL)
-		return False;		/* SaveGWorld hasn't been called since last RestoreGWorld. */
+		return False;			/* SaveGWorld hasn't been called since last RestoreGWorld. */
 	SetGWorld(savePort, saveDevice);
 	savePort = NULL;
 	saveDevice = NULL;
@@ -782,7 +785,7 @@ Boolean RestoreGWorld()
 
 Boolean LockGWorld(GWorldPtr theGWorld)
 {
-	PixMapHandle	pixMapH;
+	PixMapHandle pixMapH;
 
 	pixMapH = GetGWorldPixMap(theGWorld);
 	return (LockPixels(pixMapH));
@@ -790,7 +793,7 @@ Boolean LockGWorld(GWorldPtr theGWorld)
 
 void UnlockGWorld(GWorldPtr theGWorld)
 {
-	PixMapHandle	pixMapH;
+	PixMapHandle pixMapH;
 
 	pixMapH = GetGWorldPixMap(theGWorld);
 	UnlockPixels(pixMapH);
@@ -816,7 +819,7 @@ GrafPtr NewGrafPort(short width, short height)	/* required size of requested Gra
 
 	SetRect(&ourPortRect, 0, 0, width, height);
 	PortSize(ourPortRect.right, ourPortRect.bottom);
-	SetOrigin(0,0);
+	SetOrigin(0, 0);
 	ClipRect(&ourPortRect);
 	EraseRect(&ourPortRect);
 	
@@ -956,7 +959,7 @@ void DMoveTo(DDIST xd, DDIST yd)
 
 /* ------------------------------------------------------------------------------- GCD -- */
 /* Euclid's algorithm to find the GCD of two integers. From Knuth, The Art of Computer
-Programming, v. 1, p. 2. */
+Programming, vol. 1, p. 2. */
 
 short GCD(short m, short n)
 {
@@ -1008,8 +1011,8 @@ short RoundSignedInt(short value, short quantum)
 
 /* --------------------------------------------------------------------------- InterpY -- */
 /* Use linear interpolation to find the y-coord. of a point on the line from (x0,y0)
-to (x1,y1) corresponding to x-coord. ptx. This is a fast version for integer
-coordinates, done in homebrew fixed-point arithmetic. */
+to (x1,y1) corresponding to x-coord. ptx. This is a fast version for integer coordinates,
+done in homebrew fixed-point arithmetic. */
 
 short InterpY(short x0, short y0, short x1, short y1, short ptx)
 {
@@ -1083,15 +1086,16 @@ void ShellSort(short array[], short nsize)
 
 
 /* ---------------------------------------------------------------------- BlockCompare -- */
-/* Compare two structures byte by byte for a given length until either they match,
-in which case we deliver 0, or until the first is less than or greater than the
-second, in which case we deliver -1 or 1 respectively. */
+/* Compare two chunks of memory byte by byte for a given length until either they match,
+in which case we return 0, or until the first is less than or greater than the second,
+in which case we return -1 or 1 respectively. */
 
 short BlockCompare(void *blk1, void *blk2, short len)
 	{
 		Byte *b1, *b2;
 		
-		b1 = (Byte *)blk1; b2 = (Byte *)blk2;
+		b1 = (Byte *)blk1;
+		b2 = (Byte *)blk2;
 		while (len-- > 0) {
 			if (*b1 < *b2) return -1;
 			if (*b1++ > *b2++) return 1;
@@ -1101,8 +1105,8 @@ short BlockCompare(void *blk1, void *blk2, short len)
 
 
 /* -------------------------------------------------------------------- RelIndexToSize -- */
-/*	Deliver the absolute size (in points) that the Tiny...Jumbo...StaffHeight
-menu item for text Graphics represents, or 0 if out of bounds. */
+/*	Deliver the absolute size (in points) that the Tiny...Jumbo...StaffHeight menu item
+for text Graphics represents, or 0 if out of bounds. */
 
 short RelIndexToSize(short index, DDIST lineSpace)
 	{
@@ -1124,10 +1128,8 @@ short GetTextSize(Boolean relFSize, short fontSize, DDIST lineSpace)
 {
 	short pointSize;
 	
-	if (relFSize)
-		pointSize = RelIndexToSize(fontSize, lineSpace);
-	else
-		pointSize = fontSize;
+	if (relFSize)	pointSize = RelIndexToSize(fontSize, lineSpace);
+	else			pointSize = fontSize;
 
 	if (pointSize<MIN_TEXT_SIZE) pointSize = MIN_TEXT_SIZE;
 	
@@ -1358,11 +1360,10 @@ static long GetMillisecTime()
 	return fullTimeMsec;
 }
 
-/* Do nothing for a given number of milliseconds. See above for comments on why this
-exists.
-
-Note we don't take into account overhead for calling and returning from this function,
-which might be significant on a very slow computer if msecDelay=1 or 2.*/
+/* Do nothing for a given number of milliseconds. Note we don't consider overhead for
+calling and returning from this function; that might be significant on a very slow
+computer if msecDelay = 1, but it's doubtful that computers that slow can even run
+Nightingale. */
 
 void SleepMS(long msecDelay)
 {
@@ -1376,7 +1377,7 @@ void SleepMS(long msecDelay)
 
 /* Do nothing for <ticks> ticks of 1/60 sec. Written because I got tired of debugging
 crashes caused by my calling Delay and forgetting to put the "&" in front of the second
-argument (which I never have any use for, anyway). */
+argument (which I never have any use for, anyway). --DAB */
 
 void SleepTicks(unsigned long ticks)
 {
@@ -1397,7 +1398,7 @@ void SleepTicksWaitButton(unsigned long ticks)
 
 
 /* -------------------------------------------------------------------- StdVerNumToStr -- */
-/* Get String representation of given Version Number. See Mac Tech Note #189 for
+/* Get String representation of the given Version Number. See Mac Tech Note #189 for
 details. */
 
 char *StdVerNumToStr(long verNum, char *verStr)
@@ -1516,7 +1517,7 @@ static void FixForStaffSize(Document *, DDIST [], short);
 
 static void MFUpdateStaffTops(DDIST staffTop[], LINK headL, LINK tailL)
 {
-	LINK pL, aStaffL; PASTAFF aStaff;
+	LINK pL, aStaffL;  PASTAFF aStaff;
 	
 	for (pL = headL; pL!=tailL; pL = RightLINK(pL))
 		if (StaffTYPE(pL)) {
@@ -1549,6 +1550,7 @@ void FixForStaffSize(Document *doc, DDIST staffTop[], short newRastral)
 	MFUpdateStaffTops(staffTop, doc->masterHeadL, doc->masterTailL);
 
 	/* Adjust heights of systemRects, both in Master Page and in the score proper. */
+	
 	sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 	sysRect = SystemRECT(sysL);
 	
@@ -1640,8 +1642,9 @@ Boolean FitStavesOnPaper(Document *doc)
 
 
 /* ----------------------------------------------------------- CountUnjustifiedSystems -- */
-/* Return the number of systems in the given range of pages that are not within JUSTSLOP
-of being right justified. If <endPageL> is NILINK, go to the end of the score. */
+/* Return the number of systems in the given range of pages that are not within a factor
+of JUSTSLOP of being right justified. If <endPageL> is NILINK, the range extends to the
+end of the score. */
 
 #define JUSTSLOP .001
 

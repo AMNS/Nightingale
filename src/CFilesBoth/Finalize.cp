@@ -76,8 +76,7 @@ static Boolean UpdatePrefsFile(Handle cnfgResH, Handle midiResH, Handle midiModN
 			return False;
 		}
 		BlockMove(&config, *cnfgHndl, (Size)sizeof(Configuration));
-		ReplacePrefsResource(cnfgResH, (Handle)cnfgHndl, 'CNFG', THE_CNFG,
-								CNFG_RES_NAME);
+		ReplacePrefsResource(cnfgResH, (Handle)cnfgHndl, 'CNFG', THE_CNFG, CNFG_RES_NAME);
 
 		/* Create handle to MIDIPreferences, fill with updated values, and write it. */
 		
@@ -89,8 +88,7 @@ static Boolean UpdatePrefsFile(Handle cnfgResH, Handle midiResH, Handle midiModN
 		BlockMove(*midiResH, *midiHndl, (Size) sizeof(MIDIPreferences));
 		for (i = 1; i<LAST_DYNAM; i++)
 			(*midiHndl)->velocities[i-1] = dynam2velo[i];
-		ReplacePrefsResource(midiResH, (Handle)midiHndl, 'MIDI', PREFS_MIDI,
-								MIDI_RES_NAME);
+		ReplacePrefsResource(midiResH, (Handle)midiHndl, 'MIDI', PREFS_MIDI, MIDI_RES_NAME);
 
 		/* Create handle to MIDIModNRPreferences,  fill with updated values, and write it. */
 		
@@ -105,7 +103,7 @@ static Boolean UpdatePrefsFile(Handle cnfgResH, Handle midiResH, Handle midiModN
 			(*midiModNRHndl)->durationFactors[i] = modNRDurFactors[i];
 		}
 		ReplacePrefsResource(midiModNRResH, (Handle)midiModNRHndl, 'MIDM', PREFS_MIDI_MODNR,
-								MIDM_RES_NAME);
+				MIDM_RES_NAME);
 		
 		return True;
 }
@@ -207,4 +205,7 @@ void Finalize()
 	(void)CheckUpdatePrefsFile();
 
 	ClosePrefsFile();
+	
+	LogPrintf(LOG_NOTICE, "QUITTING NIGHTINGALE %s  (Finalize)\n", applVerStr);
+
 }

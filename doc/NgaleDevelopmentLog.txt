@@ -6182,7 +6182,8 @@ extending off the page!
 The only explanations I can think of: (1) a bizarre software bug, (2) an even more bizarre
 CPU hardware problem, or (3) a clobber. If it's the 1st two, I'm dead; fortunately a clobber
 is much more likely than either. Let's look for evidence of #2 and (to some extent) #1
-by using Torrey's old white MacBook: Copy Ngale PPC of 30 April and test files to it.
+by using Torrey's old white MacBook (running OS 10.6): Copy Ngale PPC of 30 April and
+test files to it.
 
 <<<<<<<< FOLLOWING TESTS RUN ON TORREY'S OLD WHITE MACBOOK >>>>>>>>
 Open AllObjTypes => looks OK; Debug Check => no complaints.
@@ -6201,14 +6202,12 @@ duration, 3 about playDur longer than dur. of 0; also,  Play it => sounds fine.
 Open it again => looks OK; log is truncated after 1st note of Sync L345 w/ the
 ""exceeded 500 log message per second limit" message. Debug Check => one complaint about
 note no. of note in Sync L280 and two about note no./notation disagree in other Syncs.
-Similar (enough) symptoms to on my MacBook!, so explanation #1 is even less likely &
+Similar (enough) symptoms to on my G5, so explanation #1 is even less likely &
 #2 is way, way unlikely!
 
 So almost certainly a clobber; that'd almost have to be in ReadHeaps(). Are there any
 tools to help find it, like Even Better Bus Error of decades ago? There's a lot of stuff
 in the Xcode Debug menu!
-
-??
 
 -------------------------------------------------------------------------------
 
@@ -6228,7 +6227,7 @@ Clean up a few details => 852 warnings.
 
 -------------------------------------------------------------------------------
 
-9 - 14 May
+9 - 15 May
 
 Back to Flow in Text. David Alpher reported Flow In Text tends to crash when he uses two
 consecutive hyphens at the end of a phrase; but he later reported there's no pattern
@@ -6264,4 +6263,77 @@ It's probably time to add a way to optionally have ExpandFreeList initialize new
 allocated memory; this could be useful in the future for similar bugs, so it should be
 something the user can control, maybe w/ modifier keys.
 
-??
+-------------------------------------------------------------------------------
+
+16 - 19 May
+
+Idea: when Ngale starts up, offer a way to set something to tell ExpandFreeList() to
+initialize every byte (or word?) of newly allocated memory to, say, a choice of 0 and ??
+
+First, let's see what ExpandFreeList is being asked to do... Uh-oh! Lines that should
+be in the log are missing!!!
+
+debug.     ExpandFreeList: 02 ae 00 00   00 00 00 00   00 00 00 00   00 00 
+debug.     ExpandFreeList: 02 af 00 00   00 00 00 00   00 00 00 00   00 00 
+debug.     ExpandFreeList: 02 b0 00 00   00 00 00 00   00 00 00 00   00 00 
+debug.     ExpandFreeList: 02 c6 00 00   00 00 00 00   00 00 00 00   00 00 ??SKIP BEFORE THIS
+
+There should be lines beginning  02 b1  thru  02 c5 : about 29 lines are missing! As
+described above, in a log generated on Torrey's old white MacBook, I got the message
+"exceeded 500 log message per second limit -- remaining messages this second discarded"
+and speculated smthg like that might be the cause of missing log messages on the G5. But
+I've never seen any such message on the G5, and there've been 2312-1591 = ca. 721 messages
+timestamped "May 18 15:23:43" before the skip! Let's slow it down & see if all the
+expected messages from ConvertObject() appear.
+
+First, have ExpandFreeList give a message for each heap it does anything with, i.e., that has
+subobjects (all but three), it does.
+
+Every obj should have exactly two messages from ConvertObject(): "ConvertXXXL:
+xxxL=Lnnn" and "  ******************** ConvertObject: pL=nnn", and the nnn's should be
+consecutive. Open tiny file (AllObjTypes.ngl) => all objs have both. Open
+T+MInCounterpointBug2p.ngl => yep: starting at L358, lots of objs are missing one or
+both!
+
+Quit Ngale, change LogPrintfs in ExpandFreeList; recompile, run, open MInCounterpointBug2p.ngl
+again => starting w/ L344, many objs are missing one or both messages. L344 is preceded by
+2003-1260 = ca. 743 lines w/ same timestamp, "May 19 08:08:16".
+
+Quit Ngale, remove a LogPrintf from ExpandFreeList; recompile and run; open
+MInCounterpointBug2p.ngl again => jumps from L354 to 357; many objs from then on are missing
+one or both messages. L354 is preceded by ca. 744 lines w/ same timestamp, "May 19 09:59:48".
+
+So it's almost certain the log starts dropping messages after "too many" messages in a second,
+where "too many" looks to be around 720 to 750. Amazing! But let's see if I can get all the
+messages to apper, both to double-check and because the missing messages could have useful
+information.
+
+Next step: try adding a delay per object to loop in ConvertObject. Probably delay for at
+least 3 millisec. to be sure we're well below 500 messages per second; use SleepMS().
+
+-------------------------------------------------------------------------------
+
+20 - 22 May
+
+Back to the Flow In Text problem: as David puts it "dysfunction, not crash". Using the 11
+May 2020 version of Ngale 5.8.10, in the exact same situation where it used to crash, Flow
+In Text doesn't crash! Instead, it appears to do nothing at all, and he can get out of
+Flow In via command-period. He then adds the first syllable with the regular text tool,
+then goes back to Flow In Text for the rest of what he wants to add, and it works fine.
+See Avid He system log1_11May.txt, AHeLog_InsertNewGraphic.txt and his emails of 11 - 19
+May
+
+Back to the "lines in log file missing" problem. Add to main loop in ConvertObject:
+
+	SleepMS(3);
+
+Open MInCounterpointBug2p.ngl => looks like there are no lines missing in the log file!
+Lines w/ timestamp "May 21 07:53:49": 655-285 = 370; "May 21 07:53:49": 1315-655 = 660
+
+Same thing again:
+Lines w/ timestamp "May 22 08:41:16": 418-14 = 404; "May 22 08:41:17": 1068-419 = 649
+
+Sigh. So 660 messages in a second for the log seems to be safe, while 720 isn't; but
+the OS 10.6 more conservative limit of 500 is based on Apple's (surely far more careful)
+analysis.
+

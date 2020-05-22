@@ -616,7 +616,7 @@ Note that after a call to OpenError with fileIsOpen, you should not try to keep 
 since the file will no longer be open! */
 
 void OpenError(Boolean fileIsOpen,
-					short refNum,
+					short refNum,	/* 0 = file's refNum unknown */
 					short errCode,
 					short errInfo)	/* More info: at what step error happened, type of obj being read, etc. */
 {
@@ -626,7 +626,7 @@ void OpenError(Boolean fileIsOpen,
 	
 	SysBeep(1);
 	LogPrintf(LOG_ERR, "CAN'T OPEN THE FILE. errCode=%d errInfo=%d  (OpenError)\n", errCode, errInfo);
-	if (fileIsOpen) FSClose(refNum);
+	if (fileIsOpen && refNum!=0) FSClose(refNum);
 
 	if (errCode!=0) {
 		switch (errCode) {
@@ -635,18 +635,18 @@ void OpenError(Boolean fileIsOpen,
 			 */
 			case BAD_VERSION_ERR:
 				GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
-				sprintf(aStr, fmtStr, ACHAR(version,3), ACHAR(version,2),
-							 ACHAR(version,1), ACHAR(version,0));
+				sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
+							 ACHAR(version, 1), ACHAR(version, 0));
 				break;
 			case LOW_VERSION_ERR:
 				GetIndCString(fmtStr, FILEIO_STRS, 8);			/* "too old for this version of Nightingale" */
-				sprintf(aStr, fmtStr, ACHAR(version,3), ACHAR(version,2),
-							 ACHAR(version,1), ACHAR(version,0));
+				sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
+							 ACHAR(version, 1), ACHAR(version, 0));
 				break;
 			case HI_VERSION_ERR:
 				GetIndCString(fmtStr, FILEIO_STRS, 9);			/* "newer than this version of Nightingale" */
-				sprintf(aStr, fmtStr, ACHAR(version,3), ACHAR(version,2),
-							 ACHAR(version,1), ACHAR(version,0));
+				sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
+							 ACHAR(version, 1), ACHAR(version, 0));
 				break;
 			case TOOMANYSTAVES_ERR:
 				GetIndCString(fmtStr, FILEIO_STRS, 10);		/* "this version can handle only %d staves" */
