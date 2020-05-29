@@ -485,7 +485,7 @@ making the decision. */
 
 Boolean DocumentSaved(register Document *doc)
 {
-	short itemHit; Boolean keepGoing = True;
+	short itemHit;  Boolean keepGoing = True;
 	
 	InstallDoc(doc);
 	if (doc->masterView)
@@ -538,30 +538,28 @@ Boolean DoSaveDocument(register Document *doc)
 	err = SaveFile(doc, False);
 
 	if (err!=CANCEL_INT) {
-		HSetVol(NULL,doc->vrefnum,0);
-	
+		HSetVol(NULL, doc->vrefnum, 0);
 		keepGoing = True;
 	}
 
 	return(keepGoing);
 }
 
-/*
- *	Save a given document under a new name, and give new name to document, which remains
- *	open.
- */
+/* Save a given document under a new name, and give new name to document, which remains
+open. */
 
 Boolean DoSaveAs(register Document *doc)
 {
 	Boolean keepGoing;
-	Str255 name;  short vrefnum, err;
+	Str255 name;
+	short vrefnum, err;
 	OSErr result;
 	FInfo theInfo;
 	FSSpec fsSpec;
 	NSClientData nscd;
 	
 	Pstrcpy(name,doc->name);
-	keepGoing = GetOutputName(MiscStringsID,3,name,&vrefnum,&nscd);
+	keepGoing = GetOutputName(MiscStringsID, 3, name, &vrefnum, &nscd);
 	if (keepGoing) {
 		//result = FSMakeFSSpec(vrefnum, 0, name, &fsSpec);
 		fsSpec = nscd.nsFSSpec;
@@ -582,10 +580,10 @@ Boolean DoSaveAs(register Document *doc)
 		
 		if (result == noErr) {
 			/* Save the file under this name */
-			Pstrcpy(doc->name,name);
+			Pstrcpy(doc->name, name);
 			doc->vrefnum = fsSpec.vRefNum;
 			doc->fsSpec = fsSpec;
-			SetWTitle(doc->theWindow,name);
+			SetWTitle(doc->theWindow, name);
 			err = SaveFile(doc, True);
 		}
 		else {
@@ -603,9 +601,7 @@ Boolean DoSaveAs(register Document *doc)
 	return(keepGoing);
 }
 
-/*
- *	Discard all changes to given document, but only with user's permission.
- */
+/* Discard all changes to given document, but only with user's permission. */
 
 void DoRevertDocument(register Document *doc)
 {

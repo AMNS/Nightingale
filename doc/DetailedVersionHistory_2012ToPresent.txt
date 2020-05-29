@@ -2792,3 +2792,10 @@ FlowInText, Heaps, InsUtils, MiscUtils.
 17 - 21 May
 
 Minor cleanup. Affects FileOpen, Finalize, HeapFileIO, Heaps, NTimeMgr, Undo, Utility.
+
+-------------------------------------------------------------------------------
+
+22 - 29 May
+
+Minor cleanup. Affects vars.h; Documents, FileConversion, FileOpen, Heaps, HeapFileIO,
+NTimeMgr.

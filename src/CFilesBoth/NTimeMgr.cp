@@ -8,9 +8,9 @@
  * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
-/* NB: This code is heavily Mac OS-dependent. (I deleted a comment here explaining
-it requires the extended (System 7) version of the Time Manager and explaining
-how to check its availabilty via Gestalt(). --DAB, May 2020) */
+/* NB: This code is heavily Mac OS-dependent. (I deleted a comment here saying it
+requires the "extended" (System 7, 1991) version of the Time Manager and explaining
+how to check its availabilty via Gestalt().  --DAB, May 2020) */
 
 // MAS include Carbon
 #include <Carbon/Carbon.h>
@@ -24,16 +24,16 @@ how to check its availabilty via Gestalt(). --DAB, May 2020) */
 #define False 0
 #endif
 
-typedef struct {					/* Time Manager information record */
-	TMTask	atmTask;				/* original and revised TMTask record */
-	long	tmRefCon;				/* space to pass address of A5 world */
+typedef struct {						/* Time Manager information record */
+	TMTask	atmTask;					/* original and revised TMTask record */
+	long	tmRefCon;					/* space to pass address of A5 world */
 } TMInfo;
 
 typedef TMInfo *TMInfoPtr;
 
-static TMInfo theTMInfo;			/* Our TimeMgr information record */
-static long theDelay;				/* No. of milliseconds to delay between "ticks" */
-static long theCount;				/* Current timer value */
+static TMInfo theTMInfo;				/* Our Time Manager information record */
+static long theDelay;					/* No. of milliseconds to delay between "ticks" */
+static long theCount;					/* Current timer value */
 static Boolean timerRunning;
 
 static pascal void NTMTask(TMTaskPtr tmTaskPtr);

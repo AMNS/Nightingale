@@ -5,12 +5,12 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2016-2020 by Avian Music Notation Foundation. All Rights Reserved.
  *
- * Routines in this file implement various low-level Nightingale generic heap methods.
- * A heap is where we store and allocate "objects": fixed-length records for all
- * the various objects kept in a score.  Each heap is associated with one type of
- * object (since different types have different lengths).
+ * Routines in this file implement various low-level generic heap methods. A _heap_ is
+ * where we store objects and subobjects. There's one heap for objects of all types, and
+ * one for subobjects of each type. Object records are of varying lengths; records for
+ * subobjects of a given type are fixed length.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -42,9 +42,9 @@ static short initialNumbers[LASTtype] = {
 		256,	/* SLURtype */
 		256,	/* TUPLETtype */
 		128,	/* GRSYNCtype */
-		8,		/* TEMPOtype */
-		8,		/* SPACERtype */
-		8,		/* ENDINGtype */
+		0,		/* TEMPOtype */
+		0,		/* SPACERtype */
+		0,		/* ENDINGtype */
 		16,		/* PSMEAStype */
 		256		/* OBJtype */
 		};
@@ -70,9 +70,9 @@ static short initialNumbers[LASTtype] = {
 		8,		/* SLURtype */
 		8,		/* TUPLETtype */
 		12,		/* GRSYNCtype */
-		8,		/* TEMPOtype */
-		8,		/* SPACERtype */
-		8,		/* ENDINGtype */
+		0,		/* TEMPOtype */
+		0,		/* SPACERtype */
+		0,		/* ENDINGtype */
 		8,		/* PSMEAStype */
 		64		/* OBJtype */
 		};
@@ -108,6 +108,7 @@ Boolean InitAllHeaps(Document *doc)
 	return(True);
 }
 
+
 /* Dispose of all heap blocks in a given document record.  This routine can be (but
 probably shouldn't be) called more than once. */
 
@@ -122,6 +123,7 @@ void DestroyAllHeaps(Document *doc)
 		hp->block = NULL;
 	}
 }
+
 
 /* ExpandFreeList expands the size of a given heap by deltaObjs objects of the size
 associated with the given heap.  It links these into the freelist, and delivers True if
@@ -211,7 +213,8 @@ LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld deltaObjs=%ld\n", hea
 
 
 /* Deliver the index (LINK) of the first object of a linked list of nObjs objects from
-a given heap, or NILINK if no more memory.  nObjs must be positive! */
+a given heap, or NILINK if no more memory or there's an error (nObjs not positive or
+objSize 0). */
 
 #define GROWFACTOR 4		/* When more memory needed, get a chunk this many times as big */
 
@@ -232,7 +235,7 @@ LINK HeapAlloc(HEAP *heap, unsigned short nObjs)
 	/* Expand the free list, if necessary */
 	
 	if (nObjs > heap->nFree)
-		if (!ExpandFreeList(heap,GROWFACTOR*nObjs)) return(NILINK);
+		if (!ExpandFreeList(heap, GROWFACTOR*nObjs)) return(NILINK);
 		
 	/* Find the last of the first nObjs in the free list */
 	
@@ -252,37 +255,38 @@ LINK HeapAlloc(HEAP *heap, unsigned short nObjs)
 	return(head);
 }
 
-/* Add a given list whose first LINK is head to the freelist of the given heap. If we're
-keeping track of the last object in the heap's free list, we can just tack this list
+
+/* Add a given list whose first LINK is <head> to the freelist of the given heap. If
+we're keeping track of the last object in the heap's free list, we can just tack this list
 onto the end; otherwise, we have to traverse this list to find its last object, and set
 its link field to the current head of the freelist, and then reset the firstFree field
-to list.  The empty list is just ignored. HeapFree always delivers NILINK, so that the
-calling routine can just assign HeapFree() to head. */
+to list. If <head> is an empty list, it's just ignored. HeapFree always delivers NILINK,
+so that the calling routine can just assign HeapFree() to <head>. */
 
 LINK HeapFree(HEAP *heap, LINK head)
-	{
-		short count; LINK link;
-		char *start, *p;
+{
+	short count;  LINK link;
+	char *start, *p;
+	
+	if (head) {
 		
-		if (head) {
-			
-			/* Find the last object in the given list, and get its length */
-			
-			start = (char *)(*heap->block);
-			for (count=0,link=head; link; link = *(LINK *)p,count++)
-				p = start + ((unsigned long)heap->objSize * (unsigned long)link);
-			
-			/*
-			 *	Append freelist to list, and repoint the head of the free list for
-			 *	this heap to the list.
-			 */
-			
-			*(LINK *)p = heap->firstFree;
-			heap->firstFree = head;
-			heap->nFree += count;
-			}
-		return(NILINK);
+		/* Find the last object in the given list, and get its length */
+		
+		start = (char *)(*heap->block);
+		for (count=0, link=head; link; link = *(LINK *)p,count++)
+			p = start + ((unsigned long)heap->objSize * (unsigned long)link);
+		
+		/* Append freelist to list, and repoint the head of the free list for
+		   this heap to the list. */
+		
+		*(LINK *)p = heap->firstFree;
+		heap->firstFree = head;
+		heap->nFree += count;
 	}
+
+	return(NILINK);
+}
+
 
 /* Given a list of subobjects of object objL, remove the given object, obj, from the
 list (if it's there, otherwise error).  The object removed can still be refered to by
@@ -293,29 +297,31 @@ This function should only be called for subObjects. If a similar function is req
 for object links, the assignment below of FirstSubLINK(objL) must be modified. */
 
 LINK RemoveLink(LINK objL, HEAP *heap, LINK head, LINK obj)
-	{
-		LINK prev,next,link;
-		
-		for (prev=NILINK,link=head; link; prev=link,link=next) {
-			next = NextLink(heap,link);
-			if (link == obj) {
-				*(LINK *)LinkToPtr(heap,link) = NILINK; 	/* Snip obj away from rest of list */
-				if (prev) {											/* obj was not first */
-					*(LINK *)LinkToPtr(heap,prev) = next;	/* prev->next = next */
-					return(head);
-					}
-				 else {												/* Removing head of list */
-				 	FirstSubLINK(objL) = next;
-					return(next);
-					}
-				}
+{
+	LINK prev,next,link;
+	
+	for (prev=NILINK, link=head; link; prev=link, link=next) {
+		next = NextLink(heap, link);
+		if (link == obj) {
+			*(LINK *)LinkToPtr(heap, link) = NILINK;		/* Snip obj away from rest of list */
+			if (prev) {										/* obj was not first */
+				*(LINK *)LinkToPtr(heap, prev) = next;		/* prev->next = next */
+				return(head);
 			}
-		return(NILINK);
+			 else {											/* Removing head of list */
+				FirstSubLINK(objL) = next;
+				return(next);
+			}
+		}
 	}
 
-/* Insert a given list before another given object in a given list. If before is NILINK,
-then append obj to list.  Delivers new head of list, or NILINK if error. This assumes
-that objlist is a well-formed (NILINK-terminated) list. */
+	return(NILINK);
+}
+
+
+/* Insert a given list before a given object in a given list. If <before> is NILINK,
+then append obj to list.  Return new head of list, or NILINK if error. This assumes
+that <objlist> is a well-formed (NILINK-terminated) list. */
 
 LINK InsertLink(HEAP *heap, LINK head, LINK before, LINK objlist)
 	{
@@ -323,7 +329,7 @@ LINK InsertLink(HEAP *heap, LINK head, LINK before, LINK objlist)
 		
 		if (objlist == NILINK) return(head);
 		
-		/* Search for before in list at head */
+		/* Search for <before> in list at <head> */
 		
 		for (prev=NILINK,link=head; link; prev=link,link=next) {
 			next = NextLink(heap,link);
@@ -336,6 +342,7 @@ LINK InsertLink(HEAP *heap, LINK head, LINK before, LINK objlist)
 				 	head = objlist;
 				
 				/* Find tail of objlist */
+				
 				for (tail=link=objlist; link; tail=link,link=NextLink(heap,link)) ;
 				*(LINK *)LinkToPtr(heap,tail) = before;
 				
@@ -357,7 +364,7 @@ LINK InsertLink(HEAP *heap, LINK head, LINK before, LINK objlist)
 
 /* Insert <objlist> after link <after> in list <head>.  If after is NILINK, then
 append objList to head's list.  Delivers new head of list, or NILINK if error. This
- assumes that objlist is a well-formed (NILINK-terminated) list. */
+assumes that objlist is a well-formed (NILINK-terminated) list. */
 
 LINK InsAfterLink(HEAP *heap, LINK head, LINK after, LINK objlist)
 	{

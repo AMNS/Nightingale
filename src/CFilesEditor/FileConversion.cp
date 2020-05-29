@@ -298,6 +298,9 @@ unchanged, so we don't need 'N105'-specific versions of them. */
 #define DLinkRMEAS_5(doc,link)		( (DGetPMEASURE_5(doc,link))->rMeasure )
 
 
+#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
+
+
 /* Traverse the main and Master Page object lists and fix up the cross pointers. This
 is a specialized version of HeapFixLinks() intended to fix links in 'N105' format files
 when they're opened, before the contents of objects are converted. Return 0 if all is
@@ -310,8 +313,8 @@ short HeapFixN105Links(Document *doc)
 	
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
+#if 0
 {	unsigned char *pSObj;
-#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 //pSObj = (unsigned char *)GetPSUPEROBJECT(1);
 //NHexDump(LOG_DEBUG, "HeapFixLinks1 L1", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
@@ -321,6 +324,7 @@ short HeapFixN105Links(Document *doc)
 //pSObj = (unsigned char *)GetPSUPEROBJECT(4);
 //NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 }
+#endif
 
 	/* First handle the main object list. */
 
@@ -367,8 +371,8 @@ short HeapFixN105Links(Document *doc)
 		}
 	}
 
+#if 0
 {	unsigned char *pSObj;
-#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 //pSObj = (unsigned char *)GetPSUPEROBJECT(1);
 //NHexDump(LOG_DEBUG, "HeapFixLinks2 L1", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJECT(2);
@@ -378,6 +382,8 @@ short HeapFixN105Links(Document *doc)
 //pSObj = (unsigned char *)GetPSUPEROBJECT(4);
 //NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 }
+#endif
+
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
 	/* Now do the Master Page list. */
@@ -1515,7 +1521,6 @@ static Boolean ConvertGRAPHIC(Document * /* doc */, LINK graphicL)
 {
 	GRAPHIC_5 aGraphic;
 	LINK aGraphicL;
-	unsigned char *pSSubObj;
 	
 	BlockMove(&tmpSuperObj, &aGraphic, sizeof(GRAPHIC_5));
 	
@@ -1556,7 +1561,6 @@ static Boolean ConvertOTTAVA(Document * /* doc */, LINK ottavaL)
 {
 	OTTAVA_5 aOttava;
 	LINK aOttavaL;
-	unsigned char *pSSubObj;
 	
 	BlockMove(&tmpSuperObj, &aOttava, sizeof(OTTAVA_5));
 	
@@ -1643,7 +1647,6 @@ static Boolean ConvertTUPLET(Document * /* doc */, LINK tupletL)
 {
 	TUPLET_5 aTuplet;
 	LINK aTupletL;
-	unsigned char *pSSubObj;
 	
 	BlockMove(&tmpSuperObj, &aTuplet, sizeof(TUPLET_5));
 	
@@ -1840,9 +1843,8 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 	startL = (doMasterList?  doc->masterHeadL :  doc->headL);
 	prevL = startL-1;
 	for (pL = startL; pL; pL = RightLINK(pL)) {
-	
-SleepMS(3);
-LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
+SleepMS(3);		/* Avoid bug in OS 10.5 and 10.6 Console log with > 500 messages/sec. */
+//LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
 
 		/* If this function is called in the situation described above, consecutive objects
 		   must have sequential links; check that. */

@@ -254,7 +254,10 @@ static Boolean CheckScoreHdr(Document *doc)
 		return True;
 	}
 	else {
-		if (!DETAIL_SHOW) DisplayScoreHdr(4, doc);
+		if (!DETAIL_SHOW) {
+			LogPrintf(LOG_WARNING, "\n");
+			DisplayScoreHdr(4, doc);
+		}
 		sprintf(strBuf, "%d error(s) found.", nerr);
 		CParamText(strBuf, "", "", "");
 		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (CheckScoreHdr)\n",

@@ -2083,7 +2083,7 @@ the Looked at voice! I'm almost certain that Paste Merge used to do this correct
 Paste Merge and Paste as Cue _do_ seem to handle the Looked at voice correctly; the
 apparent problem resulted from an anomaly in handling doc->lookVoice. Fixed.
 
-Back to Paste as Cue. How to keep it from copying objects of all types into the score?
+BACK TO Paste as Cue. How to keep it from copying objects of all types into the score?
 Try letting it copy everything, then delete undesired objects. Write ThinNonSyncObjects,
 which calls DeleteNode() for objs of undesired types; call it from CleanupMerge => seems
 to work okay, but if a dynamic was copied in, then removed, the dynamic context is left
@@ -2112,7 +2112,7 @@ at a time. Also, must change ystem of MainNote as well as yd's of notes.
 
 22-27 June
 
-Back to Paste as Cue. Non-Sync nodes are indeed handled via a temporary object list,
+BACK TO Paste as Cue. Non-Sync nodes are indeed handled via a temporary object list,
 but only those from the score, not the clipboard! Nodes from the clipboard are moved
 into the main object list by calls to RelocateClObjs and RelocateClGenlJDObjs in
 MRearrangeAll. Is it as simple as skipping those calls to get only Syncs from the
@@ -2635,7 +2635,7 @@ on Intel, MemBitCount from SetupToolPalette = 546 or 572, from DrawToolMenu = 54
 
 7 Feb.
 
-Back to the "in a New score, the only staff line visible is the bottom line of the lower
+BACK TO the "in a New score, the only staff line visible is the bottom line of the lower
 staff -- but there's some mysterious heavily strrrretched-out stuff, very likely
 supposed to be the other staff lines" bug: actually, the strrrretched-out stuff is the
 Connect! Which is a curly brace read from a resource, so it's vulnerable to the Endian
@@ -3100,7 +3100,7 @@ Write ConsiderLedgerLines(), called from ConsiderWidths(), called from Respace1B
 
 17 - 18 August
 
-Back to problems on Intel unrelated to opening/saving files. Summary of known problems
+BACK TO problems on Intel unrelated to opening/saving files. Summary of known problems
 (rev. from 18 March):
 
 1. On launch, the initial Open File dialog is sometimes much too tall. I say "is
@@ -3534,7 +3534,7 @@ says 1 commit available for branch develop; pull => looks OK!
 
 9 - 16 July
 
-Back to development. NGALE 5.8: Before printing or saving a PostScript file, put an "info"
+BACK TO development. NGALE 5.8: Before printing or saving a PostScript file, put an "info"
 message in the log file; this might help diagnose weird aspects of printing for Avid He.
 Affects CarbonPrinting. Also did minor cleanup in CarbonPrinting, DebugUtils, DrawObject.
 These changes _should_ work in 5.9 as is, but must check/test!
@@ -6149,7 +6149,7 @@ So it"s not getting converted correctly, but xdFirst & xdLast are what they shou
 Ah: It _is_ converted correctly, but gets stomped on by a mistaken definition of
 OttavaUNUSED2! Fixed.
 
-Back to Flow in Text for the moment. With the latest, Pasting a few words into the Flow
+BACK TO Flow in Text for the moment. With the latest, Pasting a few words into the Flow
 In dialog doesn't work, i.e., no text appears in the dialog; I'm quite sure it used to!
 In fact, I think it worked yesterday w/ v. 5.8.9 but not 5.8.10.
 W/ 5.9 (inside Xcode), open AllObjTypes.obj, Paste " found all 7 screen sizes of the
@@ -6171,7 +6171,7 @@ maybe Apple's bug, not ours -- though it probably is ours :-) .
 
 1 - 5 May
 
-Back to the bizaare and inconsistent bug in opening longer 'N105' format files. To review,
+BACK TO the bizarre and inconsistent bug in opening longer 'N105' format files. To review,
 symptoms are: towards the end of the call to ConvertObjects() for the main obj list, lines
 missing from the log file, apparently more & more; in the call to ConvertObjects() for
 the Master Page obj list that follows, lots of lines missing. Bizarre. In addition, rare
@@ -6229,12 +6229,12 @@ Clean up a few details => 852 warnings.
 
 9 - 15 May
 
-Back to Flow in Text. David Alpher reported Flow In Text tends to crash when he uses two
+BACK TO Flow in Text. David Alpher reported Flow In Text tends to crash when he uses two
 consecutive hyphens at the end of a phrase; but he later reported there's no pattern
 he can see. Oh well. He's now using a version of Ngale 5.8.10 that puts info to debug
 this in the log file. Awaiting more info from him.
 
-Back to bug in opening longer 'N105' format files.
+BACK TO bug in opening longer 'N105' format files.
 
 It seems likely the problem is in ReadHeaps(). It relies on ReadObjHeap() and
 ReadSubHeap(); both use our own ExpandFreeList() to get more memory. The latter calls
@@ -6287,7 +6287,8 @@ timestamped "May 18 15:23:43" before the skip! Let's slow it down & see if all t
 expected messages from ConvertObject() appear.
 
 First, have ExpandFreeList give a message for each heap it does anything with, i.e., that has
-subobjects (all but three), it does.
+subobjects (all but six: the initialNumbers[] are set in Heaps.cp as if TEMPO, SPACER,
+and ENDING have subobjs!), it does.
 
 Every obj should have exactly two messages from ConvertObject(): "ConvertXXXL:
 xxxL=Lnnn" and "  ******************** ConvertObject: pL=nnn", and the nnn's should be
@@ -6315,15 +6316,16 @@ least 3 millisec. to be sure we're well below 500 messages per second; use Sleep
 
 20 - 22 May
 
-Back to the Flow In Text problem: as David puts it "dysfunction, not crash". Using the 11
-May 2020 version of Ngale 5.8.10, in the exact same situation where it used to crash, Flow
-In Text doesn't crash! Instead, it appears to do nothing at all, and he can get out of
-Flow In via command-period. He then adds the first syllable with the regular text tool,
-then goes back to Flow In Text for the rest of what he wants to add, and it works fine.
-See Avid He system log1_11May.txt, AHeLog_InsertNewGraphic.txt and his emails of 11 - 19
-May
+BACK TO the Flow In Text problem: as David puts it , it's now "dysfunction, not crash".
+Using the 11 May 2020 version of Ngale 5.8.10, in the exact same situation where it used
+to crash, Flow In Text doesn't crash! Instead, it appears to do nothing at all, and he can
+get out of Flow In via command-period. He then adds the first syllable with the regular
+text tool, then goes back to Flow In Text for the rest of what he wants to add, and it
+works fine. See Avid He system log1_11May.txt, AHeLog_InsertNewGraphic.txt and his emails
+of 11 - 19 May. ?? Anyway, the dysfunction is much less of a problem for him than the
+crash.
 
-Back to the "lines in log file missing" problem. Add to main loop in ConvertObject:
+BACK TO the "lines in log file missing" problem. Add to main loop in ConvertObject:
 
 	SleepMS(3);
 
@@ -6336,4 +6338,144 @@ Lines w/ timestamp "May 22 08:41:16": 418-14 = 404; "May 22 08:41:17": 1068-419 
 Sigh. So 660 messages in a second for the log seems to be safe, while 720 isn't; but
 the OS 10.6 more conservative limit of 500 is based on Apple's (surely far more careful)
 analysis.
+
+-------------------------------------------------------------------------------
+
+23 - 27 May
+
+AFAIK, opening large 'N105' files with Ngale 5.9.1 is still a large problem. Open
+2ndMovement.ngl (of my Violin Concerto) => it hangs; the last lines of the log are
+
+	debug. ConvertBEAMSET: beamsetL=L4577
+	debug.  ******************** ConvertObject: pL=4578 prevL=4577
+ 
+L4577 is in the viola at the beginning of m. 233; 4578 is the Sync on the downbeat, w/
+15 "notes" (all but 2 actually rests). Nothing obviously weird about it!
+
+Kill Ngale, relaunch it, open 2ndMovement.ngl again => log goes all the way to the end,
+including Master Page, but it hangs anyway. With thousands of lines of log output, there
+could be a very helpful error message or three, and I probably wouldn't see it! So cut
+the "********************" messages; relaunch Ngale, open 2ndMovement.ngl again => log
+(of only about 1/2 the previous length) stops after these messages:
+
+	debug. ConvertSLUR: slurL=L4622 staff=10 voice=10 tie=1
+	debug. ConvertGRAPHIC: graphicL=L4623 staff=15 type=3 info=4
+	
+...and it hangs again.
+
+Kill Ngale, relaunch it, open 2ndMovement.ngl again => log goes all the way to the end,
+including Master Page, and followed by
+
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+
+but it again hangs anyway. Pretty reliable behavior! And the log is still over 5,000
+lines. Any instances of "warning" or "err"? No. 2ndMovement.ngl is 888K; can I find a
+much smaller file that fails reliably? Maybe 1stMovement_Cadenza.ngl (200K)? No: it
+opens w/ no problems. 1stMovement_Part3.ngl (600K)? No, same thing. Follow that w/o
+relaunching Ngale by opening 2ndMovement.ngl => brings up debugger stopped at line
+1609 of FileConversion.cp! -- that's in ConvertSLUR(), the line
+
+	SlurFILLER(slurL) = 0;
+
+...with slurL = 513; the call stack is as expected.
+But why? Did something bad happen? All it says is "GDB: Program loaded." And there's no
+breakpoint within 50 lines! ??
+
+The last few lines of the log:
+
+	debug. ConvertSYNC: syncL=L510 timeStamp=420
+	debug. ConvertDYNAMIC: dynamicL=L511 dynamicType=8
+	debug. ConvertGRAPHIC: graphicL=L512 staff=14 type=3 info=4
+	fseventsd[35]: callback_client: ERROR: d2f_callback_rpc() => (ipc/send) timed out (268435460) for pid 80744
+	fseventsd[35]: client: 0x815800 : USER DROPPED EVENTS!
+	fseventsd[35]: callback_client: ERROR: d2f_callback_rpc() => (ipc/send) timed out (268435460) for pid 80744
+	 --- last message repeated 1 time ---
+	fseventsd[35]: client: 0x815800 : USER DROPPED EVENTS!
+	(etc. etc.)
+
+The "USER DROPPED EVENTS!" and "ERROR" messages from fseventsd continue, the set of three
+repeating every 30 sec., until I finally killed Ngale almost 12 hours later.
+
+Relaunch Ngale, open 2ndMovement.ngl again => log from ConvertObject() goes all the way to
+the end, including Master Page, and is followed by
+
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	Notice. Opened file '2ndMovement.ngl'.
+	debug. DrawToolPalette: MemBitCount(palPortBits, 1000)=970 portRect tlbr=0,0,399,271
+
+The score is drawn, it looks OK at a glance, and Debug Check has no complaints!
+
+Kill Ngale, relaunch it, open 2ndMovement.ngl again => log from ConvertObject() goes all
+the way to the end, including Master Page, and is followed by
+
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+
+and it again hangs. In Debugger (GDB) window, click Debug => 
+says "Nightingale exited with status(1). The Debugger is still running. Use 'Restart' to
+debug again." But Restart is greyed out, just like under _9 - 15 May_ above; all the other
+buttons are greyed out, too, except the Breakpoints buttons and Console button at right.
+Ah, the Console button shows a "Debugger Console" window saying
+
+	A problem internal to GDB has been detected,
+	further debugging may prove unreliable.
+	
+	The Debugger has exited with status 1.The Debugger has exited with status 1.
+
+The system log says
+
+	Saved crashreport to /Library/Logs/CrashReporter/bash_2020-05-24-085700_don-byrds-power-mac-g5.crash using uid: 0 gid: 0, euid: 0 egid: 0
+
+That file ends "Dyld Error Message: could not load inserted library: /usr/lib/libgmalloc.dylib".
+That must be Guard Malloc; too bad!
+
+Relaunch Ngale (outside of Xcode), open 2ndMovement.ngl again => log from ConvertObject()
+goes all the way to the end, including Master Page, and is followed by
+
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	[0x0-0xf6cf6c].com.amns.nightingale[85688]:   Member Nodes:
+	[0x0-0xf6cf6c].com.amns.nightingale[85688]: 	node 1: desc aumu dls  appl, instance 0x810000 O I
+	[0x0-0xf6cf6c].com.amns.nightingale[85688]: 	node 2: desc aufx lmtr appl, instance 0x810001 O I
+	[0x0-0xf6cf6c].com.amns.nightingale[85688]: 	node 3: desc auou def  appl, instance 0x810002 O I
+	[0x0-0xf6cf6c].com.amns.nightingale[85688]:   Connections:
+	[0x0-0xf6cf6c].com.amns.nightingale[85688]: 	node   1 bus   0 => node   2 bus   0  [2 ch, 44100 Hz]
+	[0x0-0xf6cf6c].com.amns.nightingale[85688]: 	node   2 bus   0 => node   3 bus   0  [2 ch, 44100 Hz]
+	[0x0-0xf6cf6c].com.amns.nightingale[85688]:   CurrentState:
+	[0x0-0xf6cf6c].com.amns.nightingale[85688]: 	mLastUpdateError=0, eventsToProcess=F, isRunning=F
+ 
+...and it's hung again. 85688 is the process number for com.amns.nightingale; those messages
+normally appear only in the Xcode Run Log window. Why did they appear in system.log this
+time? I dunno.
+ 
+Relaunch Ngale, open 2ndMovement.ngl again => log from ConvertObject() goes all the way to
+the end, including Master Page, and is followed by
+
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	
+??
+
+Hmmm. TEMPO, SPACER, and ENDING don't have subobjs, but initialNumbers[] are set in Heaps.cp
+as if they do. (Tech Note #1 is correct on this.) Could this be causing problems? I really
+don't think so: if heap->objSize<=0, ExpandFreeList() immediately quits, and initialNumbers
+is used nowhere else! Still, let's fix initialNumbers[]... done.
+
+Launch Ngale; AllObjTypes.ngl => OK, open T+MInCounterpointBug2p.ngl => OK, open
+2ndMovement.ngl => crashes into debugger.
+
+SWITCH TO the "Ngale 5.9.1 can't open its own converted files" problem. Open 1CourtesyAcc.ngl,
+save result (with default name, "1CourtesyAcc.ngl (converted)"). Open that =>
+
+	Notice. Checking Score header:  err #1, err #2, err #10, err #11, err #23, err #26, err #27,Displaying Score header (ID 4):
+	info.   (1)nstaves=0  (2)nsystems=0  (3)feedback=0  (4)used=0  (5)transposed=0
+	info.   (6)polyTimbral=0  (7)spacePercent=100  (8)srastral=5  (9)altsrastral=2
+	info.   (10)tempo=0  (11)channel=0  (12)velocity=0  (13)headerStrOffset=0  (14)footerStrOffset=0
+	info.   (15)dIndentOther=0  (16)firstNames=2  (17)otherNames=0  (18)lastGlobalFont=0
+	info.   (19)aboveMN=1  (20)sysFirstMN=1  (21)startMNPrint1=0  (22)firstMNNumber=1
+	info.   (23)nfontsUsed=0  (24)musFontName='Briard'
+	info.   (25)magnify=0  (26)selStaff=1  (27)currentSystem=0  (28)spaceTable=0  (29)htight=100
+	info.   (30)lookVoice=-1  (31)ledgerYSp=0  (32)deflamTime=50  (33)colorVoices=2  (34)dIndentFirst=752
+	ERROR.  7 ERROR(S) FOUND (first bad field is no. 1).  (CheckScoreHdr)
+
+6 of the 7 errors are in fields with values of 0 where that's illegal; #26 is weird bcs
+selStaff=1 is _always_ valid -- but this score claims to have nstaves=0 :-) . The other
+files all appear to have values that are correct, not just legal. So ??
 

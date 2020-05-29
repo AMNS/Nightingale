@@ -307,18 +307,18 @@ OBJDATA objTable[] = {
 	{ OBJtype,		J_STRUC,	0,		0,			False }
 };
 
-/*
- *	The point sizes we really want for staff rastral sizes, as given, e.g., in Ted
- *	Ross' book, are:
- *		FASTFLOAT rSize[MAXRASTRAL+1] =						Sizes for staff rastral nos.
- *			{26,21.6,20,18.8,18,16.4,14.2,12.4,10;			in points
- *	But we'll accept the following approximations, which are more practical with the
- *	Macintosh's screen resolution of 72 dpi, or 1 point. NB: pdrSize[0] is normally
- * replaced by a value from the CNFG resource.
- */
+/* The point sizes we really want for staff rastral sizes, as given, e.g., in Ted
+Ross' book, are:
 
-short pdrSize[MAXRASTRAL+1] =								/* Sizes for staff rastral nos., */
-	{ 28, 24, 20, 19, 18, 16, 14, 12, 10};					/*  in points */ 
+FASTFLOAT rSize[MAXRASTRAL+1] =							Sizes for staff rastral nos.
+	{26, 21.6, 20, 18.8, 18, 16.4, 14.2, 12.4, 10;		in points
+
+But we use the following approximations, which are more practical with the Mac's
+nominal screen resolution of 72 dpi, or 1 point. NB: pdrSize[0] is normally replaced
+by a value from the CNFG resource. */
+
+short pdrSize[MAXRASTRAL+1] =							/* Sizes for staff rastral nos., */
+	{ 28, 24, 20, 19, 18, 16, 14, 12, 10};				/*  in points */ 
 
 /* Sets of related characters in Adobe's Sonata and compatibles (individual characters
 are declared in Defs.h) */
@@ -345,6 +345,8 @@ short noteOffset[] = { 7, 14, 21, -7, -14, -21 };				/* Vert. offset for ottavas
                              Tiny VSmall Small Medium Large VLarge Jumbo ------- StaffHt */
 							 
 FASTFLOAT relFSizeTab[] =  { 1.0, 1.5,   1.7,  2.0,   2.2,	2.5,   3.0,  3.6, 0,   4.0  };
+
+/* Subobject sizes in memory and in current-format files. */
 
 short subObjLength[] = {
 		sizeof(PARTINFO),		/* HEADER subobject */
@@ -374,6 +376,9 @@ short subObjLength[] = {
 		sizeof(SUPEROBJECT)
 	};
 		
+/* Object sizes in memory (a fixed size, that of SUPEROBJECT) and in current-format files
+(size dependent on object type). */
+
 short objLength[] = {
 		sizeof(HEADER),
 		sizeof(TAIL),

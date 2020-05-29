@@ -2,8 +2,8 @@
 *	FILE:	HeapFileIO.c
 *	PROJ:	Nightingale
 *	DESC:	Routines to read and write object and subobject heaps
-*			For information on Nightingale heaps, see Tech Note #4, "Nightingale Files
-*			and Troubleshooting".
+*			For information on Nightingale heaps, see Heaps.c and Tech Note #4, "Nightingale
+*			Files and Troubleshooting".
 /******************************************************************************************/
 
 /*
@@ -21,6 +21,7 @@
 
 #define EXTRAOBJS 10L
 
+/* Subobject sizes in 'N105' format files. */
 
 short subObjLength_5[] = {
 		sizeof(PARTINFO),		/* HEADER subobject */
@@ -50,6 +51,9 @@ short subObjLength_5[] = {
 		sizeof(SUPEROBJECT_N105)
 	};
 		
+/* Object sizes in memory (a fixed size, that of SUPEROBJECT_N105) and in 'N105' format
+files (size dependent on object type). */
+
 short objLength_5[] = {
 		sizeof(HEADER_5),
 		sizeof(TAIL_5),
@@ -101,6 +105,7 @@ static short HeapFixLinks(Document *);
 static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObjs);
 static void PrepareClips(void);
 
+
 /* ============================== Functions for Writing Heaps =========================== */
 
 /* Write all heaps with their headers to the given file. Returns 0 if no error, else
@@ -150,7 +155,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 	GetFPos(refNum, &startPosition);
 	count = sizeof(long);
 	ioErr = FSWrite(refNum, &count, &zero);
-	if (ioErr) { SaveError(True, refNum, ioErr, OBJtype); return ioErr; }
+	if (ioErr) { SaveError(True, refNum, ioErr, OBJtype);  return ioErr; }
 	
 	for (j=1, pL=doc->headL; ioErr==noErr && pL!=NILINK; j++, pL=RightLINK(pL)) {
 	
@@ -214,7 +219,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 
 		ioErr = WriteObject(refNum, OBJtype, pL);
 		
-		LeftLINK(pL) = leftL; RightLINK(pL) = rightL;
+		LeftLINK(pL) = leftL;  RightLINK(pL) = rightL;
 		FirstSubLINK(pL) = subL;
 		
 		/* Set fields that refer to other objects back to their correct values. */
@@ -275,8 +280,8 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 	PopLock(doc->Heap+OBJtype);
 	
 	/* Now get the current file position to find out how much we've written; then
-	   back patch the size into the 4-byte slot we pre-allocated above. NOTE: We
-	   have to take into account the 4 bytes for the count as well. */
+	   back patch the size into the 4-byte slot we pre-allocated above. NB: We must
+	   take into account the 4 bytes for the count as well. */
 	
 	if (ioErr==noErr) {
 		GetFPos(refNum,&endPosition);
@@ -287,7 +292,8 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 		ioErr = FSWrite(refNum, &count, &sizeAllObjsFile);
 		if (ioErr) { SaveError(True, refNum, ioErr, OBJtype); return ioErr; }
 		
-		/* And move back to where we just were so as not to truncate anything */
+		/* Move back to where we just were so as not to truncate anything. */
+		
 		ioErr = SetFPos(refNum, fsFromStart, endPosition);
 		if (ioErr!=noError) return ioErr;
 	}
@@ -365,7 +371,7 @@ static short WriteModHeap(Document *doc, short refNum, LINK **modA)
 reflect the new position of the subobjects in their in-file heap, and filling in the
 modA array so that notes can update their firstMod field in the WriteSubObjs routine. */
 
-static short WriteModSubs(short refNum, LINK aNoteL, LINK	link, LINK **/*modA*/,
+static short WriteModSubs(short refNum, LINK aNoteL, LINK link, LINK **/*modA*/,
 									unsigned short *nMods)
 {
 	LINK 	nextL, subL, tempL;
@@ -384,13 +390,11 @@ static short WriteModSubs(short refNum, LINK aNoteL, LINK	link, LINK **/*modA*/,
 	aNote = GetPANOTE(aNoteL);
 	for (subL = aNote->firstMod; ioErr==noErr && subL!=NILINK; subL = tempL) {
 		tempL = NextLink(myHeap, subL);
-		if (tempL)
-			*(LINK *)LinkToPtr(myHeap, subL) = nextL++;
+		if (tempL) *(LINK *)LinkToPtr(myHeap, subL) = nextL++;
 
 		ioErr = WriteObject(refNum, MODNRtype, subL);
 
-		if (tempL)
-			*(LINK *)LinkToPtr(myHeap, subL) = tempL;
+		if (tempL) *(LINK *)LinkToPtr(myHeap, subL) = tempL;
 
 		(*nMods)++;
 	}
@@ -399,10 +403,12 @@ static short WriteModSubs(short refNum, LINK aNoteL, LINK	link, LINK **/*modA*/,
 }
 
 
+/* "Mackey's Disease" is so called in honor of Steve Mackey, who ran into in the 1990's. */
+
 static void MackeysDiseaseMsg(LINK pL, short subObjCount, char *objString);
 static void MackeysDiseaseMsg(LINK pL, short subObjCount, char *objString)
 {
-	AlwaysErrMsg("FILE IS PROBABLY UNUSABLE. WriteSubHeaps: %s at %ld (type=%ld) has nEntries=%ld but subObjCount=%ld. Please contact AMNS tech support.",
+	AlwaysErrMsg("FILE IS PROBABLY UNUSABLE. %s at %ld (type=%ld) has nEntries=%ld but subObjCount=%ld. Contact AMNF for help.  (WriteSubHeaps)",
 				objString, (long)pL, (long)ObjLType(pL), (long)LinkNENTRIES(pL),
 				(long)subObjCount);
 }
@@ -416,10 +422,10 @@ themselves.
 Note that if ComputeObjCounts finds a number for any heap that's different from what
 the heap-writing code finds, the results are likely to be disasterous: the file
 will be written apparently without problems, but it will probably not be possible to
-open it again! Also, if WriteSubObjs finds a number for any object that's different
-from what the object's LinkNENTRIES, something is seriously wrong, though I don't know
-what the effects would be. To at least alert the user if this happens, we give a
-strongly-worded message in the latter case, but not the (at least as serious!) former. */
+open it again! The same is true if WriteSubObjs finds a number for any object that's
+different from the object's LinkNENTRIES: this is "Mackey's Disease". To at least
+alert the user if this happens, we give a strongly-worded message in the latter case,
+but FIXME not the former, which is just as serious! */
 
 static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LINK *objA,
 									LINK *modA)
@@ -509,11 +515,13 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	myHeap = Heap + heapIndex;
 
 	/* Write the total number of objects/subobjects of type heapIndex */
+	
 	count = sizeof(short);
 	ioErr = FSWrite(refNum, &count, &objCount[heapIndex]);
 	if (ioErr) { SaveError(True, refNum, ioErr, heapIndex); return(ioErr); }
 
 	/* Write the HEAP struct header */
+	
 	count = sizeof(HEAP);
 	ioErr = FSWrite(refNum, &count, (Ptr)myHeap);
 
@@ -732,7 +740,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 		for (j=0; j<numMods+1; j++)
 			(*modA)[j] = NILINK;
 	else
-		{ OutOfMemory((MODNRheap->nObjs+1)*sizeof(LINK)); return False; }
+		{ OutOfMemory((MODNRheap->nObjs+1)*sizeof(LINK));  return False; }
 	
 	return True;
 }
@@ -741,7 +749,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 /* =============================== Functions for Reading Heaps ========================== */
 
 /* Read all heaps from file <refNum>: one subobject heap for each type of object that
-has subobjects (almost all of them), and one object heap. Returns 0 if no error, else an
+has subobjects (almost all do), and one object heap. Returns 0 if no error, else an
 error code (either a system result code or one of our own codes). */
 
 short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
@@ -882,7 +890,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadObjHeap0", (unsigned char *)startPos, 24+38+44, 4, 16);
 	
 	/* If file is in an old format, move the contents of the object heap around so each
-		object has space for the required SUPEROBJECT size. */
+	   object has space for the required SUPEROBJECT size. */
 	   
 	if (version=='N105')
 		if (!MoveObjSubobjs(OBJtype, version, nFObjs, startPos, pLink1)) {
@@ -1200,8 +1208,8 @@ static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObj
 /* A comment that's been here for many years: "Preserve the clipboard, and reset the undo
 and tempUndo clipboards, across a call to OpenFile. Note that we don't have to delete or
 free any of the nodes in any of the clipboards, since the call to RebuildFreeList()
-re-initializes all heaps." But this function obviously doesn't do anything and, to my
-knowledge, it never has! --DAB, Feb. 2020 */
+re-initializes all heaps." This function may have done that once, but it obviously doesn't
+do anything now and it hasn't for many years. --DAB, Feb. 2020 */
 
 static void PrepareClips()
 {
