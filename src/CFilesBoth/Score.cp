@@ -215,7 +215,7 @@ Boolean NewDocScore(Document *doc)
 		InitObject(headL, NILINK, tailL, 0, 0, False, False, True);
 	}
 
-	doc->feedback = config.midiFeedback;					/* Someday debug and use MIDIConnected */
+	doc->noteInsFeedback = config.midiFeedback;				/* Some day debug and use MIDIConnected */
 	doc->polyTimbral = True;
 	doc->dontSendPatches = False;
 	doc->tempo = 999;										/* No longer used */

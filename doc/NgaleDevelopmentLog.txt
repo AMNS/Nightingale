@@ -6341,7 +6341,7 @@ analysis.
 
 -------------------------------------------------------------------------------
 
-23 - 27 May
+23 - 29 May
 
 AFAIK, opening large 'N105' files with Ngale 5.9.1 is still a large problem. Open
 2ndMovement.ngl (of my Violin Concerto) => it hangs; the last lines of the log are
@@ -6479,3 +6479,30 @@ save result (with default name, "1CourtesyAcc.ngl (converted)"). Open that =>
 selStaff=1 is _always_ valid -- but this score claims to have nstaves=0 :-) . The other
 files all appear to have values that are correct, not just legal. So ??
 
+-------------------------------------------------------------------------------
+
+30 - 31 May
+
+Open 1CourtesyAcc.ngl w/ Ngale 5.8.10; Respace at 67%, change staff rastral to 4, change
+start meas. no. to 345, change deflamTime to 78 ms., etc.; Save as VUnusualScHdr_1CourtesyAcc.ngl.
+Try to open that w/ 5.9.1 => it works; nothing illegal in score header, and the non-default
+values seem to have come through!?!
+
+Open AllObjTypes.ngl w/ Ngale 5.8.10; change start meas. no. to 345; Save as
+UnusualScHdr_AllObjTypes.ngl. Try to open that w/ 5.9.1 => it works; nothing illegal in score
+header, and the non-default value came through!?! No error messages from opening
+it, and Debug Check has no complaints! Amazing.
+
+Open 1CourtesyAcc.ngl w/ Ngale 5.8.10; change
+start meas. no. to 345; Save as UnusualScHdr_1CourtesyAcc.ngl.
+Try to open that w/ 5.9.1 => it works; nothing illegal in score header, and the non-default
+value came through!?!
+
+The files 1CourtesyAcc.ngl and UnusualScHdr_1CourtesyAcc.ngl should be byte-for-byte
+identical except for the word containing <firstMNNumber> and the date/timestamp; apparently
+they're not. Hexdump both; compare dumps w/ TextWrangler => finds 19 differences!! Sigh;
+most are probably meaningless garbage. But all that could reasonably be causing the score-
+header errors must be at the beginning, almost certainly in the score header; it starts
+at offset 80 bytes = 0x50, with length 2148, so ends with offset 2227 = 0x8B3.
+
+	debug. Offset of noteInsFeedback=268 nFontRecords=327 nfontsUsed=988

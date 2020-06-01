@@ -2317,14 +2317,14 @@ setAccDone:
 			break;
 
 		case SYNCtype:
-			if (doc->feedback && !NoteREST(subObjL) && vert) {
+			if (doc->noteInsFeedback && !NoteREST(subObjL) && vert) {
 
 			}
 			SetNoteFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert, False, newAcc);
 			break;
 
 		case GRSYNCtype:
-			if (doc->feedback && vert) {
+			if (doc->noteInsFeedback && vert) {
 			}
 			SetGRNoteFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert, False, newAcc);
 			break;
@@ -2455,7 +2455,7 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 	}
 
 	/* Not a special case. Get the following barline, and set up grafPorts for giving
-		visual feedback during the drag. */
+	   visual feedback during the drag. */
 	
 	measureL = LSSearch(pL, MEASUREtype, 1, True, False);
 	

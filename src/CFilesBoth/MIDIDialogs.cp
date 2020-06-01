@@ -269,7 +269,7 @@ void MIDIPrefsDialog(Document *doc)
 	PutDlgWord(dlog, CHANNEL, doc->channel, False);
 
 	PutDlgWord(dlog, MASTERVELOCITY_DI, doc->velocity, False);
-	PutDlgChkRadio(dlog, FEEDBACK, doc->feedback);
+	PutDlgChkRadio(dlog, FEEDBACK, doc->noteInsFeedback);
 	
 	groupPartSets = (doc->polyTimbral? PART_SETTINGS : NO_PART_SETTINGS);	/* Set up radio button group */
 	PutDlgChkRadio(dlog, groupPartSets, 1);
@@ -410,7 +410,7 @@ void MIDIPrefsDialog(Document *doc)
 	/* Pick up changes to doc fields and, if any changed, set doc->changed. */
 	
 	newval = GetDlgChkRadio(dlog, FEEDBACK);
-	GEN_ACCEPT(doc->feedback);
+	GEN_ACCEPT(doc->noteInsFeedback);
 	
 	newval = GetDlgChkRadio(dlog, PART_SETTINGS);
 	GEN_ACCEPT(doc->polyTimbral);

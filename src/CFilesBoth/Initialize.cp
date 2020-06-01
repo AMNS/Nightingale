@@ -140,6 +140,21 @@ void Initialize()
 		{ BadInit(); ExitToShell(); }
 	Init_Help();
 	
+#define DISP_SCORE_STRUCT
+#ifdef DISP_SCORE_STRUCT
+	{
+	long noteInsFeedbackOff, nFontRecordsOff, nfontsUsedOff;
+	//LogPrintf(LOG_DEBUG, "Offsets of some fields in NIGHTSCOREHEADER: &headL=%lx &noteInsFeedback=%lx &nFontRecords=%lx &nfontsUsed=%lx\n",
+	//			&(clipboard->headL), &(clipboard->noteInsFeedback), &(clipboard->nFontRecords),
+	//				&(clipboard->nfontsUsed));
+	noteInsFeedbackOff = (long)&(clipboard->noteInsFeedback)-(long)&(clipboard->headL);
+	nFontRecordsOff = (long)&(clipboard->nFontRecords)-(long)&(clipboard->headL);
+	nfontsUsedOff = (long)&(clipboard->nfontsUsed)-(long)&(clipboard->headL);
+	LogPrintf(LOG_DEBUG, "Offset of noteInsFeedback=%ld nFontRecords=%ld nfontsUsed=%ld\n",
+						noteInsFeedbackOff, nFontRecordsOff, nfontsUsedOff); 
+	}
+#endif
+
 	/* See if we have enough memory that the user should be able to do SOMETHING
 	   useful, and enough to get back to the main event loop, where we do our
 	   regular low-memory checking. (As of v.999, 250K was enough; but now, in the

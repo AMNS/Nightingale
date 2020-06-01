@@ -17,9 +17,9 @@ static Boolean CheckUpdatePrefsFile(void);
 
 /* -------------------------------------------------------------- ReplacePrefsResource -- */
 
-/* In the current resource file, remove <resH> and replace it with <hndl> (which
-must not be a resource when this is called). Return True if all OK, give an error
-message and return False if there's a problem. */
+/* In the current resource file, remove <resH> and replace it with <hndl> (which must
+not be a resource when this is called). Return True if all OK, give an error message and
+return False if there's a problem. */
 
 static Boolean ReplacePrefsResource(Handle resH, Handle hndl, ResType type, short id,
 								const unsigned char *name)
@@ -46,13 +46,13 @@ static Boolean ReplacePrefsResource(Handle resH, Handle hndl, ResType type, shor
 
 
 /* -------------------------------------------------------------- CheckUpdatePrefsFile -- */
-/* If they've been changed, save current config struct in Prefs (formerly "Setup") file's
-'CNFG' resource, MIDI dynamics table in its 'MIDI' resource, and MIDI modifier prefs tables
-in its 'MIDM' resource, . Doesn't update any other resources that may be in the Prefs file,
-.e.g., tool palette 'PICT'/'PLCH', 'PLMP'. We assume Prefs file is open. Return True if all
-OK, give an error message and return False if there's a problem. NB: If we're running on
-a Little Endian machine, this converts multibyte numbers to Big Endian form; that
-could be disasterous if we do anything after this but quit! */
+/* If they've been changed, save current config struct in Prefs (formerly "Setup")
+file's 'CNFG' resource, MIDI dynamics table in its 'MIDI' resource, and MIDI modifier
+prefs tables in its 'MIDM' resource, . Doesn't update any other resources that may be in
+the Prefs file, .e.g., tool palette 'PICT'/'PLCH', 'PLMP'. We assume Prefs file is open.
+Return True if all OK, give an error message and return False if there's a problem. NB:
+If we're running on a Little Endian machine, this converts multibyte numbers to Big
+Endian form; that could be disastrous if we do anything after this but quit! */
 
 #define CNFG_RES_NAME	"\pNew Config"
 #define MIDI_RES_NAME	"\pNew velocity table"
@@ -122,7 +122,7 @@ static Boolean CheckUpdatePrefsFile()
 	EndianFixMIDIModNRTable();	/* Ensure MIDI modNR tables are in Big Endian form */
 		
 	/* Get the config resource and MIDI resources from Prefs file and compare them to
-		our internal values. If any have been changed, update the file. */
+	   our internal values. If any have been changed, update the file. */
 	
 	cnfgResH = GetResource('CNFG', THE_CNFG);
 	if (ReportResError()) return False;
@@ -136,7 +136,7 @@ static Boolean CheckUpdatePrefsFile()
 		
 	for (midiVeloTabChanged = False, i = 1; i<LAST_DYNAM; i++)
 		if (dynam2velo[i]!=((MIDIPreferences *)*midiResH)->velocities[i-1])
-			{ midiVeloTabChanged = True; break; }
+			{ midiVeloTabChanged = True;  break; }
 	
 	for (midiModNRTabChanged = False, i = 0; i<32; i++) {
 		if (modNRVelOffsets[i]!=((MIDIModNRPreferences *)*midiModNRResH)->velocityOffsets[i])
@@ -150,8 +150,8 @@ static Boolean CheckUpdatePrefsFile()
 							cnfgChanged, midiVeloTabChanged, midiModNRTabChanged);
 
 	/* NB: With the addition of the MIDI Modifier Prefs, the wording of these warning
-		messages is getting a little too complicated. I'm bundling the MIDI Dynamics
-		Prefs and MIDI Modifier Prefs in one message, but this isn't the best solution.
+	   messages is getting a little too complicated. I'm bundling the MIDI Dynamics
+	   Prefs and MIDI Modifier Prefs in one message, but this isn't the best solution.
 		-JGG, 6/24/01 */
  
 	if (cnfgChanged || midiVeloTabChanged || midiModNRTabChanged) {
@@ -179,8 +179,8 @@ static Boolean CheckUpdatePrefsFile()
 
 /* -------------------------------------------------------------------- ClosePrefsFile -- */
 /* Closes the Prefs file; returns True is successful, False if error. From InsideMac:
-If there's no resource file open with the given reference number, CloseResFile will
-do nothing and the ResError function will return the result code resFNotFound. */
+If there's no resource file open with the given reference number, CloseResFile will do
+nothing and the ResError function will return the result code resFNotFound. */
 
 Boolean ClosePrefsFile()
 {	

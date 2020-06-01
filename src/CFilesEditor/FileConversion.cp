@@ -62,7 +62,7 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->nstaves = docN105->nstaves;
 	doc->nsystems = docN105->nsystems;
 	strcpy((char *)doc->comment, (char *)docN105->comment);
-	doc->feedback = docN105->feedback;
+	doc->noteInsFeedback = docN105->feedback;
 	doc->dontSendPatches = docN105->dontSendPatches;
 	doc->saved = docN105->saved;
 	doc->named = docN105->named;
@@ -315,14 +315,14 @@ short HeapFixN105Links(Document *doc)
 
 #if 0
 {	unsigned char *pSObj;
-//pSObj = (unsigned char *)GetPSUPEROBJECT(1);
-//NHexDump(LOG_DEBUG, "HeapFixLinks1 L1", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-//NHexDump(LOG_DEBUG, "HeapFixLinks1 L2", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-//NHexDump(LOG_DEBUG, "HeapFixLinks1 L3", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(4);
-//NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+NHexDump(LOG_DEBUG, "HeapFixLinks1 L1", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+NHexDump(LOG_DEBUG, "HeapFixLinks1 L2", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+NHexDump(LOG_DEBUG, "HeapFixLinks1 L3", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(4);
+NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 }
 #endif
 
@@ -373,14 +373,14 @@ short HeapFixN105Links(Document *doc)
 
 #if 0
 {	unsigned char *pSObj;
-//pSObj = (unsigned char *)GetPSUPEROBJECT(1);
-//NHexDump(LOG_DEBUG, "HeapFixLinks2 L1", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-//NHexDump(LOG_DEBUG, "HeapFixLinks2 L2", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(3);
-//NHexDump(LOG_DEBUG, "HeapFixLinks2 L3", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(4);
-//NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+NHexDump(LOG_DEBUG, "HeapFixLinks2 L1", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+NHexDump(LOG_DEBUG, "HeapFixLinks2 L2", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+NHexDump(LOG_DEBUG, "HeapFixLinks2 L3", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJECT(4);
+NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 }
 #endif
 

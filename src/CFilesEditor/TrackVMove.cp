@@ -283,7 +283,7 @@ Boolean AltInsTrackPitch(
 						thisTime = TickCount();
 						deltaTime = thisTime-lastTime;
 						lastTime = thisTime;
-						extraTime = doc->feedback? 2 : 0;
+						extraTime = doc->noteInsFeedback? 2 : 0;
 						if		  (deltaTime<6+extraTime)	accidentStep = 1;
 						else if (deltaTime<10+extraTime)	accidentStep = 2;
 						else if (deltaTime<20+extraTime)	accidentStep = 3;
@@ -627,7 +627,7 @@ extern Byte		CrsrCouple : 0x8CF;
 */
 
 // Use CoreGraphics for SetMouse (MAS, see http://lists.apple.com/archives/Carbon-development/2001/Aug/msg00738.html)
-void SetMouse(short x, short y, Boolean updateCrs)
+void SetMouse(short x, short y, Boolean /* updateCrs */)
 {
 	//Point	newPt;
 	CGPoint newPt;

@@ -1,8 +1,8 @@
-/****************************************************************************************
+/******************************************************************************************
 *	FILE:	Clipboard.c
 *	PROJ:	Nightingale
 *	DESC:	clipboard routines
-/****************************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -82,7 +82,7 @@ static void PasteFromClip(Document *, LINK, short, Boolean);
 
 static void FixOctNotes(Document *doc, LINK octL, short s);
 
-/* -------------------------------------------------------------------- FixClipBeams -- */
+/* ---------------------------------------------------------------------- FixClipBeams -- */
 /* Fix the  beam status for all notes in range [startL, endL). If a beamed
 note is copied to the clipboard without its associated beamset, then FixBeamLinks
 will not set its tempFlag; fix the beam flag and stem for such notes. Cf.
@@ -134,7 +134,7 @@ static void FixClipBeams(Document *doc, LINK startL, LINK endL)
 }
 
 
-/* ------------------------------------------------------------------ FixClipTuplets -- */
+/* -------------------------------------------------------------------- FixClipTuplets -- */
 /* Fix the tuplet status for all notes in range [startL, endL). If a tupled
 note is copied to the clipboard without its associated tuplet, then FixTupletLinks
 will not set its tempFlag; fix the inTuplet flag and duration for such notes. */
@@ -163,7 +163,7 @@ static void FixClipTuplets(Document *doc, LINK startL, LINK endL)
 }
 
 
-/* ------------------------------------------------------------------ FixClipOttavas -- */
+/* -------------------------------------------------------------------- FixClipOttavas -- */
 /* Fix the ottava status for all notes in range [startL, endL). If an ottava'd
 note is copied to the clipboard without its associated ottava, then FixOttavaLinks
 will not set its tempFlag; fix the inOttava flag and pitch for such notes. */
@@ -242,7 +242,7 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 	InstallDoc(doc);
 }
 
-/* ------------------------------------------------------------------- ChkSrcDocSlur -- */
+/* --------------------------------------------------------------------- ChkSrcDocSlur -- */
 /* If the slur exists and was selected in the src doc, check to see if it was copied
 to the dst doc. */
 
@@ -258,7 +258,7 @@ static Boolean ChkSrcDocSlur(LINK slurL, COPYMAP *clipMap, short numObjs)
 	return False;
 }
 
-/* ------------------------------------------------------------------ SrcSlurInRange -- */
+/* -------------------------------------------------------------------- SrcSlurInRange -- */
 /* Check to see if the slur in the src doc which begins/ends at qL is in the range
 copied to the destination doc (currentDoc). */
 
@@ -363,13 +363,13 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 							qL = clipMap[i].srcL;
 				
 				/* If there was a sync in the source corresponding to a sync in the
-					dest, traverse the notes of the sync in the dest. If any was tied/
-					slurred, search for the corresponding slur in the source, and check
-					to see if it was copied. If there was none or it wasn't copied,
-					mark the note not tied/slurred.
-					#1. Note has already been translated to new staff/voice; searching
-					in the source document requires translation back to previous staff/
-					voice. */
+				   dest, traverse the notes of the sync in the dest. If any was tied/
+				   slurred, search for the corresponding slur in the source, and check
+				   to see if it was copied. If there was none or it wasn't copied,
+				   mark the note not tied/slurred.
+				   #1. Note has already been translated to new staff/voice; searching
+				   in the source document requires translation back to previous staff/
+				   voice. */
 
 				if (qL) {
 					aNoteL = FirstSubLINK(pL);
@@ -380,9 +380,9 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 						pbSearch.optimize = False;
 
 						/* For each note copied from srcDoc to dstDoc, check all tied/slurred
-							flags to see if any tie/slur begins/ends at that note. If so, check
-							if the tie/slur was also copied to the dst doc; if not, mark the
-							corresponding flag in the note False. */
+						   flags to see if any tie/slur begins/ends at that note. If so, check
+						   if the tie/slur was also copied to the dst doc; if not, mark the
+						   corresponding flag in the note False. */
 
 						if (NoteTIEDL(aNoteL)) {
 							/* See if the tie was copied to the dst doc. */
@@ -491,7 +491,7 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 	}
 }
 
-/* --------------------------------------------------------------- UpdateClipContext -- */
+/* ----------------------------------------------------------------- UpdateClipContext -- */
 
 static void UpdateClipContext(Document *doc)
 {
@@ -573,7 +573,7 @@ static DDIST GetNeededSpace(Document *doc, LINK pL)
 	return width;
 }
 
-/* ----------------------------------------------------------------------- SetupClip -- */
+/* ------------------------------------------------------------------------- SetupClip -- */
 /* Set up the clipboard: delete the main clip, and compute the clipboard
 parameters clipxd, clipBarxd. */
 
@@ -623,7 +623,7 @@ static void SetupClip(Document *doc, LINK startL, LINK endL, COPYMAP **clipMap,
 }
 
 
-/* ------------------------------------------------------------------- FixClipChords -- */
+/* --------------------------------------------------------------------- FixClipChords -- */
 /* Fix stem, inChord flags, etc. of notes in case any chords were only partly
 copied. This version doesn't check whether in fact a voice was only partly copied,
 which looks difficult to do; it simply resets the note/chord in every voice to
@@ -679,7 +679,7 @@ static Boolean HasAnyAccidentals(LINK pL)
 	return False;
 }
 
-/* ---------------------------------------------------------------------- CopyToClip -- */
+/* ------------------------------------------------------------------------ CopyToClip -- */
 /* Copy the specified range of nodes to the clipboard. Assumes doc, not clipboard,
 is installed! */
 
@@ -1050,7 +1050,7 @@ void SetupClipDoc(Document *doc, Boolean updContext)
 	clipboard->tempo = doc->tempo;
 	clipboard->channel = doc->channel;
 	clipboard->velocity = doc->velocity;
-	clipboard->feedback = doc->feedback;
+	clipboard->noteInsFeedback = doc->noteInsFeedback;
 	clipboard->transposed = doc->transposed;
 	clipboard->polyTimbral = doc->polyTimbral;
 
@@ -1078,7 +1078,7 @@ void SetupClipDoc(Document *doc, Boolean updContext)
 	if (updContext) UpdateClipContext(doc);
 }
 
-/* ---------------------------------------------------------------------- DeleteClip -- */
+/* ------------------------------------------------------------------------ DeleteClip -- */
 /* Kill all nodes contained in the clipboard, except for the last one. */
 
 static void DeleteClip(Document *doc)
@@ -1158,7 +1158,7 @@ static void DeleteClip(Document *doc)
 }
 
 
-/* ----------------------------------------------- Functions for Measure consistency -- */
+/* ------------------------------------------------- Functions for Measure consistency -- */
 
 /* For every selected measure object and pseudoMeasure object in the selection range,
 if only some of its subobjects are selected, deselect it completely and unhilite it.
@@ -1241,7 +1241,7 @@ Boolean AllMeasHomoSel(Document *doc)
 }
 
 
-/* --------------------------------------------------------------------------- DoCut -- */
+/* ----------------------------------------------------------------------------- DoCut -- */
 /* Cut the selection from the score and copy it to our clipboard. */
 
 void DoCut(Document *doc)
@@ -1270,7 +1270,7 @@ void DoCut(Document *doc)
 }
 
 
-/* -------------------------------------------------------------------------- DoCopy -- */
+/* ---------------------------------------------------------------------------- DoCopy -- */
 /* Copy the selection from the score to our clipboard. */
 
 void DoCopy(Document *doc)
@@ -1297,7 +1297,7 @@ void DoCopy(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------------------- */
 /* Functions for DoPaste. */
 
 static void ClipCases(Document *doc, Boolean *hasClef, Boolean *hasKS, Boolean *hasTS)
@@ -1360,7 +1360,7 @@ static enum {
 	CHK3_Assume=5
 } E_PasteDRAItems;
 
-/* ------------------------------------------------------------------------- DoPaste -- */
+/* --------------------------------------------------------------------------- DoPaste -- */
 /* Paste the clipboard into the selection range. */
 
 Boolean DoPaste(Document *doc)
@@ -1446,7 +1446,7 @@ Boolean DoPaste(Document *doc)
 }
 
 
-/* --------------------------------------------------------- PasteFromClip functions -- */
+/* ----------------------------------------------------------- PasteFromClip functions -- */
 
 static DDIST GetClipDiffxd(Document *doc, LINK a, LINK b, DDIST c, DDIST d)
 {
@@ -1460,7 +1460,7 @@ static DDIST GetClipDiffxd(Document *doc, LINK a, LINK b, DDIST c, DDIST d)
 #define STAFF1 				1
 #define pLeftxd				( DLinkXD(clipboard, DFirstValidxd(doc, clipboard, DLeftLINK(clipboard,pL),True)) )
 
-/* ------------------------------------------------------------------- RecalcClipxds -- */
+/* --------------------------------------------------------------------- RecalcClipxds -- */
 /* Recalculate the clipboard xds so that objects in the clipboard will be properly
 located horizontally for pasting into doc at insertL.
 Actually stores the re-computed xds in LinkXD fields of the clipboard objects
@@ -1568,7 +1568,7 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 				if (DMeasureTYPE(clipboard,startL)) {				
 					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 					clipDiffxd = GetClipDiffxd(doc,prevMeasL,startL,LinkXD(validLeft),insertpxd);
-					DMoveMeasures(doc, clipboard, startL, endL, clipDiffxd);				/* Move following measures */
+					DMoveMeasures(doc, clipboard, startL, endL, clipDiffxd);	/* Move following measures */
 				}
 				else {
 					clipDiffxd = GetClipDiffxd(doc,validLeft,startRight,insertpxd,0);
@@ -1584,7 +1584,7 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 				prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 				clipDiffxd = GetClipDiffxd(doc,prevMeasL,startL,insertpxd,
 									(MeasureTYPE(insertLeft)?SP_PASTEAFTERBAR:LinkXD(validLeft)));
-				DMoveMeasures(doc, clipboard, startL, endL, clipDiffxd);					/* Move following measures */
+				DMoveMeasures(doc, clipboard, startL, endL, clipDiffxd);		/* Move following measures */
 			}
 			else {
 				clipDiffxd = GetClipDiffxd(doc,FirstValidxd(insertL,False),startRight,0,0);
@@ -1592,14 +1592,14 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 				
 				prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 				clipDiffxd = GetClipDiffxd(doc,prevMeasL,pL,pLeftxd,barxd);
-				DMoveMeasures(doc, clipboard, pL, endL, clipDiffxd);		  				/* Move following measures */
+				DMoveMeasures(doc, clipboard, pL, endL, clipDiffxd);		  	/* Move following measures */
 			}
 			break;
 	}
 }
 
 
-/* -------------------------------------------------------------------- PreparePaste -- */
+/* ---------------------------------------------------------------------- PreparePaste -- */
 /* Recalculate xds in the clipboard and the main object list and set the
 clipboard endpoint LINKs startL, endL. RecalcClipxds actually moves clipboard
 objects prior to pasting. */
@@ -1626,7 +1626,7 @@ static enum {
 	CANCEL_DI
 } E_PINItems;
 
-/*-------------------------------------------------------- Bad/VeryBadStaffAlert -- */
+/*-------------------------------------------------------------- Bad/VeryBadStaffAlert -- */
 /* Alert the user that they have attempted to paste something into a staff in the
 score which doesn't exist. */
 
@@ -1683,7 +1683,7 @@ static void VeryBadStaffAlert(short clipStaves, short docStaves)
 }
 
 
-/* --------------------------------------------------------------- CheckStaffMapping -- */
+/* ----------------------------------------------------------------- CheckStaffMapping -- */
 /* Function to verify clipboard for pasting into staves other than src. If a LINK
 has subobjects on staves that, when offset by the current staff doc->selStaff, are
 illegal in the destination document, tell the user and return PastePin or
@@ -1702,8 +1702,8 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 	InstallDoc(clipboard);
 
 	/* Check each object in the clipboard to determine if pasting that object
-		into the score, starting at the staff the insertion pt is on, will
-		result in pasting an object or subobject onto an illegal staff. */
+	   into the score, starting at the staff the insertion pt is on, will
+	   result in pasting an object or subobject onto an illegal staff. */
 
 	for (pL = startL; pL!=endL && staffOK; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -1776,7 +1776,7 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 }
 
 
-/* -------------------------------------------------- CrossStaff2CrossPart and ally -- */
+/* ----------------------------------------------------- CrossStaff2CrossPart and ally -- */
 
 static short GetTupletTopStaff(LINK);
 static Boolean CrossStaff2CrossPart(LINK, short, short []);
@@ -1832,7 +1832,7 @@ static Boolean CrossStaff2CrossPart(LINK pL, short staffDiff, short staffTab[])
 	}
 }
 
-/* ------------------------------------------------------------ MultipleVoicesInClip -- */
+/* -------------------------------------------------------------- MultipleVoicesInClip -- */
 /* Return True if the clipboard contains stuff in two or more different voices. */
 
 static Boolean MultipleVoicesInClip(void);
@@ -1880,7 +1880,7 @@ static Boolean MultipleVoicesInClip()
 }
 
 
-/* ------------------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------------------- */
 /* Functions to determine if the user is trying to paste illegally nested slurs.
 Much of the complexity is due to the fact that we have to analyze the paste
 operation as if a potentially non-empty selRange has already been removed by
@@ -2004,7 +2004,7 @@ static Boolean CheckSlurNest(Document *doc, short stfDiff)
 }
 
 
-/* ------------------------------------------------------------------- CheckMainClip -- */
+/* --------------------------------------------------------------------- CheckMainClip -- */
 /* Check staff numbers and selection status for nodes in the main clipboard.
 Also check whether any cross-staff objects are to be pasted crossing part
 boundaries, since we can't handle that, and for bad situations involving Looking
@@ -2077,23 +2077,23 @@ short CheckMainClip(Document *doc, LINK startL, LINK endL)
 	return pasteType;
 }
 
-/* ----------------------------------------------------------------- PasteFixStfSize -- */
+/* ------------------------------------------------------------------- PasteFixStfSize -- */
 /* Update pasted-in range for changes in staff size. */
 
 void PasteFixStfSize(Document *doc, LINK startL, LINK endL)
 {
 	/* If the score's and clipboard's standard sizes are the same, do nothing;
-	 * otherwise, convert from one standard size to the other. ??If all staves of both
-	 * documents are in the standard sizes, this is fine; if not, it may be okay, or
-	 * (depending on the sizes of the specific staves involved) the resulting symbol
-	 * y-positions may be a mess!
-	 */
+	   otherwise, convert from one standard size to the other. ??If all staves of both
+	   documents are in the standard sizes, this is fine; if not, it may be okay, or
+	   (depending on the sizes of the specific staves involved) the resulting symbol
+	   y-positions may be a mess! */
+	   
 	if (doc->srastral == clipboard->srastral) return;
 	
 	SetStaffSize(doc, startL, endL, clipboard->srastral, doc->srastral);
 }
 
-/* ----------------------------------------------------------------- UpdateMeasRects -- */
+/* ------------------------------------------------------------------- UpdateMeasRects -- */
 /*	Updates measureRects (lefts and rights) after paste,starting from first
 measure object before selStartL.	*/
 
@@ -2108,7 +2108,7 @@ static void UpdateMeasRects(LINK init, LINK succ, DDIST systemWidth)
 }
 
 
-/* ------------------------------------------------------------- PasteFixMeasureRect -- */
+/* --------------------------------------------------------------- PasteFixMeasureRect -- */
 
 void PasteFixMeasureRect(LINK pMeasureL,
 							DDIST systemWidth)	/* Only used if pMeasure->rMeasure==NILINK */
@@ -2132,7 +2132,7 @@ void PasteFixMeasureRect(LINK pMeasureL,
 }
 
 
-/* ---------------------------------------------------------------------- ClipMovexd -- */
+/* ------------------------------------------------------------------------ ClipMovexd -- */
 /* Move objects following the pasted-in range based on the following parameters:
 the xd of the first valid object to the left of the insertion point,
 the xd of the clipboard, and the endxd of the clipboard.
@@ -2153,12 +2153,11 @@ static void ClipMovexd(Document *doc, LINK insertL)
 }
 
 
-/* ------------------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------------------- */
 
-/* Required for mapping clipboard staves. The contents of the clipboard
-are guaranteed to begin with a measure object. From that point on to the
-tail, if there are only measures or PSMeasures, return True, else return
-False. */
+/* Required for mapping clipboard staves. The contents of the clipboard are guaranteed
+to begin with a measure object. From that point on to the tail, if there are only
+measures or PSMeasures, return True, else return False. */
 
 static short OnlyMeasures()
 {
@@ -2172,8 +2171,7 @@ static short OnlyMeasures()
 	return (measL==clipboard->tailL);
 }
 
-/* Return True if the clipboard has any notes in v. Installs doc before
-returning. */
+/* Return True if the clipboard has any notes in v. Installs doc before returning. */
 
 static Boolean ClipNoteInV(Document *doc, short v)
 {
@@ -2346,7 +2344,7 @@ short GetClipMaxStf(Document *fixDoc)
 }
 
 
-/* ------------------------------------------------------- GetStfDiff, GetAnyStfDiff -- */
+/* --------------------------------------------------------- GetStfDiff, GetAnyStfDiff -- */
 /* Given minStaff is the minimum staffn of any object/subObj in the clipboard, minPart
 is the part in the clipboard containing minStaff, and selPart is the part in fixDoc
 containing the insertion point: then this sets partDiff to the difference in parts
@@ -2396,7 +2394,7 @@ static short GetAnyStfDiff(Document *doc, Document *fixDoc, short pasteType,
 }
 
 
-/* ----------------------------------------------------------------------- MapStaves -- */
+/* ------------------------------------------------------------------------- MapStaves -- */
 /* Translate the staff numbers of LINKs in the range [startL,endL) by staffDiff. */
 
 void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)
@@ -2446,7 +2444,7 @@ void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)
 }
 
 
-/* ======================================================= Voice-remapping functions == */
+/* ========================================================= Voice-remapping functions == */
 
 static VOICEINFO clip2DocVoiceTab[MAXVOICES+1];
 
@@ -2614,7 +2612,7 @@ static void MapVoices(Document *doc, LINK startL, LINK endL, short stfDiff)
 }
 
 
-/* ------------------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------------------- */
 /* Charlie's (nice) utilities for Voice maps, formerly in Merge.c. NB: these are
 currently used only by Merge, NOT by Paste Insert--though they should be! */
 
@@ -2715,7 +2713,7 @@ void SetupVMap(Document *doc, short *vMap, short stfDiff)
 }
 
 
-/* ------------------------------------------------------------------ PasteMapStaves -- */
+/* -------------------------------------------------------------------- PasteMapStaves -- */
 /* Update the staff numbers after the paste operation: re-number the staves
 of all objects so that they are pasted in starting at the staff of the
 insertion point. Also re-number the voices of all objects that have voice
@@ -2746,7 +2744,7 @@ static short PasteMapStaves(Document *doc, Document *newDoc, LINK startL, LINK e
 	return staffDiff;
 }
 
-/* -------------------------------------------------------------- PasteFixMeasStruct -- */
+/* ---------------------------------------------------------------- PasteFixMeasStruct -- */
 /* Fix up the part-staff structure of measures in the range [startL,endL). */
 
 void PasteFixMeasStruct(Document *doc, LINK startL, LINK endL, Boolean fixMeasure)
@@ -2832,7 +2830,7 @@ void PasteFixMeasStruct(Document *doc, LINK startL, LINK endL, Boolean fixMeasur
 		}
 }
 
-/* --------------------------------------------------------------------- PasteUpdate -- */
+/* ----------------------------------------------------------------------- PasteUpdate -- */
 /* Update xds, rects, etc., and handle re-drawing after the paste operation. */
 
 void PasteUpdate(Document *doc, LINK initL, LINK succL, DDIST systemWidth)
@@ -2853,7 +2851,7 @@ void PasteUpdate(Document *doc, LINK initL, LINK succL, DDIST systemWidth)
 }
 
 
-/* ----------------------------------------------------------- PasteFixOttavas et al -- */
+/* ------------------------------------------------------------- PasteFixOttavas et al -- */
 /* Update v position and inOttava status for all notes on staff <s> in
 range [startL,endL). */
 
@@ -2903,7 +2901,7 @@ void PasteFixOttavas(Document *doc, LINK startL, short s)
 	if (octL) FixOctNotes(doc,octL,s);
 }
 
-/* ------------------------------------------------------------------- PasteFixBeams -- */
+/* --------------------------------------------------------------------- PasteFixBeams -- */
 /* Update v position and inBeam status for all notes in voice <v> in range
 [startL,endL). */
 
@@ -2934,7 +2932,7 @@ static void PasteRebeam(Document *doc, LINK pL, short nInRange)
 }
 
 
-/* ------------------------------------------------------------- PasteFixBeams et al -- */
+/* --------------------------------------------------------------- PasteFixBeams et al -- */
 /* Regardless of whether the range is beamed now, returns the number of beamable
 Syncs in the range. Notice that the range can't really be beamed if the result is 1.
 Similar to CountBeamable, except that function considers the range unbeamable if
@@ -3070,7 +3068,7 @@ void PasteFixBeams(Document *doc, LINK startL, short v)
 	if (beamL) FixBeamNotes(doc,beamL,v);
 }
 
-/* --------------------------------------------------------- PasteFixAllContexts -- */
+/* --------------------------------------------------------------- PasteFixAllContexts -- */
 /* After pasting, fix up clef, keySig, timeSig, and dynamic contexts starting
 at <startL>, on staff <s>. */
 
@@ -3195,7 +3193,7 @@ static void PasteFixSysMeasContexts(Document *doc, LINK initL)
 }
 
 
-/* ----------------------------------------------------------------- PasteFixContext -- */
+/* ------------------------------------------------------------------- PasteFixContext -- */
 /* Fix up clef, keysig, timesig and dynamic contexts for the range pasted in,
 both at the initial and final boundaries of the range.
 initL is the node before the selection range; succL is the node after it:
@@ -3218,12 +3216,12 @@ void PasteFixContext(Document *doc, LINK initL, LINK succL, short staffDiff)
 	clipMeasL = LSSearch(clipboard->headL, MEASUREtype, ANYONE, False, False);
 
 	/* First measure in clipboard establishes old context; LINK before
-		pasted in material establishes new context for range pasted in.
-		Fix up context for range pasted in. staffDiff allows handling
-		paste into staves other than source. For example, if doc->selStaff
-		is 3, pasted in range goes from staff 1 in clipboard to staff 3 in
-		score. Therefore get the context in the clipboard to reflect this
-		difference. */
+	   pasted in material establishes new context for range pasted in.
+	   Fix up context for range pasted in. staffDiff allows handling
+	   paste into staves other than source. For example, if doc->selStaff
+	   is 3, pasted in range goes from staff 1 in clipboard to staff 3 in
+	   score. Therefore get the context in the clipboard to reflect this
+	   difference. */
 
 	for (s = doc->selStaff; s<=doc->nstaves; s++) {
 
@@ -3250,8 +3248,8 @@ void PasteFixContext(Document *doc, LINK initL, LINK succL, short staffDiff)
 	}
 
 	/* Link before pasted in material establishes old context; link at end
-		of pasted in material establishes new context for range past the
-		range pasted in. Fix up context for range past range pasted in. */
+	   of pasted in material establishes new context for range past the
+	   range pasted in. Fix up context for range past range pasted in. */
 
 	for (s = doc->selStaff; s<=doc->nstaves; s++) {
 		GetContext(doc, initL, s, &oldContext);
@@ -3269,7 +3267,7 @@ void PasteFixContext(Document *doc, LINK initL, LINK succL, short staffDiff)
 }
 
 
-/* ------------------------------------------------------------------- PasteFromClip -- */
+/* --------------------------------------------------------------------- PasteFromClip -- */
 /* Paste the clipboard before <insertL>. After pasting, initL and succL bracket
 the pasted in range. */
 

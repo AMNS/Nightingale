@@ -85,7 +85,7 @@ pages of documents. */
 	Point		origin;				/* Current origin of Document window */						\
 	Rect		paperRect;			/* Size of virtual paper sheet in current mag. (pixels) */	\
 	Rect		origPaperRect;		/* Size of paper sheet (points) */							\
-	Point		holdOrigin;			/* (unused) Holds position during pick mode */				          \
+	Point		holdOrigin;			/* (unused) Holds position during pick mode */				\
 	Rect		marginRect;			/* Size of area within margins on sheet (points) */			\
 	Point		sheetOrigin;		/* Where in Quickdraw space to place sheet array */			\
 																								\
@@ -124,8 +124,8 @@ typedef struct {
 	short		nstaves,			/* number of staves in a system */							\
 				nsystems;			/* number of systems in score */							\
 	char		comment[MAX_COMMENT_LEN+1]; /* User comment on score (C string) */				\
-	char		feedback;			/* True if we want feedback on note insert */				\
-	char		dontSendPatches;	 /* 0 = when playing, send patch changes for channels */		\
+	char		noteInsFeedback;	/* True for audio feedback on note insert */				\
+	char		dontSendPatches;	/* 0 = when playing, send patch changes for channels */		\
 	char		saved;				/* True if score has been saved */							\
 	char		named;				/* True if file has been named */							\
 	char 		used;				/* True if score contains any nonstructural info */			\
@@ -163,7 +163,7 @@ typedef struct {
 				masterTailL;		/* Tail of Master Page object list */						\
 	SignedByte	filler1,																		\
 				nFontRecords;		/* Always 15 for now */										\
-	/* Fifteen identical TEXTSTYLE records. Fontnames are Pascal strings. */					\
+	/* Fifteen identical TEXTSTYLE records, 44 bytes each. Fontnames are Pascal strings. */		\
 																								\
 	unsigned char fontNameMN[32];	/* MEASURE NO. FONT: default name, size and style */		\
 	unsigned short	fillerMN;																	\

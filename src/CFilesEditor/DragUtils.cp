@@ -155,7 +155,7 @@ void SDMIDIFeedback(Document *doc, short *noteNum, short useChan, short acc,
 {
 	short prevAccident;
 
-	if (!doc->feedback) return;
+	if (!doc->noteInsFeedback) return;
 
 	MIDIFBNoteOff(doc, *noteNum, useChan, ioRefNum);
 	if (acc==0) {

@@ -774,12 +774,12 @@ Boolean MIDIConnected()
 /* =========================================================== MIDI Feedback Functions == */
 
 /* --------------------------------------------------------------- MIDIFBOn, MIDIFBOff -- */
-/*	If feedback is enabled, turn on MIDI apparatus. Exception: if the port is busy,
-do nothing. */
+/* If feedback is enabled, turn on MIDI apparatus. Exception: if the port is busy, do
+nothing. */
 
 void MIDIFBOn(Document *doc)
 {
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		switch (useWhichMIDI) {
 			case MIDIDR_CM:
 				CMFBOn(doc);
@@ -790,12 +790,12 @@ void MIDIFBOn(Document *doc)
 	}
 }
 
-/*	If feedback is enabled, turn off MIDI apparatus. Exception: if the port is busy,
-do nothing. */
+/* If feedback is enabled, turn off MIDI apparatus. Exception: if the port is busy, do
+nothing. */
 
 void MIDIFBOff(Document *doc)
 {
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		switch (useWhichMIDI) {
 			case MIDIDR_CM:
 				CMFBOff(doc);
@@ -816,7 +816,7 @@ void MIDIFBNoteOn(
 			short noteNum, short channel,
 			short useIORefNum)
 {
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		switch (useWhichMIDI) {
 			case MIDIDR_CM:
 				CMFBNoteOn(doc, noteNum, channel, useIORefNum);
@@ -843,7 +843,7 @@ void MIDIFBNoteOff(
 			short	noteNum, short	channel,
 			short useIORefNum)
 {
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		switch (useWhichMIDI) {
 			case MIDIDR_CM:
 				CMFBNoteOff(doc, noteNum, channel, useIORefNum);

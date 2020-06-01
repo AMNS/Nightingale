@@ -165,7 +165,7 @@ static void DisplayScoreHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "Displaying Score header (ID %d):\n", id);
 	LogPrintf(LOG_INFO, "  (1)nstaves=%d", doc->nstaves);
 	LogPrintf(LOG_INFO, "  (2)nsystems=%d", doc->nsystems);
-	LogPrintf(LOG_INFO, "  (3)feedback=%d", doc->feedback);
+	LogPrintf(LOG_INFO, "  (3)noteInsFeedback=%d", doc->noteInsFeedback);
 	LogPrintf(LOG_INFO, "  (4)used=%d", doc->used);
 	LogPrintf(LOG_INFO, "  (5)transposed=%d\n", doc->transposed);
 	
@@ -216,7 +216,6 @@ size is, so we can't fully check numbers that depend on it. */
 static Boolean CheckScoreHdr(Document *doc)
 {
 	short nerr = 0, firstErr = 0;
-	long stringPoolSize;
 	
 	if (doc->nstaves<1 || doc->nstaves>MAXSTAVES) ERR(1);
 	if (doc->nsystems<1 || doc->nsystems>2000) ERR(2);

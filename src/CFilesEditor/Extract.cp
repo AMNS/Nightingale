@@ -609,7 +609,7 @@ static void InitDocFields(register Document *score, register Document *part)
 
 	/* From NIGHTSCOREHEADER */
 
-	part->feedback = score->feedback;
+	part->noteInsFeedback = score->noteInsFeedback;
 	part->polyTimbral = score->polyTimbral;
 	part->spacePercent = score->spacePercent;
 	

@@ -1,6 +1,6 @@
-NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.9)
+NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10)
 Nightingale Technical Note #1
-Don Byrd, rev. early March 2020
+Don Byrd, rev. late May 2020
 
 A general note:
 
@@ -57,6 +57,31 @@ describes the file format in detail.
  
 The voice-mapping table -- for the Document _*doc_, _doc->voiceTab[]_ -- is described in
 comments at the beginning of VoiceTable.c.
+
+---------------------------------------------------------------------------------------
+
+About the Nightingale Score Header
+
+Files in “N105” format begin (offset and length are in bytes in base 10):
+
+Offset	Length	Item
+------	------	----
+0		4		“N105”
+4		4		Date/time file was written
+8		72		Document header
+80		2148	Score header
+2228	2		LASTtype (always 25)
+
+The score header contains many, many fields. These should help finding things in dumps,
+for low-level debuging:
+
+Offset			Length	Item
+------			------	----
+80 = 0x50		12		various: <headL>, etc.
+92 = 0x5C		256		<comment>
+348 = 0x15C		60		various: <noteInsFeedback>, etc.
+408 = 0x198		660		15 font (TEXTSTYLE) records of 44 bytes each
+1068 = 0x42C			various: <nfontsUsed>, etc.
 
 ---------------------------------------------------------------------------------------
 
@@ -280,7 +305,7 @@ A Typical Heap Header, byte-by-byte
 
 This is a Sync (note/rest) heap with room for 2313 = 0x0909 notes/rests.
 
-This header, like all headers, takes 16 bytes. In hexadecimal:
+This header, like all heap headers, takes 16 bytes. In hexadecimal:
 01C3 3CA0 001E 0002 0894 0909 0607 0000
 
 Offset

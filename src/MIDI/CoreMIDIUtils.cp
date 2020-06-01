@@ -473,7 +473,7 @@ static void CMFBNoteOffDevID(Document *doc, short noteNum, short channel, MIDIUn
 
 void CMFBOff(Document *doc)
 {
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		if (appOwnsBITimer) {						/* use built-in */
 			CMStopTime();
 		}
@@ -482,7 +482,7 @@ void CMFBOff(Document *doc)
 
 void CMFBOn(Document *doc)
 {
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		//OMSClaimTimer(myClientID);				/* use built-in */
 		appOwnsBITimer = True;
 		CMStartTime();
@@ -491,7 +491,7 @@ void CMFBOn(Document *doc)
 
 void CMMIDIFBNoteOn(Document *doc, short noteNum, short channel, MIDIUniqueID devID)
 {
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		CMFBNoteOnDevID(doc, noteNum, channel, devID);
 		SleepTicks(2L);
 	}
@@ -499,7 +499,7 @@ void CMMIDIFBNoteOn(Document *doc, short noteNum, short channel, MIDIUniqueID de
 
 void CMMIDIFBNoteOff(Document *doc, short noteNum, short channel, MIDIUniqueID devID)
 {
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		CMFBNoteOffDevID(doc, noteNum, channel, devID);
 	}
 }
@@ -514,7 +514,7 @@ static void CMFBNoteOnDevID(Document *doc, short noteNum, short channel, MIDIUni
 {
 	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		CMStartNoteNow(devID, noteNum, channel, config.feedbackNoteOnVel);
 		SleepTicks(2L);
 	}
@@ -527,7 +527,7 @@ static void CMFBNoteOffDevID(Document *doc, short noteNum, short channel, MIDIUn
 {
 //	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		CMEndNoteNow(devID, noteNum, channel);
 		SleepTicks(2L);
 	}
@@ -540,7 +540,7 @@ void CMFBNoteOn(Document *doc, short noteNum, short channel, short ioRefNum)
 {
 	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		CMStartNoteNow(gDestID, noteNum, channel, config.feedbackNoteOnVel);
 		SleepTicks(2L);
 	}
@@ -553,7 +553,7 @@ void CMFBNoteOff(Document *doc, short noteNum, short channel, short ioRefNum)
 {
 	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
-	if (doc->feedback) {
+	if (doc->noteInsFeedback) {
 		CMEndNoteNow(gDestID, noteNum, channel);
 		SleepTicks(2L);
 	}

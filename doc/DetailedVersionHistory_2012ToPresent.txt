@@ -2799,3 +2799,13 @@ Minor cleanup. Affects FileOpen, Finalize, HeapFileIO, Heaps, NTimeMgr, Undo, Ut
 
 Minor cleanup. Affects vars.h; Documents, FileConversion, FileOpen, Heaps, HeapFileIO,
 NTimeMgr.
+
+-------------------------------------------------------------------------------
+
+29 - 31 May
+
+Updated a tech note.
+
+Minor cleanup: renamed score header <feedback> field to <noteInsFeedback>, etc. Affects
+NDocAndCnfgTypes.h; Clipboard, CoreMIDIUtils, Dragging, DragUtils, Extract,
+FileConversion, FileOpen, Finalize, Initialize, MIDIDialogs, MIDIUtils, Score, TrackVMove.
