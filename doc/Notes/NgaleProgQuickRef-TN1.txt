@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10)
 Nightingale Technical Note #1
-Don Byrd, rev. late May 2020
+Don Byrd, rev. early June 2020
 
 A general note:
 
@@ -35,7 +35,7 @@ than modern computers: typically one or two megabytes, four at the most. As a re
 NB: Everything in this document except the description of header files applies to
 versions of Nightingale at least as far back as v. 2000.
 
-Also see the important header files:
+Also see the important source-code header files:
 
 	precomp includes
 		NDocAndCnfgTypes.h: major structs including DOCUMENTHEADER, SCOREHEADER,
@@ -60,7 +60,10 @@ comments at the beginning of VoiceTable.c.
 
 ---------------------------------------------------------------------------------------
 
-About the Nightingale Score Header
+About Nightingale File Headers
+
+The score content in every Nightingale file is preceded by a Document header and a Score
+header, as follows.
 
 Files in “N105” format begin (offset and length are in bytes in base 10):
 
@@ -72,16 +75,20 @@ Offset	Length	Item
 80		2148	Score header
 2228	2		LASTtype (always 25)
 
-The score header contains many, many fields. These should help finding things in dumps,
-for low-level debuging:
+"N106" format files begin the same way, except bytes 0 to 3 are "N106", and the length
+of the Score header is 2492; thus LASTtype has offset 2572.
 
-Offset			Length	Item
-------			------	----
-80 = 0x50		12		various: <headL>, etc.
-92 = 0x5C		256		<comment>
-348 = 0x15C		60		various: <noteInsFeedback>, etc.
-408 = 0x198		660		15 font (TEXTSTYLE) records of 44 bytes each
-1068 = 0x42C			various: <nfontsUsed>, etc.
+The score header contains many, many fields; here's a kind of overview.
+
+							(..."N106" format...)
+Offset			Length		Offset			Length	Item
+------			------		------			------	----
+80 = 0x50		12			80 = 0x50		12		various: <headL>, etc.
+92 = 0x5C		256			92 = 0x5C		256		<comment>
+348 = 0x15C		42			348 = 0x15C		60		various: <noteInsFeedback>, etc.
+390 = 0x186		540			408 = 0x198		660		15 font (TEXTSTYLE) records of 36 bytes each
+930 = 0x3A2		714			1068 = 0x42C	714		<nfontsUsed>, <fontTable>, <musFontName>
+1644 = 0x66C				1782 = 0x6F6			various: <magnify>, etc.
 
 ---------------------------------------------------------------------------------------
 
@@ -243,7 +250,7 @@ tailL may be NILINK; in this case, the "go to tail" button will be inoperative,
 but everything else will work as usual. */
 
 void Browser(doc, headL, tailL)
-Document *doc; LINK headL, tailL;
+Document *doc;  LINK headL, tailL;
 
 
 /* Ask user what info they want and display/check it.  Returns False normally,
@@ -257,7 +264,7 @@ Boolean	showWind;					/* Bring info display window to front? */
 /* Dump the specified area as bytes in hexadecimal into the log file. NB: If <nPerLine> is
 unreasonably large, this function can overflow <strBuf>!  */
 
-void DHexDump(short logLevel,
+void NHexDump(short logLevel,
 				char *label,
 				unsigned char *pBuffer,
 				long nBytes,

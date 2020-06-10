@@ -129,7 +129,8 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 
 /* --------------------------------------------------------------------------- Browser -- */
 /* Browser displays and handles interaction with a small window that lets the user
-(a Nightingale programmer, presumably) prowl around in an object list.
+(a Nightingale programmer, presumably) prowl around in an object list (not necessarily
+the main object list of a score; it could also be the Master Page or Undo obj list).
 
 If headL is anything other than doc->headL, the "Go to" button will be inoperative; if
 tailL is NILINK, the tiny "go to tail" button will be inoperative. In either case,
@@ -150,6 +151,11 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	short part;
 	Document *saveDoc;
 	ModalFilterUPP	filterUPP;
+
+	if (!headL) {
+		LogPrintf(LOG_WARNING, "Object list is nonexistent.  (Browser)\n");
+		return;
+	}
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 	
@@ -466,31 +472,31 @@ static void InvertObjRect(Document *doc, Rect *pObjRect)
 /* ------------------------------------------------------------------------- SelSubObj -- */
 
 static void SelSubObj(LINK, LINK);
-static void SelSubObj(LINK pL, LINK subL)
+static void SelSubObj(LINK pL, LINK aSubL)
 {
-	if (pL && subL)
+	if (pL && aSubL)
 		switch (ObjLType(pL)) {
 			case CONNECTtype:
-				ConnectSEL(subL) = True; break;
+				ConnectSEL(aSubL) = True;  break;
 			case STAFFtype:
-				StaffSEL(subL) = True; break;
+				StaffSEL(aSubL) = True;  break;
 			case SYNCtype:
-				NoteSEL(subL) = True; break;
+				NoteSEL(aSubL) = True;  break;
 			case CLEFtype:
-				ClefSEL(subL) = True; break;
+				ClefSEL(aSubL) = True;  break;
 			case KEYSIGtype:
-				KeySigSEL(subL) = True; break;
+				KeySigSEL(aSubL) = True;  break;
 			case TIMESIGtype:
-				TimeSigSEL(subL) = True; break;
+				TimeSigSEL(aSubL) = True;  break;
 			case DYNAMtype:
-				DynamicSEL(subL) = True; break;
+				DynamicSEL(aSubL) = True;  break;
 			case MEASUREtype:
-				MeasureSEL(subL) = True; break;
+				MeasureSEL(aSubL) = True;  break;
 			case SLURtype:
-				SlurSEL(subL) = True; break;
+				SlurSEL(aSubL) = True;  break;
 			default:
 				SysBeep(1);
-				LogPrintf(LOG_WARNING, "Browser/SelSubObj: can't select subobject of this type.");
+				LogPrintf(LOG_WARNING, "Can't select subobject of this type. (SelSubObj)\n");
 		}	
 }
 
@@ -1949,7 +1955,7 @@ void ShowContext(Document *doc)
 		theStaff = GetStaffFromSel(doc, &pL);
 		if (theStaff==NOONE) {
 			SysBeep(4);
-			LogPrintf(LOG_WARNING, "Browser/ShowContext: can't get staff number.");
+			LogPrintf(LOG_WARNING, "Can't get staff number.  (ShowContext)\n");
 			return;
 		}
 	}
@@ -1958,8 +1964,7 @@ void ShowContext(Document *doc)
 
 	GetPort(&oldPort);
 	dlog = GetNewDialog(CONTEXT_DLOG, NULL, BRING_TO_FRONT);
-	if (!dlog)
-		MissingDialog(CONTEXT_DLOG);
+	if (!dlog) MissingDialog(CONTEXT_DLOG);
 	SetPort(GetDialogWindowPort(dlog));
 	ShowWindow(GetDialogWindow(dlog));
 

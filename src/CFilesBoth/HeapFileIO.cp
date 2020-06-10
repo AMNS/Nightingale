@@ -530,7 +530,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 		const char *ps;
 		GetFPos(refNum, &position);
 		ps = NameHeapType(heapIndex, False);
-		LogPrintf(LOG_DEBUG, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
+		LogPrintf(LOG_DEBUG, "heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld  (WriteHeapHdr)\n",
 						heapIndex, ps, objCount[heapIndex], myHeap->objSize, myHeap->type, position);
 	}
 
@@ -850,7 +850,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	unsigned short nFObjs;
 	short ioErr, hdrErr;
 	char *pLink1, *startPos;
-	long count, sizeAllObjsFile, sizeAllObjsHeap, nExpand;
+	long count, sizeAllObjsFile, sizeAllObjsHeap, nExpand, position;
 	HEAP *objHeap;
 
 	objHeap = doc->Heap + OBJtype;
@@ -885,7 +885,9 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	
 	pLink1 = *(objHeap->block);  pLink1 += objHeap->objSize;
 	startPos = pLink1 + (sizeAllObjsHeap - sizeAllObjsFile);
-	
+	GetFPos(refNum, &position);
+	LogPrintf(LOG_INFO, "startPos=%ld FPos:%ld  (ReadObjHeap)\n", startPos, position);
+ 	
 	ioErr = FSRead(refNum, &sizeAllObjsFile, startPos);
 if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadObjHeap0", (unsigned char *)startPos, 24+38+44, 4, 16);
 	
@@ -926,7 +928,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	unsigned short nFObjs;
 	short ioErr, hdrErr;
 	char *pLink1, *startPos;
-	long count, sizeAllInFile, sizeAllInHeap, nExpand;
+	long sizeAllInFile, sizeAllInHeap, nExpand, position;
 	HEAP *myHeap;
 	
 	myHeap = doc->Heap + iHp;
@@ -945,10 +947,8 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 
 	sizeAllInHeap = nFObjs * (long)subObjLength[iHp];
 
-//{ long position;
 //GetFPos(refNum, &position);
-//LogPrintf(LOG_DEBUG, "iHp=%d fPos=%ld\n", iHp, position);
-//}
+//LogPrintf(LOG_DEBUG, "iHp=%d fPos=%ld  (ReadSubHeap)\n", iHp, position);
 
 #if 1
 	if (version=='N105')	sizeAllInFile = nFObjs*subObjLength_5[iHp];
@@ -961,6 +961,7 @@ sizeAllInFile = nFObjs*myHeap->objSize;
 LogPrintf(LOG_DEBUG, "count=%ld sizeAllInFile=%ld\n", count, sizeAllInFile);
 	FIX_END(sizeAllInFile);
 #endif
+
 	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "heap %d: nFObjs=%d sizeAllInFile=%ld sizeAllInHeap=%ld  (ReadSubHeap)\n",
 							iHp, nFObjs, sizeAllInFile, sizeAllInHeap);
 	if (sizeAllInFile>sizeAllInHeap) {
@@ -981,6 +982,8 @@ LogPrintf(LOG_DEBUG, "count=%ld sizeAllInFile=%ld\n", count, sizeAllInFile);
 
 	pLink1 = *(myHeap->block);  pLink1 += myHeap->objSize;
 	startPos = pLink1 + (sizeAllInHeap - sizeAllInFile);
+	GetFPos(refNum, &position);
+	LogPrintf(LOG_INFO, "startPos=%ld FPos:%ld  (ReadSubHeap)\n", startPos, position);
 	
 	ioErr = FSRead(refNum, &sizeAllInFile, startPos);
 //if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadSubHeap0", (unsigned char *)startPos, 64, 4, 16);
@@ -1037,13 +1040,13 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 		const char *ps;
 		GetFPos(refNum, &position);
 		ps = NameHeapType(heapIndex, False);
-		LogPrintf(LOG_DEBUG, "ReadHeapHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
+		LogPrintf(LOG_DEBUG, "hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld  (ReadHeapHdr)\n",
 				heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type,
 				tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
 	}
 
 	if (myHeap->type!=tempHeap.type) {
-		LogPrintf(LOG_ERR, "Header for heap %d type is %d, but expected type %d (ReadHeapHdr)\n",
+		LogPrintf(LOG_ERR, "Header for heap %d type is %d, but expected type %d  (ReadHeapHdr)\n",
 			heapIndex, tempHeap.type, myHeap->type);
 		OpenError(True, refNum, HDR_TYPE_ERR, heapIndex);
 		return HDR_TYPE_ERR;
@@ -1054,7 +1057,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 	else if (version=='N105') expectedSize = subObjLength_5[heapIndex];
 
 	if (tempHeap.objSize!=expectedSize) {
-		LogPrintf(LOG_ERR, "Header for heap %d objSize is %d, but expected objSize %d (ReadHeapHdr)\n",
+		LogPrintf(LOG_ERR, "Header for heap %d objSize is %d, but expected objSize %d  (ReadHeapHdr)\n",
 			heapIndex, tempHeap.objSize, expectedSize);
 		OpenError(True, refNum, HDR_SIZE_ERR, heapIndex);
 		return HDR_SIZE_ERR;
@@ -1079,6 +1082,7 @@ static short HeapFixLinks(Document *doc)
 	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
+LogPrintf(LOG_DEBUG, "pL=%u type=%d in main obj list  (HeapFixLinks)\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case TAILtype:
 				doc->tailL = pL;
@@ -1131,6 +1135,8 @@ static short HeapFixLinks(Document *doc)
 	/* Now do the Master Page list. */
 
 	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL))
+		FIX_END(DRightLINK(doc, pL));
+LogPrintf(LOG_DEBUG, "pL=%u type=%d in Master Page obj list  (HeapFixLinks)\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case HEADERtype:
 				DLeftLINK(doc, doc->masterHeadL) = NILINK;

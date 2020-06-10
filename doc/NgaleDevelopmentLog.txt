@@ -6505,4 +6505,77 @@ most are probably meaningless garbage. But all that could reasonably be causing 
 header errors must be at the beginning, almost certainly in the score header; it starts
 at offset 80 bytes = 0x50, with length 2148, so ends with offset 2227 = 0x8B3.
 
-	debug. Offset of noteInsFeedback=268 nFontRecords=327 nfontsUsed=988
+-------------------------------------------------------------------------------
+
+1 - 9 June
+
+What's where in the N105 score header?
+
+	debug. OFFSET ('N105' format) OF feedback=268 fontNameMN=310 nfontsUsed=850 magnify=1564
+	debug. OFFSET OF noteInsFeedback=268 fontNameMN=328 nfontsUsed=988 magnify=1702
+
+The 1st difference between 1CourtesyAcc.ngl and UnusualScHdr_1CourtesyAcc.ngl is the
+the date/timestamp. The 2nd is this:
+
+	Dump1CourtesyAcc.txt
+	00000050  00 01 00 02 00 02 00 02  00 02 00 01 00 00 00 00  |................|
+	
+	DumpUnusualScHdr_1CourtesyAcc.txt
+	00000050  00 01 00 0b 00 0a 00 0a  00 02 00 01 00 00 00 00  |................|
+
+Offset 0x50 = 80 decimal, so this is the very start of the score header:
+
+	LINK 		headL,				/* links to header and tail objects */						\
+				tailL,																			\
+				selStartL,			/* currently selected range. */								\
+				selEndL;			/*		Also see the <selStaff> field. */					\																	\
+	short		nstaves,			/* number of staves in a system */							\
+				nsystems;			/* number of systems in score */							\
+
+For these six fields, 1CourtesyAcc has 1, 2, 2, 2, 2, 1: some questionable or wrong -- but
+nstaves=2, nsystems=1: not only not the values DisplayScoreHdr() shows (0 and 0), but
+correct! UnusualScHdr_1CourtesyAcc has 1, 11, 10, 10, 2, 1: all reasonable. Still...
+
+Maybe the offending values in the score header don't matter bcs Ngale recomputes them after
+reading the header!? Seems unlikely, but try ignoring the errors. Open AllObjTypes.ngl =>
+
+	info. Displaying Score header (ID 3):
+	info.   (1)nstaves=0  (2)nsystems=0  (3)noteInsFeedback=0  (4)used=0  (5)transposed=0
+	info.   (6)polyTimbral=0  (7)spacePercent=100  (8)srastral=5  (9)altsrastral=2
+	info.   (10)tempo=0  (11)channel=0  (12)velocity=0  (13)headerStrOffset=0  (14)footerStrOffset=0
+	info.   (15)dIndentOther=0  (16)firstNames=2  (17)otherNames=0  (18)lastGlobalFont=0
+	info.   (19)aboveMN=1  (20)sysFirstMN=1  (21)startMNPrint1=0  (22)firstMNNumber=1
+	info.   (23)nfontsUsed=0  (24)musFontName='Briard'
+	info.   (25)magnify=0  (26)selStaff=1  (27)currentSystem=0  (28)spaceTable=0  (29)htight=100
+	info.   (30)lookVoice=-1  (31)ledgerYSp=0  (32)deflamTime=50  (33)colorVoices=2  (34)dIndentFirst=752
+	Notice. Checking Score header:  err #1, err #2, err #10, err #11, err #23, err #26, err #27, 7 ERROR(S) FOUND (first bad field is no. 1).  (CheckScoreHdr)
+	Warning. * StopInform alertID=464
+	ERROR. LAST OBJECT TYPE=-24008 BUT SHOULD BE 25.
+	ERROR. CAN'T OPEN THE FILE. errCode=-996 errInfo=-999  (OpenError)
+	
+!! <origin> is (-24008, -24008); this is not a coincidence! But <origin> is way back near the
+beginning of the Document header, and we've already read that _and_ the Score header. So ??
+<lastType> is really at offset 2228; is that where we're getting it? No: GetFPos() says 10;
+that's because, for a 'N106' format file, we're simply not reading the Score header or the
+Document header!!! But why are almost all of the values reasonable? Because they're default
+values that BuildDocument() fills in before calling OpenFile() :-( .
+
+Have OpenFile() read Document and Score headers for 'N106' format files; launch & open
+'1CourtesyAcc.ngl (converted)' => "All staves are the same size, but the score's 'standard'
+size is different..."; then "ERROR. PROGRAM ERROR: MEAdjustCaret: can't handle type 0"! All
+messages from ConvertObjects() look OK, but Ngale draws a completely blank page, and Browser
+shows the object list as containing head and tail and that's all :-( . Shift-Browser crashes
+with "EXC_BAD_ACCESS".
+
+Add LogPrintf() to both loops in HeapFixLinks() =>
+
+	debug. pL=1 type=0 in main obj list  (HeapFixLinks)
+	debug. pL=2 type=1 in main obj list  (HeapFixLinks)
+	debug. pL=0 type=99 in Master Page obj list  (HeapFixLinks)
+	ERROR. PROGRAM ERROR: Can't set links in memory for the file!  (HeapFixLinks)
+	
+I'm not sure why I'm now getting a fatal error in HeapFixLinks.
+
+Launch Ngale again & open 'AllObjTypes.ngl (converted)' => exactly the same four messages
+from HeapFixLinks.
+

@@ -2804,8 +2804,22 @@ NTimeMgr.
 
 29 - 31 May
 
-Updated a tech note.
+Updated programmer's reference tech note.
 
 Minor cleanup: renamed score header <feedback> field to <noteInsFeedback>, etc. Affects
 NDocAndCnfgTypes.h; Clipboard, CoreMIDIUtils, Dragging, DragUtils, Extract,
-FileConversion, FileOpen, Finalize, Initialize, MIDIDialogs, MIDIUtils, Score, TrackVMove.
+FileConversion, FileOpen, Finalize, Initialize, MIDIDialogs, MIDIUtils, Score,
+TrackVMove.
+
+-------------------------------------------------------------------------------
+
+1 - 9 June
+
+Made progress on the "Ngale can't open files it just saved" bug. Affects FileOpen.
+
+Revised "once in a blue moon" code to collect info for Nightingale documentation. Affects
+Initialize.
+
+Updated the programmer's reference tech note.
+
+Minor cleanup. Affects Browser, FileOpen, HeapFileIO, Initialize.

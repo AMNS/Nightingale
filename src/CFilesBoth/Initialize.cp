@@ -128,30 +128,37 @@ void Initialize()
 	if (growZoneUPP)
 		SetGrowZone(growZoneUPP);			/* Install simple grow zone function */
 	
-	if (!NInitFloatingWindows())
-		{ BadInit(); ExitToShell(); }
+	if (!NInitFloatingWindows()) { BadInit();  ExitToShell(); }
 	
 	InitCursor();
 	WaitCursor();
 
-	/* Do Application-specific initialization */
+	/* Do Application-specific initialization. */
 	
-	if (!InitGlobals())
-		{ BadInit(); ExitToShell(); }
+	if (!InitGlobals()) { BadInit();  ExitToShell(); }
 	Init_Help();
 	
-#define DISP_SCORE_STRUCT
-#ifdef DISP_SCORE_STRUCT
+#define DISP_SCOREHDR_STRUCT
+#ifdef DISP_SCOREHDR_STRUCT
+	/* The following code is intended to be compiled once in a blue moon (when the file
+	   format changes) to collect info for Nightingale documentation: as of May 2020,
+	   it's in the Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt). */
 	{
-	long noteInsFeedbackOff, nFontRecordsOff, nfontsUsedOff;
-	//LogPrintf(LOG_DEBUG, "Offsets of some fields in NIGHTSCOREHEADER: &headL=%lx &noteInsFeedback=%lx &nFontRecords=%lx &nfontsUsed=%lx\n",
-	//			&(clipboard->headL), &(clipboard->noteInsFeedback), &(clipboard->nFontRecords),
-	//				&(clipboard->nfontsUsed));
-	noteInsFeedbackOff = (long)&(clipboard->noteInsFeedback)-(long)&(clipboard->headL);
-	nFontRecordsOff = (long)&(clipboard->nFontRecords)-(long)&(clipboard->headL);
-	nfontsUsedOff = (long)&(clipboard->nfontsUsed)-(long)&(clipboard->headL);
-	LogPrintf(LOG_DEBUG, "Offset of noteInsFeedback=%ld nFontRecords=%ld nfontsUsed=%ld\n",
-						noteInsFeedbackOff, nFontRecordsOff, nfontsUsedOff); 
+		Document *tD; DocumentN105 *tD5;
+		long noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff;
+		
+		noteInsFeedbackOff = (long)&(tD5->comment[MAX_COMMENT_LEN+1])-(long)&(tD5->headL);
+		fontNameMNOff = (long)&(tD5->fontNameMN[0])-(long)&(tD5->headL);
+		nfontsUsedOff = (long)&(tD5->nfontsUsed)-(long)&(tD5->headL);
+		magnifyOff = (long)&(tD5->magnify)-(long)&(tD5->headL);
+		LogPrintf(LOG_DEBUG, "OFFSET ('N105' format) OF feedback=%ld fontNameMN=%ld nfontsUsed=%ld magnify=%ld\n",
+							noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff); 
+		noteInsFeedbackOff = (long)&(tD->noteInsFeedback)-(long)&(tD->headL);
+		fontNameMNOff = (long)&(tD->fontNameMN[0])-(long)&(tD->headL);
+		nfontsUsedOff = (long)&(tD->nfontsUsed)-(long)&(tD->headL);
+		magnifyOff = (long)&(tD->magnify)-(long)&(tD->headL);
+		LogPrintf(LOG_DEBUG, "OFFSET OF noteInsFeedback=%ld fontNameMN=%ld nfontsUsed=%ld magnify=%ld\n",
+							noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff); 
 	}
 #endif
 
@@ -407,6 +414,7 @@ Boolean OpenPrefsFile()
 			okay = False;
 			goto done;
 		}
+		
 		/* Try opening the brand-new Prefs file. */
 		
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);

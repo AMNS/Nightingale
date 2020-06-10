@@ -313,18 +313,18 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	fileIsOpen = False;
 	
 	fsSpec = *pfsSpec;
-	errCode = FSpOpenDF(&fsSpec, fsRdWrPerm, &refNum );			/* Open the file */
+	errCode = FSpOpenDF(&fsSpec, fsRdWrPerm, &refNum);			/* Open the file */
 	if (errCode == fLckdErr || errCode == permErr) {
 		doc->readOnly = True;
-		errCode = FSpOpenDF (&fsSpec, fsRdPerm, &refNum );		/* Try again - open the file read-only */
+		errCode = FSpOpenDF (&fsSpec, fsRdPerm, &refNum);		/* Try again - open the file read-only */
 	}
-	if (errCode) { errInfo = OPENcall; goto Error; }
+	if (errCode) { errInfo = OPENcall;  goto Error; }
 	fileIsOpen = True;
 
 	count = sizeof(version);									/* Read & check file version code */
 	errCode = FSRead(refNum, &count, &version);
 	FIX_END(version);
-	if (errCode) { errInfo = VERSIONobj; goto Error;}
+	if (errCode) { errInfo = VERSIONobj;  goto Error;}
 	*fileVersion = version;
 	MacTypeToString(version, versionCString);
 	
@@ -359,6 +359,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	errCode = FSRead(refNum, &count, &fileTime);
 	FIX_END(fileTime);
 	if (errCode) { errInfo = VERSIONobj; goto Error; }
+//{ long fPos;  GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(1)=%ld\n", fPos); }
 		
 	/* Read and, if necessary, convert Document (i.e., Sheets) and Score headers. */
 	
@@ -378,7 +379,13 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 			break;
 		
 		default:
-			;
+			count = sizeof(DOCUMENTHDR);
+			errCode = FSRead(refNum, &count, &doc->origin);
+			if (errCode) { errInfo = HEADERobj; goto Error; }
+			
+			count = sizeof(SCOREHEADER);
+			errCode = FSRead(refNum, &count, &doc->headL);
+			if (errCode) { errInfo = HEADERobj; goto Error; }
 	}
 
 	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing headers for CPU's Endian property...  (OpenFile)\n");	
@@ -405,11 +412,12 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 
 	count = sizeof(lastType);
 	errCode = FSRead(refNum, &count, &lastType);
+//{ long fPos;  GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(4)=%ld\n", fPos); }
 	if (errCode) { errInfo = HEADERobj; goto Error; }
 	FIX_END(lastType);
 
 	if (lastType!=LASTtype) {
-		LogPrintf(LOG_ERR, "LAST OBJECT TYPE=%d BUT SHOULD BE %d.\n", lastType, LASTtype);	
+		LogPrintf(LOG_ERR, "LAST OBJECT TYPE IS %d BUT SHOULD BE %d.\n", lastType, LASTtype);	
 		errCode = LASTTYPE_ERR;
 		errInfo = HEADERobj;
 		goto Error;
@@ -481,9 +489,10 @@ NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
 	
 	/* Do any further conversion needed of both the main and the Master Page object lists
 	   in old files. */
-	   
-	ConvertObjects(doc, version, fileTime, False);
-	ConvertObjects(doc, version, fileTime, True);
+	if (version=='N105') {
+		ConvertObjects(doc, version, fileTime, False);
+		ConvertObjects(doc, version, fileTime, True);
+	}
 
 	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;
