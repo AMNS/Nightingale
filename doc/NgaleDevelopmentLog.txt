@@ -6579,3 +6579,59 @@ I'm not sure why I'm now getting a fatal error in HeapFixLinks.
 Launch Ngale again & open 'AllObjTypes.ngl (converted)' => exactly the same four messages
 from HeapFixLinks.
 
+-------------------------------------------------------------------------------
+
+10 - 14 June
+
+What happens with an N106 format "native" (not converted) file? Launch Ngale 5.9.1, New,
+insert a C5 half note, Save as "1NoteC5_N106Native.ngl", Close it. Open 1NoteC5_N106Native.ngl
+=> same four messages from HeapFixLinks.
+
+The problem must be in ReadObjHeap(). OK, let's compare code and/or behavior to Ngale 5.8.10.
+Ah-hah! In 5.8.10, ReadObjHeap has a loop that "moves the contents of the object heap around
+so each object is filled out to the expected SUPEROBJECT size." In 5.9.1, that loop is in
+a separate function, MoveObjSubobjs(); fine, but it's called only for 'N105' files! QED.
+
+Fix that; try to open 1NoteC5_N106Native.ngl =>
+
+	info. nFObjs=17 sizeAllObjsFile=620 sizeAllObjsHeap=952  (ReadObjHeap)
+	debug. MoveObjSubobjs: curType=0 len=30 newLen=56
+	debug. MoveObjSubobjs: curType=4 len=44 newLen=56
+	debug. MoveObjSubobjs: curType=5 len=50 newLen=56
+	debug. MoveObjSubobjs: curType=6 len=36 newLen=56
+	debug. MoveObjSubobjs: curType=12 len=32 newLen=56
+	debug. MoveObjSubobjs: curType=8 len=30 newLen=56
+	debug. MoveObjSubobjs: curType=9 len=30 newLen=56
+	debug. MoveObjSubobjs: curType=10 len=30 newLen=56
+	debug. MoveObjSubobjs: curType=7 len=54 newLen=56
+	debug. MoveObjSubobjs: curType=2 len=32 newLen=56
+	debug. MoveObjSubobjs: curType=1 len=30 newLen=56
+	debug. MoveObjSubobjs: curType=0 len=30 newLen=56
+	debug. MoveObjSubobjs: curType=4 len=44 newLen=56
+	debug. MoveObjSubobjs: curType=5 len=50 newLen=56
+	debug. MoveObjSubobjs: curType=6 len=36 newLen=56
+	debug. MoveObjSubobjs: curType=12 len=32 newLen=56
+	debug. MoveObjSubobjs: curType=1 len=30 newLen=56
+	debug. ReadObjHeap_1: 00 02 00 00   00 01 00 00   00 00 00 00   00 01 00 00
+	debug.              : 00 00 00 00   00 00 00 00   00 00 00 8e   02 00 00 00
+	debug.              : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 
+	debug. ReadObjHeap_2: 00 03 00 01   00 00 00 00   00 00 04 00   01 01 00 00
+	debug.              : 00 00 00 00   00 00 00 00   00 00 00 e5   00 00 00 00
+	debug.              : 00 00 00 00   00 00 01 67   00 00 01 7f   00 00 
+	debug. HeapFixLinks: pL=1 type=0 in main obj list
+	debug. HeapFixLinks: pL=2 type=4 in main obj list
+	debug. HeapFixLinks: pL=3 type=5 in main obj list
+	debug. HeapFixLinks: pL=4 type=6 in main obj list
+	debug. HeapFixLinks: pL=5 type=12 in main obj list
+	debug. HeapFixLinks: pL=6 type=8 in main obj list
+	debug. HeapFixLinks: pL=7 type=9 in main obj list
+	debug. HeapFixLinks: pL=8 type=10 in main obj list
+	debug. HeapFixLinks: pL=9 type=7 in main obj list
+	debug. HeapFixLinks: pL=10 type=2 in main obj list
+	debug. HeapFixLinks: pL=11 type=1 in main obj list
+	debug. HeapFixLinks: pL=0 type=0 in Master Page obj list
+	ERROR. PROGRAM ERROR: Can't set links in memory for the file!  (HeapFixLinks)
+
+?? Ah, a silly block-structure error in HeapFixLinks. Fix it; open 1NoteC5_N106Native.ngl
+=> OK! Open 1CourtesyAcc.ngl (converted) = OK! Open AllObjTypes.ngl => OK! Open
+AllObjTypes.ngl (converted) => OK! Open T+MInCounterpointBug12mm.ngl => OK!!!

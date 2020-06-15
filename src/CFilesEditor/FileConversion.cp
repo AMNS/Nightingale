@@ -298,9 +298,6 @@ unchanged, so we don't need 'N105'-specific versions of them. */
 #define DLinkRMEAS_5(doc,link)		( (DGetPMEASURE_5(doc,link))->rMeasure )
 
 
-#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
-
-
 /* Traverse the main and Master Page object lists and fix up the cross pointers. This
 is a specialized version of HeapFixLinks() intended to fix links in 'N105' format files
 when they're opened, before the contents of objects are converted. Return 0 if all is
@@ -315,13 +312,12 @@ short HeapFixN105Links(Document *doc)
 
 #if 0
 {	unsigned char *pSObj;
-pSObj = (unsigned char *)GetPSUPEROBJECT(1);
 NHexDump(LOG_DEBUG, "HeapFixLinks1 L1", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+pSObj = (unsigned char *)GetPSUPEROBJ(2);
 NHexDump(LOG_DEBUG, "HeapFixLinks1 L2", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+pSObj = (unsigned char *)GetPSUPEROBJ(3);
 NHexDump(LOG_DEBUG, "HeapFixLinks1 L3", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(4);
+pSObj = (unsigned char *)GetPSUPEROBJ(4);
 NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 }
 #endif
@@ -331,10 +327,14 @@ NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
+LogPrintf(LOG_DEBUG, "HeapFixN105Links: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case TAILtype:
 				doc->tailL = pL;
-				if (!doc->masterHeadL) goto Error;
+				if (!doc->masterHeadL) {
+					LogPrintf(LOG_ERR, "TAIL of main object list encountered before its HEAD.  (HeapFixN105Links)\n");
+					goto Error;
+				}
 				doc->masterHeadL = pL+1;
 				tailFound = True;
 				DRightLINK(doc, doc->tailL) = NILINK;
@@ -373,13 +373,13 @@ NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 
 #if 0
 {	unsigned char *pSObj;
-pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+pSObj = (unsigned char *)GetPSUPEROBJ(1);
 NHexDump(LOG_DEBUG, "HeapFixLinks2 L1", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+pSObj = (unsigned char *)GetPSUPEROBJ(2);
 NHexDump(LOG_DEBUG, "HeapFixLinks2 L2", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+pSObj = (unsigned char *)GetPSUPEROBJ(3);
 NHexDump(LOG_DEBUG, "HeapFixLinks2 L3", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(4);
+pSObj = (unsigned char *)GetPSUPEROBJ(4);
 NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 }
 #endif
@@ -388,7 +388,9 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 
 	/* Now do the Master Page list. */
 
-	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL))
+	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL)) {
+		//FIX_END(DRightLINK(doc, pL));
+LogPrintf(LOG_DEBUG, "HeapFixN105Links: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case HEADERtype:
 				DLeftLINK(doc, doc->masterHeadL) = NILINK;
@@ -425,8 +427,9 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 			default:
 				break;
 		}
+	}
 		
-	/* If we reach here, something is wrong: drop through. */
+	LogPrintf(LOG_ERR, "TAIL of Master Page object list not found.  (HeapFixN105Links)\n");
 
 Error:
 	/* In case we never got into the Master Page loop or it didn't have a TAIL obj. */
@@ -1822,6 +1825,7 @@ lengths. Tweaks that affect lengths or offsets to the headers should be done bef
 calling this, in OpenFile(); to objects or subobjects, before calling it, in
 ReadHeaps(). */
 
+// FIXME: REMOVE GetPSUPEROBJECT() & CHANGE ALL TO GetPSUPEROBJ()!
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 
 Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */, Boolean

@@ -2823,3 +2823,12 @@ Initialize.
 Updated the programmer's reference tech note.
 
 Minor cleanup. Affects Browser, FileOpen, HeapFileIO, Initialize.
+
+-------------------------------------------------------------------------------
+
+11 - 14 June
+
+Fixed the "Ngale can't open files it just saved" bug. Affects FileConversion,
+HeapFileIO.
+
+Minor cleanup. Affects MemMacros.h; FileConversion, FileOpen, HeapFileIO, Heaps, Menu.

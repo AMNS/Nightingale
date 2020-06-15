@@ -530,7 +530,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 		const char *ps;
 		GetFPos(refNum, &position);
 		ps = NameHeapType(heapIndex, False);
-		LogPrintf(LOG_DEBUG, "heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld  (WriteHeapHdr)\n",
+		LogPrintf(LOG_DEBUG, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
 						heapIndex, ps, objCount[heapIndex], myHeap->objSize, myHeap->type, position);
 	}
 
@@ -774,12 +774,12 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 }
 
 
-/* Assuming file is in 'N105' format, move the contents of a heap -- either the object
-heap or a subobject heap -- around so each object or subobject has the space it needs
-in the current format. */
+/* Move the contents of a heap -- either the object heap or a subobject heap -- around
+so each object or subobject has the space it needs in the current format. We assume the
+file is in either 'N105' or the current format. */
 
 static Boolean MoveObjSubobjs(short, long, unsigned short, char *, char *);
-static Boolean MoveObjSubobjs(short hType, long /* version */, unsigned short nFObjs, char
+static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, char
 				*startPos, char *pLink1)
 {
 	char *src, *dst;
@@ -800,14 +800,15 @@ static Boolean MoveObjSubobjs(short hType, long /* version */, unsigned short nF
 		}
 		
 		if (hType==OBJtype)	{
-			len = objLength_5[curType];
+			len = (version=='N105'? objLength_5[curType] : objLength[curType]);
 			newLen = sizeof(SUPEROBJECT);
 		}
 		else {
-			len = subObjLength_5[curType];
+			len = (version=='N105'? subObjLength_5[curType] : subObjLength[curType]);
 			newLen = subObjLength[curType];
 		}
 		
+LogPrintf(LOG_DEBUG, "MoveObjSubobjs: curType=%d len=%d newLen=%d\n", curType, len, newLen);
 		/* <len> is now the correct object/subobject length for the current file format.
 		   If its length was different in the previous file format, adjust <len> to
 		   compensate. (However, the _contents_ of the objects should be fixed in
@@ -840,10 +841,8 @@ way we can tell what these lengths are is by looking at the type fields, which a
 known offset from the beginning of each object record. Thus only a scan forwards through
 the block can work.
 
-NB: If the file is in an old format, some objects may have changed size, and we move
-the entire object accordingly to make room; but the objects' fields still need to be
-converted, including perhaps moving them within the object! That work should be done in
-ConvertObjects(). */
+NB: If the file is in an old format, the objects' fields still need to be converted,
+including perhaps moving them within the object! That should be done in ConvertObjects(). */
 
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
@@ -886,32 +885,30 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	pLink1 = *(objHeap->block);  pLink1 += objHeap->objSize;
 	startPos = pLink1 + (sizeAllObjsHeap - sizeAllObjsFile);
 	GetFPos(refNum, &position);
-	LogPrintf(LOG_INFO, "startPos=%ld FPos:%ld  (ReadObjHeap)\n", startPos, position);
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadObjHeap: startPos=%ld FPos:%ld\n", startPos, position);
  	
 	ioErr = FSRead(refNum, &sizeAllObjsFile, startPos);
-if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadObjHeap0", (unsigned char *)startPos, 24+38+44, 4, 16);
+//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadObjHeapA", (unsigned char *)startPos, 24+38+44, 4, 16);
 	
-	/* If file is in an old format, move the contents of the object heap around so each
-	   object has space for the required SUPEROBJECT size. */
+	/* Move the contents of the object heap around so each object has space for the
+	   required SUPEROBJECT size. */
 	   
-	if (version=='N105')
-		if (!MoveObjSubobjs(OBJtype, version, nFObjs, startPos, pLink1)) {
-			OpenError(True, refNum, MISC_HEAPIO_ERR, OBJtype);
-			return(MISC_HEAPIO_ERR);
-		}
+	if (!MoveObjSubobjs(OBJtype, version, nFObjs, startPos, pLink1)) {
+		OpenError(True, refNum, MISC_HEAPIO_ERR, OBJtype);
+		return(MISC_HEAPIO_ERR);
+	}
 	
 	PopLock(objHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
 	RebuildFreeList(doc, OBJtype, nFObjs);
-//NHexDump(LOG_DEBUG, "ReadObjHeap3", (unsigned char *)pLink1, 24+38+44, 4, 16);
+//NHexDump(LOG_DEBUG, "ReadObjHeapB", (unsigned char *)pLink1, 24+38+44, 4, 16);
 
 {
-#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
-// unsigned char *pSObj;
-//pSObj = (unsigned char *)GetPSUPEROBJECT(1);
-//NHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
-//NHexDump(LOG_DEBUG, "ReadObjHeap3", pSObj, 46, 4, 16);
+unsigned char *pSObj;
+pSObj = (unsigned char *)GetPSUPEROBJ(1);
+NHexDump(LOG_DEBUG, "ReadObjHeap_1", pSObj, 46, 4, 16);
+pSObj = (unsigned char *)GetPSUPEROBJ(2);
+NHexDump(LOG_DEBUG, "ReadObjHeap_2", pSObj, 46, 4, 16);
 }
 
 	return 0;
@@ -948,7 +945,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	sizeAllInHeap = nFObjs * (long)subObjLength[iHp];
 
 //GetFPos(refNum, &position);
-//LogPrintf(LOG_DEBUG, "iHp=%d fPos=%ld  (ReadSubHeap)\n", iHp, position);
+//LogPrintf(LOG_DEBUG, "ReadSubHeap: iHp=%d fPos=%ld\n", iHp, position);
 
 #if 1
 	if (version=='N105')	sizeAllInFile = nFObjs*subObjLength_5[iHp];
@@ -983,13 +980,15 @@ LogPrintf(LOG_DEBUG, "count=%ld sizeAllInFile=%ld\n", count, sizeAllInFile);
 	pLink1 = *(myHeap->block);  pLink1 += myHeap->objSize;
 	startPos = pLink1 + (sizeAllInHeap - sizeAllInFile);
 	GetFPos(refNum, &position);
-	LogPrintf(LOG_INFO, "startPos=%ld FPos:%ld  (ReadSubHeap)\n", startPos, position);
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadSubHeap: startPos=%ld FPos:%ld\n", startPos, position);
 	
 	ioErr = FSRead(refNum, &sizeAllInFile, startPos);
 //if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadSubHeap0", (unsigned char *)startPos, 64, 4, 16);
 
 	/* If file is in an old format, move the contents of the subobject heap around
-	   so each subobject has space for any new fields. */
+	   so each subobject has space for any new fields. (Unlike objects, subobjects are
+	   written out at full length, so if file is in the current format, nothing needs
+	   to be moved.) */
 	   
 	if (version=='N105')
 		if (!MoveObjSubobjs(iHp, version, nFObjs, startPos, pLink1)) {
@@ -1040,7 +1039,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 		const char *ps;
 		GetFPos(refNum, &position);
 		ps = NameHeapType(heapIndex, False);
-		LogPrintf(LOG_DEBUG, "hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld  (ReadHeapHdr)\n",
+		LogPrintf(LOG_DEBUG, "ReadHeapHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
 				heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type,
 				tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
 	}
@@ -1082,11 +1081,14 @@ static short HeapFixLinks(Document *doc)
 	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
-LogPrintf(LOG_DEBUG, "pL=%u type=%d in main obj list  (HeapFixLinks)\n", pL, DObjLType(doc, pL));
+LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case TAILtype:
 				doc->tailL = pL;
-				if (!doc->masterHeadL) goto Error;
+				if (!doc->masterHeadL) {
+					LogPrintf(LOG_ERR, "TAIL of main object list encountered before its HEAD.  (HeapFixLinks)\n");
+					goto Error;
+				}
 				doc->masterHeadL = pL+1;
 				tailFound = True;
 				DRightLINK(doc, doc->tailL) = NILINK;
@@ -1124,19 +1126,18 @@ LogPrintf(LOG_DEBUG, "pL=%u type=%d in main obj list  (HeapFixLinks)\n", pL, DOb
 	}
 
 {	//unsigned char *pSObj;
-#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
-//pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+//pSObj = (unsigned char *)GetPSUPEROBJ(1);
 //NHexDump(LOG_DEBUG, "HeapFixLinks L1", pSObj, 46, 4, 16);
-//pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+//pSObj = (unsigned char *)GetPSUPEROBJ(2);
 //NHexDump(LOG_DEBUG, "HeapFixLinks L2", pSObj, 46, 4, 16);
 }
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
 	/* Now do the Master Page list. */
 
-	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL))
+	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
-LogPrintf(LOG_DEBUG, "pL=%u type=%d in Master Page obj list  (HeapFixLinks)\n", pL, DObjLType(doc, pL));
+LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case HEADERtype:
 				DLeftLINK(doc, doc->masterHeadL) = NILINK;
@@ -1173,11 +1174,11 @@ LogPrintf(LOG_DEBUG, "pL=%u type=%d in Master Page obj list  (HeapFixLinks)\n", 
 			default:
 				break;
 		}
+	}
 
-	/* If we reach here, something is wrong: drop through. */
+	LogPrintf(LOG_ERR, "TAIL of Master Page object list not found.  (HeapFixLinks)\n");
 	
 Error:
-	/* In case we never got into the Master Page loop or it didn't have a TAIL obj. */
 	AlwaysErrMsg("Can't set links in memory for the file!  (HeapFixLinks)");
 	doc->masterTailL = NILINK;
 	return FIX_LINKS_ERR;

@@ -236,6 +236,7 @@ same place as ->left for objects, but staffn is a SignedByte. */
 #define GetPTEMPO(link)		(PTEMPO)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPSPACER(link)	(PSPACER)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPEXTEND(link)	(PEXTEND)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
+#define GetPSUPEROBJ(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 
 /* Type-specific macros for getting at subobjects in their respective heaps */
 

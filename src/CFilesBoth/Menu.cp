@@ -243,7 +243,7 @@ Boolean DoFileMenu(short choice)
 			case FM_New:
 				doSymbol = (TopDocument==NULL);
 				DoOpenDocument(NULL, 0, False, NULL);
-				LogPrintf(LOG_INFO, "Opened new score.\n");
+				LogPrintf(LOG_INFO, "Opened new score.  (DoFileMenu)\n");
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
 					DoViewMenu(VM_ToollPalette);
@@ -262,7 +262,7 @@ Boolean DoFileMenu(short choice)
 							Pstrcpy((unsigned char *)tmpCStr, tmpStr); PToCString((unsigned char *)tmpCStr);
 							LogPrintf(LOG_NOTICE, "Opening file '%s'...\n", tmpCStr);
 							if (DoOpenDocument(tmpStr, vrefnum, False, &fsSpec))
-								LogPrintf(LOG_NOTICE, "Opened file '%s'.\n", tmpCStr);
+								LogPrintf(LOG_NOTICE, "Opened file '%s'.  (DoFileMenu)\n", tmpCStr);
 						 }
 						 else if (returnCode==OP_NewFile)
 						 	keepGoing = DoFileMenu(FM_New);
@@ -281,7 +281,7 @@ Boolean DoFileMenu(short choice)
 						fsSpec = nscd.nsFSSpec;
 						vrefnum = nscd.nsFSSpec.vRefNum;
 						DoOpenDocument(tmpStr, vrefnum, True, &fsSpec);
-						LogPrintf(LOG_INFO, "Opened read-only file '%s'.\n", PToCString(tmpStr));
+						LogPrintf(LOG_INFO, "Opened read-only file '%s'.  (DoFileMenu)\n", PToCString(tmpStr));
 				}
 				break;
 			case FM_Close:
@@ -290,6 +290,11 @@ Boolean DoFileMenu(short choice)
 			case FM_CloseAll:
 				DoCloseAllDocWindows();
 				break;
+				
+			/* FIXME: It'd be nice to put a message in the log when we save a file,
+			   and both DoSaveDocument and DoSaveAs return a Boolean value; but it's
+			   not whether the operation succeeded or not! */
+			   
 			case FM_Save:
 				if (doc) DoSaveDocument(doc);
 				break;
@@ -300,10 +305,8 @@ Boolean DoFileMenu(short choice)
 				if (doc) DoRevertDocument(doc);
 				break;
 			case FM_Import:
-			
 				UseStandardType('Midi');
 				ClearStandardTypes();
-				
 				GetIndCString(str, MIDIFILE_STRS, 1);				/* "What MIDI file do you want to Import?" */
 				returnCode = GetInputName(str, False, tmpStr, &vrefnum, &nscd);
 				if (returnCode) {
@@ -318,7 +321,7 @@ Boolean DoFileMenu(short choice)
 				if (doc) DoExtract(doc);
 				break;
 			case FM_GetETF:
-				// ETF (Finale Enigma Transportable File) support removed, so do nothing
+				/* ETF (Finale Enigma Transportable File) support removed, so do nothing. */
 				break;
 			case FM_GetNotelist:
 				NSClientData nsData;
@@ -326,7 +329,6 @@ Boolean DoFileMenu(short choice)
 				
 				if (GetNotelistFile(filename, &nsData))
 					OpenNotelistFile(filename, &nsData);
-
 				break;
 #ifdef USE_NL2XML
 			case FM_Notelist2XML:
@@ -335,7 +337,6 @@ Boolean DoFileMenu(short choice)
 				
 				if (GetNotelistFile(filename, &nsData))
 					NL2XMLParseNotelistFile(fileName, &nsData);
-
 				break;
 #endif
 			case FM_OpenMidiMap:
@@ -360,12 +361,9 @@ Boolean DoFileMenu(short choice)
 			case FM_ScoreInfo:
 				/* For users of public versions that don't have the Test menu, provide
 				   a way to access our debugging and emergency-repair facilities. */
-				if (OptionKeyDown() && CmdKeyDown()) {
+				if (OptionKeyDown() && CmdKeyDown())
 					InstallDebugMenuItems(ControlKeyDown());
-				}
-				else {					
-					ScoreInfo();
-				}
+				else ScoreInfo();
 				break;
 			case FM_Preferences:
 				if (doc) FMPreferences(doc);
@@ -456,6 +454,7 @@ void DoEditMenu(short choice)
 				break;
 
 			/* These debug commands may be added to this menu: cf. InstallDebugMenuItems */
+			
 			case EM_Browser:
 				if (OptionKeyDown())
 					Browser(doc, doc->masterHeadL, doc->masterTailL);
@@ -486,7 +485,7 @@ ordinary users should never do it! */
  
 static void DeleteObj(Document *doc, LINK pL)
 {
-	LogPrintf(LOG_NOTICE, "About to DeleteNode(%u) of type=%d...", pL, ObjLType(pL));
+	LogPrintf(LOG_NOTICE, "About to DeleteNode(%u) of type=%d...  (DeleteObj)", pL, ObjLType(pL));
 
 	if (InObjectList(doc, pL, MAIN_DSTR)) {
 		DeleteNode(doc, pL);
@@ -494,7 +493,7 @@ static void DeleteObj(Document *doc, LINK pL)
 		doc->changed = True;
 	}
 	else
-		LogPrintf(LOG_WARNING, "NODE NOT IN MAIN OBJECT LIST.\n");
+		LogPrintf(LOG_WARNING, "OBJECT NOT IN MAIN OBJECT LIST.  (DeleteObj)\n");
 }
 
 static void DeleteSelObjs(Document *doc)
@@ -503,7 +502,7 @@ static void DeleteSelObjs(Document *doc)
 	LINK pL, nextL, firstMeasL;
 	
 	CountSelection(doc, &nInRange, &nSelFlag);
-	LogPrintf(LOG_INFO, "DeleteSelObjs: nInRange=%d nSelFlag=%d\n", nInRange, nSelFlag);
+	LogPrintf(LOG_INFO, "%d objects in selection range, %d selected.  (DeleteSelObjs)\n", nInRange, nSelFlag);
 	if (nSelFlag<=0) { SysBeep(1); return; }
 	
 	sprintf(strBuf, "%d", nSelFlag);
@@ -600,7 +599,7 @@ static void DoTestMenu(short choice)
 				showDbgWin = !showDbgWin;
 				if (showDbgWin) {
 //					ShowHideDebugWindow(True);
-					LogPrintf(LOG_WARNING, "Show Debug Window isn't implemented.\n");					
+					LogPrintf(LOG_WARNING, "Show Debug Window isn't implemented.  (DoTestMenu)\n");					
 				}
 				else {				
 //					ShowHideDebugWindow(False);
@@ -1391,13 +1390,13 @@ static void EMAddCautionaryTimeSigs(Document *doc)
 	
 	numAdded = AddCautionaryTimeSigs(doc);
 	if (numAdded==0) {
-		LogPrintf(LOG_INFO, "No new time signatures needed. (EMAddCautionaryTimeSigs)\n");
+		LogPrintf(LOG_INFO, "No new time signatures needed.  (EMAddCautionaryTimeSigs)\n");
 		GetIndCString(strBuf, MENUCMDMSGS_STRS, 10);	/* "No new cautionary time signatures needed." */
 		CParamText(strBuf, "", "", "");
 		NoteInform(GENERIC_ALRT);
 	}
 	else {
-		LogPrintf(LOG_INFO, "Added %d time signature set(s). (EMAddCautionaryTimeSigs)\n",
+		LogPrintf(LOG_INFO, "Added %d time signature set(s).  (EMAddCautionaryTimeSigs)\n",
 					numAdded);
 		GetIndCString(fmtStr, MENUCMDMSGS_STRS, 9);	/* "Added %d cautionary time signature set(s)." */
 		sprintf(strBuf, fmtStr, numAdded);
@@ -1807,13 +1806,13 @@ static void NMFillEmptyMeas(Document *doc)
 			WaitCursor();
 			nFilled = FillEmptyMeas(doc, startL, endL);
 			if (nFilled>0) {
-				LogPrintf(LOG_INFO, "Filled %d empty staff-measure(s). startMN=%d endMN=%d (NMFillEmptyMeas)\n",
+				LogPrintf(LOG_INFO, "Filled %d empty staff-measure(s). startMN=%d endMN=%d  (NMFillEmptyMeas)\n",
 							nFilled, startMN, endMN);
 				FixTimeStamps(doc, startL, endL);
 				UpdateMeasNums(doc, NILINK);
 			}
 			else
-				LogPrintf(LOG_INFO, "No empty staff-measure(s) to fill. startMN=%d endMN=%d (NMFillEmptyMeas)\n",
+				LogPrintf(LOG_INFO, "No empty staff-measure(s) to fill. startMN=%d endMN=%d  (NMFillEmptyMeas)\n",
 							startMN, endMN);
 		}
 	}
@@ -2052,7 +2051,7 @@ static void PLRecord(Document *doc, Boolean merge)
 {
 	if (!OKToRecord(doc)) return;
 
-	LogPrintf(LOG_INFO, "0. Starting to record\n");
+	LogPrintf(LOG_INFO, "0. Starting to record.  (PLRecord)\n");
 	
 	if (merge) {
 		PrepareUndo(doc, doc->selStartL, U_RecordMerge, 25);		/* "Record Merge" */
@@ -2061,7 +2060,7 @@ static void PLRecord(Document *doc, Boolean merge)
 	else {
 		PrepareUndo(doc, doc->selStartL, U_Record, 26);				/* "Record" */
 		
-		LogPrintf(LOG_INFO, "0.1. Ready to record\n");
+		LogPrintf(LOG_INFO, "0.1. Ready to record.  (PLRecord)\n");
 		Record(doc);
 	}
 }
@@ -2142,7 +2141,7 @@ static void InstallDebugMenuItems(Boolean installAll)
 		}
 	}
 	else {
-		LogPrintf(LOG_INFO, "Removing debug menu items...  InstallDebugMenuItems)\n");
+		LogPrintf(LOG_INFO, "Removing debug menu items...  (InstallDebugMenuItems)\n");
 		DeleteMenuItem(editMenu, EM_DeleteObjs);			
 		DeleteMenuItem(editMenu, EM_Debug);
 		DeleteMenuItem(editMenu, EM_Browser);

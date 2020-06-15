@@ -331,7 +331,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	/* If user has the secret keys down, pretend file is in current version. */
 	
 	if (ShiftKeyDown() && OptionKeyDown() && CmdKeyDown() && ControlKeyDown()) {
-		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%s'.\n", versionCString);
+		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%s'.  (OpenFile)\n", versionCString);
 		GetIndCString(strBuf, FILEIO_STRS, 6);					/* "IGNORING FILE'S VERSION CODE!" */
 		CParamText(strBuf, "", "", "");
 		CautionInform(GENERIC_ALRT);
@@ -345,14 +345,14 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		 { errCode = BAD_VERSION_ERR; goto Error; }
 	if (version<FIRST_FILE_VERSION) { errCode = LOW_VERSION_ERR; goto Error; }
 	if (version>THIS_FILE_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
-	if (version!=THIS_FILE_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%s' FILE.\n", versionCString);
+	if (version!=THIS_FILE_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%s' FILE.  (OpenFile)\n", versionCString);
 
 //#define DIFF(addr1, addr2)	((long)(&addr1)-(long)(&addr2))
 //if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Offset of aDocN105.comment[0]=%lu, spacePercent=%lu, fillerMB=%lu, nFontRecords=%lu, nfontsUsed=%lu, yBetweenSys=%lu\n",
 //DIFF(aDocN105.comment[0], aDocN105.headL), DIFF(aDocN105.spacePercent, aDocN105.headL), DIFF(aDocN105.fillerMB, aDocN105.headL), DIFF(aDocN105.nFontRecords, aDocN105.headL),
 //DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.headL));
 
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Header size for Document=%ld, for Score=%ld, for N105 Score=%ld  (OpenFile)\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Header size for Document=%ld, for Score=%ld, for N105 Score=%ld.  (OpenFile)\n",
 		sizeof(DOCUMENTHDR), sizeof(SCOREHEADER), sizeof(SCOREHEADER_N105));
 
 	count = sizeof(fileTime);									/* Time file was written */
@@ -417,7 +417,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	FIX_END(lastType);
 
 	if (lastType!=LASTtype) {
-		LogPrintf(LOG_ERR, "LAST OBJECT TYPE IS %d BUT SHOULD BE %d.\n", lastType, LASTtype);	
+		LogPrintf(LOG_ERR, "LAST OBJECT TYPE IS %d BUT SHOULD BE %d.  (OpenFile)\n", lastType, LASTtype);	
 		errCode = LASTTYPE_ERR;
 		errInfo = HEADERobj;
 		goto Error;
@@ -471,12 +471,11 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
 #if 0
 {	unsigned char *pSObj;
-#define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
-pSObj = (unsigned char *)GetPSUPEROBJECT(1);
+pSObj = (unsigned char *)GetPSUPEROBJ(1);
 NHexDump(LOG_DEBUG, "OpenFile L1", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(2);
+pSObj = (unsigned char *)GetPSUPEROBJ(2);
 NHexDump(LOG_DEBUG, "OpenFile L2", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJECT(3);
+pSObj = (unsigned char *)GetPSUPEROBJ(3);
 NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
 }
 #endif
@@ -684,7 +683,7 @@ void OpenError(Boolean fileIsOpen,
 					sprintf(aStr, fmtStr, errCode, errInfo);
 				}
 		}
-		LogPrintf(LOG_WARNING, aStr); LogPrintf(LOG_WARNING, "\n");
+		LogPrintf(LOG_WARNING, aStr); LogPrintf(LOG_WARNING, "  (OpenError)\n");
 		CParamText(aStr, "", "", "");
 		StopInform(READ_ALRT);
 	}
