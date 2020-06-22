@@ -1702,8 +1702,8 @@ void DrawBEAMSET(Document *doc, LINK beamL, CONTEXT context[])
 	beamCount = BuildBeamDrawTable(beamL, whichWay, nPrimary, nSecsA, nSecsB,
 												stemUpDown, beamTab, BEAMTABLEN);
 	if (beamCount<0) {
-		SysBeep(1);
-		LogPrintf(LOG_ERR, "NO BEAM ELEMENTS FOR beamL=L%u  (DrawBEAMSET)\n");
+		LogPrintf(LOG_ERR, "NO BEAM ELEMENTS FOR beamL=L%u.  (DrawBEAMSET)\n", beamL);
+		AlwaysErrMsg("NO BEAM ELEMENTS FOR beamL=L%ld.  (DrawBEAMSET)", (long)beamL);
 		return;
 	}
 	

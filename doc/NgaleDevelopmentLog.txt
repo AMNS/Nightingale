@@ -6635,3 +6635,49 @@ Fix that; try to open 1NoteC5_N106Native.ngl =>
 ?? Ah, a silly block-structure error in HeapFixLinks. Fix it; open 1NoteC5_N106Native.ngl
 => OK! Open 1CourtesyAcc.ngl (converted) = OK! Open AllObjTypes.ngl => OK! Open
 AllObjTypes.ngl (converted) => OK! Open T+MInCounterpointBug12mm.ngl => OK!!!
+
+-------------------------------------------------------------------------------
+
+15- 19 June
+
+Looks like the "Ngale can't open files it just saved" bug has been fixed. Now what about
+the bug in opening large files? Try opening T+MInCounterpointBug2p.ngl => looks OK, and
+Debug Check has no complaints! Open T+MInCounterpoint.ngl => looks OK, and Debug Check has
+no complaints! Open 2ndMovement.ngl (of Violin Concerto) => crashes into debugger stopped
+at line 1616 of FileConversion.cp, in ConvertSLUR(), the line
+
+	SlurFILLER(slurL) = 0;
+
+...with slurL = 513 and the call stack as expected. This is precisely what happened
+before; see 23 - 29 May :-( . Not that surprising, since I had, and have, only the vaguest
+idea what causes it :-( .
+
+Open 'AllObjTypes.ngl' => no problems.
+Open 'T+MInCounterpointBug2p.ngl' => no problems.
+Open 'T+MInCounterpoint.ngl' => Debug Check sez
+
+	Warning. *DCheckContext: clefType FOR STAFF 1 IN STAFF L332 INCONSISTENCY.
+
+?!?!?
+
+OK, HeapFileIO.c already has a constant
+
+	#define EXTRAOBJS 10L
+
+to make it allocate more memory than it thinks is necessary for each heap. Up it to 500L,
+then open T+MInCounterpoint.ngl => crashes into GDB in ConvertSLUR() at the line
+
+	SlurFILLER(slurL) = 0;
+
+...with slurL = 513; the call stack is as expected. Exactly what I've seen several times
+before, including at the beginning of this note! T+MInCounterpoint.ngl isn't even a very
+large score, so it's pretty clear (and not surprising) that the sizes of the heaps aren't
+the problem.
+
+Open 'AllObjTypes.ngl' => no problems.
+Open 'T+MInCounterpointBug2p.ngl' => no problems.
+Open 'T+MInCounterpoint.ngl' 3x => no problems twice; the 3rd time, Debug Check sez
+
+	Warning. •DCheckNode: TUPLET L1084 HAS BAD SYNC LINK 65.
+	Warning. *DCheckTuplets: TUPLET L1084 SYNC LINK INCONSISTENT.
+	Warning. *DCheckTuplets: TUPLET L1084 TOTAL DURATION OF 5520 DOESN'T MAKE SENSE.

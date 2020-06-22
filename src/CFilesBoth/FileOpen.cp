@@ -618,9 +618,8 @@ Error:
 not the file was open when the error occurred; if so, OpenError closes it. <errCode>
 is either an error code return by the file system manager or one of our own codes
 (see enum above). <errInfo> indicates at what step of the process the error happened
-(CREATEcall, OPENcall, etc.: see enum above), the type of object being read, or
-some other additional information on the error. NB: If errCode==0, this will close
-the file but not give an error message; I'm not sure that's a good idea.
+(CREATEcall, OPENcall, etc.: see enum above), the type of object being read, or some
+other additional information on the error.
 
 Note that after a call to OpenError with fileIsOpen, you should not try to keep reading,
 since the file will no longer be open! */
@@ -638,53 +637,51 @@ void OpenError(Boolean fileIsOpen,
 	LogPrintf(LOG_ERR, "CAN'T OPEN THE FILE. errCode=%d errInfo=%d  (OpenError)\n", errCode, errInfo);
 	if (fileIsOpen && refNum!=0) FSClose(refNum);
 
-	if (errCode!=0) {
-		switch (errCode) {
+	switch (errCode) {
+		/*
+		 * First handle our own codes that need special treatment.
+		 */
+		case BAD_VERSION_ERR:
+			GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
+			sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
+						 ACHAR(version, 1), ACHAR(version, 0));
+			break;
+		case LOW_VERSION_ERR:
+			GetIndCString(fmtStr, FILEIO_STRS, 8);			/* "too old for this version of Nightingale" */
+			sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
+						 ACHAR(version, 1), ACHAR(version, 0));
+			break;
+		case HI_VERSION_ERR:
+			GetIndCString(fmtStr, FILEIO_STRS, 9);			/* "newer than this version of Nightingale" */
+			sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
+						 ACHAR(version, 1), ACHAR(version, 0));
+			break;
+		case TOOMANYSTAVES_ERR:
+			GetIndCString(fmtStr, FILEIO_STRS, 10);		/* "this version can handle only %d staves" */
+			sprintf(aStr, fmtStr, errInfo, MAXSTAVES);
+			break;
+		default:
 			/*
-			 * First handle our own codes that need special treatment.
+			 * We expect descriptions of the common errors stored by code (negative
+			 * values, for system errors; positive ones for our own I/O errors) in
+			 * individual 'STR ' resources. If we find one for this error, print it,
+			 * else just print the raw code.
 			 */
-			case BAD_VERSION_ERR:
-				GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
-				sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
-							 ACHAR(version, 1), ACHAR(version, 0));
-				break;
-			case LOW_VERSION_ERR:
-				GetIndCString(fmtStr, FILEIO_STRS, 8);			/* "too old for this version of Nightingale" */
-				sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
-							 ACHAR(version, 1), ACHAR(version, 0));
-				break;
-			case HI_VERSION_ERR:
-				GetIndCString(fmtStr, FILEIO_STRS, 9);			/* "newer than this version of Nightingale" */
-				sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
-							 ACHAR(version, 1), ACHAR(version, 0));
-				break;
-			case TOOMANYSTAVES_ERR:
-				GetIndCString(fmtStr, FILEIO_STRS, 10);		/* "this version can handle only %d staves" */
-				sprintf(aStr, fmtStr, errInfo, MAXSTAVES);
-				break;
-			default:
-				/*
-				 * We expect descriptions of the common errors stored by code (negative
-				 * values, for system errors; positive ones for our own I/O errors) in
-				 * individual 'STR ' resources. If we find one for this error, print it,
-				 * else just print the raw code.
-				 */
-				strHdl = GetString(errCode);
-				if (strHdl) {
-					Pstrcpy((unsigned char *)strBuf, (unsigned char *)*strHdl);
-					PToCString((unsigned char *)strBuf);
-					strNum = (errInfo>0? 15 : 16);	/* "%s (heap object type=%d)." : "%s (error code=%d)." */
-					GetIndCString(fmtStr, FILEIO_STRS, strNum);
-					sprintf(aStr, fmtStr, strBuf, errInfo);
-				}
-				else {
-					strNum = (errInfo>0? 17 : 18);	/* "Error ID=%d (heap object type=%d)." : "Error ID=%d (error code=%d)." */
-					GetIndCString(fmtStr, FILEIO_STRS, strNum);
-					sprintf(aStr, fmtStr, errCode, errInfo);
-				}
-		}
-		LogPrintf(LOG_WARNING, aStr); LogPrintf(LOG_WARNING, "  (OpenError)\n");
-		CParamText(aStr, "", "", "");
-		StopInform(READ_ALRT);
+			strHdl = GetString(errCode);
+			if (strHdl) {
+				Pstrcpy((unsigned char *)strBuf, (unsigned char *)*strHdl);
+				PToCString((unsigned char *)strBuf);
+				strNum = (errInfo>0? 15 : 16);	/* "%s (heap object type=%d)." : "%s (error code=%d)." */
+				GetIndCString(fmtStr, FILEIO_STRS, strNum);
+				sprintf(aStr, fmtStr, strBuf, errInfo);
+			}
+			else {
+				strNum = (errInfo>0? 17 : 18);	/* "Error ID=%d (heap object type=%d)." : "Error ID=%d (error code=%d)." */
+				GetIndCString(fmtStr, FILEIO_STRS, strNum);
+				sprintf(aStr, fmtStr, errCode, errInfo);
+			}
 	}
+	LogPrintf(LOG_WARNING, aStr); LogPrintf(LOG_WARNING, "  (OpenError)\n");
+	CParamText(aStr, "", "", "");
+	StopInform(READ_ALRT);
 }

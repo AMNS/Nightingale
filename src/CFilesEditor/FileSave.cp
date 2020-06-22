@@ -220,9 +220,9 @@ all, onto the current volume. If it cannot be saved safely, ask user what to do.
 static short GetSaveType(Document *doc, Boolean saveAs)
 {
 	Boolean canContinue;
-	long fileSize, freeSpace, oldFileSize, vAlBlkSize;
+	long fileSize, freeSpace, oldFileSize, vAlBlkSize=-9999;
 	
-	/* If doc->new, no previous document to protect from the save operation. If
+	/* If doc->new, there's no previous document to protect from the save operation. If
 	   saveAs, the previous doc will not be replaced, but a new one will be created. */
 
 	if (doc->docNew || saveAs)
@@ -253,7 +253,7 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 
 	fileSize = GetFileSize(doc, vAlBlkSize);
 
-	/* If we have enough space to save safely, we're done (although, if the doc is
+	/* If we have enough space to save safely, we're done (although if the doc is
 	   new or it's a Save As, we tell the caller they don't _need_ to do a safe save).
 	   If not, ask the user what to do. If canContinue, they can still replace the
 	   previous file; otherwise, they can only Save As or Cancel. */
@@ -680,7 +680,7 @@ void SaveError(Boolean fileIsOpen,
 		sprintf(aStr, fmtStr, errCode, errInfo);
 	}
 
-	LogPrintf(LOG_WARNING, aStr); LogPrintf(LOG_WARNING, "\n");
+	LogPrintf(LOG_ERR, aStr); LogPrintf(LOG_ERR, "\n");
 	CParamText(aStr, "", "", "");
 	StopInform(SAVE_ALRT);
 }

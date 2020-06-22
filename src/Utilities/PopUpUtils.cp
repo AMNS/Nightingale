@@ -72,7 +72,7 @@ Boolean InitGPopUp(
 //LogPrintf(LOG_DEBUG, "InitGPopUp: numItems=%d numColumns=%d fontSize=%d\n", p->numItems,
 //p->numColumns, p->fontSize);
     if (p->itemChars==NULL) {
-		LogPrintf(LOG_ERR, "Can't allocate memory for %d items for the graphic pop-up.  (InitGPopUp)\n",
+		LogPrintf(LOG_WARNING, "Can't allocate memory for %d items for the graphic pop-up.  (InitGPopUp)\n",
 					p->numItems);
         ReleaseResource(resH);
         return False;
@@ -143,7 +143,7 @@ Boolean InitGPopUp(
 	
 broken:
 	SysBeep(10);
-	LogPrintf(LOG_ERR, "Can't create the graphic pop-up. The font may not be available.  (InitGPopUp)\n");
+	LogPrintf(LOG_WARNING, "Can't create the graphic pop-up. The font may not be available.  (InitGPopUp)\n");
 	ReleaseResource(resH);
 	return False;
 }

@@ -400,7 +400,7 @@
 		D03E6DE10D5F986D005FD177 /* DrawNRGR.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawNRGR.cp; sourceTree = "<group>"; };
 		D03E6DE20D5F986D005FD177 /* DrawObject.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawObject.cp; sourceTree = "<group>"; };
 		D03E6DE50D5F986D005FD177 /* EditScore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditScore.cp; sourceTree = "<group>"; };
-		D03E6DE80D5F986D005FD177 /* Error.cp */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Error.cp; sourceTree = "<group>"; };
+		D03E6DE80D5F986D005FD177 /* Error.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Error.cp; sourceTree = "<group>"; };
 		D03E6DEB0D5F986D005FD177 /* Finalize.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Finalize.cp; sourceTree = "<group>"; };
 		D03E6DEE0D5F986D005FD177 /* GRBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GRBeam.cp; sourceTree = "<group>"; };
 		D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeapFileIO.cp; sourceTree = "<group>"; };

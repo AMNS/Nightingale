@@ -2832,3 +2832,11 @@ Fixed the "Ngale can't open files it just saved" bug. Affects FileConversion,
 HeapFileIO.
 
 Minor cleanup. Affects MemMacros.h; FileConversion, FileOpen, HeapFileIO, Heaps, Menu.
+
+-------------------------------------------------------------------------------
+
+15 - 21 June
+
+Minor cleanup: made all LOG_ERR log messages also show an alert via AlwaysErrMsg(), etc.
+Affects Beam, DebugUtils, DrawObject, Error, FileConversion, FileOpen, FileSave,
+HeapFileIO, InsUtils, PopUpUtils.

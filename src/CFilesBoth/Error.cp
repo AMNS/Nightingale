@@ -211,17 +211,17 @@ static void EMDebugPrintf(char *fmt, ... )
 void MayErrMsg(char *fmt, ...)
 {
 	va_list ap;
-	long arg1,arg2,arg3,arg4,arg5,arg6;
+	long arg1, arg2, arg3, arg4, arg5, arg6;
 	
 	static short alertCount = 3;		/* No. of times to actually give the alarm */
 
 	va_start(ap,fmt);
-	arg1 = va_arg(ap,long);
-	arg2 = va_arg(ap,long);
-	arg3 = va_arg(ap,long);
-	arg4 = va_arg(ap,long);
-	arg5 = va_arg(ap,long);
-	arg6 = va_arg(ap,long);
+	arg1 = va_arg(ap, long);
+	arg2 = va_arg(ap, long);
+	arg3 = va_arg(ap, long);
+	arg4 = va_arg(ap, long);
+	arg5 = va_arg(ap, long);
+	arg6 = va_arg(ap, long);
 	va_end(ap);
 	
 	sprintf(tempStr, "PROGRAM ERROR: ");  
@@ -243,15 +243,15 @@ void MayErrMsg(char *fmt, ...)
 void AlwaysErrMsg(char *fmt, ...)
 {
 	va_list ap;
-	long arg1,arg2,arg3,arg4,arg5,arg6;
+	long arg1, arg2, arg3, arg4, arg5, arg6;
 	
-	va_start(ap,fmt);
-	arg1 = va_arg(ap,long);
-	arg2 = va_arg(ap,long);
-	arg3 = va_arg(ap,long);
-	arg4 = va_arg(ap,long);
-	arg5 = va_arg(ap,long);
-	arg6 = va_arg(ap,long);
+	va_start(ap, fmt);
+	arg1 = va_arg(ap, long);
+	arg2 = va_arg(ap, long);
+	arg3 = va_arg(ap, long);
+	arg4 = va_arg(ap, long);
+	arg5 = va_arg(ap, long);
+	arg6 = va_arg(ap, long);
 	va_end(ap);
 	
 	sprintf(tempStr, "PROGRAM ERROR: ");  
@@ -355,7 +355,8 @@ it's probably too dangerous to try to get one from a resource in this situation.
 void MissingDialog(short dlogID)
 {
 	SysBeep(1);
-	LogPrintf(LOG_WARNING, "MissingDialog: can't find dialog resource %d.\n", dlogID);
+	LogPrintf(LOG_WARNING, "Can't find dialog resource %d.  (MissingDialog)\n", dlogID);
+	MayErrMsg("Can't find dialog resource %ld.  (MissingDialog)", (long)dlogID);
 }
 
 

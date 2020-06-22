@@ -327,7 +327,7 @@ NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
-LogPrintf(LOG_DEBUG, "HeapFixN105Links: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
+//LogPrintf(LOG_DEBUG, "HeapFixN105Links: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case TAILtype:
 				doc->tailL = pL;
@@ -389,8 +389,8 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 	/* Now do the Master Page list. */
 
 	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL)) {
-		//FIX_END(DRightLINK(doc, pL));
-LogPrintf(LOG_DEBUG, "HeapFixN105Links: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
+		FIX_END(DRightLINK(doc, pL));
+//LogPrintf(LOG_DEBUG, "HeapFixN105Links: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case HEADERtype:
 				DLeftLINK(doc, doc->masterHeadL) = NILINK;
@@ -1847,14 +1847,24 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 	startL = (doMasterList?  doc->masterHeadL :  doc->headL);
 	prevL = startL-1;
 	for (pL = startL; pL; pL = RightLINK(pL)) {
-SleepMS(3);		/* Avoid bug in OS 10.5 and 10.6 Console log with > 500 messages/sec. */
+#define DEBUG_LOOP
+#ifdef DEBUG_LOOP
+		/* There's a weird bug in the OS 10.5 and 10.6 Console utility where if messages
+		   are written to the log at too high a rate, some just disappear; to make it
+		   worse, the ones that disappear seem to be random! (With 10.6 you at least
+		   get a warning at 500 messages/sec., but not with 10.5.) To help debug this
+		   loop, add a delay each time through. Note that this makes converting large
+		   files much slower, so it should be #ifdef'd out or removed completely if
+		   we're not concerned about log messages from the loop.  */
+		SleepMS(3);
 //LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
+#endif
 
 		/* If this function is called in the situation described above, consecutive objects
 		   must have sequential links; check that. */
 		 
-		if (pL!=prevL+1) LogPrintf(LOG_ERR, "PROGRAM ERROR: ConvertObject: pL=%u BUT prevL=%u INSTEAD OF %u!\n",
-									pL, prevL, prevL-1);
+		if (pL!=prevL+1) MayErrMsg("PROGRAM ERROR: ConvertObject: pL=%ld BUT prevL=%ld INSTEAD OF %ld!  (ConvertObjects)",
+									(long)pL, (long)prevL, (long)prevL-1);
 		prevL = pL;
 
 		/* Copy the object to a separate SUPEROBJECT so we can move fields all over the
@@ -1943,8 +1953,8 @@ SleepMS(3);		/* Avoid bug in OS 10.5 and 10.6 Console log with > 500 messages/se
 				ConvertPSMEAS(doc, pL);
 				continue;
 			default:
-				LogPrintf(LOG_ERR, "PROGRAM ERROR: ConvertObject: OBJECT L%u TYPE %d IS ILLEGAL.\n",
-							pL, ObjLType(pL));
+				MayErrMsg("PROGRAM ERROR: OBJECT L%ld TYPE %ld IS ILLEGAL.  (ConvertObject)",
+							(long)pL, (long)ObjLType(pL));
 		}
 	}
 

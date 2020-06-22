@@ -96,7 +96,8 @@ static short WriteHeapHdr(Document *, short refNum, short heapIndex);
 static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link, LINK *firstSubLINKA,
 						LINK *objA, LINK *modA, short *objCount);
 static short WriteObject(short refNum, short heapIndex, LINK pL);
-static Boolean ComputeObjCounts(Document *, LINK **firstSubLINKA, LINK **objA, LINK **modA);
+static void CountObjSubobjs(Document *doc);
+static Boolean InitTrackLinks(Document *, LINK **firstSubLINKA, LINK **objA, LINK **modA);
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile);
 static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, Boolean isViewerFile);
 static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean isViewerFile,
@@ -113,10 +114,19 @@ an error code (either a system result code or one of our own codes). */
 
 short WriteHeaps(Document *doc, short refNum)
 {
-	LINK *firstSubLINKA, *objA, *modA;
-	short errCode;
+	LINK *firstSubLINKA=NILINK, *objA=NILINK, *modA=NILINK;
+	short errCode, i;
 	
-	if (ComputeObjCounts(doc, &firstSubLINKA, &objA, &modA)) {
+	CountObjSubobjs(doc);
+#if 1
+	LogPrintf(LOG_INFO, "No. of objects and subobjects to be written:\n");
+	for (i=FIRSTtype; i<LASTtype-1; i++ )
+		if (objCount[i]>0)
+			LogPrintf(LOG_INFO, "    heap %d: %d subobject(s)  (WriteHeaps)\n", i, objCount[i]);
+	LogPrintf(LOG_INFO, "    heap %d: %d objects  (WriteHeaps)\n", LASTtype-1, objCount[LASTtype-1]);
+#endif
+
+	if (InitTrackLinks(doc, &firstSubLINKA, &objA, &modA)) {
 		CreateModTable(doc, &modA);
 		errCode = WriteSubHeaps(doc, refNum, firstSubLINKA, objA, modA);
 		if (!errCode) errCode = WriteObjHeap(doc, refNum, firstSubLINKA, objA);
@@ -160,13 +170,16 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 	for (j=1, pL=doc->headL; ioErr==noErr && pL!=NILINK; j++, pL=RightLINK(pL)) {
 	
 		/* Store old link values. */
+		
 		leftL = LeftLINK(pL); rightL = RightLINK(pL);
 		subL = FirstSubLINK(pL);
 
 		/* Write the link values for the in-file objects. */
+		
 		FirstSubLINK(pL) = firstSubLINKA[pL];
 		LeftLINK(pL) = j-1;
 		RightLINK(pL) = j+1;
+		if (pL==doc->headL) LeftLINK(pL) = NILINK;
 		if (pL==doc->tailL) RightLINK(pL) = NILINK;
 		
 		/* Save fields in objects that refer to other objects and temporarily set them
@@ -223,6 +236,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 		FirstSubLINK(pL) = subL;
 		
 		/* Set fields that refer to other objects back to their correct values. */
+		
 		switch (ObjLType(pL)) {
 			case SLURtype:
 				SlurFIRSTSYNC(pL) = oldFirstSync;
@@ -237,8 +251,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 				break;
 			case DYNAMtype:
 				DynamFIRSTSYNC(pL) = oldFirstSync;
-				if (IsHairpin(pL)) 
-					DynamLASTSYNC(pL) = oldLastSync;
+				if (IsHairpin(pL)) DynamLASTSYNC(pL) = oldLastSync;
 				break;
 			case ENDINGtype:
 				EndingFIRSTOBJ(pL) = oldFirstObj;
@@ -403,7 +416,7 @@ static short WriteModSubs(short refNum, LINK aNoteL, LINK link, LINK **/*modA*/,
 }
 
 
-/* "Mackey's Disease" is so called in honor of Steve Mackey, who ran into in the 1990's. */
+/* "Mackey's Disease" is so called because Steve Mackey ran into it repeatedly in the 1990's. */
 
 static void MackeysDiseaseMsg(LINK pL, short subObjCount, char *objString);
 static void MackeysDiseaseMsg(LINK pL, short subObjCount, char *objString)
@@ -415,11 +428,11 @@ static void MackeysDiseaseMsg(LINK pL, short subObjCount, char *objString)
 
 
 /* Write all subobjects of all types to the file. For each heap, we write out the
-number of subobjects in that heap (as determined by ComputeObjCounts) as part of the
+number of subobjects in that heap (as determined by InitTrackLinks) as part of the
 heap header; then we traverse the object list and write out all the subobjects
 themselves.
 
-Note that if ComputeObjCounts finds a number for any heap that's different from what
+Note that if InitTrackLinks finds a number for any heap that's different from what
 the heap-writing code finds, the results are likely to be disasterous: the file
 will be written apparently without problems, but it will probably not be possible to
 open it again! The same is true if WriteSubObjs finds a number for any object that's
@@ -428,7 +441,7 @@ alert the user if this happens, we give a strongly-worded message in the latter 
 but FIXME not the former, which is just as serious! */
 
 static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LINK *objA,
-									LINK *modA)
+								LINK *modA)
 {
 	HEAP *myHeap;
 	short i, ioErr = noErr, hdrErr, modErr, subObjCount;
@@ -518,7 +531,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	
 	count = sizeof(short);
 	ioErr = FSWrite(refNum, &count, &objCount[heapIndex]);
-	if (ioErr) { SaveError(True, refNum, ioErr, heapIndex); return(ioErr); }
+	if (ioErr) { SaveError(True, refNum, ioErr, heapIndex);  return(ioErr); }
 
 	/* Write the HEAP struct header */
 	
@@ -664,14 +677,11 @@ static short WriteObject(short refNum, short heapIndex, LINK pL)
 
 
 /* Compute the total number of objects/subobjects of each type and the number of note
-modifiers in the object list, and store them in the objCount[] array. Also allocate and
-initialize "arrays" for keeping track of firstSubLINKs and object and note modifier links.
-NB: The calling routine is responsible for freeing these chunks of memory. */
+modifiers in the object list, and store them in the objCount[] array. */
 
-Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK **modA)
+static void CountObjSubobjs(Document *doc)
 {
 	LINK pL, aNoteL, aModNRL;
-	PANOTE aNote;
 	unsigned short i, j, numMods=0;
 	
 	for (i=FIRSTtype; i<LASTtype; i++ )
@@ -699,32 +709,41 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 		if (ObjLType(pL)==SYNCtype) {
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-				aNote = GetPANOTE(aNoteL);
-				for (aModNRL = aNote->firstMod; aModNRL; aModNRL = NextMODNRL(aModNRL))
+				for (aModNRL = NoteFIRSTMOD(aNoteL); aModNRL; aModNRL = NextMODNRL(aModNRL))
 					numMods++;
 			}
 		}
 	objCount[MODNRtype] = numMods;
-	
-	/* Allocate an array of links to temporarily hold the values of all firstSubLINKs to
-	be written to file. */
+}
+
+
+/* Allocate and initialize "arrays" for keeping track of firstSubLINKs and object and
+note modifier links. NB: The calling routine is responsible for freeing these chunks of
+memory. */
+
+static Boolean InitTrackLinks(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK **modA)
+{
+	LINK pL;
+	unsigned short j, numMods=0;
+		
+	/* Allocate (but don't fill in) an array to temporarily hold the values of all
+	   firstSubLINKs. */
 	
 	*firstSubLINKA = (LINK *)NewPtr((Size)(OBJheap->nObjs+1)*sizeof(LINK));
 	if (*firstSubLINKA)
 		for (j=0; j<OBJheap->nObjs+1; j++)
 			(*firstSubLINKA)[j] = NILINK;
 	else
-		{ OutOfMemory((OBJheap->nObjs+1)*sizeof(LINK)); return False; }
+		{ OutOfMemory((OBJheap->nObjs+1)*sizeof(LINK));  return False; }
 
-	/* Allocate an array of links to temporarily hold the values of all objLinks to
-	   be written to file. */
+	/* Allocate and fill an array to temporarily hold the values of all object links. */
 	
 	*objA = (LINK *)NewPtr((Size)(OBJheap->nObjs+1)*sizeof(LINK));
 	if (*objA)
 		for (j=0; j<OBJheap->nObjs+1; j++)
 			(*objA)[j] = NILINK;
 	else
-		{ OutOfMemory((OBJheap->nObjs+1)*sizeof(LINK)); return False; }
+		{ OutOfMemory((OBJheap->nObjs+1)*sizeof(LINK));  return False; }
 	
 	for (j=1, pL = doc->headL; pL!=RightLINK(doc->tailL); j++, pL = RightLINK(pL)) 
 		(*objA)[pL] = j;
@@ -732,8 +751,8 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 	for (pL = doc->masterHeadL; pL!=RightLINK(doc->masterTailL); j++, pL = RightLINK(pL)) 
 		(*objA)[pL] = j;
 
-	/* Allocate an array of links to temporarily hold the values of all modNR's to
-	   be written to file. */
+	/* Allocate (but don't fill in) an array of links to temporarily hold the values of
+	   all modNR's. */
 	
 	*modA = (LINK *)NewPtr((Size)(MODNRheap->nObjs+1)*sizeof(LINK));
 	if (*modA)
@@ -808,7 +827,14 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, 
 			newLen = subObjLength[curType];
 		}
 		
-LogPrintf(LOG_DEBUG, "MoveObjSubobjs: curType=%d len=%d newLen=%d\n", curType, len, newLen);
+#define DEBUG_LOOP
+#ifdef DEBUG_LOOP
+		/* Without the call to SleepMS(), some of the output from the following LogPrintf
+		   is likely to be lost, at least with OS 10.5 and 10.6! See the comment on this
+		   issue in ConvertObjects(). */
+		SleepMS(3);
+		LogPrintf(LOG_DEBUG, "MoveObjSubobjs: curType=%d len=%d newLen=%d\n", curType, len, newLen);
+#endif
 		/* <len> is now the correct object/subobject length for the current file format.
 		   If its length was different in the previous file format, adjust <len> to
 		   compensate. (However, the _contents_ of the objects should be fixed in
@@ -864,7 +890,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	count = sizeof(long);
 	FSRead(refNum, &count, &sizeAllObjsFile);
 	FIX_END(sizeAllObjsFile);
-	LogPrintf(LOG_INFO, "nFObjs=%d sizeAllObjsFile=%ld sizeAllObjsHeap=%ld  (ReadObjHeap)\n",
+	LogPrintf(LOG_INFO, "%d objects. sizeAllObjsFile=%ld sizeAllObjsHeap=%ld  (ReadObjHeap)\n",
 								nFObjs, sizeAllObjsFile, sizeAllObjsHeap);
 
 	if (sizeAllObjsFile>sizeAllObjsHeap) {
@@ -947,20 +973,11 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 //GetFPos(refNum, &position);
 //LogPrintf(LOG_DEBUG, "ReadSubHeap: iHp=%d fPos=%ld\n", iHp, position);
 
-#if 1
 	if (version=='N105')	sizeAllInFile = nFObjs*subObjLength_5[iHp];
 	else					sizeAllInFile = nFObjs*subObjLength[iHp];
-#else
-	count = sizeof(long);
-	FSRead(refNum, &count, &sizeAllInFile);
-LogPrintf(LOG_DEBUG, "count=%ld sizeAllInFile=%ld\n", count, sizeAllInFile);
-sizeAllInFile = nFObjs*myHeap->objSize;
-LogPrintf(LOG_DEBUG, "count=%ld sizeAllInFile=%ld\n", count, sizeAllInFile);
-	FIX_END(sizeAllInFile);
-#endif
 
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "heap %d: nFObjs=%d sizeAllInFile=%ld sizeAllInHeap=%ld  (ReadSubHeap)\n",
-							iHp, nFObjs, sizeAllInFile, sizeAllInHeap);
+	LogPrintf(LOG_INFO, "heap %d: %d subobject(s). sizeAllInFile=%ld sizeAllInHeap=%ld  (ReadSubHeap)\n",
+						iHp, nFObjs, sizeAllInFile, sizeAllInHeap);
 	if (sizeAllInFile>sizeAllInHeap) {
 		AlwaysErrMsg("File is inconsistent. sizeAllInFile=%ld is greater than sizeAllInHeap=%ld  (ReadSubHeap)",
 					sizeAllInFile, sizeAllInHeap);
@@ -1081,7 +1098,7 @@ static short HeapFixLinks(Document *doc)
 	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
-LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
+//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case TAILtype:
 				doc->tailL = pL;
@@ -1137,7 +1154,7 @@ LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, DObjL
 
 	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
-LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
+//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case HEADERtype:
 				DLeftLINK(doc, doc->masterHeadL) = NILINK;

@@ -1239,7 +1239,7 @@ that have meaningful objRects. If we find such object(s), we check whether their
 								((POTTAVA)p)->staffn);
 
 				if (p->nEntries<=1 && ((POTTAVA)p)->xdFirst>=((POTTAVA)p)->xdLast)
-					COMPLAIN2("*DCheckNode: OTTAVA L%u ON staffn %d XD1ST >= XDLAST.\n",
+					COMPLAIN2("*DCheckNode: OTTAVA L%u ON staffn %d xd1st >= xdLast.\n",
 								pL, ((POTTAVA)p)->staffn);
 								
 				for (aNoteOctL=FirstSubLINK(pL); aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
@@ -1258,7 +1258,6 @@ that have meaningful objRects. If we find such object(s), we check whether their
 
 			case SLURtype: {
 				short theInd, firstNoteNum=-1, lastNoteNum=-1;
-				PANOTE firstNote, lastNote;
 				LINK firstNoteL, lastNoteL;
 				Boolean foundFirst, foundLast;
 				
@@ -1317,11 +1316,10 @@ that have meaningful objRects. If we find such object(s), we check whether their
 							theInd = -1;
 							for (firstNoteL = FirstSubLINK(pSlur->firstSyncL); firstNoteL;
 									firstNoteL = NextNOTEL(firstNoteL)) {
-								firstNote = GetPANOTE(firstNoteL);
-								if (firstNote->voice==pSlur->voice) {
+								if (NoteVOICE(firstNoteL)==pSlur->voice) {
 									theInd++;
 									if (theInd==aSlur->firstInd) {
-										firstNoteNum = firstNote->noteNum;
+										firstNoteNum = NoteNUM(firstNoteL);
 										break;
 									}
 								}
@@ -1329,19 +1327,18 @@ that have meaningful objRects. If we find such object(s), we check whether their
 							theInd = -1;
 							for (lastNoteL = FirstSubLINK(pSlur->lastSyncL); lastNoteL;
 									lastNoteL = NextNOTEL(lastNoteL)) {
-								lastNote = GetPANOTE(lastNoteL);
-								if (lastNote->voice==pSlur->voice) {
+								if (NoteVOICE(lastNoteL)==pSlur->voice) {
 									theInd++;
 									if (theInd==aSlur->lastInd) {
-										lastNoteNum = lastNote->noteNum;
+										lastNoteNum = NoteNUM(lastNoteL);
 										break;
 									}
 								}
 							}
-							if (firstNote && !firstNote->tiedR)
+							if (firstNoteL && !NoteTIEDR(firstNoteL))
 								COMPLAIN3("*DCheckNode: TIE IN VOICE %d L%u IN MEASURE %d FIRST NOTE NOT tiedR.\n",
 											SlurVOICE(pL), pL, GetMeasNum(doc, pL));
-							if (lastNote && !lastNote->tiedL)
+							if (lastNoteL && !NoteTIEDL(lastNoteL))
 								COMPLAIN3("*DCheckNode: TIE IN VOICE %d L%u IN MEASURE %d LAST NOTE NOT tiedL.\n",
 											SlurVOICE(pL), pL, GetMeasNum(doc, pL));
 							if (firstNoteNum!=lastNoteNum)
@@ -1355,17 +1352,15 @@ that have meaningful objRects. If we find such object(s), we check whether their
 							foundFirst = False;
 							for (firstNoteL = FirstSubLINK(pSlur->firstSyncL); firstNoteL;
 									firstNoteL = NextNOTEL(firstNoteL)) {
-								firstNote = GetPANOTE(firstNoteL);
-								if (firstNote->voice==pSlur->voice) {
-									if (firstNote->slurredR) foundFirst = True;
+								if (NoteVOICE(firstNoteL)==pSlur->voice) {
+									if (NoteSLURREDR(firstNoteL)) foundFirst = True;
 								}
 							}
 							foundLast = False;
 							for (lastNoteL = FirstSubLINK(pSlur->lastSyncL); lastNoteL;
 									lastNoteL = NextNOTEL(lastNoteL)) {
-								lastNote = GetPANOTE(lastNoteL);
-								if (lastNote->voice==pSlur->voice) {
-									if (lastNote->slurredL) foundLast = True;
+								if (NoteVOICE(lastNoteL)==pSlur->voice) {
+									if (NoteSLURREDL(lastNoteL)) foundLast = True;
 								}
 							}
 							if (!foundFirst)
@@ -2685,8 +2680,8 @@ Boolean DCheckContext(Document *doc)
 					}
 					else {														/* Check staff info */
 						if (clefType[aStaff->staffn]!=aStaff->clefType) {
-							COMPLAIN2("*DCheckContext: clefType FOR STAFF %d IN STAFF L%u INCONSISTENCY.\n",
-											aStaff->staffn, pL);
+							COMPLAIN3("*DCheckContext: FOR STAFF %d IN STAFF L%u, INCONSISTENT clefType: EXPECTED %d.\n",
+											aStaff->staffn, pL, clefType[aStaff->staffn]);
 							aStaff = GetPASTAFF(aStaffL);
 						}
 						if (nKSItems[aStaff->staffn]!=aStaff->nKSItems) {
@@ -2713,7 +2708,7 @@ Boolean DCheckContext(Document *doc)
 						aMeasL=NextMEASUREL(aMeasL)) {
 					aMeas = GetPAMEASURE(aMeasL);
 					if (clefType[aMeas->staffn]!=aMeas->clefType) {
-						COMPLAIN3("*DCheckContext: clefType FOR STAFF %d IN MEASURE %d (L%u) INCONSISTENCY.\n",
+						COMPLAIN3("*DCheckContext: k %d IN MEASURE %d (L%u) INCONSISTENCY.\n",
 										aMeas->staffn, GetMeasNum(doc, pL), pL);
 						aMeas = GetPAMEASURE(aMeasL);
 					}
@@ -2743,8 +2738,8 @@ Boolean DCheckContext(Document *doc)
 					if (!pClef->inMeasure								/* System initial clef? */
 					&& aMeasureFound[aClef->staffn]						/* After the 1st System? */
 					&&  clefType[aClef->staffn]!=aClef->subType)		/* Yes, check the clef */
-						COMPLAIN2("*DCheckContext: clefType FOR STAFF %d IN CLEF L%u INCONSISTENCY.\n",
-										aClef->staffn, pL);
+						COMPLAIN3("*DCheckContext: FOR STAFF %d IN CLEF L%u, INCONSISTENT clefType: EXPECTED %d.\n",
+											aStaff->staffn, pL, clefType[aClef->staffn]);
 					clefType[aClef->staffn] = aClef->subType;
 				}
 				break;

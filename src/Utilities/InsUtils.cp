@@ -765,7 +765,7 @@ Boolean AddNoteCheck(Document *doc,
 	voice = USEVOICE(doc, staff);
 	if (addToSyncL==NILINK) {	/* No Sync to check */
 		SysBeep(30);
-		LogPrintf(LOG_ERR, "No Sync to check  (AddNoteCheck)\n");
+		LogPrintf(LOG_WARNING, "No Sync to check.  (AddNoteCheck)\n");
 		return False;
 	}	
 	isRest = (symtable[symIndex].subtype==1);
@@ -778,8 +778,9 @@ Boolean AddNoteCheck(Document *doc,
 					userVoice = -1;
 					
 			/* The error conditions result from the facts that a voice in a Sync with
-				a rest can't have anything else, and that Nightingale can't handle a
-				voice in a Sync on more than one staff. */
+			   a rest can't have anything else, and that Nightingale can't handle a
+			   voice in a Sync on more than one staff. */
+				
 			if (NoteSTAFF(aNoteL)!=staff) {		
 				GetIndCString(fmtStr, INSERTERRS_STRS, 24);    /* "Can't insert in voice %d here; already has something on staff %d." */
 				sprintf(strBuf, fmtStr, userVoice, NoteSTAFF(aNoteL)); 

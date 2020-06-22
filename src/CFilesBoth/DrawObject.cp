@@ -1820,7 +1820,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		
 		if (GraphicSubType(pL)!=GRLyric && GraphicSubType(pL)!=GRString) {
 			SysBeep(10);
-			LogPrintf(LOG_ERR, "Graphic at %d isn't a GRLyric or GRString  (DrawTextBlock)\n",
+			LogPrintf(LOG_WARNING, "Graphic L%u isn't a GRLyric or GRString.  (DrawTextBlock)\n",
 					  pL);
 			return False;
 		}
@@ -1851,7 +1851,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 	}
 	else {
 		SysBeep(10);
-		LogPrintf(LOG_ERR, "object at %d isn't a Graphic or Tempo  (DrawTextBlock)\n", pL);
+		LogPrintf(LOG_WARNING, "object L%u isn't a Graphic or Tempo.  (DrawTextBlock)\n", pL);
 		return False;
 	}
 	
@@ -1925,7 +1925,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 			Str255 fontName;
 			if (!FontID2Name(doc, fontID, fontName)) {
 				SysBeep(10);
-				LogPrintf(LOG_ERR, "Can't find font with ID=%d in font table.  (DrawTextBlock)\n");
+				LogPrintf(LOG_WARNING, "Can't find font with ID=%d in font table.  (DrawTextBlock)\n");
 				return False;
 			}
 			if (multiLine) {
