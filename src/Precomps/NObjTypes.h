@@ -530,7 +530,7 @@ typedef struct {
 
 typedef struct {
 	OBJECTHEADER
-	EXTOBJHEADER					/* N.B. staff number can be 0 here */
+	EXTOBJHEADER					/* NB: staff number can be 0 here */
 	SignedByte	graphicType;		/* graphic class (subtype) */
 	SignedByte	voice;				/* Voice number (only with some types of relObjs) */
 	Byte		enclosure;			/* Enclosure type; see list below */
@@ -543,7 +543,7 @@ typedef struct {
 									/*	  2nd x (GRDraw); draw extension parens (GRChordSym) */
 	union {
 		Handle		handle;			/* handle to resource, or NULL */
-		short		thickness;
+		short		thickness;		/* percent of interline space */
 	} gu;
 	SignedByte	fontInd;			/* index into font name table (GRChar,GRString only) */
 	Byte		relFSize;			/* True if size is relative to staff size (GRChar,GRString only) */ 

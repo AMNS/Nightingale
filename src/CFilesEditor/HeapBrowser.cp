@@ -22,23 +22,24 @@ static char str[256];
 
 static void ShowHeap(short, short);
 static void HeapDrawLine(char *s);
-static void HeapBrowsePartInfo(short);
-static void HeapBrowseStaff(short);
-static void HeapBrowseConnect(short);
-static void HeapBrowseClef(short);
-static void HeapBrowseKeySig(short);
-static void HeapBrowseTimeSig(short);
-static void HeapBrowseMeasure(short);
-static void HeapBrowseSync(short);
-static void HeapBrowseBeamset(short);
-static void HeapBrowseDynamic(short);
-static void HeapBrowseMODNR(short);
-static void HeapBrowseRepeatEnd(short);
-static void HeapBrowseSlur(short);
-static void HeapBrowseTuplet(short);
-static void HeapBrowseOttava(short);
-static void HeapBrowseGRSync(short);
-static void HeapBrowseObject(short);
+static void HeapBrowsePartInfo(short, Boolean);
+static void HeapBrowseSync(short, Boolean);
+static void HeapBrowseRepeatEnd(short, Boolean);
+static void HeapBrowseStaff(short, Boolean);
+static void HeapBrowseMeasure(short, Boolean);
+static void HeapBrowseClef(short, Boolean);
+static void HeapBrowseKeySig(short, Boolean);
+static void HeapBrowseTimeSig(short, Boolean);
+static void HeapBrowseBeamset(short, Boolean);
+static void HeapBrowseConnect(short, Boolean);
+static void HeapBrowseDynamic(short, Boolean);
+static void HeapBrowseMODNR(short, Boolean);
+static void HeapBrowseGraphic(short, Boolean);
+static void HeapBrowseOttava(short, Boolean);
+static void HeapBrowseSlur(short, Boolean);
+static void HeapBrowseTuplet(short, Boolean);
+static void HeapBrowseGRSync(short, Boolean);
+static void HeapBrowseObject(short, Boolean);
 
 /* ------------------------------------------------------------------ HeapBrowser -- */
 
@@ -140,6 +141,7 @@ static void ShowHeap(short theHeap, short itemIndex)
 {
 	const char *ps;
 	HEAP *myHeap;
+	Boolean isFree;
 
 	linenum = 1;
 	myHeap = Heap + theHeap;
@@ -160,57 +162,62 @@ static void ShowHeap(short theHeap, short itemIndex)
 	
 	HeapDrawLine("------------------");
 	
+	isFree = HeapLinkIsFree(myHeap, itemIndex);
+
 	switch (theHeap) {
 	case HEADERtype:
-		HeapBrowsePartInfo(itemIndex);
-		break;
-	case STAFFtype:
-		HeapBrowseStaff(itemIndex);
-		break;
-	case CONNECTtype:
-		HeapBrowseConnect(itemIndex);
-		break;
-	case CLEFtype:
-		HeapBrowseClef(itemIndex);
-		break;
-	case KEYSIGtype:
-		HeapBrowseKeySig(itemIndex);
-		break;
-	case TIMESIGtype:
-		HeapBrowseTimeSig(itemIndex);
-		break;
-	case MEASUREtype:
-		HeapBrowseMeasure(itemIndex);
+		HeapBrowsePartInfo(itemIndex, isFree);
 		break;
 	case SYNCtype:
-		HeapBrowseSync(itemIndex);
-		break;
-	case BEAMSETtype:
-		HeapBrowseBeamset(itemIndex);
-		break;
-	case DYNAMtype:
-		HeapBrowseDynamic(itemIndex);
-		break;
-	case MODNRtype:
-		HeapBrowseMODNR(itemIndex);
+		HeapBrowseSync(itemIndex, isFree);
 		break;
 	case RPTENDtype:
-		HeapBrowseRepeatEnd(itemIndex);
+		HeapBrowseRepeatEnd(itemIndex, isFree);
 		break;
-	case SLURtype:
-		HeapBrowseSlur(itemIndex);
+	case STAFFtype:
+		HeapBrowseStaff(itemIndex, isFree);
 		break;
-	case TUPLETtype:
-		HeapBrowseTuplet(itemIndex);
+	case MEASUREtype:
+		HeapBrowseMeasure(itemIndex, isFree);
+		break;
+	case CLEFtype:
+		HeapBrowseClef(itemIndex, isFree);
+		break;
+	case KEYSIGtype:
+		HeapBrowseKeySig(itemIndex, isFree);
+		break;
+	case TIMESIGtype:
+		HeapBrowseTimeSig(itemIndex, isFree);
+		break;
+	case BEAMSETtype:
+		HeapBrowseBeamset(itemIndex, isFree);
+		break;
+	case CONNECTtype:
+		HeapBrowseConnect(itemIndex, isFree);
+		break;
+	case DYNAMtype:
+		HeapBrowseDynamic(itemIndex, isFree);
+		break;
+	case MODNRtype:
+		HeapBrowseMODNR(itemIndex, isFree);
+		break;
+	case GRAPHICtype:
+		HeapBrowseGraphic(itemIndex, isFree);
 		break;
 	case OTTAVAtype:
-		HeapBrowseOttava(itemIndex);
+		HeapBrowseOttava(itemIndex, isFree);
+		break;
+	case SLURtype:
+		HeapBrowseSlur(itemIndex, isFree);
+		break;
+	case TUPLETtype:
+		HeapBrowseTuplet(itemIndex, isFree);
 		break;
 	case GRSYNCtype:
-		HeapBrowseGRSync(itemIndex);
+		HeapBrowseGRSync(itemIndex, isFree);
 		break;
 	case OBJtype:
-		HeapBrowseObject(itemIndex);
+		HeapBrowseObject(itemIndex, isFree);
 		break;
 	default:
 		;
@@ -229,7 +236,7 @@ static void HeapDrawLine(char *s)
 
 /* --------------------------------------------------------------- HeapBrowseXXXs -- */
 
-void HeapBrowsePartInfo(short itemIndex)
+void HeapBrowsePartInfo(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PPARTINFO q;
@@ -237,13 +244,13 @@ void HeapBrowsePartInfo(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPPARTINFO(qL);
-	sprintf(str, "link=%d addr=%lx next=%d", qL, (unsigned long)q, q->next);
+	sprintf(str, "link=%d%s addr=%lx next=%d", qL, (isFree? "/FREE" : " "), (unsigned long)q, q->next);
 	HeapDrawLine(str); q = GetPPARTINFO(qL);
 	sprintf(str, "firstStaff=%d lastStaff=%d", q->firstStaff, q->lastStaff);
 	HeapDrawLine(str);
 }
 
-void HeapBrowseStaff(short itemIndex)
+void HeapBrowseStaff(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PASTAFF q;
@@ -251,7 +258,7 @@ void HeapBrowseStaff(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPASTAFF(qL);
-	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	sprintf(str, "link=%d%s staffn=%d next=%d", qL, (isFree? "/FREE" : " "), q->staffn, q->next);
 	HeapDrawLine(str); q = GetPASTAFF(qL);
 	sprintf(str, "visible=%s", q->visible ? "True" : "False");
 	HeapDrawLine(str); q = GetPASTAFF(qL);
@@ -284,7 +291,7 @@ void HeapBrowseStaff(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseConnect(short itemIndex)
+void HeapBrowseConnect(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PACONNECT q;
@@ -292,7 +299,7 @@ void HeapBrowseConnect(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPACONNECT(qL);
-	sprintf(str, "link=%d next=%d", qL, q->next);
+	sprintf(str, "link=%d%s next=%d", qL, (isFree? "/FREE" : " "), q->next);
 	HeapDrawLine(str); q = GetPACONNECT(qL);
 	
 	sprintf(str, "connLevel=%hd", q->connLevel);
@@ -313,7 +320,7 @@ void HeapBrowseConnect(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseClef(short itemIndex)
+void HeapBrowseClef(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PACLEF q;
@@ -321,7 +328,7 @@ void HeapBrowseClef(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPACLEF(qL);
-	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	sprintf(str, "link=%d%s staffn=%d next=%d", qL, (isFree? "/FREE" : " "), q->staffn, q->next);
 	HeapDrawLine(str); 	q = GetPACLEF(qL);
 	strcpy(str, "flags=");
 	if (q->selected)
@@ -337,7 +344,7 @@ void HeapBrowseClef(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseKeySig(short itemIndex)
+void HeapBrowseKeySig(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PAKEYSIG q;
@@ -345,7 +352,7 @@ void HeapBrowseKeySig(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPAKEYSIG(qL);
-	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	sprintf(str, "link=%d%s staffn=%d next=%d", qL, (isFree? "/FREE" : " "), q->staffn, q->next);
 	HeapDrawLine(str);	q = GetPAKEYSIG(qL);
 	strcpy(str, "flags=");
 	if (q->selected)
@@ -361,7 +368,7 @@ void HeapBrowseKeySig(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseTimeSig(short itemIndex)
+void HeapBrowseTimeSig(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PATIMESIG q;
@@ -369,7 +376,7 @@ void HeapBrowseTimeSig(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPATIMESIG(qL);
-	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	sprintf(str, "link=%d%s staffn=%d next=%d", qL, (isFree? "/FREE" : " "), q->staffn, q->next);
 	HeapDrawLine(str);	q = GetPATIMESIG(qL);
 	strcpy(str, "flags=");
 	if (q->selected)
@@ -388,7 +395,7 @@ void HeapBrowseTimeSig(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseMeasure(short itemIndex)
+void HeapBrowseMeasure(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PAMEASURE q;
@@ -396,7 +403,7 @@ void HeapBrowseMeasure(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPAMEASURE(qL);
-	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	sprintf(str, "link=%d%s staffn=%d next=%d", qL, (isFree? "/FREE" : " "), q->staffn, q->next);
 	HeapDrawLine(str);	q = GetPAMEASURE(qL);
 	strcpy(str, "flags=");
 	if (q->selected)
@@ -432,7 +439,7 @@ void HeapBrowseMeasure(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseSync(short itemIndex)
+void HeapBrowseSync(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PANOTE q;
@@ -440,7 +447,7 @@ void HeapBrowseSync(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPANOTE(qL);
-	sprintf(str, "link=%d staffn=%d voice=%hd next=%d", qL,
+	sprintf(str, "link=%d%s staffn=%d voice=%hd next=%d", qL, (isFree? "/FREE" : " "),
 				 q->staffn, q->voice, q->next);
 	HeapDrawLine(str);	q = GetPANOTE(qL);
 	strcpy(str, "flags=");
@@ -480,7 +487,7 @@ void HeapBrowseSync(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseBeamset(short itemIndex)
+void HeapBrowseBeamset(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PANOTEBEAM q;
@@ -488,7 +495,8 @@ void HeapBrowseBeamset(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPANOTEBEAM(qL);
-	sprintf(str, "link=%d @%lx bpSync=%d next=%d", qL, (unsigned long)q, q->bpSync, q->next);
+	sprintf(str, "link=%d%s @%lx bpSync=%d next=%d", qL, (isFree? "/FREE" : " "),
+			(unsigned long)q, q->bpSync, q->next);
 	HeapDrawLine(str);
 	
 	sprintf(str, "startend=%d", q->startend);
@@ -499,7 +507,7 @@ void HeapBrowseBeamset(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseDynamic(short itemIndex)
+void HeapBrowseDynamic(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PADYNAMIC q;
@@ -507,7 +515,8 @@ void HeapBrowseDynamic(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPADYNAMIC(qL);
-	sprintf(str, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
+	sprintf(str, "link=%d%s staffn=%d next=%d", qL, (isFree? "/FREE" : " "), q->staffn,
+				q->next);
 	HeapDrawLine(str);	q = GetPADYNAMIC(qL);
 	strcpy(str, "flags=");
 	if (q->selected) strcat(str, "SELECTED ");
@@ -518,7 +527,7 @@ void HeapBrowseDynamic(short itemIndex)
 	HeapDrawLine(str);	q = GetPADYNAMIC(qL);
 }
 
-void HeapBrowseMODNR(short itemIndex)
+void HeapBrowseMODNR(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PAMODNR q;
@@ -526,7 +535,7 @@ void HeapBrowseMODNR(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPAMODNR(qL);
-	sprintf(str, "link=%d next=%d", qL, q->next);
+	sprintf(str, "link=%d%s next=%d", qL, (isFree? "/FREE" : " "), q->next);
 	HeapDrawLine(str);	q = GetPAMODNR(qL);
 	strcpy(str, "flags=");
 	if (q->selected) strcat(str, "SELECTED ");
@@ -539,7 +548,7 @@ void HeapBrowseMODNR(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseRepeatEnd(short itemIndex)
+void HeapBrowseRepeatEnd(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PARPTEND q;
@@ -547,7 +556,8 @@ void HeapBrowseRepeatEnd(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPARPTEND(qL);
-	sprintf(str, "link=%d staff=%d next=%d", qL, q->staffn, q->next);
+	sprintf(str, "link=%d%s staff=%d next=%d", qL, (isFree? "/FREE" : " "), q->staffn,
+				q->next);
 	HeapDrawLine(str);	q = GetPARPTEND(qL);
 	strcpy(str, "flags=");
 	if (q->selected) strcat(str, "SELECTED ");
@@ -558,7 +568,7 @@ void HeapBrowseRepeatEnd(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseSlur(short itemIndex)
+void HeapBrowseSlur(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PASLUR q;
@@ -567,7 +577,7 @@ void HeapBrowseSlur(short itemIndex)
 	
 	q = GetPASLUR(qL);
 	
-	sprintf(str, "link=%d next=%d", qL, q->next);
+	sprintf(str, "link=%d%s next=%d", qL, (isFree? "/FREE" : " "), q->next);
 	HeapDrawLine(str);
 		
 	sprintf(str, "knot=%d %d", q->seg.knot.h, q->seg.knot.v);
@@ -580,7 +590,7 @@ void HeapBrowseSlur(short itemIndex)
 	HeapDrawLine(str);
 }
 
-void HeapBrowseTuplet(short itemIndex)
+void HeapBrowseTuplet(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PANOTETUPLE q;
@@ -588,11 +598,25 @@ void HeapBrowseTuplet(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPANOTETUPLE(qL);
-	sprintf(str, "link=%d next=%d", qL, q->next);
+	sprintf(str, "link=%d%s next=%d", qL, (isFree? "/FREE" : " "), q->next);
 	HeapDrawLine(str);
 }
 
-void HeapBrowseOttava(short itemIndex)
+void HeapBrowseGraphic(short itemIndex, Boolean isFree)
+{
+	LINK qL;
+	PAGRAPHIC q;
+	
+	qL = itemIndex;
+	
+	q = GetPAGRAPHIC(qL);
+	sprintf(str, "link=%u%s @%lx strOffset=%ld next=%u", qL, (isFree? "/FREE" : " "),
+			(unsigned long)q, q->strOffset, q->next);
+	HeapDrawLine(str);
+}
+
+
+void HeapBrowseOttava(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PANOTEOTTAVA q;
@@ -600,11 +624,12 @@ void HeapBrowseOttava(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPANOTEOTTAVA(qL);
-	sprintf(str, "link=%d @%lx opSync=%d next=%d", qL, (unsigned long)q, q->opSync, q->next);
+	sprintf(str, "link=%d%s @%lx opSync=%d next=%d", qL, (isFree? "/FREE" : " "),
+				(unsigned long)q, q->opSync, q->next);
 	HeapDrawLine(str);
 }
 
-void HeapBrowseGRSync(short itemIndex)
+void HeapBrowseGRSync(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PAGRNOTE q;
@@ -612,11 +637,11 @@ void HeapBrowseGRSync(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPAGRNOTE(qL);
-	sprintf(str, "link=%d next=%d", qL, q->next);
+	sprintf(str, "link=%d%s next=%d", qL, (isFree? "/FREE" : " "), q->next);
 	HeapDrawLine(str);
 }
 
-void HeapBrowseObject(short itemIndex)
+void HeapBrowseObject(short itemIndex, Boolean isFree)
 {
 	LINK qL;
 	PMEVENT q;
@@ -625,7 +650,7 @@ void HeapBrowseObject(short itemIndex)
 	qL = itemIndex;
 	
 	q = GetPMEVENT(qL);
-	sprintf(str, "link=%d right=%d left=%d", qL, q->right, q->left);
+	sprintf(str, "link=%d%s right=%d left=%d", qL, (isFree? "/FREE" : " "), q->right, q->left);
 	HeapDrawLine(str); q = GetPMEVENT(qL);
 	
 	sprintf(str, "xd=%d yd=%d type=%s nEntries=%d", 

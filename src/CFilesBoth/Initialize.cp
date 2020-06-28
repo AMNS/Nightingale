@@ -138,11 +138,12 @@ void Initialize()
 	if (!InitGlobals()) { BadInit();  ExitToShell(); }
 	Init_Help();
 	
-#define DISP_SCOREHDR_STRUCT
+#define NoDISP_SCOREHDR_STRUCT
 #ifdef DISP_SCOREHDR_STRUCT
-	/* The following code is intended to be compiled once in a blue moon (when the file
-	   format changes) to collect info for Nightingale documentation: as of May 2020,
-	   it's in the Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt). */
+	/* The following code is intended to be compiled once in a blue moon -- when the file
+	   format changes -- to collect information for Nightingale documentation. As of May
+	   2020, the info is in Nightingale Tech Note #1, the Nightingale Programmer's Quick
+	   Reference (NgaleProgQuickRef-TN1.txt). */
 	{
 		Document *tD; DocumentN105 *tD5;
 		long noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff;

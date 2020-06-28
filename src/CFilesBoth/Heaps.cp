@@ -289,16 +289,16 @@ LINK HeapFree(HEAP *heap, LINK head)
 
 
 /* Given a list of subobjects of object objL, remove the given object, obj, from the
-list (if it's there, otherwise error).  The object removed can still be refered to by
+list (if it's there, otherwise error).  The object removed can still be referred to by
 the caller, since it has not yet been freed back to its heap's free list. Delivers
 new head of list, or NILINK, if obj was not found.
 
-This function should only be called for subObjects. If a similar function is required
+This function should only be called for subobjects. If a similar function is required
 for object links, the assignment below of FirstSubLINK(objL) must be modified. */
 
 LINK RemoveLink(LINK objL, HEAP *heap, LINK head, LINK obj)
 {
-	LINK prev,next,link;
+	LINK prev, next, link;
 	
 	for (prev=NILINK, link=head; link; prev=link, link=next) {
 		next = NextLink(heap, link);
@@ -324,43 +324,43 @@ then append obj to list.  Return new head of list, or NILINK if error. This assu
 that <objlist> is a well-formed (NILINK-terminated) list. */
 
 LINK InsertLink(HEAP *heap, LINK head, LINK before, LINK objlist)
-	{
-		LINK prev, next, link, tail;
+{
+	LINK prev, next, link, tail;
+	
+	if (objlist == NILINK) return(head);
+	
+	/* Search for <before> in list at <head> */
+	
+	for (prev=NILINK,link=head; link; prev=link, link=next) {
+		next = NextLink(heap, link);
 		
-		if (objlist == NILINK) return(head);
+		if (link == before) {
 		
-		/* Search for <before> in list at <head> */
-		
-		for (prev=NILINK,link=head; link; prev=link,link=next) {
-			next = NextLink(heap,link);
+			if (prev)											/* before was not first */
+				*(LINK *)LinkToPtr(heap, prev) = objlist;
+			 else												/* before is head of list */
+				head = objlist;
 			
-			if (link == before) {
+			/* Find tail of objlist */
 			
-				if (prev)											/* before was not first */
-					*(LINK *)LinkToPtr(heap,prev) = objlist;
-				 else												/* before is head of list */
-				 	head = objlist;
-				
-				/* Find tail of objlist */
-				
-				for (tail=link=objlist; link; tail=link,link=NextLink(heap,link)) ;
-				*(LINK *)LinkToPtr(heap,tail) = before;
-				
-				return(head);
-				}
-			}
-		
-		/* If before was NILINK, append objlist to list at head */
-		
-		if (head!=NILINK && before==NILINK) {
-			*(LINK *)LinkToPtr(heap,prev) = objlist;
+			for (tail=link=objlist; link; tail=link,link=NextLink(heap, link)) ;
+			*(LINK *)LinkToPtr(heap, tail) = before;
+			
 			return(head);
-			}
-		
-		/* Otherwise, error condition */
-		
-		return(NILINK);
+		}
 	}
+	
+	/* If before was NILINK, append objlist to list at head */
+	
+	if (head!=NILINK && before==NILINK) {
+		*(LINK *)LinkToPtr(heap, prev) = objlist;
+		return(head);
+	}
+	
+	/* Otherwise, error condition */
+	
+	return(NILINK);
+}
 
 /* Insert <objlist> after link <after> in list <head>.  If after is NILINK, then
 append objList to head's list.  Delivers new head of list, or NILINK if error. This
@@ -410,3 +410,16 @@ LINK InsAfterLink(HEAP *heap, LINK head, LINK after, LINK objlist)
 		
 		return(NILINK);
 	}
+
+/* Return True if the given link is in the given heap's free list. Assumes the heap is
+well-formed. */
+
+Boolean HeapLinkIsFree(HEAP *heap, LINK theLink)
+{
+	LINK aLink;
+	
+	for (aLink = heap->firstFree; aLink; aLink = NextLink(heap, aLink))
+		if (aLink==theLink) return True;
+		
+	return False;
+}

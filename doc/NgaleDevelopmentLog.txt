@@ -6638,7 +6638,7 @@ AllObjTypes.ngl (converted) => OK! Open T+MInCounterpointBug12mm.ngl => OK!!!
 
 -------------------------------------------------------------------------------
 
-15- 19 June
+15 - 21 June
 
 Looks like the "Ngale can't open files it just saved" bug has been fixed. Now what about
 the bug in opening large files? Try opening T+MInCounterpointBug2p.ngl => looks OK, and
@@ -6681,3 +6681,66 @@ Open 'T+MInCounterpoint.ngl' 3x => no problems twice; the 3rd time, Debug Check 
 	Warning. •DCheckNode: TUPLET L1084 HAS BAD SYNC LINK 65.
 	Warning. *DCheckTuplets: TUPLET L1084 SYNC LINK INCONSISTENT.
 	Warning. *DCheckTuplets: TUPLET L1084 TOTAL DURATION OF 5520 DOESN'T MAKE SENSE.
+
+-------------------------------------------------------------------------------
+
+24 - 27 June
+
+InitTrackingLinks() (for many years part of ComputeObjCounts) allocates three arrays of
+links -- firstSubLINKA, objA, and modA -- but fills in only objA. After it's called, we
+call CreateModTable(), which fills in modA , but what about firstSubLINKA? Besides
+which, it's a ridiculously confusing way to do things! First, move the call to
+CreateModTable into InitTrackLinks => done. And firstSubLINKA is filled in by
+WriteSubObjs(), called from WriteSubHeaps: not exactly obvious, though it seems it works
+(and has been working for years). It's also not obvious (yet) if it can be done sooner.
+
+Open T+MInCounterpoint.ngl => Debug Check has no complaints and it looks OK. Open
+2ndMovement.ngl => no complaints, but the gliss. in the soloist's part on p. 3 is _way_ too
+wide: its width is 245 (?? or 285?) (it should be 20). Open it again => same result! Is
+this finally really reproducible?
+
+Remove an unused variable in CountObjSubobjs(), recompile, relaunch, open 2ndMovement.ngl
+=> crashes into GDB, hilighting the "SlurFILLER(slurL) = 0" in ConvertSLUR :-| .
+relaunch, open 2ndMovement.ngl => hangs. 
+
+Relaunch, open 2ndMovement.ngl => no complaints, but again the gliss. in the soloist's part
+on p. 3 (a line Graphic, L283) has width 285 = its firstObj! So, it's kind of reproducible,
+maybe enough to be useful. Wait-- on p. 29, gliss. L3719 (or 3720?) has width 3723, and
+gliss. L3735 has width = firstObj = 3737! So the f*cked-up objects, at least the obvious
+ones, are Graphics, and the nonsense values are slightly more than the link values and often
+if not always = their firstObjs!!!!  This _has_ to imply, if not exactly what the bug is,
+pretty close :-) .
+
+Ahh: in ConvertGRAPHIC(), the statement that should be setting the thickness is commented
+out because it didn't compile because... no matter why. That definitely explains the
+thicknesses being nonsense; it's quite possible it explains why they're = to the objects'
+firstObjs; but it's not at all obvious it'd cause random crashes. Regardless, fix that,
+recompile; open 2ndMovement.ngl => log ends with
+
+	debug. ConvertCONNECT: connectL=L4641
+	debug. ConvertObject: pL=4642 is TAIL.
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+
+...but then Ngale hangs. Try again => the identical result. Try a 3rd time => the identical
+result.
+
+Sigh. How about adding a line Graphic to a small file and see what happens. Using 5.8.10,
+add a note and a gliss. line to it to AllObjTypes.ngl; save it. Open it in 5.9.1 => looks
+OK & Debug Check is happy. Save as "AllObjTypes.ngl (converted)" => Ngale hangs/crashes
+twice in a row! -- into GDB, in SaveFileDialog called from GetOutputName.
+
+I wonder if the file conversion results in corrupt heaps? Our checking heap validity is
+very feeble! Enhance Heap Browser to show more about Graphics & say if an obj/subobj is
+on the free list, etc. => $#&$%^Y*!%^  now Ngale crashes consistently trying to open
+T+MInCounterpointBug2p.ngl, which is much smaller than 2ndMovement.ngl. Sigh!
+
+When did new versions of Ngale start crashing opening T+MInCounterpointBug2p.ngl?
+The NightingalePPC.app of 21 June crashes; so does the version of 14 June. But the entry
+for 15-21 June above shows it opened then with no problems, confirmed by June18Log.txt,
+in which I opened it several times and the full T+MInCounterpoint.ngl as well!?!
+
+Log out, log back in. Launch NightingalePPC.app of 14 June; open T+MInCounterpointBug2p.ngl
+=> looks OK & Debug Check has no complaints. Launch version of 21 June 21; open same file
+=> same results. Start Xcode, launch current version => same results; open full
+T+MInCounterpoint.ngl => all OK.So I was chasing a ghost, whew! Now what about the other
+files I've been having trouble with??

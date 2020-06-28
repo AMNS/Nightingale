@@ -79,28 +79,29 @@ enum {
 	iShowMore		/* Fake item (not in the DITL) */
 };
 
-pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
+pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvt, short *item)
 {
 		Boolean ans = False;
-		short itype; Handle tHdl; Rect textRect; Point where;
-		WindowPtr w = (WindowPtr)theEvent->message;
+		short itype;  Handle tHdl;
+		Rect textRect;  Point where;
+		WindowPtr w = (WindowPtr)theEvt->message;
 		int part;
 		
-		switch (theEvent->what) {
+		switch (theEvt->what) {
 			case updateEvt:
 				if (w == GetDialogWindow(theDialog)) {
 					BeginUpdate(GetDialogWindow(theDialog));
 					DrawDialog(theDialog);
-//					OutlineOKButton(theDialog,True);
+//					OutlineOKButton(theDialog, True);
 					EndUpdate(GetDialogWindow(theDialog));
 				}
 				*item = 0;
 				ans = True;
 				break;
 			case mouseDown:
-				where = theEvent->where;
+				where = theEvt->where;
 				GlobalToLocal(&where);
-				GetDialogItem(theDialog, iText, &itype, &tHdl, &textRect);	
+				GetDialogItem(theDialog, iText, &itype, &tHdl, &textRect);
 				if (PtInRect(where, &textRect)) {
 					*item = iShowMore;
 					ans = True;
@@ -108,11 +109,11 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 				}
 				else {
 					Rect bounds = GetQDScreenBitsBounds();
-					part = FindWindow(theEvent->where,&w);
+					part = FindWindow(theEvt->where, &w);
 					switch(part) {
 						case inDrag:
 							if (w == GetDialogWindow(theDialog)) {
-								DragWindow(w,theEvent->where,&bounds);
+								DragWindow(w, theEvt->where, &bounds);
 							}
 							break;
 					}
@@ -120,7 +121,7 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 
 			case keyDown:
 			case autoKey:
-				if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
+				if (DlgCmdKey(theDialog, theEvt, item, False)) return True;
 				break;
 			}
 		return ans;
@@ -1763,7 +1764,7 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 			DrawTextLine(s);
 			break;
 		case GRDraw:
-			sprintf(s, "thick=%d", p->gu.thickness);
+			sprintf(s, "thick=%d%%", p->gu.thickness);
 			DrawTextLine(s);
 			break;
 		default:
@@ -1980,11 +1981,11 @@ void ShowContext(Document *doc)
 	DrawTextLine(s);
 	sprintf(s, "doc->selStartL=%hd ->selEndL=%hd", doc->selStartL, doc->selEndL);
 	DrawTextLine(s);
-	sprintf(s, "");
+	sprintf(s, " ");
 	DrawTextLine(s);
 	sprintf(s, "Context at link %hd for staff %hd:", pL, theStaff);
 	DrawTextLine(s);
-	sprintf(s, "");
+	sprintf(s, " ");
 	DrawTextLine(s);
 	strcpy(s, "flags=");
 	if (context.visible) strcat(s, "VISIBLE ");

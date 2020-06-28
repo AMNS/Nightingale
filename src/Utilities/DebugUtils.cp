@@ -1433,6 +1433,9 @@ that have meaningful objRects. If we find such object(s), we check whether their
 							if (!ObjOnStaff(pGraphic->lastObj, pGraphic->staffn, False))
 								COMPLAIN2("*DCheckNode: GRDraw GRAPHIC L%u lastObj HAS NO SUBOBJS ON ITS STAFF %d.\n",
 												pL, pGraphic->staffn);
+							if (pGraphic->gu.thickness<10 || pGraphic->gu.thickness>150)
+								COMPLAIN2("DCheckNode: GRDraw GRAPHIC L%u thickness of %d is suspicious.\n",
+												pL, pGraphic->gu.thickness);
 							break;
 						default:
 							;
@@ -2708,7 +2711,7 @@ Boolean DCheckContext(Document *doc)
 						aMeasL=NextMEASUREL(aMeasL)) {
 					aMeas = GetPAMEASURE(aMeasL);
 					if (clefType[aMeas->staffn]!=aMeas->clefType) {
-						COMPLAIN3("*DCheckContext: k %d IN MEASURE %d (L%u) INCONSISTENCY.\n",
+						COMPLAIN3("*DCheckContext: clefType FOR STAFF %d IN MEASURE %d (L%u) INCONSISTENCY.\n",
 										aMeas->staffn, GetMeasNum(doc, pL), pL);
 						aMeas = GetPAMEASURE(aMeasL);
 					}

@@ -8,3 +8,4 @@ LINK		HeapFree(HEAP *heap, LINK list);
 LINK		InsertLink(HEAP *heap, LINK head, LINK before, LINK objlist);
 LINK		InsAfterLink(HEAP *heap, LINK head, LINK after, LINK objlist);
 LINK		RemoveLink(LINK objL, HEAP *heap, LINK head, LINK obj);
+Boolean		HeapLinkIsFree(HEAP *heap, LINK link);

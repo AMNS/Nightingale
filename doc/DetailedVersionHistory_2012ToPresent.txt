@@ -2840,3 +2840,12 @@ Minor cleanup. Affects MemMacros.h; FileConversion, FileOpen, HeapFileIO, Heaps,
 Minor cleanup: made all LOG_ERR log messages also show an alert via AlwaysErrMsg(), etc.
 Affects Beam, DebugUtils, DrawObject, Error, FileConversion, FileOpen, FileSave,
 HeapFileIO, InsUtils, PopUpUtils.
+
+-------------------------------------------------------------------------------
+
+24 - 27 June
+
+Fixed the GraphicTHICKNESS macro. Affects MemMacros.h; FileConversion.
+
+Minor cleanup: widened a dialog, enchanced Heap Browser, etc. Affects .rsrc, NObjTypes.h;
+Browser, DebugUtils, HeapBrowser, HeapFileIO, Initialize.

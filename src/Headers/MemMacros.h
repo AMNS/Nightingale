@@ -562,7 +562,7 @@ are by Steve Hart.) */
 #define GraphicLASTOBJ(link)		( (GetPGRAPHIC(link))->lastObj )		
 #define GraphicMULTILINE(link)		( (GetPGRAPHIC(link))->multiLine )
 #define GraphicRELFSIZE(link)		( (GetPGRAPHIC(link))->relFSize )
-#define GraphicTHICKNESS(link)		( (GetPGRAPHIC(link))->thickness )
+#define GraphicTHICKNESS(link)		( (GetPGRAPHIC(link))->gu.thickness )
 #define GraphicVCONSTRAIN(link) 	( (GetPGRAPHIC(link))->vConstrain )
 
 #define GRNoteACC(link)				( (GetPAGRNOTE(link))->accident )

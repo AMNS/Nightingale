@@ -97,7 +97,8 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link, LIN
 						LINK *objA, LINK *modA, short *objCount);
 static short WriteObject(short refNum, short heapIndex, LINK pL);
 static void CountObjSubobjs(Document *doc);
-static Boolean InitTrackLinks(Document *, LINK **firstSubLINKA, LINK **objA, LINK **modA);
+static Boolean InitTrackingLinks(Document *, LINK **firstSubLINKA, LINK **objA, LINK **modA);
+static Boolean MoveObjSubobjs(short, long, unsigned short, char *, char *);
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile);
 static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, Boolean isViewerFile);
 static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean isViewerFile,
@@ -126,8 +127,7 @@ short WriteHeaps(Document *doc, short refNum)
 	LogPrintf(LOG_INFO, "    heap %d: %d objects  (WriteHeaps)\n", LASTtype-1, objCount[LASTtype-1]);
 #endif
 
-	if (InitTrackLinks(doc, &firstSubLINKA, &objA, &modA)) {
-		CreateModTable(doc, &modA);
+	if (InitTrackingLinks(doc, &firstSubLINKA, &objA, &modA)) {
 		errCode = WriteSubHeaps(doc, refNum, firstSubLINKA, objA, modA);
 		if (!errCode) errCode = WriteObjHeap(doc, refNum, firstSubLINKA, objA);
 	}
@@ -140,6 +140,7 @@ short WriteHeaps(Document *doc, short refNum)
 	
 	return errCode;
 }
+
 
 /* Write the object heap to the given file. */
 
@@ -314,6 +315,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 	return ioErr;
 }
 
+
 static void CreateModTable(Document *doc, LINK **modA)
 {
 	HEAP *myHeap;
@@ -428,11 +430,11 @@ static void MackeysDiseaseMsg(LINK pL, short subObjCount, char *objString)
 
 
 /* Write all subobjects of all types to the file. For each heap, we write out the
-number of subobjects in that heap (as determined by InitTrackLinks) as part of the
+number of subobjects in that heap (as determined by InitTrackingLinks) as part of the
 heap header; then we traverse the object list and write out all the subobjects
 themselves.
 
-Note that if InitTrackLinks finds a number for any heap that's different from what
+Note that if InitTrackingLinks finds a number for any heap that's different from what
 the heap-writing code finds, the results are likely to be disasterous: the file
 will be written apparently without problems, but it will probably not be possible to
 open it again! The same is true if WriteSubObjs finds a number for any object that's
@@ -492,8 +494,8 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 					j += subObjCount;
 				}
 
-			/* Continue writing the subobjects for all objects in the Master Page data
-			   structure except the tail. */
+			/* Now write the subobjects for all objects in the Master Page object list
+			   except the tail. which has none. */
 
 			for (pL=doc->masterHeadL; ioErr==noErr && pL!=doc->masterTailL; pL=RightLINK(pL))
 				if (ObjLType(pL)==i) { 
@@ -552,7 +554,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 }
 
 
-/* Write the subobjects of an object to file, updating the object <firstSubObj> link
+/* Write the subobjects of object <pL> to file, updating the object <firstSubObj> link
 and subobject <next> links to reflect the new position of the subobjects in their
 in-file heap. */
 
@@ -562,7 +564,6 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 {
 	LINK nextL, subL, tempL, beamSyncL, tupleSyncL, octSyncL, aModNRL;
 	HEAP *myHeap;
-	PANOTE aNote;
 	PANOTEBEAM aNoteBeam;
 	PANOTETUPLE aNoteTuple;
 	PANOTEOTTAVA aNoteOct;
@@ -593,10 +594,9 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 		}
 		switch (heapIndex) {
 			case SYNCtype:
-				aNote = GetPANOTE(subL);
-				if (aNote->firstMod) {
-					aModNRL = aNote->firstMod;
-					aNote->firstMod = modA[aNote->firstMod];
+				if (NoteFIRSTMOD(subL)) {
+					aModNRL = NoteFIRSTMOD(subL);
+					NoteFIRSTMOD(subL) = modA[NoteFIRSTMOD(subL)];
 				}
 				break;
 			case BEAMSETtype:
@@ -621,9 +621,7 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 
 		switch (heapIndex) {
 			case SYNCtype:
-				aNote = GetPANOTE(subL);
-				if (aNote->firstMod)
-					aNote->firstMod = aModNRL;
+				if (NoteFIRSTMOD(subL)) NoteFIRSTMOD(subL) = aModNRL;
 				break;
 			case BEAMSETtype:
 				aNoteBeam = GetPANOTEBEAM(subL);
@@ -682,7 +680,7 @@ modifiers in the object list, and store them in the objCount[] array. */
 static void CountObjSubobjs(Document *doc)
 {
 	LINK pL, aNoteL, aModNRL;
-	unsigned short i, j, numMods=0;
+	unsigned short i, numMods=0;
 	
 	for (i=FIRSTtype; i<LASTtype; i++ )
 		objCount[i] = 0;
@@ -721,7 +719,7 @@ static void CountObjSubobjs(Document *doc)
 note modifier links. NB: The calling routine is responsible for freeing these chunks of
 memory. */
 
-static Boolean InitTrackLinks(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK **modA)
+static Boolean InitTrackingLinks(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK **modA)
 {
 	LINK pL;
 	unsigned short j, numMods=0;
@@ -751,16 +749,17 @@ static Boolean InitTrackLinks(Document *doc, LINK **firstSubLINKA, LINK **objA, 
 	for (pL = doc->masterHeadL; pL!=RightLINK(doc->masterTailL); j++, pL = RightLINK(pL)) 
 		(*objA)[pL] = j;
 
-	/* Allocate (but don't fill in) an array of links to temporarily hold the values of
-	   all modNR's. */
+	/* Allocate and fill an array of links to temporarily hold the values of all modNR's. */
 	
 	*modA = (LINK *)NewPtr((Size)(MODNRheap->nObjs+1)*sizeof(LINK));
-	if (*modA)
+	if (*modA) {
 		for (j=0; j<numMods+1; j++)
 			(*modA)[j] = NILINK;
+		CreateModTable(doc, modA);
+	}
 	else
 		{ OutOfMemory((MODNRheap->nObjs+1)*sizeof(LINK));  return False; }
-	
+		
 	return True;
 }
 
@@ -795,9 +794,10 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 
 /* Move the contents of a heap -- either the object heap or a subobject heap -- around
 so each object or subobject has the space it needs in the current format. We assume the
-file is in either 'N105' or the current format. */
+file the heap was read from is in either 'N105' or the current format. If in 'N105'
+format, the _contents_ of the objects still needs work; that should be done in
+ConvertObjects(). */
 
-static Boolean MoveObjSubobjs(short, long, unsigned short, char *, char *);
 static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, char
 				*startPos, char *pLink1)
 {
@@ -837,11 +837,12 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, 
 #endif
 		/* <len> is now the correct object/subobject length for the current file format.
 		   If its length was different in the previous file format, adjust <len> to
-		   compensate. (However, the _contents_ of the objects should be fixed in
-		   ConvertObjects.) */
+		   compensate. */
 		   
 		BlockMove(src, dst, len);
-		/* And go on to next object and next LINK slot */
+		
+		/* And go on to next object and next LINK slot. */
+		
 		src += len;
 		dst += newLen;
 		/* NOTE: Padding is (newLen-len) bytes, and contains garbage */

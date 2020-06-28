@@ -1537,7 +1537,7 @@ static Boolean ConvertGRAPHIC(Document * /* doc */, LINK graphicL)
 	GraphicHCONSTRAIN(graphicL) = (&aGraphic)->hConstrain;
 	GraphicMULTILINE(graphicL) = (&aGraphic)->multiLine;
 	GraphicINFO(graphicL) = (&aGraphic)->info;
-	// GraphicTHICKNESS(graphicL) = (&aGraphic)->gu.thickness; ??COMPILER SEZ IT DOESN"T KNOW _thickness_!
+	GraphicTHICKNESS(graphicL) = (&aGraphic)->gu.thickness;
 	GraphicFONTIND(graphicL) = (&aGraphic)->fontInd;
 	GraphicRELFSIZE(graphicL) = (&aGraphic)->relFSize;
 	GraphicFONTSIZE(graphicL) = (&aGraphic)->fontSize;
