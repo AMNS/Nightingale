@@ -2847,5 +2847,5 @@ HeapFileIO, InsUtils, PopUpUtils.
 
 Fixed the GraphicTHICKNESS macro. Affects MemMacros.h; FileConversion.
 
-Minor cleanup: widened a dialog, enchanced Heap Browser, etc. Affects .rsrc, NObjTypes.h;
-Browser, DebugUtils, HeapBrowser, HeapFileIO, Initialize.
+Minor cleanup: widened a dialog, enchanced Heap Browser, etc. Affects .rsrc, Heaps.h,
+NObjTypes.h; Browser, DebugUtils, HeapBrowser, HeapFileIO, Heaps, Initialize.
