@@ -6743,4 +6743,26 @@ Log out, log back in. Launch NightingalePPC.app of 14 June; open T+MInCounterpoi
 => looks OK & Debug Check has no complaints. Launch version of 21 June 21; open same file
 => same results. Start Xcode, launch current version => same results; open full
 T+MInCounterpoint.ngl => all OK.So I was chasing a ghost, whew! Now what about the other
-files I've been having trouble with??
+files I've been having trouble with?
+
+-------------------------------------------------------------------------------
+
+28 June - 3 July
+
+Open 2ndMovement.ngl => crashes into GDB, hilighting the "SlurFILLER(slurL) = 0" in
+ConvertSLUR, just as it has many times before :-| .
+
+Cut the last few pages of 2ndMovement.ngl to get 2ndMovementCUT3.ngl; launch Ngale,
+open => log ends with
+
+	debug. ConvertObject: pL=3870 is TAIL.
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	Help Viewer[92116]: *** -[NSCFArray objectAtIndex:]: index (1) beyond bounds (1)
+ 
+...and it's hung. Same thing again => log ends with
+
+	debug. ConvertKEYSIG: keySigL=L389 inMeasure=0
+	info.  (0 sharps/flats)
+ 
+...and it goes into GDB, highlighting the "SlurFILLER(slurL) = 0;" line with slurL = 513!
+

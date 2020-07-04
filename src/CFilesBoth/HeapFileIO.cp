@@ -794,9 +794,12 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 
 /* Move the contents of a heap -- either the object heap or a subobject heap -- around
 so each object or subobject has the space it needs in the current format. We assume the
-file the heap was read from is in either 'N105' or the current format. If in 'N105'
-format, the _contents_ of the objects still needs work; that should be done in
-ConvertObjects(). */
+heap was just read from a file in either 'N105' or the current format.
+
+If the file is in the current format, this should be called only for the object heap;
+subobjects are already the correct length. If it's in 'N105' format, it should be
+called for both object and subobject heaps. In that case, the _content_ of objects
+and subobjects needs more work; that should be done in ConvertObjSubobjs().  */
 
 static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, char
 				*startPos, char *pLink1)
@@ -831,7 +834,7 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, 
 #ifdef DEBUG_LOOP
 		/* Without the call to SleepMS(), some of the output from the following LogPrintf
 		   is likely to be lost, at least with OS 10.5 and 10.6! See the comment on this
-		   issue in ConvertObjects(). */
+		   issue in ConvertObjSubobjs(). */
 		SleepMS(3);
 		LogPrintf(LOG_DEBUG, "MoveObjSubobjs: curType=%d len=%d newLen=%d\n", curType, len, newLen);
 #endif
@@ -869,7 +872,7 @@ known offset from the beginning of each object record. Thus only a scan forwards
 the block can work.
 
 NB: If the file is in an old format, the objects' fields still need to be converted,
-including perhaps moving them within the object! That should be done in ConvertObjects(). */
+including perhaps moving them within the object! That should be done in ConvertObjSubobjs(). */
 
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
@@ -945,7 +948,7 @@ NHexDump(LOG_DEBUG, "ReadObjHeap_2", pSObj, 46, 4, 16);
 /* Read one subobject heap from file. NB: If the file is in an old format, some
 subobjects may have changed size, and we move the entire subobject accordingly to make
 room; but the subobjects' fields still need to be converted, including perhaps moving
-them within the subobject! That work should be done in ConvertObjects(). */
+them within the subobject! That work should be done in ConvertObjSubobjs(). */
 
 static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, Boolean isViewerFile)
 {

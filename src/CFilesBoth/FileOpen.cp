@@ -489,8 +489,8 @@ NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
 	/* Do any further conversion needed of both the main and the Master Page object lists
 	   in old files. */
 	if (version=='N105') {
-		ConvertObjects(doc, version, fileTime, False);
-		ConvertObjects(doc, version, fileTime, True);
+		ConvertObjSubobjs(doc, version, fileTime, False);
+		ConvertObjSubobjs(doc, version, fileTime, True);
 	}
 
 	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */

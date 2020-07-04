@@ -110,7 +110,7 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvt, short *it
 				else {
 					Rect bounds = GetQDScreenBitsBounds();
 					part = FindWindow(theEvt->where, &w);
-					switch(part) {
+					switch (part) {
 						case inDrag:
 							if (w == GetDialogWindow(theDialog)) {
 								DragWindow(w, theEvt->where, &bounds);
@@ -149,7 +149,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	GrafPtr oldPort;
 	LINK pL, oldL, oldpL;
 	ControlHandle scrollHdl;
-	short part;
+	short part=0;
 	Document *saveDoc;
 	ModalFilterUPP	filterUPP;
 
@@ -407,7 +407,6 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			InvertObjRect(doc, &objRect);
 			
 			w = doc->theWindow;
-			//box = (*(((WindowPeek)doc))->strucRgn)->rgnBBox;
 			GetWindowRgnBounds(doc->theWindow, kWindowStructureRgn, &box);
 			GetPort(&oldPort); 
 			SetPort(GetDocWindowPort(doc));
@@ -416,7 +415,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			oldOrigin = doc->origin;
 			GetWindowPortBounds(w, &portRect);
 			ClipRect(&portRect);
-			ScrollDocument(scrollHdl, part);
+			if (part>0) ScrollDocument(scrollHdl, part);
 			GetWindowPortBounds(w, &portRect);
 			ClipRect(&portRect);
 			DrawControls(w);
@@ -841,7 +840,7 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 		for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPARTINFOL(qL)) ;
 	
 		q = GetPPARTINFO(qL);
-		sprintf(s, "link=%u @%lx next=%d", qL, (long unsigned int)q, q->next);
+		sprintf(s, "link=%u @%lx next=%u", qL, (long unsigned int)q, q->next);
 		DrawTextLine(s);	q = GetPPARTINFO(qL);
 		sprintf(s, "firststf=%d laststf=%d velo=%d transp=%d",
 			q->firstStaff, q->lastStaff,
@@ -930,7 +929,7 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextSTAFFL(qL))
 		;
 	q = GetPASTAFF(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
+	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
 	DrawTextLine(s); q = GetPASTAFF(qL);
 	sprintf(s, "vis=%s sel=%s", q->visible ? "True" : "False",
 									q->selected ? "True" : "False");
@@ -997,7 +996,7 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextCONNECTL(qL)) 
 		;
 	q = GetPACONNECT(qL);
-	sprintf(s, "link=%u @%lx next=%d", qL, (long unsigned int)q, q->next);
+	sprintf(s, "link=%u @%lx next=%u", qL, (long unsigned int)q, q->next);
 	DrawTextLine(s);	q = GetPACONNECT(qL);
 	strcpy(s, "flags=");
 	if (q->selected)
@@ -1068,7 +1067,7 @@ void BrowseClef(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextCLEFL(qL)) 
 		;
 	q = GetPACLEF(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
+	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
 	DrawTextLine(s); 	q = GetPACLEF(qL);
 	strcpy(s, "flags=");
 	if (q->selected)
@@ -1114,7 +1113,7 @@ void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextKEYSIGL(qL)) 
 		;
 	q = GetPAKEYSIG(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
+	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
 	DrawTextLine(s);	q = GetPAKEYSIG(qL);
 	strcpy(s, "flags=");
 	if (q->selected)
@@ -1160,7 +1159,7 @@ void BrowseTimeSig(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextTIMESIGL(qL)) 
 		;
 	q = GetPATIMESIG(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
+	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
 	DrawTextLine(s);	q = GetPATIMESIG(qL);
 	strcpy(s, "flags=");
 	if (q->selected)
@@ -1215,7 +1214,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextMEASUREL(qL)) 
 		;
 	q = GetPAMEASURE(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
+	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
 	DrawTextLine(s);	q = GetPAMEASURE(qL);
 	strcpy(s, "flags=");
 	if (q->selected) strcat(s, "SELECTED ");
@@ -1287,7 +1286,7 @@ void BrowsePseudoMeas(LINK pL, short index, Rect * /* pObjRect */)
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPSMEASL(qL)) 
 		;
 	q = GetPAPSMEAS(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
+	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
 	DrawTextLine(s);	q = GetPAPSMEAS(qL);
 	strcpy(s, "flags=");
 	if (q->selected) strcat(s, "SELECTED ");
@@ -1324,7 +1323,7 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEL(qL)) 
 		;
 	q = GetPANOTE(qL);
-	sprintf(s, "link=%u @%lx stf=%d iv=%hd next=%d", qL, (long unsigned int)q, q->staffn,
+	sprintf(s, "link=%u @%lx stf=%d iv=%hd next=%u", qL, (long unsigned int)q, q->staffn,
 				  q->voice, q->next);
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	
@@ -1402,7 +1401,7 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextGRNOTEL(qL)) 
 		;
 	q = GetPAGRNOTE(qL);
-	sprintf(s, "link=%u @%lx stf=%d iv=%hd next=%d", qL, (long unsigned int)q, q->staffn,
+	sprintf(s, "link=%u @%lx stf=%d iv=%hd next=%u", qL, (long unsigned int)q, q->staffn,
 				q->voice, q->next);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 
@@ -1481,7 +1480,7 @@ void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEBEAML(qL)) 
 		;
 	q = GetPANOTEBEAM(qL);
-	sprintf(s, "link=%u @%lx bpSync=%d next=%d", qL, (long unsigned int)q, q->bpSync, q->next);
+	sprintf(s, "link=%u @%lx bpSync=%d next=%u", qL, (long unsigned int)q, q->bpSync, q->next);
 	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
 	sprintf(s, "startend=%d", q->startend);
 	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
@@ -1526,7 +1525,7 @@ void BrowseTuplet(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTETUPLEL(qL)) 
 		;
 	q = GetPANOTETUPLE(qL);
-	sprintf(s, "link=%u @%lx tpSync=%d next=%d", qL, (long unsigned int)q, q->tpSync, q->next);
+	sprintf(s, "link=%u @%lx tpSync=%d next=%u", qL, (long unsigned int)q, q->tpSync, q->next);
 	DrawTextLine(s);	q = GetPANOTETUPLE(qL);
 }
 
@@ -1563,7 +1562,7 @@ void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEOTTAVAL(qL)) 
 		;
 	q = GetPANOTEOTTAVA(qL);
-	sprintf(s, "link=%u @%lx opSync=%d next=%d", qL, (long unsigned int)q, q->opSync, q->next);
+	sprintf(s, "link=%u @%lx opSync=%d next=%u", qL, (long unsigned int)q, q->opSync, q->next);
 	DrawTextLine(s);
 }
 
@@ -1599,7 +1598,7 @@ void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextDYNAMICL(qL)) 
 		;
 	q = GetPADYNAMIC(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
+	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
 	DrawTextLine(s);	q = GetPADYNAMIC(qL);
 	strcpy(s, "flags=");
 	if (q->selected) strcat(s, "SELECTED ");
@@ -1632,8 +1631,7 @@ void BrowseRptEnd(LINK pL, short index, Rect *pObjRect)
 	
 	sprintf(s, "rptEndType=%hd", p->subType);
 	DrawTextLine(s);	p = GetPRPTEND(pL);
-	sprintf(s, "firstObj=%d startRpt=%d endRpt=%d", p->firstObj,
-					p->startRpt, p->endRpt);
+	sprintf(s, "firstObj=%u startRpt=%u endRpt=%u", p->firstObj, p->startRpt, p->endRpt);
 	DrawTextLine(s);
 	sprintf(s, "count=%d", p->count);
 	DrawTextLine(s);
@@ -1645,7 +1643,7 @@ void BrowseRptEnd(LINK pL, short index, Rect *pObjRect)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextRPTENDL(qL)) 
 		;
 	q = GetPARPTEND(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, (long unsigned int)q, q->staffn, q->next);
+	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
 	DrawTextLine(s);	q = GetPARPTEND(qL);
 	strcpy(s, "flags=");
 	if (q->selected) strcat(s, "SELECTED ");
@@ -1670,7 +1668,7 @@ void BrowseEnding(LINK pL, short /*index*/, Rect *pObjRect)
 	sprintf(s, "stf=%d", p->staffn);
 	DrawTextLine(s);
 
-	sprintf(s, "firstObjL=%d lastObjL=%d", p->firstObjL, p->lastObjL);
+	sprintf(s, "firstObjL=%u lastObjL=%u", p->firstObjL, p->lastObjL);
 	DrawTextLine(s);
 
 	sprintf(s, "endNum=%d noL=%d noR=%d", p->endNum, p->noLCutoff, p->noRCutoff);
@@ -1719,10 +1717,10 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 	p = GetPGRAPHIC(pL);
 	aGraphicL = FirstSubLINK(pL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
-	sprintf(s, "aGraphic->next=%d", aGraphic->next);
+	sprintf(s, "aGraphic->next=%u", aGraphic->next);
 	DrawTextLine (s);	p = GetPGRAPHIC(pL);
 
-	sprintf(s, "firstObj=%d lastObj=%d", p->firstObj, p->lastObj);
+	sprintf(s, "firstObj=%u lastObj=%u", p->firstObj, p->lastObj);
 	DrawTextLine(s);	p = GetPGRAPHIC(pL);
 	sprintf(s, "info=%d info2=%d", p->info, p->info2);
 	DrawTextLine(s);	p = GetPGRAPHIC(pL);
@@ -1817,7 +1815,7 @@ void BrowseTempo(LINK pL, Rect *pObjRect)
 	sprintf(s, "noMM=%d hideMM=%d expanded=%d", p->noMM, p->hideMM, p->expanded);
 	DrawTextLine(s); p = GetPTEMPO(pL);
 
-	sprintf(s, "firstObjL=%d tempoMM=%d", p->firstObjL, p->tempoMM);
+	sprintf(s, "firstObjL=%u tempoMM=%d", p->firstObjL, p->tempoMM);
 	DrawTextLine(s); p = GetPTEMPO(pL);
 
 	sprintf(s, "p->strOffset=%ld ", p->strOffset);

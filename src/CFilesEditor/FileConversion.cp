@@ -1547,20 +1547,21 @@ static Boolean ConvertGRAPHIC(Document * /* doc */, LINK graphicL)
 	GraphicLASTOBJ(graphicL) = (&aGraphic)->lastObj;
 
 //NHexDump(LOG_DEBUG, "ConvertGRAPHIC", (unsigned char *)&tempSys, 38, 4, 16);
-	LogPrintf(LOG_DEBUG, "ConvertGRAPHIC: graphicL=L%u staff=%d type=%d info=%d\n", graphicL,
-				GraphicSTAFF(graphicL), GraphicSubType(graphicL), GraphicINFO(graphicL)); 
+	LogPrintf(LOG_DEBUG, "ConvertGRAPHIC: graphicL=L%u staff=%d type=%d info=%d thick=%d\n",
+			graphicL, GraphicSTAFF(graphicL), GraphicSubType(graphicL),
+			GraphicINFO(graphicL), GraphicTHICKNESS(graphicL)); 
 
-	aGraphicL = FirstSubLINK(graphicL);
 #define DEBUG_SKIPPING_LINKS
 #ifdef DEBUG_SKIPPING_LINKS
-if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    ConvertGRAPHIC subobj: aGraphicL=%u\n", aGraphicL);
+	aGraphicL = FirstSubLINK(graphicL);
+	if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    ConvertGRAPHIC subobj: aGraphicL=%u\n", aGraphicL);
 #endif
 
 	return True;
 }
 
 
-static Boolean ConvertOTTAVA(Document * /* doc */, LINK ottavaL)
+static Boolean ConvertOTTAVA(Document * /* doc */, LINK ottavaL)      
 {
 	OTTAVA_5 aOttava;
 	LINK aOttavaL;
@@ -1811,7 +1812,7 @@ static Boolean ConvertPSMEAS(Document *doc, LINK psMeasL)
 }
 
 
-/* -------------------------------------------------------------------- ConvertObjects -- */
+/* ----------------------------------------------------------------- ConvertObjSubobjs -- */
 
 /* Convert the headers and bodies of objects in either the main or the Master Page
 object list read from 'N105' format files to the current structure for that type of
@@ -1828,15 +1829,15 @@ ReadHeaps(). */
 // FIXME: REMOVE GetPSUPEROBJECT() & CHANGE ALL TO GetPSUPEROBJ()!
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 
-Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */, Boolean
-			doMasterList)
+Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime */,
+			Boolean doMasterList)
 {
 	HEAP *objHeap;
 	LINK pL, startL, prevL;
 	unsigned char *pSObj;
 
 	if (version!='N105') {
-		AlwaysErrMsg("Can't convert file of any version but 'N105'.  (ConvertObjects)");
+		AlwaysErrMsg("Can't convert file of any version but 'N105'.  (ConvertObjSubobjs)");
 		return False;
 	}
 	
@@ -1863,7 +1864,7 @@ Boolean ConvertObjects(Document *doc, unsigned long version, long /* fileTime */
 		/* If this function is called in the situation described above, consecutive objects
 		   must have sequential links; check that. */
 		 
-		if (pL!=prevL+1) MayErrMsg("PROGRAM ERROR: ConvertObject: pL=%ld BUT prevL=%ld INSTEAD OF %ld!  (ConvertObjects)",
+		if (pL!=prevL+1) MayErrMsg("ConvertObjSubobjs: PROGRAM ERROR: pL=%ld BUT prevL=%ld INSTEAD OF %ld!",
 									(long)pL, (long)prevL, (long)prevL-1);
 		prevL = pL;
 
