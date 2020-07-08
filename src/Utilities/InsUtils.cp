@@ -763,7 +763,7 @@ Boolean AddNoteCheck(Document *doc,
 	char	fmtStr[256];
 	
 	voice = USEVOICE(doc, staff);
-	if (addToSyncL==NILINK) {	/* No Sync to check */
+	if (addToSyncL==NILINK) {									/* No Sync to check */
 		SysBeep(30);
 		LogPrintf(LOG_WARNING, "No Sync to check.  (AddNoteCheck)\n");
 		return False;
@@ -774,8 +774,7 @@ Boolean AddNoteCheck(Document *doc,
 	aNoteL = FirstSubLINK(addToSyncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		if (NoteVOICE(aNoteL)==voice) {
-			if (!Int2UserVoice(doc, voice, &userVoice, &partL))
-					userVoice = -1;
+			if (!Int2UserVoice(doc, voice, &userVoice, &partL)) userVoice = -1;
 					
 			/* The error conditions result from the facts that a voice in a Sync with
 			   a rest can't have anything else, and that Nightingale can't handle a
@@ -1483,13 +1482,13 @@ void AddNoteFixBeams(Document *doc,
 	
 	voice = NoteVOICE(newNoteL);
 	
-/* If new note is being inserted in the middle of a beamset, then either it's
- *	beamable: unbeam and rebeam to include it in the beamset; or it's not beamable:
- *	unbeam and rebeam on either side, if there are enough notes to do this. In the
- * first case, even if the new note is merely added to a chord in a beamset, for
- *	the moment we unbeam and rebeam because the new note may affects the vertical pos-
- *	of the beamset, & it's easier to unbeam & re-beam than recalculate ystem pos.
- */
+	/* If new note is being inserted in the middle of a beamset, then either it's
+	   beamable: unbeam and rebeam to include it in the beamset; or it's not beamable:
+	   unbeam and rebeam on either side, if there are enough notes to do this. In the
+	   first case, even if the new note is merely added to a chord in a beamset, for
+	   the moment we unbeam and rebeam because the new note may affects the vertical pos-
+	   of the beamset, & it's easier to unbeam & re-beam than recalculate ystem pos. */
+	
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.voice = voice;
@@ -1513,8 +1512,9 @@ void AddNoteFixBeams(Document *doc,
 	}
 	else {
 		/* Split subranges of notes. If splitting a cross system beam, handle cases
-		for first & second pieces of crossSystem beams on first & second systems.
-		Handle first subrange here. */
+		   for first & second pieces of crossSystem beams on first & second systems.
+		   Handle first subrange here. */
+		
 		nBeamable = CountBeamable(doc, firstSyncL, syncL, voice, False);
 		if (nBeamable>=2)
 			newBeamL = CreateBEAMSET(doc, firstSyncL, syncL, voice, nBeamable,
@@ -1541,9 +1541,10 @@ void AddNoteFixBeams(Document *doc,
 	}
 
 	if (NoteBEAMED(newNoteL) && NoteINCHORD(newNoteL)) {
-/* syncL may need fixing up, since the new note in the chord may need the
- * stem. This involves: 
- * 1. Get ystem for the stemmed note in this voice & Sync. */
+	
+	/* syncL may need fixing up, since the new note in the chord may need the
+	   stem. This involves:
+	   1. Get ystem for the stemmed note in this voice & Sync. */
 		aNoteL = FirstSubLINK(syncL);
 		for (ystem = -9999; aNoteL; aNoteL = NextNOTEL(aNoteL))
 			if (NoteVOICE(aNoteL)==voice && !NoteREST(aNoteL))
@@ -1555,7 +1556,8 @@ void AddNoteFixBeams(Document *doc,
 											(long)syncL, (long)voice);
 			ystem = 99;
 		}
-/* 2. Get note in syncL in voice furthest from ystem (farNote).*/
+		
+		/* 2. Get note in syncL in voice furthest from ystem (farNote).*/
 		maxLength = -9999;
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
@@ -1565,7 +1567,8 @@ void AddNoteFixBeams(Document *doc,
 					farNoteL = aNoteL;
 				}
 
-/* 3. Set farNote->ystem to ystem from 1., others to their ->yd. */
+		/* 3. Set farNote->ystem to ystem from 1., others to their ->yd. */
+		
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 			if (NoteVOICE(aNoteL)==voice && !NoteREST(aNoteL))

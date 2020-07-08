@@ -66,10 +66,10 @@ extern short minDlogVal, maxDlogVal;
 
 Rect firstRect, otherRect;
 
-static pascal Boolean LeftEndFilter(DialogPtr theDialog, EventRecord *theEvent,
+static pascal Boolean LeftEndFilter(DialogPtr theDialog, EventRecord *theEvt,
 										short *item)
 {
-	switch (theEvent->what) {
+	switch (theEvt->what) {
 		case updateEvt:
 			BeginUpdate(GetDialogWindow(theDialog));
 			/* Outline the panels in background */
@@ -83,7 +83,7 @@ static pascal Boolean LeftEndFilter(DialogPtr theDialog, EventRecord *theEvent,
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
+			if (DlgCmdKey(theDialog, theEvt, item, False)) return True;
 			break;
 	}
 	return False;
@@ -288,9 +288,9 @@ broken:
 
 /* ---------------------------------------------------------------------- SpaceDialog --- */
 /* Handle Respace and (obsolete) Tightness dialogs.  Returns new percent if dialog
-OKed, CANCEL_INT if Cancelled. N.B. Tightness should really be handled by a separate
-routine, since this contains some code that could misbehave for it, e.g., if
-minPercent!=maxPercent or either is below MINSPACE or above MAXSPACE.*/
+OKed, CANCEL_INT if Cancelled. NB: If Tightness is ever brought back, it should be
+handled by a separate routine, since this contains some code that could misbehave for
+it, e.g., if minPercent!=maxPercent or either is below MINSPACE or above MAXSPACE.*/
 
 #define Range_DI 10
 
@@ -315,19 +315,22 @@ short SpaceDialog(
 		SetPort(GetDialogWindowPort(dlog));
 		CenterWindow(GetDialogWindow(dlog), 70);
 		
-		/*
-		 * Fill in dialog's values. Initialize spacing percentage to a value between the
-		 * minimum and maximum current values, truncated to a legal range. We can only
-		 * make a very rough guess at what the user is likely to want, so it's better
-		 * to use a value closer to the minimum to reduce the chances of having to
-		 * reformat. If the resulting value, min., and max. are not all the same, we
-		 * also display min. and max.
-		 */
+		/* Fill in dialog's values. Initialize spacing percentage to a value between the
+		   minimum and maximum current values, truncated to a legal range. We can make
+		   only a very rough guess at what the user is likely to want, so it's better
+		   to use a value closer to the minimum to reduce the chances of having to
+		   reformat. */
+		
 		showPercent = minPercent+2*(maxPercent-minPercent)/5;
 		if (showPercent<MINSPACE) showPercent = MINSPACE;
 		if (showPercent>MAXSPACE) showPercent = MAXSPACE;
 		
 		GetDialogItem(dlog, Range_DI, &itype, &tHdl, &tRect);
+#if 1
+		GetIndCString(fmtStr, DIALOG_STRS, 1);   		 /* "Selected measures' spacing is %d to %d%%." */
+		sprintf(strBuf, fmtStr, minPercent, maxPercent); 
+		SetDialogItemCText(tHdl, strBuf);
+#else
 		if (showPercent==minPercent && minPercent==maxPercent)
 			SetDialogItemCText(tHdl, "");
 		else {
@@ -335,9 +338,10 @@ short SpaceDialog(
 			sprintf(strBuf, fmtStr, minPercent, maxPercent); 
 			SetDialogItemCText(tHdl, strBuf);
 		}
-		PutDlgWord(dlog,NUMBER_DI,showPercent,True);
+#endif
+		PutDlgWord(dlog, NUMBER_DI, showPercent, True);
 		
-		UseNumberFilter(dlog,NUMBER_DI,UpRect_DI,DownRect_DI);
+		UseNumberFilter(dlog, NUMBER_DI, UpRect_DI, DownRect_DI);
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 		
@@ -348,14 +352,14 @@ short SpaceDialog(
 			while (True) {
 				ModalDialog(&NumberFilter, &ditem);
 				if (ditem == OK || ditem==Cancel) break;
-				}
+			}
 			if (ditem == OK) {
-				GetDlgWord(dlog,NUMBER_DI,&newspace);
+				GetDlgWord(dlog, NUMBER_DI, &newspace);
 				if (newspace<MINSPACE || newspace>MAXSPACE) {
 					Inform(SPACE_ALRT);									/* No room for StopInform icon! */
 					newspace = CANCEL_INT;
-					}
 				}
+			}
 			 else
 				break;
 		} while (newspace<MINSPACE || newspace>MAXSPACE);
@@ -2004,7 +2008,7 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 /* Disable and dim the number-entry field and fields subordinate to it, or enable and
 undim them. */
 
-static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr)
+static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char * /*metroStr*/)
 {
 	short	type, newType;
 	Handle	hndl;
@@ -2410,11 +2414,11 @@ static void RSmallerStaff()
 
 /* ---------------------------------------------------------- RHandleKeyDown/MouseDown -- */
 
-static Boolean RHandleKeyDown(EventRecord *theEvent)
+static Boolean RHandleKeyDown(EventRecord *theEvt)
 {
 	char	theChar;
 
-	theChar = theEvent->message & charCodeMask;
+	theChar = theEvt->message & charCodeMask;
 	if (theChar==UPARROWKEY) {
 		RSmallerStaff();
 		return True;
@@ -2429,11 +2433,11 @@ static Boolean RHandleKeyDown(EventRecord *theEvent)
 	}
 }
 
-static Boolean RHandleMouseDown(EventRecord *theEvent)
+static Boolean RHandleMouseDown(EventRecord *theEvt)
 {
 	Point	where;
 
-	where = theEvent->where;
+	where = theEvt->where;
 	GlobalToLocal(&where);
 	if (PtInRect(where, &rUpRect)) {
 		SelectDialogItemText(rDialogp, SizeITM, 0, ENDTEXT);		/* Select & unhilite number */
@@ -2452,14 +2456,14 @@ static Boolean RHandleMouseDown(EventRecord *theEvent)
 
 /* --------------------------------------------------------------------------- RFilter -- */
 
-static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvent, short *itemHit)
+static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvt, short *itemHit)
 {
 	GrafPtr oldPort;
 
-	switch (theEvent->what) {
+	switch (theEvt->what) {
 		case updateEvt:
 			WindowPtr w = GetDialogWindow(theDialog);
-			if ((WindowPtr)theEvent->message == w) {
+			if ((WindowPtr)theEvt->message == w) {
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
 				BeginUpdate(GetDialogWindow(theDialog));
 				UpdateDialogVisRgn(theDialog);
@@ -2470,23 +2474,23 @@ static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 				}
 #ifdef TRULY_ANNOYING_FOR_LARGE_SCORES
 			else
-				DoUpdate((WindowPtr)theEvent->message);
+				DoUpdate((WindowPtr)theEvt->message);
 #endif
 			*itemHit = 0;
 			return True;
 			break;
 		case mouseDown: 
-			if (RHandleMouseDown(theEvent)) {								/* Click in elevator btn? Handle &... */
+			if (RHandleMouseDown(theEvt)) {								/* Click in elevator btn? Handle &... */
 				SelectDialogItemText(rDialogp, SizeITM, 0, ENDTEXT);		/*   select & unhilite number */
 				return False;
 			}
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, (short *)itemHit, False))
+			if (DlgCmdKey(theDialog, theEvt, (short *)itemHit, False))
 				return True;
 			else {
-				if (RHandleKeyDown(theEvent))								/* Arrow key? Handle it &... */
+				if (RHandleKeyDown(theEvt))								/* Arrow key? Handle it &... */
 					SelectDialogItemText(rDialogp, SizeITM, 0, ENDTEXT);	/*   select & unhilite number */
 				return False;
 			}
@@ -2645,7 +2649,8 @@ static short MenuItemNum2StaffLines(short itemNum);
 static pascal Boolean SLFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	Point where;
-	Boolean ans=False; WindowPtr w;
+	Boolean ans=False;
+	WindowPtr w;
 	short choice;
 
 	w = (WindowPtr)(evt->message);
@@ -2658,14 +2663,14 @@ static pascal Boolean SLFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				DrawPopUp(&staffLinesPopUp);
 				OutlineOKButton(dlog, True);
 				EndUpdate(GetDialogWindow(dlog));
-				ans = True; *itemHit = 0;
+				ans = True;
+				*itemHit = 0;
 			}
 			else
 				DoUpdate(w);
 			break;
 		case activateEvt:
 			if (w == GetDialogWindow(dlog)) {
-				short activ = (evt->modifiers & activeFlag)!=0;
 				SetPort(GetWindowPort(w));
 			}
 			break;
@@ -3196,9 +3201,9 @@ static void KSDrawStaff()
 
 /* -------------------------------------------------------------------------- KSFilter -- */
 
-static pascal Boolean KSFilter(DialogPtr theDialog, EventRecord *theEvent, short *itemHit)
+static pascal Boolean KSFilter(DialogPtr theDialog, EventRecord *theEvt, short *itemHit)
 {
-	switch (theEvent->what) {
+	switch (theEvt->what) {
 		case updateEvt:
 				BeginUpdate(GetDialogWindow(theDialog));
 				DrawDialog(theDialog);
@@ -3207,18 +3212,18 @@ static pascal Boolean KSFilter(DialogPtr theDialog, EventRecord *theEvent, short
 				*itemHit = 0;
 				return False;
 		case mouseDown: 
-			if (KSHandleMouseDown(theEvent)) {
+			if (KSHandleMouseDown(theEvt)) {
 				*itemHit = 0;
 				return False;
 			}
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, (short *)itemHit, False))
+			if (DlgCmdKey(theDialog, theEvt, (short *)itemHit, False))
 				return True;
 			else {
 				*itemHit = 0;
-				return (KSHandleKeyDown(theEvent));
+				return (KSHandleKeyDown(theEvt));
 			}
 			break;
 		default:
@@ -3231,11 +3236,11 @@ static pascal Boolean KSFilter(DialogPtr theDialog, EventRecord *theEvent, short
 
 /* ------------------------------------------------ KSHandleKeyDown, KSHandleMouseDown -- */
 
-static Boolean KSHandleKeyDown(EventRecord *theEvent)
+static Boolean KSHandleKeyDown(EventRecord *theEvt)
 {
 	char	theChar;
 
-	theChar =theEvent->message & charCodeMask;
+	theChar =theEvt->message & charCodeMask;
 	if (theChar==UPARROWKEY) {
 		KSMoreSharps();
 		return True;
@@ -3248,13 +3253,13 @@ static Boolean KSHandleKeyDown(EventRecord *theEvent)
 		return False;
 }
 
-static Boolean KSHandleMouseDown(EventRecord *theEvent)
+static Boolean KSHandleMouseDown(EventRecord *theEvt)
 {
 	long	t;
 	Point	where;
 
-	where = theEvent->where;
-	t = theEvent->when;
+	where = theEvt->where;
+	t = theEvt->when;
 	GlobalToLocal(&where);
 	if (PtInRect(where, &ksUpRect)) {
 		TrackArrow(&ksUpRect, &KSMoreSharps);
@@ -3483,12 +3488,12 @@ static void TSDrawStaff()
 
 /* -------------------------------------------------------------------------- TSFilter -- */
 
-static pascal Boolean TSFilter(DialogPtr theDialog, EventRecord *theEvent,
+static pascal Boolean TSFilter(DialogPtr theDialog, EventRecord *theEvt,
 											short *itemHit)
 {
 	Boolean cTimeActive, cutTimeActive;
 	
-	switch (theEvent->what) {
+	switch (theEvt->what) {
 		case updateEvt:
 			BeginUpdate(GetDialogWindow(theDialog));
 			DrawDialog(theDialog);
@@ -3498,7 +3503,7 @@ static pascal Boolean TSFilter(DialogPtr theDialog, EventRecord *theEvent,
 			return True;
 			break;
 		case mouseDown: 
-			if (TSHandleMouseDown(theEvent)) {
+			if (TSHandleMouseDown(theEvt)) {
 					cTimeActive = (numerator==4);
 					cutTimeActive = (numerator==2 || numerator==4);
 					HiliteControl(cTimeHdl, cTimeActive ? CTL_ACTIVE : CTL_INACTIVE);
@@ -3512,7 +3517,7 @@ static pascal Boolean TSFilter(DialogPtr theDialog, EventRecord *theEvent,
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, (short *)itemHit, False))
+			if (DlgCmdKey(theDialog, theEvt, (short *)itemHit, False))
 				return True;
 			else {
 				*itemHit = 0;
@@ -3529,11 +3534,11 @@ static pascal Boolean TSFilter(DialogPtr theDialog, EventRecord *theEvent,
 
 /* ----------------------------------------------------------------- TSHandleMouseDown -- */
 
-static Boolean TSHandleMouseDown(EventRecord *theEvent)
+static Boolean TSHandleMouseDown(EventRecord *theEvt)
 {
 	Point	where;
 
-	where = theEvent->where;
+	where = theEvt->where;
 	GlobalToLocal(&where);
 	if (PtInRect(where, &tsNumUpRect)) {
 		TrackArrow(&tsNumUpRect, &TSNumeratorUp);

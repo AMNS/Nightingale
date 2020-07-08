@@ -48,7 +48,7 @@
 #define SAVEMM_ALRT 340					/* Save MIDI Manager port hookup? */
 #define OPENDOCS_ALRT 344
 #define ADDBAR_ALRT 350
-#define RSP_OVERFLOW_ALRT 358
+#define RSP_OVERFLOW_ALRT 358			/* At least one system will overflow; may need to reformat */
 #define MORE_CLIPSTAVES_ALRT 360		/* More staves in clipboard than document */
 #define ACCIDENTAL_TIE_ALRT 364
 #define BREAKBEAM_ALRT 365

@@ -139,16 +139,14 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
  			usingPrinter = usingFile = False;
  			
  			/* Create the place to accumulate text (must be 0 in size initially) */
+			
  			theTextHandle = NewHandle(0L);
  			thisError = MemError();
  			if (thisError) return(thisError);
  			}
  		
- 		/*
- 		 *	Now try to allocate temporary buffer for text output. This may be a
- 		 *	different call for MultiFinder, and could just as well be a locked
- 		 *	somewhere high in memory.
- 		 */
+ 		/* Now try to allocate temporary buffer for text output. */
+		
  		buffer = (char *)NewPtr(PSBUFSIZE);
  		if ((thisError = MemError())) return(thisError);
  		
@@ -156,7 +154,9 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
  		bp = buffer;										/* Next char to be placed */
  		
  		if (usingFile) {
+		
  			/* File is open and empty at this point */
+			
 			thisVolume = vRefNum;
 			fileOpened = True;
 			}
@@ -170,6 +170,7 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
 
  		return(thisError);
  	}
+
 
 /*
  *	Close the currently open PostScript output file and/or printer connection,
@@ -201,6 +202,7 @@ OSErr PS_Close()
 		return(thisError);
 	}
 
+
 /*
  *	Deliver the handle to the current text being formatted using PS_Open() with
  *	USING_HANDLE.  Caller should not dispose of the reference delivered by this
@@ -212,6 +214,7 @@ Handle PS_GetTextHandle()
 		PS_Flush();
 		return(theTextHandle);
 	}
+
 
 /*
  *	Write out the PostScript preambles and definitions for every Nightingale
@@ -737,32 +740,33 @@ OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle *oHandle)
 	status = noErr;
 
 
-	/* Get the font family name to use with the Resource Manager when grabbing
-		the 'FOND' resource. */
+	/* Get the font family name to use with the Resource Manager when grabbing the
+	   'FOND' resource. */
+	   
 	status = FMGetFontFamilyName(iFontFamily, fontFamilyName);
 	require(status == noErr, FMGetFontFamilyName_Failed);
 
-	/* Get a component font of the font family to obtain the file specification of
-		the family's container. */
+	/* Get a component font of the font family to obtain the file specification of the
+	   family's container. */
+		
 	status = FMGetFontFromFontFamilyInstance(iFontFamily, 0, &font, nil);
 	require(status == noErr && font != kInvalidFont, FMGetFontFromFontFamilyInstance_Failed);
 
 	status = FMGetFontContainer(font, &rsrcFSSpec);
 	require(status == noErr, FMGetFontContainer_Failed);
 
-	/* Open the resource fork of the file. */
+	/* Open the file's resource fork. If the font is based on the ".dfont" file format,
+	   format, we need to open the data fork. */
+	
 	rsrcFRefNum = FSpOpenResFile(&rsrcFSSpec, fsRdPerm);
 
-	/* If the font is based on the ".dfont" file format, we need to open the data
-		fork of the file. */
-	if ( rsrcFRefNum == -1 ) {
-
-		/* The standard fork name is required to open the data fork of the file. */
+	if ( rsrcFRefNum == -1 ) {		
 		status = FSGetDataForkName(&forkName);
 		require(status == noErr, FSGetDataForkName_Failed);
 
 		/* The file specification (FSSpec) must be converted to a file reference
-			(FSRef) to open the data fork. */
+		   (FSRef) to open the data fork. */
+			
 		status = FSpMakeFSRef(&rsrcFSSpec, &rsrcFSRef);
 		require(status == noErr, FSpMakeFSRef_Failed);
 
@@ -774,7 +778,8 @@ OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle *oHandle)
 	UseResFile(rsrcFRefNum);
 
 	/* On Mac OS X, the font family identifier may not match the resource identifier
-		after resolution of conflicting and duplicate fonts. */
+	   after resolution of conflicting and duplicate fonts. */
+		
 	rsrcHandle = Get1NamedResource(FOUR_CHAR_CODE('FOND'), fontFamilyName);
 	require_action(rsrcHandle != NULL, Get1NamedResource_Failed, status = ResError());
 	DetachResource(rsrcHandle);
@@ -813,7 +818,9 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 		
 		if (status == noErr) {
 			short count, index, newStyle, nSuffices, state;
+			
 			/* Careful: <suffix>, at least, points to a P string some of the time. */
+			
 			Byte *p, *styleIndex, *suffix, *stringList;
 			unsigned char *baseName;
 			FamRec *fond;
@@ -859,9 +866,11 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 			/* Now we can use newStyle as an index into the style index tables at styleIndex */
 			
 			index = styleIndex[newStyle];
-			/* Get pseudo-string that index points at in string list */
+			
+			/* Get pseudo-string that index points at in string list. Each "character"
+			   in suffix is an index into stringList for appendage. */
+			
 			suffix = PS_NthString(stringList, index);
-			/* Each "character" in suffix is an index into stringList for appendage */
 			nSuffices = *suffix;
 
 			/* Start with base name and add any suffixes. */
@@ -873,11 +882,11 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 				lenName = *useFont;								/* What we've built so far */
 				lenSuff = *(unsigned char *)suffix;				/* What we're about to append */
 				if ((lenName+lenSuff) <= 255) {
-					char tmpStr[255];
+					char aStr[255];
 					PStrCat(useFont, suffix);
-					Pstrcpy((StringPtr)tmpStr, useFont);
-					PToCString((StringPtr)tmpStr);
-					if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "useFont='%s'  (Res2FontName)\n", tmpStr);
+					Pstrcpy((StringPtr)aStr, useFont);
+					PToCString((StringPtr)aStr);
+					if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "useFont='%s'  (Res2FontName)\n", aStr);
 				}
 				 else
 					break;
@@ -895,6 +904,7 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 			 return False;
 			}
 	}
+
 
 /* Given a Pascal string of the Mac font name, convert it to the PostScript version,
 with any style (usually italic or bold) modifications, and print the result as a
@@ -1792,15 +1802,16 @@ OSErr PS_MusSize(Document *doc, short ptSize)
 			if (wStaff != oldStaff) PS_Print("/sfw %ld def\r",(long)wStaff);
 			
 			/* If requested, print linewidths, etc. at top of page and in system log.
-				Unfortunately, many printers have rather large unprintable margins, so
-				we have to position the text fairly well in, half an inch or so from
-				the top and left. */
+			   Unfortunately, many printers have rather large unprintable margins, so
+			   we have to position the text fairly well in, half an inch or so from
+			   the top and left. */
+				
 			if (printLinewidths)
 				if (wStaff != oldStaff) {
 					sprintf(strBuf, "ptSize=%d wStem=%d wBar=%d wLedger=%d wStaff=%d (%s %s)",
 							ptSize, wStem, wBar, wLedger, wStaff, PROGRAM_NAME, applVerStr);
 					PS_FontString(doc,pt2d(36), pt2d(30+10), CToPString(strBuf), "\pCourier", 10, 0);
-					LogPrintf(LOG_INFO, "ptSize=%d wStem=%d wBar=%d wLedger=%d wStaff=%d (%s %s)\n",
+					LogPrintf(LOG_INFO, "ptSize=%d wStem=%d wBar=%d wLedger=%d wStaff=%d (%s %s)  (PS_MusSize)\n",
 							ptSize, wStem, wBar, wLedger, wStaff, PROGRAM_NAME, applVerStr);
 					}
 
@@ -2340,35 +2351,37 @@ static char *PS_PrtLong(unsigned long arg, Boolean negArg, Boolean doSign,
  *	 PostScriptBegin, but not when using PostScriptBeginNoSave."
  */
 
-static OSErr PS_Comment(char *buffer, long remaining)
-	{
-		Str255 str; long offset = 0L,size,temp=0L;
+static OSErr PS_Comment(char *theBuffer, long remaining)
+{
+	Str255 str;
+	long offset = 0L, size, temp=0L;
+	
+	if (remaining <= 0) return(noErr);
+	
+	while (remaining > 0L) {
+		/* Process the next up-to-255 chars of buffer */
+		size = remaining;
+		if (size > 255) size = 255;
 		
-		if (remaining <= 0) return(noErr);
+		/* Put it in local string storage, and force length to be correct */
 		
-		while (remaining > 0L) {
-			/* Process the next up-to-255 chars of buffer */
-			size = remaining;
-			if (size > 255) size = 255;
-			/* Put it in local string storage, and force length to be correct */
-			BlockMove(buffer+offset,str+1,size);
-			str[0] = size;
-			/* Prepare for next iteration, if any */
-			offset += size;
-			remaining -= size;
-			/* Send the next chunk of PostScript on its way */
+		BlockMove(theBuffer+offset, str+1, size);
+		str[0] = size;
+		
+		/* Prepare for next iteration, if any */
+		
+		offset += size;
+		remaining -= size;
+		
+		/* Send the next chunk of PostScript on its way */
 
-			//OSStatus status = PMSessionPostScriptData (psDoc->docPrintInfo.docPrintSession, (char*)&str[1], (long)str[0]);
-			OSStatus status = PMSessionPostScriptData (psDoc->docPrintInfo.docPrintSession, (char*)str+1, size);
-			if (status!=0) {
-				temp--;			// Homemade conditional breakpoint
-			}
-			status = PMSessionError(psDoc->docPrintInfo.docPrintSession);
-			if (status!=0) {
-				temp--;			// Homemade conditional breakpoint
-			}
-			}
-			
-		return(noErr);
+		//OSStatus status = PMSessionPostScriptData (psDoc->docPrintInfo.docPrintSession, (char*)&str[1], (long)str[0]);
+		OSStatus status = PMSessionPostScriptData (psDoc->docPrintInfo.docPrintSession, (char*)str+1, size);
+		if (status!=0) temp--;			// Homemade conditional breakpoint
+		status = PMSessionError(psDoc->docPrintInfo.docPrintSession);
+		if (status!=0) temp--;			// Homemade conditional breakpoint
 	}
+		
+	return(noErr);
+}
 

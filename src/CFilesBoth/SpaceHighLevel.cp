@@ -56,8 +56,8 @@ static void ConsiderLedgerLines(Document *, short, SPACETIMEINFO [], STDIST []);
 
 
 /* -------------------------------------------------------------------------- CenterNR -- */
-/* Center the given note or rest (normally a whole-measure or multi-bar rest)
-around the given <measCenter> position. */
+/* Center the given note or rest (normally a whole-measure or multi-bar rest) around
+the given <measCenter> position. */
 
 void CenterNR(Document *doc, LINK syncL, LINK aRestL, DDIST measCenter)
 {
@@ -69,8 +69,8 @@ void CenterNR(Document *doc, LINK syncL, LINK aRestL, DDIST measCenter)
 }
 
 /* -------------------------------------------------------------- CenterWholeMeasRests -- */
-/* Center all whole-measure and multi-bar rests in the given Measure. Makes no
-user-interface assumptions: in particular, does not Inval or redraw anything. */
+/* Center all whole-measure and multi-bar rests in the given Measure. Makes no user-
+interface assumptions: in particular, does not Inval or redraw anything. */
 
 void CenterWholeMeasRests(
 			Document	*doc,
@@ -406,7 +406,7 @@ static void DebugPrintSpacing(short nLast, STDIST fSpBefore[])
 
 /* Fill in a table of voice nos. of note/chords the user doesn't want to affect spacing. */
 
-static void FillIgnoreChordTable(Document *doc, short nLast, SPACETIMEINFO spaceTimeInfo[])
+static void FillIgnoreChordTable(Document * /*doc*/, short nLast, SPACETIMEINFO spaceTimeInfo[])
 {
 	short	i, v;
 	LINK	aNoteL;
@@ -1241,7 +1241,7 @@ static short RespWithinMeasures(
 {
 	short mindex, inSel, nLastItem;
 	DDIST oldMWidth, newMWidth; SPACETIMEINFO *spTimeInfo=0L;
-	register LINK measL, firstL, lastL;		/* 1st obj in, obj ending current Measure */
+	register LINK measL, firstL, lastL;			/* 1st obj in, obj ending current Measure */
 
 	spTimeInfo = AllocSpTimeInfo();
 	if (!spTimeInfo) return -1;
@@ -1294,7 +1294,7 @@ static Boolean PositionWholeMeasures(
 		LINK startBarL,
 		LINK endSysL,
 		LINK *invalStartL,
-		Boolean command,
+		Boolean rspCommand,
 		Boolean doRfmt
 		)
 {
@@ -1325,7 +1325,7 @@ static Boolean PositionWholeMeasures(
 			/* If we're handling an explicit Respace command, or if <doRfmt>, just
 			   set a flag and reformat the whole area later. */
 			   
-			if (command || doRfmt) {
+			if (rspCommand || doRfmt) {
 				PositionSysByTable(doc, rmTable, first, m, 0L, context);
 				if (newSpProp>0L) reformat = True;
 			}
@@ -1336,7 +1336,7 @@ static Boolean PositionWholeMeasures(
 			   redraw Measures from the beginning of the System to the beginning
 			   of the respaced area. */
 			   
-			if (first==0 && newSpProp>0L && !command)
+			if (first==0 && newSpProp>0L && !rspCommand)
 				startInvalL = rmTable[0].measL;
 		}
 	}
@@ -1345,7 +1345,7 @@ static Boolean PositionWholeMeasures(
 		if (doRfmt)
 			goAhead = True;
 		else {
-			goAhead = (NoteAdvise(RSP_OVERFLOW_ALRT)==OK);
+			goAhead = (NoteAdvise(RSP_OVERFLOW_ALRT)==OK);	/* Ask user for permission to reformat */
 		}
 		
 		if (goAhead) {
@@ -1364,9 +1364,9 @@ static Boolean PositionWholeMeasures(
 /* It looks as if we only need to Inval to the end of the range we've moved; however,
 (1) it seems safer to Inval to the end of the last System, and (2) the range moved
 will almost always go to the end of the System anyway. As evidence for point (1),
-RespaceForCut seems to move Measure(s) to the end of the System before calling
-us. It should take care of this itself, but we'll play it safe and Inval to the
-end of the System. */
+RespaceForCut seems to move Measure(s) to the end of the System before calling us.
+It should take care of this itself, but we'll play it safe and Inval to the end of the
+System. */
 
 static void InvalRespBars(LINK startInvalL, LINK endSysL)
 {
@@ -1376,32 +1376,31 @@ static void InvalRespBars(LINK startInvalL, LINK endSysL)
 
 
 /* ----------------------------------------------------------------------- RespaceBars -- */
-/* RespaceBars performs global punctuation in the area specified by fixing up
-object x-coordinates so that each is allowed the "correct" space. The area
-extends from the beginning of the Measure including <startL> to the end of the
-Measure including <endL>. If the operation results in any System overflowing,
-what we do depends on the <command> and <doRfmt> parameters:
-	If <command>, ask whether to reformat or cancel the entire command. (If we're
-		handling an explicit command to Respace, responding to Systems overflowing
-		by squeezing their contents back in makes no sense.)
+/* RespaceBars performs global punctuation in the area specified by fixing up object
+x-coordinates so that each is allowed the "correct" space. The area extends from the
+beginning of the Measure including <startL> to the end of the Measure including <endL>.
+If the operation results in any System overflowing, what we do depends on the <rspCommand>
+and <doRfmt> parameters:
+	If <rspCommand>, ask whether to reformat or cancel the entire command. (If we're
+		handling an explicit command to Respace, responding to Systems overflowing by
+		squeezing their contents back in makes no sense.)
 	Otherwise, if <doRfmt>, reformat without asking.
 	Otherwise, squeeze the Measures to fit their System.
 
 Naturally, this is a user-interface level function.
 
-NB: RespaceBars acts as if barlines (the graphic manifestation of Measures)
-TERMINATE Measures rather than beginning them, so if there's an insertion point
-"at" a barline--selStartL=selEndL=the barline, so the insertion point appears to
-the left of the barline--the preceding Measure is respaced. Areas before the initial
-barlines of systems, which are not part of any Measure, are always left alone, even
-if they're within the specified area. It returns True if it successfully respaces
-anything, False if not (either because of an error or because the specified area is
-entirely before a System's initial barline).
+NB: RespaceBars acts as if barlines (the graphic manifestation of Measures) _terminate_
+Measures rather than beginning them, so if there's an insertion point "at" a barline --
+selStartL=selEndL=the barline, so the insertion point appears to the left of the barline
+-- the preceding Measure is respaced. Areas before the initial barlines of systems, which
+are not part of any Measure, are always left alone, even if they're within the specified
+area. It returns True if it successfully respaces anything, False if not (either because
+of an error or because the specified area is entirely before a System's initial barline).
 
-NB2: If RespaceBars reformats, it sets the selection range to an insertion point
-at doc->tailL. Also, if it reformats, it may REMOVE doc->selStartL (and <endL>?) from
-the object list, so saving selection status before RespaceBars and restoring it
-afterwards is not easy! */
+NB2: If RespaceBars reformats, it sets the selection range to an insertion point at
+doc->tailL. Also, if it reformats, it may remove doc->selStartL (and <endL>?) from the
+object list, so saving selection status before RespaceBars and restoring it afterwards is
+not easy! */
 
 typedef struct {
 	LINK		link;
@@ -1417,7 +1416,7 @@ Boolean RespaceBars(
 			LINK endL,
 			long spaceProp,			/* >0 means use spaceProp/(RESFACTOR*100) of normal
 										spacing; <=0 means use start meas.' current spacing */
-			Boolean	command,		/* Called by explicit Reformat command  */
+			Boolean	rspCommand,		/* Called by explicit Respace command?  */
 			Boolean	doRfmt 			/* If respacing causes overflow, reformat w/o asking? */
 			)
 {
@@ -1436,11 +1435,10 @@ Boolean RespaceBars(
 	PAMEASURE	aMeas;
 	Boolean		okay=False, posOkay;
 	
-	/*
-	 *	Start at the beginning of the Measure startL is in; if there is no such
-	 *	Measure, start at the first Measure of the score. If end is not after start
-	 *	Measure, there's nothing to do.
-	 */
+	/* Start at the beginning of the Measure startL is in; if there is no such Measure,
+	   start at the first Measure of the score. If end is not after start Measure,
+	   there's nothing to do. */
+	   
 	startBarL = EitherSearch(LeftLINK(startL),MEASUREtype,ANYONE, GO_LEFT, False);
 	if (endL==startBarL || IsAfter(endL, startBarL)) return False;
 	endBarL = EndMeasSearch(doc, LeftLINK(endL));
@@ -1448,17 +1446,14 @@ Boolean RespaceBars(
 	rmTable = (RMEASDATA *)NewPtr(MAX_RSP_MEASURES*sizeof(RMEASDATA));
 	if (!GoodNewPtr((Ptr)rmTable)) { NoMoreMemory(); return False; }
 
-	if (command) {
-		PrepareUndo(doc, startL, U_Respace, 35);    				/* "Undo Respace Bars" */
-	}
+	if (rspCommand) PrepareUndo(doc, startL, U_Respace, 35);    			/* "Undo Respace Bars" */
 
-	/*
-	 * Respacing as specified may require reformatting. Unfortunately, we can't easily
-	 * tell that's going to happen until we actually do the respacing; yet if it does,
-	 * we want to give the user a chance to cancel the whole operation. So to implement
-	 * it, make tables of the current positions of every affected object and of
-	 * spacePercents of the Measures.
-	 */
+	/* Respacing as specified may require reformatting. Unfortunately, we can't easily
+	   tell that's going to happen until we actually do the respacing; yet if it does,
+	   we want to give the user a chance to cancel the whole operation. So to implement
+	   it, make tables of the current positions of every affected object and of
+	   spacePercents of the Measures. */
+	   
 	objCount = CountObjects(startBarL, endBarL, ANYTYPE)+EXTRAOBJS;
 	positionA = (XDDATA *)NewPtr(objCount*sizeof(XDDATA));
 	if (!GoodNewPtr((Ptr)positionA)) {
@@ -1496,27 +1491,27 @@ Boolean RespaceBars(
 		}
 	}
 
+	LogPrintf(LOG_INFO, "Respacing from L%u to L%u...  (RespaceBars)\n", startBarL, endBarL);
 	GetRespaceParams(doc,startBarL,endBarL,&startSysBarL,&endSysBarL,
 													&endSysL,&spaceProp);
 	if (CountRespMeas(doc,startBarL,endSysBarL)>=MAX_RSP_MEASURES) goto Done;
 
-	/*
-	 * Do the basic respacing. In case the user cancels, don't change anything but
-	 * the positions of objects and of spacePercents of the Measures yet.
-	 * ??Bug: RespWithinMeasures blatantly violates this for whole-measure rests!
-	 * Centering them and adjusting hairpins should be done later.
-	 */
+	/* Do the basic respacing. In case the user cancels, don't change anything but
+	   the positions of objects and of spacePercents of the Measures yet.
+	   FIX ME: RespWithinMeasures blatantly violates this for whole-measure rests!
+	   Centering them and adjusting hairpins should be done later. */
+	   
 	mindex = RespWithinMeasures(doc,startBarL,endBarL,startSysBarL,endSysBarL,
 											spaceProp,rmTable,positionA,objCount);
 	if (mindex<0) goto Done;
 	
 	posOkay = PositionWholeMeasures(doc,mindex,rmTable,startBarL,endSysL,&startInvalL,
-															command,doRfmt);
-	/*
-	 * We couldn't finish Respacing, probably because it required reformatting and
-	 * the user nixed it. Anyway, put everything back where it was when we started.
-	 */
+															rspCommand,doRfmt);
+															
 	if (!posOkay) {
+		/* We couldn't finish Respacing, probably because it required reformatting and
+		   the user nixed it. Anyway, put everything back where it was when we started. */
+	   
 		for (i = 0; i<objCount; i++) {
 			pL = positionA[i].link;
 			LinkXD(pL) = positionA[i].xd;
@@ -1537,12 +1532,12 @@ Boolean RespaceBars(
 	}
 #ifdef NOTYET
 	else {	/* center whole-measure rests */
-		/* we'd like to do this here, but measures may've been reformatted, so
-			how do we get the correct links -- rmTable? */
+		/* FIX ME: we'd like to do this here, but measures may've been reformatted, so
+		   how do we get the correct links -- rmTable? */
 	}
 #endif
 
-	InvalRespBars(startInvalL,endSysL);
+	InvalRespBars(startInvalL, endSysL);
 
 	doc->changed = True;
 	okay = True;
@@ -1551,9 +1546,9 @@ Done:
 	if (rmTable) DisposePtr((Ptr)rmTable);
 	if (positionA) DisposePtr((Ptr)positionA);
 #ifdef NO_COMPRENDE_ASK_CHARLIE
-	if (command) DisableUndo(doc,True);
+	if (rspCommand) DisableUndo(doc, True);
 #endif
-	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,True);
+	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc, True);
 	return okay;
 }
 

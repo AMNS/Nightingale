@@ -530,7 +530,7 @@ static void HiliteMenuItem(MenuRef theMenu, const Rect *menuRect, HiliteMenuItem
 		else
 			newItem = 0;										/* it's a blank item */
 		InvertItem(previousItem, False, (Rect *)menuRect, theMenu);
-		//LogPrintf(LOG_NOTICE, "currItem=%d, newItem=%d\n", previousItem, newItem);
+		//LogPrintf(LOG_DEBUG, "currItem=%d, newItem=%d\n", previousItem, newItem);
 	}
 }
 
@@ -946,7 +946,7 @@ static void PopUpMenu(MenuHandle theMenu, Rect *menuRect, short v, short h, shor
 	
 	if ((GetMenuWidth(theMenu) > (scr.right-scr.left)) || (GetMenuHeight(theMenu) > (scr.bottom-scr.top))) {
 		SysBeep(10);
-		LogPrintf(LOG_WARNING, "Pop-up menu too large for screen.\n");
+		LogPrintf(LOG_WARNING, "Pop-up menu too large for screen. (PopUpMenu)\n");
 		goto broken;
 	}
 

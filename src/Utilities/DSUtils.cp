@@ -876,7 +876,7 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 	Rect r, objR;
 
 	if (!GraphicTYPE(pL) && !TempoTYPE(pL)) {
-		LogPrintf(LOG_WARNING, "GetMeasRange: object %u is an illegal type.\n", pL);
+		LogPrintf(LOG_WARNING, "Object %u is an illegal type.  (GetMeasRange)\n", pL);
 		return;
 	}
 	
@@ -3153,8 +3153,8 @@ Boolean IsNeighborhoodMultiVoice(LINK syncL, short staff, short voice)
 
 	
 /* ----------------------------------------------------------------- GetSelectionStaff -- */
-/* If all selected notes/rests are on one staff, returns that staff, else returns
-NOONE. Ignores other selected objects. */
+/* If all selected notes/rests are on one staff, returns that staff, else returns NOONE.
+Ignores other selected objects. */
 
 short GetSelectionStaff(Document *doc)
 {

@@ -330,7 +330,7 @@ short MakeTConvertTable(
 
 	if (DETAIL_SHOW) {
 		for (short i = 0; i<tempoCount; i++)
-			LogPrintf(LOG_DEBUG, "tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
+			LogPrintf(LOG_DEBUG, "MakeTConvertTable: tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
 				i, tConvertTab[i].microbeats, tConvertTab[i].pDurTime, tConvertTab[i].realTime);
 	}
 
@@ -484,17 +484,18 @@ static Boolean CMInsertEvent(short note, SignedByte channel, long endTime, Boole
 	char		fmtStr[256];
 
 	/* If _playMaxDur_ and there's already an event for that note no. on the same channel
-		with a later end time, we have nothing to do. */
+	   with a later end time, we have nothing to do. */
+	   
 		if (playMaxDur && CMHaveLaterEnding(note, channel, endTime)) {
 //LogPrintf(LOG_DEBUG, "CMInsertEvent: HaveLaterEnding for note=%d\n", note);
 			return True;
 		}
 
-//LogPrintf(LOG_DEBUG, "CMInsertEvent note=%d\n", note);
+//LogPrintf(LOG_DEBUG, "CMInsertEvent: note=%d\n", note);
 
 	/* If _playMaxDur_ and there's already an event for that note no. on the same channel
-		with an earlier end time, replace it with this event. Otherwise, just find the
-		first free slot in list, which may be at lastEvent (end of list) */
+	   with an earlier end time, replace it with this event. Otherwise, just find the
+	   first free slot in list, which may be at lastEvent (end of list). */
 	
 	for (i = 0, pEvent = cmEventList; i<lastEvent; i++, pEvent++) {
 #if PMDDEBUG
@@ -565,7 +566,7 @@ Boolean CMCheckEventList(long pageTurnTOffset)
 	empty = True;
 	for (i=0, pEvent = cmEventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
-//LogPrintf(LOG_DEBUG, "CMCheckEventList pEvent-note=%d\n", pEvent->note);
+//LogPrintf(LOG_DEBUG, "CMCheckEventList: pEvent-note=%d\n", pEvent->note);
 			empty = False;
 			if (pEvent->endTime<=t) {							/* note is done, t = now */
 				CMEndNoteNow(pEvent->cmIORefNum, pEvent->note, pEvent->channel);
@@ -930,7 +931,7 @@ void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 		case MSYSEX:
 			/* This handles only the original one-chunk form of SysEx message. For some
 			   elegant code for collecting arbitrary chunks of SysEx, see midifile.c in
-			   Tim Thompson's old program mftext. */
+			   Tim Thompson's ancient program mftext. */
 			   
 			strcpy(strDisp, "SysEx"); break;
 		case METAEVENT:									/* No. of data bytes is in the command */
@@ -938,7 +939,7 @@ void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 		default:
 			strcpy(strDisp, "(unknown)"); break;
 	}
-	LogPrintf(LOG_INFO, "DisplayMIDIEvent: deltaT=%ld %s data=%u (0x%x)\n", deltaT, strDisp,
+	LogPrintf(LOG_INFO, "deltaT=%ld %s data=%u (0x%x)  (DisplayMIDIEvent)\n", deltaT, strDisp,
 				eventData1, eventData1);
 }
 

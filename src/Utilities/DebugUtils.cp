@@ -983,8 +983,9 @@ that have meaningful objRects. If we find such object(s), we check whether their
 							else if (LinkVALID(pL)
 								  &&  pMeasure->systemL==rMeasure->systemL
 								  &&  pMeasure->measureBBox.right!=rMeasure->measureBBox.left) {
-								COMPLAIN2("DCheckNode: MEASURE L%u BBOX DISAGREES WITH NEXT MEASURE BY %d.\n",
-												pL, pMeasure->measureBBox.right-rMeasure->measureBBox.left);
+								COMPLAIN3("DCheckNode: MEASURE %d (L%u) BBOX DISAGREES WITH NEXT MEASURE BY %d.\n",
+												GetMeasNum(doc, pL), pL,
+												pMeasure->measureBBox.right-rMeasure->measureBBox.left);
 							}
 						}
 	

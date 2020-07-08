@@ -6752,8 +6752,8 @@ files I've been having trouble with?
 Open 2ndMovement.ngl => crashes into GDB, hilighting the "SlurFILLER(slurL) = 0" in
 ConvertSLUR, just as it has many times before :-| .
 
-Cut the last few pages of 2ndMovement.ngl to get 2ndMovementCUT3.ngl; launch Ngale,
-open => log ends with
+Using Ngale 5.8.10,  ut the last few pages of 2ndMovement.ngl to get 2ndMovementCUT3.ngl
+(30 pages); launch current Ngale 5.9.1, open => log ends with
 
 	debug. ConvertObject: pL=3870 is TAIL.
 	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
@@ -6766,3 +6766,75 @@ open => log ends with
  
 ...and it goes into GDB, highlighting the "SlurFILLER(slurL) = 0;" line with slurL = 513!
 
+-------------------------------------------------------------------------------
+
+4 - 7 July
+
+Cut more pages at the end of 2ndMovement.ngl to get 2ndMovementCUT3.ngl (24 pages);
+launch Ngale, open => it looks OK & Debug Check has no complaints! Same thing again =>
+same results; same thing a 3rd time => same results.
+
+Open 2ndMovementCUT3.ngl => crashes into GDB. Re-launch Ngale, open 2ndMovementCUT3.ngl =>
+crashes; log ends with
+
+	Ngale[93367]: debug. ConvertDYNAMIC: dynamicL=L511 dynamicType=8
+	Ngale[93367]: debug. ConvertGRAPHIC: graphicL=L512 staff=14 type=3 info=4 thick=0
+	ReportCrash[93378]: Formulating crash report for process Nightingale[93367]
+	ReportCrash[93378]: Saved crashreport to /Users/donbyrd/Library/Logs/CrashReporter/Nightingale_2020-07-04-074912_don-byrds-power-mac-g5.crash using uid: 501 gid: 20, euid: 501 egid: 20
+
+!! There are about 15 Ngale reports in /Users/donbyrd/Library/Logs/CrashReporter. That's a
+surprise! Anyway, the latest (Nightingale_2020-07-04-074912_don-byrds-power-mac-g5.crash)
+says:
+
+	Exception Type:  EXC_BAD_ACCESS (SIGSEGV)
+	Exception Codes: KERN_INVALID_ADDRESS at 0x000000001c25cc34
+	Crashed Thread:  0
+	
+	Thread 0 Crashed:
+	0   com.amns.nightingale                0x001586bc ConvertSLUR(Document*, unsigned short) + 168 (FileConversion.cp:1617)
+	1   com.amns.nightingale                0x0015ae84 ConvertObjSubobjs(Document*, unsigned long, long, unsigned char) + 8224 (FileConversion.cp:1936)
+	2   com.amns.nightingale                0x00144530 OpenFile(Document*, unsigned char*, short, FSSpec*, long*) + 4032 (FileOpen.cp:492)
+	...
+
+Re-launch Ngale, open 2ndMovementCUT3.ngl => it hangs; last messages in log:
+
+	debug. ConvertObject: pL=3870 is TAIL.
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+
+It seems that 2ndMovementCUT3.ngl crashes consistently; CUT5 opens consistently. How about
+CUT4?
+
+Rename 2ndMovementCUT3.ngl to 2ndMovement_pp1-30.ngl, CUT4.ngl to pp1-28.ngl, CUT5.ngl to 
+pp1-24.ngl . Re-launch Ngale, open 2ndMovementpp1-28.ngl => it looks OK & Debug Check has
+no complaints. Same thing again => same results. So the 1st 28 pages, no problem; the 1st
+30, big problem! How about 29?
+
+Re-launch Ngale, open  => it hangs! Last log messages:
+
+	debug. ConvertObject: pL=3761 is TAIL.
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+
+NB there are three line Graphics (glissandi) on p. 29, and I'm suspicious of line Graphics.
+Remove them => 2ndMovement_pp1-29Minus.ngl; launch Ngale, open it => it still crashes into
+GDB :-( ; last log messages are
+
+	debug. ConvertSYNC: syncL=L393 timeStamp=0
+	debug. ConvertSYNC: syncL=L394 timeStamp=96
+
+Remove the entire last three measures => 2ndMovement_pp1-29Minus3mm.ngl;  launch Ngale,
+open it => crashes into GDB, highlighting the usual "SlurFILLER(slurL) = 0;".
+
+SWITCH TO David Alpher's problems in "Please come home-s of france 2". In a couple places, e.g.,
+m. 35, there's a huge empty space between the key signature and the first note. Respacing m. 35
+doesn't help because Show Invisibles shows the space belongs to the before-measure area, i.e.,
+it's really between the key signature and the first (invisible) barline; Reformat fixes that but
+totally screws up the layout because of the hidden staves! It'd be much better to provide a tool
+that simply sets the space to what it should be.
+
+DoOpenKeysig() contains code to "update the space before the initial Measure on all systems
+affected by [a] keysig change"; the heart of it is a call to FixInitialKSxds(). For user
+interface, how about this: if the Respace command finds the selection is just the initial
+clef or keysig of a system, it calls FixInitialKSxds for only that system? But it should also
+not let the user Respace to an arbitrary percent of normal! 
+
+??

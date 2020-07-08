@@ -2856,3 +2856,10 @@ NObjTypes.h; Browser, DebugUtils, HeapBrowser, HeapFileIO, Heaps, Initialize.
 
 Minor cleanup. Affects FileConversion.h; Browser, FileConversion, FileOpen, HeapBrowser,
 HeapFileIO.
+
+-------------------------------------------------------------------------------
+
+4 - 7 July
+
+Minor cleanup. Affects NResource.h; DebugUtils, DialogsEditor, DSUtils, FileConversion,
+GraphicMDEF, InsUtils, MIDIUtils, PS_Stdio, SpaceHighLevel.

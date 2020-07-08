@@ -1861,10 +1861,10 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 //LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
 #endif
 
-		/* If this function is called in the situation described above, consecutive objects
+		/* If this function is called in the process of opening a file, consecutive objects
 		   must have sequential links; check that. */
 		 
-		if (pL!=prevL+1) MayErrMsg("ConvertObjSubobjs: PROGRAM ERROR: pL=%ld BUT prevL=%ld INSTEAD OF %ld!",
+		if (pL!=prevL+1) MayErrMsg("PROGRAM ERROR: ConvertObjSubobjs: pL=%ld BUT prevL=%ld INSTEAD OF %ld!",
 									(long)pL, (long)prevL, (long)prevL-1);
 		prevL = pL;
 
