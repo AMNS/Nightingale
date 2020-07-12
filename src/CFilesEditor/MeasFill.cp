@@ -27,9 +27,11 @@ static enum {
 
 Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 {
-	register DialogPtr dlog; GrafPtr oldPort;
-	short ditem; short dialogOver, value;
-	ModalFilterUPP	filterUPP;
+	DialogPtr dlog;
+	GrafPtr oldPort;
+	short ditem;
+	short dialogOver, value;
+	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
@@ -50,7 +52,7 @@ Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 	PutDlgWord(dlog, ENDMEAS_DI, *endMN, True);
 
 	ShowWindow(GetDialogWindow(dlog));
-	OutlineOKButton(dlog,True);
+	OutlineOKButton(dlog, True);
 	
 	dialogOver = 0;
 	do {
@@ -88,22 +90,23 @@ Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 }
 
 /* ---------------------------------------------------------------------- IsRangeEmpty -- */
-
-/* Return True if the given range and staff contains no notes or rests in any
-voice, and the staff's default voice contains no notes or rests on any staff.
-Intended for use by the Fill Empty Measures command. */
+/* Return True if the given range and staff contains no notes or rests in any voice,
+and the staff's default voice contains no notes or rests on any staff. Intended for use
+by the Fill Empty Measures command. */
 
 Boolean IsRangeEmpty(LINK startL, LINK endL,
 						short staff,
 						Boolean *pNonEmptyVoice)	/* Return True = staff's default voice is on another staff */
 {
-	Boolean staffEmpty, voiceEmpty; LINK pL;
+	Boolean staffEmpty, voiceEmpty;
+	LINK pL;
 	
 	staffEmpty = voiceEmpty = True;
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
 			if (NoteOnStaff(pL, staff)) {
-				staffEmpty = False; break;
+				staffEmpty = False;
+				break;
 			}
 			if (NoteInVoice(pL, staff, False))		/* Is this staff's dflt voice on ANY staff? */
 				voiceEmpty = False;					/* can't break bcs staff might not be empty */
@@ -135,10 +138,9 @@ static short Fill1EmptyMeas(
 	*nonEmptyVoice = False;
 	if (MeasISFAKE(barL)) return 0;
 	
-	/*
-	 * If the Measure contains any Syncs now, use the first one to add the whole-measure
-	 * rests to; otherwise we'll have to create a Sync.
-	 */
+	/* If the Measure contains any Syncs now, use the first one to add the whole-measure
+	   rests to; otherwise we'll have to create a Sync. */
+	   
 	for (syncL = NILINK, pL = barL; pL!=barTermL; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
 			syncL = pL;
@@ -156,6 +158,7 @@ static short Fill1EmptyMeas(
 				}
 
 				/* FIXME: Maybe we should initialize object YD and <tweaked> in NewNode? */
+				
 				SetObject(syncL, 0, 0, False, True, False);
 				LinkTWEAKED(syncL) = False;
 				aRestL = FirstSubLINK(syncL);
@@ -165,12 +168,10 @@ static short Fill1EmptyMeas(
 				return nFilled;
 			}
 
-			/*
-			 *	The rest's vertical position should probably ignore multivoice position
-			 *	offset. To do this, set doc->voiceTab[voice].voiceRole to single before
-			 *	calling SetupNote and restore its old value afterwards (we could also
-			 * accomplish this by just setting the rest's yd after SetupNote).
-			 */
+			/* The rest's vertical position should probably ignore multivoice
+			   position offset. To do this, we  set doc->voiceTab[voice].voiceRole to
+			   single before calling SetupNote and restore its old value afterwards. */
+			   
 			saveVRole = doc->voiceTab[staff].voiceRole;				/* Default voice no. = staff no. */
 			doc->voiceTab[staff].voiceRole = VCROLE_SINGLE;
 			SetupNote(doc, syncL, aRestL, staff, 0, WHOLEMR_L_DUR, 0, staff, True, 0, 0);
@@ -219,10 +220,9 @@ short FillEmptyMeas(
 	if (nFilled>0) {
 		doc->changed = True;
 		if (doc->autoRespace)
-			RespaceBars(doc, RightLINK(startBarL), RightLINK(endBarL), 0L, False,
-							False);
+			RespaceBars(doc, RightLINK(startBarL), RightLINK(endBarL), 0L, False, False);
 		else {
-			InvalMeasures(startBarL, endBarL, ANYONE);						/* Force redrawing */
+			InvalMeasures(startBarL, endBarL, ANYONE);					/* Force redrawing */
 			if (config.alwaysCtrWholeMR) {
 				/* Regardless of autoRespace, center the new whole-measure rests. */
 				
@@ -285,16 +285,16 @@ LINK NewRestSync(Document *doc, LINK pL, short time, LINK *pSyncL)
 	}
 }
 
-/* Generate rest(s) to fill the given amount of time. Return True normally, False
-if there's an error. */
+/* Generate rest(s) to fill the given amount of time. Return True normally, False if
+there's an error. */
 
 static Boolean AddFillRest(Document *doc, LINK pL, short voice, short startTime, short fillDur)
 {
 	LINK syncL, newSyncL, aRestL; short nPieces, n, prevEndTime;
 	
-	/* Look for a Sync at the time we want. If we find one, just add a subobject
-		to it. If not, if we find a Sync earlier than we want, add a new Sync after
-		it. If we can't find an earlier one either, add a new Sync right here. */
+	/* Look for a Sync at the time we want. If we find one, just add a subobject to it.
+	   If not, if we find a Sync earlier than we want, add a new Sync after it. If we
+	   can't find an earlier one either, add a new Sync right here. */
 		
 	syncL = FindTStampInMeas(LeftLINK(pL), startTime, GO_LEFT);
 	if (!syncL) {
@@ -314,9 +314,9 @@ static Boolean AddFillRest(Document *doc, LINK pL, short voice, short startTime,
 	}
 
 	/* Set the rest's duration and clarify it. We expect a normal data structure here
-		with legitimate Measures and correct time signature fields in the context, so
-		call the standard function SetAndClarifyDur. Finally, we have to set the
-		timeStamps of the new Syncs to keep the data structure "normal". */
+	   with legitimate Measures and correct time signature fields in the context, so
+	   call the standard function SetAndClarifyDur. Finally, we have to set the
+	   timeStamps of the new Syncs to keep the data structure "normal". */
 		
 	SetupNote(doc, syncL, aRestL, voice, 0, UNKNOWN_L_DUR, 0, voice, True, 0, 0);
 	

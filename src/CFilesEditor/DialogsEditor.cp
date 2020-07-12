@@ -13,8 +13,8 @@
  */
 
 /*
-	LeftEndDialog & friends
-	SpaceDialog					TremSlashesDialog			EndingDialog
+	LeftEndDialog & friends		SpaceDialog
+	BefMeasSpaceDialog			TremSlashesDialog			EndingDialog
 	MeasNumDialog				PageNumDialog				OttavaDialog
 	TupletDialog & friends		SetDurDialog & friends		TempoDialog & friends
 	SetMBRestDialog
@@ -356,7 +356,7 @@ short SpaceDialog(
 			if (ditem == OK) {
 				GetDlgWord(dlog, NUMBER_DI, &newspace);
 				if (newspace<MINSPACE || newspace>MAXSPACE) {
-					Inform(SPACE_ALRT);									/* No room for StopInform icon! */
+					Inform(SPACE_ALRT);							/* No room for StopInform icon! */
 					newspace = CANCEL_INT;
 				}
 			}
@@ -371,6 +371,70 @@ short SpaceDialog(
 
 	SetPort(oldPort);
 	return newspace;
+}
+
+
+/* --------------------------------------------------------------- BefMeasSpaceDialog --- */
+/* Set the space before the first measure (i.e., the invisible barline beginning the first
+measure) of the system. This should never be necessary, but every now and then for years,
+a bug in Nightingale has resulted in the space being much too wide, and there's no other
+way to fix it short of low-level editing of a file or in-memory data structure. --DAB,
+July 2020 */
+
+short BefMeasSpaceDialog(Document *doc, short dSpace)
+{
+	DialogPtr dlog;
+	GrafPtr oldPort;
+	short ditem, dialogOver, value;
+	short dLineSpace, minSpace;
+	ModalFilterUPP filterUPP;
+
+	filterUPP = NewModalFilterUPP(OKButFilter);
+	if (filterUPP == NULL) {
+		MissingDialog(RESPACE_BEF_MEAS_DLOG);
+		return False;
+	}
+	
+	GetPort(&oldPort);
+	dlog = GetNewDialog(RESPACE_BEF_MEAS_DLOG, NULL, BRING_TO_FRONT);
+	if (!dlog) {
+		DisposeModalFilterUPP(filterUPP);
+		MayErrMsg("BefMeasSpaceDialog: unable to get dialog %ld", (long)RESPACE_BEF_MEAS_DLOG);
+		return False;
+	}
+ 	SetPort(GetDialogWindowPort(dlog)); 			
+	
+	PutDlgWord(dlog, NUMBER_DI, dSpace, False);
+	dLineSpace = STHEIGHT/(STFLINES-1);						/* Space between staff lines */
+	minSpace = (3*dLineSpace)/2;							/* Arbitrary but unreasonably small */
+	
+	ShowWindow(GetDialogWindow(dlog));
+	OutlineOKButton(dlog, True);
+	
+	dialogOver = 0;
+	do {
+		ModalDialog(filterUPP, &ditem);
+		if (ditem==OK) {
+			if (!GetDlgWord(dlog, NUMBER_DI, &value)
+			||  value<minSpace) {
+				SysBeep(1);
+				LogPrintf(LOG_WARNING, "Space before the system's first measure must be at least %d.  (BefMeasSpaceDialog)\n",
+							minSpace);
+			}
+			else
+				dialogOver = ditem;
+		}
+		else
+			dialogOver = ditem;
+	} while (!dialogOver);
+	
+	GetDlgWord(dlog, NUMBER_DI, &value);
+
+	DisposeModalFilterUPP(filterUPP);
+	DisposeDialog(dlog);
+	SetPort(oldPort);
+
+	return (ditem==OK? value : -1);
 }
 
 
@@ -1749,7 +1813,7 @@ Boolean SetDurDialog(
 
 	if (*nDots>2) {
 		SysBeep(1);										/* popup has 2 dots maximum */
-		LogPrintf(LOG_WARNING, "SetDurDialog: can't handle %d dots.\n", *nDots);
+		LogPrintf(LOG_WARNING, "Can't handle %d dots: 2 is the maximum.  (SetDurDialog)\n", *nDots);
 		 *nDots = 2;
 	}
 
@@ -2576,13 +2640,17 @@ short RastralDialog(
 					dialogOver = ditem;
 					break;
 				case RspITM:
-					SetControlValue((ControlHandle)rspHdl,1-GetControlValue((ControlHandle)rspHdl));	/* Toggle prop. respace */
+					SetControlValue((ControlHandle)rspHdl, 1-GetControlValue((ControlHandle)rspHdl));	/* Toggle prop. respace */
 					break;
 				case SizeITM:
 				case StSampITM:
 					GetDlgWord(rDialogp, SizeITM, &newval);
-					if (newval<0 || newval>MAXRASTRAL) SysBeep(1);
-					else							   DrawSampleStaff();
+					if (newval<0 || newval>MAXRASTRAL) {
+						SysBeep(1);
+						LogPrintf(LOG_WARNING, "Rastral staff size %d is illegal: it must be from 0 to %d.  (RastralDialog)\n",
+									newval, MAXRASTRAL);
+					}
+					else DrawSampleStaff();
 					break;
 				case SelPartsITM:
 				case AllPartsITM:

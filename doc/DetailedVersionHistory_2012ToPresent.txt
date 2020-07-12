@@ -2863,3 +2863,14 @@ HeapFileIO.
 
 Minor cleanup. Affects NResource.h; DebugUtils, DialogsEditor, DSUtils, FileConversion,
 GraphicMDEF, InsUtils, MIDIUtils, PS_Stdio, SpaceHighLevel.
+
+-------------------------------------------------------------------------------
+
+8 - 11 July
+
+Implement variant of Respace command: if just one object (clef or key signature) is
+selected and it's before the first measure of its system, set the width of the before-
+area before the first (invisible) barline. Affects NightTemplates.h, NResource.h;
+DialogsEditor, Menu.
+
+Minor cleanup. Affects .rsrc; MeasFill, Part, Score.

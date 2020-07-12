@@ -6831,10 +6831,29 @@ it's really between the key signature and the first (invisible) barline; Reforma
 totally screws up the layout because of the hidden staves! It'd be much better to provide a tool
 that simply sets the space to what it should be.
 
-DoOpenKeysig() contains code to "update the space before the initial Measure on all systems
-affected by [a] keysig change"; the heart of it is a call to FixInitialKSxds(). For user
-interface, how about this: if the Respace command finds the selection is just the initial
-clef or keysig of a system, it calls FixInitialKSxds for only that system? But it should also
-not let the user Respace to an arbitrary percent of normal! 
+-------------------------------------------------------------------------------
 
-??
+8 - 11 July
+
+DoOpenKeysig() contains code to "update the space before the initial Measure on all systems
+affected by [a] keysig change". The heart of it is a call to FixInitialKSxds() -- but
+FixInitialKSxds assumes the current space is correct, so it's no use! Looks like we have to
+do what CreateSystem() does with <spBefore>, namely:
+
+	spBefore = dLineSp/2;								/* Clef  & key sig. */
+	spBefore += std2d(SymWidthRight(doc, pL, maxSofonStaff, False), STHEIGHT, 5);
+
+	pL = MakeMeasure(doc, pL, qMeasureL, staffL, systemL, spBefore, staffTop, where);
+		[*where = SuccSystem; (FirstOnPage?)]
+	
+...and MakeMeasure() sets the system's initial Measure's x coord. with:
+
+	xd = (where==SuccMeas? LinkXD(prevMeasL)+spBefore : LinkXD(prevL)+spBefore);
+
+	debug. MakeMeasure: where=3 SuccMeas=4 LinkXD(prevL)=432 spBefore=0 xd=432
+
+Sigh. How about something simpler: if the Respace command finds the selection is just the
+initial clef or keysig of a system, it simply lets the user set the width of the before-
+measure area. Harder for the user, but this is a mere workaround for a not-very-common bug!
+
+

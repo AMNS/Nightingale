@@ -1405,9 +1405,7 @@ static void EMAddCautionaryTimeSigs(Document *doc)
 }
 
 
-/*
- * Change indents and showing/not showing part names at left end of systems.
- */
+/* Change indents and showing/not showing part names at left end of systems. */
  
 static void SMLeftEnd(Document *doc)
 {
@@ -1459,13 +1457,14 @@ static void SMTextStyle(Document *doc)
 	static Boolean firstCall=True;
 	static Str255 string;
 	Boolean okay;
-	CONTEXT context; LINK firstMeas;
+	CONTEXT context;
+	LINK firstMeas;
 
 	firstMeas = LSSearch(doc->headL, MEASUREtype, ANYONE, False, False);
 	GetContext(doc, firstMeas, 1, &context);
 
 	if (firstCall) {
-		GetIndString(tmpStr,MiscStringsID,6);	/* Get default sample string */
+		GetIndString(tmpStr, MiscStringsID, 6);	/* Get default sample string */
 		Pstrcpy(string,tmpStr);
 		firstCall = False;
 	}
@@ -1486,34 +1485,54 @@ static void SMMeasNum(Document *doc)
 }
 
 
-/*
- * Respace selected measures to tightness set by user from dialog.
- */
+/* Respace selected measures to tightness set by user from dialog; or, if selection
+is a single object before the first measure of its system (a clef or key signature),
+set the amount of space the area before the first measure takes to the normal amount.
+The latter case is simply a workaround for a bug that's been cropping up every now
+and then for years. --DAB, July 2020 */
+
+void RespaceBefFirstMeas(Document *doc, LINK pL);
+void RespaceBefFirstMeas(Document *doc, LINK pL)
+{
+	static DDIST dSpace=999;
+	LINK measL;
+
+LogPrintf(LOG_DEBUG, "RespaceBefFirstMeas: pL=%u\n", pL);
+	dSpace = BefMeasSpaceDialog(doc, dSpace);
+ 	measL = SSearch(pL, MEASUREtype, GO_RIGHT);
+	LinkXD(measL) = dSpace;
+}
 
 static void SMRespace(Document *doc)
 {
 	short spMin, spMax, dval;
 
+	if (doc->selEndL==RightLINK(doc->selStartL) && LinkBefFirstMeas(doc->selStartL)) {
+		RespaceBefFirstMeas(doc, doc->selStartL);
+		SysBeep(1);
+		return;
+	}
+	
 	GetMSpaceRange(doc, doc->selStartL, doc->selEndL, &spMin, &spMax);
 	dval = SpaceDialog(RESPACE_DLOG, spMin, spMax);
 	if (dval>0) {				
 		WaitCursor();
 		InitAntikink(doc, doc->selStartL, doc->selEndL);
-		if (RespaceBars(doc, doc->selStartL, doc->selEndL, 
-								RESFACTOR*(long)dval, True, False))
+		if (RespaceBars(doc, doc->selStartL, doc->selEndL, RESFACTOR*(long)dval, 
+														True, False))
 			doc->spacePercent = dval;
 			
 		/* FIXME: It would be much better not to Antikink if RespaceBars failed, but we
-			have no other way to free its data structures! */
+		   have no other way to free its data structures! Why can't RespaceBars just
+		   free its data structures itself? */
+			
 		Antikink();
 	}
 }
 
 
-/*
- * For each object in the selection range with subobjects, align all of its
- *	subobjects with its first selected subobject.
- */
+/* For each object in the selection range with subobjects, align all of its subobjects
+with its first selected subobject. */
 
 static void SMRealign(Document *doc)
 {

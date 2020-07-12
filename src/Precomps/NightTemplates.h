@@ -78,6 +78,7 @@
 
 	Boolean		LeftEndDialog(short *, short *, short *, short *);
 	short		SpaceDialog(short, short, short);
+	short		BefMeasSpaceDialog(Document *, short);
 	short		TremSlashesDialog(short);
 	Boolean		EndingDialog(short, short *, short, short *);
 	Boolean		MeasNumDialog(Document *);

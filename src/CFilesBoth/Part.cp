@@ -361,9 +361,9 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 		if (j>prevNEntries) {
 			thisSt = afterStf+m;
 
-			/* Take staff length from firstSubLINK of this staff object. If we
-				use first staff of the score, its length is based on different
-				indent than succeeding staves, and will usually be too short. */
+			/* Take staff length from firstSubLINK of this staff object. If we use the
+			   first staff of the score, its length is based on a different indent than
+			   succeeding staves, and will usually be too short. */
 
 			aStaff = GetPASTAFF(FirstSubLINK(staffL));
 			staffLen = aStaff->staffRight;
@@ -379,8 +379,8 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 			aStaff->dynamicType = DFLT_DYNAMIC;
 			
 			/* If the staff's system is not the first of the score, get the context
-				effective at the end of the previous system. Calling GetContext at
-				the StaffSYS will get this context. */
+				effective at the end of the previous system. Calling GetContext at the
+				StaffSYS will get it. */
 
 			if (LinkLSYS(sysL)) {
 				GetContext(doc, sysL, thisSt, &context);
@@ -399,8 +399,8 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 				aStaff->staffTop = bStaff->staffTop+(bStaff->staffTop-cStaff->staffTop);
 			}
 			
-			/* Clef, key sig., and time sig. must be set before Measure so context
-				will be correct. */
+			/* Clef, key sig., and time sig. must be set before Measure so context will
+			   be correct. */
 	
 			InitClef(aClefL, thisSt, p2d(0), (nstAdd>1 && m==nstAdd) ?
 													BASS_CLEF : DFLT_CLEF);
@@ -419,11 +419,10 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 			m++;
 		}
 	
-	/*
-	 *	<afterStf+nstAdd> is the staffn of the last newly added staff; if there
-	 * are any staves after this, update their staffTop fields to move them down
-	 * graphically below the newly added staves.
-	 */
+	/* <afterStf+nstAdd> is the staffn of the last newly added staff; if there are any
+	   staves after this, update their staffTop fields to move them down graphically
+	   below the newly added staves. */
+	   
 	if (doc->nstaves>afterStf+nstAdd)	{
 		if (afterStf>0) {
 			bStaff = GetPASTAFF(staffLA[afterStf+nstAdd]);		/* Get amount to move down */
@@ -440,11 +439,10 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 		}
 	}
 
-	/* #1. If parts are added to an already existing group, all parts will be
-		in a single consecutive segment added to one group; therefore we need
-		only to check once for all parts added, not once for each part added. NB:
-		afterStf is indexed differently from startConnStf in InsertPartMP
-		(MasterPage.c). */
+	/* #1. If parts are added to an already existing group, all parts will be in a
+	   single consecutive segment added to one group; therefore we need only to check
+	   once for all parts added, not once for each part added. NB: afterStf is indexed
+	   differently from startConnStf in InsertPartMP (MasterPage.c). */
 
 	aConnectL = FirstSubLINK(connectL);
 	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
@@ -457,17 +455,16 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 			}
 	}
 
-	/*
-	 * Any parts added with more than 1 staff will have a Connect subObj. GrowObject
-	 * adds 1 subObj to the end of the Connect's linked list of subObjs; traverse to
-	 * this subObj, and init it.
-	 */
+	/* Any parts added with more than 1 staff will have a Connect subObj. GrowObject
+	   adds 1 subObj to the end of the Connect's linked list of subObjs; traverse to
+	   this subObj, and init it. */
+	   
 	if (nstAdd>1) {
 		aConnectL = FirstSubLINK(connectL);
 		for (j=0; j<LinkNENTRIES(connectL); j++,aConnectL=NextCONNECTL(aConnectL))
 			if (j==LinkNENTRIES(connectL)-1) {
 				halfpt = pt2d(1)/2;
-				dLineSp = STHEIGHT/(5-1);								/* Get space between staff lines */
+				dLineSp = STHEIGHT/(STFLINES-1);						/* Space between staff lines */
 				aConnect = GetPACONNECT(aConnectL);
 				aConnect->selected = False;
 				aConnect->connLevel = PartLevel;						/* Yes. Connect the part */
@@ -481,10 +478,10 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 			}
 	}
 	
-	nextTSL = LSISearch(RightLINK(timeSigL),TIMESIGtype,ANYONE,GO_RIGHT,False);
+	nextTSL = LSISearch(RightLINK(timeSigL), TIMESIGtype, ANYONE, GO_RIGHT, False);
 
 	for ( ; nextTSL; nextTSL =
-				LSISearch(RightLINK(nextTSL),TIMESIGtype,ANYONE,GO_RIGHT,False)) {
+				LSISearch(RightLINK(nextTSL), TIMESIGtype, ANYONE, GO_RIGHT, False)) {
 		
 		/* Only grew timeSigs which were previously on all staves */
 

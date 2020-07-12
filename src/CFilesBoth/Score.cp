@@ -173,7 +173,8 @@ pasting and similar operations. */
 
 void FixGraphicFont(Document *doc, LINK pL)
 {
-	PGRAPHIC p; unsigned char font[64];
+	PGRAPHIC p;
+	unsigned char font[64];
 
 	if (GraphicTYPE(pL)) {
 		p = GetPGRAPHIC(pL);
@@ -204,21 +205,20 @@ Boolean NewDocScore(Document *doc)
 
 	headL = doc->headL; tailL = doc->tailL;
 
-	/*
-	 *	We're called here also if an error occurs reading an existing file, in which
-	 *	case we may have read in the heaps, overwriting the headL's LinkNENTRIES field.
-	 * Otherwise, NewDocScore is only called with the headL created in InitDocScore.
-	 * (LinkNENTRIES = 2).
-	 */
-	if (LinkNENTRIES(headL)!=2) {							/* Only shrink if necessary. */
-		GrowObject(doc, headL, -LinkNENTRIES(headL)+2);		/* Set to 2 subobjects. */
+	/* We're called here also if an error occurs reading an existing file, in which
+	   case we may have read in the heaps, overwriting the headL's LinkNENTRIES field.
+	   Otherwise, NewDocScore is only called with the headL created in InitDocScore.
+	   (LinkNENTRIES = 2). */
+	   
+	if (LinkNENTRIES(headL)!=2) {						/* Shrink only if necessary. */
+		GrowObject(doc, headL, -LinkNENTRIES(headL)+2);	/* Set to 2 subobjects. */
 		InitObject(headL, NILINK, tailL, 0, 0, False, False, True);
 	}
 
-	doc->noteInsFeedback = config.midiFeedback;				/* Some day debug and use MIDIConnected */
+	doc->noteInsFeedback = config.midiFeedback;			/* Some day debug and use MIDIConnected */
 	doc->polyTimbral = True;
 	doc->dontSendPatches = False;
-	doc->tempo = 999;										/* No longer used */
+	doc->tempo = 999;									/* No longer used */
 
 	doc->omsInputDevice = config.defaultInputDevice;
 	for (i=0; i<MAXSTAVES; i++)
@@ -239,12 +239,12 @@ Boolean NewDocScore(Document *doc)
 	doc->named = doc->used = False;
 	doc->hasCaret = False;
 	doc->transposed = 0;
-	doc->lyricText = False;									/* No longer used */
+	doc->lyricText = False;								/* No longer used */
 	doc->spacePercent = 100;
 	doc->nstaves = 0;
 	
 	doc->philler = 0;
-	doc->headerStrOffset = doc->footerStrOffset = 0;		/* Empty string */
+	doc->headerStrOffset = doc->footerStrOffset = 0;	/* Empty string */
 	doc->fillerPGN = doc->fillerMB = 0;
 	doc->filler1 = doc->filler2 = 0;
 	doc->fillerInt = doc->fillerHP = doc->fillerLP = 0;
@@ -252,7 +252,7 @@ Boolean NewDocScore(Document *doc)
 	
 	doc->comment[0] = '\0';
 
-	doc->lastGlobalFont = 4;								/* Use regular1 as most recent */
+	doc->lastGlobalFont = 4;							/* Use regular1 as most recent */
 
 	InitFontRecs(doc);
 	
@@ -1483,6 +1483,7 @@ static LINK MakeTimeSig(Document *doc, LINK prevL, short where, CONTEXT context[
 	return pL;
 }
 
+
 /* ----------------------------------------------------------------------- MakeMeasure -- */
 /* Insert a new Measure after prevL in an object list belonging to doc. Deliver new
 Measure's LINK if it succeeds, else NILINK. Does not depend on validity of cross-links.
@@ -1494,8 +1495,10 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 	LINK pL, nextMeasL, aMeasureL, aPrevMeasL, partL, connectL, aConnectL,
 			endMeasL, aStaffL;
 	PMEASURE pMeasure; 
-	PPARTINFO pPart;  PACONNECT aConnect;
-	short i, j, connStaff, measureNum;  Boolean connAbove;
+	PPARTINFO pPart;
+	PACONNECT aConnect;
+	short i, j, connStaff, measureNum;
+	Boolean connAbove;
 	DDIST mTop, mBottom, sysHeight, staffLength, xd;
 	DRect sysRect;
 	
@@ -1516,6 +1519,8 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 	MeasSTAFFL(pL) = staffL;
 
 	xd = (where==SuccMeas? LinkXD(prevMeasL)+spBefore : LinkXD(prevL)+spBefore);
+LogPrintf(LOG_DEBUG, "MakeMeasure: where=%d SuccMeas=%d LinkXD(prevL)=%d spBefore=%d xd=%d\n",
+where, SuccMeas, LinkXD(prevL), spBefore, xd);
 	SetObject(pL, xd, 0, False, False, True);
 	LinkTWEAKED(pL) = False;
 	pMeasure = GetPMEASURE(pL);
@@ -1603,15 +1608,17 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 	return pL;
 }
 
+
 /* --------------------------------------------------------------- CreateSysFixContext -- */
 
 static void CreateSysFixContext(Document *doc, LINK staffL, LINK measL, short where)
 {
 	LINK aStaffL, aMeasL, theMeasL;
-	CONTEXT theContext;  short i;
+	CONTEXT theContext; 
+	short i;
 
-	/* Fill in clef/key sig./time sig. context fields of the initial Staff.
-		See comments on horrible way to establish context in CreateSystem. */
+	/* Fill in clef/key sig./time sig. context fields of the initial Staff. See
+	   comments on horrible way to establish context in CreateSystem. */
 
 	aStaffL = FirstSubLINK(staffL);
 	if (where==FirstSystem) {
@@ -1624,13 +1631,15 @@ static void CreateSysFixContext(Document *doc, LINK staffL, LINK measL, short wh
 	else if (where==BeforeFirstSys) {
 
 		/* Update the context of the staff object in the System which was added. */
+		
 		for (i=1; i<=doc->nstaves; i++, aStaffL=NextSTAFFL(aStaffL)) {
 			GetContext(doc, LinkRSTAFF(staffL), StaffSTAFF(aStaffL), &theContext);
 			FixStaffContext(aStaffL, &theContext);
 		}
 
 		/* Update the context for the staff of the System before which the new System
-			 was added. */
+		   was added. */
+			 
 		aStaffL = FirstSubLINK(LinkRSTAFF(staffL));
 		for (i=1; i<=doc->nstaves; i++, aStaffL=NextSTAFFL(aStaffL)) {
 			theMeasL = SSearch(LinkRSTAFF(staffL), MEASUREtype, False);
@@ -1676,8 +1685,7 @@ anything following the new objects, the calling routine is responsible for updat
 it appropriately, aside from links: CreateSystem does not update System numbers,
 coordinates, etc. Delivers LINK to the new System. Uses enum following comment for
 <where> to determine where to add the System. NB: If <FirstSystem>, assumes the System
-is exactly one part of two staves!
-*/
+is exactly one part of two staves! */
 
 LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 {
@@ -1733,12 +1741,12 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 	if (pL==NILINK) return NILINK;
 
 	/* GetContext needs legal staves to get the context on; but the staves don't yet
-		have any context info to give to GetContext, so we start GetContext to the left
-		of the staff object so it gets context info from headL.  FIXME: This is a
-		horrible way to establish initial context: e.g. for clefType there are no
-		explicit fields in the header so it is left up to GetContext to fill in
-		DEFLT_CLEF by default, and there isn't even any comment to indicate that this
-		is the way it is being done. */
+	   have any context info to give to GetContext, so we start GetContext to the left
+	   of the staff object so it gets context info from headL.  FIXME: This is a
+	   horrible way to establish initial context: e.g., for clefType there are no
+	   explicit fields in the header so it is left up to GetContext to fill in DEFLT_CLEF
+	   by default, and there isn't even any comment to indicate that this is the way
+	   it is being done! */
 	
  	if (where==FirstSystem) {
 		GetContext(doc, LeftLINK(staffL), 1, &context[1]);
@@ -1774,8 +1782,8 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 		spBefore = 0;
 
 	/* Create and fill in the TimeSig object, but only if this is first System of score.
-		If we are inserting beforeFirstSys, add TimeSig to this System, and remove the
-		one from the previous first System. */
+	   If we are inserting beforeFirstSys, add TimeSig to this System, and remove the
+	   one from the previous first System. */
 
 	if (where==FirstSystem || where==BeforeFirstSys) {
 		pL = MakeTimeSig(doc, pL, where, context, spBefore);
@@ -1797,7 +1805,7 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 	CreateSysFixContext(doc, staffL, pL, where);
 	
 	/* Must not set staff's clefType until here, or it will be overwritten by
-		CreateSysFixContext */
+	   CreateSysFixContext */
 
  	if (where==FirstSystem) {
 		for (aStaffL=FirstSubLINK(staffL); aStaffL; aStaffL=NextSTAFFL(aStaffL))
@@ -1805,9 +1813,9 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 				{ StaffCLEFTYPE(aStaffL) = BASS_CLEF; break; }
 	}
 
-	/* Delete the timeSig in the System which was once the first system. Don't
-		delete it until now so as to preserve context information until all context
-		updating is done. */
+	/* Delete the timeSig in the System which was once the first system. Don't delete
+	   it until now so as to preserve context information until all context updating
+	   is done. */
 
 	if (where==BeforeFirstSys) {
 		timeSigL = SSearch(LinkRSYS(systemL), TIMESIGtype, False);
@@ -1818,16 +1826,14 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 
 
 /* ------------------------------------------------------------------- AddPageInsertPt -- */
-/* Return an insertion point for add Page, when the caller wishes to add a
-Page at pL. AddPage must be called with the Page or tail object before
-which to add the Page.
+/* Return an insertion point for add Page, when the caller wishes to add a Page at pL.
+AddPage must be called with the Page or tail object before which to add the Page.
 
-Assumes Page is to be added after the Page containing pL (before the Page
-following the Page containing pL), unless pL is before the first measure of
-the first System in its Page, in which case Page is to be added before the
-Page containing pL. If pL is in the final Page, add new Page before the tail.
-If pL is before any System or any Page (pathological case, resulting from
-Select All), add at the end of the score. */
+Assumes Page is to be added after the Page containing pL (before the Page following the
+Page containing pL), unless pL is before the first measure of the first System in its
+Page, in which case Page is to be added before the Page containing pL. If pL is in the
+final Page, add new Page before the tail. If pL is before any System or any Page
+(pathological case, resulting from Select All), add at the end of the score. */
 
 LINK AddPageInsertPt(Document *doc, LINK pL)
 {
@@ -1840,7 +1846,7 @@ LINK AddPageInsertPt(Document *doc, LINK pL)
 			insertL = LSSearch(pL, PAGEtype, ANYONE, True, False);
 	else	insertL = LSSearch(pL, PAGEtype, ANYONE, False, False);
 
-	return (insertL ? insertL : doc->tailL);
+	return (insertL? insertL : doc->tailL);
 }
 
 
@@ -1853,7 +1859,8 @@ Assumes the specified document is in the active window. */
 
 LINK AddPage(Document *doc, LINK insertL)
 {
-	LINK newPageL, prevPageL;  Rect paper, result;  short pageNum;
+	LINK newPageL, prevPageL;
+	Rect paper, result;  short pageNum;
 	Boolean appending;  static Boolean alreadyWarned=False;
 
 	if (!PageTYPE(insertL) && !TailTYPE(insertL)) {
@@ -1873,6 +1880,7 @@ LINK AddPage(Document *doc, LINK insertL)
 	DeselAll(doc);
 
 	/* Add the new Page before insertL */
+	
 	newPageL = CreatePage(doc, LeftLINK(insertL));
 	if (newPageL!=NILINK) {
 		if (ScreenPagesExceedView(doc) && !alreadyWarned) {
@@ -1890,8 +1898,8 @@ LINK AddPage(Document *doc, LINK insertL)
 		MEAdjustCaret(doc,False);
 		
 		/* FIXME: The following has a problem: if GetSheetRect doesn't return
-			INARRAY_INRANGE, <paper> is meaningless. In that case, the new Page is
-			off-screen, and we should probably unconditionally ScrollToPage. */
+		   INARRAY_INRANGE, <paper> is meaningless. In that case, the new Page is
+		   off-screen, and we should probably unconditionally ScrollToPage. */
 
 		GetSheetRect(doc,doc->numSheets-1,&paper);
 		InsetRect(&paper, -2, -2);
@@ -1953,7 +1961,8 @@ LINK CreatePage(Document *doc, LINK prevL)
 
 void ScrollToPage(Document *doc, short pageNum)
 {
-	short sheetNum,x, y;  Rect sheet;  Boolean inval;
+	short sheetNum,x, y;
+	Rect sheet;  Boolean inval;
 	
 	sheetNum = pageNum - doc->firstPageNumber;
 	
@@ -1993,7 +2002,7 @@ static void ScrollToLink(Document *doc, LINK pL)
 		/* Place destination in upper center of view */
 		x -= (doc->viewRect.right - doc->viewRect.left) / 2;
 		y -= (doc->viewRect.bottom - doc->viewRect.top) / 4;
-		QuickScroll(doc,x,y,False,True);
+		QuickScroll(doc, x, y, False, True);
 	}
 }
 
@@ -2040,10 +2049,10 @@ void GoTo(Document *doc)
 		default:
 			;
 	}
-	/*
-	 * Set initial zoom origin to a point that's not on any Page so SheetMagnify
-	 * will just use the current Page.
-	 */
+
+	/* Set initial zoom origin to a point that's not on any Page so SheetMagnify
+	   will just use the current Page. */
+	   
 	doc->scaleCenter.h = doc->scaleCenter.v = SHRT_MAX;
 }
 
@@ -2052,13 +2061,12 @@ void GoToSel(Document *doc)
 {
 	short pageNum;  LINK pageL;  Rect sheet;
 	
-	/* if (doc->selStartL in view) should maybe just return; on the other hand,
-		this way, it "touches up" the display, which unfortunately may be useful. */
+	/* if (doc->selStartL in view) should maybe just return; on the other hand, this
+	   way, it "touches up" the display, which unfortunately may be useful. */
 
 	pageL = EitherSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, False);
 	pageNum = SheetNUM(pageL)+doc->firstPageNumber;
-	if (GetSheetRect(doc,SheetNUM(pageL),&sheet)==NOT_INARRAY)
-		ScrollToPage(doc, pageNum);
+	if (GetSheetRect(doc,SheetNUM(pageL),&sheet)==NOT_INARRAY) ScrollToPage(doc, pageNum);
 
 	ScrollToLink(doc, doc->selStartL);
 }
