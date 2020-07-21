@@ -1856,9 +1856,10 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 		   get a warning at 500 messages/sec., but not with 10.5.) To help debug this
 		   loop, add a delay each time through. Note that this makes converting large
 		   files much slower, so it should be #ifdef'd out or removed completely if
-		   we're not concerned about log messages from the loop.  */
+		   we're not concerned about log messages from the loop!  */
+		if (startL==pL) LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING EACH TIME THRU LOOP TO AID DEBUGGING.  (ConvertObjSubobjs) ******\n");
 		SleepMS(3);
-//LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
+		//LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
 #endif
 
 		/* If this function is called in the process of opening a file, consecutive objects

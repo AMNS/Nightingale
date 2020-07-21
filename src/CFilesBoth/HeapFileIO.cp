@@ -835,6 +835,7 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, 
 		/* Without the call to SleepMS(), some of the output from the following LogPrintf
 		   is likely to be lost, at least with OS 10.5 and 10.6! See the comment on this
 		   issue in ConvertObjSubobjs(). */
+		if (n==nFObjs-1 && curType==0) LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING EACH TIME THRU LOOP TO AID DEBUGGING.  (MoveObjSubobjs) ******\n");
 		SleepMS(3);
 		LogPrintf(LOG_DEBUG, "MoveObjSubobjs: curType=%d len=%d newLen=%d\n", curType, len, newLen);
 #endif

@@ -662,29 +662,27 @@ static void InsertPartMP(Document *doc,
 	doc->nstavesMP += totalStaves;
 
 	/* The firstSubLINK of masterHeadL is the initial unused part. If partL is passed
-		into this function as that part, it's an error; traverse to the next LINK in
-		the list and insert before this one. */
+	   into this function as that part, it's an error; traverse to the next LINK in
+	   the list and insert before this one. */
 
-	if (partL == FirstSubLINK(doc->masterHeadL)) 
-		partL = NextPARTINFOL(partL);
+	if (partL == FirstSubLINK(doc->masterHeadL)) partL = NextPARTINFOL(partL);
 
 	/* Allocate and initialize a list of <nadd> parts and insert into masterHeadL's
-		list of parts before partL. */
+	   list of parts before partL. */
 
 	partList = HeapAlloc(PARTINFOheap,nadd);
 	if (!partList) { NoMoreMemory(); return; }	/* ??not good--leaves doc in inconsistent state! */
 
 	aPartL = partList;
-	for ( ; aPartL; aPartL=NextPARTINFOL(aPartL))
-		InitPart(aPartL, 0, 0);
+	for ( ; aPartL; aPartL=NextPARTINFOL(aPartL)) InitPart(aPartL, 0, 0);
 	
-	listHead = InsertLink(PARTINFOheap,FirstSubLINK(doc->masterHeadL),partL,partList);
+	listHead = InsertLink(PARTINFOheap, FirstSubLINK(doc->masterHeadL), partL, partList);
 	FirstSubLINK(doc->masterHeadL) = listHead;
 	LinkNENTRIES(doc->masterHeadL) += nadd;
 
 	/* Traverse the list of parts, and get the lastStaff of the part immediately before
-		the inserted list of parts. If the list was inserted before all except the first
-		unused part, lastStf equals zero. */
+	   the inserted list of parts. If the list was inserted before all except the first
+	   unused part, lastStf equals zero. */
 
 	aPartL = FirstSubLINK(doc->masterHeadL);
 	for ( ; aPartL; aPartL=NextPARTINFOL(aPartL)) {
@@ -696,8 +694,8 @@ static void InsertPartMP(Document *doc,
 	startStf = nextStf = startConnStf = lastStf + 1;
 
 	/* Traverse the inserted list of parts, and set the firstStaff and lastStaff
-		fields of all its parts. Then add <totalStaves> to the first and last staffns
-		of all parts following the inserted list. */
+	   fields of all its parts. Then add <totalStaves> to the first and last staffns
+	   of all parts following the inserted list. */
 
 	aPartL=NextPARTINFOL(aPartL);
 	for (j=0; j<nadd && aPartL; j++, aPartL=NextPARTINFOL(aPartL)) {
@@ -715,14 +713,13 @@ static void InsertPartMP(Document *doc,
 	staffL = SSearch(doc->masterHeadL,STAFFtype,GO_RIGHT);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
-		if (StaffSTAFF(aStaffL) >= startStf)
-			StaffSTAFF(aStaffL) += totalStaves;
+		if (StaffSTAFF(aStaffL) >= startStf) StaffSTAFF(aStaffL) += totalStaves;
 		
 	/* Get the staff subobj at the insertion point, or the last staff subobj if partL
-		is NILINK. If there were originally no parts, use default values for the
-		parameters obtained from the staff subobj in the other case.  ###: Both the
-		firstStaff field of the parts and the staffn field of the staves have already
-		been incremented, so the test is valid. */
+	   is NILINK. If there were originally no parts, use default values for the
+	   parameters obtained from the staff subobj in the other case.  ###: Both the
+	   firstStaff field of the parts and the staffn field of the staves have already
+	   been incremented, so the test is valid. */
 
 	if (LinkNENTRIES(staffL) > 0) {
 		aStaffL = FirstSubLINK(staffL);
@@ -771,27 +768,25 @@ static void InsertPartMP(Document *doc,
 		MPDefltStfCtxt(aStaffL);
 	}
 
-	/* Move staffTopMPs down graphically (down Graphically = up
-		in the array) */
+	/* Move staffTopMPs down graphically (down Graphically = up in the array) */
 	
 	if (NextPARTINFOL(FirstSubLINK(doc->masterHeadL)) == partList)
-			startStf = 1;													/* New 1st part */
+			startStf = 1;												/* New 1st part */
 	else	startStf = lastStf+1;										/* Newly added after 1st part */
 	newPos = totalStaves*stfHeight;
 
-	if (partL) {															/* Inserted before some part */
+	if (partL) {														/* Inserted before some part */
 		endStf = startStf+totalStaves;
 
-		/* doc->staffTopMP[] uses 1-based indexing, preserving correspondance
-			with staffns of staves. The <-1> in (startStf-1) accounts for
-			this. */
+		/* doc->staffTopMP[] uses 1-based indexing, preserving correspondence with
+		   staffns of staves. The <-1> in (startStf-1) accounts for this. */
 		stavesAbove = prevnstavesMP-(startStf-1);
 
 		startStfTop = doc->staffTopMP[startStf];
 
 		/* Move staffTop values up in the array for old staves which were previously
-			above newly added ones. Then translate these staffTop values by the total
-			amount of space added. */
+		   above newly added ones. Then translate these staffTop values by the total
+		   amount of space added. */
 
 		BlockMove(&doc->staffTopMP[startStf],&doc->staffTopMP[endStf],
 			(Size)sizeof(DDIST)*stavesAbove);
@@ -813,7 +808,7 @@ static void InsertPartMP(Document *doc,
 	UpdateMPSysRectHeight(doc, newPos);
 
 	/* Regardless of whether a new Connect subobj is to be added, update the staffAbove
-		and staffBelow fields of all connects below the part to be added. */
+	   and staffBelow fields of all connects below the part to be added. */
 
 	connectL = SSearch(doc->masterHeadL,CONNECTtype,GO_RIGHT);
 
@@ -831,7 +826,7 @@ static void InsertPartMP(Document *doc,
 	}
 
 	/* If part added is added inside an already existing group, update the Connect
-		field of that group here.
+	   field of that group here.
 		#1. If parts are added to an already existing group, all parts will be
 			 in a single consecutive segment added to one group; therefore we
 			 only need to check once for all parts added, not once for each
@@ -1502,11 +1497,12 @@ static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 	}
 	else if ((badL = DefaultVoiceOnOtherStaff(doc, doc->headL, doc->tailL, minStf, maxStf,
 						&problemV))) {
-	/* This part has at least one default voice with notes/rests on at least one staff
-		other than its "native" staff. That requires special attention, but we know from
-		the above tests that every voice appears on just one staff, and in such a case
-		splitting the part shouldn't be too difficult. But I don't have the time now.
-		--DAB, 7/2016 */
+	/* FIXME: This part has at least one default voice with notes/rests on at least one
+	   staff other than its "native" staff. That requires special attention, but we know
+	   from the above tests that every voice appears on just one staff, and in such a
+	   case splitting the part shouldn't be too difficult. But I don't have the time now.
+	   --DAB, 7/2016 */
+	   
 		firstBad = GetMeasNum(doc, badL);
 		GetIndCString(fmtStr, MPERRS_STRS, 13);					/* "has notes in a default voice..." */
 		sprintf(strBuf, fmtStr, problemV, problemV, firstBad);
@@ -1524,7 +1520,8 @@ static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 
 Boolean DoMake1StaffParts(Document *doc)
 {
-	LINK staffL, aStaffL, partL, thePartL, newPartL; PASTAFF aStaff;
+	LINK staffL, aStaffL, partL, thePartL, newPartL;
+	PASTAFF aStaff;
 	short minStf, maxStf, firstStf, lastStf, nStavesAdd;
 
 	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);

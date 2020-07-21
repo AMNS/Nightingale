@@ -1487,9 +1487,10 @@ static void SMMeasNum(Document *doc)
 
 /* Respace selected measures to tightness set by user from dialog; or, if selection
 is a single object before the first measure of its system (a clef or key signature),
-set the amount of space the area before the first measure takes to the normal amount.
-The latter case is simply a workaround for a bug that's been cropping up every now
-and then for years. --DAB, July 2020 */
+set the amount of space the area before the first measure gets to a given amount.
+The latter case was originally intended as a workaround for a bug that's been cropping
+up every now and then for years, but it could be useful to a user who simply wants more
+or less than the standard amound of space at the beginning of a system. --DAB, July 2020 */
 
 void RespaceBefFirstMeas(Document *doc, LINK pL);
 void RespaceBefFirstMeas(Document *doc, LINK pL)
@@ -1497,11 +1498,16 @@ void RespaceBefFirstMeas(Document *doc, LINK pL)
 	static DDIST dSpace=999;
 	LINK measL;
 
-LogPrintf(LOG_DEBUG, "RespaceBefFirstMeas: pL=%u\n", pL);
+//LogPrintf(LOG_DEBUG, "RespaceBefFirstMeas: pL=%u\n", pL);
 	dSpace = BefMeasSpaceDialog(doc, dSpace);
  	measL = SSearch(pL, MEASUREtype, GO_RIGHT);
+	LogPrintf(LOG_INFO, "Changing space before first measure of system from %d to %d.  (RespaceBefFirstMeas)\n",
+				LinkXD(measL), dSpace);
 	LinkXD(measL) = dSpace;
+	InvalSystem(measL);
+	doc->changed = True;
 }
+
 
 static void SMRespace(Document *doc)
 {

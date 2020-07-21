@@ -6833,7 +6833,7 @@ that simply sets the space to what it should be.
 
 -------------------------------------------------------------------------------
 
-8 - 11 July
+8 - 16 July
 
 DoOpenKeysig() contains code to "update the space before the initial Measure on all systems
 affected by [a] keysig change". The heart of it is a call to FixInitialKSxds() -- but
@@ -6855,5 +6855,104 @@ do what CreateSystem() does with <spBefore>, namely:
 Sigh. How about something simpler: if the Respace command finds the selection is just the
 initial clef or keysig of a system, it simply lets the user set the width of the before-
 measure area. Harder for the user, but this is a mere workaround for a not-very-common bug!
+...Ah, but this could also be useful for "engravers" wanting more control of spacing. True,
+though very clumsy for that purpose. Anyway, done!
 
+-------------------------------------------------------------------------------
 
+16 - 19 July
+
+BACK TO problems converting large files from 'N105' to current format, e.g., with 2ndMovement.ngl
+and various abbreviated versions of it.
+
+I think 2ndMovement_pp1-29Minus3mm.ngl crashes consistently; 2ndMovement_pp1-28.ngl is OK
+consistently. Check:
+
+(1) Launch Ngale; New; open 2ndMovement_pp1-29Minus3mm.ngl => crashes into GDB.
+(2) Launch Ngale; Open 2ndMovement_pp1-29Minus3mm.ngl => opens; score looks OK; no Debug complaints.
+(3) Launch Ngale; Open 2ndMovement_pp1-29Minus3mm.ngl => crashes into GDB showing usual line of
+ConvertSLUR(), but  w/ slurL = 395 (vs. the value on previous runs of 513); last log messages:
+
+	debug. ConvertSYNC: syncL=L393 timeStamp=0
+	debug. ConvertSYNC: syncL=L394 timeStamp=96
+
+(4) Launch Ngale; Open 2ndMovement_pp1-29Minus3mm.ngl => crashes into GDB showing exactly the same
+symptoms & last log messages as above.
+(5) Launch Ngale; Open 2ndMovement_pp1-29Minus3mm.ngl => crashes into GDB showing exactly the same
+symptoms as above, but last log messages are
+
+	debug. ConvertSYNC: syncL=L320 timeStamp=1380
+	debug. ConvertMEASURE: measL=L321 lMeasure=L304 rMeasure=L335 systemL=L299
+
+(6) Launch Ngale; Open 2ndMovement_pp1-29Minus3mm.ngl => crashes into GDB showing exactly the same
+symptoms as above, but last log messages are
+
+	debug. ConvertSYNC: syncL=L312 timeStamp=480
+	debug. ConvertSYNC: syncL=L313 timeStamp=660
+	
+Changing test files:
+(1) Launch Ngale; Open 2ndMovement_pp1-28.ngl => opens; score looks OK; no Debug complaints.
+(2) Launch Ngale; Open 2ndMovement_pp1-28.ngl => opens; score looks OK; no Debug complaints.
+(3) Launch Ngale; Open 2ndMovement_pp1-28.ngl => opens; score looks OK; no Debug complaints.
+(4) Launch Ngale; Open 2ndMovement_pp1-28.ngl => opens; score looks OK; no Debug complaints.
+(5) Launch Ngale; Open 2ndMovement_pp1-28.ngl => opens; score looks OK; no Debug complaints.
+(6) Launch Ngale; Open 2ndMovement_pp1-28.ngl => opens; score looks OK; no Debug complaints.
+
+So 2ndMovement_pp1-29Minus3mm.ngl crashed 5 out of 6 times; 2ndMovement_pp1-28.ngl was OK 6 out 
+of 6. Pretty clear! Changing test files again:
+
+(1) Launch Ngale; Open 2ndMovement_pp1-29Minus5mm.ngl => crashes into GDB showing usual line of
+ConvertSLUR(), w/ slurL = 395; last log messages:
+
+	debug. ConvertSYNC: syncL=L393 timeStamp=0
+	debug. ConvertSYNC: syncL=L394 timeStamp=96
+
+(2) Launch Ngale; Open 2ndMovement_pp1-29Minus5mm.ngl => crashes into GDB showing usual line of
+ConvertSLUR(), w/ slurL = 395; last log messages: (same as above)
+
+(3) Launch Ngale; Open 2ndMovement_pp1-29Minus5mm.ngl => crashes into GDB showing usual line of
+ConvertSLUR(), w/ slurL = 395; last log messages: (same as above)
+
+(4) Launch Ngale; Open 2ndMovement_pp1-29Minus5mm.ngl => crashes into GDB showing usual line of
+ConvertSLUR(), w/ slurL = 395; last log messages: (same as above)
+
+Again, very clear. The first 2 measures on p. 29 make the difference, but there's nothing
+obviously different in those mm. from the previous 28 pages. Changing files again:
+
+(1) Launch Ngale; Open 2ndMovement_pp1-29Minus6mm.ngl => opens; score looks OK; no Debug complaints.
+(2) Launch Ngale; Open 2ndMovement_pp1-29Minus6mm.ngl => opens; pp. 1-3 looks OK; no Debug complaints.
+(3) Launch Ngale; Open 2ndMovement_pp1-29Minus6mm.ngl => opens; pp. 1-3 looks OK; no Debug complaints.
+
+The last object in 2ndMovement_pp1-29Minus6mm.ngl is the 2nd measure on p. 29, m. 181 (L3690).
+So the content of that measure makes the difference!! Why? Just because of the total amount of
+something, or something specific to that measure? W/ Ngale 5.8.10, Debug "Check all possible"
+of 2ndMovement_pp1-29Minus5mm.ngl finds nothing suspicious. Visible in m. 181 are lots of whole
+rests, some half & dotted half dyads, a few dynamics, and one txt graphic; is anything _not_
+visible in that measure?
+
+DIGRESSION: In PageFixSysRects(), it looks like prevSysBottom is used uninitialized. With
+existing code:
+
+	debug. PageFixSysRects: sysL=95 sysHeight=2016 prevSysBottom=3168 ->systemRect.top=3168
+	debug. PageFixSysRects: sysL=168 sysHeight=2016 prevSysBottom=5184 ->systemRect.top=5184
+	debug. PageFixSysRects: sysL=250 sysHeight=2016 prevSysBottom=7200 ->systemRect.top=7200
+	debug. PageFixSysRects: sysL=410 sysHeight=2016 prevSysBottom=2592 ->systemRect.top=2592
+	debug. PageFixSysRects: sysL=504 sysHeight=2016 prevSysBottom=4608 ->systemRect.top=4608
+	debug. PageFixSysRects: sysL=578 sysHeight=2016 prevSysBottom=6624 ->systemRect.top=6624
+	debug. PageFixSysRects: sysL=640 sysHeight=2016 prevSysBottom=8640 ->systemRect.top=8640
+
+Huh. _prevSysBottom_ looks correct every time, and it doesn't just happen to be 3168 the
+1st time!; how? Ah, the first time it's used _can't_ be the first time thru the loop:
+that's always the first system of the page, and _prevSysBottom_ is set then! So it's no problem.
+
+BACK TO problems converting large files from 'N105' to current format, e.g., with 2ndMovement.ngl
+and various abbreviated versions of it. From 2ndMovement_pp1-29Minus5mm.ngl, delete most of p. 27
+and most of p. 28 => 2ndMovement_pp1-29Minus5mm+Mo
+
+(1) Launch Ngale; Open 2ndMovement_pp1-29Minus5mm+Mo => opens; p. 29 looks OK.
+(2) Launch Ngale; Open 2ndMovement_pp1-29Minus5mm+Mo => opens; pp. 1-3 & 29 look OK; no Debug complaints.
+(3) Launch Ngale; Open 2ndMovement_pp1-29Minus5mm+Mo => opens; pp. 1-3 & 29 look OK; no Debug complaints.
+(4) Launch Ngale; Open 2ndMovement_pp1-29Minus5mm+Mo => opens; pp. 1-3 & 29 look OK; no Debug complaints.
+
+This suggests there's nothing wrong with m. 181, and the problem is _something_ overflowing at
+that point!

@@ -336,12 +336,12 @@ void PageFixSysRects(
 			)
 {
 	LINK prevSysL, sysL, measL, aMeasL;
-	register PSYSTEM pSystem;
-	DDIST prevSysBottom, sysHeight;		/* FIXME: prevSysBottom is and sysHeight may be used uninitialized! */
+	PSYSTEM pSystem;
+	DDIST prevSysBottom, sysHeight;		/* FIXME: sysHeight may be used uninitialized! */
 
 	sysL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 
-	for (prevSysL = sysL; sysL; prevSysL=sysL,sysL=LinkRSYS(sysL)) {
+	for (prevSysL = sysL; sysL; prevSysL = sysL, sysL=LinkRSYS(sysL)) {
 
 		if (SysPAGE(prevSysL)!=SysPAGE(sysL)) break;
 
@@ -357,9 +357,14 @@ void PageFixSysRects(
 			}
 		}
 		else {
+			/* We've already handled the first System in the page, so _prevSysBottom_
+			   has been set. */
+
 			pSystem = GetPSYSTEM(sysL);
 			if (!setSysHts) sysHeight = pSystem->systemRect.bottom-pSystem->systemRect.top;
 			pSystem->systemRect.top = prevSysBottom+doc->yBetweenSys;
+//LogPrintf(LOG_DEBUG, "PageFixSysRects: sysL=%d sysHeight=%d prevSysBottom=%d ->systemRect.top=%d\n",
+//sysL, sysHeight, prevSysBottom, pSystem->systemRect.top); 
 		}
 		
 		/* We now have sysHeight, and sysL's systemRect.top is correct, in all cases. */
@@ -393,12 +398,12 @@ void FixSystemRectYs(
 
 
 /* -------------------------------------------------------------------- FillStaffArray -- */
-/* Fill an array of LINKs to Staff subobjects, indexed by the staffn of the
-subobjects. The array is assumed to have space allocated for at least MAXSTAVES+1
-LINKs. Search right from startL for the first Staff object; if it is found, use
-it to fill the array, and return its LINK; else return NILINK. */
+/* Fill an array of LINKs to Staff subobjects, indexed by the staffn of the subobjects.
+The array is assumed to have space allocated for at least MAXSTAVES+1 LINKs. Search
+right from startL for the first Staff object; if it is found, use it to fill the array,
+and return its LINK; else return NILINK. */
 
-LINK FillStaffArray(Document */*doc*/, LINK startL, LINK staves[])
+LINK FillStaffArray(Document * /*doc*/, LINK startL, LINK staves[])
 {
 	LINK staffL, aStaffL;
 
@@ -469,7 +474,8 @@ static void PageFixMeasRects(
 {
 	LINK sysL, staffL, staves[MAXSTAVES+1];
 	LINK prevMeasL, measL, aMeasL, measures[MAXSTAVES+1];
-	PAMEASURE aMeas;  PASTAFF aStaff;  short i;
+	PAMEASURE aMeas;  PASTAFF aStaff;
+	short i;
 	DRect sysRect;
 
 	staffL = FillStaffArray(doc, pageL, staves);
@@ -530,10 +536,10 @@ static void PageFixMeasRects(
 
 
 /* --------------------------------------------------------------------- FixMeasRectYs -- */
-/* Set all Measure subobjects' measSizeRect.tops and .bottoms from Staff tops
-and heights.  Also optionally set the Systems' systemRect.tops and .bottoms. If
-pageL is NILINK, do this for the entire score; otherwise pageL should be a Page
-object, and we do it for that Page only. */
+/* Set all Measure subobjects' measSizeRect.tops and .bottoms from Staff tops and
+heights.  Also optionally set the Systems' systemRect.tops and .bottoms. If pageL is
+NILINK, do this for the entire score; otherwise pageL should be a Page object, and we
+do it for that Page only. */
 
 void FixMeasRectYs(
 		Document *doc,
@@ -547,14 +553,12 @@ void FixMeasRectYs(
 		pageL = LSSearch(doc->headL, PAGEtype, ANYONE, GO_RIGHT, False);
 		for ( ; pageL; pageL = LinkRPAGE(pageL)) {
 			PageFixMeasRects(doc, pageL, useLedg, masterPg);
-			if (fixSys)
-				PageFixSysRects(doc, pageL, True);
+			if (fixSys) PageFixSysRects(doc, pageL, True);
 		}
 	}
 	else {
 		PageFixMeasRects(doc, pageL, useLedg, masterPg);
-		if (fixSys)
-			PageFixSysRects(doc, pageL, True);
+		if (fixSys) PageFixSysRects(doc, pageL, True);
 	}
 }
 
@@ -597,8 +601,8 @@ Boolean FixMeasRectXs(LINK startBarL, LINK endBarL)
 }
 
 /* ------------------------------------------------------------------ FixSysMeasRectXs -- */
-/* Fix the measSizeRect.left and .right for every Measure in sysL. sysL must be
-a LINK to a System obj. */
+/* Fix the measSizeRect.left and .right for every Measure in sysL. sysL must be a LINK
+to a System object. */
 
 Boolean FixSysMeasRectXs(LINK sysL)
 {
@@ -680,14 +684,14 @@ void SetStaffSize(Document */*doc*/, LINK headL, LINK tailL, short oldRastral, s
 	PANOTE		aNote;
 	PAGRNOTE	aGRNote;
 	PADYNAMIC	aDynamic;
-	register PASTAFF aStaff;
-	register PASLUR aSlur;	
+	PASTAFF		aStaff;
+	PASLUR		aSlur;	
 	PAMEASURE	aMeasure;
 	PACLEF		aClef;
 	PAKEYSIG	aKeySig;
 	PATIMESIG	aTimeSig;
 	PACONNECT	aConnect;
-	register LINK pL;
+	LINK		pL;
 	LINK		aNoteL, aGRNoteL, aDynamicL, aStaffL,
 				aMeasureL, aConnectL, aClefL, aKeySigL, aTimeSigL;
 	DDIST		lnSpace;
@@ -927,19 +931,19 @@ LINK AddSysInsertPt(Document *doc, LINK pL, short *where)
 	LINK insertL;
 	
 	/* If pL is a Page, BeforeFirstMeas will return True if pL is the first Page
-		of the score; else False. This is accidentally correct here: if we are
-		before any System, BeforeFirstMeas returns True, we search right for a
-		System, don't find one, and insert before the tail, which is what we want.
-		Otherwise, we use the Page itself, which does terminate the preceding System,
-		which is also what we want. */
+	   of the score; else False. This is accidentally correct here: if we are
+	   before any System, BeforeFirstMeas returns True, we search right for a
+	   System, don't find one, and insert before the tail, which is what we want.
+	   Otherwise, we use the Page itself, which does terminate the preceding System,
+	   which is also what we want. */
 
 	if (BeforeFirstMeas(pL)) {
 
 		/* Add new System before the current System which contains selStartL. Search
-			back for the current System. If it is the first System of the Page, if the
-			sheetNum of its Page is 0, we are adding before the first System of the score;
-			else adding before the first System of some Page following the first Page of
-			the score. */
+		   back for the current System. If it is the first System of the Page, if the
+		   sheetNum of its Page is 0, we are adding before the first System of the score;
+		   else adding before the first System of some Page following the first Page of
+		   the score. */
 		
 		insertL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
 		if (!insertL)
@@ -1290,7 +1294,7 @@ exactly one part of two staves!*/
 LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, short where)
 {
 	LINK pL, aConnectL, copyConnL;
-	PCONNECT pConnect;  register PACONNECT aConnect;
+	PCONNECT pConnect;  PACONNECT aConnect;
 	
 	if (where==FirstSystem) {
 		pL = InsertNode(doc, RightLINK(prevL), CONNECTtype, 2);
@@ -1689,7 +1693,7 @@ is exactly one part of two staves! */
 
 LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 {
-	register LINK pL;
+	LINK pL;
 	LINK 		qPageL, systemL, qSystemL, staffL, qStaffL,
 				qConnectL, qMeasureL, timeSigL, aStaffL;
 	DDIST		dLineSp, staffLength, spBefore;
