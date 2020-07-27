@@ -41,6 +41,7 @@ void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105)
 	doc->currentPaper = docN105->currentPaper;
 }
 
+
 static void ConvertFontTable(Document *doc, DocumentN105 *docN105)
 {
 	short i;
@@ -259,8 +260,9 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->yBetweenSys = docN105->yBetweenSys;
 
 	for (v = 1; v<=MAXVOICES; v++) {
-		/* struct assignment works, e.g., in CopyToClip(); here, it gives an
-		   incomprehensible compiler error message! So copy individual fields. */
+		/* struct assignment works, e.g., in CopyToClip(); here, it gives a confusing
+		   compiler error message, no doubt because the structs aren't quite the same.
+		   So copy individual fields. */
 		   
 		doc->voiceTab[v].partn = docN105->voiceTab[v].partn;
 		doc->voiceTab[v].voiceRole = docN105->voiceTab[v].voiceRole;
@@ -270,6 +272,7 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	for (j = 0; j<256-(MAXVOICES+1); j++)
 		doc->expansion[j] = 0;	
 }
+
 
 /* ------------------------------------------------------------------ HeapFixN105Links -- */
 
@@ -578,8 +581,8 @@ static void Convert1MODNR(Document * /* doc */, LINK aModNRL)
 	ModNRDATA(aModNRL) = (&a1ModNR)->data;
 	ModNRYSTDPIT(aModNRL) = (&a1ModNR)->ystdpit;
 
-if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    Convert1MODNR: aModNRL=%u code=%d xstd=%d ystdpit=%d\n",
-aModNRL, ModNRMODCODE(aModNRL), ModNRXSTD(aModNRL), ModNRYSTDPIT(aModNRL));
+	if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    Convert1MODNR: aModNRL=%u code=%d xstd=%d ystdpit=%d\n",
+	aModNRL, ModNRMODCODE(aModNRL), ModNRXSTD(aModNRL), ModNRYSTDPIT(aModNRL));
 }
 
 

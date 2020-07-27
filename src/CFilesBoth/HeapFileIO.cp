@@ -98,7 +98,7 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link, LIN
 static short WriteObject(short refNum, short heapIndex, LINK pL);
 static void CountObjSubobjs(Document *doc);
 static Boolean InitTrackingLinks(Document *, LINK **firstSubLINKA, LINK **objA, LINK **modA);
-static Boolean MoveObjSubobjs(short, long, unsigned short, char *, char *);
+static Boolean MoveObjSubobjs(short, long, unsigned short, char *, long sizeAllInHeap);
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile);
 static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, Boolean isViewerFile);
 static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean isViewerFile,
@@ -794,25 +794,35 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 
 /* Move the contents of a heap -- either the object heap or a subobject heap -- around
 so each object or subobject has the space it needs in the current format. We assume the
-heap was just read from a file in either 'N105' or the current format.
+heap was just read from a file in either 'N105' or the current format. Return True if
+we succeed, False if not.
 
 If the file is in the current format, this should be called only for the object heap;
 subobjects are already the correct length. If it's in 'N105' format, it should be
 called for both object and subobject heaps. In that case, the _content_ of objects
-and subobjects needs more work; that should be done in ConvertObjSubobjs().  */
+and subobjects will still need more work, which should be done in ConvertObjSubobjs().  */
 
-static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, char
-				*startPos, char *pLink1)
+static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
+				char *pLink1, long sizeAllInHeap)
 {
-	char *src, *dst;
+	static Boolean firstCall=True;
+	char *src, *dst, *tempHeap;
 	short curType;
 	long len, newLen, n;
 
-	src = startPos;
+LogPrintf(LOG_DEBUG, "MoveObjSubobjs: sizeAllInHeap=%ld\n", sizeAllInHeap);
+	tempHeap = NewPtr((Size)sizeAllInHeap);
+	//if (!*tempHeap)
+	if (!GoodNewPtr((Ptr)tempHeap))
+		{ OutOfMemory(sizeAllInHeap);  return False; }
+	BlockMove(pLink1, tempHeap, sizeAllInHeap);
+	
+	/* Copy everything to a separate chunk of memory, then copy objects/subobjects
+	   back one at a time, assuming the new sizes. */
+	   
+	src = tempHeap;
 	dst = pLink1;
-	n = nFObjs;
-	while (n-- > 0) {
-		/* Move object/subobject of whatever type at src down to its anointed LINK slot at dst */
+	for (n = 1; n<=nFObjs; n++) {
 
 		if (hType==OBJtype)	curType = ObjPtrTYPE(src);
 		else				curType = hType;
@@ -821,6 +831,9 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, 
 			return False;
 		}
 		
+		/* Set <len> to the correct object/subobject length for the format of the
+		   given version and <newLen> to the length in the current version. */
+
 		if (hType==OBJtype)	{
 			len = (version=='N105'? objLength_5[curType] : objLength[curType]);
 			newLen = sizeof(SUPEROBJECT);
@@ -830,28 +843,32 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs, 
 			newLen = subObjLength[curType];
 		}
 		
-#define DEBUG_LOOP
+#define NoDEBUG_LOOP
 #ifdef DEBUG_LOOP
 		/* Without the call to SleepMS(), some of the output from the following LogPrintf
-		   is likely to be lost, at least with OS 10.5 and 10.6! See the comment on this
+		   is likely to be lost (at least with OS 10.5 and 10.6)! See the comment on this
 		   issue in ConvertObjSubobjs(). */
-		if (n==nFObjs-1 && curType==0) LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING EACH TIME THRU LOOP TO AID DEBUGGING.  (MoveObjSubobjs) ******\n");
-		SleepMS(3);
-		LogPrintf(LOG_DEBUG, "MoveObjSubobjs: curType=%d len=%d newLen=%d\n", curType, len, newLen);
-#endif
-		/* <len> is now the correct object/subobject length for the current file format.
-		   If its length was different in the previous file format, adjust <len> to
-		   compensate. */
 		   
+		if (firstCall && n==1) {
+			LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING EACH TIME THRU LOOP TO AID DEBUGGING.  (MoveObjSubobjs) ******\n");
+			firstCall = False;
+		}
+		SleepMS(3);
+		LogPrintf(LOG_DEBUG, "MoveObjSubobjs: n=%d curType=%d src=%lx dst=%lxlen=%d newLen=%d\n",
+					n, curType, src, dst, len, newLen);
+#endif
+		   
+		/* Copy obj/subobj of whatever type at src to its anointed LINK slot at dst */
+		
 		BlockMove(src, dst, len);
 		
-		/* And go on to next object and next LINK slot. */
+		/* And go on to next obj/subobj and next LINK slot. */
 		
 		src += len;
 		dst += newLen;
-		/* NOTE: Padding is (newLen-len) bytes, and contains garbage */
 	}
 	
+	DisposePtr((Ptr)tempHeap);
 	return True;
 }
 
@@ -879,7 +896,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 {
 	unsigned short nFObjs;
 	short ioErr, hdrErr;
-	char *pLink1, *startPos;
+	char *pLink1;
 	long count, sizeAllObjsFile, sizeAllObjsHeap, nExpand, position;
 	HEAP *objHeap;
 
@@ -909,22 +926,21 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	if (!ExpandFreeList(objHeap, nExpand))
 		{ OpenError(True, refNum, MEM_FULL_ERR, MEM_ERRINFO); return MEM_FULL_ERR; }
 	
-	PushLock(objHeap);			/* Should lock it after expanding free list above */
+	PushLock(objHeap);					/* Should lock it after expanding free list above */
 	
 	/* Set pLink1 to point to LINK 1, since LINK 0 is never used. */
 	
 	pLink1 = *(objHeap->block);  pLink1 += objHeap->objSize;
-	startPos = pLink1 + (sizeAllObjsHeap - sizeAllObjsFile);
 	GetFPos(refNum, &position);
-	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadObjHeap: startPos=%ld FPos:%ld\n", startPos, position);
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadObjHeap: pLink1=%ld FPos:%ld\n", pLink1, position);
  	
-	ioErr = FSRead(refNum, &sizeAllObjsFile, startPos);
-//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadObjHeapA", (unsigned char *)startPos, 24+38+44, 4, 16);
+	ioErr = FSRead(refNum, &sizeAllObjsFile, pLink1);
+//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadObjHeapA", (unsigned char *)pLink1, 24+38+44, 4, 16);
 	
 	/* Move the contents of the object heap around so each object has space for the
 	   required SUPEROBJECT size. */
 	   
-	if (!MoveObjSubobjs(OBJtype, version, nFObjs, startPos, pLink1)) {
+	if (!MoveObjSubobjs(OBJtype, version, nFObjs, pLink1, sizeAllObjsHeap)) {
 		OpenError(True, refNum, MISC_HEAPIO_ERR, OBJtype);
 		return(MISC_HEAPIO_ERR);
 	}
@@ -955,7 +971,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 {
 	unsigned short nFObjs;
 	short ioErr, hdrErr;
-	char *pLink1, *startPos;
+	char *pLink1;
 	long sizeAllInFile, sizeAllInHeap, nExpand, position;
 	HEAP *myHeap;
 	
@@ -1000,12 +1016,11 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	   objects from the file. */
 
 	pLink1 = *(myHeap->block);  pLink1 += myHeap->objSize;
-	startPos = pLink1 + (sizeAllInHeap - sizeAllInFile);
 	GetFPos(refNum, &position);
-	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadSubHeap: startPos=%ld FPos:%ld\n", startPos, position);
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadSubHeap: pLink1=%ld FPos:%ld\n", pLink1, position);
 	
-	ioErr = FSRead(refNum, &sizeAllInFile, startPos);
-//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadSubHeap0", (unsigned char *)startPos, 64, 4, 16);
+	ioErr = FSRead(refNum, &sizeAllInFile, pLink1);
+//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadSubHeap0", (unsigned char *)pLink1, 64, 4, 16);
 
 	/* If file is in an old format, move the contents of the subobject heap around
 	   so each subobject has space for any new fields. (Unlike objects, subobjects are
@@ -1013,7 +1028,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	   to be moved.) */
 	   
 	if (version=='N105')
-		if (!MoveObjSubobjs(iHp, version, nFObjs, startPos, pLink1)) {
+		if (!MoveObjSubobjs(iHp, version, nFObjs, pLink1, sizeAllInHeap)) {
 			OpenError(True, refNum, MISC_HEAPIO_ERR, iHp);
 			return MISC_HEAPIO_ERR;
 		}

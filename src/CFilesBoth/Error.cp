@@ -43,126 +43,121 @@ static void		ErrorString(short index, StringPtr msg);
 static short	DoGeneralAlert(StringPtr str);
 
 
-/* Print an error message.  If index is non-zero, then retrieve the index'th
-string from our error strings resource. */
+/* Print an error message.  If index is non-zero, then retrieve the index'th string from
+our error strings resource. */
 
 static void ErrorMsg(short index)
 {
 	Str255 str;
 	
-	if (index > 0)	GetIndString(str,ErrorStringsID,index);
+	if (index > 0)	GetIndString(str, ErrorStringsID, index);
 	else			*str = 0;
 	(void)DoGeneralAlert(str);
 }
 
-/*
- *	Print an error message with a string argument.  The message is kept
- *	in the index'th string in the error strings resource. The string should
- *	have a ^0 in it where we'll place the argument to the message.
- */
+/* Print an error message with a string argument. The message is kept in the index'th
+string in the error strings resource. The string should have a ^0 in it where we'll place
+the argument to the message. */
 
 static void ErrorString(short index, StringPtr msg)
 {
 	Str255 str;
 	
-	GetIndString(str,ErrorStringsID,index);
-	InstallArg(str,msg,1);
+	GetIndString(str, ErrorStringsID, index);
+	InstallArg(str, msg, 1);
 	(void)DoGeneralAlert(str);
 }
 
-/*
- *	Print an error message with any number (count>0) of long arguments.  The
- *	message is kept in the index'th string in the error strings.
- */
+/*Print an error message with a numerical arguments. The message is kept in the index'th
+string in the error strings. */
 
 static void ErrorNumber(short index, long num)
 {
 	Str255 str;
 	Str31 numStr;
 	
-	GetIndString(str,ErrorStringsID,index);
-	NumToString(num,numStr);
-	InstallArg(str,numStr,0);
+	GetIndString(str, ErrorStringsID, index);
+	NumToString(num, numStr);
+	InstallArg(str, numStr, 0);
 	(void)DoGeneralAlert(str);
 }
 
-/*
- *	Install a given string into the single ParamText argument in the given
- *	alert.  This routine is broken out in case we want to get fancy and choose
- *	different alerts based on the size of the string.
- */
+/*Install a given string into the single ParamText argument in the given alert. This
+routine is broken out in case we want to get fancy and choose different alerts based on
+the size of the string. */
 
 static short DoGeneralAlert(StringPtr str)
 {
-	ParamText(str,"\p","\p","\p");
-	PlaceAlert(errorMsgID,NULL,0,40);
-	return (StopAlert(errorMsgID,NULL));
+	ParamText(str, "\p", "\p", "\p");
+	PlaceAlert(errorMsgID, NULL, 0, 40);
+	return (StopAlert(errorMsgID, NULL));
 }
 
 /* Given a string, _str_, an argument string, _msg_, and an index _n_, look for a
-three-character string of the form double-< n double-> in str, and substitute msg
+three-character string of the form  double-<  n  double->  in str, and substitute _msg_
 for it. (NB: The double-< and -> are really guillemets.) str is expected to be 256
 bytes in length. All strings are Pascal. This routine can be called repeatedly to
-substitute different strings into the given str. It currently works only for n =
-0,1,...9.  FIXME: Actually, I'm not sure it works at all any more! This file was
-originally encoded in Macintosh Roman; I converted it to Latin-1 in 2015, and the
-compiled-in guillemet chars. look like they got garbled in the process. It'd probably
-be easy to fix, but in heavy use of Nightingale for the last six or ten months, I'm
-not sure I've ever seen it used, so it's low priority; besides, it'd be hard to test.
---DAB, Feb. 2016 */
+substitute different strings into the given str. It currently works only for n = 0
+to 9. */
+
+#define OPEN_GUILLEMET 0xC7			/* Codepoint in the ancient Mac Roman encoding */
+#define CLOSE_GUILLEMET 0xC8		/* Codepoint in the ancient Mac Roman encoding */
 
 void InstallArg(StringPtr str, StringPtr msg, short n)
 {
-	StringPtr src,dst;
-	short strLen,msgLen,len;
+	StringPtr src, dst;
+	short strLen, msgLen, len;
 	StringPtr top;
 	
 	strLen = *str;
 	msgLen = *msg;
 	n += '0';
 	
-	/* Scan backwards from last character for  */
+	/* Scan backwards from last character for close-guillemet, the start of the
+	   argument insertion point. */
 	
+//NHexDump(LOG_DEBUG, "InstallArg", str, strLen+1, 4, 16);
 	dst = str+strLen;
 	while (dst > str)
-		if (*dst-- == (unsigned char)'é')
+		if (*dst-- == (unsigned char)CLOSE_GUILLEMET)
 			if (dst>str && *dst-- == n)
-				if (dst>str && *dst==(unsigned char)'') {
-					/* Found start of arg insertion point */
+				if (dst>str && *dst==(unsigned char)OPEN_GUILLEMET) {
 					if (msgLen > 3) {
 						if (strLen + msgLen - 3 <= 255) {
-							/* Make room for argument string */
-							dst += 3;			/* 3 = sizeof "né" */
+						
+							/* Make room for arg string & overwrite the "né" */
+							
+							dst += 3;					/* 3 = sizeof "né" */
 							src = str+strLen+1;
 							while (--src >= dst) *(src+msgLen-3) = *src;
-							/* Overwrite the né */
 							dst -= 3;
 							src = msg+1;
 							*str += msgLen-3;
 							while (msgLen-- > 0) *dst++ = *src++;
-							}
 						}
+					}
 					 else {
-						/* String is getting smaller */
+						/* String is getting shorter. Overwrite né with message.  */
+						
 						*str += msgLen-3;
-						/* Overwrite né with message */
 						src = msg+1;
 						len = msgLen;
 						while (msgLen-- > 0) *dst++ = *src++;
+						
 						/* Shift rest of string down */
+						
 						src = dst - len + 3;
 						top = str + strLen;
 						while (src <= top) *dst++ = *src++;
-						}
-					break;
 					}
+					break;
+				}
 }
 	
 
-/* These are specific error routines, whose names indicate their purpose.
-Eventually, all these routines can be consolidated into a few small generic
-routines, and we can redefine their names as macros, to avoid so many
-functions. */
+/* These are specific error routines, whose names indicate their purpose. (Eventually, all
+these routines could be consolidated into a few small generic routines, and we could
+redefine their names as macros, if we wanted to avoid so many functions.) */
 
 void CannotPrint()							{ ErrorMsg(cannotPrint); }
 

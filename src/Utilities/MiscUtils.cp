@@ -33,9 +33,7 @@ void ZeroMem(void *m, long nBytes)
 	while (nBytes-- > 0) *p++ = 0;
 }
 
-/*
- *	For checking validity of pointers and handles just allocated
- */
+/*	For checking validity of pointers and handles just allocated */
 
 Boolean GoodNewPtr(Ptr p)
 {
@@ -52,8 +50,9 @@ Boolean GoodResource(Handle hndl)
 	return( hndl!=NULL && ResError()==noErr && *hndl!=NULL );
 }
 
+
 /* The below functions date back to the 1980's, when machines had just a few megabytes
-of memory. Now that machines have gigabytes, running out of memory has hardly worth
+of memory. Now that machines have gigabytes, running out of memory is hardly worth
 worrying about, but I doubt if the code (which to my knowledge has worked for decades
 now) is worth touching.  --DAB, May 2020 */
 
@@ -116,7 +115,7 @@ Boolean PreflightMem(short nKBytes)		/* if nKBytes<=0, assume max. size of a seg
 	return (FreeMem()>=nBytes);
 }
 
-
+/* ----------------------------------------------------------------------- MemBitCount -- */
 /* Count the number of set bits in a block of memory. Intended for debugging, specifically
 for comparing two bitmaps that should be identical. */
 

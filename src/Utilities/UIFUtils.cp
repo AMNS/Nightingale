@@ -1172,7 +1172,8 @@ or return; closed quote otherwise, unless it's the first character in the string
 which case it's always open. If you want to allow the typing of standard ASCII single or
 double quote, do it as a Command key char. */
 
-/* NB: The following codes are for Macintosh Roman, as required by the Carbon toolkit. */
+/* NB: The following codes are for the ancient Macintosh Roman encoding, as required by
+the Carbon toolkit. */
 #define OPEN_DOUBLE_QUOTE	0xD2
 #define CLOSE_DOUBLE_QUOTE	0xD3
 #define OPEN_SINGLE_QUOTE	0xD4

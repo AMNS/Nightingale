@@ -6956,3 +6956,111 @@ and most of p. 28 => 2ndMovement_pp1-29Minus5mm+Mo
 
 This suggests there's nothing wrong with m. 181, and the problem is _something_ overflowing at
 that point!
+
+-------------------------------------------------------------------------------
+
+22 - 26 July
+
+I'm not comfortable with MoveObjSubobjs(); its way of moving things around within a block of
+memory is complex and hard to have confidence in. Rewrite it to move things into their correct
+positions in a separate chunk of memory, then copy that block over -- or, better, copy to a
+separate chunk, then copy back assuming 'N106' sizes => done (I think). Test W/ 1CourtesyAcc.ngl
+=>
+
+	The operation failed because Nightingale has run out of memory (RAM): couldn’t get «0» bytes.
+	You can increase Nightingale’s memory allocation with the Finder’s Get Info command.
+
+!!! (1) It's ridiculous that we asked for an amount of memory Ngale couldn't get; (2)
+under macOS X, AFAIK, you can't set the amount of memory a program gets; (3) the number
+didn't get filled in where the "«0»" is! This is in InstallArg(). #3 is obviously because
+the compiled-in guillemet chars are wrong, per the comment "This file was originally
+encoded in Macintosh Roman; I converted it to Latin-1 in 2015, and the compiled-in
+guillemet chars. look like they got garbled in the process." But what should they be?
+
+	debug. InstallArg: b3 54 68 65   20 6f 70 65   72 61 74 69   6f 6e 20 66
+	debug.           : 61 69 6c 65   64 20 62 65   63 61 75 73   65 20 4e 69
+	debug.           : 67 68 74 69   6e 67 61 6c   65 20 68 61   73 20 72 75
+	debug.           : 6e 20 6f 75   74 20 6f 66   20 6d 65 6d   6f 72 79 20
+	debug.           : 28 52 41 4d   29 3a 20 63   6f 75 6c 64   6e d5 74 20
+	debug.           : 67 65 74 20   c7 30 c8 20   62 79 74 65   73 2e 0d 0d
+	debug.           : 59 6f 75 20   63 61 6e 20   69 6e 63 72   65 61 73 65
+	debug.           : 20 4e 69 67   68 74 69 6e   67 61 6c 65   d5 73 20 6d
+	debug.           : 65 6d 6f 72   79 20 61 6c   6c 6f 63 61   74 69 6f 6e
+	debug.           : 20 77 69 74   68 20 74 68   65 20 46 69   6e 64 65 72
+	debug.           : d5 73 20 47   65 74 20 49   6e 66 6f 20   63 6f 6d 6d
+	debug.           : 61 6e 64 2e   
+
+In the line after the one beginning with 28, 67 65 74 20 c7 30 c8 20   62 79 74 65 =
+"get «0» byte", so "«0»" is c7 30 c8. Ah, c7 and c8 are the guillemets in (ugh)
+Macintosh Roman! ...Fixed #3. Change the error message to end with "This is probably due
+to a bug in Nightingale; contact AMNF for help." => fixed #2 (though not very well :-| ).
+
+So NewPtr() seems to be unable to get 28 bytes or 1384 bytes, though not consistently;
+that makes zero sense. Maybe the error check is wrong?!? We often use GoodNewPtr() to
+check success of NewPtr(); it's probably safer (though should be stricter, not less strict).
+Try it => no bogus error messages -- and everything works on smallish files (incl.
+T+MInCounterpoint.ngl)! Let's see if the new MoveObjSubobjs fixes the "converting large files
+crash" bug:
+
+(1) Launch Ngale, open 2ndMovement_pp1-29.ngl => hangs.
+(2) Launch Ngale, open 2ndMovement_pp1-29.ngl => crashes into GDB, but GDB window is blank.
+
+:-(
+
+(3) Launch Ngale, open 2ndMovement_pp1-29.ngl => crashes into GDB showing usual line of
+ConvertSLUR(), w/ slurL = 395; last log messages:
+
+	debug. ConvertSYNC: syncL=L393 timeStamp=0
+	debug. ConvertSYNC: syncL=L394 timeStamp=96
+
+(1) Launch Ngale, open 2ndMovement_pp1-29Minus5mm.ngl => crashes into GDB showing usual line of
+ConvertSLUR(), w/ slurL = 395; last log messages:
+
+	debug. ConvertSYNC: syncL=L393 timeStamp=0
+	debug. ConvertSYNC: syncL=L394 timeStamp=96
+
+(2) Launch Ngale, open 2ndMovement_pp1-29Minus5mm.ngl => crashes into GDB showing usual section of
+ConvertSLUR() but with no highlighting and Variables area blank; same last log messages as above.
+
+(3) Launch Ngale, open 2ndMovement_pp1-29Minus5mm.ngl => crashes into GDB showing usual line of
+ConvertSLUR(), w/ slurL = 395; same last log messages as above.
+
+Switching files: (1) Launch Ngale, open 2ndMovement_pp1-29Minus6mm.ngl => opens, & pp. 1-3 look OK
+-- but while converting the file, gave three warnings:
+
+	Warning. •DCheck1NEntries: OBJ L2421 HAS nEntries=15 BUT 22 SUBOBJECTS.
+	Warning. •DCheck1NEntries: OBJ L2817 HAS nEntries=15 BUT 16 SUBOBJECTS.
+	Warning. •DCheck1NEntries: OBJ L2960 HAS nEntries=15 BUT 21 SUBOBJECTS.
+
+...and Debug Check has 49 complaints, e.g.:
+
+Warning. *DCheckNode: SUBOBJ IN CLEF L83 staffn 0 IS BAD.
+Warning. •DCheckNode: TUPLET L391 HAS BAD SYNC LINK 138.
+Warning. •DCheck1NEntries: OBJ L2421 HAS nEntries=15 BUT 22 SUBOBJECTS.
+Warning. *DCheckNode: SUBOBJ IN KEYSIG L2422 staffn 0 IS BAD.
+Warning. •DCheck1NEntries: OBJ L2817 HAS nEntries=15 BUT 16 SUBOBJECTS.
+Warning. •DCheck1NEntries: OBJ L2960 HAS nEntries=15 BUT 21 SUBOBJECTS.
+Warning. *DCheckNode: SUBOBJ IN KEYSIG L2961 staffn 0 IS BAD.
+Warning. *DCheckTuplets: TUPLET L391 SYNC LINK INCONSISTENT.
+Warning. *DCheckContext: FOR STAFF 14 IN CLEF L2421, INCONSISTENT clefType: EXPECTED 3.
+Warning. *DCheckContext: clefType FOR STAFF 9 IN MEASURE 115 (L2423) INCONSISTENCY.
+Warning. *DCheckContext: clefType FOR STAFF 13 IN MEASURE 115 (L2423) INCONSISTENCY.
+Warning. *DCheckContext: clefType FOR STAFF 9 IN MEASURE 117 (L2448) INCONSISTENCY.
+Notice. * CautionAdvise alertID=550!
+Warning. *DCheckContext: clefType FOR STAFF 13 IN MEASURE 118 (L2458) INCONSISTENCY.
+Warning. *DCheckContext: clefType FOR STAFF 9 IN MEASURE 118 (L2458) INCONSISTENCY.
+Warning. *DCheckContext: FOR STAFF 13 IN STAFF L2511, INCONSISTENT clefType: EXPECTED 6.
+Warning. *DCheckContext: FOR STAFF 9 IN STAFF L2511, INCONSISTENT clefType: EXPECTED 10.
+Warning. *DCheckContext: FOR STAFF 14 IN CLEF L2513, INCONSISTENT clefType: EXPECTED 10.
+Warning. *DCheckContext: clefType FOR STAFF 13 IN MEASURE 139 (L2962) INCONSISTENCY.
+Warning. *DCheckContext: clefType FOR STAFF 13 IN MEASURE 140 (L2968) INCONSISTENCY.
+Warning. *DCheckContext: FOR STAFF 14 IN CLEF L3062, INCONSISTENT clefType: EXPECTED 3.
+
+See 3WarningsLog.txt for the whole enchilada.
+
+(2) Launch Ngale, open 2ndMovement_pp1-29Minus6mm.ngl => opens, & pp. 1-3 & 29 look OK; no
+warnings during conversion; no Debug complaints.
+
+(3) Launch Ngale, open 2ndMovement_pp1-29Minus6mm.ngl => opens, & pp. 1-3 & 29 look OK; no
+warnings during conversion; no Debug complaints.
+
