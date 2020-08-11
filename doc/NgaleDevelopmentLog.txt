@@ -6959,7 +6959,7 @@ that point!
 
 -------------------------------------------------------------------------------
 
-22 - 26 July
+22 - 27 July
 
 I'm not comfortable with MoveObjSubobjs(); its way of moving things around within a block of
 memory is complex and hard to have confidence in. Rewrite it to move things into their correct
@@ -7025,21 +7025,18 @@ ConvertSLUR() but with no highlighting and Variables area blank; same last log m
 (3) Launch Ngale, open 2ndMovement_pp1-29Minus5mm.ngl => crashes into GDB showing usual line of
 ConvertSLUR(), w/ slurL = 395; same last log messages as above.
 
-Switching files: (1) Launch Ngale, open 2ndMovement_pp1-29Minus6mm.ngl => opens, & pp. 1-3 look OK
--- but while converting the file, gave three warnings:
+Switching files: (1) Launch Ngale, open 2ndMovement_pp1-29Minus6mm.ngl => opens, & pp. 1-3
+look OK -- but while converting the file, gave 3 warnings:
 
 	Warning. •DCheck1NEntries: OBJ L2421 HAS nEntries=15 BUT 22 SUBOBJECTS.
 	Warning. •DCheck1NEntries: OBJ L2817 HAS nEntries=15 BUT 16 SUBOBJECTS.
 	Warning. •DCheck1NEntries: OBJ L2960 HAS nEntries=15 BUT 21 SUBOBJECTS.
 
-...and Debug Check has 49 complaints, e.g.:
+...and Debug Check has 49 complaints: those 3 plus, e.g.:
 
 Warning. *DCheckNode: SUBOBJ IN CLEF L83 staffn 0 IS BAD.
 Warning. •DCheckNode: TUPLET L391 HAS BAD SYNC LINK 138.
-Warning. •DCheck1NEntries: OBJ L2421 HAS nEntries=15 BUT 22 SUBOBJECTS.
 Warning. *DCheckNode: SUBOBJ IN KEYSIG L2422 staffn 0 IS BAD.
-Warning. •DCheck1NEntries: OBJ L2817 HAS nEntries=15 BUT 16 SUBOBJECTS.
-Warning. •DCheck1NEntries: OBJ L2960 HAS nEntries=15 BUT 21 SUBOBJECTS.
 Warning. *DCheckNode: SUBOBJ IN KEYSIG L2961 staffn 0 IS BAD.
 Warning. *DCheckTuplets: TUPLET L391 SYNC LINK INCONSISTENT.
 Warning. *DCheckContext: FOR STAFF 14 IN CLEF L2421, INCONSISTENT clefType: EXPECTED 3.
@@ -7063,4 +7060,165 @@ warnings during conversion; no Debug complaints.
 
 (3) Launch Ngale, open 2ndMovement_pp1-29Minus6mm.ngl => opens, & pp. 1-3 & 29 look OK; no
 warnings during conversion; no Debug complaints.
+
+-------------------------------------------------------------------------------
+
+28 July - 11 Aug.
+
+Since I'm looking for a nasty bug apparently due to memory getting trashed, CODE IS FROZEN
+(since 26 July at 9:34 AM).
+
+Cut stuff near end to make a shorter file (27 pp.):
+(1) Launch Ngale, open 2ndMovement_pp1-29Minus5mm+Mo.ngl => opens, & pp. 1-3 & last p. look
+OK -- but while converting the file, gave 4 warnings:
+
+	Warning. •DCheck1NEntries: OBJ L2124 HAS nEntries=15 BUT 16 SUBOBJECTS.
+	Warning. •DCheck1NEntries: OBJ L2422 HAS nEntries=15 BUT 16 SUBOBJECTS.
+	Warning. •DCheck1NEntries: OBJ L2817 HAS nEntries=15 BUT 16 SUBOBJECTS.
+	Warning. •DCheck1NEntries: OBJ L2961 HAS nEntries=15 BUT 16 SUBOBJECTS.
+
+...and Debug Check has 8 complaints, those 4 plus:
+
+	Warning. *DCheckNode: SUBOBJ IN KEYSIG L389 staffn 0 IS BAD.
+	Warning. *DCheckNode: SUBOBJ IN KEYSIG L3257 staffn 0 IS BAD.
+	Warning. *DCheckNode: SUBOBJ IN CLEF L3433 staffn 0 IS BAD.
+	Warning. *DCheckNode: SUBOBJ IN KEYSIG L3478 staffn 0 IS BAD.
+
+(2) Launch Ngale, open 2ndMovement_pp1-29Minus5mm+Mo.ngl => opens, & pp. 1-3 & last p. look
+OK -- but while converting the file, gave 2 warnings:
+
+	Warning. •DCheck1NEntries: OBJ L2202 HAS nEntries=3 BUT 9 SUBOBJECTS.
+	Warning. •DCheck1NEntries: OBJ L3477 HAS nEntries=15 BUT 20 SUBOBJECTS.
+
+...and Debug Check has 32 complaints, those 2 plus, e.g.:
+
+	Warning. *DCheckNode: SUBOBJ IN CLEF L1722 staffn 0 IS BAD.
+	Warning. *DCheckNode: SUBOBJ IN CLEF L1883 staffn 0 IS BAD.
+	Warning. *DCheckNode: SUBOBJ IN KEYSIG L3434 staffn 0 IS BAD.
+	Warning. *DCheckContext: clefType FOR STAFF 13 IN MEASURE 109 (L2205) INCONSISTENCY.
+	Warning. *DCheckContext: clefType FOR STAFF 7 IN MEASURE 109 (L2205) INCONSISTENCY.
+	Warning. *DCheckContext: clefType FOR STAFF 9 IN MEASURE 109 (L2205) INCONSISTENCY.
+	Warning. *DCheckContext: clefType FOR STAFF 13 IN MEASURE 110 (L2255) INCONSISTENCY.
+	Warning. *DCheckContext: FOR STAFF 13 IN STAFF L2288, INCONSISTENT clefType: EXPECTED 6.
+
+(3) Launch Ngale, open 2ndMovement_pp1-29Minus5mm+Mo.ngl => opens, & pp. 1-3 & last p. look
+OK -- but while converting the file, gave one warning:
+
+	Warning. •DCheck1NEntries: OBJ L2961 HAS nEntries=15 BUT 16 SUBOBJECTS.
+
+...and Debug Check has 3 complaints, that one plus:
+
+	Warning. *DCheckNode: SUBOBJ IN KEYSIG L3257 staffn 0 IS BAD.
+	Warning. *DCheckNode: SUBOBJ IN KEYSIG L3478 staffn 0 IS BAD.
+
+Cut more near end to make an even shorter file (26 p.):
+(1) Launch Ngale, open 2ndMovement_pp1-29Minus5mm26p.ngl => opens; pp. 1-3 & last p. look OK;
+Debug Check has no complaints.
+
+(2) Launch Ngale, open 2ndMovement_pp1-29Minus5mm26p.ngl => opens, & last page looks OK --
+but while converting the file, gave one warning:
+
+	Warning. •DCheck1NEntries: OBJ L2914 HAS nEntries=3 BUT 5 SUBOBJECTS.
+
+...and trying to display the 1st few pages says "PROGRAM ERROR: BuildBeamDrawTable: couldn't
+find an unfinished segment", then "PROGRAM ERROR: NO BEAM ELEMENTS FOR beamL=L120 (DrawBeamset)."
+
+(3) Launch Ngale, open 2ndMovement_pp1-29Minus5mm26p.ngl => opens; pp. 1-3 & last p. look OK;
+Debug Check has no complaints.
+
+(4) Launch Ngale, open 2ndMovement_pp1-29Minus5mm26p.ngl => opens; pp. 1-3 & last p. look OK;
+Debug Check has no complaints.
+
+Tentative (sic) conclusion: There's a bug in the file-conversion code that leads to corrupting
+the object list; the longer the file, the worse it is. Its exact behavior is random (as far as
+I know). Since I fixed other bugs in file conversion, it's never been observed with
+T+MInCounterpoint.ngl (3 pages, 100K) or anything shorter. 2ndMovement_pp1-29Minus5mm26p.ngl
+(26 pp., 664K) opened 4 out of 4 times; 3 out of 4 times, with no complaints during conversion
+or from Debug Check Standard Things, and last page & 1-3 look OK... But changes to code other
+than file conversion could have caused this!, so and figures below are only for runs since
+code freeze.
+
+For all the below, re-launch Ngale for each test.
+
+2ndMovement			Size	Times	opens; pp. 1-3	During			Debug Check St.	Other
+file								& last look OK	conversion		complaints
+-----------			----	-----	--------------	----------		--------------	-----
+pp1-29				764K	1		yes; yes		OK				0				-
+"					"		2		no				log ends w/L394	-				shows blank GDB wdw & hangs			
+"					"		2		no				log ends w/L394	-				GDB *H
+"					"		1		no				log complete	-				hangs
+pp1-29Minus5mm		756K	3		no				log ends w/L394	-				GDB *H
+"					"		3		no				log ends w/L394	-				GDB *
+pp1-29Minus6mm		752K	2		yes; yes		OK				24, 3			-
+"					"		2		yes; yes		3, 2 warns		23, 12				-
+pp1-29Minus5mm+Mo	728K	3		yes; yes		4, 2, 1	warns	8, 32, 3		-
+pp1-29Minus5mm26p	664K	3		yes; yes		OK				0				-
+"					"		1		yes; no			1 warn			(unk)			1 PROGRAM ERROR
+
+2ndMovementCS		348K	1		yes; last NO	OK				7 (+57 legit)	-
+"					"		2		yes; yes		1 **1			19 (+57 legit)	-
+"					"		1		yes; last NO	1 **1			16 (+57 legit)	-
+"					"		1		yes; yes		OK				3 (+57 legit)	-
+2ndMovementCSpp1-6	244K	1		yes; p. 1 NO	3 warns			49 (+44 legit)	3 PROGRAM ERRORs (beams)
+"					"		1		yes; NO			1 warn			43 (+44 legit)	2 PROGRAM ERRORs (beams)
+"					"		1		yes; NO			2 warns			47 (+44 legit)	4 PROGRAM ERRORs (beams)
+"					"		1		yes; NO			OK				10 (+44 legit)	beams on p. 6 are a mess
+2ndMovementCSpp1-4	172K	1		yes; p. 1 NO	1 warn			22 (+28 legit)	1 PROGRAM ERROR (beams)
+"					"		1		yes; p. 1-4 NO	1 warn			23 (+28 legit)	2 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 1,4 NO	1 warn			50 (+28 legit)	GDB *; 6 PROGRAM ERRORs (beams)
+2ndMovementCSpp1-3	136K	1		yes; p. 1 NO	OK				12 (+16 legit)	6 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 3 NO	OK				19 (+16 legit)	9 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 2 NO	1 warn			40 (+16 legit)	8 PROGRAM ERRORs (beams)
+T+MInCounterpoint	100K	1		yes; p. 3 NO	OK				4				-
+"					"		3		yes; yes		OK				0				-
+
+(after restarting the G5...)
+"					"		1		yes; yes		OK				0				-
+2ndMovementCSpp1-3	136K	1		yes; p. 1,2 NO	OK				3 (+16 legit)	4 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 1-3 NO	OK				23 (+16 legit)	>=6 PROGRAM ERRORs (beams)
+T+MInCounterpoint	100K	2		yes; yes		OK				0				-
+2ndMovementCSpp1-2	100K	2		yes; yes		OK				0 (+4 legit)	-
+2ndMovementCSpp1-2	100K	1		yes; yes		OK				5 (+4 legit)	TIMESIG L274 staff 1 has numerator 0
+2ndMovementCSpp1-3	136K	2		yes; p. 2,3 NO	1 (L1017)		40 (+16 legit)	5 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 3 NO	OK				9 (+16 legit)	4 PROGRAM ERRORs (beams)
+
+"GDB *H" = shows GDB window highlighting line "SlurFILLER(slurL) = 0;" in ConvertSLUR(), with
+slurL = 395. "GDB *" = same except no highlighted line and upper panes blank.
+
+"**1": Each of the three times, the warning during conversion was:
+
+		Warning. •DCheck1NEntries: OBJ L3444 HAS nEntries=7 BUT 8 SUBOBJECTS.
+
+	L3444 is a tuplet. However, Debug Check found that problem only once; that implies that
+	it was somehow repaired the other two times before the file opened! Is that lead worth
+	pursuing?
+
+So a 3-page, 136K file is enough to catch The Bug: in 8 tries, it opened every time, but
+with something wrong with the object list every time, and the corruption in the obj list
+involved beams every time!
+
+Revised tentative conclusion: There's a bug in the file-conversion code that leads to
+corrupting the object list; it tends to be worse with longer files, but the correlation
+doesn't seem very strong. Its exact behavior looks pretty random. Since ca. 20 June, it's
+been observed only once out of at least 8 tries, and since code freeze, once of 6 tries,
+with T+MInCounterpoint.ngl (3 pages, 100K). But with 2ndMovementCSpp1-3 (136K), it occurred
+8 out of 8 tries; with longer versions of 2ndMovement, most of the time. Versions of
+2ndMovement of 244K or less always opened, with problems involving beams every time (14 of
+14)! Larger versions of 2ndMovement through pp1-29Minus6mm (752K) opened 16 of 16 times, but
+with error messages every time but once. Still larger versions (756K & 764K) have such serious
+problems they opened only once of 12 tries.
+
+Strategy: maybe look for where beams get corrupted w/ 2ndMovementCSpp1-3? NB it'd be easiest
+to pin down the problem if it's detected during conversion. Ngale warned of problems during
+conversion of this file 3 of 8 times: not consistently but enough to be useful. However,
+adding debugging code might affect that :-| . Can I learn more w/o changing the code? Hold
+down shift+control to show full detail & open 2ndMovementCSpp1-3.
+
+2ndMovementCSpp1-3	136K	1		yes; p. 3 NO	OK		15 (+16 legit)	2 PROGRAM ERRORs (beams), then GDB
+2ndMovementCSpp1-3	136K	1		yes; p. 1-3 NO	OK		29 (+16 legit)	4 PROGRAM ERRORs (beams)
+
+In 10 tries now, 2ndMovementCS opened every time, but with corruption in the obj list
+involving beams every time. Distill log w/ no detail => CSpp1-3Log.txt, w/ detail =>
+CS_3ppL+DETAIL_Log.txt. Compare => sure, some additional info; nothing obviously helpful,
+but maybe later.
 
