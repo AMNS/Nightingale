@@ -810,9 +810,10 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 	short curType;
 	long len, newLen, n;
 
-LogPrintf(LOG_DEBUG, "MoveObjSubobjs: sizeAllInHeap=%ld\n", sizeAllInHeap);
+//LogPrintf(LOG_DEBUG, "MoveObjSubobjs: sizeAllInHeap=%ld\n", sizeAllInHeap);
 	tempHeap = NewPtr((Size)sizeAllInHeap);
-	//if (!*tempHeap)
+	
+	/* Using if (!*tempHeap)... here misbehaves badly; I have no idea why. */
 	if (!GoodNewPtr((Ptr)tempHeap))
 		{ OutOfMemory(sizeAllInHeap);  return False; }
 	BlockMove(pLink1, tempHeap, sizeAllInHeap);
@@ -823,7 +824,6 @@ LogPrintf(LOG_DEBUG, "MoveObjSubobjs: sizeAllInHeap=%ld\n", sizeAllInHeap);
 	src = tempHeap;
 	dst = pLink1;
 	for (n = 1; n<=nFObjs; n++) {
-
 		if (hType==OBJtype)	curType = ObjPtrTYPE(src);
 		else				curType = hType;
 		if (curType<0 || curType>LASTtype) {
@@ -858,12 +858,10 @@ LogPrintf(LOG_DEBUG, "MoveObjSubobjs: sizeAllInHeap=%ld\n", sizeAllInHeap);
 					n, curType, src, dst, len, newLen);
 #endif
 		   
-		/* Copy obj/subobj of whatever type at src to its anointed LINK slot at dst */
+		/* Copy obj/subobj of whatever type at <src> to its anointed LINK slot at <dst>,
+		   and go on to next obj/subobj and next LINK slot. */
 		
 		BlockMove(src, dst, len);
-		
-		/* And go on to next obj/subobj and next LINK slot. */
-		
 		src += len;
 		dst += newLen;
 	}

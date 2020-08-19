@@ -2896,3 +2896,10 @@ Minor cleanup. Affects FileConversion, HeapFileIO, Menu, MPCommands, Score.
 
 Minor cleanup: rewrote MoveObjSubobjs(), etc. Affects Error, FileConversion, HeapFileIO,
 MiscUtils, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+27 July - 18 August
+
+Minor cleanup. Affects Beam, DebugUtils, FileConversion, HeapFileIO, MiscUtils.
+

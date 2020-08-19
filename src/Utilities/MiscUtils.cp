@@ -1,29 +1,31 @@
 /*	MiscUtils.c
-These are miscellaneous routines that are generally-useful extensions to the Mac
-Toolbox routines. Nightingale formerly contained a module called EssentialTools.c,
-original version by Doug McKenna, 1989. Most of the functions that were originally
-in that file were for dialog or other user-interface support, and they've been moved
-to DialogUtils.c or UIFUtils.c; other functions have been moved to DSUtils.c, etc. */
+
+These are miscellaneous routines that are generally-useful extensions to the MacOS
+Toolbox routines; they're what remains of a file Nightingale formerly contained called
+EssentialTools.c, original version by Doug McKenna, 1989. Most of the functions that
+were originally in that file were for dialog or other user-interface support, and
+they've been moved to DialogUtils.c or UIFUtils.c. Other functions from EssentialTools.c
+have been moved to DSUtils.c and elsewhere. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017-2020 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
 #include <Carbon/Carbon.h>
-// MAS
 #include <ctype.h>
 
 #include "Nightingale.appl.h"
 #include "NavServices.h"
 
+
 /* ------------------------------------------------- Pointers, memory management, etc. -- */
 
-/* Set a block of nBytes bytes, starting at m, to zero.  m must be even. Cf. FillMem. */
+/* Set a block of nBytes bytes, starting at m, to zero.  m must be even.  Cf. FillMem. */
 
 void ZeroMem(void *m, long nBytes)
 {
@@ -33,7 +35,7 @@ void ZeroMem(void *m, long nBytes)
 	while (nBytes-- > 0) *p++ = 0;
 }
 
-/*	For checking validity of pointers and handles just allocated */
+/*	Functions for checking the validity of pointers and handles just allocated */
 
 Boolean GoodNewPtr(Ptr p)
 {
@@ -51,14 +53,12 @@ Boolean GoodResource(Handle hndl)
 }
 
 
-/* The below functions date back to the 1980's, when machines had just a few megabytes
-of memory. Now that machines have gigabytes, running out of memory is hardly worth
-worrying about, but I doubt if the code (which to my knowledge has worked for decades
-now) is worth touching.  --DAB, May 2020 */
-
 /* This requests a non-relocatable n-byte block of memory from the Toolbox, and zeroes
 it prior to delivering.  If not enough memory, it goes to error code -- which may not
-work, since the error dialog needs memory too. */
+work, since the error dialog needs memory too. FIXME: Apple's NewPtrClear() does the
+same thing, and it doesn't look like Nightingale even uses NewZPtr. It should just be
+removed, but I have a code freeze in effect while working on a nasty bug in converting
+large files from 'N105' to 'N106' format.  --DAB, August 2020 */
 
 void *NewZPtr(Size n)		/* Allocate n bytes of zeroed memory; deliver ptr */
 {
@@ -73,12 +73,18 @@ void *NewZPtr(Size n)		/* Allocate n bytes of zeroed memory; deliver ptr */
 	return(ptr);
 }
 
+
+/* The below functions date back to the 1980's, when machines had just a few megabytes
+of memory. Now that machines have gigabytes, running out of memory is hardly worth
+worrying about, but I doubt if the code (which to my knowledge has worked for decades
+now) is worth touching.  --DAB, May 2020 */
+
 /* GrowMemory() is a very simple grow zone function designed to prevent the ROM or
 resident software from generating out-of-memory errors. GrowMemory assumes we've
 pre-allocated an otherwise unused block of memory (this should normally be done at
 initialize time); we free it here when the Memory Manager calls this routine as the
 installed Grow Zone procedure. We also note that memory is low for the benefit of
-possible error messages to the user. See Inside Macintosh vol. 2, p.42-43. */
+possible error messages to the user. See Inside Macintosh vol. 2, pp. 42-43. */
 
 pascal long GrowMemory(Size /*nBytes*/)		/* nBytes is unused */
 {
@@ -117,7 +123,7 @@ Boolean PreflightMem(short nKBytes)		/* if nKBytes<=0, assume max. size of a seg
 
 /* ----------------------------------------------------------------------- MemBitCount -- */
 /* Count the number of set bits in a block of memory. Intended for debugging, specifically
-for comparing two bitmaps that should be identical. */
+for comparing two bitmaps that should be identical or nearly identical. */
 
 static short BitCount(unsigned char ch);
 static short BitCount(unsigned char ch)
@@ -174,8 +180,8 @@ Boolean IsDoubleClick(Point pt, short tol, long now)
 	static long lastTime;  static Point thePt;
 	
 	if ((unsigned long)(now-lastTime)<GetDblTime()) {
-		SetRect(&box,thePt.h-tol,thePt.v-tol,thePt.h+tol+1,thePt.v+tol+1);
-		ans = PtInRect(pt,&box);
+		SetRect(&box, thePt.h-tol, thePt.v-tol, thePt.h+tol+1, thePt.v+tol+1);
+		ans = PtInRect(pt, &box);
 		lastTime = 0;
 		thePt.h = thePt.v = 0;
 	}

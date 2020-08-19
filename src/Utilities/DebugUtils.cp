@@ -1146,11 +1146,15 @@ that have meaningful objRects. If we find such object(s), we check whether their
 
 					beamsNow += aNoteBeam->startend;
 					if ((NextNOTEBEAML(aNoteBeamL) && beamsNow<=0)
-					||  beamsNow<0)
-						COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE.\n", pL);
+					||  beamsNow<0) {
+						COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE (1).\n", pL);
+						break;
+						}
 					}
-				if (beamsNow!=0)
-					COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE.\n", pL);
+				if (beamsNow!=0) {
+					COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE (2).\n", pL);
+					break;
+					}
 				}
 
 				PopLock(NOTEBEAMheap);
@@ -2077,14 +2081,14 @@ Boolean DCheckBeams(
 			voice = BeamVOICE(pL);
 			if (VOICE_BAD(voice))
 				COMPLAIN2("*DCheckBeams: BEAMSET L%u HAS BAD voice %d.\n", pL, voice)
-			else if (grace)
-				grBeamSetL[voice] = pL;
-			else
-				beamSetL[voice] = pL;
+			else if (grace)	grBeamSetL[voice] = pL;
+			else			beamSetL[voice] = pL;
 
 		 	pBS = GetPBEAMSET(pL);
-			measureL = LSSearch(pL, MEASUREtype, staff,	GO_RIGHT,			/* Is 1st note in same */
-									False);									/*   meas. as BEAMSET? */
+			
+			/* Is 1st note in same measure as BEAMSET? */
+			
+			measureL = LSSearch(pL, MEASUREtype, staff,	GO_RIGHT, False);
 			if (measureL) {
 				pNoteBeam = GetPANOTEBEAM(pBS->firstSubObj);
 				if (IsAfter(measureL, pNoteBeam->bpSync))
@@ -2109,6 +2113,7 @@ Next:
 						beamNotesOkay = False;
 						break;
 					}
+//if (pL==961) LogPrintf(LOG_DEBUG, "DCheckBeams: staff=%d Beamset=L%u Sync=L%u\n", staff, pL, syncL);
 					if (!SameSystem(pL, syncL)) {
 						COMPLAIN3("*DCheckBeams: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n", pL,
 										(grace? "GR" : ""), syncL);
@@ -2123,12 +2128,12 @@ Next:
 					if (!grace && NoteREST(aNoteL)
 					&& 	(!doc->beamRests && n>1 && n<nEntries) ) goto Next;
 					pNoteBeam = GetPANOTEBEAM(noteBeamL);
-					/*
-					 * If <foundRest>, a disagreement between the Sync we just found and the one the
-					 *	Beamset refers to may simply be due to the Beamset having been created with
-					 *	<beamRests> set the other way from its current setting, and not because of
-			 		 *	any error.
-					 */
+					
+					/* If <foundRest>, a disagreement between the Sync we just found and the one the
+					   Beamset refers to may simply be due to the Beamset having been created with
+					   <beamRests> set the other way from its current setting, and not because of
+					   any error. */
+					   
 					if (pNoteBeam->bpSync!=syncL) {
 						if (foundRest && maxCheck) {
 							COMPLAIN("DCheckBeams: BEAMSET L%u SYNC LINK INCONSISTENT (WITH RESTS; PROBABLY OK).\n", pL);

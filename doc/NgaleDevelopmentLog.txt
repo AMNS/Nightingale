@@ -7148,9 +7148,9 @@ pp1-29				764K	1		yes; yes		OK				0				-
 "					"		2		no				log ends w/L394	-				GDB *H
 "					"		1		no				log complete	-				hangs
 pp1-29Minus5mm		756K	3		no				log ends w/L394	-				GDB *H
-"					"		3		no				log ends w/L394	-				GDB *
+"					"		3		no				log ends w/L394	-				GDB *1
 pp1-29Minus6mm		752K	2		yes; yes		OK				24, 3			-
-"					"		2		yes; yes		3, 2 warns		23, 12				-
+"					"		2		yes; yes		3, 2 warns		23, 12			-
 pp1-29Minus5mm+Mo	728K	3		yes; yes		4, 2, 1	warns	8, 32, 3		-
 pp1-29Minus5mm26p	664K	3		yes; yes		OK				0				-
 "					"		1		yes; no			1 warn			(unk)			1 PROGRAM ERROR
@@ -7165,7 +7165,7 @@ pp1-29Minus5mm26p	664K	3		yes; yes		OK				0				-
 "					"		1		yes; NO			OK				10 (+44 legit)	beams on p. 6 are a mess
 2ndMovementCSpp1-4	172K	1		yes; p. 1 NO	1 warn			22 (+28 legit)	1 PROGRAM ERROR (beams)
 "					"		1		yes; p. 1-4 NO	1 warn			23 (+28 legit)	2 PROGRAM ERRORs (beams)
-"					"		1		yes; p. 1,4 NO	1 warn			50 (+28 legit)	GDB *; 6 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 1,4 NO	1 warn			50 (+28 legit)	GDB *1; 6 PROGRAM ERRORs (beams)
 2ndMovementCSpp1-3	136K	1		yes; p. 1 NO	OK				12 (+16 legit)	6 PROGRAM ERRORs (beams)
 "					"		1		yes; p. 3 NO	OK				19 (+16 legit)	9 PROGRAM ERRORs (beams)
 "					"		1		yes; p. 2 NO	1 warn			40 (+16 legit)	8 PROGRAM ERRORs (beams)
@@ -7183,7 +7183,7 @@ T+MInCounterpoint	100K	2		yes; yes		OK				0				-
 "					"		1		yes; p. 3 NO	OK				9 (+16 legit)	4 PROGRAM ERRORs (beams)
 
 "GDB *H" = shows GDB window highlighting line "SlurFILLER(slurL) = 0;" in ConvertSLUR(), with
-slurL = 395. "GDB *" = same except no highlighted line and upper panes blank.
+slurL = 395. "GDB *1" = same except no highlighted line and upper panes blank.
 
 "**1": Each of the three times, the warning during conversion was:
 
@@ -7212,13 +7212,161 @@ Strategy: maybe look for where beams get corrupted w/ 2ndMovementCSpp1-3? NB it'
 to pin down the problem if it's detected during conversion. Ngale warned of problems during
 conversion of this file 3 of 8 times: not consistently but enough to be useful. However,
 adding debugging code might affect that :-| . Can I learn more w/o changing the code? Hold
-down shift+control to show full detail & open 2ndMovementCSpp1-3.
+down shift+control to show full detail & open 2ndMovementCSpp1-3:
 
 2ndMovementCSpp1-3	136K	1		yes; p. 3 NO	OK		15 (+16 legit)	2 PROGRAM ERRORs (beams), then GDB
 2ndMovementCSpp1-3	136K	1		yes; p. 1-3 NO	OK		29 (+16 legit)	4 PROGRAM ERRORs (beams)
 
 In 10 tries now, 2ndMovementCS opened every time, but with corruption in the obj list
-involving beams every time. Distill log w/ no detail => CSpp1-3Log.txt, w/ detail =>
+involving beams every time! Distill log w/ no detail => CSpp1-3Log.txt, w/ detail =>
 CS_3ppL+DETAIL_Log.txt. Compare => sure, some additional info; nothing obviously helpful,
 but maybe later.
 
+-------------------------------------------------------------------------------
+
+12 - 18 Aug.
+
+2ndMovementCS opens every time, but with corruption in the object list involving beams every
+time; however, the corruption isn't detected during conversion. Why? Is the corruption
+happening later, or are we just not checking for it during conversion? The drawing code logs
+messages like this (from CS_3ppL+DETAIL_Log.txt):
+
+	ERROR. PROGRAM ERROR: BuildBeamDrawTable: couldn't find an unfinished segment.
+	Warning. * StopInform alertID=464
+	Warning. BuildBeamDrawTable: couldn't find an unfinished segment.
+	ERROR. NO BEAM ELEMENTS FOR beamL=L1004.  (DrawBEAMSET)
+	ERROR. PROGRAM ERROR: NO BEAM ELEMENTS FOR beamL=L1004.  (DrawBEAMSET)
+
+Debug Check says, e.g.:
+
+	Warning. *DCheckNode: SUBOBJ IN TIMESIG L258 staffn 1 HAS BAD TIMESIG numerator 0.
+	Warning. *DCheckNode: BEAMSET L961 HAS BAD startend SEQUENCE.
+	Warning. •DCheck1NEntries: OBJ L1004 HAS nEntries=4 BUT 3 SUBOBJECTS.
+	Warning. *DCheckNode: BEAMSET L1004 HAS BAD startend SEQUENCE.
+	Warning. *DCheckNode: BEAMSET L1092 HAS BAD startend SEQUENCE.
+	Warning. *DCheckBeams: BEAMSET L877 SYNC LINK INCONSISTENT.
+	Warning. *DCheckBeams: BEAMED NOTE IN SYNC L880 (MEASURE 66) VOICE 3 NOT IN VOICE'S LAST BEAMSET.
+
+UNFREEZE (temporary?): Make minor changes to Beam.cp to give more information; launch Ngale; test:
+
+2ndMovement			Size	Times	opens; pp. 1-3	Conversion:		Debug Check St.	Other
+file								& last look OK	warns & log		complaints
+-----------			----	-----	--------------	----------		--------------	-----
+2ndMovementCSpp1-3	136K	1		yes; p. 2,3 NO	OK				5 (+16 legit)	4 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 1,2 NO	OK				18 (+16 legit)	3 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 1,2 NO	OK				17 (+16 legit)	3 PROGRAM ERRORs (beams)
+"					"		1		no				1; log complete	-				GDB *2	
+
+Hooray! The Bug is still showing consistently, and with more-or-less the same symptoms!
+
+	ERROR. PROGRAM ERROR: Bad startend sequence at L63: couldn't find an unfinished segment. (BuildBeamDrawTable)
+	Warning. * StopInform alertID=464
+	Warning. Bad startend sequence at L63: couldn't find an unfinished segment. (BuildBeamDrawTable)
+	ERROR. PROGRAM ERROR: NO BEAM ELEMENTS FOR beamL=L63.  (DrawBEAMSET)
+
+Debug Check says, e.g.:
+
+	Warning. *DCheckNode: SUBOBJ IN TIMESIG L10 staffn 0 IS BAD.
+	Warning. *DCheckNode: BEAMSET L63 HAS BAD startend SEQUENCE.
+	--- last message repeated 4 times ---
+	Warning. *DCheckNode: BEAMSET L316 HAS BAD startend SEQUENCE.
+	--- last message repeated 3 times ---
+	Warning. *DCheckNode: BEAMSET L399 HAS BAD startend SEQUENCE.
+	--- last message repeated 2 times ---
+	Warning. *DCheckContext: TIMESIG FOR STAFF 3 IN MEASURE 1 (L11) INCONSISTENCY.
+
+GDB *2: Crashes w/ GDB window highlighting line "if (SyncTYPE(pL)) {" in FindMainNote(), with
+pL = 52416 (which is way larger than makes sense; TAIL of Master Page is 1226!). Log contains
+
+	Warning. •DCheck1NEntries: OBJ L1079 HAS nEntries=4 BUT 3 SUBOBJECTS.
+	debug. ConvertBEAMSET: beamsetL=L1079
+
+...so again a problem with beams. NB the only object-list checking during conversion is in
+DebugConversion(), which just calls DCheck1NEntries(); checking more, e.g., with
+DCheckNode() -- which calls DCheck1NEntries -- might well provide more useful information
+as long as it doesn't make The Bug go into hiding!... and assuming enough of the Document
+environment is set up for it to work; is it? No. Or at least it's not obvious it is: I get
+messages like
+
+	Warning. •DCheckNode: SYSTEM L4 HAS INCONSISTENT RIGHT SYSTEM LINK L0.
+	Warning. *DCheckNode: SYSTEM L4 HAS GARBAGE systemRect.
+	
+...and Ngale crashes. ?? For the moment, at least, let's go back to DCheck1NEntries.
+
+Change DCheckNode code for "BAD startend SEQUENCE" to give a bit more info and not give the
+same message multiple times; is The Bug still visible? Yes! :-)
+
+2ndMovementCSpp1-3	136K	1		yes; p. 1-3 NO	OK				16 (+16 legit)	6 PROGRAM ERRORs (beams)
+"					"		1		yes, p. 2,3 NO	1 warn *A		37 (+16 legit)	5 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 2,3 NO	OK				14 (+16 legit)	2 PROGRAM ERRORs (beams)
+"					"		1		yes; p. 1,2 NO	OK				9  (+16 legit)	1 PROGRAM ERROR (beams)
+
+*A: "Warning. •DCheck1NEntries: OBJ L1017 HAS nEntries=4 BUT 3 SUBOBJECTS." Object L1017 is a Beamset.
+
+NB Pages that "look OK" is based partly on visual inspection. It and "nn PROGRAM ERRORs" may
+both be too optimistic.
+
+Made changes to mere comments in MiscUtils.cp; I'm pretty sure I didn't inadvertently change
+code, but just in case, verify that 2ndMovementCSpp1-3.ngl still behaves the same:
+
+2ndMovement			Size	Times	opens; pp. 1-3	Conversion:		Debug Check St.	Other
+file								& last look OK	warns & log		complaints
+-----------			----	-----	--------------	----------		--------------	-----
+2ndMovementCSpp1-3	136K	1		yes; NO			?				9 (+16 legit)	several PROGRAM ERRORs (beams)
+"					"		1		yes; NO *B		?				34 (+16 legit)	-
+
+*B: Several Beamsets are obviously bad, though Nale's error checking didn't catch it. In every
+case it looks like everything is OK except that one or more of the <bpSync>s is much too small,
+i.e., since the file was just read in and LINKs are monotonic, it points to a note far before
+the Beamset. It wouldn't be hard to add checking for that, probably in DCheckBeams(); would
+that be worthwhile? Probably -- if it doesn't make The Bug go into hiding! But DCheckBeams
+is already checking for bpSyncs not in the same system as the owning Beamse; why aren't I
+getting complaints about that??
+
+Add display of Beamset link and each bpSync to log; open 2ndMovementCSpp1-3.ngl => Beamsets
+L961 and 1023 obviously contain bpSyncs on previous pages. Debug Check doesn't detect that,
+but for 961 (on p. 3, on staff 3), it shows bpSyncs are 967, 968, 969, 970, 974, which is correct,
+and Debug Display Full agrees; but Browser says they're 967, 968, 969, 970 (all OK), and 206
+(on p. 1)!!!! -- and DrawBEAMSET seems to agree. How is that discrepancy possible??
+
+According to Browser, 961's subobj links are 457, 458, 459, 460, 461.
+
+Add code to DCheckBeams to show more about link 961, recompile, relaunch.
+
+2ndMovementCSpp1-3	136K	1		no				OK				-				GDB *2
+"					"		1		yes; p. 1,2 NO	OK				5 (+16 legit)	no PROGRAM ERRORs but pblms in 5 beams *3
+"							4		no				OK				-				hangs w/ no visible indication *4
+
+*2: crashes into GDB no highlighted with all panes blank.
+
+*3: Debug Check complaints about beams:
+
+	Warning. *DCheckNode: BEAMSET L192 HAS BAD startend SEQUENCE (2).
+	Warning. *DCheckNode: BEAMSET L229 HAS BAD startend SEQUENCE (1).
+	Warning. *DCheckNode: BEAMSET L429 HAS BAD startend SEQUENCE (1).
+	Warning. *DCheckBeams: BEAMSET L702 SYNC LINK INCONSISTENT.
+	Warning. *DCheckBeams: BEAMED NOTE IN SYNC L706 (MEASURE 58) VOICE 2 NOT IN VOICE'S LAST BEAMSET.
+
+*4: The last log message each time:
+
+	debug. ****** WORKING SLOWLY! DELAYING EACH TIME THRU LOOP TO AID DEBUGGING.  (ConvertObjSubobjs) ******
+
+Four times in a row doing this? Bizarre! Reboot => same result :-( . Well, the last code
+changes were to Beam.cp, DebugUtils.cp, & FileConversion.cp on Aug 17 at 16:25 and 16:26;
+this behavior started at Aug 17 16:29:39, almost certainly cause and effect. Revert Beam.cp
+=> no change. The obviously-questionable change to FileConversion.cp is a call to
+DCheckBeams() in DebugConversion(); remove that => back to 2ndMovementCSpp1-3 opening w/
+damaged Beamsets! Un-revert Beam.cp => likewise. So the call to DCheckBeams was the problem.
+
+2ndMovementCSpp1-3	136K	1		yes; NO			OK				?				PROGRAM ERRORs (beams) & GDB *5
+"					"		1		yes; NO			OK				?				Draws part of music & GDB *5  
+"					"		1		yes; NO			OK				5 (+16 legit)	PROGRAM ERROR (beams) & GDB *5
+"					"		1		yes; p. 1,2 NO	OK				9 (+16 legit)	3 PROGRAM ERRORs (beams)
+
+*5: Crashes w/ GDB window highlighting line "if (SyncTYPE(pL)) {" in FindMainNote() called from
+DrawBEAMSET, with pL = 13856, then 52416, then 54400 (all way larger than makes sense). NB:
+The same thing with pL = 52416 has happened before!
+
+It'd really help to know when the Beamsets are getting clobbered! DebugConversion() would be a
+good place to check. Calling DCheckBeams there as is is useless, but how about a stripped-down
+version? 

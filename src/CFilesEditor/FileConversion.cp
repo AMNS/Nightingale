@@ -456,6 +456,10 @@ static void DebugConversion(Document *doc, LINK pL)
 
 	/* Check anything else to help find current bugs. */
 	
+#if 0
+	DCheckBeams(doc, pL);
+#endif
+
 #ifdef NOTNOW
 	PASTAFF aStaff = GetPASTAFF(8);
 	LogPrintf(LOG_DEBUG, "ConvObjs1/ASTAFF 8: st=%d top,left,ht,rt=d%d,%d,%d,%d clef=%d\n",
