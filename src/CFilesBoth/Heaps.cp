@@ -187,7 +187,10 @@ Boolean ExpandFreeList(HEAP *heap,
 	p = (char *)(*heap->block);
 	p += ((long)heap->nObjs) * (long)heap->objSize;			/* Addr of first added object */
 	
-	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld deltaObjs=%ld\n", heap, heap->nObjs, deltaObjs);  
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld deltaObjs=%ld\n",
+		heap, heap->nObjs, deltaObjs);
+if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExpandFreeList1: block=%lx p=%lx\n", *heap->block, p);
+if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ExpandFreeList2", (unsigned char *)p, 60, 4, 16);
 	for (i=heap->nObjs; i<newSize-1; i++) {
 		*(LINK *)p = i+1;
 //NHexDump(LOG_DEBUG, "    ExpandFreeList", (unsigned char *)p, 14, 4, 16);

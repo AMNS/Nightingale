@@ -972,6 +972,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	char *pLink1;
 	long sizeAllInFile, sizeAllInHeap, nExpand, position;
 	HEAP *myHeap;
+	const char *ps;
 	
 	myHeap = doc->Heap + iHp;
 	
@@ -995,8 +996,10 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	if (version=='N105')	sizeAllInFile = nFObjs*subObjLength_5[iHp];
 	else					sizeAllInFile = nFObjs*subObjLength[iHp];
 
-	LogPrintf(LOG_INFO, "heap %d: %d subobject(s). sizeAllInFile=%ld sizeAllInHeap=%ld  (ReadSubHeap)\n",
-						iHp, nFObjs, sizeAllInFile, sizeAllInHeap);
+
+	ps = NameHeapType(iHp, False);
+	LogPrintf(LOG_INFO, "heap %d (%s): %d subobject(s). sizeAllInFile=%ld sizeAllInHeap=%ld  (ReadSubHeap)\n",
+						iHp, ps, nFObjs, sizeAllInFile, sizeAllInHeap);
 	if (sizeAllInFile>sizeAllInHeap) {
 		AlwaysErrMsg("File is inconsistent. sizeAllInFile=%ld is greater than sizeAllInHeap=%ld  (ReadSubHeap)",
 					sizeAllInFile, sizeAllInHeap);

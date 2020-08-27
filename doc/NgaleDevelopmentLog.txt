@@ -7178,7 +7178,7 @@ T+MInCounterpoint	100K	1		yes; p. 3 NO	OK				4				-
 "					"		1		yes; p. 1-3 NO	OK				23 (+16 legit)	>=6 PROGRAM ERRORs (beams)
 T+MInCounterpoint	100K	2		yes; yes		OK				0				-
 2ndMovementCSpp1-2	100K	2		yes; yes		OK				0 (+4 legit)	-
-2ndMovementCSpp1-2	100K	1		yes; yes		OK				5 (+4 legit)	TIMESIG L274 staff 1 has numerator 0
+"					"		1		yes; yes		OK				5 (+4 legit)	TIMESIG L274 staff 1 has numerator 0
 2ndMovementCSpp1-3	136K	2		yes; p. 2,3 NO	1 (L1017)		40 (+16 legit)	5 PROGRAM ERRORs (beams)
 "					"		1		yes; p. 3 NO	OK				9 (+16 legit)	4 PROGRAM ERRORs (beams)
 
@@ -7250,7 +7250,7 @@ Debug Check says, e.g.:
 UNFREEZE (temporary?): Make minor changes to Beam.cp to give more information; launch Ngale; test:
 
 2ndMovement			Size	Times	opens; pp. 1-3	Conversion:		Debug Check St.	Other
-file								& last look OK	warns & log		complaints
+file								look OK			warns & log		complaints
 -----------			----	-----	--------------	----------		--------------	-----
 2ndMovementCSpp1-3	136K	1		yes; p. 2,3 NO	OK				5 (+16 legit)	4 PROGRAM ERRORs (beams)
 "					"		1		yes; p. 1,2 NO	OK				18 (+16 legit)	3 PROGRAM ERRORs (beams)
@@ -7310,7 +7310,7 @@ Made changes to mere comments in MiscUtils.cp; I'm pretty sure I didn't inadvert
 code, but just in case, verify that 2ndMovementCSpp1-3.ngl still behaves the same:
 
 2ndMovement			Size	Times	opens; pp. 1-3	Conversion:		Debug Check St.	Other
-file								& last look OK	warns & log		complaints
+file								look OK			warns & log		complaints
 -----------			----	-----	--------------	----------		--------------	-----
 2ndMovementCSpp1-3	136K	1		yes; NO			?				9 (+16 legit)	several PROGRAM ERRORs (beams)
 "					"		1		yes; NO *B		?				34 (+16 legit)	-
@@ -7369,4 +7369,102 @@ The same thing with pL = 52416 has happened before!
 
 It'd really help to know when the Beamsets are getting clobbered! DebugConversion() would be a
 good place to check. Calling DCheckBeams there as is is useless, but how about a stripped-down
-version? 
+version? NB: The problems are entirely or almost entirely because the Beamset objects are
+getting trashed, not the <beamed> flags of notes!
+
+-------------------------------------------------------------------------------
+
+20 - 26 August
+
+Make tiny change to DCheckNode().
+
+2ndMovement			Size	Times	opens; pp. 1-3	Conversion:		Debug Check St.	Other
+file								look OK			warns & log		complaints
+-----------			----	-----	--------------	----------		--------------	-----
+2ndMovementCSpp1-3	136K	1		yes; NO			?				?				Draws part of music & GDB *6
+"					"		1		yes; NO			OK				31 (+16 legit)	PROGRAM ERROR (DrawBEAMSET) *7
+"					"		1		yes; NO			OK				8 (+16)			no PROGRAM ERRORs but pblms in 3 beams *8
+"					"		1		yes; NO			OK				3 (+15!)		no PROGRAM ERRORs but pblms in 1 beam
+
+
+*6: Crashes w/ GDB window highlighting line "if (SyncTYPE(pL)) {" in FindMainNote() called from
+DrawBEAMSET, with pL = 52400 (all way larger than makes sense), voice 4.
+
+*7: Just one wrong value in simple Beamset 218 (2 notes); more of a mess in the more complex 645 (5 notes).
+
+	Warning. *DCheckNode: BEAMSET L218 HAS BAD startend SEQUENCE (end).
+	Warning. •DCheck1NEntries: OBJ L645 HAS nEntries=5 BUT 3 SUBOBJECTS.
+	Warning. *DCheckNode: BEAMSET L645 HAS BAD startend SEQUENCE (end).
+	Warning. *DCheckBeams: BEAMSET L645 SYNC LINK INCONSISTENT.
+	...
+	Warning. *DCheckBeams: BEAMED NOTE IN SYNC L647 (MEASURE 55) VOICE 1 NOT IN VOICE'S LAST BEAMSET.
+	...
+	
+	info.  217 L218 xd=0 yd=0 BEAMSET .V.... oRect.l=p0 stf=2 v=2 n=2
+	info.      bpSync=L220 startend=1 fracs=0 R
+	info.      bpSync=L221 startend=0 fracs=0 L
+	Warning. *DCheckNode: BEAMSET L218 HAS BAD startend SEQUENCE (end).
+	info.  218 L219 xd=0 yd=0 BEAMSET .V.... oRect.l=p480 stf=3 v=3 n=2
+	info.      ...
+	info.  219 L220 xd=72 yd=0 SYNC .V.V.. oRect.l=p480 TS=0 LT=0 n=4
+	info.      stf=2 v=2 xd=0 yd=216 ystm=48 yqpit=10 ldur=5 .s=0 acc=0 onV=75 .V.. .B.. ... 1stMod=0
+	info.      ...
+	info.  220 L221 xd=258 yd=0 SYNC .V.V.. oRect.l=p498 TS=240 LT=240 n=2
+	info.      stf=2 v=2 xd=0 yd=216 ystm=48 yqpit=10 ldur=5 .s=0 acc=0 onV=75 .V.. .B.. ... 1stMod=0
+	info.      ...
+
+The only problem in L218 is the 2nd subobj should have startend = -1, not 0. In 645, consecutive
+bpSyncs are 646 (correct), 121, 122, 3, 14 (all nonsense) -- and it has only 3 subobjs!?
+
+*8: One of the problem beams is again L961.
+
+Open 2ndMovementCSpp1-3.ngl four more times => 1 no problem; 1 beams visibly wrong but no complaints;
+2 beams visibly wrong and "PROGRAM ERROR"s involving beams.
+
+Strategy options:
+
+(1) See if The Bug shows up consistently with a smaller file. Cut the last 1/2 page =>
+2ndMovementCSpp1-2p5.ngl, test:
+
+2ndMovement			Size	Times	opens; pp. 1-3	Conversion:		Debug Check St.	Other
+file								look OK			warns & log		complaints
+-----------			----	-----	--------------	----------		--------------	-----
+2ndMovementCSpp1-2p5 120K	1		yes; yes		OK				0 (+12 legit)	-
+"					"		1		yes; yes		OK				6 (+12 legit)	Timesig problem
+"					"		1		yes; yes		OK				0 (+12 legit)	-
+"					"		1		yes; yes		OK				4 (+12 legit)	Timesig problem
+"					"		1		yes; yes		OK				2 (+12 legit)	Timesig problem
+
+Nope; no Bug shows up consistently. But it's interesting that what _did_ show up 3 out of
+5 times was a problem with time signatures, not beams!!
+
+(2) Set relevant memory (mostly heaps) to zero or another known value and see what happens.
+ExpandFreeList() calls Apple's SetHandleSize; unfortunately there doesn't seem to be a
+version of SetHandleSize analogous to NewPtrClear, so I'll have to set the newly-allocated
+bytes of the block myself. (Is SetHandleSize guaranteed to leave the pre-existing bytes of
+the block alone?? It sure looks like Ngale assumes that, but it'd be nice to see it in
+black-and-white!)
+
+(3) Try to pin down when the Beamsets are getting clobbered! DebugConversion() would be an
+excellent place to check. Calling DCheckBeams there just makes Ngale hang, but how about a
+stripped-down version?
+
+23 Aug., 8:51-9:00: check my latest minor code changes haven't made The Bug hide:
+2ndMovementCSpp1-3	136K	1		yes; yes		OK				0 (+16 legit)	-
+"					"		1		yes; NO			1 *9			37 (+16 legit)	PROGRAM ERRORs (4 BEAMSETs)
+"					"		1		yes; NO			OK				17 (+16 legit)	PROGRAM ERRORs (3 BEAMSETs)
+
+*9:	Warning. •DCheck1NEntries: OBJ L1017 HAS nEntries=4 BUT 3 SUBOBJECTS.
+
+They haven't.
+
+25 Aug., AM: Working on strategy #2, add code to ExpandFreeList() to dump part of the new area
+of expanded heaps; display a bit more in ReadSubHeaps(). Is Bug still visible?
+
+2ndMovementCSpp1-3	136K	1		yes; NO			OK				31 (+16 legit)	PROGRAM ERRORs (1 BEAMSET) *10
+"					"		1		yes; NO			OK				3 (+16 legit)	PROGRAM ERRORs (3 BEAMSETs)
+"					"		1		yes; NO			OK				31 (+16 legit)	PROGRAM ERRORs (1 BEAMSET) *10
+
+*10: The PROGRAM ERROR is in the simple Beamset 218 (2 notes); we've seen a problem with L218 before!
+
+Yes, it is.

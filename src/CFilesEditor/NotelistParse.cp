@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 	FILE:	NotelistParse.c
 	PROJ:	Nightingale
 	DESC:	Routines for parsing files in Nightingale's Notelist format into
@@ -9,7 +9,7 @@
 			The format documented there is as of v. 3.0A. Changes since then
 			have been relatively minor: see the document NotelistTechUpdate05.txt
 			for details.
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -31,7 +31,7 @@
 #include "FileUtils.h"
 // MAS
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Local prototypes */
 
 static Boolean FSPreProcessNotelist(short refNum);
@@ -71,20 +71,20 @@ static NLINK StoreModifier(PNL_MOD pMod);
 static Boolean AllocNotelistMemory(void);
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Globals */
 
 PNL_NODE	gNodeList;					/* list of notelist objects, dynamically allocated */
 HNL_MOD		gHModList;					/* relocatable 1-based array of note modifiers */
 Handle		gHStringPool;				/* relocatable block of null-terminated strings */
 
-/*
-	Each string in <gHStringPool> must begin at an even address, so that we won't
+/* An ancient comment (Motorola 68000s have been gone for a long, long time):
+	"Each string in <gHStringPool> must begin at an even address, so that we won't
 	crash on 68000 machines. Therefore, strings with an even number of chars
 	(not including terminating null) will require an additional null to pad them.
 	Since we won't know how big this block must be before parsing, we will
 	have to expand it whenever we add a string. (At least this is the easiest,
-	if not the fastest, way.)
+	if not the fastest, way.)"
 */
 
 NLINK		gNumNLItems;				/* number of items in notelist, not including HEAD */
@@ -112,12 +112,11 @@ char		gTempoCode[] = { '\0', 'b', 'w', 'h', 'q', 'e', 's', 'r', 'x', 'y' };
 static char		gInBuf[LINELEN];		/* Carefully read the comments above ReadLine before changing the buffer size. */
 static long		gLineCount;
 
-/* --------------------------------------------------------------------------------- */
-/* Other defs */
+/* -------------------------------------------------------------------------------------- */
+/* Other definitions */
 
-/* The following codes refer to consecutive error messages that are in the middle
-of the string list: this can make adding or changing messages tricky! Cf.
-ReportParseFailure(). */
+/* The following codes refer to consecutive error messages that are in the middle of the
+string list: this can make adding or changing messages tricky! Cf. ReportParseFailure(). */
 
 static enum {
 	NLERR_MISCELLANEOUS=1,	/* "Miscellaneous error" */
@@ -147,13 +146,13 @@ static enum {
 } E_NLErrs;
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* High level functions (ParseNotelistFile, PreProcessNotelist, ProcessNotelist,
 	PostProcessNotelist). */
 
-/* ------------------------------------------------------------ ParseNotelistFile -- */
+/* ----------------------------------------------------------------- ParseNotelistFile -- */
 
-Boolean ParseNotelistFile(Str255 fileName, FSSpec *fsSpec)
+Boolean ParseNotelistFile(Str255 /*fileName*/, FSSpec *fsSpec)
 {
 	Boolean		ok, printNotelist = True;
 	short		refNum;
@@ -237,7 +236,7 @@ static Boolean FSPreProcessNotelist(short refNum)
 }
 
 
-/* -------------------------------------------------------------- ProcessNotelist -- */
+/* ------------------------------------------------------------------- ProcessNotelist -- */
 
 #define NOTELISTCODE_ALRT 310
 
@@ -301,7 +300,7 @@ static Boolean FSProcessNotelist(short refNum)
 }
 
 
-/* ----------------------------------------------------------- PostProcessNotelist -- */
+/* --------------------------------------------------------------- PostProcessNotelist -- */
 /* Fill in various fields that cannot be computed before we read all the Notelist data.
 Returns True if ok, False if error. */
 
@@ -325,10 +324,10 @@ static Boolean PostProcessNotelist(void)
 }
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Functions for parsing individual Notelist codes */
 
-/* -------------------------------------------------------------------- ParseNRGR -- */
+/* ------------------------------------------------------------------------- ParseNRGR -- */
 /* Parse a line giving data for a normal note, grace note, or rest, e.g.:
 
 N t=0 v=1 npt=1 stf=1 dur=4 dots=0 nn=72 acc=0 eAcc=3 pDur=456 vel=75 ...... appear=1
@@ -504,7 +503,7 @@ broken:
 }
 
 
-/* ------------------------------------------------------------------ ParseTuplet -- */
+/* ----------------------------------------------------------------------- ParseTuplet -- */
 /* Parse a line like this:
 		P v=1 npt=1 num=3 denom=2 appear=101
 */
@@ -579,7 +578,7 @@ broken:
 }
 
 
-/* ----------------------------------------------------------------- ParseBarline -- */
+/* ---------------------------------------------------------------------- ParseBarline -- */
 /* Parse a line like this:
 		/ t=1440 type=1
 */
@@ -627,7 +626,7 @@ broken:
 }
 
 
-/* -------------------------------------------------------------------- ParseClef -- */
+/* ------------------------------------------------------------------------- ParseClef -- */
 /* Parse a line like this:
 		C stf=1 type=1
 */
@@ -669,7 +668,7 @@ broken:
 }
 
 
-/* ------------------------------------------------------------------ ParseKeySig -- */
+/* ----------------------------------------------------------------------- ParseKeySig -- */
 /* Parse a line like this:
 		K stf=1 KS=3 b
 */
@@ -717,7 +716,7 @@ broken:
 }
 
 
-/* ------------------------------------------------------------------ ParseTimeSig -- */
+/* ---------------------------------------------------------------------- ParseTimeSig -- */
 /* Parse a line like this:
 		T stf=2 num=3 denom=8 displ=1
 	NB: The "displ" field is optional if timesig type is normal.
@@ -776,7 +775,7 @@ broken:
 }
 
 
-/* --------------------------------------------------------------- ParseTempoMark -- */
+/* -------------------------------------------------------------------- ParseTempoMark -- */
 /* Parse a line like this:
 		M stf=1 'Allegro' q.=126-132
 */
@@ -808,9 +807,9 @@ static Boolean ParseTempoMark()
 	pTempo->staff = along;
 
 	/* Extract tempo string, which is enclosed in single-quotes and can contain whitespace.
-		First copy it into a temporary buffer (str); then store into gHStringPool.
-		NB: If there is no string, it will be encoded as two single-quotes ('').
-	*/
+		First copy it into a temporary buffer (str); then store into gHStringPool. NB:
+		If there is no string, it will be encoded as two single-quotes (''). */
+		
 	err = NLERR_MISCELLANEOUS;
 	p = (unsigned char *)strchr(gInBuf, '\'');
 	if (!p) goto broken;
@@ -831,25 +830,24 @@ static Boolean ParseTempoMark()
 		pTempo->string = NILINK;
 	}
 	
-	/* Point to first non-whitespace char following terminal single-quote. If
-		the tempo mark has its metronome value hidden (hideMM), then we'll reach
-		the null that terminates gInBuf before hitting a non-whitespace char.
-	*/
+	/* Point to first non-whitespace char following terminal single-quote. If the
+	   tempo mark has its metronome value hidden (hideMM), then we'll reach the null
+	   that terminates gInBuf before hitting a non-whitespace char. */
+	   
 	for (p++; *p; p++)
 		if (!isspace((int)*p)) break;
 	
 	/* Analyze the metronome (beats per minute) string. Extract <durCode> and <dotted>;
-		store <metroStr> into gHStringPool. The <metroStr> gives the tempo Ngale uses
-		for playback. It can comprises arbitrary text, including whitespace, but must
-		contain a valid tempo value. We don't worry about that here. If there IS no
-		metronome string, we assign a default, since Ngale requires one.	
-	*/
+	   store <metroStr> into gHStringPool. The <metroStr> gives the tempo Ngale uses
+	   for playback. It can comprises arbitrary text, including whitespace, but must
+	   contain a valid tempo value. We don't worry about that here. If there _is_ no
+	   metronome string, we assign a default, since Ngale requires one.	*/
+	   
 	if (*p) {
 		short	i;
 		pTempo->durCode = 0;
 		for (i = 1; i<=9; i++)
-			if (*p==gTempoCode[i])
-				pTempo->durCode = i;
+			if (*p==gTempoCode[i]) pTempo->durCode = i;
 		if (pTempo->durCode==0) goto broken;
 		if (*++p=='.') {
 			pTempo->dotted = True;
@@ -891,13 +889,12 @@ broken:
 }
 
 
-/* ------------------------------------------------------------- ParseTextGraphic -- */
+/* ------------------------------------------------------------------ ParseTextGraphic -- */
 /* Parse a line like this:
 		A v=2 npt=2 stf=4 S [3] 'con calore'
-	The item "3" is shown in brackets because it's not always present--it's required with
-	v. 2 files, but not allowed with earlier files.
-	NB: The string can include spaces, so we can't use sscanf to extract it.
-*/
+The item "3" is shown in brackets because it's not always present: it's required with
+v. 2 files, but not allowed with earlier versions. NB: The string can include spaces,
+so we can't use sscanf to extract it. */
 
 static Boolean ParseTextGraphic()
 {
@@ -947,23 +944,23 @@ static Boolean ParseTextGraphic()
 	pGraphic->staff = along;
 
 	switch (type) {
-		case 'S':	pGraphic->type = GRString;		break;
-		case 'L':	pGraphic->type = GRLyric;		break;
-		default:	err = NLERR_MISCELLANEOUS;		goto broken;
+		case 'S':	pGraphic->type = GRString;	break;
+		case 'L':	pGraphic->type = GRLyric;	break;
+		default:	err = NLERR_MISCELLANEOUS;	goto broken;
 	}
 
 	switch (styleCode) {
-		case '1': pGraphic->style = TSRegular1STYLE; break;
-		case '2': pGraphic->style = TSRegular2STYLE; break;
-		case '3': pGraphic->style = TSRegular3STYLE; break;
-		case '4': pGraphic->style = TSRegular4STYLE; break;
-		case '5': pGraphic->style = TSRegular5STYLE; break;
+		case '1': pGraphic->style = TSRegular1STYLE;  break;
+		case '2': pGraphic->style = TSRegular2STYLE;  break;
+		case '3': pGraphic->style = TSRegular3STYLE;  break;
+		case '4': pGraphic->style = TSRegular4STYLE;  break;
+		case '5': pGraphic->style = TSRegular5STYLE;  break;
 		default: pGraphic->style = TSNoSTYLE;
 	}
 
 	/* Extract string, which is enclosed in single-quotes and can contain whitespace.
-		First copy it into a temporary buffer (str); then store into gHStringPool.
-	*/
+		First copy it into a temporary buffer (str); then store into gHStringPool. */
+		
 	p = strchr(gInBuf, '\'');
 	if (!p) goto broken;
 	p++;
@@ -985,7 +982,7 @@ broken:
 }
 
 
-/* ----------------------------------------------------------------- ParseDynamic -- */
+/* ---------------------------------------------------------------------- ParseDynamic -- */
 /* Parse a line like this:
 		D stf=1 dType=9
 */
@@ -1032,12 +1029,12 @@ broken:
 }
 
 
-/* ------------------------------------------------ ParseStructComment and allies -- */
+/* ----------------------------------------------------- ParseStructComment and allies -- */
 
 /* Given a pointer to the beginning of one of the optional fields on the header
-	structured comment, parse it and return a pointer to the char after its end. If
-	we don't recognize the field, or there's no non-whitespace in the string, just
-	return NULL. */
+structured comment, parse it and return a pointer to the char after its end. If we
+don't recognize the field, or there's no non-whitespace in the string, just return
+NULL. */
 
 static char *ParseField(char *p, Boolean *pOkay);
 static char *ParseField(char *p, Boolean *pOkay)
@@ -1075,11 +1072,11 @@ static char *ParseField(char *p, Boolean *pOkay)
 }
 
 
-/* Parse a line like one of these (appearing as a header on every notelist file):
+/* Parse a structured comment line like one of these (appearing as a header on every
+notelist file):
 		%%Notelist-V2 file='BaaBaaBlackSheep'  partstaves=1 1 1 0
 		%%Notelist-V2 file='SonataOp111'  partstaves=2 0 startmeas=0
-	In the future there may be other kinds of structured comment.
-*/
+In the future there may be other kinds of structured comment. */
 
 #define COMMENT_SCORE		"%%Score"
 #define COMMENT_NOTELIST	"%%Notelist"
@@ -1112,9 +1109,8 @@ static Boolean ParseStructComment()
 	gDelAccs = False;
 
 	/* Extract score name, which is enclosed in single-quotes and can contain whitespace.
-		First copy it into a temporary buffer (str); then store into gHStringPool.
-		It must not be longer than 31 chars (excluding terminating null).
-	*/
+	   First copy it into a temporary buffer (str); then store into gHStringPool. It must
+	   not be longer than 31 chars (excluding terminating null). */
 
 	err = NLERR_MISCELLANEOUS;
 	p = strchr(gInBuf, '\'');
@@ -1130,10 +1126,9 @@ static Boolean ParseStructComment()
 		pHead->scoreName = offset;
 	else goto broken;
 
-	/* Construct a 1-based array giving the arrangement of parts and staves.
-		Indices represent part numbers; values represent the number of staves
-		in a part.
-	*/
+	/* Construct a 1-based array giving the arrangement of parts and staves. Indices
+	   represent part numbers; values represent the number of staves in a part. */
+	   
 	gNumNLStaves = 0;
 	for (i=0; i<=MAXSTAVES; i++)
 		gPartStaves[i] = 0;
@@ -1145,6 +1140,7 @@ static Boolean ParseStructComment()
 		nstaves = (char)strtol(str, (char **)NULL, 10);
 		if (nstaves<=0) {
 			/* Found the terminator for the part/staff info: skip over it. */
+			
 			p = strchr(p, ' ');
 			if (!p) goto done;
 			break;
@@ -1163,6 +1159,7 @@ static Boolean ParseStructComment()
 	}
 
 	/* Parse and make use of any optional fields that appear at the end of the line. */
+	
 	do
 		p = ParseField(p, &okay);
 	while (p);
@@ -1181,12 +1178,12 @@ broken:
 }
 
 
-/* ------------------------------------------------------------------- ExtractVal -- */
-/* Given a string having the format "label=xxx", converts the "xxx" part to a
-numerical (long int) value. Returns True if ok, False if error. */
+/* ------------------------------------------------------------------------ ExtractVal -- */
+/* Given a string having the format "label=xxx", converts the "xxx" part to a numerical
+(long int) value. Returns True if ok, False if error. */
 
-static Boolean ExtractVal(char	*str,				/* source string */
-							long	*val)			/* pass back extracted value */
+static Boolean ExtractVal(char *str,			/* source string */
+							long *val)			/* pass back extracted value */
 {
 	char	*p;
 	short	ans;
@@ -1206,7 +1203,7 @@ static Boolean ExtractVal(char	*str,				/* source string */
 }
 
 
-/* ------------------------------------------------------------- ExtractNoteFlags -- */
+/* ------------------------------------------------------------------ ExtractNoteFlags -- */
 /* Function for decoding the flag field of a note, rest or grace note. Assigns values
 to the object passed in pNRGR. The function has a complete check for illegal characters
 in flagStr. Returns True if ok, False if error.
@@ -2100,12 +2097,12 @@ Boolean FetchModifier(NLINK modL, PNL_MOD pMod)
 }
 
 
-/* ---------------------------------------------------------- AllocNotelistMemory -- */
+/* --------------------------------------------------------------- AllocNotelistMemory -- */
 /* Allocate memory for the intermediate Notelist data structure.
 Returns True if ok, False if error (after giving NoMoreMemory alert).
 NB: In the case of an error here, a function higher in the calling chain should dispose
 of whatever memory was allocated before the error by calling DisposNotelistMemory.
-CRUCIAL: We use NewPtrClear, rather than NewPtr, to insure that all fields will be set
+CRUCIAL: We use NewPtrClear rather than NewPtr to insure that all fields will be set
 to zero. We allocate minimal blocks for gHModList and gHStringPool, since we don't know
 how big they'll have to be at this point. We expand them later as needed. */
 
@@ -2114,8 +2111,9 @@ static Boolean AllocNotelistMemory(void)
 	Ptr		p;
 	Handle	h;
 	
-	/* Must initialize to NULL so that if we fail partway through allocation,
-		the subsequent call to DisposNotelistMemory will be safe. */
+	/* Must initialize to NULL so that if we fail partway through allocation, the
+	   subsequent call to DisposNotelistMemory will be safe. */
+	   
 	gNodeList = (PNL_NODE)NULL;
 	gHModList = (HNL_MOD)NULL;
 	gHStringPool = NULL;

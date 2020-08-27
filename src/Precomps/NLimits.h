@@ -17,7 +17,7 @@ several more places, e.g., DoPostScript, NameMFScore. */
 #define MAXINBEAM 127		/* Maximum no. of notes/chords in a beamset */
 #define MAXINOTTAVA	127		/* Maximum no. of notes/chords in an ottava */
 #define MAXINTUPLET	80		/* Maximum no. of notes/chords in an tuplet */
-#define MAX_TUPLENUM 255	/* Maximum possible numerator/denominator in a tuplet */
+#define MAX_TUPLENUM 255	/* Maximum possible numerator and denominator in a tuplet */
 #define MAX_MEASNODES 250	/* Maximum no. of nodes in a measure */
 #define MAX_L_DUR 9			/* Max. legal SYNC l_dur code; the shortest legal */
 							/*   duration = 1/2^(MAX_L_DUR-WHOLE_L_DUR) */
@@ -31,13 +31,15 @@ several more places, e.g., DoPostScript, NameMFScore. */
 #define MAX_TSDENOM 64		/* Maximum time signature denominator */
 
 #define MAX_FIRSTMEASNUM 4000	/* Largest number for the first measure */
-#define MAX_RSP_MEASURES 5000	/* Max. no. of Measures we can respace per call */
+#define MAX_SCORE_MEASURES 5000	/* Max. no. of measures in entire score */
+#define MAX_RSP_MEASURES 5000	/* Max. no. of measures we can respace per call */
 
 #define MAX_MPCHANGES 50	/* Max. no. of changes in one call to Master Page */
 
 #define MF_MAXPIECES 300	/* Max. pieces one note/rest can be "clarified" into */
 
 /* Cf. MAX_CARET_HEIGHT in MCaret.c before changing MAX_MAGNIFY. */
+
 #define MIN_MAGNIFY -4		/* Max. reduction = 2^(this no./2) */
 #define MAX_MAGNIFY 5		/* Max. magnification = 2^(this no./2) */
 
@@ -46,8 +48,8 @@ several more places, e.g., DoPostScript, NameMFScore. */
 #define MAX_LEDGERS 22		/* Maximum no. of ledger lines under any circumstances. */
 							/* 22 is enough to reach MIDI note no. 127 in bass clef. */
 												
-/* N.B. If (MAXSPACE*RESFACTOR) exceeds SHRT_MAX, the justification routines may
- *	have serious problems.  See especially RespaceBars and JustAddSpace. */
+/* NB: If (MAXSPACE*RESFACTOR) exceeds SHRT_MAX, the justification routines may have
+serious problems.  See especially RespaceBars and JustAddSpace. */
  
 #define MINSPACE 10				/* Minimum legal <spacePercent> for respacing */
 #define MAXSPACE 500			/* Maximum legal <spacePercent> for respacing */

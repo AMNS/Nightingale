@@ -382,7 +382,7 @@ Boolean DCheckMeasSubobjs(
 			connStaff[aMeas->staffn] = aMeas->connStaff;
 		}
 
-		if (aMeas->measureNum > MAX_FIRSTMEASNUM+5000)
+		if (aMeas->measureNum > MAX_FIRSTMEASNUM+MAX_SCORE_MEASURES)
 			{ COMPLAIN("DCheckMeasSubobjs: Measure L%u has a suspicious measure number.\n", pL); }
 
 		if (aMeas->staffn==1 && aMeas->connAbove)
@@ -1147,12 +1147,12 @@ that have meaningful objRects. If we find such object(s), we check whether their
 					beamsNow += aNoteBeam->startend;
 					if ((NextNOTEBEAML(aNoteBeamL) && beamsNow<=0)
 					||  beamsNow<0) {
-						COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE (1).\n", pL);
+						COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE (mid).\n", pL);
 						break;
 						}
 					}
 				if (beamsNow!=0) {
-					COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE (2).\n", pL);
+					COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE (end).\n", pL);
 					break;
 					}
 				}
@@ -1548,10 +1548,10 @@ that have meaningful objRects. If we find such object(s), we check whether their
 
 
 /* --------------------------------------------------------------------- DCheckNodeSel -- */
-/* Do consistency check on selection status between object and subobject: if
-object is not selected, no subobjects should be selected. Does not check the other
-type of consistency, namely if object is selected, at least one subobject should
-be. Returns True if it finds a problem. */
+/* Do consistency check on selection status between object and subobject: if object is
+not selected, no subobjects should be selected. Does not check the other type of
+consistency, namely if object is selected, at least one subobject should be. Returns
+True if it finds a problem. */
 
 Boolean DCheckNodeSel(Document *doc, LINK pL)
 {
@@ -1705,7 +1705,7 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 	agreement between voice table part numbers and note, rest, and grace note part
 		numbers;
 	the legality of voiceRole fields.
-We could also check other symbols with voice nos. */
+We could also check other symbols with voice numbers. */
 
 Boolean DCheckVoiceTable(Document *doc,
 			Boolean fullCheck,				/* False=skip less important checks */
@@ -2038,11 +2038,12 @@ Boolean DCheckJDOrder(Document *doc)
 
 
 /* ----------------------------------------------------------------------- DCheckBeams -- */
-/* Check consistency of Beamset objects with notes/rests or grace notes they should
-be referring to. Also check that, after a non-grace Beamset that's the first of a
-cross-system pair, the next non-grace Beamset in that voice is the second of a cross-
-system pair. Notes/rests are checked against their Beamset more carefully than
-grace notes are. */
+/* Check: that Beamset voice nos. are legal; that Beamsets in a voice don't overlap;
+that Beamset objects are consistent with notes/rests or grace notes they should be
+referring to; that  notes/rests/grace notes are in the same system as the Beamset. For
+cross-system Beamsets, also check that, after a non-grace Beamset that's the first of
+a cross-system pair, the next non-grace Beamset in that voice is the second of a pair.
+(Notes/rests are checked against their Beamset more carefully than grace notes are.) */
  
 Boolean DCheckBeams(
 				Document *doc,
@@ -2129,10 +2130,10 @@ Next:
 					&& 	(!doc->beamRests && n>1 && n<nEntries) ) goto Next;
 					pNoteBeam = GetPANOTEBEAM(noteBeamL);
 					
-					/* If <foundRest>, a disagreement between the Sync we just found and the one the
-					   Beamset refers to may simply be due to the Beamset having been created with
-					   <beamRests> set the other way from its current setting, and not because of
-					   any error. */
+					/* If <foundRest>, a disagreement between the Sync we just found and the
+					   one the Beamset refers to may simply be due to the Beamset having been
+					   created with <beamRests> set the other way from its current setting,
+					   and not because of any error. */
 					   
 					if (pNoteBeam->bpSync!=syncL) {
 						if (foundRest && maxCheck) {
@@ -2386,19 +2387,18 @@ Boolean DCheckSlurs(Document *doc)
 			if (VOICE_BAD(voice))
 				COMPLAIN("*DCheckSlurs: SLUR L%u HAS BAD voice.\n", pL)
 			else {
-			/* There should be no Syncs between a slur and its Sync. */
+			/* There should be no Syncs in the same voice between a slur and its first Sync. */
 			
 				nextSyncL = SSearch(pL, SYNCtype, GO_RIGHT);
 				if (!NoteInVoice(nextSyncL, voice, False))
 					COMPLAIN2("*DCheckSlurs: NEXT SYNC AFTER SLUR/TIE L%u HAS NO NOTES IN VOICE %d.\n",
 										pL, voice);
 
-			/*
-			 * Handle slurs and ties separately. For each one, if there's currently one of
-			 *	that type in progress and it doesn't end with the next Sync in the voice,
-			 *	we have an error; otherwise store the end address of this slur/tie for
-			 *	future use.
- 			 */
+			/* Handle slurs and ties separately. For each one, if there's currently one of
+			   that type in progress and it doesn't end with the next Sync in the voice,
+			   we have an error; otherwise store the end address of this slur/tie for
+			   future use. */
+			   
 				nextSyncL = LVSearch(pL, SYNCtype, voice, GO_RIGHT, False);
 				if (SlurTIE(pL)) {
 					if (tieEnd[voice] && tieEnd[voice]!=nextSyncL)
@@ -2436,12 +2436,11 @@ Boolean DCheckSlurs(Document *doc)
 				}
 			}
 			
-			/*
-			 * Check that the slur and its first and last objects are in the correct order.
-			 * They should be in the order:
-			 *		last, slur, first		for the first piece of cross-system slurs
-			 *		first, slur, last		for the last piece of cross-system slurs
-			 *	 	slur, first, last		for non-cross-system slurs
+			/* Check that the slur and its first and last objects are in the correct order.
+			   They should be in the order:
+				- last, slur, first		for the first piece of cross-system slurs
+				- first, slur, last		for the last piece of cross-system slurs
+				- slur, first, last		for non-cross-system slurs
 			 */
 
 			if (SlurCrossSYS(pL) && SlurFirstIsSYSTEM(pL)) {
@@ -2465,11 +2464,10 @@ Boolean DCheckSlurs(Document *doc)
 				COMPLAIN2("*DCheckSlurs: SLUR L%u IN MEASURE %d AND ITS lastSyncL ARE IN WRONG ORDER.\n",
 							pL, GetMeasNum(doc, pL));
 
-			/*
-			 * If the slur is the first piece of a cross-system pair, check that the next
-			 * cross-system slur piece of the same subtype in the voice exists and is on
-			 * the next System.
-			 */
+			/* If the slur is the first piece of a cross-system pair, check that the next
+			   cross-system slur piece of the same subtype in the voice exists and is on
+			   the next System. */
+			   
 			if (SlurCrossSYS(pL) && SlurFirstIsSYSTEM(pL)) {
 				otherSlurL = XSysSlurMatch(pL);
 				if (!otherSlurL)
@@ -2518,11 +2516,11 @@ short LegalTupletTotDur(LINK tupL)
 
 
 /* --------------------------------------------------------------------- DCheckTuplets -- */
-/* Check that tuplet objects are in the same measures as their last (and therefore
-all of their) Syncs, and check consistency of tuplet objects with Syncs they should
-be referring to. Also warn about any tuplets whose notes are subject to roundoff
-error in their durations, since that can easily cause problems in syncing. Finally,
-check that total durations make sense for the numerators. */
+/* Check that tuplet objects are in the same measures as their last (and therefore all of
+their) Syncs, and check consistency of tuplet objects with Syncs they should be referring
+to. Also warn about any tuplets whose notes are subject to roundoff error in their
+durations, since that can easily cause problems in syncing. Finally, check that total
+durations make sense for the numerators. */
 
 Boolean DCheckTuplets(
 				Document *doc,
@@ -2599,7 +2597,7 @@ Boolean DCheckTuplets(
 
 
 
-/* ------------------------------------------------------------------- DCheckHairpins -- */
+/* -------------------------------------------------------------------- DCheckHairpins -- */
 /* For each hairpin, check that the Dynamic object and its firstSyncL and lastSyncL
 appear in the correct order in the object list. */
 
@@ -2634,9 +2632,9 @@ Boolean DCheckHairpins(Document *doc)
 
 
 /* --------------------------------------------------------------------- DCheckContext -- */
-/* Do consistency checks on the entire score to see if changes of clef, key
-signature, meter and dynamics in context fields of STAFFs and MEASUREs agree
-with appearances of actual CLEF, KEYSIG, TIMESIG and DYNAM objects. */
+/* Do consistency checks on the entire score to see if changes of clef, key signature,
+meter and dynamics in context fields of STAFFs and MEASUREs agree with appearances of
+actual CLEF, KEYSIG, TIMESIG and DYNAM objects. */
  
 Boolean DCheckContext(Document *doc)
 {
