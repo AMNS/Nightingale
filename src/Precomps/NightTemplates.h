@@ -607,7 +607,6 @@ pascal short	FindToolItem(Point pt);
 	void		DrawDocumentView(Document *doc, Rect *updateRect);
 	void		ExportDeskScrap(void);
 	Boolean		ClipboardChanged(ScrapRef scrap);
-	void		FillMem(Byte, void *, DoubleWord);
 	void		FixCrossSysObjects(Document *, LINK, LINK);
 	void		ImportDeskScrap(void);
 	Boolean		ImportMIDIFile(FSSpec *);

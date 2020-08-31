@@ -24,7 +24,7 @@
 		DMoveTo
 		GCD						RoundDouble				RoundSignedInt
 		InterpY					FindIntInString			ShellSort
-		BlockCompare			RelIndexToSize			GetTextSize
+		RelIndexToSize			GetTextSize
 		FontName2Index			User2HeaderFontNum		Header2UserFontNum
 		Rect2Window				Pt2Window				Pt2Paper		
 		Global2Paper			DRect2ScreenRect		RefreshScreen
@@ -1083,25 +1083,6 @@ void ShellSort(short array[], short nsize)
 		}
 	}
 }
-
-
-/* ---------------------------------------------------------------------- BlockCompare -- */
-/* Compare two chunks of memory byte by byte for a given length until either they match,
-in which case we return 0, or until the first is less than or greater than the second,
-in which case we return -1 or 1 respectively. */
-
-short BlockCompare(void *blk1, void *blk2, short len)
-	{
-		Byte *b1, *b2;
-		
-		b1 = (Byte *)blk1;
-		b2 = (Byte *)blk2;
-		while (len-- > 0) {
-			if (*b1 < *b2) return -1;
-			if (*b1++ > *b2++) return 1;
-			}
-		return 0;
-	}
 
 
 /* -------------------------------------------------------------------- RelIndexToSize -- */

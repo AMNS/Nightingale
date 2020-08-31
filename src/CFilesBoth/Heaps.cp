@@ -181,19 +181,23 @@ Boolean ExpandFreeList(HEAP *heap,
 	if (heap->lockLevel != 0) HLock(heap->block);
 	if (err) return(False);
 	
-	/* For all but last added object, link object to following object. p is left pointing
-	   to the last added object. */
+	/* For all added objects but last, link object to following object. p will be left
+	   pointing to the last added object. */
 	 
 	p = (char *)(*heap->block);
 	p += ((long)heap->nObjs) * (long)heap->objSize;			/* Addr of first added object */
 	
-	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld deltaObjs=%ld\n",
-		heap, heap->nObjs, deltaObjs);
-if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExpandFreeList1: block=%lx p=%lx\n", *heap->block, p);
-if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ExpandFreeList2", (unsigned char *)p, 60, 4, 16);
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld ->objSize=%d deltaObjs=%ld\n",
+		heap, heap->nObjs, heap->objSize, deltaObjs);
+if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExpandFreeList: block=%lx p=%lx\n", *heap->block, p);
+if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ExpandFreeList1", (unsigned char *)p, 60, 4, 16);
 	for (i=heap->nObjs; i<newSize-1; i++) {
 		*(LINK *)p = i+1;
-//NHexDump(LOG_DEBUG, "    ExpandFreeList", (unsigned char *)p, 14, 4, 16);
+if (DETAIL_SHOW && i-(heap->nObjs)<3) {
+	SleepMS(3);
+	NHexDump(LOG_DEBUG, "    ExpandFreeList2", (unsigned char *)p, heap->objSize+4, 4, 16);
+}
+		if (0) FillMem(0, p, heap->objSize);
 		p += heap->objSize;
 	}
 		

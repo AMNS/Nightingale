@@ -2909,3 +2909,10 @@ Minor cleanup. Affects Beam, DebugUtils, FileConversion, HeapFileIO, MiscUtils.
 
 Minor cleanup. Affects NLimits.h; Beam, DebugUtils, Heaps, HeapFileIO, NotelistParse.
 
+-------------------------------------------------------------------------------
+
+27 - 29 August
+
+Minor cleanup. Affects MemMacros.h, MiscUtils.h, NightTemplates.h, Utility.h;
+AutoBeam, FileConversion, HeapFileIO, Heaps, MiscUtils, Utility.
+

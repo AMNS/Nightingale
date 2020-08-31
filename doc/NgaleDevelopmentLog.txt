@@ -7320,7 +7320,7 @@ case it looks like everything is OK except that one or more of the <bpSync>s is 
 i.e., since the file was just read in and LINKs are monotonic, it points to a note far before
 the Beamset. It wouldn't be hard to add checking for that, probably in DCheckBeams(); would
 that be worthwhile? Probably -- if it doesn't make The Bug go into hiding! But DCheckBeams
-is already checking for bpSyncs not in the same system as the owning Beamse; why aren't I
+is already checking for bpSyncs not in the same system as the owning Beams; why aren't I
 getting complaints about that??
 
 Add display of Beamset link and each bpSync to log; open 2ndMovementCSpp1-3.ngl => Beamsets
@@ -7356,7 +7356,8 @@ changes were to Beam.cp, DebugUtils.cp, & FileConversion.cp on Aug 17 at 16:25 a
 this behavior started at Aug 17 16:29:39, almost certainly cause and effect. Revert Beam.cp
 => no change. The obviously-questionable change to FileConversion.cp is a call to
 DCheckBeams() in DebugConversion(); remove that => back to 2ndMovementCSpp1-3 opening w/
-damaged Beamsets! Un-revert Beam.cp => likewise. So the call to DCheckBeams was the problem.
+damaged Beamsets! Un-revert Beam.cp => likewise. So the call to DCheckBeams was the problem. (BUT
+I was calling it for all objects, beam or not!! Duh...  --DAB, 29 Aug.)
 
 2ndMovementCSpp1-3	136K	1		yes; NO			OK				?				PROGRAM ERRORs (beams) & GDB *5
 "					"		1		yes; NO			OK				?				Draws part of music & GDB *5  
@@ -7447,7 +7448,8 @@ black-and-white!)
 
 (3) Try to pin down when the Beamsets are getting clobbered! DebugConversion() would be an
 excellent place to check. Calling DCheckBeams there just makes Ngale hang, but how about a
-stripped-down version?
+stripped-down version? BUT I was calling it for every object regardless of whether it was
+a beam!!! $%*^&(()#E^*(%  So how about just calling it for actual Beamsets??  
 
 23 Aug., 8:51-9:00: check my latest minor code changes haven't made The Bug hide:
 2ndMovementCSpp1-3	136K	1		yes; yes		OK				0 (+16 legit)	-
@@ -7468,3 +7470,67 @@ of expanded heaps; display a bit more in ReadSubHeaps(). Is Bug still visible?
 *10: The PROGRAM ERROR is in the simple Beamset 218 (2 notes); we've seen a problem with L218 before!
 
 Yes, it is.
+
+-------------------------------------------------------------------------------
+
+26 - 30 Aug.
+
+Ready to try strategy #2. In ExpandFreeList(), after the call to SetHandleSize, we set <p>
+to point to the start of memory for the first added object. Add something like this:
+
+	#define INIT_VALUE 0xAF		/* or other 8-bit value */
+	
+	for (q = p; q<??; q++) (char *)q = INIT_VALUE;
+
+...or do the same thing with a call to FillMem().
+
+Do preparatory code cleanup in MiscUtils.c, Utility.c, Heaps. Open 2ndMovementCSpp1-3 => The Bug?
+1. Debug Check finds problems in 3 Beamsets & 2 Timesigs
+2. Beams don't look OK; PROGRAM ERROR (1 BEAMSET) & Debug Check complaints about Beamsets & Timesigs
+3. Beams don't look OK; Debug Check complaints about Beamsets & Timesigs
+
+Yes, still visible.
+
+Ca. 5 PM, 27 Aug.: More cleanup in AutoBeam.c, MiscUtils.c.
+
+Open 2ndMovementCSpp1-3 => The Bug?
+
+1. Everything looks OK; Debug Check has no complaints (except the legitimate 16). No signs of Bug.
+2. Beams don't look OK; Debug Check complaints about 3 Beamsets
+3. Beams don't look OK; PROGRAM ERROR (1 BEAMSET) & Debug Check complaints about Beamsets
+4. Beams don't look OK; PROGRAM ERROR (3 BEAMSET) & Debug Check complaints about Beamsets & Timesigs
+
+Yes, still visible.
+
+Well, strategy #2 is turning out to be very messy, and #3 is more promising now that I see an
+obvious and easily-fixed cause for the hangs! So add to DebugConversion 
+
+	if (BeamsetTYPE(pL)) DCheckBeams(doc, pL);
+
+Open 2ndMovementCSpp1-3 => hangs; remove that line from DebugConversion => goes back to The
+Bug :-( . $#%*@!#(*!@!@$(  The 2nd argument to DCheckBeams isn't a LINK; DCheckBeams checks
+the entire object list for problems with beams! So pull new function DCheckBeamset, to later
+be called directly by DebugConversion, out of DCheckBeams => OK; The Bug is still visible in 3
+out of 3 tries (and it popped up in Beamset L218 of 2ndMovementCSpp1-3 again in one!).
+
+Hmmm. Debug Check for the last run begins:
+
+	*DCheckNode: BEAMSET L445 HAS BAD startend SEQUENCE (end).
+	*DCheckNode: BEAMSET L489 HAS BAD startend SEQUENCE (mid).
+	•DCheckNode: BEAMSET L501 HAS A BAD SYNC LINK.
+	•DCheck1NEntries: OBJ L645 HAS nEntries=5 BUT 3 SUBOBJECTS.
+	*DCheckNode: BEAMSET L645 HAS BAD startend SEQUENCE (end).
+	*DCheckNode: BEAMSET L1023 HAS BAD startend SEQUENCE (end).
+	*DCheckBeamset: BEAMSET L12 ISN'T THE 2ND PIECE OF A CROSS-SYS BEAM.
+	*DCheckBeams: BEAMED NOTE IN SYNC L14 (MEASURE 1) VOICE 4 WITHOUT BEAMSET.
+	*DCheckBeams: BEAMED NOTE IN SYNC L15 (MEASURE 1) VOICE 4 WITHOUT BEAMSET.
+	*DCheckBeams: BEAMED NOTE IN SYNC L17 (MEASURE 1) VOICE 4 WITHOUT BEAMSET.
+
+Recently I'm getting huge numbers of "BEAMED NOTE...WITHOUT BEAMSET" messages. 
+These are bogus because those notes _are_ in a Beamset, and the Beamset (L11 for Syncs L14 and
+15, L16 for L17) is drawn correctly! So ??
+
+Open Mozart_Andante_2Fl_DMaj.ngl => it behaves the same way: 3 out of 3 times, lots of problems
+with Beamsets, both object-list problems we detect and problems drawing them w/ no detected
+problems! It's 112K and 1321 objects, vs. 136K and 1220 for 2ndMovementCSpp1-3.ngl, so about
+the same size.

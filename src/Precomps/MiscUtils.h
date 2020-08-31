@@ -24,6 +24,8 @@ enum {
  */
 
 void			ZeroMem(void *m, long nBytes);
+void			FillMem(Byte, void *, DoubleWord);
+short			BlockCompare(void *src, void *dst, short len);
 Boolean			GoodNewPtr(Ptr p);
 Boolean			GoodNewHandle(Handle hndl);
 Boolean			GoodResource(Handle hndl);

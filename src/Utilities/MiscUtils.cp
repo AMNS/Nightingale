@@ -1,11 +1,13 @@
 /*	MiscUtils.c
 
 These are miscellaneous routines that are generally-useful extensions to the MacOS
-Toolbox routines; they're what remains of a file Nightingale formerly contained called
-EssentialTools.c, original version by Doug McKenna, 1989. Most of the functions that
-were originally in that file were for dialog or other user-interface support, and
-they've been moved to DialogUtils.c or UIFUtils.c. Other functions from EssentialTools.c
-have been moved to DSUtils.c and elsewhere. */
+Toolbox routines, not specific to Nightingale.
+
+Most of these functions are what remains of a file Nightingale formerly contained called
+EssentialTools.c, original version by Doug McKenna, 1989. Most of the functions in that
+file were for user-interface support, and they've been moved to DialogUtils.c or
+UIFUtils.c. Other functions from EssentialTools.c have been moved to DSUtils.c and
+elsewhere. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -23,17 +25,52 @@ have been moved to DSUtils.c and elsewhere. */
 #include "NavServices.h"
 
 
-/* ------------------------------------------------- Pointers, memory management, etc. -- */
+/* ----------------------------------------------------- Handling raw bytes of memory  -- */
 
-/* Set a block of nBytes bytes, starting at m, to zero.  m must be even.  Cf. FillMem. */
+/* Set a block of nBytes bytes, starting at a given address <loc>, to zero. (An ancient
+comment here said "loc must be even". That's probably a relic from the days of 68000s;
+I doubt it's true on PowerPC G5's or modern Intel processors. --DAB, August 2020) */
 
-void ZeroMem(void *m, long nBytes)
+void ZeroMem(void *loc, long nBytes)
 {
-	char *p;
+	char *ptr;
 
-	p = (char *)m;
-	while (nBytes-- > 0) *p++ = 0;
+	ptr = (char *)loc;
+	while (nBytes-- > 0L) *ptr++ = 0;
 }
+
+
+/* Given a one-byte value, starting address, and length, fill a chunk of memory with the
+value. */
+
+void FillMem(Byte value, void *loc, DoubleWord len)
+{
+	Byte *ptr = (Byte *)loc;
+	long slen = len;
+
+	while (--slen >= 0L) *ptr++ = value;
+}
+
+
+/* Compare two chunks of memory byte by byte for a given length until either they match,
+in which case return 0; or until the first is less than or greater than the second, in
+which case return -1 or 1 respectively. */
+
+short BlockCompare(void *blk1, void *blk2, short len)
+	{
+		Byte *b1, *b2;
+		
+		b1 = (Byte *)blk1;
+		b2 = (Byte *)blk2;
+		while (len-- > 0) {
+			if (*b1 < *b2) return -1;
+			if (*b1++ > *b2++) return 1;
+		}
+		return 0;
+	}
+
+
+/* ------------------------------------------------- Pointers, memory management, etc. -- */
 
 /*	Functions for checking the validity of pointers and handles just allocated */
 
@@ -53,31 +90,10 @@ Boolean GoodResource(Handle hndl)
 }
 
 
-/* This requests a non-relocatable n-byte block of memory from the Toolbox, and zeroes
-it prior to delivering.  If not enough memory, it goes to error code -- which may not
-work, since the error dialog needs memory too. FIXME: Apple's NewPtrClear() does the
-same thing, and it doesn't look like Nightingale even uses NewZPtr. It should just be
-removed, but I have a code freeze in effect while working on a nasty bug in converting
-large files from 'N105' to 'N106' format.  --DAB, August 2020 */
-
-void *NewZPtr(Size n)		/* Allocate n bytes of zeroed memory; deliver ptr */
-{
-	char *p, *q;  void *ptr;
-
-	ptr = NewPtr(n);
-	if (!ptr) { SysBeep(1);  NoMoreMemory(); }
-	 else {
-		p = (char *)ptr;  q = p + n;
-		while (p < q) *p++ = '\0';
-	}
-	return(ptr);
-}
-
-
 /* The below functions date back to the 1980's, when machines had just a few megabytes
 of memory. Now that machines have gigabytes, running out of memory is hardly worth
-worrying about, but I doubt if the code (which to my knowledge has worked for decades
-now) is worth touching.  --DAB, May 2020 */
+worrying about, but I doubt if the code (which to my knowledge has worked perfectly
+for decades now) is worth touching.  --DAB, May 2020 */
 
 /* GrowMemory() is a very simple grow zone function designed to prevent the ROM or
 resident software from generating out-of-memory errors. GrowMemory assumes we've
@@ -121,6 +137,7 @@ Boolean PreflightMem(short nKBytes)		/* if nKBytes<=0, assume max. size of a seg
 	return (FreeMem()>=nBytes);
 }
 
+
 /* ----------------------------------------------------------------------- MemBitCount -- */
 /* Count the number of set bits in a block of memory. Intended for debugging, specifically
 for comparing two bitmaps that should be identical or nearly identical. */
@@ -154,7 +171,8 @@ long MemBitCount(unsigned char *pCh, long n)
 
 Boolean CheckAbort()
 {
-	EventRecord evt;  int ch;  Boolean quit = False;
+	EventRecord evt;  int ch;
+	Boolean quit = False;
 
 	if (!WaitNextEvent(keyDownMask+app4Mask, &evt, 0, NULL)) return(quit);
 
@@ -235,6 +253,7 @@ OSType CanPaste(short n, ...)
 		if (err >= noErr) return(*nextType);
 		nextType++;	
 	}
+	
 	return(0L);
 }
 

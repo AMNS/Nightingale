@@ -1,9 +1,9 @@
-/* File AutoBeam.c - automatic beaming functions, original versions by Ray Spears of
+/* File AutoBeam.c - automatic beaming functions. Original versions by Ray Spears of
 Opcode Systems; rewritten by Charlie Rose and Don Byrd. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
- * NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
+ * NOTATION FOUNDATION. Copyright © 2016-2020 by Avian Music Notation Foundation.
  * All Rights Reserved.
  *  
  *  Nightingale is an open-source project, hosted at github.com/AMNS/Nightingale .
@@ -55,23 +55,6 @@ static Byte SetBeamCounter(Document *doc, LINK pL, LINK aNoteL);
 static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamState);
 
 
-/* Begin: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 
-FIXME: remove this function or at least find it a better home
- */
-  
- /* Given a one-byte value, starting address, and length, fill memory with the value. */
-
-void FillMem(Byte value, void *loc, DoubleWord len)
-{
-	Byte *ptr = (Byte *)loc;
-	long slen = len;
-
-	while (--slen >= 0L) *ptr++ = value;
-}
-
-/* End: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 */
-
-
 /* Some comments by Ray Spears:
 The Beam Beat is the beat across which a beam cannot extend. The beatEX is the beat of
 a compound measure where the quantizing portion of [Opcode's Vision] starts looking for
@@ -105,8 +88,8 @@ static void CreateNBeamBeatList(Byte num, Byte denom)
 	beatEX = (LCD4 * FineFactor) / denom;
 	RCP = RCPtr;
 
-	FillMem (0, RCPtr, 32 * sizeof (struct RhythmClarification));
-	FillMem (0, UserBeamBreaksAt, 32);
+	FillMem(0, RCPtr, 32 * sizeof (struct RhythmClarification));
+	FillMem(0, UserBeamBreaksAt, 32);
 
 	RCP->BeatsThisRunoff = num;
 	RCP->Watershed128 = 0;
@@ -121,10 +104,10 @@ static void CreateNBeamBeatList(Byte num, Byte denom)
 		if (RCP->RelativeStrength != 0) sIndex = index;
 	}
 
-	/* Now mark each beat where beams ought to break.  Eventually these "tab stops"
-	   should be settable by the user.  All entries are terminated by 0; the first
-	   entry of num is taken for granted.  The breakpoints are arranged in reverse
-	   because they will be compared to the beats remaining in the measure. */
+	/* Now mark each beat where beams ought to break. Eventually these "tab stops"
+	   should be settable by the user. All entries are terminated by 0; the first
+	   entry of num is taken for granted. The breakpoints are arranged in reverse
+	   order because they'll be compared to the beats remaining in the measure. */
 
 	if (num < breakMin) {								/* Numerator<minimum: no breakpoints */
 		BeamBeatListEX[0] = 0;
@@ -299,8 +282,8 @@ static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamSt
 			CreateBEAMandResetBeamCounter(doc,voice,pL);
 			break;
 
-		/* if this beam has only been broken because it crossed a beam
-			break, we should start it right back up again */
+		/* if this beam was only broken because it crossed a beam break, we should
+		   start it right back up again. */
 
 		case BEAMING + CROSSEDBEAMBREAK:
 			CreateBEAMandResetBeamCounter(doc,voice,pL);
@@ -361,7 +344,7 @@ Boolean AutoBeam(Document *doc)
 		if (!VOICE_MAYBE_USED(doc, voice)) continue;
 		
 		firstNoteInVoice = True;
-		FillMem (0, beamCounterPtr, sizeof(struct BeamCounter));
+		FillMem(0, beamCounterPtr, sizeof(struct BeamCounter));
 		
 		beamCounterPtr->LCDsIntoThisMeasure =
 				beamCounterPtr->LastSyncLCDsIntoThisMeasure =

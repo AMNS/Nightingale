@@ -2037,7 +2037,116 @@ Boolean DCheckJDOrder(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------------- DCheckBeams -- */
+/* -------------------------------------------------------- DCheckBeams, DCheckBeamset -- */
+
+static Boolean DCheckBeamset(Document *doc, LINK beamL, Boolean maxCheck);
+static Boolean DCheckBeamset(Document *doc, LINK beamL,
+								Boolean maxCheck)			/* False=skip less important checks */
+{
+	PBEAMSET		pBS;
+	PANOTEBEAM		pNoteBeam;
+	SearchParam 	pbSearch;
+	LINK			aNoteL;
+	Boolean			foundRest, grace, bad;
+	short			staff, voice, n, nEntries;
+	LINK			beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
+	LINK			syncL, measureL, noteBeamL, qL;
+	Boolean			expect2ndPiece[MAXVOICES+1], beamNotesOkay;
+
+	bad = False;
+
+	pBS = GetPBEAMSET(beamL);
+	grace = pBS->grace;
+	nEntries = LinkNENTRIES(beamL);
+	staff = BeamSTAFF(beamL);
+	voice = BeamVOICE(beamL);
+	if (VOICE_BAD(voice))
+		COMPLAIN2("*DCheckBeams: BEAMSET L%u HAS BAD voice %d.\n", beamL, voice)
+	else if (grace)	grBeamSetL[voice] = beamL;
+	else			beamSetL[voice] = beamL;
+
+	pBS = GetPBEAMSET(beamL);
+	
+	/* Is 1st note in same measure as BEAMSET? */
+	
+	measureL = LSSearch(beamL, MEASUREtype, staff,	GO_RIGHT, False);
+	if (measureL) {
+		pNoteBeam = GetPANOTEBEAM(pBS->firstSubObj);
+		if (IsAfter(measureL, pNoteBeam->bpSync))
+			COMPLAIN("*DCheckBeamset: BEAMSET L%u IN DIFFERENT MEASURE FROM ITS 1ST SYNC.\n", beamL);
+	}
+	
+	foundRest = False;
+	InitSearchParam(&pbSearch);
+	pbSearch.id = ANYONE;											/* Prepare for search */
+	pbSearch.voice = voice;
+	pbSearch.needSelected = pbSearch.inSystem = False;
+	noteBeamL = pBS->firstSubObj;
+	syncL = beamL;
+	beamNotesOkay = True;
+	for (n=1; noteBeamL; n++, noteBeamL=NextNOTEBEAML(noteBeamL))	{	/* For each SYNC with a note in BEAMSET... */
+Next:
+			syncL = L_Search(RightLINK(syncL), (grace? GRSYNCtype : SYNCtype),
+									GO_RIGHT, &pbSearch);
+			if (DBadLink(doc, OBJtype, syncL, True)) {
+				COMPLAIN2("*DCheckBeamset: BEAMSET L%u: TROUBLE FINDING %sSYNCS.\n", beamL,
+								(grace? "GR" : ""));
+				beamNotesOkay = False;
+				break;
+			}
+//if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamset: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
+			if (!SameSystem(beamL, syncL)) {
+				COMPLAIN3("*DCheckBeamset: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n", beamL,
+								(grace? "GR" : ""), syncL);
+				beamNotesOkay = False;
+				break;
+			}
+			aNoteL = pbSearch.pEntry;
+			if (!grace && NoteREST(aNoteL)) foundRest = True;
+			
+			/* If this is a rest that could not be in the Beamset, keep looking. */
+			
+			if (!grace && NoteREST(aNoteL)
+			&& 	(!doc->beamRests && n>1 && n<nEntries) ) goto Next;
+			pNoteBeam = GetPANOTEBEAM(noteBeamL);
+			
+			/* If <foundRest>, a disagreement between the Sync we just found and the
+			   one the Beamset refers to may simply be due to the Beamset having been
+			   created with <beamRests> set the other way from its current setting,
+			   and not because of any error. */
+			   
+			if (pNoteBeam->bpSync!=syncL) {
+				if (foundRest && maxCheck) {
+					COMPLAIN("DCheckBeamset: BEAMSET L%u SYNC LINK INCONSISTENT (WITH RESTS; PROBABLY OK).\n", beamL);
+					beamNotesOkay = False;
+				}
+				else if (!foundRest) {
+					COMPLAIN("*DCheckBeamset: BEAMSET L%u SYNC LINK INCONSISTENT.\n", beamL);
+					beamNotesOkay = False;
+				}
+			}
+	}
+
+	if (beamNotesOkay)
+		for (qL = RightLINK(beamL); qL!=syncL; qL = RightLINK(qL))
+			if (BeamsetTYPE(qL))
+				if (BeamVOICE(qL)==BeamVOICE(beamL)) {
+					COMPLAIN2("*DCheckBeamset: BEAMSET L%u IN SAME VOICE AS UNFINISHED BEAMSET L%u.\n",
+								qL, beamL);
+					break;
+				}
+	if (!grace) {
+		if (expect2ndPiece[voice] && (!BeamCrossSYS(beamL) || BeamFirstSYS(beamL)))
+			COMPLAIN("*DCheckBeamset: BEAMSET L%u ISN'T THE 2ND PIECE OF A CROSS-SYS BEAM.\n",
+							beamL);
+
+		expect2ndPiece[voice] = (BeamCrossSYS(beamL) && BeamFirstSYS(beamL));
+	}
+	
+	return bad;
+}
+
+
 /* Check: that Beamset voice nos. are legal; that Beamsets in a voice don't overlap;
 that Beamset objects are consistent with notes/rests or grace notes they should be
 referring to; that  notes/rests/grace notes are in the same system as the Beamset. For
@@ -2052,17 +2161,13 @@ Boolean DCheckBeams(
 {
 	PANOTE			aNote, aGRNote;
 	LINK			pL, aNoteL, aGRNoteL;
-	LINK			syncL, measureL, noteBeamL, qL;
-	short			staff, voice, v, n, nEntries;
+	short			v;
 	LINK			beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
-	Boolean			expect2ndPiece[MAXVOICES+1], beamNotesOkay;
-	PBEAMSET		pBS;
-	PANOTEBEAM		pNoteBeam;
-	SearchParam 	pbSearch;
-	Boolean			foundRest, grace, bad;
-
-	bad = False;
+	Boolean			expect2ndPiece[MAXVOICES+1];
+	Boolean			bad;
 	
+	bad = False;
+
 	for (v = 0; v<=MAXVOICES; v++) {
 		beamSetL[v] = NILINK;
 		expect2ndPiece[v] = False;
@@ -2074,95 +2179,7 @@ Boolean DCheckBeams(
 		switch (ObjLType(pL)) {
 
 		 case BEAMSETtype:
-		 	pBS = GetPBEAMSET(pL);
-		 	grace = pBS->grace;
-		 	
-			nEntries = LinkNENTRIES(pL);
-			staff = BeamSTAFF(pL);
-			voice = BeamVOICE(pL);
-			if (VOICE_BAD(voice))
-				COMPLAIN2("*DCheckBeams: BEAMSET L%u HAS BAD voice %d.\n", pL, voice)
-			else if (grace)	grBeamSetL[voice] = pL;
-			else			beamSetL[voice] = pL;
-
-		 	pBS = GetPBEAMSET(pL);
-			
-			/* Is 1st note in same measure as BEAMSET? */
-			
-			measureL = LSSearch(pL, MEASUREtype, staff,	GO_RIGHT, False);
-			if (measureL) {
-				pNoteBeam = GetPANOTEBEAM(pBS->firstSubObj);
-				if (IsAfter(measureL, pNoteBeam->bpSync))
-					COMPLAIN("*DCheckBeams: BEAMSET L%u IN DIFFERENT MEASURE FROM ITS 1ST SYNC.\n", pL);
-			}
-			
-			foundRest = False;
-			InitSearchParam(&pbSearch);
-			pbSearch.id = ANYONE;											/* Prepare for search */
-			pbSearch.voice = voice;
-			pbSearch.needSelected = pbSearch.inSystem = False;
-			noteBeamL = pBS->firstSubObj;
-			syncL = pL;
-			beamNotesOkay = True;
-			for (n=1; noteBeamL; n++, noteBeamL=NextNOTEBEAML(noteBeamL))	{	/* For each SYNC with a note in BEAMSET... */
-Next:
-					syncL = L_Search(RightLINK(syncL), (grace? GRSYNCtype : SYNCtype),
-											GO_RIGHT, &pbSearch);
-					if (DBadLink(doc, OBJtype, syncL, True)) {
-						COMPLAIN2("*DCheckBeams: BEAMSET L%u: TROUBLE FINDING %sSYNCS.\n", pL,
-										(grace? "GR" : ""));
-						beamNotesOkay = False;
-						break;
-					}
-//if (pL==961) LogPrintf(LOG_DEBUG, "DCheckBeams: staff=%d Beamset=L%u Sync=L%u\n", staff, pL, syncL);
-					if (!SameSystem(pL, syncL)) {
-						COMPLAIN3("*DCheckBeams: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n", pL,
-										(grace? "GR" : ""), syncL);
-						beamNotesOkay = False;
-						break;
-					}
-					aNoteL = pbSearch.pEntry;
-					if (!grace && NoteREST(aNoteL)) foundRest = True;
-					
-					/* If this is a rest that could not be in the Beamset, keep looking. */
-					
-					if (!grace && NoteREST(aNoteL)
-					&& 	(!doc->beamRests && n>1 && n<nEntries) ) goto Next;
-					pNoteBeam = GetPANOTEBEAM(noteBeamL);
-					
-					/* If <foundRest>, a disagreement between the Sync we just found and the
-					   one the Beamset refers to may simply be due to the Beamset having been
-					   created with <beamRests> set the other way from its current setting,
-					   and not because of any error. */
-					   
-					if (pNoteBeam->bpSync!=syncL) {
-						if (foundRest && maxCheck) {
-							COMPLAIN("DCheckBeams: BEAMSET L%u SYNC LINK INCONSISTENT (WITH RESTS; PROBABLY OK).\n", pL);
-							beamNotesOkay = False;
-						}
-						else if (!foundRest) {
-							COMPLAIN("*DCheckBeams: BEAMSET L%u SYNC LINK INCONSISTENT.\n", pL);
-							beamNotesOkay = False;
-						}
-					}
-			}
-
-			if (beamNotesOkay)
-				for (qL = RightLINK(pL); qL!=syncL; qL = RightLINK(qL))
-					if (BeamsetTYPE(qL))
-						if (BeamVOICE(qL)==BeamVOICE(pL)) {
-							COMPLAIN2("*DCheckBeams: BEAMSET L%u IN SAME VOICE AS UNFINISHED BEAMSET L%u.\n",
-										qL, pL);
-							break;
-						}
-			if (!grace) {
-				if (expect2ndPiece[voice] && (!BeamCrossSYS(pL) || BeamFirstSYS(pL)))
-					COMPLAIN("*DCheckBeams: BEAMSET L%u ISN'T THE 2ND PIECE OF A CROSS-SYS BEAM.\n",
-									pL);
-
-				expect2ndPiece[voice] = (BeamCrossSYS(pL) && BeamFirstSYS(pL));
-			}
-			
+			bad = DCheckBeamset(doc, pL, maxCheck);
 			break;
 
 		 case SYNCtype:
@@ -2200,7 +2217,7 @@ Next:
 		}
 	}
 	
-	return bad;			
+	return bad;
 }
 
 

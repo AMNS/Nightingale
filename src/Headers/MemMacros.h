@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	MemMacros.h
 *	PROJ:	Nightingale
 *	DESC:	#defines for object/heap memory management
-***************************************************************************/
+*******************************************************************************************/
 
 #ifndef MemMacrosIncluded
 #define MemMacrosIncluded
@@ -30,7 +30,7 @@ possibility of calls to PushLock or PopLock in between. */
 #define HeapLock(heap) 		HLock((heap)->block)
 #define HeapUnlock(heap)	HUnlock((heap)->block)
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 /* LinkToPtr(heap,link) delivers the address of the 0'th byte of the link'th object kept
 in a given heap.  This address is determined without type information by using the
@@ -136,6 +136,8 @@ same place as ->left for objects, but staffn is a SignedByte. */
 #define MeasureVIS(link)	( (GetPAMEASURE(link))->visible )
 #define PSMeasVIS(link)		( (GetPAPSMEAS(link))->visible )
 
+/* FIXME: rename these from XxxType to XxxSubtype! */
+
 #define MeasType(link)		( (GetPAMEASURE(link))->subType )
 #define PSMeasType(link)	( (GetPAPSMEAS(link))->subType )
 #define DynamType(link) 	( (GetPDYNAMIC(link))->dynamicType )
@@ -146,17 +148,16 @@ same place as ->left for objects, but staffn is a SignedByte. */
 #define GRNoteType(link)	( (GetPAGRNOTE(link))->subType )
 #define GraphicSubType(link)	( (GetPGRAPHIC(link))->graphicType )
 
-/* ----------------------------------------------------------------------------------- */
-/*
- *	Our main data structure, the object list, is a doubly-linked list of objects,
- *	each of which can have a singly-linked list of subobjects dangling from it. 
- *	The objects in the backbone can have different types, but are all the same size:
- *	that of a SUPEROBJECT, which is the union of all objects.  The subobjects in
- *	each object's list are all of the same type, which depends on the owning
- *	object's type.  All lists are linked via LINKs (indices into the respective
- *	heaps). We have two macros for converting a link to the pointer to its sub/object,
- *	one to access objects from the backbone list, and the other for subobjects.
- */
+/* -------------------------------------------------------------------------------------- */
+
+/* Our main data structure, the object list, is a doubly-linked list of objects, each of
+which can have a singly-linked list of subobjects dangling from it. The objects in the
+backbone can have different types, but are all the same size: that of a SUPEROBJECT,
+which is the union of all objects.  The subobjects in each object's list are all of the
+same type, which depends on the owning object's type.  All lists are linked via LINKs
+(indices into the respective heaps). We have two macros for converting a link to the
+pointer to its sub/object, one to access objects from the backbone list, and the other
+for subobjects. */
 
 /* GetSubObjectPtr is used like this:
  *		aConnectPtr = GetSubObjectPtr(link,ACONNECT);
@@ -166,14 +167,12 @@ same place as ->left for objects, but staffn is a SignedByte. */
 
 #define GetSubObjectPtr(link,type)	( ((type *)(*type/**/Heap)->block))+(link) )
 
-/*
- *	GetObjectPtr(heap,link,cast) delivers a pointer to an object of type 'cast',
- *	from a given heap, using the object's link.  This pointer is only valid as
- *	long as the heap's block doesn't get relocated!  This macro may be slightly
- *	more efficient than using the one above, since the object size is known at
- *	compile time, rather than execution time.
- *	GetObject(heap,link,cast) delivers the actual object data.
- */
+/* GetObjectPtr(heap,link,cast) delivers a pointer to an object of type 'cast', from a
+given heap, using the object's link.  This pointer is only valid as long as the heap's
+block doesn't get relocated!  This macro may be slightly more efficient than using the
+one above, since the object size is known at compile time, rather than execution time.
+
+GetObject(heap,link,cast) delivers the actual object data. */
 
 #define GetObjectPtr(heap,link,cast)	( ((cast)(*(heap)->block)) + (link) )
 #define GetObject(heap,link,cast)  		( ((cast)(*(heap)->block))[link] )
@@ -195,12 +194,10 @@ same place as ->left for objects, but staffn is a SignedByte. */
  *				astaff.field = 41;
  */
 
-/*
- *	GetObjectLink(heap,ptr,type) is the reverse of GetObjectPtr() above.  By
- *	forcing the user to specify the type of object, we can use C's knowledge of
- *	the object sizes to do the conversion more efficiently.  The pointer argument
- *	must be valid!
- */
+/*	GetObjectLink(heap,ptr,type) is the reverse of GetObjectPtr() above.  By
+forcing the user to specify the type of object, we can use C's knowledge of
+the object sizes to do the conversion more efficiently.  The pointer argument
+must be valid! */
 
 #define GetObjLink(heap,p,cast)	( ((cast *)p) - (cast *)(*(heap)->block) )
 
@@ -459,7 +456,7 @@ installed doc. */
 
 #define DMainNote(doc,link)		(!DNoteINCHORD(doc,link) || DNoteYD(doc,link)!=DNoteYSTEM(doc,link))
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* To facilitate debugging, define a macro version of LinkToPtr and versions of some
 basic macros that call it. This was useful long ago because the THINK C Debugger
 refused to evaluate expressions that call the LinkToPtr function because it didn't
@@ -479,7 +476,7 @@ keep them for now.  --DAB, Feb. 2017  */
 #define _NoteSTAFF(link) 		( *(SignedByte *)(sizeof(LINK) + _LinkToPtr(NOTEheap,link)) )
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Macros for acccessing various other fields of subobjects (mostly) or objects. (About
 170 of these are from the OMRAS "MemMacroizing" project of the late 1990s; most of those
 are by Steve Hart.) */

@@ -457,7 +457,7 @@ static void DebugConversion(Document *doc, LINK pL)
 	/* Check anything else to help find current bugs. */
 	
 #if 0
-	DCheckBeams(doc, pL);
+	if (BeamsetTYPE(pL)) DCheckBeams(doc, pL);
 #endif
 
 #ifdef NOTNOW
