@@ -7502,6 +7502,10 @@ Open 2ndMovementCSpp1-3 => The Bug?
 
 Yes, still visible.
 
+------------------------------------------------------------------------------- (sic?)
+
+30 Aug. - 6 Sept.
+
 Well, strategy #2 is turning out to be very messy, and #3 is more promising now that I see an
 obvious and easily-fixed cause for the hangs! So add to DebugConversion 
 
@@ -7528,9 +7532,57 @@ Hmmm. Debug Check for the last run begins:
 
 Recently I'm getting huge numbers of "BEAMED NOTE...WITHOUT BEAMSET" messages. 
 These are bogus because those notes _are_ in a Beamset, and the Beamset (L11 for Syncs L14 and
-15, L16 for L17) is drawn correctly! So ??
+15, L16 for L17) is drawn correctly! Huh?
 
 Open Mozart_Andante_2Fl_DMaj.ngl => it behaves the same way: 3 out of 3 times, lots of problems
 with Beamsets, both object-list problems we detect and problems drawing them w/ no detected
 problems! It's 112K and 1321 objects, vs. 136K and 1220 for 2ndMovementCSpp1-3.ngl, so about
 the same size.
+
+Make DCheckBeamset() public; open Mozart_Andante_2Fl_DMaj once and 2ndMovementCSpp1-3 once
+=> Bug unchanged. Call DCheckBeamset directly from DebugConversion; open 2ndMovementCSpp1-3
+=> hangs, just as before when I was nonsensically calling DCheckBeams for every LINK!!
+Last lines in the log (2x):
+
+	debug. ConvertTIMESIG: timeSigL=L10 inMeasure=0
+	debug. ConvertMEASURE: measL=L11 lMeasure=L0 rMeasure=L19 systemL=L4
+
+Is the next object, L12, a Beamset? Yes. Ah: DCheckBeamset is using LSSearch(), which assumes
+cross-links are valid; it needs to do an unoptimized search. Change that => no hang, but
+Debug Check has hundreds and hundreds of bogus errors! It's still assuming Syncs in the Beamset
+are valid. That's not justified during ConvertObjects(), so make DCheckBeamset more careful!
+Tell it if we're in the middle of opening a file; if so, don't check fields of Syncs in the
+Beamset, but do check the Sync LINKs are greater than the Beamset LINK and monotonically
+increasing. Open 2ndMovementCSpp1-3.ngl 4x => it finds problems 2 out of 4 times! E.g.:
+
+	debug. ConvertSYNC: syncL=L96 timeStamp=900
+	debug. ConvertMEASURE: measL=L97 lMeasure=L87 rMeasure=L110 systemL=L76
+	Warning. *DCheckBeamset: BEAMSET L98 SYNC L32 LINK DOESN'T FOLLOW BEAMSET.
+	Warning. *DCheckBeamset: BEAMSET L98 SYNC L33 LINK DOESN'T FOLLOW BEAMSET.
+	debug. ConvertBEAMSET: beamsetL=L98
+	
+After fiddling around, it crashes into GDB, showing FindMainNote(), which we've seen before.
+
+So the Beamset object is already screwed up when it's converted, QED, pant pant... But looking
+at that Beamset with Browser, the bpSyncs are OK!?! Sigh.
+
+OK, well, DCheckBeamset _could_ also check the startend sequence. Make it do that; open
+2ndMovementCSpp1-3 four times => Bug unchanged. A typical Debug Check now begins:
+
+	Warning. *DCheckNode: SUBOBJ IN TIMESIG L51 staffn 0 IS BAD.
+	Warning. *DCheckBeamset: BEAMSET L218 HAS BAD startend SEQUENCE (end).
+	Warning. •DCheck1NEntries: OBJ L645 HAS nEntries=5 BUT 3 SUBOBJECTS.
+	Warning. *DCheckBeamset: BEAMSET L645 HAS BAD startend SEQUENCE (end).
+	Warning. *DCheckBeamset: BEAMSET L645 SYNC LINK INCONSISTENT.
+	Sep  7 08:44:16: --- last message repeated 1 time ---
+	Warning. *DCheckBeamset: BEAMSET L218 HAS BAD startend SEQUENCE (end).
+	ep  7 08:44:16 DonDualG5 Ngale[49155]: Warning. *DCheckBeamset: BEAMSET L645 HAS BAD startend SEQUENCE (end).
+	Warning. *DCheckBeamset: BEAMSET L645 SYNC LINK INCONSISTENT.
+	Sep  7 08:44:16: --- last message repeated 1 time ---
+	Warning. *DCheckBeams: BEAMED NOTE IN SYNC L647 (MEASURE 55) VOICE 1 NOT IN VOICE'S LAST BEAMSET.
+	Warning. *DCheckBeams: BEAMED NOTE IN SYNC L648 (MEASURE 55) VOICE 1 NOT IN VOICE'S LAST BEAMSET.
+	Warning. *DCheckBeams: BEAMED NOTE IN SYNC L649 (MEASURE 55) VOICE 1 NOT IN VOICE'S LAST BEAMSET.
+	Warning. *DCheckBeams: BEAMED NOTE IN SYNC L651 (MEASURE 56) VOICE 1 NOT IN VOICE'S LAST BEAMSET.
+	Warning. *DCheckContext: TIMESIG FOR STAFF 1 IN MEASURE 7 (L62) INCONSISTENCY.
+	Warning. *DCheckContext: TIMESIG FOR STAFF 1 IN MEASURE 8 (L75) INCONSISTENCY.
+

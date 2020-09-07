@@ -447,6 +447,9 @@ Error:
 
 #include "DebugUtils.h"		/* for DCheck1NEntries() */
 
+/* Depending on what the bug in question is, it may be better to call this _after_
+converting object <pL> rather than before. */
+
 static void DebugConversion(Document *doc, LINK pL);
 static void DebugConversion(Document *doc, LINK pL)
 {	
@@ -454,10 +457,12 @@ static void DebugConversion(Document *doc, LINK pL)
 	
 	DCheck1NEntries(doc, pL);
 
-	/* Check anything else to help find current bugs. */
+	/* Check anything else to help find current bug(s). */
 	
-#if 0
-	if (BeamsetTYPE(pL)) DCheckBeams(doc, pL);
+#if 1
+	{ LINK lastSyncL;
+		if (BeamsetTYPE(pL)) (void)DCheckBeamset(doc, pL, False, True, &lastSyncL);
+	}
 #endif
 
 #ifdef NOTNOW
@@ -524,10 +529,8 @@ static void ConvertStaffLines(LINK startL)
 static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS);
 static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS)
 {
-	short i;
-	
 	dstKS->nKSItems = srcKS->nKSItems;		
-	for (i = 0; i<srcKS->nKSItems; i++) {
+	for (short i = 0; i<srcKS->nKSItems; i++) {
 	
 		/* Copy the fields individually. Using struct assignment here fails to
 		   compile, saying "no match for 'operator=' in 'dstKS->KSINFO::KSItem, blah
@@ -1886,8 +1889,6 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 		
 		ConvertObjHeader(doc, pL);
 		
-		DebugConversion(doc, pL);
-
 		switch (ObjLType(pL)) {
 			case HEADERtype:
 				ConvertHEADER(doc, pL);
@@ -1965,6 +1966,8 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 				MayErrMsg("PROGRAM ERROR: OBJECT L%ld TYPE %ld IS ILLEGAL.  (ConvertObject)",
 							(long)pL, (long)ObjLType(pL));
 		}
+
+		DebugConversion(doc, pL);
 	}
 
 //LogPrintf(LOG_DEBUG, "ConvObjs2/AMEASURE 1");

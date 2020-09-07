@@ -9,7 +9,7 @@
 	DCheckSyncSlurs
 	DCheckMBBox				DCheckMeasSubobjs		DCheckNode
 	DCheckNodeSel			DCheckSel				DCheckVoiceTable
-	DCheckHeirarchy			DCheckJDOrder
+	DCheckHeirarchy			DCheckJDOrder			DCheckBeamset
 	DCheckBeams				DCheckOttavas			DCheckSlurs
 	DCheckTuplets			DCheckHairpins			DCheckContext
 	DCheck1NEntries			DCheckNEntries			DCheck1SubobjLinks
@@ -468,7 +468,6 @@ short DCheckNode(
 	PAPSMEAS	aPSMeas;
 	PAKEYSIG	aKeySig;
 	PATIMESIG	aTimeSig;
-	PANOTEBEAM	aNoteBeam;
 	PANOTETUPLE	aNoteTuple;
 	PANOTEOTTAVA	aNoteOct;
 	PDYNAMIC	pDynamic;
@@ -478,7 +477,7 @@ short DCheckNode(
 	PAMODNR		aModNR;
 	LINK		aNoteL;
 	LINK		apLeftL, apRightL, aStaffL;
-	LINK		aPSMeasL, aClefL, aKeySigL, aTimeSigL, aNoteBeamL, aNoteTupleL;
+	LINK		aPSMeasL, aClefL, aKeySigL, aTimeSigL, aNoteTupleL;
 	LINK		aNoteOctL, aDynamicL, aSlurL, aConnectL, aModNRL;
 	SignedByte	minLDur;
 
@@ -520,7 +519,6 @@ short DCheckNode(
 			terrible = True;
 		}
 		
-//LogPrintf(LOG_DEBUG, "DCheckNode1: OBJECT L%u\n", pL);
 		if (terrible) return -1;									/* Give up now */
 
 		if (TYPE_BAD(pL) || ObjLType(pL)==HEADERtype || ObjLType(pL)==TAILtype)
@@ -610,7 +608,6 @@ that have meaningful objRects. If we find such object(s), we check whether their
 
 /* CHECK everything else. Object type dependent. -------------------------------- */
 
-//LogPrintf(LOG_DEBUG, "DCheckNode2: OBJECT L%u\n", pL);
 		switch (ObjLType(pL)) {
 		
 			case SYNCtype:
@@ -1123,40 +1120,13 @@ that have meaningful objRects. If we find such object(s), we check whether their
 				PopLock(TIMESIGheap);
 				break;
 
-			case BEAMSETtype: {
-				short beamsNow;
-				
+			case BEAMSETtype:
+				LINK lastSyncL;
+				/* FIXME: DCheckBeamset is also called by DCheckBeams, so this call is
+				   normally redundant. But is it sometimes useful? */
+				   
 				PushLock(NOTEBEAMheap);
-
-				if (STAFFN_BAD(doc, BeamSTAFF(pL)))
-						COMPLAIN2("*DCheckNode: BEAMSET L%u staffn %d IS BAD.\n",
-									pL, BeamSTAFF(pL));
-				beamsNow = 0;
-				for (aNoteBeamL=FirstSubLINK(pL); aNoteBeamL; 
-						aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
-					aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
-					if (DBadLink(doc, OBJtype, aNoteBeam->bpSync, False)) {
-						COMPLAIN("•DCheckNode: BEAMSET L%u HAS GARBAGE SYNC LINK.\n", pL);
-					}
-					else if (!((PBEAMSET)p)->grace && ObjLType(aNoteBeam->bpSync)!=SYNCtype) {
-						COMPLAIN("•DCheckNode: BEAMSET L%u HAS A BAD SYNC LINK.\n", pL);
-					}
-					else if (((PBEAMSET)p)->grace && ObjLType(aNoteBeam->bpSync)!=GRSYNCtype)
-						COMPLAIN("•DCheckNode: BEAMSET L%u HAS A BAD GRSYNC LINK.\n", pL);
-
-					beamsNow += aNoteBeam->startend;
-					if ((NextNOTEBEAML(aNoteBeamL) && beamsNow<=0)
-					||  beamsNow<0) {
-						COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE (mid).\n", pL);
-						break;
-						}
-					}
-				if (beamsNow!=0) {
-					COMPLAIN("*DCheckNode: BEAMSET L%u HAS BAD startend SEQUENCE (end).\n", pL);
-					break;
-					}
-				}
-
+				bad = DCheckBeamset(doc, pL, False, False, &lastSyncL);
 				PopLock(NOTEBEAMheap);
 				break;
 			
@@ -2037,11 +2007,18 @@ Boolean DCheckJDOrder(Document *doc)
 }
 
 
-/* -------------------------------------------------------- DCheckBeams, DCheckBeamset -- */
+/* -------------------------------------------------------- DCheckBeamset, DCheckBeams -- */
 
-static Boolean DCheckBeamset(Document *doc, LINK beamL, Boolean maxCheck);
-static Boolean DCheckBeamset(Document *doc, LINK beamL,
-								Boolean maxCheck)			/* False=skip less important checks */
+/* Check the given Beamset. If <openingFile>, assume we're in the process of opening a
+file and objects in the file are being processed in order. Syncs and GRSyncs in a Beamset
+always follow the Beamset itself, so in that case we can't expect their flags to be
+correct; but we _can_ expect their LINKs to be monotonically increasing. If <!openingFile>,
+what we can expect is exactly the opposite. */
+
+Boolean DCheckBeamset(Document *doc, LINK beamL,
+								Boolean maxCheck,			/* False=skip less important checks */
+								Boolean openingFile,
+								LINK *pLastSyncL)
 {
 	PBEAMSET		pBS;
 	PANOTEBEAM		pNoteBeam;
@@ -2049,31 +2026,69 @@ static Boolean DCheckBeamset(Document *doc, LINK beamL,
 	LINK			aNoteL;
 	Boolean			foundRest, grace, bad;
 	short			staff, voice, n, nEntries;
-	LINK			beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
-	LINK			syncL, measureL, noteBeamL, qL;
-	Boolean			expect2ndPiece[MAXVOICES+1], beamNotesOkay;
+	LINK			syncL, measureL, noteBeamL;
+	Boolean			beamNotesOkay;
 
 	bad = False;
 
-	pBS = GetPBEAMSET(beamL);
-	grace = pBS->grace;
+	grace = BeamGRACE(beamL);
 	nEntries = LinkNENTRIES(beamL);
 	staff = BeamSTAFF(beamL);
 	voice = BeamVOICE(beamL);
 	if (VOICE_BAD(voice))
-		COMPLAIN2("*DCheckBeams: BEAMSET L%u HAS BAD voice %d.\n", beamL, voice)
-	else if (grace)	grBeamSetL[voice] = beamL;
-	else			beamSetL[voice] = beamL;
-
+		COMPLAIN2("*DCheckBeams: BEAMSET L%u HAS BAD voice %d.\n", beamL, voice);
 	pBS = GetPBEAMSET(beamL);
 	
-	/* Is 1st note in same measure as BEAMSET? */
+	/* Is 1st note in same measure as BEAMSET? Do unoptimized search so this can be
+	   used, e.g., by file-conversion functions. */
 	
-	measureL = LSSearch(beamL, MEASUREtype, staff,	GO_RIGHT, False);
+	measureL = LSUSearch(beamL, MEASUREtype, staff,	GO_RIGHT, False);
 	if (measureL) {
 		pNoteBeam = GetPANOTEBEAM(pBS->firstSubObj);
 		if (IsAfter(measureL, pNoteBeam->bpSync))
 			COMPLAIN("*DCheckBeamset: BEAMSET L%u IN DIFFERENT MEASURE FROM ITS 1ST SYNC.\n", beamL);
+	}
+
+	PANOTEBEAM aNoteBeam;
+	short beamsNow = 0;
+	for (LINK aNoteBeamL=FirstSubLINK(beamL); aNoteBeamL; aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
+		aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
+		if (DBadLink(doc, OBJtype, aNoteBeam->bpSync, False)) {
+			COMPLAIN("•DCheckBeamset: BEAMSET L%u HAS GARBAGE SYNC LINK.\n", beamL);
+		}
+		else if (!grace && ObjLType(aNoteBeam->bpSync)!=SYNCtype) {
+			COMPLAIN("•DCheckBeamset: BEAMSET L%u HAS A BAD SYNC LINK.\n", beamL);
+		}
+		else if (grace && ObjLType(aNoteBeam->bpSync)!=GRSYNCtype)
+			COMPLAIN("•DCheckBeamset: BEAMSET L%u HAS A BAD GRSYNC LINK.\n", beamL);
+
+		beamsNow += aNoteBeam->startend;
+		if ((NextNOTEBEAML(aNoteBeamL) && beamsNow<=0)
+		||  beamsNow<0) {
+			COMPLAIN("*DCheckBeamset: BEAMSET L%u HAS BAD startend SEQUENCE (mid).\n", beamL);
+			break;
+			}
+		}
+
+	if (beamsNow!=0) {
+		COMPLAIN("*DCheckBeamset: BEAMSET L%u HAS BAD startend SEQUENCE (end).\n", beamL);
+	}
+
+	if (openingFile) {
+		/* Check that LINKs of Syncs in the Beamset are monotonically increasing. */
+
+		short lastLoc = beamL;
+		noteBeamL = pBS->firstSubObj;
+		for (n=1; noteBeamL; n++, noteBeamL=NextNOTEBEAML(noteBeamL))	{	/* For each SYNC with a note in BEAMSET... */
+			LINK thisLoc = NoteBeamBPSYNC(noteBeamL);
+//LogPrintf(LOG_DEBUG, "DCheckBeamset0: Beamset=L%u lastLoc=L%u thisLoc=L%u\n", beamL, lastLoc, thisLoc);
+			if (thisLoc<=beamL)
+				COMPLAIN2("*DCheckBeamset: BEAMSET L%u SYNC L%u LINK DOESN'T FOLLOW BEAMSET.\n", beamL, thisLoc)
+			else if (thisLoc<=lastLoc)
+				COMPLAIN2("*DCheckBeamset: BEAMSET L%u SYNC L%u LINK DOESN'T FOLLOW PREVIOUS SYNC.\n", beamL, thisLoc);
+			lastLoc = thisLoc;
+		}
+		return bad;
 	}
 	
 	foundRest = False;
@@ -2081,9 +2096,11 @@ static Boolean DCheckBeamset(Document *doc, LINK beamL,
 	pbSearch.id = ANYONE;											/* Prepare for search */
 	pbSearch.voice = voice;
 	pbSearch.needSelected = pbSearch.inSystem = False;
+	pbSearch.optimize = False;
 	noteBeamL = pBS->firstSubObj;
 	syncL = beamL;
 	beamNotesOkay = True;
+	
 	for (n=1; noteBeamL; n++, noteBeamL=NextNOTEBEAML(noteBeamL))	{	/* For each SYNC with a note in BEAMSET... */
 Next:
 			syncL = L_Search(RightLINK(syncL), (grace? GRSYNCtype : SYNCtype),
@@ -2094,10 +2111,10 @@ Next:
 				beamNotesOkay = False;
 				break;
 			}
-//if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamset: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
+if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
 			if (!SameSystem(beamL, syncL)) {
-				COMPLAIN3("*DCheckBeamset: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n", beamL,
-								(grace? "GR" : ""), syncL);
+				COMPLAIN3("*DCheckBeamset: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n",
+								beamL, (grace? "GR" : ""), syncL);
 				beamNotesOkay = False;
 				break;
 			}
@@ -2107,7 +2124,7 @@ Next:
 			/* If this is a rest that could not be in the Beamset, keep looking. */
 			
 			if (!grace && NoteREST(aNoteL)
-			&& 	(!doc->beamRests && n>1 && n<nEntries) ) goto Next;
+				&& (!doc->beamRests && n>1 && n<nEntries) ) goto Next;
 			pNoteBeam = GetPANOTEBEAM(noteBeamL);
 			
 			/* If <foundRest>, a disagreement between the Sync we just found and the
@@ -2126,50 +2143,35 @@ Next:
 				}
 			}
 	}
-
-	if (beamNotesOkay)
-		for (qL = RightLINK(beamL); qL!=syncL; qL = RightLINK(qL))
-			if (BeamsetTYPE(qL))
-				if (BeamVOICE(qL)==BeamVOICE(beamL)) {
-					COMPLAIN2("*DCheckBeamset: BEAMSET L%u IN SAME VOICE AS UNFINISHED BEAMSET L%u.\n",
-								qL, beamL);
-					break;
-				}
-	if (!grace) {
-		if (expect2ndPiece[voice] && (!BeamCrossSYS(beamL) || BeamFirstSYS(beamL)))
-			COMPLAIN("*DCheckBeamset: BEAMSET L%u ISN'T THE 2ND PIECE OF A CROSS-SYS BEAM.\n",
-							beamL);
-
-		expect2ndPiece[voice] = (BeamCrossSYS(beamL) && BeamFirstSYS(beamL));
-	}
 	
+	*pLastSyncL = syncL;
 	return bad;
 }
 
 
-/* Check: that Beamset voice nos. are legal; that Beamsets in a voice don't overlap;
-that Beamset objects are consistent with notes/rests or grace notes they should be
-referring to; that  notes/rests/grace notes are in the same system as the Beamset. For
-cross-system Beamsets, also check that, after a non-grace Beamset that's the first of
-a cross-system pair, the next non-grace Beamset in that voice is the second of a pair.
-(Notes/rests are checked against their Beamset more carefully than grace notes are.) */
+/* Check: that Beamsets in a voice don't overlap, and that Beamset objects are consistent
+with notes/rests or grace notes they should be referring to. For cross-system Beamsets,
+also check that, after a non-grace Beamset that's the first of a cross-system pair, the
+next non-grace Beamset in that voice is the second of a pair. (Notes/rests are checked
+against their Beamset more carefully than grace notes are.) */
  
 Boolean DCheckBeams(
 				Document *doc,
 				Boolean maxCheck		/* False=skip less important checks */
 				)
 {
-	PANOTE			aNote, aGRNote;
-	LINK			pL, aNoteL, aGRNoteL;
-	short			v;
-	LINK			beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
-	Boolean			expect2ndPiece[MAXVOICES+1];
-	Boolean			bad;
+	PANOTE		aNote, aGRNote;
+	LINK		pL, aNoteL, aGRNoteL, syncL, qL;
+	short		voice;
+	LINK		beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
+	Boolean		expect2ndPiece[MAXVOICES+1];
+	Boolean		grace, bad;
 	
 	bad = False;
 
-	for (v = 0; v<=MAXVOICES; v++) {
+	for (short v = 0; v<=MAXVOICES; v++) {
 		beamSetL[v] = NILINK;
+		grBeamSetL[v] = NILINK;
 		expect2ndPiece[v] = False;
 	}
 		
@@ -2179,7 +2181,31 @@ Boolean DCheckBeams(
 		switch (ObjLType(pL)) {
 
 		 case BEAMSETtype:
-			bad = DCheckBeamset(doc, pL, maxCheck);
+			if (DCheckBeamset(doc, pL, maxCheck, False, &syncL)) { bad = True;  break; }
+			
+			grace = BeamGRACE(pL);
+			voice = BeamVOICE(pL);
+			if (!VOICE_BAD(voice)) {
+				if (grace)	grBeamSetL[voice] = pL;
+				else		beamSetL[voice] = pL;
+			}
+
+			for (qL = RightLINK(pL); qL!=syncL; qL = RightLINK(qL))
+				if (BeamsetTYPE(qL))
+					if (BeamVOICE(qL)==BeamVOICE(pL)) {
+						COMPLAIN2("*DCheckBeams: BEAMSET L%u IN SAME VOICE AS UNFINISHED BEAMSET L%u.\n",
+									qL, pL);
+						break;
+					}
+
+			if (!grace) {
+				if (expect2ndPiece[voice] && (!BeamCrossSYS(pL) || BeamFirstSYS(pL)))
+					COMPLAIN2("*DCheckBeams: BEAMSET L%u EXPECTED TO BE 2ND PIECE OF CROSS-SYS BEAM FOR VOICE %d BUT ISN'T.\n",
+									pL, voice);
+
+				expect2ndPiece[voice] = (BeamCrossSYS(pL) && BeamFirstSYS(pL));
+			}
+			
 			break;
 
 		 case SYNCtype:

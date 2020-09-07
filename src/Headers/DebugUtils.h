@@ -9,12 +9,6 @@
 
 #define DDB
 
-/* Prototype for internal routines */
-Boolean DCheckMeasSubobjs(Document *, LINK, Boolean);
-Boolean DCheckMBBox(Document *, LINK, Boolean);
-Boolean DCheck1SubobjLinks(Document *, LINK);
-Boolean DCheck1NEntries(Document *, LINK);
-
 /* These functions implement three levels of checking:
 	Most important: messages about problems are prefixed with '•'
 	More important: messages about problems are prefixed with '*'

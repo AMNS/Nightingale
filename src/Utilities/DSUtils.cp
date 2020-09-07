@@ -949,13 +949,13 @@ DDIST MeasWidth(LINK pL)
 	return (aMeas->measSizeRect.right-aMeas->measSizeRect.left);
 }
 
-/* If <pL> is a Measure, return width of its occupied part, otherwise return the
-width of the occupied part of the Measure <pL> is in. The "occupied part" extends
-to the point where its ending barline normally "would go", i.e., to the right of
-the last symbol in the Measure by the space that symbol normally would need.
-Intended for use on Measures that are the last in their Systems, so that their
-widths extend to the ends of their Systems simply to fill them out and say nothing
-about the amount of space the Measure really needs. */
+/* If <pL> is a Measure, return width of its occupied part, otherwise return the width of
+the occupied part of the Measure <pL> is in. The "occupied part" extends to the point
+where its ending barline normally "would go", i.e., to the right of the last symbol in the
+Measure by the space that symbol normally would need. Intended for use on Measures that
+are the last in their Systems, so that their widths extend to the ends of their Systems
+simply to fill them out and say nothing about the amount of space the Measure really
+needs. */
 
 DDIST MeasOccupiedWidth(Document *doc, LINK pL, long spaceProp)
 {
@@ -1141,8 +1141,9 @@ Boolean WithinRange(LINK obj1, LINK theObj, LINK obj2)
 }
 
 /* ------------------------------------------------------- SamePage, -System, -Measure -- */
-/* FIXME: Names of the following functions should be changed to AreInSamePage,
-AreInSameSystem, and AreInSameMeasure, respectively. */
+/* These functions do  unoptimized searches so they can be called for debugging before
+the score is set up, e.g., during file-format conversion, FIXME: Names of the functions
+should be changed to AreInSamePage, AreInSameSystem, and AreInSameMeasure, respectively. */
 
 /* Return True if pL and qL are in the same page. An earlier version of this function
 assumed its arguments were both Systems; this version accepts anything and should be
@@ -1152,21 +1153,21 @@ Boolean SamePage(LINK pL, LINK qL)
 {
 	LINK pPageL, qPageL;
 	
-	pPageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, False);
-	qPageL = LSSearch(qL, PAGEtype, ANYONE, GO_LEFT, False);
+	pPageL = LSUSearch(pL, PAGEtype, ANYONE, GO_LEFT, False);
+	qPageL = LSUSearch(qL, PAGEtype, ANYONE, GO_LEFT, False);
 	return (pPageL==qPageL);
 }
 
 /* Return True if pL and qL are in the same System. Caveat: If either pL or qL is a
-Page and the other is in the last System of the previous Page, will return True!
-This is either a bug or a pitfall. */
+Page and the other is in the last System of the previous Page, will return True! This
+is either a bug or a pitfall. */
 
 Boolean SameSystem(LINK pL, LINK qL)
 {
 	LINK pSysL, qSysL;
 	
-	pSysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
-	qSysL = LSSearch(qL, SYSTEMtype, ANYONE, GO_LEFT, False);
+	pSysL = LSUSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
+	qSysL = LSUSearch(qL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	return (pSysL==qSysL);
 }
 
@@ -1178,16 +1179,16 @@ Boolean SameMeasure(LINK pL, LINK qL)
 {
 	LINK pMeasL, qMeasL;
 	
-	pMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, False);
-	qMeasL = LSSearch(qL, MEASUREtype, ANYONE, GO_LEFT, False);
+	pMeasL = LSUSearch(pL, MEASUREtype, ANYONE, GO_LEFT, False);
+	qMeasL = LSUSearch(qL, MEASUREtype, ANYONE, GO_LEFT, False);
 	return (pMeasL==qMeasL);
 }
 
 /* -------------------------------------------------------------------- SyncsAreConsec -- */
 /* Are syncA and syncB consecutive Syncs in the given staff/voice? Note that
 SyncsAreConsec will find consecutive Syncs in different systems, since LSSearch
-doesn't set inSystem True for its search and initial system objects (System,
-Connect, etc.) are not checked for. */
+doesn't set inSystem True for its search and initial system objects (System, Connect,
+etc.) are not checked for. */
 
 Boolean SyncsAreConsec(LINK syncA, LINK syncB, short staff, short voice)
 {
@@ -1216,10 +1217,10 @@ Boolean SyncsAreConsec(LINK syncA, LINK syncB, short staff, short voice)
 Measure of its System?  Cf. the BeforeFirstMeas() function.
 
 NB: This makes no reference to the selection range. If doc->selStartL indicates an
-insertion point at the end of a System, it will be the following system object
-(or tail); if called with this object, this function will return True, because
-the System is before the first Measure of its system. For selection range and
-insertion point, use BeforeFirstMeas(). */
+insertion point at the end of a System, it will be the following system object (or tail);
+if called with this object, this function will return True, because the System is before
+the first Measure of its system. For selection range and insertion point, use
+BeforeFirstMeas(). */
  
 Boolean LinkBefFirstMeas(LINK pL)
 {

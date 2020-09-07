@@ -136,7 +136,7 @@ void DoBeamEdit(Document *doc, LINK beamL)
 			/* Fix stem ends after drag and quantization. Because of the quantization,
 			   both beam endpoints might have moved even if only one was dragged. */
 			   
-				if (GraceBEAM(beamL)) {
+				if (BeamGRACE(beamL)) {
 					if (yDiffLeft!=0) FixGRStemLengths(beamL, yDiffLeft, LGRIP);
 					if (yDiffRight!=0) FixGRStemLengths(beamL, yDiffRight, RGRIP);
 				}
@@ -468,7 +468,7 @@ static void GetMaxSecBeams(
 	numEntries = LinkNENTRIES(beamL);
 	maxAbove = maxBelow = 0;
 
-	if (GraceBEAM(beamL)) {
+	if (BeamGRACE(beamL)) {
 		for (n=0; n<numEntries; n++) {
 			if (nSecs[n] < 0 && nSecs[n] < maxAbove)
 				maxAbove = nSecs[n];
@@ -531,7 +531,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	firstSyncL = FirstInBeam(beamL);
 	lastSyncL = LastInBeam(beamL);
 
-	if (GraceBEAM(beamL)) {
+	if (BeamGRACE(beamL)) {
 		firstNoteL = FindGRMainNote(firstSyncL, voice);				
 		lastNoteL = FindGRMainNote(lastSyncL, voice);				
 		firstStaff = GRNoteSTAFF(firstNoteL);
@@ -560,7 +560,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	aStaffL = StaffOnStaff(staffL, lastStaff);
 	lastStaffTop = StaffTOP(aStaffL) + firstContext.systemTop;
 
-	if (GraceBEAM(beamL)) {
+	if (BeamGRACE(beamL)) {
 		whichWay = AnalyzeGRBeamset(beamL, &nPrimary, nSecs);
 		beamCount = BuildGRBeamDrawTable(beamL, whichWay, nPrimary, nSecs, beamTab, BEAMTABLEN);
 	}
@@ -576,7 +576,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	
 	stemUOD = ( (leftYstem < NoteYD(firstNoteL)) ? STEM_UP : STEM_DOWN );
 	measL = LSSearch(firstSyncL, MEASUREtype, firstStaff, GO_LEFT, False);
-	if (GraceBEAM(beamL))
+	if (BeamGRACE(beamL))
 		firstXStem = CalcGRXStem(doc, firstSyncL, voice, stemUOD, LinkXD(measL), &firstContext, True);
 	else
 		firstXStem = CalcXStem(doc, firstSyncL, voice, stemUOD, LinkXD(measL), &firstContext, True);
@@ -584,7 +584,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	
 	stemUOD = ( (rightYstem < NoteYD(lastNoteL)) ? STEM_UP : STEM_DOWN );
 	measL = LSSearch(lastSyncL, MEASUREtype, lastStaff, GO_LEFT, False);
-	if (GraceBEAM(beamL))
+	if (BeamGRACE(beamL))
 		lastXStem = CalcGRXStem(doc, lastSyncL, voice, stemUOD, LinkXD(measL), &lastContext, False);
 	else
 		lastXStem = CalcXStem(doc, lastSyncL, voice, stemUOD, LinkXD(measL), &lastContext, False);
@@ -615,7 +615,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	
 	beamThick = LNSPACE(&firstContext)/2;					/* get thickness from first staff rastral */
 	if (beamP->thin) beamThick /= 2;
-	if (GraceBEAM(beamL)) {
+	if (BeamGRACE(beamL)) {
 		beamThick = GRACESIZE(beamThick);
 		beamThick = beamThick<p2d(1)? p2d(1) : beamThick;
 	}
@@ -639,12 +639,10 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	bm->objRect.left = n_min(bm->leftPt.h, bm->objRect.left);
 	bm->objRect.right = n_max(bm->rightPt.h, bm->objRect.right);
 	
-	/* Determine top and bottom of objRect.
-	 * NB: This yields a larger rect than necessary in some cases, but that's better
-	 * than one that's too small. All it means is that a larger rect will be passed
-	 * to EraseAndInval. It doesn't seem worth the effort to be more precise, unless
-	 * we're often forcing adjacent measures to be redrawn unnecessarily.
-	 */
+	/* Determine top and bottom of objRect. NB: This yields a larger rect than necessary
+	   in some cases, but that's better than one that's too small. All it means is that
+	   a larger rect will be passed to EraseAndInval. It doesn't seem worth the effort
+	   to be more precise. */
 	
 	/* Initialize top and bottom from note stem ends */
 	bm->objRect.top = n_min(bm->leftPt.v, bm->rightPt.v);
@@ -657,6 +655,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 		bm->objRect.bottom += bm->thickness;
 
 	/* ...and for any other primary, secondary and fractional beams */
+	
 	GetMaxSecBeams(beamL, nSecs, nSecsA, nSecsB, &maxAbove, &maxBelow);
 
 	if (nPrimary > 1) {
@@ -669,6 +668,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 		bm->objRect.bottom += d2p(maxBelow * flagYDelta);
 	
 	/* Make sure rect encloses any fractional beams */
+	
 	fracLevUp = fracLevDown = 0;
 	for (n=0; n<beamCount; n++) {
 		if (beamTab[n].start==beamTab[n].stop) {				/* it's a fractional beam */
@@ -705,12 +705,12 @@ static void InitBeamBounds(
 	short	staffn;
 	CONTEXT	context;
 
-	staffn = BeamSTAFF(beamL);								/* doesn't matter which one of beam's staves */
+	staffn = BeamSTAFF(beamL);							/* doesn't matter which one of beam's staves */
 	GetContext(doc, beamL, staffn, &context);
 	
 	bounds->top = d2p(context.systemTop - SYSHT_SLOP);
 	bounds->bottom = d2p(context.systemBottom + SYSHT_SLOP);
-	bounds->left = d2p(context.systemLeft);					/* really irrelevant for beams, because no horiz. motion allowed */
+	bounds->left = d2p(context.systemLeft);				/* really irrelevant for beams, because no horiz. motion allowed */
 	bounds->right = d2p(context.staffRight);
 }
 
@@ -824,18 +824,18 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 						}
 					}
 					/* Call FixChordForYStem only if stem direction has changed. Otherwise,
-						we'll be throwing away accidental hpos tweaks unnecessarily.
-						Must use a new loop, since FixChordForYStem can change the main note
-						and cause the block which handles MainNote(qSubL) to be called
-						too many times. 
-					*/
+					   we'll be throwing away accidental hpos tweaks unnecessarily. We
+					   must use a new loop because FixChordForYStem can change the main
+					   note and cause the block which handles MainNote(qSubL) to be called
+					   too many times. */
+					   
 					if (!stemDirChange) continue;
 					for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextNOTEL(qSubL)) {
 						if ((NoteVOICE(qSubL)==BeamVOICE(beamL)) && MainNote(qSubL)) {
 							qSub = GetPANOTE(qSubL);
 							if (qSub->inChord) {
-								if (qSub->ystem>qSub->yd) stemUp = -1;
-								else stemUp = 1;
+								if (qSub->ystem>qSub->yd)	stemUp = -1;
+								else						stemUp = 1;
 								FixChordForYStem(qL, NoteVOICE(qSubL), stemUp, qSub->ystem);
 								didFixChordForYStem = True;
 								break;
@@ -869,11 +869,11 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 						}
 					}
 					/* Call FixChordForYStem only if stem direction has changed. Otherwise,
-						we'll be throwing away accidental hpos tweaks unnecessarily.
-						Must use a new loop, since FixChordForYStem can change the main note
-						and cause the block which handles MainNote(qSubL) to be called
-						too many times. 
-					*/
+					   we'll be throwing away accidental hpos tweaks unnecessarily. We
+					   must use a new loop because FixChordForYStem can change the main note
+					   and cause the block which handles MainNote(qSubL) to be called too
+					   many times. */
+					   
 					if (!stemDirChange) continue;
 					for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextNOTEL(qSubL)) {
 						if ((NoteVOICE(qSubL)==BeamVOICE(beamL)) && MainNote(qSubL)) {
@@ -995,12 +995,13 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 							h++;
 						}
 					}
-					/* Call FixGRChordForYStem only if stem direction has changed. Otherwise,
-						we'll be throwing away accidental hpos tweaks unnecessarily.
-						Must use a new loop, since FixGRChordForYStem can change the main note
-						and cause the block which handles GRMainNote(qSubL) to be called
-						too many times. 
-					*/
+					
+					/* Call FixGRChordForYStem only if stem direction has changed. Otherwise
+					   we'll be throwing away accidental hpos tweaks unnecessarily. We
+					   must use a new loop because FixGRChordForYStem can change the main
+					   note and cause the block which handles GRMainNote(qSubL) to be
+					   called too many times. */
+					   
 					if (!stemDirChange) continue;
 					for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextGRNOTEL(qSubL)) {
 						if ((GRNoteVOICE(qSubL)==BeamVOICE(beamL)) && GRMainNote(qSubL)) {

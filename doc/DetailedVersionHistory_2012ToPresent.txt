@@ -2916,3 +2916,12 @@ Minor cleanup. Affects NLimits.h; Beam, DebugUtils, Heaps, HeapFileIO, NotelistP
 Minor cleanup. Affects MemMacros.h, MiscUtils.h, NightTemplates.h, Utility.h;
 AutoBeam, FileConversion, HeapFileIO, Heaps, MiscUtils, Utility.
 
+-------------------------------------------------------------------------------
+
+30 August - 7 Sept.
+
+Fix bug in DCheckBeams(). Affects DebugUtils.
+
+Minor cleanup. Affects Debug.h, DebugUtils.h, MemMacros.h; DebugUtils, DragBeam,
+DSUtils, FileConversion, Search.
+
