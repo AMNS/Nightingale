@@ -974,7 +974,7 @@ static void MFixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK 
 	
 	InstallDoc(fixDoc);
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
-		if (BeamsetTYPE(pL) && !GraceBEAM(pL)) {
+		if (BeamsetTYPE(pL) && !BeamGRACE(pL)) {
 			needMerged = LinkSPAREFLAG(pL);
 			for (i=0, qL=RightLINK(pL); i<LinkNENTRIES(pL) && qL!=endL; qL=RightLINK(qL))
 				if (SyncTYPE(qL)) {
@@ -1018,9 +1018,9 @@ static void MFixAllBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LI
 
 
 /* --------------------------------------------------------------------- MFixCrossPtrs -- */
-/* Update all cross links after reconstructing the data structure. Version for
-merge which fixes up selectively depending on origin of object to update. Needed
-for overlapped voices, which can superimpose beams, ottavas in the same voice. */
+/* Update all cross links after reconstructing the data structure. Version for merge
+which fixes up selectively depending on origin of object to update. Needed for overlapped
+voices, which can superimpose beams, ottavas in the same voice. */
 
 void MFixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray)
 {
@@ -1029,8 +1029,8 @@ void MFixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray)
 	sysL = SSearch(startMeas,SYSTEMtype,GO_LEFT);
 	firstSysL = LinkLSYS(sysL) ? LinkLSYS(sysL) : sysL;
 
-	/* Beamsets can begin in a previous system; crossSys beamsets
-	   can begin in the system before the previous system. */
+	/* Beamsets can begin in a previous system; crossSys beamsets can begin in the
+	   system before the previous system. */
 
 	MFixAllBeamLinks(doc, doc, firstSysL, endMeas);
 	

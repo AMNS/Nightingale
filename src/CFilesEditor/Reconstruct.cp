@@ -764,7 +764,7 @@ static void RelocateGenlJDObj(Document */*doc*/, LINK pL, PTIME *durArray)
 			break;
 
 		case BEAMSETtype:
-			if (GraceBEAM(pL)) {
+			if (BeamGRACE(pL)) {
 				newObjL = FirstInBeam(pL);
 				InsertJDBefore(pL, newObjL);
 			}
@@ -788,7 +788,7 @@ static void RelocateJDObj(Document */*doc*/, LINK pL, LINK baseMeasL, PTIME *dur
 
 	switch (ObjLType(pL)) {
 		case BEAMSETtype:
-			if (!GraceBEAM(pL)) {
+			if (!BeamGRACE(pL)) {
 				for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 					if (pTime->beamL==pL) {
 						if (NoteVOICE(pTime->newSubL)==BeamVOICE(pL)) {
@@ -1375,7 +1375,7 @@ static void RelocateClGenlJDObj(Document *doc, LINK pL, LINK startClMeas, LINK e
 			break;
 
 		case BEAMSETtype:
-			if (GraceBEAM(pL)) {
+			if (BeamGRACE(pL)) {
 				firstL = FirstInBeam(pL);
 				newObjL = GetCopyMap(firstL,numObjs,mergeMap);
 
@@ -1408,7 +1408,7 @@ static void RelocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durAr
 
 	switch (ObjLType(pL)) {
 		case BEAMSETtype:
-			if (!GraceBEAM(pL)) {
+			if (!BeamGRACE(pL)) {
 				for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 					if (pTime->beamL==pL) {
 						if (DNoteVOICE(doc,pTime->newSubL)==vMap[BeamVOICE(pL)]) {		/* #1. */
@@ -1593,7 +1593,7 @@ tuplets, etc.*/
 	
 void RelocateClGenlJDObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startMeas,
 							LINK endMeas, PTIME *durArray, short stfDiff, COPYMAP *mergeMap,
-							short *vMap, Boolean syncsOnly)
+							short *vMap, Boolean /*syncsOnly*/)
 {
 	LINK pL, nextL;
 

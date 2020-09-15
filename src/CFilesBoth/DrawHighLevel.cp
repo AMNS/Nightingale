@@ -233,10 +233,8 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result)) {
-						if (GraceBEAM(pL))
-							DrawGRBEAMSET(doc, pL, context);
-						else
-							DrawBEAMSET(doc, pL, context);
+						if (BeamGRACE(pL))	DrawGRBEAMSET(doc, pL, context);
+						else				DrawBEAMSET(doc, pL, context);
 					}
 				break;
 			case TUPLETtype:
@@ -434,10 +432,8 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result)) {
-						if (GraceBEAM(pL))
-							DrawGRBEAMSET(doc, pL, context);
-						else
-							DrawBEAMSET(doc, pL, context);
+						if (BeamGRACE(pL))	DrawGRBEAMSET(doc, pL, context);
+						else				DrawBEAMSET(doc, pL, context);
 					}
 				break;
 			case TUPLETtype:
@@ -599,7 +595,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL) ||
 							SectRect(&LinkOBJRECT(pL),&paperUpdate,&result)) {
-						if (GraceBEAM(pL) && LinkSEL(pL))
+						if (BeamGRACE(pL) && LinkSEL(pL))
 							CheckBEAMSET(doc, pL, context, NULL, SMHilite, stfRange);
 						else if (LinkSEL(pL))
 							CheckBEAMSET(doc, pL, context, NULL, SMHilite, stfRange);

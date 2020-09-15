@@ -1822,7 +1822,7 @@ static void ExtendJDRange(Document *doc)
 			v = BeamVOICE(pL);
 			nSel = 0;
 			
-			if (GraceBEAM(pL)) {
+			if (BeamGRACE(pL)) {
 				for (qL = firstL; qL!=RightLINK(lastL); qL = RightLINK(qL))
 					if (GRSyncTYPE(qL)) {
 						aGRNoteL = FirstSubLINK(qL);
@@ -2799,22 +2799,24 @@ void DeleteSelection(
 
 					DSObjRemGraphic(doc, pL);
 
-					/* Update aspects of any chords contained in pL. Fix stems, otherStemSides,
-						 etc., of grace notes in chords with grace notes deleted. */
+					/* Update aspects of any chords contained in pL. Fix stems,
+					   otherStemSides, etc., of grace notes in chords with grace notes
+					   deleted. */
+					   
 					FixDelGRChords(doc, pL, voiceChanged);
 				}
 				break;
 
 			case BEAMSETtype:
 			/* When we have the actual beam object, UnbeamRange should be called
-				rather than Unbeam, since we do not need to check the endpoints for
-				beams across them. Same for ottavas and tuplets. */
+			   rather than Unbeam, since we do not need to check the endpoints for
+			   beams across them. Same for ottavas and tuplets. */
 
 				didAnything = True;
 				newSelL = RightLINK(pL);
 				firstSyncL = FirstInBeam(pL);
 				lastSyncL = LastInBeam(pL);
-				if (GraceBEAM(pL))
+				if (BeamGRACE(pL))
 					GRUnbeamRange(doc, firstSyncL, RightLINK(lastSyncL), BeamVOICE(pL));
 				else
 					UnbeamRange(doc, firstSyncL, RightLINK(lastSyncL), BeamVOICE(pL));

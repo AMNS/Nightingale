@@ -50,21 +50,26 @@ Boolean DCheckEverything(Document *doc,
 #ifdef DDB
 	LogPrintf(LOG_INFO, "--CHECK MAIN:\n");
 #endif
+
+	/* PART 1. Check that some lower-level data structures -- the "heaps" -- are OK. */
+	
 	if (DCheckHeaps(doc)) return True;
-	/*
-	 * First check individually all nodes in the main data structure (the object
-	 * list), including their links, since the "global" checks must assume they can
-	 * successfully traverse the data structure.
-	 */
+
+	/* PART 2. Check that high-level data structures -- mostly the object list -- are OK. */
+
+	/* First check individually all nodes in the object list; this includes their links,
+	   since the "global" checks must assume they can successfully traverse the data
+	   structure. */
+	   
 	ResetDErrLimit();
 	nTotal = 0;
 	
-	/*
-	 * The "for" loop and single separate iteration below could have been written with
-	 * just the "for" by making the termination condition "pL!=RightLINK(doc->tailL)";
-	 * however, if the data structure's links are bad, that would be more likely to stop
-	 * in the wrong place.
-	 */
+	/* The "for" loop and single separate iteration below could have been written with
+	   just the "for" by making the termination condition "pL!=RightLINK(doc->tailL)";
+	   however, if the data structure's links are bad, that would be more likely to stop
+	   in the wrong place. */
+	   
+LogPrintf(LOG_DEBUG, "<DCheckEverything loop 1\n");
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		nTotal++;
 		if (DCheckNode(doc, pL, MAIN_DSTR, maxCheck)<0) return True;
@@ -73,8 +78,7 @@ Boolean DCheckEverything(Document *doc,
 		DCheckNodeSel(doc, pL);		if (DErrLimit() || UserInterrupt()) return False;
 	}
 	nTotal++;														/* Count tailL */
-	
-	/* PART 1. Check that data structures -- mostly the object list -- are legal. */
+LogPrintf(LOG_DEBUG, ">DCheckEverything loop 1\n");
 	
 	if (DCheckNode(doc, doc->tailL, MAIN_DSTR, maxCheck)<0) return True;
 	
@@ -94,7 +98,7 @@ Boolean DCheckEverything(Document *doc,
 	(void)DCheckHairpins(doc);				if (DErrLimit() || UserInterrupt()) return False;
 	(void)DCheckContext(doc);				if (DErrLimit() || UserInterrupt()) return False;
 
-	/* PART 2. Check that musical and music-notation constraints are obeyed. */
+	/* PART 3. Check that musical and music-notation constraints are obeyed. */
 	
 	(void)DCheckPlayDurs(doc, maxCheck);	if (DErrLimit() || UserInterrupt()) return False;
 	(void)DCheckTempi(doc);					if (DErrLimit() || UserInterrupt()) return False;

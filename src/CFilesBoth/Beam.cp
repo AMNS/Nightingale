@@ -169,7 +169,7 @@ LINK Rebeam(Document *doc, LINK beamL)
 	lastSyncL = LastInBeam(beamL);
 
 	voice = BeamVOICE(beamL);
-	if (GraceBEAM(beamL)) {
+	if (BeamGRACE(beamL)) {
 		RemoveGRBeam(doc, beamL, voice, False);
 		return CreateGRBEAMSET(doc, firstSyncL, RightLINK(lastSyncL), voice,
 							nInBeam, False, False);

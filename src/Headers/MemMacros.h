@@ -542,8 +542,6 @@ are by Steve Hart.) */
 #define FirstGraphicSTRING(link)	( (GetPAGRAPHIC(FirstSubLINK(link)))->strOffset )			
 #define FirstMeasMEASURENUM(link)	( (GetPAMEASURE(FirstSubLINK(link)))->measureNum )			
 
-#define GraceBEAM(link)				( (GetPBEAMSET(link))->grace )			/* FIXME: Use BeamGRACE and remove this! */
-
 #define GraphicNEXT(link)			( (GetPAGRAPHIC(link))->next )
 #define GraphicSTRING(link)			( (GetPAGRAPHIC(link))->strOffset )	
 

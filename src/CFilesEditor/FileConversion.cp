@@ -1621,6 +1621,16 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 	
 	BlockMove(&tmpSuperObj, &aSlur, sizeof(SLUR_5));
 	
+#if 1
+		{ LINK qL, lastSyncL;
+			for (LINK qL=1; qL<slurL; qL++)
+				if (BeamsetTYPE(qL)) {
+					if (DCheckBeamset(doc, qL, False, True, &lastSyncL))
+						LogPrintf(LOG_DEBUG, "ConvertSLUR1: DCheckBeamset found a problem with qL=L%u slurL=%Lu.\n",
+									qL, slurL); 
+				}
+		}
+#endif
 	SlurSTAFF(slurL) = (&aSlur)->staffn;		/* EXTOBJHEADER */
 
 	SlurVOICE(slurL) = (&aSlur)->voice;
@@ -1634,6 +1644,16 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 
 	SlurFIRSTSYNC(slurL) = (&aSlur)->firstSyncL;
 	SlurLASTSYNC(slurL) = (&aSlur)->lastSyncL;
+#if 1
+		{ LINK qL, lastSyncL;
+			for (LINK qL=1; qL<slurL; qL++)
+				if (BeamsetTYPE(qL)) {
+					if (DCheckBeamset(doc, qL, False, True, &lastSyncL))
+						LogPrintf(LOG_DEBUG, "ConvertSLUR2: DCheckBeamset found a problem with qL=L%u slurL=%Lu.\n",
+									qL, slurL); 
+				}
+		}
+#endif
 
 //NHexDump(LOG_DEBUG, "ConvertSLUR", (unsigned char *)&tempSys, 38, 4, 16);
 	LogPrintf(LOG_DEBUG, "ConvertSLUR: slurL=L%u staff=%d voice=%d tie=%d\n", slurL,
@@ -1888,6 +1908,16 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 		/* Convert the object header now so type-specific functions don't have to. */
 		
 		ConvertObjHeader(doc, pL);
+#if 1
+		{ LINK lastSyncL;
+			for (LINK qL=1; qL<pL; qL++)
+				if (BeamsetTYPE(qL)) {
+					if (DCheckBeamset(doc, qL, False, True, &lastSyncL))
+						LogPrintf(LOG_DEBUG, "ConvertObjSubobjs: DCheckBeamset found a problem with qL=L%u pL=%Lu.\n",
+									qL, pL); 
+				}
+		}
+#endif
 		
 		switch (ObjLType(pL)) {
 			case HEADERtype:
@@ -1969,9 +1999,6 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 
 		DebugConversion(doc, pL);
 	}
-
-//LogPrintf(LOG_DEBUG, "ConvObjs2/AMEASURE 1");
-//DKeySigPrintf((PKSINFO)(MeasKSITEM(1)));
 
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
 	but (as of v.997), they sometimes were, probably because not exporting changes to

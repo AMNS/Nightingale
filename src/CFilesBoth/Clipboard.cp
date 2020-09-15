@@ -82,11 +82,12 @@ static void PasteFromClip(Document *, LINK, short, Boolean);
 
 static void FixOctNotes(Document *doc, LINK octL, short s);
 
+
 /* ---------------------------------------------------------------------- FixClipBeams -- */
-/* Fix the  beam status for all notes in range [startL, endL). If a beamed
-note is copied to the clipboard without its associated beamset, then FixBeamLinks
-will not set its tempFlag; fix the beam flag and stem for such notes. Cf.
-FixNCStem, which this should maybe call. */
+/* Fix the  beam status for all notes in range [startL, endL). If a beamed note is
+copied to the clipboard without its associated beamset, then FixBeamLinks will not set
+its tempFlag; fix the beam flag and stem for such notes. Cf. FixNCStem, which this
+should maybe call. */
 
 static void FixClipBeams(Document *doc, LINK startL, LINK endL)
 {
@@ -135,9 +136,9 @@ static void FixClipBeams(Document *doc, LINK startL, LINK endL)
 
 
 /* -------------------------------------------------------------------- FixClipTuplets -- */
-/* Fix the tuplet status for all notes in range [startL, endL). If a tupled
-note is copied to the clipboard without its associated tuplet, then FixTupletLinks
-will not set its tempFlag; fix the inTuplet flag and duration for such notes. */
+/* Fix the tuplet status for all notes in range [startL, endL). If a tupled note is
+copied to the clipboard without its associated tuplet, then FixTupletLinks will not set
+its tempFlag; fix the inTuplet flag and duration for such notes. */
 
 static void FixClipTuplets(Document *doc, LINK startL, LINK endL)
 {
@@ -164,9 +165,9 @@ static void FixClipTuplets(Document *doc, LINK startL, LINK endL)
 
 
 /* -------------------------------------------------------------------- FixClipOttavas -- */
-/* Fix the ottava status for all notes in range [startL, endL). If an ottava'd
-note is copied to the clipboard without its associated ottava, then FixOttavaLinks
-will not set its tempFlag; fix the inOttava flag and pitch for such notes. */
+/* Fix the ottava status for all notes in range [startL, endL). If an ottava'd note is
+copied to the clipboard without its associated ottava, then FixOttavaLinks will not set
+its tempFlag; fix the inOttava flag and pitch for such notes. */
 
 static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipMap,
 									short numObjs)
@@ -242,21 +243,21 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 	InstallDoc(doc);
 }
 
+
 /* --------------------------------------------------------------------- ChkSrcDocSlur -- */
-/* If the slur exists and was selected in the src doc, check to see if it was copied
-to the dst doc. */
+/* If the slur exists and was selected in the src doc, check to see if it was copied to
+the dst doc. */
 
 static Boolean ChkSrcDocSlur(LINK slurL, COPYMAP *clipMap, short numObjs)
 {
-	short i;
-
 	if (slurL && LinkSEL(slurL)) 
-		for (i = 0; i<numObjs; i++)
+		for (short i = 0; i<numObjs; i++)
 			if (clipMap[i].srcL && clipMap[i].srcL==slurL)
 				return True;
 				
 	return False;
 }
+
 
 /* -------------------------------------------------------------------- SrcSlurInRange -- */
 /* Check to see if the slur in the src doc which begins/ends at qL is in the range
@@ -272,8 +273,8 @@ static Boolean SrcSlurInRange(Document *srcDoc, LINK qL, Boolean isTie,
 	saveDoc = currentDoc;
 	InstallDoc(srcDoc);
 
-	/* Search left in the source document for the slur in the note's voice that
-	   ends at the note in the source doc. */
+	/* Search left in the source document for the slur in the note's voice that ends
+	   at the note in the source doc. */
 
 	if (slurredL)
 		slurL = LeftSlurSearch(qL,pbSearch->voice,isTie);
@@ -282,8 +283,8 @@ static Boolean SrcSlurInRange(Document *srcDoc, LINK qL, Boolean isTie,
 		slurL = L_Search(qL, SLURtype, GO_LEFT, pbSearch);
 	}
 
-	/* If the slur exists and was selected in the score, check to see if it was
-		copied to the destination doc. */
+	/* If the slur exists and was selected in the score, check to see if it was copied
+	   to the destination doc. */
 	
 	inRange = ChkSrcDocSlur(slurL,clipMap,numObjs);
 
@@ -291,6 +292,7 @@ static Boolean SrcSlurInRange(Document *srcDoc, LINK qL, Boolean isTie,
 	
 	return inRange;
 }
+
 
 /* -------------------------------------------------------------------- FixClipLinks -- */
 /* Use <clipMap> to correct cross links in the range [startL, endL). FixClipLinks
@@ -353,7 +355,7 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 			case SYNCtype:
 
 				/* Fix up the tiedL/R & slurredL/R flags for notes whose ties/slurs
-					may or may not be in the range copied. */
+				   may or may not be in the range copied. */
 
 				InitSearchParam(&pbSearch);
 
@@ -365,8 +367,8 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 				/* If there was a sync in the source corresponding to a sync in the
 				   dest, traverse the notes of the sync in the dest. If any was tied/
 				   slurred, search for the corresponding slur in the source, and check
-				   to see if it was copied. If there was none or it wasn't copied,
-				   mark the note not tied/slurred.
+				   to see if it was copied. If there was none or it wasn't copied, mark
+				   the note not tied/slurred.
 				   #1. Note has already been translated to new staff/voice; searching
 				   in the source document requires translation back to previous staff/
 				   voice. */
@@ -391,7 +393,7 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 																	&pbSearch);
 
 							/* If the tie was not in the range, the note in the dst doc
-								must be marked not tied. */
+							   must be marked not tied. */
 
 							if (!inRange) NoteTIEDL(aNoteL) = False;
 						}
@@ -491,6 +493,7 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 	}
 }
 
+
 /* ----------------------------------------------------------------- UpdateClipContext -- */
 
 static void UpdateClipContext(Document *doc)
@@ -509,13 +512,13 @@ static void UpdateClipContext(Document *doc)
 
 		InstallDoc(doc);
 		GetContext(doc, doc->selStartL, s, &context);
-		/*
-		 * The Nightingale object list supports arbitrary key signatures with intermixed
-		 * sharps and flats; these are indicated by the <nonstandard> flag in the KeySig
-		 * subobject, which unfortunately is not kept in the context, but we don't support
-		 * nonstandard ones yet anyway, so just call GetSharpsOrFlats, which assumes it's a
-		 * standard one.
-		 */
+		
+		/* The Nightingale object list supports arbitrary key signatures with intermixed
+		   sharps and flats. These are indicated by the <nonstandard> flag in the KeySig
+		   subobject, which unfortunately is not kept in the context, but we don't support
+		   nonstandard ones yet anyway, so just call GetSharpsOrFlats, which assumes it's
+		   a standard one. */
+		   
 		sharpsOrFlats = GetSharpsOrFlats(&context);
 
 		InstallDoc(clipboard);
@@ -532,9 +535,9 @@ static void UpdateClipContext(Document *doc)
 
 static DDIST SyncSpaceNeeded(Document *doc, LINK pL)
 {
-	LINK aNoteL;  long maxLen,tempLen;
+	LINK aNoteL;  long maxLen, tempLen;
 	short staff;  CONTEXT context;
-	STDIST symWidth,space;
+	STDIST symWidth, space;
 	
 	maxLen = tempLen = 0L;
 	space = 0;
@@ -557,14 +560,12 @@ static DDIST SyncSpaceNeeded(Document *doc, LINK pL)
 
 static DDIST GetNeededSpace(Document *doc, LINK pL)
 {
-	short j; DDIST width=-32000; CONTEXT context;
+	short j;  DDIST width=-32000;  CONTEXT context;
 
-	if (SyncTYPE(pL))
-		return SyncSpaceNeeded(doc, pL);
+	if (SyncTYPE(pL)) return SyncSpaceNeeded(doc, pL);
 
-	/* Can forego checking with FirstValidxd because pL has already been
-		tested by calling function SetupClip. Any other calling function will
-		also need to check. */
+	/* We can forego checking with FirstValidxd because pL has already been tested by
+	   calling function SetupClip. Any other calling function will also need to check. */
 
 	for (j=1; j<=doc->nstaves; j++) {
 		GetContext(doc, pL, j, &context);
@@ -573,27 +574,26 @@ static DDIST GetNeededSpace(Document *doc, LINK pL)
 	return width;
 }
 
+
 /* ------------------------------------------------------------------------- SetupClip -- */
-/* Set up the clipboard: delete the main clip, and compute the clipboard
-parameters clipxd, clipBarxd. */
+/* Set up the clipboard: delete the main clip, and compute the clipboard parameters
+clipxd, clipBarxd. */
 
 static void SetupClip(Document *doc, LINK startL, LINK endL, COPYMAP **clipMap,
 								short *objCount)
 {
-	LINK pL,baseL,nextL; DDIST diff;
+	LINK pL, baseL, nextL; DDIST diff;
 
 	DeleteClip(doc);											/* Kill current clipboard */
 	SetupClipDoc(doc,True);
 	clipxd = 0;
 	UpdateTailxd(doc);
 
-	/* Store the total length of the clipboard in clipxd: accumulate
-		the PMDist between each valid-xd symbol and the next in the range
-		[startL,endL).
-		If the symbol is not in the same system or page as the next one
-		(which can currently only happen if endL is on the following system)
-		add the space needed for the symbol instead of its PMDist to the
-		next symbol. */
+	/* Store the total length of the clipboard in clipxd: accumulate the PMDist between
+	   each valid-xd symbol and the next in the range [startL,endL). If the symbol is
+	   not in the same system or page as the next one (which can currently only happen
+	   if endL is on the following system) add the space needed for the symbol instead
+	   of its PMDist to the next symbol. */
 
 	for (pL = startL; pL!=endL && !IsAfter(endL,pL); pL = nextL) {
 		if (LinkSEL(pL)) {
@@ -624,10 +624,9 @@ static void SetupClip(Document *doc, LINK startL, LINK endL, COPYMAP **clipMap,
 
 
 /* --------------------------------------------------------------------- FixClipChords -- */
-/* Fix stem, inChord flags, etc. of notes in case any chords were only partly
-copied. This version doesn't check whether in fact a voice was only partly copied,
-which looks difficult to do; it simply resets the note/chord in every voice to
-that voice's default. */
+/* Fix stem, inChord flags, etc. of notes in case any chords were only partly copied.
+This version doesn't check whether in fact a voice was only partly copied, which looks
+difficult to do; it simply resets the note/chord in every voice to that voice's default. */
 
 static void FixClipChords(Document *doc, LINK syncL)
 {
@@ -655,8 +654,8 @@ static void FixClipChords(Document *doc, LINK syncL)
 }
 
 
-/* Given a Sync or GRSync, if any of its notes or grace notes has an explicit
-accidental, even a natural, return True; else return False. */
+/* Given a Sync or GRSync, if any of its notes or grace notes has an explicit accidental,
+even a natural, return True; else return False. */
  
 static Boolean HasAnyAccidentals(LINK pL);
 static Boolean HasAnyAccidentals(LINK pL)
@@ -678,6 +677,7 @@ static Boolean HasAnyAccidentals(LINK pL)
 	
 	return False;
 }
+
 
 /* ------------------------------------------------------------------------ CopyToClip -- */
 /* Copy the specified range of nodes to the clipboard. Assumes doc, not clipboard,
@@ -2745,13 +2745,14 @@ static short PasteMapStaves(Document *doc, Document *newDoc, LINK startL, LINK e
 }
 
 /* ---------------------------------------------------------------- PasteFixMeasStruct -- */
-/* Fix up the part-staff structure of measures in the range [startL,endL). */
+/* Fix up the part-staff structure of measures in the range [startL, endL). */
 
 void PasteFixMeasStruct(Document *doc, LINK startL, LINK endL, Boolean fixMeasure)
 {
 	LINK pL, beforeStartL;
 	LINK measL,aMeasL,fixMeasL,staffL,newMeas,insertL,copyL,rightL,sysL;
-	PAMEASURE aMeas,fixMeas; Boolean replaceMeas=False;
+	PAMEASURE aMeas,fixMeas;
+	Boolean replaceMeas=False;
 	DDIST xd; Rect bbox;
 	
 	measL = LSSearch(LeftLINK(startL),MEASUREtype,ANYONE,GO_LEFT,False);
@@ -2806,11 +2807,11 @@ void PasteFixMeasStruct(Document *doc, LINK startL, LINK endL, Boolean fixMeasur
 	}
 
 	/* If user has tweaked the score format during look at format, the measureBBoxes
-		may extend outside of the system rects; fix this here. */
+	   may extend outside of the system rects; fix this here. */
  
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
 		if (MeasureTYPE(pL)) {
-			LINK prevMeasL,aMeasL,bMeasL; DRect mRectA,mRectB;
+			LINK prevMeasL, bMeasL;  DRect mRectA, mRectB;
 
 			sysL = LSSearch(pL,SYSTEMtype,ANYONE,GO_LEFT,False);
 			bbox = MeasureBBOX(pL);
@@ -2914,7 +2915,8 @@ static void PasteRebeam(Document *doc, LINK pL, short nInRange)
 {
 	LINK firstSyncL,lastSyncL; Boolean graceBeam; short v;
 
-	graceBeam = GraceBEAM(pL); v = BeamVOICE(pL);
+	graceBeam = BeamGRACE(pL);
+	v = BeamVOICE(pL);
 	RemoveBeam(doc, pL, v, False);
 	firstSyncL = FirstInBeam(pL);
 	lastSyncL = LastInBeam(pL);
@@ -3030,7 +3032,7 @@ static void FixBeamNotes(Document *doc, LINK beamL, short v)
 	firstL = FirstInBeam(beamL);
 	lastL = LastInBeam(beamL);
 
-	if (GraceBEAM(beamL)) {
+	if (BeamGRACE(beamL)) {
 		numNotes = GRBeamNotesInRange(doc,v,firstL,RightLINK(lastL));
 		if (numNotes!=LinkNENTRIES(beamL))
 			PasteRebeam(doc, beamL, numNotes);

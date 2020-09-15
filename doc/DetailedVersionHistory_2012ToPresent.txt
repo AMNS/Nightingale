@@ -2920,8 +2920,15 @@ AutoBeam, FileConversion, HeapFileIO, Heaps, MiscUtils, Utility.
 
 30 August - 7 Sept.
 
-Fix bug in DCheckBeams(). Affects DebugUtils.
+Fixed bug in DCheckBeams(). Affects DebugUtils.
 
 Minor cleanup. Affects Debug.h, DebugUtils.h, MemMacros.h; DebugUtils, DragBeam,
 DSUtils, FileConversion, Search.
 
+-------------------------------------------------------------------------------
+
+8 - 14 Sept.
+
+Minor cleanup: replaced "GraceBEAM" with "BeamGRACE" everywhere, etc. Affects
+MemMacros.h; Beam, Clipboard, CrossLinks, CrossSystem, DebugHighLevel, Delete,
+Dragging, DragSet, DrawHighLevel, FileConversion, MergeUtils, MIDIFSave, Reconstruct.

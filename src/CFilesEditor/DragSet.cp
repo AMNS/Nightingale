@@ -1,8 +1,8 @@
-/***************************************************************************
+/*****************************************************************************************
 *	FILE:	DragSet.c
 *	PROJ:	Nightingale
 *	DESC:	"Set" routines for bitmap dragging
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -15,28 +15,27 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-/* ------------------------------------------------------ SetClefFields and ally -- */
-/* SetClefFields and other "set fields" functions translate the position of
-the clef, etc. by xdDiff/ydDiff, and make translation consistent with
-other factors, e.g., quantization to half lines, moving all notes in a
-chord together, considering whether movement is vertical/horizontal, etc. */
+/* ------------------------------------------------------------ SetClefFields and ally -- */
+/* SetClefFields and other "set fields" functions translate the position of the clef, etc.
+by xdDiff/ydDiff, and make translation consistent with other factors, e.g., quantization
+to half lines, moving all notes in a chord together, considering whether movement is
+vertical/horizontal, etc. */
 
-/* Move the given clef by the given distance. After doing so, if none of the
-clefs in the object is at the same position as the object anymore, move the
-object to the closest one. */
+/* Move the given clef by the given distance. After doing so, if none of the clefs in the
+object is at the same position as the object anymore, move the object to the closest one.
+*/
 
 static void MoveClefHoriz(LINK, LINK, DDIST);
 static void MoveClefHoriz(LINK pL, LINK theClefL, DDIST xdDiff)
 {
-	LINK aClefL; PACLEF theClef; DDIST minXD;
+	LINK aClefL;  PACLEF theClef;  DDIST minXD;
 	
 	theClef = GetPACLEF(theClefL);
 	theClef->xd += xdDiff;
 
-	/*
-	 *	If none of the clefs in pL is at the same position as pL itself is anymore,
-	 * move pL to the closest one.
-	 */
+	/* If none of the clefs in pL is at the same position as pL itself is anymore,
+	   move pL to the closest one. */
+	   
 	aClefL = FirstSubLINK(pL);
 	minXD = ClefXD(aClefL);
 	for ( ; aClefL; aClefL = NextCLEFL(aClefL))
@@ -51,8 +50,8 @@ static void MoveClefHoriz(LINK pL, LINK theClefL, DDIST xdDiff)
 	}
 }
 
-/* Update fields of the given clef for dragging by (xdDiff,ydDiff). Also make
-any other changes to the object list necessary for consistency. */
+/* Update fields of the given clef for dragging by (xdDiff,ydDiff). Also make any other
+changes to the object list necessary for consistency. */
 
 void SetClefFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff,
 							short /*xp*/, short /*yp*/, Boolean vert)
@@ -68,12 +67,11 @@ void SetClefFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydD
 		/* Quantize vertical movement to half lines. */
 		halfLnDiff = d2halfLn(ydDiff, context.staffHeight, context.staffLines);
 
-		/* Change the clef type to reflect its being vertically dragged.
-			SDGetClosestClef finds the closest legal clef corresponding to the
-			clef's new halfLn position, and sets the subType of the clef to this
-			new type. The yd of the new clef is not updated, since the new clef
-			type describes its new vertical position.
-			Then update the context for the change of clef type. */
+		/* Change the clef type to reflect its being vertically dragged. SDGetClosestClef
+		   finds the closest legal clef corresponding to the clef's new halfLn position,
+		   and sets the subType of the clef to this new type. The yd of the new clef is
+		   not updated, since the new clef type describes its new vertical position.
+		   Then update the context for the change of clef type. */
 
 		oldClef = ClefType(subObjL);
 		SDGetClosestClef(doc, halfLnDiff, pL, subObjL, context);
@@ -93,24 +91,22 @@ void SetClefFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydD
 }
 
 
-/* ------------------------------------------------------ SetKeySigFields and ally - */
+/* ---------------------------------------------------------- SetKeySigFields and ally -- */
 
-/* Move the given key sig by the given distance. After doing so, if none of the
-key sigs in the object is at the same position as the object anymore, move the
-object to the closest one. */
+/* Move the given key sig by the given distance. After doing so, if none of the key sigs
+in the object is at the same position as the object anymore, move the object to the
+closest one. */
 
 static void MoveKeySigHoriz(LINK, LINK, DDIST);
 static void MoveKeySigHoriz(LINK pL, LINK theKeySigL, DDIST xdDiff)
 {
-	LINK aKeySigL; PAKEYSIG theKeySig; DDIST minXD;
+	LINK aKeySigL;  PAKEYSIG theKeySig;  DDIST minXD;
 	
 	theKeySig = GetPAKEYSIG(theKeySigL);
 	theKeySig->xd += xdDiff;
 
-	/*
-	 *	If none of the key sigs in pL is at the same position as pL itself is any-
-	 * more, move pL to the closest one.
-	 */
+	/* If none of the key sigs in pL is at the same position as pL itself is anymore,
+	   move pL to the closest one. */
 	aKeySigL = FirstSubLINK(pL);
 	minXD = KeySigXD(aKeySigL);
 	for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL))
@@ -125,8 +121,8 @@ static void MoveKeySigHoriz(LINK pL, LINK theKeySigL, DDIST xdDiff)
 	}
 }
 
-/* Update fields of the given key sig for dragging by (xdDiff,ydDiff). Also make
-any other changes to the object list necessary for consistency. */
+/* Update fields of the given key sig for dragging by (xdDiff,ydDiff). Also make any
+other changes to the object list necessary for consistency. */
 
 void SetKeySigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 {
@@ -137,24 +133,23 @@ void SetKeySigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 }
 
 
-/* ---------------------------------------------------- SetTimeSigFields and ally -- */
+/* --------------------------------------------------------- SetTimeSigFields and ally -- */
 
-/* Move the given time sig by the given distance. After doing so, if none of the
-time sigs in the object is at the same position as the object anymore, move the
-object to the closest one. */
+/* Move the given time sig by the given distance. After doing so, if none of the time
+sigs in the object is at the same position as the object anymore, move the object to the
+closest one. */
 
 static void MoveTimeSigHoriz(LINK, LINK, DDIST);
 static void MoveTimeSigHoriz(LINK pL, LINK theTimeSigL, DDIST xdDiff)
 {
-	LINK aTimeSigL; PATIMESIG theTimeSig; DDIST minXD;
+	LINK aTimeSigL;  PATIMESIG theTimeSig;  DDIST minXD;
 	
 	theTimeSig = GetPATIMESIG(theTimeSigL);
 	theTimeSig->xd += xdDiff;
 
-	/*
-	 *	If none of the time sigs in pL is at the same position as pL itself is any-
-	 * more, move pL to the closest one.
-	 */
+	/* If none of the time sigs in pL is at the same position as pL itself is anymore,
+	   move pL to the closest one. */
+	   
 	aTimeSigL = FirstSubLINK(pL);
 	minXD = TimeSigXD(aTimeSigL);
 	for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL))
@@ -169,8 +164,8 @@ static void MoveTimeSigHoriz(LINK pL, LINK theTimeSigL, DDIST xdDiff)
 	}
 }
 
-/* Update fields of the given time sig for dragging by (xdDiff,ydDiff). Also make
-any other changes to the object list necessary for consistency. */
+/* Update fields of the given time sig for dragging by (xdDiff,ydDiff). Also make any
+other changes to the object list necessary for consistency. */
 
 void SetTimeSigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 {
@@ -181,12 +176,11 @@ void SetTimeSigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 }
 
 
-/* ------------------------------------------------------ SetNoteFields and ally -- */
+/* ------------------------------------------------------------ SetNoteFields and ally -- */
 
 /* Move the given note/rest and, if it's in a chord, all other notes/rests in the
-chord, by the given distance. After doing so, if none of the notes/rests in the
-Sync is at the same position as the Sync anymore, move the Sync to the closest
-one. */
+chord, by the given distance. After doing so, if none of the notes/rests in the Sync
+is at the same position as the Sync anymore, move the Sync to the closest one. */
 
 static void MoveNoteHoriz(LINK, LINK, DDIST);
 static void MoveNoteHoriz(LINK pL, LINK theNoteL, DDIST xdDiff)
@@ -207,10 +201,9 @@ static void MoveNoteHoriz(LINK pL, LINK theNoteL, DDIST xdDiff)
 	else
 		theNote->xd += xdDiff;
 
-	/*
-	 *	If none of the notes/rests in pL is at the same position as pL itself is
-	 * anymore, move pL to the closest note or rest.
-	 */
+	/* If none of the notes/rests in pL is at the same position as pL itself is anymore,
+	   move pL to the closest note or rest. */
+	   
 	aNoteL = FirstSubLINK(pL);
 	minXD = NoteXD(aNoteL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
@@ -230,8 +223,8 @@ static void MoveNoteHoriz(LINK pL, LINK theNoteL, DDIST xdDiff)
 regardless of whether the note actually has dots or not. See more detailed comments on
 FixAugDotPos (which should probably call this!). */
 
-static void FixNoteAugDotPos(SignedByte clefType, LINK aNoteL, short voiceRole, Boolean stemDown,
-								Boolean lineNotesOnly);
+static void FixNoteAugDotPos(SignedByte clefType, LINK aNoteL, short voiceRole,
+								Boolean stemDown, Boolean lineNotesOnly);
 static void FixNoteAugDotPos(
 			SignedByte clefType,
 			LINK aNoteL,
@@ -767,10 +760,8 @@ void SetSpaceFields(LINK /*pL*/, DDIST /*xdDiff*/, DDIST /*ydDiff*/, short /*xp*
 
 void SetBeamFields(LINK pL, DDIST /*xdDiff*/, DDIST ydDiff, short /*xp*/, short /*yp*/)
 {
-	if (GraceBEAM(pL))
-		FixGRStemLengths(pL, ydDiff, DRAGBEAM);
-	else
-		FixStemLengths(pL, ydDiff, DRAGBEAM);
+	if (BeamGRACE(pL))	FixGRStemLengths(pL, ydDiff, DRAGBEAM);
+	else				FixStemLengths(pL, ydDiff, DRAGBEAM);
 }
 
 

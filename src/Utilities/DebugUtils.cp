@@ -1122,11 +1122,10 @@ that have meaningful objRects. If we find such object(s), we check whether their
 
 			case BEAMSETtype:
 				LINK lastSyncL;
-				/* FIXME: DCheckBeamset is also called by DCheckBeams, so this call is
-				   normally redundant. But is it sometimes useful? */
-				   
 				PushLock(NOTEBEAMheap);
+				
 				bad = DCheckBeamset(doc, pL, False, False, &lastSyncL);
+				
 				PopLock(NOTEBEAMheap);
 				break;
 			
@@ -2013,7 +2012,7 @@ Boolean DCheckJDOrder(Document *doc)
 file and objects in the file are being processed in order. Syncs and GRSyncs in a Beamset
 always follow the Beamset itself, so in that case we can't expect their flags to be
 correct; but we _can_ expect their LINKs to be monotonically increasing. If <!openingFile>,
-what we can expect is exactly the opposite. */
+what we can expect is exactly the opposite. Return True iff we find a problem. */
 
 Boolean DCheckBeamset(Document *doc, LINK beamL,
 								Boolean maxCheck,			/* False=skip less important checks */
@@ -2036,7 +2035,7 @@ Boolean DCheckBeamset(Document *doc, LINK beamL,
 	staff = BeamSTAFF(beamL);
 	voice = BeamVOICE(beamL);
 	if (VOICE_BAD(voice))
-		COMPLAIN2("*DCheckBeams: BEAMSET L%u HAS BAD voice %d.\n", beamL, voice);
+		COMPLAIN2("*DCheckBeamset: BEAMSET L%u HAS BAD voice %d.\n", beamL, voice);
 	pBS = GetPBEAMSET(beamL);
 	
 	/* Is 1st note in same measure as BEAMSET? Do unoptimized search so this can be
@@ -2153,15 +2152,20 @@ if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sy
 with notes/rests or grace notes they should be referring to. For cross-system Beamsets,
 also check that, after a non-grace Beamset that's the first of a cross-system pair, the
 next non-grace Beamset in that voice is the second of a pair. (Notes/rests are checked
-against their Beamset more carefully than grace notes are.) */
- 
+against their Beamset more carefully than grace notes are.) Return True iff we find a
+problem.
+
+Caveat: We don't do context-free checks of individual Beamset objects! For that, use a
+loop that calls DCheckBeamset for each Beamset. (As of Sept. 2020, DCheckNode also calls
+DCheckBeamset.) */
+
 Boolean DCheckBeams(
 				Document *doc,
-				Boolean maxCheck		/* False=skip less important checks */
+				Boolean /*maxCheck*/		/* False=skip less important checks */
 				)
 {
 	PANOTE		aNote, aGRNote;
-	LINK		pL, aNoteL, aGRNoteL, syncL, qL;
+	LINK		pL, aNoteL, aGRNoteL, lastSyncL, qL;
 	short		voice;
 	LINK		beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
 	Boolean		expect2ndPiece[MAXVOICES+1];
@@ -2181,8 +2185,6 @@ Boolean DCheckBeams(
 		switch (ObjLType(pL)) {
 
 		 case BEAMSETtype:
-			if (DCheckBeamset(doc, pL, maxCheck, False, &syncL)) { bad = True;  break; }
-			
 			grace = BeamGRACE(pL);
 			voice = BeamVOICE(pL);
 			if (!VOICE_BAD(voice)) {
@@ -2190,7 +2192,9 @@ Boolean DCheckBeams(
 				else		beamSetL[voice] = pL;
 			}
 
-			for (qL = RightLINK(pL); qL!=syncL; qL = RightLINK(qL))
+			lastSyncL = LastInBeam(pL);
+
+			for (qL = RightLINK(pL); qL!=lastSyncL; qL = RightLINK(qL))
 				if (BeamsetTYPE(qL))
 					if (BeamVOICE(qL)==BeamVOICE(pL)) {
 						COMPLAIN2("*DCheckBeams: BEAMSET L%u IN SAME VOICE AS UNFINISHED BEAMSET L%u.\n",

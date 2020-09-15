@@ -1261,7 +1261,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 		DrawChar(noteChar);
 #ifdef NOTYET
 		/* FIXME: This chunk of code not only fails to draw the dot, it results in the
-			metronome number not appearing. --DAB */
+		   metronome number not appearing. --DAB */
 		if (p->dotted) {
 			xdNote = xd+p2d(StringWidth(tempoStr))+lineSpace;
 			noteWidth = CharWidth(noteChar);
@@ -2064,10 +2064,8 @@ static Boolean SymDragLoop(
 			break;
 
 		case BEAMSETtype:
-			if (GraceBEAM(pL))
-				SDDrawGRBeamset(doc, pL, measureL);
-			else
-				SDDrawBeamset(doc, pL, measureL);
+			if (BeamGRACE(pL))	SDDrawGRBeamset(doc, pL, measureL);
+			else				SDDrawBeamset(doc, pL, measureL);
 			break;
 
 		case SLURtype:
@@ -2098,17 +2096,21 @@ static Boolean SymDragLoop(
 			if (!EqualPt(pt,newPt)) {
 			
 				/* If we've gone outside the measure boundary, do nothing. */
+				
 				if (horiz && (newPt.h<bounds.left || newPt.h>bounds.right)) continue;
 				if (!horiz && (newPt.v<bounds.top || newPt.v>bounds.bottom)) continue;
 
 				/* Get how far cursor has moved since last time, if non-zero */
+				
 				dx = newPt.h - pt.h; dy = newPt.v - pt.v;
 				
 				/* If we're still within slop bounds, don't do anything */
+				
 				if (stillWithinSlop) {
 					if (ABS(dx)<2 && ABS(dy)<2) continue;
 					
 					/* User has left slop bounds, find horizontal/vertical for notes & clefs */
+					
 					switch (ObjLType(pL)) {
 						case SYNCtype:
 						case GRSYNCtype:
@@ -2155,6 +2157,7 @@ static Boolean SymDragLoop(
 							}
 					}
 					/* And don't ever come back, you hear! */
+					
 					stillWithinSlop = False;
 				}
 				
@@ -2166,9 +2169,10 @@ static Boolean SymDragLoop(
 					v = halfLn2d(halfLnDiff, context.staffHeight, context.staffLines);
 
 					/* In magnified sizes, dstRect position picks up a small cumulative
-						error each time thru the loop, resulting in the bitmap being
-						drawn a little too low. Use d2px, which doesn't add ROUND to
-						the computation of dy. */
+					   error each time thru the loop, resulting in the bitmap being
+					   drawn a little too low. Use d2px, which doesn't add ROUND to
+					   the computation of dy. */
+					   
 					if (doc->magnify!=0)	dy = d2px(v);
 					else					dy = d2p(v);
 
@@ -2181,10 +2185,9 @@ static Boolean SymDragLoop(
 					oldHalfLn = halfLn;
 				}
 				
-				/*
-				 * Vertical dragging of notes and grace notes involves accidentals
-				 * and MIDI feedback.
-				 */
+				/* Vertical dragging of notes and grace notes involves accidentals
+				   and MIDI feedback. */
+				   
 				if (((SyncTYPE(pL) && !NoteREST(subObjL)) || GRSyncTYPE(pL)) && vert) {
 					if (ShiftKeyDown()) {
 						newAcc = SDSetAccidental(doc, accPort, accBox, saveBox, accy);

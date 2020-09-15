@@ -7586,3 +7586,121 @@ OK, well, DCheckBeamset _could_ also check the startend sequence. Make it do tha
 	Warning. *DCheckContext: TIMESIG FOR STAFF 1 IN MEASURE 7 (L62) INCONSISTENCY.
 	Warning. *DCheckContext: TIMESIG FOR STAFF 1 IN MEASURE 8 (L75) INCONSISTENCY.
 
+---------------------------------------------------------------------------------------
+
+8 - 13 Sept.
+
+DebugConversion() now includes the statement
+
+		if (BeamsetTYPE(pL)) (void)DCheckBeamset(doc, pL, False, True, &lastSyncL);
+
+DCheckBeamset is also called by Debug Check, and it checks for startend sequence errors (among
+other things). Open 2ndMovementCSpp1-3 => Bug unchanged, and no warnings about Beamset problems
+or anything else from DebugConversion!
+
+But I can also call DCheckBeamset directly for every Beamset at the end of ConvertObjSubobj!
+Do that => typical results:
+
+	...
+	debug. ConvertMEASURE: measL=L1219 lMeasure=L1197 rMeasure=L0 systemL=L1128
+	debug. ConvertObject: pL=1220 is TAIL.
+	Warning. *DCheckBeamset: BEAMSET L341 HAS BAD startend SEQUENCE (mid).
+	Warning. *DCheckBeamset: BEAMSET L377 HAS BAD startend SEQUENCE (end).
+	Warning. •DCheckBeamset: BEAMSET L387 HAS A BAD SYNC LINK.
+	Warning. *DCheckBeamset: BEAMSET L387 SYNC L139 LINK DOESN'T FOLLOW BEAMSET.
+	Warning. *DCheckBeamset: BEAMSET L474 HAS BAD startend SEQUENCE (end).
+	Warning. *DCheckBeamset: BEAMSET L545 HAS BAD startend SEQUENCE (end).
+	Warning. *DCheckBeamset: BEAMSET L849 SYNC L86 LINK DOESN'T FOLLOW BEAMSET.
+	Warning. *DCheckBeamset: BEAMSET L951 HAS BAD startend SEQUENCE (end).
+	Warning. *DCheckBeamset: BEAMSET L1214 HAS BAD startend SEQUENCE (end).
+	debug. ****** WORKING SLOWLY! DELAYING EACH TIME THRU LOOP TO AID DEBUGGING.  (ConvertObjSubobjs) ******
+	debug. ConvertHEADER: headL=L1221
+	debug. ConvertPAGE: pageL=L1222 lPage=L0 rPage=L0 sheetNum=0
+	debug. ConvertSYSTEM: sysL=L1223 type=5 xd=288 sel=0 vis=1
+	debug. ConvertSTAFF: staffL=L1224 nEntries=4 lStaff=L0 rStaff=L0 StaffSYS=L1223
+	debug. ConvertCONNECT: connectL=L1225
+	debug. ConvertObject: pL=1226 is TAIL.
+	Warning. *DCheckBeamset: BEAMSET L341 HAS BAD startend SEQUENCE (mid).
+	Warning. *DCheckBeamset: BEAMSET L377 HAS BAD startend SEQUENCE (end).
+	Warning. •DCheckBeamset: BEAMSET L387 HAS A BAD SYNC LINK.
+	Warning. *DCheckBeamset: BEAMSET L387 SYNC L139 LINK DOESN'T FOLLOW BEAMSET.
+	Warning. *DCheckBeamset: BEAMSET L474 HAS BAD startend SEQUENCE (end).
+	Warning. *DCheckBeamset: BEAMSET L545 HAS BAD startend SEQUENCE (end).
+	Warning. *DCheckBeamset: BEAMSET L849 SYNC L86 LINK DOESN'T FOLLOW BEAMSET.
+	Warning. *DCheckBeamset: BEAMSET L951 HAS BAD startend SEQUENCE (end).
+	Warning. *DCheckBeamset: BEAMSET L1214 HAS BAD startend SEQUENCE (end).
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	ERROR. PROGRAM ERROR: NO BEAM SEGMENTS FOR beamL=L1214.  (DrawBEAMSET)
+	Warning. * StopInform alertID=464
+	Warning. NO BEAM SEGMENTS FOR beamL=L1214.  (DrawBEAMSET)
+	Notice. Opened file '2ndMovementCSpp1-3.ngl'.  (DoFileMenu)
+	debug. DrawToolPalette: MemBitCount(palPortBits, 1000)=970 portRect tlbr=0,0,399,271
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	debug. DCheckBeamsetL218: staff=2 Beamset=L218 Sync=L220
+	debug. DCheckBeamsetL218: staff=2 Beamset=L218 Sync=L221
+	Warning. *DCheckBeamset: BEAMSET L341 HAS BAD startend SEQUENCE (mid).
+	Warning. *DCheckBeamset: BEAMSET L377 HAS BAD startend SEQUENCE (end).
+	Warning. •DCheckBeamset: BEAMSET L387 HAS A BAD SYNC LINK.
+	Warning. *DCheckBeamset: BEAMSET L387 SYNC LINK INCONSISTENT.
+	Warning. •DCheck1NEntries: OBJ L474 HAS nEntries=2 BUT 1 SUBOBJECTS.
+	Warning. *DCheckBeamset: BEAMSET L474 HAS BAD startend SEQUENCE (end).
+	
+So it appears there are no problems with Beamsets while converting objects until we reach
+TAIL; then there are instantly problems all over the place! But need to double-check this.
+Print out more... No, that's wrong!! I'm really not calling DCheckBeamset at all until TAIL
+because in all other cases I "continue" the loop after processing the object. Need to
+carefully put call to DCheckBeamset in the right place => done. And in 1st test w/
+2ndMovementCSpp1-3.ngl, it finds problems during conversion, which really makes sense!
+The 1st few problems reported:
+
+debug. ConvertSLUR: slurL=L945 staff=3 voice=3 tie=0
+Warning. *DCheckBeamset: BEAMSET L105 HAS BAD startend SEQUENCE (end).
+debug. ConvertObjSubobjs: DCheckBeamset found a problem with qL=L105 pL=946.
+debug. ConvertSYNC: syncL=L946 timeStamp=0
+
+debug. ConvertSLUR: slurL=L953 staff=2 voice=2 tie=0
+Warning. *DCheckBeamset: BEAMSET L186 HAS BAD startend SEQUENCE (end).
+debug. ConvertObjSubobjs: DCheckBeamset found a problem with qL=L186 pL=954.
+debug. ConvertSYNC: syncL=L954 timeStamp=480
+
+debug. ConvertSLUR: slurL=L966 staff=3 voice=3 tie=0
+Warning. •DCheckBeamset: BEAMSET L346 HAS A BAD SYNC LINK.
+Warning. *DCheckBeamset: BEAMSET L346 SYNC L92 LINK DOESN'T FOLLOW BEAMSET.
+debug. ConvertObjSubobjs: DCheckBeamset found a problem with qL=L346 pL=967.
+debug. ConvertSYNC: syncL=L967 timeStamp=0
+
+debug. ConvertSLUR: slurL=L973 staff=2 voice=2 tie=0
+Warning. *DCheckBeamset: BEAMSET L419 HAS BAD startend SEQUENCE (mid).
+debug. ConvertObjSubobjs: DCheckBeamset found a problem with qL=L419 pL=974.
+debug. ConvertSYNC: syncL=L974 timeStamp=240
+
+debug. ConvertSLUR: slurL=L997 staff=1 voice=1 tie=0
+Warning. *DCheckBeamset: BEAMSET L734 HAS BAD startend SEQUENCE (mid).
+debug. ConvertObjSubobjs: DCheckBeamset found a problem with qL=L734 pL=998.
+debug. ConvertSYNC: syncL=L998 timeStamp=0
+
+!! In every case, the corrupt Beamset is first detected just after converting a Slur and
+just before converting a Sync. The latter is probably irrelevant, but the former...!
+
+Add two calls to DCheckBeamset in ConvertSLUR and try again. The 1st few problems reported:
+
+Sep 14 15:20:50 DonDualG5 Ngale[4799]:
+	Warning. *DCheckBeamset: BEAMSET L104 HAS BAD startend SEQUENCE (mid).
+	debug. ConvertSLUR2: DCheckBeamset found a problem with qL=L104 slurL=933.
+	debug. ConvertSLUR: slurL=L933 staff=1 voice=1 tie=0
+	
+	Warning. *DCheckBeamset: BEAMSET L218 HAS BAD startend SEQUENCE (end).
+	debug. ConvertSLUR2: DCheckBeamset found a problem with qL=L218 slurL=945.
+	debug. ConvertSLUR: slurL=L945 staff=3 voice=3 tie=0
+	
+	Warning. *DCheckBeamset: BEAMSET L330 HAS BAD startend SEQUENCE (mid).
+	debug. ConvertSLUR2: DCheckBeamset found a problem with qL=L330 slurL=953.
+	debug. ConvertSLUR: slurL=L953 staff=2 voice=2 tie=0
+	
+	Warning. •DCheckBeamset: BEAMSET L453 HAS A BAD SYNC LINK.
+	Warning. *DCheckBeamset: BEAMSET L453 SYNC L199 LINK DOESN'T FOLLOW BEAMSET.
+	debug. ConvertSLUR2: DCheckBeamset found a problem with qL=L453 slurL=966.
+	debug. ConvertSLUR: slurL=L966 staff=3 voice=3 tie=0
+
+OK, but there are very few messages from "ConvertSLUR1" and far more from "ConvertSLUR2".
+Does this make sense? Am I _sure_ ConvertSLUR is causing the problem?

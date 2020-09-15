@@ -335,8 +335,8 @@ static LINK MakeBeamNoncrossSys(Document *doc, LINK pL, LINK otherBeamL)
 }
 
 /* --------------------------------------------------------------------- RebeamXStf -- */
-/* Rebeam the notes/rests beamed by the two pieces of a cross-staff beam <beamL1>
-and <beamL2>. Handles grace AND regular beams. */
+/* Rebeam the notes/rests beamed by the two pieces of a cross-staff beam <beamL1> and
+<beamL2>. Handles both grace and regular beams. */
 
 static LINK RebeamXStf(Document *, LINK, LINK);
 static LINK RebeamXStf(Document *doc, LINK beamL1, LINK beamL2)
@@ -353,7 +353,7 @@ static LINK RebeamXStf(Document *doc, LINK beamL1, LINK beamL2)
 	firstSyncL2 = FirstInBeam(beamL2);
 	lastSyncL2 = LastInBeam(beamL2);
 
-	if (GraceBEAM(beamL1)) {
+	if (BeamGRACE(beamL1)) {
 		RemoveGRBeam(doc, beamL1, voice, False);
 		RemoveGRBeam(doc, beamL2, voice, False);
 		return CreateGRBEAMSET(doc, firstSyncL1, RightLINK(lastSyncL2), voice,
@@ -368,7 +368,7 @@ static LINK RebeamXStf(Document *doc, LINK beamL1, LINK beamL2)
 }
 
 /* Given the two pieces of a cross-system Beamset that should be cross-system, check
-that  the boundary between the two pieces is correct, i.e., that Syncs in the 1st piece
+that the boundary between the two pieces is correct, i.e., that Syncs in the 1st piece
 don't belong in the 2nd and vice-versa. If there's a problem, correct it by
 rebeaming. */
 
@@ -424,17 +424,17 @@ short FixCrossSysBeams(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 		for (pL = startL; pL!=endL; pL = nextL) {
 			nextL = RightLINK(pL);								/* Save link in case pL is deleted */
 			if (BeamsetTYPE(pL) && BeamVOICE(pL)==v) {
-				/*
-				 *	We have a Beamset in the correct voice. Just as with slurs, there are
-				 * three possible types: not cross-system, first piece of cross-system,
-				 * second piece of cross-system.
-				 */
+			
+				/* We have a Beamset in the correct voice. Just as with slurs, there are
+				   three possible types: not cross-system, first piece of cross-system,
+				   second piece of cross-system. */
+				   
 				if (!BeamCrossSYS(pL)) {
-					/*
-					 * Non-cross-system Beamset. If it should be cross-system, be sure it
-					 * ends in the system after the one it begins in, create its other
-					 * piece, and make this piece cross-system.
-					 */
+				
+					/* Non-cross-system Beamset. If it should be cross-system, be sure it
+					   ends in the system after the one it begins in, create its other
+					   piece, and make this piece cross-system. */
+					   
 				 	if (!SameSystem(FirstInBeam(pL), LastInBeam(pL)))
 						if (MakeBeamCrossSys(doc, pL)) {
 							thisMeas = GetMeasNum(doc, pL);
@@ -461,15 +461,15 @@ short FixCrossSysBeams(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 						UpdateCrossSysBeam(doc, pL, otherBeamL);
 				}
 				else
-					/*
-					 Second piece of cross-system Beamset. We don't have to consider the
-					 possibility that it needs to be made non-cross-system, since we're
-					 traversing the range that needs work from left to right, and any
-					 second piece of a cross-system Beamset that needed to be made non-
-					 cross-system would already have been handled before we got to it.
-					 ??But we do have to be sure it ends in the system following the one
-					 the first piece is in and, if not, truncate it.
-					 */
+				
+					/* Second piece of cross-system Beamset. We don't have to consider the
+					   possibility that it needs to be made non-cross-system, since we're
+					   traversing the range that needs work from left to right, and any
+					   second piece of a cross-system Beamset that needed to be made non-
+					   cross-system would already have been handled before we got to it.
+					   ??But we do have to be sure it ends in the system following the one
+					   the first piece is in and, if not, truncate it. */
+					   
 					;
 			}
 		}

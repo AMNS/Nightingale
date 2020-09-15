@@ -12,9 +12,9 @@
 #include "Nightingale.appl.h"
 
 
-/* ---------------------------------------------------------- FixAllBeamLinks -- */
-/* Update bpSync links for all beamset objects in range, either note beams or
-grace note beams. */
+/* ------------------------------------------------------------------- FixAllBeamLinks -- */
+/* Update bpSync links for all Beamset objects in range, both note beams and grace
+note beams. */
 
 void FixAllBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
@@ -24,19 +24,19 @@ void FixAllBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 }
 
 
-/* ------------------------------------------------------------- FixBeamLinks -- */
+/* ---------------------------------------------------------------------- FixBeamLinks -- */
 /* Update bpSync links for all note Beamset objects in range. */
 
 void FixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	short			i, k;
+	short		i, k;
 	PANOTE 		aNote;
 	PANOTEBEAM 	paNoteBeam;
-	LINK			pL, qL, aNoteL, aNoteBeamL;
+	LINK		pL, qL, aNoteL, aNoteBeamL;
 	
 	InstallDoc(fixDoc);
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
-		if (BeamsetTYPE(pL) && !GraceBEAM(pL)) {
+		if (BeamsetTYPE(pL) && !BeamGRACE(pL)) {
 		for (i=0, qL=RightLINK(pL); i<LinkNENTRIES(pL) && qL!=endL; qL=RightLINK(qL))
 			if (SyncTYPE(qL)) {
 				aNoteL = FirstSubLINK(qL);
@@ -66,7 +66,7 @@ void FixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 }
 
 
-/* ---------------------------------------------------------- FixGRBeamLinks -- */
+/* -------------------------------------------------------------------- FixGRBeamLinks -- */
 /* Update bpSync links for all grace-note Beamset objects in range. */
 
 void FixGRBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
@@ -78,7 +78,7 @@ void FixGRBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 	
 	InstallDoc(fixDoc);
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
-		if (BeamsetTYPE(pL) && GraceBEAM(pL)) {
+		if (BeamsetTYPE(pL) && BeamGRACE(pL)) {
 		for (i=0, qL=RightLINK(pL); i<LinkNENTRIES(pL) && qL!=endL; qL=RightLINK(qL))
 			if (GRSyncTYPE(qL)) {
 				aGRNoteL = FirstSubLINK(qL);
@@ -106,16 +106,16 @@ void FixGRBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 }
 
 
-/* ------------------------------------------------------------- FixTupletLinks -- */
-/* Update tpSync links for all tuplet objects in range, assuming that contiguous
-notes in a voice are always tupled. */
+/* -------------------------------------------------------------------- FixTupletLinks -- */
+/* Update tpSync links for all tuplet objects in range, assuming that contiguous notes
+in a voice are always tupled. */
 
 void FixTupletLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	short			i, k;
+	short		i, k;
 	PANOTE 		aNote;
 	PANOTETUPLE paNoteTuple;
-	LINK			pL, qL, aNoteL, aNoteTupleL;
+	LINK		pL, qL, aNoteL, aNoteTupleL;
 	
 	InstallDoc(fixDoc);
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
@@ -150,16 +150,16 @@ void FixTupletLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 }
 
 
-/* ------------------------------------------------------------- FixOttavaLinks -- */
+/* -------------------------------------------------------------------- FixOttavaLinks -- */
 /* Update opSync links for all Ottava objects in range. */
 
 void FixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	short				i, k;
+	short			i, k;
 	PANOTE 			aNote;
-	PAGRNOTE			aGRNote;
+	PAGRNOTE		aGRNote;
 	PANOTEOTTAVA 	paNoteOct;
-	LINK				pL, qL, aNoteL, aNoteOctL, aGRNoteL;
+	LINK			pL, qL, aNoteL, aNoteOctL, aGRNoteL;
 	
 	InstallDoc(fixDoc);
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
@@ -215,11 +215,9 @@ void FixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 }
 
 
-/* ------------------------------------------------------------- FixStructureLinks - */
-/* Fix up the structure of the range; fix up cross links for the page,
- * system, staff and measure. Assumes left and right links are valid from
- * fixDoc->headL to endL.
- */
+/* ----------------------------------------------------------------- FixStructureLinks -- */
+/* Fix up the structure of the range; fix up cross links for the page, system, staff,
+and measure. Assumes left and right links are valid from fixDoc->headL to endL. */
 
 void FixStructureLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 {
@@ -308,10 +306,9 @@ void FixStructureLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 }
 
 
-/* -------------------------------------------------------------- FixCrossLinks -- */
-/* Fix up cross links: fix up structure object cross links, measure cross links,
- * and cross links for extended objects.
- */
+/* --------------------------------------------------------------------- FixCrossLinks -- */
+/* Fix up cross links: fix up structure object cross links, measure cross links, and
+cross links for extended objects. */
 
 void FixCrossLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 {
@@ -323,9 +320,8 @@ void FixCrossLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 }
 
 
-/* ----------------------------------------------------------- FixExtCrossLinks -- */
-/* Fix up cross links for extended objects.
- */
+/* ------------------------------------------------------------------ FixExtCrossLinks -- */
+/* Fix up cross links for extended objects. */
 
 void FixExtCrossLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 {
