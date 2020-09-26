@@ -286,7 +286,7 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 	LINK partL;
 
 	/* In some cases, toggle hiliting and deselect staves first. FIXME: This should either
-		be moved out to the calling functions, or be controlled by a new parameter. */
+	   be moved out to the calling functions, or be controlled by a new parameter. */
 		
 	if (doc->showFormat && (mode!=SMHilite && mode!=SMSelectRange))
 		HiliteAllStaves(doc, True);
@@ -476,8 +476,9 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 			switch (mode) {
 				case SMClick:
 					/* If we are editing the masterPage, and the click is in the first system
-						of the masterPage, then call DragGrayRgn to track the user dragging
-						the connect subObj up and down. */
+					   of the masterPage, then call DragGrayRgn to track the user dragging
+					   the connect subObj up and down. */
+					   
 					if ((doc->masterView || doc->showFormat) && !entire) {		/* Pass by system-level connects */
 						if (1 /* aConnect->staffAbove>1 */ ) {			/* Can drag neither 1st part nor 1st stf */
 							if (PtInRect(*(Point *)ptr, &rSub)) {
@@ -486,11 +487,11 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 								dragPt = *(Point *)ptr; dragPt.v += pContext->paper.top;
 
 								/* Set the limit Rect and slop Rect for dragging. The dragging
-									is limited to 1 staffLine below the staff above staffAbove,
-									or 1 staffLine above the staff below staffBelow; if
-									staffBelow is the last staff, there is no lower limit,
-									since dragging the last staff downwards expands the
-									systemRect and gives that staff all the room it needs. */
+								   is limited to 1 staffLine below the staff above staffAbove,
+								   or 1 staffLine above the staff below staffBelow; if
+								   staffBelow is the last staff, there is no lower limit,
+								   since dragging the last staff downwards expands the
+								   systemRect and gives that staff all the room it needs. */
 
 								limitR = wSub;
 								InsetRect(&limitR, -4, 0);
@@ -812,9 +813,10 @@ PushLock(DYNAMheap);
 				oldDynamType = newDynamType = DynamType(pL);
 				change = SetDynamicDialog(&newDynamType);
 				if (change && newDynamType!=oldDynamType) {
-					/* FIXME: objRects of dynamics aren't right in all cases, so the inval's
-					here don't always work. See comments in body of InvalObject. Use
-					EraseAndInval on <wsub> instead? */
+					/* FIXME: objRects of dynamics aren't right in all cases, so the
+					   inval's here don't always work. See comments in body of InvalObject.
+					   Use EraseAndInval on <wsub> instead? */
+					
 					InvalObject(doc, pL, True);							/* inval old symbol */
 					DynamType(pL) = newDynamType;
 					FixContextForDynamic(doc, RightLINK(pL), staffn, oldDynamType, newDynamType);
@@ -1122,8 +1124,8 @@ PushLock(GRAPHICheap);
 							}
 
 #ifdef NOTYET
-							/* The PrepareUndo below should be all that's needed to
-							   implement undoing editing a text graphic, but -- by
+							/* FIXME: The PrepareUndo below should be all that's needed
+							   to implement undoing editing a text graphic, but -- by
 							   itself -- it crashes consistently. Adding the stmt to
 							   reset p avoids that problem, which makes no sense (since
 							   the relevant heaps are locked); but then Undoing often
@@ -1715,10 +1717,10 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 
 
 /* ---------------------------------------------------------------------- DoOpenKeysig -- */
-/* Handle a double-click in a keysig subobj rect. Present a dlog letting user
-change the keysig on this staff or all staves. Return True if there was any
-change, False if not.  <pL> is the keysig object; <aKeySigL> is a LINK to the
-subobject the user clicked. Assumes keysig and object heaps have been locked. */
+/* Handle a double-click in a keysig subobj rect. Present a dlog letting user change
+the keysig on this staff or all staves. Return True if there was any change, False if
+not.  <pL> is the keysig object; <aKeySigL> is a LINK to the subobject the user clicked.
+Assumes keysig and object heaps have been locked. */
 
 static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL);
 static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
@@ -1731,6 +1733,7 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 	static Boolean onAllStaves = True;
 
 	/* Don't let user replace gutter keysigs other than the first. */
+	
 	beforeFirstMeas = LinkBefFirstMeas(pL);
 	if (beforeFirstMeas && doc->currentSystem!=1)
 		return False;
@@ -1786,8 +1789,8 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 		}
 
 		/* Update the space before the initial Measure on all systems affected by
-		the keysig change. This range includes the system containing <pL>, iff
-		<pL> is the first keysig in the score. */
+		   the keysig change. This range includes the system containing <pL>, iff
+		   <pL> is the first keysig in the score. */
 
 		if (beforeFirstMeas)
 			initKSL = pL;
@@ -1989,7 +1992,7 @@ PushLock(NOTEheap);
 		if ((aNote->visible || doc->showInvis) &&
 				LOOKING_AT(doc, aNote->voice) && !noteFound) {
 			pContext = &context[aNote->staffn];
-			dLeft = pContext->measureLeft + LinkXD(pL);	/* absolute origin of object */
+			dLeft = pContext->measureLeft + LinkXD(pL);		/* absolute origin of object */
 			dTop = pContext->measureTop;
 			xd = dLeft + aNote->xd;							/* absolute position of subobject */
 			yd = dTop + aNote->yd;
@@ -2132,8 +2135,8 @@ PushLock(NOTEheap);
 			case SMFindNote:
 
 				/* CheckSYNC w/ SMFindNote is called by InsertSlur to find the note
-					which will have a new slur; the second parameter is different to 
-					correct for the optical illusion of click on a small noteHead. */
+				   which will have a new slur; the second parameter is different to 
+				   correct for the optical illusion of click on a small noteHead. */
 
 				InsetRect(&rSub, -(1+enlarge.h), -3*enlarge.v);
 				if (PtInRect(*(Point *)ptr, &rSub))
@@ -2205,9 +2208,9 @@ PushLock(GRNOTEheap);
 		if ((aGRNote->visible || doc->showInvis) &&
 					LOOKING_AT(doc, aGRNote->voice) && !noteFound) {
 			pContext = &context[aGRNote->staffn];
-			dLeft = pContext->measureLeft + LinkXD(pL);	/* absolute origin of object */
+			dLeft = pContext->measureLeft + LinkXD(pL);		/* absolute origin of object */
 			dTop = pContext->measureTop;
-			xd = dLeft + aGRNote->xd;							/* absolute position of subobject */
+			xd = dLeft + aGRNote->xd;						/* absolute position of subobject */
 			yd = dTop + aGRNote->yd;
 
 			if (aGRNote->subType <= WHOLE_L_DUR)
@@ -2229,7 +2232,7 @@ PushLock(GRNOTEheap);
 
 				if (upOrDown) 									/* stem up */
 					OffsetRect(&rSub, width, 0);
-				else												/* stem down */
+				else											/* stem down */
 					OffsetRect(&rSub, -width, 0);
 			}
 			wSub = rSub;
@@ -2335,10 +2338,10 @@ PopLock(GRNOTEheap);
 
 
 /* --------------------------------------------------------------------- DoOpenTimesig -- */
-/* Handle a double-click in a timesig subobj rect. Present a dlog letting user
-change the timesig on this staff or all staves. Return True if there was any
-change, False if not.  <pL> is the timesig object; <aTimeSigL> is a LINK to the
-subobject the user clicked. Assumes timesig and object heaps have been locked. */
+/* Handle a double-click in a timesig subobj rect. Present a dlog letting user change
+the timesig on this staff or all staves. Return True if there was any change, False if
+not.  <pL> is the timesig object; <aTimeSigL> is a LINK to the subobject the user
+clicked. Assumes timesig and object heaps have been locked. */
 
 static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL);
 static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL)
@@ -2456,7 +2459,8 @@ PushLock(TIMESIGheap);
 				width = CStringWidth(nStr);
 				break;
 			default:
-					;
+				LogPrintf(LOG_WARNING, "Illegal subType at L%u  (CheckTIMESIG)\n", pL);
+				return 0;
 		}
 		SetRect(&rSub, xp, yp, xp+width, yp+d2p(pContext->staffHeight));
 		wSub = rSub;
@@ -2549,11 +2553,11 @@ PopLock(TIMESIGheap);
 /* MEASURE object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above).
 
-CheckMEASURE's code is a mess, and it's difficult to fix because it does so many things!
-In versions through 5.8b4, case SMClick malfunctions (Issue #163 in GitHub); it's now
-handled in a clean way, but it depends on having a point in the affected staff group;
+FIXME: CheckMEASURE's code is a mess, and it's difficult to fix because it does so many
+things! In versions through 5.8b4, case SMClick malfunctions (Issue #163 in GitHub). It's
+now handled in a clean way, but it depends on having a point in the affected staff group;
 for SMClick, ptr contains that point, but for some other cases, it doesn't, and I don't
-see a way to fix it without changing the calling sequence. */
+see a way to fix it without changing the calling sequence.  --DAB */
 
 short CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
@@ -2584,15 +2588,14 @@ short CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
 PushLock(OBJheap);
 PushLock(MEASUREheap);
 
-	/*
-	 *	From the user's standpoint, the first Measure (barline) of every System behaves
-	 *	as if it doesn't exist: it's unselectable as well as invisible, and nothing
-	 *	can be explicitly attached to it. (This is not ideal: it'd be very nice to be
-	 *	able to select it so it could be moved with Get Info, at least if Show Invisibles
-	 *	is on, and it might be good to let the user make it visible, etc. But we'd still
-	 *	want to prevent deleting it!) So if this is the first Measure of its System, do
-	 *	nothing.
-	 */
+	/* From the user's standpoint, the first Measure (barline) of every System behaves
+	   as if it doesn't exist: it's unselectable as well as invisible, and nothing
+	   can be explicitly attached to it. (This is not ideal: it'd be very nice to be
+	   able to select it so it could be moved with Get Info, at least if Show Invisibles
+	   is on, and it might be good to let the user make it visible, etc. But we'd still
+	   want to prevent deleting it!) So if this is the first Measure of its System, do
+	   nothing. */
+	   
 	if (FirstMeasInSys(pL)) return NOMATCH;
 
 	objSelected = False;
@@ -2698,6 +2701,7 @@ PushLock(MEASUREheap);
 				}
 
 				/* If the staff is within the desired group and is visible, select the Measure */
+				
 				if (aMeasure->staffn>=clkGroupTopStf && aMeasure->staffn<=clkGroupBottomStf
 						&& aMeasure->visible) {
 					aMeasure->selected = !aMeasure->selected;
@@ -2748,8 +2752,8 @@ PushLock(MEASUREheap);
 				break;
 			case SMSymDrag:
 				/* Given a measure with n subobjects, we'll get here n times. To keep
-					the measure from being moved n times as far as the user actually
-					dragged it, use measDrag to insure only one call to HandleSymDrag. */
+				   the measure from being moved n times as far as the user actually
+				   dragged it, use measDrag to insure only one call to HandleSymDrag. */
 					
 				if (PtInRect(*(Point *)ptr, &rSub) && measDrag) {
 					HandleSymDrag(doc, pL, aMeasureL, *(Point *)ptr, dummy);
@@ -2886,7 +2890,8 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 				}
 			}
 		}
-		wSub = rSub; OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+		wSub = rSub;
+		OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
 		switch (mode) {
 			case SMClick:
 				if (PtInRect(*(Point *)ptr, &rSub)) {
@@ -3402,7 +3407,7 @@ PushLock(OBJheap);
 			break;
 		case SMSymDrag:
 			if (PtInRect(*(Point *)ptr, &rSub)) {
-				aSlur->selected = True;			/* This & only this slur must be selected */
+				aSlur->selected = True;			/* This and only this slur must be selected */
 												/* 	so that SymDragLoop knows which one to drag */
 				HandleSymDrag(doc, pL, NILINK, *(Point *)ptr, (unsigned char)0);
 				LinkSEL(pL) = !LinkSEL(pL);

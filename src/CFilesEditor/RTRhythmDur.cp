@@ -1,4 +1,4 @@
-/*	RTRhythmDur.c for Nightingale - routines for identifying tuplets, quantizing,
+/* RTRhythmDur.c for Nightingale - routines for identifying tuplets, quantizing,
 and clarifying rhythm in real-time situations. No user-interface implications. */
 
 /*
@@ -38,7 +38,7 @@ static Boolean Add1Tuplet(Document *, short, LINKTIMEINFO [], short, short);
 #define MF_TupleDenom(num) ((num)==5? 4 : 2)
 
 
-/* ---------------------------------------------------------- Clarify to Measures -- */
+/* --------------------------------------------------------------- Clarify to Measures -- */
 
 #define CHECK_TS(m)																								\
 if (TSNUMER_BAD(measInfoTab[(m)].numerator) || TSDENOM_BAD(measInfoTab[(m)].denominator)) \
@@ -109,20 +109,19 @@ short Clar1ToMeas(
 	
 	if (*pm<0) tsEndTime = 0L;
 
-	/*
-	 *	Find the lengths into which to divide the NC. Note that the time signature
-	 * might	change during the NC, possibly more than once. Each piece will exactly
-	 * fill a measure except for the first and last pieces, which may or may not.
-	 */
+	/* Find the lengths into which to divide the NC. Note that the time signature
+	   might change during the NC, possibly more than once. Each piece will exactly
+	   fill a measure except for the first and last pieces, which may or may not. */
+	   
 	nPieces = 0;
 	lDur = rawSyncTab[*pr].mult;
 	
 	/* The next note might start long before this one ends, for example if we're working
-		on a track of a MIDI file, since MIDI file tracks can contain arbitrary polyphony.
-		If there's any such overlap, we'd better fix it now, since we're only going to
-		generate one (homophonic) voice for the track. For now, do the simplest thing:
-		just truncate this note. (Ray Spears' fancy solution is to have (e.g.) a single
-		note tied to a dyad tied to a single note.) */
+	   on a track of a MIDI file, since MIDI file tracks can contain arbitrary polyphony.
+	   If there's any such overlap, we'd better fix it now, since we're only going to
+	   generate one (homophonic) voice for the track. For now, do the simplest thing:
+	   just truncate this note. (Ray Spears' fancy solution is to have (e.g.) a single
+	   note tied to a dyad tied to a single note.) */
 		
 	if (*pr<*pnRawSyncs-1 && rawSyncTab[*pr+1].time<startTime+lDur)
 		lDur = rawSyncTab[*pr+1].time-startTime;
@@ -143,9 +142,9 @@ short Clar1ToMeas(
 		nInTimeSig = segDur/measDur;
 		if (nInTimeSig*measDur<segDur) nInTimeSig++;			/* Round up */
 		for (i = nPieces; i<nPieces+nInTimeSig; i++) {
-			if (i==0)				  pieceDur[i] = timeLeftInMeas;
-			else if (measDur>lDur) pieceDur[i] = lDur;
-			else						  pieceDur[i] = measDur;
+			if (i==0)				pieceDur[i] = timeLeftInMeas;
+			else if (measDur>lDur)	pieceDur[i] = lDur;
+			else					pieceDur[i] = measDur;
 			lDur -= pieceDur[i];
 		}
 		nPieces += nInTimeSig;
@@ -157,9 +156,8 @@ short Clar1ToMeas(
 	if (TooManySyncs(*pnRawSyncs+nNewSyncs, maxRawSyncs))
 		return FAILURE;
 
-	/*
-	 *	<pieceDur> now contains a list of durations for the segments we need to
-	 * divide our NC into. Open up space for the new entries in the table... */
+	/* <pieceDur> now contains a list of durations for the segments we need to divide
+	   our NC into. Open up space for the new entries in the table. */
 	
 	for (n = *pnRawSyncs-1; n>*pr; n--)
 		rawSyncTab[n+nNewSyncs] = rawSyncTab[n];
@@ -208,7 +206,7 @@ Boolean ClarAllToMeas(
 	m = -1;
 	for (q = 0; q<*pnRawSyncs; q++) {
 		/* Clar1ToMeas clarifies the rhythm by dividing the note/chord at measure
-			boundaries, storing info about the pieces back into rawSyncTab. */
+		   boundaries, storing info about the pieces back into rawSyncTab. */
 		
 		if (Clar1ToMeas(doc, rawSyncTab, maxRawSyncs, &q, pnRawSyncs, measInfoTab,
 								measTabLen, &m)==FAILURE)
@@ -219,7 +217,7 @@ Boolean ClarAllToMeas(
 }
 
 
-/* --------------------------------------------------------------- Handle Tuplets -- */
+/* -------------------------------------------------------------------- Handle Tuplets -- */
 
 /* Return the indices of the range of NRCs in rawSyncTab[] that fall partly or
 entirely in the range of times [startTime,endTime); if there are none, return both
@@ -278,10 +276,10 @@ short FitTime(
 	scaledTripBias = tripletBias*2L*quantum/100L;
 
 	/* Do either least-linear or least-squares fit of attack times in rawSyncTab[q].
-		Note that these times are from the beginning of the score, not the measure
-		or the beat; however, we care only about the error in the closest multiple
-		of <quantum>, and that will be correct as long as every previous measure has
-		a duration that's a multiple of <quantum>. */
+	   Note that these times are from the beginning of the score, not the measure
+	   or the beat; however, we care only about the error in the closest multiple
+	   of <quantum>, and that will be correct as long as every previous measure has
+	   a duration that's a multiple of <quantum>. */
 	
 	totalError = 0;
 	for (q = start; q<end; q++) {
@@ -509,16 +507,15 @@ static Boolean Clar1ToTuplet(
 					unsigned short divTime 		/* Division point, relative to the start of the NC */
 					)
 {
-	short n; unsigned short newMult; Boolean restFill;
+	short n;  unsigned short newMult;  Boolean restFill;
 	
-	/*
-	 * Add an identical NC that will start the tuplet (or region FOLLOWING a tuplet--
-	 * the logic is the same). If the NC doesn't really extend even to the beginning of
-	 *	the tuplet, the added one should be replaced later with a rest. Open up space for
-	 *	the new NC in the table by copying everything after it down a slot; go far enough
-	 *	to copy the new one from its "parent", rawSyncTab[nDiv], then correct it for the
-	 *	new situation.
-	 */
+	/* Add an identical NC that will start the tuplet (or region FOLLOWING a tuplet--
+	   the logic is the same). If the NC doesn't really extend even to the beginning of
+	   the tuplet, the added one should be replaced later with a rest. Open up space for
+	   the new NC in the table by copying everything after it down a slot; go far enough
+	   to copy the new one from its "parent", rawSyncTab[nDiv], then correct it for the
+	   new situation. */
+	   
 	for (n = *pnRawSyncs-1; n>=nDiv; n--)
 		rawSyncTab[n+1] = rawSyncTab[n];
 		
@@ -529,7 +526,9 @@ static Boolean Clar1ToTuplet(
 	newMult = rawSyncTab[nDiv].mult-divTime;
 	rawSyncTab[nDiv+1].mult = (newMult<0? 0 : newMult);
 	rawSyncTab[nDiv+1].added = !restFill;
+	
 	/* Keep the tupleNum and tupleDur fields already copied from "parent" */ 
+	
 	rawSyncTab[nDiv+1].tupleTime = 0;
 
 	/* Finally, update the "parent" and the table length. */
@@ -611,7 +610,7 @@ Boolean ClarAllToTuplets(
 }
 
 
-/* ------------------------------------------------------- RemoveShortAddedItems -- */
+/* ------------------------------------------------------------- RemoveShortAddedItems -- */
 /* Remove "added" NRC's that have very short duration. */
 
 static void RemoveShortAddedItems(LINKTIMEINFO [], short *, short);
@@ -649,7 +648,7 @@ static void RemoveShortAddedItems(
 }
 
 
-/* ----------------------------------------------------------------- ChooseChords -- */
+/* ---------------------------------------------------------------------- ChooseChords -- */
 /* For each item in <rawSyncTab>, get the information about its notes from <rawNoteAux>
 and decide how they should be synced--i.e., since we're only dealing with one voice,
 which ones should be combined into a chord. Output is by modifying <rawSyncTab>.
@@ -767,7 +766,7 @@ Boolean ChooseChords(
 }
 
 
-/* -------------------------------------------------------------- QuantizeAndClip -- */
+/* ------------------------------------------------------------------- QuantizeAndClip -- */
 /* QuantizeAndClip converts raw timing information in <rawSyncTab> to quantized form,
 considering tuplets, if desired. For each note/rest/chord in <rawSyncTab>, it rounds
 the <time>, given in ticks, to a multiple of <quantum>; and it converts the <mult> and
@@ -899,7 +898,7 @@ void QuantizeAndClip(
 }
 
 
-/* ----------------------------------------------------------- RemoveZeroDurItems -- */
+/* ---------------------------------------------------------------- RemoveZeroDurItems -- */
 /* Remove NRC's that have been truncated to zero duration. */
 
 static void RemoveZeroDurItems(LINKTIMEINFO [], short *);
@@ -939,14 +938,14 @@ static void RemoveZeroDurItems(
  }
 
 
-/* -------------------------------------------------------- RemoveOneItemTuplets -- */
+/* -------------------------------------------------------------- RemoveOneItemTuplets -- */
 /* If any of our proposed tuplets would end up containing only one NRC, cancel
 making the tuplet. */
 
 static void RemoveOneItemTuplets(LINKTIMEINFO [], short);
 static void RemoveOneItemTuplets(
 					LINKTIMEINFO rawSyncTab[],		/* Input: semi-raw (partly-clarified) NCs */
-					short nRawSyncs 					/* Current size of rawSyncTab */
+					short nRawSyncs 				/* Current size of rawSyncTab */
 					)
 {
 	short q; long endTupTime;
@@ -956,7 +955,7 @@ static void RemoveOneItemTuplets(
 			endTupTime = rawSyncTab[q].time+rawSyncTab[q].tupleDur;
 			
 			/* If this is the last thing in the table, or if the next one starts at
-				or after the tuplet's end time, there's only one NRC in the tuplet. */
+			   or after the tuplet's end time, there's only one NRC in the tuplet. */
 			
 			if (q==nRawSyncs-1 || rawSyncTab[q+1].time>=endTupTime)
 				rawSyncTab[q].tupleNum = 0;
@@ -965,7 +964,7 @@ static void RemoveOneItemTuplets(
 }
 
 
-/* ------------------------------------------------------------------ BuildSyncs -- */
+/* ------------------------------------------------------------------------ BuildSyncs -- */
 /* Actually add valid Syncs, with note (and rest) subobjects, as described by
 rawSyncTab[] and rawNoteAux[]. */
 
@@ -983,10 +982,9 @@ LINK BuildSyncs(
 	MNOTE theNote;  short q;
 	unsigned short iAux;  Boolean okay=False;
 	
-	/*
-	 *	Put objects generated by this track after the given Measure so they can be
-	 *	merged later.
-	 */
+	/* Put objects generated by this track after the given Measure so they can be
+	   merged later. */
+	   
 	firstL = RightLINK(measL);
 	doc->selStartL = doc->selEndL = firstL;
 	
@@ -996,38 +994,39 @@ LINK BuildSyncs(
 		lSync = NILINK;
 
 		if (rawSyncTab[q].link==REST_LINKVAL) {
-			/* Create a new Sync for the rest. Most of the <theNote> fields will
-				be overridden, so set them to some innocuous values. */
+			/* Create a rest in a new Sync. Most of the <theNote> fields will be
+			   overridden, so set them to innocuous values. */
 			
 			theNote.noteNumber = 0;
 			theNote.onVelocity = config.feedbackNoteOnVel;
 			theNote.offVelocity = config.noteOffVel;
-			theNote.duration = 15;									/* ??Does this matter? */
+			theNote.duration = 15;
+			theNote.startTime = 0L;
+			theNote.channel = 1;
 			
-			aNoteL = CreateSync(doc, theNote, &lSync, voice, 		/* staffn = voice */
-										UNKNOWN_L_DUR, 0,			/* placeholders */
-										voice, True, 0);
+			aNoteL = CreateSync(doc, theNote, &lSync, voice, 	/* staffn = voice */
+									UNKNOWN_L_DUR, 0,			/* placeholders */
+									voice, True, 0);
 			if (!firstSync) firstSync = lSync;
 			rawSyncTab[q].link = lSync;
 			if (!aNoteL) goto Done;
 			continue;
 		}
 
-		/*
-		 *	We can't rely on the next rawSyncTab[].link to say where this one's notes
-		 *	end because, if the next one was <added>, its .link will be identical to
-		 *	this one! Hence we use a wierd scheme where the NOTEAUX has a .first field
-		 *	which is True iff it starts a new "chord", and leading to the following
-		 *	wierd <for> statement.
-		 */ 
+		/* We can't rely on the next rawSyncTab[].link to say where this one's notes
+		   end because, if the next one was <added>, its .link will be identical to
+		   this one! Hence we use a wierd scheme where the NOTEAUX has a .first field
+		   which is True iff it starts a new "chord", and leading to the following
+		   wierd <for> statement. */
+		    
 		iAux = rawSyncTab[q].link;									/* really aux index! */
 		for ( ; iAux==rawSyncTab[q].link || !rawNoteAux[iAux].first; iAux++) {
-			/*
-			 * If the chord already contains a note with this one's note number,
-			 * skip this one. Important because Nightingale doesn't handle unisons
-			 * well, but probably a good idea regardless. (This avoids only perfect
-			 * unisons: augmented unisons are still a problem.)
-			 */
+		
+			/* If the chord already contains a note with this one's note number,
+			   skip this one. Important because Nightingale doesn't handle unisons
+			   well, but probably a good idea regardless. (This avoids only perfect
+			   unisons: augmented unisons are still a problem.) */
+			   
 			if (lSync)
 				if (FindNoteNum(lSync, voice, rawNoteAux[iAux].noteNumber)!=NILINK)
 					break;
@@ -1062,7 +1061,7 @@ Done:
 }
 
 
-/* -------------------------------------------------------- Clarify below measure -- */
+/* ------------------------------------------------------------- Clarify below measure -- */
 
 #define SET_PLAYDUR False	/* If setting playDurs is wanted, should be done later */
 
@@ -1086,14 +1085,15 @@ Boolean MFClarifyFromList(
 			short		*nNewSyncs
 			)
 {
-	register LINK newL;  LINK qL, prevL, aNoteL, tieL;
-	short k; long curTime;
+	register LINK newL;
+	LINK qL, prevL, aNoteL, tieL;
+	short k;
+	long curTime;
 	
-	/*
-	 *	Strategy: set the existing NRC's duration to the first segment's, and add new
-	 *	NRCs for the other segments if there are more. Put each of the new NRCs into a
-	 *	new Sync.
-	 */
+	/* Strategy: set the existing NRC's duration to the first segment's, and add new
+	   NRCs for the other segments if there are more. Put each of the new NRCs into a
+	   new Sync. */
+	   
 	curTime = newSyncs[*nNewSyncs].time;
 	
 	SetNRCDur(doc, syncL, voice, piece[1].lDur, piece[1].nDots, pContext, SET_PLAYDUR);
@@ -1137,12 +1137,13 @@ Boolean MFClarifyFromList(
 
 
 #define MAX_ERR (PDURUNIT-1)
-#define MAX_DOTS 2	/* Max. aug. dots allowed: be generous, since we have no alternative */
+#define MAX_DOTS 2		/* Max. aug. dots allowed: be generous, since we have no alternative */
 
 Boolean MFSetNRCDur(LINK syncL, short voice, unsigned short lDur, short tupleNum,
 							short tupleDenom, Boolean setPDur)
 {
-	char durCode, nDots; LINK aNoteL; PANOTE aNote;
+	char durCode, nDots;
+	LINK aNoteL;  PANOTE aNote;
 	
 	if (LDur2Code((short)lDur, MAX_ERR, MAX_DOTS, &durCode, &nDots)) {
 		for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL))
@@ -1309,7 +1310,7 @@ Boolean ClarAllBelowMeas(
 }
 
 
-/* ---------------------------------------------------------- AddTies, AddTuplets -- */
+/* --------------------------------------------------------------- AddTies, AddTuplets -- */
 
 Boolean AddTies(
 				Document *doc,
@@ -1406,10 +1407,9 @@ Boolean AddTuplets(
 }
 
 
-/* -------------------------------------------------------------------- Debugging -- */
+/* ------------------------------------------------------------------------- Debugging -- */
 
-
-void DPrintMeasTab(char *label, MEASINFO	measInfoTab[], short measTabLen)
+void DPrintMeasTab(char *label, MEASINFO measInfoTab[], short measTabLen)
 {
 #ifndef PUBLIC_VERSION
 	short m, nInTimeSig; long tsStartTime, tsEndTime, measDur;
@@ -1454,7 +1454,7 @@ void DPrintLTIs(char *label, LINKTIMEINFO itemTab[], short nItems)
 
 
 
-/* -------------------------------------------------------------- TranscribeVoice -- */
+/* ------------------------------------------------------------------- TranscribeVoice -- */
 /* The top-level rhythm clarification and quantization function: starting with tables
 describing raw note/chords (no rests, please!) with durations in ticks, it goes all the
 way to an object list of either unquantized "unknown duration" notes/chords ("NC"s) or

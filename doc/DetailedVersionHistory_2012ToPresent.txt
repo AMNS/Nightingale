@@ -2932,3 +2932,9 @@ DSUtils, FileConversion, Search.
 Minor cleanup: replaced "GraceBEAM" with "BeamGRACE" everywhere, etc. Affects
 MemMacros.h; Beam, Clipboard, CrossLinks, CrossSystem, DebugHighLevel, Delete,
 Dragging, DragSet, DrawHighLevel, FileConversion, MergeUtils, MIDIFSave, Reconstruct.
+
+---------------------------------------------------------------------------------------
+
+14 - 25 Sept.
+
+Minor cleanup. Affects Check, DialogsBoth, FileConversion, MasterPage, RTRhythmDur.

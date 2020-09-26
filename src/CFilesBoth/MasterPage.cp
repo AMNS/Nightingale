@@ -233,19 +233,15 @@ static Boolean SysHChanged(Document *doc)
 }
 
 
-/*
- * Return True if any of the staves have been dragged vertically, or if parts
- * have been added or deleted.
- */
+/* Return True if any of the staves have been dragged vertically, or if parts have
+been added or deleted. */
 
 static Boolean StaffChanged(Document *doc)
 {
 	return doc->stfChangedMP || doc->partChangedMP;
 }
 
-/*
- * Return True if the user has edited the marginRect of the document.
- */
+/* Return True if the user has edited the marginRect of the document. */
 
 static Boolean MarginVChanged(Document *doc)
 {	
@@ -258,10 +254,8 @@ static Boolean MarginHChanged(Document *doc)
 }
 
 
-/*
- * Return True if the user has changed the indent of either the first
- * system or of the succeeding systems of the document.
- */
+/* Return True if the user has changed the indent of either the first system or of the
+succeeding systems of the document. */
 
 static Boolean IndentChanged(Document *doc)
 {
@@ -275,16 +269,16 @@ static Boolean RastralChanged(Document *doc)
 }
 
 
-/* Update systemRectYs of all Systems in doc's main object list according to
-the current Master Page settings. */
+/* Update systemRectYs of all Systems in doc's main object list according to the current
+Master Page settings. */
 
 static void MPFixSystemRectYs(Document *doc)
 {
 	LINK sysL, masterSysL, firstSysL;
 	PSYSTEM pSystem;
 	DDIST sysHeight, sysTop, topMargin, firstMargin;
-	DDIST masterSysTop, sysBottom, masterSysBottom;
-	DDIST lastSysBottom, yBetweenSys;
+	DDIST masterSysTop, sysBottom, masterSysBottom, yBetweenSys;
+	static DDIST lastSysBottom;
 	
 	yBetweenSys = doc->yBetweenSysMP;
 
@@ -295,9 +289,9 @@ static void MPFixSystemRectYs(Document *doc)
 	sysTop = masterSysTop = pSystem->systemRect.top;
 	sysBottom = masterSysBottom = pSystem->systemRect.bottom;
 
-	/* Copy size of Master Page's system into every system in the score. Position
-		the top system of every page according to the score's marginRect and the
-		current titleMargin. */
+	/* Copy size of Master Page's system into every system in the score. Position the
+	   top system of every page according to the score's marginRect and the current
+	   titleMargin. */
 
 	topMargin = pt2d(doc->marginRect.top);
 	firstMargin = topMargin+pt2d(config.titleMargin);
@@ -1101,7 +1095,7 @@ list, and is not guaranteed for more. All copying is in doc's heaps. */
 
 static LINK CopyMasterPage(Document *doc, LINK headL, LINK *newTailL)
 {
-	LINK masterHeadL, pL, prevL, copyL;
+	LINK masterHeadL, pL, prevL, copyL=NILINK;
 
 	masterHeadL = DuplicateObject(HEADERtype, headL, False, doc, doc, False);
 	if (!masterHeadL) return NILINK;

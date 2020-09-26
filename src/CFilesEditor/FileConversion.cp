@@ -445,27 +445,40 @@ Error:
 
 /* -------------------------------- Convert the content of objects, including headers -- */
 
+/* First, some functions to help debug the very complex and messy conversion process. */
+
 #include "DebugUtils.h"		/* for DCheck1NEntries() */
 
-/* Depending on what the bug in question is, it may be better to call this _after_
-converting object <pL> rather than before. */
+static short debugBadBeamsetCount;
+static LINK badBeamLink[20];
 
-static void DebugConversion(Document *doc, LINK pL);
-static void DebugConversion(Document *doc, LINK pL)
+static void InitDebugConvert();
+static void DebugConvertObj(Document *doc, LINK objL);
+static void DebugConvCheckBeamsets(Document *doc, LINK objL, char *label);
+
+static void InitDebugConvert()
+{
+	debugBadBeamsetCount = 0;
+}
+
+/* Do whatever to help track down bug(s) involving object <pL>. Depending on what the bug
+is, it may be better to call this after converting the object rather than before. */
+
+static void DebugConvertObj(Document *doc, LINK objL)
 {	
 	/* Check subobject list, e.g., against the no. of subobjects the object says it has. */
 	
-	DCheck1NEntries(doc, pL);
+	DCheck1NEntries(doc, objL);
 
 	/* Check anything else to help find current bug(s). */
 	
 #if 1
 	{ LINK lastSyncL;
-		if (BeamsetTYPE(pL)) (void)DCheckBeamset(doc, pL, False, True, &lastSyncL);
+		if (BeamsetTYPE(objL)) (void)DCheckBeamset(doc, objL, False, True, &lastSyncL);
 	}
 #endif
 
-#ifdef NOTNOW
+#ifdef NOMORE
 	PASTAFF aStaff = GetPASTAFF(8);
 	LogPrintf(LOG_DEBUG, "ConvObjs1/ASTAFF 8: st=%d top,left,ht,rt=d%d,%d,%d,%d clef=%d\n",
 				aStaff->staffn, aStaff->staffTop, aStaff->staffLeft, aStaff->staffHeight,
@@ -475,6 +488,30 @@ static void DebugConversion(Document *doc, LINK pL)
 #endif
 }
 
+static void DebugConvCheckBeamsets(Document *doc, LINK objL, char *label)
+{
+	LINK lastSyncL;
+	Boolean isARepeat;
+	
+	for (LINK qL=1; qL<objL; qL++)
+		if (BeamsetTYPE(qL)) {
+			/* Report problems with a given Beamset only once! */
+			
+			isARepeat = False;
+			for (short i=0; i<debugBadBeamsetCount; i++)
+				if (badBeamLink[i]==qL) isARepeat = True;
+			if (isARepeat) continue;
+
+			if (DCheckBeamset(doc, qL, False, True, &lastSyncL)) {
+				LogPrintf(LOG_DEBUG, "****** (%s): DCheckBeamset found a problem with qL=L%u, at objL=%Lu. (%d: %d, %d)\n",
+							label, qL, objL, debugBadBeamsetCount, badBeamLink[0], badBeamLink[1]);
+				badBeamLink[debugBadBeamsetCount++] = qL;
+			}
+		}
+}
+
+
+/* Now functions to implement the very complex and messy conversion process. */
 
 #ifdef NOMORE
 /* Definitions of four functions to help convert 'N103' format and earlier files formerly
@@ -1621,16 +1658,8 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 	
 	BlockMove(&tmpSuperObj, &aSlur, sizeof(SLUR_5));
 	
-#if 1
-		{ LINK qL, lastSyncL;
-			for (LINK qL=1; qL<slurL; qL++)
-				if (BeamsetTYPE(qL)) {
-					if (DCheckBeamset(doc, qL, False, True, &lastSyncL))
-						LogPrintf(LOG_DEBUG, "ConvertSLUR1: DCheckBeamset found a problem with qL=L%u slurL=%Lu.\n",
-									qL, slurL); 
-				}
-		}
-#endif
+	DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1");
+
 	SlurSTAFF(slurL) = (&aSlur)->staffn;		/* EXTOBJHEADER */
 
 	SlurVOICE(slurL) = (&aSlur)->voice;
@@ -1644,16 +1673,8 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 
 	SlurFIRSTSYNC(slurL) = (&aSlur)->firstSyncL;
 	SlurLASTSYNC(slurL) = (&aSlur)->lastSyncL;
-#if 1
-		{ LINK qL, lastSyncL;
-			for (LINK qL=1; qL<slurL; qL++)
-				if (BeamsetTYPE(qL)) {
-					if (DCheckBeamset(doc, qL, False, True, &lastSyncL))
-						LogPrintf(LOG_DEBUG, "ConvertSLUR2: DCheckBeamset found a problem with qL=L%u slurL=%Lu.\n",
-									qL, slurL); 
-				}
-		}
-#endif
+
+	DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR2");
 
 //NHexDump(LOG_DEBUG, "ConvertSLUR", (unsigned char *)&tempSys, 38, 4, 16);
 	LogPrintf(LOG_DEBUG, "ConvertSLUR: slurL=L%u staff=%d voice=%d tie=%d\n", slurL,
@@ -1871,6 +1892,8 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 		return False;
 	}
 	
+	InitDebugConvert();
+	
 	objHeap = doc->Heap + OBJtype;
 
 	fflush(stdout);
@@ -1908,16 +1931,7 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 		/* Convert the object header now so type-specific functions don't have to. */
 		
 		ConvertObjHeader(doc, pL);
-#if 1
-		{ LINK lastSyncL;
-			for (LINK qL=1; qL<pL; qL++)
-				if (BeamsetTYPE(qL)) {
-					if (DCheckBeamset(doc, qL, False, True, &lastSyncL))
-						LogPrintf(LOG_DEBUG, "ConvertObjSubobjs: DCheckBeamset found a problem with qL=L%u pL=%Lu.\n",
-									qL, pL); 
-				}
-		}
-#endif
+		DebugConvCheckBeamsets(doc, pL, "ConvertObjSubobjs");
 		
 		switch (ObjLType(pL)) {
 			case HEADERtype:
@@ -1997,7 +2011,7 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 							(long)pL, (long)ObjLType(pL));
 		}
 
-		DebugConversion(doc, pL);
+		DebugConvertObj(doc, pL);
 	}
 
 	/* Make sure all staves are visible in Master Page. They should never be invisible,

@@ -1,9 +1,9 @@
 HOW TO UPDATE THE NIGHTINGALE GITHUB REPOSITORY FROM DON'S G5 DEVELOPMENT FOLDER
-DAB, early August 2020
+DAB, late Sept. 2020
 
 This ridiculous procedure is necessary mostly because OS 10.5.x -- the latest that a
 G5 can run -- can no longer run a version of git compatible with GitHub. Another factor
-is I'm obsessive.
+is arguably that I'm obsessive.
 
 NB: If only docs have changed, not code, do only steps 2, 9, and 11.
 
@@ -12,7 +12,7 @@ NB: If only docs have changed, not code, do only steps 2, 9, and 11.
 	just copy NightingaleDABVer_5p9 to the git machine, compress it there, and copy
 	the compressed form back to the G5.
 
-Everything from here on is on the git machine.
+The following steps are on the git machine.
 
 2.	If the documentation files in AMNSGenlDocs/NgalePorting+DevNotes aren't up-to-date,
 	fix that. DetailedVersionHistory_2012ToPresent.txt changes very often, and
@@ -36,7 +36,12 @@ Everything from here on is on the git machine.
 	is also likely to have changed. If any other docs (HowToUpdateTheNgaleRepo.txt
 	(this document), tech notes, etc.) have changed, replace them too.
 	
-For the last steps, either use git directly or any of several frontends; I use SourceTree.
+For these steps, either use git directly or any of several frontends; I use SourceTree.
 
 10. In NightingaleGitRepo, throw away any temporary files from the development process.
 11. Commit changed files, and push to appropriate branch(es) of the GitHub repository.
+
+Finally, update things on the G5 to keep in sync.
+
+12. Replace the copy of NightingalePPC.app in the G5's NgaleDev/Executables.
+13. Replace the compressed form of NightingaleDABVer_5p9 in the G5's AMNSGenlDocs.

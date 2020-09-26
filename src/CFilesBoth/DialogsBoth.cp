@@ -182,18 +182,18 @@ static void RMClickDown(
 }
 
 
-static Boolean RMHandleKeyDown(EventRecord *theEvent, LINK firstMark, LINK lastMark,
+static Boolean RMHandleKeyDown(EventRecord *theEvt, LINK firstMrk, LINK lastMrk,
 											DialogPtr theDialog)
 {
 	char ch;
 
-	ch = theEvent->message & charCodeMask;
+	ch = theEvt->message & charCodeMask;
 	if (ch==UPARROWKEY) {
-		RMClickUp(lastMark, theDialog);
+		RMClickUp(lastMrk, theDialog);
 		return True;
 	}
 	else if (ch==DOWNARROWKEY) {
-		RMClickDown(firstMark, theDialog);
+		RMClickDown(firstMrk, theDialog);
 		return True;
 	}
 	else
@@ -203,21 +203,21 @@ static Boolean RMHandleKeyDown(EventRecord *theEvent, LINK firstMark, LINK lastM
 
 static Rect upRect, downRect;
 
-static Boolean RMHandleMouseDown(EventRecord *theEvent, LINK firstMark, LINK lastMark,
+static Boolean RMHandleMouseDown(EventRecord *theEvt, LINK firstMrk, LINK lastMrk,
 									DialogPtr theDialog)
 {
 	Point	where;
 
-	where = theEvent->where;
+	where = theEvt->where;
 	GlobalToLocal(&where);
 	if (PtInRect(where, &upRect)) {
 		SelectDialogItemText(theDialog, NUMBER_DI, 0, ENDTEXT);			/* Select & unhilite number */
-		TrackNumberArrow(&upRect, &RMClickUp, lastMark, theDialog);
+		TrackNumberArrow(&upRect, &RMClickUp, lastMrk, theDialog);
 		return True;
 	}
 	else if (PtInRect(where, &downRect)) {
 		SelectDialogItemText(theDialog, NUMBER_DI, 0, ENDTEXT);			/* Select & unhilite number */
-		TrackNumberArrow(&downRect, &RMClickDown, firstMark, theDialog);
+		TrackNumberArrow(&downRect, &RMClickDown, firstMrk, theDialog);
 		return True;
 	}
 	else
