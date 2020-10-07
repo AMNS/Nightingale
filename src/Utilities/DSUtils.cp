@@ -916,8 +916,8 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 	}
 	
 	/* Include measure containing objects relative object; otherwise coordinate
-		systems get screwed up, since drawing into offscreen bitmap is relative
-		to this measure. */
+	   systems get screwed up, since drawing into offscreen bitmap is relative
+	   to this measure. */
 
 	switch(ObjLType(pL)) {
 		case GRAPHICtype:
@@ -1063,7 +1063,8 @@ void GetStaffGroupBounds(Document *doc, short staffn, short *pTopStf, short *pBo
 	}
 	
 	/* The highest-numbered staff with !<connAbove> whose number is below <staffn> is
-		the top staff of our group; its <connStaff> is the bottom staff. */
+	   the top staff of our group; its <connStaff> is the bottom staff. */
+		
 	groupTopStf = -SHRT_MIN;
 	for (short stf = staffn; stf>0; stf--) {
 		bMeasL = MeasOnStaff(pL, stf);
@@ -1095,8 +1096,7 @@ Boolean IsAfter(LINK obj1, LINK obj2)
 	return False;
 }
 
-/* Returns True if obj1 is the same as obj2 or is followed by it in some object
-list. */
+/* Returns True if obj1 is the same as obj2 or is followed by it in some object list. */
 
 Boolean IsAfterIncl(LINK obj1, LINK obj2)
 {
@@ -1408,9 +1408,8 @@ void GetSysRange(Document */*doc*/, LINK startL, LINK endL, LINK *startSysL, LIN
 
 /* --------------------------------------- Find or check for "First" of various things -- */
 
-/* Return the first Measure of the System containing pL. pL is regarded as a
-LINK, not a selRange ptr. If no System can be found, or no Measure, return
-NILINK. */
+/* Return the first Measure of the System containing pL. pL is regarded as a LINK,
+not a selRange ptr. If no System can be found, or no Measure, return NILINK. */
 
 LINK FirstSysMeas(LINK pL)
 {
@@ -1423,8 +1422,7 @@ LINK FirstSysMeas(LINK pL)
 	return firstMeasL;
 }
 
-/* Return the first measure of the document. If no measure can be found,
-return NILINK. */
+/* Return the first measure of the document. If no measure can be found, return NILINK. */
 
 LINK FirstDocMeas(Document *doc)
 {
@@ -1472,8 +1470,8 @@ Boolean LastMeasInSys(LINK measL)
 	return True;							/* Because last meas. of entire score */
 }
 
-/* Is <measL>, which must be a Measure, the last "used" Measure of its System,
-i.e., is there nothing following it except possibly a barline? */
+/* Is <measL>, which must be a Measure, the last "used" Measure of its System, i.e., is
+there nothing following it except possibly a barline? */
 
 Boolean IsLastUsedMeasInSys(Document *doc, LINK measL)
 {
@@ -1486,20 +1484,18 @@ Boolean IsLastUsedMeasInSys(Document *doc, LINK measL)
 
 }
 
-/* If pL is not a System, if there is a system which contains pL, return 
-the last obj on it.
-If there is no containing System, return pL (we should be returning doc->headL).
-If pL is a System, return the LINK of last object on the previous System
-in the score, skipping any intervening Page object if the System in question
-is the first System on the Page.  If pL is the first System on the first Page,
-return the head. */
+/* If pL is not a System, if there is a system which contains pL, return the last obj
+on it. If there is no containing System, return pL (we should be returning doc->headL).
+If pL is a System, return the LINK of last object on the previous System in the score,
+skipping any intervening Page object if the System in question is the first System on
+the Page.  If pL is the first System on the first Page, return the head. */
 
 LINK LastOnPrevSys(LINK pL)
 {
 	LINK sysL=pL;
 
 	if (!SystemTYPE(sysL)) {
-		sysL = LSSearch(sysL,SYSTEMtype,ANYONE,GO_LEFT,False);
+		sysL = LSSearch(sysL, SYSTEMtype, ANYONE, GO_LEFT, False);
 		if (!sysL) return pL;
 
 		return LastOnPrevSys(sysL);
@@ -2371,7 +2367,7 @@ LINK FindMainOrOnlyNote(LINK pL,			/* Sync */
 						short voice
 						)
 {
-	LINK aNoteL, aGRNoteL;
+	LINK aNoteL;
 
 	if (SyncTYPE(pL)) {
 		aNoteL = FirstSubLINK(pL);

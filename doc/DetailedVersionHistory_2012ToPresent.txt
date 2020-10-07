@@ -2938,3 +2938,16 @@ Dragging, DragSet, DrawHighLevel, FileConversion, MergeUtils, MIDIFSave, Reconst
 14 - 25 Sept.
 
 Minor cleanup. Affects Check, DialogsBoth, FileConversion, MasterPage, RTRhythmDur.
+
+---------------------------------------------------------------------------------------
+
+26 Sept. - 6 Oct.
+
+Fixed bug: an error message from DCheckContext() for inconsistent clefType in a clef
+subobject is misleading and could possibly cause a crash. Affects DebugUtils.
+
+Fixed bug: running on Intel, files written have the bytes of the version code in reverse
+order, i.e., '601N' instead of 'N106'. Affects FileSave.
+
+Minor cleanup. Affects MiscUtils.h; DebugUtils, DSUtils, FileSave, FileUtils, Heaps,
+MIDIPlayWhileRec.

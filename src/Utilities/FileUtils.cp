@@ -28,7 +28,8 @@ FILE *FSpOpenInputFile(Str255 macfName, FSSpec *fsSpec)
 	sprintf(ansifName, "%#s", (char *)macfName);
 	f = fopen(ansifName, "r");
 	if (f==NULL) {
-		/* fopen puts error in errno, but this is of type int. */
+		/* fopen puts error code in errno, but this is of type int. */
+		
 		result = errno;
 		goto err;
 	}
@@ -145,14 +146,9 @@ if there is no resource fork or we can't get the print record for some other rea
 is the responsibility of other routines to check doc->docPageFormat for NULLness or not,
 since we don't want to open the Print Driver every time we open a file (which is when
 this routine should be called) in order to create a default print handle. The document's
-resource fork, if there is one, is left closed.
+resource fork, if there is one, is left closed. */
 
-File versions before N104 use doc->hPrint stored in HPRT 128 resource. In N104 and after
-this resource is ignored, and a new resource PFMT 128 is created. Since N103 files are
-converted into new N104 files when opened by N104 version application, there is no need
-to check for and remove the old resource. */
-
-void GetPrintHandle(Document *doc, unsigned long version, short /*vRefNum*/, FSSpec *pfsSpec)
+void GetPrintHandle(Document *doc, unsigned long /*version*/, short /*vRefNum*/, FSSpec *pfsSpec)
 	{
 		short refnum;
 		OSStatus err = noErr;
@@ -220,18 +216,19 @@ Boolean WritePrintHandle(Document *doc)
 		short err = noErr;
 		
 		if (THIS_FILE_VERSION<'N104') {
-			// Nothing to write. We should never get here anyway.
+			/* There's nothing to write, but we should never get here anyway. */
+			
 			doc->flatFormatHandle = NULL;
 			return True;
 		}
 		else {
 			short refnum, dummy;
 			
-			// store the PMPageFormat in a handle
+			/* Store the PMPageFormat in a handle. */
+			
 			FlattenAndSavePageFormat(doc);
 			
 			if (doc->flatFormatHandle) {
-				
 				FSSpec fsSpec = doc->fsSpec;
 				HSetVol(NULL, fsSpec.vRefNum, fsSpec.parID);
 				FSpCreateResFile(&fsSpec, creatorType, documentType, smRoman);

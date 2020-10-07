@@ -86,6 +86,8 @@ Boolean InitAllHeaps(Document *doc)
 {
 	short i;  HEAP *hp;
 	
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "InitAllHeaps before ExpandFreeList: doc->Heap=%lx\n", doc->Heap);
+
 	/* For each heap in the document's heap array... */
 	
 	for (hp=doc->Heap, i=FIRSTtype; i<LASTtype; i++, hp++) {
@@ -148,12 +150,14 @@ limit the number to a much smaller value, e.g., for a "Lite" version. */
 fails, it should return info as to the reason! */
 
 #define MAX_HEAPSIZE 65500L							/* Maximum no. of objects of one type */
+#define DEBUG_CLOBBER True
 
 Boolean ExpandFreeList(HEAP *heap,
 						long deltaObjs)				/* <=0 = do nothing, else <MAX_HEAPSIZE */ 
 {
 	long newSize;  unsigned short i;
-	char *p;  short err;
+	char *p, *p1stNew;
+	short err;
 	
 	if (deltaObjs<=0 || heap->objSize<=0) return(True);		/* Do nothing */
 	
@@ -186,20 +190,23 @@ Boolean ExpandFreeList(HEAP *heap,
 	 
 	p = (char *)(*heap->block);
 	p += ((long)heap->nObjs) * (long)heap->objSize;			/* Addr of first added object */
+	p1stNew = p;
 	
-	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld ->objSize=%d deltaObjs=%ld\n",
+	if (DETAIL_SHOW || DEBUG_CLOBBER) LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld ->objSize=%d deltaObjs=%ld\n",
 		heap, heap->nObjs, heap->objSize, deltaObjs);
-if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExpandFreeList: block=%lx p=%lx\n", *heap->block, p);
-if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ExpandFreeList1", (unsigned char *)p, 60, 4, 16);
+if (DEBUG_CLOBBER) LogPrintf(LOG_DEBUG, "ExpandFreeList: block=%lx p1stNew=%lx\n", *heap->block, p1stNew);
+if (DEBUG_CLOBBER) NHexDump(LOG_DEBUG, "ExpandFreeList1", (unsigned char *)p1stNew, 60, 4, 16);
 	for (i=heap->nObjs; i<newSize-1; i++) {
+		if (DEBUG_CLOBBER) FillMem(0, p, heap->objSize);
 		*(LINK *)p = i+1;
-if (DETAIL_SHOW && i-(heap->nObjs)<3) {
+if (DEBUG_CLOBBER && i-(heap->nObjs)<3) {
 	SleepMS(3);
 	NHexDump(LOG_DEBUG, "    ExpandFreeList2", (unsigned char *)p, heap->objSize+4, 4, 16);
 }
-		if (0) FillMem(0, p, heap->objSize);
+
 		p += heap->objSize;
 	}
+if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ExpandFreeList3", (unsigned char *)p1stNew, 60, 4, 16);
 		
 	/* Now paste these new objects in at the head of the free list */
 	
@@ -241,8 +248,11 @@ LINK HeapAlloc(HEAP *heap, unsigned short nObjs)
 	
 	/* Expand the free list, if necessary */
 	
-	if (nObjs > heap->nFree)
+	if (nObjs > heap->nFree) {
+		if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "HeapAlloc before ExpandFreeList: heap=%lx ->nFree=%u nObjs=%u\n",
+									heap, heap->nFree, nObjs);
 		if (!ExpandFreeList(heap, GROWFACTOR*nObjs)) return(NILINK);
+	}
 		
 	/* Find the last of the first nObjs in the free list */
 	
@@ -283,8 +293,8 @@ LINK HeapFree(HEAP *heap, LINK head)
 		for (count=0, link=head; link; link = *(LINK *)p,count++)
 			p = start + ((unsigned long)heap->objSize * (unsigned long)link);
 		
-		/* Append freelist to list, and repoint the head of the free list for
-		   this heap to the list. */
+		/* Append freelist to list, and repoint the head of the free list for this
+		   heap to the list. */
 		
 		*(LINK *)p = heap->firstFree;
 		heap->firstFree = head;

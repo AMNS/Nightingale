@@ -19,7 +19,7 @@
 #include "MidiMap.h"
 
 /* A version code is 'N' followed by three digits, e.g., 'N105': N-one-zero-five. Be
-careful: It's neither a number nor a valid C string! */
+careful: It's neither a number nor a valid C string nore a valid Pascal string! */
 static unsigned long version;							/* File version code read/written */
 
 /* Codes for object types being read/written or for non-read/write call when an I/O
@@ -290,16 +290,23 @@ static short WriteFile(Document *doc, short refNum)
 	long			omsDevSize, fmsDevHdr;
 	long			cmDevSize, cmHdr;
 
-	version = THIS_FILE_VERSION;								/* Write version code */
+	/* Write version code */
+	
+	version = THIS_FILE_VERSION;
+	FIX_END(version);
 	count = sizeof(version);
 	errCode = FSWrite(refNum, &count, &version);
 	if (errCode) return VERSIONobj;
 
-	GetDateTime(&fileTime);										/* Write current date and time */
+	/* Write current date and time */
+	
+	GetDateTime(&fileTime);
 	count = sizeof(fileTime);
 	errCode = FSWrite(refNum, &count, &fileTime);
 	if (errCode) return VERSIONobj;
 
+	/* Write Document and Score headers */
+	
 	count = sizeof(DOCUMENTHDR);
 	errCode = FSWrite(refNum, &count, &doc->origin);
 	if (errCode) return HEADERobj;
@@ -328,6 +335,7 @@ static short WriteFile(Document *doc, short refNum)
 	if (errCode) return errCode;
 
 	/* Write info for OMS */
+	
 	count = sizeof(OMSSignature);
 	omsDevHdr = 'devc';
 	errCode = FSWrite(refNum, &count, &omsDevHdr);
@@ -340,9 +348,11 @@ static short WriteFile(Document *doc, short refNum)
 	if (errCode) return SIZEobj;
 
 	/* Write info for FreeMIDI input device:
-			1) long having the value 'FMS_' (just a marker)
-			2) fmsUniqueID (unsigned short) giving input device ID
-			3) fmsDestinationMatch union giving info about input device */
+		1) long having the value 'FMS_' (just a marker)
+		2) fmsUniqueID (unsigned short) giving input device ID
+		3) fmsDestinationMatch union giving info about input device
+	   FIXME: FreeMIDI is obsolete and this should be removed! */
+			
 	count = sizeof(long);
 	fmsDevHdr = FreeMIDISelector;
 	errCode = FSWrite(refNum, &count, &fmsDevHdr);

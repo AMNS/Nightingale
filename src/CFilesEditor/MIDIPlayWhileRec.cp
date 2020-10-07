@@ -20,7 +20,7 @@ recording - formerly in MIDIRecord.c.
 
 Boolean BIMIDINoteAtTime(short noteNum, short channel, short velocity, long time);
 
-/* ======================================= Routines to play along while recording == */
+/* ============================================ Routines to play along while recording == */
 /* The following routines to play along while recording are for built-in MIDI only.
 But many of them are independent of the MIDI technology, and it would be extremely
 nice to have the whole package working for OMS and maybe MIDI Manager. */
@@ -44,7 +44,7 @@ static void RecPlayAddAllNotes(Document *doc, LINK fromL, LINK toL, TCONVERT tCo
 short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset);
 Boolean RecPlayNotes(unsigned short	outBufSize);
 
-/* --------------------------------------------------------------- ShellSortNPBuf -- */
+/* -------------------------------------------------------------------- ShellSortNPBuf -- */
 /* ShellSortNPBuf does a Shell (diminishing increment) sort on <.times> of the
 given NOTEPLAYINFO array, putting them into ascending order. The increments used
 are powers of 2, which does not give the fastest possible execution, though the
@@ -309,10 +309,9 @@ times are sorted.
 
 If we succeed, return True; if not (probably not enough memory in the buffer), False. */
 
-Boolean RecPlayNotes(unsigned short outBufSize)
+Boolean RecPlayNotes(unsigned short /*outBufSize*/)
 {
-	unsigned short outBufCount;
-	short i; long time;
+	short i;
 
 	for (i = 0; i<npBufInd; i++) {
 		switch (useWhichMIDI) {
@@ -325,8 +324,4 @@ Boolean RecPlayNotes(unsigned short outBufSize)
 	}
 	
 	return True;
-	
-Overflow:
-	MayErrMsg("RecPlayNotes: BIMIDINoteAtTime failed (probably buffer overflow).");
-	return False;
 }

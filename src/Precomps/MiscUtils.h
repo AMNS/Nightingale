@@ -29,7 +29,6 @@ short			BlockCompare(void *src, void *dst, short len);
 Boolean			GoodNewPtr(Ptr p);
 Boolean			GoodNewHandle(Handle hndl);
 Boolean			GoodResource(Handle hndl);
-void			*NewZPtr(Size size);
 pascal long		GrowMemory(Size memoryNeeded);
 Boolean			PreflightMem(short nKBytes);
 

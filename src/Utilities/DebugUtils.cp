@@ -1819,7 +1819,7 @@ Boolean DCheckHeirarchy(Document *doc)
 	LINK 		pL, aStaffL, pageL, systemL;
 	short		nMissing, i,
 				nsystems, numSheets;
-	Boolean	aStaffFound[MAXSTAVES+1],					/* Found the individual staff? */
+	Boolean aStaffFound[MAXSTAVES+1],					/* Found the individual staff? */
 				foundPage, foundSystem, foundStaff,		/* Found any PAGE, SYSTEM, STAFF obj yet? */
 				foundMeasure,							/* Found a MEASURE since the last STAFF? */
 				foundClef, foundKeySig, foundTimeSig;	/* Found any CLEF, KEYSIG, TIMESIG yet? */
@@ -2110,7 +2110,7 @@ Next:
 				beamNotesOkay = False;
 				break;
 			}
-if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
+//if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
 			if (!SameSystem(beamL, syncL)) {
 				COMPLAIN3("*DCheckBeamset: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n",
 								beamL, (grace? "GR" : ""), syncL);
@@ -2793,7 +2793,7 @@ Boolean DCheckContext(Document *doc)
 					&& aMeasureFound[aClef->staffn]						/* After the 1st System? */
 					&&  clefType[aClef->staffn]!=aClef->subType)		/* Yes, check the clef */
 						COMPLAIN3("*DCheckContext: FOR STAFF %d IN CLEF L%u, INCONSISTENT clefType: EXPECTED %d.\n",
-											aStaff->staffn, pL, clefType[aClef->staffn]);
+											aClef->staffn, pL, clefType[aClef->staffn]);
 					clefType[aClef->staffn] = aClef->subType;
 				}
 				break;

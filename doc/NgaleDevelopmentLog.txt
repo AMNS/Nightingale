@@ -7910,3 +7910,53 @@ Open Mozart_Andante_2Fl_DMaj.ngl => Sep 25 15:14:50 DonDualG5 Ngale[8089]:
 	debug. ****** (ConvertObjSubobjs): DCheckBeamset found a problem with qL=L1196, at objL=1322. (9: 132, 385)
 	debug. ****** (ConvertObjSubobjs): DCheckBeamset found a problem with qL=L1258, at objL=1322. (10: 132, 385)
 
+---------------------------------------------------------------------------------------
+
+28 Sept. - 6 Oct.
+
+Summary:  I have two medium-size files that file conversion almost always fails on:
+2ndMovementCSpp1-3.ngl (136K, 1226 objects) and Mozart_Andante_2Fl_DMaj.ngl (112K, 1327
+objects). The exact symptoms are different almost every time, but there are very clear
+patterns to the failures. For one thing, objects that (AFAIK) were read and converted
+correctly are corrupted in one of several different ways when a later object is converted.
+Maybe 90% of the time, one or more Beamsets get clobbered; something like 20% of the time,
+it's one or more time signatures that are damaged (so 10% of the time both Beamsets and
+timesigs are clobbered). The corruption always occurs in ConvertObjSubobjs(), starting with
+conversion of objects towards the end of the file: the earliest I've noticed is converting
+L689 corrupting L218, but it's usually considerably later (in the 900's or above).
+
+What about files that are smaller but not too much smaller? Does 2ndMovementCSpp1-2p5.ngl
+(120K, 1041 objs) have similar problems? Open it 3x => Yes, all 3 times! Some corrupting of
+Beamsets, some of timesigs. How about 2ndMovementCSpp1-2.ngl (100K, 779 objs)? Open it 3x =>
+yes, but only 1 out of 3 times. This is all consistent w/ previous observations.
+
+The randomness strongly suggests The Bug involves using an uninitialized byte of memory. It
+might be in our heaps or other blocks we malloc (via NewPtr, SetHandleSize, etc.), an
+uninitialized variable, or the result of an invalid pointer or out-of- bounds array reference.
+Note however that several smallish changes to the code since about 10 Sept. (mostly adding debug
+statements) have no visible effect. I think earlier small changes did, but I'm not sure.
+
+We use ExpandFreeList() to create heaps. Comments on changes of mid-May ff. about it: Time to
+"optionally have ExpandFreeList initialize newly allocated memory; this could be useful in the
+future for similar bugs, so it should be something the user can control, maybe w/ modifier
+keys... Idea: when Ngale starts up, offer a way to set something to tell ExpandFreeList() to
+initialize every byte (or word?) of newly allocated memory to, say, a choice of 0 and ?? " (I
+got diverted from that idea by several things, then forgot about it, oh well.) Code to do this
+should go after the error checks just after SetHandleSize... Say, it's already there!!:
+
+		if (0) FillMem(0, p, heap->objSize);
+		
+..though inactivated by the "if (0)". OK, so ??
+
+5 Oct.: SWITCH TO the Intel version -- and upgrade my MacBook Air to macOS 10.14 (Mojave).
+(Does Mojave even support QuickDraw?) Compile the latest code for Intel => it runs on the Air!
+Yippee! Ngale for Intel can even save a file it's created; but trying to open it says
+"Nightingale can't open the file. The file version is '601N'..."  I.e., it's either the correct
+file version, 'N106', being read w/ bytes in reverse order by a little-Endian processor, or
+w/bytes _written_ in reverse order by a little-Endian processor :-) . Which? The latter: the
+1st four bytes of the file really are '601N' in that order.
+
+Add "FIX_END(version)" to WriteFile(); save a file w/ Ngale for Intel  => Ngale for Intel and
+for PowerPC both recognize the version code, but find errors in the headers: not surprising,
+since I haven't thought about FIX_ENDing all the header fields!
+
