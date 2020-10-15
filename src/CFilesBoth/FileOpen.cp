@@ -31,27 +31,25 @@ static void SetTimeStamps(Document *);
 
 
 /* Codes for object types being read/written or for non-read/write call when an I/O
-error occurs; note that all are negative. See HeapFileIO.c for additional, positive,
-codes. */
+error occurs. Note that all are negative. See file.h for additional, positive,
+codes. FIXME: Move these #defines to file.h! */
 
-enum {
-	HEADERobj=-999,
-	VERSIONobj,
-	SIZEobj,
-	CREATEcall,
-	OPENcall,				/* -995 */
-	CLOSEcall,
-	DELETEcall,
-	RENAMEcall,
-	WRITEcall,
-	STRINGobj,
-	INFOcall,
-	SETVOLcall,
-	BACKUPcall,
-	MAKEFSSPECcall,
-	NENTRIESerr = -899,
-	READHEAPScall
-};
+#define	HEADERobj -999
+#define VERSIONobj -998
+#define SIZEobj -997
+#define CREATEcall -996
+#define OPENcall -995
+#define CLOSEcall -994
+#define DELETEcall -993
+#define RENAMEcall -992
+#define WRITEcall -991
+#define STRINGobj -990
+#define INFOcall -989
+#define SETVOLcall -988
+#define BACKUPcall -987
+#define MAKEFSSPECcall -986
+#define NENTRIESerr -899
+#define READHEAPScall -898
 
 
 /* A version code is four characters, specifically 'N' followed by three digits, e.g.,
@@ -75,7 +73,7 @@ static void SetTimeStamps(Document *doc)
 /* ----------------------------------------------------------- Utilities for OpenFile  -- */
 
 #define in2d(x)	pt2d(in2pt(x))		/* Convert inches to DDIST */
-#define ERR(fn) { nerr++; LogPrintf(LOG_WARNING, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
+#define ERR(fn) { nerr++; LogPrintf(LOG_WARNING, "err #%d, ", fn); if (firstErr==0) firstErr = fn; }
 
 /* Display almost all Document header fields; there are about 18 in all. */
 
@@ -343,10 +341,19 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 			|| !isdigit(versionCString[2])
 			|| !isdigit(versionCString[3]) )
 		 { errCode = BAD_VERSION_ERR; goto Error; }
+
 	if (version<FIRST_FILE_VERSION) { errCode = LOW_VERSION_ERR; goto Error; }
 	if (version>THIS_FILE_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
-	if (version!=THIS_FILE_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%s' FILE.  (OpenFile)\n", versionCString);
-
+	if (version!=THIS_FILE_VERSION) {
+#if TARGET_RT_LITTLE_ENDIAN
+		LogPrintf(LOG_NOTICE, "On this computer architecture, Nightingale can't open a '%s' format file.  (OpenFile)\n", versionCString);
+		errCode = LOW_VERSION_ERR;
+		goto Error;
+#else
+		LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%s' FILE.  (OpenFile)\n", versionCString);
+#endif
+	}
+	
 //#define DIFF(addr1, addr2)	((long)(&addr1)-(long)(&addr2))
 //if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Offset of aDocN105.comment[0]=%lu, spacePercent=%lu, fillerMB=%lu, nFontRecords=%lu, nfontsUsed=%lu, yBetweenSys=%lu\n",
 //DIFF(aDocN105.comment[0], aDocN105.headL), DIFF(aDocN105.spacePercent, aDocN105.headL), DIFF(aDocN105.fillerMB, aDocN105.headL), DIFF(aDocN105.nFontRecords, aDocN105.headL),

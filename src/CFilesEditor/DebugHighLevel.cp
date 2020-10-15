@@ -7,8 +7,8 @@
  */
 
 /* DebugHighLevel.c - Debug command and high-level functions:
-	DCheckEverything			DebugDialog				DErrLimit
-	DoDebug
+	DCheckEverything			DebugDialog				ResetDErrLimit
+	DErrLimit					DoDebug
  */
 
 #include "Nightingale_Prefix.pch"
@@ -18,7 +18,7 @@
 #define DDB
 
 static short DebugDialog(char *, short *, short *, short *, Boolean *, Boolean *,
-						Boolean *, Boolean *);
+							Boolean *, Boolean *);
 
 short nerr, errLim;
 Boolean minDebugCheck;			/* Do only Most important checks? */
@@ -69,7 +69,6 @@ Boolean DCheckEverything(Document *doc,
 	   however, if the data structure's links are bad, that would be more likely to stop
 	   in the wrong place. */
 	   
-LogPrintf(LOG_DEBUG, "<DCheckEverything loop 1\n");
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		nTotal++;
 		if (DCheckNode(doc, pL, MAIN_DSTR, maxCheck)<0) return True;
@@ -78,7 +77,6 @@ LogPrintf(LOG_DEBUG, "<DCheckEverything loop 1\n");
 		DCheckNodeSel(doc, pL);		if (DErrLimit() || UserInterrupt()) return False;
 	}
 	nTotal++;														/* Count tailL */
-LogPrintf(LOG_DEBUG, ">DCheckEverything loop 1\n");
 	
 	if (DCheckNode(doc, doc->tailL, MAIN_DSTR, maxCheck)<0) return True;
 	

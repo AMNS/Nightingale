@@ -2943,11 +2943,21 @@ Minor cleanup. Affects Check, DialogsBoth, FileConversion, MasterPage, RTRhythmD
 
 26 Sept. - 6 Oct.
 
-Fixed bug: an error message from DCheckContext() for inconsistent clefType in a clef
-subobject is misleading and could possibly cause a crash. Affects DebugUtils.
-
 Fixed bug: running on Intel, files written have the bytes of the version code in reverse
-order, i.e., '601N' instead of 'N106'. Affects FileSave.
+order, i.e., '601N' instead of 'N106'.
 
-Minor cleanup. Affects MiscUtils.h; DebugUtils, DSUtils, FileSave, FileUtils, Heaps,
-MIDIPlayWhileRec.
+Minor cleanup. Affects DebugUtils, DSUtils, FileSave, FileUtils, Heaps, MIDIPlayWhileRec.
+
+---------------------------------------------------------------------------------------
+
+7 - 15 Oct.
+
+Fixed bug: running on Intel, files written have the bytes of the date/time and many
+fields of the Document and Score headers in reverse order ("little Endian"). Affects
+FileSave.
+
+If running on Intel and user tries to open an 'N105' file, we now give an error message.
+Affects FileOpen.
+
+Minor cleanup. Affects File.h; DebugHighLevel, DialogsEditor, Endian, FileOpen, FileSave,
+Initialize, SetCommand.

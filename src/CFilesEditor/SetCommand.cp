@@ -92,7 +92,7 @@ To add an item to the (pre-existing) Property menu for a given Main-menu item:
 */
 
 /* Main position: Main Set Popup items */	
-static enum {	
+enum {	
 	noteITEM = 1,
 	slurTieITEM,
 	textITEM,
@@ -110,10 +110,10 @@ static enum {
 	patchChangeITEM,
 	panITEM,
 	HOW_MANY_MAIN_ITEMS=panITEM
-	} E_SetItems;
+};
 	
 /* Property position: Note Property Popup items */
-static enum {
+enum {
 	voiceITEM = 1,
 	staffITEM,
 	velocityITEM,
@@ -121,25 +121,25 @@ static enum {
 	noteSizeITEM,
 	stemLengthITEM,
 	parenITEM
-	} E_NoteItems;
+};
 
 /* Property position: Text Property Popup items (also used for Lyrics, Chord Symbols, Tempos) */
-static enum {
+enum {
 	vPosAboveITEM = 1,
 	vPosBelowITEM,
 	hPosOffsetITEM,
 	styleITEM,
 	hideMM_ITEM=styleITEM
-	} E_PosItems;
+};
 
 /* Property position: Tuplet Property Popup items */
-static enum {
+enum {
 	bracketITEM = 1,
 	accNumsITEM
-	} E_TupletItems;
+};
 
 /* Value position: Note/rest Shape Popup items */
-static enum {
+enum {
 	normalITEM = 1,
 	_____________1,
 	xShapeITEM,
@@ -153,39 +153,39 @@ static enum {
 	_____________2,
 	invisibleITEM,
 	allInvisITEM
-	} E_NoteRestShapeItems;
+};
 
 /* Property position: Slur Property Popup items */
-static enum {
+enum {
 	shapeposITEM = 1,
 	slurAppearanceITEM
-} E_SlurItems;
+};
 
 /* Property position: Barline Property Popup items */
-static enum {
+enum {
 	barlineVisibleITEM = 1,
 	barlineTypeITEM
-} E_BarlineItems;
+};
 
 /* Property position: PatchChange Property Popup items */
-static enum {
+enum {
 	patchChangeVisibleITEM = 1,
-} E_PatchChangeItems;
+};
 
 /* Property position: Dynamic Property Popup items */
-static enum {
+enum {
 	dynamVisibleITEM = 1,
 	dynamSmallITEM
-} E_DynamItems;	
+};
 
 /* Property position: Beamset Property Popup items */
-static enum {
+enum {
 	beamsetThicknessITEM = 1
-} E_BeamsetItems;	
+};
 
 /* Symbolic Dialog Item Numbers */
 
-static enum {
+enum {
 	BUT1_OK = 1,
 	BUT2_Cancel,
 	POP3,					/* Main popup useritem */
@@ -201,12 +201,12 @@ static enum {
 	RAD13_to,
 	EDIT14,
 	LAST_ITEM = EDIT14
-	} E_SetDlogItems;
+};
 	
 	
 /* -------------------------------------------------------------------  static globals -- */
 
-static enum {			/* Popup array indices */
+enum {			/* Popup array indices */
 	MAIN_SET = 0,
 	NOTE_PROPERTY,
 	TEXT_PROPERTY,
@@ -228,7 +228,7 @@ static enum {			/* Popup array indices */
 	BEAMSET_PROPERTY,
 	BEAMSET_THICKNESS,
 	HOW_MANY_POPS		/* number of structs in popup array */
-	} E_SetProperties;
+};
 	
 /* Current button (item number), for each radio group */
 static short group1 = RAD12_fromContext;
@@ -253,8 +253,6 @@ static short	slurPropertyChoice = 1;
 static short	barlinePropertyChoice = 1;
 static short	dynamicPropertyChoice = 1;
 static short	beamsetPropertyChoice = 1;
-static short	patchChangeChoice = 1;
-static short	panChoice = 1;
 
 static short	noteAppearanceChoice = 1;
 static short	noteSizeChoice = 1;
@@ -384,7 +382,7 @@ static Boolean SetStfBadValues(Document *doc, short staff)
 	short firstStaff, lastStaff, maxStaff;
 
 	/* Use the first selected note/rest to find the part, then check that every
-		selected note/rest is on one of that part's staves. */
+	   selected note/rest is on one of that part's staves. */
 		
 	firstStaff = lastStaff = -1;
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
@@ -520,9 +518,9 @@ Boolean IsSetEnabled(Document *doc)
 
 
 /* ---------------------------------------------------------------------- InitSetItems -- */
-/* Set global variables to indicate what types of objects are selected. Then, if
-type *pChoice is disabled, set it to the first one that's enabled. If any of the
-items are enabled, return True, else return False. */
+/* Set global variables to indicate what types of objects are selected. Then, if type
+*pChoice is disabled, set it to the first one that's enabled. If any of the items are
+enabled, return True, else return False. */
 
 static Boolean InitSetItems(Document *doc, short *pChoice)
 {
@@ -650,8 +648,8 @@ short FindMainEnabledItem(short currItem, Boolean up, Boolean wrap)
 
 /* ------------------------------------------------------------------------- SetDialog -- */
 /* If OK'ed, sets its parameters to the new value and to describe the object type
-and property to set to that value, and returns True. If Cancelled or an error
-occurs, returns False. */
+and property to set to that value, and returns True. If Cancelled or an error occurs,
+returns False. */
 
 Boolean SetDialog(
 				Document	*doc,
@@ -660,9 +658,9 @@ Boolean SetDialog(
 				short		*finalVal 			/* Return value (vvv) */
 				)
 {
-	short itemHit,type,okay=False,dialogOver,value,index;
-	Handle hndl; Rect box;
-	DialogPtr dlog; GrafPtr oldPort;		
+	short itemHit, type, okay=False, dialogOver, value, index;
+	Handle hndl;  Rect box;
+	DialogPtr dlog;  GrafPtr oldPort;		
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(SetFilter);

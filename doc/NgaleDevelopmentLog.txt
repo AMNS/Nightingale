@@ -1505,12 +1505,12 @@ when it's OK'd, and vice-versa when it's opened w/ an existing tempo string => i
 
 28 Aug. - 1 Sept.
 
-Why did Laurie have to change a bunch of goto's and cases in switches to get Ngale to
-compile w/ Xcode 7.3? As http://www.cplusplus.com/forum/general/168196/ says: "A jump
-to a labelled statement (case xxx and default are labelled statements) is not permitted
-to bypass the initialisation of an object a variable." Files needing changes: About.cp,
-CheckMerge.cp, DrawObject.cp, DurationPopUp.cp, FileInput.cp, NavServices.cp.
-(The change she made in Menu.cp was commenting out code for a different reason.)
+Laurie Spiegel got Ngale to compile w/ Xcode 7.3!! To do that, she had to change a bunch of
+goto's and cases in switches; why? As http://www.cplusplus.com/forum/general/168196/ says:
+"A jump to a labelled statement (case xxx and default are labelled statements) is not
+permitted to bypass the initialisation of an object a variable." Files needing changes:
+About.cp, CheckMerge.cp, DrawObject.cp, DurationPopUp.cp, FileInput.cp, NavServices.cp. (The
+change she made in Menu.cp was commenting out code for a different reason.)
 
 -------------------------------------------------------------------------------
 
@@ -1987,8 +1987,8 @@ other choice appears to be the default compiler, Apple LLVM 5.1; Clean => OK; Bu
 see -version for the available targets.'" What triple?? And see "--version" in WHAT? I
 suppose the compiler itself, but...
 
-The next day, results are slightly different!? Both Clean and Build fail with 162
-issues, all fatal. The list of fatal errors is preceded by
+The next day, results are slightly different!? Both Clean and Build fail with 162 issues,
+all fatal. The list of fatal errors is preceded by
 
   Target Integrity
     Invalid C/C++ compiler in target Nightingale: 4.0
@@ -2009,9 +2009,8 @@ This website has instructions for installing gcc 4.2.1 on OS 10.8, and says it w
 
        https://www.cyberciti.biz/faq/howto-apple-mac-os-x-install-gcc-compiler/
 
--- though NB their demo of it working is via command line, not Xcode! They show
-the output from _gcc --version_ as showing the gcc version, duh. But when I say
-_gcc --version_, I get
+-- though NB their demo of it working is via command line, not Xcode! They show the output
+from _gcc --version_ as showing the gcc version, duh. But when I say _gcc --version_, I get
 
  Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/usr/include/c++/4.2.1
  Apple LLVM version 5.1 (clang-503.0.40) (based on LLVM 3.4svn)
@@ -7948,15 +7947,69 @@ should go after the error checks just after SetHandleSize... Say, it's already t
 		
 ..though inactivated by the "if (0)". OK, so ??
 
-5 Oct.: SWITCH TO the Intel version -- and upgrade my MacBook Air to macOS 10.14 (Mojave).
-(Does Mojave even support QuickDraw?) Compile the latest code for Intel => it runs on the Air!
-Yippee! Ngale for Intel can even save a file it's created; but trying to open it says
-"Nightingale can't open the file. The file version is '601N'..."  I.e., it's either the correct
-file version, 'N106', being read w/ bytes in reverse order by a little-Endian processor, or
-w/bytes _written_ in reverse order by a little-Endian processor :-) . Which? The latter: the
-1st four bytes of the file really are '601N' in that order.
+5 Oct.: I've appealed to Doug McKenna for help with The Bug. In the meantime:
+
+SWITCH TO work on the Intel version -- and upgrade my MacBook Air to macOS 10.14 (Mojave).
+But does Mojave even support QuickDraw? Compile the latest code for Intel => it runs on the
+Air! Mojave is OK, yippee! Ngale for Intel can even save a file it's created; but trying to
+open it says "Nightingale can't open the file. The file version is '601N'..."  I.e., it's
+either the correct file version, 'N106', being read w/ bytes in reverse order by a
+little-Endian processor, or w/bytes _written_ in reverse order by a little-Endian processor
+:-) . Which? The latter: the 1st four bytes of the file really are '601N' in that order.
 
 Add "FIX_END(version)" to WriteFile(); save a file w/ Ngale for Intel  => Ngale for Intel and
 for PowerPC both recognize the version code, but find errors in the headers: not surprising,
 since I haven't thought about FIX_ENDing all the header fields!
 
+---------------------------------------------------------------------------------------
+
+7 - 15 Oct.
+
+To save files on little-Endian CPUs (Intel), most of the code to fix the headers already
+exists; FileOpen uses it to open files on Intel, and it certainly seems to work! Endian.c
+contains functions like EndianFixRect, which work directly on a parameter, so can be used as
+is; EndianFixConfig and EndianFixMIDIModNRTable, which work on the currently-installed
+Document; and EndianFixDocumentHdr, EndianFixScoreHdr, and EndianFixHeapHdr, which take a
+Document as a parameter. But -- like FIX_END -- almost all swap bytes in place. That's a big
+no-no: We can't use routines that do that, thereby corrupting the still-open file!
+
+For the routines that take a Document as a parameter, the easiest and safest solution is to
+copy the doc to a temporary doc and use the latter. Do that; on my MB Air, enter one note,
+Save =>
+
+	49:34 Dons-2017-Air Ngale[27594]:
+	info. Opened new score.  (DoFileMenu)
+	debug. DrawToolPalette: MemBitCount(palPortBits, 1000)=945 portRect tlbr=0,0,399,271
+	info. Respacing from L10 to L2...  (RespaceBars)
+	debug. DrawToolPalette: MemBitCount(palPortBits, 1000)=945 portRect tlbr=0,0,399,271
+	debug. firstMNNumber=-8540=0xffffdea4
+	debug. firstMNNumber=-23330=0xffffa4de
+	ERROR. Error saving the file. errCode=-990 errInfo=-991  (SaveError)
+	ERROR. Error ID=-990 (error code=-991).
+
+But the file is written; however, its size is 838,928,914 bytes!? Oops: need to FIX_END the
+strHdlSize in
+
+	errCode = FSWrite(refNum, &strHdlSize, *stringHdl);
+
+Done. On my MB Air, enter one note, Save => no complaints, and the file written is
+a reasonable size! Try to open it => no; it still has 8 header errors.
+
+Status of combinations of open/save, file format, processor type:
+
+open/save	file format processor	status
+----------	-----------	---------	-------
+Open		N105		PPC			OK except The Bug (clobbered beams & timesigs)
+"			"			Intel		OK: Ngale correctly says "file version too old to open"
+"			N106		PPC			OK
+"			"			Intel		Bad: Ngale either crashes or opens it badly garbled
+Save		N106		PPC			OK
+"			"			Intel		Bad: trying to open always gives 8 errors
+
+15 Oct.: Is The Bug still around? On G5, open 2ndMovementCSpp1-3.ngl =>
+
+(1) Debug Check complains about 7 Beamsets and a bunch of Timesigs; 40 errors.
+(2) Debug Check complains about ca. 8 Beamsets (some visibly bad) and a bunch of Timesigs; 67 errors.
+(3) Debug Check complains about ca. 7 Beamsets (some visibly bad) and a bunch of Timesigs; 40 errors.
+
+Yes, it's still around, and it's behaving more consistently than usual; that could help!

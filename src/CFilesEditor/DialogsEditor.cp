@@ -121,8 +121,7 @@ static Boolean LeftEndBadValues(Document *doc,
 }
 
 
-static enum
-{
+enum {
 	USER5=5,
 	FULLNAMES_FIRST_DI=6,							/* Item numbers */
 	ABBREVNAMES_FIRST_DI,
@@ -135,7 +134,7 @@ static enum
 	NONE_OTHER_DI,
 	NEED_OTHER_DI=21,
 	DIST_OTHER_DI=24
-} E_LeftEndItems;
+};
 
 Boolean LeftEndDialog(short *pFirstNames,
 						short *pFirstDist,	/* First system indent, in points */
@@ -149,7 +148,7 @@ Boolean LeftEndDialog(short *pFirstNames,
 	Handle hndl;
 	double inchNFDist, inchDFDist, inchNODist, inchDODist, inchTemp;
 	Document *doc=GetDocumentFromWindow(TopDocument);
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 
 	if (doc==NULL) {
 		//MissingDocument(LEFTEND_DLOG);
@@ -172,7 +171,7 @@ Boolean LeftEndDialog(short *pFirstNames,
 	SetPort(GetDialogWindowPort(dlog));
 	
 	/* Get the background panel rectangles, as defined by some user items, and
-		get them out of the way so they don't hide any items underneath */
+	   get them out of the way so they don't hide any items underneath */
 	
 	GetDialogItem(dlog, USER5, &type, &hndl, &firstRect);
 	GetDialogItem(dlog, USER16, &type, &hndl, &otherRect);		
@@ -219,6 +218,7 @@ Boolean LeftEndDialog(short *pFirstNames,
 			case OK:
 				newFirstDist = *pFirstDist;
 				newOtherDist = *pOtherDist;
+				
 				/* Get new indent values. Be careful to avoid roundoff error! */
 			
 				if (GetDlgDouble(dlog, DIST_FIRST_DI, &inchTemp))
@@ -378,8 +378,8 @@ short SpaceDialog(
 /* Set the space before the first measure (i.e., the invisible barline beginning the first
 measure) of the system. This should never be necessary, but every now and then for years,
 a bug in Nightingale has resulted in the space being much too wide, and there's no other
-way to fix it short of low-level editing of a file or in-memory data structure. --DAB,
-July 2020 */
+way to fix it short of low-level editing of a file or in-memory data structure. Besides,
+a user might simply prefer a different amount of space. --DAB, July 2020 */
 
 short BefMeasSpaceDialog(Document *doc, short dSpace)
 {
@@ -503,13 +503,13 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 /* Conduct dialog to get Ending symbol attributes from user. Returns True if OK'ed,
 False if cancelled. */
 
-static enum {
+enum {
 	ENDINGNUM_POP_DI=3,
 	ENDINGNUM_LABEL_DI,
 	CLOSED_OPEN_DI=5,
 	CLOSED_CLOSED_DI,
 	OPEN_CLOSED_DI
-} E_Endingitems;
+};
 
 static UserPopUp endingPopup;
 
@@ -590,12 +590,12 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 		if (!endingPopup.currentChoice) endingPopup.currentChoice = 2;
 		
 		/* Init the popup menu of labels on the first call only.
-		 * CER 5.18.2004: InitPopUp gets the menu from the resource, abandoning the previous
-		 * menu. If we init the popup but only build the menu for the first call, successive
-		 * calls have an empty menu.
-		 * If we init the popup and rebuild the menu for every call, do we have a memory leak
-		 * when we abandon the old menu?
-		 */
+		   CER 5.18.2004: InitPopUp gets the menu from the resource, abandoning the previous
+		   menu. If we init the popup but only build the menu for the first call, successive
+		   calls have an empty menu.
+		   If we init the popup and rebuild the menu for every call, do we have a memory leak
+		   when we abandon the old menu? */
+		   
 		if (firstCall) {
 			if (!InitPopUp(dlog, &endingPopup, ENDINGNUM_POP_DI, ENDINGNUM_LABEL_DI,
 								ENDING_MENU, endingPopup.currentChoice))
@@ -603,9 +603,8 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 		}
 		
 		/* Build the popup menu of labels on the first call only. 1st label is string 0. 
-		 * CER 5.18.2004: InitPopUp gets the menu from the resource, abandoning the previous
-		 * menu.
-		 */
+		   CER 5.18.2004: InitPopUp gets the menu from the resource, abandoning the previous
+		   menu. */
 		
 		if (firstCall) {
 			firstCall = False;
@@ -644,9 +643,9 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 				number = endingPopup.currentChoice-1;
 				if (number>=minDlogVal && number<=maxDlogVal) {
 					*pNewNumber = number;
-					if (group1==CLOSED_OPEN_DI)		*pNewCutoffs = 1;
-					else if (group1==OPEN_CLOSED_DI) *pNewCutoffs = 2;
-					else										*pNewCutoffs = 0;
+					if (group1==CLOSED_OPEN_DI)			*pNewCutoffs = 1;
+					else if (group1==OPEN_CLOSED_DI)	*pNewCutoffs = 2;
+					else								*pNewCutoffs = 0;
 				}
 				else {
 					GetIndCString(fmtStr, DIALOGERRS_STRS, 5);			/* "Ending/bracket number..." */
@@ -675,8 +674,7 @@ Cleanup:
 /* Conduct dialog to get information on how to number measures.  Delivers False on
 Cancel or error, True on OK. */
 
-static enum
-{
+enum {
 	NONE_DI=4,												/* Item numbers */
 	EVERYN_DI,
 	NMEAS_DI,
@@ -690,7 +688,7 @@ static enum
 	XSYSOFFSET_DI,
 	STARTPRINT1_DI=22,
 	STARTPRINT2_DI=23
-} E_MeasNumitems;
+};
 
 Boolean MeasNumDialog(Document *doc)
 {	
@@ -842,11 +840,10 @@ Boolean MeasNumDialog(Document *doc)
 
 
 /* --------------------------------------------------------------------- PageNumDialog -- */
-/* Conduct dialog to get info on how to number pages.  Delivers False on
-Cancel or error, True on OK. */
+/* Conduct dialog to get info on how to number pages.  Delivers False on Cancel or
+error, True on OK. */
 
-static enum
-{
+enum {
 	PNNONE_DI=4,												/* Item numbers */
 	PNEVERYBUT_DI,
 	PNEVERY_DI,
@@ -857,7 +854,7 @@ static enum
 	CENTER_DI,
 	RIGHT_DI,
 	ALTERNATE_DI
-} E_PageNumitems;
+};
 
 Boolean PageNumDialog(Document *doc)
 {
@@ -887,9 +884,9 @@ Boolean PageNumDialog(Document *doc)
 	SetPort(GetDialogWindowPort(dlog));
 		
 	/* Set up radio button groups. For now, we don't pay attention to the actual
-	 *	value of doc->startPageNumber, we just distinguish 3 relationships between
-	 *	it and doc->firstPageNumber.
-	 */
+	   value of doc->startPageNumber, we just distinguish 3 relationships between
+	   it and doc->firstPageNumber. */
+	
 	if		(doc->firstPageNumber>=doc->startPageNumber)	showGroup = PNEVERY_DI;
 	else if (doc->firstPageNumber+1==doc->startPageNumber)	showGroup = PNEVERYBUT_DI;
 	else													showGroup = PNNONE_DI;
@@ -989,15 +986,14 @@ Boolean PageNumDialog(Document *doc)
 
 /* ---------------------------------------------------------------------- OttavaDialog -- */
 
-static enum 
-{
+enum {
 	OCT8va_DI=3,			/* N.B. value returned depends on these...Dept. of Redundancy Dept. */
 	OCT15ma_DI,
 	OCT22ma_DI,
 	OCT8vaBassa_DI,
 	OCT15maBassa_DI,
 	OCT22maBassa_DI
-} E_OttavaItems;
+};
 
 /* Determine whether to initialize the ottava dialog with OCT8va or OCT8vaBassa.
 Returns True if the average position of all notes on <selStf> in the selection range
@@ -1016,7 +1012,10 @@ Boolean GetOttavaAlta(Document *doc, short selStf)
 				if (NoteSTAFF(aNoteL)==selStf && NoteSEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					yd += aNote->yd;
-/* If huge selection range, avoid overflow. FIXME: A better way: use long DDIST for yd. */
+					
+					/* If selection range is huge, avoid overflow. FIXME: A better way:
+					   use long DDIST for yd. */
+					   
 					if (yd > 32000 || yd < -32000) goto done;
 				}
 		}
@@ -1122,11 +1121,11 @@ Boolean FTupletCheck(Document *doc, TupleParam *ptParam)
 		if (VOICE_MAYBE_USED(doc, voice)) {
 			GetNoteSelRange(doc, voice, &voiceStartL, &voiceEndL, NOTES_ONLY);
 			if (voiceStartL!=NILINK && voiceEndL!=NILINK) {
-				/*
-				 * This voice has something selected. If it's not tuplable, or it is
-				 * but its numerator is different from that of the first selected voice,
-				 * we know the selection can't be Fancy Tupled.
-				 */
+			
+				/* This voice has something selected. If it's not tuplable, or it is
+				   but its numerator is different from that of the first selected voice,
+				   we know the selection can't be Fancy Tupled. */
+				   
 				if (!CheckMaxTupleNum(voice, voiceStartL, voiceEndL, &tempParam)) {
 					GetIndCString(fmtStr, DIALOGERRS_STRS, 16);			/* "numerator or denominator exceeds max..." */
 					sprintf(strBuf, fmtStr, voice);
@@ -1177,7 +1176,7 @@ static short			popUpHilited=True, show2dots=False;
 
 /* --------------------------------------- Declarations & Help Funcs. for TupletDialog -- */
 
-static enum	{
+enum {
 	TUPLE_NUM=4,										/* Item numbers */
 	TUPLE_PTEXT,
 	ED_TUPLE_DENOM,
@@ -1189,7 +1188,7 @@ static enum	{
 	TPOPUP_ITEM,
 	STAT_TUPLE_DENOM,
 	TDUMMY_ITEM
-} E_TupletDlgItems;
+};
 
 #define BREVE_DUR		3840
 #define WHOLE_DUR		1920
@@ -1261,12 +1260,12 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				return True;
 			ch = (unsigned char)evt->message;
 			field = GetDialogKeyboardFocusItem(dlog);
-			/*
-			 * The Dialog Manager considers only EditText fields as candidates for being
-			 *	activated by the tab key, so handle tabbing from field to field ourselves
-			 *	so that user can direct keystrokes to the pop-up as well as the EditText
-			 *	fields. But skip this if ED_TUPLE_DENOM isn't visible.
-			 */
+			
+			/* The Dialog Manager considers only EditText fields as candidates for being
+			   activated by the tab key, so handle tabbing from field to field ourselves
+			   so that user can direct keystrokes to the pop-up as well as the EditText
+			   fields. But skip this if ED_TUPLE_DENOM isn't visible. */
+			   
 			GetDialogItem(dlog, ED_TUPLE_DENOM, &anInt, &aHdl, &tdRect);
 			denomItemVisible = (tdRect.left<8192);
 			if (ch=='\t') {
@@ -1284,8 +1283,8 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 					ans = DurPopupKey(curPop, popKeys0dot, ch);
 					*itemHit = ans? TPOPUP_ITEM : 0;
 					HiliteGPopUp(curPop, True);
-					return True;						/* so no chars get through to TDUMMY_ITEM edit field */
-				}										/* NB: however, DlgCmdKey will let you paste into TDUMMY_ITEM! */
+					return True;			/* so no chars get through to TDUMMY_ITEM edit field */
+				}							/* NB: however, DlgCmdKey will let you paste into TDUMMY_ITEM! */
 			}
 			break;
 	}
@@ -1320,11 +1319,13 @@ static void DrawTupletItems(DialogPtr dlog, short /*ditem*/)
 		tupleWidth = StringWidth(tupleStr);
 		if (denomVis) {
 			/* Since Sonata has no ':', leave space and we'll fake it */
+			
 			tupleLen = tupleStr[0]+1;
 			tupleStr[tupleLen] = ' ';
 			xColon = tupleWidth;
 
 			/* Append the denominator string. */
+			
 			NumToSonataStr((long)accDenom, denomStr);
 			nchars = denomStr[0];
 			tupleStr[0] = nchars+tupleLen;
@@ -1396,7 +1397,7 @@ Boolean TupletDialog(
 	CenterWindow(GetDialogWindow(dlog), 50);
 
 	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);											/* popup code uses Get1Resource */
+	UseResFile(appRFRefNum);								/* popup code uses Get1Resource */
 
 	accNum = ptParam->accNum;
 	accDenom = ptParam->accDenom;
@@ -1577,8 +1578,7 @@ static Boolean IsSelInTupletNotTotallySel(Document *doc);
 static Boolean SDAnyBadValues(Document *, DialogPtr, Boolean, short, short, short);
 static pascal Boolean SetDurFilter(DialogPtr, EventRecord *, short *);
 
-static enum
-{
+enum {
 	SETLDUR_DI=3,
 	SDDURPOP_DI,
 	SHOW2DOTS_DI,
@@ -1589,7 +1589,7 @@ static enum
 	HALVEDURS_DI=12,
 	DOUBLEDURS_DI,
 	SETDURSTO_DI
-} E_SetDurItems;
+};
 
 static short setDurGroup;
 
@@ -1985,8 +1985,7 @@ static pascal Boolean TempoFilter(DialogPtr, EventRecord *, short *);
 static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr);
 static Boolean AllIsWell(DialogPtr dlog);
 
-static enum
-{
+enum {
 	VerbalDI=3,
 	TDurPopDI,
 	MetroDI,
@@ -1995,7 +1994,7 @@ static enum
 	EqualsDI,
 	TDummyFldDI=11,
 	ExpandDI
-} E_TempoItems;
+};
 
 static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
@@ -2293,11 +2292,11 @@ broken:
 
 /* ------------------------------------------------------------------- SetMBRestDialog -- */
 
-static enum {
+enum {
 	 MBR_NMEAS_DI=3,
 	 UP_MBR_DI=5,
 	 DOWN_MBR_DI
-} E_MBRestItems; 
+}; 
 
 Boolean SetMBRestDialog(Document */*doc*/, short *nMeas)
 {
@@ -2364,7 +2363,7 @@ Boolean SetMBRestDialog(Document */*doc*/, short *nMeas)
 
 /* ============================= RastralDialog and friends ============================= */
 
-static enum {
+enum {
 	SizeITM=3,										/* Staff Size dialog items */
 	RspITM,
 	StSampITM=6,
@@ -2373,7 +2372,7 @@ static enum {
 	PointsITM=11,
 	SelPartsITM=13,
 	AllPartsITM	
-} E_RastralItems;
+};
 
 #define STAFF_DOWN 35							/* Vertical position of staff in user item */
 
@@ -2692,14 +2691,14 @@ short RastralDialog(
 
 /* ============================ StaffLinesDialog and friends ============================ */
 
-static enum {
+enum {
 	STAFFLINES_DI=5,
 	SHOWLEDGERS_DI,
 	SELPARTS_DI,
 	ALLPARTS_DI
-} E_SLPartsItems;
+};
 
-static enum {		/* popup menu item numbers */
+enum {		/* popup menu item numbers */
 	SIX_LINES=1,
 	FIVE_LINES,
 	FOUR_LINES,
@@ -2707,7 +2706,7 @@ static enum {		/* popup menu item numbers */
 	TWO_LINES,
 	ONE_LINE,
 	ZERO_LINES
-} E_StaffLinesItems;
+};
 
 static UserPopUp staffLinesPopUp;
 static pascal Boolean SLFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
@@ -2887,14 +2886,14 @@ broken:
 
 /* --------------------------------------------------------------------- MarginsDialog -- */
 
-static enum {
+enum {
 	LMARG_DI=3,
 	TMARG_DI,
 	RMARG_DI,
 	BMARG_DI,
 	WIDTH_DI=13,
 	HEIGHT_DI=15
-} E_MarginsItems;
+};
 
 /* Conduct dialog to set margins. Passes margins in parameters; returns True for
 OK, False for Cancel. */
@@ -3035,7 +3034,7 @@ Boolean MarginsDialog(Document *doc,
 
 /* ================ LOCAL TYPES, VARIABLES & FUNCTIONS for KeySigDialog ================ */
 
-static enum {									/* Key Signature Dialog items */
+enum {									/* Key Signature Dialog items */
 	iKSUp=5,
 	iKSDown,
 	iKSStaff,
@@ -3043,7 +3042,7 @@ static enum {									/* Key Signature Dialog items */
 	iKSThisStaff,
 	iKSAllStaves,
 	iKSReplaceIt
-} E_KSItems;
+};
 
 short			sharps, flats;
 Rect			ksStaffRect, ksUpRect, ksDownRect;
@@ -3152,10 +3151,10 @@ Boolean KeySigDialog(short *sharpParam, short *flatParam, Boolean *onAllStaves,
 
 /* ------------------------------------------------------------------- SetKSDialogGuts -- */
 
-static enum {
+enum {
 	STAFFN_DI=4,
 	ALLOW_CHANGES_DI=8
-} E_KSGItems;
+};
 
 Boolean SetKSDialogGuts(short staffn, short *sharpParam, short *flatParam,
 								Boolean *pCanChange)
@@ -3368,7 +3367,7 @@ static void KSMoreSharps()
 
 /* =============== LOCAL TYPES, VARIABLES & FUNCTIONS for TimeSigDialog =============== */
 
-static enum {								/* Time Signature Dialog items */
+enum {								/* Time Signature Dialog items */
 	iTSNumUp=6,
 	iTSStaff,
 	iTSNumDown,
@@ -3382,7 +3381,7 @@ static enum {								/* Time Signature Dialog items */
 	iTSCut,
 	iTSNOnly,
 	iTSReplaceIt
-} E_TSItems;
+};
 
 short	numerator, denominator, radio1, radio2;
 Rect tsStaffRect, tsNumUpRect,tsNumDownRect, tsDenomUpRect, tsDenomDownRect;
@@ -3705,10 +3704,10 @@ void TrackArrow(Rect *arrowRect, TrackArrowFunc actionProc)
 
 /* ----------------------------------------------- RehearsalMarkDialog, ChordSymDialog -- */ 
  
-static enum {
+enum {
 	STXT3_Add = 3,
 	EDIT4_A
-} E_RHMItems;
+};
 
 Boolean RehearsalMarkDialog(unsigned char *string)
 {
@@ -3751,9 +3750,9 @@ Boolean RehearsalMarkDialog(unsigned char *string)
 	return False;
 }
 
-static enum {
+enum {
 	EDIT4_MP = 4
-} E_MPItems;
+};
 
 static Boolean CheckPatchVal(unsigned char *string) 
 {
@@ -3818,9 +3817,9 @@ Boolean PatchChangeDialog(unsigned char *string)
 	return False;
 }
 
-static enum {
+enum {
 	EDIT4_MPan = 4
-} E_MPanItems;
+};
 
 static Boolean CheckPanVal(unsigned char *string) 
 {
@@ -3915,12 +3914,12 @@ Boolean ChordFrameDialog(Document *doc,
 bar) to be a genuine barline or not. If the user hasn't said which to assume, ask them
 which they want. Returns True for barline, False for not barline. */
 
-static enum {
+enum {
 	BUT1_OK=1,
 	BARLINE_DI=3,
 	NOT_BARLINE_DI,
 	ASSUME_DI=6
-} E_SymIsBarlineItems;
+};
 
 static short group1;
 
@@ -4007,11 +4006,11 @@ Boolean SymbolIsBarline()
 has already said it's okay and not to ask again, just return True; else warn user and
 return if they say okay, False otherwise. */
 
-static enum {
+enum {
 	BUT1_InsAnyway=1,
 	BUT2_Cancel=2,
 	CHK3_Assume=5
-} E_MeasUnkDurItems;
+};
 
 Boolean InsMeasUnkDurDialog()
 {

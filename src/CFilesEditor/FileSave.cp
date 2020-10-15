@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018-20 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -18,41 +18,36 @@
 #include "FileUtils.h"
 #include "MidiMap.h"
 
-/* A version code is 'N' followed by three digits, e.g., 'N105': N-one-zero-five. Be
-careful: It's neither a number nor a valid C string nore a valid Pascal string! */
-static unsigned long version;							/* File version code read/written */
 
 /* Codes for object types being read/written or for non-read/write call when an I/O
-error occurs; note that all are negative. See HeapFileIO.c for additional, positive,
-codes. */
+error occurs. Note that all are negative. See file.h for additional, positive,
+codes. FIXME: Move these #defines to file.h! */
 
-enum {
-	HEADERobj=-999,
-	VERSIONobj,
-	SIZEobj,
-	CREATEcall,
-	OPENcall,				/* -995 */
-	CLOSEcall,
-	DELETEcall,
-	RENAMEcall,
-	WRITEcall,
-	STRINGobj,
-	INFOcall,
-	SETVOLcall,
-	BACKUPcall,
-	MAKEFSSPECcall,
-	NENTRIESerr = -899
-};
+#define	HEADERobj -999
+#define VERSIONobj -998
+#define SIZEobj -997
+#define CREATEcall -996
+#define OPENcall -995
+#define CLOSEcall -994
+#define DELETEcall -993
+#define RENAMEcall -992
+#define WRITEcall -991
+#define STRINGobj -990
+#define INFOcall -989
+#define SETVOLcall -988
+#define BACKUPcall -987
+#define MAKEFSSPECcall -986
+#define NENTRIESerr -899
 
 
 /* ----------------------------------------------------- Helper functions for SaveFile -- */
 
-static enum {
+enum {
 	SF_SafeSave,
 	SF_Replace,
 	SF_SaveAs,
 	SF_Cancel
-} E_SaveFileItems;
+};
 
 static long GetOldFileSize(Document *doc);
 static long GetFileSize(Document *doc,long vAlBlkSize);
@@ -282,60 +277,76 @@ return that error without continuing. Otherwise, return noErr. */
 static short WriteFile(Document *doc, short refNum)
 {
 	short			errCode;
-	short			lastType=LASTtype;
-	long			count, blockSize, strHdlSize;
+	short			lastType;
+	long			count, blockSize, strHdlSizeFile, strHdlSizeInternal;
 	unsigned long	fileTime;
 	Handle			stringHdl;
 	OMSSignature	omsDevHdr;
 	long			omsDevSize, fmsDevHdr;
-	long			cmDevSize, cmHdr;
-
-	/* Write version code */
+	long			cmDevSize, cmHdr;	
+	unsigned long	version;							/* File version code read/written */
+	Document		tempDoc;
 	
-	version = THIS_FILE_VERSION;
-	FIX_END(version);
+	/* Write version code with possibly end-fixed local copy. */
+	
+	version = THIS_FILE_VERSION;  FIX_END(version);
 	count = sizeof(version);
 	errCode = FSWrite(refNum, &count, &version);
 	if (errCode) return VERSIONobj;
 
-	/* Write current date and time */
+	/* Write current date and time with possibly end-fixed local copy. */
 	
-	GetDateTime(&fileTime);
+	GetDateTime(&fileTime);  FIX_END(fileTime);
 	count = sizeof(fileTime);
 	errCode = FSWrite(refNum, &count, &fileTime);
 	if (errCode) return VERSIONobj;
 
-	/* Write Document and Score headers */
+	/* Write Document and Score headers with possibly end-fixed local copy. */
+
+	count = sizeof(doc);
+	BlockMove(doc, &tempDoc, count);
 	
 	count = sizeof(DOCUMENTHDR);
-	errCode = FSWrite(refNum, &count, &doc->origin);
+	EndianFixDocumentHdr(&tempDoc);
+	errCode = FSWrite(refNum, &count, &tempDoc.origin);
 	if (errCode) return HEADERobj;
 	
 	count = sizeof(SCOREHEADER);
-	errCode = FSWrite(refNum, &count, &doc->headL);
+	EndianFixScoreHdr(&tempDoc);
+	errCode = FSWrite(refNum, &count, &tempDoc.headL);
 	if (errCode) return HEADERobj;
 	
+	/* Write LASTtype with possibly end-fixed local copy. */
+	
+	lastType = LASTtype;  FIX_END(lastType);
 	count = sizeof(lastType);
 	errCode = FSWrite(refNum, &count, &lastType);
 	if (errCode) return HEADERobj;
 
+	/* Write string pool size and string pool with possibly end-fixed size. */
+	
 	stringHdl = (Handle)GetStringPool();
 	HLock(stringHdl);
 
-	strHdlSize = GetHandleSize(stringHdl);
-	count = sizeof(strHdlSize);
-	errCode = FSWrite(refNum, &count, &strHdlSize);
+	strHdlSizeInternal = strHdlSizeFile = GetHandleSize(stringHdl);
+	FIX_END(strHdlSizeFile);
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "WriteFile: strHdlSizeInternal=%ld strHdlSizeFile=%ld\n",
+								strHdlSizeInternal, strHdlSizeFile);
+	count = sizeof(strHdlSizeFile);
+	errCode = FSWrite(refNum, &count, &strHdlSizeFile);
 	if (errCode) return STRINGobj;
 
-	errCode = FSWrite(refNum, &strHdlSize, *stringHdl);
+	errCode = FSWrite(refNum, &strHdlSizeInternal, *stringHdl);
 	HUnlock(stringHdl);
 	if (errCode) return STRINGobj;
 
+	/* Write heaps. */
+	
 	errCode = WriteHeaps(doc, refNum);
 	if (errCode) return errCode;
 
-	/* Write info for OMS */
-	
+	/* Write info for OMS. FIXME: FreeMIDI is obsolete and this code should be removed! */
+
 	count = sizeof(OMSSignature);
 	omsDevHdr = 'devc';
 	errCode = FSWrite(refNum, &count, &omsDevHdr);
@@ -351,7 +362,7 @@ static short WriteFile(Document *doc, short refNum)
 		1) long having the value 'FMS_' (just a marker)
 		2) fmsUniqueID (unsigned short) giving input device ID
 		3) fmsDestinationMatch union giving info about input device
-	   FIXME: FreeMIDI is obsolete and this should be removed! */
+	   FIXME: FreeMIDI is obsolete and this code should be removed! */
 			
 	count = sizeof(long);
 	fmsDevHdr = FreeMIDISelector;

@@ -6,7 +6,7 @@ running on a Little Endian processor (Intel or compatible), these functions corr
 the byte order in fields of more than one byte; if we're on a Big Endian processor
 (PowerPC), they do nothing. These should be called immediately after opening the file
 or resource to ensure everything is in the appropriate Endian form internally, and
-immediately before saving them them to ensure they're saved in Big Endian form. */
+immediately before saving them them to ensure everything is saved in Big Endian form. */
 
 /* THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at

@@ -1,8 +1,8 @@
 /*
  *	Initialize.c for Nightingale
  *	All one-time only initialization code is in this file or InitNightingale.c. (This
- *	was originally so they could be unloaded by the caller when we're through to reclaim
- *	heap space, but who cares anymore.  --DAB, Jan. 2020)
+ *	was originally so they could be unloaded by the caller after initialization to reclaim
+ *	heap space, but with gigabytes of RAM, who cares anymore.  --DAB, Jan. 2020)
  */
 
 /*
@@ -51,7 +51,7 @@ static void InitToolbox()
 }
 		
 
-static GrowZoneUPP growZoneUPP;			/* permanent GZ UPP */
+static GrowZoneUPP growZoneUPP;			/* permanent GrowZone UPP */
 
 #define STRBUF_SIZE 256
 
@@ -288,6 +288,7 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (!AddPrefsResource(resH)) return False;
 
 	/* Now copy the palette, palette char. map, and palette translation map and template. */
+	
 	resH = GetResource('PICT', ToolPaletteID);
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
@@ -318,6 +319,7 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (!AddPrefsResource(resH)) return False;
 
 	/* And finally copy the built-in MIDI parameter resource. */
+	
 	resH = GetResource('BIMI', THE_BIMI);
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
@@ -634,7 +636,7 @@ static void DisplayConfig()
 }
 
 
-#define ERR(fn) { nerr++; LogPrintf(LOG_WARNING, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
+#define ERR(fn) { nerr++; LogPrintf(LOG_WARNING, "err #%d, ", fn); if (firstErr==0) firstErr = fn; }
 
 /* Do a reality check for config values that might be bad. We can't easily check origin,
 toolsPosition, font IDs, or the fields that represent Boolean values or MIDI system info.

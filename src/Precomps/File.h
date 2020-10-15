@@ -1,5 +1,8 @@
 /* File.h for Nightingale */
 
+/* A version code is 'N' followed by three digits, e.g., 'N105': N-one-zero-five.
+Be careful: It's neither a valid C string nor a valid Pascal string! */
+
 #define THIS_FILE_VERSION 'N106'		/* Current file format version */
 #define FIRST_FILE_VERSION 'N105'		/* We can open all versions from this one to the current one */
 
