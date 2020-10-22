@@ -16,6 +16,11 @@ Be careful: It's neither a valid C string nor a valid Pascal string! */
 
 #define MEM_ERRINFO 99				/* ExpandFreeList failed */
 
+void DisplayDocumentHdr(short id, Document *doc);
+Boolean CheckDocumentHdr(Document *doc);
+void DisplayScoreHdr(short id, Document *doc);
+Boolean CheckScoreHdr(Document *doc);
+
 short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pfsSpec, long *fileVersion);
 void OpenError(Boolean, short, short, short);
 short SaveFile(Document *, Boolean);

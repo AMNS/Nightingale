@@ -303,6 +303,9 @@ static short WriteFile(Document *doc, short refNum)
 
 	/* Write Document and Score headers with possibly end-fixed local copy. */
 
+	if (DETAIL_SHOW) DisplayDocumentHdr(0, doc);
+	if (DETAIL_SHOW) DisplayScoreHdr(0, doc);
+
 	count = sizeof(doc);
 	BlockMove(doc, &tempDoc, count);
 	

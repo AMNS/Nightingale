@@ -1055,7 +1055,7 @@ Minor cleanup. Affects ChooseCharDlog, InfoDialog, Inval.
 
 -------------------------------------------------------------------------------
 
-7-9 Jan.
+7-9 Jan. 2017
 
 Implement "nudging" octave signs and tuplets via command-arrow keys. Affects Event.
 
@@ -2961,3 +2961,14 @@ Affects FileOpen.
 
 Minor cleanup. Affects File.h; DebugHighLevel, DialogsEditor, Endian, FileOpen, FileSave,
 Initialize, SetCommand.
+
+---------------------------------------------------------------------------------------
+
+17 - 20 Oct.
+
+Made saving a file display the document and score headers just as opening a file does,
+if the secret "DETAIL_SHOW" keys (shift and control) are down. Affects File.h; FileOpen,
+FileSave, FileUtils.
+
+Minor cleanup. Affects FileUtils, Initialize.
+

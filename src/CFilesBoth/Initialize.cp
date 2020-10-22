@@ -105,8 +105,13 @@ void Initialize()
 		{ BadInit(); ExitToShell(); }
 	GetTextConfig();								/* needs the Prefs file open */
 	
-//	char *foo = GetPrefsValue("foo");
-//	char *bazz = GetPrefsValue("bazz");
+#ifdef NOTYET
+	/* FIXME: Finish mplementing the Preferences text file! The code in
+	   Preferences.c passes simple tests like these. */
+	   
+	char *foo = GetPrefsValue("foo");
+	char *bazz = GetPrefsValue("bazz");
+#endif
 
 	if (!InitMemory(config.numMasters))				/* needs the CNFG resource */
 		{ BadInit(); ExitToShell(); }
@@ -140,10 +145,10 @@ void Initialize()
 	
 #define NoDISP_SCOREHDR_STRUCT
 #ifdef DISP_SCOREHDR_STRUCT
-	/* The following code is intended to be compiled once in a blue moon -- when the file
-	   format changes -- to collect information for Nightingale documentation. As of May
-	   2020, the info is in Nightingale Tech Note #1, the Nightingale Programmer's Quick
-	   Reference (NgaleProgQuickRef-TN1.txt). */
+	/* The following code is intended to be compiled once in a blue moon, when the file
+	   format changes, to collect information for Nightingale documentation. As of May
+	   2020, that info -- for format 'N106' -- is in Nightingale Tech Note #1, the
+	   Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt). */
 	{
 		Document *tD; DocumentN105 *tD5;
 		long noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff;
@@ -403,9 +408,9 @@ Boolean OpenPrefsFile()
 		
 //	if (result==fnfErr || result==dirNFErr) {
 	if (result==fnfErr) {
-		/* Note that the progress message has the setup filename embedded in it: this is
-		   lousy--it should use PREFS_FILE_NAME, of course--but ProgressMsg() can't
-		   handle that!*/
+		/* FIXME: Note that the progress message has the setup filename embedded in it.
+		   This is dumb -- it should use PREFS_FILE_NAME, of course -- but ProgressMsg()
+		   can't handle that!*/
 		   
 		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.\n", PToCString(setupFileName));
 		ProgressMsg(CREATE_PREFS_PMSTR, "");
@@ -443,7 +448,7 @@ Boolean OpenPrefsFile()
 	
 done:
 //	SetVol(volName,oldVol);
-	HSetVol(volName,oldVRefNum,oldDirID);
+	HSetVol(volName, oldVRefNum, oldDirID);
 	return okay;
 }
 
@@ -1332,6 +1337,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		short curResFile;  short defaultToolItem;
 		
 		/* Allocate a grid of characters from the 'PLCH' resource. */
+		
 		defaultToolItem = GetToolGrid(whichPalette);
 		if (!defaultToolItem) { BadInit(); ExitToShell(); }
 		

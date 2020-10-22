@@ -8004,7 +8004,7 @@ Open		N105		PPC			OK except The Bug (clobbered beams & timesigs)
 "			N106		PPC			OK
 "			"			Intel		Bad: Ngale either crashes or opens it badly garbled
 Save		N106		PPC			OK
-"			"			Intel		Bad: trying to open always gives 8 errors
+"			"			Intel		Bad: trying to open on PPC or Intel always gives 8 header errors
 
 15 Oct.: Is The Bug still around? On G5, open 2ndMovementCSpp1-3.ngl =>
 
@@ -8013,3 +8013,33 @@ Save		N106		PPC			OK
 (3) Debug Check complains about ca. 7 Beamsets (some visibly bad) and a bunch of Timesigs; 40 errors.
 
 Yes, it's still around, and it's behaving more consistently than usual; that could help!
+
+---------------------------------------------------------------------------------------
+
+16 - 20 Oct.
+
+...but I'm not going back to The Bug yet. Files saved on Intel give 8 errors in the Document
+header on opening; why? Open 1NoteD5_N106NativeIntel.ngl on PPC =>
+
+	Oct 16 07:28:22 DonDualG5 Ngale[4909]:
+	Notice. Checking Document header: err #4, err #5, err #7, err #9, err #10, err #11, err #12, err #13, Displaying Document header (ID 4):
+	info.   (1)origin.h=2  (2).v=2  (3)paperRect.top=6657  .left=112  .bottom=-9256  .right=-16385
+	info.   (4)origPaperRect.top=39  .left=-16385  .bottom=1  .right=0
+	info.   (5)marginRect.top=-9200  .left=-16385  .bottom=-9192  .right=-16385
+	info.   (6)currentSheet=6912  (7)numSheets=0  (8)firstSheet=-8072  (9)firstPageNumber=-16385  (10)startPageNumber=12829
+	info.   (11)numRows=-27771  (12)numCols=-7896  (13)pageType=-16385  (14)measSystem=-18983
+	info.   (15)headerFooterMargins.top=113  .left=27  .bottom=0  .right=10433
+	ERROR.  8 ERROR(S) FOUND (first bad field is no. 4).  (CheckDocumentHdr)
+
+At a glance, it looks like an Endian problem, but that doesn't explain numSheets = 0. Besides,
+WriteFile always calls EndianFixDocumentHdr! Hmmm -- it'd be helpful to see what the headers
+look like when they're written. Let's call DisplayDocumentHdr and DisplayDocumentHdr in
+WriteFile, if (!DETAIL_SHOW): done.
+
+17 Oct.: Doug McKenna points out the "Nightingale.rsrc" file in the github repository is 0
+bytes; that explains why SourceTree never notices it's changed! Of course it's because
+everything is in the resource fork; must keep it in .zip form => ??
+
+Doug also points out I'm endian-fixing only the Rect(?) in the palette PICT, but there are
+several other multibyte fields; that could explain why it's never drawn on Intel machines!
+
