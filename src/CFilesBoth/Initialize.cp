@@ -452,8 +452,8 @@ done:
 	return okay;
 }
 
-/* Adds the resource pointed to by resH to the current resource file. Returns
-True if OK, False if error. */
+/* Adds the resource pointed to by resH to the current resource file. Returns True if
+OK, False if error. */
 
 static Boolean AddPrefsResource(Handle resH)
 {
@@ -757,7 +757,9 @@ static Boolean CheckConfig()
 #define PAGEMARG_LEFT_DFLT in2pt(1)/2
 #define PAGEMARG_BOTTOM_DFLT in2pt(1)/2
 #define PAGEMARG_RIGHT_DFLT in2pt(1)/2
+
 	/* Check for ridiculously small or large margins. */
+	
 	if (!RectIsValid(config.pageMarg, 4, in2pt(5))) {
 		if (config.pageMarg.top<4 || config.pageMarg.top>in2pt(5))
 			{ config.pageMarg.top = PAGEMARG_TOP_DFLT; }
@@ -770,6 +772,7 @@ static Boolean CheckConfig()
 		ERR(35);
 	}
 	/* Check for margins crossing. */
+	
 	if (config.pageMarg.top+config.pageMarg.bottom>in2pt(6)) {
 		config.pageMarg.top = PAGEMARG_TOP_DFLT;
 		config.pageMarg.bottom = PAGEMARG_BOTTOM_DFLT;

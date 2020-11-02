@@ -306,9 +306,15 @@ static short WriteFile(Document *doc, short refNum)
 	if (DETAIL_SHOW) DisplayDocumentHdr(0, doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(0, doc);
 
-	count = sizeof(doc);
+	count = sizeof(tempDoc);
+//LogPrintf(LOG_DEBUG, "WriteFile: sizeof(doc)=%d sizeof(tempDoc)=%d\n", sizeof(doc), sizeof(tempDoc));
+//LogPrintf(LOG_DEBUG, "WriteFile1: &->origin=%lx &->littleEndian=%lx origin=%d,%d ->littleEndian=%u\n",
+//			&(doc->origin), &(doc->littleEndian), doc->origin.v, doc->origin.h, (short)(doc->littleEndian));
 	BlockMove(doc, &tempDoc, count);
-	
+LogPrintf(LOG_DEBUG, "WriteFile2: &.origin=%lx &.littleEndian=%lx origin=%d,%d .littleEndian=%u\n",
+			&(tempDoc.origin), &(tempDoc.littleEndian), tempDoc.origin.v, tempDoc.origin.h,
+			(short)(tempDoc.littleEndian));
+
 	count = sizeof(DOCUMENTHDR);
 	EndianFixDocumentHdr(&tempDoc);
 	errCode = FSWrite(refNum, &count, &tempDoc.origin);

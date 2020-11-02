@@ -243,7 +243,11 @@ Boolean NewDocScore(Document *doc)
 	doc->spacePercent = 100;
 	doc->nstaves = 0;
 	
-	doc->philler = 0;
+#if TARGET_RT_LITTLE_ENDIAN
+	doc->littleEndian = 0xF0;
+#else
+	doc->littleEndian = 0;
+#endif
 	doc->headerStrOffset = doc->footerStrOffset = 0;	/* Empty string */
 	doc->fillerPGN = doc->fillerMB = 0;
 	doc->filler1 = doc->filler2 = 0;
@@ -975,12 +979,12 @@ LINK AddSysInsertPt(Document *doc, LINK pL, short *where)
 /* Tell user there's no room to add a System to this Page and ask what they want to
 do. Return values are 0=Cancel, 1=reformat this Page only, 2=reformat to the end. */
 
-static enum {
+enum {
 	BUT1_OK=1,
 	BUT2_Cancel,
 	RAD4_RfmtPage=4,
 	RAD5_RfmtScore
-} ESysOverflow;
+};
 
 static short group1;
 

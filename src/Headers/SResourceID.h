@@ -45,6 +45,7 @@ enum {
 /* Picture ID's */
 
 enum {
+		BRACE_ID = 200,
 		AboutBoxPictID = 2000,				/* (Not used by Nightingale) */
 		ToolPaletteID,
 		ClavierPaletteID

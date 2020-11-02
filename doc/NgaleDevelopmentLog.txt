@@ -8040,6 +8040,37 @@ WriteFile, if (!DETAIL_SHOW): done.
 bytes; that explains why SourceTree never notices it's changed! Of course it's because
 everything is in the resource fork; must keep it in .zip form => ??
 
-Doug also points out I'm endian-fixing only the Rect(?) in the palette PICT, but there are
-several other multibyte fields; that could explain why it's never drawn on Intel machines!
+---------------------------------------------------------------------------------------
+
+21 - 24 Oct.
+
+Doug also points out SetupToolPalette endian-fixes only the Rect(?) in the palette
+PICT, but there are several other multibyte fields; that could explain why it's never drawn
+on Intel machines! (Yes, we call EndianFixPaletteGlobals before SetupToolPalette, but that
+has nothing to do with the PICT.)  Hmmm... Quickdraw.h says:
+
+struct Picture {
+  short               picSize;
+  Rect                picFrame;
+};
+
+That's all. But Doug points out there are _lots_ of fields in a PICT, as revealed by
+Resorcerer's Data button for PICT 2001! ?? Sigh. He thinks I should forget using a PICT
+on Intel and use a different format for the palette.
+
+---------------------------------------------------------------------------------------
+
+30 Oct.- 1 Nov.
+
+With the latest code, on PPC, New, insert a note, Save => looks OK; but try to open it =>
+8 errors! Try to open 1NoteC5_N106NativePPC.ngl (of 10 June) => same result!  Huh?
+
+Ah. Changes to WriteFile() to facilitate running on little-Endian (Intel) processors also
+introduced a disastrous bug; fixed. On PPC, try to open 1NoteC5_N106NativePPC.ngl => OK!
+On PPC, try to open 1NoteD5_N106NativeIntel.ngl => no (found 8 errors in header); try to
+open aIntel.ngl => no (various error messages, then crashes).
+
+On PPC, try to open 1NoteC5_N106NativePPC.ngl => no (various error messages, then hangs). On
+Intel, try to open 1NoteD5_N106NativeIntel.ngl => no (various error messages, then hangs);
+try to open aIntel.ngl => no ("The string pool is probably bad", etc., then hangs).
 

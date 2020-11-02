@@ -73,10 +73,10 @@ Offset	Length	Item
 4		4		Date/time file was written
 8		72		Document header
 80		2148	Score header
-2228	2		LASTtype (always 25)
+2228	2		LASTtype (always 25) (offset 2228 = 0x8B4)
 
 "N106" format files begin the same way, except bytes 0 to 3 are "N106", and the length
-of the Score header is 2492; thus LASTtype has offset 2572.
+of the Score header is 2492; thus LASTtype has offset 2572 = 0xA0C.
 
 The score header contains many, many fields; here's a kind of overview.
 

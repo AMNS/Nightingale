@@ -753,7 +753,7 @@ PushLock(CONNECTheap);
 						case toScreen:
 						case toBitmapPrint:
 						case toPICT:
-							bracePicH = (PicHandle)GetResource('PICT', 200);
+							bracePicH = (PicHandle)GetResource('PICT', BRACE_ID);
 							if (!GoodResource((Handle)bracePicH)) {
 								SysBeep(10);
 								LogPrintf(LOG_WARNING, "Can't get curly brace resource.  (DrawConnect)\n");
@@ -763,7 +763,7 @@ PushLock(CONNECTheap);
 							FIX_END(cBox.top); FIX_END(cBox.left);
 							FIX_END(cBox.bottom); FIX_END(cBox.right);
 							
-							/* PICT 200 was created from the Sonata 36 brace. */
+							/* The BRACE_ID PICT was created from the Sonata 36 brace. */
 							
 							width = ((cBox.right-cBox.left)*(UseTextSize(pContext->fontSize,
 																		doc->magnify))) / 36;
@@ -791,6 +791,7 @@ PushLock(CONNECTheap);
 				}
 				else {
 					/* Substituting brackets for curly brace; tweak before falling thru */
+					
 					curlyWider = ConnectDWidth(doc->srastral, CONNECTCURLY)
 										-ConnectDWidth(doc->srastral, CONNECTBRACKET);
 					xd += curlyWider;
@@ -804,7 +805,9 @@ PushLock(CONNECTheap);
 						pyTop = pContext->paper.top+d2p(dTop);
 						pyBot = pContext->paper.top+d2p(dBottom);
 						xwidth = CharWidth(MCH_topbracket) * .36275;
+						
 						/* Add fudge factor for weird round-off error at one magnification */
+						
 						if (doc->magnify == 0) xwidth++;
 						PenSize(xwidth>1 ? xwidth : 2, 1);
 						MoveTo(px, pyTop);  DrawChar(MCH_topbracket);
@@ -815,7 +818,8 @@ PushLock(CONNECTheap);
 							PenPat(NGetQDGlobalsGray());
 							PenMode(notPatBic);
 							
-							/* Assume brackets are almost square: good enuf for this */
+							/* Assume brackets are almost square: good enough for this */
+							
 							brackHt = CharWidth(MCH_topbracket)+1;
 							SetRect(&cBox, px, pyTop-brackHt, px+2*xwidth, pyBot+brackHt);
 							PaintRect(&cBox);

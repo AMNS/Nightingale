@@ -102,7 +102,7 @@ pages of documents. */
 	Rect		headerFooterMargins; /* Header/footer/pagenum margins  */						\
 	Rect		currentPaper;		/* Paper rect in window coords for cur.sheet (pixels) */	\
 	SignedByte	landscape;			/* Unused; was "Paper wider than it is high" */				\
-	SignedByte	philler;			/* Unused */
+	Byte		littleEndian;		/* nonzero = created on a little Endian CPU */
 
 typedef struct {
 	DOCUMENTHEADER

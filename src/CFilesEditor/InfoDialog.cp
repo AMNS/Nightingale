@@ -116,7 +116,7 @@ static Boolean LegalVert(Document *doc, short newval)
 
 /* Handle Get Info dialog for SYNCs and GRSYNCs. */
 
-static enum										/* Dialog item numbers */
+enum										/* Dialog item numbers */
 {
 	TYPE=4,
 	TWEAKED,
@@ -151,7 +151,7 @@ static enum										/* Dialog item numbers */
 	UNITLABEL_SYNC,
 	START_TIME=55,
 	RESPACE_IGNORES=57								/* Hidden & unused for now */
-} E_SyncInfoItems;
+};
 
 #define MAX_HORIZ_POS 1999
 #define MAX_SYNCINFO_INT 32000
@@ -634,7 +634,7 @@ Boolean PageRelGraphic(LINK pL)
 /* --------------------------------------------------------------------- GenInfoDialog -- */
 /* Handle Get Info dialog for miscellaneous object types. */
 
-static enum {
+enum {
 	LBL_PARAM1=16,
 	PARAM1,
 	LBL_PARAM2,
@@ -642,7 +642,7 @@ static enum {
 	UNITLABEL_GEN=21,
 	LBL_MEASTIME,
 	MEASTIME
-} E_GenInfoItems;
+};
 
 static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
@@ -1356,7 +1356,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 /* ------------------------------------------------------------------ ExtendInfoDialog -- */
 /* Handle Get Info dialog for "extended" object types. */
 
-static enum {
+enum {
 	LEFT_HORIZ=OBJ_HORIZ,
 	LEFT_VERT=SUBOBJ_HORIZ,
 	LBL_EXPARAM1=LBL_VERT,
@@ -1367,7 +1367,7 @@ static enum {
 	LBL_EXPARAM2=20,
 	EXPARAM2,
 	UNITLABEL_EX=23
-} E_ExtendInfoItems;
+};
 
 static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
@@ -1681,14 +1681,14 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 /* =========================================================== ModNRDialog and friends == */
 
-static enum {
+enum {
 	HORIZ=4,
 	MVERT=6,
 	DATA=8,
 	SHOW_MOD,
 	PREV,
 	NEXT
-} E_ModifierItems;
+};
 
 #define MAX_MODNRS 50		/* Max. modifiers per note/rest we can edit */
 

@@ -24,14 +24,18 @@ immediately before saving them them to ensure everything is saved in Big Endian 
 
 void EndianFixRect(Rect *pRect)
 {
+#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END(pRect->top);	FIX_END(pRect->left);
 	FIX_END(pRect->bottom);	FIX_END(pRect->right);
+#endif
 }
 
 void EndianFixPoint(Point *pPoint)
 {
+#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END(pPoint->v);
 	FIX_END(pPoint->h);
+#endif
 }
 
 unsigned short EndianFix_13BitField(unsigned short value);

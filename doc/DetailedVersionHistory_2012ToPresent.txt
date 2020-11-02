@@ -2952,9 +2952,9 @@ Minor cleanup. Affects DebugUtils, DSUtils, FileSave, FileUtils, Heaps, MIDIPlay
 
 7 - 15 Oct.
 
-Fixed bug: running on Intel, files written have the bytes of the date/time and many
-fields of the Document and Score headers in reverse order ("little Endian"). Affects
-FileSave.
+Fixed bug: running on Intel processors, which are "little Endian", files written have
+the bytes of the date/time and many fields of the Document and Score headers in reverse
+order. Affects FileSave.
 
 If running on Intel and user tries to open an 'N105' file, we now give an error message.
 Affects FileOpen.
@@ -2971,4 +2971,17 @@ if the secret "DETAIL_SHOW" keys (shift and control) are down. Affects File.h; F
 FileSave, FileUtils.
 
 Minor cleanup. Affects FileUtils, Initialize.
+
+---------------------------------------------------------------------------------------
+
+30 Oct. - 2 Nov.
+
+Replaced an unused byte in the DOCUMENTHEADER with a flag to say if the score was
+created on a little-Endian processor (presumably Intel). Affects NDocAndCnfgTypes.h;
+Score.
+
+Fixed a recently-created and disastrous bug in saving files. Affects FileSave.
+
+Minor cleanup. Affects .rsrc (renamed PICTs), SResourceID.h; DrawObject, Endian,
+InfoDialog, Initialize.
 
