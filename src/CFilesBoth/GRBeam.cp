@@ -49,7 +49,7 @@ void CreateGRBeams(Document *doc, short v)
 
 	if (beamL)
 		if (doc->selStartL==FirstInBeam(beamL))				/* Does sel. start at beam's 1st note? */
-			doc->selStartL = beamL;									/* Yes, add the beam to the selection */
+			doc->selStartL = beamL;							/* Yes, add the beam to the selection */
 }
 
 
@@ -654,7 +654,7 @@ short AnalyzeGRBeamset(LINK beamL, short *nPrimary, short nSecs[])
 {
 	LINK noteBeamL, grSyncL, aGRNoteL;
 	PANOTEBEAM	pNoteBeam;
-	register short iel;
+	short iel;
 	short startend, upOrDown[MAXINBEAM], firstUpOrDown, nestLevel, nPrim;
 	short whichWay;
 	
@@ -687,7 +687,7 @@ short AnalyzeGRBeamset(LINK beamL, short *nPrimary, short nSecs[])
 	}
 
 	/* No secondary beams, since we allow beaming grace notes only when all have
-		the same duration. */
+	   the same duration. */
 		
 	for (iel = 0; iel<LinkNENTRIES(beamL); iel++)
 		nSecs[iel] = 0;
@@ -699,22 +699,25 @@ short AnalyzeGRBeamset(LINK beamL, short *nPrimary, short nSecs[])
 
 /* -------------------------------------------------------------- BuildGRBeamDrawTable -- */
 /* Given a GRBeamset and information about it, normally compiled by AnalyzeGRBeamset,
-build a table of beam segments to be drawn by DrawGRBEAMSET or by the beam-
-dragging feedback routine. */
+build a table of beam segments to be drawn by DrawGRBEAMSET or by the beam-dragging
+feedback routine. Returns -1 if there's a problem, else the number of segments to draw.
+
+This is similar to but simpler than BuildBeamDrawTable(), the equivalent function for
+normal (non-grace-note) beams. */
 
 short BuildGRBeamDrawTable(LINK beamL,
-							short whichWay,	/* -1=all stems down, +1=all up, 0=in both directions */
-							short nPrimary,
-							short nSecs[],
-							BEAMINFO beamTab[],
-							short tabLen
-							)
+					short whichWay,		/* -1=all stems down, +1=all up, 0=in both directions */
+					short nPrimary,
+					short nSecs[],		/* Stacking info for secondary beams */
+					BEAMINFO beamTab[],
+					short tabLen
+					)
 {
 	LINK noteBeamL;
 	PANOTEBEAM pNoteBeam;
 	short startend[MAXINBEAM], nFrac[MAXINBEAM];
 	short i, k, direction, curLevel, minUsedLev, maxUsedLev;
-	register short iel, count;
+	short iel, nBeamNow;
 	
 	noteBeamL = FirstSubLINK(beamL);
 	for (iel = 0; iel<LinkNENTRIES(beamL); iel++, noteBeamL=NextNOTEBEAML(noteBeamL)) {
@@ -724,71 +727,72 @@ short BuildGRBeamDrawTable(LINK beamL,
 	}
 	
 	for (i = 0; i<tabLen; i++)
-		beamTab[i].stop = -1;
+		beamTab[i].stop = -1;							/* Mark all segments "unfinished" */
 		
 	direction = (whichWay? whichWay : -1);
 	
 	/* First put primary beams into the table of beam segments (BEAMINFOs). */
 	
 	curLevel = -direction;
-	for (count = 0; count<nPrimary; count++) {
+	for (nBeamNow = 0; nBeamNow<nPrimary; nBeamNow++) {
 		curLevel += direction;
-		beamTab[count].start = 0;
-		beamTab[count].startLev = beamTab[count].stopLev = curLevel;
+		beamTab[nBeamNow].start = 0;
+		beamTab[nBeamNow].startLev = beamTab[nBeamNow].stopLev = curLevel;
 	}
 	startend[0] -= nPrimary;
 	if (direction>0) { minUsedLev = 0; maxUsedLev = nPrimary-1; }
 	else				  { maxUsedLev = 0; minUsedLev = -(nPrimary-1); }
 	
-	/*
-	 * Build the rest of the table by combining the beam stacking information computed
-	 * by AnalyzeGRBeamset with the three commands that are stored in NOTEBEAMs, namely
-	 * "start non-fractional beams", "do fractional beams", and "end non-fractional
-	 * beams". The commands are processed in that order. Fractional beams require no
-	 * additional information, so their BEAMINFOs are completely filled in as soon as
-	 * they're encountered.
-	 */
+	/* Build the rest of the table by combining the beam stacking information we've
+	   been given with the three commands that are stored in NOTEBEAMs, namely
+	   "start non-fractional beams", "do fractional beams", and "end non-fractional
+	   beams". The commands are processed in that order. Fractional beams require no
+	   additional information, so their BEAMINFOs are completely filled in as soon as
+	   they're encountered. */
+	   
 	noteBeamL = FirstSubLINK(beamL);
 	for (iel = 0; iel<LinkNENTRIES(beamL); iel++, noteBeamL=NextNOTEBEAML(noteBeamL)) {
 		if (startend[iel]>0) {											/* Start new BEAMINFOs */
 			direction = (nSecs[iel]>0? 1 : -1);
 			for (i = 0; i<startend[iel]; i++) {
 				curLevel = (direction>0? ++maxUsedLev : --minUsedLev);
-				beamTab[count].start = iel;
-				beamTab[count].startLev = beamTab[count].stopLev = curLevel;
-				count++;
-				if (count>=tabLen) {
-					MayErrMsg("BuildGRBeamDrawTable: table size exceeded.");
+				beamTab[nBeamNow].start = iel;
+				beamTab[nBeamNow].startLev = beamTab[nBeamNow].stopLev = curLevel;
+				nBeamNow++;
+				if (nBeamNow>=tabLen) {
+					MayErrMsg("Beam at L%ld is too complex to draw.  (BuildGRBeamDrawTable)");
 					return -1;
 				}
 			}
 		}
 		
 		if (nFrac[iel]>0) {
-			MayErrMsg("BuildGRBeamDrawTable: can't have fractional grace beams.");
+			MayErrMsg("Can't have fractional grace beams.  (BuildGRBeamDrawTable)");
 			return -1;
 		}
 		
-		if (startend[iel]<0) {											/* Finish up existing BEAMINFOs */
-			k = count-1;
+		if (startend[iel]<0) {			/* Finish BEAMINFOs for beams in progress that end here */
+			k = nBeamNow-1;
 			for (i = 0; i<-startend[iel]; i++) {
-				for ( ; k>=-1; k--)
-					if (beamTab[k].stop<0) break;
-				if (k<0) {
-					MayErrMsg("BuildGRBeamDrawTable: couldn't find an unfinished segment.");
+				short kFound = -1;
+				for ( ; k>=0; k--)
+					if (beamTab[k].stop<0) { kFound = k; break; }
+				if (kFound<0) {
+					MayErrMsg("Grace beam L%ld has a bad startend sequence: couldn't find an unfinished beam. (BuildGRBeamDrawTable)",
+								(long)beamL);
 					return -1;
 				}
-				if (beamTab[k].startLev>=0) maxUsedLev--;
+				if (beamTab[kFound].startLev>=0) maxUsedLev--;
 				else minUsedLev++;
-				beamTab[k].stop = iel;
-				beamTab[k].fracGoLeft = 0;								/* Will be ignored */
+				beamTab[kFound].stop = iel;
+				beamTab[kFound].fracGoLeft = 0;					/* Will be ignored */
 			}
 		}
 	}
 
 #ifdef BDEBUG
 	if (DETAIL_SHOW) {
-		for (i = 0; i<count; i++) {
+		for (i = 0; i<nBeamNow; i++) {
 			if (i==0) LogPrintf(LOG_DEBUG, " Beam at %d ", beamL);
 			else	  LogPrintf(LOG_DEBUG, "            ");
 			LogPrintf(LOG_DEBUG, "seg %d: start=%d stop=%d level=%d fracGoLeft=%d\n",
@@ -800,7 +804,7 @@ short BuildGRBeamDrawTable(LINK beamL,
 	for (i = tabLen-1; i>=0; i--)
 		if (beamTab[i].stop>=0) return i+1;
 	
-	return -1;											/* Found no beam segments: something is wrong */
+	return -1;										/* Found no beam segments: something is wrong */
 }
 
 
@@ -849,9 +853,9 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 	staff = BeamSTAFF(beamL);
 	voice = BeamVOICE(beamL);
 	
-	/* Fill grNotesInBeam[], an array of the notes in the beamVoice in the bpSyncs, in
-	 *	order to call GetCrossStaff to get the stfRange.
-	 */
+	/* Fill grNotesInBeam[], an array of the notes in the beamVoice in the bpSyncs, and
+	   get the stfRange. */
+	   
 	pB = GetPBEAMSET(beamL);
 	crossStaff = False;
 	if (pB->crossStaff) {
@@ -863,6 +867,7 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 	firstSys = pB->firstSystem;
 
 	/* If beam's voice is not being "looked" at, dim it */
+	
 	dim = (outputTo==toScreen && !LOOKING_AT(doc, voice));
 	if (dim) PenPat(NGetQDGlobalsGray());
 	
@@ -882,16 +887,15 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 	stdBeamThick = LNSPACE(pContext)/2;
 	qdBeamThick = (stdBeamThick<p2d(1)? p2d(1) : stdBeamThick);
 
-	/*
-	 * Beams on downstemmed grace notes are drawn "sitting" on the position of their
-	 * notes' ystems, while beams on upstemmed notes are drawn "hanging" from that pos.
-	 * We do this so the beam will always be contained within the specified stem
-	 * length. This means that, for "center" beams (those that contain both down- and
-	 * upstemmed notes), vertical positions of upstems and downstems must overlap. We
-	 * achieve this by extending all upstems in center beams when the beams are
-	 * created (see CreateGRBEAMSET et al). However, to draw such beams correctly, we
-	 *	need more information.
-	 */
+	/* Beams on downstemmed grace notes are drawn "sitting" on the position of their
+	   notes' ystems, while beams on upstemmed notes are drawn "hanging" from that pos.
+	   We do this so the beam will always be contained within the specified stem
+	   length. This means that, for "center" beams (those that contain both down- and
+	   upstemmed notes), vertical positions of upstems and downstems must overlap. We
+	   achieve this by extending all upstems in center beams when the beams are
+	   created (see CreateGRBEAMSET et al). However, to draw such beams correctly, we
+	   need more information. */
+	   
 	whichWay = AnalyzeGRBeamset(beamL, &nPrimary, nSecs);
 	allOneWay = (whichWay!=0);
 	extension = (allOneWay? 0 : beamThick+(nPrimary-1)*flagYDelta);
@@ -907,10 +911,9 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 		beamGRSyncs[iel] = pNoteBeam->bpSync;
 	}
 	
-	/*
-	 * Fill the <dLeft> array with measure positions, but (for speed) only at
-	 * locations that start or end beams, since those are the only ones we'll use.
-	 */
+	/* Fill the <dLeft> array with measure positions, but (for speed) only at locations
+	   that start or end beams, since those are the only ones we'll use. */
+	   
 	for (iel = 0; iel<LinkNENTRIES(beamL); iel++)
 		dLeft[iel] = -1;
 	for (n = 0; n<beamCount; n++) {
@@ -923,9 +926,8 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 			dLeft[iel] = tempContext.measureLeft;
 		}
 
-	/*
-	 * We've got all the information we need. Draw the beam segments.
-	 */
+	/* We've got all the information we need. Draw the beam segments. */
+	
 	rectSet = False;
 	
 	for (n = 0; n<beamCount; n++) {

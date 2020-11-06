@@ -2985,3 +2985,13 @@ Fixed a recently-created and disastrous bug in saving files. Affects FileSave.
 Minor cleanup. Affects .rsrc (renamed PICTs), SResourceID.h; DrawObject, Endian,
 InfoDialog, Initialize.
 
+---------------------------------------------------------------------------------------
+
+3 - 6 Nov.
+
+Fixed bug: code in BuildBeamDrawTable() and GRBuildBeamDrawTable() can reference an array
+element with subscript -1, and it uses the loop index after the loop terminates, causing
+questionable error messages and perhaps doing other bad things, e.g., crashes. Affects
+Beam, GRBeam.
+
+Minor cleanup. Affects NObjTypes.h; Beam, DialogsBoth, FileConversion, GRBeam.

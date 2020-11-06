@@ -362,7 +362,7 @@ typedef struct {
 	LINK		bpSync;				/* link to Sync containing note/chord */
 	SignedByte	startend;			/* No. of beams to start/end (+/-) on note/chord */
 	Byte		fracs;				/* No. of fractional beams on note/chord */ 
-	Byte		fracGoLeft;			/* Fractional beams point left? */
+	Byte		fracGoLeft;			/* Do fractional beams point left? */
 	Byte		filler;				/* unused */
 } ANOTEBEAM, *PANOTEBEAM;
 
@@ -385,11 +385,11 @@ enum {
 };
 
 typedef struct {
-	SignedByte	start;
-	SignedByte	stop;
-	SignedByte	startLev;			/* Vertical slot no. (0=end of stem; -=above) */
-	SignedByte	stopLev;			/* Vertical slot no. (0=end of stem; -=above) */
-	SignedByte	fracGoLeft;
+	SignedByte	start;				/* Index of starting note/rest in BEAMSET */
+	SignedByte	stop;				/* Index of ending note/rest in BEAMSET */
+	SignedByte	startLev;			/* Vertical slot no. at start (0=end of stem; -=above) */
+	SignedByte	stopLev;			/* Vertical slot no. at end (0=end of stem; -=above) */
+	SignedByte	fracGoLeft;			/* Do fractional beams point left? */
 } BEAMINFO;
 
 

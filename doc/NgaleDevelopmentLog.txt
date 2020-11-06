@@ -8074,3 +8074,31 @@ On PPC, try to open 1NoteC5_N106NativePPC.ngl => no (various error messages, the
 Intel, try to open 1NoteD5_N106NativeIntel.ngl => no (various error messages, then hangs);
 try to open aIntel.ngl => no ("The string pool is probably bad", etc., then hangs).
 
+---------------------------------------------------------------------------------------
+
+3 - 5 Nov.
+
+Doug McK. points out two problems with this code in BuildBeamDrawTable() (and
+GRBuildBeamDrawTable) after the comment "Finish BEAMINFOs for beams in progress":
+
+	for ( ; k>=-1; k--)
+		if (beamTab[k].stop<0) break;
+	if (k<0) {
+		MayErrMsg("Bad startend sequence at L%ld: couldn't find an unfinished segment. (BuildBeamDrawTable)",
+					(long)beamL);
+		return -1;
+	}
+
+First, it can reference an array element with subscript -1; second, it uses the loop index
+after the loop terminates! These _are_ causing questionable error messages, and could be
+doing other bad things, e.g., crashes. Fixed.
+
+Run our standard test: open open 2ndMovementCSpp1-3.ngl several times =>
+
+(1) Debug Check complains about 5 Beamsets and a bunch of Timesigs; 31 errors. Go to p. 1 crashes.
+(2) Debug Check complains about 7 Beamsets (some visibly bad) and a bunch of Timesigs; 26 errors.
+(3) Debug Check complains about 7 Beamsets (some visibly bad) and a bunch of Timesigs; 34 errors.
+
+Again there are many complaints from DebugConvCheckBeamsets(). The earliest in the main loop of
+ConvertObjSubobjs any occurs in these three tests is with pL = 865, though again the corrupted
+Beamsets are way earlier!

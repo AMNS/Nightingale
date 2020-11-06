@@ -35,11 +35,11 @@ extern short minDlogVal, maxDlogVal;
 /* Conduct dialog to get (part-relative user, not internal) voice number to look
 at.  Returns new voice number or CANCEL_INT for Cancel. */
 
-static enum
+enum
 {
 	PARTNAME_DI=9,
 	NEW_DI
-} E_LookAtItems;
+};
 
 
 short LookAtDialog(Document *doc, short initVoice, LINK partL)
@@ -68,12 +68,12 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 	if (dlog) {
 		SetPort(GetDialogWindowPort(dlog));
 		
-		SetDialogDefaultItem(dlog,OK);
+		SetDialogDefaultItem(dlog, OK);
 	
-		UseNumberFilter(dlog,NUMBER_DI,UpRect_DI,DownRect_DI);
+		UseNumberFilter(dlog, NUMBER_DI, UpRect_DI, DownRect_DI);
 
 		voice = (initVoice<0? 1 : initVoice);
-		PutDlgWord(dlog,NUMBER_DI,voice,True);
+		PutDlgWord(dlog, NUMBER_DI, voice, True);
 		pPart = GetPPARTINFO(partL);
 		strcpy(partName, (strlen(pPart->name)>14? pPart->shortName : pPart->name));
 		PutDlgString(dlog,PARTNAME_DI,CToPString(partName), False);
@@ -93,7 +93,7 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 				if (ditem==OK || ditem==Cancel) break;
 				if (ditem==NEW_DI) {
 					voice = NewVoiceNum(doc, partL);
-					PutDlgWord(dlog,NUMBER_DI,voice,True);
+					PutDlgWord(dlog, NUMBER_DI, voice, True);
 				}
 			}
 				
@@ -124,12 +124,12 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 
 /* ------------------------------------------------------------------ GoToDialog et al -- */
 
-static enum
+enum
 {
 	GOTOSTXT_DI=7,
 	GOTOPOP_DI,
 	GOTORANGE_DI
-} E_GoToItems;
+};
 
 #define ANYMARK "\p"
 #define RMARKSTR(rMark)		( PCopy(GetPAGRAPHIC(FirstSubLINK(rMark))->strOffset) )

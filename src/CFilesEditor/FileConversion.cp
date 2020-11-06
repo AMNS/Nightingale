@@ -449,8 +449,9 @@ Error:
 
 #include "DebugUtils.h"		/* for DCheck1NEntries() */
 
+#define BAD_BEAMLINK_TABSIZE 100
 static short debugBadBeamsetCount;
-static LINK badBeamLink[20];
+static LINK badBeamLink[BAD_BEAMLINK_TABSIZE];
 
 static void InitDebugConvert();
 static void DebugConvertObj(Document *doc, LINK objL);
@@ -492,6 +493,8 @@ static void DebugConvCheckBeamsets(Document *doc, LINK objL, char *label)
 {
 	LINK lastSyncL;
 	Boolean isARepeat;
+	
+	if (debugBadBeamsetCount>=BAD_BEAMLINK_TABSIZE) return;
 	
 	for (LINK qL=1; qL<objL; qL++)
 		if (BeamsetTYPE(qL)) {

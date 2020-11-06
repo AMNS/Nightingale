@@ -1365,7 +1365,7 @@ short AnalyzeBeamset(LINK beamL, short *nPrimary,
 {
 	short nSStart[MAXINBEAM], nSEnd[MAXINBEAM];
 	LINK noteBeamL, syncL, aNoteL;
-	register short iel;
+	short iel;
 	short startend, firstStemUpDown, nestLevel, nPrim, i, n;
 	short stemsWay, iStart;
 	Boolean stemUp;
@@ -1424,7 +1424,7 @@ short AnalyzeBeamset(LINK beamL, short *nPrimary,
 			for (n = 0; n<nSEnd[iel]; n++) {
 				for (i = iel; i>0 && nSStart[i]==0; i--)
 					;
-				nSStart[i]--;									/* This one's been taken care of */
+				nSStart[i]--;								/* This one's been taken care of */
 				iStart = i;
 				if (iel==LinkNENTRIES(beamL)-1 && ANTI_CORNER)
 					stemUp = (stemUpDown[iStart]>0);
@@ -1445,7 +1445,7 @@ short AnalyzeBeamset(LINK beamL, short *nPrimary,
 }
 
 
-#define BEAMTABLEN 300	/* Should be enough: even 127 alternate 128ths & 8ths need only 257 */
+#define BEAMTABLEN 300	/* Should always be enough: even 127 alternate 128ths & 8ths need only 257 */
 
 /* ---------------------------------------------------------------- BuildBeamDrawTable -- */
 /* Given a Beamset and information about it, normally compiled by AnalyzeBeamset, build a
@@ -1454,18 +1454,20 @@ routine. Returns -1 if there's a problem, else the number of segments to draw. *
 
 short BuildBeamDrawTable(
 				LINK beamL,
-				short whichWay,				/* -1=all stems down, +1=all up, 0=in both directions */
-				short nPrimary, short nSecsA[], short nSecsB[],
+				short whichWay,					/* -1=all stems down, +1=all up, 0=in both directions */
+				short nPrimary,
+				short nSecsA[], short nSecsB[],	/* Stacking info for secondary beams Above & Below */
 				SignedByte stemUpDown[],
-				BEAMINFO beamTab[],			/* Output */
-				short tabLen				/* Max. size of beamTab */
+				BEAMINFO beamTab[],				/* Output */
+				short tabLen					/* Max. size of beamTab */
 				)
 {
 	LINK noteBeamL, syncL, noteL;
 	short startend[MAXINBEAM], nFrac[MAXINBEAM];
-	Boolean fracGoLeft; char level[BEAMTABLEN];
+	Boolean fracGoLeft;
+	char level[BEAMTABLEN];
 	short i, k, direction, curLevel, minUsedLev, maxUsedLev, prevNSecsA, prevNSecsB;
-	short iel, count;
+	short iel, nBeamNow;
 
 	noteBeamL = FirstSubLINK(beamL);
 	for (iel = 0; iel<LinkNENTRIES(beamL); iel++, noteBeamL=NextNOTEBEAML(noteBeamL)) {
@@ -1474,107 +1476,108 @@ short BuildBeamDrawTable(
 	}
 	
 	for (i = 0; i<tabLen; i++)
-		beamTab[i].stop = -1;							/* Initialize all segments to unfinished */
+		beamTab[i].stop = -1;							/* Mark all segments "unfinished" */
 		
 	direction = (whichWay? whichWay : -1);
 	
 	/* First put primary beams into the table of beam segments (BEAMINFOs). */
 	
 	curLevel = -direction;
-	for (count = 0; count<nPrimary; count++) {
+	for (nBeamNow = 0; nBeamNow<nPrimary; nBeamNow++) {
 		curLevel += direction;
-		beamTab[count].start = 0;
-		level[count] = curLevel;
+		beamTab[nBeamNow].start = 0;
+		level[nBeamNow] = curLevel;
 	}
 	startend[0] -= nPrimary;
 	if (direction>0)	{ minUsedLev = 0; maxUsedLev = nPrimary-1; }
 	else				{ maxUsedLev = 0; minUsedLev = -(nPrimary-1); }
 	
-	/*
-	 * Build the rest of the table by combining the beam stacking information computed
-	 * by AnalyzeBeamset with the three commands that are stored in NOTEBEAMs, namely
-	 * "start non-fractional beams", "do fractional beams", and "end non-fractional
-	 * beams". The commands are processed in that order. Fractional beams require no
-	 * additional information, so their BEAMINFOs are completely filled in as soon as
-	 * they're encountered.
-	 */
+	/* Build the rest of the table by combining the beam stacking information we've
+	   been given with the three commands that are stored in NOTEBEAMs, namely
+	   "start non-fractional beams", "do fractional beams", and "end non-fractional
+	   beams". The commands are processed in that order. Fractional beams require no
+	   additional information, so their BEAMINFOs are completely filled in as soon as
+	   they're encountered. */
 
 	noteBeamL = FirstSubLINK(beamL);
 	for (iel = 0; iel<LinkNENTRIES(beamL); iel++, noteBeamL=NextNOTEBEAML(noteBeamL)) {
-		if (startend[iel]>0) {									/* Start new BEAMINFOs */
+	
+		if (startend[iel]>0) {					/* Start new BEAMINFOs at this note/chord */
 			prevNSecsA = (iel==0? 0 : nSecsA[iel-1]);
 			prevNSecsB = (iel==0? 0 : nSecsB[iel-1]);
+			
 			/* If neither above nor below has an increase, we must be starting new
-			 *	secondaries after a secondary beam break, and <direction> is as of the
-			 * the last starting, so it's already correct.
-			 */
+			   secondaries after a secondary beam break, and <direction> is as of the
+			   the last starting, so it's already correct. */
+			   
 			if (nSecsA[iel]>prevNSecsA) direction = -1;
 			else if (nSecsB[iel]>prevNSecsB) direction = 1;
 			for (i = 0; i<startend[iel]; i++) {
 				curLevel = (direction>0? ++maxUsedLev : --minUsedLev);
-				beamTab[count].start = iel;
-				level[count] = curLevel;
-				count++;
-				if (count>=tabLen) {
-					MayErrMsg("Table size exceeded at L%ld  (BuildBeamDrawTable).", (long)beamL);
+				beamTab[nBeamNow].start = iel;
+				level[nBeamNow] = curLevel;
+				nBeamNow++;
+				if (nBeamNow>=tabLen) {
+					MayErrMsg("Beam at L%ld is too complex to draw.  (BuildBeamDrawTable)", (long)beamL);
 					return -1;
 				}
 			}
 		}
 		
-		if (nFrac[iel]>0) {										/* Fill BEAMINFO for frac.beam */
+		if (nFrac[iel]>0) {				/* Fill in BEAMINFO for fractional beams on this note/chord */
 			syncL = NoteBeamBPSYNC(noteBeamL);
 			fracGoLeft = NoteBeamFRACGOLEFT(noteBeamL);
 			noteL = FindMainNote(syncL, BeamVOICE(beamL));				
 			direction = ( (NoteYSTEM(noteL) < NoteYD(noteL)) ? 1 : -1 );
 			for (i = 0; i<nFrac[iel]; i++) {
 				curLevel = (direction>0? maxUsedLev+(i+1) : minUsedLev-(i+1));
-				beamTab[count].start = beamTab[count].stop = iel;
-				level[count] = curLevel;
-				beamTab[count].fracGoLeft = fracGoLeft;			
-				count++;
+				beamTab[nBeamNow].start = beamTab[nBeamNow].stop = iel;
+				level[nBeamNow] = curLevel;
+				beamTab[nBeamNow].fracGoLeft = fracGoLeft;			
+				nBeamNow++;
 			}
 		}
 		
-		if (startend[iel]<0) {									/* Finish up existing BEAMINFOs */
-			k = count-1;
+		if (startend[iel]<0) {			/* Finish BEAMINFOs for beams in progress that end here */
+			k = nBeamNow-1;
 			for (i = 0; i<-startend[iel]; i++) {
-				for ( ; k>=-1; k--)
-					if (beamTab[k].stop<0) break;
-				if (k<0) {
-					MayErrMsg("Bad startend sequence at L%ld: couldn't find an unfinished segment. (BuildBeamDrawTable)",
+				short kFound = -1;
+				for ( ; k>=0; k--)
+					if (beamTab[k].stop<0) { kFound = k; break; }
+				if (kFound<0) {
+					MayErrMsg("Beam L%ld has a bad startend sequence: couldn't find an unfinished beam. (BuildBeamDrawTable)",
 								(long)beamL);
 					return -1;
 				}
-				if (level[k]>=0) maxUsedLev--;
+				if (level[kFound]>=0) maxUsedLev--;
 				else minUsedLev++;
-				beamTab[k].stop = iel;
-				beamTab[k].fracGoLeft = 0;					/* Will be ignored */
+				beamTab[kFound].stop = iel;
+				beamTab[kFound].fracGoLeft = 0;					/* Will be ignored */
 			}
 		}
 	}
 
 	/* At this point, beam levels are relative to the top primary beam. For ease of
-			drawing, convert them to be relative to each stem end. */
+	   drawing, convert them to be relative to each stem end. */
 			
-		for (i = 0; i<count; i++) {
-			beamTab[i].startLev = beamTab[i].stopLev = level[i];
-			
-			iel = beamTab[i].start;
-			if (stemUpDown[iel]<0 && nSecsB[iel]>0)			beamTab[i].startLev -= nSecsB[iel];
-			else if (stemUpDown[iel]>0 && nSecsA[iel]>0)	beamTab[i].startLev += nSecsA[iel];
-			
-			if (beamTab[iel].start!=beamTab[iel].stop) {
-				iel = beamTab[i].stop;
-				if (stemUpDown[iel]<0 && nSecsB[iel]>0)		beamTab[i].stopLev -= nSecsB[iel];
-				else if (stemUpDown[iel]>0 && nSecsA[iel]>0) beamTab[i].stopLev += nSecsA[iel];
-			}
+	for (i = 0; i<nBeamNow; i++) {
+		beamTab[i].startLev = beamTab[i].stopLev = level[i];
+		
+		iel = beamTab[i].start;
+		if (stemUpDown[iel]<0 && nSecsB[iel]>0)			beamTab[i].startLev -= nSecsB[iel];
+		else if (stemUpDown[iel]>0 && nSecsA[iel]>0)	beamTab[i].startLev += nSecsA[iel];
+		
+		if (beamTab[iel].start!=beamTab[iel].stop) {
+			iel = beamTab[i].stop;
+			if (stemUpDown[iel]<0 && nSecsB[iel]>0)		beamTab[i].stopLev -= nSecsB[iel];
+			else if (stemUpDown[iel]>0 && nSecsA[iel]>0) beamTab[i].stopLev += nSecsA[iel];
 		}
+	}
 
 	for (i = tabLen-1; i>=0; i--)
 		if (beamTab[i].stop>=0) return i+1;
 	
-	return -1;											/* Found no beam segments: something is wrong */
+	return -1;										/* Found no beam segments: something is wrong */
 }
 
 
@@ -1628,7 +1631,7 @@ void DrawBEAMSET(Document *doc, LINK beamL, CONTEXT context[])
 					notesInBeam[MAXINBEAM], beamSyncs[MAXINBEAM];
 	register PCONTEXT pContext;
 	CONTEXT			tempContext;
-	Rect			beamRect, oldBeamRect,			/* Aux. rects for computing objRect. N.B. Really DRects. */
+	Rect			beamRect, oldBeamRect,			/* Aux. rects for computing objRect. NB: Really DRects. */
 					newBeamRect;
 	Rect			tempRect;
 	Boolean			rectSet,						/* True if objRect aux. rects inited */
