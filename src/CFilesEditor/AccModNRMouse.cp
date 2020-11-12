@@ -20,11 +20,11 @@ static Boolean GetModNRBbox(Document *, LINK, LINK, LINK, Rect *);
 static void DoModNRDrag(Document *, Point, LINK, LINK, LINK, Rect *);
 static void ShowModNRParams(Document *doc, SHORTSTD, SHORTSTD);
 
-static enum {			/* return values for FindAccModNR */
+enum {			/* return values for FindAccModNR */
 	NOHIT=0,
 	MODNR,
 	ACCIDENTAL
-} E_ModNRItems;
+};
 
 //#define USE_BITMAP	/* use offscreen bitmap when dragging; otherwise use srcXor drawing mode */
 
@@ -42,15 +42,15 @@ static short FindAccModNR(Document *doc, Point pt,
 	pageL = GetCurrentPage(doc);
 	endL = RightLINK(LastObjOnPage(doc, pageL));
 	
-	/* Find the measure the click is in. Note that this measure may not contain
-	 * the bbox of the symbol (modNR or accidental) we've clicked on, if that symbol
-	 * isn't inside its system rect, or simply isn't inside its measure. If the symbol
-	 * is BELOW its system rect or is in the measure to the RIGHT of the one its note is in,
-	 * we'll still eventually reach the symbol's note. But if our search finds nothing,
-	 * we must start again at the top of the page and search to the original startL, just
-	 * in case we've clicked on a symbol that's ABOVE its system rect or is in the measure
-	 * to the LEFT of its note's measure.
-	 */
+	/* Find the measure the click is in. Note that this measure may not contain the
+	   bbox of the symbol (modNR or accidental) we've clicked on, if that symbol isn't
+	   inside its system rect, or simply isn't inside its measure. If the symbol ia
+	   BELOW its system rect or is in the measure to the RIGHT of the one its note is
+	   in, we'll still eventually reach the symbol's note. But if our search finds nothing,
+	   we must start again at the top of the page and search to the original startL, just
+	   in case we've clicked on a symbol that's ABOVE its system rect or is in the measure
+	   to the LEFT of its note's measure. */
+	   
 	startL = NILINK;
 	firstMeasL = LSSearch(pageL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	for (measL = firstMeasL; SamePage(measL, firstMeasL); measL = LinkRMEAS(measL)) {
@@ -94,9 +94,10 @@ static short FindAccModNR(Document *doc, Point pt,
 				}
 			}
 		}
+		
 		/* If we've reached this point, the first search found nothing, so we must
-		 * start over at the top of the page.
-		 */
+		   start over at the top of the page. */
+		   
 		if (startL == pageL) return NOHIT;			/* we've already searched the whole page */
 		endL = startL;
 		startL = pageL;
@@ -174,9 +175,9 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 #define ADD_SLOP_THRESH 6	/* in pixels */
 #define SLOP_TO_ADD 2		/* in pixels */
 
-/* Returns box surrounding the accidental in paper-rel coordinates. Much of the
- * code borrowed from DrawACC.
- */
+/* Returns box surrounding the accidental in paper-rel coordinates. Much of the code is
+borrowed from DrawACC. */
+
 static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBBox)
 {
 	DDIST	noteXD, noteYD, accXOffset, xdNorm;
@@ -212,11 +213,9 @@ static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBB
 	accBBox->left = d2p(xdNorm) - d2p(accXOffset);
 	accBBox->right = accBBox->left + charWid;
 
-	/*
-	 * If it's a courtesy accidental, increase width to allow for the parentheses.
-	 * This code doesn't take into account <small> accidentals, whose parens are
-	 * closer to the accidental; shouldn't make too much difference, though.
-	 */
+	/* If it's a courtesy accidental, increase width to allow for the parentheses.
+	   This code doesn't take into account <small> accidentals, whose parens are
+	   closer to the accidental; shouldn't make too much difference, though. */
 	aNote = GetPANOTE(noteL);
 	if (aNote->courtesyAcc) {
 		d8thSp = LNSPACE(&context)/8;
@@ -282,8 +281,8 @@ PushLock(NOTEheap);
 	ShowAccidentalParams(doc, aNote->xmoveAcc);					/* display this now in case we never drag */
 
 	/* Adjust xdNorm for chordNoteToL notes. Don't change xdNorm, because DrawAcc
-	 * already does that for us.
-	 */
+	   already does that for us. */
+	   
 	xdNormAdjusted = chordNoteToL?
 			xdNorm-SizePercentSCALE(HeadWidth(LNSPACE(&context))) : xdNorm;
 	accOriginH = d2p(xdNormAdjusted) - d2p(accXOffset);
@@ -472,11 +471,11 @@ static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 /* Handle dragging the modifier. */
 /* FIXME: Shouldn't let user drag it off the page! */
 
-static enum {
+enum {
 	NOCONSTRAIN = 0,
 	H_CONSTRAIN,
 	V_CONSTRAIN
-} E_ModNRConstrainItems;
+};
 
 static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK modNRL,
 							Rect *origModNRBbox)					/* in paper coords */

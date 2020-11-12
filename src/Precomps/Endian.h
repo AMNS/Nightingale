@@ -8,8 +8,8 @@
 else if (n==4) { v = CFSwapInt32BigToHost(v); }						\
 else { LogPrintf(LOG_ERR, "PROGRAM ERROR: FIX_ENDIAN called with size %d\n", n); exit(147); }
 #else
-#define FIX_END(v) v
-#define FIX_ENDIAN(n, v) v
+#define FIX_END(v) v = v
+#define FIX_ENDIAN(n, v) v = v
 #endif
 
 void		EndianFixRect(Rect *pRect);

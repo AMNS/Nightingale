@@ -82,8 +82,6 @@ enum {
 	BAD_VERSION_ERR
 };
 
-extern void StringPoolEndianFix(StringPoolRef pool);
-extern short StringPoolProblem(StringPoolRef pool);
 
 #include <ctype.h>
 
@@ -262,7 +260,8 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (errCode) { errInfo = STRINGobj; goto Error; }
 	HUnlock((Handle)doc->stringPool);
 	SetStringPool(doc->stringPool);
-	StringPoolEndianFix(doc->stringPool);
+	EndianFixStringPool(doc->stringPool);
+	if (DETAIL_SHOW) DisplayStringPool(doc->stringPool);
 	strPoolErrCode = StringPoolProblem(doc->stringPool);
 	if (strPoolErrCode!=0) {
 		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (OpenFile)\n", (long)strPoolErrCode);

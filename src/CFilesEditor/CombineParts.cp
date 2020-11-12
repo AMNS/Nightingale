@@ -17,7 +17,7 @@ static short NumPartStaves(LINK partL);
 
 /* ---------------------------------------------------- CombinePartsDlog and DoExtract -- */
 
-static enum {
+enum {
 	COMBINEINPLACE_DI=4,
 	EXTRACTTOSCORE_DI,
 	SAVE_DI=8,
@@ -25,12 +25,12 @@ static enum {
 	REFORMAT_DI,
 	SPACE_DI=12,
 	SPACEBOX_DI=14
-} E_CombineItems1;
+};
 
-static enum {
+enum {
 	FIRSTPART_DI=6,
 	LASTPART_DI,
-} E_CombineItems;
+};
 
 /* Maintain state of items subordinate to the Respace and Reformat checkbox. If that
 checkbox is not checked, hide its subordinate edit field, and dim the whole area.
@@ -212,11 +212,11 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	NormalizePartFormat(doc);
 
 	InitAntikink(doc, doc->headL, doc->tailL);
-	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False); /* Start at first measure */
+	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False);		/* Start at first measure */
 	RespaceBars(doc, pL, doc->tailL,
-					RESFACTOR*(long)spacePercent, False, False);		/* Don't reformat! */
+					RESFACTOR*(long)spacePercent, False, False);	/* Don't reformat! */
 	doc->spacePercent = spacePercent;
-	Antikink();															/* FIXME: SHOULD BE AFTER Reformat! */
+	Antikink();														/* FIXME: SHOULD BE AFTER Reformat! */
 
 	Reformat(doc, RightLINK(doc->headL), doc->tailL,
 				changeSBreaks, (careMeasPerSys? measPerSys : 9999),
@@ -225,7 +225,7 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	(void)DelRedTimeSigs(doc, True, &firstDelL, &lastDelL);
 }
 
-/* Need one document to hold combined parts */
+/* Need one document to hold combined parts. FIXME: This is useless as written! */
 
 static Boolean EnoughFreeDocs()
 {
@@ -268,71 +268,59 @@ static Boolean WithinStfRange(short stf, short start, short end)
 }
 	
 static Boolean HasGroupConnect(LINK connectL) 
-	{
-		LINK aConnectL = FirstSubLINK(connectL);
-		for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) 
-		{
-			PACONNECT aConnect = GetPACONNECT(aConnectL);
-			if (aConnect->connLevel==GroupLevel) {
-				return True;				
-			}
-		}
-		
-		return False;
+{
+	LINK aConnectL = FirstSubLINK(connectL);
+	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
+		PACONNECT aConnect = GetPACONNECT(aConnectL);
+		if (aConnect->connLevel==GroupLevel) return True;				
 	}
 	
+	return False;
+}
+	
 static Boolean HasSpanningGroup(LINK connectL, short firstStf, short lastStf) 
-	{
-		LINK aConnectL = FirstSubLINK(connectL);
-		for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) 
-		{
-			short stfAbove = ConnectSTAFFABOVE(aConnectL);
-			short stfBelow = ConnectSTAFFBELOW(aConnectL);
-			if (ConnectCONNLEVEL(aConnectL)==GroupLevel) {
-				if (stfAbove <= firstStf && stfBelow >= lastStf) {
-					return True;
-				}
-			}
+{
+	LINK aConnectL = FirstSubLINK(connectL);
+	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
+		short stfAbove = ConnectSTAFFABOVE(aConnectL);
+		short stfBelow = ConnectSTAFFBELOW(aConnectL);
+		if (ConnectCONNLEVEL(aConnectL)==GroupLevel) {
+			if (stfAbove <= firstStf && stfBelow >= lastStf) return True;
 		}
-		
-		return False;
 	}
+	
+	return False;
+}
 
 static Boolean HasContainedGroup(LINK connectL, short firstStf, short lastStf) 
-	{
-		LINK aConnectL = FirstSubLINK(connectL);
-		for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) 
-		{
-			short stfAbove = ConnectSTAFFABOVE(aConnectL);
-			short stfBelow = ConnectSTAFFBELOW(aConnectL);
-			if (ConnectCONNLEVEL(aConnectL)==GroupLevel) {
-				if (stfAbove >= firstStf && stfBelow <= lastStf) {
-					return True;
-				}
-			}
+{
+	LINK aConnectL = FirstSubLINK(connectL);
+	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
+		short stfAbove = ConnectSTAFFABOVE(aConnectL);
+		short stfBelow = ConnectSTAFFBELOW(aConnectL);
+		if (ConnectCONNLEVEL(aConnectL)==GroupLevel) {
+			if (stfAbove >= firstStf && stfBelow <= lastStf) return True;
 		}
-		
-		return False;
 	}
+	
+	return False;
+}
 
 static Boolean HasOverlappingGroup(LINK connectL, short firstStf, short lastStf) 
-	{
-		LINK aConnectL = FirstSubLINK(connectL);
-		for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) 
-		{
-			short stfAbove = ConnectSTAFFABOVE(aConnectL);
-			short stfBelow = ConnectSTAFFBELOW(aConnectL);
-			if (ConnectCONNLEVEL(aConnectL)==GroupLevel) {
-				if (WithinStfRange(stfAbove, firstStf, lastStf) ||
-					 WithinStfRange(stfBelow, firstStf, lastStf)) 
-				{
+{
+	LINK aConnectL = FirstSubLINK(connectL);
+	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
+		short stfAbove = ConnectSTAFFABOVE(aConnectL);
+		short stfBelow = ConnectSTAFFBELOW(aConnectL);
+		if (ConnectCONNLEVEL(aConnectL)==GroupLevel) {
+			if (WithinStfRange(stfAbove, firstStf, lastStf) ||
+				 WithinStfRange(stfBelow, firstStf, lastStf)) 
 					return True;
-				}
-			}
 		}
-		
-		return False;
 	}
+	
+	return False;
+}
 
 static Boolean CheckGroupLevelConnects(Document *doc, LINK firstPartL, LINK lastPartL)
 	{

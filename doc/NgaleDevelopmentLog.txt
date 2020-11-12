@@ -8072,7 +8072,9 @@ open aIntel.ngl => no (various error messages, then crashes).
 
 On PPC, try to open 1NoteC5_N106NativePPC.ngl => no (various error messages, then hangs). On
 Intel, try to open 1NoteD5_N106NativeIntel.ngl => no (various error messages, then hangs);
-try to open aIntel.ngl => no ("The string pool is probably bad", etc., then hangs).
+try to open aIntel.ngl => no ("The string pool is probably bad", etc., then hangs). So
+on Intel, we're definitely still writing f*ck-up files, almost certainly because of failure
+to fix Endian-ness.
 
 ---------------------------------------------------------------------------------------
 
@@ -8102,3 +8104,46 @@ Run our standard test: open open 2ndMovementCSpp1-3.ngl several times =>
 Again there are many complaints from DebugConvCheckBeamsets(). The earliest in the main loop of
 ConvertObjSubobjs any occurs in these three tests is with pL = 865, though again the corrupted
 Beamsets are way earlier!
+
+---------------------------------------------------------------------------------------
+
+9 - 11 Nov.
+
+On PPC, try to open aIntel.ngl =>
+
+	Nov  9 06:31:42 DonDualG5 Ngale[56887]:
+	Notice. Checking Score header: No errors found.  (CheckScoreHdr)
+	info. stringPoolSize=306  (OpenFile)
+	ERROR. PROGRAM ERROR: The string pool is probably bad (code=8).  (OpenFile)
+
+OpenFile() calls StringPoolEndianFix, so the latter almost certainly isn't fixing enough;
+in fact all it does is 	FIX_END(p->sizeJump) , with  StringPool *p . Add several FIX_ENDs to
+StringPoolEndianFix; write DisplayStringPool and call it from OpenFile => done. Create a
+new aIntel.ngl => No change.
+
+Ah-hah! Search for "EndianFix" shows what a mess I have: mucho inconsistencies of calling the =
+six or eight EndianFix functions!
+
+The FIX_ENDIAN and FIX_END macros when TARGET_RT_LITTLE_ENDIAN is undefined correctly do nothing,
+but the compiler gives 53 "statement has no effect" warnings. Redefine them to avoid the warnings
+=> looks OK, and only 677 compiler warnings vs. 735 just before this change! (That's a decrease
+of 58; I don't know why 5 more went away, but unlikely it's worth pursuing.)
+
+Run our standard test: open open 2ndMovementCSpp1-3.ngl several times =>
+
+(1) Debug Check complains about one Beamset (and the usual Timesigs); 48 errors. Garbage beams drawn.
+(2) Debug Check complains about 8 Beamsets (and the usual  Timesigs); 31 errors. Garbage beams drawn.
+(3) Debug Check complains about 4 Beamsets (and the usual  Timesigs); 33 errors. Some beams not drawn.
+
+
+?????????? REDO BELOW!!!!!
+Retest combinations of open/save, file format, processor type; results:
+
+open/save	file format processor	status
+----------	-----------	---------	-------
+Open		N105		PPC			??OK except The Bug (clobbered beams & timesigs)
+"			"			Intel		??OK: Ngale correctly says "file version too old to open"
+"			N106		PPC			??OK
+"			"			Intel		??Bad: Ngale either crashes or opens it badly garbled
+Save		N106		PPC			??OK
+"			"			Intel		??Bad: trying to open on PPC or Intel always gives 8 header errors

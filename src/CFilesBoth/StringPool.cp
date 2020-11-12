@@ -22,7 +22,7 @@
 	#define UnusedArg(x)	x = x;
 #endif
 
-// Constants and macros
+/* Constants and macros */
 
 #ifndef nil
 	#define nil			((void *)0)
@@ -35,49 +35,49 @@
 
 #define MAXPOOLNEST		32
 
-enum {									// Types of strings in separate bits
+enum {									/* Types of strings in separate bits */
 	C_String = 1,
 	P_String = 2
-	
 	};
 
-// Be careful: in Ngale, MAXSAVE must be 8 for compatibility with existing files!
+/* Be careful: in Nightingale, MAXSAVE must be 8 for compatibility with existing files! */
 
 #define MAXSAVE		8
 
-// Since we're storing entire string pools as blocks in outside files, and
-// have been doing so since 68K time, we have to ensure that the header
-// struct alignment is stable. (No problem in THINK C 7, since it's 68K-only.)
+/* Since we're storing entire string pools as blocks in outside files, and have been
+doing so since the days of Motorola 68000 CPUs, we have to ensure that the header struct
+alignment is stable. (This was no problem in THINK C 7, since it's 68K-only.) */
 
-// MAS: force alignment to mac68k on all platforms
+/* MAS: force alignment to mac68k on all platforms */
+
 #pragma options align=mac68k
 
 typedef struct OpaqueStringPool {
-		Byte nulltype;						// Type of null string: both C and Pascal
-		Byte nullstr;						// Always 0
-		StringRef firstFreeByte;			// Next available byte in pool for allocating
-		StringRef topFreeByte;				// 1 more than last free byte in pool
-		StringRef bottomByte[MAXSAVE];		// Clear context for save/restore
-		short saveLevel;					// Save/restore stack level
-		short lockLevel;					// How many times pool has been locked
-		long sizeJump;						// How many bytes to increase pool size by
+		Byte nulltype;						/* Type of null string: both C and Pascal */
+		Byte nullstr;						/* Always 0 */
+		StringRef firstFreeByte;			/* Next available byte in pool for allocating */
+		StringRef topFreeByte;				/* 1 more than last free byte in pool */
+		StringRef bottomByte[MAXSAVE];		/* Clear context for save/restore */
+		short saveLevel;					/* Save/restore stack level */
+		short lockLevel;					/* How many times pool has been locked */
+		long sizeJump;						/* How many bytes to increase pool size by */
 		
-		// Subsequent bytes in pool are allocated for strings
+		/* Subsequent bytes in pool are allocated for strings */
 		
 		} StringPool;
 
 
-// Private globals
+/* Private globals */
 
-static NoMemoryFunc NoStringMemoryFunc;		// What to call if no memory
-static OSErr noMemoryErrCode;				// What error to pass to error callback
+static NoMemoryFunc NoStringMemoryFunc;		/* What to call if no memory */
+static OSErr noMemoryErrCode;				/* What error to pass to error callback */
 
-static long			 firstPoolSize;			// Default pool size to create
-static StringPoolRef thePool;				// Always the current string pool
-static StringPoolRef theFirstPool;			// The original default pool
-static StringPoolRef *poolStack,			// Stack for pushing/popping pool contexts
-					 *poolStackTop,			// One more than last legal entry
-					 *poolStackPtr;			// Where to push to and pop from
+static long			 firstPoolSize;			/* Default pool size to create */
+static StringPoolRef thePool;				/* Always the current string pool */
+static StringPoolRef theFirstPool;			/* The original default pool */
+static StringPoolRef *poolStack,			/* Stack for pushing/popping pool contexts */
+					 *poolStackTop,			/* One more than last legal entry */
+					 *poolStackPtr;			/* Where to push to and pop from */
 
 
 /* Private routine prototypes */
@@ -85,39 +85,36 @@ static StringPoolRef *poolStack,			// Stack for pushing/popping pool contexts
 static OSErr	MoreStringMemory(long n, StringPoolRef pool);
 static void	DefaultNoMemory(OSErr err);
 
-/*
- *	Re-initialize the String Manager to use a push/pop context stack of given
- *	nesting size, maxNest, and to allocate a default string pool with given
- *	initial size, firstSize.  Deliver True if done, False if couldn't do it.
- *	All hell will break loose if this routine's failure is ignored.
- *	If either of the arguments is 0, then we use internal default sizes.
- */
+/* Re-initialize the String Manager to use a push/pop context stack of given nesting size,
+maxNest, and to allocate a default string pool with given initial size, firstSize. Deliver
+True if done, False if couldn't do it. All hell will break loose if this routine's failure
+is ignored! If either of the arguments is 0, then we use internal default sizes. */
 
 int InitStringPools(short maxNest, long firstSize)
 	{
-		int okay = False; long size;
+		int okay = False;  long size;
 		
-		// Allocate/reallocate the pushme/poolyou stack
+		/* Allocate/reallocate the pushme/poolyou stack */
 		
 		if (poolStack) DisposePtr((Ptr)poolStack);
 			
-		if (maxNest <= 0) maxNest = MAXPOOLNEST;			// Use default if 0
+		if (maxNest <= 0) maxNest = MAXPOOLNEST;			/* Use default if 0 */
 		size = maxNest * sizeof(StringPoolRef);
 		poolStackPtr = poolStack = (StringPoolRef *)NewPtr(size);
 		
 		if (poolStack) {
 			poolStackTop = poolStack + MAXPOOLNEST;
 			
-			// Allocate/reallocate a current pool, in case user forgets or only wants to
-			// use a single default pool.  Any current pool that is not theFirstPool
-			// has to have been allocated by the library's client, and so they are 
-			// responsible for disposing of it, since we're not tracking all allocations
+			/* Allocate/reallocate a current pool, in case user forgets or only wants to
+			   use a single default pool.  Any current pool that is not theFirstPool
+			   has to have been allocated by the library's client;  we're not tracking
+			   all allocations, so they are responsible for disposing of it. */
 			
-			DisposeStringPool(theFirstPool);						// Can be nil
-			firstPoolSize = firstSize==0 ? 256 : firstSize;
+			DisposeStringPool(theFirstPool);						/* Can be nil */
+			firstPoolSize = (firstSize==0 ? 256 : firstSize);
 			
 			theFirstPool = NewStringPool();
-			if (theFirstPool) {										// Initializes it also
+			if (theFirstPool) {										/* Initializes it also */
 				SetStringPool(theFirstPool);
 				NoStringMemoryFunc = DefaultNoMemory;
 				okay = True;
@@ -131,9 +128,9 @@ int InitStringPools(short maxNest, long firstSize)
 		return(okay);
 	}
 
-/* Attempt to enlarge the current pool by a given number of bytes. Deliver noErr
-if successful, or error code if not.  This routine is called automatically by the
-storage routines below. */
+/* Attempt to enlarge the current pool by a given number of bytes. Deliver noErr if
+successful, or error code if not.  This routine is called automatically by the storage
+routines below. */
 
 static OSErr MoreStringMemory(long n, StringPoolRef pool)
 	{
@@ -143,7 +140,7 @@ static OSErr MoreStringMemory(long n, StringPoolRef pool)
 			n += (*pool)->sizeJump;
 			
 			len = GetHandleSize((Handle)pool);
-			SetHandleSize((Handle)pool,len += n);
+			SetHandleSize((Handle)pool, len += n);
 			err = MemError();
 			if (err == noErr) (*pool)->topFreeByte += n;
 			}
@@ -151,20 +148,13 @@ static OSErr MoreStringMemory(long n, StringPoolRef pool)
 		return(err);
 	}
 
-/*
- *	If the client is using a jmp_buf error return scheme, then
- *	it can call this to declare the address of the routine it
- *	would normally call after a StringRef is returned from
- *	the library here to check for a memory error (-1).  In this
- *	case, the moMemory error code, err, is passed in here for
- *	storage until the ErrorFunc is called with it as its only
- *	argument.
- *	Once ErrorFunc is declared, the caller no longer needs to
- *	check allocations if it doesn't want to.
- *	Note that NoStringMemoryFunc is always defined, so that
- *	we don't have to check for nil before calling it (assuming
- *	InitStringPools has been called).
- */
+/* If the client is using a jmp_buf error return scheme, then it can call this to declare
+the address of the routine it would normally call after a StringRef is returned from the
+library here to check for a memory error (-1). In this case, the moMemory error code,
+err, is passed in here for storage until the ErrorFunc is called with it as its only
+argument. Once ErrorFunc is declared, the caller no longer needs to check allocations if
+it doesn't want to. Note that NoStringMemoryFunc is always defined, so that we don't
+have to check for nil before calling it (assuming InitStringPools has been called). */
 
 NoMemoryFunc SetNoStringMemoryHandler(NoMemoryFunc ErrorFunc, OSErr err)
 	{
@@ -176,19 +166,15 @@ NoMemoryFunc SetNoStringMemoryHandler(NoMemoryFunc ErrorFunc, OSErr err)
 		return(oldFunc);
 	}
 
-/*
- *	The default "no memory" handler does nothing, so the library routine will
- *	just deliver -1.
- */
+/*	The default "no memory" handler does nothing, so the library routine will just
+deliver -1.  */
 
 static void DefaultNoMemory(OSErr err)
 	{
 		UnusedArg(err)
 	}
 
-/*
- *	Create a new string pool, and initialize it to be ready to allocate from it.
- */
+/*	Create a new string pool, and initialize it to be ready to allocate from it. */
 
 StringPoolRef NewStringPool()
 	{
@@ -197,14 +183,12 @@ StringPoolRef NewStringPool()
 		pool = (StringPoolRef)NewHandle(sizeof(struct OpaqueStringPool));
 		if (pool)
 			if (!InitStringPool(pool,firstPoolSize))
-				pool = DisposeStringPool(pool);				// Sets it to nil
+				pool = DisposeStringPool(pool);				/* Sets it to nil */
 		
 		return(pool);
 	}
 
-/*
- *	Ditch a string pool and return nil so caller can set its reference
- */
+/* Ditch a string pool and return nil so caller can set its reference. */
 
 StringPoolRef DisposeStringPool(StringPoolRef pool)
 	{
@@ -213,12 +197,9 @@ StringPoolRef DisposeStringPool(StringPoolRef pool)
 		return(nil);
 	}
 
-/*
- *	Ditch all strings in a given StringPool, and reset it to allocate from
- *	the beginning.  Set the pool to initially have space for size bytes of
- *	storage.  Returns True if okay to continue, False if problem.  Attempts
- *	to initialize the nil pool are ignored.
- */
+/* Ditch all strings in a given StringPool, and reset it to allocate from the beginning.
+Set the pool to initially have space for <size> bytes of storage. Returns True if okay
+to continue, False if problem.  Attempts to initialize the nil pool are ignored. */
 
 int InitStringPool(StringPoolRef pool, long size)
 	{
@@ -234,11 +215,12 @@ int InitStringPool(StringPoolRef pool, long size)
 			p->nulltype = (C_String | P_String);				// The only string of all types
 			p->sizeJump = 256;
 			
-			if (size==kDefaultPoolSize || size<0)
-				size = 0;
+			if (size==kDefaultPoolSize || size<0) size = 0;
 			
 			SetHandleSize((Handle)pool, sizeof(StringPool) + size);
-			// Memory has moved; p invalid
+			
+			/* Memory has moved; p is invalid. */
+			
 			if (MemError())
 				okay = False;
 			 else
@@ -248,21 +230,16 @@ int InitStringPool(StringPoolRef pool, long size)
 		return(okay);
 	}
 
-/*
- *	Deliver the handle to the current string pool
- */
+/*	Deliver the handle to the current string pool */
 
 StringPoolRef GetStringPool()
 	{
 		return(thePool);
 	}
 
-/*
- *	Given a handle, assume it to be a handle to a previously created
- *	StringPool, and install it as the current string pool.  Delivers
- *	the old value of the current pool, and does nothing if pool is
- *	nil.
- */
+/* Given a handle, assume it to be a handle to a previously created StringPool, and 
+install it as the current string pool.  Delivers the old value of the current pool, and
+does nothing if pool is nil. */
 
 StringPoolRef SetStringPool(StringPoolRef pool)
 	{
@@ -273,10 +250,8 @@ StringPoolRef SetStringPool(StringPoolRef pool)
 		return(oldPool);
 	}
 
-/*
- *	Deliver the size, in bytes, of the given string pool, or if nil,
- *	the current string pool, or if none, 0.
- */
+/* Deliver the size, in bytes, of the given string pool, or if nil, the current string
+pool, or if none, 0.  */
 
 long GetStringPoolSize(StringPoolRef pool)
 	{
@@ -296,10 +271,8 @@ void ShrinkStringPool(StringPoolRef pool)
 		if (pool) SetHandleSize((Handle)pool,(*pool)->firstFreeByte);
 	}
 
-/*
- *	Clear all strings in given pool back down to the current save level's bottom
- *	byte, so that subsequent allocation starts from there.
- */
+/* Clear all strings in given pool back down to the current save level's bottom
+byte, so that subsequent allocation starts from there. */
 
 void ClearStringsInPool(StringPoolRef pool)
 	{
@@ -313,8 +286,7 @@ void ClearStringsInPool(StringPoolRef pool)
 
 /* If the pool is currently unlocked, lock it and bump the lock level. If
 already locked, then just bump the level.  While the pool is locked, the
-addresses returned by PAddr and CAddr are valid.
- */
+addresses returned by PAddr and CAddr are valid. */
 
 void LockStringsInPool(StringPoolRef pool)
 	{
@@ -371,9 +343,7 @@ void RestoreStringsInPool(StringPoolRef pool)
 			p->firstFreeByte = p->bottomByte[p->saveLevel--];
 	}
 
-/*
- *	Reclaim all space in pool from the given string on.
- */
+/*	Reclaim all space in pool from the given string on. */
 
 void ClearFromStringInPool(StringRef offset, StringPoolRef pool)
 	{
@@ -383,27 +353,38 @@ void ClearFromStringInPool(StringRef offset, StringPoolRef pool)
 		p = *pool;
 		
 		if (offset <= 0)
-			p->firstFreeByte = sizeof(StringPool);		// Deletes everything
+			p->firstFreeByte = sizeof(StringPool);		/* Deletes everything */
 			
 		 else if (offset < p->firstFreeByte) {
-			p->firstFreeByte = offset;					// Deletes this string and beyond
+			p->firstFreeByte = offset;					/* Deletes this string and beyond */
 			}
 	}
 
-/*
- *  Fix Endian problems in string pool
- */
+/*  Fix Little/Big Endian problems in the string pool by converting from either form to
+the other. */
 
-void StringPoolEndianFix(StringPoolRef pool) {
+void EndianFixStringPool(StringPoolRef pool) {
 	StringPool *p = *pool;
+	
+	FIX_END(p->firstFreeByte);
+	FIX_END(p->topFreeByte);
+	FIX_END(p->bottomByte[0]);
+	FIX_END(p->saveLevel);
+	FIX_END(p->lockLevel);
 	FIX_END(p->sizeJump);
 }
 
-/*
- *	Check the pool for obvious problems; if any are found, return a nonzero code.
- */
+/* Display parameters of the string pool in the log file. */
 
-short StringPoolProblem(StringPoolRef pool);
+void DisplayStringPool(StringPoolRef pool) {
+	StringPool *p = *pool;
+	
+	LogPrintf(LOG_INFO, "String pool nullstr=%d lockLevel=%d saveLevel=%d sizeJump=%d  (DisplayStringPool)\n",
+		p->nullstr, p->lockLevel, p->saveLevel, p->sizeJump);
+}
+
+/* Check the pool for obvious problems; if any are found, return a nonzero code. */
+
 short StringPoolProblem(StringPoolRef pool)
 	{
 		StringPool *p;

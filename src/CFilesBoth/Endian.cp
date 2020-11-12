@@ -6,7 +6,11 @@ running on a Little Endian processor (Intel or compatible), these functions corr
 the byte order in fields of more than one byte; if we're on a Big Endian processor
 (PowerPC), they do nothing. These should be called immediately after opening the file
 or resource to ensure everything is in the appropriate Endian form internally, and
-immediately before saving them them to ensure everything is saved in Big Endian form. */
+immediately before saving them them to ensure everything is saved in Big Endian form.
+
+EndianFixStringPool() does the same thing as these functions for our string pool,
+but the internals of the string pool are intentionally hidden from the outside world;
+as a result, the EndianFixStringPool code is located in StringPool.c. */
 
 /* THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
@@ -38,8 +42,8 @@ void EndianFixPoint(Point *pPoint)
 #endif
 }
 
-unsigned short EndianFix_13BitField(unsigned short value);
-unsigned short EndianFix_13BitField(unsigned short value)
+static unsigned short EndianFix_13BitField(unsigned short value);
+static unsigned short EndianFix_13BitField(unsigned short value)
 {
 	unsigned short temp = value;
 	FIX_END(temp);
@@ -192,7 +196,7 @@ LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMN
 #endif
 }
 
-void EndianFixHeapHdr(Document *doc, HEAP *heap)
+void EndianFixHeapHdr(Document * /* doc */, HEAP *heap)
 {
 #if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END((long)heap->block);

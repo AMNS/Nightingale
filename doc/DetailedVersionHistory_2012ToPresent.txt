@@ -2995,3 +2995,10 @@ questionable error messages and perhaps doing other bad things, e.g., crashes. A
 Beam, GRBeam.
 
 Minor cleanup. Affects NObjTypes.h; Beam, DialogsBoth, FileConversion, GRBeam.
+
+---------------------------------------------------------------------------------------
+
+9 - 12 Nov.
+
+Minor cleanup. Affects Endian.h, StringPool.h; AccModNRMouse, CombineParts, Endian,
+FileOpen, Finalize, StringPool.

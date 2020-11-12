@@ -11,9 +11,18 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
+static void EndianFixForFinalize();
 static Boolean ReplacePrefsResource(Handle, Handle, ResType, short, const unsigned char *);
 static Boolean UpdatePrefsFile(Handle cnfgResH, Handle midiResH, Handle midiModNRResH);
 static Boolean CheckUpdatePrefsFile(void);
+
+/* -------------------------------------------------------------- EndianFixForFinalize -- */
+
+static void EndianFixForFinalize()
+{
+	EndianFixConfig();			/* Ensure <config> fields are in Big Endian form */
+	EndianFixMIDIModNRTable();	/* Ensure MIDI modNR tables are in Big Endian form */
+}
 
 /* -------------------------------------------------------------- ReplacePrefsResource -- */
 
@@ -118,8 +127,6 @@ static Boolean CheckUpdatePrefsFile()
 	/* Undo any changes to Prefs values made internally by Nightingale. */
 	
 	config.maxDocuments--;		/* So that we're not including clipboard doc in count */
-	EndianFixConfig();			/* Ensure <config> fields are in Big Endian form */
-	EndianFixMIDIModNRTable();	/* Ensure MIDI modNR tables are in Big Endian form */
 		
 	/* Get the config resource and MIDI resources from Prefs file and compare them to
 	   our internal values. If any have been changed, update the file. */
@@ -202,7 +209,8 @@ void Finalize()
 {
 	if (!OpenPrefsFile()) return;			/* If it fails, there's nothing worth doing ??REALLY? */
 	
-	(void)CheckUpdatePrefsFile();
+	if (!CheckUpdatePrefsFile()) LogPrintf(LOG_ERR, "Couldn't update the Nightingale Preferences file!  (Finalize)\n");
+	EndianFixForFinalize();
 
 	ClosePrefsFile();
 	

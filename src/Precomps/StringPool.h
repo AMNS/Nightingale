@@ -89,10 +89,10 @@ typedef void (*NoMemoryFunc)(OSErr err);
 /*
 	Prototypes for public routines, with explanations
 
-	All of the routines that operate on an explicit pool are matched
-	by macros that declare pseudo-routines of similar (and shorter)
-	names that do the same thing, except they operate on the current (default)
-	pool.  This is signaled by passing defaultPool to the original routine.
+	All of the routines that operate on an explicit pool are matched by macros that
+	declare pseudo-routines of similar (and shorter) names that do the same thing,
+	except they operate on the current (default) pool.  This is signaled by passing
+	defaultPool to the original routine.
 */
 
 
@@ -294,6 +294,22 @@ typedef void (*NoMemoryFunc)(OSErr err);
 	StringRef CConcatStringInPool(StringRef offset, Byte *str, StringPoolRef pool);
 	#define CConcatString(offset,str) CConcatStringInPool(offset, str, defaultPool)
 
+/*--------------------------------------
+	/*  Fix Little/Big Endian problems in the string pool by converting from either form to
+		the other.																			*/
+
+	void EndianFixStringPool(StringPoolRef pool);
+
+/*--------------------------------------
+	Display parameters of the string pool in the log file.									*/
+	
+	void DisplayStringPool(StringPoolRef pool);
+
+/*--------------------------------------
+
+	Check the pool for obvious problems; if any are found, return a nonzero code.			*/
+
+	short StringPoolProblem(StringPoolRef pool);
 
 /*--------------------------------------
 	IsCStringInPool() delivers True or False, depending on whether the given
