@@ -18,7 +18,7 @@
 
 /* Symbolic Dialog Item Numbers */
 
-static enum {			/* Items for text editing and many for Define Text Style dialogs */
+enum {			/* Items for text editing and many for Define Text Style dialogs */
 	BUT1_OK = 1,
 	BUT2_Cancel,
 	STXT3_Text,
@@ -51,9 +51,9 @@ static enum {			/* Items for text editing and many for Define Text Style dialogs
 	USER30,
 	CHK31_Expanded,
 	BUT32_InsertChar
-	} E_TextDlogItems;
+};
 	
-static enum {			/* Different items for Define Text Style dialog */
+enum {			/* Different items for Define Text Style dialog */
 	CHK23_Treat=23,
 	STXT24_Enclosure,
 	RAD25_None,
@@ -62,14 +62,14 @@ static enum {			/* Different items for Define Text Style dialog */
 	EDIT28_Text,
 	USER31=31,
 	USER32
-	} E_DefineStyleItems;
+};
 	
-static enum {
+enum {
 	TextDlog,
 	DefineStyleDlog
-	} E_TextDlogs;
+};
 	
-static enum {			/* In the order of the Define Style Choice pop-up (ID 36) */
+enum {			/* In the order of the Define Style Choice pop-up (ID 36) */
 	NoSTYLE = 0,
 	Regular1STYLE,
 	Regular2STYLE,
@@ -87,7 +87,7 @@ static enum {			/* In the order of the Define Style Choice pop-up (ID 36) */
 	ChordSymbolSTYLE,
 	PageNumSTYLE,
 	THISITEMONLY_STYLE
-	} E_TextStyles;
+};
 
 static UserPopUp popup4;		/* For style choice menu */
 static UserPopUp popup7;		/* For font name menu */
@@ -181,9 +181,9 @@ static void DebugShowFonts(Document *doc)
 }
 
 
-/* Given the current state of the popups, determine from the font menu popup's
-current choice which sizes in the sizes menu are "real" ones and should
-therefore be outlined.  Also defines the font number of the current font. */
+/* Given the current state of the popups, determine from the font menu popup's current
+choice which sizes in the sizes menu are "real" ones and should therefore be outlined.
+Also defines the font number of the current font. */
 
 static void GetRealSizes()
 {
@@ -209,9 +209,8 @@ static void GetRealSizes()
 }
 
 
-/* Given a font name and a temporary string buffer to place menu item strings,
-look up the name in the popup font menu, and set the popup to display it,
-if it exists. */
+/* Given a font name and a temporary string buffer to place menu item strings, look up
+the name in the popup font menu, and set the popup to display it, if it exists. */
 
 static void SetFontPopUp(StringPtr fontName, StringPtr strbuf)
 {
@@ -229,9 +228,8 @@ static void SetFontPopUp(StringPtr fontName, StringPtr strbuf)
 }
 
 
-/* Given a point size and a temporary string buffer to place menu items into,
-look up the size in the size popup menu, and set the popup choice to display it,
-if it exists. */
+/* Given a point size and a temporary string buffer to place menu items into, look up
+the size in the size popup menu, and set the popup choice to display it, if it exists. */
 
 static void SetAbsSizePopUp(short size, StringPtr strbuf)
 {
@@ -265,7 +263,7 @@ static short GetStyleChoice()
 	if (popup4.currentChoice) {
 		/* Pull non-truncated menu item back into popup str storage */
 		GetMenuItemText(popup4.menu, popup4.currentChoice, popup4.str);
-		}
+	}
 	return popup4.currentChoice;
 }
 
@@ -383,8 +381,8 @@ static void SetCurrentStyle(short currStyle)
 }
 	
 
-/* Make the TEXTSTYLE <theCurrent> a copy of the specified style; handles only
-the "regular" text styles, not those for measure numbers, tempo marks, etc. */
+/* Make the TEXTSTYLE <theCurrent> a copy of the specified style; handles only the
+"regular" text styles, not those for measure numbers, tempo marks, etc. */
 
 static void TSSetCurrentStyle(short currStyle)
 {
@@ -516,11 +514,15 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 			case updateEvt:
 				if (w == GetDialogWindow(dlog)) {
 					BeginUpdate(GetDialogWindow(dlog));
+					
 					/* Draw the standard dialog items */
+					
 					currentStyle = GetStyleChoice();
 					DrawMyItems(dlog);
 					UpdateDialogVisRgn(dlog);
+					
 					/* Perhaps gray out everything */
+					
 					if (theDlog==TextDlog)
 						DimStylePanels(dlog, (currentStyle!=TSThisItemOnlySTYLE));
 					OutlineOKButton(dlog, True);
@@ -560,6 +562,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 					}
 				else {
 					/* If TextDlog and using a predefined style, ignore other popups */
+					
 					currentStyle = GetStyleChoice();
 					if (theDlog!=TextDlog || currentStyle==TSThisItemOnlySTYLE) {
 						 if (PtInRect(where, &popup7.shadow)) {

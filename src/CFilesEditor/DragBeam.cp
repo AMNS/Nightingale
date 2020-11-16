@@ -16,11 +16,11 @@
 #include "Nightingale.appl.h"
 
 
-static enum {
+enum {
 	LGRIP=1,									/* Dragging the left "grip" (handle) */
 	RGRIP,										/* Dragging the right "grip" (handle) */
 	DRAGBEAM									/* Dragging the entire beam */
-} E_DragBeamItems;
+};
 
 #define BOXSIZE	4
 #define STEM_UP	1
@@ -522,6 +522,12 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	LINK		firstSyncL, lastSyncL, firstNoteL, lastNoteL, staffL, aStaffL, measL;
 	CONTEXT		firstContext, lastContext;
 	SignedByte	stemUpDown[MAXINBEAM];
+
+	if (LinkNENTRIES(beamL)<=0) {
+		AlwaysErrMsg("Beamset L%ld has a non-positive number of beam elements.  (SetBeamFeedback)",
+			(long)beamL);
+		return;
+	}
 
 	/* Initialize variables */
 	

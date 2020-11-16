@@ -1819,7 +1819,7 @@ Boolean DCheckHeirarchy(Document *doc)
 	LINK 		pL, aStaffL, pageL, systemL;
 	short		nMissing, i,
 				nsystems, numSheets;
-	Boolean aStaffFound[MAXSTAVES+1],					/* Found the individual staff? */
+	Boolean	aStaffFound[MAXSTAVES+1],					/* Found the individual staff? */
 				foundPage, foundSystem, foundStaff,		/* Found any PAGE, SYSTEM, STAFF obj yet? */
 				foundMeasure,							/* Found a MEASURE since the last STAFF? */
 				foundClef, foundKeySig, foundTimeSig;	/* Found any CLEF, KEYSIG, TIMESIG yet? */
@@ -2012,7 +2012,7 @@ Boolean DCheckJDOrder(Document *doc)
 file and objects in the file are being processed in order. Syncs and GRSyncs in a Beamset
 always follow the Beamset itself, so in that case we can't expect their flags to be
 correct; but we _can_ expect their LINKs to be monotonically increasing. If <!openingFile>,
-what we can expect is exactly the opposite. Return True iff we find a problem. */
+what we can expect is exactly the opposite. */
 
 Boolean DCheckBeamset(Document *doc, LINK beamL,
 								Boolean maxCheck,			/* False=skip less important checks */
@@ -2064,13 +2064,15 @@ Boolean DCheckBeamset(Document *doc, LINK beamL,
 		beamsNow += aNoteBeam->startend;
 		if ((NextNOTEBEAML(aNoteBeamL) && beamsNow<=0)
 		||  beamsNow<0) {
-			COMPLAIN("*DCheckBeamset: BEAMSET L%u HAS BAD startend SEQUENCE (mid).\n", beamL);
+			COMPLAIN2("*DCheckBeamset: BEAMSET L%u HAS BAD startend SEQUENCE (mid): beamsNow=%d.\n",
+				beamL, beamsNow);
 			break;
 			}
 		}
 
 	if (beamsNow!=0) {
-		COMPLAIN("*DCheckBeamset: BEAMSET L%u HAS BAD startend SEQUENCE (end).\n", beamL);
+		COMPLAIN2("*DCheckBeamset: BEAMSET L%u HAS BAD startend SEQUENCE (end): beamsNow=%d.\n",
+			beamL, beamsNow);
 	}
 
 	if (openingFile) {
@@ -2110,7 +2112,7 @@ Next:
 				beamNotesOkay = False;
 				break;
 			}
-//if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
+if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
 			if (!SameSystem(beamL, syncL)) {
 				COMPLAIN3("*DCheckBeamset: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n",
 								beamL, (grace? "GR" : ""), syncL);
@@ -2152,20 +2154,19 @@ Next:
 with notes/rests or grace notes they should be referring to. For cross-system Beamsets,
 also check that, after a non-grace Beamset that's the first of a cross-system pair, the
 next non-grace Beamset in that voice is the second of a pair. (Notes/rests are checked
-against their Beamset more carefully than grace notes are.) Return True iff we find a
-problem.
+against their Beamset more carefully than grace notes are.)
 
-Caveat: We don't do context-free checks of individual Beamset objects! For that, use a
-loop that calls DCheckBeamset for each Beamset. (As of Sept. 2020, DCheckNode also calls
+Caveat: We don't do context-free checks of Beamset objects! For that, use a loop that
+calls DCheckBeamset for each Beamset. (As of Sept. 2020, DCheckNode also calls
 DCheckBeamset.) */
-
+ 
 Boolean DCheckBeams(
 				Document *doc,
 				Boolean /*maxCheck*/		/* False=skip less important checks */
 				)
 {
 	PANOTE		aNote, aGRNote;
-	LINK		pL, aNoteL, aGRNoteL, lastSyncL, qL;
+	LINK		pL, aNoteL, aGRNoteL, syncL, qL;
 	short		voice;
 	LINK		beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
 	Boolean		expect2ndPiece[MAXVOICES+1];
@@ -2192,9 +2193,7 @@ Boolean DCheckBeams(
 				else		beamSetL[voice] = pL;
 			}
 
-			lastSyncL = LastInBeam(pL);
-
-			for (qL = RightLINK(pL); qL!=lastSyncL; qL = RightLINK(qL))
+			for (qL = RightLINK(pL); qL!=syncL; qL = RightLINK(qL))
 				if (BeamsetTYPE(qL))
 					if (BeamVOICE(qL)==BeamVOICE(pL)) {
 						COMPLAIN2("*DCheckBeams: BEAMSET L%u IN SAME VOICE AS UNFINISHED BEAMSET L%u.\n",
@@ -2793,7 +2792,7 @@ Boolean DCheckContext(Document *doc)
 					&& aMeasureFound[aClef->staffn]						/* After the 1st System? */
 					&&  clefType[aClef->staffn]!=aClef->subType)		/* Yes, check the clef */
 						COMPLAIN3("*DCheckContext: FOR STAFF %d IN CLEF L%u, INCONSISTENT clefType: EXPECTED %d.\n",
-											aClef->staffn, pL, clefType[aClef->staffn]);
+											aStaff->staffn, pL, clefType[aClef->staffn]);
 					clefType[aClef->staffn] = aClef->subType;
 				}
 				break;

@@ -311,9 +311,9 @@ static short WriteFile(Document *doc, short refNum)
 //LogPrintf(LOG_DEBUG, "WriteFile1: &->origin=%lx &->littleEndian=%lx origin=%d,%d ->littleEndian=%u\n",
 //			&(doc->origin), &(doc->littleEndian), doc->origin.v, doc->origin.h, (short)(doc->littleEndian));
 	BlockMove(doc, &tempDoc, count);
-LogPrintf(LOG_DEBUG, "WriteFile2: &.origin=%lx &.littleEndian=%lx origin=%d,%d .littleEndian=%u\n",
-			&(tempDoc.origin), &(tempDoc.littleEndian), tempDoc.origin.v, tempDoc.origin.h,
-			(short)(tempDoc.littleEndian));
+//LogPrintf(LOG_DEBUG, "WriteFile2: &.origin=%lx &.littleEndian=%lx origin=%d,%d .littleEndian=%u\n",
+//			&(tempDoc.origin), &(tempDoc.littleEndian), tempDoc.origin.v, tempDoc.origin.h,
+//			(short)(tempDoc.littleEndian));
 
 	count = sizeof(DOCUMENTHDR);
 	EndianFixDocumentHdr(&tempDoc);

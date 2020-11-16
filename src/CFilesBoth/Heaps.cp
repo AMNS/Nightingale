@@ -194,12 +194,12 @@ Boolean ExpandFreeList(HEAP *heap,
 	
 	if (DETAIL_SHOW || DEBUG_CLOBBER) LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld ->objSize=%d deltaObjs=%ld\n",
 		heap, heap->nObjs, heap->objSize, deltaObjs);
-if (DEBUG_CLOBBER) LogPrintf(LOG_DEBUG, "ExpandFreeList: block=%lx p1stNew=%lx\n", *heap->block, p1stNew);
-if (DEBUG_CLOBBER) NHexDump(LOG_DEBUG, "ExpandFreeList1", (unsigned char *)p1stNew, 60, 4, 16);
+if (DETAIL_SHOW && DEBUG_CLOBBER) LogPrintf(LOG_DEBUG, "ExpandFreeList: block=%lx p1stNew=%lx\n", *heap->block, p1stNew);
+if (DETAIL_SHOW && DEBUG_CLOBBER) NHexDump(LOG_DEBUG, "ExpandFreeList1", (unsigned char *)p1stNew, 60, 4, 16);
 	for (i=heap->nObjs; i<newSize-1; i++) {
 		if (DEBUG_CLOBBER) FillMem(0, p, heap->objSize);
 		*(LINK *)p = i+1;
-if (DEBUG_CLOBBER && i-(heap->nObjs)<3) {
+if (DETAIL_SHOW && DEBUG_CLOBBER && i-(heap->nObjs)<3) {
 	SleepMS(3);
 	NHexDump(LOG_DEBUG, "    ExpandFreeList2", (unsigned char *)p, heap->objSize+4, 4, 16);
 }

@@ -8131,9 +8131,9 @@ of 58; I don't know why 5 more went away, but unlikely it's worth pursuing.)
 
 Run our standard test: open open 2ndMovementCSpp1-3.ngl several times =>
 
-(1) Debug Check complains about one Beamset (and the usual Timesigs); 48 errors. Garbage beams drawn.
-(2) Debug Check complains about 8 Beamsets (and the usual  Timesigs); 31 errors. Garbage beams drawn.
-(3) Debug Check complains about 4 Beamsets (and the usual  Timesigs); 33 errors. Some beams not drawn.
+(1) Debug Check complains about one Beamset (and the usual 16 Timesigs); 48 errors. Garbage beams drawn.
+(2) Debug Check complains about 8 Beamsets (and the usual 16 Timesigs); 31 errors. Garbage beams drawn.
+(3) Debug Check complains about 4 Beamsets (and the usual 16 Timesigs); 33 errors. Some beams not drawn.
 
 
 ?????????? REDO BELOW!!!!!
@@ -8147,3 +8147,44 @@ Open		N105		PPC			??OK except The Bug (clobbered beams & timesigs)
 "			"			Intel		??Bad: Ngale either crashes or opens it badly garbled
 Save		N106		PPC			??OK
 "			"			Intel		??Bad: trying to open on PPC or Intel always gives 8 header errors
+
+---------------------------------------------------------------------------------------
+
+13 - 15 Nov.
+
+SWITCH TO a bug found by Doug McKenna (Issue #184). Open 2ndMovementCSpp1-3.ngl in Ngale
+5.8.x; Clear System the last system; Save => the new file can't be opened by Ngale 5.8.x
+or 5.9.x. Reason: the Clear System command doesn't update
+doc->currSystem. Looks like an easy fix: Clear Page handles this correctly, so paste two
+lines from ClearPages() into ClearSystem, so UpdateSysNums() and the following lines are:
+
+	UpdateSysNums(doc,doc->headL);
+	currSys = LSSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,False);
+	doc->currentSystem = SystemNUM(currSys);
+
+To test the fix with 2ndMovementCSpp1-3.ngl, must do it in Ngale 5.8.10 => it works!
+(Though I had to fix a problem with FileSave.cp not compiling I introduced by somehow
+having changed the path in the project file to point to the 5.9 version of FileSave!)
+Make the same changes in 5.9.1 => OK.
+
+Run our standard test: open open 2ndMovementCSpp1-3.ngl several times =>
+
+(1) Debug Check complains about at least one Beamset. Garbage beams drawn.
+(2) Debug Check has no complaints, and everything seems to be drawn correctly.
+(3) Debug Check has no complaints, and everything seems to be drawn correctly.
+
+!! Problems only once out of three tries: that's very unusual, maybe unprecedented. Open
+it again =>
+
+(4) Draws a couple of measures, then crashes into GDB showing the 1st line of FindMainNote
+(called from DrawBEAMSET!): "if (SyncTYPE(pL))" with pL=53844, which is nonsense.
+(5)  Debug Check complains about 3 Beamsets (and the usual 16 Timesigs); 24 errors. Garbage beams drawn.
+
+Nah, it's behaving the same as always.
+
+In recent runs, the earliest in the conversion process we're finding a problem with Beamsets is
+while converting object L830:
+
+	debug. ****** (ConvertSLUR2): DCheckBeamset found a problem with qL=L435, at objL=830. (0: 0, 0)
+
+So converting L689 is still the earliest I've ever seen a Beamset problem detected.

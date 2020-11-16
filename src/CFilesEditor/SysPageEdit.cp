@@ -12,14 +12,14 @@ clearing entire systems and pages. */
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static enum {
+enum {
 	TO_UNDO,			/* unused */
 	TO_REDO,			/* unused */
 	TO_SCORE,
 	TO_CLIP
-} E_SysPageEditDest;
+};
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Local prototypes */
 
 static void ReplaceHeader(Document *srcDoc, Document *dstDoc);
@@ -55,15 +55,12 @@ static Boolean PPageFixInitContext(Document *,LINK, PCONTEXT, PCONTEXT);
 static void PPagesFixContext(Document *doc,LINK prevL,LINK succL,Boolean newFirstPage);
 static LINK GetPageInsertL(Document *doc, Boolean *newFirstPage);
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Utilities for SysPageEdit.c. */
 
-/*
- * Replace the header of dstDoc with that from srcDoc. This is done, for
- * example, when copying a system to the clipboard, so that the part-staff
- * format of the clipboard will be the same as that of the score.
- * Function returns with srcDoc installed.
- */
+/* Replace the header of dstDoc with that from srcDoc. This is done, for example, when
+copying a system to the clipboard, so that the part-staff format of the clipboard will
+be the same as that of the score. Function returns with srcDoc installed.  */
 
 static void ReplaceHeader(Document *srcDoc, Document *dstDoc)
 {
@@ -90,14 +87,11 @@ by clipboard operations on systems. Assumes that no objects are selected, i.e., 
 an insertion point.
 
 If the insertion point is a PAGE, return the last object before the page.
+If the insertion point is a SYSTEM, return that system, if it is the first system on the
+page; else return the lSystem (and let the caller get the last object in that SYSTEM).
 
-If the insertion point is a SYSTEM, return that system, if it is the first
-system on the page; else return the lSystem (and let the caller get the
-last object in that SYSTEM).
-
-If <paste> only, if the insertion point is before the first measure of a SYSTEM,
-return that system, if it is the first system on the page; else return the
-following system.
+If <paste> only, if the insertion point is before the first measure of a SYSTEM, return
+that system, if it is the first system on the page; else return the following system.
 
 Otherwise, return the insertion point unchanged.
 
@@ -117,7 +111,7 @@ static LINK EditSysGetStartL(Document *doc, Boolean paste)
 	}
 	
 	if (BeforeFirstMeas(doc->selStartL) && paste) {
-		sysL = LSSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,False);
+		sysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, False);
 		if (FirstSysInPage(sysL))
 			return (SysPAGE(sysL));
 		return (LinkLSYS(sysL));
@@ -126,13 +120,11 @@ static LINK EditSysGetStartL(Document *doc, Boolean paste)
 	return doc->selStartL;
 }
 
-/* -------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Utilities for SysPageEdit updating context. */
 
-/*
- * staffMap[] is used to indicate the staves on which context-establishing
- * subObjects need to be inserted.
- */
+/* staffMap[] is used to indicate the staves on which context-establishing subobjects
+need to be inserted. */
 
 static short CountStfMap(Boolean *staffMap)
 {
@@ -163,17 +155,15 @@ static Boolean KeySigCompare(PCONTEXT oldContext, PCONTEXT newContext)
 	return val==0;
 }
 
-/*
- * CreateClefContext, CreateKSContext, and CreateTSContext insert clef,
- * keySig, and timeSig objects with <nEntries> subObjects, before insertL,
- * on staves marked by <staffMap>, obtaining context information from
- * newContext[].
- */
+/* CreateClefContext, CreateKSContext, and CreateTSContext insert clef, keySig, and
+timeSig objects with <nEntries> subObjects, before insertL, on staves marked by
+<staffMap>, obtaining context information from newContext[]. */
 
 static LINK CreateClefContext(Document *doc, LINK insertL, short nEntries, Boolean *staffMap,
 											PCONTEXT newContext)
 {
-	LINK clefL,aClefL,prevL; short s; DDIST xd;
+	LINK clefL,aClefL,prevL;
+	short s;  DDIST xd;
 	
 	prevL = LeftLINK(insertL);
 	clefL = InsertNode(doc, insertL, CLEFtype, nEntries);
@@ -203,7 +193,8 @@ static LINK CreateClefContext(Document *doc, LINK insertL, short nEntries, Boole
 static LINK CreateKSContext(Document *doc, LINK insertL, short nEntries, Boolean *staffMap,
 										PCONTEXT oldContext, PCONTEXT newContext)
 {
-	LINK keySigL,aKeySigL,prevL; short s; DDIST xd;
+	LINK keySigL,aKeySigL,prevL;
+	short s;  DDIST xd;
 	PAKEYSIG aKeySig;
 	
 	prevL = LeftLINK(insertL);
@@ -211,9 +202,9 @@ static LINK CreateKSContext(Document *doc, LINK insertL, short nEntries, Boolean
 	if (!keySigL) { NoMoreMemory(); return NILINK; }
 	
 	/* If the newContext nKSItems on staff s is non-zero, insert a new keySig with
-		nKSItems sharps or flats to establish the new context for the pasted-in
-		system. Otherwise, insert a keySig with nKSItems naturals to cancel the
-		context of the previous system. */
+	   nKSItems sharps or flats to establish the new context for the pasted-in system.
+	   Otherwise, insert a keySig with nKSItems naturals to cancel the context of the
+	   previous system. */
 
 	aKeySigL = FirstSubLINK(keySigL);
 	for (s=1; s<=MAXSTAVES; s++)
@@ -250,7 +241,8 @@ static LINK CreateKSContext(Document *doc, LINK insertL, short nEntries, Boolean
 static LINK CreateTSContext(Document *doc, LINK insertL, short nEntries, Boolean *staffMap,
 										PCONTEXT newContext)
 {
-	LINK timeSigL,aTimeSigL,prevL; short s; DDIST xd;
+	LINK timeSigL,aTimeSigL,prevL;
+	short s; DDIST xd;
 	
 	prevL = LeftLINK(insertL);
 	timeSigL = InsertNode(doc, insertL, TIMESIGtype, nEntries);
@@ -277,9 +269,7 @@ static LINK CreateTSContext(Document *doc, LINK insertL, short nEntries, Boolean
 	return timeSigL;
 }
 
-/*
- * Search for the new system and fix up the clefType fields in its staff subObjs.
- */
+/* Search for the new system and fix up the clefType fields in its staff subObjs. */
 
 static void FixStfClefContext(LINK prevL)
 {
@@ -303,15 +293,13 @@ static void FixStfClefContext(LINK prevL)
 }
 
 
-/*
- * Return an RMEASDATA *rmTable for sysL for the purposes of respacing sysL,
- * and return the number of measures in sysL in <nMeas>.
- */
+/* Return an RMEASDATA *rmTable for sysL for the purposes of respacing sysL, and
+return the number of measures in sysL in <nMeas>. */
 
 static RMEASDATA *GetRMeasTable(Document */*doc*/, LINK sysL, short *nMeas)
 {
-	LINK measL; DDIST mWidth;
-	short i=0; RMEASDATA *rmTable;
+	LINK measL;  DDIST mWidth;
+	short i=0;  RMEASDATA *rmTable;
 
 	rmTable = (RMEASDATA *)NewPtr(MAX_RSP_MEASURES*sizeof(RMEASDATA));
 	if (!GoodNewPtr((Ptr)rmTable)) { NoMoreMemory(); return NULL; }
@@ -328,10 +316,8 @@ static RMEASDATA *GetRMeasTable(Document */*doc*/, LINK sysL, short *nMeas)
 	return rmTable;
 }
 
-/*
- * Respace sysL, a system containing nMeas measures, using rmTable, to insure
- * all objects fit properly within it.
- */
+/* Respace sysL, a system containing nMeas measures, using rmTable, to insure all
+objects fit properly within it. */
 
 static void RespaceSystem(Document *doc, LINK sysL, RMEASDATA *rmTable, short nMeas)
 {
@@ -346,20 +332,18 @@ static void RespaceSystem(Document *doc, LINK sysL, RMEASDATA *rmTable, short nM
 	PositionSysByTable(doc, rmTable, 0, nMeas-1, newSpProp, context);
 }
 
-/* -------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Editing operations on systems. */
 
-/*
- * Copy the system containing the insertion point from doc to the clipboard.
- *
- * Since doc->selStartL will be the following page, system or doc->tailL if
- * the insertion point is at the end of the system, the routine must call
- * EditSysGetStartL to get the correct system to copy.
- *
- * Routine deletes all material in the clipboard from its system to the
- * tail, copies the system, and then fixes up system numbers, crossSystem
- * objects and selection LINKs in the clipboard.
- */
+/* Copy the system containing the insertion point from doc to the clipboard.
+
+Since doc->selStartL will be the following page, system or doc->tailL if the insertion
+point is at the end of the system, the routine must call EditSysGetStartL to get the
+correct system to copy.
+
+Routine deletes all material in the clipboard from its system to the tail, copies the
+system, and then fixes up system numbers, crossSystem objects and selection LINKs in the
+clipboard. */
 
 void CopySystem(Document *doc)
 {
@@ -396,12 +380,10 @@ void CopySystem(Document *doc)
 	InstallDoc(doc);
 }
 
-/*
- * Position sysL graphically: offset the systemRect and all measureBBoxes of
- * measures contained in the system by dy.
- *
- * Similar function: OffsetSystem() in ShowFormat.c
- */
+/* Position sysL graphically: offset the systemRect and all measureBBoxes of measures
+contained in the system by dy.
+
+Similar function: OffsetSystem() in ShowFormat.c */
 
 static void MoveSystemY(LINK sysL, DDIST dy)
 {
@@ -416,10 +398,8 @@ static void MoveSystemY(LINK sysL, DDIST dy)
 	}
 }
 
-/*
- * Translate SystemRECT of pasted-in system to window-relative coordinates
- * and erase and inval it.
- */
+/* Translate SystemRECT of pasted-in system to window-relative coordinates and erase
+and inval it. */
 
 static void PSysInvalSys(Document *doc, LINK sysL)
 {
@@ -438,14 +418,12 @@ static void PSysInvalSys(Document *doc, LINK sysL)
 }
 
 
-/* 
- * Update the system left indent to set the pasted-in system's left indent to
- * doc->dIndentFirst.
- */
+/* Update the system left indent to set the pasted-in system's left indent to
+doc->dIndentFirst. */
 
 static void PSysSetFirstIndent(Document *doc, LINK sysL)
 {
-	LINK masterSysL; DDIST change, firstIndent;
+	LINK masterSysL;  DDIST change, firstIndent;
 	PSYSTEM pMasterSys,pSys;
 
 	masterSysL = SSearch(doc->masterHeadL, SYSTEMtype, GO_RIGHT);
@@ -459,14 +437,11 @@ static void PSysSetFirstIndent(Document *doc, LINK sysL)
 }
 
 
-/*
- * Update sysL's left indent to move system to same indent as that of the
- * master system.
- */
+/* Update sysL's left indent to move system to same indent as that of master system. */
 
 static void PSysUpdateSysIndent(Document *doc, LINK sysL)
 {
-	LINK masterSysL; DDIST change;
+	LINK masterSysL;  DDIST change;
 	PSYSTEM pMasterSys,pSys;
 
 	masterSysL = SSearch(doc->masterHeadL,SYSTEMtype,GO_RIGHT);
@@ -478,16 +453,14 @@ static void PSysUpdateSysIndent(Document *doc, LINK sysL)
 	ChangeSysIndent(doc, sysL, change);
 }
 
-/*
- * Update the xd of the first invisible measure to compensate
- * for possible visification of initial timeSig.
- * Clef will always be visible, and keySig will always be accounted for,
- * so the only initial obj to deal with is the timeSig.
- */
+/* Update the xd of the first invisible measure to compensate for possible visification
+of initial timesig. Clef will always be visible, and keysig will always be accounted for,
+so the only initial obj to deal with is the timesig. */
 
 static void P1stSysUpdateFirstMeas(Document *doc, LINK newSysL)
 {
-	LINK ksL,tsL; DDIST haveWidth,needWidth,change;
+	LINK ksL,tsL;
+	DDIST haveWidth,needWidth,change;
 
 	ksL = SSearch(newSysL,KEYSIGtype,GO_RIGHT);
 	tsL = SSearch(ksL,TIMESIGtype,GO_RIGHT);
@@ -508,7 +481,8 @@ static void P1stSysUpdateFirstMeas(Document *doc, LINK newSysL)
 
 static void PSysUpdateFirstMeas(Document *doc, LINK newSysL)
 {
-	LINK ksL,tsL,firstMeasL; DDIST haveWidth,needWidth,change;
+	LINK ksL,tsL,firstMeasL;
+	DDIST haveWidth,needWidth,change;
 
 	ksL = SSearch(newSysL,KEYSIGtype,GO_RIGHT);
 	tsL = SSearch(ksL,TIMESIGtype,GO_RIGHT);
@@ -691,11 +665,8 @@ done:
 }
 
 
-/*
- * Fix up the context for a system inserted at the beginning of the
- * score by fixing up the context at the boundary between that system
- * and the following system.
- */
+/* Fix up the context for a system inserted at the beginning of the score by fixing
+the context at the boundary between that system and the following system. */
 
 static void P1stSysFixContext(Document *doc, LINK succL)
 {
@@ -707,9 +678,9 @@ static void P1stSysFixContext(Document *doc, LINK succL)
 	newContext = AllocContext();
 	if (!newContext) goto done;
 
-	/* Verify that a system exists after the system to be inserted. If not,
-		return. Otherwise, fix up boundary of inserted system and following
-		system. */
+	/* Verify that a system exists after the system to be inserted. If not, return.
+	   Otherwise, fix up boundary of inserted system and following system. */
+	   
 	nextSysL = LSSearch(succL,SYSTEMtype,ANYONE,GO_RIGHT,False);
 	if (nextSysL)
 		PSysFixInitContext(doc,LeftLINK(succL),oldContext,newContext);
@@ -1071,23 +1042,23 @@ static Boolean GetXSysObj(LINK sysL, Boolean prev)
 	return False;
 }
 
-/*
- * Clear the system containing the insertion point from doc. Leaves the insertion
- * point immediately following the first measure of the system after the one
- * cleared, or at the tail. The first system of the score is hard to handle, so we
- * disallow clearing it.
- */
+
+/* Clear the system containing the insertion point from doc. Leaves the insertion point
+immediately following the first measure of the system after the one cleared, or at the
+tail. The first system of the score is hard to handle, so we disallow clearing it. */
 
 void ClearSystem(Document *doc)
 {
-	LINK sysL,lastL,startL,pageL,lSys,rSys,staffL,lStaff,rStaff,lMeas,rMeas,succSys;
-	short nSys,samePage; DRect sysRect; DDIST sysHeight;
+	LINK sysL,lastL,startL,pageL,lSys,rSys,staffL,lStaff,rStaff,lMeas,rMeas,
+		succSys,currSys;
+	short nSys,samePage;
+	DRect sysRect;  DDIST sysHeight;
 	
 	MEHideCaret(doc);
 
-	/* If there is an insertion point at the end of the system, doc->selStartL
-		will be the following system or page object. Call EditSysGetStartL to get
-		startL. */
+	/* If there is an insertion point at the end of the system, doc->selStartL will
+	   be the following system or page object. Call EditSysGetStartL to get startL. */
+	   
 	startL = EditSysGetStartL(doc,False);
 	sysL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	lastL = LastObjInSys(doc, RightLINK(sysL));
@@ -1127,6 +1098,7 @@ void ClearSystem(Document *doc)
 	lMeas = lSys ? LSSearch(sysL,MEASUREtype,ANYONE,GO_LEFT,False) : NILINK;
 
 	/* Inval the system before deleting it while its systemRect still exists. */
+	
 	InvalSystem(sysL);
 	if (lSys) {
 		if (GetXSysObj(sysL,True))
@@ -1138,6 +1110,7 @@ void ClearSystem(Document *doc)
 	}
 	
 	/* Determine whether sysL is last system on its page before deleting it. */
+	
 	samePage = rSys ? SamePage(sysL, rSys) : False;
 
 	DeleteRange(doc,sysL,RightLINK(lastL));
@@ -1169,6 +1142,8 @@ void ClearSystem(Document *doc)
 	doc->selEndL = doc->selStartL;
 	doc->changed = True;
 	UpdateSysNums(doc, doc->headL);
+	currSys = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, False);
+	doc->currentSystem = SystemNUM(currSys);
 	UpdateMeasNums(doc,NILINK);
 	FixTimeStamps(doc,(lSys? EndSystemSearch(doc, lSys) : pageL),NILINK);
 	
@@ -1177,13 +1152,11 @@ void ClearSystem(Document *doc)
 }
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Editing operations on pages. */
 
-/*
- * Fix up the initial context of a page inserted after prevL by adding context
- * objects to the end of the previous page.
- */
+/* Fix up the initial context of a page inserted after prevL by adding context objects
+to the end of the previous page. */
 
 static Boolean PPageFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContext,
 												PCONTEXT newContext)
@@ -1597,7 +1570,7 @@ void ClearPages(Document *doc)
 		rMeasL = SSearch(rStaffL,MEASUREtype,GO_RIGHT);
 
 	/* If the rPageL exists, get the last system prior to it, and the last obj
-		in that system, which is the last obj in pageL. */
+	   in that system, which is the last obj in pageL. */
 
 		sysL = LSSearch(rPageL, SYSTEMtype, ANYONE, GO_LEFT, False);
 		lastL = LastObjInSys(doc, RightLINK(sysL));
@@ -1626,7 +1599,7 @@ void ClearPages(Document *doc)
 	doc->currentSheet = SheetNUM(lPageL);
 
 	UpdateSysNums(doc,doc->headL);
-	currSys = LSSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,False);
+	currSys = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	doc->currentSystem = SystemNUM(currSys);
 
 	UpdateMeasNums(doc,NILINK);

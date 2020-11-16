@@ -1644,6 +1644,12 @@ void DrawBEAMSET(Document *doc, LINK beamL, CONTEXT context[])
 	BEAMINFO		beamTab[BEAMTABLEN];
 	SignedByte		stemUpDown[MAXINBEAM];
 
+	if (LinkNENTRIES(beamL)<=0) {
+		AlwaysErrMsg("Beamset L%ld has a non-positive number of beam elements.  (DrawBEAMSET)",
+			(long)beamL);
+		return;
+	}
+	
 	staff = BeamSTAFF(beamL);
 	voice = BeamVOICE(beamL);
 	

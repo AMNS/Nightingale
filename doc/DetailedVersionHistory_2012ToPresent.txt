@@ -3002,3 +3002,14 @@ Minor cleanup. Affects NObjTypes.h; Beam, DialogsBoth, FileConversion, GRBeam.
 
 Minor cleanup. Affects Endian.h, StringPool.h; AccModNRMouse, CombineParts, Endian,
 FileOpen, Finalize, StringPool.
+
+---------------------------------------------------------------------------------------
+
+13 - 15 Nov.
+
+Fixed bug (Issue #184): The Clear System command doesn't update the Document's
+currentSystem, so it may be left with an illegal value. If so and the file is then
+saved, trying to open it again results in an error message. Affects SysPageEdit.
+
+Minor cleanup. Affects Beam, DebugUtils, DragBeam, FileSave, Heaps, SysPageEdit,
+TextDialog.
