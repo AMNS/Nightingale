@@ -17,11 +17,11 @@
 
 
 /* ------------------------------------------------------------------- MIDIPrefsDialog -- */
-/*	Setup MIDI channel assignment, tempo, port, etc. N.B. Does not handle SCCA
-for MIDI Thru! */
+/*	Setup MIDI channel assignment, tempo, port, etc. N.B. Does not handle SCCA for
+MIDI Thru! */
 
 
-static enum				/* Dialog item numbers */
+enum				/* Dialog item numbers */
 {
 	CHANNEL=4,
 	MINDUR_DI=6,
@@ -42,9 +42,7 @@ static enum				/* Dialog item numbers */
 	USE_MODIFIER_EFFECTS_DI=28,
 	CHANNEL_LABEL=29,
 	INPUT_DEVICE_MENU=30
-} E_MIDIDialogItems;
-
-// Core MIDI
+};
 
 #include "CoreMIDIDefs.h"
 
@@ -85,8 +83,9 @@ static MIDIUniqueID GetCMInputDeviceID()
 	return kInvalidMIDIUniqueID;
 }
 
-/* FIXME: GetCMInputDeviceIndex is in C++, but Nightingale is a C99 program! Maybe we have
-no choice but to use C++ to talk to Core MIDI? That seems unlikely. */
+/* FIXME: GetCMInputDeviceIndex is in C++, but Nightingale is supposed to be (and is
+almost completely) a C99 program! Maybe we have no choice but to use C++ to talk to
+Core MIDI? That seems unlikely. */
 
 static short GetCMInputDeviceIndex(MIDIUniqueID dev);
 static short GetCMInputDeviceIndex(MIDIUniqueID dev)
@@ -170,6 +169,7 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 			GlobalToLocal(&mouseLoc);
 			
 			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
+			
 			GetDialogItem (theDialog, OK, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	{*item = OK; break;};
 			GetDialogItem (theDialog, Cancel, &type, &hndl, &box);
@@ -224,6 +224,7 @@ void MIDIPrefsDialog(Document *doc)
 	GetPort(&oldPort);
 
 	/* We use the same dialog resource for Core MIDI (and formerly OMS and FreeMIDI). */
+	
 	if (useWhichMIDI == MIDIDR_CM) {
 		dlog = GetNewDialog(CM_MIDISETUP_DLOG, NULL, BRING_TO_FRONT);
 		if (dlog == NULL) {
@@ -253,10 +254,9 @@ void MIDIPrefsDialog(Document *doc)
 		cmInputMenuH = CreateCMInputMenu(doc, dlog, &cmInputPopup, &inputDeviceMenuBox);
 	}
 
-	/*
-	 * Get the divider lines, defined by some user items, and get them out of the way 
-	 *	so they don't hide any items underneath.
-	 */
+	/* Get the divider lines, defined by some user items, and get them out of the way 
+	   so they don't hide any items underneath. */
+	   
 	GetDialogItem(dlog,DIVIDER1_DI,&anInt,&aHdl,&divRect1);
 	GetDialogItem(dlog,DIVIDER2_DI,&anInt,&aHdl,&divRect2);
 	
@@ -472,12 +472,12 @@ void MIDIPrefsDialog(Document *doc)
 
 /* -------------------------------------------------------------------- MIDIThruDialog -- */
 
-static enum {
+enum {
 	CHK_UseMIDIThru = 3,
 	POP_Device,
 	STXT_WhenRecording,
 	STXT_WhenNotRecording
-} E_MIDIThruItems;
+};
 
 static Rect deviceMenuBox;
 static fmsUniqueID thruDevice;
@@ -591,7 +591,7 @@ broken:
 
 /* Symbolic Dialog Item Numbers */
 
-static enum {
+enum {
 	BUT1_OK = 1,
 	BUT2_Cancel,
 	STXT3_Metronome,
@@ -605,7 +605,7 @@ static enum {
 	STXT11_Device,
 	CM_METRO_MENU,
 	LASTITEM
-	} E_MetroItems;
+};
 
 static Rect metroMenuBox;
 
@@ -649,8 +649,8 @@ static DialogPtr OpenMetroDialog(
 }
 
 
-/* Deal with user clicking on an item in metronome dialog. Returns whether or not
-the dialog should be closed (keepGoing). */
+/* Deal with user clicking on an item in metronome dialog. Returns whether or not the
+dialog should be closed (keepGoing). */
 
 static Boolean MetroDialogItem(DialogPtr dlog, short itemHit)
 {
@@ -658,7 +658,7 @@ static Boolean MetroDialogItem(DialogPtr dlog, short itemHit)
 	Handle hndl; Rect box;
 
 	if (itemHit<1 || itemHit>=LASTITEM)
-		return(keepGoing);												/* Only legal items, please */
+		return(keepGoing);										/* Only legal items, please */
 
 	GetDialogItem(dlog,itemHit,&type,&hndl,&box);
 	switch(type) {
@@ -674,7 +674,7 @@ static Boolean MetroDialogItem(DialogPtr dlog, short itemHit)
 			break;
 		case ctrlItem+radCtrl:
 			switch(itemHit) {
-				case RAD4_Use:											/* Group 1 */
+				case RAD4_Use:									/* Group 1 */
 				case RAD5_Use:
 					if (itemHit!=group1) {
 						SetControlValue((ControlHandle)hndl,val=!GetControlValue((ControlHandle)hndl));
@@ -781,8 +781,8 @@ static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MI
 }
 
 
-/* Build this dialog's window on desktop, and install initial item values. Return
-the dlog opened, or NULL if error (no resource, no memory). */
+/* Build this dialog's window on desktop, and install initial item values. Return the
+dialog opened, or NULL if error (no resource, no memory). */
 
 static DialogPtr OpenCMMetroDialog(
 							Boolean viaMIDI,
@@ -859,6 +859,7 @@ pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 			GlobalToLocal(&mouseLoc);
 			
 			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
+			
 			GetDialogItem(theDialog, BUT1_OK, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	{*item = BUT1_OK; break;};
 			GetDialogItem(theDialog, BUT2_Cancel, &type, &hndl, &box);
@@ -882,12 +883,10 @@ pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 	return False;
 }
 
-/*
- *	Display the Metronome dialog.  Return True if OK, False if Cancel or error.
- */
+/*	Display the Metronome dialog.  Return True if OK, False if Cancel or error. */
 
 Boolean CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
-								SignedByte *velocity, short *duration, MIDIUniqueID *device)
+							SignedByte *velocity, short *duration, MIDIUniqueID *device)
 {
 	short chan, aNote, vel, dur;
 	short itemHit, okay, keepGoing=True;
@@ -916,10 +915,8 @@ Boolean CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note
 		keepGoing = MetroDialogItem(dlog,itemHit);
 	}
 	
-	/*
-	 *	Export item values to caller. MetroDialogItem() should have already called
-	 *	MetroBadValues().
-	 */
+	/*	Export item values to caller. MetroDialogItem() should have already called
+	    MetroBadValues(). */
 	
 	okay = (itemHit==BUT1_OK);
 	if (okay) {
@@ -986,10 +983,8 @@ Boolean MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 		keepGoing = MetroDialogItem(dlog,itemHit);
 	}
 	
-	/*
-	 *	Export item values to caller. MetroDialogItem() should have already called
-	 *	MetroBadValues().
-	 */
+	/* Export item values to caller. MetroDialogItem() should have already called
+	   MetroBadValues(). */
 	
 	okay = (itemHit==BUT1_OK);
 	if (okay) {
@@ -1020,10 +1015,10 @@ static Boolean ItemValInRange(DialogPtr dlog, short DI, short minVal, short maxV
 	return (value>=minVal && value<=maxVal);
 }
 
-static enum {
+enum {
 	FIRST_VEL_DI=4,			/* Item number for PPP_DYNAM */
 	APPLY_DI=22
-} E_MIDIDynamItems;
+};
 
 #define DYN_LEVELS 8		/* No. of consecutive dynamics in dialog, starting w/PPP_DYNAM */
 
@@ -1049,7 +1044,9 @@ Boolean MIDIDynamDialog(Document */*doc*/, Boolean *apply)
 		PutDlgChkRadio(dlog, APPLY_DI,*apply);
 		for (i = 1; i<DYN_LEVELS; i++)
 			PutDlgWord(dlog,FIRST_VEL_DI+2*i, dynam2velo[i+PPP_DYNAM], False);
+			
 		/* Do level 0 last so we can leave it hilited. */
+		
 		PutDlgWord(dlog, FIRST_VEL_DI, dynam2velo[PPP_DYNAM], True);
 
 		CenterWindow(GetDialogWindow(dlog), 45);
@@ -1103,7 +1100,7 @@ Boolean MIDIDynamDialog(Document */*doc*/, Boolean *apply)
 
 /* ---------------------------------------------------------------- MIDIModifierDialog -- */
 
-static enum {
+enum {
 	STAC_VEL_DI=7,
 	STAC_DUR_DI,
 	WEDGE_VEL_DI,
@@ -1117,7 +1114,7 @@ static enum {
 	TENUTO_VEL_DI,
 	TENUTO_DUR_DI,
 	LAST_ITEM
-} E_MIDIModifierItems;
+};
 
 Boolean MIDIModifierDialog(Document */*doc*/)
 {
@@ -1232,11 +1229,11 @@ Boolean MIDIModifierDialog(Document */*doc*/)
 
 /* -------------------------------------------------------------------- MutePartDialog -- */
 
-static enum {
+enum {
 	RAD3_MutePart = 3,
 	RAD4_Unmute,
-	STXT6_PartName = 6,
-	} E_MutePartItems;
+	STXT6_PartName = 6
+};
 
 static short group2;
 
@@ -1269,6 +1266,7 @@ Boolean MutePartDialog(Document *doc)
 	SetPort(GetDialogPort(dlog));
 
 	/* Change static text item to number and name of the selected part */
+	
 	partL = Sel2Part(doc);
 	pPart = GetPPARTINFO(partL);
 	partNum = PartL2Partn(doc, partL);
@@ -1280,7 +1278,7 @@ Boolean MutePartDialog(Document *doc)
 	PutDlgChkRadio(dlog, RAD3_MutePart, (group2==RAD3_MutePart));
 	PutDlgChkRadio(dlog, RAD4_Unmute, (group2==RAD4_Unmute));
 
-	PlaceWindow(GetDialogWindow(dlog),NULL,0,80);
+	PlaceWindow(GetDialogWindow(dlog), NULL, 0, 80);
 	ShowWindow(GetDialogWindow(dlog));
 
 	/* Entertain filtered user events until dialog is dismissed */
@@ -1321,11 +1319,11 @@ Boolean MutePartDialog(Document *doc)
 
 extern short minDlogVal, maxDlogVal;
 
-static enum {
+enum {
 	 SPS_PERCENT_DI=3,
 	 UP_SPS_DI=5,
 	 DOWN_SPS_DI
-} E_SetPlaySpeedItems; 
+}; 
 
 Boolean SetPlaySpeedDialog(void)
 {
@@ -1364,7 +1362,7 @@ Boolean SetPlaySpeedDialog(void)
 				case OK:
 					GetDlgWord(dlog, SPS_PERCENT_DI, &newPercent);
 					if (newPercent<minDlogVal || newPercent>maxDlogVal) {
-						GetIndCString(strBuf, DIALOGERRS_STRS, 22);			/* "Play tempo percent must be between..." */
+						GetIndCString(strBuf, DIALOGERRS_STRS, 22);		/* "Play tempo percent must be between..." */
 						CParamText(strBuf, "", "", "");
 						StopInform(GENERIC_ALRT);
 					}

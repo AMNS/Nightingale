@@ -38,7 +38,7 @@
 
 typedef struct {
 	short		currentItem;
-	short		itemHilited;
+	short		itemHilited;			/* (unused) */
 	short		maxAcross;				/* used when zooming */
 	short		maxDown;				/* used when zooming */
 	short		across;

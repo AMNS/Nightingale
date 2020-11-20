@@ -60,6 +60,7 @@ void Initialize()
 	OSErr err;
 	Str63 dummyVolName;
 	Str255 versionPStr;
+	char bigOrLittleEndian;
 	
 	InitToolbox();
 
@@ -96,7 +97,15 @@ void Initialize()
 	Pstrcpy((unsigned char *)strBuf, VersionString(versionPStr));
 	PToCString((unsigned char *)strBuf);
 	GoodStrncpy(applVerStr, strBuf, 15);			/* Allow one char. for terminator */
-	LogPrintf(LOG_NOTICE, "RUNNING NIGHTINGALE %s  (Initialize)\n", applVerStr);
+	
+#if TARGET_RT_LITTLE_ENDIAN
+	bigOrLittleEndian = 'L';
+#else
+	bigOrLittleEndian = 'B';
+#endif
+
+	LogPrintf(LOG_NOTICE, "RUNNING NIGHTINGALE %s-%c  (Initialize)\n", applVerStr,
+				bigOrLittleEndian);
 
 	if (!OpenPrefsFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
@@ -106,8 +115,8 @@ void Initialize()
 	GetTextConfig();								/* needs the Prefs file open */
 	
 #ifdef NOTYET
-	/* FIXME: Finish mplementing the Preferences text file! The code in
-	   Preferences.c passes simple tests like these. */
+	/* FIXME: Finish mplementing the Preferences text file! The code in Preferences.c
+	   passes simple tests like these. */
 	   
 	char *foo = GetPrefsValue("foo");
 	char *bazz = GetPrefsValue("bazz");
@@ -118,8 +127,8 @@ void Initialize()
 
 	/* Allocate a large grow zone handle, which gets freed when we run out of memory,
 	   so that whoever is asking for memory will probably get what they need without
-	   our having to crash or die prematurely except in the rarest occasions. (The
-	   "rainy day" memory fund. This is ancient, and it's highly unlikely it's useful
+	   our having to crash or die prematurely except in the rarest occasions. (This is
+	   a "rainy day" memory fund. It's ancient code, and highly unlikely it's useful
 	   any more.  --DAB, Sept. 2019) */
 	   
 	memoryBuffer = NewHandle(config.rainyDayMemory*1024L);
@@ -130,10 +139,11 @@ void Initialize()
 	}
 	outOfMemory = False;
 	growZoneUPP = NewGrowZoneUPP(GrowMemory);
-	if (growZoneUPP)
-		SetGrowZone(growZoneUPP);			/* Install simple grow zone function */
+	if (growZoneUPP) SetGrowZone(growZoneUPP);		/* Install simple grow zone function */
 	
 	if (!NInitFloatingWindows()) { BadInit();  ExitToShell(); }
+	
+	EndianFixMIDIModNRTable();
 	
 	InitCursor();
 	WaitCursor();
@@ -169,10 +179,10 @@ void Initialize()
 #endif
 
 	/* See if we have enough memory that the user should be able to do SOMETHING
-	   useful, and enough to get back to the main event loop, where we do our
-	   regular low-memory checking. (As of v.999, 250K was enough; but now, in the
-	   21st century, we might as well make the minimum a lot higher -- though it's
-	   probably not even meaningful anymore!  --DAB, Feb. 2017) */
+	   useful, and enough to get back to the main event loop, where we do our regular
+	   low-memory checking. (As of v.999, 250K was enough; but now, in the 21st century,
+	   we might as well make the minimum a lot higher -- though it's probably not even
+	   meaningful anymore!  --DAB, Feb. 2017) */
 	   
 	if (!PreflightMem(1000))
 		{ BadInit(); ExitToShell(); }
@@ -412,7 +422,8 @@ Boolean OpenPrefsFile()
 		   This is dumb -- it should use PREFS_FILE_NAME, of course -- but ProgressMsg()
 		   can't handle that!*/
 		   
-		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.\n", PToCString(setupFileName));
+		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.\n",
+					PToCString(setupFileName));
 		ProgressMsg(CREATE_PREFS_PMSTR, "");
 		SleepTicks((unsigned)(5*60L));					/* Give user time to read the msg */
 		if (!CreatePrefsFile(&rfSpec)) {
@@ -447,7 +458,6 @@ Boolean OpenPrefsFile()
 	}
 	
 done:
-//	SetVol(volName,oldVol);
 	HSetVol(volName, oldVRefNum, oldDirID);
 	return okay;
 }
@@ -1227,7 +1237,8 @@ static Boolean CheckToolPalette(PaletteGlobals *whichPalette)
 /* Allocate a grid of characters from the 'PLCH' resource; uses GridRec dataType to
 store the information for a maximal maxRow by maxCol grid, where the dimensions are
 stored in the PLCH resource itself and should match the PICT that is being used to draw
-the palette.  Deliver the item number of the default tool (arrow), or 0 if problem. */
+the palette.  We also initialize PaletteGlobals fields read from the resource and check
+them. Returns the item number of the default tool (normally arrow), or 0 if problem. */
 
 static short GetToolGrid(PaletteGlobals *whichPalette)
 	{
@@ -1251,7 +1262,7 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 		
 		UseResFile(curResFile);
 
-		/* Pull in the maximum and suggested sizes for palette and check them. */
+		/* Pull in the maximum and suggested sizes for palette. */
 		
 		p = (unsigned char *)*hdl;
 		whichPalette->maxAcross = *p++;
@@ -1259,7 +1270,10 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 		whichPalette->firstAcross = whichPalette->oldAcross = whichPalette->across = *p++;
 		whichPalette->firstDown   = whichPalette->oldDown   = whichPalette->down   = *p++;
 		
-		/* We must _not_ "Endian fix" these values: they're read from one-byte fields! */
+		/* FIXME: This comment (written by me between Oct. 2017 and Aug. 2018) makes no
+		   sense: {We must _not_ "Endian fix" these values: they're read from one-byte
+		   fields!} What was I thinking of? WHAT values?? <PaletteGlobals> has no one-
+		   byte fields.  --DAB */
 		
 		if (DETAIL_SHOW) DisplayToolPalette(whichPalette);
 		LogPrintf(LOG_NOTICE, "Checking Tool Palette parameters: ");
@@ -1339,7 +1353,8 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		PicHandle toolPicture;  Rect picRect;
 		short curResFile;  short defaultToolItem;
 		
-		/* Allocate a grid of characters from the 'PLCH' resource. */
+		/* Allocate a grid of characters from the 'PLCH' resource and initialize the
+		   PaletteGlobals fields stored in the resource. */
 		
 		defaultToolItem = GetToolGrid(whichPalette);
 		if (!defaultToolItem) { BadInit(); ExitToShell(); }
@@ -1380,7 +1395,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		
 		OffsetRect(windowRect, 0, 40);
 		
-		/* Initialize the PaletteGlobals structure */
+		/* Finish initializing the PaletteGlobals structure. */
 		
 	 	whichPalette->currentItem = defaultToolItem;
 		whichPalette->drawMenuProc = (void (*)())DrawToolPalette;
@@ -1389,7 +1404,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		
 LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
 
-		/* Put picture into offscreen port so that any rearrangements can be saved */
+		/* Put picture into offscreen port so that any rearrangements can be saved. */
 
 		SaveGWorld();
 		
@@ -1415,33 +1430,33 @@ LogPixMapInfo("SetupToolPalette2", portPixMap, 1000);
 }
 
 
-/* Initialize everything about the floating windows, a.k.a. palettes. NB: as of v. 5.8b8,
+/* Initialize everything about the floating windows, a.k.a. palettes. NB: as of v. 5.8.10,
 the tool palette is our only floating window. We've kept vestigal code for a help palette
 (which seems unlikely ever to be used) and for a clavier palette (which might be useful
 someday). */
 
 static Boolean NInitFloatingWindows()
 	{
-		short index, wdefID;
+		short idx, wdefID;
 		PaletteGlobals *whichPalette;
 		Rect windowRects[TOTAL_PALETTES];
 		short totalPalettes = TOTAL_PALETTES;
 		
-		for (index=0; index<totalPalettes; index++) {
+		for (idx=0; idx<totalPalettes; idx++) {
 		
 			/* Get a handle to a PaletteGlobals structure for this palette */
 			
-			paletteGlobals[index] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+index);
-			if (!GoodResource((Handle)paletteGlobals[index])) return False;
-			EndianFixPaletteGlobals(index);
+			paletteGlobals[idx] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+idx);
+			if (!GoodResource((Handle)paletteGlobals[idx])) return False;
+			EndianFixPaletteGlobals(idx);
 
-			MoveHHi((Handle)paletteGlobals[index]);
-			HLock((Handle)paletteGlobals[index]);
-			whichPalette = *paletteGlobals[index];
+			MoveHHi((Handle)paletteGlobals[idx]);
+			HLock((Handle)paletteGlobals[idx]);
+			whichPalette = *paletteGlobals[idx];
 			
-			switch(index) {
+			switch(idx) {
 				case TOOL_PALETTE:
-					SetupToolPalette(whichPalette, &windowRects[index]);
+					SetupToolPalette(whichPalette, &windowRects[idx]);
 					wdefID = ToolPaletteWDEF_ID;
 					break;
 				case HELP_PALETTE:
@@ -1452,29 +1467,30 @@ static Boolean NInitFloatingWindows()
 			wdefID = floatGrowProc;
 			
 			if (thisMac.hasColorQD)
-				palettes[index] = (WindowPtr)NewCWindow(NULL, &windowRects[index],
+				palettes[idx] = (WindowPtr)NewCWindow(NULL, &windowRects[idx],
 										"\p", False, wdefID, BRING_TO_FRONT, True,
-										(long)index);
+										(long)idx);
 			 else
-				palettes[index] = (WindowPtr)NewWindow(NULL, &windowRects[index],
+				palettes[idx] = (WindowPtr)NewWindow(NULL, &windowRects[idx],
 										"\p", False, wdefID, BRING_TO_FRONT, True,
-										(long)index);
-			if (!GoodNewPtr((Ptr)palettes[index])) return False;
+										(long)idx);
+			if (!GoodNewPtr((Ptr)palettes[idx])) return False;
 		
-			//	((WindowPeek)palettes[index])->spareFlag = (index==TOOL_PALETTE || index==HELP_PALETTE);
+			//	((WindowPeek)palettes[idx])->spareFlag = (idx==TOOL_PALETTE || idx==HELP_PALETTE);
 			
 			/* Add a zoom box to tools and help palette */
-			if (index==TOOL_PALETTE || index==HELP_PALETTE) {
-				ChangeWindowAttributes(palettes[index], kWindowFullZoomAttribute, kWindowNoAttributes);
+			
+			if (idx==TOOL_PALETTE || idx==HELP_PALETTE) {
+				ChangeWindowAttributes(palettes[idx], kWindowFullZoomAttribute, kWindowNoAttributes);
 			}
 
-			/* Finish Initializing the TearOffMenuGlobals structure. */
+			/* Finish initializing the TearOffMenuGlobals structure. */
 			
 			whichPalette->environment = &thisMac;
-			whichPalette->paletteWindow = palettes[index];
-			SetWindowKind(palettes[index], PALETTEKIND);
+			whichPalette->paletteWindow = palettes[idx];
+			SetWindowKind(palettes[idx], PALETTEKIND);
 			
-			HUnlock((Handle)paletteGlobals[index]);
+			HUnlock((Handle)paletteGlobals[idx]);
 			}
 	
 	return True;
@@ -1525,6 +1541,7 @@ Boolean BuildEmptyDoc(Document *doc)
 //#define TEST_MDEF_CODE
 #ifdef TEST_MDEF_CODE
 // add some interesting sample items
+
 static void AddSampleItems(MenuRef menu);
 static void AddSampleItems(MenuRef menu)
 {
@@ -1567,9 +1584,11 @@ Boolean InitGlobals()
 		for (doc=documentTable; doc<topTable; doc++) doc->inUse = False;
 		
 		/* Preallocate the clipboard and search documents */
+		
 		if (!PrepareClipDoc()) return False;
 			
 		/* Set up the global scrap reference */
+		
 		GetCurrentScrap(&gNightScrap);
 	
 		/* Allocate various non-relocatable things first */
@@ -1658,8 +1677,7 @@ Boolean InitGlobals()
 		GetIndPattern(&otherLtGray, MiscPatternsID, 4);
 		
 		/* Call stub routines to load all segments needed for selection, so user
-		doesn't have to wait for them to load when he/she makes the the first
-		selection. */
+		doesn't have to wait for them to load when they make the the first selection. */
 
 		XLoadEditScoreSeg();
 		

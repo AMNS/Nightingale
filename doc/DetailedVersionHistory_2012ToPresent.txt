@@ -3013,3 +3013,12 @@ saved, trying to open it again results in an error message. Affects SysPageEdit.
 
 Minor cleanup. Affects Beam, DebugUtils, DragBeam, FileSave, Heaps, SysPageEdit,
 TextDialog.
+
+---------------------------------------------------------------------------------------
+
+16 - 19 Nov.
+
+Fixed bug: on Intel machines, Nightingale always thinks the Prefs file has changed,
+and it ends up replacing a good Prefs file with a bad one. Affects Finalize.
+
+Minor cleanup. Affects PaletteGlobals.h; DebugUtils, Finalize, Initialize, MIDIDialogs.

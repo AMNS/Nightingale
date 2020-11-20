@@ -8135,19 +8135,6 @@ Run our standard test: open open 2ndMovementCSpp1-3.ngl several times =>
 (2) Debug Check complains about 8 Beamsets (and the usual 16 Timesigs); 31 errors. Garbage beams drawn.
 (3) Debug Check complains about 4 Beamsets (and the usual 16 Timesigs); 33 errors. Some beams not drawn.
 
-
-?????????? REDO BELOW!!!!!
-Retest combinations of open/save, file format, processor type; results:
-
-open/save	file format processor	status
-----------	-----------	---------	-------
-Open		N105		PPC			??OK except The Bug (clobbered beams & timesigs)
-"			"			Intel		??OK: Ngale correctly says "file version too old to open"
-"			N106		PPC			??OK
-"			"			Intel		??Bad: Ngale either crashes or opens it badly garbled
-Save		N106		PPC			??OK
-"			"			Intel		??Bad: trying to open on PPC or Intel always gives 8 header errors
-
 ---------------------------------------------------------------------------------------
 
 13 - 15 Nov.
@@ -8167,7 +8154,8 @@ To test the fix with 2ndMovementCSpp1-3.ngl, must do it in Ngale 5.8.10 => it wo
 having changed the path in the project file to point to the 5.9 version of FileSave!)
 Make the same changes in 5.9.1 => OK.
 
-Run our standard test: open open 2ndMovementCSpp1-3.ngl several times =>
+BACK TO The "Beamsets corrupted during file format conversion" Bug. Run our standard test:
+open open 2ndMovementCSpp1-3.ngl several times =>
 
 (1) Debug Check complains about at least one Beamset. Garbage beams drawn.
 (2) Debug Check has no complaints, and everything seems to be drawn correctly.
@@ -8188,3 +8176,43 @@ while converting object L830:
 	debug. ****** (ConvertSLUR2): DCheckBeamset found a problem with qL=L435, at objL=830. (0: 0, 0)
 
 So converting L689 is still the earliest I've ever seen a Beamset problem detected.
+
+---------------------------------------------------------------------------------------
+
+17 - 19 Nov.
+
+A new problem: when Ngale on Intel is launched, it complains about 21 illegal values in
+the Prefs file. Well, not that new: it happens with Intel versions at least as far back as
+2 Nov.! Hmmm: the Library/Nightingale AMNF Prefs file was modified _today_; why? I dunno,
+but replace it with a 2018 default AMNF Prefs. Open Ngale => all OK; quit it => the AMNF
+Prefs is replaced by a new one, and launching Ngale complains about (this time) 22 illegal
+values in the Prefs! Clearly CheckUpdatePrefsFile() thought they changed and replaced a
+good Prefs file with a bad one. Check: Yep; the log says
+
+	debug. Prefs changed: cnfg=226 midiTab=0 midiModNRTab=1  (CheckUpdatePrefsFile)
+	Notice. Updating the Prefs file...  (UpdatePrefsFile)
+
+And it undoubtedly thinks <config> fields and MIDI modNR tables changed either because it
+isn't calling the Endian routines to undo the changes the Initialize functions made, or
+because it _is_ calling them and Initialize didn't. Initialize does EndianFixConfig and
+EndianFixPaletteGlobals; Finalize does EndianFixConfig and EndianFixMIDIModNRTable.
+Actually, both should call all three! Done; test on Intel => OK.
+
+
+????????
+NOT YET Time to retest combinations of open/save, file format, processor type. NB: I tested
+opening files on PPC only with files written on PPC because Ngale on Intel can't write
+valid files yet! Results:
+
+open/save	file format processor	status
+						running on
+----------	-----------	---------	-------
+Open		N105		PPC			OK except The Bug (clobbered beams & timesigs)
+"			"			Intel		OK: Ngale correctly says "file version too old"
+"			N106		PPC			OK (tested with only files saved by PPC & of <= 160K!*)
+"			"			Intel		??Bad: Ngale either crashes or opens it badly garbled
+Save		N106		PPC			OK
+"			"			Intel		??Bad: trying to open on PPC or Intel always gives 8 header errors
+
+*Larger files tested: 2ndMvmtCSpp1-2p5_ConvPPC.ngl, GraphicsOnWrongPage_ConvPPC.ngl.
+

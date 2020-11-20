@@ -17,11 +17,27 @@ static Boolean UpdatePrefsFile(Handle cnfgResH, Handle midiResH, Handle midiModN
 static Boolean CheckUpdatePrefsFile(void);
 
 /* -------------------------------------------------------------- EndianFixForFinalize -- */
+/* Nightingale keeps certain things in its Prefs file in Big Endian form. If we're on a
+Little Endian CPU, we should have converted them to that form when we launched, and we
+need to convert them back now. */
 
 static void EndianFixForFinalize()
 {
-	EndianFixConfig();			/* Ensure <config> fields are in Big Endian form */
-	EndianFixMIDIModNRTable();	/* Ensure MIDI modNR tables are in Big Endian form */
+	EndianFixConfig();				/* Ensure <config> fields are in Big Endian form */
+	
+	/* Ensure palette globals for each palette are in Big Endian form */
+	
+	for (short idx=0; idx<TOTAL_PALETTES; idx++) {	
+		paletteGlobals[idx] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+idx);
+		if (!GoodResource((Handle)paletteGlobals[idx])) {
+			LogPrintf(LOG_WARNING, "Can't get globals for palette %d.  (EndianFixForFinalize)\n",
+				idx); 
+			return;
+		}
+		EndianFixPaletteGlobals(idx);
+	}
+
+	EndianFixMIDIModNRTable();		/* Ensure MIDI modNR tables are in Big Endian form */
 }
 
 /* -------------------------------------------------------------- ReplacePrefsResource -- */
@@ -55,13 +71,6 @@ static Boolean ReplacePrefsResource(Handle resH, Handle hndl, ResType type, shor
 
 
 /* -------------------------------------------------------------- CheckUpdatePrefsFile -- */
-/* If they've been changed, save current config struct in Prefs (formerly "Setup")
-file's 'CNFG' resource, MIDI dynamics table in its 'MIDI' resource, and MIDI modifier
-prefs tables in its 'MIDM' resource, . Doesn't update any other resources that may be in
-the Prefs file, .e.g., tool palette 'PICT'/'PLCH', 'PLMP'. We assume Prefs file is open.
-Return True if all OK, give an error message and return False if there's a problem. NB:
-If we're running on a Little Endian machine, this converts multibyte numbers to Big
-Endian form; that could be disastrous if we do anything after this but quit! */
 
 #define CNFG_RES_NAME	"\pNew Config"
 #define MIDI_RES_NAME	"\pNew velocity table"
@@ -117,6 +126,13 @@ static Boolean UpdatePrefsFile(Handle cnfgResH, Handle midiResH, Handle midiModN
 		return True;
 }
 
+/* If they've been changed, save current config struct in the Prefs (formerly "Setup")
+file's 'CNFG' resource, MIDI dynamics table in its 'MIDI' resource, and MIDI modifier
+prefs tables in its 'MIDM' resource. Doesn't update any other resources that may be in
+the Prefs file, .e.g., tool palette 'PICT'/'PLCH', 'PLMP'. We assume Prefs file is open.
+Return True if all OK, give an error message and return False if there's a problem. NB:
+If we're running on a Little Endian machine, this converts multibyte numbers to Big
+Endian form; that could be disastrous if we do anything after this but quit! */
 
 static Boolean CheckUpdatePrefsFile()
 {
@@ -128,6 +144,8 @@ static Boolean CheckUpdatePrefsFile()
 	
 	config.maxDocuments--;		/* So that we're not including clipboard doc in count */
 		
+	EndianFixForFinalize();
+
 	/* Get the config resource and MIDI resources from Prefs file and compare them to
 	   our internal values. If any have been changed, update the file. */
 	
@@ -140,7 +158,13 @@ static Boolean CheckUpdatePrefsFile()
 			
 	cnfgChanged = memcmp( (void *)*cnfgResH, (void *)&config,
 								(size_t)sizeof(Configuration) );
-		
+#ifdef DEBUG_INTEL_PREFS
+	if (cnfgChanged) {
+		NHexDump(LOG_DEBUG, "*cnfgResH", (unsigned char *)*cnfgResH, (size_t)sizeof(Configuration), 4, 16);
+		NHexDump(LOG_DEBUG, "config   ", (unsigned char *)&config, (size_t)sizeof(Configuration), 4, 16);
+	}
+#endif
+
 	for (midiVeloTabChanged = False, i = 1; i<LAST_DYNAM; i++)
 		if (dynam2velo[i]!=((MIDIPreferences *)*midiResH)->velocities[i-1])
 			{ midiVeloTabChanged = True;  break; }
@@ -152,11 +176,10 @@ static Boolean CheckUpdatePrefsFile()
 			{ midiModNRTabChanged = True; break; }
 	}
 
-	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG,
-						"Prefs changed: cnfg=%d midiTab=%d midiModNRTab=%d  (CheckUpdatePrefsFile)\n",
-							cnfgChanged, midiVeloTabChanged, midiModNRTabChanged);
+	LogPrintf(LOG_INFO, "Prefs changed: cnfg=%d midiTab=%d midiModNRTab=%d  (CheckUpdatePrefsFile)\n",
+					cnfgChanged, midiVeloTabChanged, midiModNRTabChanged);
 
-	/* NB: With the addition of the MIDI Modifier Prefs, the wording of these warning
+	/* FIXME: With the addition of the MIDI Modifier Prefs, the wording of these warning
 	   messages is getting a little too complicated. I'm bundling the MIDI Dynamics
 	   Prefs and MIDI Modifier Prefs in one message, but this isn't the best solution.
 		-JGG, 6/24/01 */
@@ -210,7 +233,6 @@ void Finalize()
 	if (!OpenPrefsFile()) return;			/* If it fails, there's nothing worth doing ??REALLY? */
 	
 	if (!CheckUpdatePrefsFile()) LogPrintf(LOG_ERR, "Couldn't update the Nightingale Preferences file!  (Finalize)\n");
-	EndianFixForFinalize();
 
 	ClosePrefsFile();
 	

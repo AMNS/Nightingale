@@ -323,7 +323,7 @@ Boolean DCheckMBBox(
 	mBBox = pMeasure->measureBBox;
 
 	/* If Measure is of width zero, it can't contain anything, nor can it be followed by
-		another Measure until we've started a new System. */
+	   another Measure until we've started a new System. */
 		
 	if (mBBox.right<=mBBox.left) {
 		for (checkL = RightLINK(pL); !SystemTYPE(checkL); checkL = RightLINK(checkL)) {
@@ -624,7 +624,8 @@ that have meaningful objRects. If we find such object(s), we check whether their
 				long	timeStampHere, timeStampBefore, timeStampAfter;
 				LINK	tempL;
 
-			/* Do consistency checks on relative times of this Sync and its neighbors. */
+				/* Do consistency checks on relative times of this Sync and its neighbors. */
+				
 				if (!abnormal) {
 					timeStampHere = SyncTIME(pL);
 					if (timeStampHere>MAX_SAFE_MEASDUR) {
@@ -652,7 +653,8 @@ that have meaningful objRects. If we find such object(s), we check whether their
 					}
 				}
 				
-			/* Do subobject count and voice-by-voice consistency checks. */
+				/* Do subobject count and voice-by-voice consistency checks. */
+			
 				for (v = 0; v<=MAXVOICES; v++) {
 					vNotes[v] = vMainNotes[v] = 0;
 					vTuplet[v] = False;
@@ -943,6 +945,7 @@ that have meaningful objRects. If we find such object(s), we check whether their
 					if (!abnormal && LinkVALID(pL)) {
 					
 						/* For Measures, the <valid> flag also applies to the <measureBBox>. */
+						
 						if (GARBAGE_Q1RECT(pMeasure->measureBBox)) {
 							COMPLAIN2("DCheckNode: MEASURE %d (L%u) HAS A GARBAGE BBOX.\n", 
 										GetMeasNum(doc, pL), pL);
@@ -952,7 +955,9 @@ that have meaningful objRects. If we find such object(s), we check whether their
 						
 						if (pMeasure->lMeasure) {
 							lMeasure = GetPMEASURE(pMeasure->lMeasure);
+							
 						/* Can't use standard Search here because it assumes links are OK. */
+						
 							for (qL = LeftLINK(pL); qL; qL = LeftLINK(qL))
 								if (ObjLType(qL)==MEASUREtype) break;
 							if (!qL)
@@ -970,7 +975,9 @@ that have meaningful objRects. If we find such object(s), we check whether their
 	
 						if (pMeasure->rMeasure) {
 							rMeasure = GetPMEASURE(pMeasure->rMeasure);
+							
 						/* Can't use standard Search here because it assumes links are OK. */
+						
 							for (qL = RightLINK(pL); qL; qL = RightLINK(qL))
 								if (ObjLType(qL)==MEASUREtype) break;
 							if (!qL)
@@ -1819,7 +1826,7 @@ Boolean DCheckHeirarchy(Document *doc)
 	LINK 		pL, aStaffL, pageL, systemL;
 	short		nMissing, i,
 				nsystems, numSheets;
-	Boolean	aStaffFound[MAXSTAVES+1],					/* Found the individual staff? */
+	Boolean aStaffFound[MAXSTAVES+1],					/* Found the individual staff? */
 				foundPage, foundSystem, foundStaff,		/* Found any PAGE, SYSTEM, STAFF obj yet? */
 				foundMeasure,							/* Found a MEASURE since the last STAFF? */
 				foundClef, foundKeySig, foundTimeSig;	/* Found any CLEF, KEYSIG, TIMESIG yet? */
@@ -2012,7 +2019,7 @@ Boolean DCheckJDOrder(Document *doc)
 file and objects in the file are being processed in order. Syncs and GRSyncs in a Beamset
 always follow the Beamset itself, so in that case we can't expect their flags to be
 correct; but we _can_ expect their LINKs to be monotonically increasing. If <!openingFile>,
-what we can expect is exactly the opposite. */
+what we can expect is exactly the opposite. Return True iff we find a problem. */
 
 Boolean DCheckBeamset(Document *doc, LINK beamL,
 								Boolean maxCheck,			/* False=skip less important checks */
@@ -2112,7 +2119,7 @@ Next:
 				beamNotesOkay = False;
 				break;
 			}
-if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
+//if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
 			if (!SameSystem(beamL, syncL)) {
 				COMPLAIN3("*DCheckBeamset: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n",
 								beamL, (grace? "GR" : ""), syncL);
@@ -2154,19 +2161,20 @@ if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sy
 with notes/rests or grace notes they should be referring to. For cross-system Beamsets,
 also check that, after a non-grace Beamset that's the first of a cross-system pair, the
 next non-grace Beamset in that voice is the second of a pair. (Notes/rests are checked
-against their Beamset more carefully than grace notes are.)
+against their Beamset more carefully than grace notes are.) Return True iff we find a
+problem.
 
-Caveat: We don't do context-free checks of Beamset objects! For that, use a loop that
-calls DCheckBeamset for each Beamset. (As of Sept. 2020, DCheckNode also calls
+Caveat: We don't do context-free checks of individual Beamset objects! For that, use a
+loop that calls DCheckBeamset for each Beamset. (As of Sept. 2020, DCheckNode also calls
 DCheckBeamset.) */
- 
+
 Boolean DCheckBeams(
 				Document *doc,
 				Boolean /*maxCheck*/		/* False=skip less important checks */
 				)
 {
 	PANOTE		aNote, aGRNote;
-	LINK		pL, aNoteL, aGRNoteL, syncL, qL;
+	LINK		pL, aNoteL, aGRNoteL, lastSyncL, qL;
 	short		voice;
 	LINK		beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
 	Boolean		expect2ndPiece[MAXVOICES+1];
@@ -2193,7 +2201,9 @@ Boolean DCheckBeams(
 				else		beamSetL[voice] = pL;
 			}
 
-			for (qL = RightLINK(pL); qL!=syncL; qL = RightLINK(qL))
+			lastSyncL = LastInBeam(pL);
+
+			for (qL = RightLINK(pL); qL!=lastSyncL; qL = RightLINK(qL))
 				if (BeamsetTYPE(qL))
 					if (BeamVOICE(qL)==BeamVOICE(pL)) {
 						COMPLAIN2("*DCheckBeams: BEAMSET L%u IN SAME VOICE AS UNFINISHED BEAMSET L%u.\n",
@@ -2792,7 +2802,7 @@ Boolean DCheckContext(Document *doc)
 					&& aMeasureFound[aClef->staffn]						/* After the 1st System? */
 					&&  clefType[aClef->staffn]!=aClef->subType)		/* Yes, check the clef */
 						COMPLAIN3("*DCheckContext: FOR STAFF %d IN CLEF L%u, INCONSISTENT clefType: EXPECTED %d.\n",
-											aStaff->staffn, pL, clefType[aClef->staffn]);
+											aClef->staffn, pL, clefType[aClef->staffn]);
 					clefType[aClef->staffn] = aClef->subType;
 				}
 				break;
