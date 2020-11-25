@@ -20,12 +20,12 @@ typedef struct {
 	short lastStaff;
 } PARTSTAFF;
 
-static enum {
+enum {
 	PasteCancel=1,
 	PasteTrunc,
 	PastePin,
 	PasteOK
-} EPasteTypeItems;
+};
 
 static DDIST clipxd, clipBarxd, pasteInsertpxd;
 static Boolean clipHasAddedAccs;
@@ -205,6 +205,7 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 					octType = OttavaType(ottavaL);
 
 					/* Update note's y position. */
+					
 					GetContext(doc, qL, staff, &context);
 					yDelta = halfLn2d(noteOffset[octType-1], context.staffHeight,
 											context.staffLines);
@@ -224,7 +225,7 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 												stemLen, False);
 	
 					/* Loop through the notes again and fix up the ystems of the
-						non-extreme notes. */
+					   non-extreme notes. */
 
 					aNoteL = FirstSubLINK(pL);
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
@@ -267,7 +268,7 @@ static Boolean SrcSlurInRange(Document *srcDoc, LINK qL, Boolean isTie,
 									Boolean slurredL, COPYMAP *clipMap, short numObjs,
 									SearchParam *pbSearch)
 {
-	LINK slurL; Boolean inRange;
+	LINK slurL;  Boolean inRange;
 	Document *saveDoc;
 
 	saveDoc = currentDoc;
@@ -515,7 +516,7 @@ static void UpdateClipContext(Document *doc)
 		
 		/* The Nightingale object list supports arbitrary key signatures with intermixed
 		   sharps and flats. These are indicated by the <nonstandard> flag in the KeySig
-		   subobject, which unfortunately is not kept in the context, but we don't support
+		   subobject, which unfortunately is not kept in the context; but we don't support
 		   nonstandard ones yet anyway, so just call GetSharpsOrFlats, which assumes it's
 		   a standard one. */
 		   
@@ -552,8 +553,8 @@ static DDIST SyncSpaceNeeded(Document *doc, LINK pL)
 	space = IdealSpace(doc, maxLen, RESFACTOR*doc->spacePercent);
 	symWidth = SymWidthRight(doc, pL, staff, False);
 	GetContext(doc, pL, staff, &context);
-	space = n_max(space,symWidth);
-	return (std2d(space,context.staffHeight,5));
+	space = n_max(space, symWidth);
+	return (std2d(space, context.staffHeight, 5));
 }
 
 /* Return the total space required by pL in DDISTs. */
@@ -582,7 +583,8 @@ clipxd, clipBarxd. */
 static void SetupClip(Document *doc, LINK startL, LINK endL, COPYMAP **clipMap,
 								short *objCount)
 {
-	LINK pL, baseL, nextL; DDIST diff;
+	LINK pL, baseL, nextL;
+	DDIST diff;
 
 	DeleteClip(doc);											/* Kill current clipboard */
 	SetupClipDoc(doc,True);
@@ -697,7 +699,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 	addAccidentals = addAccsKnown = False;
 	
 	/* Scanning the object list to left, if we find a Sync or GRSync with accidentals
-		before we find a Measure, we'll add accidentals, otherwise we won't. */
+	   before we find a Measure, we'll add accidentals, otherwise we won't. */
 	
 	for (pL = LeftLINK(startL); pL && !addAccsKnown; pL = LeftLINK(pL)) {
 		switch (ObjLType(pL)) {
@@ -727,8 +729,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 				case SYSTEMtype:
 				case STAFFtype:
 				case CONNECTtype:
-					MayErrMsg("CopyToClip: illegal type %ld copied", 
-						(long)ObjLType(pL));
+					MayErrMsg("CopyToClip: illegal type %ld copied", (long)ObjLType(pL));
 					break;
 				case MEASUREtype:
 					copyL = DuplicateObject(MEASUREtype, pL, False, doc, clipboard, False);
@@ -872,7 +873,9 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 											goto ODone;
 										}
 									}
+									
 								/* I don't think we can ever get here, but just in case */
+								
 								InstallDoc(doc);
 								}
 						}
@@ -935,9 +938,9 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 		DLeftLINK(clipboard, clipboard->tailL) = prevL;
 	}
 
-	/* Structure links need to be fixed up in the clipboard if we wish
-		to use LSSearch in the clipboard; this is called, for example, by
-		GetContext called by GetNoteYStem called by FixClipBeams. */
+	/* Structure links need to be fixed up in the clipboard if we wish to use LSSearch
+	   in the clipboard; this is called, for example, by GetContext called by
+	   GetNoteYStem called by FixClipBeams. */
 
 	FixStructureLinks(doc, clipboard, clipboard->headL, clipboard->tailL);
 	
@@ -946,6 +949,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 		fix up beam ptrs for notes in beamsets completely copied, then fix up notes
 		whose beamsets are not copied to the clipboard. Do the same for tuplets &
 		ottavas. */
+		
 	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, False);
 	FixAllBeamLinks(doc, clipboard, clipboard->headL, clipboard->tailL);
 	FixClipBeams(doc, clipboard->headL, clipboard->tailL);
@@ -960,36 +964,38 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 	
 	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, False);
 	FixClipLinks(doc,clipboard,clipboard->headL,clipboard->tailL,clipMap,numObjs,0);
+	
 	/* clipboard's heaps are now installed. */
 	
 	DisposePtr((Ptr)clipMap);
 	
-	for (v = 1; v<=MAXVOICES; v++)						/* Not clear where to do this. */
+	for (v = 1; v<=MAXVOICES; v++)						/* FIXME: Not clear where to do this. */
 		clipboard->voiceTab[v] = doc->voiceTab[v];
 		
 	InstallDoc(clipboard);
 	for (pL = clipFirstMeas; pL!=clipboard->tailL; pL = RightLINK(pL)) {
 
 		/* Because of special treatment of measures described in ContinSelection,
-			they may be unselected in the clipboard, so select them now. */
+		   they may be unselected in the clipboard, so select them now. */
 
 		if (MeasureTYPE(pL) || PSMeasTYPE(pL)) {
 			SelAllSubObjs(pL);
 			LinkSEL(pL) = True;
 		}
 
-		/* Fix stem, inChord flags, etc. of notes in case any chords were only
-			partly copied. */
+		/* Fix stem, inChord flags, etc. of notes in case any chords were only partly
+		   copied. */
+		   
 		if (SyncTYPE(pL)) FixClipChords(clipboard, pL);
 	}
 
 	BuildVoiceTable(clipboard, True);
 
 	/* If we haven't copied the beginning of the first measure of the score, notes
-		in the clipboard's first measure with implied accidentals may no longer
-		have the correct context: to avoid problems, add explicit accidentals. ??Too
-		extreme: should then remove redundant accs in the clipboard, or add them only
-		if not in the keysig, etc.! */
+	   in the clipboard's first measure with implied accidentals may no longer have
+	    the correct context: to avoid problems, add explicit accidentals. FIXME: Too
+	   extreme: should then remove redundant accs in the clipboard, or add them only
+	   if not in the keysig, etc.! */
 		
 	clipHasAddedAccs = False;
 	if (addAccidentals) {
@@ -999,6 +1005,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 		endAddAccsL = LSUSearch(RightLINK(clipFirstMeas), MEASUREtype, ANYONE, GO_RIGHT, False);
 
 		/* If no staff has a key signature, there's no need to add redundant naturals. */
+		
 		addNaturals = False;
 		GetAllContexts(clipboard, context, clipFirstMeas);
 		for (s=1; s<=clipboard->nstaves; s++)
@@ -1017,9 +1024,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 	clipboard->selEndL = clipboard->tailL;
 }
 
-/*
- *	Replace the clipboard's fontTable with the fontTable of the given Document.
- */
+/*	Replace the clipboard's fontTable with the fontTable of the given Document. */
 
 void CopyFontTable(Document *doc)
 {
@@ -1030,10 +1035,8 @@ void CopyFontTable(Document *doc)
 	clipboard->nfontsUsed = doc->nfontsUsed;
 }
 
-/*
- *	Update fields of the clipboard document to reflect their values in the document
- * from which the selection range was copied.
- */
+/* Update fields of the clipboard document to reflect their values in the document
+from which the selection range was copied. */
 
 void SetupClipDoc(Document *doc, Boolean updContext)
 {
@@ -1089,13 +1092,14 @@ static void DeleteClip(Document *doc)
 	InstallDoc(clipboard);
 	startL = clipboard->headL; endL = clipboard->tailL;
 
-	/* Delete everything in the clipboard, including initial structure
-		objects. */
+	/* Delete everything in the clipboard, including initial structure objects. */
+	
 	DeleteRange(clipboard,RightLINK(clipboard->headL),clipboard->tailL);
 	DeleteNode(clipboard,clipboard->headL);
 
-	/* Replace the initial structure objects with duplicates of those
-		in the document whose selRange is to be copied to the clipboard. */	
+	/* Replace the initial structure objects with duplicates of those in the document
+	   whose selRange is to be copied to the clipboard. */
+	   
 	pageL = sysL = staffL = prevL = NILINK;
 	for (pL=doc->headL; !loopDone; pL=DRightLINK(doc,pL)) {
 		switch (DObjLType(doc, pL)) {
@@ -1139,10 +1143,11 @@ static void DeleteClip(Document *doc)
 				break;
 		}
 		/* If prevL has not been set (we are at clipboard->headL), set it to the
-			copied node. If no node has been copied (a BeforeFirstMeas graphic will
-			not be copied), then prevL will still be equal to copyL, having been
-			set to it in the previous iteration of the loop; just set it to copyL
-			again; else link copyL in after prevL, and move prevL along to be copyL. */
+		   copied node. If no node has been copied (a BeforeFirstMeas graphic will
+		   not be copied), then prevL will still be equal to copyL, having been
+		   set to it in the previous iteration of the loop; just set it to copyL
+		   again; else link copyL in after prevL, and move prevL along to be copyL. */
+			
 		if (prevL)
 			if (prevL!=copyL) {
 				RightLINK(prevL) = copyL;
@@ -1150,7 +1155,9 @@ static void DeleteClip(Document *doc)
 			}
 		prevL = copyL;
 	}
+	
 	/* Link in the tail of the clipboard after the last copied object. */
+	
 	RightLINK(prevL) = endL;
 	LeftLINK(endL) = prevL;
 	
@@ -1349,16 +1356,16 @@ static void InvalForPaste(Document *doc, LINK prevSelL, Boolean hasClef, Boolean
 }
 
 
-/* ----------------------------------------------------------- PasteDelRedAccsDialog -- */
+/* ------------------------------------------------------------- PasteDelRedAccsDialog -- */
 /* Delete redundant accidentals in material just pasted in? Return True to delete
-them, False to leave them alone. If user has answered this question before and
-said not to ask again, just return the previous answer; else ask them. */
+them, False to leave them alone. If user has answered this question before and said
+not to ask again, just return the previous answer; else ask them. */
 
-static enum {
+enum {
 	BUT1_DelSoft=1,
 	BUT2_DelNone=2,
 	CHK3_Assume=5
-} E_PasteDRAItems;
+};
 
 /* --------------------------------------------------------------------------- DoPaste -- */
 /* Paste the clipboard into the selection range. */
@@ -1380,8 +1387,8 @@ Boolean DoPaste(Document *doc)
 	pasteType = CheckMainClip(doc, DRightLINK(clipboard, clipFirstMeas), clipboard->tailL);
 	if (pasteType==PasteCancel) return False;
 
-	/* If there are any tuplets spanning the insertion point and notes are to be
-		pasted in the tuplet's voice, we can't paste. */
+	/* If there are any tuplets spanning the insertion point and notes are to be pasted
+	   in the tuplet's voice, we can't paste. */
 
 	stfDiff  = GetAnyStfDiff(doc,doc,pasteType,&dummy1,&dummy2);
 	for (v=1; v<=MAXVOICES; v++)
@@ -1405,18 +1412,17 @@ Boolean DoPaste(Document *doc)
 	PrepareUndo(doc, doc->selStartL, U_Paste, 7);				/* "Undo Paste" */
 	MEHideCaret(doc);
 	
-	/*
-	 *	Internal routines will need the selection staff, but we won't be able to
-	 * call GetSelStaff because anything selected when DoPaste was called may have
-	 * been deleted by then. So we call GetSelStaff here and store its result in
-	 * the Document's selStaff.
-	 */
+	/* Internal routines will need the selection staff, but we won't be able to call
+	   GetSelStaff because anything selected when DoPaste was called may have been
+	   deleted by then. So we call GetSelStaff here and store its result in the
+	   Document's selStaff. */
+	   
 	doc->selStaff = GetSelStaff(doc);
 
 	/* If any Measure objects are only partly selected, we have to do something so
-		we don't end up with a object list with Measure objs with subobjs on only
-		some staves, since that is illegal. Anyway, the user probably doesn't really
-		want to delete such Measures. ??Cf. Clear; for now, just avoid disasters. */
+	   we don't end up with a object list with Measure objs with subobjs on only
+	   some staves, since that is illegal. Anyway, the user probably doesn't really
+	   want to delete such Measures. ??Cf. Clear; for now, just avoid disasters. */
 		
 	if (DeselPartlySelMeasSubobjs(doc))
 		OptimizeSelection(doc);
@@ -1429,18 +1435,18 @@ Boolean DoPaste(Document *doc)
 
 	prevSelStartL = LeftLINK(doc->selStartL);
 	DeleteSelection(doc, True, &dontResp);							/* Kill selection */
-	PasteFromClip(doc, doc->selEndL,pasteType,delRedAccs);	/* Paste in clipboard */
+	PasteFromClip(doc, doc->selEndL,pasteType,delRedAccs);			/* Paste in clipboard */
 
 	InitAntikink(doc, prevSelStartL, doc->selEndL);
 	MEAdjustCaret(doc,False);
 	if (doc->autoRespace) {
 		RespaceBars(doc,prevSelStartL,doc->selEndL,RESFACTOR*(long)doc->spacePercent,False,False);
 	}
-	Antikink();																/* Fix slur shapes */
+	Antikink();														/* Fix slur shapes */
 
 	InvalForPaste(doc,prevSelStartL,hasClef,hasKS,hasTS);
 	FixWholeRests(doc, RightLINK(prevSelStartL));
-	FixTimeStamps(doc, RightLINK(prevSelStartL), doc->tailL); /* Overcautious but easy */
+	FixTimeStamps(doc, RightLINK(prevSelStartL), doc->tailL);		/* Overcautious but easy */
 
 	return True;
 }
@@ -1473,12 +1479,14 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 	CONTEXT  context;
 	
 	/* Initialize parameters from the various clipboard globals. */
+	
 	startL = DRightLINK(clipboard, clipFirstMeas);
 	endL = clipboard->tailL;
 	insertpxd = pasteInsertpxd;
 	barxd = clipBarxd;
 	
 	/* Precompute objects for calculation of xds. */
+	
 	insertLeft = LeftLINK(insertL);
 	validLeft = FirstValidxd(insertLeft,True);
 	startRight = DFirstValidxd(doc, clipboard, startL, False);
@@ -1600,9 +1608,9 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 
 
 /* ---------------------------------------------------------------------- PreparePaste -- */
-/* Recalculate xds in the clipboard and the main object list and set the
-clipboard endpoint LINKs startL, endL. RecalcClipxds actually moves clipboard
-objects prior to pasting. */
+/* Recalculate xds in the clipboard and the main object list and set the clipboard
+endpoint LINKs startL, endL. RecalcClipxds actually moves clipboard objects prior to
+pasting. */
 
 static DDIST PreparePaste(Document *doc, LINK insertL, LINK *startL, LINK *endL)
 {
@@ -1621,10 +1629,10 @@ static DDIST PreparePaste(Document *doc, LINK insertL, LINK *startL, LINK *endL)
 }
 
 
-static enum {
+enum {
 	PIN_DI=1,
 	CANCEL_DI
-} E_PINItems;
+};
 
 /*-------------------------------------------------------------- Bad/VeryBadStaffAlert -- */
 /* Alert the user that they have attempted to paste something into a staff in the
@@ -1756,13 +1764,11 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 		minStf = GetClipMinStf(doc);
 		maxStf = GetClipMaxStf(doc);
 		
-		/* maxStf-minStf+1 is the range of occupied staves in the clipboard;
-			if this range is greater than doc->nstaves, no pasting at all will
-			be possible.
-			doc->nstaves-doc->selStaff+1 is the range of staves past the doc's
-			selStaff; if the range in the clipboard is greater than this, it
-			will be possible to paste by pinning the range to the last staff
-			of the doc. */
+		/* maxStf-minStf+1 is the range of occupied staves in the clipboard; if this
+		   range is greater than doc->nstaves, no pasting at all will be possible.
+		   doc->nstaves-doc->selStaff+1 is the range of staves past the doc's
+		   selStaff; if the range in the clipboard is greater than this, it will be
+		   possible to paste by pinning the range to the last staff of the doc. */
 
 		if (maxStf-minStf+1 > doc->nstaves) {
 			VeryBadStaffAlert(maxStf-minStf+1, doc->nstaves);
@@ -1822,8 +1828,9 @@ static Boolean CrossStaff2CrossPart(LINK pL, short staffDiff, short staffTab[])
 			/*  TupletSTAFF is of the first note in the tuplet, not necessarily the upper
 				staff! By far the best solution would be to change things so it is the
 				of the upper stuff. But that'd be tricky and affect existing files and
-				other code (e.g., for drawing), and this inconsistency doesn't seem to cause
-				any other problems. For now, we'll just handle it here. */
+				other code (e.g., for drawing), and this inconsistency doesn't seem to
+				cause any other problems. For now, we'll just handle it here. */
+				
 			if (!IsTupletCrossStf(pL)) return False;
 			topStf = GetTupletTopStaff(pL)+staffDiff;
 			return (staffTab[topStf]!=staffTab[topStf+1]);
@@ -1922,10 +1929,9 @@ static LINK GetSlurAcrRange(Document *doc, short v, short *numSlurs)
 	slurL = LVSearch(LeftLINK(doc->selStartL),SLURtype,v,GO_LEFT,False);
 	nSlurs = CountSpanSlurs(doc,v,slurL);
 	
-	/*
-	 * Get the first slur which will remain after DeleteSelection()
-	 * removes the selRange.
-	 */
+	/* Get the first slur which will remain after DeleteSelection() removes the
+	   selRange. */
+	
 	while (slurL && IsAfterIncl(doc->selEndL,SlurLASTSYNC(slurL)) && !foundSlur) {
 
 		if (!LinkSEL(slurL) && !LinkSEL(SlurFIRSTSYNC(slurL)) && !LinkSEL(SlurLASTSYNC(slurL)))
@@ -2688,7 +2694,7 @@ void SetNewVoices(Document *doc, short *vMap, LINK pL, short stfDiff)
 
 void SetupVMap(Document *doc, short *vMap, short stfDiff)
 {
-	short v;  LINK pL,clipFirstMeas;
+	short v;  LINK pL, clipStartMeas;
 
 	/* Initialize the vMap table: (internal) old voice -> new voice. A value of NOONE at
 		position v in the table indicates no mapping has been established for voice v. */
@@ -2699,14 +2705,14 @@ void SetupVMap(Document *doc, short *vMap, short stfDiff)
 	/* Initialize the VOICEINFO (standard voice-mapping) table: (internal) voice ->
 		user voice and part, for default voices only. */
 	
- 	InitVMapTable(doc,stfDiff);
+ 	InitVMapTable(doc, stfDiff);
 
 	InstallDoc(clipboard);
 	
-	clipFirstMeas = LSSearch(clipboard->headL,MEASUREtype,ANYONE,GO_RIGHT,False);
+	clipStartMeas = LSSearch(clipboard->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 
-	for (pL=clipFirstMeas; pL!=clipboard->tailL; pL=RightLINK(pL)) {
-		SetNewVoices(doc,vMap,pL,stfDiff);
+	for (pL=clipStartMeas; pL!=clipboard->tailL; pL=RightLINK(pL)) {
+		SetNewVoices(doc, vMap, pL, stfDiff);
 	}
 
 	InstallDoc(doc);
@@ -2714,16 +2720,14 @@ void SetupVMap(Document *doc, short *vMap, short stfDiff)
 
 
 /* -------------------------------------------------------------------- PasteMapStaves -- */
-/* Update the staff numbers after the paste operation: re-number the staves
-of all objects so that they are pasted in starting at the staff of the
-insertion point. Also re-number the voices of all objects that have voice
-numbers.
+/* Update the staff numbers after the paste operation: re-number the staves of all
+objects so that they are pasted in starting at the staff of the insertion point. Also
+re-number the voices of all objects that have voice numbers.
 
-This function is much simpler than the corresponding function in Extract.c.
-The paste operation cannot paste any structural objects, and measure objects
-must be pasted in in entirety, and therefore they alone will not have any of
-their staffns re-numbered, and therefore also their connStaffs, etc will
-not be re-numbered. */
+This function is much simpler than the corresponding function in Extract.c. The paste
+operation cannot paste any structural objects, and measure objects must be pasted in
+in entirety; therefore they alone will not have any of their staffns re-numbered, and
+therefore also their connStaffs, etc., will not be re-numbered. */
 
 static short PasteMapStaves(Document *doc, Document *newDoc, LINK startL, LINK endL,
 										short pasteType)
@@ -2733,12 +2737,12 @@ static short PasteMapStaves(Document *doc, Document *newDoc, LINK startL, LINK e
 	InstallDoc(newDoc);
 	staffDiff = GetAnyStfDiff(doc,newDoc,pasteType,&partDiff,&stfOff);
 
-	/* MapVoices depends on staff numbers being as they were in the clipboard,
-		so it must be called before MapStaves. NB: Even if staffDiff=0, MapVoices
-		must be called, at least to handle lookVoice>0! */
+	/* MapVoices depends on staff numbers being as they were in the clipboard, so it
+	   must be called before MapStaves. NB: Even if staffDiff=0, MapVoices must be
+	   called, at least to handle lookVoice>0! */
 		
-	MapVoices(newDoc,startL,endL,staffDiff);
-	MapStaves(newDoc,startL,endL,staffDiff);
+	MapVoices(newDoc, startL, endL, staffDiff);
+	MapStaves(newDoc, startL, endL, staffDiff);
 	InstallDoc(doc);
 
 	return staffDiff;

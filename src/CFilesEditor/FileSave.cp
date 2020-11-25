@@ -276,7 +276,7 @@ return that error without continuing. Otherwise, return noErr. */
 
 static short WriteFile(Document *doc, short refNum)
 {
-	short			errCode;
+	short			errCode, strPoolErrCode;
 	short			lastType;
 	long			count, blockSize, strHdlSizeFile, strHdlSizeInternal;
 	unsigned long	fileTime;
@@ -286,8 +286,8 @@ static short WriteFile(Document *doc, short refNum)
 	long			cmDevSize, cmHdr;	
 	unsigned long	version;							/* File version code read/written */
 	Document		tempDoc;
-	
-	/* Write version code with possibly end-fixed local copy. */
+
+	/* Write version code with possibly end-fixed (to make Big Endian) local copy. */
 	
 	version = THIS_FILE_VERSION;  FIX_END(version);
 	count = sizeof(version);
@@ -332,7 +332,8 @@ static short WriteFile(Document *doc, short refNum)
 	errCode = FSWrite(refNum, &count, &lastType);
 	if (errCode) return HEADERobj;
 
-	/* Write string pool size and string pool with possibly end-fixed size. */
+	/* Write string pool size with possibly end-fixed local copy; write  and string pool, possibly end-fixed; if end-fixed, then
+	   it by redoing it (since the operation is its own inverse). */
 	
 	stringHdl = (Handle)GetStringPool();
 	HLock(stringHdl);
@@ -345,16 +346,29 @@ static short WriteFile(Document *doc, short refNum)
 	errCode = FSWrite(refNum, &count, &strHdlSizeFile);
 	if (errCode) return STRINGobj;
 
+	HUnlock((Handle)doc->stringPool);
+	SetStringPool(doc->stringPool);
+	EndianFixStringPool(doc->stringPool);					/* Convert to Big Endian if needed */
+
 	errCode = FSWrite(refNum, &strHdlSizeInternal, *stringHdl);
 	HUnlock(stringHdl);
 	if (errCode) return STRINGobj;
+
+	EndianFixStringPool(doc->stringPool);					/* Back to platform-specific */
+	if (DETAIL_SHOW) DisplayStringPool(doc->stringPool);
+	strPoolErrCode = StringPoolProblem(doc->stringPool);
+	if (strPoolErrCode!=0) {
+		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (WriteFile)\n", (long)strPoolErrCode);
+		DisplayStringPool(doc->stringPool);
+		return STRINGobj;
+	}
 
 	/* Write heaps. */
 	
 	errCode = WriteHeaps(doc, refNum);
 	if (errCode) return errCode;
 
-	/* Write info for OMS. FIXME: FreeMIDI is obsolete and this code should be removed! */
+	/* Write info for OMS. FIXME: OMS is obsolete and this code should be removed! */
 
 	count = sizeof(OMSSignature);
 	omsDevHdr = 'devc';

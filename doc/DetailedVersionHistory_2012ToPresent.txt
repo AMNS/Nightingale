@@ -3022,3 +3022,13 @@ Fixed bug: on Intel machines, Nightingale always thinks the Prefs file has chang
 and it ends up replacing a good Prefs file with a bad one. Affects Finalize.
 
 Minor cleanup. Affects PaletteGlobals.h; DebugUtils, Finalize, Initialize, MIDIDialogs.
+
+---------------------------------------------------------------------------------------
+
+21 - 24 Nov.
+
+?Fixed bug ?NOT YET: on Intel machines, the string pool is always bad. Affects FileSave.
+
+Renamed Endian to EndianUtils and moved it to the Utilities folder.
+
+Minor cleanup. Affects Clipboard, StringPool.

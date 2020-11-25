@@ -1,4 +1,4 @@
-/*	Endian.c
+/*	EndianUtils.c
 
 Nightingale score files are stored in Big Endian form; so are many of Nightingale's
 resources -- the CNFG, MIDI ModNR table, PaletteGlobals resources, etc. If we're

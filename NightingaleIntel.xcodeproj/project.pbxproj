@@ -51,11 +51,11 @@
 		159C5097252B3B7A00C9E0CB /* NObjTypesN105.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 159C5096252B3B7A00C9E0CB /* NObjTypesN105.h */; };
 		159C50BF252B672000C9E0CB /* FileConversion.cp in Sources */ = {isa = PBXBuildFile; fileRef = 159C50BE252B672000C9E0CB /* FileConversion.cp */; };
 		159C50C3252B677600C9E0CB /* FileSave.cp in Sources */ = {isa = PBXBuildFile; fileRef = 159C50C2252B677600C9E0CB /* FileSave.cp */; };
+		15B1C924256E93DB00FB560C /* EndianUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B1C923256E93DB00FB560C /* EndianUtils.cp */; };
 		15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B639401ECDA9E00029EDD7 /* CompactVoices.cp */; };
 		15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BCF5991E9D27D30069F7EB /* Undo.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
 		15CC0992206403DA007075DF /* Endian.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15CC0991206403DA007075DF /* Endian.h */; };
-		15CC0994206403FF007075DF /* Endian.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15CC0993206403FF007075DF /* Endian.cp */; };
 		15D7521B252B396300591F5A /* FileUtils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15D7521A252B396300591F5A /* FileUtils.h */; };
 		15D7521D252B398B00591F5A /* NBasicTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15D7521C252B398B00591F5A /* NBasicTypes.h */; };
 		15D7521F252B399D00591F5A /* NDocAndCnfgTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15D7521E252B399D00591F5A /* NDocAndCnfgTypes.h */; };
@@ -278,10 +278,10 @@
 		159C5096252B3B7A00C9E0CB /* NObjTypesN105.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NObjTypesN105.h; sourceTree = "<group>"; };
 		159C50BE252B672000C9E0CB /* FileConversion.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileConversion.cp; sourceTree = "<group>"; };
 		159C50C2252B677600C9E0CB /* FileSave.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSave.cp; sourceTree = "<group>"; };
+		15B1C923256E93DB00FB560C /* EndianUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EndianUtils.cp; sourceTree = "<group>"; };
 		15B639401ECDA9E00029EDD7 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
 		15BCF5991E9D27D30069F7EB /* Undo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Undo.cp; sourceTree = "<group>"; };
 		15CC0991206403DA007075DF /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
-		15CC0993206403FF007075DF /* Endian.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Endian.cp; sourceTree = "<group>"; };
 		15D7521A252B396300591F5A /* FileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileUtils.h; sourceTree = "<group>"; };
 		15D7521C252B398B00591F5A /* NBasicTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBasicTypes.h; sourceTree = "<group>"; };
 		15D7521E252B399D00591F5A /* NDocAndCnfgTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDocAndCnfgTypes.h; sourceTree = "<group>"; };
@@ -763,7 +763,6 @@
 				D03E6DE10D5F986D005FD177 /* DrawNRGR.cp */,
 				D03E6DE20D5F986D005FD177 /* DrawObject.cp */,
 				D03E6DE50D5F986D005FD177 /* EditScore.cp */,
-				15CC0993206403FF007075DF /* Endian.cp */,
 				D03E6DE80D5F986D005FD177 /* Error.cp */,
 				D03E6DA40D5F95C8005FD177 /* Event.cp */,
 				151FF8FE252B37AA0082C8AF /* FileOpen.cp */,
@@ -974,6 +973,7 @@
 				151FF8F4252B37370082C8AF /* DialogUtils.cp */,
 				151FF8F6252B374B0082C8AF /* DrawUtils.cp */,
 				151FF8F8252B375D0082C8AF /* DSUtils.cp */,
+				15B1C923256E93DB00FB560C /* EndianUtils.cp */,
 				151FF8FA252B37700082C8AF /* FileUtils.cp */,
 				151FF8FC252B37860082C8AF /* FontUtils.cp */,
 				151FF900252B37C90082C8AF /* InsNewUtils.cp */,
@@ -1204,7 +1204,6 @@
 				15FD35CA2012A11C00198184 /* MidiMap.cp in Sources */,
 				15FD35CB2012A11C00198184 /* MidiMapInfo.cp in Sources */,
 				155F2FE22012E88600E6A344 /* CoreMIDIUtils.cp in Sources */,
-				15CC0994206403FF007075DF /* Endian.cp in Sources */,
 				151FF8F3252B37160082C8AF /* CheckUtils.cp in Sources */,
 				151FF8F5252B37370082C8AF /* DialogUtils.cp in Sources */,
 				151FF8F7252B374B0082C8AF /* DrawUtils.cp in Sources */,
@@ -1228,6 +1227,7 @@
 				15D7522F252B3A1200591F5A /* DebugUtils.cp in Sources */,
 				159C50BF252B672000C9E0CB /* FileConversion.cp in Sources */,
 				159C50C3252B677600C9E0CB /* FileSave.cp in Sources */,
+				15B1C924256E93DB00FB560C /* EndianUtils.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

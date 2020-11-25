@@ -85,6 +85,7 @@ static StringPoolRef *poolStack,			/* Stack for pushing/popping pool contexts */
 static OSErr	MoreStringMemory(long n, StringPoolRef pool);
 static void	DefaultNoMemory(OSErr err);
 
+
 /* Re-initialize the String Manager to use a push/pop context stack of given nesting size,
 maxNest, and to allocate a default string pool with given initial size, firstSize. Deliver
 True if done, False if couldn't do it. All hell will break loose if this routine's failure
@@ -206,13 +207,13 @@ int InitStringPool(StringPoolRef pool, long size)
 		int okay = True;
 		
 		if (pool) {
-			StringPool *p = *pool;								// Caution: floating ptr
+			StringPool *p = *pool;								/* Caution: floating ptr */
 			
 			p->firstFreeByte = sizeof(StringPool);
 			p->lockLevel = 0;
 			p->bottomByte[p->saveLevel = 0] = p->firstFreeByte;
-			p->nullstr = 0;										// Load empty string at offset 0
-			p->nulltype = (C_String | P_String);				// The only string of all types
+			p->nullstr = 0;										/* Load empty string at offset 0 */
+			p->nulltype = (C_String | P_String);				/* The only string of both types */
 			p->sizeJump = 256;
 			
 			if (size==kDefaultPoolSize || size<0) size = 0;
@@ -221,10 +222,8 @@ int InitStringPool(StringPoolRef pool, long size)
 			
 			/* Memory has moved; p is invalid. */
 			
-			if (MemError())
-				okay = False;
-			 else
-				(*pool)->topFreeByte = (*pool)->firstFreeByte + size;
+			if (MemError())	okay = False;
+			 else			(*pool)->topFreeByte = (*pool)->firstFreeByte + size;
 			}
 		
 		return(okay);
@@ -284,9 +283,9 @@ void ClearStringsInPool(StringPoolRef pool)
 		p->firstFreeByte = p->bottomByte[p->saveLevel];
 	}
 
-/* If the pool is currently unlocked, lock it and bump the lock level. If
-already locked, then just bump the level.  While the pool is locked, the
-addresses returned by PAddr and CAddr are valid. */
+/* If the pool is currently unlocked, lock it and bump the lock level. If already
+locked, then just bump the level.  While the pool is locked, the addresses returned
+by PAddr and CAddr are valid. */
 
 void LockStringsInPool(StringPoolRef pool)
 	{
@@ -295,10 +294,8 @@ void LockStringsInPool(StringPoolRef pool)
 		if ((*pool)->lockLevel++ == 0) HLock((Handle)pool);
 	}
 
-/*
- *	If the lock level is greater than 1, decrement it and return. If the level
- *	gets back to 0, then unlock the given pool.
- */
+/* If the lock level is greater than 1, decrement it and return. If the level gets
+back to 0, then unlock the given pool. */
 
 void UnlockStringsInPool(StringPoolRef pool)
 	{
@@ -307,10 +304,8 @@ void UnlockStringsInPool(StringPoolRef pool)
 		if (--(*pool)->lockLevel == 0) HUnlock((Handle)pool);
 	}
 
-/*
- *	Bump the current save level of the given pool, returning False for stack
- *	overflow or other problem, and True if all okay to continue.
- */
+/*	Bump the current save level of the given pool, returning False for stack overflow
+or other problem, and True if all okay to continue. */
 
 int SaveStringsInPool(StringPoolRef pool)
 	{
@@ -328,9 +323,7 @@ int SaveStringsInPool(StringPoolRef pool)
 		return(True);
 	}
 
-/*
- *	Pop the current save level off the save stack, unless it's already empty.
- */
+/*	Pop the current save level off the save stack, unless it's already empty. */
 
 void RestoreStringsInPool(StringPoolRef pool)
 	{
@@ -360,15 +353,16 @@ void ClearFromStringInPool(StringRef offset, StringPoolRef pool)
 			}
 	}
 
-/*  Fix Little/Big Endian problems in the string pool by converting from either form to
-the other. */
+/*  Fix Little/Big Endian problems in the string pool by swapping bytes to convert from
+either form to the other. */
 
 void EndianFixStringPool(StringPoolRef pool) {
 	StringPool *p = *pool;
 	
 	FIX_END(p->firstFreeByte);
 	FIX_END(p->topFreeByte);
-	FIX_END(p->bottomByte[0]);
+	for (short k = 0; k<MAXSAVE; k++)
+		FIX_END(p->bottomByte[k]);
 	FIX_END(p->saveLevel);
 	FIX_END(p->lockLevel);
 	FIX_END(p->sizeJump);
@@ -426,42 +420,40 @@ int IsCStringInPool(StringRef offset, StringPoolRef pool)
 		return(False);
 	}
 
-/*
- *	Store a string into given pool, and deliver offset so it can be retrieved.
- *	We have a routine for the two kinds of string we might use.  Strings are
- *	stored as either C or Pascal, with a type byte in front.  The offset to this
- *	type byte is returned, or -1.  If the string to be stored is the empty string,
- *	deliver offset of preallocated one at 0.
- */
+/* Store a string into given pool, and deliver offset so it can be retrieved. We have a
+routine for the two kinds of string we might use.  Strings are stored as either C or
+Pascal, with a type byte in front.  The offset to this type byte is returned, or -1.  If
+the string to be stored is the empty string, deliver offset of preallocated one at 0. */
 
 StringRef CStoreInPool(Byte *str, StringPoolRef pool)
 	{
 		StringRef itsOffset;  long len;  Byte *dst;
 		StringPool *p;
 		
-		// If the string is nil or empty, always maps to the canonical
-		// empty string stored at offset 0 in every pool.
+		/* If the string is nil or empty, always maps to the canonical empty string
+		   stored at offset 0 in every pool. */
 		
 		if (str==nil || *str=='\0') return(emptyStringRef);
 		
 		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
-		len = 2+strlen((char *)str);					// Type byte + str + EOS
+		len = 2+strlen((char *)str);					/* Type byte + str + EOS */
 		if ((p->firstFreeByte+len) >= p->topFreeByte) {
 			if (MoreStringMemory(len,pool) != noErr) {
 				NoStringMemoryFunc(noMemoryErrCode);
 				return(noMemoryStringRef);
 				}
-			p = *pool;			// Memory moved, deref handle again
+			p = *pool;								/* Memory moved, deref handle again */
 			}
 		
-		// Copy str to its resting place
+		/* Copy str to its resting place */
+		
 		itsOffset = p->firstFreeByte;
-		p->firstFreeByte += len;					// Includes EOS
+		p->firstFreeByte += len;					/* Includes EOS */
 		dst = ((Byte *)p) + itsOffset;
 		*dst++ = C_String;
-		while ((*dst++ = *str++) != '\0') ;			// Better be a C string!
+		while ((*dst++ = *str++) != '\0') ;			/* Better be a C string! */
 		
 		return(itsOffset);
 	}
@@ -480,23 +472,26 @@ StringRef CConcatStringInPool(StringRef offset, Byte *str, StringPoolRef pool)
 		p = *pool;
 		
 		if (offset<=emptyStringRef || offset>=p->firstFreeByte) {
-			// Concatenating to empty or non-existent string is sasme as
-			// installing the given string in a new spot
+			/* Concatenating to empty or non-existent string is same as installing
+			   the given string in a new spot. */
+			   
 			return(CStoreInPool(str,pool));
 			}
 		
-		// Look at the type first
+		/*  Look at the type first */
+		
 		start = ((Byte *)p) + offset;
 		if ((*start++ & C_String) == 0) {
-			// Bad offset or not a C string, so skip it
+		
+			/* Bad offset or not a C string, so skip it */
+			
 			return(CStoreInPool(str,pool));
 			}
 		
-		// Determine if we can expand pool and directly
-		// append to existing string, which can only happen
-		// if it's the last installed string in pool.  Remember
-		// that offset points at the character tag that precedes
-		// the first character in the EOS-terminated string.
+		/* Determine if we can expand pool and directly append to existing string, which
+		   can only happen if it's the last installed string in pool.  Remember that
+		   offset points at the character tag that precedes the first character in the
+		   EOS-terminated string. */
 		
 		newLen = strlen((char *)str);
 		len = 2 + strlen((char *)start);
@@ -508,33 +503,39 @@ StringRef CConcatStringInPool(StringRef offset, Byte *str, StringPoolRef pool)
 				NoStringMemoryFunc(noMemoryErrCode);
 				return(noMemoryStringRef);
 				}
-			p = *pool;			// Memory moved, so deref again
+			p = *pool;			/* Memory moved, so deref again */
 			}
 		
 		if (isLastString) {
-			// And we're now guaranteed that we can append directly so the
-			// offset we deliver remains the same
+			/* And we're now guaranteed that we can append directly so the offset we
+			   deliver remains the same. */
+			   
 			newOff = offset;
-			// Get to tag character of stored string
+			
+			/* Get to tag character of stored string and move pointer to EOS at end */
+			
 			dst = ((Byte *)p) + offset;
-			// Move pointer to EOS at end of stored string
 			dst += len-1;
 			}
 		 else {
-			// Remember where it starts so we can return offset to caller
+			/* Not last string in pool, so make a copy that is last. Remember where it
+			   starts so we can return offset to caller. */
+			   
 			newOff = p->firstFreeByte;
-			// Nope, not last string in pool, so make a copy that is last
 			start = ((Byte *)p) + offset;
 			dst = ((Byte *)p) + newOff;
-			// Copy initial tag field (which isn't a character)
+			
+			/* Copy initial tag field (which isn't a character) and copy string
+			   including EOS, leaving dst pointing at EOS. */
+			   
 			*dst = *start;
-			// Copy string including EOS, leaving dst pointing at EOS
 			while ((*++dst = *++start) != '\0') ;
 			}
 		
-		// Overwrite EOS, thereby appending str, with new final EOS
+		/* Overwrite EOS, thereby appending str, with new final EOS, and update where
+		   subsequent strings are to be stored. */
+		   
 		while ((*dst++ = *str++) != '\0') ;
-		// And update where subsequent strings are to be stored
 		p->firstFreeByte += bytesNeeded;
 		
 		return(newOff);
@@ -546,7 +547,7 @@ segment call, if the pool is unlocked. */
 
 Byte *CAddrInPool(StringRef offset, StringPoolRef pool)
 	{
-		Byte *start; StringPool *p;
+		Byte *start;  StringPool *p;
 		
 		if (pool == nilpool) pool = thePool;
 		p = *pool;

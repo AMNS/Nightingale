@@ -7388,7 +7388,7 @@ file								look OK			warns & log		complaints
 
 
 *6: Crashes w/ GDB window highlighting line "if (SyncTYPE(pL)) {" in FindMainNote() called from
-DrawBEAMSET, with pL = 52400 (all way larger than makes sense), voice 4.
+DrawBEAMSET, with pL = 52400 (again way larger than makes sense), voice 4.
 
 *7: Just one wrong value in simple Beamset 218 (2 notes); more of a mess in the more complex 645 (5 notes).
 
@@ -8095,7 +8095,7 @@ First, it can reference an array element with subscript -1; second, it uses the 
 after the loop terminates! These _are_ causing questionable error messages, and could be
 doing other bad things, e.g., crashes. Fixed.
 
-Run our standard test: open open 2ndMovementCSpp1-3.ngl several times =>
+Run our standard test: open 2ndMovementCSpp1-3.ngl several times =>
 
 (1) Debug Check complains about 5 Beamsets and a bunch of Timesigs; 31 errors. Go to p. 1 crashes.
 (2) Debug Check complains about 7 Beamsets (some visibly bad) and a bunch of Timesigs; 26 errors.
@@ -8129,7 +8129,7 @@ but the compiler gives 53 "statement has no effect" warnings. Redefine them to a
 => looks OK, and only 677 compiler warnings vs. 735 just before this change! (That's a decrease
 of 58; I don't know why 5 more went away, but unlikely it's worth pursuing.)
 
-Run our standard test: open open 2ndMovementCSpp1-3.ngl several times =>
+Run our standard test: open 2ndMovementCSpp1-3.ngl several times =>
 
 (1) Debug Check complains about one Beamset (and the usual 16 Timesigs); 48 errors. Garbage beams drawn.
 (2) Debug Check complains about 8 Beamsets (and the usual 16 Timesigs); 31 errors. Garbage beams drawn.
@@ -8155,7 +8155,7 @@ having changed the path in the project file to point to the 5.9 version of FileS
 Make the same changes in 5.9.1 => OK.
 
 BACK TO The "Beamsets corrupted during file format conversion" Bug. Run our standard test:
-open open 2ndMovementCSpp1-3.ngl several times =>
+open 2ndMovementCSpp1-3.ngl several times =>
 
 (1) Debug Check complains about at least one Beamset. Garbage beams drawn.
 (2) Debug Check has no complaints, and everything seems to be drawn correctly.
@@ -8198,21 +8198,59 @@ because it _is_ calling them and Initialize didn't. Initialize does EndianFixCon
 EndianFixPaletteGlobals; Finalize does EndianFixConfig and EndianFixMIDIModNRTable.
 Actually, both should call all three! Done; test on Intel => OK.
 
+---------------------------------------------------------------------------------------
 
-????????
-NOT YET Time to retest combinations of open/save, file format, processor type. NB: I tested
-opening files on PPC only with files written on PPC because Ngale on Intel can't write
-valid files yet! Results:
+20 - 24 Nov.
+
+Run our standard test: open 2ndMovementCSpp1-3.ngl several times =>
+
+(1) Debug Check complains re only the usual 16 Timesigs; 16 errors. At a glance, score looks OK.
+(2) Debug Check complains re 6 Beamsets & 2 Timesigs (and the usual 16 Timesigs); 37 errors. Garbage beams drawn.
+(3) Garbage beams drawn; then crashes w/ GDB window highlighting line "if (SyncTYPE(pL)) {" in
+FindMainNote() called from DrawBEAMSET, with pL = 52416: a nonsensical link, and exactly the
+same thing has happened more than once before! 52416(10) = 0xCCC0. This might be a good clue
+to The Bug!
+
+Time to retest combinations of open/save, file format, processor type. NB: I tested opening
+files on PPC only with files written on PPC because Ngale on Intel can't write valid files
+yet! Results:
 
 open/save	file format processor	status
 						running on
 ----------	-----------	---------	-------
-Open		N105		PPC			OK except The Bug (clobbered beams & timesigs)
+Open		N105		PPC			OK except The Bug (clobbered beams & occasionally timesigs)
 "			"			Intel		OK: Ngale correctly says "file version too old"
 "			N106		PPC			OK (tested with only files saved by PPC & of <= 160K!*)
-"			"			Intel		??Bad: Ngale either crashes or opens it badly garbled
+"			"			Intel		Bad: Ngale says "String pool bad", crashes, or opens it badly garbled**
 Save		N106		PPC			OK
-"			"			Intel		??Bad: trying to open on PPC or Intel always gives 8 header errors
+"			"			Intel		Bad: trying to open on PPC or Intel says "String pool bad (code=8)", opens it badly garbled 
 
 *Larger files tested: 2ndMvmtCSpp1-2p5_ConvPPC.ngl, GraphicsOnWrongPage_ConvPPC.ngl.
+**It often says "Staves aren't in the score's standard size."
+
+What about the string pool? Ah: OpenFile calls EndianFixStringPool but EndianFixForFinalize
+doesn't! Correct that; create a one-note file on Intel, Save, Open on Intel => a completely
+different error (header for heap 0 objSize is wrong), but almost certainly because the string
+pool is still bad.
+
+	Nov 21 16:00:32 DonDualG5 Ngale[97316]:
+	info. stringPoolSize=306  (OpenFile)
+	ERROR. Header for heap 0 objSize is 23041, but expected objSize 346  (ReadHeapHdr)
+
+Try opening the same file on PPC => exactly the same result.
+
+EndianFixStringPool() does FIX_END(p->bottomByte[0], neglecting the rest of the p->bottomByte
+array. Unlikely it's affecting anything, but make it do the whole array => no change.
+
+The PPC build now gets 664 compiler warnings; the Intel build, 661. Do the differences in the
+warnings tell us anything useful? It's not easy to tell because there hundreds of trivial
+differences, e.g., "ppc" vs. "i386". Anyway, handle a few more of the warnings.
+
+Run our standard test: open 2ndMovementCSpp1-3.ngl several times =>
+
+(1) Debug Check shows 21 errors, incl. a Beamset and multiple Timesigs. Garbage beams drawn.
+(2) Debug Check shows 26 errors, incl. several Beamsets and multiple Timesigs. Garbage beams drawn.
+(2) Crashes w/ GDB window highlighting line "if (SyncTYPE(pL)) {" in FindMainNote() called from
+DrawBEAMSET, with pL = 53844 (as usual, way larger than makes sense), voice 1. DrawBEAMSET has
+beamL = 0: no wonder FindMainNote is looking at a nonsense "Sync"!
 
