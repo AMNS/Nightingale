@@ -6,7 +6,7 @@ Be careful: It's neither a valid C string nor a valid Pascal string! */
 #define THIS_FILE_VERSION 'N106'		/* Current file format version */
 #define FIRST_FILE_VERSION 'N105'		/* We can open all versions from this one to the current one */
 
-/* Error codes and error info codes */
+/* Error codes and error info codes (all positive) */
 
 #define HDR_TYPE_ERR 217			/* Heap header in file contains incorrect type */
 #define HDR_SIZE_ERR 251			/* Heap header in file contains incorrect objSize */
@@ -15,6 +15,26 @@ Be careful: It's neither a valid C string nor a valid Pascal string! */
 #define MISC_HEAPIO_ERR 998
 
 #define MEM_ERRINFO 99				/* ExpandFreeList failed */
+
+/* Codes for object types being read/written or for non-read/write call when an I/O
+error occurs (all negative). */
+
+#define	HEADERobj -999
+#define VERSIONobj -998
+#define SIZEobj -997
+#define CREATEcall -996
+#define OPENcall -995
+#define CLOSEcall -994
+#define DELETEcall -993
+#define RENAMEcall -992
+#define WRITEcall -991
+#define STRINGobj -990
+#define INFOcall -989
+#define SETVOLcall -988
+#define BACKUPcall -987
+#define MAKEFSSPECcall -986
+#define NENTRIESerr -899
+
 
 void DisplayDocumentHdr(short id, Document *doc);
 Boolean CheckDocumentHdr(Document *doc);

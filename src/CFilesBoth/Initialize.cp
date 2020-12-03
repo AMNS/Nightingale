@@ -104,7 +104,7 @@ void Initialize()
 	bigOrLittleEndian = 'B';
 #endif
 
-	LogPrintf(LOG_NOTICE, "RUNNING NIGHTINGALE %s-%c  (Initialize)\n", applVerStr,
+	LogPrintf(LOG_NOTICE, "RUNNING NIGHTINGALE %s-%cE  (Initialize)\n", applVerStr,
 				bigOrLittleEndian);
 
 	if (!OpenPrefsFile())							/* needs creatorType */
@@ -1503,7 +1503,8 @@ static Boolean NInitFloatingWindows()
 	
 static Boolean PrepareClipDoc()
 	{
-		WindowPtr w; char title[256]; LINK pL; long junkVersion;
+		WindowPtr w;  char title[256];
+		LINK pL;  long junkVersion;
 
 		clipboard = documentTable;
 		clipboard->inUse = True;

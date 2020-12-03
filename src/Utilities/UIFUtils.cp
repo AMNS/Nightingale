@@ -55,7 +55,7 @@ void WaitCursor()
 	static Boolean once = True;
 	
 	if (once) {
-		watchHandle = GetCursor(watchCursor);	/* From system resources */
+		watchHandle = GetCursor(watchCursor);		/* From system resources */
 		once = False;
 	}
 	if (watchHandle && *watchHandle) SetCursor(*watchHandle);
@@ -109,7 +109,7 @@ void FixCursor()
 		return;
 	}
 	
-	/* If mouse over any palette, use arrow unless a tool was just chosen */
+	/* If mouse is over any palette, use arrow unless a tool was just chosen */
 
 	if (GetWindowKind(TopWindow) == PALETTEKIND) {
 		holdCursor = True;
@@ -133,7 +133,7 @@ void FixCursor()
 	
 	if (TopDocument==NULL) { FixCursorLogPrint("2. TopDocument is null\n"); ArrowCursor(); return; }
 
-	/* If mouse over any kind of window other than a Document, use arrow */
+	/* If mouse is over any kind of window other than a Document, use arrow */
 	
 	FindWindow(globalpt, (WindowPtr *)&wp);
 	
@@ -157,27 +157,23 @@ void FixCursor()
 	
 	if (doc->masterView || doc->showFormat) { FixCursorLogPrint("6. MasterPage or ShowFormat\n"); ArrowCursor(); return; }
 	
-	/*
-	 * Mouse is over the viewRect of a Document that is showing the "normal" (not
-	 * Master Page or Work on Format) view. Now we have to think harder.
-	 */
+	/* Mouse is over the viewRect of a Document that is showing the "normal" (not Master
+	   Page or Work on Format) view. Now we have to think harder. */
 	 
 	newCursor = currentCursor;
 	
-	/*
-	 * At this point, we check for shakeoffs.  We do this by keeping track of the 
-	 * times at which the mouse changes horizontal direction, but no oftener than
-	 * CHECKMIN ticks, since otherwise we won't pick up the direction changes
-	 * (dx == 0 most of the time). Each time the direction does change we check to
-	 * see if it has happened within mShakeThresh ticks of the last change.  If it
-	 * hasn't, we start over.  If it has, we keep track of the number of consecutive
-	 * shakes, each occurring within mShakeThresh ticks of each other, until there are
-	 * MAXSHAKES of them, in which case we change the cursor to the arrow cursor.
-	 * We save the previous cursor (in shook), so that on the next shakeoff, we can
-	 * go back to whatever used to be there, if it's still the arrow. Finally, we
-	 * don't allow consecutive shakeoffs to occur more often than SWAPMIN ticks.
-	 * Yours truly, Doug McKenna.
-	 */
+	/* At this point, we check for shakeoffs.  We do this by keeping track of the times
+	at which the mouse changes horizontal direction, but no oftener than CHECKMIN ticks,
+	since otherwise we won't pick up the direction changes (dx == 0 most of the time).
+	Each time the direction does change we check to see if it has happened within
+	mShakeThresh ticks of the last change. If it hasn't, we start over. If it has, we
+	keep track of the number of consecutive shakes, each occurring within mShakeThresh
+	ticks of each other, until there are MAXSHAKES of them, in which case we change the
+	cursor to the arrow cursor. We save the previous cursor (in shook), so that on the
+	next shakeoff, we can go back to whatever used to be there, if it's still the arrow.
+	Finally, we don't allow consecutive shakeoffs to occur more often than SWAPMIN
+	ticks. Yours truly, Doug McKenna. */
+
 	now = TickCount();
 	if (now > nextcheck) {
 		x = mousept.h;
@@ -189,7 +185,7 @@ void FixCursor()
 			if (shaker++ == 0)
 				soon = now + config.mShakeThresh;					/* Start timing */
 			 else
-				if (now < soon)										/* A quick-enough shake ? */
+				if (now < soon)										/* A quick enough shake? */
 					if (shaker >= MAXSHAKES) {
 						if (shookey==0 || currentCursor!=arrowCursor) {
 							shookey = GetPalChar((*paletteGlobals[TOOL_PALETTE])->currentItem);
@@ -206,10 +202,10 @@ void FixCursor()
 						currentCursor = newCursor;
 						nextcheck += SWAPMIN;
 					}
-					 else
+					else
 						soon = now + config.mShakeThresh;
 				 else
-					shaker = 0;												/* Too late: reset */
+					shaker = 0;										/* Too late: reset */
 
 		dxOld = dx; xOld = x;
 	}
@@ -295,7 +291,7 @@ void CenterRect(Rect *r, Rect *inside, Rect *ans)
 	OffsetRect(ans, ix-rx, iy-ry);
 }
 
-/* Force a rectangle to be entirely enclosed by another (presumably) larger one. If
+/* Force a rectangle to be entirely enclosed by another (presumably larger) one. If
 the "enclosed" rectangle is larger, then we leave the bottom right within. <margin>
 margin is a slop factor to bring the rectangle a little farther in than just to the
 outer rectangle's border. */
@@ -359,13 +355,11 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 		
 	GetPort(&oldPort);
 	deskPort = CreateNewPort();
-	
-	if (!deskPort) Debugger();
+	if (!deskPort) { LogPrintf(LOG_WARNING, "ZoomRect: can't create deskPort\n"); return; }
 		
 	GetPortVisibleRegion(deskPort, deskPortVisRgn);
 	grayRgn = GetGrayRgn();
-	
-	if (!grayRgn) { LogPrintf(LOG_WARNING, "ZoomRect: can't create grayRgn\n"); Debugger(); }
+	if (!grayRgn) { LogPrintf(LOG_WARNING, "ZoomRect: can't create grayRgn\n"); return; }
 	
 	CopyRgn(grayRgn, deskPortVisRgn);
 	
@@ -379,21 +373,21 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 	PenPat(NGetQDGlobalsGray());
 	PenMode(notPatXor);
 
-	one = 65536;						/* fixed point 'const' */
+	one = 65536;							/* fixed point 'const' */
 	if (zoomUp) {
 		r1 = *smallRect;
-		factor = FixRatio(6, 5);		/* Make bigger each time */
-		fract =  FixRatio(541, 10000);	/* 5/6 ^ 16 = 0.540877 */
+		factor = FixRatio(6, 5);			/* Make bigger each time */
+		fract =  FixRatio(541, 10000);		/* 5/6 ^ 16 = 0.540877 */
 	}
 	 else {
 		r1 = *bigRect;
-		factor = FixRatio(5, 6);		/* Make smaller each time */
+		factor = FixRatio(5, 6);			/* Make smaller each time */
 		fract  = one;
 	}
 	
 	r2 = r1;
 	r3 = r1;
-	FrameRect(&r1);						/* Draw initial image */
+	FrameRect(&r1);							/* Draw initial image */
 
 	for (i=0; i<zoomSteps; i++) {
 		r4.left   = blend1(smallRect->left, bigRect->left);
@@ -401,14 +395,14 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 		r4.top	  = blend1(smallRect->top, bigRect->top);
 		r4.bottom = blend1(smallRect->bottom, bigRect->bottom);
 		
-		FrameRect(&r4);					/* Draw newest */
-		FrameRect(&r1);					/* Erase oldest */
+		FrameRect(&r4);						/* Draw newest */
+		FrameRect(&r1);						/* Erase oldest */
 		r1 = r2; r2 = r3; r3 = r4;
 		
-		fract = FixMul(fract, factor);	/* Bump interpolation factor */
+		fract = FixMul(fract, factor);		/* Bump interpolation factor */
 	}
 	
-	FrameRect(&r1);						/* Erase final image */
+	FrameRect(&r1);							/* Erase final image */
 	FrameRect(&r2);
 	FrameRect(&r3);
 	
@@ -420,9 +414,7 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 
 /* --------------------------------------------------------------------------- Windows -- */
 
-/*
- *	Given a window, compute the global coords of its port
- */
+/*	Given a window, compute the global coords of its port. */
 
 void GetGlobalPort(WindowPtr w, Rect *r)
 {
@@ -435,16 +427,14 @@ void GetGlobalPort(WindowPtr w, Rect *r)
 }
 
 
-/*
- *	Given an origin, orig, 0 <= i < n, compute the offset position, ans, for that
- *	index into n.  This is used to position multiple windows being opened at the same
- *	time.  All coords are expected to be global.  All windows are expected to be
- *	standard sized. This function is not used in v. 5.8b5.
- */
+/* Given an origin, orig, 0 <= i < n, compute the offset position, ans, for that index
+into n.  All coords are expected to be global, and all windows are expected to be
+standard sized. This can be used to position multiple windows being opened at the same
+time; however, it's not used in v. 5.8.x. */
 
 void GetIndWinPosition(WindowPtr w, short i, short n, Point *ans)
 {
-	short x, y; Rect  box;
+	short x, y;  Rect box;
 	
 	GetGlobalPort(w, &box);
 	ans->h = box.left;
@@ -458,11 +448,9 @@ void GetIndWinPosition(WindowPtr w, short i, short n, Point *ans)
 	ans->v += 20 + 20*y + 5*x;
 }
 
-/*
- *	Find a nice spot in global coordinates to place a window by looking down the
- *	window list nLook windows for any conflicts. Larger values of nLook should give
- *	nicer results at the expense of slightly more running time.
- */
+/* Find a nice spot in global coordinates to place a window by looking down the window
+list nLook windows for any conflicts. Larger values of nLook should give nicer results
+at the expense of slightly more running time. */
 
 void AdjustWinPosition(WindowPtr w)
 {
@@ -486,7 +474,7 @@ void AdjustWinPosition(WindowPtr w)
 					i++;
 					break;
 				}
-				}
+			}
 		if (ww==NULL || k>=nLook) break;
 	}
 		
@@ -536,23 +524,21 @@ short GetMyScreen(Rect *r, Rect *bnds)
 	return(nScreens);
 }
 
-/*
- *	Given an Alert Resource ID, get its port rectangle and center it within a given window
- *	or with a given offset if (left,top)!=(0,0).  If w is NULL, use screen bounds.  This
- *	routine should be called immediately before displaying the alert, since it might be
- *	purged.  For multi-screen devices, we look for that device on which a given window
- *	is most affiliated, and we don't allow alert outside of that device's global bounds.
- */
+/* Given an Alert Resource ID, get its port rectangle and center it within a given window
+or with a given offset if (left,top)!=(0,0).  If w is NULL, use screen bounds.  This
+routine should be called immediately before displaying the alert, since it might be
+purged.  For multi-screen devices, we look for that device on which a given window
+is most affiliated, and we don't allow alert outside of that device's global bounds. */
 
 void PlaceAlert(short id, WindowPtr w, short left, short top)
 {
-	Handle alrt; Rect r, inside, bounds;
+	Handle alrt;
+	Rect r, inside, bounds;
 	Boolean sect;
 	
-	/*
-	 * This originally used Get1Resource, but it should get the ALRT from any available
-	 * resource file.
-	 */  
+	/* This originally used Get1Resource, but it should get the ALRT from any available
+	   resource file. */
+	     
 	alrt = GetResource('ALRT', id);
 	if (alrt!=NULL && *alrt!=NULL && ResError()==noErr) {
 		ArrowCursor();
@@ -568,20 +554,20 @@ void PlaceAlert(short id, WindowPtr w, short left, short top)
 		CenterRect(&r, &inside, &r);
 		if (top) OffsetRect(&r, 0, (inside.top+top)-r.top);
 		if (left) OffsetRect(&r, (inside.left+left)-r.left, 0);
-		/*
-		 *	If we're centering w/r/t a window, don't let alert get out of bounds.
-		 *	We look for that graphics device that contains the window more than
-		 *	any other, and use its bounds to bring the alert back into if its outside.
-		 */
+		
+		/* If we're centering w/r/t a window, don't let alert get out of bounds. We
+		   look for that graphics device that contains the window more than any other,
+		   and use its bounds to bring the alert back into if its outside. */
+		   
 		if (w) {
 			GetMyScreen(&inside, &bounds);
 			sect = SectRect(&r, &bounds, &inside);
 			if ((sect && !EqualRect(&r, &inside)) || !sect) {
-				/* if (!sect) */inside = bounds;
+				/* if (!sect) */ inside = bounds;
 				PullInsideRect(&r, &inside, 16);
 			}
 		}
-		LoadResource(alrt);	/* Probably not necessary, but we do it for good luck */
+		LoadResource(alrt);			/* Probably not necessary, but we do it for good luck */
 		*((Rect *)(*alrt)) = r;
 	}
 }
@@ -614,9 +600,7 @@ Boolean PlaceWindow(WindowPtr dlog, WindowPtr w, short left, short top)
 	return(dx!=0 || dy!=0);
 }
 
-/*
- * Center w horizontally and place it <top> pixels from the top of the screen.
- */
+/* Center w horizontally and place it <top> pixels from the top of the screen. */
 
 void CenterWindow(WindowPtr w,
 					short top)	/* 0=center vertically, else put top at this position */
@@ -650,9 +634,7 @@ void CenterWindow(WindowPtr w,
 }
 
 
-/*
- *	Erase and invalidate a rectangle in the current port
- */
+/* Erase and invalidate a rectangle in the current port. */
 
 void EraseAndInval(Rect *r)
 {
@@ -663,7 +645,7 @@ void EraseAndInval(Rect *r)
 	w = GetWindowFromPort(port);
 	
 	EraseRect(r);
-	InvalWindowRect(w,r);
+	InvalWindowRect(w, r);
 }
 
 
@@ -671,10 +653,9 @@ void EraseAndInval(Rect *r)
 
 /* KeyIsDown (from the THINK C class library of the 1990's)
  
-		Determine whether or not the specified key is being pressed. Keys
-		are specified by hardware-specific key code (NOT the character).
-		Charts of key codes appear in Inside Macintosh, p. V-191.
-*/
+Determine whether or not the specified key is being pressed. Keys are specified by
+hardware-specific key code, NOT by the character. Charts of key codes appear in Inside
+Macintosh, p. V-191. */
 
 Boolean KeyIsDown(short theKeyCode)
 {
@@ -683,13 +664,13 @@ Boolean KeyIsDown(short theKeyCode)
 	GetKeys(theKeys);					/* Get state of each key */
 										
 	/* Ordering of bits in a KeyMap is truly bizarre. A KeyMap is a 16-byte (128
-		bits) array where each bit specifies the state of a key (0 = up, 1 = down). We
-		isolate the bit for the specified key code by first determining the byte
-		position in the KeyMap and then the bit position within that byte. Key codes
-		0-7 are in the first byte (offset 0 from the start), codes 8-15 are in the
-		second, etc. The BitTst() trap counts bits starting from the high-order bit of
-		the byte. For example, for key code 58 (the option key), we look at the 8th
-		byte (7 offset from the first byte) and the 5th bit within that byte.	*/
+	   bits) array where each bit specifies the state of a key (0 = up, 1 = down). We
+	   isolate the bit for the specified key code by first determining the byte
+	   position in the KeyMap and then the bit position within that byte. Key codes
+	   0-7 are in the first byte (offset 0 from the start), codes 8-15 are in the
+	   second, etc. The BitTst() trap counts bits starting from the high-order bit of
+	   the byte. For example, for key code 58 (the option key), we look at the 8th
+	   byte (7 offset from the first byte) and the 5th bit within that byte. */
 		
 	return( BitTst( ((char*) &theKeys) + theKeyCode / 8,
 					(long) 7 - (theKeyCode % 8) )!=0 );
@@ -715,7 +696,7 @@ Boolean ControlKeyDown() {
 	return (GetCurrentKeyModifiers() & controlKey) != 0;
 }
 	
-/* FIXME: As of v. 5.8b5, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
+/* FIXME: As of v. 5.8b10, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
 I don't know why, but CommandKeyDown() is the one that's analogous to the other key-down
 functions, and it looks less system-dependent. So we should probably switch. */
 
@@ -782,7 +763,7 @@ void InvertSymbolHilite(
 	xd = SysRelxd(pL)+context.systemLeft;					/* abs. origin of object */
 	
 	/* Draw with gray pattern (to make dotted lines), in XOR mode (to invert the pixels'
-		existing colors). */
+	   existing colors). */
 		
 	PenMode(patXor);
 	PenPat(NGetQDGlobalsGray());
@@ -854,10 +835,8 @@ void HiliteAttPoints(
 #define FLASH_RECT_COUNT 1
 
 void FlashRect(Rect *pRect)
-{
-	short	j;
-	
-	for (j=0; j<FLASH_RECT_COUNT; j++) {
+{	
+	for (short j=0; j<FLASH_RECT_COUNT; j++) {
 		InvertRect(pRect);
 		SleepTicks(20L);
 		InvertRect(pRect);
@@ -867,8 +846,8 @@ void FlashRect(Rect *pRect)
 
 
 /* ------------------------------------------------------------------------- SamePoint -- */
-/* Check to see if two Points (presumably on the screen) are within slop of each
-other. Needed for editing beams, lines, hairpins, etc. */
+/* Check to see if two Points (presumably on the screen) are within slop of each other.
+Intended for editing beams, lines, hairpins, etc. */
 
 #define SAME_POINT_SLOP 2		/* in pixels */
 
@@ -970,7 +949,8 @@ Boolean ProgressMsg(short which,
 						char *moreInfo)				/* C string */
 {
 	static short lastWhich=-999;
-	static DialogPtr dialogp=NULL;  GrafPtr oldPort;  char str[256];
+	static DialogPtr dialogp=NULL;  GrafPtr oldPort;
+	char str[256];
 	short aShort;  Handle tHdl;  Rect aRect;
 	 
 	GetPort(&oldPort);
@@ -1187,7 +1167,7 @@ short SmartenQuote(TEHandle textH, short ch)
 		if (ch=='"' || ch=='\'') {
 			n = (*textH)->selStart;
 			prev = (n > 0) ? ((unsigned char) *(*((*textH)->hText) + n-1)) : 0;
-			if (prev=='\r' || prev==' ' || prev==' ' || prev=='\t' || n==0)
+			if (prev=='\r' || prev==' ' || prev=='�' || prev=='\t' || n==0)
 				ch = (ch=='"' ? OPEN_DOUBLE_QUOTE : OPEN_SINGLE_QUOTE);
 			 else
 				ch = (ch=='"' ? CLOSE_DOUBLE_QUOTE : CLOSE_SINGLE_QUOTE);
@@ -1681,10 +1661,10 @@ to a large number (not a small one!), say 999.  --DAB, July 2017. */
 
 #define LOG_TO_STDERR False					/* Print to stderr as well as system log? */
 
-static Boolean HaveNewline(const char *str);
-
 char inStr[1000], outStr[1000];
 
+#ifdef NOTYET
+static Boolean HaveNewline(const char *str);
 static Boolean HaveNewline(const char *str)
 {
 	while (*str!='\0') {
@@ -1693,7 +1673,7 @@ static Boolean HaveNewline(const char *str)
 	}
 	return False;
 }
-
+#endif
 
 Boolean VLogPrintf(const char *fmt, va_list argp)
 {

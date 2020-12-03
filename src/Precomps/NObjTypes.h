@@ -677,7 +677,7 @@ typedef struct {
 	OBJECTHEADER
 	EXTOBJHEADER
 	SignedByte	voice;				/* Voice number */
-	char		filler;
+	char		philler;			/* A "filler" (unused); funny name to avoid confusion with ASLUR's filler */
 	char		crossStaff;			/* True if the slur is cross-staff: staffn=top staff(?) */
 	char		crossStfBack;		/* True if the slur goes from a lower (position, not no.) stf to higher */
 	char		crossSystem;		/* True if the slur is cross-system */	

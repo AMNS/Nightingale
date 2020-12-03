@@ -150,7 +150,7 @@ limit the number to a much smaller value, e.g., for a "Lite" version. */
 fails, it should return info as to the reason! */
 
 #define MAX_HEAPSIZE 65500L							/* Maximum no. of objects of one type */
-#define DEBUG_CLOBBER True
+#define DEBUG_CLOBBER False
 
 Boolean ExpandFreeList(HEAP *heap,
 						long deltaObjs)				/* <=0 = do nothing, else <MAX_HEAPSIZE */ 
@@ -352,7 +352,6 @@ LINK InsertLink(HEAP *heap, LINK head, LINK before, LINK objlist)
 		next = NextLink(heap, link);
 		
 		if (link == before) {
-		
 			if (prev)											/* before was not first */
 				*(LINK *)LinkToPtr(heap, prev) = objlist;
 			 else												/* before is head of list */
@@ -395,7 +394,6 @@ LINK InsAfterLink(HEAP *heap, LINK head, LINK after, LINK objlist)
 			next = NextLink(heap,link);
 			
 			if (link == after) {
-			
 				if (prev) {								/* <after> was not first */
 					temp = *(LINK *)LinkToPtr(heap,after);
 					*(LINK *)LinkToPtr(heap,after) = objlist;

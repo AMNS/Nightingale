@@ -8254,3 +8254,97 @@ Run our standard test: open 2ndMovementCSpp1-3.ngl several times =>
 DrawBEAMSET, with pL = 53844 (as usual, way larger than makes sense), voice 1. DrawBEAMSET has
 beamL = 0: no wonder FindMainNote is looking at a nonsense "Sync"!
 
+---------------------------------------------------------------------------------------
+
+26 Nov. - 2 Dec.
+
+Latest summary of The Bug in opening medium-size (and larger) files in N105 format:
+
+While converting from N105 to the current (N106 equivalent) internal object list, afer
+awhile -- usually starting at around L800 to L1000 -- earlier, already-converted objects
+of two types get corrupted, apparently randomly. (This is based on evidence collected by
+DebugConvertObj() and DebugConvCheckBeamsets(), both of which call DCheckBeamset().) The
+corrupted objects are mostly Beamsets, sometimes Timesigs; never anything else. The way
+they're corrupted as well as which objects are appears random. Our standard test file,
+2ndMovementCSpp1-3.ngl, occasionally opens with no problems, but 90% of the time, it has
+problems of varying severity. It sometimes crashes into GDB, always or almost always
+highlighting line "if (SyncTYPE(pL)) {" in FindMainNote() called from DrawBEAMSET, with pL
+= a number much too large to make sense. The one time I looked further, DrawBEAMSET had
+beamL = 0; in any case the crash is undoubtedly from the corrupted Beamsets most or all of
+the time.
+
+When exactly does the corruption occur? Calls to DebugConvCheckBeamsets in ConvertSLUR()
+indicate it's almost always inside ConvertSLUR in a series of about 10 statements that
+couldn't possibly be doing it :-) : they're all assignment statements with no function calls.
+
+I've seen the same symptoms with Mozart_Andante_2Fl_DMaj.ngl, which is about the same size.
+
+I'd say this must be a case of memory getting clobbered by unrelated code. However, the
+symptoms are unchanged certainly since late July and probably earlier despite the fact that
+I've made many changes that must have moved things around in memory; I'm not sure I've ever
+seen a random clobber like that!
+
+How early in the object list can the clobbering and clobbered objects be? With
+2ndMovementCSpp1-3.ngl just now, corruption of the first Beamset (L12) was discovered, but
+not until L913 (as usual, in ConvertSLUR).
+
+	Nov 29 06:43:58 DonDualG5 Ngale[17195]:
+	Warning. *DCheckBeamset: BEAMSET L12 HAS BAD startend SEQUENCE (end): beamsNow=1.
+	debug. ****** (ConvertSLUR2): DCheckBeamset found a problem with qL=L12, at objL=913. (0: 0, 0)
+
+Debug Check shows 30 errors. Open Mozart_Andante_2Fl_DMaj.ngl => draws garbage beams and
+Debug Check complains about about 10 Beamsets, so it's also still showing The Bug. Hmmm --
+does the old Debugger() command still work? Try it running inside Xcode 2.5 on G5 with OS
+10.5.x... Nope! Maybe inside Xcode 3.x with OS 10.6? Doug McKenna, can you try this?
+
+Let's pin down where the corruption is occurring more precisely. Add to ConvertSLUR more calls
+to DebugConvCheckBeamsets():
+
+	BlockMove(&tmpSuperObj, &aSlur, sizeof(SLUR_5));
+	
+	DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1");
+
+	SlurSTAFF(slurL) = (&aSlur)->staffn;		/* EXTOBJHEADER */
+
+DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.1");
+	SlurVOICE(slurL) = (&aSlur)->voice;
+DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.2");
+	SlurFILLER(slurL) = 0;
+DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.3");
+	SlurCrossSTAFF(slurL) = (&aSlur)->crossStaff;
+
+Run Ngale on both test scores a bunch of times => it says "ConvertSLUR1.3" 10 times in a
+row. So SlurFILLER is the culprit! (And we have a new record for the earliest corruption:
+converting L657 (vs. the previous record holder, L689) did it. A small point. FWIW, this
+time L657 corrupted L12.)
+
+Well, the Slur object's <filler> field is never used, of course, so what happens if I comment
+out that line? Open Mozart_Andante_2Fl_DMaj.ngl 2x => no problems; open 2ndMovementCSpp1-3.ngl
+3x => no problems; open 2ndMovementCSpp1-4.ngl => no problems!! The Bug seems to be gone! but
+what's going on?
+
+The definition of SlurFILLER:
+
+	#define SlurFILLER(link)			( (GetPASLUR(link))->filler)	
+
+How could that be corrupting anything?? I guess <slurL> must sometimes get trashed in such
+way that trying to set its <filler> overwrites something in a Beamset or Timesig, but
+setting its <staffn> or <voice> never does! But no, that can't be because after the call to
+SlurFILLER, ConvertSLUR does
+
+	SlurCrossSTAFF(slurL) = (&aSlur)->crossStaff;
+	SlurCrossSTFBACK(slurL) = (&aSlur)->crossStfBack;			
+	SlurCrossSYS(slurL) = (&aSlur)->crossSystem;
+	SlurTempFLAG(slurL) = (&aSlur)->tempFlag;
+	SlurUSED(slurL) = (&aSlur)->used;
+	SlurTIE(slurL) = (&aSlur)->tie;
+	SlurFIRSTSYNC(slurL) = (&aSlur)->firstSyncL;
+	SlurLASTSYNC(slurL) = (&aSlur)->lastSyncL;
+
+...and those are all working. ?!? Ah-hah!! Both SLUR object and subobject have a filler
+field. GetPASLUR(link) assumes <link> is a subobject -- but it's not!!! Hooray!!!!!
+
+Change the name of the field in the object to <philler>; add a SlurPHILLER macro and use
+that in ConvertSLUR. Open 2ndMovementCSpp1-3.ngl 3x => no problems; open Mozart_Andante_2Fl_DMaj.ngl
+=> no problems; 2ndMovementCSpp1-4.ngl => no problems; 2ndMovement_pp1-28.ngl => OK;
+2ndMovement_pp1-29.ngl => OK!!!!!!!!!!!

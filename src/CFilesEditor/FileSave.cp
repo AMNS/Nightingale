@@ -19,27 +19,6 @@
 #include "MidiMap.h"
 
 
-/* Codes for object types being read/written or for non-read/write call when an I/O
-error occurs. Note that all are negative. See file.h for additional, positive,
-codes. FIXME: Move these #defines to file.h! */
-
-#define	HEADERobj -999
-#define VERSIONobj -998
-#define SIZEobj -997
-#define CREATEcall -996
-#define OPENcall -995
-#define CLOSEcall -994
-#define DELETEcall -993
-#define RENAMEcall -992
-#define WRITEcall -991
-#define STRINGobj -990
-#define INFOcall -989
-#define SETVOLcall -988
-#define BACKUPcall -987
-#define MAKEFSSPECcall -986
-#define NENTRIESerr -899
-
-
 /* ----------------------------------------------------- Helper functions for SaveFile -- */
 
 enum {
@@ -104,7 +83,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	Handle stringHdl;
 
 	/* Get the total number of objects of each type and the number of note modifiers
-		in both the main and the Master Page object lists. */
+	   in both the main and the Master Page object lists. */
 
 	CountSubobjsByHeap(doc, objCount, True);
 
@@ -139,6 +118,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	fileSize += (sizeof(short)+sizeof(long))*nHeaps;
 	
 	/* The HEAP struct header, 1 for each heap. */
+	
 	fileSize += sizeof(HEAP)*nHeaps;
 
 	fileSize += sizeof(long);							/* end marker */
@@ -150,7 +130,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 		fileSize += vAlBlkSize - blkMod;
 	
 	/* Add size of file's resource fork here, rounded up to the next higher multiple
-		of allocation block size. */
+	   of allocation block size. */
 	
 	if (doc->hPrint) {
 		rSize = GetHandleSize((Handle)doc->hPrint);
@@ -248,10 +228,10 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 
 	fileSize = GetFileSize(doc, vAlBlkSize);
 
-	/* If we have enough space to save safely, we're done (although if the doc is
-	   new or it's a Save As, we tell the caller they don't _need_ to do a safe save).
-	   If not, ask the user what to do. If canContinue, they can still replace the
-	   previous file; otherwise, they can only Save As or Cancel. */
+	/* If we have enough space to save safely, we're done (although if the doc is new
+	   or it's a Save As, we tell the caller they don't _need_ to do a safe save). If
+	   not, ask the user what to do. If canContinue, they can still replace the previous
+	   file; otherwise, they can only Save As or Cancel. */
 
 	if (fileSize <= freeSpace)
 		return ((doc->docNew || saveAs)? SF_Replace : SF_SafeSave);
@@ -428,7 +408,7 @@ static Boolean GetOutputFile(Document *doc)
 	NSClientData nscd;
 	
 	Pstrcpy(name,doc->name);
-	if (GetOutputName(MiscStringsID,3,name,&vrefnum,&nscd)) {
+	if (GetOutputName(MiscStringsID, 3, name, &vrefnum, &nscd)) {
 	
 		fsSpec = nscd.nsFSSpec;
 		//result = FSMakeFSSpec(vrefnum, 0, name, &fsSpec);
@@ -447,7 +427,9 @@ static Boolean GetOutputFile(Document *doc)
 
 		//HSetVol(NULL, vrefnum, 0);
 		result = HSetVol(NULL, fsSpec.vRefNum, fsSpec.parID);
+		
 		/* Save the file under this name */
+		
 		Pstrcpy(doc->name, name);
 		doc->vrefnum = vrefnum;
 		SetWTitle((WindowPtr)doc, name);
@@ -609,7 +591,7 @@ TryAgain:
 	}
 
 	/* At this point, the file we want to write (either the temporary file or the
-		"real" one) is open and <refNum> is set for it. */
+	   "real" one) is open and <refNum> is set for it. */
 		
 	doc->docNew = False;
 	doc->vrefnum = vRefNum;

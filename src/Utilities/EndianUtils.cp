@@ -28,18 +28,14 @@ as a result, the EndianFixStringPool code is located in StringPool.c. */
 
 void EndianFixRect(Rect *pRect)
 {
-#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END(pRect->top);	FIX_END(pRect->left);
 	FIX_END(pRect->bottom);	FIX_END(pRect->right);
-#endif
 }
 
 void EndianFixPoint(Point *pPoint)
 {
-#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END(pPoint->v);
 	FIX_END(pPoint->h);
-#endif
 }
 
 static unsigned short EndianFix_13BitField(unsigned short value);
@@ -54,7 +50,6 @@ static unsigned short EndianFix_13BitField(unsigned short value)
 
 void EndianFixConfig()
 {
-#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END(config.maxDocuments);
 	
 	EndianFixRect(&config.paperRect);
@@ -93,23 +88,18 @@ void EndianFixConfig()
 	FIX_END(config.cmMetroDev);
 	FIX_END(config.cmDfltInputDev);
 	FIX_END(config.cmDfltOutputDev);
-#endif
 }
 
 void EndianFixMIDIModNRTable()
 {
-#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
-	
 	for (short i = 0; i<32; i++) {
 		FIX_END(modNRVelOffsets[i]);
 		FIX_END(modNRDurFactors[i]);
 	}
-#endif
 }
 
 void EndianFixPaletteGlobals(short idx)
 {
-#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END((*paletteGlobals[idx])->currentItem);
 	FIX_END((*paletteGlobals[idx])->itemHilited);
 	FIX_END((*paletteGlobals[idx])->maxAcross);
@@ -125,7 +115,6 @@ void EndianFixPaletteGlobals(short idx)
 	EndianFixPoint(&((*paletteGlobals[idx])->position));
 	FIX_END((*paletteGlobals[idx])->zoomAcross);
 	FIX_END((*paletteGlobals[idx])->zoomDown);
-#endif
 }
 
 void EndianFixSpaceMap(Document *doc)
@@ -142,7 +131,6 @@ unsigned long ulTmp;
 
 void EndianFixDocumentHdr(Document *doc)
 {
-#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	EndianFixPoint(&doc->origin);	
 
 	EndianFixRect(&doc->paperRect);
@@ -165,12 +153,10 @@ void EndianFixDocumentHdr(Document *doc)
 
 	EndianFixRect(&doc->headerFooterMargins);
 	EndianFixRect(&doc->currentPaper);
-#endif
 }
 
 void EndianFixScoreHdr(Document *doc)
 {
-#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END(doc->nstaves);
 	FIX_END(doc->nsystems);
 	FIX_END(doc->spacePercent);
@@ -182,9 +168,9 @@ void EndianFixScoreHdr(Document *doc)
 	FIX_ULONG_END(doc->headerStrOffset);
 	FIX_ULONG_END(doc->footerStrOffset);
 	FIX_END(doc->dIndentOther);
-LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
+//LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
 	doc->firstMNNumber = EndianFix_13BitField(doc->firstMNNumber);	/* Special treatment for bitfield */
-LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
+//LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
 	FIX_END(doc->nfontsUsed);
 	FIX_END(doc->magnify);
 	FIX_END(doc->selStaff);
@@ -193,12 +179,10 @@ LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMN
 	FIX_END(doc->ledgerYSp);
 	FIX_END(doc->deflamTime);
 	FIX_END(doc->dIndentFirst);
-#endif
 }
 
 void EndianFixHeapHdr(Document * /* doc */, HEAP *heap)
 {
-#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END((long)heap->block);
 	FIX_END(heap->objSize);
 	FIX_END(heap->type);
@@ -206,6 +190,5 @@ void EndianFixHeapHdr(Document * /* doc */, HEAP *heap)
 	FIX_USHRT_END(heap->nObjs);
 	FIX_USHRT_END(heap->nFree);
 	FIX_END(heap->lockLevel);	
-#endif
 }
 

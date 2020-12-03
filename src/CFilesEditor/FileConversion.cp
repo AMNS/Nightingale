@@ -42,11 +42,10 @@ void ConvertDocumentHeader(Document *doc, DocumentN105 *docN105)
 }
 
 
+static void ConvertFontTable(Document *doc, DocumentN105 *docN105);
 static void ConvertFontTable(Document *doc, DocumentN105 *docN105)
 {
-	short i;
-	
-	for (i = 0; i<doc->nfontsUsed; i++)
+	for (short i = 0; i<doc->nfontsUsed; i++)
 		doc->fontTable[i] = docN105->fontTable[i];
 	doc->nfontsUsed = docN105->nfontsUsed;
 }
@@ -509,6 +508,11 @@ static void DebugConvCheckBeamsets(Document *doc, LINK objL, char *label)
 				LogPrintf(LOG_DEBUG, "****** (%s): DCheckBeamset found a problem with qL=L%u, at objL=%Lu. (%d: %d, %d)\n",
 							label, qL, objL, debugBadBeamsetCount, badBeamLink[0], badBeamLink[1]);
 				badBeamLink[debugBadBeamsetCount++] = qL;
+				
+				/* Maybe start the Debugger. Sadly, this seems to do nothing, at least
+				   inside Xcode 2.5 under macOS 10.5. */
+				
+				if (DETAIL_SHOW && OptionKeyDown()) Debugger();
 			}
 		}
 }
@@ -1665,14 +1669,19 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 
 	SlurSTAFF(slurL) = (&aSlur)->staffn;		/* EXTOBJHEADER */
 
+//DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.1");
 	SlurVOICE(slurL) = (&aSlur)->voice;
-	SlurFILLER(slurL) = 0;
+DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.2");
+	SlurPHILLER(slurL) = 0;
+DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.3");
 	SlurCrossSTAFF(slurL) = (&aSlur)->crossStaff;
 	SlurCrossSTFBACK(slurL) = (&aSlur)->crossStfBack;			
 	SlurCrossSYS(slurL) = (&aSlur)->crossSystem;
+//DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.4");
 	SlurTempFLAG(slurL) = (&aSlur)->tempFlag;
 	SlurUSED(slurL) = (&aSlur)->used;
 	SlurTIE(slurL) = (&aSlur)->tie;
+//DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.5");
 
 	SlurFIRSTSYNC(slurL) = (&aSlur)->firstSyncL;
 	SlurLASTSYNC(slurL) = (&aSlur)->lastSyncL;

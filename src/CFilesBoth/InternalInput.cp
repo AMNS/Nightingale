@@ -110,10 +110,10 @@ void FIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice)
 
 /* ------------------------------------------------------------------- FIReplaceKeySig -- */
 /* Replace key signature on the given staff with one specified by <sharpsOrFlats>.
-CAUTION: In contrast to ReplaceKeySig, FIReplaceKeySig works with keysigs that
-are NOT in the reserved area. That is, it works with keysigs that are inMeasure.
-Assumes that there are no notes following this keysig on this staff, so there's
-no need to fix up following accidentals. (Adapted from ReplaceKeySig in InsNew.c.) */
+CAUTION: In contrast to ReplaceKeySig, FIReplaceKeySig works with keysigs that are
+not in the reserved area; that is, it works with keysigs that are inMeasure. Assumes
+that there are no notes following this keysig on this staff, so there's no need to fix
+up following accidentals. (Adapted from ReplaceKeySig in InsNew.c.) */
 
 Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsOrFlats)
 {
@@ -149,8 +149,8 @@ Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsO
 
 /* ------------------------------------------------------------- FIInsertWholeMeasRest -- */
 /* Insert a whole-measure rest before <insertBeforeL> on the given staff in the given
-(internal) voice. Does NOT attempt to create a sync with notes on other staves.
-Returns True if OK, False if error. */
+(internal) voice. Does NOT attempt to create a sync with notes on other staves. Returns
+True if OK, False if error. */
 
 Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 										short iVoice, Boolean visible)
@@ -177,8 +177,8 @@ Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 
 
 /* ------------------------------------------------------------------- FIInsertBarline -- */
-/* Insert a barline of type <barlineType> before <insertBeforeL> on all staves.
-Returns the link of this barline if OK, NILINK if error. */
+/* Insert a barline of type <barlineType> before <insertBeforeL> on all staves. Returns
+the link of this barline if OK, NILINK if error. */
 
 LINK FIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType)
 {
@@ -196,9 +196,9 @@ LINK FIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType)
 
 
 /* ----------------------------------------------------------------- SetMeasureSubType -- */
-/* Set all subobjects of the given measure to <subType>, a code indicating the
-type of barline (e.g., single bar, double bar, end bar, etc.) Returns True if okay,
-False if error. */
+/* Set all subobjects of the given measure to <subType>, a code indicating the type of
+barline (e.g., single bar, double bar, end bar, etc.) Returns True if okay, False if
+error. */
 
 Boolean SetMeasureSubType(LINK measL, short subType)
 {
@@ -286,8 +286,8 @@ LINK FIInsertTimeSig(Document *doc,
 
 
 /* -------------------------------------------------------------------- FIInsertKeySig -- */
-/* Caller may need to call FixContextForKeySig and/or FixAccsForKeySig after
-calling this function. */
+/* Caller may need to call FixContextForKeySig and/or FixAccsForKeySig after calling
+this function. */
 	
 LINK FIInsertKeySig(Document *doc,
 					  short staff,					/* or ANYONE for all staves */
@@ -403,6 +403,7 @@ Boolean FICombineKeySigs(Document *doc,
 				staffn = KeySigSTAFF(FirstSubLINK(pL));
 				if (aSourceKS[staffn]) {
 					/* We already have a keysig on this staff, so terminate series. */
+					
 					inSeries = False;
 					pL = LeftLINK(pL);			/* So we'll catch this ks again in next iteration. (It might begin a new ks series.) */
 				}
@@ -423,7 +424,9 @@ Boolean FICombineKeySigs(Document *doc,
 			firstL = NILINK;
 		}	
 	}
+	
 	/* Handle case where score has: ksL - ksL - tailL */
+	
 	if (firstL && numSubObjs>1)
 		if (!IICombineInto1KeySig(doc, firstL, numSubObjs, aSourceKS))
 			return False;
@@ -798,13 +801,16 @@ LINK FIInsertSlur(Document *doc,
 	PASLUR	aSlur;
 	PANOTE	aNote;
 	
-	/* Give up if either syncs are not really syncs. */
+	/* Give up if either Sync is not really a Sync. */
+	
 	if (!SyncTYPE(firstSyncL) || !SyncTYPE(lastSyncL)) return NILINK;
 	
 	/* Give up if asked to create a cross-system tie. */
+	
 	if (!SameSystem(firstSyncL, lastSyncL)) return NILINK;
 	
 	/* Give up if the given notes are not in the same voice. */
+	
 	if (NoteVOICE(firstNoteL)!=NoteVOICE(lastNoteL)) return NILINK;
 	
 	slurL = InsertNode(doc, firstSyncL, SLURtype, 1);
@@ -826,7 +832,7 @@ LINK FIInsertSlur(Document *doc,
 	pSlur = GetPSLUR(slurL);
 	pSlur->staffn = staffn1;
 	pSlur->voice = iVoice;
-	pSlur->filler = 0;
+	pSlur->philler = 0;
  	pSlur->crossStaff = (staffn1!=staffn2);
  	pSlur->crossStfBack = (pSlur->crossStaff && staffn1>staffn2);	// ??What if staffn1 is lower num but also lower in score pos?
  	pSlur->crossSystem = False;
@@ -988,6 +994,7 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 					pbSearch.subtype = False;							/* Slur, not tieset */
 					if (slurredL) {
 						/* See comments for ties above. */
+						
 						prevSyncL = LVSearch(LeftLINK(pL), SYNCtype, voice, GO_LEFT, False);
 						if (prevSyncL && SameSystem(pL, prevSyncL)) {
 							searchL = prevSyncL;
@@ -1055,6 +1062,7 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 			iVoice = GraphicVOICE(dependentL);
 			
 			/* Handle page-rel graphics right here. */
+			
 			if (staff==NOONE && iVoice==NOONE)
 				return SSearch(LeftLINK(dependentL), PAGEtype, GO_LEFT);
 			break;
@@ -1239,7 +1247,7 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 	if (ourStaff==0) return VCROLE_SINGLE;				/* range contains no notes in the given voice */
 	
 	/* Does <iVoice> share its staff with other voices? If not, return VCROLE_SINGLE.
-		If it shares with more than one voice, give up and return VCROLE_SINGLE. */
+	   If it shares with more than one voice, give up and return VCROLE_SINGLE. */
 	
 	for (v = 1; v<=MAXVOICES; v++)
 		sharingVoices[v] = False;
@@ -1262,8 +1270,8 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 	if (voiceCnt>2) return VCROLE_SINGLE;
 
 	/* Loop through the range once more to find out which voice, iVoice or otherVoice,
-		is higher in pitch on average. If iVoice is higher, return VCROLE_UPPER; if
-		lower, return VCROLE_LOWER. */
+	   is higher in pitch on average. If iVoice is higher, return VCROLE_UPPER; if
+	   lower, return VCROLE_LOWER. */
 	
 	ourNoteCnt = otherNoteCnt = 0;
 	ourPitchTotal = otherPitchTotal = 0L;
@@ -1309,12 +1317,13 @@ Boolean FIJustifySystem(Document *doc, LINK systemL)
 	Boolean		ok;
 
 	/* Get first and last Measure of System and object ending it. */
+	
 	firstMeasL = LSSearch(systemL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	termSysL = EndSystemSearch(doc, systemL);
 	lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, False);
 	
 	/* If the System isn't empty (e.g., the invisible barline isn't the last
-		barline in the System), then we can justify the measures in it. */
+	   barline in the System), then we can justify the measures in it. */
 	
 	if (lastMeasL!=firstMeasL) {
 		justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
@@ -1322,10 +1331,12 @@ Boolean FIJustifySystem(Document *doc, LINK systemL)
 		ok = StretchToSysEnd(doc, firstMeasL, lastMeasL, (long)justProp, staffWidth, lastMeasWidth);
 		
 		/* Respace, using the percentage that JustifySystem placed in first meas of this system. */
+		
 		pMeas = GetPMEASURE(firstMeasL);
 		ok = RespaceBars(doc, firstMeasL, termSysL, RESFACTOR*pMeas->spacePercent, False, False);
 	
 		/* Now justify again! */
+		
 		justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
 		justProp = (long)(justFact*100L*RESFACTOR);
 		ok = StretchToSysEnd(doc, firstMeasL, lastMeasL, (long)justProp, staffWidth, lastMeasWidth);
@@ -1362,7 +1373,7 @@ FILE *OpenInputFile(Str255 macfName, short vRefNum)
 	char	ansifName[256];
 	FILE	*f;
 
-// ?? What was this call intended for?	
+// FIXME: What was this call intended for?	
 //	result = GetWDInfo(vRefNum, &volNum, &dirID, &aProcID);
 //	if (result!=noErr) goto err;
 	
@@ -1372,7 +1383,7 @@ FILE *OpenInputFile(Str255 macfName, short vRefNum)
 	sprintf(ansifName, "%#s", (char *)macfName);
 	f = fopen(ansifName, "r");
 	if (f==NULL) {
-		result = ioErr;		// ???how do I get the *real* Mac I/O error?
+		result = ioErr;		// FIXME: how do I get the *real* Mac I/O error?
 		goto err;
 	}
 	
@@ -1468,8 +1479,8 @@ Boolean ReadLine(char inBuf[], short maxChars, FILE *f)
 		}
 		else if (c == '\r')
 		{
-			char cc = fgetc(f);					// advance past windows terminator char if necessary
-			if (cc != '\n' && cc != EOF)		// can't unget EOF
+			char cc = fgetc(f);				/* advance past windows terminator char if necessary */
+			if (cc != '\n' && cc != EOF)	/* can't unget EOF */
 				ungetc(cc, f);
 				
 			*p++ = '\n';		
@@ -1539,10 +1550,10 @@ Boolean FSReadLine(char inBuf[], short maxChars, short refNum)
 		}
 		else if (c == '\r')
 		{
-			errCode = FSReadChar(refNum, &cc);		// advance past windows terminator char if necessary
+			errCode = FSReadChar(refNum, &cc);		/* advance past windows terminator char if necessary */
 			if (errCode != noError) goto errorReturn;
 			
-			if (cc != '\n' && cc != EOF) {			// can't unget EOF
+			if (cc != '\n' && cc != EOF) {			/* can't unget EOF */
 				errCode = FSUngetChar(refNum);
 				if (errCode != noError) goto errorReturn;
 			}
@@ -1564,7 +1575,7 @@ Boolean FSReadLine(char inBuf[], short maxChars, short refNum)
 	return (c != EOF);
 	
 errorReturn:
-	return False;	// don't keep reading file if error
+	return False;		/* don't keep reading file if error */
 }
 
 short FSCloseInputFile(short refNum)

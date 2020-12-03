@@ -770,11 +770,11 @@ are by Steve Hart.) */
 #define SlurVIS(link)				( (GetPASLUR(link))->visible)
 
 /* SlurFirstIsSYSTEM considers the possibility of SlurLASTSYNC being non-existent: this can
-   never occur in a normal valid object list, but it does inside RfmtSystems, and handling
-   that condition makes it possible for FixCrossSysSlurs to use SlurFirstIsSYSTEM. */
+never occur in a normal valid object list, but it does inside RfmtSystems, and handling
+that condition makes it possible for FixCrossSysSlurs to use SlurFirstIsSYSTEM. */
  
 #define _SlurFirstSYSTEM(pL)		( (SystemTYPE(SlurLASTSYNC(pL))) )			/* Boolean, not link */
-#define SlurFirstIsSYSTEM(pL)		(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : True)	/* Boolean, not link */		
+#define SlurFirstIsSYSTEM(pL)	(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : True)	/* Boolean, not link */		
 #define SlurLastIsSYSTEM(pL)	 	( (MeasureTYPE(SlurFIRSTSYNC(pL))) )		/* Boolean, not link */
 
 #define SlurCrossSTAFF(link)		( (GetPSLUR(link))->crossStaff )			
@@ -782,6 +782,7 @@ are by Steve Hart.) */
 #define SlurCrossSYS(link)			( (GetPSLUR(link))->crossSystem )		
 #define SlurFIRSTSYNC(link)			( (GetPSLUR(link))->firstSyncL )
 #define SlurLASTSYNC(link)	 		( (GetPSLUR(link))->lastSyncL )		
+#define SlurPHILLER(link)			( (GetPSLUR(link))->philler)	
 #define SlurTempFLAG(link)	 		( (GetPSLUR(link))->tempFlag )		
 #define SlurTIE(link)				( (GetPSLUR(link))->tie )	
 #define SlurUSED(link)				( (GetPSLUR(link))->used )	

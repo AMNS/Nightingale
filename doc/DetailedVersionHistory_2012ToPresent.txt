@@ -3032,3 +3032,15 @@ Minor cleanup. Affects PaletteGlobals.h; DebugUtils, Finalize, Initialize, MIDID
 Renamed Endian to EndianUtils and moved it to the Utilities folder.
 
 Minor cleanup. Affects Clipboard, StringPool.
+
+---------------------------------------------------------------------------------------
+
+25 Nov. - 3 Dec.
+
+Fixed bug: with medium-size and large files in 'N015' format, some objects -- most
+often Beamsets, sometimes time signatures -- are usually randomly corrupted while
+they're being converted to the current format. Affects MemMacros.h, NObjTypes.h;
+FileConversion.
+
+Minor cleanup. Affects File.h; EndianUtils, FileConversion, FileSave, Initialize,
+UIFUtils.
