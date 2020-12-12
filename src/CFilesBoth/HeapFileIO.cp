@@ -116,16 +116,21 @@ an error code (either a system result code or one of our own codes). */
 short WriteHeaps(Document *doc, short refNum)
 {
 	LINK *firstSubLINKA=NILINK, *objA=NILINK, *modA=NILINK;
-	short errCode, i;
-	
+	short errCode;
+	const char *ps;
+	HEAP *myHeap;
+
 	CountObjSubobjs(doc);
-#if 1
-	LogPrintf(LOG_INFO, "No. of objects and subobjects to be written:\n");
-	for (i=FIRSTtype; i<LASTtype-1; i++ )
-		if (objCount[i]>0)
-			LogPrintf(LOG_INFO, "    heap %d: %d subobject(s)  (WriteHeaps)\n", i, objCount[i]);
-	LogPrintf(LOG_INFO, "    heap %d: %d objects  (WriteHeaps)\n", LASTtype-1, objCount[LASTtype-1]);
-#endif
+	LogPrintf(LOG_INFO, "Objects and subobjects to be written:\n");
+	for (short idx=FIRSTtype; idx<LASTtype; idx++ ) {
+		if (objCount[idx]>0) {
+			ps = NameHeapType(idx, False);
+			myHeap = Heap + idx;
+			LogPrintf(LOG_INFO, "    heap %d (%s): %d %s%c objSize=%d  (WriteHeaps)\n",
+						idx, ps, objCount[idx], (idx==LASTtype-1? "object" : "subobject"),
+						(objCount[idx]==1? ' ' : 's'), myHeap->objSize);
+		}
+	}
 
 	if (InitTrackingLinks(doc, &firstSubLINKA, &objA, &modA)) {
 		errCode = WriteSubHeaps(doc, refNum, firstSubLINKA, objA, modA);
@@ -303,6 +308,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 		ioErr = SetFPos(refNum, fsFromStart, startPosition);
 		if (ioErr!=noError) return ioErr;
 		count = sizeof(long);
+		FIX_END(sizeAllObjsFile);
 		ioErr = FSWrite(refNum, &count, &sizeAllObjsFile);
 		if (ioErr) { SaveError(True, refNum, ioErr, OBJtype); return ioErr; }
 		
@@ -519,10 +525,10 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 
 
 /* Write out to file <refNum> the number of objects/subobjects in the given heap,
-followed by a copy of the HEAP structure (currently used just for error checking).
-Return 0 if all OK, else an error code (system I/O error). */
+followed by a copy of the HEAP structure. Return 0 if all OK, else an error code
+(system I/O error). */
 
-static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
+static short WriteHeapHdr(Document *doc, short refNum, short heapIndex)
 {
 	long count;
 	short  ioErr = noErr;
@@ -532,13 +538,17 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	/* Write the total number of objects/subobjects of type heapIndex */
 	
 	count = sizeof(short);
+	FIX_END(objCount[heapIndex]);						/* Convert to Big Endian if needed */
 	ioErr = FSWrite(refNum, &count, &objCount[heapIndex]);
+	FIX_END(objCount[heapIndex]);						/* Back to processor-specific Endian */
 	if (ioErr) { SaveError(True, refNum, ioErr, heapIndex);  return(ioErr); }
 
 	/* Write the HEAP struct header */
 	
 	count = sizeof(HEAP);
+	EndianFixHeapHdr(doc, myHeap);						/* Convert to Big Endian if needed */
 	ioErr = FSWrite(refNum, &count, (Ptr)myHeap);
+	EndianFixHeapHdr(doc, myHeap);						/* Back to processor-specific Endian */
 
 	if (DETAIL_SHOW) {
 		long position;
@@ -778,6 +788,7 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	isViewerFile = (fdType==DOCUMENT_TYPE_VIEWER);
 
 	PrepareClips();
+	LogPrintf(LOG_INFO, "Objects and subobjects read:\n");
  	for (iHp=FIRSTtype; iHp<LASTtype-1; iHp++) {
 		errCode = ReadSubHeap(doc, refNum, version, iHp, isViewerFile);
 		if (errCode) return errCode;
@@ -810,10 +821,10 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 	short curType;
 	long len, newLen, n;
 
-//LogPrintf(LOG_DEBUG, "MoveObjSubobjs: sizeAllInHeap=%ld\n", sizeAllInHeap);
 	tempHeap = NewPtr((Size)sizeAllInHeap);
 	
-	/* Using if (!*tempHeap)... here misbehaves badly; I have no idea why. */
+	/* Using if (!*tempHeap)... here misbehaves badly; I have no idea why!  --DAB, Oct. 2020 */
+	
 	if (!GoodNewPtr((Ptr)tempHeap))
 		{ OutOfMemory(sizeAllInHeap);  return False; }
 	BlockMove(pLink1, tempHeap, sizeAllInHeap);
@@ -831,8 +842,8 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 			return False;
 		}
 		
-		/* Set <len> to the correct object/subobject length for the format of the
-		   given version and <newLen> to the length in the current version. */
+		/* Set <len> to the correct object/subobject length for the format of the given
+		   version and <newLen> to the length in the current version. */
 
 		if (hType==OBJtype)	{
 			len = (version=='N105'? objLength_5[curType] : objLength[curType]);
@@ -897,6 +908,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	char *pLink1;
 	long count, sizeAllObjsFile, sizeAllObjsHeap, nExpand, position;
 	HEAP *objHeap;
+	const char *ps;
 
 	objHeap = doc->Heap + OBJtype;
 	hdrErr = ReadHeapHdr(doc, refNum, version, isViewerFile, OBJtype, &nFObjs);
@@ -910,8 +922,10 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	count = sizeof(long);
 	FSRead(refNum, &count, &sizeAllObjsFile);
 	FIX_END(sizeAllObjsFile);
-	LogPrintf(LOG_INFO, "%d objects. sizeAllObjsFile=%ld sizeAllObjsHeap=%ld  (ReadObjHeap)\n",
-								nFObjs, sizeAllObjsFile, sizeAllObjsHeap);
+
+	ps = NameHeapType(OBJtype, False);
+	LogPrintf(LOG_INFO, "    heap %d (%s): %d objects. sizeAllObjsFile=%ld sizeAllObjsHeap=%ld  (ReadObjHeap)\n",
+								OBJtype, ps, nFObjs, sizeAllObjsFile, sizeAllObjsHeap);
 
 	if (sizeAllObjsFile>sizeAllObjsHeap) {
 		AlwaysErrMsg("File is inconsistent. sizeAllObjsFile=%ld is greater than sizeAllObjsHeap=%ld  (ReadObjHeap)",
@@ -933,7 +947,6 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadObjHeap: pLink1=%ld FPos:%ld\n", pLink1, position);
  	
 	ioErr = FSRead(refNum, &sizeAllObjsFile, pLink1);
-//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadObjHeapA", (unsigned char *)pLink1, 24+38+44, 4, 16);
 	
 	/* Move the contents of the object heap around so each object has space for the
 	   required SUPEROBJECT size. */
@@ -946,15 +959,14 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	PopLock(objHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
 	RebuildFreeList(doc, OBJtype, nFObjs);
-//NHexDump(LOG_DEBUG, "ReadObjHeapB", (unsigned char *)pLink1, 24+38+44, 4, 16);
 
-{
-unsigned char *pSObj;
-pSObj = (unsigned char *)GetPSUPEROBJ(1);
-NHexDump(LOG_DEBUG, "ReadObjHeap_1", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJ(2);
-NHexDump(LOG_DEBUG, "ReadObjHeap_2", pSObj, 46, 4, 16);
-}
+	if (DETAIL_SHOW) {
+		unsigned char *pSObj;
+		pSObj = (unsigned char *)GetPSUPEROBJ(1);
+		NHexDump(LOG_DEBUG, "ReadObjHeap_1", pSObj, 46, 4, 16);
+		pSObj = (unsigned char *)GetPSUPEROBJ(2);
+		NHexDump(LOG_DEBUG, "ReadObjHeap_2", pSObj, 46, 4, 16);
+	}
 
 	return 0;
 }
@@ -998,8 +1010,8 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 
 
 	ps = NameHeapType(iHp, False);
-	LogPrintf(LOG_INFO, "heap %d (%s): %d subobject(s). sizeAllInFile=%ld sizeAllInHeap=%ld  (ReadSubHeap)\n",
-						iHp, ps, nFObjs, sizeAllInFile, sizeAllInHeap);
+	LogPrintf(LOG_INFO, "    heap %d (%s): %d subobject%s sizeAllInFile=%ld sizeAllInHeap=%ld  (ReadSubHeap)\n",
+						iHp, ps, nFObjs, (nFObjs==1? ".": "s."), sizeAllInFile, sizeAllInHeap);
 	if (sizeAllInFile>sizeAllInHeap) {
 		AlwaysErrMsg("File is inconsistent. sizeAllInFile=%ld is greater than sizeAllInHeap=%ld  (ReadSubHeap)",
 					sizeAllInFile, sizeAllInHeap);
@@ -1044,9 +1056,9 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 
 
 /* Read the number of objects/subobjects in the heap and the heap header from the file.
-The header is used only for error checking. Deliver the number of objs/subobjs in
-*pnFObjs. Return function value of 0 if all OK, else an error code (either a system I/O
-error code or one of our own). */
+NB: The header itself is used only for error checking! Deliver the number of objs/subobjs
+in *pnFObjs. Return function value of 0 if all OK, else an error code (either a system
+I/O error code or one of our own). */
 
 static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*isViewerFile*/,
 								short heapIndex, unsigned short *pnFObjs)

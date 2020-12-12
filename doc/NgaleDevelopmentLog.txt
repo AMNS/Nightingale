@@ -8348,3 +8348,43 @@ Change the name of the field in the object to <philler>; add a SlurPHILLER macro
 that in ConvertSLUR. Open 2ndMovementCSpp1-3.ngl 3x => no problems; open Mozart_Andante_2Fl_DMaj.ngl
 => no problems; 2ndMovementCSpp1-4.ngl => no problems; 2ndMovement_pp1-28.ngl => OK;
 2ndMovement_pp1-29.ngl => OK!!!!!!!!!!!
+
+---------------------------------------------------------------------------------------
+
+5 - 9 Dec.
+
+BACK TO Intel-specific problems, esp. saving & opening files. On Intel, New, insert a note,
+Save As 1NoteG3Intel.ngl; try to open it on Intel => "Header for heap 0 objSize is 23041,
+but expected objSize 346." This is probably because the string pool is bad. Try to open same
+file on PPC => same thing:
+
+	Dec  5 14:41:42 DonDualG5 Ngale[35829]:
+	info. stringPoolSize=306  (OpenFile)
+	info. String pool nullstr=0 lockLevel=0 saveLevel=0 sizeJump=256  (DisplayStringPool)
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=1024 blk=-469565182 objSize=23041 type=0 ff=1792 nO=8192 nf=6400 ll=0 FPos:2902
+	ERROR. Header for heap 0 objSize is 23041, but expected objSize 346  (ReadHeapHdr)
+
+So it's a problem in writing the file, not reading it on Intel.
+
+On PPC, open a one-note file created on PPC (in N106 format), 1NoteE5PPC.ngl =>
+
+	info. stringPoolSize=306  (OpenFile)
+	info. String pool nullstr=0 lockLevel=0 saveLevel=0 sizeJump=256  (DisplayStringPool)
+	debug. ReadHeapHdr: hp 0 (HEAD) nFObjs=4 blk=8370616 objSize=346 type=0 ff=7 nO=32 nf=25 ll=0 FPos:2902
+	
+Looks like it isn't the string pool, but that the heap header isn't Endian fixed. Right?
+Right; WriteHeaps() isn't doing anything Endian! WriteHeapHdr might be able to just do what
+ReadHeapHdr does: make a temporary copy and call EndianFixHeapHdr in WriteSubHeaps and
+WriteObjHeap just before writing; but that could run into the problem WriteFile had. ??OR
+COULD IT? It's safer to call EndianFixHeapHdr just before writing, then call it again just
+after to restore the header to internal form. But what about the modifier heap and
+WriteModHeap? There _is_ no ReadModHeap. There _is_ no ReadModHeap, and ReadSubHeap doesn't
+appear to do anything special with modifiers! Ah: there's nothing special about the
+MODNRtype heap itself; it's just that we're writing all other subobjects when we encounter
+the object they're attached to, and MODNRs are attached to other subobjs, not objects.
+
+	EndianFixHeapHdr(doc, doc->Heap+heapIndex);				/* Convert to Big Endian if needed */
+	EndianFixHeapHdr(doc, doc->Heap+heapIndex);				/* Back to processor-specific Endian */
+
+Done. Next problem: can't open files on Intel machines because <nFObjs> and <sizeAllObjsFile> are
+bad. Just need to FIX_END <sizeAllObjsFile> just before writing => done.

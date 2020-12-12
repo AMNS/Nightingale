@@ -3027,7 +3027,8 @@ Minor cleanup. Affects PaletteGlobals.h; DebugUtils, Finalize, Initialize, MIDID
 
 21 - 24 Nov.
 
-?Fixed bug ?NOT YET: on Intel machines, the string pool is always bad. Affects FileSave.
+Fixed bug: can't open files on Intel machines because the string pool is always bad.
+Affects FileSave.
 
 Renamed Endian to EndianUtils and moved it to the Utilities folder.
 
@@ -3044,3 +3045,12 @@ FileConversion.
 
 Minor cleanup. Affects File.h; EndianUtils, FileConversion, FileSave, Initialize,
 UIFUtils.
+
+---------------------------------------------------------------------------------------
+
+7 - 12 Dec.
+
+Fixed bug: can't open files on Intel machines because <nFObjs> and <sizeAllObjsFile>
+are bad. Affects HeapFileIO.
+
+Minor cleanup. Affects FileSave, FileUtils, HeapFileIO, Heaps.

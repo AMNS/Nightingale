@@ -307,7 +307,8 @@ void DisplayDocumentHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  (15)headerFooterMargins.top=%d", doc->headerFooterMargins.top);
 	LogPrintf(LOG_INFO, "  .left=%d", doc->headerFooterMargins.left);
 	LogPrintf(LOG_INFO, "  .bottom=%d", doc->headerFooterMargins.bottom);
-	LogPrintf(LOG_INFO, "  .right=%d\n", doc->headerFooterMargins.right);
+	LogPrintf(LOG_INFO, "  .right=%d", doc->headerFooterMargins.right);
+	LogPrintf(LOG_INFO, "  (16)littleEndian=%d\n", doc->littleEndian);
 }
 
 

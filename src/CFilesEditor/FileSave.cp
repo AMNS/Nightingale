@@ -312,8 +312,9 @@ static short WriteFile(Document *doc, short refNum)
 	errCode = FSWrite(refNum, &count, &lastType);
 	if (errCode) return HEADERobj;
 
-	/* Write string pool size with possibly end-fixed local copy; write  and string pool, possibly end-fixed; if end-fixed, then
-	   it by redoing it (since the operation is its own inverse). */
+	/* Write string pool size with possibly end-fixed local copy; write  and string pool,
+	   possibly end-fixed; if end-fixed, then undo by redoing it (since the operation is
+	   its own inverse). */
 	
 	stringHdl = (Handle)GetStringPool();
 	HLock(stringHdl);
@@ -334,11 +335,12 @@ static short WriteFile(Document *doc, short refNum)
 	HUnlock(stringHdl);
 	if (errCode) return STRINGobj;
 
-	EndianFixStringPool(doc->stringPool);					/* Back to platform-specific */
+	EndianFixStringPool(doc->stringPool);					/* Back to platform-specific Endian */
 	if (DETAIL_SHOW) DisplayStringPool(doc->stringPool);
 	strPoolErrCode = StringPoolProblem(doc->stringPool);
 	if (strPoolErrCode!=0) {
-		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (WriteFile)\n", (long)strPoolErrCode);
+		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (WriteFile)\n",
+						(long)strPoolErrCode);
 		DisplayStringPool(doc->stringPool);
 		return STRINGobj;
 	}
