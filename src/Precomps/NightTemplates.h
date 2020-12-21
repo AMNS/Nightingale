@@ -118,10 +118,10 @@
 	Boolean		DoOpenDocumentX(StringPtr fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec,
 						Document **pDoc);
 	void		DoRevertDocument(Document *doc);
-	Boolean		DoSaveDocument(Document *doc);
-	Boolean		DoSaveAs(Document *doc);
-	Document*	FirstFreeDocument(void);
-	Document*	GetDocumentFromWindow(WindowPtr w);
+	short		DoSaveDocument(Document *doc);
+	short		DoSaveAs(Document *doc);
+	Document	*FirstFreeDocument(void);
+	Document	*	GetDocumentFromWindow(WindowPtr w);
 	Boolean		EqualFSSpec(FSSpec *fs1, FSSpec *fs2);
 	Boolean		InitDocFields(Document *doc);
 	Boolean		InitDocUndo(Document *doc);

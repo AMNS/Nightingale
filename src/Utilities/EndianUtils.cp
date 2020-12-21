@@ -46,7 +46,7 @@ static unsigned short EndianFix_13BitField(unsigned short value)
 	return temp;
 }
 
-/* ------------------------------------------------------------------ Endian functions -- */
+/* ---------------------------------------------------------- General Endian functions -- */
 
 void EndianFixConfig()
 {
@@ -192,3 +192,125 @@ void EndianFixHeapHdr(Document * /* doc */, HEAP *heap)
 	FIX_END(heap->lockLevel);	
 }
 
+
+/* ----------------------------------------- Endian functions for objects & subobjects -- */
+
+void EndianFixObject(LINK pL)
+{
+	/* First, handle OBJECTHEADER fields, which are common to all objects. */
+	
+	FIX_END(LeftLINK(pL));
+	FIX_END(RightLINK(pL));
+	FIX_END(FirstSubLINK(pL));
+
+	/* Now handle object-type-specific fields. */
+
+	switch (ObjLType(pL)) {
+		case HEADERtype:
+			break;
+		case TAILtype:
+			break;
+		case SYNCtype:
+			FIX_END(SyncTIME(pL));
+			break;
+		case RPTENDtype:
+			FIX_END(RptEndFIRSTOBJ(pL));
+			FIX_END(RptEndSTARTRPT(pL));
+			FIX_END(RptEndENDRPT(pL));
+			break;
+		case PAGEtype:
+			FIX_END(LinkLPAGE(pL));
+			FIX_END(LinkRPAGE(pL));
+			FIX_END(SheetNUM(pL));
+			break;
+		case SYSTEMtype:
+			FIX_END(LinkLSYS(pL));
+			FIX_END(LinkRSYS(pL));
+			FIX_END(SystemNUM(pL));
+			//FIX_END(SystemRECT(pL));
+			FIX_END(SysPAGE(pL));
+			break;
+		case STAFFtype:
+			FIX_END(LinkLSTAFF(pL));
+			FIX_END(LinkRSTAFF(pL));
+			FIX_END(StaffSYS(pL));
+			break;
+		case MEASUREtype:
+			FIX_END(LinkLMEAS(pL));
+			FIX_END(LinkRMEAS(pL));
+			FIX_END(MeasISFAKE(pL));
+			FIX_END(MeasSPACEPCT(pL));
+			FIX_END(MeasSTAFFL(pL));
+			//FIX_END(MeasureBBOX(pL));
+			FIX_END(MeasureTIME(pL));
+			break;
+		case CLEFtype:
+			break;
+		case KEYSIGtype:
+			break;
+		case TIMESIGtype:
+			break;
+		case BEAMSETtype:
+			break;
+		case CONNECTtype:
+			break;
+		case DYNAMtype:
+			FIX_END(DynamFIRSTSYNC(pL));
+			FIX_END(DynamLASTSYNC(pL));
+			break;
+		case MODNRtype: 		/* There are no objects of this type, only subobjects. */
+			break;
+		case GRAPHICtype:
+			FIX_END(GraphicINFO(pL));
+			FIX_END(GraphicTHICKNESS(pL));
+			FIX_END(GraphicFONTSTYLE(pL));
+			FIX_END(GraphicINFO2(pL));
+			FIX_END(GraphicFIRSTOBJ(pL));
+			FIX_END(GraphicLASTOBJ(pL));
+			break;
+		case OTTAVAtype:
+			FIX_END(OttavaXDFIRST(pL));
+			FIX_END(OttavaYDFIRST(pL));
+			FIX_END(OttavaXDLAST(pL));
+			FIX_END(OttavaYDLAST(pL));
+			break;
+		case SLURtype:
+			FIX_END(SlurFIRSTSYNC(pL));
+			FIX_END(SlurLASTSYNC(pL));
+			break;
+		case TUPLETtype:
+			FIX_END(TupletACNXD(pL));
+			FIX_END(TupletACNYD(pL));
+			FIX_END(TupletXDFIRST(pL));
+			FIX_END(TupletYDFIRST(pL));
+			FIX_END(TupletXDLAST(pL));
+			FIX_END(TupletYDLAST(pL));
+			break;
+		case GRSYNCtype:
+			break;
+		case TEMPOtype:
+			FIX_END(TempoMM(pL));
+			FIX_END(TempoSTRING(pL));
+			FIX_END(TempoFIRSTOBJ(pL));
+			FIX_END(TempoMETROSTR(pL));
+			break;
+		case SPACERtype:
+			FIX_END(SpacerSPWIDTH(pL));
+			break;
+		case ENDINGtype:
+			FIX_END(EndingFIRSTOBJ(pL));
+			FIX_END(EndingLASTOBJ(pL));
+			FIX_END(EndingENDXD(pL));
+			break;
+		case PSMEAStype:
+			break;
+		default:
+			MayErrMsg("Unrecognized object type %ld at L%ld.  (EndianFixObject)",
+						(long)ObjLType(pL), (long)pL);
+	}
+}
+
+void EndianFixSubobj(short heapIndex, LINK pL)
+{
+	LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d pL=%d\n", heapIndex, pL);
+}

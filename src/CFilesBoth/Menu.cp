@@ -235,7 +235,7 @@ Boolean DoFileMenu(short choice)
 	{
 		Boolean keepGoing = True, doSymbol;
 		short vrefnum, returnCode;
-		register Document *doc=GetDocumentFromWindow(TopDocument);
+		Document *doc=GetDocumentFromWindow(TopDocument);
 		char str[256], tmpCStr[256];
 		NSClientData nscd;  FSSpec fsSpec;
 		
@@ -243,7 +243,7 @@ Boolean DoFileMenu(short choice)
 			case FM_New:
 				doSymbol = (TopDocument==NULL);
 				DoOpenDocument(NULL, 0, False, NULL);
-				LogPrintf(LOG_INFO, "Opened new score.  (DoFileMenu)\n");
+				LogPrintf(LOG_NOTICE, "Opened new score.  (DoFileMenu)\n");
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
 					DoViewMenu(VM_ToollPalette);
@@ -259,10 +259,13 @@ Boolean DoFileMenu(short choice)
 						if (returnCode==OP_OpenFile) {
 							fsSpec = nscd.nsFSSpec;
 							vrefnum = nscd.nsFSSpec.vRefNum;
-							Pstrcpy((unsigned char *)tmpCStr, tmpStr); PToCString((unsigned char *)tmpCStr);
-							LogPrintf(LOG_NOTICE, "Opening file '%s'...\n", tmpCStr);
+							Pstrcpy((unsigned char *)tmpCStr, tmpStr);
+							PToCString((unsigned char *)tmpCStr);
+							LogPrintf(LOG_NOTICE, "Opening file '%s'...  (DoFileMenu)\n",
+								tmpCStr);
 							if (DoOpenDocument(tmpStr, vrefnum, False, &fsSpec))
-								LogPrintf(LOG_NOTICE, "Opened file '%s'.  (DoFileMenu)\n", tmpCStr);
+								LogPrintf(LOG_NOTICE, "Opened file '%s'.  (DoFileMenu)\n",
+									tmpCStr);
 						 }
 						 else if (returnCode==OP_NewFile)
 						 	keepGoing = DoFileMenu(FM_New);
@@ -281,7 +284,7 @@ Boolean DoFileMenu(short choice)
 						fsSpec = nscd.nsFSSpec;
 						vrefnum = nscd.nsFSSpec.vRefNum;
 						DoOpenDocument(tmpStr, vrefnum, True, &fsSpec);
-						LogPrintf(LOG_INFO, "Opened read-only file '%s'.  (DoFileMenu)\n", PToCString(tmpStr));
+						LogPrintf(LOG_NOTICE, "Opened read-only file '%s'.  (DoFileMenu)\n", PToCString(tmpStr));
 				}
 				break;
 			case FM_Close:
@@ -290,16 +293,17 @@ Boolean DoFileMenu(short choice)
 			case FM_CloseAll:
 				DoCloseAllDocWindows();
 				break;
-				
-			/* FIXME: It'd be nice to put a message in the log when we save a file,
-			   and both DoSaveDocument and DoSaveAs return a Boolean value; but it's
-			   not whether the operation succeeded or not! */
-			   
 			case FM_Save:
-				if (doc) DoSaveDocument(doc);
+				if (doc) {
+					if (DoSaveDocument(doc)==SUCCESS_INT)
+						LogPrintf(LOG_NOTICE, "File saved.  (DoFileMenu)\n");
+				}
 				break;
 			case FM_SaveAs:
-				if (doc) DoSaveAs(doc);
+				if (doc) {
+					if (DoSaveAs(doc)==SUCCESS_INT)
+						LogPrintf(LOG_NOTICE, "File saved.  (DoFileMenu)\n");
+				}
 				break;
 			case FM_Revert:
 				if (doc) DoRevertDocument(doc);
@@ -388,7 +392,7 @@ Boolean DoFileMenu(short choice)
 
 void DoEditMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument);
+		Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
 		
 		switch (choice) {
@@ -493,7 +497,7 @@ static void DeleteObj(Document *doc, LINK pL)
 		doc->changed = True;
 	}
 	else
-		LogPrintf(LOG_WARNING, "OBJECT NOT IN MAIN OBJECT LIST.  (DeleteObj)\n");
+		LogPrintf(LOG_WARNING, "OBJECT NOT IN MAIN OBJECT LIST. No action taken.  (DeleteObj)\n");
 }
 
 static void DeleteSelObjs(Document *doc)
@@ -559,7 +563,7 @@ static void ResetAllMeasNumPos(Document *doc)
 static void DoTestMenu(short choice)
 	{
 #ifndef PUBLIC_VERSION
-		register Document *doc = GetDocumentFromWindow(TopDocument);			
+		Document *doc = GetDocumentFromWindow(TopDocument);			
 
 		switch (choice) {
 			case TS_Browser:
@@ -629,7 +633,7 @@ static void DoTestMenu(short choice)
 
 static void DoScoreMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument);
+		Document *doc=GetDocumentFromWindow(TopDocument);
 		LINK insertL;  short where;
 		
 		if (doc==NULL) return;
@@ -759,7 +763,7 @@ static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
 
 static void DoNotesMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument);
+		Document *doc=GetDocumentFromWindow(TopDocument);
 		short delAccCode;
 		Boolean canTranspKey, trStaff[MAXSTAVES+1];
 		short addAccCode;
@@ -862,7 +866,7 @@ static void DoNotesMenu(short choice)
 
 void DoGroupsMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument);
+		Document *doc=GetDocumentFromWindow(TopDocument);
 		TupleParam tParam;  Boolean okay;
 		
 		if (doc==NULL) return;
@@ -914,7 +918,7 @@ void DoGroupsMenu(short choice)
 
 void DoViewMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument);
+		Document *doc=GetDocumentFromWindow(TopDocument);
 		
 		switch (choice) {
 			case VM_GoTo:
@@ -1105,7 +1109,7 @@ void EditPartMIDI(Document *doc)
 
 void DoPlayRecMenu(short choice)
 	{		
-		register Document *doc=GetDocumentFromWindow(TopDocument);
+		Document *doc=GetDocumentFromWindow(TopDocument);
 //		short oldMIDIThru;
 
 		switch (choice) {
@@ -1643,13 +1647,11 @@ stop:
 }
 
 
-/*
- * Strip all modifiers from all selected notes.
- */
+/* Strip all modifiers from all selected notes. */
 	
 static void NMStripModifiers(Document *doc)
 {
-	register LINK pL,aNoteL; PANOTE aNote;
+	register LINK pL, aNoteL; PANOTE aNote;
 	
 	PrepareUndo(doc, doc->selStartL, U_StripMods, 21);    	/* "Remove Modifiers" */
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -2187,7 +2189,7 @@ static void InstallDebugMenuItems(Boolean installAll)
 void FixMenus()
 	{
 		WindowPtr w;
-		register Document *theDoc;
+		Document *theDoc;
 		short nInRange=0, nSel=0;
 		LINK firstMeasL;
 		Boolean continSel=False;
@@ -2196,13 +2198,11 @@ void FixMenus()
 		if (w==NULL)	theDoc = NULL;
 		 else			theDoc = GetDocumentFromWindow(TopDocument);
 		
-		/*
-		 *	Precompute information about the current score and the clipboard for the
-		 *	benefit of the various menu fixing routines about to be called. We have
-		 *	to install theDoc first because, if the active window has changed, the
-		 *	resulting Activate event (which will install it) may not have been handled
-		 *	yet.
-		 */
+		/* Precompute information about the current score and the clipboard for the
+		   benefit of the various menu fixing routines about to be called. We have
+		   to install theDoc first because, if the active window has changed, the
+		   resulting Activate event (which will install it) may not have been handled
+		   yet. */
 		
 		if (theDoc) {
 			if (theDoc!=clipboard ) {
@@ -2286,14 +2286,15 @@ static short CountSelPages(Document *doc)
 		
 		if (!doc) return 0;
 		
-		/*
-		 * Count one Page that's not in the selection range for the Page the selection
-		 * starts on, unless the selection starts on or before the first Page and ends
-		 *	after the first Page of the score.
-		 */
+		/* Count one Page that's not in the selection range for the Page the selection
+		   starts on, unless the selection starts on or before the first Page and ends
+		   after the first Page of the score. */
+		   
 		selAcrossFirst = False;	
 		for (pL = doc->headL; pL; pL = RightLINK(pL)) {
+		
 			/* selStartL is in the selection, so test it before considering breaking */
+			
 			if (pL==doc->selStartL) selAcrossFirst = True;
 			if (PageTYPE(pL)) break;
 			if (pL==doc->selEndL) selAcrossFirst = False;
@@ -2320,10 +2321,8 @@ static void GetUndoString(Document *doc, char undoMenuItem[])
 		sprintf(undoMenuItem, fmtStr, doc->undo.menuItem);
 	}
 
-/*
- *	Enable or disable all items in the Edit menu; disable entire menu if we're looking
- *  at the Master Page or Showing Format.
- */
+/* Enable or disable all items in the Edit menu; disable entire menu if we're looking
+at the Master Page or Showing Format. */
 
 static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 	{
@@ -2333,13 +2332,11 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 
 		UpdateMenu(editMenu, doc!=NULL && !doc->masterView && !doc->showFormat);
 
-		/*
-		 * Unlike most other menus, we can't just disable the whole menu if there's
-		 * no score open, so the code below has to work even if doc==NULL!
-		 *
-		 * Handle clipboard commands if either doc==NULL, or it exists and is in the
-		 * normal view (not Master Page or Work on Format).
-		 */
+		/* Unlike most other menus, we can't just disable the whole menu if there's
+		   no score open, so the code below has to work even if doc==NULL!
+		
+		   Handle clipboard commands if either doc==NULL, or it exists and is in the
+		   normal view (not Master Page or Work on Format). */
 		
 		if (doc==NULL || (!doc->masterView && !doc->showFormat)) {
 			XableItem(editMenu,EM_Undo,False || 
@@ -2379,13 +2376,13 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 					SetMenuItemCText(editMenu, EM_Paste, str);
 					enablePaste = (doc!=NULL && doc!=clipboard && clipboard->canCutCopy
 									&& !beforeFirst);
-					XableItem(editMenu,EM_Paste,enablePaste);
+					XableItem(editMenu, EM_Paste, enablePaste);
 					break;
 				case COPYTYPE_SYSTEM:
 					GetIndCString(str, MENUCMD_STRS, 4);				/* "Paste System" */
 					SetMenuItemCText(editMenu, EM_Paste, str);
 					enablePaste = (doc!=NULL && doc!=clipboard && !beforeFirst);
-					XableItem(editMenu,EM_Paste,enablePaste);
+					XableItem(editMenu, EM_Paste, enablePaste);
 					break;
 				case COPYTYPE_PAGE:
 					nPages = clipboard->numSheets;
@@ -2397,16 +2394,14 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 						GetIndCString(str, MENUCMD_STRS, 6);			/* "Paste Page" */
 					SetMenuItemCText(editMenu, EM_Paste, str);
 					enablePaste = (doc!=NULL && doc!=clipboard && !beforeFirst);
-					XableItem(editMenu,EM_Paste,enablePaste);
+					XableItem(editMenu, EM_Paste, enablePaste);
 					break;
 			}
 													
 			mergeable = (lastCopy==COPYTYPE_CONTENT);
-			
-			XableItem(editMenu,EM_Merge,(doc!=NULL && doc!=clipboard && mergeable &&
+			XableItem(editMenu, EM_Merge, (doc!=NULL && doc!=clipboard && mergeable &&
 												clipboard->canCutCopy && !beforeFirst));
-
-			XableItem(editMenu,EM_Double,
+			XableItem(editMenu, EM_Double,
 				(doc!=NULL && doc!=clipboard && !beforeFirst && nSel>0));
 
 			enableClearSys = False;
@@ -2438,8 +2433,8 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 				}
 			}
 
-			XableItem(editMenu,EM_ClearPage,enableClearPage);
-			XableItem(editMenu,EM_CopyPage,doc!=NULL && doc!=clipboard);
+			XableItem(editMenu, EM_ClearPage, enableClearPage);
+			XableItem(editMenu, EM_CopyPage, doc!=NULL && doc!=clipboard);
 
 			XableItem(editMenu, EM_SelAll,
 				(doc!=NULL && doc!=clipboard && (RightLINK(doc->headL)!=doc->tailL)));
@@ -2455,7 +2450,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 
 			XableItem(editMenu, EM_Set, doc!=clipboard && IsSetEnabled(doc));
 			
-			XableItem(editMenu,EM_SearchMelody,searchPatDoc!=NULL);
+			XableItem(editMenu, EM_SearchMelody, searchPatDoc!=NULL);
 		}
 	}
 

@@ -229,9 +229,6 @@ void MayErrMsg(char *fmt, ...)
 		StopInform(GENERIC_ALRT);
 	}
 
-	EMDebugPrintf(fmt, arg1, arg2, arg3, arg4, arg5, arg6);
-	EMDebugPrintf("\n");
-
 	if (CmdKeyDown() && ShiftKeyDown() && OptionKeyDown()) DebugStr("\pBREAK IN MayErrMsg");
 }
 
@@ -256,9 +253,6 @@ void AlwaysErrMsg(char *fmt, ...)
 	SysBeep(20);
 	CParamText(tempStr, "", "", "");
 	StopInform(GENERIC_ALRT);
-
-	EMDebugPrintf(fmt, arg1, arg2, arg3, arg4, arg5, arg6);
-	EMDebugPrintf("\n");
 
 	if (CmdKeyDown() && ShiftKeyDown() && OptionKeyDown()) DebugStr("\pBREAK IN AlwaysErrMsg");
 }

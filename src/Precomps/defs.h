@@ -229,9 +229,14 @@ enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 
 #define ENDTEXT 999						/* "End of text" to SelIText */
 
-#define CANCEL_INT -31999				/* Cancel code for numeric-value dialog routines */
+/* Return values for numeric-value functions FIXME: C1_THEN_2, etc. should be def. here with
+unique values! */
+
+#define CANCEL_INT -31999				/* Operation cancelled */
+#define ERROR_INT -32765				/* Error */
+#define SUCCESS_INT 999					/* All is well */
 #define TOO_MANY_MEASNODES 31999		/* Exceeded MAX_MEASNODES limit */
-#define ERROR_INT -32765
+
 #define BIGNUM 1999999999L				/* A very large signed long, < LONG_MAX but not << */
 
 #define ANYTYPE -1
@@ -261,8 +266,8 @@ enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 #define ENLARGE_NR_SELH 1				/* Enlarge note selection rect. (horiz. pixels) */
 #define ENLARGE_NR_SELV 0				/* Enlarge note selection rect. (vert. pixels) */
 
-/* N.B. If (MAXSPACE*RESFACTOR) exceeds SHRT_MAX, the justification routines may
- *	have serious problems.  See especially RespaceBars and JustAddSpace. */
+/* NB: If (MAXSPACE*RESFACTOR) exceeds SHRT_MAX, the justification routines may have
+have serious problems.  See especially RespaceBars and JustAddSpace. */
  
 #define RESFACTOR 50L					/* Resolution factor for justification routines */
 
@@ -274,6 +279,7 @@ enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 #define HILITE_TICKS	12				/* Minimum hiliting time to show user structural relationships */ 
 
 /* Document info for the Mac OS Finder. These are mostly ignored by OS X, so obsolescent. */
+
 #define DOCUMENT_TYPE_NORMAL 'SCOR'
 #define CREATOR_TYPE_NORMAL 'BYRD'		/* "signature" */
 #define DOCUMENT_TYPE_VIEWER 'SCOV'
@@ -291,16 +297,19 @@ moved there eventually). */
 #define DFLT_BEATDUR (32L*PDURUNIT)				/* Quarter-note duration in PDUR ticks */
 
 /* Convert PDUR ticks to milliseconds at constant tempo */
+
 #define PDUR2MS(t, mbeats)	(long)((FASTFLOAT)(mbeats)*(FASTFLOAT)(t)/1000L) 
 
 /* Convert PDUR ticks per minute to microseconds per PDUR tick */
+
 #define TSCALE2MICROBEATS(ts) (60*1000000L/(ts))
 
 
 /* -------------------------------------------------------------- MISCELLANEOUS MACROS -- */
-/* FIXME: These should probably be in a new file, <genlMacros.h> or some such. */
+/* FIXME: These should probably be in a new file, <GeneralMacros.h> or some such. */
 
 /* Arithmetic, etc. */
+
 #define ABS(a) ( (a)<0 ? -(a) : (a) )							/* absolute value function */
 #define odd(a) ((a) & 1)										/* True if a is odd */
 
@@ -317,9 +326,11 @@ moved there eventually). */
 #define LXOR(a, b)  (((a)!=0) ^ ((b)!=0))						/* Logical exclusive or */
 
 /* Round <n> up to an even number, i.e., if <n> is odd, return <n+1>, else <n>. */
+
 #define ROUND_UP_EVEN(n) ((n) + ((n) & 1))
 
 /* Get the nth character from the right (0=rightmost) of <var> */
+
 #define ACHAR(var, pos)	(char)( ((var)>>(8*pos)) & 0xFF )
 
 #define IsRelDynam(link)	(DynamType(link)>=FIRSTREL_DYNAM && DynamType(link)<FIRSTSF_DYNAM)
@@ -327,56 +338,72 @@ moved there eventually). */
 #define IsHairpin(link)		(DynamType(link)>=FIRSTHAIRPIN_DYNAM)
 
 /* To skip subordinate notes in chords, return False if note in chord & has no stem */
+
 #define MainNote(link) (!NoteINCHORD(link) || NoteYD(link)!=NoteYSTEM(link))
 #define GRMainNote(link) (!GRNoteINCHORD(link) || GRNoteYD(link)!=GRNoteYSTEM(link))
 
 /* Is link the main note (or grace note) in voice v? */
+
 #define MainNoteInVOICE(link, v) 	( (NoteVOICE(link) == (v)) && MainNote(link) )
 #define GRMainNoteInVOICE(link, v) 	( (GRNoteVOICE(link) == (v)) && GRMainNote(link) )
 
 /* Get the default systemTop for the top system of a page */
+
 #define SYS_TOP(doc) n_max(pt2d((doc)->marginRect.top), pt2d(1))
 
 /* Get the default Measure top for the top staff of a System */
+
 #define MEAS_TOP(stHt) (doc->ledgerYSp)*(stHt)/STFHALFLNS
 /* Get the default Measure bottom for the bottom staff of a System */
+
 #define MEAS_BOTTOM(bsTop, stHt) ((bsTop)+(stHt)+(doc->ledgerYSp)*(stHt)/STFHALFLNS)
 
 /* Get width (in pixels) of a keysig. with given nKSItems */
+
 #define KS_WIDTH(sf)	((sf)>0 ? (sf)*(CharWidth(S_sharp)+2) : 	\
 								  (-(sf))*(CharWidth(S_flat)+2) )
 
 /* Get staff length in points, ignoring indent */
+
 #define STAFF_LEN(doc)	( (doc)->marginRect.right - (doc)->marginRect.left )
 
 /* Return no. of flags for note with given CMN duration code (subType) */
+
 #define NFLAGS(l_dur)		( ((l_dur)>QTR_L_DUR)? (l_dur)-QTR_L_DUR : 0 )
 
 /* Does note with given y-offset "normally" have stem down? */ 
+
 #define DOWNSTEM(yd, staffHeight)	( ((yd) > (staffHeight)/2)? False : True )
 
 /* Quarter-line stem length for single or multiple voices, shorter stem or normal */
+
 #define QSTEMLEN(singleV, shrt)	((singleV)? config.stemLenNormal :				\
 												((shrt)? config.stemLenOutside : config.stemLen2v) )
 
 #define SizePercentSCALE(value)	((int)(((long)sizePercent*(value))/100L))
 
 /* For note with given CMN duration code (subType), wider-than-normal head value */
+
 #define WIDEHEAD(lDur)			( (lDur)==BREVE_L_DUR? 2 : ((lDur)==WHOLE_L_DUR? 1 : 0 ) )
 
 /* Is rest with given dur. code wider than normal (at level of aug. dots)? */
+
 #define IS_WIDEREST(l_dur)		((l_dur)>EIGHTH_L_DUR)
 
 /* If we're "looking at" a voice, return that voice, else the staff's default voice */
+
 #define USEVOICE(doc, staff)	(doc->lookVoice<0 ? (staff) : doc->lookVoice)
 
 /* Are we "Looking at" the given voice? */
+
 #define LOOKING_AT(doc, v)		(doc->lookVoice<0 || (v)==doc->lookVoice)
 
 /* Is the given voice in use? N.B. ALWAYS considers default voices to be in use. */
+
 #define VOICE_MAYBE_USED(doc, v)	((doc)->voiceTab[v].partn!=0)
 
 /* Return True if object is visible or we are showing invisibles */
+
 #define VISIBLE(pL) (LinkVIS(pL) || doc->showInvis)
 
 #define ENABLE_REDUCE(doc)		((doc)!=NULL && (doc)->magnify>MIN_MAGNIFY)
@@ -384,6 +411,7 @@ moved there eventually). */
 #define ENABLE_GOTO(doc)		((doc)!=NULL && (!(doc)->masterView))
 
 /* Get distance between staff lines for given PCONTEXT (DDIST) */
+
 #define LNSPACE(pCont) ((pCont)->staffHeight/((pCont)->staffLines-1))
 
 /* Copy a WHOLE_KSINFO. Unfortunately, a WHOLE_KSINFO has odd length, while the struct
@@ -399,26 +427,27 @@ work. */
 }
 
 /* Simple compound-meter identifying heuristic. Better for fast tempi than slow ones! */
+
 #define COMPOUND(numer) (numer%3==0 && numer>3)
 
 /* -------------------------------------------------------------------- ERROR CHECKING -- */ 
 		
-/* calls to be replaced by calls to GARBAGELX */						 
+/* calls to be replaced by calls to GARBAGELX */
+				 
 #define GARBAGEL(pL) 0
-/* Is the link garbage (greater than the length of the heap for its type)? */ 
+/* Is the link garbage (greater than the length of the heap for its type)? */
+
 #define GARBAGELX(type, pL)		((pL)>=(Heap+(type))->nObjs)
 
-/* Is the staff number illegal? */
+/* Is the staff no./voice no./object type illegal? */
+
 #define STAFFN_BAD(doc, staff)	((staff)<1 || (staff)>doc->nstaves)
-
-/* Is the voice number illegal? */
 #define VOICE_BAD(voice)		((voice)<0 || (voice)>MAXVOICES)
-
-/* Is the object type illegal? */
 #define TYPE_BAD(pL)			(ObjLType((pL))<LOWtype || ObjLType((pL))>HIGHtype)
 
 /* Check timeSigType, numerator, denominator for legality. TSDENOM_BAD must not
-allow values forbidden by MAX_TSDENOM, defined elsewhere! */
+allow values forbidden by MAX_TSDENOM (defined elsewhere)! */
+
 #define TSTYPE_BAD(t)			(	(t)<LOW_TStype || (t)>HIGH_TStype)
 #define TSNUMER_BAD(t)			(	(t)<1 || (t)>MAX_TSNUM )
 #define TSDENOM_BAD(t)			(	(t)!=1 && (t)!=2 && (t)!=4 && (t)!=8		\
@@ -426,6 +455,7 @@ allow values forbidden by MAX_TSDENOM, defined elsewhere! */
 #define TSDUR_BAD(tn, td)		(TimeSigDur(N_OVER_D, (tn), (td))>MAX_SAFE_MEASDUR )
 
 /* Crude checks for object and subobject vertical and horizontal positions */
+
 #define ABOVE_VLIM(doc) 	(-pt2d((doc)->marginRect.bottom))
 #define BELOW_VLIM(doc) 	(pt2d((doc)->marginRect.bottom))
 #define RIGHT_HLIM(doc) 	(pt2d((doc)->marginRect.right-(doc)->marginRect.left))
@@ -436,18 +466,22 @@ allow values forbidden by MAX_TSDENOM, defined elsewhere! */
 /* ----------------------------------------------------------------- CONVERSION MACROS -- */
 
 /* Convert STDIST to DDIST and vice-versa */
+
 #define std2d(std, stfHt, lines)	( ((long)(std)*(stfHt)) / (8*((lines)-1)) )
 #define d2std(d, stfHt, lines)	(8*(long)(d)*((lines)-1) / (stfHt))
 
 /* Convert staff quarter-line position to DDIST and vice-versa */
+
 #define qd2d(qd, stfHt, lines)	( ((long)(qd)*(stfHt)) / (4*((lines)-1)) )
 #define d2qd(d, stfHt, lines)		(4*(long)(d)*((lines)-1) / (stfHt))
 
 /* Convert staff halfLn position to DDIST and vice-versa */
+
 #define halfLn2d(halfLn, stfHt, lines) ((halfLn)*(stfHt)/((lines)+(lines)-2))
 #define d2halfLn(dd, stfHt, lines)	((dd)*((lines)+(lines)-2)/(stfHt))
 
 /* Convert staff halfLn position to STDIST and vice-versa */
+
 #define halfLn2std(halfLn)	((STD_LINEHT/2)*(halfLn))
 #define std2halfLn(std)	((std)/(STD_LINEHT/2))
 
@@ -456,14 +490,17 @@ allow values forbidden by MAX_TSDENOM, defined elsewhere! */
 #define qd2halfLn(qd)			((qd)/(STD_LINEHT/4))
 
 /* Convert staff quarter-line position to STDIST and vice-versa */
+
 #define qd2std(qtrLn)	(STD_LINEHT*(qtrLn)/4)
 #define std2qd(std)	((std)*4/STD_LINEHT)
 
 /* Convert points to inches and vice-versa */
+
 #define pt2in(p) ((FASTFLOAT)p/POINTSPERIN)
 #define in2pt(i) ((i) * POINTSPERIN)
 
 /* Convert DDIST to pixels/points and back */
+
 #define d2p(d)	D2PFunc(d)								/* DDIST to pixels */
 #define d2px(d)	D2PXFunc(d)								/* DDIST to pixels, truncating */
 #define p2d(p)	P2DFunc(p)								/* pixels to DDIST */

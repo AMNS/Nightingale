@@ -62,7 +62,8 @@ typedef struct {
 
 /* --------------------------------------------------------------- Type 2 = NOTE, SYNC -- */
 /* A "note" is a normal or small note or rest, perhaps a cue note, but not a grace
-note. (The main reason is that grace notes have no logical duration.) */
+note. (The main reason we use a different type for grace notes is they have no logical
+duration.) */
 
 typedef struct {
 	SUBOBJHEADER					/* subType (l_dur): LG: <0=n measure rest, 0=unknown, >0=Logical (CMN) dur. code */
@@ -246,7 +247,7 @@ typedef struct {
 
 typedef struct	{
 	OBJECTHEADER
-	SignedByte	fillerM;
+	SignedByte		fillerM;		/* unused */
 	LINK			lMeasure,		/* links to left and right Measures */
 					rMeasure;
 	LINK			systemL;		/* link to owning System */
@@ -410,7 +411,7 @@ typedef struct {
 
 typedef struct {
 	OBJECTHEADER
-	LINK		connFiller;
+	LINK		connFiller;			/* unused */
 } CONNECT, *PCONNECT;
 
 enum {								/* Codes for connectType */

@@ -69,15 +69,13 @@ void InstallMagnify(Document *doc)
 
 }
 
-/*
- *	For a given document, install its heaps into the Nightingale globals, making them
- *	the current heaps with respect to the myriad macros that reference these globals.
- * NB: This should rarely if ever be called directly: instead call InstallDoc.
- */
+/* For a given document, install its heaps into the Nightingale globals, making them
+the current heaps with respect to the myriad macros that reference these globals. NB:
+This should rarely if ever be called directly: instead call InstallDoc. */
 
 void InstallDocHeaps(Document *doc)
 {
-	register HEAP *hp;
+	HEAP *hp;
 	
 	Heap = hp = doc->Heap;
 	
@@ -118,14 +116,12 @@ void InstallStrPool(Document *doc)
 
 /* --------------------------------------------------------------------------- Various -- */
 
-/*
- *	Deliver pointer to first free (current unused) slot in document table, or NULL
- *	if none.  All data in the record is set to 0 first.
- */
+/* Deliver pointer to first free (current unused) slot in document table, or NULL if
+there is none.  All data in the record is set to 0 first. */
 
 Document *FirstFreeDocument()
 {
-	register Document *doc;
+	Document *doc;
 	
 	for (doc=documentTable; doc<topTable; doc++)
 		if (!doc->inUse) {
@@ -143,7 +139,7 @@ Document *FirstFreeDocument()
 
 Document *GetDocumentFromWindow(WindowPtr w)
 {
-	register Document *doc;
+	Document *doc;
 	
 	if (w==(WindowPtr)NULL) return(NULL);
 		
@@ -165,14 +161,12 @@ Boolean EqualFSSpec(FSSpec *fs1, FSSpec *fs2)
 }
 
 
-/*
- *	Search for this file in this directory among all already open Documents.
- *	If it's found, return it, otherwise NULL.
- */
+/* Search for this file in this directory among all already open Documents. If it's
+found, return it, otherwise NULL. */
 
 Document *AlreadyInUse(unsigned char *name, short /*vrefnum*/, FSSpec *pfsSpec)
 {
-	register Document *doc;
+	Document *doc;
 	
 	for (doc=documentTable; doc<topTable; doc++)
 		if (doc->inUse && doc!=clipboard)
@@ -181,10 +175,8 @@ Document *AlreadyInUse(unsigned char *name, short /*vrefnum*/, FSSpec *pfsSpec)
 	return(NULL);
 }
 
-/*
- *	Either show or bring to front the clipboard document. If this is the first time
- *	it's being shown, then position it on the right side of the main screen.
- */
+/* Either show or bring to front the clipboard document. If this is the first time it's
+being shown, then position it on the right side of the main screen. */
 
 void ShowClipDocument()
 {
@@ -215,10 +207,8 @@ void ShowClipDocument()
 }
 
 
-/*
- * Find a size and position for the given window that, as much as possible, avoids
- * conflict with either the tool palette or other Document windows.
- */
+/* Find a size and position for the given window that, as much as possible, avoids
+conflict with either the tool palette or other Document windows. */
 
 void PositionWindow(WindowPtr w, Document *doc)
 {
@@ -227,17 +217,18 @@ void PositionWindow(WindowPtr w, Document *doc)
 	
 	if (EmptyRect(&revertWinPosition)) {
 		/* Get width of tool palette */
-		GetWindowPortBounds((*paletteGlobals[TOOL_PALETTE])->paletteWindow,&box);
+		
+		GetWindowPortBounds((*paletteGlobals[TOOL_PALETTE])->paletteWindow, &box);
 //			box = (*paletteGlobals[TOOL_PALETTE])->paletteWindow->portRect;
 		palWidth = box.right - box.left;
 		palHeight = box.bottom - box.top;
+		
 		/* Place new document window in a non-conflicting position */
+		
 		GetGlobalPort(w, &box);								/* Set bottom of window near screen bottom */
 		bounds = GetQDScreenBitsBounds();
-		if (box.left < bounds.left+4)
-			box.left = bounds.left+4;
-		if (palWidth < palHeight)
-			box.left += palWidth;
+		if (box.left<bounds.left+4)	box.left = bounds.left+4;
+		if (palWidth<palHeight)		box.left += palWidth;
 		MoveWindow(doc->theWindow, box.left, box.top, False);
 		AdjustWinPosition(w);
 		GetGlobalPort(w, &box);
@@ -283,7 +274,7 @@ Boolean DoOpenDocument(StringPtr fileName, short vRefNum, Boolean readOnly, FSSp
 Boolean DoOpenDocumentX(StringPtr fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec,
 Document **pDoc)
 {
-	register WindowPtr w;  register Document *doc, *d;
+	register WindowPtr w;  Document *doc, *d;
 	short numNew;  long fileVersion;
 	static char charZero = '0';
 	
@@ -346,7 +337,9 @@ Document **pDoc)
 			SetControlValue(doc->hScroll, doc->origin.h);
 			SetControlValue(doc->vScroll, doc->origin.v);
 			if (fileVersion != THIS_FILE_VERSION) {
+			
 				/* Append " (converted)" to file's name and mark the document changed */
+				
 				unsigned char str[64];
 				GetIndString(str, MiscStringsID, 5);
 				PStrCat(doc->name, str);
@@ -359,6 +352,7 @@ Document **pDoc)
 			ShowDocument(doc);
 			
 			/* ERROR: new documents are not updated in Panther 10.3. This is a workaround */
+			
 			if (doc->docNew) {
 				Rect portRect;
 				GetWindowPortBounds(doc->theWindow, &portRect);
@@ -372,34 +366,34 @@ Document **pDoc)
 	return(w != NULL);
 }
 
-/*
- *	This routine should be called after preparing another document to be shown.
- */
+/*	This routine should be called after preparing another document to be shown. */
 
 void ShowDocument(Document *doc)
 {
 	RecomputeView(doc);
 	if (TopPalette) {
 		if (TopPalette != TopWindow)
+		
 			/* Bring the TopPalette to the front and generate activate event. */
+			
 			SelectWindow(TopPalette);
 		else {
 			/* There won't be an activate event for doc, so do it here */
+			
 			ShowWindow(doc->theWindow);
 			HiliteWindow(doc->theWindow, True);
 			ActivateDocument(doc, True);
 		}
 		if (TopDocument)
 			/* Ensure the TopDocument and its controls are unhilited properly. */
+			
 			ActivateDocument(GetDocumentFromWindow(TopDocument), False);
 	}
 	ShowWindow(doc->theWindow);		
 }
 
-/*
- *	Close a given document, saving it if necessary, and giving it a name if necessary.
- *	Return True if all okay, False if user cancels or error.
- */
+/*	Close a given document, saving it if necessary, and giving it a name if necessary.
+Return True if all okay, False if user cancels or error. */
 
 Boolean DoCloseDocument(register Document *doc)
 {
@@ -477,11 +471,10 @@ void ActivateDocument(register Document *doc, short activ)
 	}
 }
 
-/* Ensure that a given document is ready to be closed.  Ask user if any changes
-should be saved, and save them if he does.  If user says to Cancel, then return
-False, otherwise return True.  We use a simple alert, with a filter that lets us
-update the Document underneath it so the user can see what it looks like before
-making the decision. */
+/* Ensure that a given document is ready to be closed.  Ask user if any changes should be
+saved, and save them if they want.  If user says to Cancel, then return False, otherwise
+return True.  We use a simple alert, with a filter that lets us update the Document
+underneath it so the user can see what it looks like before making the decision. */
 
 Boolean DocumentSaved(register Document *doc)
 {
@@ -508,47 +501,35 @@ Boolean DocumentSaved(register Document *doc)
 	return(keepGoing);
 }
 
-/*
- *	Given a document, either new or old, save it.  If it's new, then call
- *	DoSaveAs on it.  Return True if all went well, False if not.
- *
- * ??This is not correct. As previously written, returned True unless DoSaveAs
- * tried to save a file and got an error or fdType != 'SCOR'. All errors except
- *	those resulting from action of GetOutputName were ignored.
- *
- * Currently, will return False if returned False before, and will return
- * False if SaveFile returns CANCELop, and True otherwise. If keepGoing is
- * True, this means that the save (or close, or quit) operation can continue,
- * otherwise the op is aborted, and closing or quitting is discontinued.
- *
- * If we set keepGoing False upon a file system error, we could get into a 
- * situation where it is impossible to quit Nightingale because every time we
- * try to close a file, we get a file system error, and keepGoing is set False,
- * the close op is discontinued, and the doc is kept onScreen, and quitting
- * is aborted. Thus, only add explicit user cancellation to the list of 
- * conditions which can abort a close, for both DoSaveDocument and DoSaveAs.
- */
+/* Given a document, either new or old, save it.  If it's new, then call DoSaveAs on it. 
+Return ERROR_INT (for a file system error), SUCCESS_INT, or CANCEL_INT.
 
-Boolean DoSaveDocument(register Document *doc)
+For both DoSaveDocument and DoSaveAs, the calling routine must be able to distinguish
+between failure to save the file because the user cancelled and because of a file system
+error to avoid a situation where it's impossible to quit Nightingale because every time
+we try to close a file, we get a file system error, with the result that quitting is
+aborted. */
+
+short DoSaveDocument(register Document *doc)
 {
 	Boolean keepGoing = False;  short err;
 	
 	if (doc->docNew || doc->readOnly) return(DoSaveAs(doc));
 	
 	err = SaveFile(doc, False);
-
-	if (err!=CANCEL_INT) {
+	if (!err) return SUCCESS_INT;
+	
+	if (err==CANCEL_INT) return CANCEL_INT;
+	else {
 		HSetVol(NULL, doc->vrefnum, 0);
-		keepGoing = True;
+		return ERROR_INT;
 	}
-
-	return(keepGoing);
 }
 
-/* Save a given document under a new name, and give new name to document, which remains
+/* Save a given document under a new name and give that name to document, which remains
 open. */
 
-Boolean DoSaveAs(register Document *doc)
+short DoSaveAs(register Document *doc)
 {
 	Boolean keepGoing;
 	Str255 name;
@@ -558,47 +539,45 @@ Boolean DoSaveAs(register Document *doc)
 	FSSpec fsSpec;
 	NSClientData nscd;
 	
-	Pstrcpy(name,doc->name);
+	Pstrcpy(name, doc->name);
 	keepGoing = GetOutputName(MiscStringsID, 3, name, &vrefnum, &nscd);
-	if (keepGoing) {
-		//result = FSMakeFSSpec(vrefnum, 0, name, &fsSpec);
-		fsSpec = nscd.nsFSSpec;
-		Pstrcpy(name,fsSpec.name);
-		
-		//result = GetFInfo(name, vrefnum, &theInfo);
-		//if (result == noErr)
-			result = FSpGetFInfo (&fsSpec, &theInfo);
-		
-		if (result == noErr && theInfo.fdType != documentType) {
-			GetIndCString(strBuf, FILEIO_STRS, 11);	/* "You can replace only files created by Nightingale" */
-			CParamText(strBuf, "", "", "");
-			StopInform(GENERIC_ALRT);
-			return False;
-		}
+	if (!keepGoing) return CANCEL_INT;
 
-		result = HSetVol(NULL,fsSpec.vRefNum,fsSpec.parID);
-		
-		if (result == noErr) {
-			/* Save the file under this name */
-			Pstrcpy(doc->name, name);
-			doc->vrefnum = fsSpec.vRefNum;
-			doc->fsSpec = fsSpec;
-			SetWTitle(doc->theWindow, name);
-			err = SaveFile(doc, True);
-		}
-		else {
-			err = CANCEL_INT;
-		}
-
-		keepGoing = (err!=CANCEL_INT);
-		if (keepGoing) {
-			doc->changed = False;
-			doc->named = True;
-			doc->readOnly = False;
-		}
-	}
+	//result = FSMakeFSSpec(vrefnum, 0, name, &fsSpec);
+	fsSpec = nscd.nsFSSpec;
+	Pstrcpy(name, fsSpec.name);
 	
-	return(keepGoing);
+	//result = GetFInfo(name, vrefnum, &theInfo);
+	//if (result == noErr)
+		result = FSpGetFInfo(&fsSpec, &theInfo);
+	
+	if (result == noErr && theInfo.fdType != documentType) {
+		GetIndCString(strBuf, FILEIO_STRS, 11);	/* "You can replace only files created by Nightingale" */
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return False;
+	}
+
+	result = HSetVol(NULL, fsSpec.vRefNum, fsSpec.parID);
+	if (result != noErr) return ERROR_INT;
+
+	/* Save the file under this name */
+		
+	Pstrcpy(doc->name, name);
+	doc->vrefnum = fsSpec.vRefNum;
+	doc->fsSpec = fsSpec;
+	SetWTitle(doc->theWindow, name);
+	err = SaveFile(doc, True);
+	if (err) {
+		if (err==CANCEL_INT) return CANCEL_INT;
+		else return ERROR_INT;
+	}
+
+	doc->changed = False;
+	doc->named = True;
+	doc->readOnly = False;
+	
+	return SUCCESS_INT;
 }
 
 /* Discard all changes to given document, but only with user's permission. */
@@ -685,6 +664,7 @@ Boolean InitDocFields(Document *doc)
 	doc->sheetOrigin.v = config.origin.v - config.vPageSep;
 	
 	/* Have to reset the document's origin (scroll position) after reading from file. */
+	
 	doc->origin = doc->sheetOrigin;
 	
 	doc->numRows = config.numRows;
@@ -700,6 +680,7 @@ Boolean InitDocFields(Document *doc)
 	doc->numSheets = 1;
 	
 	/* Compute bounding box of all sheets, and allocate and compute background region. */
+	
 	doc->background = NewRgn();
 	if (doc->background==NULL) {
 		NoMoreMemory();
@@ -707,10 +688,9 @@ Boolean InitDocFields(Document *doc)
 	}
 	GetAllSheets(doc);
 	
-	/*
-	 * Set initial zoom origin to a point that's not on any page so SheetMagnify
-	 * will just use the current page.
-	 */
+	/* Set initial zoom origin to a point that's not on any page so SheetMagnify will
+	   just use the current page. */
+	   
 	doc->scaleCenter.h = doc->scaleCenter.v = SHRT_MAX;
 
 	doc->vScroll = doc->hScroll = NULL;
@@ -743,6 +723,7 @@ Boolean InitDocFields(Document *doc)
 	doc->altsrastral = 2;							/* Default alternate staff rastral size */
 	
 	/* Options for measure number value, visibility, and graphic location */
+	
 	doc->numberMeas = -1;							/* Show measure nos. on every system */
 	doc->otherMNStaff = 0;
 	doc->firstMNNumber = 1;
@@ -757,7 +738,7 @@ Boolean InitDocFields(Document *doc)
 	doc->recordFlats = False;
 
 	/* Initialize stuff for MIDI drivers: Core MIDI and (to avoid problems till we can
-		remove them completely) the obsolete OMS and FreeMIDI. */
+	   remove them completely) the obsolete OMS and FreeMIDI. */
 	
 	for (i=0; i<MAXSTAVES; i++)
 		doc->cmPartDeviceList[i] = 0;
@@ -775,6 +756,7 @@ Boolean InitDocFields(Document *doc)
 	doc->nonstdStfSizes = False;
 
 	/* Avoid certain Debugger complaints in MEHideCaret under the Mac Classic OS. */
+	
 	SetRect(&doc->viewRect, 0, 0, 0, 0);
 	SetRect(&doc->growRect, 0, 0, 0, 0);
 
@@ -800,6 +782,7 @@ Boolean InitDocFields(Document *doc)
 	InitDocMusicFont(doc);
 
 	/* initialize Carbon Printing data structures */
+	
 	doc->docPrintInfo.docPrintSession = NULL;
 	doc->docPrintInfo.docPageFormat = kPMNoPageFormat;
 	doc->docPrintInfo.docPrintSettings = kPMNoPrintSettings;
@@ -812,8 +795,8 @@ Boolean InitDocFields(Document *doc)
 }
 
 /* ----------------------------------------------------------------------- InitDocUndo -- */
-/* Initialize the given Document's Undo fields, Undo record, and (empty) Undo
-object list. If there's a problem (out of memory), return False, else True. */
+/* Initialize the given Document's Undo fields, Undo record, and (empty) Undo object
+list. If there's a problem (out of memory), return False, else True. */
 
 Boolean InitDocUndo(Document *doc)
 {

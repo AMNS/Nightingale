@@ -2038,8 +2038,8 @@ InstrDialog, MIDIDialogs, MIDIRecord, MiscUtils, Preferences, PS_Stdio, Score.
 
 Removed the 'vers' (version) resource. Affects .rsrc.
 
-Before quitting, we now undo Endian changes to config fields, for the benefit of the Intel
-version. Affects Finalize, MiscUtils.
+Before quitting, we now undo Endian changes to config fields, for the benefit of the
+Intel version. Affects Finalize, MiscUtils.
 
 Minor cleanup: reworded an ALRT, added error checking, etc. Affects .rsrc, MiscUtils.h,
 MusicFont.h, NightTemplates.h, NMiscTypes.h; CoreMIDIUtils, DurationPopUp, File,
@@ -3050,7 +3050,18 @@ UIFUtils.
 
 7 - 12 Dec.
 
-Fixed bug: can't open files on Intel machines because <nFObjs> and <sizeAllObjsFile>
-are bad. Affects HeapFileIO.
+Fixed bug: can't open files written on Intel machines because <nFObjs> and
+<sizeAllObjsFile> are bad (an Endian problem). Affects HeapFileIO.
 
 Minor cleanup. Affects FileSave, FileUtils, HeapFileIO, Heaps.
+
+---------------------------------------------------------------------------------------
+
+13 - 21 Dec.
+
+??IN PROGRESS Fixed bug: can't open files written on Intel machines because multibyte
+fields in objects and subobjects are bad (an Endian problem). Affects Endian.h;
+EndianUtils, HeapFileIO.
+
+Minor cleanup. Affects Defs.h, Endian.h, NightTemplates.h, NObjTypes.h; Documents,
+EndianUtils, Error, HeapFileIO, Menu.

@@ -11,7 +11,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2019 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2020 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -95,7 +95,8 @@ static short WriteSubHeaps(Document *, short refNum, LINK *firstSubLINKA, LINK *
 static short WriteHeapHdr(Document *, short refNum, short heapIndex);
 static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link, LINK *firstSubLINKA,
 						LINK *objA, LINK *modA, short *objCount);
-static short WriteObject(short refNum, short heapIndex, LINK pL);
+static short WriteObject(short refNum, LINK pL);
+static short WriteSubobj(short refNum, short heapIndex, LINK pL);
 static void CountObjSubobjs(Document *doc);
 static Boolean InitTrackingLinks(Document *, LINK **firstSubLINKA, LINK **objA, LINK **modA);
 static Boolean MoveObjSubobjs(short, long, unsigned short, char *, long sizeAllInHeap);
@@ -122,13 +123,13 @@ short WriteHeaps(Document *doc, short refNum)
 
 	CountObjSubobjs(doc);
 	LogPrintf(LOG_INFO, "Objects and subobjects to be written:\n");
-	for (short idx=FIRSTtype; idx<LASTtype; idx++ ) {
-		if (objCount[idx]>0) {
-			ps = NameHeapType(idx, False);
-			myHeap = Heap + idx;
+	for (short iHp=FIRSTtype; iHp<LASTtype; iHp++ ) {
+		if (objCount[iHp]>0) {
+			ps = NameHeapType(iHp, False);
+			myHeap = Heap + iHp;
 			LogPrintf(LOG_INFO, "    heap %d (%s): %d %s%c objSize=%d  (WriteHeaps)\n",
-						idx, ps, objCount[idx], (idx==LASTtype-1? "object" : "subobject"),
-						(objCount[idx]==1? ' ' : 's'), myHeap->objSize);
+						iHp, ps, objCount[iHp], (iHp==LASTtype-1? "object" : "subobject"),
+						(objCount[iHp]==1? ' ' : 's'), myHeap->objSize);
 		}
 	}
 
@@ -236,7 +237,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 				break;
 		}
 
-		ioErr = WriteObject(refNum, OBJtype, pL);
+		ioErr = WriteObject(refNum, pL);
 		
 		LeftLINK(pL) = leftL;  RightLINK(pL) = rightL;
 		FirstSubLINK(pL) = subL;
@@ -290,7 +291,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 		
 		/* There are no special object types in Master Page. */
 
-		ioErr = WriteObject(refNum, OBJtype, pL);
+		ioErr = WriteObject(refNum, pL);
 		
 		LeftLINK(pL) = leftL; RightLINK(pL) = rightL;
 		FirstSubLINK(pL) = subL;
@@ -413,7 +414,7 @@ static short WriteModSubs(short refNum, LINK aNoteL, LINK link, LINK **/*modA*/,
 		tempL = NextLink(myHeap, subL);
 		if (tempL) *(LINK *)LinkToPtr(myHeap, subL) = nextL++;
 
-		ioErr = WriteObject(refNum, MODNRtype, subL);
+		ioErr = WriteSubobj(refNum, MODNRtype, subL);
 
 		if (tempL) *(LINK *)LinkToPtr(myHeap, subL) = tempL;
 
@@ -452,17 +453,17 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 								LINK *modA)
 {
 	HEAP *myHeap;
-	short i, ioErr = noErr, hdrErr, modErr, subObjCount;
+	short ioErr = noErr, hdrErr, modErr, subObjCount;
 	unsigned short j;
 	LINK pL;
 	
-	for (i=FIRSTtype; ioErr==noErr && i<LASTtype-1; i++) {
+	for (short iHp=FIRSTtype; ioErr==noErr && iHp<LASTtype-1; iHp++) {
 
 		/* Write the heap header. The subobjects in each heap are of a fixed size,
 		   so -- unlike the object heap -- we don't need to write the total number
 		   of bytes written out. */
 		
-		hdrErr = WriteHeapHdr(doc, refNum, i);
+		hdrErr = WriteHeapHdr(doc, refNum, iHp);
 		if (hdrErr) return hdrErr;
 
 		/* Note modifiers (the only type with subobjects but no objects: note modifier
@@ -471,13 +472,13 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 		   and the Master Page object list once for each type and write the subobjects
 		   of each object of that type we encounter. */
 		
-		if (i==MODNRtype) {
+		if (iHp==MODNRtype) {
 			modErr = WriteModHeap(doc, refNum, &modA);
 			if (modErr) return modErr;
 			continue;
 		}
 
-		myHeap = Heap + i;
+		myHeap = Heap + iHp;
 		if (myHeap->nObjs) {
 
 			/* Write the subobjects for all objects in the main object list except the
@@ -486,8 +487,8 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 			   We start at 1 since the zeroth heap object is never used. */
 
 			for (j=1, pL=doc->headL; ioErr==noErr && pL!=doc->tailL; pL=RightLINK(pL))
-				if (ObjLType(pL)==i) { 
-					ioErr = WriteSubObjs(refNum, i, pL, (LINK)j, firstSubLINKA, objA, modA,
+				if (ObjLType(pL)==iHp) { 
+					ioErr = WriteSubObjs(refNum, iHp, pL, (LINK)j, firstSubLINKA, objA, modA,
 													&subObjCount);	
 					if (subObjCount!=LinkNENTRIES(pL))
 						MackeysDiseaseMsg(pL, subObjCount, "Obj");		/* We're in big trouble! */
@@ -504,8 +505,8 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 			   except the tail. which has none. */
 
 			for (pL=doc->masterHeadL; ioErr==noErr && pL!=doc->masterTailL; pL=RightLINK(pL))
-				if (ObjLType(pL)==i) { 
-					ioErr = WriteSubObjs(refNum, i, pL, (LINK)j, firstSubLINKA, objA, modA,
+				if (ObjLType(pL)==iHp) { 
+					ioErr = WriteSubObjs(refNum, iHp, pL, (LINK)j, firstSubLINKA, objA, modA,
 													&subObjCount);
 					if (subObjCount!=LinkNENTRIES(pL))
 						MackeysDiseaseMsg(pL, subObjCount, "MP Obj");	/* We're in big trouble */
@@ -538,7 +539,7 @@ static short WriteHeapHdr(Document *doc, short refNum, short heapIndex)
 	/* Write the total number of objects/subobjects of type heapIndex */
 	
 	count = sizeof(short);
-	FIX_END(objCount[heapIndex]);						/* Convert to Big Endian if needed */
+	FIX_END(objCount[heapIndex]);						/* Ensure in Big Endian form */
 	ioErr = FSWrite(refNum, &count, &objCount[heapIndex]);
 	FIX_END(objCount[heapIndex]);						/* Back to processor-specific Endian */
 	if (ioErr) { SaveError(True, refNum, ioErr, heapIndex);  return(ioErr); }
@@ -546,7 +547,7 @@ static short WriteHeapHdr(Document *doc, short refNum, short heapIndex)
 	/* Write the HEAP struct header */
 	
 	count = sizeof(HEAP);
-	EndianFixHeapHdr(doc, myHeap);						/* Convert to Big Endian if needed */
+	EndianFixHeapHdr(doc, myHeap);						/* Ensure in Big Endian form */
 	ioErr = FSWrite(refNum, &count, (Ptr)myHeap);
 	EndianFixHeapHdr(doc, myHeap);						/* Back to processor-specific Endian */
 
@@ -626,7 +627,7 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 				break;
 		}
 
-		ioErr = WriteObject(refNum, heapIndex, subL);
+		ioErr = WriteSubobj(refNum, heapIndex, subL);
 		if (tempL) *(LINK *)LinkToPtr(myHeap, subL) = tempL;
 
 		switch (heapIndex) {
@@ -660,12 +661,32 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 }
 
 
-/* Actually write a block, whether object or subobject, to file. Objects are of
-varying lengths: only write out the length of the particular type of object. Returns
-an I/O Error code or noErr. NB: The heap must be locked by the calling routine for the
-sake of FSWrite. */
+/* Actually write a block, whether object or subobject, to file. Objects are of varying
+lengths: only write out the length of the particular type of object. Returns an I/O Error
+code or noErr. NB: The heap must be locked by the calling routine for the sake of
+FSWrite. */
  
-static short WriteObject(short refNum, short heapIndex, LINK pL)
+static short WriteObject(short refNum, LINK pL)
+{
+	HEAP *myHeap;
+	long count;
+	short ioErr;
+	char *p;
+	
+	myHeap = Heap + OBJtype;
+	count = objLength[ObjLType(pL)];
+	
+	EndianFixObject(pL);								/* Ensure in Big Endian form */
+	p = LinkToPtr(myHeap, pL);
+	ioErr = FSWrite(refNum, &count, p);
+	EndianFixObject(pL);								/* Back to processor-specific Endian */
+
+	if (ioErr) SaveError(True, refNum, ioErr, OBJtype);
+	return(ioErr);
+}
+
+
+static short WriteSubobj(short refNum, short heapIndex, LINK pL)
 {
 	HEAP *myHeap;
 	long count;
@@ -673,11 +694,12 @@ static short WriteObject(short refNum, short heapIndex, LINK pL)
 	char *p;
 	
 	myHeap = Heap + heapIndex;
-	if (heapIndex==OBJtype)	count = objLength[ObjLType(pL)];
-	else					count = myHeap->objSize;
+	count = myHeap->objSize;
 	
+	EndianFixSubobj(heapIndex, pL);						/* Ensure in Big Endian form */
 	p = LinkToPtr(myHeap, pL);
 	ioErr = FSWrite(refNum, &count, p);
+	EndianFixSubobj(heapIndex, pL);						/* Back to processor-specific Endian */
 
 	if (ioErr) SaveError(True, refNum, ioErr, heapIndex);
 	return(ioErr);
@@ -690,10 +712,10 @@ modifiers in the object list, and store them in the objCount[] array. */
 static void CountObjSubobjs(Document *doc)
 {
 	LINK pL, aNoteL, aModNRL;
-	unsigned short i, numMods=0;
+	unsigned short numMods=0;
 	
-	for (i=FIRSTtype; i<LASTtype; i++ )
-		objCount[i] = 0;
+	for (short iHp=FIRSTtype; iHp<LASTtype; iHp++ )
+		objCount[iHp] = 0;
 	
 	/* Compute the numbers of objects/subobjects in the main object list of each type. */
 	
@@ -1081,7 +1103,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
  	count = sizeof(HEAP);
 	ioErr = FSRead(refNum, &count, &tempHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, heapIndex);  return ioErr; }
-	EndianFixHeapHdr(doc, &tempHeap);
+	EndianFixHeapHdr(doc, &tempHeap);						/* Ensure in Big Endian form */
 	myHeap = doc->Heap + heapIndex;
 
 	if (DETAIL_SHOW) {
@@ -1128,10 +1150,10 @@ static short HeapFixLinks(Document *doc)
 
 	/* First handle the main object list. */
 	
-	FIX_END(doc->headL);
+	//FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
-//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
+LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case TAILtype:
 				doc->tailL = pL;
@@ -1187,7 +1209,7 @@ static short HeapFixLinks(Document *doc)
 
 	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
-//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
+LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case HEADERtype:
 				DLeftLINK(doc, doc->masterHeadL) = NILINK;

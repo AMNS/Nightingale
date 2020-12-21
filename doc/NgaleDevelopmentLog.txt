@@ -8388,3 +8388,86 @@ the object they're attached to, and MODNRs are attached to other subobjs, not ob
 
 Done. Next problem: can't open files on Intel machines because <nFObjs> and <sizeAllObjsFile> are
 bad. Just need to FIX_END <sizeAllObjsFile> just before writing => done.
+
+---------------------------------------------------------------------------------------
+
+13 - 21 Dec.
+
+Next: can't open files on Intel machines because, hmmm, I don't know, but from 1NoteF6IntelLog.txt:
+
+	Dec 11 08:22:49 Dons-2017-Air Ngale[21671]:
+	info. 17 objects. sizeAllObjsFile=620 sizeAllObjsHeap=952  (ReadObjHeap)
+	debug. ReadObjHeap: pLink1=10704952 FPos:5268
+	debug. ReadObjHeap_1: 02 00 00 00   01 00 00 00   00 00 00 00   00 01 00 00
+	debug.              : 00 00 00 00   00 00 00 00   00 00 00 00   02 00 03 00
+	debug.              : 01 00 00 00   00 00 00 00   04 00 01 01   00 00 
+	debug. ReadObjHeap_2: 03 00 01 00   00 00 00 00   00 00 04 00   01 01 00 00
+	debug.              : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 00 00
+	debug.              : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 
+	ERROR. TAIL of Master Page object list not found.  (HeapFixLinks)
+	ERROR. PROGRAM ERROR: Can't set links in memory for the file!  (HeapFixLinks)
+	
+Enable debug statements in HeapFixLinks(); try another 1-note file from Intel:
+
+	Dec 13 12:23:04 DonDualG5 Ngale[52094]:
+	Notice. Opening file '1NoteD6Intel.ngl'...
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	Notice. Checking Document header: No errors found.  (CheckDocumentHdr)
+	Notice. Checking Score header: No errors found.  (CheckScoreHdr)
+	info. stringPoolSize=306  (OpenFile)
+	info. Objects and subobjects read:
+	info.     heap 0 (HEAD): 4 subobjects. sizeAllInFile=1384 sizeAllInHeap=1384  (ReadSubHeap)
+	info.     heap 2 (SYNC): 1 subobject. sizeAllInFile=58 sizeAllInHeap=58  (ReadSubHeap)
+	info.     heap 6 (STAFF): 4 subobjects. sizeAllInFile=216 sizeAllInHeap=216  (ReadSubHeap)
+	info.     heap 7 (MEASURE): 2 subobjects. sizeAllInFile=96 sizeAllInHeap=96  (ReadSubHeap)
+	info.     heap 8 (CLEF): 2 subobjects. sizeAllInFile=28 sizeAllInHeap=28  (ReadSubHeap)
+	info.     heap 9 (KEYSIG): 2 subobjects. sizeAllInFile=60 sizeAllInHeap=60  (ReadSubHeap)
+	info.     heap 10 (TIMESIG): 2 subobjects. sizeAllInFile=32 sizeAllInHeap=32  (ReadSubHeap)
+	info.     heap 12 (CONNECT): 4 subobjects. sizeAllInFile=56 sizeAllInHeap=56  (ReadSubHeap)
+	info.     heap 24 (OBJECT): 17 objects. sizeAllObjsFile=620 sizeAllObjsHeap=952  (ReadObjHeap)
+	debug. HeapFixLinks: pL=256 type=0 in main obj list
+	debug. HeapFixLinks: pL=0 type=103 in main obj list
+	debug. HeapFixLinks: pL=1 type=0 in main obj list
+	debug. HeapFixLinks: pL=512 type=0 in main obj list
+	debug. HeapFixLinks: pL=0 type=103 in main obj list
+	debug. HeapFixLinks: pL=1 type=0 in main obj list
+	debug. HeapFixLinks: pL=512 type=0 in main obj list
+	debug. HeapFixLinks: pL=0 type=103 in main obj list
+	debug. HeapFixLinks: pL=1 type=0 in main obj list
+	debug. HeapFixLinks: pL=512 type=0 in main obj list
+	...
+	
+The <pL> values are all garbage. HeapFixLinks does FIX_END on every link, but we'e starting
+with the nonsensical value of 256, and we're immediately dead.
+Almost surely an Endian problem! Comment out the initial
+
+	//FIX_END(doc->headL);
+	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
+		FIX_END(DRightLINK(doc, pL));
+LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
+
+Open 1NoteD6Intel.ngl again =>
+
+	Dec 13 12:32:15 DonDualG5 Ngale[52148]:
+	info.     heap 24 (OBJECT): 17 objects. sizeAllObjsFile=620 sizeAllObjsHeap=952  (ReadObjHeap)
+	debug. HeapFixLinks: pL=256 type=0 in main obj list
+	debug. HeapFixLinks: pL=0 type=-105 in main obj list
+	debug. HeapFixLinks: pL=1 type=0 in main obj list
+	debug. HeapFixLinks: pL=512 type=0 in main obj list
+	debug. HeapFixLinks: pL=0 type=-105 in main obj list
+	debug. HeapFixLinks: pL=1 type=0 in main obj list
+	debug. HeapFixLinks: pL=512 type=0 in main obj list
+
+?! How could removing the FIX_END(doc->headL) not affect the initial pL=256? Oh, this is
+running on a PPC :-) . So the LINKs are being written small Endian! The best place to
+convert them (and convert them back) is at as low a level as possible: that'd be
+WriteObject(), which is called by WriteObjHeap(), WriteModSubs(), and WriteSubObjs(). The
+different types of objects and subobjects have LINKs in various places; they also have
+other multibyte numbers. LOTS of Endian-relevant things! So best to collect all the FIX_ENDs
+in routines, say EndianFixObject(LINK pL) and EndianFixSubobj(LINK pL, short type); these
+belong in EndianUtils.c. OK, EndianFixObject is done (I think); now for EndianFixSubobj.
+
+SWITCH TO: Want to give a log message when a file is saved; this should be trivial but it's
+surprisingly messy because of, well, yucky old code... done! But existing messiness of error
+return codes is even worse now :-( . Need to move C1_THEN_2, etc. from NewSlur.c to Defs.h,
+and in Defs.h, clean up CANCEL_INT et al.
