@@ -3050,8 +3050,8 @@ UIFUtils.
 
 7 - 12 Dec.
 
-Fixed bug: can't open files written on Intel machines because <nFObjs> and
-<sizeAllObjsFile> are bad (an Endian problem). Affects HeapFileIO.
+Progress toward fixing bug: can't open files written on Intel machines because <nFObjs>
+and <sizeAllObjsFile> are in the wrong Endian form. Affects HeapFileIO.
 
 Minor cleanup. Affects FileSave, FileUtils, HeapFileIO, Heaps.
 
@@ -3059,9 +3059,20 @@ Minor cleanup. Affects FileSave, FileUtils, HeapFileIO, Heaps.
 
 13 - 21 Dec.
 
-??IN PROGRESS Fixed bug: can't open files written on Intel machines because multibyte
-fields in objects and subobjects are bad (an Endian problem). Affects Endian.h;
+Progress toward fixing bug: can't open files written on Intel machines because multibyte
+fields in objects and subobjects are in the wrong Endian form. Affects Endian.h;
 EndianUtils, HeapFileIO.
 
 Minor cleanup. Affects Defs.h, Endian.h, NightTemplates.h, NObjTypes.h; Documents,
 EndianUtils, Error, HeapFileIO, Menu.
+
+---------------------------------------------------------------------------------------
+
+22 - 28 Dec.
+
+Progress toward fixing bug: can't open files written on Intel machines because multibyte
+fields in subobjects are in the wrong Endian form. Affects EndianUtils.
+
+Minor cleanup. Affects Defs.h, MemMacros.h, NObjTypes.h; DSUtils, EndianUtils,
+FileConversion, NewSlur.
+

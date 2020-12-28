@@ -16,7 +16,7 @@ as a result, the EndianFixStringPool code is located in StringPool.c. */
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018-2020 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -305,12 +305,130 @@ void EndianFixObject(LINK pL)
 		case PSMEAStype:
 			break;
 		default:
-			MayErrMsg("Unrecognized object type %ld at L%ld.  (EndianFixObject)",
-						(long)ObjLType(pL), (long)pL);
+			MayErrMsg("Object at L%ld has illegal type %ld.  (EndianFixObject)",
+						(long)pL, (long)ObjLType(pL));
 	}
 }
 
 void EndianFixSubobj(short heapIndex, LINK pL)
 {
-	LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d pL=%d\n", heapIndex, pL);
+	HEAP *myHeap = Heap + heapIndex;
+
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d pL=%d\n",
+						heapIndex, pL);
+
+	/* First, handle the <next> field, which is common to all objects. (The other
+	   SUBOBJHEADER fields are common to all but HEADER subobjs, but none of the others
+	   are multiple bytes, so there's nothing else to do for the SUBOBJHEADER.) */
+	
+	FIX_END(NextLink(myHeap, pL));
+
+	/* Now handle subobject-type-specific fields. */
+
+	switch (heapIndex) {
+		case HEADERtype:
+#ifdef NOTYET
+	short		loKeyNum;			/* MIDI note no. of lowest playable note */
+	short		hiKeyNum;			/* MIDI note no. of highest playable note  */
+#endif
+			break;
+		case TAILtype:
+			break;
+		case SYNCtype:
+			FIX_END(NoteXD(pL));
+			FIX_END(NoteYD(pL));
+			FIX_END(NoteYSTEM(pL));
+			FIX_END(NotePLAYTIMEDELTA(pL));
+			FIX_END(NotePLAYDUR(pL));
+			FIX_END(NotePTIME(pL));
+			FIX_END(NoteFIRSTMOD(pL));
+			break;
+		case RPTENDtype:
+			break;
+		case PAGEtype:
+			break;
+		case SYSTEMtype:
+			break;
+		case STAFFtype:
+			FIX_END(StaffTOP(pL));
+			FIX_END(StaffLEFT(pL));
+			FIX_END(StaffRIGHT(pL));
+			FIX_END(StaffHEIGHT(pL));
+			FIX_END(StaffFONTSIZE(pL));
+			FIX_END(StaffFLAGLEADING(pL));
+			FIX_END(StaffMINSTEMFREE(pL));
+			FIX_END(StaffLEDGERWIDTH(pL));
+			FIX_END(StaffNOTEHEADWIDTH(pL));
+			FIX_END(StaffFRACBEAMWIDTH(pL));
+			FIX_END(StaffSPACEBELOW(pL));
+			//WHOLE_KSINFO??
+			break;
+		case MEASUREtype:
+			FIX_END(FirstMeasMEASURENUM(pL));
+			//measSizeRect??
+			//WHOLE_KSINFO??
+			break;
+		case CLEFtype:
+			break;
+		case KEYSIGtype:
+			FIX_END(KeySigXD(pL));
+			break;
+		case TIMESIGtype:
+			FIX_END(TimeSigXD(pL));
+			FIX_END(TimeSigYD(pL));
+			break;
+		case BEAMSETtype:
+			FIX_END(NoteBeamBPSYNC(pL));
+			break;
+		case CONNECTtype:
+			FIX_END(ConnectXD(pL));
+			FIX_END(ConnectFIRSTPART(pL));
+			FIX_END(ConnectLASTPART(pL));
+			break;
+		case DYNAMtype:
+			FIX_END(DynamicXD(pL));
+			FIX_END(DynamicYD(pL));
+			FIX_END(DynamicENDXD(pL));
+			FIX_END(DynamicENDXD(pL));
+			break;
+		case MODNRtype:
+			break;
+		case GRAPHICtype:
+			FIX_END(GraphicSTRING(pL));
+			break;
+		case OTTAVAtype:
+			FIX_END(NoteOttavaOPSYNC(pL));
+			break;
+		case SLURtype:
+			//Rect		bounds
+			//SplineSeg	seg
+			EndianFixPoint(&SlurSTARTPT(pL));
+			EndianFixPoint(&SlurENDPT(pL));
+			EndianFixPoint((Point *)&SlurENDKNOT(pL));		
+			break;
+		case TUPLETtype:
+			FIX_END(NoteTupleTPSYNC(pL));
+			break;
+		case GRSYNCtype:
+			FIX_END(GRNoteYQPIT(pL));
+			FIX_END(GRNoteXD(pL));
+			FIX_END(GRNoteYD(pL));
+			FIX_END(GRNoteYSTEM(pL));
+			FIX_END(GRNotePLAYTIMEDELTA(pL));
+			FIX_END(GRNotePLAYDUR(pL));
+			FIX_END(GRNotePTIME(pL));
+			FIX_END(GRNoteFIRSTMOD(pL));
+			break;
+		case TEMPOtype:
+			break;
+		case SPACERtype:
+			break;
+		case ENDINGtype:
+			break;
+		case PSMEAStype:
+			break;
+		default:
+			MayErrMsg("For subobject at L%ld, type %ld is illegal.  (EndianFixSubobj)",
+						(long)pL, (long)heapIndex);
+	}
 }

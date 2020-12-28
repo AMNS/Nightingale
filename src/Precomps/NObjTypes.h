@@ -231,7 +231,7 @@ typedef struct {
 	Boolean		connAbove;			/* True if connected to barline above */
 	char		filler1;
 	SignedByte	filler2;
-	short		oldFakeMeas,		/* OBSOLETE: now at the object level, so this is to be removed */
+	short		reservedM,			/* formerly <oldFakeMeas>; keep space for future use */
 				measureNum;			/* internal measure number; first is always 0 */
 	DRect		measSizeRect;		/* enclosing Rect of measure, V rel. to System top & H to meas. xd  */
 	SignedByte	connStaff;			/* staff to connect to (valid if >0 and !connAbove) */

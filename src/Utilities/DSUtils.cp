@@ -556,7 +556,7 @@ DDIST ObjSpaceUsed(Document *doc, LINK pL)
 			return (SymWidthRight(doc, pL, 1, False));
 		default:
 			if (TYPE_BAD(pL))
-				MayErrMsg("ObjSpaceNeeded: object at %ld has illegal type %ld",
+				MayErrMsg("ObjSpaceNeeded: object L%ld has illegal type %ld",
 							(long)pL, (long)ObjLType(pL));
 			return 0;
 	}
@@ -663,18 +663,21 @@ LINK DFirstValidxd(Document *oldDoc, Document *fixDoc, LINK pL, Boolean goLeft)
 
 LINK ObjWithValidxd(LINK pL, Boolean measureOK)
 {
-	for ( ; pL; pL = RightLINK(pL))
-		switch (ObjLType(pL)) {
+	LINK vpL = pL;
+	
+	for ( ; vpL; vpL = RightLINK(vpL))
+		switch (ObjLType(vpL)) {
 			case BEAMSETtype:
 				break;
 			case MEASUREtype:
 				if (!measureOK) {
-					MayErrMsg("ObjWithValidxd: found MEASURE before obj with valid xd");
+					MayErrMsg("ObjWithValidxd: found MEASURE with valid xd before obj L%ld",
+								(long)pL);
 					return NILINK;
 				}
-				else return pL;
+				else return vpL;
 			default:
-				return pL;
+				return vpL;
 		}
 	
 	return NILINK;
@@ -806,9 +809,8 @@ DDIST GetSysLeft(Document *doc)
 
 
 /* ---------------------------------------------------------- StaffHeight, StaffLength -- */
-/* Get the staffHeight at the specified object on the specified staff. This is
-done by searching backwards for a Staff object and getting the information from
-there. */
+/* Get the staffHeight at the specified object on the specified staff. This is done
+by searching backwards for a Staff object and getting the information from there. */
 
 DDIST StaffHeight(Document *doc, LINK pL, short theStaff)
 {
@@ -831,7 +833,7 @@ DDIST StaffHeight(Document *doc, LINK pL, short theStaff)
 		if (aStaff->staffn == theStaff)
 			return (aStaff->staffHeight);
 	}
-	MayErrMsg("StaffHeight: couldn't find an entry for staff %ld\n", (long)theStaff);
+	MayErrMsg("StaffHeight: couldn't find an entry for staff %ld", (long)theStaff);
 	return -1L;
 }
 
@@ -843,7 +845,7 @@ DDIST StaffLength(LINK pL)
 	PASTAFF	aStaff;
 	
 	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, False);
-	if (!staffL) MayErrMsg("SystemLength: can't find Staff for %ld", pL);
+	if (!staffL) MayErrMsg("SystemLength: can't find Staff for L%ld", (long)pL);
 	aStaffL = FirstSubLINK(staffL);
 	aStaff = GetPASTAFF(aStaffL);
 	return (aStaff->staffRight-aStaff->staffLeft);
@@ -915,9 +917,8 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 			{ *startMeas = measL; break; } 
 	}
 	
-	/* Include measure containing objects relative object; otherwise coordinate
-	   systems get screwed up, since drawing into offscreen bitmap is relative
-	   to this measure. */
+	/* Include measure containing objects relative object; otherwise coordinate systems
+	   get screwed up, since drawing into offscreen bitmap is relative to this measure. */
 
 	switch(ObjLType(pL)) {
 		case GRAPHICtype:
@@ -942,7 +943,7 @@ DDIST MeasWidth(LINK pL)
 	PAMEASURE	aMeas;
 	
 	measL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, False);
-	if (!measL) MayErrMsg("MeasWidth: can't find Measure for %ld", pL);
+	if (!measL) MayErrMsg("MeasWidth: can't find Measure for L%ld", (long)pL);
 
 	aMeasL = FirstSubLINK(measL);
 	aMeas = GetPAMEASURE(aMeasL);
@@ -1033,7 +1034,7 @@ Boolean SetMeasFillSystem(LINK measL)
 	DDIST	staffLen;
 
 	if (!MeasureTYPE(measL)) {
-		MayErrMsg("SetMeasFillSystem: %ld isn't a Measure.", (long)measL);
+		MayErrMsg("SetMeasFillSystem: L%ld isn't a Measure.", (long)measL);
 		return False;
 	}
 	staffLen = StaffLength(measL);
@@ -1196,7 +1197,7 @@ Boolean SyncsAreConsec(LINK syncA, LINK syncB, short staff, short voice)
 	SearchParam	pbSearch;
 	
 	if (!SyncTYPE(syncA) || !SyncTYPE(syncB)) {
-		MayErrMsg("SyncsAreConsec: called with syncA %ld or syncB %ld not SYNCtype",
+		MayErrMsg("SyncsAreConsec: called with syncA L%ld or syncB L%ld not SYNCtype",
 					(long)syncA, (long)syncB);
 		return False;
 	}
@@ -1436,7 +1437,7 @@ Boolean FirstMeasInSys(LINK measL)
 	LINK sysL;
 
 	if (!MeasureTYPE(measL)) {
-		MayErrMsg("FirstMeasInSys: Object at %ld is not a Measure.", (long)measL);
+		MayErrMsg("FirstMeasInSys: Object L%ld is not a Measure.", (long)measL);
 		return False;
 	}
 	if (LinkLMEAS(measL)) {
@@ -1458,7 +1459,7 @@ Boolean LastMeasInSys(LINK measL)
 	LINK sysL;
 	
 	if (!MeasureTYPE(measL)) {
-		MayErrMsg("LastMeasInSys: Object at %ld is not a Measure.", (long)measL);
+		MayErrMsg("LastMeasInSys: Object L%ld is not a Measure.", (long)measL);
 		return False;
 	}
 	if (LinkRMEAS(measL)) {
@@ -2487,7 +2488,7 @@ short GetSubObjStaff(LINK pL, short index)
 		case SPACERtype:
 			return ((PEXTEND)p)->staffn;
 		default:
-			MayErrMsg("GetSubObjStaff: can't handle object type %ld at %ld",
+			MayErrMsg("GetSubObjStaff: can't handle object type %ld at L%ld",
 						(long)ObjLType(pL), (long)pL);
 			return NOONE;
 	}
@@ -2538,7 +2539,7 @@ short GetSubObjVoice(LINK pL, short index)
 		case GRAPHICtype:
 			return GraphicVOICE(pL);
 		default:
-			MayErrMsg("GetSubObjVoice: can't handle object type %ld at %ld",
+			MayErrMsg("GetSubObjVoice: can't handle object type %ld at L%ld",
 						(long)ObjLType(pL), (long)pL);
 			return NOONE;
 	}
@@ -2598,10 +2599,10 @@ Boolean ObjOnStaff(LINK pL, short staff, Boolean selectedOnly)
 			return True;
 		default:
 			if (TYPE_BAD(pL))
-				MayErrMsg("ObjOnStaff: object at %ld has illegal type %ld",
+				MayErrMsg("ObjOnStaff: object L%ld has illegal type %ld",
 							(long)pL, (long)ObjLType(pL));
 			else
-				MayErrMsg("ObjOnStaff: can't handle type %ld object at %ld",
+				MayErrMsg("ObjOnStaff: can't handle type %ld object at L%ld",
 							(long)ObjLType(pL), (long)pL);
 			return False;
 	}
@@ -2910,7 +2911,8 @@ series; if the given note isn't tiedL, return it unchanged. */
 Boolean FirstTiedNote(LINK syncL, LINK aNoteL,							/* Starting Sync/note */
 							LINK *pFirstSyncL, LINK *pFirstNoteL)		/* First Sync/note */
 {
-	short noteNum, voice; LINK continL, continNoteL;
+	short noteNum, voice;
+	LINK continL, continNoteL;
 	
 	noteNum = NoteNUM(aNoteL);
 	voice = NoteVOICE(aNoteL);
@@ -2922,7 +2924,7 @@ Boolean FirstTiedNote(LINK syncL, LINK aNoteL,							/* Starting Sync/note */
 						SYNCtype, voice, GO_LEFT, False);
 		continNoteL = NoteNum2Note(continL, voice, noteNum);
 		if (continNoteL==NILINK) {
-			MayErrMsg("FirstTiedNote: can't find tied note to left for syncL=%ld aNoteL=%ld",
+			MayErrMsg("FirstTiedNote: can't find tied note to left for Sync L%ld note L%ld",
 						(long)syncL, (long)aNoteL);
 			return False;											/* Should never happen */
 		}
@@ -2941,7 +2943,8 @@ Boolean FirstTiedNote(LINK syncL, LINK aNoteL,							/* Starting Sync/note */
 
 LINK ChordNextNR(LINK syncL, LINK theNoteL)
 {
-	short voice; LINK aNoteL; Boolean foundTheNote=False;
+	short voice;  LINK aNoteL;
+	Boolean foundTheNote=False;
 	
 	voice = NoteVOICE(theNoteL);
 	

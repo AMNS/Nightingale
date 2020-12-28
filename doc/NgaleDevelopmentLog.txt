@@ -8395,7 +8395,7 @@ bad. Just need to FIX_END <sizeAllObjsFile> just before writing => done.
 
 Next: can't open files on Intel machines because, hmmm, I don't know, but from 1NoteF6IntelLog.txt:
 
-	Dec 11 08:22:49 Dons-2017-Air Ngale[21671]:
+Dec 11 08:22:49 Dons-2017-Air Ngale[21671]:
 	info. 17 objects. sizeAllObjsFile=620 sizeAllObjsHeap=952  (ReadObjHeap)
 	debug. ReadObjHeap: pLink1=10704952 FPos:5268
 	debug. ReadObjHeap_1: 02 00 00 00   01 00 00 00   00 00 00 00   00 01 00 00
@@ -8409,7 +8409,7 @@ Next: can't open files on Intel machines because, hmmm, I don't know, but from 1
 	
 Enable debug statements in HeapFixLinks(); try another 1-note file from Intel:
 
-	Dec 13 12:23:04 DonDualG5 Ngale[52094]:
+Dec 13 12:23:04 DonDualG5 Ngale[52094]:
 	Notice. Opening file '1NoteD6Intel.ngl'...
 	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
 	Notice. Checking Document header: No errors found.  (CheckDocumentHdr)
@@ -8448,7 +8448,7 @@ LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, DObjL
 
 Open 1NoteD6Intel.ngl again =>
 
-	Dec 13 12:32:15 DonDualG5 Ngale[52148]:
+Dec 13 12:32:15 DonDualG5 Ngale[52148]:
 	info.     heap 24 (OBJECT): 17 objects. sizeAllObjsFile=620 sizeAllObjsHeap=952  (ReadObjHeap)
 	debug. HeapFixLinks: pL=256 type=0 in main obj list
 	debug. HeapFixLinks: pL=0 type=-105 in main obj list
@@ -8468,6 +8468,90 @@ in routines, say EndianFixObject(LINK pL) and EndianFixSubobj(LINK pL, short typ
 belong in EndianUtils.c. OK, EndianFixObject is done (I think); now for EndianFixSubobj.
 
 SWITCH TO: Want to give a log message when a file is saved; this should be trivial but it's
-surprisingly messy because of, well, yucky old code... done! But existing messiness of error
-return codes is even worse now :-( . Need to move C1_THEN_2, etc. from NewSlur.c to Defs.h,
-and in Defs.h, clean up CANCEL_INT et al.
+surprisingly messy because of, well, yucky old code... done! But existing messiness of function
+return codes is even worse now :-( . Cf. esp. Defs.h.
+
+---------------------------------------------------------------------------------------
+
+22 - 28 Dec.
+
+To clean up function return codes (and not introduce new bugs!):
+
+Need to move C1_THEN_2, etc. set from NewSlur.c to Defs.h; in Defs.h, integrate them with the
+CANCEL_INT et al. set and the "Function return values" FAILURE, etc. set. It's easy to give
+these nine unique values; but do we have to avoid other existing values, e.g., macOS error
+codes?
+
+enum {
+	C1_THEN_2=-1,
+	CEQUAL=0,
+	C2_THEN_1=+1
+};
+
+enum {									/* Function return values: */
+	FAILURE=-1,
+	NOTHING_TO_DO=0,
+	OP_COMPLETE=1
+};
+
+#define CANCEL_INT -31999				/* Operation cancelled */
+#define ERROR_INT -32765				/* Error */
+#define SUCCESS_INT 999					/* All is well */
+
+The set in NewSlur.c are used only in two static functions, ComparePosInSys and
+CheckProposedSlur; the former is called only by the latter and the latter uses them only
+internally, so there's no danger of tramping on other codes. So we can change the
+C1_THEN_2 set values to anything we want, and leave the other six values the same, with no
+danger of introducing bugs!
+
+MiscUtils.h also enum's four values, OP_Cancel etc.; move those to Defs.h and/or change
+their values? TBDecided!
+
+BACK TO Intel-specific problems, esp. saving & opening files.Partly implement EndianFixSubobj
+and EndianFixSubobj. On Intel, New, insert a note, Save As 1NoteG3Intel.ngl =>
+
+Dec 26 19:37:36 Dons-2017-Air Ngale[38530]:
+	debug. WriteHeapHdr: heap 0 (HEAD) nFObjs=4  objSize=346 type=0 FPos:2902
+	debug. EndianFixSubobj: heapIndex=0 pL=1
+	--- last message repeated 1 time ---
+	debug. EndianFixSubobj: heapIndex=0 pL=2
+	--- last message repeated 1 time ---
+	debug. EndianFixSubobj: heapIndex=0 pL=3
+	--- last message repeated 1 time ---
+	debug. EndianFixSubobj: heapIndex=0 pL=4
+	--- last message repeated 1 time ---
+	debug. WriteHeapHdr: heap 1 (TAIL) nFObjs=0  objSize=0 type=1 FPos:4304
+	debug. WriteHeapHdr: heap 2 (SYNC) nFObjs=1  objSize=58 type=2 FPos:4322
+	debug. EndianFixSubobj: heapIndex=2 pL=1
+	ERROR. PROGRAM ERROR: FIX_ENDIAN called with size 1
+	
+OK, one of the Sync subobject fields EndianFixSubobj is "converting" is indeed just one byte;
+likewise one of the Staff fields. Remove those; on Intel, New, insert a note, Save As
+1NoteG3Intel.ngl => OK! Try to open that file on Intel => Ngale crashes; log ends with
+
+	Notice. Opened file '1NoteG3Intel.ngl'.  (DoFileMenu)
+	debug. DrawScoreRange: fromL=2 toL=11 outputTo=0
+	com.apple.xpc.launchd[1] (com.amns.nightingale.32784[42080]): Service exited due to SIGSEGV | sent by exc handler[42080]
+
+The crash report shows a divide by zero in GetTimeSigMeasDur called from DrawMEASURE called
+from DrawScoreRange. Unfortunately, DrawMEASURE doesn't call GetTimeSigMeasDur!; it _can_ call
+ShadeDurPblmMeasure, which calls GetTimeSigMeasDur, though it shouldn't in this case. ?!?
+
+Try to open the same (Intel-written) file on PowerPC => gives an error message about staff sizes
+and one from MEAdjustCaret; but draws a blank score page and doesn't crash. Debug Check says
+
+Dec 27 14:47:59 DonDualG5 Ngale[2645]:
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. •DCheckHeadTail: HEADER (L256) HAS BAD nparts.
+	Warning. •DCheckHeadTail: PART WITH partL=L1 HAS BAD FIRST STAFF OR LAST STAFF.
+	Warning. •DCheckHeadTail: PART WITH partL=L2 HAS BAD FIRST STAFF OR LAST STAFF.
+	Warning. •DCheckNode: Object L0 LINK IS GARBAGE.
+	Warning. •DCheckNode: Object L0 HAS AN INCONSISTENT LINK.
+	ERROR. •DoDebug: CAN'T FINISH CHECKING.
+
+The "L256" looks suspiciously like it should be 1 in a 2-byte field that wasn't Endian fixed!
+Browser opens showing L1, and it looks like a valid header; but clicking Jump to Start =>
+shows L256, which claims to be a header but it's garbage!
+
+Compare log for opening 1NoteG6Intel.ngl on PPC to log for opening 1NoteG4PPC.ngl on PPC =>
+the dumps from "ReadObjHeap_1" and "ReadObjHeap_2" are very different.

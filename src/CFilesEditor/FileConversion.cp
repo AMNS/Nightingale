@@ -334,7 +334,7 @@ NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 			case TAILtype:
 				doc->tailL = pL;
 				if (!doc->masterHeadL) {
-					LogPrintf(LOG_ERR, "TAIL of main object list encountered before its HEAD.  (HeapFixN105Links)\n");
+					LogPrintf(LOG_ERR, "TAIL of main object list encountered before its HEAD. The file can't be opened.  (HeapFixN105Links)\n");
 					goto Error;
 				}
 				doc->masterHeadL = pL+1;
@@ -431,7 +431,7 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 		}
 	}
 		
-	LogPrintf(LOG_ERR, "TAIL of Master Page object list not found.  (HeapFixN105Links)\n");
+	LogPrintf(LOG_ERR, "TAIL of Master Page object list not found. The file can't be opened.  (HeapFixN105Links)\n");
 
 Error:
 	/* In case we never got into the Master Page loop or it didn't have a TAIL obj. */
@@ -815,7 +815,7 @@ static Boolean Convert1MEASURE(Document * /* doc */, LINK aMeasureL)
 	MeasCONNABOVE(aMeasureL) = (&a1Measure)->connAbove;
 	MeasFILLER1(aMeasureL) = 0;
 	MeasFILLER2(aMeasureL) = 0;
-	MeasOLDFAKEMEAS(aMeasureL) = (&a1Measure)->oldFakeMeas,
+	MeasureRESERVED(aMeasureL) = 0;
 	MeasMEASURENUM(aMeasureL) = (&a1Measure)->measureNum;
 	MeasMRECT(aMeasureL) = (&a1Measure)->measSizeRect;
 	MeasCONNSTAFF(aMeasureL) = (&a1Measure)->connStaff;
@@ -829,16 +829,9 @@ static Boolean Convert1MEASURE(Document * /* doc */, LINK aMeasureL)
 	MeasYMNSTDOFFSET(aMeasureL) = (&a1Measure)->yMNStdOffset;
 
 //NHexDump(LOG_DEBUG, "Convert1MEASURE", (unsigned char *)&a1Measure, sizeof(AMEASURE_5)+2, 4, 16);
-if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    Convert1MEASURE: aMeasureL=%u staffn=%d measNum=%d connStaff=%d\n",
-aMeasureL, MeasureSTAFFN(aMeasureL), MeasMEASURENUM(aMeasureL), MeasCONNSTAFF(aMeasureL));
-#if 1
-{ char str[256];
-//PAMEASURE aMeasure = GetPAMEASURE(aMeasureL);
-//LogPrintf(LOG_INFO, "Convert1MEASURE: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
-//blah lorem ipsum );
-KeySigSprintf((PKSINFO)(MeasKSITEM(aMeasureL)), str);
-}
-#endif
+	if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    Convert1MEASURE: aMeasureL=%u staffn=%d measNum=%d connStaff=%d\n",
+	aMeasureL, MeasureSTAFFN(aMeasureL), MeasMEASURENUM(aMeasureL), MeasCONNSTAFF(aMeasureL));
+
 	return True;
 }
 
@@ -2027,11 +2020,11 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 	}
 
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
-	but (as of v.997), they sometimes were, probably because not exporting changes to
-	Master Page was implemented by reconstructing it from the 1st system of the score.
-	That was fixed in about .998a10!, so it should certainly be safe to remove this call,
-	but the thought makes me nervous, and making them visible here really shouldn't cause
-	any problems (and, as far as I know, it never has). */
+	   but (as of v.997), they sometimes were, probably because not exporting changes to
+	   Master Page was implemented by reconstructing it from the 1st system of the score.
+	   That was fixed in about .998a10, so it should certainly be safe to remove this
+	   call! But the thought makes me nervous, and making them visible here really
+	   shouldn't cause any problems (and, as far as I know, it never has). */
 
 	VisifyMasterStaves(doc);
 	

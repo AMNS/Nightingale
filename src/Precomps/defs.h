@@ -93,12 +93,6 @@ enum {									/* Note/rest/grace note codes: */
 	NOTES_BOTH							/* All */
 };
 
-enum {									/* Function return values: */
-	FAILURE=-1,
-	NOTHING_TO_DO=0,
-	OP_COMPLETE=1
-};
-
 enum {									/* MIDI Driver: */
 	MIDIDR_CM,							/* Core MIDI */
 	MIDIDR_NONE							/* No MIDI driver */
@@ -115,7 +109,7 @@ enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 };
 
 
-/* ------------------------------------------------------------------ MUSIC CHARACTERS -- */
+/* ------------------------------------------------------------------ Music Characters -- */
 /* Characters in our music font, Adobe's "Sonata" and compatible fonts: */
 
 #define MCH_trebleclef '&'
@@ -193,9 +187,9 @@ enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 #define MCH_lParen '('						/* Parentheses */
 #define MCH_rParen ')'
 
-#define BREVEYOFFSET 2						/* Correction for Sonata error in breve origin (half-lines) */
+#define BREVEYOFFSET 2						/* Correction for Sonata error in breve origin (half-spaces) */
 
-/* ----------------------------------------------------- OTHER CHARACTER AND KEY CODES -- */
+/* ----------------------------------------------------- Other Character and Key Codes -- */
 
 #define CH_ENTER 0x03					/* ASCII character code for enter key */
 #define CH_BS 0x08						/* ASCII character code for backspace (delete) */
@@ -214,7 +208,26 @@ enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 
 #define CS_DELIMITER FWDDEL_KEY			/* Chord symbol field delimiter */
 
-/* ----------------------------------------------------------- MISCELLANEOUS CONSTANTS -- */
+/* ----------------------------------------------------- Numeric Function Return Codes -- */
+/* Return codes for numeric-value functions. FIXME: Add NRV_ prefix to all! */
+
+enum {
+	FAILURE=-1,
+	NOTHING_TO_DO=0,
+	OP_COMPLETE=1
+};
+
+#define CANCEL_INT -31999				/* Operation cancelled */
+#define ERROR_INT -32765				/* Error */
+#define SUCCESS_INT 999					/* All is well */
+
+enum {
+	NRV_C1_THEN_2=-899,
+	NRV_CEQUAL,
+	NRV_C2_THEN_1
+};
+
+/* ----------------------------------------------------------- Miscellaneous Constants -- */
 
 #define FIDEAL_RESOLVE 10				/* Fractional STDIST resolution in parts of an STDIST */
 
@@ -222,19 +235,13 @@ enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 
 #define PDURUNIT 15						/* p_dur code for shortest note,i.e., w/dur.code=MAX_L_DUR */
 
-#define ACCTABLE_OFF 30					/* Staff half-line offset in accTable */
+#define ACCTABLE_OFF 30					/* Staff half-space offset in accTable */
 
 #define CTL_ACTIVE 0					/* Standard HiliteControl codes */
 #define CTL_INACTIVE 255
 
 #define ENDTEXT 999						/* "End of text" to SelIText */
 
-/* Return values for numeric-value functions FIXME: C1_THEN_2, etc. should be def. here with
-unique values! */
-
-#define CANCEL_INT -31999				/* Operation cancelled */
-#define ERROR_INT -32765				/* Error */
-#define SUCCESS_INT 999					/* All is well */
 #define TOO_MANY_MEASNODES 31999		/* Exceeded MAX_MEASNODES limit */
 
 #define BIGNUM 1999999999L				/* A very large signed long, < LONG_MAX but not << */
@@ -261,7 +268,7 @@ unique values! */
 #define DFLT_XMOVEACC 5					/* Default note <xMoveAcc> */
 
 #define STFLINES 5						/* Number of lines in standard staff */
-#define STFHALFLNS (STFLINES+STFLINES-2)	/* Height of standard staff, in halflines */
+#define STFHALFLNS (STFLINES+STFLINES-2)	/* Height of standard staff, in half-spaces */
 
 #define ENLARGE_NR_SELH 1				/* Enlarge note selection rect. (horiz. pixels) */
 #define ENLARGE_NR_SELV 0				/* Enlarge note selection rect. (vert. pixels) */
@@ -305,7 +312,7 @@ moved there eventually). */
 #define TSCALE2MICROBEATS(ts) (60*1000000L/(ts))
 
 
-/* -------------------------------------------------------------- MISCELLANEOUS MACROS -- */
+/* -------------------------------------------------------------- Miscellaneous Macros -- */
 /* FIXME: These should probably be in a new file, <GeneralMacros.h> or some such. */
 
 /* Arithmetic, etc. */
@@ -430,7 +437,7 @@ work. */
 
 #define COMPOUND(numer) (numer%3==0 && numer>3)
 
-/* -------------------------------------------------------------------- ERROR CHECKING -- */ 
+/* -------------------------------------------------------------------- Error Checking -- */ 
 		
 /* calls to be replaced by calls to GARBAGELX */
 				 
@@ -463,7 +470,7 @@ allow values forbidden by MAX_TSDENOM (defined elsewhere)! */
 
 #define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
 
-/* ----------------------------------------------------------------- CONVERSION MACROS -- */
+/* ----------------------------------------------------------------- Conversion Macros -- */
 
 /* Convert STDIST to DDIST and vice-versa */
 
@@ -511,7 +518,7 @@ allow values forbidden by MAX_TSDENOM (defined elsewhere)! */
 #define pt2p(p)	d2p(pt2d(p))							/* points to pixels */
 
 
-/* ---------------------------------------------------- MISCELLANEOUS SYSTEM-DEPENDENT -- */
+/* ---------------------------------------------------- Miscellaneous System-Dependent -- */
 
 /* Convert OS ticks (in Carbon, 1/60 sec.) to milliseconds. */
 #define TICKS2MS(ticks) (1000*(ticks)/60)

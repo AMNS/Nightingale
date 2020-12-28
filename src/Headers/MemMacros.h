@@ -642,8 +642,7 @@ are by Steve Hart.) */
 #define MeasMRECT(link)				( (GetPAMEASURE(link)->measSizeRect) )	
 #define MeasNKSITEMS(link)			( (GetPAMEASURE(link))->nKSItems )	
 #define MeasNUMER(link)				( (GetPAMEASURE(link))->numerator )
-#define MeasOLDFAKEMEAS(link)		( (GetPAMEASURE(link))->oldFakeMeas)		
-#define MeasPAGE(link)				( (SysPAGE(MeasSYSL(link))) )	
+#define MeasureRESERVED(link)		( (GetPAMEASURE(link))->reservedM)		
 #define MeasureSOFT(link)			( (GetPAMEASURE(link))->soft)
 #define MeasSUBTYPE(link)	 		( (GetPAMEASURE(link))->subType )		
 #define MeasTIMESIGTYPE(link)		( (GetPAMEASURE(link))->timeSigType )		
@@ -651,6 +650,8 @@ are by Steve Hart.) */
 #define MeasureSTAFFN(link)			( (GetPAMEASURE(link))->staffn )	
 #define MeasXMNSTDOFFSET(link)		( (GetPAMEASURE(link))->xMNStdOffset )		
 #define MeasYMNSTDOFFSET(link)		( (GetPAMEASURE(link))->yMNStdOffset )		
+
+#define MeasPAGE(link)				( (SysPAGE(MeasSYSL(link))) )	
 
 #define MeasISFAKE(link)			( (GetPMEASURE(link))->fakeMeas )
 #define MeasSPACEPCT(link)			( (GetPMEASURE(link))->spacePercent )
@@ -672,12 +673,7 @@ are by Steve Hart.) */
 #define NoteACC(link)				( (GetPANOTE(link))->accident )	
 #define NoteACCSOFT(link)			( (GetPANOTE(link))->accSoft )		
 #define NoteAPPEAR(link)			( (GetPANOTE(link))->headShape )		
-#define NoteBeamBPSYNC(link)		( (GetPANOTEBEAM(link))->bpSync )		
 #define NoteBEAMED(link)			( (GetPANOTE(link))->beamed )		
-#define NoteBeamFILLER(link)		( (GetPANOTEBEAM(link))->filler)		
-#define NoteBeamFRACGOLEFT(link)	( (GetPANOTEBEAM(link))->fracGoLeft)		
-#define NoteBeamFRACS(link)			( (GetPANOTEBEAM(link))->fracs)
-#define NoteBeamSTARTEND(link)		( (GetPANOTEBEAM(link))->startend)	
 #define NoteCOURTESYACC(link)		( (GetPANOTE(link))->courtesyAcc )		
 #define NoteDOUBLEDUR(link)			( (GetPANOTE(link))->doubleDur )
 #define NoteRESERVEDN(link)			( (GetPANOTE(link))->reservedN)
@@ -717,6 +713,12 @@ are by Steve Hart.) */
 #define NoteYMOVEDOTS(link)			( (GetPANOTE(link))->ymovedots )		
 #define NoteYQPIT(link)				( (GetPANOTE(link))->yqpit )	
 #define NoteYSTEM(link)				( (GetPANOTE(link))->ystem )	
+
+#define NoteBeamBPSYNC(link)		( (GetPANOTEBEAM(link))->bpSync )		
+#define NoteBeamFILLER(link)		( (GetPANOTEBEAM(link))->filler)		
+#define NoteBeamFRACGOLEFT(link)	( (GetPANOTEBEAM(link))->fracGoLeft)		
+#define NoteBeamFRACS(link)			( (GetPANOTEBEAM(link))->fracs)
+#define NoteBeamSTARTEND(link)		( (GetPANOTEBEAM(link))->startend)	
 
 #define OttavaNOCUTOFF(link)		( (GetPOTTAVA(link))->noCutoff )
 #define OttavaCROSSSTAFF(link)		( (GetPOTTAVA(link))->crossStaff)
@@ -769,9 +771,10 @@ are by Steve Hart.) */
 #define SlurSTARTPT(link)			( (GetPASLUR(link))->startPt)	
 #define SlurVIS(link)				( (GetPASLUR(link))->visible)
 
-/* SlurFirstIsSYSTEM considers the possibility of SlurLASTSYNC being non-existent: this can
-never occur in a normal valid object list, but it does inside RfmtSystems, and handling
-that condition makes it possible for FixCrossSysSlurs to use SlurFirstIsSYSTEM. */
+/* SlurFirstIsSYSTEM considers the possibility of SlurLASTSYNC being non-existent:
+this can never occur in a normal valid object list, but it does inside RfmtSystems,
+and handling that condition makes it possible for FixCrossSysSlurs to use
+SlurFirstIsSYSTEM. */
  
 #define _SlurFirstSYSTEM(pL)		( (SystemTYPE(SlurLASTSYNC(pL))) )			/* Boolean, not link */
 #define SlurFirstIsSYSTEM(pL)	(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : True)	/* Boolean, not link */		
@@ -812,9 +815,10 @@ that condition makes it possible for FixCrossSysSlurs to use SlurFirstIsSYSTEM. 
 #define StaffSPACEBELOW(link)		( (GetPASTAFF(link))->spaceBelow)		
 #define StaffSTAFFLINES(link)		( (GetPASTAFF(link))->staffLines )		
 #define StaffSTAFFN(link)			( (GetPASTAFF(link))->staffn )
-#define StaffSYS(link)				( (GetPSTAFF(link))->systemL )
 #define StaffTIMESIGTYPE(link)		( (GetPASTAFF(link))->timeSigType )	
 #define StaffTOP(link)				( (GetPASTAFF(link))->staffTop )
+
+#define StaffSYS(link)				( (GetPSTAFF(link))->systemL )
 
 #define SysRectBOTTOM(link)			( SystemRECT(link).bottom )	
 #define SysRectLEFT(link)			( SystemRECT(link).left )	
