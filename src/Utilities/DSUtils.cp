@@ -671,7 +671,7 @@ LINK ObjWithValidxd(LINK pL, Boolean measureOK)
 				break;
 			case MEASUREtype:
 				if (!measureOK) {
-					MayErrMsg("ObjWithValidxd: found MEASURE with valid xd before obj L%ld",
+					MayErrMsg("ObjWithValidxd: found MEASURE with valid xd before object L%ld",
 								(long)pL);
 					return NILINK;
 				}
@@ -845,7 +845,7 @@ DDIST StaffLength(LINK pL)
 	PASTAFF	aStaff;
 	
 	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, False);
-	if (!staffL) MayErrMsg("SystemLength: can't find Staff for L%ld", (long)pL);
+	if (!staffL) MayErrMsg("SystemLength: can't find Staff for object L%ld", (long)pL);
 	aStaffL = FirstSubLINK(staffL);
 	aStaff = GetPASTAFF(aStaffL);
 	return (aStaff->staffRight-aStaff->staffLeft);
@@ -869,8 +869,8 @@ LINK GetLastMeasInSys(LINK sysL)
 
 
 /* ---------------------------------------------------------------------- GetMeasRange -- */
-/* Return in parameters the range of measures graphically spanned by <pL>, which
-must be either a Graphic or a Tempo. */
+/* Return in parameters the range of measures graphically spanned by <pL>, which must
+be either a Graphic or a Tempo. */
 
 void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 {
@@ -878,7 +878,8 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 	Rect r, objR;
 
 	if (!GraphicTYPE(pL) && !TempoTYPE(pL)) {
-		LogPrintf(LOG_WARNING, "Object %u is an illegal type.  (GetMeasRange)\n", pL);
+		LogPrintf(LOG_WARNING,
+			"This function can't handle objects of the type of %u.  (GetMeasRange)\n", pL);
 		return;
 	}
 	
@@ -1197,7 +1198,7 @@ Boolean SyncsAreConsec(LINK syncA, LINK syncB, short staff, short voice)
 	SearchParam	pbSearch;
 	
 	if (!SyncTYPE(syncA) || !SyncTYPE(syncB)) {
-		MayErrMsg("SyncsAreConsec: called with syncA L%ld or syncB L%ld not SYNCtype",
+		MayErrMsg("SyncsAreConsec: syncA L%ld or syncB L%ld isn't SYNCtype",
 					(long)syncA, (long)syncB);
 		return False;
 	}

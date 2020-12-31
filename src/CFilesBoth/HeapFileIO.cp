@@ -962,7 +962,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	
 	PushLock(objHeap);					/* Should lock it after expanding free list above */
 	
-	/* Set pLink1 to point to LINK 1, since LINK 0 is never used. */
+	/* LINK 0 is never used, so set pLink1 to point to LINK 1. */
 	
 	pLink1 = *(objHeap->block);  pLink1 += objHeap->objSize;
 	GetFPos(refNum, &position);
@@ -985,9 +985,9 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	if (DETAIL_SHOW) {
 		unsigned char *pSObj;
 		pSObj = (unsigned char *)GetPSUPEROBJ(1);
-		NHexDump(LOG_DEBUG, "ReadObjHeap_1", pSObj, 46, 4, 16);
+		NHexDump(LOG_DEBUG, "ReadObjHeap: L1", pSObj, 46, 4, 16);
 		pSObj = (unsigned char *)GetPSUPEROBJ(2);
-		NHexDump(LOG_DEBUG, "ReadObjHeap_2", pSObj, 46, 4, 16);
+		NHexDump(LOG_DEBUG, "ReadObjHeap: L2", pSObj, 46, 4, 16);
 	}
 
 	return 0;

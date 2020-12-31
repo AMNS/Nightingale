@@ -672,7 +672,7 @@ same way most Mac word processors do, but on one or more staves instead of one
 or more lines. Vertical positions are quantized to the staff level, inclusive;
 horizontal positions are taken at face value.  If the mouse is never moved more
 than 1 pixel horizontally, TrackStaffRect signals by returning pt.h equal to
-CANCEL_INT. Designed for "wipe" selection, e.g., selecting everything on one or
+NRV_CANCEL. Designed for "wipe" selection, e.g., selecting everything on one or
 more staves in an arbitrary horizontal extent. */
 
 /* For any page, wipe selections on more than one system will involve inverting up
@@ -729,7 +729,7 @@ static Point TrackStaffRect(
 	ChangeInvRect(&oldR, &aR);										/* Turn off hiliting */
 	
 	if (cancelThis)
-		pt.h = CANCEL_INT;
+		pt.h = NRV_CANCEL;
 	else {
 		*topStf = 	 (startStf>stf? stf : startStf);
 		*bottomStf = (startStf>stf? GetNextStaffn(doc, startStf, False)
@@ -908,7 +908,7 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 	
 	endPt = TrackStaffRect(doc, pt, &topStf, &bottomStf, &doc->currentPaper);	/* Give user feedback while selecting */
 	
-	if (endPt.h==CANCEL_INT) {
+	if (endPt.h==NRV_CANCEL) {
 		return False;
 	}
 	

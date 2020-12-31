@@ -901,7 +901,7 @@ PushLock(CLEFheap);
 			if (aClef->visible || doc->showInvis) {
 				clefVisible = True;
 				DrawChar(glyph);
-				if (xdOct>(DDIST)CANCEL_INT) {
+				if (xdOct>(DDIST)NRV_CANCEL) {
 					MoveTo(pContext->paper.left+d2p(xdOct), pContext->paper.top+d2p(ydOct));
 					DrawChar(octGlyph);
 				}
@@ -930,7 +930,7 @@ PushLock(CLEFheap);
 		case toPostScript:
 			if (aClef->visible || doc->showInvis) {
 				PS_MusChar(doc, xd, yd, glyph, True, sizePercent);
-				if (xdOct>(DDIST)CANCEL_INT)
+				if (xdOct>(DDIST)NRV_CANCEL)
 					PS_MusChar(doc, xdOct, ydOct, octGlyph, True, sizePercent);
 			}
 			break;

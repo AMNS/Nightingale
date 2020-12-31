@@ -310,38 +310,36 @@ void EndianFixObject(LINK pL)
 	}
 }
 
-void EndianFixSubobj(short heapIndex, LINK pL)
+void EndianFixSubobj(short heapIndex, LINK subL)
 {
 	HEAP *myHeap = Heap + heapIndex;
 
-	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d pL=%d\n",
-						heapIndex, pL);
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n",
+						heapIndex, subL);
 
 	/* First, handle the <next> field, which is common to all objects. (The other
 	   SUBOBJHEADER fields are common to all but HEADER subobjs, but none of the others
 	   are multiple bytes, so there's nothing else to do for the SUBOBJHEADER.) */
 	
-	FIX_END(NextLink(myHeap, pL));
+	FIX_END(NextLink(myHeap, subL));
 
 	/* Now handle subobject-type-specific fields. */
 
 	switch (heapIndex) {
 		case HEADERtype:
-#ifdef NOTYET
-	short		loKeyNum;			/* MIDI note no. of lowest playable note */
-	short		hiKeyNum;			/* MIDI note no. of highest playable note  */
-#endif
+			FIX_END(PartHiKEYNUM(subL));
+			FIX_END(PartLoKEYNUM(subL));
 			break;
 		case TAILtype:
 			break;
 		case SYNCtype:
-			FIX_END(NoteXD(pL));
-			FIX_END(NoteYD(pL));
-			FIX_END(NoteYSTEM(pL));
-			FIX_END(NotePLAYTIMEDELTA(pL));
-			FIX_END(NotePLAYDUR(pL));
-			FIX_END(NotePTIME(pL));
-			FIX_END(NoteFIRSTMOD(pL));
+			FIX_END(NoteXD(subL));
+			FIX_END(NoteYD(subL));
+			FIX_END(NoteYSTEM(subL));
+			FIX_END(NotePLAYTIMEDELTA(subL));
+			FIX_END(NotePLAYDUR(subL));
+			FIX_END(NotePTIME(subL));
+			FIX_END(NoteFIRSTMOD(subL));
 			break;
 		case RPTENDtype:
 			break;
@@ -350,74 +348,74 @@ void EndianFixSubobj(short heapIndex, LINK pL)
 		case SYSTEMtype:
 			break;
 		case STAFFtype:
-			FIX_END(StaffTOP(pL));
-			FIX_END(StaffLEFT(pL));
-			FIX_END(StaffRIGHT(pL));
-			FIX_END(StaffHEIGHT(pL));
-			FIX_END(StaffFONTSIZE(pL));
-			FIX_END(StaffFLAGLEADING(pL));
-			FIX_END(StaffMINSTEMFREE(pL));
-			FIX_END(StaffLEDGERWIDTH(pL));
-			FIX_END(StaffNOTEHEADWIDTH(pL));
-			FIX_END(StaffFRACBEAMWIDTH(pL));
-			FIX_END(StaffSPACEBELOW(pL));
+			FIX_END(StaffTOP(subL));
+			FIX_END(StaffLEFT(subL));
+			FIX_END(StaffRIGHT(subL));
+			FIX_END(StaffHEIGHT(subL));
+			FIX_END(StaffFONTSIZE(subL));
+			FIX_END(StaffFLAGLEADING(subL));
+			FIX_END(StaffMINSTEMFREE(subL));
+			FIX_END(StaffLEDGERWIDTH(subL));
+			FIX_END(StaffNOTEHEADWIDTH(subL));
+			FIX_END(StaffFRACBEAMWIDTH(subL));
+			FIX_END(StaffSPACEBELOW(subL));
 			//WHOLE_KSINFO??
 			break;
 		case MEASUREtype:
-			FIX_END(FirstMeasMEASURENUM(pL));
-			//measSizeRect??
+			FIX_END(FirstMeasMEASURENUM(subL));
+			EndianFixRect((Rect *)&MeasMRECT(subL));
 			//WHOLE_KSINFO??
 			break;
 		case CLEFtype:
 			break;
 		case KEYSIGtype:
-			FIX_END(KeySigXD(pL));
+			FIX_END(KeySigXD(subL));
 			break;
 		case TIMESIGtype:
-			FIX_END(TimeSigXD(pL));
-			FIX_END(TimeSigYD(pL));
+			FIX_END(TimeSigXD(subL));
+			FIX_END(TimeSigYD(subL));
 			break;
 		case BEAMSETtype:
-			FIX_END(NoteBeamBPSYNC(pL));
+			FIX_END(NoteBeamBPSYNC(subL));
 			break;
 		case CONNECTtype:
-			FIX_END(ConnectXD(pL));
-			FIX_END(ConnectFIRSTPART(pL));
-			FIX_END(ConnectLASTPART(pL));
+			FIX_END(ConnectXD(subL));
+			FIX_END(ConnectFIRSTPART(subL));
+			FIX_END(ConnectLASTPART(subL));
 			break;
 		case DYNAMtype:
-			FIX_END(DynamicXD(pL));
-			FIX_END(DynamicYD(pL));
-			FIX_END(DynamicENDXD(pL));
-			FIX_END(DynamicENDXD(pL));
+			FIX_END(DynamicXD(subL));
+			FIX_END(DynamicYD(subL));
+			FIX_END(DynamicENDXD(subL));
+			FIX_END(DynamicENDXD(subL));
 			break;
 		case MODNRtype:
 			break;
 		case GRAPHICtype:
-			FIX_END(GraphicSTRING(pL));
+			FIX_END(GraphicSTRING(subL));
 			break;
 		case OTTAVAtype:
-			FIX_END(NoteOttavaOPSYNC(pL));
+			FIX_END(NoteOttavaOPSYNC(subL));
 			break;
 		case SLURtype:
-			//Rect		bounds
-			//SplineSeg	seg
-			EndianFixPoint(&SlurSTARTPT(pL));
-			EndianFixPoint(&SlurENDPT(pL));
-			EndianFixPoint((Point *)&SlurENDKNOT(pL));		
+			EndianFixRect(&SlurBOUNDS(subL));
+			//??(SlurSEG(subL));
+			EndianFixPoint(&SlurSTARTPT(subL));
+			EndianFixPoint(&SlurENDPT(subL));
+			EndianFixPoint((Point *)&SlurENDKNOT(subL));		
 			break;
 		case TUPLETtype:
-			FIX_END(NoteTupleTPSYNC(pL));
+			FIX_END(NoteTupleTPSYNC(subL));
 			break;
 		case GRSYNCtype:
-			FIX_END(GRNoteYQPIT(pL));
-			FIX_END(GRNoteXD(pL));
-			FIX_END(GRNoteYD(pL));
-			FIX_END(GRNoteYSTEM(pL));
-			FIX_END(GRNotePLAYTIMEDELTA(pL));
-			FIX_END(GRNotePLAYDUR(pL));
-			FIX_END(GRNotePTIME(pL));
-			FIX_END(GRNoteFIRSTMOD(pL));
+			FIX_END(GRNoteYQPIT(subL));
+			FIX_END(GRNoteXD(subL));
+			FIX_END(GRNoteYD(subL));
+			FIX_END(GRNoteYSTEM(subL));
+			FIX_END(GRNotePLAYTIMEDELTA(subL));
+			FIX_END(GRNotePLAYDUR(subL));
+			FIX_END(GRNotePTIME(subL));
+			FIX_END(GRNoteFIRSTMOD(subL));
 			break;
 		case TEMPOtype:
 			break;
@@ -429,6 +427,6 @@ void EndianFixSubobj(short heapIndex, LINK pL)
 			break;
 		default:
 			MayErrMsg("For subobject at L%ld, type %ld is illegal.  (EndianFixSubobj)",
-						(long)pL, (long)heapIndex);
+						(long)subL, (long)heapIndex);
 	}
 }

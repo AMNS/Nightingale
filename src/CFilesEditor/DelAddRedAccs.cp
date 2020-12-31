@@ -313,7 +313,7 @@ Boolean AddMIDIRedundantAccs(
 						LogPrintf(LOG_DEBUG, "AddMIDIRedundantAccs: pL=%d aNoteL=%d stf=%d clf=%d oct=%d\n",
 							pL, aNoteL, staff, clefType[staff], octType[staff]);
 					eAcc = MIDI2EffectiveAcc(doc, clefType[staff], octType[staff], pL, aNoteL);
-					if (eAcc==ERROR_INT) {
+					if (eAcc==NRV_ERROR) {
 						MayErrMsg("AddMIDIRedundantAccs: can't find acc for pL=%ld", (long)pL);
 						continue;
 					}
@@ -335,7 +335,7 @@ Boolean AddMIDIRedundantAccs(
 			 		if (!acc) {
 			 			staff = NoteSTAFF(aGRNoteL);
 						eAcc = MIDI2EffectiveGRAcc(doc, clefType[staff], octType[staff], pL, aGRNoteL);
-						if (eAcc==ERROR_INT) {
+						if (eAcc==NRV_ERROR) {
 							MayErrMsg("AddMIDIRedundantAccs: can't find acc for pL=%ld", (long)pL);
 								continue;
 						}

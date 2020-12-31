@@ -33,7 +33,7 @@ extern short minDlogVal, maxDlogVal;
 
 /* ---------------------------------------------------------------------- LookAtDialog -- */
 /* Conduct dialog to get (part-relative user, not internal) voice number to look
-at.  Returns new voice number or CANCEL_INT for Cancel. */
+at.  Returns new voice number or NRV_CANCEL for Cancel. */
 
 enum
 {
@@ -58,10 +58,10 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 	filterUPP = NewModalFilterUPP(NumberFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(LOOK_DLOG);
-		return CANCEL_INT;
+		return NRV_CANCEL;
 	}
 	
-	voice = CANCEL_INT;
+	voice = NRV_CANCEL;
 	GetPort(&oldPort);
 	
 	dlog = GetNewDialog(LOOK_DLOG, NULL, BRING_TO_FRONT);
@@ -97,7 +97,7 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 				}
 			}
 				
-			if (ditem==Cancel) { voice = CANCEL_INT; break; }
+			if (ditem==Cancel) { voice = NRV_CANCEL; break; }
 			GetDlgWord(dlog,NUMBER_DI,&voice);
 			if (voice<1 || voice>maxDlogVal) {
 				GetIndCString(fmtStr, DIALOGERRS_STRS, 8);			/* "Voice number must be..." */
@@ -114,7 +114,7 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 	 else {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(LOOK_DLOG);
-		voice = CANCEL_INT;
+		voice = NRV_CANCEL;
 	}
 		
 	SetPort(oldPort);

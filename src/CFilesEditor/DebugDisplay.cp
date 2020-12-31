@@ -340,8 +340,8 @@ void DisplayNode(Document *doc, LINK pL,
 				if (aKeySig->nKSItems==0)
 					LogPrintf(LOG_INFO, " nNatItems=%d", aKeySig->subType);
 				DKeySigPrintf((PKSINFO)(&aKeySig->KSItem[0]));
-if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayNode/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
-					sizeof(AKEYSIG), 4, 16);
+//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayNode/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
+//					sizeof(AKEYSIG), 4, 16);
 			}
 			break;
 		case TIMESIGtype:
@@ -542,8 +542,8 @@ void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLin
 
 
 /* -------------------------------------------------------------------------- NHexDump -- */
-/* Dump the specified area as bytes in hexadecimal into the log file. NB: If <nPerLine> is
-unreasonably large, this function can overflow <strBuf>!  */
+/* Dump the specified block of memory, displayed as bytes in hexadecimal, into the log
+file. */
 
 void NHexDump(short logLevel,
 				char *label,
@@ -586,5 +586,29 @@ void NHexDump(short logLevel,
 	if (l%(long)nPerLine!=0L) {
 		sprintf(&strBuf[strlen(strBuf)], "\n");
 		LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
+	}
+}
+
+
+
+/* -------------------------------------------------------------------------- NObjDump -- */
+/* Dump objects in the range [nFrom, nTo], displayed as bytes in hexadecimal, into the
+log file. Caveat: (1) the object numbers are position numbers in the object heap, not
+links! For example, of v. 5.8, the TAIL of the main object list is always LINK 2, but
+its position for any valid score is at least 11. (2) The number of bytes shown per
+object is a constant but the lengths of objects vary; so each object may have garbage
+at the end or be truncated. */
+
+#define NBYTES 46
+
+void NObjDump(char *label, short nFrom, short nTo)
+{
+	unsigned char *pSObj;
+	char mStr[12];				/* Large enough for any 32-bit number, signed or not */
+	
+	for (short m = nFrom; m<=nTo; m++) {
+		pSObj = (unsigned char *)GetPSUPEROBJ(m);
+		sprintf(mStr, "%s%d", label, m);
+		NHexDump(LOG_DEBUG, mStr, pSObj, NBYTES, 4, 16);
 	}
 }

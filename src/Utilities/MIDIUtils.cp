@@ -949,7 +949,7 @@ void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 /* Given a Sync and a note in that Sync, return the code for the note's correct effective
 accidental, based on comparing the notation to its MIDI note number. If the notation and
 note number are so far apart they can't be reconciled with an accidental, return
-ERROR_INT. */
+NRV_ERROR. */
 
 short MIDI2EffectiveAcc(
 			Document */*doc*/,
@@ -971,7 +971,7 @@ short MIDI2EffectiveAcc(
 		noteNum = Pitch2MIDI(midCHalfLn-halfLn, AC_NATURAL);
 	
 	delta = NoteNUM(theNoteL)-noteNum;
-	if (delta<-2 || delta>2) return ERROR_INT;
+	if (delta<-2 || delta>2) return NRV_ERROR;
 	return delta+AC_NATURAL;
 }
 
@@ -979,7 +979,7 @@ short MIDI2EffectiveAcc(
 /* Given a GRSync and a grace note in that GRSync, return the code for the grace note's
 correct effective accidental, based on comparing the notation to its MIDI note number.
 If the notation and note number are so far apart they can't be reconciled with an
-accidental, return ERROR_INT. */
+accidental, return NRV_ERROR. */
 
 short MIDI2EffectiveGRAcc(
 			Document */*doc*/,
@@ -1001,7 +1001,7 @@ short MIDI2EffectiveGRAcc(
 		noteNum = Pitch2MIDI(midCHalfLn-halfLn, AC_NATURAL);
 	
 	delta = GRNoteNUM(theGRNoteL)-noteNum;
-	if (delta<-2 || delta>2) return ERROR_INT;
+	if (delta<-2 || delta>2) return NRV_ERROR;
 	return delta+AC_NATURAL;
 }
 

@@ -39,8 +39,8 @@ valid as long as the heap block doesn't get relocated! This is a generic macro t
 should be avoided whenever it's possible to use one of the others below. NB: For space
 and time efficiency reasons, early versions of Nightingale used an equivalent function,
 written in Motorola 68000 assembly language and located in Heaps.c. (Long ago, we also
-ago, we used an identical macro with its name slightly changed in the THINK Debugger. I
-don't know if it'd be useful with a modern debugger. --DAB, Feb. 2017)
+used an identical macro with its name slightly changed in the THINK Debugger. I don't
+know if it'd be useful with a modern debugger. --DAB, Feb. 2017)
 
 PtrToLink(heap, ptr) delivers the LINK into a heap that a given pointer to an object
 corresponds to.  Since this is done generically, there's no reasonable way to avoid the
@@ -104,7 +104,9 @@ same place as ->left for objects, but staffn is a SignedByte. */
 #define EndingSTAFF(link) 	( (GetPENDING(link))->staffn )
 
 #define PartFirstSTAFF(link)	( GetPPARTINFO(link)->firstStaff )
+#define PartHiKEYNUM(link)	( GetPPARTINFO(link)->hiKeyNum )
 #define PartLastSTAFF(link)	( GetPPARTINFO(link)->lastStaff )
+#define PartLoKEYNUM(link)	( GetPPARTINFO(link)->loKeyNum )
 
 #define BeamVOICE(link)		( (GetPBEAMSET(link))->voice )
 #define TupletVOICE(link)	( (GetPTUPLET(link))->voice )

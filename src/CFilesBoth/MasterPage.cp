@@ -947,7 +947,7 @@ void DoMasterStfSize(Document *doc)
 	srastral = doc->srastralMP;
 
 	newRastral = RastralDialog(partsSelected, srastral, &propRespace, &selPartsOnly);
-	if (newRastral>CANCEL_INT && newRastral!=srastral)	{
+	if (newRastral>NRV_CANCEL && newRastral!=srastral)	{
 		if (!propRespace || MPChkSysHt(doc, srastral, newRastral)) {
 			fact = (FASTFLOAT)drSize[newRastral]/drSize[srastral];
 			ymove = (fact-1.0)*doc->staffTopMP[1];

@@ -1368,7 +1368,7 @@ Boolean InsertSpace(Document *doc, Point pt)
 	GetContext(doc, measL, clickStaff, &context);
 
 	newPt = InsertSpaceTrackStf(doc, pt, &topStf, &bottomStf);		/* Get user feedback */
-	if (newPt.h==CANCEL_INT)
+	if (newPt.h==NRV_CANCEL)
 		return False;
 	if (newPt.h-pt.h)												/* Don't divide by zero */
 		stdSpace = d2std(p2d(ABS(newPt.h-pt.h)), context.staffHeight, context.staffLines);

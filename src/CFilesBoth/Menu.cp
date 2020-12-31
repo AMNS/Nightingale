@@ -295,13 +295,13 @@ Boolean DoFileMenu(short choice)
 				break;
 			case FM_Save:
 				if (doc) {
-					if (DoSaveDocument(doc)==SUCCESS_INT)
+					if (DoSaveDocument(doc)==NRV_SUCCESS)
 						LogPrintf(LOG_NOTICE, "File saved.  (DoFileMenu)\n");
 				}
 				break;
 			case FM_SaveAs:
 				if (doc) {
-					if (DoSaveAs(doc)==SUCCESS_INT)
+					if (DoSaveAs(doc)==NRV_SUCCESS)
 						LogPrintf(LOG_NOTICE, "File saved.  (DoFileMenu)\n");
 				}
 				break;

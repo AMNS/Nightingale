@@ -103,7 +103,7 @@ static char HandleFirstSync(Document *doc, short staff, short voice)
 
 
 /* Track the slur and set associated control and anchor points.  Return in window-
-relative pixels the endpoint (knot) of the tracked slur. We also return in newPaper the
+relative pixels the endpoint (knot) of the tracked slur. Also return in newPaper the
 paperRect that the point falls within in case it's different from the initial paper. */
 
 static Point NewTrackSlur(Document *doc, Rect *paper, Point pt, Rect *newPaper)
@@ -318,7 +318,7 @@ static void SwapEndpoints(Document *doc, short *staff)
 
 
 /* ----------------------------------------------------------------------- NestingIsOK -- */
-/* NestingIsOK checks whether a slur/tie to be added would be nested in or over- lapping
+/* NestingIsOK checks whether a slur/tie to be added would be nested in or overlapping
 an existing slur or tie; it should be called before making any changes to the data
 structure such as actually inserting the slur object. It returns True if the putative
 slur/tie is legal, False if not. If the slur/tie is legal, it also sets *mustBeTie.
@@ -355,7 +355,7 @@ static short ComparePosInSys(LINK obj1, LINK obj2)
 	for (pL = obj2; pL && !SystemTYPE(pL); pL = RightLINK(pL))
 		if (pL==obj1) return NRV_C2_THEN_1;
 	
-	return ERROR_INT;
+	return NRV_ERROR;
 }
 
 
@@ -625,7 +625,7 @@ It sets subCount to the number of slur subobjects needed (always 1 for a slur). 
 tie, it also fills firstIndA and lastIndA with indices to the tied notes within their
 respective chords, and it sets the relevant notes' tiedL/tiedR flags.
 
-HandleTie returns F_TIE, F_SLUR, or CANCEL_INT. */
+HandleTie returns F_TIE, F_SLUR, or NRV_CANCEL. */
 
 static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 							char firstIndA[MAXCHORD], char lastIndA[MAXCHORD])
@@ -665,7 +665,7 @@ static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 	if (!haveFirstNote || !haveLastNote) {
 		MayErrMsg("First or last note/chord isn't in iVoice %ld.  (HandleTie)",
 			(long)voice);
-		return CANCEL_INT;
+		return NRV_CANCEL;
 	}
 	
 	/* If there's no match of pitches, the slur/tie must be a slur; if there is a
@@ -677,7 +677,7 @@ static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 						&flCount);
 	if (nMatch!=nTiedMatch) {
 		proceed = CautionAdvise(ACCIDENTAL_TIE_ALRT);
-		if (proceed==Cancel) return CANCEL_INT;
+		if (proceed==Cancel) return NRV_CANCEL;
 	}
 	if (nTiedMatch>0) {
 		itsATie = WantTies(firstChord, lastChord);
@@ -739,7 +739,7 @@ static char NewSlurOrTie(
 	   
 	if (SyncsAreConsec(firstSyncL, lastSyncL, endStaff, voice)) {
 		status = HandleTie(firstSyncL, lastSyncL, voice, &subCount, firstIndA, lastIndA);
-		if (status==CANCEL_INT) {
+		if (status==NRV_CANCEL) {
 			InvalMeasures(firstSyncL, lastSyncL, staff);
 			return USR_ALERT;
 		}

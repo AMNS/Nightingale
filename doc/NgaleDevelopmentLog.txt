@@ -8475,7 +8475,7 @@ return codes is even worse now :-( . Cf. esp. Defs.h.
 
 22 - 28 Dec.
 
-To clean up function return codes (and not introduce new bugs!):
+SWITCH TO: Clean up function return codes (and don't introduce new bugs!):
 
 Need to move C1_THEN_2, etc. set from NewSlur.c to Defs.h; in Defs.h, integrate them with the
 CANCEL_INT et al. set and the "Function return values" FAILURE, etc. set. It's easy to give
@@ -8527,7 +8527,8 @@ Dec 26 19:37:36 Dons-2017-Air Ngale[38530]:
 	
 OK, one of the Sync subobject fields EndianFixSubobj is "converting" is indeed just one byte;
 likewise one of the Staff fields. Remove those; on Intel, New, insert a note, Save As
-1NoteG3Intel.ngl => OK! Try to open that file on Intel => Ngale crashes; log ends with
+1NoteG3Intel.ngl => OK! Try to open that file on Intel => Ngale says "All staves are the same
+size, but the score's 'standard' size is different", then crashes; log ends with
 
 	Notice. Opened file '1NoteG3Intel.ngl'.  (DoFileMenu)
 	debug. DrawScoreRange: fromL=2 toL=11 outputTo=0
@@ -8554,4 +8555,58 @@ Browser opens showing L1, and it looks like a valid header; but clicking Jump to
 shows L256, which claims to be a header but it's garbage!
 
 Compare log for opening 1NoteG6Intel.ngl on PPC to log for opening 1NoteG4PPC.ngl on PPC =>
-the dumps from "ReadObjHeap_1" and "ReadObjHeap_2" are very different.
+the dumps from "ReadObjHeap_1" and "ReadObjHeap_2" are very different!
+
+---------------------------------------------------------------------------------------
+
+28 - 30 Dec.
+
+SWITCH TO: code cleanup. Rename #defines in Defs.h:
+
+	old	name	count	new name
+	--------	-----	--------
+	CANCEL_INT	45		NRV_CANCEL
+	ERROR_INT	12		NRV_ERROR
+	SUCCESS_INT	6		NRV_SUCCESS
+	
+Thee's more to do, but that's enough for now.
+
+BACK TO: Intel-specific problems, esp. saving & opening files. EndianFixSubobj() has several
+obvious holes; plug some. On Intel, New, insert a note, Save As 1NoteA6Intel.ngl => OK. Quit,
+relaunch Ngale => "All staves are the same size, but the score's 'standard' size is different";
+"Staff 1 is not in any part"; then crashes in GetTimeSigMeasDur called from DrawMEASURE. Try
+again => same results except crash is with segmentation fault in DrawTIMESIG.
+
+Open the same file on PPC => "PROGRAM ERROR: DeselectNode: type=-123 at L0 is not supported";
+"All staves are the same size, but the score's 'standard' size is different"; "PROGRAM ERROR:
+MeAdjustCaret: can't handle type 0"; draws a blank page. Debug Check says exactly the same
+things as on Dec. 27 (above).
+
+From log for opening 1NoteG4PPC.ngl on PPC:
+
+Dec 27 21:10:31 DonDualG5 Ngale[3055]:
+debug. ReadObjHeap: pLink1=11444792 FPos:5268
+debug. ReadObjHeap_1: 00 02 00 00   00 01 00 00   00 00 00 00   00 01 00 00
+debug.              : 00 05 00 00   00 00 00 00   00 00 c1 d3   02 b1 00 03
+debug.              : 00 01 00 00   00 00 00 00   04 00 01 01   00 00 
+debug. ReadObjHeap_2: 00 03 00 01   00 00 00 00   00 00 04 00   01 01 00 00
+debug.              : a1 b1 00 00   00 00 00 00   00 00 c1 d3   00 b1 00 00
+debug.              : 00 00 00 00   a1 b1 c1 d3   a1 b1 c1 d3   c1 d3 
+debug. HeapFixLinks: pL=1 type=0 in main obj list
+debug
+
+From log for opening 1NoteG6Intel.ngl on PPC:
+
+Dec 30 12:56:53 DonDualG5 Ngale[11739]:
+debug. ReadObjHeap: pLink1=11395128 FPos:5268
+debug. ReadObjHeap: L1: 00 02 00 00   00 01 00 00   00 00 00 00   00 01 00 00
+debug.                : 00 00 00 00   00 00 00 00   00 00 00 00   02 00 00 03
+debug.                : 00 01 00 00   00 00 00 00   04 00 01 01   00 00 
+debug. ReadObjHeap: L2: 00 03 00 01   00 00 00 00   00 00 04 00   01 01 00 00
+debug.                : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 00 00
+debug.                : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 
+debug. HeapFixLinks: pL=256 type=0 in main obj list
+
+Again, the dumps for L1 (HEADER) and L2 (PAGE) are very different; but the differences
+in the object header of L2 (+16, 17, 26, & 27 ) are all unused fields. ??
+

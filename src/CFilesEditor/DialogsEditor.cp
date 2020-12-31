@@ -288,7 +288,7 @@ broken:
 
 /* ---------------------------------------------------------------------- SpaceDialog --- */
 /* Handle Respace and (obsolete) Tightness dialogs.  Returns new percent if dialog
-OKed, CANCEL_INT if Cancelled. NB: If Tightness is ever brought back, it should be
+OKed, NRV_CANCEL if Cancelled. NB: If Tightness is ever brought back, it should be
 handled by a separate routine, since this contains some code that could misbehave for
 it, e.g., if minPercent!=maxPercent or either is below MINSPACE or above MAXSPACE.*/
 
@@ -307,7 +307,7 @@ short SpaceDialog(
 	GrafPtr		oldPort;
 	char		fmtStr[256];
 
-	newspace = CANCEL_INT;
+	newspace = NRV_CANCEL;
 	
 	GetPort(&oldPort);
 	dlog = GetNewDialog(dlogID, NULL, BRING_TO_FRONT);
@@ -357,7 +357,7 @@ short SpaceDialog(
 				GetDlgWord(dlog, NUMBER_DI, &newspace);
 				if (newspace<MINSPACE || newspace>MAXSPACE) {
 					Inform(SPACE_ALRT);							/* No room for StopInform icon! */
-					newspace = CANCEL_INT;
+					newspace = NRV_CANCEL;
 				}
 			}
 			 else
@@ -440,7 +440,7 @@ short BefMeasSpaceDialog(Document *doc, short dSpace)
 
 /* ---------------------------------------------------------------- TremSlashesDialog -- */
 /* Conduct dialog to get number of slashes in "bowed" tremolo from user.  Returns
-result, or CANCEL_INT for Cancel. */
+result, or NRV_CANCEL for Cancel. */
 
 short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 {
@@ -453,10 +453,10 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 	filterUPP = NewModalFilterUPP(NumberFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(TREMSLASHES_DLOG);
-		return CANCEL_INT;
+		return NRV_CANCEL;
 	}
 	
-	nslashes = CANCEL_INT;
+	nslashes = NRV_CANCEL;
 	
 	GetPort(&oldPort);
 	dlog = GetNewDialog(TREMSLASHES_DLOG, NULL, BRING_TO_FRONT);
@@ -483,7 +483,7 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 				sprintf(strBuf, fmtStr, minDlogVal, maxDlogVal);
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
-				nslashes = CANCEL_INT;
+				nslashes = NRV_CANCEL;
 				}
 			 else
 				break;
@@ -581,7 +581,7 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 	GrafPtr		oldPort;
 	char		fmtStr[256], numStr[MAX_ENDING_STRLEN];
 
-	number = CANCEL_INT;
+	number = NRV_CANCEL;
 	
 	GetPort(&oldPort);
 	dlog = GetNewDialog(ENDING_DLOG, NULL, BRING_TO_FRONT);
@@ -652,7 +652,7 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 					sprintf(strBuf, fmtStr, minDlogVal, maxDlogVal);
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
-					number = CANCEL_INT;
+					number = NRV_CANCEL;
 				}
 			}
 			 else
@@ -2567,7 +2567,7 @@ static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvt, short *i
 
 /* --------------------------------------------------------------------- RastralDialog -- */
 /* Conduct dialog to get staff rastral size from user.  Returns result, or
-CANCEL_INT for Cancel. */
+NRV_CANCEL for Cancel. */
 
 #define STAFFBOX_LEFT 208								/* Staff sample Rect position */
 #define STAFFBOX_TOP 18
@@ -2591,7 +2591,7 @@ short RastralDialog(
 	filterUPP = NewModalFilterUPP(RFilter);
 	if (filterUPP==NULL) {
 		MissingDialog(STAFFSIZE_DLOG);
-		return CANCEL_INT;
+		return NRV_CANCEL;
 	}
 
 	GetPort(&oldPort);
@@ -2599,7 +2599,7 @@ short RastralDialog(
 	if (!rDialogp) {
 		MissingDialog(STAFFSIZE_DLOG);
 		DisposeModalFilterUPP(filterUPP);
-		return CANCEL_INT;
+		return NRV_CANCEL;
 	}
 	SetPort(GetDialogWindowPort(rDialogp));
 
@@ -2667,7 +2667,7 @@ short RastralDialog(
 			DisposeModalFilterUPP(filterUPP);
 			DisposeDialog(rDialogp);
 			SetPort(oldPort);
-			return CANCEL_INT;
+			return NRV_CANCEL;
 		}
 		else {
 			GetDlgWord(rDialogp, SizeITM, &newval);
@@ -2811,7 +2811,7 @@ short StaffLinesDialog(
 	filterUPP = NewModalFilterUPP(SLFilter);
 	if (filterUPP==NULL) {
 		MissingDialog(STAFFLINES_DLOG);
-		return CANCEL_INT;
+		return NRV_CANCEL;
 	}
 
 	GetPort(&oldPort);
@@ -2819,7 +2819,7 @@ short StaffLinesDialog(
 	if (!dlog) {
 		MissingDialog(STAFFLINES_DLOG);
 		DisposeModalFilterUPP(filterUPP);
-		return CANCEL_INT;
+		return NRV_CANCEL;
 	}
 	SetPort(GetDialogWindowPort(dlog));
 

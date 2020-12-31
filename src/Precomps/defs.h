@@ -209,7 +209,8 @@ enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 #define CS_DELIMITER FWDDEL_KEY			/* Chord symbol field delimiter */
 
 /* ----------------------------------------------------- Numeric Function Return Codes -- */
-/* Return codes for numeric-value functions. FIXME: Add NRV_ prefix to all! */
+/* Return codes for numeric-value functions. FIXME: Add NRV_ prefix to all; move OP_
+constants here from MiscUtils.h; use enum's for all or #define's for all. */
 
 enum {
 	FAILURE=-1,
@@ -217,9 +218,9 @@ enum {
 	OP_COMPLETE=1
 };
 
-#define CANCEL_INT -31999				/* Operation cancelled */
-#define ERROR_INT -32765				/* Error */
-#define SUCCESS_INT 999					/* All is well */
+#define NRV_CANCEL -31999				/* Operation cancelled */
+#define NRV_ERROR -32765				/* Error */
+#define NRV_SUCCESS 999					/* All is well */
 
 enum {
 	NRV_C1_THEN_2=-899,

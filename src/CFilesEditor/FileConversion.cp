@@ -1598,7 +1598,7 @@ static Boolean ConvertGRAPHIC(Document * /* doc */, LINK graphicL)
 			graphicL, GraphicSTAFF(graphicL), GraphicSubType(graphicL),
 			GraphicINFO(graphicL), GraphicTHICKNESS(graphicL)); 
 
-#define DEBUG_SKIPPING_LINKS
+#define NoDEBUG_SKIPPING_LINKS
 #ifdef DEBUG_SKIPPING_LINKS
 	aGraphicL = FirstSubLINK(graphicL);
 	if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    ConvertGRAPHIC subobj: aGraphicL=%u\n", aGraphicL);

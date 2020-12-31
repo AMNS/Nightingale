@@ -446,7 +446,7 @@ static Boolean GetOutputFile(Document *doc)
 
 /* -------------------------------------------------------------------------- SaveFile -- */
 /*	Routine that actually saves the specifed file.  If there's an error, gives an
-error message and returns <errCode>; else returns 0 if successful, CANCEL_INT if
+error message and returns <errCode>; else returns 0 if successful, NRV_CANCEL if
 operation is cancelled. */
 
 #define TEMP_FILENAME "\p**NightTemp**"
@@ -543,7 +543,7 @@ TryAgain:
 	WaitCursor();
 	saveType = GetSaveType(doc,saveAs);
 
-	if (saveType==SF_Cancel) return CANCEL_INT;					/* User cancelled or FSErr */
+	if (saveType==SF_Cancel) return NRV_CANCEL;					/* User cancelled or FSErr */
 
 	if (saveType==SF_SafeSave) {
 		/* Create and open a temporary file */
@@ -581,7 +581,7 @@ TryAgain:
 		if (errCode) { errInfo = OPENcall; goto Error; }
 	}
 	else if (saveType==SF_SaveAs) {
-		if (!GetOutputFile(doc)) return CANCEL_INT;				/* User cancelled or FSErr */
+		if (!GetOutputFile(doc)) return NRV_CANCEL;				/* User cancelled or FSErr */
 
 		/* The user may have just told us a new disk to save on, so start over. */
 		

@@ -58,6 +58,7 @@ void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, short, short *);
 void NHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
 				short nPerGroup, short nPerLine);
+void NObjDump(char *label, short nFrom, short nTo);
 
 /* If we're running inside Xcode, #define'ing _DebugPrintf_ as simply _printf_ is OK:
 then DebugPrintf output will appear in the Run Log window. But if we're not in Xcode,

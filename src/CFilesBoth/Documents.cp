@@ -502,7 +502,7 @@ Boolean DocumentSaved(register Document *doc)
 }
 
 /* Given a document, either new or old, save it.  If it's new, then call DoSaveAs on it. 
-Return ERROR_INT (for a file system error), SUCCESS_INT, or CANCEL_INT.
+Return NRV_ERROR (for a file system error), NRV_SUCCESS, or NRV_CANCEL.
 
 For both DoSaveDocument and DoSaveAs, the calling routine must be able to distinguish
 between failure to save the file because the user cancelled and because of a file system
@@ -517,12 +517,12 @@ short DoSaveDocument(register Document *doc)
 	if (doc->docNew || doc->readOnly) return(DoSaveAs(doc));
 	
 	err = SaveFile(doc, False);
-	if (!err) return SUCCESS_INT;
+	if (!err) return NRV_SUCCESS;
 	
-	if (err==CANCEL_INT) return CANCEL_INT;
+	if (err==NRV_CANCEL) return NRV_CANCEL;
 	else {
 		HSetVol(NULL, doc->vrefnum, 0);
-		return ERROR_INT;
+		return NRV_ERROR;
 	}
 }
 
@@ -541,7 +541,7 @@ short DoSaveAs(register Document *doc)
 	
 	Pstrcpy(name, doc->name);
 	keepGoing = GetOutputName(MiscStringsID, 3, name, &vrefnum, &nscd);
-	if (!keepGoing) return CANCEL_INT;
+	if (!keepGoing) return NRV_CANCEL;
 
 	//result = FSMakeFSSpec(vrefnum, 0, name, &fsSpec);
 	fsSpec = nscd.nsFSSpec;
@@ -559,7 +559,7 @@ short DoSaveAs(register Document *doc)
 	}
 
 	result = HSetVol(NULL, fsSpec.vRefNum, fsSpec.parID);
-	if (result != noErr) return ERROR_INT;
+	if (result != noErr) return NRV_ERROR;
 
 	/* Save the file under this name */
 		
@@ -569,15 +569,15 @@ short DoSaveAs(register Document *doc)
 	SetWTitle(doc->theWindow, name);
 	err = SaveFile(doc, True);
 	if (err) {
-		if (err==CANCEL_INT) return CANCEL_INT;
-		else return ERROR_INT;
+		if (err==NRV_CANCEL) return NRV_CANCEL;
+		else return NRV_ERROR;
 	}
 
 	doc->changed = False;
 	doc->named = True;
 	doc->readOnly = False;
 	
-	return SUCCESS_INT;
+	return NRV_SUCCESS;
 }
 
 /* Discard all changes to given document, but only with user's permission. */

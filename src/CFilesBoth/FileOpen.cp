@@ -275,16 +275,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	   necessary, convert them to the current format. */
 	
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
-#if 0
-{	unsigned char *pSObj;
-pSObj = (unsigned char *)GetPSUPEROBJ(1);
-NHexDump(LOG_DEBUG, "OpenFile L1", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJ(2);
-NHexDump(LOG_DEBUG, "OpenFile L2", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJ(3);
-NHexDump(LOG_DEBUG, "OpenFile L3", pSObj, 46, 4, 16);
-}
-#endif
+	if (DETAIL_SHOW) NObjDump("OpenFile N", 1, 3);
 	if (errCode!=noErr) { errInfo = READHEAPScall; goto Error; }
 
 	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size
@@ -431,7 +422,7 @@ Note that after a call to OpenError with fileIsOpen, you should not try to keep 
 since the file will no longer be open! */
 
 void OpenError(Boolean fileIsOpen,
-					short refNum,	/* 0 = file's refNum unknown */
+					short refNum,	/* 0 = file's refNum is unknown */
 					short errCode,
 					short errInfo)	/* More info: at what step error happened, type of obj being read, etc. */
 {
@@ -444,9 +435,9 @@ void OpenError(Boolean fileIsOpen,
 	if (fileIsOpen && refNum!=0) FSClose(refNum);
 
 	switch (errCode) {
-		/*
-		 * First handle our own codes that need special treatment.
-		 */
+	
+		/* First handle our own codes that need special treatment. */
+		
 		case BAD_VERSION_ERR:
 			GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
 			sprintf(aStr, fmtStr, ACHAR(version, 3), ACHAR(version, 2),
@@ -467,12 +458,11 @@ void OpenError(Boolean fileIsOpen,
 			sprintf(aStr, fmtStr, errInfo, MAXSTAVES);
 			break;
 		default:
-			/*
-			 * We expect descriptions of the common errors stored by code (negative
-			 * values, for system errors; positive ones for our own I/O errors) in
-			 * individual 'STR ' resources. If we find one for this error, print it,
-			 * else just print the raw code.
-			 */
+			/* We expect descriptions of the common errors stored by code (negative values
+			   for system errors; positive ones for our own I/O errors) in individual
+			   'STR ' resources. If we find one for this error, print it, else just print
+			   the raw code. */
+			   
 			strHdl = GetString(errCode);
 			if (strHdl) {
 				Pstrcpy((unsigned char *)strBuf, (unsigned char *)*strHdl);

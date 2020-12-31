@@ -236,7 +236,7 @@ static void LCGet8Pos(SignedByte clefType, DDIST dLnHeight, DDIST *xdOctDelta,
 	 * Careful: the vertical origin of the italic "8" in Sonata and compatible fonts
 	 * is at the bottom, but the Roman's is in the middle!
 	 */
-	*xdOctDelta = (DDIST)CANCEL_INT;
+	*xdOctDelta = (DDIST)NRV_CANCEL;
 	
 	switch (clefType) {
 		case TREBLE8_CLEF:
@@ -264,7 +264,7 @@ void GetClefDrawInfo(
 			short sizePercent,			/* Percent of "normal" size for context to use (PostScript only) */
 			unsigned char *glyph,
 			DDIST *xd, DDIST *yd,
-			DDIST *xdOct, DDIST *ydOct	/* Position of attached "8": *xdOct=CANCEL_INT means none */
+			DDIST *xdOct, DDIST *ydOct	/* Position of attached "8": *xdOct=NRV_CANCEL means none */
 			)
 {
 	PACLEF aClef;
@@ -434,8 +434,8 @@ void GetClefDrawInfo(
 	 */
 	LCGet8Pos(aClef->subType, dLnHeight, &xdOctDelta, &ydOctDelta);
 
-	if (xdOctDelta==(DDIST)CANCEL_INT)
-		*xdOct = *ydOct = (DDIST)CANCEL_INT;
+	if (xdOctDelta==(DDIST)NRV_CANCEL)
+		*xdOct = *ydOct = (DDIST)NRV_CANCEL;
 	else {
 		*xdOct = *xd+xdOctDelta;
 		ydOctDelta = SizePercentSCALE(ydOctDelta);
