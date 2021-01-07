@@ -157,6 +157,10 @@ void EndianFixDocumentHdr(Document *doc)
 
 void EndianFixScoreHdr(Document *doc)
 {
+	FIX_END(doc->headL);
+	FIX_END(doc->tailL);
+	FIX_END(doc->selStartL);
+	FIX_END(doc->selEndL);
 	FIX_END(doc->nstaves);
 	FIX_END(doc->nsystems);
 	FIX_END(doc->spacePercent);

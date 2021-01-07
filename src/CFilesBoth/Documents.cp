@@ -274,7 +274,7 @@ Boolean DoOpenDocument(StringPtr fileName, short vRefNum, Boolean readOnly, FSSp
 Boolean DoOpenDocumentX(StringPtr fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec,
 Document **pDoc)
 {
-	register WindowPtr w;  Document *doc, *d;
+	WindowPtr w;  Document *doc, *d;
 	short numNew;  long fileVersion;
 	static char charZero = '0';
 	
@@ -395,7 +395,7 @@ void ShowDocument(Document *doc)
 /*	Close a given document, saving it if necessary, and giving it a name if necessary.
 Return True if all okay, False if user cancels or error. */
 
-Boolean DoCloseDocument(register Document *doc)
+Boolean DoCloseDocument(Document *doc)
 {
 	Boolean keepGoing = True;
 	
@@ -430,7 +430,7 @@ Boolean DoCloseDocument(register Document *doc)
 	return(keepGoing);
 }
 
-void ActivateDocument(register Document *doc, short activ)
+void ActivateDocument(Document *doc, short activ)
 {
 	Point pt;  GrafPtr oldPort;
 	Rect portRect;
@@ -476,7 +476,7 @@ saved, and save them if they want.  If user says to Cancel, then return False, o
 return True.  We use a simple alert, with a filter that lets us update the Document
 underneath it so the user can see what it looks like before making the decision. */
 
-Boolean DocumentSaved(register Document *doc)
+Boolean DocumentSaved(Document *doc)
 {
 	short itemHit;  Boolean keepGoing = True;
 	
@@ -510,9 +510,9 @@ error to avoid a situation where it's impossible to quit Nightingale because eve
 we try to close a file, we get a file system error, with the result that quitting is
 aborted. */
 
-short DoSaveDocument(register Document *doc)
+short DoSaveDocument(Document *doc)
 {
-	Boolean keepGoing = False;  short err;
+	short err;
 	
 	if (doc->docNew || doc->readOnly) return(DoSaveAs(doc));
 	
@@ -529,7 +529,7 @@ short DoSaveDocument(register Document *doc)
 /* Save a given document under a new name and give that name to document, which remains
 open. */
 
-short DoSaveAs(register Document *doc)
+short DoSaveAs(Document *doc)
 {
 	Boolean keepGoing;
 	Str255 name;
@@ -582,7 +582,7 @@ short DoSaveAs(register Document *doc)
 
 /* Discard all changes to given document, but only with user's permission. */
 
-void DoRevertDocument(register Document *doc)
+void DoRevertDocument(Document *doc)
 {
 	short itemHit, vRefNum, docReadOnly;
 	Str255 name;
@@ -820,15 +820,34 @@ Boolean InitDocUndo(Document *doc)
 
 
 /* --------------------------------------------------------------------- BuildDocument -- */
-/*
- *	Initialise a Document.  If <isNew>, make a new Document, untitled and empty;
- *	otherwise, read the given file, decode it, and attach it to this Document. In
- *	any case, make the Document the current grafPort and install it, including
- *	magnification. Return True normally, False in case of error.
- */
+
+static void CheckStaffSizes(Document *doc);
+static void CheckStaffSizes(Document *doc)
+{
+	Boolean stfSizesLegal = True;
+
+	LogPrintf(LOG_INFO, "Staff sizes in points are ");
+	for (short k = 1; k<=doc->nstaves; k++) {
+		LogPrintf(LOG_INFO, " %d:%d", k, d2pt(doc->staffSize[k]));
+		if (d2pt(doc->staffSize[k])<6 || d2pt(doc->staffSize[k])>54) stfSizesLegal = False;
+	}
+	LogPrintf(LOG_INFO, "\n");
+	if (!stfSizesLegal)	LogPrintf(LOG_WARNING, "Not all staves have reasonable sizes.\n");
+	if (doc->nonstdStfSizes)
+		if (!AllStavesSameSize(doc)) {
+			GetIndCString(strBuf, MISCERRS_STRS, 6);	/* "Not all staves are the std. size" */
+			CParamText(strBuf, "", "", "");
+			CautionInform(GENERIC_ALRT);
+		}
+}
+
+/* Initialise a Document.  If <isNew>, make a new Document, untitled and empty; otherwise
+read the given file, decode it, and attach it to this Document. In any case, make the
+Document the current grafPort and install it, including magnification. Return True
+normally, False in case of error.  */
 
 Boolean BuildDocument(
-		register Document *doc,
+		Document *doc,
 		unsigned char *fileName,
 		short vRefNum,
 		FSSpec *pfsSpec,
@@ -842,13 +861,11 @@ Boolean BuildDocument(
 	
 	SetPort(GetWindowPort(w));
 	
-	/*
-	 *	About coordinate systems:
-	 *	The point (0,0) is placed at the upper left corner of the initial paperRect.
-	 *  The viewRect is the same as the window portRect, but without the scroll bar
-	 *	areas. The display of the document's contents should always be in this
-	 *	coordinate system, so that printing will be in the same coordinate system.
-	 */
+	/* About coordinate systems:
+	   The point (0,0) is placed at the upper left corner of the initial paperRect.
+	   The viewRect is the same as the window portRect, but without the scroll bar
+	   areas. The display of the document's contents should always be in this
+	   coordinate system, so that printing will be in the same coordinate system. */
 	
 	/* Set the initial paper size, margins, etc. from the config */
 	
@@ -866,11 +883,10 @@ Boolean BuildDocument(
 
 	FillSpaceMap(doc, 0);
 
-	/*
-	 *	Add the standard scroll bar controls to Document's window. The scroll bars
-	 *	are created with a maximum value of 0 here, but that will have no effect if
-	 *	we call RecomputeView, since it resets the max.
-	 */
+	/* Add the standard scroll bar controls to Document's window. The scroll bars are
+	   created with a maximum value of 0 here, but that will have no effect if we call
+	   RecomputeView, since it resets the max. */
+	   
 	GetWindowPortBounds(w, &r);
 	r.left = r.right - (SCROLLBAR_WIDTH+1);
 	r.bottom -= SCROLLBAR_WIDTH;
@@ -915,18 +931,19 @@ Boolean BuildDocument(
 		doc->lastGlobalFont = 4;							/* Default is Regular1 */
 		InstallMagnify(doc);								/* Set for file-specified magnification */
 		if (doc->masterHeadL == NILINK) {
-			/* This is an ancient file without Master Page object list: make default one */
+			LogPrintf(LOG_WARNING, "Score has no Master Page object list; creating one.\n");
+			
+			/* This is an ancient file without Master Page object list: make default one.
+			   FIXME: This can never happen with files in a format we handle anymore; it
+			   should be a fatal error! */
+			
 			sysTop = SYS_TOP(doc);
 			NewMasterPage(doc,sysTop,True);
-			}
-		doc->nonstdStfSizes = FillRelStaffSizes(doc);
-		if (doc->nonstdStfSizes)
-			if (!AllStavesSameSize(doc)) {
-				GetIndCString(strBuf, MISCERRS_STRS, 6);	/* "Not all staves are the std. size" */
-				CParamText(strBuf, "", "", "");
-				CautionInform(GENERIC_ALRT);
-			}
 		}
+		
+		doc->nonstdStfSizes = FillRelStaffSizes(doc);
+		CheckStaffSizes(doc);
+	}
 
 	if (!InitDocUndo(doc)) return False;
 
@@ -935,8 +952,8 @@ Boolean BuildDocument(
 	GetAllSheets(doc);
 
 	/* Finally, set empty selection just after the first Measure and put caret there.
-		NB: This will not necessarily be on the screen! We should eventually make the
-		initial selection agree with the doc's scrolled position. */
+	   NB: This will not necessarily be on the screen! We should eventually make the
+	   initial selection agree with the doc's scrolled position. */
 	
 	SetDefaultSelection(doc);
 	doc->selStaff = 1;

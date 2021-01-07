@@ -130,8 +130,8 @@ static Boolean UpdatePrefsFile(Handle cnfgResH, Handle midiResH, Handle midiModN
 file's 'CNFG' resource, MIDI dynamics table in its 'MIDI' resource, and MIDI modifier
 prefs tables in its 'MIDM' resource. Doesn't update any other resources that may be in
 the Prefs file, .e.g., tool palette 'PICT'/'PLCH', 'PLMP'. We assume Prefs file is open.
-Return True if all OK, give an error message and return False if there's a problem. NB:
-If we're running on a Little Endian machine, this converts multibyte numbers to Big
+Return True if all OK, give an error message and return False if there's a problem.
+CAUTION: If running on a Little Endian machine, this converts multibyte numbers to Big
 Endian form; that could be disastrous if we do anything after this but quit! */
 
 static Boolean CheckUpdatePrefsFile()

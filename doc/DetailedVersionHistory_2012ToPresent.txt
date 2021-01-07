@@ -3087,3 +3087,14 @@ Minor cleanup: rename *_INT constants to NRV_*, etc. Affects Debug.h, Defs.h, Me
 DebugDisplay, DelAddRedAccs, DialogsBoth, DialogsEditor, Documents, DrawObject, DrawUtils,
 DSUtils, EndianUtils, FileConversion, FileOpen, FileSave, HeapFileIO, Insert, MasterPage,
 Menu, MIDIUtils, NewSlur, SelUtils.
+
+---------------------------------------------------------------------------------------
+
+1 - 7 Jan. 2021
+
+Progress toward fixing bug: can't open files written on Intel machines because some
+multibyte fields in the Score header are in the wrong Endian form. Affects EndianUtils.
+
+Minor cleanup. Affects Debug.h, NObjTypes.h; DebugDisplay, DebugHighLevel, Documents,
+DSUtils, EndianUtils, FileConversion, FileOpen, FileSave, Finalize, Objects, SpaceTime.
+

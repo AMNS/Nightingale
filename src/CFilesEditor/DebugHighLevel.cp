@@ -516,7 +516,7 @@ Boolean DoDebug(
 
 	for (pL=startL; pL!=stopL; pL=RightLINK(pL)) {				/* Main display/check loop */
 		if (kount>=istart && kount<=istop) {
-			if (disp)  DisplayNode(doc, pL, kount, showLinks, showSubs,
+			if (disp)  DisplayObject(doc, pL, kount, showLinks, showSubs,
 											(what==CLIPBOARD || what==UNDODSTR));
 			if (check) {
 				status = DCheckNode(doc, pL, objList, False);

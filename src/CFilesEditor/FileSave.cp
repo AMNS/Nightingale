@@ -285,6 +285,7 @@ static short WriteFile(Document *doc, short refNum)
 
 	if (DETAIL_SHOW) DisplayDocumentHdr(0, doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(0, doc);
+	if (DETAIL_SHOW) NObjDump("WriteFile", 1, 11);
 
 	count = sizeof(tempDoc);
 //LogPrintf(LOG_DEBUG, "WriteFile: sizeof(doc)=%d sizeof(tempDoc)=%d\n", sizeof(doc), sizeof(tempDoc));

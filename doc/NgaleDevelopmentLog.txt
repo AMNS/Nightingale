@@ -8608,5 +8608,29 @@ debug.                : 00 00 00 00   00 00 00 00   00 00 00 00   00 00
 debug. HeapFixLinks: pL=256 type=0 in main obj list
 
 Again, the dumps for L1 (HEADER) and L2 (PAGE) are very different; but the differences
-in the object header of L2 (+16, 17, 26, & 27 ) are all unused fields. ??
+in the object header of L2 (+16, 17, 26, & 27) are all unused fields. ??
+
+---------------------------------------------------------------------------------------
+
+1 - 5 Jan. 2021
+
+The unused fields in the object header are spareFlag, ohdrFiller1, relSize, and
+ohdrFiller1. Well, InitObject() sets all to 0 (or False), and those bytes _are_ all
+0 in the Intel file, but none are 0 in the PPC file! What the ???
+
+Open 1NoteD5PPC.ngl on PPC => 
+
+Jan  4 20:36:34 DonDualG5 Ngale[25619]:
+debug. OpenFile N1: 00 02 00 00   00 01 00 00   00 00 00 00   00 01 00 00
+debug.            : 00 00 00 00   00 00 00 00   00 00 00 00   02 00 00 03
+debug.            : 00 01 00 00   00 00 00 00   04 00 01 01   00 00 
+debug. OpenFile N2: 00 03 00 01   00 00 00 00   00 00 04 00   01 01 00 00
+debug.            : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 00 00
+debug.            : 00 00 00 00   00 00 00 00   00 00 00 00   00 00 
+debug. OpenFile N3: 00 04 00 02   00 00 02 40   04 80 05 00   01 01 00 00
+debug.            : 00 00 00 48   00 53 00 b0   02 3b 00 00   00 00 00 00
+debug.            : 00 00 00 02   00 01 04 80   05 30 0b 00   23 b0 
+
+etc. etc.: bytes +16, 17, 26, & 27 are zero in all 10 objects displayed, as they should
+be! Maybe I have 1NoteG6Intel.ngl and 1NoteG4PPC.ngl backwards!?
 

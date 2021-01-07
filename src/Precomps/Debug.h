@@ -53,7 +53,7 @@ Boolean DErrLimit(void);
 
 void KeySigSprintf(PKSINFO, char []);
 void DKeySigPrintf(PKSINFO);
-void DisplayNode(Document *, LINK, short, Boolean, Boolean, Boolean);
+void DisplayObject(Document *, LINK, short, Boolean, Boolean, Boolean);
 void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, short, short *);
 void NHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
@@ -63,7 +63,7 @@ void NObjDump(char *label, short nFrom, short nTo);
 /* If we're running inside Xcode, #define'ing _DebugPrintf_ as simply _printf_ is OK:
 then DebugPrintf output will appear in the Run Log window. But if we're not in Xcode,
 its output seems to disappear without a trace! An alternative is the the BSD function
-syslog(3), and we're now using it almost everywhere via our own LogPrintf().  --DAB,
-2017-2020 */
+syslog(3), and we're now using it almost everywhere via our own function LogPrintf().
+--DAB, 2017-2020 */
 
 #define DebugPrintf printf

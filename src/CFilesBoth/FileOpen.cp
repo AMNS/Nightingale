@@ -275,7 +275,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	   necessary, convert them to the current format. */
 	
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
-	if (DETAIL_SHOW) NObjDump("OpenFile N", 1, 3);
+	if (DETAIL_SHOW) NObjDump("OpenFile", 1, 11);
 	if (errCode!=noErr) { errInfo = READHEAPScall; goto Error; }
 
 	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size

@@ -51,9 +51,11 @@ static void GetSpaceInfo(Document *, LINK, LINK, short, SPACETIMEINFO []);
 
 /* Fill in doc's table of staff sizes. If any staff is not in its "standard" size,
 return True, else return False. */
+
 Boolean FillRelStaffSizes(Document *doc)
 {
-	LINK staffL, aStaffL; short stf; DDIST lnSpace; Boolean nonstandard=False;
+	LINK staffL, aStaffL;  short stf;
+	DDIST lnSpace;  Boolean nonstandard=False;
 	
 	staffL = SSearch(doc->headL, STAFFtype, GO_RIGHT);				/* Should never fail */
 	for (aStaffL = FirstSubLINK(staffL); aStaffL; aStaffL = NextSTAFFL(aStaffL)) {

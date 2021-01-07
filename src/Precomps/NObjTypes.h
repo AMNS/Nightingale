@@ -21,17 +21,17 @@ as well. */
 	LINK		firstSubObj;		/* link to first subObject */							\
 	DDIST		xd, yd;				/* position of object */								\
 	SignedByte	type;				/* (.+#10) object type */								\
-	Boolean		selected;			/* True if any part of object selected */				\
-	Boolean		visible;			/* True if any part of object is visible */				\
+	Boolean		selected;			/* True if object or any part of it is selected */		\
+	Boolean		visible;			/* True if object or any part of it is visible */		\
 	Boolean		soft;				/* True if object is program-generated */				\
-	Boolean		valid;				/* True if objRect (for Measures, measureBBox also) valid. */ \
+	Boolean		valid;				/* True if objRect (for Measures, measureBBox too) valid. */ \
 	Boolean		tweaked;			/* True if object dragged or position edited with Get Info */ \
 	Boolean		spareFlag;			/* available for general use */							\
 	char		ohdrFiller1;		/* unused; could use for specific "tweak" flags */		\
-	Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ 	\
+	Rect		objRect;			/* (.+18) enclosing rectangle of object (paper-rel.pixels) */ 	\
 	SignedByte	relSize;			/* (unused) size rel. to normal for object & context */	\
 	SignedByte	ohdrFiller2;		/* unused */											\
-	Byte		nEntries;			/* (.+#28??) number of subobjects in object */
+	Byte		nEntries;			/* (.+#28) number of subobjects in object */
 	
 #define SUBOBJHEADER \
 	LINK		next;				/* index of next subobj */								\

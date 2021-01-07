@@ -90,18 +90,16 @@ Boolean IsFakeMeasure(Document *doc, LINK measL)
 {
 	LINK prevMeasL;
 
-	/*
-	 *	The first Measure of a system isn't real if the last Measure of the previous
-	 *	system is real, i.e., a measure is split across systems.
-	 */
+	/* The first Measure of a system isn't real if the last Measure of the previous
+	   system is real, i.e., a measure is split across systems. */
 	if (FirstMeasInSys(measL))
 		if ((prevMeasL = LinkLMEAS(measL))!=NILINK) {
-			/*
-			 *	Since prevMeasL is the Measure before the first Measure of a system, it
-			 *	must be the last Measure of the previous system. If it's also the first
-			 *	Measure of that system, this is something like an unmeasured passage,
-			 *	where no Measure is less real than any other.
-			 */
+		
+			/* Since prevMeasL is the Measure before the first Measure of a system, it
+			   must be the last Measure of the previous system. If it's also the first
+			   Measure of that system, this is something like an unmeasured passage,
+			   where no Measure is less real than any other. */
+			   
 			if (FirstMeasInSys(prevMeasL)) return False;
 			return !NRGRInMeasure(doc, prevMeasL);
 		}
@@ -112,9 +110,9 @@ Boolean IsFakeMeasure(Document *doc, LINK measL)
 }
 
 /* ----------------------------------------------------------- UpdatePage/Sys/MeasNums -- */
-/* Update the sheetNum field for all pages in the score by simply re-numbering them
-by starting at 0 for the first page and incrementing for all remaining pages. Also
-update the header's numSheets field. */
+/* Update the sheetNum field for all pages in the score by simply re-numbering them,
+starting at 0 for the first page and incrementing for all remaining pages. Also update
+the header's numSheets field. */
 
 void UpdatePageNums(Document *doc)
 {
@@ -128,9 +126,9 @@ void UpdatePageNums(Document *doc)
 	doc->numSheets = sheetNum;
 }
 
-/* Update the systemNum field for all systems in the score by simply re-numbering
-them by starting at 1 for the first system and incrementing for all remaining
-systems. Also update the header's nsystems field. */
+/* Update the systemNum field for all systems in the score by simply re-numbering them,
+starting at 1 for the first system and incrementing for all remaining systems. Also
+update the header's nsystems field. */
 
 void UpdateSysNums(Document *doc, LINK headL)
 {
@@ -879,7 +877,8 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 
 	if (!GraphicTYPE(pL) && !TempoTYPE(pL)) {
 		LogPrintf(LOG_WARNING,
-			"This function can't handle objects of the type of %u.  (GetMeasRange)\n", pL);
+			"Object L%u is of type %d, but this function can't handle objects of that type.  (GetMeasRange)\n",
+				pL, ObjLType(pL));
 		return;
 	}
 	

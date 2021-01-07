@@ -40,12 +40,10 @@ static void AddKSItem(LINK, Boolean, short, short);
 void SetMeasVisible(LINK, Boolean);
 static short NormalStemUpDown(Document *, LINK, short, PCONTEXT);
 
-/*
- *	Given the first item in a note's modNR list, create a duplicate list and return
- * its first item. This expands the ModNR heap one item at a time; it would be
- * somewhat better to ask for memory for all the ModNRs at once, but even among the
- * notes that have ModNRs at all, few will have more than two, so no big deal. 
- */
+/* Given the first item in a note's modNR list, create a duplicate list and return its
+first item. This expands the ModNR heap one item at a time; it would be somewhat better
+to ask for memory for all the ModNRs at once, but even among the notes that have ModNRs
+at all, few will have more than two, so no big deal.  */
  
 LINK CopyModNRList(Document *srcDoc, Document *dstDoc, LINK firstModNRL)
 {
@@ -278,6 +276,7 @@ LogPrintf(LOG_DEBUG, "\tsubsNeeded=%d\n", subsNeeded);
 	
 	pNewObj->nEntries = subcount;
 	pNewObj->firstSubObj = firstSubObj;
+	
 	/* And we don't want to copy the source's link information */
 	
 	pNewObj->right = pNewObj->left = NILINK;
@@ -299,7 +298,7 @@ LogPrintf(LOG_DEBUG, "\tsubsNeeded=%d\n", subsNeeded);
 				newPart = DGetPPARTINFO(dstDoc,newSubL);
 				tmpL = DNextPARTINFOL(dstDoc,newSubL);		/* Save it before it gets wiped out */
 				BlockMove(aPart, newPart, (long)subObjLength[type]);
-				newPart->next = newSubL = tmpL;		/* Restore and move on */
+				newPart->next = newSubL = tmpL;				/* Restore and move on */
 				subL = DNextPARTINFOL(srcDoc,subL);
 			}
 			break;
@@ -343,7 +342,9 @@ LogPrintf(LOG_DEBUG, "\tsubsNeeded=%d\n", subsNeeded);
 
 		case SYNCtype: {
 			PANOTE aNote, newNote;
+			
 			/* Note that CopyModNRList can move memory, so be careful with pointers here.  -JGG */
+			
 			while (subL) {
 				aNote = DGetPANOTE(srcDoc,subL);
 				newNote = DGetPANOTE(dstDoc,newSubL);
@@ -592,8 +593,8 @@ LINK DuplicNC(Document *doc, LINK syncL, short voice)
 
 /* ------------------------------------------------------------- InitObject, SetObject -- */
 
-void InitObject(LINK link, LINK left, LINK right, DDIST xd, DDIST yd,
-					Boolean selected, Boolean visible, Boolean soft)
+void InitObject(LINK link, LINK left, LINK right, DDIST xd, DDIST yd, Boolean selected,
+					Boolean visible, Boolean soft)
 {
 	PMEVENT p;
 	
@@ -609,8 +610,8 @@ void InitObject(LINK link, LINK left, LINK right, DDIST xd, DDIST yd,
 }
 
 
-void SetObject(LINK link, DDIST xd, DDIST yd,
-				Boolean selected, Boolean visible, Boolean soft)
+void SetObject(LINK link, DDIST xd, DDIST yd, Boolean selected, Boolean visible,
+				Boolean soft)
 {
 	PMEVENT p;
 	
@@ -623,7 +624,7 @@ void SetObject(LINK link, DDIST xd, DDIST yd,
 }
 
 
-/* ---------------------------------------------------------------------- GrowObject -- */
+/* ------------------------------------------------------------------------ GrowObject -- */
 /* GrowObject changes the size of an object by a specified number of subobjects and
 updates data structure cross-links appropriately. */
 	
@@ -708,8 +709,8 @@ LINK GrowObject(Document *doc,
 
 
 /* --------------------------------------------------------------------- SimplePlayDur -- */
-/* Compute the "simple" playback duration of a note/rest, ignoring tuplet
-membership and whole-measure and multibar rests. */
+/* Compute the "simple" playback duration of a note/rest, ignoring tuplet membership
+and whole-measure and multibar rests. */
 
 long SimplePlayDur(LINK aNoteL)
 {
@@ -718,10 +719,10 @@ long SimplePlayDur(LINK aNoteL)
 
 
 /* ----------------------------------------------------------------------- CalcPlayDur -- */
-/* Return the playback duration in PDUR ticks of the given note. Handles whole-
-measure and multibar rests, tuplet membership, and unknown duration. In the latter
-case, we set this note's play duration to that of the first note we find in its
-voice and Sync; if there is no such note, it's an error. */
+/* Return the playback duration in PDUR ticks of the given note. Handles whole-measure
+and multibar rests, tuplet membership, and unknown duration. In the latter case, we set
+this note's play duration to that of the first note we find in its voice and Sync; if
+there is no such note, it's an error. */
 
 short CalcPlayDur(LINK syncL, LINK aNoteL, char lDur, Boolean isRest, PCONTEXT pContext)
 {
@@ -830,7 +831,9 @@ PushLock(NOTEheap);
 		aNote->accident = accident;
 		effectiveAcc = InsNoteFixAccs(doc, syncL, staffn, 		/* Handle accidental context */
 												halfLn-midCHalfLn, accident);
+												
 		/* Set MIDI note number; if it's within an octave sign, include the offset. */
+		
 		if (octType>0)
 			aNote->noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1],
 													effectiveAcc);
@@ -847,11 +850,10 @@ PushLock(NOTEheap);
 
 	aNote->ndots = ndots;
 
-	/*
-	 * On upstemmed notes with flags, xmovedots should really be 2 or 3 larger, but
-	 *	then it should change whenever such notes are beammed or unbeamed or their
-	 * stem direction or duration changes. Leave this for some other time.
-	 */
+	/* FIXME: On upstemmed notes with flags, xmovedots should really be 2 or 3 larger, but
+	   then it should change whenever such notes are beammed or unbeamed or their stem
+	   direction or duration changes. Leave this for some other time. */
+	   
 	aNote->xmovedots = 3+WIDEHEAD(aNote->subType);
 	
 	if (halfLn%2==0)
@@ -933,7 +935,9 @@ PushLock(GRNOTEheap);
 
 	effectiveAcc = InsNoteFixAccs(doc, grSyncL, staffn, 		/* Handle accidental context */
 											halfLn-midCHalfLn, accident);
+											
 	/* Set MIDI note number; if it's within an octave sign, include the offset. */
+	
 	if (octType>0)
 		aGRNote->noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1],
 												effectiveAcc);
@@ -993,7 +997,6 @@ PushLock(PARTINFOheap);
 	pPart->patchNum = config.defaultPatch;
 	pPart->channel = config.defaultChannel;
 
-
 	pPart->hiKeyNum = MAX_NOTENUM;
 	pPart->transpose = 0;
 	pPart->loKeyNum = 0;
@@ -1008,6 +1011,7 @@ PushLock(PARTINFOheap);
 	strcpy(pPart->shortName, "Unnam.");
 
 	/* FreeMIDI-specific initialization */
+	
 	pPart->fmsOutputDevice = noUniqueID;
 	pPart->fmsOutputDestination.basic.destinationType = 0,
 	pPart->fmsOutputDestination.basic.name[0] = 0;

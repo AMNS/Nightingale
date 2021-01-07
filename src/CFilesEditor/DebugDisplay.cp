@@ -6,8 +6,8 @@
  * Copyright © 2020 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
-/* File DebugDisplay.c - printing functions for Debug:
-	KeySigSprintf			DKeySigPrintf			DisplayNode
+/* File DebugDisplay.c - printing functions for the Debug command and debugging in general:
+	KeySigSprintf			DKeySigPrintf			DisplayObject
 	MemUsageStats			DisplayIndexNode		NHexDump
 */
 
@@ -47,11 +47,11 @@ void DKeySigPrintf(PKSINFO ksInfo)
 }
 
 
-/* ----------------------------------------------------------------------- DisplayNode -- */
-/* Show information about the given object (node), and optionally its subobjects. If
-<nonMain>, ignore <doc>. */
+/* --------------------------------------------------------------------- DisplayObject -- */
+/* Show information about the given object, and optionally its subobjects. If <nonMain>,
+ignore <doc>. */
 
-void DisplayNode(Document *doc, LINK pL,
+void DisplayObject(Document *doc, LINK pL,
 				short kount,				/* Label to print for node */
 				Boolean showLinks,			/* Show node addr., links, size? */
 				Boolean showSubs,			/* Show subobjects? */
@@ -340,7 +340,7 @@ void DisplayNode(Document *doc, LINK pL,
 				if (aKeySig->nKSItems==0)
 					LogPrintf(LOG_INFO, " nNatItems=%d", aKeySig->subType);
 				DKeySigPrintf((PKSINFO)(&aKeySig->KSItem[0]));
-//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayNode/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
+//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayObject/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
 //					sizeof(AKEYSIG), 4, 16);
 			}
 			break;
@@ -596,19 +596,42 @@ void NHexDump(short logLevel,
 log file. Caveat: (1) the object numbers are position numbers in the object heap, not
 links! For example, of v. 5.8, the TAIL of the main object list is always LINK 2, but
 its position for any valid score is at least 11. (2) The number of bytes shown per
-object is a constant but the lengths of objects vary; so each object may have garbage
-at the end or be truncated. */
+object is a constant, but the lengths of objects vary; so objects may have garbage
+at their ends or may be truncated. FIXME: Don't display slots in the object heap that are
+in its free list! */
 
-#define NBYTES 46
+typedef struct {
+	OBJECTHEADER
+} OBJHDR;
+
+#define NBYTES_BODY 16
 
 void NObjDump(char *label, short nFrom, short nTo)
 {
 	unsigned char *pSObj;
 	char mStr[12];				/* Large enough for any 32-bit number, signed or not */
-	
+	short objType;
+//	LINK pL;
+	HEAP *objHeap = Heap + OBJtype;
+
 	for (short m = nFrom; m<=nTo; m++) {
 		pSObj = (unsigned char *)GetPSUPEROBJ(m);
-		sprintf(mStr, "%s%d", label, m);
-		NHexDump(LOG_DEBUG, mStr, pSObj, NBYTES, 4, 16);
+//		pL = PtrToLink(objHeap, pSObj);
+//LogPrintf(LOG_DEBUG, "NObjDump1: pL=%u type=%d\n", pL, ObjLType(pL));
+		objType = ((OBJHDR *)pSObj)->type;
+LogPrintf(LOG_DEBUG, "NObjDump2: m=%d type=%d\n", m, objType);
+		/* Dump the object header first, than (a fixed-length part) of the body. */
+		
+		sprintf(mStr, "%s%d%c", label, m, 'H');
+		NHexDump(LOG_DEBUG, mStr, pSObj, sizeof(OBJHDR), 4, 16);
+		sprintf(mStr, "%s%d%c", label, m, 'B');		
+		NHexDump(LOG_DEBUG, mStr, pSObj, NBYTES_BODY, 4, 16);
+
+#if 0
+		if (objType==TAILtype && m<nTo) {
+			LogPrintf(LOG_DEBUG, "NObjDump: quitting because TAIL reached.\n");
+			return;
+		}
+#endif
 	}
 }
