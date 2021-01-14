@@ -3098,3 +3098,9 @@ multibyte fields in the Score header are in the wrong Endian form. Affects Endia
 Minor cleanup. Affects Debug.h, NObjTypes.h; DebugDisplay, DebugHighLevel, Documents,
 DSUtils, EndianUtils, FileConversion, FileOpen, FileSave, Finalize, Objects, SpaceTime.
 
+---------------------------------------------------------------------------------------
+
+7 - 14 Jan. 2021
+
+Minor cleanup. Affects DebugDisplay, Debug2Utils, EndianUtils, FileOpen, FileSave,
+HeapFileIO.

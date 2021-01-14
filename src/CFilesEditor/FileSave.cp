@@ -267,25 +267,24 @@ static short WriteFile(Document *doc, short refNum)
 	unsigned long	version;							/* File version code read/written */
 	Document		tempDoc;
 
-	/* Write version code with possibly end-fixed (to make Big Endian) local copy. */
+	/* Write version code using possibly Endian-fixed (to make Big Endian) local copy. */
 	
 	version = THIS_FILE_VERSION;  FIX_END(version);
 	count = sizeof(version);
 	errCode = FSWrite(refNum, &count, &version);
 	if (errCode) return VERSIONobj;
 
-	/* Write current date and time with possibly end-fixed local copy. */
+	/* Write current date and time using possibly Endian-fixed local copy. */
 	
 	GetDateTime(&fileTime);  FIX_END(fileTime);
 	count = sizeof(fileTime);
 	errCode = FSWrite(refNum, &count, &fileTime);
 	if (errCode) return VERSIONobj;
 
-	/* Write Document and Score headers with possibly end-fixed local copy. */
+	/* Write Document and Score headers using possibly Endian-fixed local copy. */
 
 	if (DETAIL_SHOW) DisplayDocumentHdr(0, doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(0, doc);
-	if (DETAIL_SHOW) NObjDump("WriteFile", 1, 11);
 
 	count = sizeof(tempDoc);
 //LogPrintf(LOG_DEBUG, "WriteFile: sizeof(doc)=%d sizeof(tempDoc)=%d\n", sizeof(doc), sizeof(tempDoc));
@@ -306,15 +305,15 @@ static short WriteFile(Document *doc, short refNum)
 	errCode = FSWrite(refNum, &count, &tempDoc.headL);
 	if (errCode) return HEADERobj;
 	
-	/* Write LASTtype with possibly end-fixed local copy. */
+	/* Write LASTtype using possibly Endian-fixed local copy. */
 	
 	lastType = LASTtype;  FIX_END(lastType);
 	count = sizeof(lastType);
 	errCode = FSWrite(refNum, &count, &lastType);
 	if (errCode) return HEADERobj;
 
-	/* Write string pool size with possibly end-fixed local copy; write  and string pool,
-	   possibly end-fixed; if end-fixed, then undo by redoing it (since the operation is
+	/* Write string pool size using possibly Endian-fixed local copy. Write string pool,
+	   possibly Endian-fixed; if Endian-fixed, then undo by redoing it (since the operation is
 	   its own inverse). */
 	
 	stringHdl = (Handle)GetStringPool();
@@ -346,8 +345,10 @@ static short WriteFile(Document *doc, short refNum)
 		return STRINGobj;
 	}
 
-	/* Write heaps. */
+	/* Write heaps. NB they must be Endian fixed before they're written, and fixed back
+	   before continuing!  */
 	
+	if (DETAIL_SHOW) NObjDump("WriteFile", 1, 11);
 	errCode = WriteHeaps(doc, refNum);
 	if (errCode) return errCode;
 

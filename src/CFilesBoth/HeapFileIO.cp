@@ -304,7 +304,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 	   take into account the 4 bytes for the count as well. */
 	
 	if (ioErr==noErr) {
-		GetFPos(refNum,&endPosition);
+		GetFPos(refNum, &endPosition);
 		sizeAllObjsFile = endPosition-startPosition-sizeof(long);
 		ioErr = SetFPos(refNum, fsFromStart, startPosition);
 		if (ioErr!=noError) return ioErr;
@@ -334,9 +334,9 @@ static void CreateModTable(Document *doc, LINK **modA)
 
 	if (myHeap->nObjs) {
 
-	/* j is a parameter passed to WriteSubObjs to indicate the initial LINK address 
-	   of the subobj list written by WriteSubObjs. We start at 1 since the zeroth 
-	   heap object is never used. */
+	/* j is a parameter passed to WriteSubObjs to indicate the initial LINK address of
+	   the subobj list written by WriteSubObjs. We start at 1 since the zeroth heap
+	   object is never used. */
 
 		for (j=1, pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL))
 			if (ObjLType(pL)==SYNCtype) {
@@ -661,12 +661,12 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 }
 
 
-/* Actually write a block, whether object or subobject, to file. Objects are of varying
-lengths: only write out the length of the particular type of object. Returns an I/O Error
+/* Actually write an object (not a subobject) to file. Objects are of varying lengths;
+we write out only the length of the particular type of object. Returns an I/O Error
 code or noErr. NB: The heap must be locked by the calling routine for the sake of
 FSWrite. */
  
-static short WriteObject(short refNum, LINK pL)
+static short WriteObject(short refNum, LINK objL)
 {
 	HEAP *myHeap;
 	long count;
@@ -674,19 +674,19 @@ static short WriteObject(short refNum, LINK pL)
 	char *p;
 	
 	myHeap = Heap + OBJtype;
-	count = objLength[ObjLType(pL)];
+	count = objLength[ObjLType(objL)];
 	
-	EndianFixObject(pL);								/* Ensure in Big Endian form */
-	p = LinkToPtr(myHeap, pL);
+	EndianFixObject(objL);								/* Ensure in Big Endian form */
+	p = LinkToPtr(myHeap, objL);
 	ioErr = FSWrite(refNum, &count, p);
-	EndianFixObject(pL);								/* Back to processor-specific Endian */
+	EndianFixObject(objL);								/* Back to processor-specific Endian */
 
 	if (ioErr) SaveError(True, refNum, ioErr, OBJtype);
 	return(ioErr);
 }
 
 
-static short WriteSubobj(short refNum, short heapIndex, LINK pL)
+static short WriteSubobj(short refNum, short heapIndex, LINK subL)
 {
 	HEAP *myHeap;
 	long count;
@@ -696,10 +696,10 @@ static short WriteSubobj(short refNum, short heapIndex, LINK pL)
 	myHeap = Heap + heapIndex;
 	count = myHeap->objSize;
 	
-	EndianFixSubobj(heapIndex, pL);						/* Ensure in Big Endian form */
-	p = LinkToPtr(myHeap, pL);
+	EndianFixSubobj(heapIndex, subL);						/* Ensure in Big Endian form */
+	p = LinkToPtr(myHeap, subL);
 	ioErr = FSWrite(refNum, &count, p);
-	EndianFixSubobj(heapIndex, pL);						/* Back to processor-specific Endian */
+	EndianFixSubobj(heapIndex, subL);						/* Back to processor-specific Endian */
 
 	if (ioErr) SaveError(True, refNum, ioErr, heapIndex);
 	return(ioErr);
@@ -892,7 +892,7 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 #endif
 		   
 		/* Copy obj/subobj of whatever type at <src> to its anointed LINK slot at <dst>,
-		   and go on to next obj/subobj and next LINK slot. */
+		   then go on to next obj/subobj and next LINK slot. */
 		
 		BlockMove(src, dst, len);
 		src += len;
@@ -921,7 +921,8 @@ known offset from the beginning of each object record. Thus only a scan forwards
 the block can work.
 
 NB: If the file is in an old format, the objects' fields still need to be converted,
-including perhaps moving them within the object! That should be done in ConvertObjSubobjs(). */
+including perhaps moving them within the object! That should be done in
+ConvertObjSubobjs(). */
 
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile)
 {

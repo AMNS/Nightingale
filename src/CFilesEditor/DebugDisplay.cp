@@ -592,40 +592,52 @@ void NHexDump(short logLevel,
 
 
 /* -------------------------------------------------------------------------- NObjDump -- */
-/* Dump objects in the range [nFrom, nTo], displayed as bytes in hexadecimal, into the
-log file. Caveat: (1) the object numbers are position numbers in the object heap, not
-links! For example, of v. 5.8, the TAIL of the main object list is always LINK 2, but
-its position for any valid score is at least 11. (2) The number of bytes shown per
-object is a constant, but the lengths of objects vary; so objects may have garbage
-at their ends or may be truncated. FIXME: Don't display slots in the object heap that are
-in its free list! */
+/* Dump objects with positions in the object heap -- not links -- in the range [nFrom,
+nTo] into the log file, displaying them in hexadecimal. We assume objects are in the
+current format, so if a score in an old format was just opened, objects should be
+converted before this is called. Caveat: positions in the object heap are not necessarily
+link values! For a newly-opened score, position n is indeed LINK n; for a score that's
+been edited, the relationship between position and LINK isn't easily predictable. */
 
 typedef struct {
 	OBJECTHEADER
 } OBJHDR;
 
-#define NBYTES_BODY 16
-
 void NObjDump(char *label, short nFrom, short nTo)
 {
 	unsigned char *pSObj;
-	char mStr[12];				/* Large enough for any 32-bit number, signed or not */
-	short objType;
-//	LINK pL;
+	char mStr[12];				/* Enough digits enough for any 32-bit number, signed or not */
+	short theObjType, bodyLength;
+	LINK pL;
+	Boolean typeIsLegal;
 	HEAP *objHeap = Heap + OBJtype;
 
 	for (short m = nFrom; m<=nTo; m++) {
 		pSObj = (unsigned char *)GetPSUPEROBJ(m);
-//		pL = PtrToLink(objHeap, pSObj);
+		pL = PtrToLink(objHeap, pSObj);
+		if (HeapLinkIsFree(objHeap, pL)) {
+			LogPrintf(LOG_DEBUG, "NObjDump: %s: heap object %d (link %u) isn't in use.\n",
+						label, m, pL);
 //LogPrintf(LOG_DEBUG, "NObjDump1: pL=%u type=%d\n", pL, ObjLType(pL));
-		objType = ((OBJHDR *)pSObj)->type;
-LogPrintf(LOG_DEBUG, "NObjDump2: m=%d type=%d\n", m, objType);
+			continue;
+		}
+
+		theObjType = ((OBJHDR *)pSObj)->type;
+		LogPrintf(LOG_DEBUG, "NObjDump: %s: heap object %d (link %u) type=%d", label,
+					m, pL, theObjType);
+		typeIsLegal = (theObjType>=FIRSTtype && theObjType<=LASTtype-1);
+		if (typeIsLegal)	LogPrintf(LOG_DEBUG, " %s\n", NameHeapType(ObjLType(pL), False));
+		else				LogPrintf(LOG_DEBUG, " IS ILLEGAL.\n");
+
 		/* Dump the object header first, than (a fixed-length part) of the body. */
 		
-		sprintf(mStr, "%s%d%c", label, m, 'H');
+		sprintf(mStr, "  %d%c", m, 'H');
 		NHexDump(LOG_DEBUG, mStr, pSObj, sizeof(OBJHDR), 4, 16);
-		sprintf(mStr, "%s%d%c", label, m, 'B');		
-		NHexDump(LOG_DEBUG, mStr, pSObj, NBYTES_BODY, 4, 16);
+		bodyLength = typeIsLegal? objLength[theObjType]-sizeof(OBJHDR) : 0;
+		if (bodyLength>0) {
+			sprintf(mStr, "  %d%c", m, 'B');		
+			NHexDump(LOG_DEBUG, mStr, pSObj+sizeof(OBJHDR), bodyLength, 4, 16);
+		}
 
 #if 0
 		if (objType==TAILtype && m<nTo) {

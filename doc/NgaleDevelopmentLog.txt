@@ -8632,5 +8632,107 @@ debug.            : 00 00 00 48   00 53 00 b0   02 3b 00 00   00 00 00 00
 debug.            : 00 00 00 02   00 01 04 80   05 30 0b 00   23 b0 
 
 etc. etc.: bytes +16, 17, 26, & 27 are zero in all 10 objects displayed, as they should
-be! Maybe I have 1NoteG6Intel.ngl and 1NoteG4PPC.ngl backwards!?
+be! Maybe I had 1NoteG6Intel.ngl and 1NoteG4PPC.ngl backwards!?
+
+---------------------------------------------------------------------------------------
+
+7 - 13 Jan. 2021
+
+I dunno what was happening before, but the log for 1NoteA4PPC.ngl shows bytes +16, 17,
+26, & 27 as 00 00 in all 11 objects displayed, so again no problem on PowerPC. The log
+for 1NoteB5Intel.ngl shows +16 & 17 as 00 00 in objects 1 - 7; then 05 00, 0c 00, 13 00,
+1a 00! Bytes +26 & 27 are always 00 00. So on Intel, byte +16 is nonzero after the 1st 7
+objects; this is certainly a bug! In fact, there are differences in _every one_ of the 11
+objects displayed.
+
+PPC:
+	debug. NObjDump2: m=1 type=0
+	debug. WriteFile1H: 00 03 00 00   00 01 00 00   00 00 00 00   00 01 00 00
+	debug.            : 00 00 00 00   00 00 00 00   00 00 00 00   02 00 
+
+Intel:
+	debug. NObjDump2: m=1 type=0
+	debug. WriteFile1H: 03 00 00 00   01 00 00 00   00 00 00 00   00 01 00 00
+	debug.            : 00 00 00 00   00 00 00 00   00 00 00 00   02 00 
+
+Type 0 is HEAD. The differences are obviously because the Intel-written file has Little Endian
+values! The Intel version of this object:
+
+Offset
+	Contents
+0*	0300	LINK		right,
+2	0000				left;			/* links to left and right objects */					\
+4*	0100	LINK		firstSubObj;	/* link to first subobject */							\
+6	0000	DDIST		xd,
+8	0000				yd;				/* position of object */								\
+10	00		SignedByte	type;			/* (.+#10) object type */								\
+11	00		Boolean		selected;		/* True if object or any part of it is selected */		\
+12	00		Boolean		visible;		/* True if object or any part of it is visible */		\
+13	01		Boolean		soft;			/* True if object is program-generated */				\
+14	00		Boolean		valid;			/* True if objRect (for Measures, measureBBox also) valid. */ \
+15	00		Boolean		tweaked;		/* True if object dragged or position edited with Get Info */ \
+16	00		Boolean		spareFlag;		/* available for general use */							\
+17	00		char		ohdrFiller1;	/* unused; could use for specific "tweak" flags */		\
+18	0000	Rect		objRect;		/* (.+18) enclosing rectangle of object (paper-rel.pixels) */ 	\
+	0000
+	0000
+	0000
+26	00		SignedByte	relSize;		/* (unused) size rel. to normal for object & context */	\
+27	00		SignedByte	ohdrFiller2;	/* unused */											\
+28	02		Byte		nEntries;		/* (.+#28) number of subobjects in object */
+
+The only nonzero multibyte fields, <right> and <firstSubObj>, are in Little Endian form.
+
+PPC:
+	debug. NObjDump2: m=10 type=7
+	debug. WriteFile10H: 00 1b 00 09   00 01 01 e0   00 00 07 00   00 01 01 00
+	debug.             : 00 00 00 48   00 6f 00 b0   00 73 00 00   02 00 
+	debug. WriteFile10B: 00 00 00 00   00 04 00 05   00 00 00 64   00 48 00 71
+
+Intel:
+	debug. NObjDump2: m=10 type=7
+	debug. WriteFile10H: 1b 00 09 00   01 00 e0 01   00 00 07 00   00 01 01 00
+	debug.             : 13 00 48 00   6f 00 b0 00   73 00 00 00   02 00 
+	debug. WriteFile10B: 1b 00 09 00   01 00 e0 01   00 00 07 00   00 01 01 00
+
+Type 7 is MEASURE. There are little-Endian-form fields all over the place. Why? WriteObject()
+carefully calls EndianFixObject(), and EndianFixObject does
+
+		FIX_END(LeftLINK(pL));
+
+Add debug prints to EndianFixObject so it begins:
+
+	LogPrintf(LOG_DEBUG, "EndianFixObject1: pL=%u LeftLINK(pL)=%u\n", pL, LeftLINK(pL));
+		FIX_END(LeftLINK(pL));
+		FIX_END(RightLINK(pL));
+		FIX_END(FirstSubLINK(pL));
+	LogPrintf(LOG_DEBUG, "EndianFixObject2: pL=%u LeftLINK(pL)=%u\n", pL, LeftLINK(pL));
+
+Create 1NoteA6Intel.ngl on Intel => 1NoteA6IntelSaveLog.txt saying
+
+	debug. EndianFixObject1: pL=1 LeftLINK(pL)=0
+	debug. EndianFixObject2: pL=1 LeftLINK(pL)=0
+	debug. EndianFixObject1: pL=1 LeftLINK(pL)=0
+	debug. EndianFixObject2: pL=1 LeftLINK(pL)=0
+	debug. EndianFixObject1: pL=3 LeftLINK(pL)=1
+	debug. EndianFixObject2: pL=3 LeftLINK(pL)=256
+	debug. EndianFixObject1: pL=3 LeftLINK(pL)=256
+	debug. EndianFixObject2: pL=3 LeftLINK(pL)=1
+	debug. EndianFixObject1: pL=4 LeftLINK(pL)=2
+	debug. EndianFixObject2: pL=4 LeftLINK(pL)=512
+	debug. EndianFixObject1: pL=4 LeftLINK(pL)=512
+	debug. EndianFixObject2: pL=4 LeftLINK(pL)=2
+	...
+
+So these objects should be getting written with LeftLINKs that in Little Endian form
+are 0, 256, 512, but in Big Endian are 0, 1, 2, and the above log excerpts make it sound
+as if they are getting written that way, but ??
+
+Oops. The values NObjDump() shows on Intel are indeed Little Endian, but that's because
+the objects are in internal form at that point, as they should be! So I'm back to not
+understanding how the Intel version is writing files with numbers in Little Endian form.
+But is it really or am I confused about that?? Yes, I'm confused; the NObjDump output
+in 1NoteA6IntelOpenOnPPCLog.txt obviously has numbers in the correct PPC format, i.e.,
+Big Endian. Now I'm back to not having any idea what's wrong with the Intel file and how
+it got that way.
 

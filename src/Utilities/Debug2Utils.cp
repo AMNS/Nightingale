@@ -27,12 +27,12 @@ obey musical and music-notation constraints?
 
 Boolean DCheckPlayDurs(
 				Document *doc,
-				Boolean maxCheck		/* False=skip less important checks */
+				Boolean /* maxCheck */		/* False=skip less important checks */
 				)
 {
-	register LINK pL, aNoteL;
+	LINK pL, aNoteL;
 	PANOTE aNote;  PTUPLET pTuplet;
-	register Boolean bad;
+	Boolean bad;
 	short v, shortDurThresh, tupletNum[MAXVOICES+1], tupletDenom[MAXVOICES+1];
 	long lDur;
 
@@ -442,7 +442,7 @@ Boolean DCheckNoteNums(Document *doc)
 	Boolean bad=False, haveAccs;
 	short staff, clefType, octType[MAXSTAVES+1], useOctType, nnDiff;
 	LINK pL, aNoteL, aClefL;
-	SignedByte accTable[MAX_STAFFPOS];
+	SignedByte accidTable[MAX_STAFFPOS];
 
 	/* We keep track of where octave signs begin. But keeping track of where they end
 	   is a bit messy: to avoid doing that, we'll just rely on each Note subobj's
@@ -460,12 +460,12 @@ Boolean DCheckNoteNums(Document *doc)
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 						if (NoteSTAFF(aNoteL)==staff && !NoteREST(aNoteL)) {
 							if (!haveAccs) {
-								GetAccTable(doc, accTable, pL, staff);
+								GetAccTable(doc, accidTable, pL, staff);
 								haveAccs = True;
 							}
 
 							useOctType = (NoteINOTTAVA(aNoteL)? octType[staff] : 0);
-							nnDiff = DBadNoteNum(doc, clefType, useOctType, accTable, pL, aNoteL);
+							nnDiff = DBadNoteNum(doc, clefType, useOctType, accidTable, pL, aNoteL);
 							if (nnDiff!=0) {
 								if (abs(nnDiff)<=2) {
 									COMPLAIN4("DCheckNoteNums: Note in Sync L%u in measure %d, staff %d notenum %d and notation disagree: wrong accidental?\n",

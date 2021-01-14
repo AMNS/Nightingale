@@ -275,7 +275,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	   necessary, convert them to the current format. */
 	
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
-	if (DETAIL_SHOW) NObjDump("OpenFile", 1, 11);
 	if (errCode!=noErr) { errInfo = READHEAPScall; goto Error; }
 
 	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size
@@ -289,6 +288,8 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		ConvertObjSubobjs(doc, version, fileTime, False);
 		ConvertObjSubobjs(doc, version, fileTime, True);
 	}
+
+	if (DETAIL_SHOW) NObjDump("OpenFile", 1, 11);
 
 	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;
