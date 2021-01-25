@@ -295,13 +295,15 @@ static short WriteFile(Document *doc, short refNum)
 //			&(tempDoc.origin), &(tempDoc.littleEndian), tempDoc.origin.v, tempDoc.origin.h,
 //			(short)(tempDoc.littleEndian));
 
-	count = sizeof(DOCUMENTHDR);
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing file headers for CPU's Endian property...  (WriteFile)\n");	
 	EndianFixDocumentHdr(&tempDoc);
+	EndianFixScoreHdr(&tempDoc);
+
+	count = sizeof(DOCUMENTHDR);
 	errCode = FSWrite(refNum, &count, &tempDoc.origin);
 	if (errCode) return HEADERobj;
 	
 	count = sizeof(SCOREHEADER);
-	EndianFixScoreHdr(&tempDoc);
 	errCode = FSWrite(refNum, &count, &tempDoc.headL);
 	if (errCode) return HEADERobj;
 	
@@ -320,9 +322,9 @@ static short WriteFile(Document *doc, short refNum)
 	HLock(stringHdl);
 
 	strHdlSizeInternal = strHdlSizeFile = GetHandleSize(stringHdl);
-	FIX_END(strHdlSizeFile);
 	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "WriteFile: strHdlSizeInternal=%ld strHdlSizeFile=%ld\n",
 								strHdlSizeInternal, strHdlSizeFile);
+	FIX_END(strHdlSizeFile);								/* Convert to Big Endian if needed */
 	count = sizeof(strHdlSizeFile);
 	errCode = FSWrite(refNum, &count, &strHdlSizeFile);
 	if (errCode) return STRINGobj;
@@ -348,7 +350,7 @@ static short WriteFile(Document *doc, short refNum)
 	/* Write heaps. NB they must be Endian fixed before they're written, and fixed back
 	   before continuing!  */
 	
-	if (DETAIL_SHOW) NObjDump("WriteFile", 1, 11);
+	if (DETAIL_SHOW) NObjDump("WriteFile", 1, 30);
 	errCode = WriteHeaps(doc, refNum);
 	if (errCode) return errCode;
 

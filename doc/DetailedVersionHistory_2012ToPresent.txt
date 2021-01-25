@@ -3104,3 +3104,10 @@ DSUtils, EndianUtils, FileConversion, FileOpen, FileSave, Finalize, Objects, Spa
 
 Minor cleanup. Affects DebugDisplay, Debug2Utils, EndianUtils, FileOpen, FileSave,
 HeapFileIO.
+
+---------------------------------------------------------------------------------------
+
+15 - 24 Jan.
+
+Minor cleanup: remove extraneous newlines at ends of some strings, etc. Affects .rsrc;
+NLimits.h; DebugDisplay, EndianUtils, FileOpen, FileSave, HeapFileIO.

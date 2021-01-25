@@ -193,7 +193,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 			if (errCode) { errInfo = HEADERobj; goto Error; }
 	}
 
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing headers for CPU's Endian property...  (OpenFile)\n");	
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing file headers for CPU's Endian property...  (OpenFile)\n");	
 	EndianFixDocumentHdr(doc);
 	if (DETAIL_SHOW) DisplayDocumentHdr(2, doc);
 	LogPrintf(LOG_NOTICE, "Checking Document header: ");

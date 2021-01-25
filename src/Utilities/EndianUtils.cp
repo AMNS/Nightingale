@@ -203,9 +203,9 @@ void EndianFixObject(LINK pL)
 {
 	/* First, handle OBJECTHEADER fields, which are common to all objects. */
 	
-LogPrintf(LOG_DEBUG, "EndianFixObject1: pL=%u LeftLINK(pL)=%u\n", pL, LeftLINK(pL));
+//LogPrintf(LOG_DEBUG, "EndianFixObject1: pL=%u LeftLINK(pL)=%u\n", pL, LeftLINK(pL));
 	FIX_END(LeftLINK(pL));
-LogPrintf(LOG_DEBUG, "EndianFixObject2: pL=%u LeftLINK(pL)=%u\n", pL, LeftLINK(pL));
+//LogPrintf(LOG_DEBUG, "EndianFixObject2: pL=%u LeftLINK(pL)=%u\n", pL, LeftLINK(pL));
 	FIX_END(RightLINK(pL));
 	FIX_END(FirstSubLINK(pL));
 

@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10)
 Nightingale Technical Note #1
-Don Byrd, rev. early June 2020
+Don Byrd, rev. late January 2021
 
 A general note:
 
@@ -32,10 +32,10 @@ than modern computers: typically one or two megabytes, four at the most. As a re
 	followed by at most 255 characters. Thus Nightingale frequently converts strings
 	from C to Pascal format and vice-versa.
 
-NB: Everything in this document except the description of header files applies to
-versions of Nightingale at least as far back as v. 2000.
+NB: Everything in this document except the description of source-code header files
+applies to versions of Nightingale at least as far back as v. 2000.
 
-Also see the important source-code header files:
+Also see the important source-code header files themselves:
 
 	precomp includes
 		NDocAndCnfgTypes.h: major structs including DOCUMENTHEADER, SCOREHEADER,
@@ -60,12 +60,10 @@ comments at the beginning of VoiceTable.c.
 
 ---------------------------------------------------------------------------------------
 
-About Nightingale File Headers
+About Nightingale File Structure
 
-The score content in every Nightingale file is preceded by a Document header and a Score
-header, as follows.
-
-Files in “N105” format begin (offset and length are in bytes in base 10):
+Every Nightingale file begins with a Document header and a Score header, followed by
+the content. Files in “N105” format begin (offset and length are in bytes in base 10):
 
 Offset	Length	Item
 ------	------	----
@@ -74,9 +72,13 @@ Offset	Length	Item
 8		72		Document header
 80		2148	Score header
 2228	2		LASTtype (always 25) (offset 2228 = 0x8B4)
+2230	4		String pool length (in bytes)
+2234	var.	String pool, containing all the character strings
+var.	var.	Heaps, containing the content of the score
 
-"N106" format files begin the same way, except bytes 0 to 3 are "N106", and the length
-of the Score header is 2492; thus LASTtype has offset 2572 = 0xA0C.
+As of this writing, an “N106” format is under development. In terms of the details above,
+it’s identical except bytes 0 to 3 are "N106", and the length of the Score header is
+2492. Thus LASTtype has offset 2572 = 0xA0C, and the string pool has offset 2578 = 0xA12.
 
 The score header contains many, many fields; here's a kind of overview.
 
@@ -86,7 +88,7 @@ Offset			Length		Offset			Length	Item
 80 = 0x50		12			80 = 0x50		12		various: <headL>, etc.
 92 = 0x5C		256			92 = 0x5C		256		<comment>
 348 = 0x15C		42			348 = 0x15C		60		various: <noteInsFeedback>, etc.
-390 = 0x186		540			408 = 0x198		660		15 font (TEXTSTYLE) records of 36 bytes each
+390 = 0x186		540			408 = 0x198		660		15 TEXTSTYLE records of 36/44 bytes each
 930 = 0x3A2		714			1068 = 0x42C	714		<nfontsUsed>, <fontTable>, <musFontName>
 1644 = 0x66C				1782 = 0x6F6			various: <magnify>, etc.
 

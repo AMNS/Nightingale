@@ -24,8 +24,8 @@ The following steps are on the git machine.
 	Resources folder has changed (a very rare occurrence), handle that. NB that git
 	doesn't know about resource forks and doesn't store their contents (though though it
 	saves the files with their data forks and proper names!), so if it's the .rsrc,
-	compress it; the same is probably true of other files in Resources. Throw away the
-	rest (in that case) or all (otherwise) of the Resources folder, as well as any obvious
+	compress it, and move the compressed file to N5p9 TO REPO. (The same is probably true
+	of other files in Resources.) Throw away the Resources folder, as well as any obvious
 	temp files/folders.
 5.	In N5p9_TO_REPO, move build/Release/NightingalePPC.app and build/Release/NightingaleIntel.app
 	to NgaleDev/Executables; throw away the rest of the build folder.

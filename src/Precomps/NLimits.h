@@ -8,6 +8,8 @@ several more places, e.g., DoPostScript, NameMFScore. */
 
 #define FILENAME_MAXLEN 31	/* Max. number of chars. in a filename */
 
+/* Caution: Changing MAXSTAVES will almost certainly make existing files unreadable! */
+
 #define MAXSTAVES 64		/* Maximum number of staves attached to a system */
 #define MAXSTPART 16		/* Maximum no. of staves in one part */
 
@@ -24,6 +26,9 @@ several more places, e.g., DoPostScript, NameMFScore. */
 #define MAX_KSITEMS 7		/* Maximum no. of items in key signature */
 
 #define MAX_FONTSTYLENUM FONT_R9	/* Max. value of index into font style table */
+
+/* Caution: Changing MAX_SCOREFONTS will almost certainly make existing files unreadable! */
+
 #define MAX_SCOREFONTS 20	/* Maximum no. of font families in one score */
 #define MAX_CURSORS 100		/* Maximum no. of cursors used by symtable */
 
@@ -59,6 +64,8 @@ serious problems.  See especially RespaceBars and JustAddSpace. */
 
 #define MAX_ENDING_STRLEN 16	/* Maximum length of any ending label */
 #define MAX_ENDING_STRINGS 31	/* Maximum no. of ending labels */
+
+/* Caution: Changing MAX_COMMENT_LEN will almost certainly make existing files unreadable! */
 
 #define MAX_COMMENT_LEN 255		/* One less than length of <comment> header field */
 

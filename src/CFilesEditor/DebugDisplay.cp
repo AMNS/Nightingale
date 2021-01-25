@@ -623,13 +623,14 @@ void NObjDump(char *label, short nFrom, short nTo)
 		}
 
 		theObjType = ((OBJHDR *)pSObj)->type;
-		LogPrintf(LOG_DEBUG, "NObjDump: %s: heap object %d (link %u) type=%d", label,
-					m, pL, theObjType);
+		LogPrintf(LOG_DEBUG, "NObjDump: %s: heap object %d (link %u) type=%d",
+					label, m, pL, theObjType);
 		typeIsLegal = (theObjType>=FIRSTtype && theObjType<=LASTtype-1);
-		if (typeIsLegal)	LogPrintf(LOG_DEBUG, " %s\n", NameHeapType(ObjLType(pL), False));
+		if (typeIsLegal)	LogPrintf(LOG_DEBUG, " (%s) length=%d\n",
+								NameHeapType(ObjLType(pL), False), objLength[theObjType]);
 		else				LogPrintf(LOG_DEBUG, " IS ILLEGAL.\n");
 
-		/* Dump the object header first, than (a fixed-length part) of the body. */
+		/* Dump the object header first, then the body. */
 		
 		sprintf(mStr, "  %d%c", m, 'H');
 		NHexDump(LOG_DEBUG, mStr, pSObj, sizeof(OBJHDR), 4, 16);

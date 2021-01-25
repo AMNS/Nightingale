@@ -8736,3 +8736,88 @@ in 1NoteA6IntelOpenOnPPCLog.txt obviously has numbers in the correct PPC format,
 Big Endian. Now I'm back to not having any idea what's wrong with the Intel file and how
 it got that way.
 
+---------------------------------------------------------------------------------------
+
+14 - 24 Jan.
+
+Map of object header bytes, showing expected (numbered "1"-"9") & Acceptable (because
+unused) ("A") differences between Little & Big Endian versions:
+
+	1122 3344 55.. .... .... ....
+	AA66 6677 7788 8899 99AA .A
+
+Comparing 1NoteG4PPCSaveDump.txt to 1NoteA6IntelSaveDump.txt (PPC version shown):
+
+	NObjDump: WriteFile: heap object 1 (link 1) type=0 HEAD
+ok  1H: 00 03 00 00   00 01 00 00   00 00 00 00   00 01 00 00
+ok	: 00 00 00 00   00 00 00 00   00 00 00 00   02 00 
+	NObjDump: WriteFile: heap object 2 (link 2) type=1 TAIL
+ok	  2H: 00 00 00 1b   00 00 ff ff   00 00 01 00   00 01 00 00
+ok		: 00 00 00 00   00 00 00 00   00 00 00 00   00 00 
+	NObjDump: WriteFile: heap object 3 (link 3) type=4 PAGE
+ok	  3H: 00 04 00 01   00 00 00 00   00 00 04 00   01 01 00 00
+***		: 00 00 00 00   00 00 00 00   00 00 00 00   00 00
+ok	  3B: 00 00 00 00   00 00 00 00   00 00 00 00   00 00 
+	NObjDump: WriteFile: heap object 4 (link 4) type=5 SYSTEM
+ok	  4H: 00 05 00 03   00 00 02 40   04 80 05 00   01 01 00 00
+ok		: 00 00 00 48   00 53 00 b0   02 3b 00 00   00 00 
+ok	  4B: 00 00 00 00   00 03 00 01   04 80 05 30   0b 00 23 b0
+ok		: 00 00 00 00   
+	NObjDump: WriteFile: heap object 5 (link 5) type=6 STAFF
+?	  5H: 00 06 00 04   00 01 00 00   00 00 06 00   01 01 00 00
+?		: 00 00 00 00   00 00 00 00   00 00 00 00   02 00 
+?	  5B: 00 00 00 00   00 04 
+	NObjDump: WriteFile: heap object 6 (link 6) type=12 CONNECT
+?	  6H: 00 07 00 05   00 01 00 50   00 00 0c 00   01 01 00 00
+?		: 00 00 00 00   00 00 00 00   00 00 00 00   02 00 
+?	  6B: 00 00 
+	NObjDump: WriteFile: heap object 7 (link 7) type=8 CLEF
+?	  7H: 00 08 00 06   00 01 00 40   00 00 08 00   01 01 01 00
+?		: 00 00 00 58   00 57 00 a0   00 61 00 00   02 00 
+	NObjDump: WriteFile: heap object 8 (link 8) type=9 KEYSIG
+?	  8H: 00 09 00 07   00 01 01 20   00 00 09 00   01 01 01 00
+?		: 00 00 00 00   00 00 00 00   00 00 00 00   02 00 
+	NObjDump: WriteFile: heap object 9 (link 9) type=10 TIMESIG
+?	  9H: 00 0a 00 08   00 01 01 20   00 00 0a 00   01 01 01 00
+?		: 00 00 00 60   00 65 00 98   00 6a 00 00   02 00 
+	NObjDump: WriteFile: heap object 10 (link 10) type=7 MEASURE
+?	  10H: 00 1b 00 09   00 01 01 e0   00 00 07 00   00 01 01 00
+?		 : 00 00 00 48   00 6f 00 b0   00 73 00 00   02 00 
+?	  10B: 00 00 00 00   00 04 00 05   00 00 00 64   00 48 00 71
+?		 : 00 b0 02 37   00 00 00 00   
+	NObjDump: WriteFile: heap object 11 (link 11) type=0 HEAD
+?	  11H: 00 0d 00 00   00 03 00 00   00 00 00 00   00 01 00 00
+?		 : 00 00 00 00   00 00 00 00   00 00 00 00   02 00 
+
+***: Byte +16 (spareFlag) is 0x1c in the Intel version: "Acceptable", but suspicious.
+It's a Boolean, and should always be either 0 or 1; in fact, InitObject() sets it to
+False (0), and I don't see how it could change!
+
+Before pursuing that, try a different: compare hexdumps of 1NoteF4PPC.ngl & 1NoteE6Intel.ngl.
+They should definitely differ in time/date stamp; the Little/Big Endian flag; and a few
+bytes of the Note (Sync subobject). Nothing else I can think of, offhand. Results:
+
+Comparing hexdumps of the two files shows 35 differences. Sigh. The PPC dump text file is
+over 4000 bytes larger! But hexdump shows the dumps as exactly the same length, 0x19b8 =
+6584! That's only the data fork, but neither has anything in the resource fork, and
+Resorcerer agrees the files are each 6584 bytes.
+
+Hmmm. At 0xb60, 5*16 bytes of Intel map to 21*16 bytes of PPC; the string "DUMMY" starts
+at 0xb62; similar things occur at least twice more. The increased data at these spots is
+the reason the PPC dump file is larger; the file sizes are identical because in each such
+case, there's a line beginning "*", representing a series of lines of all zeros :-) . The
+correct figures:
+
+Start
+loc.	Intel rows					PPC rows	Comment
+---------------------------------------------------------------------------------------
+0xb60	5 nonzero & 16 all zero		21		The string "DUMMY" starts at 0xb62, "DUM." later
+0xcc0 	ca. 12 nonzero & 38 zero	ca. 50	"Unnamed" starts a few bytes before, then "Unnam.";
+											much later, "DUMMY", then "DUM."
+0xf70	ca. 30 nonzero & 5 zero		ca. 35	"Unnamed" starts near the beginning, then "Unnam."
+
+These are almost certainly PARTINFO subobjects!
+
+But much earlier, in the Document header, there are 18 differences. The last is the Little/Big
+Endian flag, which should be different; the other 17 differen are very suspicious! They're not
+in fields Ngale displays in the log files; those are identical except for the Endian flag.
