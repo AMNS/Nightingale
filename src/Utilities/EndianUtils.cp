@@ -46,6 +46,17 @@ static unsigned short EndianFix_13BitField(unsigned short value)
 	return temp;
 }
 
+static void EndianFixTextstyleRecord(TEXTSTYLE *pTSRec);
+static void EndianFixTextstyleRecord(TEXTSTYLE *pTSRec)
+{
+	FIX_END(pTSRec->lyric);
+	FIX_END(pTSRec->enclosure);
+	FIX_END(pTSRec->relFSize);
+	FIX_END(pTSRec->fontSize);
+	FIX_END(pTSRec->fontStyle);
+}
+
+
 /* ---------------------------------------------------------- General Endian functions -- */
 
 void EndianFixConfig()
@@ -155,6 +166,7 @@ void EndianFixDocumentHdr(Document *doc)
 	EndianFixRect(&doc->currentPaper);
 }
 
+
 void EndianFixScoreHdr(Document *doc)
 {
 	FIX_END(doc->headL);
@@ -175,11 +187,38 @@ void EndianFixScoreHdr(Document *doc)
 //LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
 	doc->firstMNNumber = EndianFix_13BitField(doc->firstMNNumber);	/* Special treatment for bitfield */
 //LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
+	FIX_END(doc->aboveMN);
+	FIX_END(doc->sysFirstMN);
+	FIX_END(doc->startMNPrint1);
+	FIX_END(doc->firstMNNumber);
+	FIX_END(doc->masterHeadL);
+	FIX_END(doc->masterTailL);
+	
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontNameMN));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontNamePN));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontNameRM));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontName1));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontName2));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontName3));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontName4));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontNameTM));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontNameCS));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontNamePG));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontName5));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontName6));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontName7));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontName8));
+	EndianFixTextstyleRecord((TEXTSTYLE *)&(doc->fontName9));
+	
 	FIX_END(doc->nfontsUsed);
+	for (short j = 0; j<MAX_SCOREFONTS; j++)
+		FIX_END(doc->fontTable[j].fontID);
 	FIX_END(doc->magnify);
 	FIX_END(doc->selStaff);
 	FIX_END(doc->currentSystem);
+	FIX_END(doc->spaceTable);
 	FIX_END(doc->htight);
+	FIX_END(doc->lookVoice);
 	FIX_END(doc->ledgerYSp);
 	FIX_END(doc->deflamTime);
 	FIX_END(doc->dIndentFirst);
@@ -193,7 +232,7 @@ void EndianFixHeapHdr(Document * /* doc */, HEAP *heap)
 	FIX_END(heap->firstFree);
 	FIX_USHRT_END(heap->nObjs);
 	FIX_USHRT_END(heap->nFree);
-	FIX_END(heap->lockLevel);	
+	FIX_END(heap->lockLevel);
 }
 
 

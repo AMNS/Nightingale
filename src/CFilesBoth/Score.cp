@@ -195,7 +195,6 @@ Boolean NewDocScore(Document *doc)
 	LINK	pL, qL, headL, tailL;
 	PPAGE	pPage;
 	DDIST	sysTop;
-	short	i;
 	
 	doc->ledgerYSp = 2*config.defaultLedgers+2;
 	initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastral]/STFHALFLNS);
@@ -221,7 +220,7 @@ Boolean NewDocScore(Document *doc)
 	doc->tempo = 999;									/* No longer used */
 
 	doc->omsInputDevice = config.defaultInputDevice;
-	for (i=0; i<MAXSTAVES; i++)
+	for (short i=0; i<MAXSTAVES; i++)
 		doc->omsPartDeviceList[i] = config.defaultOutputDevice;
 
 	doc->cmInputDevice = config.cmDfltInputDev;
@@ -230,7 +229,7 @@ Boolean NewDocScore(Document *doc)
 	if (cmDefaultID == kInvalidMIDIUniqueID)
 		cmDefaultID = gAuMidiControllerID;
 	
-	for (i=0; i<MAXSTAVES; i++)
+	for (short i=0; i<MAXSTAVES; i++)
 		doc->cmPartDeviceList[i] = gAuMidiControllerID;
 
 	doc->channel = config.defaultChannel;
@@ -239,7 +238,7 @@ Boolean NewDocScore(Document *doc)
 	doc->named = doc->used = False;
 	doc->hasCaret = False;
 	doc->transposed = 0;
-	doc->lyricText = False;								/* No longer used */
+	doc->fillerSC1 = False;								/* No longer used */
 	doc->spacePercent = 100;
 	doc->nstaves = 0;
 	
@@ -254,6 +253,10 @@ Boolean NewDocScore(Document *doc)
 	doc->fillerInt = doc->fillerHP = doc->fillerLP = 0;
 	doc->fillerEM = 0;
 	
+	/* Initialize <comment> to an empty string; to facilitate debugging, also fill the
+	   rest of the <comment> field with a somewhat distinctive value. */
+	   
+	for (unsigned short k=0; k<sizeof(doc->comment); k++) doc->comment[k] = 'N';
 	doc->comment[0] = '\0';
 
 	doc->lastGlobalFont = 4;							/* Use regular1 as most recent */

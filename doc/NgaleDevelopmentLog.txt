@@ -8818,6 +8818,97 @@ loc.	Intel rows					PPC rows	Comment
 
 These are almost certainly PARTINFO subobjects!
 
-But much earlier, in the Document header, there are 18 differences. The last is the Little/Big
-Endian flag, which should be different; the other 17 differen are very suspicious! They're not
-in fields Ngale displays in the log files; those are identical except for the Endian flag.
+But much earlier: In the Document header, there's one difference: the last byte is the
+Little/Big Endian flag, which indeed should be different. The next 17 differences are in
+the Score header, and they're very suspicious! None is among the fields Ngale displays
+in the log files; those are identical.
+
+---------------------------------------------------------------------------------------
+
+25 - 31 Jan.
+
+From the log:
+
+	SCORE HDR OFFSET ('N105' fmt): feedback=268 fontNameMN=310 nfontsUsed=850 magnify=1564
+		  spaceMap=1596 voiceTab=1636 afterEnd=2148
+	SCORE HDR OFFSET ('N106' fmt): noteInsFeedback=268 fontNameMN=328 nfontsUsed=988 magnify=1702
+		  spaceMap=1738 voiceTab=1778 afterEnd=2492
+
+N106ScoreHeaderDetails.txt is now useful for mapping hex dump values to fields!
+
+Among the 35 differences are those at file positions in the 180s, 190s, 1b0s, 1c0s, 1e0s =
+score header offsets 130s thru 180s. Looks like all are within the <comment> field! Let's
+initialize every byte of <comment> after the initial null string to 'N'...done. Nope!
+<comment> ends with header offset 10b.
+
+Now, do I really know what I'm looking at? Check contents of 1NoteA4PPC.ngl:
++ Bytes 0 to 3 are "N106".
++ Score header length is 2492, so LASTtype has offset 2572 = 0xA0C, value 0x0019 = 25.
++ String pool length at offset 2576 = 306.
+? String pool offset 2578 = 0xA12, so its last byte is at 2578+305 = 2883 = 0xb43
+? The first heap starts at 2884 = 0xb44
+
+These are almost certainly 2-byte values that aren't Endian fixed on Intel:
+	0x18a-d: aboveMN, sysFirstMN
+	192-5: masterHeadL, masterTailL
+	1be on (3 fields): ??
+
+Anyway, there are surely more of these where the field's value is 0, since in that case
+byte swapping has no effect! Add lots of FIX_ENDIANs to EndianFixScoreHdr(); create
+1NoteF6Intel.ngl on Intel; Save, try to Open => no obvious difference; Ngale still hangs.
+Compare the hex dump to dump of 1NoteA4PPC.ngl => 44 differences :-( . The first few:
+
+	(2 in Document header)
+	0x190-191: firstMNNumber. But we FIX_END this, so ??
+	1be-1bf, 1c0-1: in the 1st TEXTSTYLE record
+	1ea-f: ??
+	214-217: ??
+	...
+	3fa-d
+
+38 differences. Add fields to EndianFixScoreHdr => up to 44!? How could there be _more_
+differences? Possibly just random, and/or bcs of fragmentation of areas w/ differences.
+Add 1st 9(?) EndianFixTextstyleRecord; compare hexdump to 1NoteA4PPC.ngl => down to 35
+differences. Add the other 6; compare hexdump of 1NoteA6Intel.ngl to 1NoteA4PPC.ngl =>
+down to 29!!
+
+	(2 in Document header)
+	(3 in Score header:)
+	0x190-191: firstMNNumber. But we FIX_END this, so ??
+	42f: ca. 2nd byte of fontTable[0]
+	71a-73d: in voiceTab
+	a22-b49 (2594-2889): in string pool
+
+Add loop to do
+	FIX_END(doc->fontTable[j].fontID);
+for every FONTITEM. Create 1NoteB6Intel.ngl; compare its hexdump to 1NoteA4PPC.ngl =>
+31 differences. How about 0x42f? It's still a problem -- and actually it _couldn't_ be
+a matter of Endianness, since it's just one byte that's diferent! ??
+
+	(2 in Document header)
+	(3 in Score header:)
+	0x190-191: firstMNNumber. On Intel, the bytes are 01 00; on PPC, 00 01; the log for
+	both says firstMNNumber = 1, so obviously an Endian problem. But we FIX_END this, so ??
+	42f: ca. 2nd byte of fontTable[0] = 2nd byte of fontID. ?? We now FIX_END it, but on
+		Intel, the 2 bytes are 00 00, on PPC, 00 14: not a matter of Endianness anyway.
+		It's immediately followed by fontname as a P string. On both it's "Times". Maybe
+		Times is really fontID 0 on my Intel machine and 14 on my PPC?
+	71a-73d: in voiceTab
+	a22-aba = 2594-2746(10): in string pool
+
+Add code to BuildVoiceTable() to initialize all fields. Create 1NoteA4PPC.ngl and
+1NoteD6Intel.ngl; compare hexdumps => only 23 differences!
+
+	(2 in Document header)
+	(3 in Score header:)
+	0x190-191 (R 140-141): firstMNNumber. But we FIX_END this, so ??
+	42f (R 3df): 2nd byte of fontTable[0] = 2nd byte of fontID. ?? See above.
+	71a-73d (R 6ca-6fd): in spaceMap thru voiceTab. 72e (R 6ee): dIndentFirst
+	a22-b49 = 2594-2889(10): in string pool
+	
+5 fewer differences than the previous low: good, but no change to the voiceTab difference
+(which in any case would explain only one). ?!?
+
+WriteFile() handles the Endian fixing before writing the Document and Score headers; it
+just calls EndianFixDocumentHdr and EndianFixScoreHdr. Are those doing anything on Intel?
+Add debug prints => it looks like they're not!!

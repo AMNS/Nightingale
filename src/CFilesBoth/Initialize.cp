@@ -50,6 +50,52 @@ static void InitToolbox()
 	FlushEvents(everyEvent, 0);
 }
 		
+#define ScoreHdrFieldOffsetQQ(field)	(long)&((field))-(long)&(headL)
+#define ScoreHdrFieldOffset(dc, field)	(long)&(dc->field)-(long)&(dc->headL)
+#define NoDISP_SCOREHDR_STRUCT
+
+static void LogScoreHeaderFormatInfo()
+{
+#ifdef DISP_SCOREHDR_STRUCT
+	Document *tD;
+	DocumentN105 *tD5;
+	long noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff, spaceMapOff,
+		voiceTabOff, afterEnd;
+
+	/* The following code is intended to be compiled once in a blue moon, when the file
+	   format changes, to collect information for Nightingale documentation. That info
+	   (as of Jan. 2021, for formats 'N105' and 'N106') is in Nightingale Tech Note #1,
+	   the Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt). */
+	
+	noteInsFeedbackOff = ScoreHdrFieldOffset(tD5, comment[MAX_COMMENT_LEN+1]);
+	fontNameMNOff = ScoreHdrFieldOffset(tD5, fontNameMN[0]);
+	nfontsUsedOff = ScoreHdrFieldOffset(tD5, nfontsUsed);
+	magnifyOff = ScoreHdrFieldOffset(tD5, magnify);
+	spaceMapOff = ScoreHdrFieldOffset(tD5, spaceMap[0]);
+	voiceTabOff = ScoreHdrFieldOffset(tD5, voiceTab[0]);
+	afterEnd = ScoreHdrFieldOffset(tD5, expansion[256-(MAXVOICES+1)]);
+	LogPrintf(LOG_DEBUG,
+		"SCORE HDR OFFSET ('N105' fmt): feedback=%ld fontNameMN=%ld nfontsUsed=%ld magnify=%ld\n",
+			noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff);
+	LogPrintf(LOG_DEBUG,
+		"      spaceMap=%ld voiceTab=%ld afterEnd=%ld\n",
+			spaceMapOff, voiceTabOff, afterEnd);
+	noteInsFeedbackOff = ScoreHdrFieldOffset(tD, noteInsFeedback);
+	fontNameMNOff = ScoreHdrFieldOffset(tD, fontNameMN[0]);
+	nfontsUsedOff = ScoreHdrFieldOffset(tD, nfontsUsed);
+	magnifyOff = ScoreHdrFieldOffset(tD, magnify);
+	spaceMapOff = ScoreHdrFieldOffset(tD, spaceMap[0]); 
+	voiceTabOff = ScoreHdrFieldOffset(tD, voiceTab[0]);
+	afterEnd = ScoreHdrFieldOffset(tD, expansion[256-(MAXVOICES+1)]);
+	LogPrintf(LOG_DEBUG,
+		"SCORE HDR OFFSET ('N106' fmt): noteInsFeedback=%ld fontNameMN=%ld nfontsUsed=%ld magnify=%ld\n",
+			noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff);
+	LogPrintf(LOG_DEBUG,
+		"      spaceMap=%ld voiceTab=%ld afterEnd=%ld\n",
+			spaceMapOff, voiceTabOff, afterEnd);
+#endif
+}
+
 
 static GrowZoneUPP growZoneUPP;			/* permanent GrowZone UPP */
 
@@ -153,31 +199,8 @@ void Initialize()
 	if (!InitGlobals()) { BadInit();  ExitToShell(); }
 	Init_Help();
 	
-#define NoDISP_SCOREHDR_STRUCT
-#ifdef DISP_SCOREHDR_STRUCT
-	/* The following code is intended to be compiled once in a blue moon, when the file
-	   format changes, to collect information for Nightingale documentation. As of May
-	   2020, that info -- for format 'N106' -- is in Nightingale Tech Note #1, the
-	   Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt). */
-	{
-		Document *tD; DocumentN105 *tD5;
-		long noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff;
-		
-		noteInsFeedbackOff = (long)&(tD5->comment[MAX_COMMENT_LEN+1])-(long)&(tD5->headL);
-		fontNameMNOff = (long)&(tD5->fontNameMN[0])-(long)&(tD5->headL);
-		nfontsUsedOff = (long)&(tD5->nfontsUsed)-(long)&(tD5->headL);
-		magnifyOff = (long)&(tD5->magnify)-(long)&(tD5->headL);
-		LogPrintf(LOG_DEBUG, "OFFSET ('N105' format) OF feedback=%ld fontNameMN=%ld nfontsUsed=%ld magnify=%ld\n",
-							noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff); 
-		noteInsFeedbackOff = (long)&(tD->noteInsFeedback)-(long)&(tD->headL);
-		fontNameMNOff = (long)&(tD->fontNameMN[0])-(long)&(tD->headL);
-		nfontsUsedOff = (long)&(tD->nfontsUsed)-(long)&(tD->headL);
-		magnifyOff = (long)&(tD->magnify)-(long)&(tD->headL);
-		LogPrintf(LOG_DEBUG, "OFFSET OF noteInsFeedback=%ld fontNameMN=%ld nfontsUsed=%ld magnify=%ld\n",
-							noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff); 
-	}
-#endif
-
+	LogScoreHeaderFormatInfo();
+	
 	/* See if we have enough memory that the user should be able to do SOMETHING
 	   useful, and enough to get back to the main event loop, where we do our regular
 	   low-memory checking. (As of v.999, 250K was enough; but now, in the 21st century,

@@ -288,16 +288,17 @@ static short WriteFile(Document *doc, short refNum)
 
 	count = sizeof(tempDoc);
 //LogPrintf(LOG_DEBUG, "WriteFile: sizeof(doc)=%d sizeof(tempDoc)=%d\n", sizeof(doc), sizeof(tempDoc));
-//LogPrintf(LOG_DEBUG, "WriteFile1: &->origin=%lx &->littleEndian=%lx origin=%d,%d ->littleEndian=%u\n",
-//			&(doc->origin), &(doc->littleEndian), doc->origin.v, doc->origin.h, (short)(doc->littleEndian));
+LogPrintf(LOG_DEBUG, "WriteFile1: count=%ld ->origin=%d,%d ->littleEndian=%u ->firstMNNumber=%d\n",
+			count, doc->origin.v, doc->origin.h, (short)(doc->littleEndian), doc->firstMNNumber);
 	BlockMove(doc, &tempDoc, count);
-//LogPrintf(LOG_DEBUG, "WriteFile2: &.origin=%lx &.littleEndian=%lx origin=%d,%d .littleEndian=%u\n",
-//			&(tempDoc.origin), &(tempDoc.littleEndian), tempDoc.origin.v, tempDoc.origin.h,
-//			(short)(tempDoc.littleEndian));
+LogPrintf(LOG_DEBUG, "WriteFile2: .origin=%d,%d .littleEndian=%u .firstMNNumber=%d\n",
+			tempDoc.origin.v, tempDoc.origin.h, (short)(tempDoc.littleEndian), tempDoc.firstMNNumber);
 
 	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing file headers for CPU's Endian property...  (WriteFile)\n");	
 	EndianFixDocumentHdr(&tempDoc);
 	EndianFixScoreHdr(&tempDoc);
+LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=%d\n",
+			tempDoc.origin.v, tempDoc.origin.h, (short)(tempDoc.littleEndian), tempDoc.firstMNNumber);
 
 	count = sizeof(DOCUMENTHDR);
 	errCode = FSWrite(refNum, &count, &tempDoc.origin);
@@ -350,7 +351,7 @@ static short WriteFile(Document *doc, short refNum)
 	/* Write heaps. NB they must be Endian fixed before they're written, and fixed back
 	   before continuing!  */
 	
-	if (DETAIL_SHOW) NObjDump("WriteFile", 1, 30);
+	if (DETAIL_SHOW) NObjDump("WriteFile", 1, (MORE_DETAIL_SHOW? 30 : 4));
 	errCode = WriteHeaps(doc, refNum);
 	if (errCode) return errCode;
 

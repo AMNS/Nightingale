@@ -7,7 +7,9 @@ problem for backward compatibility.*/
 
 /* An old comment here by MAS: "we want to /always/ use mac68k alignment." Why? I suspect
 for compatibility of files containing bitfields, which we no longer use. Still, it
-shouldn't cause any problems, so leave as is until there's a reason to change it. */ 
+shouldn't cause any problems, so leave as is until there's a reason to change it. --DAB,
+2018(?) */
+ 
 #pragma options align=mac68k
 
 /* ----------------------------------------------------------- Document printing stuff -- */
@@ -130,12 +132,12 @@ typedef struct {
 	char		named;				/* True if file has been named */							\
 	char 		used;				/* True if score contains any nonstructural info */			\
 	char		transposed;			/* True if transposed score, else C score */				\
-	char		lyricText;			/* (no longer used) True if last text entered was lyric */	\
+	char		fillerSC1;			/* (no longer used) True if last text entered was lyric */	\
 	char		polyTimbral;		/* True for one part per MIDI channel */					\
-	Byte		currentPage;		/* (no longer used) */										\
+	Byte		fillerSC2;			/* (no longer used) */										\
 	short		spacePercent,		/* Percentage of normal horizontal spacing used */			\
 				srastral,			/* Standard staff size rastral no. */						\
-				altsrastral,		/* (unused) Alternate staff size rastral no. */				\
+				altsrastral,		/* (not yet used but ready) Alternate staff size rastral no. */	\
 				tempo,				/* (unused?) playback speed in beats per minute */			\
 				channel,			/* Basic MIDI channel number */								\
 				velocity;			/* global playback velocity offset */						\
@@ -163,7 +165,10 @@ typedef struct {
 				masterTailL;		/* Tail of Master Page object list */						\
 	SignedByte	filler1,																		\
 				nFontRecords;		/* Always 15 for now */										\
-	/* Fifteen identical TEXTSTYLE records, 44 bytes each. Fontnames are Pascal strings. */		\
+																								\
+	/* <nFontRecords>  TEXTSTYLE records, 44 bytes each. Fontnames are Pascal strings.			\
+	   We declare each record explicitly simply so every field of every record has a			\
+	   unique name. It's far from clear this is a good idea! */									\
 																								\
 	unsigned char fontNameMN[32];	/* MEASURE NO. FONT: default name, size and style */		\
 	unsigned short	fillerMN;																	\

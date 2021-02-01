@@ -1,5 +1,5 @@
 /******************************************************************************************
-*	FILE:	VoiceTable.c (formerly called VoiceNumbers.c)
+*	FILE:	VoiceTable.c
 *	PROJ:	Nightingale
 *	DESC:	Routines for handling the voice-mapping table
 		OffsetVoiceNums			FillVoiceTable			BuildVoiceTable
@@ -24,8 +24,8 @@
 voice numbers are in use and, for each one that is in use: what part it belongs to;
 its "voice position" or "role" (upper, lower, cross-staff, or single); and its user
 voice number, by which Nightingale lets the user refer to the voice. Internal voice
-numbers must be unique, but user voice numbers need not be; in fact, they start with
-1 for each part.
+numbers must be unique, but user voice numbers are not: they start with 1 for each
+part.
 
 The voice table, doc->voiceTab, is indexed by the internal voice number. Every staff
 has a default voice whose internal number is the same as its staff number, and we
@@ -47,14 +47,13 @@ static void CompactVoiceNums(Document *);
 
 /* ------------------------------------------------------------------- OffsetVoiceNums -- */
 /* Add <nvDelta> to voice numbers of objects and subobjects that currently have voice
-numbers of at least <startSt>. Intended to open up space in the voice mapping
-table for newly-added staves' default voices, or to remove space formerly needed
-for newly-deleted staves' default voices. */
+numbers of at least <startSt>. Intended to open up space in the voice mapping table for
+newly-added staves' default voices, or to remove space formerly needed for newly-deleted
+staves' default voices. */
 
 void OffsetVoiceNums(Document *doc, short startSt, short nvDelta)
 {
-	LINK aNoteL, aGRNoteL;
-	register LINK pL;
+	LINK aNoteL, aGRNoteL, pL;
 	
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
 		switch (ObjLType(pL)) {
@@ -105,14 +104,12 @@ static void FillVoiceTable(
 					Boolean unused[])			/* On return, True=nothing in voice */
 {
 	LINK pL, aNoteL, aGRNoteL;
-	short	v, iVoice, partn, lastUsedV;
+	short v, iVoice, partn, lastUsedV;
 	
-	/*
-	 *	The objects with voice numbers other than notes and grace notes always
-	 *	get their voice numbers from the notes and grace notes they're attached
-	 *	to; thus, we don't need to pay any attention to the other object types
-	 *	here.
-	 */
+	/* The objects with voice numbers other than notes and grace notes always get their
+	   voice numbers from the notes and grace notes they're attached to; thus, we don't
+	   need to pay any attention to the other object types here. */
+	   
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
 			case SYNCtype:
@@ -121,12 +118,13 @@ static void FillVoiceTable(
 					iVoice = NoteVOICE(aNoteL);
 					unused[iVoice] = False;
 					if (doc->voiceTab[iVoice].partn!=0) continue;
-					/*
-					 *	The table has no entry for this note's voice number. Fill the
-					 *	relVoice field with one more than the highest number already in
-					 *	use for this part; initialize the voice position to single voice
-					 *	on staff; fill the part number field with this note's part number.
-					 */					
+					
+					/* The table has no entry for this note's voice number. Fill the
+					   <relVoice> field with one more than the highest number already in
+					   use for this part; initialize the voice position to single voice
+					   on staff; and fill the part number field with this note's part
+					   number. */
+					   					
 					partn = Staff2Part(doc, NoteSTAFF(aNoteL));
 					for (lastUsedV = 0, v = 1; v<=MAXVOICES; v++)
 						if (doc->voiceTab[v].partn==partn)
@@ -142,12 +140,13 @@ static void FillVoiceTable(
 					iVoice = GRNoteVOICE(aGRNoteL);
 					unused[iVoice] = False;
 					if (doc->voiceTab[iVoice].partn!=0) continue;
-					/*
-					 *	The table has no entry for this note's voice number. Fill the
-					 *	relVoice field with one more than the highest number already in
-					 *	use for this part; initialize the voice position to single voice
-					 *	on staff; fill the part number field with this note's part number.
-					 */					
+					
+					/* The table has no entry for this note's voice number. Fill the
+					   <relVoice> field with one more than the highest number already in
+					   use for this part; initialize the voice position to single voice
+					   on staff; and fill the part number field with this note's part
+					   number. */
+					   					
 					partn = Staff2Part(doc, GRNoteSTAFF(aGRNoteL));
 					for (lastUsedV = 0, v = 1; v<=MAXVOICES; v++)
 						if (doc->voiceTab[v].partn==partn)
@@ -167,8 +166,8 @@ static void FillVoiceTable(
 /* Create, from scratch, the table that maps internal voice numbers to combinations
 of part number and user voice number and specifies voices' <voiceRole> (upper, lower,
 etc.). Should not be used to update an existing voice mapping table because it sets
-every <voiceRole> to default and because it may reassign user voice numbers and
-thereby confuse people. */
+every <voiceRole> to default and because it may reassign user voice numbers and thereby
+confuse people. */
 
 void BuildVoiceTable(Document *doc, Boolean defaults)
 {
@@ -177,11 +176,17 @@ void BuildVoiceTable(Document *doc, Boolean defaults)
 	PPARTINFO pPart;
 	Boolean dummy[MAXVOICES+1];
 	
-	/* Clear out table, then, if <defaults>, fill in default voices with nos. the
-		same as staff nos. */
+	/* Clear out table; then, if <defaults>, fill in default voices with nos. the
+	   same as staff nos. */
 	
-	for (v = 1; v<=MAXVOICES; v++)
+	for (v = 1; v<=MAXVOICES; v++) {
+		/* Setting <partn> 0 marks this entry as invalid, but we set the other fields
+		   anyway, mostly to make file comparisons more predictable. */
+		   
 		doc->voiceTab[v].partn = 0;
+		doc->voiceTab[v].voiceRole = 0;
+		doc->voiceTab[v].relVoice = 0;
+	}
 	
 	if (defaults) {
 		partL = NextPARTINFOL(FirstSubLINK(doc->headL));
@@ -204,7 +209,6 @@ void BuildVoiceTable(Document *doc, Boolean defaults)
 	}
 		
 	FillVoiceTable(doc, dummy);
-
 }
 
 
@@ -247,31 +251,32 @@ void MapVoiceNums(Document *doc, short newVoiceTab[])
 
 
 /* ------------------------------------------------------------------ CompactVoiceNums -- */
-/* Update voice numbers of objects in the Document so there are no gaps and
-create a voice-mapping table that reflects the new situation. Does not assume
-the existing voice-mapping table is accurate. */
+/* Update voice numbers of objects in the Document so there are no gaps and create a
+voice-mapping table that reflects the new situation. Does not assume the existing voice-
+mapping table is accurate. */
  
 static void CompactVoiceNums(Document *doc)
 {
 	short newVoiceTab[MAXVOICES+1], v, vNew;
 	
-	/* Construct a special table that maps existing to desired voice numbers,
-		closing up any gaps. If we close any gaps, that will make the standard
-		voice-mapping table wrong, so we update it again at the end of the end
-		of this function. */
+	/* Construct a special table that maps existing to desired voice numbers, closing
+	   up any gaps. If we do close any gaps, that will make the standard voice-mapping
+	   table wrong, so we update it again at the end of the end of this function. */
 		
 	for (vNew = v = 1; v<=MAXVOICES; v++)
 		newVoiceTab[v] = (doc->voiceTab[v].partn>0? vNew++ : 0);
 			
 	/* Use the special table to change voice numbers throughout the object list. */
+	
 	MapVoiceNums(doc, newVoiceTab);
 	
 	/* Compact the voice table and adjust Looked-at voice no. to match. */
+	
 	for (v = 1; v<=MAXVOICES; v++)
-	if (newVoiceTab[v]>0 && newVoiceTab[v]!=v) {
-		doc->voiceTab[newVoiceTab[v]] = doc->voiceTab[v];
-		doc->voiceTab[v].partn = 0;							/* Mark the old slot as empty */
-	}
+		if (newVoiceTab[v]>0 && newVoiceTab[v]!=v) {
+			doc->voiceTab[newVoiceTab[v]] = doc->voiceTab[v];
+			doc->voiceTab[v].partn = 0;							/* Mark the old slot as empty */
+		}
 	if (doc->lookVoice>=0) doc->lookVoice = newVoiceTab[doc->lookVoice];
 }
 
@@ -287,8 +292,8 @@ void UpdateVoiceTable(Document *doc, Boolean defaults)
 	Boolean maybeEmpty[MAXVOICES+1];
 	
 	/* Set all slots to "maybe empty" except (if <defaults>) those for default voices,
-		and the slot for the Looked at voice, if there is one. Then fill in voices
-		actually used in the object list. */
+	   and the slot for the Looked at voice, if there is one. Then fill in voices
+	   actually used in the object list. */
 	
 	for (v = 1; v<=MAXVOICES; v++)
 		maybeEmpty[v] = (!defaults || v>doc->nstaves);
@@ -298,7 +303,7 @@ void UpdateVoiceTable(Document *doc, Boolean defaults)
 	FillVoiceTable(doc, maybeEmpty);			
 
 	/* Clear all slots that are still marked "maybe empty"--they aren't in use--and
-	 * close up any gaps in the table this might have produced. */
+	   close up any gaps in the table this might have produced. */
 		
 	for (v = 1; v<=MAXVOICES; v++)
 		if (maybeEmpty[v]) doc->voiceTab[v].partn = 0;
@@ -308,11 +313,11 @@ void UpdateVoiceTable(Document *doc, Boolean defaults)
 
 
 /* --------------------------------------------------------------------- User2IntVoice -- */
-/* Return the voice-mapping table slot number (the internal voice number) for the
-given user voice number and part. If the voice-mapping table doesn't have an entry
-for the user-voice-number/part combination, also put it into the first empty slot,
-if there is one. If it needs to add an entry but there are no empty slots, return
-0.  N.B. Assumes there no entries in the table after the first blank slot! */
+/* Return the voice-mapping table slot number (the internal voice number) for the given
+user voice number and part. If the voice-mapping table doesn't have an entry for the
+user-voice-number/part combination, also put it into the first empty slot, if there is
+one. If it needs to add an entry but there are no empty slots, return 0.  NB: Assumes
+there no entries in the table after the first blank slot! */
 
 short User2IntVoice(Document *doc, short uVoice, LINK addPartL)
 {
@@ -362,9 +367,9 @@ Boolean Int2UserVoice(Document *doc, short iVoice, short *puVoice, LINK *pPartL)
 
 
 /* ----------------------------------------------------------------------- NewVoiceNum -- */
-/* Find a "new" voice number for the given part: the lowest unused voice number
-greater than the number of staves in that part (since we reserve voice numbers 1
-thru n for default voice numbers on staves 1 thru n). */
+/* Find a "new" voice number for the given part: the lowest unused voice number greater
+than the number of staves in that part (since we reserve voice numbers 1 thru n for
+default voice numbers on staves 1 thru n). */
 
 short NewVoiceNum(Document *doc, LINK partL)
 {
@@ -394,10 +399,10 @@ short CountVoices(Document *doc)
 {
 	short nv = 0;
 	
-	/* If the voice table is legal, we could stop counting when we find the first
-		empty slot; but continuing to count all the way to the end might be more
-		robust. Anyway, it shouldn't hurt.
-	 */
+	/* If the voice table is legal, we could stop counting when we find the first empty
+	   slot; but continuing to count all the way to the end is more robust and it
+	   shouldn't hurt. */
+	   
 	for (int i = 0; i <= MAXVOICES; i++) {
 		if (doc->voiceTab[i].partn != 0) nv++;
 	}

@@ -71,9 +71,9 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->named = docN105->named;
 	doc->used = docN105->used;
 	doc->transposed = docN105->transposed;
-	doc->lyricText = docN105->lyricText;
+	doc->fillerSC1 = docN105->lyricText;
 	doc->polyTimbral = docN105->polyTimbral;
-	doc->currentPage = docN105->currentPage;
+	doc->fillerSC2 = docN105->currentPage;
 	doc->spacePercent = docN105->spacePercent;
 	doc->srastral = docN105->srastral;
 	doc->altsrastral = docN105->altsrastral;

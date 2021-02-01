@@ -525,9 +525,9 @@ static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LIN
 }
 
 
-/* Write out to file <refNum> the number of objects/subobjects in the given heap,
-followed by a copy of the HEAP structure. Return 0 if all OK, else an error code
-(system I/O error). */
+/* Write out to file <refNum> the number of objects/subobjects in the given heap
+followed by a copy of the HEAP structure; all multibyte numbers are written in Big
+Endian form. Return 0 if all OK, else an error code (system I/O error). */
 
 static short WriteHeapHdr(Document *doc, short refNum, short heapIndex)
 {
@@ -661,10 +661,10 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 }
 
 
-/* Actually write an object (not a subobject) to file. Objects are of varying lengths;
-we write out only the length of the particular type of object. Returns an I/O Error
-code or noErr. NB: The heap must be locked by the calling routine for the sake of
-FSWrite. */
+/* Actually write an object (not a subobject) to file, with multibyte numbers in Big
+Endian form. Objects are of varying lengths; we write out only the length of the
+particular type of object. Returns an I/O Error code or noErr. NB: The heap must be
+locked by the calling routine for the sake of FSWrite. */
  
 static short WriteObject(short refNum, LINK objL)
 {
@@ -685,6 +685,10 @@ static short WriteObject(short refNum, LINK objL)
 	return(ioErr);
 }
 
+
+/* Write a subobject to file, with multibyte numbers in Big Endian form. Returns an I/O
+Error code or noErr. NB: The heap must be locked by the calling routine for the sake of
+FSWrite. */
 
 static short WriteSubobj(short refNum, short heapIndex, LINK subL)
 {

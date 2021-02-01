@@ -3110,4 +3110,14 @@ HeapFileIO.
 15 - 24 Jan.
 
 Minor cleanup: remove extraneous newlines at ends of some strings, etc. Affects .rsrc;
-NLimits.h; DebugDisplay, EndianUtils, FileOpen, FileSave, HeapFileIO.
+NLimits.h; DebugDisplay, FileOpen, FileSave, HeapFileIO.
+
+---------------------------------------------------------------------------------------
+
+25 - 31 Jan.
+
+Progress toward fixing bug: can't open files written on Intel machines because some
+multibyte fields in the Score header are in the wrong Endian form. Affects EndianUtils.
+
+Minor cleanup. Affects Defs.h, NDocAndCnfgTypes.h; EndianUtils, FileConversion,
+FileOpen, FileSave, HeapFileIO, Initialize, Score, VoiceTable.

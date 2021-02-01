@@ -470,6 +470,7 @@ allow values forbidden by MAX_TSDENOM (defined elsewhere)! */
 #define LEFT_HLIM(doc, pL)	(J_DTYPE(pL)? -RIGHT_HLIM(doc) : 0)
 
 #define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
+#define MORE_DETAIL_SHOW	(DETAIL_SHOW && OptionKeyDown())
 
 /* ----------------------------------------------------------------- Conversion Macros -- */
 
