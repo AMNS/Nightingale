@@ -822,8 +822,14 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	errCode = ReadObjHeap(doc, refNum, version, isViewerFile);
 	if (errCode) return errCode;
 
-	if (version=='N105')	errCode = HeapFixN105Links(doc);
-	else					errCode = HeapFixLinks(doc);
+	if (version=='N105') errCode = HeapFixN105Links(doc);
+	else {
+#ifdef NOTYET
+		EndianFixAllObjects(doc);
+		EndianFixAllSubobjs(doc);
+#endif
+		errCode = HeapFixLinks(doc);
+	}
 	if (errCode)	return errCode;
 	else			return 0;
 }
@@ -1155,11 +1161,9 @@ static short HeapFixLinks(Document *doc)
 
 	/* First handle the main object list. */
 	
-	//FIX_END(doc->headL);
-	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
-		FIX_END(DRightLINK(doc, pL));
-		//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
-		switch(DObjLType(doc, pL)) {
+	for (pL = doc->headL; !tailFound; pL = RightLINK(pL)) {
+		LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, ObjLType(pL));
+		switch(ObjLType(pL)) {
 			case TAILtype:
 				doc->tailL = pL;
 				if (!doc->masterHeadL) {
@@ -1168,31 +1172,31 @@ static short HeapFixLinks(Document *doc)
 				}
 				doc->masterHeadL = pL+1;
 				tailFound = True;
-				DRightLINK(doc, doc->tailL) = NILINK;
+				RightLINK(doc->tailL) = NILINK;
 				break;
 			case PAGEtype:
-				DLinkLPAGE(doc, pL) = prevPage;
-				if (prevPage) DLinkRPAGE(doc, prevPage) = pL;
-				DLinkRPAGE(doc, pL) = NILINK;
+				LinkLPAGE(pL) = prevPage;
+				if (prevPage) LinkRPAGE(prevPage) = pL;
+				LinkRPAGE(pL) = NILINK;
 				prevPage = pL;
 				break;
 			case SYSTEMtype:
-				DSysPAGE(doc, pL) = prevPage;
-				DLinkLSYS(doc, pL) = prevSystem;
-				if (prevSystem) DLinkRSYS(doc, prevSystem) = pL;
+				SysPAGE(pL) = prevPage;
+				LinkLSYS(pL) = prevSystem;
+				if (prevSystem) LinkRSYS(prevSystem) = pL;
 				prevSystem = pL;
 				break;
 			case STAFFtype:
-				DStaffSYS(doc, pL) = prevSystem;
-				DLinkLSTAFF(doc, pL) = prevStaff;
-				if (prevStaff) DLinkRSTAFF(doc, prevStaff) = pL;
+				StaffSYS(pL) = prevSystem;
+				LinkLSTAFF(pL) = prevStaff;
+				if (prevStaff) LinkRSTAFF(prevStaff) = pL;
 				prevStaff = pL;
 				break;
 			case MEASUREtype:
-				DMeasSYSL(doc, pL) = prevSystem;
-				DMeasSTAFFL(doc, pL) = prevStaff;
-				DLinkLMEAS(doc, pL) = prevMeasure;
-				if (prevMeasure) DLinkRMEAS(doc, prevMeasure) = pL;
+				MeasSYSL(pL) = prevSystem;
+				MeasSTAFFL(pL) = prevStaff;
+				LinkLMEAS(pL) = prevMeasure;
+				if (prevMeasure) LinkRMEAS(prevMeasure) = pL;
 				prevMeasure = pL;
 				break;
 			case SLURtype:
@@ -1212,40 +1216,39 @@ static short HeapFixLinks(Document *doc)
 
 	/* Now do the Master Page list. */
 
-	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL)) {
-		FIX_END(DRightLINK(doc, pL));
-		//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
-		switch(DObjLType(doc, pL)) {
+	for (pL = doc->masterHeadL; pL; pL = RightLINK(pL)) {
+		//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, ObjLType(pL));
+		switch(ObjLType(pL)) {
 			case HEADERtype:
-				DLeftLINK(doc, doc->masterHeadL) = NILINK;
+				LeftLINK(doc->masterHeadL) = NILINK;
 				break;
 			case TAILtype:
 				doc->masterTailL = pL;
-				DRightLINK(doc, doc->masterTailL) = NILINK;
+				RightLINK(doc->masterTailL) = NILINK;
 				return 0;
 			case PAGEtype:
-				DLinkLPAGE(doc, pL) = prevPage;
-				if (prevPage) DLinkRPAGE(doc, prevPage) = pL;
-				DLinkRPAGE(doc, pL) = NILINK;
+				LinkLPAGE(pL) = prevPage;
+				if (prevPage) LinkRPAGE(prevPage) = pL;
+				LinkRPAGE(pL) = NILINK;
 				prevPage = pL;
 				break;
 			case SYSTEMtype:
-				DSysPAGE(doc, pL) = prevPage;
-				DLinkLSYS(doc, pL) = prevSystem;
-				if (prevSystem) DLinkRSYS(doc, prevSystem) = pL;
+				SysPAGE(pL) = prevPage;
+				LinkLSYS(pL) = prevSystem;
+				if (prevSystem) LinkRSYS(prevSystem) = pL;
 				prevSystem = pL;
 				break;
 			case STAFFtype:
-				DStaffSYS(doc, pL) = prevSystem;
-				DLinkLSTAFF(doc, pL) = prevStaff;
-				if (prevStaff) DLinkRSTAFF(doc, prevStaff) = pL;
+				StaffSYS(pL) = prevSystem;
+				LinkLSTAFF(pL) = prevStaff;
+				if (prevStaff) LinkRSTAFF(prevStaff) = pL;
 				prevStaff = pL;
 				break;
 			case MEASUREtype:
-				DMeasSYSL(doc, pL) = prevSystem;
-				DMeasSTAFFL(doc, pL) = prevStaff;
-				DLinkLMEAS(doc, pL) = prevMeasure;
-				if (prevMeasure) DLinkRMEAS(doc, prevMeasure) = pL;
+				MeasSYSL(pL) = prevSystem;
+				MeasSTAFFL(pL) = prevStaff;
+				LinkLMEAS(pL) = prevMeasure;
+				if (prevMeasure) LinkRMEAS(prevMeasure) = pL;
 				prevMeasure = pL;
 				break;
 			default:

@@ -388,20 +388,21 @@ void DisplayScoreHdr(short id, Document *doc)
 	LogPrintf(LOG_INFO, "  (22)firstMNNumber=%d\n", doc->firstMNNumber);
 
 	LogPrintf(LOG_INFO, "  (23)nfontsUsed=%d", doc->nfontsUsed);
+	LogPrintf(LOG_INFO, "  (24)fontTable[0].fontID=%d", doc->fontTable[0].fontID);	
 	Pstrcpy(tempFontName, doc->musFontName);
-	LogPrintf(LOG_INFO, "  (24)musFontName='%s'\n", PtoCstr(tempFontName));
+	LogPrintf(LOG_INFO, "  (25)musFontName='%s'\n", PtoCstr(tempFontName));
 	
-	LogPrintf(LOG_INFO, "  (25)magnify=%d", doc->magnify);
-	LogPrintf(LOG_INFO, "  (26)selStaff=%d", doc->selStaff);
-	LogPrintf(LOG_INFO, "  (27)currentSystem=%d", doc->currentSystem);
-	LogPrintf(LOG_INFO, "  (28)spaceTable=%d", doc->spaceTable);
-	LogPrintf(LOG_INFO, "  (29)htight=%d\n", doc->htight);
+	LogPrintf(LOG_INFO, "  (26)magnify=%d", doc->magnify);
+	LogPrintf(LOG_INFO, "  (27)selStaff=%d", doc->selStaff);
+	LogPrintf(LOG_INFO, "  (28)currentSystem=%d", doc->currentSystem);
+	LogPrintf(LOG_INFO, "  (29)spaceTable=%d", doc->spaceTable);
+	LogPrintf(LOG_INFO, "  (30)htight=%d\n", doc->htight);
 	
-	LogPrintf(LOG_INFO, "  (30)lookVoice=%d", doc->lookVoice);
-	LogPrintf(LOG_INFO, "  (31)ledgerYSp=%d", doc->ledgerYSp);
-	LogPrintf(LOG_INFO, "  (32)deflamTime=%d", doc->deflamTime);
-	LogPrintf(LOG_INFO, "  (33)colorVoices=%d", doc->colorVoices);
-	LogPrintf(LOG_INFO, "  (34)dIndentFirst=%d\n", doc->dIndentFirst);
+	LogPrintf(LOG_INFO, "  (31)lookVoice=%d", doc->lookVoice);
+	LogPrintf(LOG_INFO, "  (32)ledgerYSp=%d", doc->ledgerYSp);
+	LogPrintf(LOG_INFO, "  (33)deflamTime=%d", doc->deflamTime);
+	LogPrintf(LOG_INFO, "  (34)colorVoices=%d", doc->colorVoices);
+	LogPrintf(LOG_INFO, "  (35)dIndentFirst=%d\n", doc->dIndentFirst);
 }
 
 
@@ -435,15 +436,15 @@ Boolean CheckScoreHdr(Document *doc)
 	if (doc->lastGlobalFont<FONT_THISITEMONLY || doc->lastGlobalFont>MAX_FONTSTYLENUM) ERR(18);
 	if (doc->firstMNNumber<0 || doc->firstMNNumber>MAX_FIRSTMEASNUM) ERR(22);
 	if (doc->nfontsUsed<1 || doc->nfontsUsed>MAX_SCOREFONTS) ERR(23);
-	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) ERR(25);
-	if (doc->selStaff<-1 || doc->selStaff>doc->nstaves) ERR(26);
-	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) ERR(27);
-	if (doc->spaceTable<0) ERR(28);
-	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) ERR(29);
-	if (doc->lookVoice<-1 || doc->lookVoice>MAXVOICES) ERR(30);
-	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) ERR(31);
-	if (doc->deflamTime<1 || doc->deflamTime>1000) ERR(32);
-	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) ERR(34);
+	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) ERR(26);
+	if (doc->selStaff<-1 || doc->selStaff>doc->nstaves) ERR(27);
+	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) ERR(28);
+	if (doc->spaceTable<0) ERR(29);
+	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) ERR(30);
+	if (doc->lookVoice<-1 || doc->lookVoice>MAXVOICES) ERR(31);
+	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) ERR(32);
+	if (doc->deflamTime<1 || doc->deflamTime>1000) ERR(33);
+	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) ERR(35);
 	
 	if (nerr==0) {
 		LogPrintf(LOG_NOTICE, "No errors found.  (CheckScoreHdr)\n");

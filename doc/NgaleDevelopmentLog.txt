@@ -8810,7 +8810,7 @@ correct figures:
 
 Start
 loc.	Intel rows					PPC rows	Comment
----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
 0xb60	5 nonzero & 16 all zero		21		The string "DUMMY" starts at 0xb62, "DUM." later
 0xcc0 	ca. 12 nonzero & 38 zero	ca. 50	"Unnamed" starts a few bytes before, then "Unnam.";
 											much later, "DUMMY", then "DUM."
@@ -8899,11 +8899,12 @@ a matter of Endianness, since it's just one byte that's diferent! ??
 Add code to BuildVoiceTable() to initialize all fields. Create 1NoteA4PPC.ngl and
 1NoteD6Intel.ngl; compare hexdumps => only 23 differences!
 
-	(2 in Document header)
-	(3 in Score header:)
-	0x190-191 (R 140-141): firstMNNumber. But we FIX_END this, so ??
+(2 in Document header)
+(3 in Score header:)
+	0x190 - 191 (R 140 - 141): firstMNNumber. But we FIX_END this, so ??
 	42f (R 3df): 2nd byte of fontTable[0] = 2nd byte of fontID. ?? See above.
-	71a-73d (R 6ca-6fd): in spaceMap thru voiceTab. 72e (R 6ee): dIndentFirst
+	71a - 73d (R 6ca - 6fd): in spaceMap thru voiceTab. 72e (R 6ee) ??OR 73a - b??: dIndentFirst
+(After Score header:)
 	a22-b49 = 2594-2889(10): in string pool
 	
 5 fewer differences than the previous low: good, but no change to the voiceTab difference
@@ -8911,4 +8912,103 @@ Add code to BuildVoiceTable() to initialize all fields. Create 1NoteA4PPC.ngl an
 
 WriteFile() handles the Endian fixing before writing the Document and Score headers; it
 just calls EndianFixDocumentHdr and EndianFixScoreHdr. Are those doing anything on Intel?
-Add debug prints => it looks like they're not!!
+Add debug prints => it looks like they're not, but...
+
+---------------------------------------------------------------------------------------
+
+1 - 7 Feb.
+
+ACK! EndianFixScoreHdr() "fixes" firstMNNumber _twice_, once assuming it's a 13-bit field 
+(as it was in N105 files), and once correctly (as a short)! Remove the 13-bit "fix"; create
+1NoteG6Intel.ngl; compare to 1NoteE4PPC.ngl => 25 differences:
+
+(2 in Document header)
+(2 in Score header:)
+	42f (R 3df): 2nd byte of fontTable[0] = 2nd byte of fontID. Is the difference legit?
+	71a - 75f (R 6ca - 70f): in spaceMap thru voiceTab. R 6ca: spaceMap[0]
+
+firstMNNumber is finally OK!
+
+ Now, R 6ca-d = spaceMap[0] on Intel looks like it's just not end fixed -- and it's not!
+ Add call to EndianFixSpaceMap() to EndianFixScoreHdr; create 1NoteF6Intel.ngl and
+ 1NoteG4PPC.ngl; compare hexdumps => only 22 differences.
+
+(2 in Document header)
+(1 in Score header:)
+	42f (R 3df): 2nd byte of fontTable[0] = 2nd byte of fontID. Is the difference legit?
+(After Score header: String pool starts at 2578(10))
+	a20 - b49 = 2592 - 2889(10) = string pool+14 - string pool+311
+
+This part of the Intel file looks like a scrambled version of PPC, not just different Endian:
+
+PPC:	00000a20  7d 00 80 00 00 00 00 00  00 02 ff ff 83 00 00 00  |}.........ˇˇ....|
+		00000a30  00 04 ff ff 83 00 00 00  7d 00 00 00 00 00 00 00  |..ˇˇ....}.......|
+
+Intel:	00000a20  00 00 7d 00 00 02 80 00  83 00 00 00 00 04 ff ff  |..}...........ˇˇ|
+		00000a30  83 00 00 00 7d 00 ff ff  7d 00 00 00 00 00 00 00  |....}.ˇˇ}.......|
+
+Well, don't worry about that for now. What do complaints from Ngale Debug Check of an Intel
+tell me? Ah, SYSTEM objects need more Endian fixing => success!!! 1NoteE6Intel.ngl opens
+on PPC -- and with no Debug complaints :-) . The first time I've ever opened a file written
+on Intel on either architecture :---))) .
+
+Now, open 1NoteE6Intel.ngl on Intel => not good; lots of complaints while reading; even
+objects's LeftLINKs are bad. Obvious cause: we're not calling EndianFixObject (or
+EndianFixSubobj) when we open files!
+
+WriteObjHeap calls WriteObject, which does:
+
+	EndianFixObject(objL);								/* Ensure in Big Endian form */
+	p = LinkToPtr(myHeap, objL);
+	ioErr = FSWrite(refNum, &count, p);
+	EndianFixObject(objL);								/* Back to processor-specific Endian */
+	
+WriteSubobj does the same thing, but using EndianFixSubobj, natch.
+
+ReadObjHeap reads the entire heap with a single call to FSRead; then it calls
+MoveObjSubobjs and RebuildFreeList, but nobody ever calls EndianFixObject or
+EndianFixSubobj -- understandably because it's always dealing with a heap as a unit. But
+that's no excuse :-) .
+
+But this is from 1NoteE6IntelOpenOnIntelLog.txt:
+
+	debug. ReadObjHeap: L1: 00 02 00 00   00 01 00 00   00 00 00 00   00 01 00 00
+	debug.                : 10 27 00 00   00 00 00 00   00 00 65 2e   02 6d 00 03
+	debug.                : 00 01 00 00   00 00 00 00   04 00 01 01   00 00 
+	debug. ReadObjHeap: L2: 00 03 00 01   00 00 00 00   00 00 04 00   01 01 00 00
+	debug.                : 70 70 00 00   00 00 00 00   00 00 75 6c   00 43 00 00
+	debug.                : 00 00 00 00   69 6f 6e 08   0f 26 50 71   ae 73 
+	debug. OpenFile: L1: 02 00 00 00   00 01 00 00   00 00 00 00   00 01 00 00
+	debug.             : 10 27 00 00   00 00 00 00   00 00 65 2e   02 6d 00 03
+	debug.             : 00 01 00 00   00 00 00 00   04 00 01 01   00 00 
+	debug. OpenFile: L2: 03 00 00 01   00 00 00 00   00 00 04 00   01 01 00 00
+	debug.             : 70 70 00 00   00 00 00 00   00 00 75 6c   00 43 00 00
+	debug.             : 00 00 00 00   69 6f 6e 08   0f 26 50 71   ae 73 
+
+The 1st field -- the Right LINK -- is getting converted properly to Intel internal form
+(little Endian), but nothing else is! Cause: HeapFixLinks does  FIX_END(DRightLINK(doc, pL)) .
+Try replacing that with  EndianFixObject(pL)  => NObjDump dumps L1 & L2 from OpenFile
+look good, and so do the later set showing objs L1 thru L4! But problems start with
+
+	info. Staff sizes in points are  1:0 2:0
+	Warning. Not all staves have reasonable sizes.
+
+-- which makes sense: Staff sizes are set in FillRelStaffSizes() via
+
+		lnSpace = StaffHEIGHT(aStaffL) / (StaffSTAFFLINES(aStaffL)-1);
+
+<aStaffL> is a staff subobject; of course subobjs also need Endian fixes.
+
+Hmmm. Besides the main object list, HeapFixLinks does the Master Page list. We need to
+Endian fix that, too. This is a bit much for a routine whose main job is something else!
+Probably better to call a new function, say EndianFixHeap, first, to do all: objects
+and subobjects -- including modifiers.
+
+But HeapFixLinks uses the macros that have the Document as an argument. I wrote it that
+way just to be safe, since I didn't know if I could count on the newly-opened doc having
+been installed! If I can't count on that, I can't use EndianFixObject and EndianFixSubobj
+as is. Is it really uncertain if the doc has been installed?
+
+The Open File menu command calls BuildDocument, which calls InstallDoc, then (if it's an
+existing file) OpenFile. So it's not a problem! The doc has always been installed! Yay!
+

@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10)
 Nightingale Technical Note #1
-Don Byrd, rev. late January 2021
+Don Byrd, rev. early February 2021
 
 A general note:
 
@@ -72,9 +72,9 @@ Offset	Length	Item
 8		72		Document header
 80		2148	Score header
 2228	2		LASTtype (always 25) (offset 2228 = 0x8B4)
-2230	4		String pool length (in bytes)
-2234	var.	String pool, containing all the character strings
-var.	var.	Heaps, containing the content of the score
+2230	4		String pool length (in bytes) = SL
+2234	SL		String pool, containing all the character strings
+2234+SL var.	Heaps, containing the content of the score
 
 As of this writing, an “N106” format is under development. In terms of the details above,
 it’s identical except bytes 0 to 3 are "N106", and the length of the Score header is
@@ -90,7 +90,9 @@ Offset			Length		Offset			Length	Item
 348 = 0x15C		42			348 = 0x15C		60		various: <noteInsFeedback>, etc.
 390 = 0x186		540			408 = 0x198		660		15 TEXTSTYLE records of 36/44 bytes each
 930 = 0x3A2		714			1068 = 0x42C	714		<nfontsUsed>, <fontTable>, <musFontName>
-1644 = 0x66C				1782 = 0x6F6			various: <magnify>, etc.
+1644 = 0x66C	32			1782 = 0x6F6	36		various: <magnify>, etc.
+1676 = 0x68C	472			1818 = 0x71A	674		<spaceMap>
+2148 = 0x864				2492 = 0x9BC			just after the end (total length)
 
 ---------------------------------------------------------------------------------------
 

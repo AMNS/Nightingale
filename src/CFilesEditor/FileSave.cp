@@ -684,14 +684,15 @@ for OpenError(). */
 void SaveError(Boolean fileIsOpen,
 					short refNum,
 					short errCode,
-					short errInfo)		/* More info: at what step error happened, type of obj being written, etc. */
+					short errInfo)		/* Details: see File.h for codes */
 {
 	char aStr[256], fmtStr[256];
 	StringHandle strHdl;
 	short strNum;
 
 	SysBeep(1);
-	LogPrintf(LOG_ERR, "Error saving the file. errCode=%d errInfo=%d  (SaveError)\n", errCode, errInfo);
+	LogPrintf(LOG_ERR, "Error saving the file. errCode=%d errInfo=%d  (SaveError)\n",
+		errCode, errInfo);
 	if (fileIsOpen) FSClose(refNum);
 
 	/* We expect descriptions of the common errors stored by code (negative values,

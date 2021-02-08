@@ -209,8 +209,13 @@ int InitStringPool(StringPoolRef pool, long size)
 		if (pool) {
 			StringPool *p = *pool;								/* Caution: floating ptr */
 			
+			/* To facilitate debugging, fill the <bottomByte> array with a distinctive value. */
+			for (short i = 0; i<MAXSAVE; i++)
+				p->bottomByte[i] = 0xABCDE;
+				
 			p->firstFreeByte = sizeof(StringPool);
 			p->lockLevel = 0;
+
 			p->bottomByte[p->saveLevel = 0] = p->firstFreeByte;
 			p->nullstr = 0;										/* Load empty string at offset 0 */
 			p->nulltype = (C_String | P_String);				/* The only string of both types */
@@ -400,10 +405,8 @@ short StringPoolProblem(StringPoolRef pool)
 						/*** C String Routines ***/
 						/*************************/
 
-/*
- *	Tell caller whether given string was stored as C string or not. Always True
- *	for the empty string, and garbage if given offset is garbage.
- */
+/* Tell caller whether given string was stored as C string or not. Always True for the
+empty string, and garbage if given offset is garbage. */
 
 int IsCStringInPool(StringRef offset, StringPoolRef pool)
 	{
@@ -459,8 +462,8 @@ StringRef CStoreInPool(Byte *str, StringPoolRef pool)
 	}
 
 /* Append the given C string, str, to the already stored string at offset in the
-given pool.  Deliver the new offset of the concatenated string, in case we have
-to move the whole thing.  The caller should ensure that the stored string is C. */
+given pool.  Deliver the new offset of the concatenated string, in case we have to
+move the whole thing.  The caller should ensure that the stored string is C. */
 
 StringRef CConcatStringInPool(StringRef offset, Byte *str, StringPoolRef pool)
 	{
@@ -557,18 +560,16 @@ Byte *CAddrInPool(StringRef offset, StringPoolRef pool)
 		 else {
 			start = ((Byte *)p) + offset;
 			if (*start==0 || *start>(C_String|P_String))
-				start = nil;						// Check for legal string types
+				start = nil;						/* Check for legal string types */
 			 else
 				if ((*start++ & C_String) == 0)
-					SysBeep(1);						// But deliver it anyway
+					SysBeep(1);						/* But deliver it anyway */
 			}
 		
 		return(start);
 	}
 
-/*
- *	Deliver the width, in pixels, off the given stored C string.
- */
+/*	Deliver the width, in pixels, off the given stored C string. */
 
 long CStringWidthInPool(StringRef offset, StringPoolRef pool)
 	{
@@ -587,9 +588,7 @@ long CStringWidthInPool(StringRef offset, StringPoolRef pool)
 		return(width);
 	}
 
-/*
- *	Draw the given stored C string in the current port
- */
+/*	Draw the given stored C string in the current port */
 
 void CDrawStringInPool(StringRef offset, StringPoolRef pool)
 	{
@@ -620,8 +619,8 @@ StringRef PStoreInPool(Byte *str, StringPoolRef pool)
 		StringRef start;  long len;  Byte *dst;
 		StringPool *p;
 		
-		// If the string is nil or empty, always maps to the canonical
-		// empty string stored at offset 0 in every pool.
+		/* If the string is nil or empty, always maps to the canonical empty string
+		   stored at offset 0 in every pool. */
 		
 		if (str==nil || *str==0) return(emptyStringRef);
 		
@@ -634,7 +633,7 @@ StringRef PStoreInPool(Byte *str, StringPoolRef pool)
 				NoStringMemoryFunc(noMemoryErrCode);
 				return(noMemoryStringRef);
 				}
-			p = *pool;			// Memory moved so deref again
+			p = *pool;			/* Memory moved so deref again */
 			}
 		
 		/* Copy str to its resting place */
@@ -649,53 +648,56 @@ StringRef PStoreInPool(Byte *str, StringPoolRef pool)
 		return(start);
 	}
 
-/*
- *	Replace the string at a given offset with another string and deliver new offset.
- *	If the replacement is longer than the one already there, add new one, and
- *	deliver new offset, which may be -1 if error.  Old storage will be lost, except
- *	if allocation is done at some save level that gets restored.
- */
+/* Replace the string at a given offset with another string and deliver new offset.
+If the replacement is longer than the one already there, add new one, and deliver new
+offset, which may be -1 if error.  Old storage will be lost, except if allocation is
+done at some save level that gets restored. */
 
 StringRef PReplaceInPool(StringRef offset, Byte *str, StringPoolRef pool)
 	{
 		Byte *dst;  long len, newLen;
 		StringPool *p;
 		
-		// If the string is nil or empty, always maps to the canonical
-		// empty string stored at offset 0 in every pool.
+		/* If the string is nil or empty, always maps to the canonical empty string
+		   stored at offset 0 in every pool. */
 		
 		if (str==nil || *str==0) return(emptyStringRef);
 		
-		// Install current pool if necessary
+		/* Install current pool if necessary */
+		
 		if (pool == nilpool) pool = thePool;
 		p = *pool;
 		
-		// Reality check on offset
+		/* Reality check on offset */
+		
 		if (offset<0 || offset>=p->firstFreeByte) return(badParamStringRef);
 		
-		// Get tag byte of Pascal string, and reality check it
+		/* Get tag byte of Pascal string, and reality check it */
+		
 		dst = ((Byte *)p) + offset;
 		if (*dst==0 || *dst>(C_String|P_String)) return(badParamStringRef);
 		
-		if ((*dst++ & P_String) == 0) {		// Moves dst up to length byte
+		if ((*dst++ & P_String) == 0) {		/* Moves dst up to length byte */
 			SysBeep(1);
 			return(badParamStringRef);
 			}
 		
-		// Check to see if string being replaced is last string in pool
+		/* Check to see if string being replaced is last string in pool */
+		
 		len = 2 + *dst;
 		if ((offset + len) == p->firstFreeByte) {
-			// Yup, it's last string in pool
-			p->firstFreeByte = offset;				// Delete it
-			return(PStoreInPool(str,pool));			// and append
+			/* Yup, it's last string in pool */
+			
+			p->firstFreeByte = offset;				/* Delete it */
+			return(PStoreInPool(str,pool));			/* and append */
 			}
 		
 		newLen = 2 + *str;
 		if (newLen > len)
-			return(PStoreInPool(str,pool));		// If won't fit, append it to pool
+			return(PStoreInPool(str,pool));		/* If won't fit, append it to pool  */
 		
 		while (--newLen > 0)
-			*dst++ = *str++;					// Else, overwrite old value
+			*dst++ = *str++;					/* Else, overwrite old value */
 		
 		return(offset);
 	}
@@ -719,10 +721,10 @@ Byte *PAddrInPool(StringRef offset, StringPoolRef pool)
 		 else {
 			start = ((Byte *)p) + offset;
 			if (*start==0 || *start>(C_String|P_String))
-				start = nil;						// Check for legal types
+				start = nil;						/* Check for legal types */
 			 else
 				if ((*start++ & P_String) == 0)
-					SysBeep(1);						// But deliver it anyway
+					SysBeep(1);						/* But deliver it anyway */
 			}
 		
 		return(start);
@@ -748,17 +750,20 @@ Byte *PCopyInPool(long offset, StringPoolRef pool)
 			pool = thePool;
 		p = *pool;
 		
-		// Allow two consecutive calls to avoid interference
+		/* Allow two consecutive calls to avoid interference */
+		
 		dst = buf = (flip ? theCopy : anotherCopy);
 		
 		if (offset<0 || offset>=p->firstFreeByte) {
-			// Returns the empty string
+		
+			/* Returns the empty string */
+			
 			buf[0] = 0;
 			return(buf);
 			}
 		
 		src = ((Byte *)p) + offset;
-		if (*src==0 || *src>(C_String|P_String)) {			// Check for legal types
+		if (*src==0 || *src>(C_String|P_String)) {			/* Check for legal types */
 			buf[0] = 0;
 			return(buf);
 			}
@@ -769,7 +774,7 @@ Byte *PCopyInPool(long offset, StringPoolRef pool)
 			return(buf);
 			}
 		
-		// Use alternate buffers on alternate calls
+		/* Use alternate buffers on alternate calls */
 		
 		flip = !flip;
 		len = 1 + *src;

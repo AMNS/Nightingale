@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018-21 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -26,8 +26,8 @@ static void SetTimeStamps(Document *);
 
 
 /* Codes for object types being read/written or for non-read/write call when an I/O
-error occurs. Note that all are negative. See file.h for additional, positive,
-codes. FIXME: Move these #defines to file.h! */
+error occurs. Note that all are negative. See file.h for additional, positive, codes.
+FIXME: Move these #defines to file.h! */
 
 #define	HEADERobj -999
 #define VERSIONobj -998
@@ -157,7 +157,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 //DIFF(aDocN105.comment[0], aDocN105.headL), DIFF(aDocN105.spacePercent, aDocN105.headL), DIFF(aDocN105.fillerMB, aDocN105.headL), DIFF(aDocN105.nFontRecords, aDocN105.headL),
 //DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.headL));
 
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Header size for Document=%ld, for Score=%ld, for N105 Score=%ld.  (OpenFile)\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Header size for Document=%ld, for Score=%ld, for N105 Score=%ld.  (OpenFile)\n",
 		sizeof(DOCUMENTHDR), sizeof(SCOREHEADER), sizeof(SCOREHEADER_N105));
 
 	count = sizeof(fileTime);									/* Time file was written */
@@ -275,6 +275,13 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	   necessary, convert them to the current format. */
 	
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
+if (1) {
+	unsigned char *pSObj;
+	pSObj = (unsigned char *)GetPSUPEROBJ(1);
+	NHexDump(LOG_DEBUG, "OpenFile: L1", pSObj, 46, 4, 16);
+	pSObj = (unsigned char *)GetPSUPEROBJ(2);
+	NHexDump(LOG_DEBUG, "OpenFile: L2", pSObj, 46, 4, 16);
+}
 	if (errCode!=noErr) { errInfo = READHEAPScall; goto Error; }
 
 	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size

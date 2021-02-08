@@ -184,9 +184,6 @@ void EndianFixScoreHdr(Document *doc)
 	FIX_ULONG_END(doc->headerStrOffset);
 	FIX_ULONG_END(doc->footerStrOffset);
 	FIX_END(doc->dIndentOther);
-//LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
-	doc->firstMNNumber = EndianFix_13BitField(doc->firstMNNumber);	/* Special treatment for bitfield */
-//LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
 	FIX_END(doc->aboveMN);
 	FIX_END(doc->sysFirstMN);
 	FIX_END(doc->startMNPrint1);
@@ -221,6 +218,7 @@ void EndianFixScoreHdr(Document *doc)
 	FIX_END(doc->lookVoice);
 	FIX_END(doc->ledgerYSp);
 	FIX_END(doc->deflamTime);
+	EndianFixSpaceMap(doc);
 	FIX_END(doc->dIndentFirst);
 }
 
@@ -247,6 +245,8 @@ void EndianFixObject(LINK pL)
 //LogPrintf(LOG_DEBUG, "EndianFixObject2: pL=%u LeftLINK(pL)=%u\n", pL, LeftLINK(pL));
 	FIX_END(RightLINK(pL));
 	FIX_END(FirstSubLINK(pL));
+	FIX_END(LinkXD(pL));
+	FIX_END(LinkYD(pL));
 
 	/* Now handle object-type-specific fields. */
 
@@ -272,7 +272,7 @@ void EndianFixObject(LINK pL)
 			FIX_END(LinkLSYS(pL));
 			FIX_END(LinkRSYS(pL));
 			FIX_END(SystemNUM(pL));
-			//FIX_END(SystemRECT(pL));
+			EndianFixRect((Rect *)&SystemRECT(pL));
 			FIX_END(SysPAGE(pL));
 			break;
 		case STAFFtype:
@@ -286,7 +286,7 @@ void EndianFixObject(LINK pL)
 			FIX_END(MeasISFAKE(pL));
 			FIX_END(MeasSPACEPCT(pL));
 			FIX_END(MeasSTAFFL(pL));
-			//FIX_END(MeasureBBOX(pL));
+			EndianFixRect(&MeasureBBOX(pL));
 			FIX_END(MeasureTIME(pL));
 			break;
 		case CLEFtype:

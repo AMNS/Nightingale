@@ -3121,3 +3121,13 @@ multibyte fields in the Score header are in the wrong Endian form. Affects Endia
 
 Minor cleanup. Affects Defs.h, NDocAndCnfgTypes.h; EndianUtils, FileConversion,
 FileOpen, FileSave, HeapFileIO, Initialize, Score, VoiceTable.
+
+---------------------------------------------------------------------------------------
+
+1 - 8 Feb.
+
+Progress toward fixing bug: can't open files written on Intel machines because some
+multibyte fields in the Score header and some in objects are in the wrong Endian form.
+Affects EndianUtils, HeapFileIO.
+
+Minor cleanup. Affects FileOpen, FileSave, FileUtils, HeapFileIO, StringPool.
