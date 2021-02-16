@@ -24,29 +24,6 @@
 
 static void SetTimeStamps(Document *);
 
-
-/* Codes for object types being read/written or for non-read/write call when an I/O
-error occurs. Note that all are negative. See file.h for additional, positive, codes.
-FIXME: Move these #defines to file.h! */
-
-#define	HEADERobj -999
-#define VERSIONobj -998
-#define SIZEobj -997
-#define CREATEcall -996
-#define OPENcall -995
-#define CLOSEcall -994
-#define DELETEcall -993
-#define RENAMEcall -992
-#define WRITEcall -991
-#define STRINGobj -990
-#define INFOcall -989
-#define SETVOLcall -988
-#define BACKUPcall -987
-#define MAKEFSSPECcall -986
-#define NENTRIESerr -899
-#define READHEAPScall -898
-
-
 /* A version code is four characters, specifically 'N' followed by three digits, e.g.,
 'N105': N-one-zero-five. Be careful: It's not a valid C or Pascal string! */
 static unsigned long version;							/* File version code read/written */

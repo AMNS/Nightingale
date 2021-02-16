@@ -810,6 +810,7 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 {
 	short iHp, errCode=0;
 	Boolean isViewerFile;
+	LINK objL;
 		
 	isViewerFile = (fdType==DOCUMENT_TYPE_VIEWER);
 
@@ -824,12 +825,26 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 
 	if (version=='N105') errCode = HeapFixN105Links(doc);
 	else {
-#ifdef NOTYET
-		EndianFixAllObjects(doc);
-		EndianFixAllSubobjs(doc);
-#endif
 		errCode = HeapFixLinks(doc);
+
+		for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
+#if 1
+			if (ObjLType(objL)==HEADERtype || ObjLType(objL)==STAFFtype)
+				DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);				
+#else
+			if (ObjLType(objL)==HEADERtype) {
+				for (LINK partL = FirstSubLINK(objL); partL; partL = NextPARTINFOL(partL))
+					LogPrintf(LOG_DEBUG, "ReadHeaps2: HEADER objL=%u partL=%u\n",
+							objL, partL);
+			}
+#endif
+
+		for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
+			EndianFixSubobjs(objL);
+		for (objL = doc->masterHeadL; objL!=doc->masterTailL; objL = RightLINK(objL))
+			EndianFixSubobjs(objL);
 	}
+	
 	if (errCode)	return errCode;
 	else			return 0;
 }
@@ -1149,8 +1164,9 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 }
 
 
-/* Traverse the main and Master Page object lists and fix up the cross pointers.  Return
-0 if all is well, else return FIX_LINKS_ERR. */
+/* Traverse the main and Master Page object lists and fix up the cross links. Intended
+for use when a file has just been read in. We handle Endianness; it must not have been
+done yet! Return 0 if all is well; else return FIX_LINKS_ERR. */
 
 static short HeapFixLinks(Document *doc)
 {
@@ -1162,7 +1178,8 @@ static short HeapFixLinks(Document *doc)
 	/* First handle the main object list. */
 	
 	for (pL = doc->headL; !tailFound; pL = RightLINK(pL)) {
-		LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, ObjLType(pL));
+		EndianFixObject(pL);							/* Ensure in processor-specific Endian */
+//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, ObjLType(pL));
 		switch(ObjLType(pL)) {
 			case TAILtype:
 				doc->tailL = pL;
@@ -1217,6 +1234,7 @@ static short HeapFixLinks(Document *doc)
 	/* Now do the Master Page list. */
 
 	for (pL = doc->masterHeadL; pL; pL = RightLINK(pL)) {
+		EndianFixObject(pL);							/* Ensure in processor-specific Endian */
 		//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, ObjLType(pL));
 		switch(ObjLType(pL)) {
 			case HEADERtype:

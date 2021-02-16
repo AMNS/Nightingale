@@ -271,7 +271,8 @@ void DisplayObject(Document *doc, LINK pL,
 		case STAFFtype:
 			for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 				aStaff = GetPASTAFF(aStaffL);
-				LogPrintf(LOG_INFO, "     stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
+				LogPrintf(LOG_INFO, "     aStaffL=L%u next=L%u stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
+					aStaffL, NextSTAFFL(aStaffL),
 					aStaff->staffn, aStaff->staffTop,
 					aStaff->staffLeft, aStaff->staffHeight,
 					aStaff->staffRight, aStaff->staffLines,

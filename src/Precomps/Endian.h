@@ -1,7 +1,8 @@
 /* Endian.h for Nightingale. Created by Michel Alexandre Salim on 4/13/08. */
 
 /* PowerPCs are Big Endian; Intel processors are Little Endian. Nightingale score files
-keep everything in one format, so we need functions to convert back and forth. */
+keep everything in Big Endian format, so we need functions to convert back and forth on
+Intel machines. */
 
 #if TARGET_RT_LITTLE_ENDIAN
 #define FIX_END(v) FIX_ENDIAN(sizeof(v), v)
@@ -23,4 +24,5 @@ void		EndianFixDocumentHdr(Document *doc);
 void		EndianFixScoreHdr(Document *doc);
 void		EndianFixHeapHdr(Document *doc, HEAP *heap);
 void		EndianFixObject(LINK pL);
-void		EndianFixSubobj(short heapIndex, LINK pL);
+void		EndianFixSubobj(short heapIndex, LINK subL);
+void		EndianFixSubobjs(LINK objL);

@@ -9,9 +9,9 @@
  */
  
 /* Includes code for managing key presses that select from a popup menu of dynamics.
-This code parallels that for duration popups in DurationPopUp.c, and (especially)
-for modifier popups in ModNRPopUp.c. Also in this file are dialog routines invoked
-when user double-clicks a dynamic.                      -- John Gibson, 8/5/00 */
+This code parallels that for duration popups in DurationPopUp.c, and especially for
+modifier popups in ModNRPopUp.c. Also in this file are dialog routines invoked when
+user double-clicks a dynamic.                      -- John Gibson, 8/5/00 */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -20,7 +20,7 @@ when user double-clicks a dynamic.                      -- John Gibson, 8/5/00 *
 extern Boolean TranslatePalChar(short *, short, Boolean);
 
 /* ASCII decimal for the dynamic symbols in popDynMod font */
-static enum {
+enum {
 	POP_PPP_DYNAM = 65,
 	POP_PP_DYNAM,
 	POP_P_DYNAM,
@@ -30,7 +30,7 @@ static enum {
 	POP_FF_DYNAM,
 	POP_FFF_DYNAM,
 	POP_SF_DYNAM
-} E_DynPopupItems;
+};
 
 
 typedef struct {
@@ -41,17 +41,16 @@ typedef struct {
 
 /* ----------------------------- DynamicPopupKey & Friends ----------------------------- */
 
-/* Allocates 1-based array mapping menu item numbers to DYN_POPKEY structs.
-Caller should dispose this pointer when disposing its associated popop.
-Assumes graphic popup already inited.
+/* Allocates 1-based array mapping menu item numbers to DYN_POPKEY structs. Caller
+should dispose this pointer when disposing its associated popop. Assumes graphic popup
+is already inited.
 
-CAUTION: The symCodes assigned here _must_ be consistent with those that appear
-in the <symtable> in vars.h. */
+CAUTION: The symCodes assigned here _must_ be consistent with those that appear in the
+<symtable> in vars.h. */
 
 static DYN_POPKEY *InitDynamicPopupKey(PGRAPHIC_POPUP gp);
 static DYN_POPKEY *InitDynamicPopupKey(PGRAPHIC_POPUP gp)
 {
-	short		i;
 	char		*q;
 	DYN_POPKEY	*pkeys, *p;
 	
@@ -62,7 +61,7 @@ static DYN_POPKEY *InitDynamicPopupKey(PGRAPHIC_POPUP gp)
 	
 	p = &pkeys[1];											/* point to 1st real entry */
 	q = gp->itemChars;
-	for (i=0; i<gp->numItems; i++, q++, p++) {
+	for (short i=0; i<gp->numItems; i++, q++, p++) {
 		switch (*q) {
 			case POP_PPP_DYNAM:
 				p->dynamicType = PPP_DYNAM;
@@ -113,8 +112,8 @@ broken:
 }
 
 
-/* Given a dynamic popup and associated DYN_POPKEY array, return the index
-into that array of the given dynamicType. The index will be a menu item number. */
+/* Given a dynamic popup and associated DYN_POPKEY array, return the index into that
+array of the given dynamicType. The index will be a menu item number. */
 
 static short GetDynamicPopItem(PGRAPHIC_POPUP p, DYN_POPKEY *pk, short dynamicType)
 {
@@ -128,15 +127,15 @@ static short GetDynamicPopItem(PGRAPHIC_POPUP p, DYN_POPKEY *pk, short dynamicTy
 }
 
 
-/* Given a character code <theChar>, a popup <p> and its associated DYN_POPKEY
-array <pk>, determine if the character should select a new dynamic from the popup.
-If it should, call SetGPopUpChoice and return True; if not, return False.
-DynamicPopupKey calls TranslatePalChar before doing anything, so it recognizes
-remapped modifier key equivalents. */
+/* Given a character code <theChar>, a popup <p> and its associated DYN_POPKEY array
+<pk>, determine if the character should select a new dynamic from the popup. If it
+should, call SetGPopUpChoice and return True; if not, return False. DynamicPopupKey
+calls TranslatePalChar before doing anything, so it recognizes remapped modifier key
+equivalents. */
 
 Boolean DynamicPopupKey(PGRAPHIC_POPUP p, DYN_POPKEY *pk, unsigned char theChar)
 {
-	short	i, newItem, newDynamicType;
+	short	newItem, newDynamicType;
 	short	intChar;
 	
 	/* remap theChar according to the 'PLMP' resource */
@@ -145,7 +144,7 @@ Boolean DynamicPopupKey(PGRAPHIC_POPUP p, DYN_POPKEY *pk, unsigned char theChar)
 	theChar = (unsigned char) intChar;
 	
 	newDynamicType = NOMATCH;
-	for (i=1; i<=p->numItems; i++) {
+	for (short i=1; i<=p->numItems; i++) {
 		if (pk[i].symCode==theChar) {
 			newDynamicType = pk[i].dynamicType;
 			break;
@@ -170,9 +169,9 @@ static GRAPHIC_POPUP	dynamicPop, *curPop;
 static DYN_POPKEY		*popKeysDynamic;
 static short			popUpHilited = True;
 
-static enum {
+enum {
 	DYNAM_POP_DI=4
-} E_SetDynItems;
+};
 
 
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
@@ -187,7 +186,7 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 	switch (evt->what) {
 		case updateEvt:
 			if (w==GetDialogWindow(dlog)) {
-				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
+				GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, True);
@@ -231,12 +230,13 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 Boolean SetDynamicDialog(SignedByte *dynamicType)
 {	
 	DialogPtr dlog;
-	short ditem=Cancel,type,oldResFile;
+	short ditem=Cancel, type, oldResFile;
 	short choice;
 	Boolean dialogOver;
-	Handle hndl; Rect box;
+	Handle hndl;
+	Rect box;
 	GrafPtr oldPort;
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(DynamicFilter);
 	if (filterUPP == NULL) {
@@ -255,9 +255,9 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 	SetPort(GetDialogWindowPort(dlog));
 
 	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);							/* popup code uses Get1Resource */
+	UseResFile(appRFRefNum);						/* popup code uses Get1Resource */
 
-	dynamicPop.menu = NULL;								/* NULL makes any goto broken safe */
+	dynamicPop.menu = NULL;							/* NULL makes any goto broken safe */
 	dynamicPop.itemChars = NULL;
 	popKeysDynamic = NULL;
 

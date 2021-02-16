@@ -8999,7 +8999,7 @@ look good, and so do the later set showing objs L1 thru L4! But problems start w
 
 <aStaffL> is a staff subobject; of course subobjs also need Endian fixes.
 
-Hmmm. Besides the main object list, HeapFixLinks does the Master Page list. We need to
+Hmmm. Besides the main object list, HeapFixLinks does the Master Page list; we need to
 Endian fix that, too. This is a bit much for a routine whose main job is something else!
 Probably better to call a new function, say EndianFixHeap, first, to do all: objects
 and subobjects -- including modifiers.
@@ -9012,3 +9012,96 @@ as is. Is it really uncertain if the doc has been installed?
 The Open File menu command calls BuildDocument, which calls InstallDoc, then (if it's an
 existing file) OpenFile. So it's not a problem! The doc has always been installed! Yay!
 
+---------------------------------------------------------------------------------------
+
+9 - 15 Feb.
+
+Implement EndianFixAllObjects & EndianFixAllSubobjs? Oops; keeping them separate from
+HeapFixLinks is still a problem; the object list left/right links aren't set properly till
+HeapFixLinks sets them! But code in HeapFixLinks may depend on Endian values in objects.
+So, at least for now, let's just call EndianFixObject at the beginnng of the loop in
+HeapFixLinks... done.
+
+Fixing Endianness of subobjects will be a bit messy, if only because MODNR subobjs are
+attached to other subobjs instead of objects, and there's no advantage to doing it in
+HeapFixLinks. So implement EndianFixAllSubobjs(doc)... done. Open 1NoteE6Intel.ngl =>
+better!: It sometimes crashes, but sometimes draws the score almost correctly. From
+1NoteE6IntelOpenOnIntelLog.txt:
+
+	Feb 12 19:43:30 Dons-2017-Air Ngale[10200]:
+	...
+	debug. EndianFixSubobj: heapIndex=0 subL=512
+	debug. EndianFixSubobj: heapIndex=0 subL=41891
+	debug. EndianFixSubobj: heapIndex=6 subL=1
+	debug. EndianFixSubobj: heapIndex=6 subL=2
+	debug. EndianFixSubobj: heapIndex=12 subL=1
+	debug. EndianFixSubobj: heapIndex=12 subL=2
+	debug. EndianFixSubobj: heapIndex=9 subL=1
+	debug. EndianFixSubobj: heapIndex=9 subL=2
+	debug. EndianFixSubobj: heapIndex=10 subL=1
+	debug. EndianFixSubobj: heapIndex=10 subL=2
+	debug. EndianFixSubobj: heapIndex=7 subL=1
+	debug. EndianFixSubobj: heapIndex=7 subL=2
+	debug. EndianFixSubobj: heapIndex=2 subL=1
+	debug. EndianFixSubobj: heapIndex=0 subL=1024
+	debug. EndianFixSubobj: heapIndex=0 subL=8365
+	debug. EndianFixSubobj: heapIndex=6 subL=3
+	debug. EndianFixSubobj: heapIndex=6 subL=4
+	debug. EndianFixSubobj: heapIndex=12 subL=3
+	debug. EndianFixSubobj: heapIndex=12 subL=4
+	...
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	info. Staff sizes in points are  1:16 2:16
+	Notice. Opened file '1NoteE6Intel.ngl'.  (DoFileMenu)
+	ERROR. PROGRAM ERROR: Staff2Part: staff no. 1 is not in any part.
+	Warning. * StopInform alertID=464
+	ERROR. PROGRAM ERROR: Staff2Part: staff no. 1 is not in any part.
+	Warning. * StopInform alertID=464
+	ERROR. PROGRAM ERROR: Staff2Part: staff no. 2 is not in any part.
+	Warning. * StopInform alertID=464
+	ERROR. PROGRAM ERROR: Staff2Part: staff no. 1 is not in any part.
+	ERROR. PROGRAM ERROR: GetClefDrawInfo: illegal clef 0 at L6
+
+NB the <subL> values for heap 0 (HEADER) are nonsense; the subobjects are PARTINFOs, so no
+wonder staves "aren't in any part"! They look like garbage, not just values that need
+Endian fixing. Let's collect more data for 1NoteE6Intel.ngl ("EFBlah" = EndianFixBlah):
+
+	Intel											PPC
+	-----------------------------------------------------------------------------
+	EFSubobjs: objL=1 heapIndex=0 FirstSubLINK()=1	EFSubobjs: objL=1 heapIndex=0 FirstSubLINK()=1
+	EFSubobj: heapIndex=0 subL=512					EFSubobj: heapIndex=0 subL=2
+	EFSubobj: heapIndex=0 subL=25200	
+	EFSubobj: heapIndex=0 subL=24948	
+	EFSubobj: heapIndex=0 subL=512	
+	EFSubobj: heapIndex=0 subL=28770	
+	EFSubobj: heapIndex=0 subL=512	
+	EFSubobj: heapIndex=0 subL=25200	
+	EFSubobj: heapIndex=0 subL=29793	
+	EFSubobjs: objL=2 heapIndex=4 FirstSubLINK()=0	EFSubobjs: objL=2 heapIndex=4 FirstSubLINK()=0
+	EFSubobjs: objL=3 heapIndex=5 FirstSubLINK()=0	EFSubobjs: objL=3 heapIndex=5 FirstSubLINK()=0
+	EFSubobjs: objL=4 heapIndex=6 FirstSubLINK()=1	EFSubobjs: objL=4 heapIndex=6 FirstSubLINK()=1
+	EFSubobj: heapIndex=6 subL=1					EFSubobj: heapIndex=6 subL=1
+	EFSubobj: heapIndex=6 subL=2					EFSubobj: heapIndex=6 subL=2
+	EFSubobjs: objL=5 heapIndex=12 FirstSubLINK()=1	EFSubobjs: objL=5 heapIndex=12 FirstSubLINK()=1
+	EFSubobj: heapIndex=12 subL=1					EFSubobj: heapIndex=12 subL=1
+	EFSubobj: heapIndex=12 subL=2					EFSubobj: heapIndex=12 subL=2
+	EFSubobjs: objL=6 heapIndex=8 FirstSubLINK()=1	EFSubobjs: objL=6 heapIndex=8 FirstSubLINK()=1
+	EFSubobjs: objL=7 heapIndex=9 FirstSubLINK()=1	EFSubobjs: objL=7 heapIndex=9 FirstSubLINK()=1
+	EFSubobj: heapIndex=9 subL=1					EFSubobj: heapIndex=9 subL=1
+	EFSubobj: heapIndex=9 subL=2					EFSubobj: heapIndex=9 subL=2
+	EFSubobjs: objL=8 heapIndex=10 FirstSubLINK()=1	EFSubobjs: objL=8 heapIndex=10 FirstSubLINK()=1
+	EFSubobj: heapIndex=10 subL=1					EFSubobj: heapIndex=10 subL=1
+	EFSubobj: heapIndex=10 subL=2					EFSubobj: heapIndex=10 subL=2
+	EFSubobjs: objL=9 heapIndex=7 FirstSubLINK()=1	EFSubobjs: objL=9 heapIndex=7 FirstSubLINK()=1
+	EFSubobj: heapIndex=7 subL=1					EFSubobj: heapIndex=7 subL=1
+	EFSubobj: heapIndex=7 subL=2					EFSubobj: heapIndex=7 subL=2
+	EFSubobj: heapIndex=2 subL=1					EFSubobj: heapIndex=2 subL=1
+	EFSubobj: heapIndex=0 subL=1024					EFSubobj: heapIndex=0 subL=4
+	EFSubobj: heapIndex=6 subL=3					EFSubobj: heapIndex=6 subL=3
+
+So the FirstSubLINKs for heap 0 are the same; the next <subL>s for heap 0 are reasonable
+on PPC, nonsense on Intel. For all other heaps, all <subL>s are reasonable and the same on
+PPC & Intel. Why?
+
+Add more debug info, open 1NoteE6Intel.ngl on Intel => !?! The PARTINFO subobjs are all OK now!
+Why??

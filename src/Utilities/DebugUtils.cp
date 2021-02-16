@@ -1219,8 +1219,8 @@ that have meaningful objRects. If we find such object(s), we check whether their
 					COMPLAIN2("*DCheckNode: OTTAVA L%u staffn %d IS BAD.\n", pL,
 								((POTTAVA)p)->staffn);
 
-				if (p->nEntries<=1 && ((POTTAVA)p)->xdFirst>=((POTTAVA)p)->xdLast)
-					COMPLAIN2("*DCheckNode: OTTAVA L%u ON staffn %d xd1st >= xdLast.\n",
+				if (p->nEntries<=1 && ((POTTAVA)p)->xdFirst>((POTTAVA)p)->xdLast)
+					COMPLAIN2("DCheckNode: Ottava L%u on staffn %d xd1st >= xdLast.\n",
 								pL, ((POTTAVA)p)->staffn);
 								
 				for (aNoteOctL=FirstSubLINK(pL); aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
@@ -1548,7 +1548,7 @@ Boolean DCheckNodeSel(Document *doc, LINK pL)
 
 	switch (ObjLType(pL)) {
 		case SYNCtype:
-			for (aNoteL = FirstSubLINK(pL);aNoteL;aNoteL = NextNOTEL(aNoteL))
+			for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL))
 				if (NoteSEL(aNoteL))
 					COMPLAIN2("DCheckNodeSel: SELECTED NOTE IN VOICE %d IN UNSELECTED SYNC L%u.\n",
 									NoteVOICE(aNoteL), pL);
@@ -1561,7 +1561,7 @@ Boolean DCheckNodeSel(Document *doc, LINK pL)
 									MeasureSTAFF(aMeasL), pL);
 			break;
 		case CLEFtype:
-			for (aClefL = FirstSubLINK(pL);aClefL; aClefL = NextCLEFL(aClefL))
+			for (aClefL = FirstSubLINK(pL); aClefL;  aClefL = NextCLEFL(aClefL))
 				if (ClefSEL(aClefL))
 					COMPLAIN2("DCheckNodeSel: SELECTED ITEM ON STAFF %d IN UNSELECTED CLEF L%u.\n",
 									ClefSTAFF(aClefL), pL);
@@ -2119,20 +2119,20 @@ Next:
 				beamNotesOkay = False;
 				break;
 			}
-//if (beamL==218) LogPrintf(LOG_DEBUG, "DCheckBeamsetL218: staff=%d Beamset=L%u Sync=L%u\n", staff, beamL, syncL);
 			if (!SameSystem(beamL, syncL)) {
 				COMPLAIN3("*DCheckBeamset: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n",
 								beamL, (grace? "GR" : ""), syncL);
 				beamNotesOkay = False;
 				break;
 			}
+			
 			aNoteL = pbSearch.pEntry;
 			if (!grace && NoteREST(aNoteL)) foundRest = True;
 			
 			/* If this is a rest that could not be in the Beamset, keep looking. */
 			
-			if (!grace && NoteREST(aNoteL)
-				&& (!doc->beamRests && n>1 && n<nEntries) ) goto Next;
+			if (!grace && NoteREST(aNoteL) && (!doc->beamRests && n>1 && n<nEntries) )
+				goto Next;
 			pNoteBeam = GetPANOTEBEAM(noteBeamL);
 			
 			/* If <foundRest>, a disagreement between the Sync we just found and the
@@ -2416,13 +2416,13 @@ nice to check that non-cross-system slurs are entirely on one system. */
 
 Boolean DCheckSlurs(Document *doc)
 {
-	register LINK	pL;
-	register short	i;
-	short			staff, voice;
-	LINK			slurEnd[MAXVOICES+1], tieEnd[MAXVOICES+1], endL;
-	LINK			slurSysL, otherSlurL, otherSlurSysL, nextSyncL, afterNextSyncL; 
-	Boolean			slur2FirstOK, slur2LastOK;
-	Boolean			bad;
+	LINK	pL;
+	short	i;
+	short	staff, voice;
+	LINK	slurEnd[MAXVOICES+1], tieEnd[MAXVOICES+1], endL;
+	LINK	slurSysL, otherSlurL, otherSlurSysL, nextSyncL, afterNextSyncL; 
+	Boolean	slur2FirstOK, slur2LastOK;
+	Boolean	bad;
 
 	bad = False;
 	
@@ -2583,12 +2583,12 @@ Boolean DCheckTuplets(
 				Boolean maxCheck		/* False=skip less important checks */
 				)
 {
-	register LINK	pL, syncL;
-	LINK			measureL, noteTupL;
-	PTUPLET			pTuplet;
-	PANOTETUPLE		noteTup;
-	Boolean			bad;
-	short			staff, voice, tupUnit, tupledUnit, totalDur;
+	LINK		pL, syncL;
+	LINK		measureL, noteTupL;
+	PTUPLET		pTuplet;
+	PANOTETUPLE	noteTup;
+	Boolean		bad;
+	short		staff, voice, tupUnit, tupledUnit, totalDur;
 
 	bad = False;
 
@@ -2659,8 +2659,8 @@ appear in the correct order in the object list. */
 
 Boolean DCheckHairpins(Document *doc)
 {
-	register LINK	pL;
-	Boolean			bad;
+	LINK	pL;
+	Boolean	bad;
 
 	bad = False;
 	
@@ -2694,27 +2694,27 @@ actual CLEF, KEYSIG, TIMESIG and DYNAM objects. */
  
 Boolean DCheckContext(Document *doc)
 {
-	register short		i;
-	register PASTAFF	aStaff;
-	register PAMEASURE	aMeas;
-	PACLEF				aClef;
-	PAKEYSIG			aKeySig;
-	PATIMESIG			aTimeSig;
-	PADYNAMIC			aDynamic;
-	PCLEF				pClef;
-	PKEYSIG				pKeySig;
-	register LINK		pL;
-	LINK				aStaffL, aMeasL, aClefL, aKeySigL,
-						aTimeSigL, aDynamicL;
-	SignedByte			clefType[MAXSTAVES+1];			/* Current context: clef, */
-	short				nKSItems[MAXSTAVES+1];			/*   sharps & flats in key sig., */
-	SignedByte			timeSigType[MAXSTAVES+1],		/*   time signature, */
-						numerator[MAXSTAVES+1],
-						denominator[MAXSTAVES+1],
-						dynamicType[MAXSTAVES+1];		/*		dynamic mark */
-	Boolean				aStaffFound[MAXSTAVES+1],
-						aMeasureFound[MAXSTAVES+1];
-	register Boolean	bad;
+	short		i;
+	PASTAFF		aStaff;
+	PAMEASURE	aMeas;
+	PACLEF		aClef;
+	PAKEYSIG	aKeySig;
+	PATIMESIG	aTimeSig;
+	PADYNAMIC	aDynamic;
+	PCLEF		pClef;
+	PKEYSIG		pKeySig;
+	LINK		pL;
+	LINK		aStaffL, aMeasL, aClefL, aKeySigL,
+				aTimeSigL, aDynamicL;
+	SignedByte	clefType[MAXSTAVES+1];				/* Current context: clef, */
+	short		nKSItems[MAXSTAVES+1];				/*   sharps & flats in key sig., */
+	SignedByte	timeSigType[MAXSTAVES+1],			/*   time signature, */
+				numerator[MAXSTAVES+1],
+				denominator[MAXSTAVES+1],
+				dynamicType[MAXSTAVES+1];			/*		dynamic mark */
+	Boolean		aStaffFound[MAXSTAVES+1],
+				aMeasureFound[MAXSTAVES+1];
+	Boolean		bad;
 
 	bad = False;
 		

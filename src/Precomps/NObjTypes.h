@@ -483,14 +483,14 @@ enum {								/* FIXME: NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
 /* ------------------------------------------------------------------ Type 14 = AMODNR -- */
 
 typedef struct {
-	LINK		next;					/* index of next subobj */
-	Boolean		selected;				/* True if subobject is selected */
-	Boolean		visible;				/* True if subobject is visible */
-	Boolean		soft;					/* True if subobject is program-generated */
-	unsigned char xstd;					/* FIXME: use "Byte"? Note-relative position (really signed STDIST: see below) */
-	Byte		modCode;				/* Which note modifier */
-	SignedByte	data;					/* Modifier-dependent */
-	SHORTSTD	ystdpit;				/* Clef-independent dist. below middle C ("pitch") */
+	LINK		next;				/* index of next subobj */
+	Boolean		selected;			/* True if subobject is selected */
+	Boolean		visible;			/* True if subobject is visible */
+	Boolean		soft;				/* True if subobject is program-generated */
+	unsigned char xstd;				/* FIXME: use "Byte"? Note-relative position (really signed STDIST: see below) */
+	Byte		modCode;			/* Which note modifier */
+	SignedByte	data;				/* Modifier-dependent */
+	SHORTSTD	ystdpit;			/* Clef-independent dist. below middle C ("pitch") */
 } AMODNR, *PAMODNR;
 
 #define XSTD_OFFSET 16				/* 2**(xstd fieldwidth-1) to fake signed value */
@@ -615,8 +615,8 @@ enum {								/* GRArpeggio sub-subtypes */
 /* ------------------------------------------------------------------ Type 16 = OTTAVA -- */
 
 typedef struct {
-	LINK		next;					/* index of next subobj */
-	LINK		opSync;					/* link to Sync containing note/chord (not rest) */
+	LINK		next;				/* index of next subobj */
+	LINK		opSync;				/* link to Sync containing note/chord (not rest) */
 } ANOTEOTTAVA, *PANOTEOTTAVA;
 
 typedef struct {

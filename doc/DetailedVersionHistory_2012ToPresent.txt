@@ -3130,4 +3130,14 @@ Progress toward fixing bug: can't open files written on Intel machines because s
 multibyte fields in the Score header and some in objects are in the wrong Endian form.
 Affects EndianUtils, HeapFileIO.
 
-Minor cleanup. Affects FileOpen, FileSave, FileUtils, HeapFileIO, StringPool.
+Minor cleanup. Affects DynamicPopUp, FileOpen, FileSave, FileUtils, HeapFileIO, StringPool.
+
+---------------------------------------------------------------------------------------
+
+9 - 15 Feb.
+
+Fixed teeny bug: Debug Check complains about octave signs with "xd1st >= xdLast",
+but that's valid and expected if they contain only one Sync. Affects DebugUtils.
+
+Minor cleanup. Affects Endian.h, File.h, NObjTypes.h; DebugDisplay, DebugUtils,
+DynamicPopUp, EndianUtils, FileOpen, HeapFileIO.
