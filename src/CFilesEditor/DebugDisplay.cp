@@ -105,6 +105,8 @@ void DisplayObject(Document *doc, LINK pL,
 					(p->spareFlag? 'S' : '.'),
 					p->objRect.left );
 
+	/* Display object-specific info on objects. */
+
 	switch (ObjLType(pL)) {
 		case HEADERtype:
 			if (!nonMain)
@@ -203,238 +205,267 @@ void DisplayObject(Document *doc, LINK pL,
 	if (p->nEntries!=0)	LogPrintf(LOG_INFO, " n=%d\n", p->nEntries);
 	else				LogPrintf(LOG_INFO, "\n");
 
+	/* If desired, display info on subobjects now. */
+	
 	if (showSubs)
 		switch (ObjLType(pL))
-	{
-		case HEADERtype:
-			for (partL = FirstSubLINK(pL); partL; partL = NextPARTINFOL(partL)) {
-				pPartInfo = GetPPARTINFO(partL);
-				LogPrintf(LOG_INFO, "     partL=L%u next=L%u firstst=%d lastst=%d velo=%d transp=%d name=%s\n",
-					partL, NextPARTINFOL(partL),
-					pPartInfo->firstStaff,
-					pPartInfo->lastStaff,
-					pPartInfo->partVelocity,
-					pPartInfo->transpose,
-					pPartInfo->name);
-			}
-			break;
-		case SYNCtype:
-			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
-				aNote = GetPANOTE(aNoteL);
-				LogPrintf(LOG_INFO, "     ");
-				
-/* Be careful with addresses provided by the following; they can change suddenly! */
-				if (OptionKeyDown()) LogPrintf(LOG_INFO, "@%lx:", aNote);
-				LogPrintf(LOG_INFO, 
-					"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
-					aNote->staffn, aNote->voice,
-					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
-					aNote->subType,
-					aNote->ndots,
-					aNote->accident,
-					aNote->onVelocity,
-					(aNote->selected? 'S' : '.') ,
-					(aNote->visible? 'V' : '.') ,
-					(aNote->soft? 'S' : '.') ,
-					(aNote->inChord? 'C' : '.') ,
-					(aNote->rest? 'R' : '.'),
-					(aNote->beamed? 'B' : '.'),
-					(aNote->tiedL? ')' : '.'),
-					(aNote->tiedR? '(' : '.'),
-					(aNote->slurredL? '>' : '.'),
-					(aNote->slurredR? '<' : '.'),
-					(aNote->inTuplet? 'T' : '.'),
-					aNote->firstMod );
-			}
-			break;
-		case GRSYNCtype:
-			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextGRNOTEL(aNoteL)) {
-				aNote = GetPAGRNOTE(aNoteL);
-				LogPrintf(LOG_INFO, 
-					"     stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
-					aNote->staffn, aNote->voice,
-					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
-					aNote->subType,
-					aNote->ndots,
-					aNote->accident,
-					aNote->onVelocity,
-					(aNote->selected? 'S' : '.') ,
-					(aNote->visible? 'V' : '.') ,
-					(aNote->soft? 'S' : '.') ,
-					(aNote->inChord? 'C' : '.') ,
-					(aNote->beamed? 'B' : '.'),
-					(aNote->slurredL? '>' : '.'),
-					(aNote->slurredR? '<' : '.'),
-					aNote->firstMod );
-			}
-			break;
-		case STAFFtype:
-			for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
-				aStaff = GetPASTAFF(aStaffL);
-				LogPrintf(LOG_INFO, "     aStaffL=L%u next=L%u stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
-					aStaffL, NextSTAFFL(aStaffL),
-					aStaff->staffn, aStaff->staffTop,
-					aStaff->staffLeft, aStaff->staffHeight,
-					aStaff->staffRight, aStaff->staffLines,
-					aStaff->fontSize,
-					(aStaff->selected? 'S' : '.') ,
-					(aStaff->visible? 'V' : '.'),
-					aStaff->clefType,
-					aStaff->timeSigType,
-					aStaff->numerator,
-					aStaff->denominator );
-			}
-			break;
-		case MEASUREtype:
-			for (aMeasureL=FirstSubLINK(pL); aMeasureL; 
-					aMeasureL=NextMEASUREL(aMeasureL)) {
-				aMeasure = GetPAMEASURE(aMeasureL);
-				LogPrintf(LOG_INFO, 
-					"     stf=%d m#=%d barTp=%d conStf=%d clef=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
-					aMeasure->staffn, aMeasure->measureNum,
-					aMeasure->subType,
-					aMeasure->connStaff, aMeasure->clefType,
-					aMeasure->measSizeRect.top, aMeasure->measSizeRect.left,
-					aMeasure->measSizeRect.bottom, aMeasure->measSizeRect.right,
-					(aMeasure->selected? 'S' : '.'),
-					(aMeasure->visible? 'V' : '.'),
-					(aMeasure->soft? 'S' : '.'),
-					(aMeasure->measureVisible? 'M' : '.'),
-					(aMeasure->connAbove? 'C' : '.'),
-					aMeasure->nKSItems,
-					aMeasure->timeSigType,
-					aMeasure->numerator,
-					aMeasure->denominator );
-			}
-			break;
-		case PSMEAStype:
-			for (aPseudoMeasL=FirstSubLINK(pL); aPseudoMeasL; 
-					aPseudoMeasL=NextPSMEASL(aPseudoMeasL)) {
-				aPseudoMeas = GetPAPSMEAS(aPseudoMeasL);
-				LogPrintf(LOG_INFO, 
-					"     stf=%d subTp=%d conStf=%d\n",
-					aPseudoMeas->staffn,
-					aPseudoMeas->subType,
-					aPseudoMeas->connStaff );
-			}
-			break;
-		case CLEFtype:
-			for (aClefL=FirstSubLINK(pL); aClefL; aClefL=NextCLEFL(aClefL)) {
-				aClef = GetPACLEF(aClefL);
-				LogPrintf(LOG_INFO, "     stf=%d xd=%d clef=%d %c%c%c\n",
-					aClef->staffn, aClef->xd, aClef->subType,
-					(aClef->selected? 'S' : '.'),
-					(aClef->visible? 'V' : '.'),
-					(aClef->soft? 'S' : '.') );
-			}
-			break;
-		case KEYSIGtype:
-			for (aKeySigL=FirstSubLINK(pL); aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL)) {
-				aKeySig = GetPAKEYSIG(aKeySigL);
-				LogPrintf(LOG_INFO, "     stf=%d xd=%d %c%c%c nKSItems=%d",
-					aKeySig->staffn, 
-					aKeySig->xd,
-					(aKeySig->selected? 'S' : '.'),
-					(aKeySig->visible? 'V' : '.'),
-					(aKeySig->soft? 'S' : '.'),
-					aKeySig->nKSItems );
-				if (aKeySig->nKSItems==0)
-					LogPrintf(LOG_INFO, " nNatItems=%d", aKeySig->subType);
-				DKeySigPrintf((PKSINFO)(&aKeySig->KSItem[0]));
-//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayObject/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
-//					sizeof(AKEYSIG), 4, 16);
-			}
-			break;
-		case TIMESIGtype:
-			for (aTimeSigL=FirstSubLINK(pL); aTimeSigL; aTimeSigL=NextTIMESIGL(aTimeSigL)) {
-				aTimeSig = GetPATIMESIG(aTimeSigL);
-				LogPrintf(LOG_INFO, "     stf=%d xd=%d type=%d,%d/%d %c%c%c\n",
-					aTimeSig->staffn, 
-					aTimeSig->xd, aTimeSig->subType,
-					aTimeSig->numerator, aTimeSig->denominator,
-					(aTimeSig->selected? 'S' : '.'),
-					(aTimeSig->visible? 'V' : '.'),
-					(aTimeSig->soft? 'S' : '.') );
-			}
-			break;
-		case BEAMSETtype:
-			for (aNoteBeamL=FirstSubLINK(pL); aNoteBeamL; 
-					aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
-				aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
-				if (showLinks) LogPrintf(LOG_INFO, "     bpSync=L%u ", aNoteBeam->bpSync);
-				else				 LogPrintf(LOG_INFO, "     ");
-				LogPrintf(LOG_INFO, "startend=%d fracs=%d %c\n",
-					aNoteBeam->startend, aNoteBeam->fracs,
-					(aNoteBeam->fracGoLeft? 'L' : 'R') );
-			}
-			break;
-		case TUPLETtype:
-			for (aNoteTupleL=FirstSubLINK(pL); aNoteTupleL; 
-					aNoteTupleL=NextNOTETUPLEL(aNoteTupleL)) {
-				aNoteTuple = GetPANOTETUPLE(aNoteTupleL);
-				if (showLinks) LogPrintf(LOG_INFO, "     tpSync=L%u\n", aNoteTuple->tpSync);
-			}
-			break;
-		case OTTAVAtype:
-			for (aNoteOctL=FirstSubLINK(pL); aNoteOctL; 
-					aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
-				aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
-				if (showLinks) LogPrintf(LOG_INFO, "     opSync=L%u\n", aNoteOct->opSync);
-			}
-			break;
-		case GRAPHICtype: {
-				LINK aGraphicL; PAGRAPHIC aGraphic;	PGRAPHIC pGraphic;
- 				pGraphic = GetPGRAPHIC(pL);
-				if (pGraphic->graphicType==GRString
-				||  pGraphic->graphicType==GRLyric
-				||  pGraphic->graphicType==GRRehearsal
-				||  pGraphic->graphicType==GRChordSym) {
-					aGraphicL = FirstSubLINK(pL);
-					aGraphic = GetPAGRAPHIC(aGraphicL);
-					LogPrintf(LOG_INFO, "     '%p'", PCopy(aGraphic->strOffset));
-					LogPrintf(LOG_INFO, "\n");				/* Protect newline from garbage strings */
+		{
+			case HEADERtype:
+				for (partL = FirstSubLINK(pL); partL; partL = NextPARTINFOL(partL)) {
+					pPartInfo = GetPPARTINFO(partL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u next=L%u ", partL,
+						NextPARTINFOL(partL));
+					LogPrintf(LOG_INFO, "firstst=%d lastst=%d velo=%d transp=%d name=%s\n",
+						pPartInfo->firstStaff,
+						pPartInfo->lastStaff,
+						pPartInfo->partVelocity,
+						pPartInfo->transpose,
+						pPartInfo->name);
 				}
-			}
-			break;
-		case CONNECTtype:
-			for (aConnectL=FirstSubLINK(pL); aConnectL; 
-					aConnectL=NextCONNECTL(aConnectL)) {
-				aConnect = GetPACONNECT(aConnectL);
-				LogPrintf(LOG_INFO, "     xd=%d lev=%d type=%d stfA=%d stfB=%d %c\n",
-					aConnect->xd,
-					aConnect->connLevel, aConnect->connectType,
-					aConnect->staffAbove, aConnect->staffBelow,
-					(aConnect->selected? 'S' : '.'));
-			}
-			break;
-		case DYNAMtype:
-			for (aDynamicL=FirstSubLINK(pL); aDynamicL; 
-					aDynamicL=NextDYNAMICL(aDynamicL)) {
-				aDynamic = GetPADYNAMIC(aDynamicL);
-				LogPrintf(LOG_INFO, "     stf=%d xd=%d yd=%d endxd=%d %c%c%c\n",
-					aDynamic->staffn, aDynamic->xd, aDynamic->yd,
-					aDynamic->endxd,
-					(aDynamic->selected? 'S' : '.'),
-					(aDynamic->visible? 'V' : '.'),
-					(aDynamic->soft? 'S' : '.') );
-				
-			}
-			break;
-		case SLURtype:
-			for (aSlurL=FirstSubLINK(pL); aSlurL; aSlurL=NextSLURL(aSlurL)) {
-				aSlur = GetPASLUR(aSlurL);
-				LogPrintf(LOG_INFO, "     1stInd=%d lastInd=%d ctl pts=(%P %P %P %P) %c%c%c\n",
-					aSlur->firstInd, aSlur->lastInd,
-					&aSlur->seg.knot, &aSlur->seg.c0,
-					&aSlur->seg.c1, &aSlur->endKnot,
-					(aSlur->selected? 'S' : '.'),
-					(aSlur->visible? 'V' : '.'),
-					(aSlur->soft? 'S' : '.') );
-			}
-			break;
-		default:
-			break;
-	}
+				break;
+			case SYNCtype:
+				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
+					aNote = GetPANOTE(aNoteL);
+					LogPrintf(LOG_INFO, "     ");
+					
+					/* Be careful with addresses provided by the following; they can change suddenly! */
+					
+					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aNoteL);
+					if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx ", aNote);
+					LogPrintf(LOG_INFO, 
+						"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
+						aNote->staffn, aNote->voice,
+						aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
+						aNote->subType,
+						aNote->ndots,
+						aNote->accident,
+						aNote->onVelocity,
+						(aNote->selected? 'S' : '.') ,
+						(aNote->visible? 'V' : '.') ,
+						(aNote->soft? 'S' : '.') ,
+						(aNote->inChord? 'C' : '.') ,
+						(aNote->rest? 'R' : '.'),
+						(aNote->beamed? 'B' : '.'),
+						(aNote->tiedL? ')' : '.'),
+						(aNote->tiedR? '(' : '.'),
+						(aNote->slurredL? '>' : '.'),
+						(aNote->slurredR? '<' : '.'),
+						(aNote->inTuplet? 'T' : '.'),
+						aNote->firstMod );
+				}
+				break;
+			case GRSYNCtype:
+				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextGRNOTEL(aNoteL)) {
+					aNote = GetPAGRNOTE(aNoteL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aNoteL);
+					LogPrintf(LOG_INFO, 
+						"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
+						aNote->staffn, aNote->voice,
+						aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
+						aNote->subType,
+						aNote->ndots,
+						aNote->accident,
+						aNote->onVelocity,
+						(aNote->selected? 'S' : '.') ,
+						(aNote->visible? 'V' : '.') ,
+						(aNote->soft? 'S' : '.') ,
+						(aNote->inChord? 'C' : '.') ,
+						(aNote->beamed? 'B' : '.'),
+						(aNote->slurredL? '>' : '.'),
+						(aNote->slurredR? '<' : '.'),
+						aNote->firstMod );
+				}
+				break;
+			case STAFFtype:
+				for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
+					aStaff = GetPASTAFF(aStaffL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u next=L%u ", aStaffL, NextSTAFFL(aStaffL));
+					LogPrintf(LOG_INFO,
+						"stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
+						aStaff->staffn, aStaff->staffTop,
+						aStaff->staffLeft, aStaff->staffHeight,
+						aStaff->staffRight, aStaff->staffLines,
+						aStaff->fontSize,
+						(aStaff->selected? 'S' : '.') ,
+						(aStaff->visible? 'V' : '.'),
+						aStaff->clefType,
+						aStaff->timeSigType,
+						aStaff->numerator,
+						aStaff->denominator );
+				}
+				break;
+			case MEASUREtype:
+				for (aMeasureL=FirstSubLINK(pL); aMeasureL; 
+						aMeasureL=NextMEASUREL(aMeasureL)) {
+					aMeasure = GetPAMEASURE(aMeasureL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u next=L%u ", aMeasureL, NextMEASUREL(aMeasureL));
+					LogPrintf(LOG_INFO, 
+						"stf=%d m#=%d barTp=%d conStf=%d clef=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
+						aMeasure->staffn, aMeasure->measureNum,
+						aMeasure->subType,
+						aMeasure->connStaff, aMeasure->clefType,
+						aMeasure->measSizeRect.top, aMeasure->measSizeRect.left,
+						aMeasure->measSizeRect.bottom, aMeasure->measSizeRect.right,
+						(aMeasure->selected? 'S' : '.'),
+						(aMeasure->visible? 'V' : '.'),
+						(aMeasure->soft? 'S' : '.'),
+						(aMeasure->measureVisible? 'M' : '.'),
+						(aMeasure->connAbove? 'C' : '.'),
+						aMeasure->nKSItems,
+						aMeasure->timeSigType,
+						aMeasure->numerator,
+						aMeasure->denominator );
+				}
+				break;
+			case PSMEAStype:
+				for (aPseudoMeasL=FirstSubLINK(pL); aPseudoMeasL; 
+						aPseudoMeasL=NextPSMEASL(aPseudoMeasL)) {
+					aPseudoMeas = GetPAPSMEAS(aPseudoMeasL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aPseudoMeasL);
+					LogPrintf(LOG_INFO, "stf=%d subTp=%d conStf=%d\n",
+						aPseudoMeas->staffn, aPseudoMeas->subType, aPseudoMeas->connStaff );
+				}
+				break;
+			case CLEFtype:
+				for (aClefL=FirstSubLINK(pL); aClefL; aClefL=NextCLEFL(aClefL)) {
+					aClef = GetPACLEF(aClefL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aClefL);
+					LogPrintf(LOG_INFO, "stf=%d xd=%d clef=%d %c%c%c\n",
+						aClef->staffn, aClef->xd, aClef->subType,
+						(aClef->selected? 'S' : '.'),
+						(aClef->visible? 'V' : '.'),
+						(aClef->soft? 'S' : '.') );
+				}
+				break;
+			case KEYSIGtype:
+				for (aKeySigL=FirstSubLINK(pL); aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL)) {
+					aKeySig = GetPAKEYSIG(aKeySigL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aKeySigL);
+					LogPrintf(LOG_INFO, "stf=%d xd=%d %c%c%c nKSItems=%d",
+						aKeySig->staffn, aKeySig->xd,
+						(aKeySig->selected? 'S' : '.'),
+						(aKeySig->visible? 'V' : '.'),
+						(aKeySig->soft? 'S' : '.'),
+						aKeySig->nKSItems );
+					if (aKeySig->nKSItems==0)
+						LogPrintf(LOG_INFO, " nNatItems=%d", aKeySig->subType);
+					DKeySigPrintf((PKSINFO)(&aKeySig->KSItem[0]));
+	//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayObject/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
+	//					sizeof(AKEYSIG), 4, 16);
+				}
+				break;
+			case TIMESIGtype:
+				for (aTimeSigL=FirstSubLINK(pL); aTimeSigL; aTimeSigL=NextTIMESIGL(aTimeSigL)) {
+					aTimeSig = GetPATIMESIG(aTimeSigL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aTimeSigL);
+					LogPrintf(LOG_INFO, "stf=%d xd=%d type=%d,%d/%d %c%c%c\n",
+						aTimeSig->staffn, aTimeSig->xd, aTimeSig->subType,
+						aTimeSig->numerator, aTimeSig->denominator,
+						(aTimeSig->selected? 'S' : '.'),
+						(aTimeSig->visible? 'V' : '.'),
+						(aTimeSig->soft? 'S' : '.') );
+				}
+				break;
+			case BEAMSETtype:
+				for (aNoteBeamL=FirstSubLINK(pL); aNoteBeamL; 
+						aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
+					aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u bpSync=L%u ", aNoteBeamL,
+						aNoteBeam->bpSync);
+					LogPrintf(LOG_INFO, "startend=%d fracs=%d %c\n", aNoteBeam->startend,
+						aNoteBeam->fracs, (aNoteBeam->fracGoLeft? 'L' : 'R') );
+				}
+				break;
+			case TUPLETtype:
+				for (aNoteTupleL=FirstSubLINK(pL); aNoteTupleL; 
+						aNoteTupleL=NextNOTETUPLEL(aNoteTupleL)) {
+					aNoteTuple = GetPANOTETUPLE(aNoteTupleL);
+					if (showLinks) LogPrintf(LOG_INFO, "     L%u tpSync=L%u\n",
+						aNoteTupleL, aNoteTuple->tpSync);
+				}
+				break;
+			case OTTAVAtype:
+				for (aNoteOctL=FirstSubLINK(pL); aNoteOctL; 
+						aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
+					aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
+					if (showLinks) LogPrintf(LOG_INFO, "     L%u opSync=L%u\n",
+						aNoteOctL, aNoteOct->opSync);
+				}
+				break;
+			case GRAPHICtype: {
+					/* FIXME: instead of the actual string, this displays something like "0x1b1394"! */
+
+					LINK aGraphicL;  PAGRAPHIC aGraphic;  PGRAPHIC pGraphic;
+					pGraphic = GetPGRAPHIC(pL);
+					if (pGraphic->graphicType==GRString
+					||  pGraphic->graphicType==GRLyric
+					||  pGraphic->graphicType==GRRehearsal
+					||  pGraphic->graphicType==GRChordSym) {
+						aGraphicL = FirstSubLINK(pL);
+						aGraphic = GetPAGRAPHIC(aGraphicL);
+						LogPrintf(LOG_INFO, "     ");
+						if (showLinks) LogPrintf(LOG_INFO, "L%u ", aGraphicL);
+						LogPrintf(LOG_INFO, "'%p'", PCopy(aGraphic->strOffset));
+						LogPrintf(LOG_INFO, "\n");				/* Protect newline from garbage strings */
+					}
+				}
+				break;
+			case CONNECTtype:
+				for (aConnectL=FirstSubLINK(pL); aConnectL; 
+						aConnectL=NextCONNECTL(aConnectL)) {
+					aConnect = GetPACONNECT(aConnectL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aConnectL);
+					LogPrintf(LOG_INFO, "xd=%d lev=%d type=%d stfA=%d stfB=%d %c\n",
+						aConnect->xd,
+						aConnect->connLevel, aConnect->connectType,
+						aConnect->staffAbove, aConnect->staffBelow,
+						(aConnect->selected? 'S' : '.'));
+				}
+				break;
+			case DYNAMtype:
+				for (aDynamicL=FirstSubLINK(pL); aDynamicL; 
+						aDynamicL=NextDYNAMICL(aDynamicL)) {
+					aDynamic = GetPADYNAMIC(aDynamicL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aDynamicL);
+					LogPrintf(LOG_INFO, "stf=%d xd=%d yd=%d endxd=%d %c%c%c\n",
+						aDynamic->staffn, aDynamic->xd, aDynamic->yd,
+						aDynamic->endxd,
+						(aDynamic->selected? 'S' : '.'),
+						(aDynamic->visible? 'V' : '.'),
+						(aDynamic->soft? 'S' : '.') );
+					
+				}
+				break;
+			case SLURtype:
+				for (aSlurL=FirstSubLINK(pL); aSlurL; aSlurL=NextSLURL(aSlurL)) {
+					aSlur = GetPASLUR(aSlurL);
+					LogPrintf(LOG_INFO, "     ");
+					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aSlurL);
+					LogPrintf(LOG_INFO, "1stInd=%d lastInd=%d ctl pts=(%d,%d),(%d,%d),(%d,%d),(%d,%d) %c%c%c\n",
+						aSlur->firstInd, aSlur->lastInd,
+						aSlur->seg.knot.h, aSlur->seg.knot.v,
+						aSlur->seg.c0.h, aSlur->seg.c0.v,
+						aSlur->seg.c1.h, aSlur->seg.c1.v,
+						aSlur->endKnot.h, aSlur->endKnot.v,
+						(aSlur->selected? 'S' : '.'),
+						(aSlur->visible? 'V' : '.'),
+						(aSlur->soft? 'S' : '.') );
+				}
+				break;
+			default:
+				break;
+		}
 	PopLock(OBJheap);
 
 #endif
@@ -449,7 +480,7 @@ void MemUsageStats(Document *doc)
 			subTotal, mTotal, fTotal;
 	const char *ps;
 	LINK pL;
-	register HEAP *theHeap;
+	HEAP *theHeap;
 	unsigned short objCount[LASTtype], h;
 
 	/* Get the total number of objects of each type and the number of note modifiers
@@ -504,7 +535,7 @@ void MemUsageStats(Document *doc)
 
 /* ------------------------------------------------------------------ DisplayIndexNode -- */
 
-void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLinep)
+void DisplayIndexNode(Document *doc, LINK pL, short kount, short *inLinep)
 {
 	PMEVENT		p;
 	char		selFlag;

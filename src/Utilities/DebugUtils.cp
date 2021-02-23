@@ -1644,13 +1644,13 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 		}
 		
 		if (*pnInRange>0 && *pnSelFlag==0)
-			COMPLAIN("DCheckSel: %d NODES IN SELECTION RANGE BUT NONE SELECTED.\n",
+			COMPLAIN("DCheckSel: %d object(s) in selection range but none selected.\n",
 						*pnInRange);
 	
 		for (pL = doc->headL; pL!=doc->selStartL; pL = RightLINK(pL)) {
 			if (DErrLimit()) break;
 			if (LinkSEL(pL))
-				COMPLAIN("DCheckSel: NODE BEFORE SELECTION RANGE (L%u) SELECTED.\n", pL);
+				COMPLAIN("DCheckSel: object before selection range (L%u) selected.\n", pL);
 			if (DBadLink(doc, OBJtype, RightLINK(pL), True) && doc->selStartL) {
 				COMPLAIN("•DCheckSel: GARBAGE RightLINK(%d) BEFORE SELECTION RANGE.\n", pL);
 				break;
@@ -1660,7 +1660,7 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 			for (pL = doc->selEndL; pL!=doc->tailL; pL = RightLINK(pL)) {
 				if (DErrLimit()) break;
 				if (LinkSEL(pL))
-					COMPLAIN("DCheckSel: NODE AFTER SELECTION RANGE (L%u) SELECTED.\n", pL);
+					COMPLAIN("DCheckSel: object after selection range (L%u) selected.\n", pL);
 			}
 	}
 	
@@ -1759,7 +1759,7 @@ Boolean DCheckVoiceTable(Document *doc,
 	
 	for (v = 1; v<=MAXVOICES; v++) {
 		if (fullCheck && doc->voiceTab[v].partn!=0 && voiceUseTab[v]==NILINK)
-			COMPLAIN("DCheckVoiceTable: VOICE %ld HAS NO NOTES, RESTS, OR GRACE NOTES.\n",
+			COMPLAIN("DCheckVoiceTable: voice %ld has no notes, rests, or grace notes.\n",
 				(long)v);
 	}
 

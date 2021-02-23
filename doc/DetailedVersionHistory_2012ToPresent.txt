@@ -3141,3 +3141,16 @@ but that's valid and expected if they contain only one Sync. Affects DebugUtils.
 
 Minor cleanup. Affects Endian.h, File.h, NObjTypes.h; DebugDisplay, DebugUtils,
 DynamicPopUp, EndianUtils, FileOpen, HeapFileIO.
+
+---------------------------------------------------------------------------------------
+
+16 - 22 Feb.
+
+Progress toward fixing bug: can't open files written on Intel machines because some
+multibyte fields in subobjects are in the wrong Endian form. Affects EndianUtils,
+HeapFileIO.
+
+Fixed teeny bug: origin.v in the display of the document header in the log is wrong.
+Affects FileUtils.
+
+Minor cleanup. Affects DebugDisplay, DebugUtils, EndianUtils, HeapFileIO, Menu.

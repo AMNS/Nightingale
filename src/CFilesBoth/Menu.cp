@@ -1651,7 +1651,7 @@ stop:
 	
 static void NMStripModifiers(Document *doc)
 {
-	register LINK pL, aNoteL; PANOTE aNote;
+	LINK pL, aNoteL; PANOTE aNote;
 	
 	PrepareUndo(doc, doc->selStartL, U_StripMods, 21);    	/* "Remove Modifiers" */
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -2493,14 +2493,11 @@ static void FixMoveMeasSys(Document *doc)
 			return;
 		}
 
-		/*
-		 *	Enable "Move Measures Up" iff selStartL and LeftLINK(selEndL) are in the same
-		 *	System; that System is not the first; selStartL is in the first Measure of that
-		 *	System; and there's at least one Measure in the System after selStartL.
-		 *
-		 *	Enable "Move Measures Down" iff selStartL and LeftLINK(selEndL) are in the same
-		 *	System, and LeftLINK(selEndL) is in the last Measure of that System.
-		 */
+		/* Enable "Move Measures Up" iff selStartL and LeftLINK(selEndL) are in the same
+		   System; that System is not the first; selStartL is in the first Measure of
+		   that	System; and there's at least one Measure in the System after selStartL.
+		   Enable "Move Measures Down" iff selStartL and LeftLINK(selEndL) are in the
+		   same System, and LeftLINK(selEndL) is in the last Measure of that System. */
 
 		if (!SameSystem(doc->selStartL, LeftLINK(doc->selEndL))) {
 			DisableSMMove();
@@ -2534,13 +2531,11 @@ static void FixMoveMeasSys(Document *doc)
 			measSysEnd = IsLastUsedMeasInSys(doc, endBarL);
 		XableItem(scoreMenu, SM_MoveMeasDown, !beforeFirst && endBarL && measSysEnd);
 
-		/*
-		 *	Enable "Move System Up" iff selStartL and selEndL are in the same System, that
-		 *	System is the first in its Page, and that Page is not the first in the score.
-		 *
-		 *	Enable "Move System Down" iff selStartL and selEndL are in the same System, that
-		 *	System is the last in its Page, and that Page is not the last in the score.
-		 */
+		/* Enable "Move System Up" iff selStartL and selEndL are in the same System, that
+		   System is the first in its Page, and that Page is not the first in the score.
+
+		   Enable "Move System Down" iff selStartL and selEndL are in the same System, that
+		   System is the last in its Page, and that Page is not the last in the score. */
 
 		pageL = SysPAGE(sysL);
 		XableItem(scoreMenu, SM_MoveSystemUp,
@@ -2549,10 +2544,8 @@ static void FixMoveMeasSys(Document *doc)
 			(IsLastSysInPage(sysL) && LinkRPAGE(pageL)!=NILINK));
 	}
 
-/*
- *	Fix all items in the Score menu; disable it entirely if there is no score
- *	or it's the clipboard.
- */
+/* Fix all items in the Score menu; disable it entirely if there is no score or <doc> is
+the clipboard. */
 
 static void FixScoreMenu(Document *doc, short nSel)
 	{
@@ -2564,9 +2557,9 @@ static void FixScoreMenu(Document *doc, short nSel)
 		
 		if (doc==NULL || doc==clipboard) return;
 
-		/* Context switching directly between showFormat and masterView presents 
-			as-yet unanalyzed problems, so for now, prevent user from going directly
-			from either one to the other. */
+		/* Context switching directly between showFormat and masterView presents as-yet
+		   unanalyzed problems, so for now, prevent user from going directly from
+		   either one to the other. */
 
 		XableItem(scoreMenu, SM_MasterSheet, !doc->showFormat);
 		CheckMenuItem(scoreMenu, SM_MasterSheet, doc->masterView);
@@ -2592,12 +2585,12 @@ static void FixScoreMenu(Document *doc, short nSel)
 		if (!doc->masterView) {
 			insertL = AddPageInsertPt(doc, doc->selStartL);
 			GetIndString(str, MENUCMD_STRS,
-				IsAfter(insertL, doc->selStartL)? 10 : 11);		/* "Add Page Before/After" */
+				IsAfter(insertL, doc->selStartL)? 10 : 11);			/* "Add Page Before/After" */
 			SetMenuItemText(scoreMenu, SM_AddPage, str);
 			EnableMenuItem(scoreMenu, SM_AddPage);
 			}
 		else {
-			GetIndString(str, MENUCMD_STRS, 12);						/* "Add Page" */
+			GetIndString(str, MENUCMD_STRS, 12);					/* "Add Page" */
 			SetMenuItemText(scoreMenu, SM_AddPage, str);
 			DisableMenuItem(scoreMenu, SM_AddPage);
 			}
@@ -2627,15 +2620,12 @@ static LINK MBRestSel(Document *doc)
 	return NILINK;
 }
 
-/*
- *	Enable or disable all items in the Notes menu; disable entire menu if there is no
- *	score, if it's the clipboard, or if we're looking at the Master Page.
- */
+/* Enable or disable all items in the Notes menu; disable entire menu if there is no
+score, if it's the clipboard, or if we're looking at the Master Page. */
 
 static void FixNotesMenu(Document *doc, Boolean /*continSel*/)
 	{
-		register Boolean noteSel, GRnoteSel;
-		Boolean keySigSel, chordSymSel, slurSel, disableWholeMenu;
+		Boolean noteSel, GRnoteSel, keySigSel, chordSymSel, slurSel, disableWholeMenu;
 
 		disableWholeMenu = (doc==NULL || doc==clipboard || doc->masterView);
 		UpdateMenu(notesMenu, !disableWholeMenu);
@@ -2678,8 +2668,8 @@ static void FixNotesMenu(Document *doc, Boolean /*continSel*/)
 
 static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 {
-	LINK pL,aNoteL,aGRNoteL;
-	PANOTE aNote; PAGRNOTE aGRNote;
+	LINK pL, aNoteL, aGRNoteL;
+	PANOTE aNote;  PAGRNOTE aGRNote;
 	
 	for (pL = staffStartL; pL!=staffEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL))
@@ -2707,9 +2697,7 @@ static void FixBeamCommands(Document *);
 static void FixTupletCommands(Document *);
 static void FixOttavaCommands(Document *, Boolean);
 
-/*
- *	Handle menu command Enable/Disable for Beams
- */
+/* Handle menu command Enable/Disable for Beams */
 
 static void FixBeamCommands(Document *doc)
 {
@@ -2883,10 +2871,8 @@ knowOttavad:
 		return;
 	}
 
-	/*
-	 *	No notes/grace notes in octave signs are selected, so we can't remove an octave
-	 * sign. Is it possible to create one?
-	 */
+	/* No notes/grace notes in octave signs are selected, so we can't remove an octave
+	   sign. Is it possible to create one? */
 
 	ottavaNum = 0;
 		
@@ -2921,8 +2907,7 @@ knowOttavad:
 
 static void FixGroupsMenu(Document *doc, Boolean continSel)
 {
-	register Boolean noteSel;
-	Boolean GRnoteSel, disableWholeMenu;
+	Boolean noteSel, GRnoteSel, disableWholeMenu;
 
 	disableWholeMenu = (doc==NULL || doc==clipboard || doc->masterView);
 	UpdateMenu(groupsMenu, !disableWholeMenu);
@@ -2973,8 +2958,8 @@ void AddWindowList()
 		AppendMenu(viewMenu, "\p(-");
 
 		/* Add each Document to the menu, starting after any special Documents: we
-		 * don't want them to appear in the list.
-		 */
+		   don't want them to appear in the list. */
+		   
 		startItems = CountMenuItems(viewMenu);
 		for (itemNum = startItems, doc = documentTable+SPEC_DOC_COUNT; doc<topTable; doc++)
 			if (doc->inUse) {
@@ -2996,6 +2981,7 @@ static void FixViewMenu(Document *doc)
 	
 	AddWindowList();
 	UpdateMenu(viewMenu, doc!=NULL);
+	
 	/* FIXME: If doc is NULL, we should return at this point--continuing is dangerous! */
 	
 	XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));

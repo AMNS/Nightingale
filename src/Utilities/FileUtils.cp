@@ -277,7 +277,7 @@ void DisplayDocumentHdr(short id, Document *doc)
 {
 	LogPrintf(LOG_INFO, "Displaying Document header (ID %d):\n", id);
 	LogPrintf(LOG_INFO, "  (1)origin.h=%d", doc->origin.h);
-	LogPrintf(LOG_INFO, "  (2).v=%d", doc->origin.h);
+	LogPrintf(LOG_INFO, "  (2).v=%d", doc->origin.v);
 	
 	LogPrintf(LOG_INFO, "  (3)paperRect.top=%d", doc->paperRect.top);
 	LogPrintf(LOG_INFO, "  .left=%d", doc->paperRect.left);

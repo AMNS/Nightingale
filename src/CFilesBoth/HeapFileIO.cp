@@ -827,16 +827,16 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	else {
 		errCode = HeapFixLinks(doc);
 
-		for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
+for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
 #if 1
-			if (ObjLType(objL)==HEADERtype || ObjLType(objL)==STAFFtype)
-				DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);				
+	if (ObjLType(objL)<=MEASUREtype)
+		DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);				
 #else
-			if (ObjLType(objL)==HEADERtype) {
-				for (LINK partL = FirstSubLINK(objL); partL; partL = NextPARTINFOL(partL))
-					LogPrintf(LOG_DEBUG, "ReadHeaps2: HEADER objL=%u partL=%u\n",
-							objL, partL);
-			}
+	if (ObjLType(objL)==HEADERtype) {
+		for (LINK partL = FirstSubLINK(objL); partL; partL = NextPARTINFOL(partL))
+			LogPrintf(LOG_DEBUG, "ReadHeaps2: HEADER objL=%u partL=%u\n",
+					objL, partL);
+	}
 #endif
 
 		for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
@@ -1165,8 +1165,9 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 
 
 /* Traverse the main and Master Page object lists and fix up the cross links. Intended
-for use when a file has just been read in. We handle Endianness; it must not have been
-done yet! Return 0 if all is well; else return FIX_LINKS_ERR. */
+for use when a file has just been read in. We handle Endianness for objects (but not
+subobjects), so it must not have been done yet! Return 0 if all is well; else return
+FIX_LINKS_ERR. */
 
 static short HeapFixLinks(Document *doc)
 {
@@ -1179,7 +1180,7 @@ static short HeapFixLinks(Document *doc)
 	
 	for (pL = doc->headL; !tailFound; pL = RightLINK(pL)) {
 		EndianFixObject(pL);							/* Ensure in processor-specific Endian */
-//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, ObjLType(pL));
+LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, ObjLType(pL));
 		switch(ObjLType(pL)) {
 			case TAILtype:
 				doc->tailL = pL;
@@ -1235,7 +1236,7 @@ static short HeapFixLinks(Document *doc)
 
 	for (pL = doc->masterHeadL; pL; pL = RightLINK(pL)) {
 		EndianFixObject(pL);							/* Ensure in processor-specific Endian */
-		//LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, ObjLType(pL));
+LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, ObjLType(pL));
 		switch(ObjLType(pL)) {
 			case HEADERtype:
 				LeftLINK(doc->masterHeadL) = NILINK;
@@ -1277,7 +1278,7 @@ static short HeapFixLinks(Document *doc)
 	LogPrintf(LOG_ERR, "TAIL of Master Page object list not found.  (HeapFixLinks)\n");
 	
 Error:
-	AlwaysErrMsg("Can't set links in memory for the file!  (HeapFixLinks)");
+	AlwaysErrMsg("Can't set links in memory after reading the file!  (HeapFixLinks)");
 	doc->masterTailL = NILINK;
 	return FIX_LINKS_ERR;
 }

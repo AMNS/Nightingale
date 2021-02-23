@@ -9019,7 +9019,7 @@ existing file) OpenFile. So it's not a problem! The doc has always been installe
 Implement EndianFixAllObjects & EndianFixAllSubobjs? Oops; keeping them separate from
 HeapFixLinks is still a problem; the object list left/right links aren't set properly till
 HeapFixLinks sets them! But code in HeapFixLinks may depend on Endian values in objects.
-So, at least for now, let's just call EndianFixObject at the beginnng of the loop in
+So, at least for now, let's just call EndianFixObject at the beginning of the loop in
 HeapFixLinks... done.
 
 Fixing Endianness of subobjects will be a bit messy, if only because MODNR subobjs are
@@ -9105,3 +9105,104 @@ PPC & Intel. Why?
 
 Add more debug info, open 1NoteE6Intel.ngl on Intel => !?! The PARTINFO subobjs are all OK now!
 Why??
+
+---------------------------------------------------------------------------------------
+
+16 - 19 Feb.
+
+Try to open 1NoteE6Intel.ngl on Intel => Ngale hangs! From the log:
+
+	info.      aStaffL=L512 next=L1 stf=0 top,left,ht,rt=d0,1,46,0 lines=0 fontSz=1 .V clef=0 TS=0,1/0
+	info.      aStaffL=L1 next=L512 stf=1 top,left,ht,rt=d-32767,0,1,16414 lines=5 fontSz=3584 .V clef=3 TS=1,4/4
+	info.      aStaffL=L512 next=L1 stf=0 top,left,ht,rt=d0,1,46,0 lines=0 fontSz=1 .V clef=0 TS=0,1/0
+	info.      aStaffL=L1 next=L512 stf=1 top,left,ht,rt=d-32767,0,1,16414 lines=5 fontSz=3584 .V clef=3 TS=1,4/4
+	info.      aStaffL=L512 next=L1 stf=0 top,left,ht,rt=d0,1,46,0 lines=0 fontSz=1 .V clef=0 TS=0,1/0
+	info.      aStaffL=L1 next=L512 stf=1 top,left,ht,rt=d-32767,0,1,16414 lines=5 fontSz=3584 .V clef=3 TS=1,4/4
+	...
+	
+A 2-cycle in STAFF subobjs :-( leading to hundreds or thousands of repetitions of those two lines,
+obviously from DisplayObject called from ReadHeaps -- but I can't see the previous stuff; it went
+off the top of the log :-( . Try it again => the score opens and is drawn, but with the usual
+complaints about "staff not in any part":
+
+Feb 16 08:52:41 Dons-2017-Air Ngale[26362]:
+info. Staff sizes in points are  1:16 2:16
+Notice. Opened file '1NoteE6Intel.ngl'.  (DoFileMenu)
+Feb 16 08:52:42 Dons-2017-Air Ngale[26362]: ERROR. PROGRAM ERROR: Staff2Part: staff no. 1 is not in any part.
+Feb 16 08:52:42 Dons-2017-Air Ngale[26362]: Warning. * StopInform alertID=464
+Feb 16 08:52:44 Dons-2017-Air Ngale[26362]: debug. DrawScoreRange: fromL=2 toL=11 outputTo=0
+Feb 16 08:52:44 Dons-2017-Air Ngale[26362]: ERROR. PROGRAM ERROR: Staff2Part: staff no. 1 is not in any part.
+Feb 16 08:52:44 Dons-2017-Air Ngale[26362]: Warning. * StopInform alertID=464
+Feb 16 08:52:45 Dons-2017-Air Ngale[26362]: ERROR. PROGRAM ERROR: Staff2Part: staff no. 2 is not in any part.
+Feb 16 08:52:45 Dons-2017-Air Ngale[26362]: Warning. * StopInform alertID=464
+
+So there's some randomness here, and affecting STAFF subobjs as well as HEADER subobjs %^#&(#$#%$)(&
+
+The problem seems to be related to HeapFixLinks. Is HeapFixLinks even necessary? For a file
+just read, it re-assigns object links in sequential order. That's a nicety, since editing
+might have resulted in them being in almost any order when they're written, but if that's
+all it does, it's not essential! Comment out the call to it, open a 1-note N106 file written
+on PowerPC => it hangs. So it _is_ essential. Sigh.
+
+From 1NoteE6IntelOpenOnPPCLog.txt:
+
+	info.  900 L1 xd=0 yd=0 HEAD ..S..S oRect.l=p0 n=2
+	info.      partL=L1 next=L2 firstst=-2 lastst=-2 velo=0 transp=0 name=DUMMY
+	info.      partL=L2 next=L0 firstst=1 lastst=2 velo=0 transp=0 name=Unnamed
+	info.  904 L2 xd=0 yd=0 PAGE .VS..S oRect.l=p0 p#=0
+	info.  905 L3 xd=576 yd=1152 SYSTEM .VS... oRect.l=p21248 sRect(t,l,b,r)=d1152,1328,2816,9136 s#=1
+	info.  906 L4 xd=0 yd=0 STAFF .VS..S oRect.l=p0 n=2
+	info.      aStaffL=L1 next=L2 stf=1 top,left,ht,rt=d384,0,256,7744 lines=5 fontSz=14 .V clef=3 TS=1,4/4
+	info.      aStaffL=L2 next=L0 stf=2 top,left,ht,rt=d1024,0,256,7744 lines=5 fontSz=14 .V clef=10 TS=1,4/4
+	info.  907 L9 xd=480 yd=0 MEASURE ..SV.. oRect.l=p28416 Box(t,l,b,r)=p72,113,176,567 s=100 TS=0 n=2
+	info.      aMeasureL=L1 next=L2 stf=1 m#=0 barTp=1 conStf=2 clef=3 mR=d0,0,1024,7264 ...M. nKS=0 TS=1,4/4
+	info.      aMeasureL=L2 next=L0 stf=2 m#=0 barTp=1 conStf=0 clef=10 mR=d640,0,1664,7264 ...MC nKS=0 TS=1,4/4
+	info.  902 L10 xd=96 yd=0 SYNC SV.V.. oRect.l=p30208 n=1
+	info.      stf=1 v=1 xd=0 yd=-192 ystm=128 yqpit=-32 ldur=4 .s=0 acc=0 onV=75 SV.. .... ... 1stMod=0
+
+From 1NoteE6IntelOpenOnIntelLog.txt:
+
+	info.  900 L1 xd=0 yd=0 HEAD ..S..S oRect.l=p0 n=2
+	info.      partL=L1 next=L512 firstst=-2 lastst=-2 velo=0 transp=0 name=DUMMY
+	info.      partL=L512 next=L7952 firstst=-1 lastst=0 velo=-62 transp=0 name=
+	info.      partL=L7952 next=L0 firstst=0 lastst=0 velo=0 transp=0 name=
+	info.  904 L2 xd=0 yd=0 PAGE .VS..S oRect.l=p0 p#=0
+	info.  905 L3 xd=576 yd=1152 SYSTEM .VS... oRect.l=p83 sRect(t,l,b,r)=d1152,1328,2816,9136 s#=1
+	info.  906 L4 xd=0 yd=0 STAFF .VS..S oRect.l=p0 n=2
+	info.      aStaffL=L1 next=L512 stf=1 top,left,ht,rt=d-32767,0,1,16414 lines=5 fontSz=3584 .V clef=3 TS=1,4/4
+	info.      aStaffL=L512 next=L28770 stf=108 top,left,ht,rt=d12336,474,1284,770 lines=6 fontSz=2312 SV clef=16 TS=115,95/16
+	info.      aStaffL=L28770 next=L0 stf=0 top,left,ht,rt=d2384,-16428,0,57 lines=0 fontSz=0 .V clef=80 TS=0,0/0
+	info.  907 L9 xd=480 yd=0 MEASURE ..SV.. oRect.l=p111 Box(t,l,b,r)=p72,113,176,567 s=100 TS=0 n=2
+	info.      aMeasureL=L1 next=L512 stf=1 m#=0 barTp=1 conStf=2 clef=3 mR=d0,0,4,24604 ...M. nKS=0 TS=1,4/4
+	info.      aMeasureL=L512 next=L109 stf=0 m#=11885 barTp=0 conStf=117 clef=110 mR=d28769,27760,11877,24940 .V..C nKS=97 TS=103,101/117
+	info.      aMeasureL=L109 next=L110 stf=0 m#=0 barTp=0 conStf=0 clef=0 mR=d0,0,0,0 ..... nKS=0 TS=0,0/0
+	info.      aMeasureL=L110 next=L111 stf=0 m#=0 barTp=0 conStf=0 clef=0 mR=d0,0,0,0 ..... nKS=0 TS=0,0/0
+	info.      aMeasureL=L111 next=L112 stf=0 m#=0 barTp=0 conStf=0 clef=0 mR=d0,0,0,0 ..... nKS=0 TS=0,0/0
+	...
+	
+I'll be!! On PPC, all is well. On Intel, the <next> fields of _each_ 1st subobject hasn't been Endian
+fixed!!! Probably none of the other subobjects has been either, but of course we go off into outer
+space after getting 512 instead of 2 for the <next>. Not clear where the randomness could come from,
+but this REALLY needs following up.
+
+Ah. EndianFixSubobjs() carefully avoids calling EndianFixSubobj for the 1st subobject of HEADERs
+because that subobj is a dummy, containing no useful information -- except for its <next> link!!
+Fix that, run again => Ngale hangs; the log is jammed with repetitions of this 3-cycle:
+
+	Feb 20 10:47:17 Dons-2017-Air Ngale[9983]:
+	info.      aStaffL=L1 next=L512 stf=1 top,left,ht,rt=d-32767,0,1,16414 lines=5 fontSz=3584 .V clef=3 TS=1,4/4
+	info.      aStaffL=L512 next=L3964 stf=56 top,left,ht,rt=d0,0,0,0 lines=0 fontSz=0 S. clef=0 TS=0,0/0
+	info.      aStaffL=L3964 next=L1 stf=0 top,left,ht,rt=d0,1,0,0 lines=0 fontSz=1 .. clef=0 TS=0,1/0
+	
+Run a 2nd time => it works perfectly; see log of Feb 20 10:50:36.
+
+Run a 3rd time => Ngale hangs; log is full of repetitions of this 2-cycle:
+
+	info.      aStaffL=L1 next=L512 stf=1 top,left,ht,rt=d-32767,0,1,16414 lines=5 fontSz=3584 .V clef=3 TS=1,4/4
+	info.      aStaffL=L512 next=L1 stf=0 top,left,ht,rt=d0,2,2,0 lines=0 fontSz=1 .V clef=0 TS=0,2/0
+
+So <next> of the 1st subobj of the STAFF object isn't Endian fixed! Let's show links of all
+subobjects in Debug Display... done.
+
+Hmmm: open AllObjypes.ngl; Debug Display the first few objs and their subobjs => I see Staff
+subobjects think the TS in effect is "96,0/2"! ??

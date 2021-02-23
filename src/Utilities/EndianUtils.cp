@@ -353,8 +353,7 @@ void EndianFixSubobj(short heapIndex, LINK subL)
 {
 	HEAP *myHeap = Heap + heapIndex;
 
-	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n",
-						heapIndex, subL);
+LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL);
 
 	/* First, handle the <next> field, which is common to all objects. (The other
 	   SUBOBJHEADER fields are common to all but HEADER subobjs, but none of the others
@@ -473,21 +472,24 @@ void EndianFixSubobj(short heapIndex, LINK subL)
 
 void EndianFixSubobjs(LINK objL)
 {
-	LINK partL, aNoteL, aStaffL, aMeasL, aKeySigL, aTimeSigL, aNoteBeamL, aConnectL,
-			aDynamicL, aGraphicL, anOttavaL, aSlurL, aGRNoteL;
+	LINK partL, aNoteL, aRptL, aStaffL, aMeasL, aClefL, aKeySigL, aTimeSigL, aNoteBeamL,
+			aConnectL, aDynamicL, aGraphicL, anOttavaL, aSlurL, aGRNoteL;
 	short heapIndex = ObjLType(objL);
 if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstSubLINK()=%u\n",
 				objL, heapIndex, FirstSubLINK(objL));
 
 	switch (heapIndex) {
 		case HEADERtype:
-			partL = FirstSubLINK(objL);									/* Skip zeroth part */
-			for (partL = NextPARTINFOL(partL); partL; partL = NextPARTINFOL(partL))
+			for (partL = FirstSubLINK(objL); partL; partL = NextPARTINFOL(partL))
 				EndianFixSubobj(heapIndex, partL);
 			break;
 		case SYNCtype:
 			for (aNoteL = FirstSubLINK(objL); aNoteL; aNoteL = NextNOTEL(aNoteL))
 				EndianFixSubobj(heapIndex, aNoteL);
+			break;
+		case RPTENDtype:
+			for (aRptL = FirstSubLINK(objL); aRptL; aRptL = NextRPTENDL(aRptL))
+				EndianFixSubobj(heapIndex, aRptL);
 			break;
 		case STAFFtype:
 			aStaffL = FirstSubLINK(objL);
@@ -498,6 +500,11 @@ if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstS
 			aMeasL = FirstSubLINK(objL);
 			for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL))
 				EndianFixSubobj(heapIndex, aMeasL);
+			break;
+		case CLEFtype:
+			aClefL = FirstSubLINK(objL);
+			for ( ; aClefL; aClefL = NextCLEFL(aClefL))
+				EndianFixSubobj(heapIndex, aClefL);
 			break;
 		case KEYSIGtype:
 			aKeySigL = FirstSubLINK(objL);
@@ -524,8 +531,17 @@ if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstS
 			for ( ; aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL))
 				EndianFixSubobj(heapIndex, aDynamicL);
 			break;
+		case MODNRtype:
+#ifdef NOTYET
+			aModNRL = FirstSubLINK(noteRL);
+			for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL))
+				EndianFixSubobj(heapIndex, aModNRL);
+#else
+			LogPrintf(LOG_WARNING, "Can't convert note modifiers to other Endian!\n");
+#endif
+			break;
 		case GRAPHICtype:
-			aGraphicL = FirstSubLINK(objL);			/* Never more than one subobject */
+			aGraphicL = FirstSubLINK(objL);			/* Never has more than one subobject */
 				EndianFixSubobj(heapIndex, aGraphicL);
 			break;
 		case OTTAVAtype:
