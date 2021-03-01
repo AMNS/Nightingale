@@ -54,8 +54,8 @@ typedef struct						/* Key signature item: */
 } KSITEM;
 
 /* NB: We #define a WHOLE_KSINFO macro, then a struct that consists of nothing but an
-invocation of that macro; why? I'm don't remember, but old comments here pointed out that
-with THINK C 5 the macro takes 15 bytes, but the struct takes 16.  --DAB */
+invocation of that macro; why? I'm don't remember, but ancient comments here pointed out
+that the macro takes 15 bytes, but the struct takes 16. So change with care!  --DAB */
 
 #define WHOLE_KSINFO					/* Complete key sig. w/o context. */			\
 	KSITEM		KSItem[MAX_KSITEMS];	/* The sharps and flats */						\
@@ -128,8 +128,8 @@ enum								/* Object types: */
 			LASTtype
 };
 
-#define LOWtype HEADERtype
-#define HIGHtype LASTtype
+#define LOW_TYPE HEADERtype
+#define HIGH_TYPE LASTtype
 
 typedef unsigned short LINK;
 

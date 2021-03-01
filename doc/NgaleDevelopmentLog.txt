@@ -9108,7 +9108,7 @@ Why??
 
 ---------------------------------------------------------------------------------------
 
-16 - 19 Feb.
+16 - 22 Feb.
 
 Try to open 1NoteE6Intel.ngl on Intel => Ngale hangs! From the log:
 
@@ -9204,5 +9204,70 @@ Run a 3rd time => Ngale hangs; log is full of repetitions of this 2-cycle:
 So <next> of the 1st subobj of the STAFF object isn't Endian fixed! Let's show links of all
 subobjects in Debug Display... done.
 
-Hmmm: open AllObjypes.ngl; Debug Display the first few objs and their subobjs => I see Staff
-subobjects think the TS in effect is "96,0/2"! ??
+Hmmm: open AllObjypes.ngl; Debug Display the first few objs and their subobjs => Staff
+subobjects think the TS in effect is "96,0/2"! The file is in N105 format; is this a bug
+in conversion?
+
+---------------------------------------------------------------------------------------
+
+24 - 27 Feb.
+
+SWITCH TO Open 1CourtesyAcc.ngl (in N105 format) => Staff subobjects say the TS in effect
+is "1,4/4", which is correct; likewise for Staff subobjects in the 1st system of
+DanceFor2Fl.39.ngl. NB Timesigs in the first Staff should always be the default timesig,
+which is indeed type 1, 4/4 time! So probably not a bug in conversion, but check.
+
+Open 1CourtesyAcc.ngl w/ Ngale 5.8.10 => Staff subobjects say the TS in effect is "1,4/4",
+as expected. Open AllObjypes.ngl w/ Ngale 5.8.10 => Staff subobjects say the TS is
+"TS=96,0/2". So not a bug in conversion; but a bizarre thing in that score file -- which
+Debug Check should catch but doesn't. The relevant code is in DCheckNode(). Is this worth
+fixing now? Probably not.
+
+BACK TO Intel-specific problems, esp. saving & opening files.
+
+Open AllObjypes.ngl w/ latest Ngale on Intel => crashes. The log ends with
+
+	info. Staff sizes in points are  1:20 2:20
+	Notice. Opened file 'AllObjTypes_ConvByPPC.ngl'.  (DoFileMenu)
+	debug. DrawScoreRange: fromL=2 toL=37 outputTo=0
+	com.apple.xpc.launchd[1] (com.amns.nightingale.49728[25427]): Service exited due to SIGSEGV | sent by exc handler[25427]
+
+Oh well. Let's go back to the much simpler 1NoteE6Intel.ngl. Open it on Intel => score looks
+fine, and Debug Check (standard) has no complaints. Same thing a 2nd time => same result.
+3rd & 4th times => same thing! Hooray! So it looks like the random failures are gone --
+miraculously: I haven't changed anything since the above hangs, so almost certainly just
+chance! Leave it open & open 1NoteA6Intel.ngl => draws a blank score & Debug Check has 14
+complaints. Quit; open 1NoteA6Intel.ngl again => exactly the same results. But open
+1NoteA6Intel.ngl on PPC => exactly the same results, so that score file seems to be bad.
+
+On Intel, create 2Notes+BeamIntel.ngl (with just those contents). Quit Ngale; re-launch;
+open 2Notes+BeamIntel.ngl => looks right, plays right, and has no Debug complaints! Same
+thing a 2nd time => Ngale hangs :-( . 3rd, 4th, 5th times => looks fine, and Debug Check
+has no complaints. So the recent random problem isn't gone at all.
+
+Open 1NoteE6Intel on Intel => hangs w/ a 2-cycle almost identical to the one above: L1 to L512.
+Not surprisingly, many of the fields of the nonsensical subobject L512 are different. Well,
+the GARBAGEL macro should catch the absurdity of link no. 512! Add it to EndianFixSubobj.
+
+Open 1NoteE6Intel on Intel 3x => no problems & no complaints from GARBAGEL -- but here's
+an excerpt from the log for one (1NoteE6IntelOpenOnIntelLog4.txt):
+
+	info.  900 L1 xd=0 yd=0 HEAD ..S..S oRect.l=p0 n=2
+	info.      L1 next=L512 firstst=-2 lastst=-2 velo=0 transp=0 name=DUMMY
+	info.      L512 next=L0 firstst=0 lastst=0 velo=0 transp=0 name=
+	...
+	info.  906 L4 xd=0 yd=0 STAFF .VS..S oRect.l=p0 n=2
+	info.      L1 next=L512 stf=1 top,left,ht,rt=d-32767,0,1,16414 lines=5 fontSz=3584 .V clef=3 TS=1,4/4
+	info.      L512 next=L2 stf=0 top,left,ht,rt=d0,14224,5,-3167 lines=0 fontSz=-11104 .V clef=0 TS=0,1/0
+	info.      L2 next=L0 stf=2 top,left,ht,rt=d4,0,1,16414 lines=5 fontSz=3584 .V clef=10 TS=1,4/4
+	info.  907 L9 xd=480 yd=0 MEASURE ..SV.. oRect.l=p111 Box(t,l,b,r)=p72,113,176,567 s=100 TS=0 n=2
+	info.      L1 next=L512 stf=1 m#=0 barTp=1 conStf=2 clef=3 mR=d0,0,4,24604 ...M. nKS=0 TS=1,4/4
+	info.      L512 next=L2 stf=0 m#=0 barTp=0 conStf=1 clef=0 mR=d2,0,3,0 S...C nKS=0 TS=0,2/0
+	info.      L2 next=L0 stf=2 m#=0 barTp=1 conStf=0 clef=10 mR=d-32766,0,-32762,24604 ...MC nKS=0 TS=1,4/4
+
+That's from ReadHeaps(). So there are bad (apparently non-Endian-fixed and obviously garbage) links even here; but
+they aren't caught by the GARBAGEL check in EndianFixSubobj bcs they've been fixed by then
+-- as they should be. In 1NoteE6IntelOpenOnIntelLog5.txt, the subobj links for STAFFs are
+in a 2-cycle in ReadHeaps, so we hang there just trying to print them! That's dumb, Don;
+don't do that!
+

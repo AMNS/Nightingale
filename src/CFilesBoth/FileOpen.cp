@@ -252,13 +252,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	   necessary, convert them to the current format. */
 	
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
-if (1) {
-	unsigned char *pSObj;
-	pSObj = (unsigned char *)GetPSUPEROBJ(1);
-	NHexDump(LOG_DEBUG, "OpenFile: L1", pSObj, 46, 4, 16);
-	pSObj = (unsigned char *)GetPSUPEROBJ(2);
-	NHexDump(LOG_DEBUG, "OpenFile: L2", pSObj, 46, 4, 16);
-}
 	if (errCode!=noErr) { errInfo = READHEAPScall; goto Error; }
 
 	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size

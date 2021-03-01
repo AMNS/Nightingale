@@ -827,17 +827,11 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	else {
 		errCode = HeapFixLinks(doc);
 
-for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
-#if 1
-	if (ObjLType(objL)<=MEASUREtype)
-		DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);				
-#else
-	if (ObjLType(objL)==HEADERtype) {
-		for (LINK partL = FirstSubLINK(objL); partL; partL = NextPARTINFOL(partL))
-			LogPrintf(LOG_DEBUG, "ReadHeaps2: HEADER objL=%u partL=%u\n",
-					objL, partL);
-	}
-#endif
+
+for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
+	if (DETAIL_SHOW && ObjLType(objL)<=MEASUREtype)
+		DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);
+}
 
 		for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
 			EndianFixSubobjs(objL);
@@ -1008,7 +1002,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	if (ioErr) { OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
 	RebuildFreeList(doc, OBJtype, nFObjs);
 
-	if (DETAIL_SHOW) {
+	if (MORE_DETAIL_SHOW) {
 		unsigned char *pSObj;
 		pSObj = (unsigned char *)GetPSUPEROBJ(1);
 		NHexDump(LOG_DEBUG, "ReadObjHeap: L1", pSObj, 46, 4, 16);

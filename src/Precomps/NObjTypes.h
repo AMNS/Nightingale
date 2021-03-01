@@ -352,8 +352,8 @@ enum {								/* subtypes: */
 	N_OVER_DOTTEDEIGHTH
 };
 
-#define LOW_TStype N_OVER_D
-#define HIGH_TStype N_OVER_DOTTEDEIGHTH
+#define LOW_TSTYPE N_OVER_D
+#define HIGH_TSTYPE N_OVER_DOTTEDEIGHTH
 
 
 /* ----------------------------------------------------------------- Type 11 = BEAMSET -- */
@@ -671,7 +671,6 @@ typedef struct {
 	SplineSeg	seg;				/* For now, one slur spline segment always defined */
 	Point		startPt, endPt;		/* Base points (note positions), paper-rel.; GetSlurContext returns Points */
 	DPoint		endKnot;			/* End point of last spline segment, relative to endPt */
-	
 } ASLUR, *PASLUR;
 
 typedef struct {
@@ -683,7 +682,7 @@ typedef struct {
 	char		crossStfBack;		/* True if the slur goes from a lower (position, not no.) stf to higher */
 	char		crossSystem;		/* True if the slur is cross-system */	
 	Boolean		tempFlag;			/* temporary flag for benefit of functions that need it */
-	Boolean 	used;				/* True if being used */
+	Boolean 	used;				/* (Unused :-) ) */
 	Boolean		tie;				/* True if tie, else slur */
 	LINK		firstSyncL;			/* Link to sync with 1st slurred note or to slur's system's init. measure */
 	LINK		lastSyncL;			/* Link to sync with last slurred note or to slur's system */

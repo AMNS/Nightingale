@@ -440,23 +440,20 @@ work. */
 
 /* -------------------------------------------------------------------- Error Checking -- */ 
 		
-/* calls to be replaced by calls to GARBAGELX */
-				 
-#define GARBAGEL(pL) 0
 /* Is the link garbage (greater than the length of the heap for its type)? */
 
-#define GARBAGELX(type, pL)		((pL)>=(Heap+(type))->nObjs)
+#define GARBAGEL(type, pL)		((pL)>=(Heap+(type))->nObjs)
 
 /* Is the staff no./voice no./object type illegal? */
 
 #define STAFFN_BAD(doc, staff)	((staff)<1 || (staff)>doc->nstaves)
 #define VOICE_BAD(voice)		((voice)<0 || (voice)>MAXVOICES)
-#define TYPE_BAD(pL)			(ObjLType((pL))<LOWtype || ObjLType((pL))>HIGHtype)
+#define TYPE_BAD(pL)			(ObjLType((pL))<LOW_TYPE || ObjLType((pL))>HIGH_TYPE)
 
-/* Check timeSigType, numerator, denominator for legality. TSDENOM_BAD must not
-allow values forbidden by MAX_TSDENOM (defined elsewhere)! */
+/* Check timeSigType, numerator, denominator for legality. TSDENOM_BAD must not allow
+values forbidden by MAX_TSDENOM (defined elsewhere)! */
 
-#define TSTYPE_BAD(t)			(	(t)<LOW_TStype || (t)>HIGH_TStype)
+#define TSTYPE_BAD(t)			(	(t)<LOW_TSTYPE || (t)>HIGH_TSTYPE)
 #define TSNUMER_BAD(t)			(	(t)<1 || (t)>MAX_TSNUM )
 #define TSDENOM_BAD(t)			(	(t)!=1 && (t)!=2 && (t)!=4 && (t)!=8		\
 									&&	(t)!=16 && (t)!=32 && (t)!=64 )

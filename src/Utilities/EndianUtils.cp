@@ -40,6 +40,13 @@ void EndianFixPoint(Point *pPoint)
 	FIX_END(pPoint->h);
 }
 
+static void EndianFixDPoint(DPoint *pPoint);
+static void EndianFixDPoint(DPoint *pPoint)
+{
+	FIX_END(pPoint->v);
+	FIX_END(pPoint->h);
+}
+
 static void EndianFixTextstyleRecord(TEXTSTYLE *pTSRec);
 static void EndianFixTextstyleRecord(TEXTSTYLE *pTSRec)
 {
@@ -349,14 +356,29 @@ void EndianFixObject(LINK pL)
 	}
 }
 
-void EndianFixSubobj(short heapIndex, LINK subL)
+void EndianFixSplineSeg(SplineSeg *seg);
+void EndianFixSplineSeg(SplineSeg *seg)
+{
+	EndianFixDPoint(&seg->knot);
+	EndianFixDPoint(&seg->c0);
+	EndianFixDPoint(&seg->c1);
+}
+
+Boolean EndianFixSubobj(short heapIndex, LINK subL)
 {
 	HEAP *myHeap = Heap + heapIndex;
 
-LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL);
+//LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL);
+LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d nObjs=%d\n", heapIndex, subL,
+(Heap+heapIndex)->nObjs);
+	if (GARBAGEL(heapIndex, subL)) {
+		LogPrintf(LOG_ERR, "IN HEAP %d, LINK %u IS GARBAGE! (EndianFixSubobj)\n",
+				heapIndex, subL);
+		return False;
+	}
 
 	/* First, handle the <next> field, which is common to all objects. (The other
-	   SUBOBJHEADER fields are common to all but HEADER subobjs, but none of the others
+	   SUBOBJHEADER fields are common to all but HEADER subobjs, but none of them
 	   are multiple bytes, so there's nothing else to do for the SUBOBJHEADER.) */
 	
 	FIX_END(NextLink(myHeap, subL));
@@ -397,12 +419,12 @@ LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL)
 			FIX_END(StaffNOTEHEADWIDTH(subL));
 			FIX_END(StaffFRACBEAMWIDTH(subL));
 			FIX_END(StaffSPACEBELOW(subL));
-			//WHOLE_KSINFO??
+			/* KSINFO has no multibyte fields */
 			break;
 		case MEASUREtype:
 			FIX_END(FirstMeasMEASURENUM(subL));
 			EndianFixRect((Rect *)&MeasMRECT(subL));
-			//WHOLE_KSINFO??
+			/* KSINFO has no multibyte fields */
 			break;
 		case CLEFtype:							/* No multibyte fields except <next> */
 			break;
@@ -437,7 +459,11 @@ LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL)
 			break;
 		case SLURtype:
 			EndianFixRect(&SlurBOUNDS(subL));
-			//??(SlurSEG(subL));
+//LogPrintf(LOG_DEBUG, "EndianFixSubobj1: SlurSEG=(%d,%d),(%d,%d),(%d,%d)\n",
+//SlurSEG(subL).knot.h, SlurSEG(subL).knot.v, SlurSEG(subL).c0.h, SlurSEG(subL).c0.v, SlurSEG(subL).c1.h, SlurSEG(subL).c1.v); 
+			EndianFixSplineSeg(&SlurSEG(subL));
+//LogPrintf(LOG_DEBUG, "EndianFixSubobj2: SlurSEG=(%d,%d),(%d,%d),(%d,%d)\n",
+//SlurSEG(subL).knot.h, SlurSEG(subL).knot.v, SlurSEG(subL).c0.h, SlurSEG(subL).c0.v, SlurSEG(subL).c1.h, SlurSEG(subL).c1.v); 
 			EndianFixPoint(&SlurSTARTPT(subL));
 			EndianFixPoint(&SlurENDPT(subL));
 			EndianFixPoint((Point *)&SlurENDKNOT(subL));		
@@ -446,7 +472,6 @@ LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL)
 			FIX_END(NoteTupleTPSYNC(subL));
 			break;
 		case GRSYNCtype:
-			FIX_END(GRNoteYQPIT(subL));
 			FIX_END(GRNoteXD(subL));
 			FIX_END(GRNoteYD(subL));
 			FIX_END(GRNoteYSTEM(subL));
@@ -466,7 +491,9 @@ LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL)
 		default:
 			MayErrMsg("For subobject at L%ld, type %ld is illegal.  (EndianFixSubobj)",
 						(long)subL, (long)heapIndex);
+			return False;
 	}
+	return True;
 }
 
 
@@ -481,83 +508,83 @@ if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstS
 	switch (heapIndex) {
 		case HEADERtype:
 			for (partL = FirstSubLINK(objL); partL; partL = NextPARTINFOL(partL))
-				EndianFixSubobj(heapIndex, partL);
+				if (!EndianFixSubobj(heapIndex, partL)) return;
 			break;
 		case SYNCtype:
 			for (aNoteL = FirstSubLINK(objL); aNoteL; aNoteL = NextNOTEL(aNoteL))
-				EndianFixSubobj(heapIndex, aNoteL);
+				if (!EndianFixSubobj(heapIndex, aNoteL)) return;
 			break;
 		case RPTENDtype:
 			for (aRptL = FirstSubLINK(objL); aRptL; aRptL = NextRPTENDL(aRptL))
-				EndianFixSubobj(heapIndex, aRptL);
+				if (!EndianFixSubobj(heapIndex, aRptL)) return;
 			break;
 		case STAFFtype:
 			aStaffL = FirstSubLINK(objL);
 			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
-				EndianFixSubobj(heapIndex, aStaffL);
+				if (!EndianFixSubobj(heapIndex, aStaffL)) return;
 			break;
 		case MEASUREtype:
 			aMeasL = FirstSubLINK(objL);
 			for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL))
-				EndianFixSubobj(heapIndex, aMeasL);
+				if (!EndianFixSubobj(heapIndex, aMeasL)) return;
 			break;
 		case CLEFtype:
 			aClefL = FirstSubLINK(objL);
 			for ( ; aClefL; aClefL = NextCLEFL(aClefL))
-				EndianFixSubobj(heapIndex, aClefL);
+				if (!EndianFixSubobj(heapIndex, aClefL)) return;
 			break;
 		case KEYSIGtype:
 			aKeySigL = FirstSubLINK(objL);
 			for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL))
-				EndianFixSubobj(heapIndex, aKeySigL);
+				if (!EndianFixSubobj(heapIndex, aKeySigL)) return;
 			break;
 		case TIMESIGtype:
 			aTimeSigL = FirstSubLINK(objL);
 			for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL))
-				EndianFixSubobj(heapIndex, aTimeSigL);
+				if (!EndianFixSubobj(heapIndex, aTimeSigL)) return;
 			break;
 		case BEAMSETtype:
 			aNoteBeamL = FirstSubLINK(objL);
 			for (; aNoteBeamL; aNoteBeamL=NextNOTEBEAML(aNoteBeamL))
-				EndianFixSubobj(heapIndex, aNoteBeamL);
+				if (!EndianFixSubobj(heapIndex, aNoteBeamL)) return;
 			break;
 		case CONNECTtype:
 			aConnectL = FirstSubLINK(objL);
 			for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL))
-				EndianFixSubobj(heapIndex, aConnectL);
+				if (!EndianFixSubobj(heapIndex, aConnectL)) return;
 			break;
 		case DYNAMtype:
 			aDynamicL = FirstSubLINK(objL);
 			for ( ; aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL))
-				EndianFixSubobj(heapIndex, aDynamicL);
+				if (!EndianFixSubobj(heapIndex, aDynamicL)) return;
 			break;
 		case MODNRtype:
 #ifdef NOTYET
 			aModNRL = FirstSubLINK(noteRL);
 			for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL))
-				EndianFixSubobj(heapIndex, aModNRL);
+				if (!EndianFixSubobj(heapIndex, aModNRL)) return;
 #else
 			LogPrintf(LOG_WARNING, "Can't convert note modifiers to other Endian!\n");
 #endif
 			break;
 		case GRAPHICtype:
 			aGraphicL = FirstSubLINK(objL);			/* Never has more than one subobject */
-				EndianFixSubobj(heapIndex, aGraphicL);
+				if (!EndianFixSubobj(heapIndex, aGraphicL)) return;
 			break;
 		case OTTAVAtype:
 			anOttavaL = FirstSubLINK(objL);
 			for ( ; anOttavaL; anOttavaL = NextNOTEOTTAVAL(anOttavaL))
-				EndianFixSubobj(heapIndex, anOttavaL);
+				if (!EndianFixSubobj(heapIndex, anOttavaL)) return;
 			break;
 		case SLURtype:
 			aSlurL = FirstSubLINK(objL);
 			for ( ; aSlurL; aSlurL = NextSLURL(aSlurL))
-				EndianFixSubobj(heapIndex, aSlurL);
+				if (!EndianFixSubobj(heapIndex, aSlurL)) return;
 			break;
 		case GRSYNCtype:
 			aGRNoteL = FirstSubLINK(objL);
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
-				EndianFixSubobj(heapIndex, aGRNoteL);
+				if (!EndianFixSubobj(heapIndex, aGRNoteL)) return;
 			break;
 		default:
 			;

@@ -3154,3 +3154,13 @@ Fixed teeny bug: origin.v in the display of the document header in the log is wr
 Affects FileUtils.
 
 Minor cleanup. Affects DebugDisplay, DebugUtils, EndianUtils, HeapFileIO, Menu.
+
+---------------------------------------------------------------------------------------
+
+23 - 28 Feb.
+
+Progress toward fixing bug: can't open files written on Intel machines because some
+multibyte fields in subobjects are in the wrong Endian form. Affects EndianUtils.
+
+Minor cleanup. Affects Defs.h, Endian.h, NBasicTypes.h, NObjTypes.h; DebugDisplay,
+EndianUtils, FileOpen, HeapFileIO.
