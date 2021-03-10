@@ -9210,7 +9210,7 @@ in conversion?
 
 ---------------------------------------------------------------------------------------
 
-24 - 27 Feb.
+24 - 28 Feb.
 
 SWITCH TO Open 1CourtesyAcc.ngl (in N105 format) => Staff subobjects say the TS in effect
 is "1,4/4", which is correct; likewise for Staff subobjects in the 1st system of
@@ -9265,9 +9265,97 @@ an excerpt from the log for one (1NoteE6IntelOpenOnIntelLog4.txt):
 	info.      L512 next=L2 stf=0 m#=0 barTp=0 conStf=1 clef=0 mR=d2,0,3,0 S...C nKS=0 TS=0,2/0
 	info.      L2 next=L0 stf=2 m#=0 barTp=1 conStf=0 clef=10 mR=d-32766,0,-32762,24604 ...MC nKS=0 TS=1,4/4
 
-That's from ReadHeaps(). So there are bad (apparently non-Endian-fixed and obviously garbage) links even here; but
-they aren't caught by the GARBAGEL check in EndianFixSubobj bcs they've been fixed by then
--- as they should be. In 1NoteE6IntelOpenOnIntelLog5.txt, the subobj links for STAFFs are
-in a 2-cycle in ReadHeaps, so we hang there just trying to print them! That's dumb, Don;
-don't do that!
+That's from ReadHeaps(). So there are bad (apparently non-Endian-fixed and obviously
+garbage) links even here; but they aren't caught by the GARBAGEL check in EndianFixSubobj
+bcs they've been fixed by then -- as they should be. In 1NoteE6IntelOpenOnIntelLog5.txt, the
+subobj links for STAFFs are in a 2-cycle in ReadHeaps, so we hang there just trying to print
+them. That's dumb! Instead, make DisplaySubobjects check if there are more
+subobjects in the linked list than the owning objects says and if so quit after the
+expected number ??OR ONE MORE? ...done.
 
+---------------------------------------------------------------------------------------
+
+1 - 9 March
+
+Have ReadHeaps call DisplayObject after running EndianFixSubobjs as well as before => done.
+
+Time to retest combinations of open/save, file format, processor type; cf. chart from 20 - 24
+Nov. Results:
+
+open/save	file  	running	status
+			format	on
+---------	------	-------	-------
+Open		N105	PPC		OK
+"			"		Intel	OK: Ngale correctly says "file version too old"
+"			N106	PPC		OK*
+"			"		Intel	Unreliable; randomly fails with ??
+Save		N106	PPC		OK
+"			"		Intel	OK for simple files (default score; notes, beams, barline,
+							dynamic, text Graphic,slur); saving tuplets may be a problem**
+
+*Larger files tested: 2ndMovement_pp1-29ConvPPC.ngl, GraphicsOnWrongPage_ConvPPC.ngl.
+
+**Looks like a terrible bug in Create Tuplet on Intel. (Or is it saving files containing
+tuplets? See below.) In Notes+Beams+Barline+More2.ngl, select the three 8th notes on the
+top staff starting a quarter note in, then Create Tuplet => the Tuplet's 1st subobject
+<tpSync>=4608 and <next>=512: both nonsense. 4608 = 1152 * 4, and 1152 is a common no. in
+Ngale as the 1st System's yd; but so what? 512 = 256 * 2, i.e., it's 2 in the wrong
+Endian. (Furthermore, Debug Check isn't complaining, though DCheckNode() has code that
+sure looks like it should!?  Try again => Debug Check complains properly; so does Debug
+Display. Oh well; I'm not sure what really happened when I didn't get a complaint, so may
+not be worth pursuing the likely bug in Debug Check.)
+
+Try a 3rd time => the tuplet looks OK; the <tpSyncs>s are correct; and Debug Check doesn't
+complain! Try a 4th time => all OK again! Try a 5th time => the 1st <tpSync>=48220 and
+<next>=512: both nonsense again, and in a very similar way to the previous failure. But
+am I sure the problem isn't in opening the file??
+
+Try a 6th time => Create Tuplet seems to work fine. After it, Debug Check has no complaints,
+and Debug Display shows the Tuplet correctly:
+
+	Mar  6 21:35:11 Dons-2017-Air Ngale[58358]:
+	...
+	info.  16 L60 xd=0 yd=0 TUPLET SV.... oRect.l=p259 stf=1 v=1 num=3 denom=2 n=3
+	info.      L1 tpSync=L64
+	info.      L2 tpSync=L65
+	info.      L3 tpSync=L66
+	info.  17 L64 xd=776 yd=0 SYNC SV.V.. oRect.l=p242 TS=480 LT=480 n=2
+	info.      L39 stf=2 v=2 xd=0 yd=96 ystm=320 yqpit=10 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+	info.      L40 stf=1 v=1 xd=0 yd=-96 ystm=176 yqpit=-26 ldur=5 .s=0 acc=0 onV=75 SV.. .B.. ..T 1stMod=0
+	info.  18 L65 xd=992 yd=0 SYNC SV.V.. oRect.l=p261 TS=640 LT=640 n=1
+	info.      L41 stf=1 v=1 xd=0 yd=-64 ystm=185 yqpit=-24 ldur=5 .s=0 acc=0 onV=75 SV.. .B.. ..T 1stMod=0
+	info.  19 L66 xd=1168 yd=0 SYNC SV.VT. oRect.l=p278 TS=800 LT=800 n=1
+	info.      L42 stf=1 v=1 xd=0 yd=-32 ystm=192 yqpit=-22 ldur=5 .s=0 acc=4 onV=75 SV.. .B.. ..T 1stMod=0
+
+Save as Notes+Beams+More2Q.ngl. Open => Ngale crashes instantly!
+
+Rename all these tests more systematically: call the 6 without octave sign Notes+Beams+More2xxx;
+the one with an octave sign Notes+Beams+More3xxx... done. Open & check'em all on PPC => the
+no-ottava files all have no problems; the one w/ an ottava has the usual problems! I'm not
+sure how I got the latter, but quite possibly I opened it and added the ottava on PPC. Anyway,
+a bug in saving tuplets on Intel would explain everything! Hmmm. Maybe not :-(
+
+Create 4Notes.ngl on Intel (LE); tupletize 3 on PPC (BE) & save as 4Notes+Tuplet_LE-BE.ngl;
+open on Intel => Tuplet is screwed up as above. Create 4Notes.ngl on PPC (BE); tupletize 3
+on PPC (BE) & save as 4Notes+Tuplet_BE-BE.ngl; open on Intel => again Tuplet is screwed up
+as above. Conclusion: there's no evidence of a bug in saving tuplets on Intel, but plenty
+of evidence of a bug in opening files containg tuplets on Intel!
+
+Revise the chart of combinations of open/save, file format, processor type from a few days
+ago:
+
+open/save	file  	running	status
+			format	on
+---------	------	-------	-------
+Open		N105	PPC		OK
+"			"		Intel	OK: Ngale correctly says "file version too old"
+"			N106	PPC		OK*
+"			"		Intel	Unreliable; randomly fails in different ways; tuplets usually
+							fail disastrously*
+Save		N106	PPC		OK
+"			"		Intel	OK for simple files (default score; notes, beams, barline,
+							dynamic, text Graphic, slur, tuplets)
+
+*If the file contains tuplets, it might (1) have no problems; (2) give the Tuplet messed-up
+subobjects, as above; or (3) crash after giving the "Opened file 'Blah-de-blah'" message
+but before drawing it.

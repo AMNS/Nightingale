@@ -368,9 +368,7 @@ Boolean EndianFixSubobj(short heapIndex, LINK subL)
 {
 	HEAP *myHeap = Heap + heapIndex;
 
-//LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL);
-LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d nObjs=%d\n", heapIndex, subL,
-(Heap+heapIndex)->nObjs);
+LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL);
 	if (GARBAGEL(heapIndex, subL)) {
 		LogPrintf(LOG_ERR, "IN HEAP %d, LINK %u IS GARBAGE! (EndianFixSubobj)\n",
 				heapIndex, subL);

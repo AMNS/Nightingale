@@ -8,9 +8,7 @@
 #define MAXINPUTTYPE	4
 #endif
 
-/*
- *	Codes for various open commands as delivered by GetInputName
- */
+/* Codes for various open commands as delivered by GetInputName */
 
 enum {
 		OP_Cancel,
@@ -19,9 +17,7 @@ enum {
 		OP_QuitInstead
 	};
 
-/*
- *	Prototypes for routines in MiscUtils.c
- */
+/* Prototypes for routines in MiscUtils.c */
 
 void			ZeroMem(void *m, long nBytes);
 void			FillMem(Byte, void *, DoubleWord);

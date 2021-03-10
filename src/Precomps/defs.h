@@ -264,12 +264,15 @@ enum {
 #define DFLT_CLEF TREBLE_CLEF			/* Default clefType for new staves */
 #define DFLT_NKSITEMS 0					/* Dflt. key sig. NB: !=0 has side effects: CAREFUL! */
 #define DFLT_TSTYPE N_OVER_D			/* Default time sig. fields for new staves */
+#define DFLT_NUMER 4					/* Default time sig. numerator */
+#define DFLT_DENOM 4					/* Default time sig. denominator */
+
 #define DFLT_DYNAMIC MF_DYNAM			/* Default dynamic marking for new staves */
 #define DFLT_SPACETABLE 0				/* Default space table number */
 #define DFLT_XMOVEACC 5					/* Default note <xMoveAcc> */
 
 #define STFLINES 5						/* Number of lines in standard staff */
-#define STFHALFLNS (STFLINES+STFLINES-2)	/* Height of standard staff, in half-spaces */
+#define STFHALFSP (STFLINES+STFLINES-2)	/* Height of standard staff, in half-spaces */
 
 #define ENLARGE_NR_SELH 1				/* Enlarge note selection rect. (horiz. pixels) */
 #define ENLARGE_NR_SELV 0				/* Enlarge note selection rect. (vert. pixels) */
@@ -361,10 +364,11 @@ moved there eventually). */
 
 /* Get the default Measure top for the top staff of a System */
 
-#define MEAS_TOP(stHt) (doc->ledgerYSp)*(stHt)/STFHALFLNS
+#define MEAS_TOP(stHt) (doc->ledgerYSp)*(stHt)/STFHALFSP
+
 /* Get the default Measure bottom for the bottom staff of a System */
 
-#define MEAS_BOTTOM(bsTop, stHt) ((bsTop)+(stHt)+(doc->ledgerYSp)*(stHt)/STFHALFLNS)
+#define MEAS_BOTTOM(bsTop, stHt) ((bsTop)+(stHt)+(doc->ledgerYSp)*(stHt)/STFHALFSP)
 
 /* Get width (in pixels) of a keysig. with given nKSItems */
 

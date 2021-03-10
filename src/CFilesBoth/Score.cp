@@ -197,7 +197,7 @@ Boolean NewDocScore(Document *doc)
 	DDIST	sysTop;
 	
 	doc->ledgerYSp = 2*config.defaultLedgers+2;
-	initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastral]/STFHALFLNS);
+	initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastral]/STFHALFSP);
 	initStfTop2 = (short)(2.5*drSize[doc->srastral]);
 	
 	doc->currentSystem = 1;

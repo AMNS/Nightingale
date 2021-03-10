@@ -83,7 +83,8 @@ is likely to want to change system breaks--and therefore staff spacing--througho
 the newly-created part. */
 
 /* Get the default Measure top for the top staff of a System */
-#define MEAS_TOP(stHt) (doc->ledgerYSp)*(stHt)/STFHALFLNS
+
+#define MEAS_TOP(stHt) (doc->ledgerYSp)*(stHt)/STFHALFSP
 
 void ExFixMeasAndSysRects(Document *doc)
 {
@@ -102,7 +103,7 @@ void ExFixMeasAndSysRects(Document *doc)
 	staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
 	aStaffL = FirstSubLINK(staffL);									/* Any staff should work */
 	topMeasTop = MEAS_TOP(StaffHEIGHT(aStaffL));
-	topMeasTop += StaffHEIGHT(aStaffL)/STFHALFLNS;					/* Allow a bit extra */
+	topMeasTop += StaffHEIGHT(aStaffL)/STFHALFSP;					/* Allow a bit extra */
 	staffTopDiff = staffTop[1]-topMeasTop;
 	for (s = 1; s<=doc->nstaves; s++) {
 		staffTop[s] -= staffTopDiff;

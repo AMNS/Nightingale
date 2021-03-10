@@ -89,11 +89,8 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				LogPrintf(LOG_INFO, "     ");
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", partL);
 				LogPrintf(LOG_INFO, "firstst=%d lastst=%d velo=%d transp=%d name=%s\n",
-					pPartInfo->firstStaff,
-					pPartInfo->lastStaff,
-					pPartInfo->partVelocity,
-					pPartInfo->transpose,
-					pPartInfo->name);
+					pPartInfo->firstStaff, pPartInfo->lastStaff, pPartInfo->partVelocity,
+					pPartInfo->transpose, pPartInfo->name);
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;
@@ -108,12 +105,9 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx ", aNote);
 				LogPrintf(LOG_INFO, 
 					"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
-					aNote->staffn, aNote->voice,
-					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
-					aNote->subType,
-					aNote->ndots,
-					aNote->accident,
-					aNote->onVelocity,
+					aNote->staffn, aNote->voice, aNote->xd, aNote->yd,
+					aNote->ystem, aNote->yqpit, aNote->subType, aNote->ndots,
+					aNote->accident, aNote->onVelocity,
 					(aNote->selected? 'S' : '.') ,
 					(aNote->visible? 'V' : '.') ,
 					(aNote->soft? 'S' : '.') ,
@@ -136,12 +130,9 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aNoteL);
 				LogPrintf(LOG_INFO, 
 					"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
-					aNote->staffn, aNote->voice,
-					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
-					aNote->subType,
-					aNote->ndots,
-					aNote->accident,
-					aNote->onVelocity,
+					aNote->staffn, aNote->voice, aNote->xd, aNote->yd,
+					aNote->ystem, aNote->yqpit, aNote->subType, aNote->ndots,
+					aNote->accident, aNote->onVelocity,
 					(aNote->selected? 'S' : '.') ,
 					(aNote->visible? 'V' : '.') ,
 					(aNote->soft? 'S' : '.') ,
@@ -167,9 +158,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 					(aStaff->selected? 'S' : '.') ,
 					(aStaff->visible? 'V' : '.'),
 					aStaff->clefType,
-					aStaff->timeSigType,
-					aStaff->numerator,
-					aStaff->denominator );
+					aStaff->timeSigType, aStaff->numerator, aStaff->denominator);
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;
@@ -181,8 +170,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aMeasureL);
 				LogPrintf(LOG_INFO, 
 					"stf=%d m#=%d barTp=%d conStf=%d clef=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
-					aMeasure->staffn, aMeasure->measureNum,
-					aMeasure->subType,
+					aMeasure->staffn, aMeasure->measureNum, aMeasure->subType,
 					aMeasure->connStaff, aMeasure->clefType,
 					aMeasure->measSizeRect.top, aMeasure->measSizeRect.left,
 					aMeasure->measSizeRect.bottom, aMeasure->measSizeRect.right,
@@ -192,9 +180,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 					(aMeasure->measureVisible? 'M' : '.'),
 					(aMeasure->connAbove? 'C' : '.'),
 					aMeasure->nKSItems,
-					aMeasure->timeSigType,
-					aMeasure->numerator,
-					aMeasure->denominator );
+					aMeasure->timeSigType, aMeasure->numerator, aMeasure->denominator );
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;
@@ -247,8 +233,8 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				LogPrintf(LOG_INFO, "     ");
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aTimeSigL);
 				LogPrintf(LOG_INFO, "stf=%d xd=%d type=%d,%d/%d %c%c%c\n",
-					aTimeSig->staffn, aTimeSig->xd, aTimeSig->subType,
-					aTimeSig->numerator, aTimeSig->denominator,
+					aTimeSig->staffn, aTimeSig->xd,
+					aTimeSig->subType, aTimeSig->numerator, aTimeSig->denominator,
 					(aTimeSig->selected? 'S' : '.'),
 					(aTimeSig->visible? 'V' : '.'),
 					(aTimeSig->soft? 'S' : '.') );
@@ -286,9 +272,8 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 			}
 			break;
 		case GRAPHICtype: {
-				/* FIXME: instead of the actual string, this displays something like "0x1b1394"! */
-
-				LINK aGraphicL;  PAGRAPHIC aGraphic;  PGRAPHIC pGraphic;
+				LINK aGraphicL;  PAGRAPHIC aGraphic;
+				PGRAPHIC pGraphic;  char tmpPStr[256];
 				pGraphic = GetPGRAPHIC(objL);
 				if (pGraphic->graphicType==GRString
 				||  pGraphic->graphicType==GRLyric
@@ -298,7 +283,8 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 					aGraphic = GetPAGRAPHIC(aGraphicL);
 					LogPrintf(LOG_INFO, "     ");
 					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aGraphicL);
-					LogPrintf(LOG_INFO, "'%p'", PCopy(aGraphic->strOffset));
+					Pstrcpy((unsigned char *)tmpPStr, PCopy(aGraphic->strOffset));
+					LogPrintf(LOG_INFO, "'%s'", PToCString((unsigned char *)tmpPStr));
 					LogPrintf(LOG_INFO, "\n");				/* Protect newline from garbage strings */
 				}
 			}
@@ -310,8 +296,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				LogPrintf(LOG_INFO, "     ");
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aConnectL);
 				LogPrintf(LOG_INFO, "xd=%d lev=%d type=%d stfA=%d stfB=%d %c\n",
-					aConnect->xd,
-					aConnect->connLevel, aConnect->connectType,
+					aConnect->xd, aConnect->connLevel, aConnect->connectType,
 					aConnect->staffAbove, aConnect->staffBelow,
 					(aConnect->selected? 'S' : '.'));
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
@@ -324,8 +309,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				LogPrintf(LOG_INFO, "     ");
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aDynamicL);
 				LogPrintf(LOG_INFO, "stf=%d xd=%d yd=%d endxd=%d %c%c%c\n",
-					aDynamic->staffn, aDynamic->xd, aDynamic->yd,
-					aDynamic->endxd,
+					aDynamic->staffn, aDynamic->xd, aDynamic->yd, aDynamic->endxd,
 					(aDynamic->selected? 'S' : '.'),
 					(aDynamic->visible? 'V' : '.'),
 					(aDynamic->soft? 'S' : '.') );
@@ -339,10 +323,8 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				LogPrintf(LOG_INFO, "     ");
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aSlurL);
 				LogPrintf(LOG_INFO, "1stInd=%d lastInd=%d ctl pts=(%d,%d),(%d,%d),(%d,%d),(%d,%d) %c%c%c\n",
-					aSlur->firstInd, aSlur->lastInd,
-					aSlur->seg.knot.h, aSlur->seg.knot.v,
-					aSlur->seg.c0.h, aSlur->seg.c0.v,
-					aSlur->seg.c1.h, aSlur->seg.c1.v,
+					aSlur->firstInd, aSlur->lastInd, aSlur->seg.knot.h, aSlur->seg.knot.v,
+					aSlur->seg.c0.h, aSlur->seg.c0.v, aSlur->seg.c1.h, aSlur->seg.c1.v,
 					aSlur->endKnot.h, aSlur->endKnot.v,
 					(aSlur->selected? 'S' : '.'),
 					(aSlur->visible? 'V' : '.'),

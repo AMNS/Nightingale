@@ -839,6 +839,11 @@ for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
 			EndianFixSubobjs(objL);
 	}
 	
+for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
+	if (DETAIL_SHOW && ObjLType(objL)<=MEASUREtype)
+		DisplayObject(doc, objL, 800+ObjLType(objL), True, True, True);
+}
+
 	if (errCode)	return errCode;
 	else			return 0;
 }

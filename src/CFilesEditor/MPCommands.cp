@@ -738,7 +738,7 @@ static void InsertPartMP(Document *doc,
 	else {
 		DDIST initStfTop1;
 
-		initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastralMP]/STFHALFLNS);
+		initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastralMP]/STFHALFSP);
 		
 		newPos = 0;
 		noParts = True;								/* Means there were originally no parts */

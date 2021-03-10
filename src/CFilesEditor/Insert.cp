@@ -50,8 +50,8 @@ static Boolean AddNewGRSync(Document *doc,
 {
 	LINK addToGRSyncL;
 
-	/* Look for a GRSync immediately prior to the start link. If it exists and
-		has a note in the voice, create a new GRSync before it; else add to it. */
+	/* Look for a GRSync immediately prior to the start link. If it exists and has a
+	   note in the voice, create a new GRSync before it; else add to it. */
 
 	addToGRSyncL = FindGRSync(doc, pt, True, clickStaff);
 	if (addToGRSyncL)					{	/* Does it already have note/rest in this voice? */
@@ -76,15 +76,14 @@ static Boolean AddNewGRSync(Document *doc,
 
 /* --------------------------------------------------------------------- AddChordSlash -- */
 /* Insert a new "chord slash" to the left of <rightL>. More precisely, it inserts a
-specialized note--a quarter note on the middle line of the staff, with slash
-appearance, zero stemlength, and zero velocity. If necessary, it also adds a new
-Sync for the note. */
+specialized note--a quarter note on the middle line of the staff, with slash appearance,
+zero stemlength, and zero velocity. If necessary, it also adds a new Sync for the note. */
 
 static Boolean AddChordSlash(Document *, short, short, short);
 static Boolean AddChordSlash(
 						Document *doc,
-						short x,	/* >=0 means new Sync, and this is its horiz. position in pixels, */	
-									/* <0  means add note/rest to the existing Sync <doc->selStartL>. */
+						short x,	/* >=0: new Sync, & this is its horiz. position in pixels, */	
+									/* <0: add note/rest to existing Sync <doc->selStartL>. */
 						short staff,
 						short octType
 						)
@@ -121,12 +120,13 @@ static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, short *sym, shor
 	doc->selStartL = doc->selEndL = qL;
 
 	/* Check if the note is being added into an ottava'd range; if so, get the ottava
-	 	type to correct for it when adding the note. */
+	   type to correct for it when adding the note. */
+	   
 	octL = HasOttavaAcrossPt(doc, pt, staff);
 	if (octL) octType = OttavaType(octL);
 
-	/* Track the note insertion and if possible, add the new note to the data
-	 	structure. */
+	/* Track the note insertion and, if possible, add the new note to the object list. */
+
 	if (InsTrackPitch(doc, pt, sym, doc->selStartL, staff, &pitchLev, &acc, octType)) {
 		if (symtable[*sym].subtype==2)
 			AddChordSlash(doc, pt.h, staff, octType);
@@ -141,7 +141,7 @@ static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, short *sym, shor
 }
 
 
-/* Track the note and add it to the existing sync <doc->selStartL>. */
+/* Track the note and add it to the existing Sync <doc->selStartL>. */
 
 static Boolean TrkInsNote(Document *doc, Point pt, short *sym, short staff)
 {
@@ -210,8 +210,8 @@ static Boolean TrkInsGRNote(Document *doc, Point pt, short *sym, short staff)
 }
 
 /*	-------------------------------------------------------------------------- FindJIP -- */
-/* Return the first J_IP type object at or to the right of startL in the
-range [startL,endL), or NILINK. */
+/* Return the first J_IP type object at or to the right of startL in the range
+[startL,endL), or NILINK if there is none. */
 
 static LINK FindJIP(LINK startL, LINK endL)
 {
@@ -220,15 +220,16 @@ static LINK FindJIP(LINK startL, LINK endL)
 	for (pL=startL; pL!=endL; pL=RightLINK(pL)) {
 		if (J_IPTYPE(pL)) return pL;
 	}
+	
 	return NILINK;
 }
 
 
 /*	----------------------------------------------------------------------- InsertNote -- */
-/* Insert a note (or rest) at a place in the object list suitable for a
-mousedown at the given point. Handles feedback and allows cancelling. (This
-also handles chord slashes: the insertion user interface distinguishes chord
-slashes, but they're really just funny-looking notes.)
+/* Insert a note (or rest) at a place in the object list suitable for a mousedown at
+the given point. Handles feedback and allows cancelling. (This also handles chord
+slashes: the insertion user interface distinguishes chord slashes, but they're really
+just funny-looking notes.)
 
 A special note on object order...
 Several types of objects have links that connect them to Syncs, and, to
@@ -247,7 +248,7 @@ both voices are beamed, voice 2's notes are slurred, and there's a dynamic
 for voice 1's staff before its first note; then the object list might
 look like this (leading digits represent voice numbers):
 	1BEAM 2BEAM 1TUPLE DYNAM 2SLUR 1&2SYNC 1SYNC 2SYNC 1SYNC
-If a new note is now inserted in either voice to the left of the first sync,
+If a new note is now inserted in either voice to the left of the first Sync,
 it must go into the object list before the first Beamset:
 	NEWSYNC 1BEAM 2BEAM 1TUPLE DYNAM 2SLUR 1&2SYNC 1SYNC 2SYNC 1SYNC
 */
@@ -269,7 +270,7 @@ Boolean InsertNote(
 	short	clickStaff,		/* staff user clicked in */
 			sym,			/* index of current palChar in symtable[] */
 			voice;			/* voice to insert in */
-	LINK	addToSyncL,		/* sync to add note/rest to */
+	LINK	addToSyncL,		/* Sync to add note/rest to */
 			nodeRightL,		/* node to right of insertion pt */
 			pLPIL,
 			jipL, rightL, pL;
@@ -280,8 +281,9 @@ Boolean InsertNote(
 	clickStaff = FindStaffSetSys(doc, pt);
 	if (clickStaff==NOONE) return False;
 
-	/* If mouseDown before System's initial (invisible) barline, force it after
-		that barline. */
+	/* If mouseDown before System's initial (invisible) barline, force it after that
+	   barline. */
+	   
 	pt.h = ForceInMeasure(doc, pt.h);
 	
 	/* Get the symbol and the voice and check the voice's validity on this staff. */
@@ -289,9 +291,9 @@ Boolean InsertNote(
 	voice = USEVOICE(doc, clickStaff);
 	if (!AddCheckVoiceTable(doc, clickStaff)) return False;
 
-	/* Determine if the note is to be added to an already existing sync. If so,
-		check the sync for validity, set the selection range to equal this sync,
-		determine if it is in an ottava, track the new note, and add it to the sync. */
+	/* Determine if the note is to be added to an already existing Sync. If so, check
+	   the Sync for validity, set the selection range to equal this Sync, determine if
+	   it's in an ottava, track the new note, and add it to the Sync. */
 
 	addToSyncL = FindSync(doc, pt, isGraphic, clickStaff);
 	if (addToSyncL) {
@@ -304,32 +306,32 @@ Boolean InsertNote(
 			doc->selEndL = RightLINK(doc->selStartL);
 	
 			/* Determine if the new note is to be added into an existing ottava'd range,
-				track the note, and add it to the sync. */
-			if (TrkInsNote(doc, pt, &sym, clickStaff))
-				return True;
+			   track the note, and add it to the Sync. */
+			   
+			if (TrkInsNote(doc, pt, &sym, clickStaff)) return True;
 	
 			goto Cancelled;
 		}
 
-	/* The click wasn't close to an existing sync, so we have to decide where
+	/* The click wasn't close to an existing Sync, so we have to decide where
 		to insert it. In graphic mode, get first node to the right of pt.h, and
-		insert a new sync in first valid slot in object list before this node.
-		In temporal mode, determine if there is a sync simultaneous with the
+		insert a new Sync in first valid slot in object list before this node.
+		In temporal mode, determine if there is a Sync simultaneous with the
 		location of the click FIXME: LOOKS LIKE THIS ALWAYS SAYS "NO"; if so, add the
-		note to this sync, else add a new sync at the correct temporal location. */
+		note to this Sync, else add a new Sync at the correct temporal location. */
 
 	if (isGraphic)	{											/* Get noteRightL directly */
 		nodeRightL = FindSymRight(doc, pt, False, False);
 	}
 
 	/* Temporal mode: get the lTime of the last previous item and its duration
-		(its ending time), then search for a sync at that time. If it exists
+		(its ending time), then search for a Sync at that time. If it exists
 		add to it, else create a new one. */
 
 	else {														/* Get addToSyncL or nodeRightL */
 		pLPIL = FindLPI(doc, pt, (doc->lookVoice>=0? ANYONE : clickStaff), voice, True);
 		addToSyncL = ObjAtEndTime(doc, pLPIL, SYNCtype, voice, &lTime, EXACT_TIME, True);
-		if (addToSyncL) { 										/* Got a sync at the right time */	
+		if (addToSyncL) { 										/* Got a Sync at the right time */	
 			jipL = FindJIP(pLPIL,addToSyncL);					/* #1. */
 			if (jipL) {
 				rightL = GSSearch(doc, pt, ANYTYPE, ANYONE, GO_RIGHT, False, False, False);
@@ -339,7 +341,7 @@ Boolean InsertNote(
 							return TrkInsSync(doc, pL, pt, &sym, clickStaff);
 			}
 
-			/* If the sync already has a note in the voice, create a new sync before it. */
+			/* If the Sync already has a note in the voice, create a new Sync before it. */
 
 			if (SyncInVoice(addToSyncL, voice))					/* Does it already have note/rest in this voice? */
 				return TrkInsSync(doc, addToSyncL, pt, &sym, clickStaff);
@@ -428,7 +430,7 @@ Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 	}
 
 	/* Temporal mode: get the lTime of the last previous item and its duration
-		(its ending time), then search for a sync at that time. If it exists
+		(its ending time), then search for a Sync at that time. If it exists
 		add to a GRSync to its left, else search to the right for any object
 		at or after that time and add to a GRSync to its left. */
 
@@ -770,8 +772,8 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 	}
 
 	/* GRAPHICs must be after the page they are attached to, to avoid problems with
-		functions like BeforeFirstMeas that assume no object in a page or system is
-		located before the page or system object itself in the object list. */
+	   functions like BeforeFirstMeas that assume no object in a page or system is
+	   located before the page or system object itself in the object list. */
 
 	doc->selStartL = (PageTYPE(pL) ? SSearch(pL,SYSTEMtype,GO_RIGHT) : pL);
 	doc->selEndL = doc->selStartL;
@@ -780,12 +782,13 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 	if (InsTrackUpDown(doc, pt, &sym, pL, clickStaff, &pitchLev)) {
 		string[0] = 1;
 		index = symtable[sym].durcode;
-		if (index<0 || index>sizeof(musicChar))
+		if (index<0 || index>(short)sizeof(musicChar))
 			MayErrMsg("InsertMusicChar: bad symtable[sym].durcode");
 		string[1] = musicChar[index];
 		
-		/* NB: If doc->musFontName not available on this system, doc->musicFontNum will
-			be Sonata. */
+		/* If doc->musFontName isn't available on this system, doc->musicFontNum will
+		   be Sonata. */
+			
 		GetFontName(doc->musicFontNum, musicFontName);
 		if (*musicFontName==0)
 			Pstrcpy((StringPtr)musicFontName, (StringPtr)"\pSonata");
@@ -849,7 +852,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 		if (i==index) break;
 
 	if (!aNoteL) {
-		MayErrMsg("InsertMODNR: note %ld in sync at %ld not found", (long)index, (long)insSyncL);
+		MayErrMsg("InsertMODNR: note %ld in Sync at %ld not found", (long)index, (long)insSyncL);
 		return False;
 	}
 
@@ -1124,10 +1127,10 @@ at the given point. */
 Boolean InsertTimeSig(Document *doc, Point pt)
 {
 	short	clickStaff;
-	LINK	pLPIL,									/* pointer to Last Previous Item */
+	LINK	pLPIL,										/* pointer to Last Previous Item */
 			insNodeL;
-	long	lTime;									/* logical time */
-	static short type=N_OVER_D, numerator=4, denominator=4;
+	long	lTime;										/* logical time */
+	static short type=N_OVER_D, numerator=DFLT_NUMER, denominator=DFLT_DENOM;
 	static Boolean onAllStaves=True;					/* or "This Staff Only" */
 
 	if (!TimeSigDialog(&type, &numerator, &denominator, &onAllStaves, True))

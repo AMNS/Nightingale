@@ -2861,7 +2861,7 @@ HeapFileIO.
 
 4 - 7 July
 
-Minor cleanup. Affects NResource.h; DebugUtils, DialogsEditor, DSUtils, FileConversion,
+Minor changes. Affects NResource.h; DebugUtils, DialogsEditor, DSUtils, FileConversion,
 GraphicMDEF, InsUtils, MIDIUtils, PS_Stdio, SpaceHighLevel.
 
 -------------------------------------------------------------------------------
@@ -2873,7 +2873,7 @@ selected and it's before the first measure of its system, set the width of the b
 area before the first (invisible) barline. Affects .rsrc, NightTemplates.h, NResource.h;
 DialogsEditor, Menu.
 
-Minor cleanup. Affects .rsrc; MeasFill, Part, Score.
+Minor changes. Affects .rsrc; MeasFill, Part, Score.
 
 -------------------------------------------------------------------------------
 
@@ -2888,32 +2888,32 @@ DialogsEditor, Menu.
 
 16 - 20 July
 
-Minor cleanup. Affects FileConversion, HeapFileIO, Menu, MPCommands, Score.
+Minor changes. Affects FileConversion, HeapFileIO, Menu, MPCommands, Score.
 
 -------------------------------------------------------------------------------
 
 22 - 26 July
 
-Minor cleanup: rewrote MoveObjSubobjs(), etc. Affects Error, FileConversion, HeapFileIO,
+Minor changes: rewrote MoveObjSubobjs(), etc. Affects Error, FileConversion, HeapFileIO,
 MiscUtils, UIFUtils.
 
 -------------------------------------------------------------------------------
 
 27 July - 18 August
 
-Minor cleanup. Affects Beam, DebugUtils, FileConversion, HeapFileIO, MiscUtils.
+Minor changes. Affects Beam, DebugUtils, FileConversion, HeapFileIO, MiscUtils.
 
 -------------------------------------------------------------------------------
 
 20 - 25 August
 
-Minor cleanup. Affects NLimits.h; Beam, DebugUtils, Heaps, HeapFileIO, NotelistParse.
+Minor changes. Affects NLimits.h; Beam, DebugUtils, Heaps, HeapFileIO, NotelistParse.
 
 -------------------------------------------------------------------------------
 
 27 - 29 August
 
-Minor cleanup. Affects MemMacros.h, MiscUtils.h, NightTemplates.h, Utility.h;
+Minor changes. Affects MemMacros.h, MiscUtils.h, NightTemplates.h, Utility.h;
 AutoBeam, FileConversion, HeapFileIO, Heaps, MiscUtils, Utility.
 
 -------------------------------------------------------------------------------
@@ -2922,14 +2922,14 @@ AutoBeam, FileConversion, HeapFileIO, Heaps, MiscUtils, Utility.
 
 Fixed bug in DCheckBeams(). Affects DebugUtils.
 
-Minor cleanup. Affects Debug.h, DebugUtils.h, MemMacros.h; DebugUtils, DragBeam,
+Minor changes. Affects Debug.h, DebugUtils.h, MemMacros.h; DebugUtils, DragBeam,
 DSUtils, FileConversion, Search.
 
 -------------------------------------------------------------------------------
 
 8 - 14 Sept.
 
-Minor cleanup: replaced "GraceBEAM" with "BeamGRACE" everywhere, etc. Affects
+Minor changes: replaced "GraceBEAM" with "BeamGRACE" everywhere, etc. Affects
 MemMacros.h; Beam, Clipboard, CrossLinks, CrossSystem, DebugHighLevel, Delete,
 Dragging, DragSet, DrawHighLevel, FileConversion, MergeUtils, MIDIFSave, Reconstruct.
 
@@ -2937,7 +2937,7 @@ Dragging, DragSet, DrawHighLevel, FileConversion, MergeUtils, MIDIFSave, Reconst
 
 14 - 25 Sept.
 
-Minor cleanup. Affects Check, DialogsBoth, FileConversion, MasterPage, RTRhythmDur.
+Minor changes. Affects Check, DialogsBoth, FileConversion, MasterPage, RTRhythmDur.
 
 ---------------------------------------------------------------------------------------
 
@@ -2946,7 +2946,7 @@ Minor cleanup. Affects Check, DialogsBoth, FileConversion, MasterPage, RTRhythmD
 Fixed bug: running on Intel, files written have the bytes of the version code in reverse
 order, i.e., '601N' instead of 'N106'.
 
-Minor cleanup. Affects DebugUtils, DSUtils, FileSave, FileUtils, Heaps, MIDIPlayWhileRec.
+Minor changes. Affects DebugUtils, DSUtils, FileSave, FileUtils, Heaps, MIDIPlayWhileRec.
 
 ---------------------------------------------------------------------------------------
 
@@ -2959,7 +2959,7 @@ order. Affects FileSave.
 If running on Intel and user tries to open an 'N105' file, we now give an error message.
 Affects FileOpen.
 
-Minor cleanup. Affects File.h; DebugHighLevel, DialogsEditor, Endian, FileOpen, FileSave,
+Minor changes. Affects File.h; DebugHighLevel, DialogsEditor, Endian, FileOpen, FileSave,
 Initialize, SetCommand.
 
 ---------------------------------------------------------------------------------------
@@ -2970,7 +2970,7 @@ Made saving a file display the document and score headers just as opening a file
 if the secret "DETAIL_SHOW" keys (shift and control) are down. Affects File.h; FileOpen,
 FileSave, FileUtils.
 
-Minor cleanup. Affects FileUtils, Initialize.
+Minor changes. Affects FileUtils, Initialize.
 
 ---------------------------------------------------------------------------------------
 
@@ -2982,7 +2982,7 @@ Score.
 
 Fixed a recently-created and disastrous bug in saving files. Affects FileSave.
 
-Minor cleanup. Affects .rsrc (renamed PICTs), SResourceID.h; DrawObject, Endian,
+Minor changes. Affects .rsrc (renamed PICTs), SResourceID.h; DrawObject, Endian,
 InfoDialog, Initialize.
 
 ---------------------------------------------------------------------------------------
@@ -2994,13 +2994,13 @@ element with subscript -1, and it uses the loop index after the loop terminates,
 questionable error messages and perhaps doing other bad things, e.g., crashes. Affects
 Beam, GRBeam.
 
-Minor cleanup. Affects NObjTypes.h; Beam, DialogsBoth, FileConversion, GRBeam.
+Minor changes. Affects NObjTypes.h; Beam, DialogsBoth, FileConversion, GRBeam.
 
 ---------------------------------------------------------------------------------------
 
 9 - 12 Nov.
 
-Minor cleanup. Affects Endian.h, StringPool.h; AccModNRMouse, CombineParts, Endian,
+Minor changes. Affects Endian.h, StringPool.h; AccModNRMouse, CombineParts, Endian,
 FileOpen, Finalize, StringPool.
 
 ---------------------------------------------------------------------------------------
@@ -3011,7 +3011,7 @@ Fixed bug (Issue #184): The Clear System command doesn't update the Document's
 currentSystem, so it may be left with an illegal value. If so and the file is then
 saved, trying to open it again results in an error message. Affects SysPageEdit.
 
-Minor cleanup. Affects Beam, DebugUtils, DragBeam, FileSave, Heaps, SysPageEdit,
+Minor changes. Affects Beam, DebugUtils, DragBeam, FileSave, Heaps, SysPageEdit,
 TextDialog.
 
 ---------------------------------------------------------------------------------------
@@ -3021,7 +3021,7 @@ TextDialog.
 Fixed bug: on Intel machines, Nightingale always thinks the Prefs file has changed,
 and it ends up replacing a good Prefs file with a bad one. Affects Finalize.
 
-Minor cleanup. Affects PaletteGlobals.h; DebugUtils, Finalize, Initialize, MIDIDialogs.
+Minor changes. Affects PaletteGlobals.h; DebugUtils, Finalize, Initialize, MIDIDialogs.
 
 ---------------------------------------------------------------------------------------
 
@@ -3032,7 +3032,7 @@ Affects FileSave.
 
 Renamed Endian to EndianUtils and moved it to the Utilities folder.
 
-Minor cleanup. Affects Clipboard, StringPool.
+Minor changes. Affects Clipboard, StringPool.
 
 ---------------------------------------------------------------------------------------
 
@@ -3043,7 +3043,7 @@ often Beamsets, sometimes time signatures -- are usually randomly corrupted whil
 they're being converted to the current format. Affects MemMacros.h, NObjTypes.h;
 FileConversion.
 
-Minor cleanup. Affects File.h; EndianUtils, FileConversion, FileSave, Initialize,
+Minor changes. Affects File.h; EndianUtils, FileConversion, FileSave, Initialize,
 UIFUtils.
 
 ---------------------------------------------------------------------------------------
@@ -3053,7 +3053,7 @@ UIFUtils.
 Progress toward fixing bug: can't open files written on Intel machines because <nFObjs>
 and <sizeAllObjsFile> are in the wrong Endian form. Affects HeapFileIO.
 
-Minor cleanup. Affects FileSave, FileUtils, HeapFileIO, Heaps.
+Minor changes. Affects FileSave, FileUtils, HeapFileIO, Heaps.
 
 ---------------------------------------------------------------------------------------
 
@@ -3063,7 +3063,7 @@ Progress toward fixing bug: can't open files written on Intel machines because m
 fields in objects and subobjects are in the wrong Endian form. Affects Endian.h;
 EndianUtils, HeapFileIO.
 
-Minor cleanup. Affects Defs.h, Endian.h, NightTemplates.h, NObjTypes.h; Documents,
+Minor changes. Affects Defs.h, Endian.h, NightTemplates.h, NObjTypes.h; Documents,
 EndianUtils, Error, HeapFileIO, Menu.
 
 ---------------------------------------------------------------------------------------
@@ -3073,7 +3073,7 @@ EndianUtils, Error, HeapFileIO, Menu.
 Progress toward fixing bug: can't open files written on Intel machines because multibyte
 fields in subobjects are in the wrong Endian form. Affects EndianUtils.
 
-Minor cleanup. Affects Defs.h, MemMacros.h, NObjTypes.h; DSUtils, EndianUtils,
+Minor changes. Affects Defs.h, MemMacros.h, NObjTypes.h; DSUtils, EndianUtils,
 FileConversion, NewSlur.
 
 ---------------------------------------------------------------------------------------
@@ -3083,7 +3083,7 @@ FileConversion, NewSlur.
 Progress toward fixing bug: can't open files written on Intel machines because multibyte
 fields in subobjects are in the wrong Endian form. Affects EndianUtils.
 
-Minor cleanup: rename *_INT constants to NRV_*, etc. Affects Debug.h, Defs.h, MemMacros.h;
+Minor changes: rename *_INT constants to NRV_*, etc. Affects Debug.h, Defs.h, MemMacros.h;
 DebugDisplay, DelAddRedAccs, DialogsBoth, DialogsEditor, Documents, DrawObject, DrawUtils,
 DSUtils, EndianUtils, FileConversion, FileOpen, FileSave, HeapFileIO, Insert, MasterPage,
 Menu, MIDIUtils, NewSlur, SelUtils.
@@ -3095,21 +3095,21 @@ Menu, MIDIUtils, NewSlur, SelUtils.
 Progress toward fixing bug: can't open files written on Intel machines because some
 multibyte fields in the Score header are in the wrong Endian form. Affects EndianUtils.
 
-Minor cleanup. Affects Debug.h, NObjTypes.h; DebugDisplay, DebugHighLevel, Documents,
+Minor changes. Affects Debug.h, NObjTypes.h; DebugDisplay, DebugHighLevel, Documents,
 DSUtils, EndianUtils, FileConversion, FileOpen, FileSave, Finalize, Objects, SpaceTime.
 
 ---------------------------------------------------------------------------------------
 
 7 - 14 Jan. 2021
 
-Minor cleanup. Affects DebugDisplay, Debug2Utils, EndianUtils, FileOpen, FileSave,
+Minor changes. Affects DebugDisplay, Debug2Utils, EndianUtils, FileOpen, FileSave,
 HeapFileIO.
 
 ---------------------------------------------------------------------------------------
 
 15 - 24 Jan.
 
-Minor cleanup: remove extraneous newlines at ends of some strings, etc. Affects .rsrc;
+Minor changes: remove extraneous newlines at ends of some strings, etc. Affects .rsrc;
 NLimits.h; DebugDisplay, FileOpen, FileSave, HeapFileIO.
 
 ---------------------------------------------------------------------------------------
@@ -3119,7 +3119,7 @@ NLimits.h; DebugDisplay, FileOpen, FileSave, HeapFileIO.
 Progress toward fixing bug: can't open files written on Intel machines because some
 multibyte fields in the Score header are in the wrong Endian form. Affects EndianUtils.
 
-Minor cleanup. Affects Defs.h, NDocAndCnfgTypes.h; EndianUtils, FileConversion,
+Minor changes. Affects Defs.h, NDocAndCnfgTypes.h; EndianUtils, FileConversion,
 FileOpen, FileSave, HeapFileIO, Initialize, Score, VoiceTable.
 
 ---------------------------------------------------------------------------------------
@@ -3130,16 +3130,17 @@ Progress toward fixing bug: can't open files written on Intel machines because s
 multibyte fields in the Score header and some in objects are in the wrong Endian form.
 Affects EndianUtils, HeapFileIO.
 
-Minor cleanup. Affects DynamicPopUp, FileOpen, FileSave, FileUtils, HeapFileIO, StringPool.
+Minor changes. Affects DynamicPopUp, FileOpen, FileSave, FileUtils, HeapFileIO,
+StringPool.
 
 ---------------------------------------------------------------------------------------
 
 9 - 15 Feb.
 
-Fixed teeny bug: Debug Check complains about octave signs with "xd1st >= xdLast",
-but that's valid and expected if they contain only one Sync. Affects DebugUtils.
+Fixed teeny bug: Debug Check complains about octave signs with "xd1st >= xdLast", but
+that's valid and expected if they contain only one Sync. Affects DebugUtils.
 
-Minor cleanup. Affects Endian.h, File.h, NObjTypes.h; DebugDisplay, DebugUtils,
+Minor changes. Affects Endian.h, File.h, NObjTypes.h; DebugDisplay, DebugUtils,
 DynamicPopUp, EndianUtils, FileOpen, HeapFileIO.
 
 ---------------------------------------------------------------------------------------
@@ -3153,7 +3154,7 @@ HeapFileIO.
 Fixed teeny bug: origin.v in the display of the document header in the log is wrong.
 Affects FileUtils.
 
-Minor cleanup. Affects DebugDisplay, DebugUtils, EndianUtils, HeapFileIO, Menu.
+Minor changes. Affects DebugDisplay, DebugUtils, EndianUtils, HeapFileIO, Menu.
 
 ---------------------------------------------------------------------------------------
 
@@ -3162,5 +3163,15 @@ Minor cleanup. Affects DebugDisplay, DebugUtils, EndianUtils, HeapFileIO, Menu.
 Progress toward fixing bug: can't open files written on Intel machines because some
 multibyte fields in subobjects are in the wrong Endian form. Affects EndianUtils.
 
-Minor cleanup. Affects Defs.h, Endian.h, NBasicTypes.h, NObjTypes.h; DebugDisplay,
+Minor changes. Affects Defs.h, Endian.h, NBasicTypes.h, NObjTypes.h; DebugDisplay,
 EndianUtils, FileOpen, HeapFileIO.
+
+---------------------------------------------------------------------------------------
+
+1 - 10 Mar.
+
+Fixed teeny bug (Issue #185): Debug Display shows garbage for control points of slurs
+and for character strings in Graphics. Affects DebugDisplay.
+
+Minor changes. Affects Defs.h, MiscUtils.h; DebugDisplay, EndianUtils, Extract,
+HeapFileIO, Insert, MasterPage, MPCommands, Score.
