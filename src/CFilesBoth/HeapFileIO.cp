@@ -104,7 +104,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, Boolean isViewerFile);
 static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean isViewerFile,
 						short heapIndex, unsigned short *pnFObjs);
-static short HeapFixLinks(Document *);
+static short HeapFixObjLinks(Document *);
 static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObjs);
 static void PrepareClips(void);
 
@@ -803,8 +803,9 @@ static Boolean InitTrackingLinks(Document *doc, LINK **firstSubLINKA, LINK **obj
 /* =============================== Functions for Reading Heaps ========================== */
 
 /* Read all heaps from file <refNum>: one subobject heap for each type of object that
-has subobjects (almost all do), and one object heap. Returns 0 if no error, else an
-error code (either a system result code or one of our own codes). */
+has subobjects (almost all do), and one object heap, and handle the CPU's Endian property.
+Return 0 if no error, else an error code (either a system result code or one of our own
+codes). */
 
 short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 {
@@ -823,13 +824,17 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	errCode = ReadObjHeap(doc, refNum, version, isViewerFile);
 	if (errCode) return errCode;
 
-	if (version=='N105') errCode = HeapFixN105Links(doc);
+	/* Fix links ??WHY?. If the file is in the current format, handle the Endian issue;
+	   if it's in an old format, it could only have been written on a machine with the
+	   same Endianness as the machine we're running on -- both must be PowerPC's -- so
+	   it's not a problem. */
+	   
+	if (version=='N105') errCode = HeapFixN105ObjLinks(doc);
 	else {
-		errCode = HeapFixLinks(doc);
-
+		errCode = HeapFixObjLinks(doc);
 
 for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
-	if (DETAIL_SHOW && ObjLType(objL)<=MEASUREtype)
+	if (DETAIL_SHOW && (ObjLType(objL)<=MEASUREtype || ObjLType(objL)==TUPLETtype))
 		DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);
 }
 
@@ -840,7 +845,7 @@ for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
 	}
 	
 for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
-	if (DETAIL_SHOW && ObjLType(objL)<=MEASUREtype)
+	if (DETAIL_SHOW && (ObjLType(objL)<=MEASUREtype || ObjLType(objL)==TUPLETtype))
 		DisplayObject(doc, objL, 800+ObjLType(objL), True, True, True);
 }
 
@@ -1165,10 +1170,10 @@ static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean /*is
 
 /* Traverse the main and Master Page object lists and fix up the cross links. Intended
 for use when a file has just been read in. We handle Endianness for objects (but not
-subobjects), so it must not have been done yet! Return 0 if all is well; else return
+subobjects), so that must not have been done yet! Return 0 if all is well; else return
 FIX_LINKS_ERR. */
 
-static short HeapFixLinks(Document *doc)
+static short HeapFixObjLinks(Document *doc)
 {
 	LINK 	pL, prevPage, prevSystem, prevStaff, prevMeasure;
 	Boolean tailFound=False;
@@ -1179,12 +1184,12 @@ static short HeapFixLinks(Document *doc)
 	
 	for (pL = doc->headL; !tailFound; pL = RightLINK(pL)) {
 		EndianFixObject(pL);							/* Ensure in processor-specific Endian */
-LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, ObjLType(pL));
+LogPrintf(LOG_DEBUG, "HeapFixObjLinks: pL=%u type=%d in main obj list\n", pL, ObjLType(pL));
 		switch(ObjLType(pL)) {
 			case TAILtype:
 				doc->tailL = pL;
 				if (!doc->masterHeadL) {
-					LogPrintf(LOG_ERR, "TAIL of main object list encountered before its HEAD.  (HeapFixLinks)\n");
+					LogPrintf(LOG_ERR, "TAIL of main object list encountered before its HEAD.  (HeapFixObjLinks)\n");
 					goto Error;
 				}
 				doc->masterHeadL = pL+1;
@@ -1225,9 +1230,9 @@ LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, ObjLT
 
 {	//unsigned char *pSObj;
 //pSObj = (unsigned char *)GetPSUPEROBJ(1);
-//NHexDump(LOG_DEBUG, "HeapFixLinks L1", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "HeapFixObjLinks L1", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJ(2);
-//NHexDump(LOG_DEBUG, "HeapFixLinks L2", pSObj, 46, 4, 16);
+//NHexDump(LOG_DEBUG, "HeapFixObjLinks L2", pSObj, 46, 4, 16);
 }
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
@@ -1235,7 +1240,7 @@ LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in main obj list\n", pL, ObjLT
 
 	for (pL = doc->masterHeadL; pL; pL = RightLINK(pL)) {
 		EndianFixObject(pL);							/* Ensure in processor-specific Endian */
-LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL, ObjLType(pL));
+LogPrintf(LOG_DEBUG, "HeapFixObjLinks: pL=%u type=%d in Master Page obj list\n", pL, ObjLType(pL));
 		switch(ObjLType(pL)) {
 			case HEADERtype:
 				LeftLINK(doc->masterHeadL) = NILINK;
@@ -1274,10 +1279,10 @@ LogPrintf(LOG_DEBUG, "HeapFixLinks: pL=%u type=%d in Master Page obj list\n", pL
 		}
 	}
 
-	LogPrintf(LOG_ERR, "TAIL of Master Page object list not found.  (HeapFixLinks)\n");
+	LogPrintf(LOG_ERR, "TAIL of Master Page object list not found.  (HeapFixObjLinks)\n");
 	
 Error:
-	AlwaysErrMsg("Can't set links in memory after reading the file!  (HeapFixLinks)");
+	AlwaysErrMsg("Can't set links in memory after reading the file!  (HeapFixObjLinks)");
 	doc->masterTailL = NILINK;
 	return FIX_LINKS_ERR;
 }

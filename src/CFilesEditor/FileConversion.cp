@@ -276,7 +276,7 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 }
 
 
-/* ------------------------------------------------------------------ HeapFixN105Links -- */
+/* --------------------------------------------------------------- HeapFixN105ObjLinks -- */
 
 /* Versions of standard memory macros for use with 'N105'-format objects. The first
 six fields of the object header -- right, left, firstSubObj, xd, yd, type -- are
@@ -305,10 +305,12 @@ unchanged, so we don't need 'N105'-specific versions of them. */
 
 /* Traverse the main and Master Page object lists and fix up the cross pointers. This
 is a specialized version of HeapFixLinks() intended to fix links in 'N105' format files
-when they're opened, before the contents of objects are converted. Return 0 if all is
+when they're opened, before the contents of objects are converted. (The file could only
+have been written on a machine with the same Endianness as the machine we're running on
+-- both must be PowerPC's -- so Endianness isn't a problem.) Return 0 if all is
 well, else FIX_LINKS_ERR. */
 
-short HeapFixN105Links(Document *doc)
+short HeapFixN105ObjLinks(Document *doc)
 {
 	LINK 	pL, prevPage, prevSystem, prevStaff, prevMeasure;
 	Boolean tailFound=False;
@@ -332,12 +334,12 @@ NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
-//LogPrintf(LOG_DEBUG, "HeapFixN105Links: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
+//LogPrintf(LOG_DEBUG, "HeapFixN105ObjLinks: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case TAILtype:
 				doc->tailL = pL;
 				if (!doc->masterHeadL) {
-					LogPrintf(LOG_ERR, "TAIL of main object list encountered before its HEAD. The file can't be opened.  (HeapFixN105Links)\n");
+					LogPrintf(LOG_ERR, "TAIL of main object list encountered before its HEAD. The file can't be opened.  (HeapFixN105ObjLinks)\n");
 					goto Error;
 				}
 				doc->masterHeadL = pL+1;
@@ -395,7 +397,7 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 
 	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL)) {
 		FIX_END(DRightLINK(doc, pL));
-//LogPrintf(LOG_DEBUG, "HeapFixN105Links: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
+//LogPrintf(LOG_DEBUG, "HeapFixN105ObjLinks: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case HEADERtype:
 				DLeftLINK(doc, doc->masterHeadL) = NILINK;
@@ -434,12 +436,12 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 		}
 	}
 		
-	LogPrintf(LOG_ERR, "TAIL of Master Page object list not found. The file can't be opened.  (HeapFixN105Links)\n");
+	LogPrintf(LOG_ERR, "TAIL of Master Page object list not found. The file can't be opened.  (HeapFixN105ObjLinks)\n");
 
 Error:
 	/* In case we never got into the Master Page loop or it didn't have a TAIL obj. */
 	
-	AlwaysErrMsg("Can't set links in memory for the file!  (HeapFixN105Links)");
+	AlwaysErrMsg("Can't set links in memory for the file!  (HeapFixN105ObjLinks)");
 	doc->masterTailL = NILINK;
 	return FIX_LINKS_ERR;
 }

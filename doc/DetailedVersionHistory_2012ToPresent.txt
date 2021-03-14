@@ -3175,3 +3175,16 @@ and for character strings in Graphics. Affects DebugDisplay.
 
 Minor changes. Affects Defs.h, MiscUtils.h; DebugDisplay, EndianUtils, Extract,
 HeapFileIO, Insert, MasterPage, MPCommands, Score.
+
+---------------------------------------------------------------------------------------
+
+11 - 13 Mar.
+
+Fixed bug: can't open files with tuplets on Intel machines because tuplet subobject links
+are in the wrong Endian form. Affects EndianUtils.
+
+Fixed bug: files opened on Intel machines have garbage measure numbers. Affects
+EndianUtils.
+
+Minor changes. Affects FileConversion.h; DebugDisplay, EndianUtils, FileConversion,
+FileOpen, HeapFileIO, MIDIPlay.

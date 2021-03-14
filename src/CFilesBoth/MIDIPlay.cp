@@ -375,7 +375,7 @@ static Boolean PostMIDIPatchChange(Document *doc, LINK pL, unsigned char *partPa
 	return posted;
 }
 
-static Boolean PostMIDISustain(Document *doc, LINK pL, Boolean susOn) 
+static Boolean PostMIDISustain(Document * /* doc */, LINK pL, Boolean susOn) 
 {
 	Boolean posted = False;
 						
@@ -393,7 +393,7 @@ static Boolean PostMIDISustain(Document *doc, LINK pL, Boolean susOn)
 	return posted;
 }
 
-static Boolean PostMIDIPan(Document *doc, LINK pL)
+static Boolean PostMIDIPan(Document * /* doc */, LINK pL)
 {
 	Boolean posted = False;
 	
@@ -565,34 +565,34 @@ static Boolean IsMIDIPatchChange(LINK pL)
 	return False;
 }
 
-static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel) 
+static void SendMIDISustainOn(Document * /* doc */, MIDIUniqueID destDevID, char channel) 
 {
 	CMMIDISustainOn(destDevID, channel);	
 }
 
-static void SendMIDISustainOff(Document *doc,MIDIUniqueID destDevID, char channel) 
+static void SendMIDISustainOff(Document * /* doc */, MIDIUniqueID destDevID, char channel) 
 {
 	CMMIDISustainOff(destDevID, channel);	
 }
 
-static void SendMIDIPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting) 
+static void SendMIDIPan(Document * /* doc */, MIDIUniqueID destDevID, char channel, Byte panSetting) 
 {
 	CMMIDIPan(destDevID, channel, panSetting);	
 }
 
-static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel,
+static void SendMIDISustainOn(Document * /* doc */, MIDIUniqueID destDevID, char channel,
 							  MIDITimeStamp tStamp) 
 {
 	CMMIDISustainOn(destDevID, channel, tStamp);	
 }
 
-static void SendMIDISustainOff(Document *doc,MIDIUniqueID destDevID, char channel,
+static void SendMIDISustainOff(Document * /* doc */, MIDIUniqueID destDevID, char channel,
 							   MIDITimeStamp tStamp) 
 {
 	CMMIDISustainOff(destDevID, channel, tStamp);	
 }
 
-static void SendMIDIPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting,
+static void SendMIDIPan(Document * /* doc */, MIDIUniqueID destDevID, char channel, Byte panSetting,
 						MIDITimeStamp tStamp) 
 {
 	CMMIDIPan(destDevID, channel, panSetting, tStamp);	

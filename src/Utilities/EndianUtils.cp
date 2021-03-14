@@ -368,7 +368,7 @@ Boolean EndianFixSubobj(short heapIndex, LINK subL)
 {
 	HEAP *myHeap = Heap + heapIndex;
 
-LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL);
+//LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL);
 	if (GARBAGEL(heapIndex, subL)) {
 		LogPrintf(LOG_ERR, "IN HEAP %d, LINK %u IS GARBAGE! (EndianFixSubobj)\n",
 				heapIndex, subL);
@@ -420,7 +420,7 @@ LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL)
 			/* KSINFO has no multibyte fields */
 			break;
 		case MEASUREtype:
-			FIX_END(FirstMeasMEASURENUM(subL));
+			FIX_END(MeasMEASURENUM(subL));
 			EndianFixRect((Rect *)&MeasMRECT(subL));
 			/* KSINFO has no multibyte fields */
 			break;
@@ -441,7 +441,7 @@ LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL)
 			FIX_END(ConnectFIRSTPART(subL));
 			FIX_END(ConnectLASTPART(subL));
 			break;
-		case DYNAMtype:
+ 		case DYNAMtype:
 			FIX_END(DynamicXD(subL));
 			FIX_END(DynamicYD(subL));
 			FIX_END(DynamicENDXD(subL));
@@ -498,7 +498,7 @@ LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL)
 void EndianFixSubobjs(LINK objL)
 {
 	LINK partL, aNoteL, aRptL, aStaffL, aMeasL, aClefL, aKeySigL, aTimeSigL, aNoteBeamL,
-			aConnectL, aDynamicL, aGraphicL, anOttavaL, aSlurL, aGRNoteL;
+			aConnectL, aDynamicL, aGraphicL, anOttavaL, aSlurL, aTupletL, aGRNoteL;
 	short heapIndex = ObjLType(objL);
 if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstSubLINK()=%u\n",
 				objL, heapIndex, FirstSubLINK(objL));
@@ -578,6 +578,11 @@ if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstS
 			aSlurL = FirstSubLINK(objL);
 			for ( ; aSlurL; aSlurL = NextSLURL(aSlurL))
 				if (!EndianFixSubobj(heapIndex, aSlurL)) return;
+			break;
+		case TUPLETtype:
+			aTupletL = FirstSubLINK(objL);
+			for ( ; aTupletL; aTupletL = NextNOTETUPLEL(aTupletL))
+				if (!EndianFixSubobj(heapIndex, aTupletL)) return;
 			break;
 		case GRSYNCtype:
 			aGRNoteL = FirstSubLINK(objL);

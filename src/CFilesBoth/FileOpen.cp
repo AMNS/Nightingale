@@ -248,8 +248,9 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	errCode = FSpGetFInfo(&fsSpec, &fInfo);
 	if (errCode!=noErr) { errInfo = INFOcall; goto Error; }
 	
-	/* Read the subobject heaps and the object heap in the rest of the file, and if
-	   necessary, convert them to the current format. */
+	/* Read the subobject heaps and the object heap from the rest of the file (handling
+	   the CPU's Endian property); then, if necessary, convert the heaps to the current
+	   object-list format. */
 	
 	errCode = ReadHeaps(doc, refNum, version, fInfo.fdType);
 	if (errCode!=noErr) { errInfo = READHEAPScall; goto Error; }
@@ -257,10 +258,11 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	/* An ancient comment here: "Be sure we have enough memory left for a maximum-size
 	   segment and a bit more." Now we require a _lot_ more, though it may be pointless. */
 	
-	if (!PreflightMem(400)) { NoMoreMemory(); return LOWMEM_ERR; }
+	if (!PreflightMem(800)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
 	/* Do any further conversion needed of both the main and the Master Page object lists
 	   in old files. */
+	   
 	if (version=='N105') {
 		ConvertObjSubobjs(doc, version, fileTime, False);
 		ConvertObjSubobjs(doc, version, fileTime, True);

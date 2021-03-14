@@ -9341,6 +9341,31 @@ on PPC (BE) & save as 4Notes+Tuplet_BE-BE.ngl; open on Intel => again Tuplet is 
 as above. Conclusion: there's no evidence of a bug in saving tuplets on Intel, but plenty
 of evidence of a bug in opening files containg tuplets on Intel!
 
+---------------------------------------------------------------------------------------
+
+11 - 13 March
+
+Opening an N106 file on Intel, if the file contains tuplets, it might (1) have no
+problems; (2) give the Tuplet messed- up subobjects, as above; or (3) crash after giving
+the "Opened file 'Blah-de-blah'" message but before drawing it.
+
+Ah-hah! 4Notes+Tuplet_BE-BEOpenLELog.txt shows that in ReadHeaps just before its calls
+to EndianFixSubobjs, L1 (HEAD), L9 (MEASURE), and L11 (TUPLET) objects all have their 1st
+subobject with L1 and their 2nd with L512 (=2 not Endian fixed); after the calls to
+EndianFixSubobjs, the HEAD and MEASURE have had their 2nd subobjs corrected to 2, but
+the TUPLET's 2nd is still 512!! A smoking gun!!!
+
+Cause: EndianFixSubobj() has the correct code to handle Tuplet subobjects, but it's never
+executed because the switch stmt in EndianFixSubobjs() doesn't have a case TUPLETtype.
+Arrrgh. Fix that; open 4Notes+Tuplet_BE-BE.ngl => it works perfectly! Open
+AllObjTypes_ConvByPPC.ngl => all OK except Ngale draws the numbers for measure nos. 2 and
+3 as 257 and 513, so the sequence (if I add another 3 measures) is 1, 257, 513, 4, 5, 6!?!
+-- a bug, though it doesn't look too serious. Open 2ndMovementCSpp1-3.ngl (conve#0 => not
+bad. The 50 or so tuplets all look OK; measure nos. are screwed up as before. Also, p. 3
+has 3 long diagonal lines across it; one at least is supposed to be a hairpin dynamic!
+Debug Check has tons of complaints; other than the correct ones about unanticipated time
+signature changes, they all seem to be about suspicious measure numbers.
+
 Revise the chart of combinations of open/save, file format, processor type from a few days
 ago:
 
@@ -9349,13 +9374,10 @@ open/save	file  	running	status
 ---------	------	-------	-------
 Open		N105	PPC		OK
 "			"		Intel	OK: Ngale correctly says "file version too old"
-"			N106	PPC		OK*
-"			"		Intel	Unreliable; randomly fails in different ways; tuplets usually
-							fail disastrously*
+"			N106	PPC		OK
+"			"		Intel	??UPDATE! Unreliable; randomly fails in different ways; tuplets
+							usually fail disastrously??
 Save		N106	PPC		OK
 "			"		Intel	OK for simple files (default score; notes, beams, barline,
 							dynamic, text Graphic, slur, tuplets)
 
-*If the file contains tuplets, it might (1) have no problems; (2) give the Tuplet messed-up
-subobjects, as above; or (3) crash after giving the "Opened file 'Blah-de-blah'" message
-but before drawing it.

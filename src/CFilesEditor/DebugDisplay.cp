@@ -57,6 +57,7 @@ static Boolean SubobjCountIsBad(short nEntries, short subCnt)
 	return subCnt>nEntries;
 }
 
+#define LogPrintfINDENT LogPrintf(LOG_INFO, "       ")
 
 static void DisplaySubobjects(LINK objL, Boolean showLinks);
 static void DisplaySubobjects(LINK objL, Boolean showLinks)
@@ -86,7 +87,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 		case HEADERtype:
 			for (partL = FirstSubLINK(objL); partL; partL = NextPARTINFOL(partL), subCnt++) {
 				pPartInfo = GetPPARTINFO(partL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", partL);
 				LogPrintf(LOG_INFO, "firstst=%d lastst=%d velo=%d transp=%d name=%s\n",
 					pPartInfo->firstStaff, pPartInfo->lastStaff, pPartInfo->partVelocity,
@@ -97,7 +98,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 		case SYNCtype:
 			for (aNoteL=FirstSubLINK(objL); aNoteL; aNoteL=NextNOTEL(aNoteL), subCnt++) {
 				aNote = GetPANOTE(aNoteL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				
 				/* Be careful with addresses provided by the following; they can change suddenly! */
 				
@@ -126,7 +127,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 		case GRSYNCtype:
 			for (aNoteL=FirstSubLINK(objL); aNoteL; aNoteL=NextGRNOTEL(aNoteL), subCnt++) {
 				aNote = GetPAGRNOTE(aNoteL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aNoteL);
 				LogPrintf(LOG_INFO, 
 					"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
@@ -147,7 +148,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 		case STAFFtype:
 			for (aStaffL=FirstSubLINK(objL); aStaffL; aStaffL=NextSTAFFL(aStaffL), subCnt++) {
 				aStaff = GetPASTAFF(aStaffL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aStaffL);
 				LogPrintf(LOG_INFO,
 					"stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
@@ -166,7 +167,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 			for (aMeasureL=FirstSubLINK(objL); aMeasureL; 
 					aMeasureL=NextMEASUREL(aMeasureL), subCnt++) {
 				aMeasure = GetPAMEASURE(aMeasureL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aMeasureL);
 				LogPrintf(LOG_INFO, 
 					"stf=%d m#=%d barTp=%d conStf=%d clef=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
@@ -188,7 +189,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 			for (aPseudoMeasL=FirstSubLINK(objL); aPseudoMeasL; 
 					aPseudoMeasL=NextPSMEASL(aPseudoMeasL), subCnt++) {
 				aPseudoMeas = GetPAPSMEAS(aPseudoMeasL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aPseudoMeasL);
 				LogPrintf(LOG_INFO, "stf=%d subTp=%d conStf=%d\n",
 					aPseudoMeas->staffn, aPseudoMeas->subType, aPseudoMeas->connStaff );
@@ -198,7 +199,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 		case CLEFtype:
 			for (aClefL=FirstSubLINK(objL); aClefL; aClefL=NextCLEFL(aClefL), subCnt++) {
 				aClef = GetPACLEF(aClefL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aClefL);
 				LogPrintf(LOG_INFO, "stf=%d xd=%d clef=%d %c%c%c\n",
 					aClef->staffn, aClef->xd, aClef->subType,
@@ -211,7 +212,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 		case KEYSIGtype:
 			for (aKeySigL=FirstSubLINK(objL); aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL), subCnt++) {
 				aKeySig = GetPAKEYSIG(aKeySigL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aKeySigL);
 				LogPrintf(LOG_INFO, "stf=%d xd=%d %c%c%c nKSItems=%d",
 					aKeySig->staffn, aKeySig->xd,
@@ -230,7 +231,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 		case TIMESIGtype:
 			for (aTimeSigL=FirstSubLINK(objL); aTimeSigL; aTimeSigL=NextTIMESIGL(aTimeSigL)) {
 				aTimeSig = GetPATIMESIG(aTimeSigL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aTimeSigL);
 				LogPrintf(LOG_INFO, "stf=%d xd=%d type=%d,%d/%d %c%c%c\n",
 					aTimeSig->staffn, aTimeSig->xd,
@@ -245,7 +246,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 			for (aNoteBeamL=FirstSubLINK(objL); aNoteBeamL; 
 					aNoteBeamL=NextNOTEBEAML(aNoteBeamL), subCnt++) {
 				aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u bpSync=L%u ", aNoteBeamL,
 					aNoteBeam->bpSync);
 				LogPrintf(LOG_INFO, "startend=%d fracs=%d %c\n", aNoteBeam->startend,
@@ -257,8 +258,10 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 			for (aNoteTupleL=FirstSubLINK(objL); aNoteTupleL; 
 					aNoteTupleL=NextNOTETUPLEL(aNoteTupleL), subCnt++) {
 				aNoteTuple = GetPANOTETUPLE(aNoteTupleL);
-				if (showLinks) LogPrintf(LOG_INFO, "     L%u tpSync=L%u\n",
-					aNoteTupleL, aNoteTuple->tpSync);
+				if (showLinks) {
+					LogPrintfINDENT;
+					LogPrintf(LOG_INFO, "L%u tpSync=L%u\n", aNoteTupleL, aNoteTuple->tpSync);
+				}
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;
@@ -266,8 +269,10 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 			for (aNoteOctL=FirstSubLINK(objL); aNoteOctL; 
 					aNoteOctL=NextNOTEOTTAVAL(aNoteOctL), subCnt++) {
 				aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
-				if (showLinks) LogPrintf(LOG_INFO, "     L%u opSync=L%u\n",
-					aNoteOctL, aNoteOct->opSync);
+				if (showLinks) {
+					LogPrintfINDENT;
+					LogPrintf(LOG_INFO, "L%u opSync=L%u\n", aNoteOctL, aNoteOct->opSync);
+				}
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;
@@ -281,7 +286,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				||  pGraphic->graphicType==GRChordSym) {
 					aGraphicL = FirstSubLINK(objL);
 					aGraphic = GetPAGRAPHIC(aGraphicL);
-					LogPrintf(LOG_INFO, "     ");
+					LogPrintfINDENT;
 					if (showLinks) LogPrintf(LOG_INFO, "L%u ", aGraphicL);
 					Pstrcpy((unsigned char *)tmpPStr, PCopy(aGraphic->strOffset));
 					LogPrintf(LOG_INFO, "'%s'", PToCString((unsigned char *)tmpPStr));
@@ -293,7 +298,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 			for (aConnectL=FirstSubLINK(objL); aConnectL; 
 					aConnectL=NextCONNECTL(aConnectL), subCnt++) {
 				aConnect = GetPACONNECT(aConnectL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aConnectL);
 				LogPrintf(LOG_INFO, "xd=%d lev=%d type=%d stfA=%d stfB=%d %c\n",
 					aConnect->xd, aConnect->connLevel, aConnect->connectType,
@@ -306,7 +311,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 			for (aDynamicL=FirstSubLINK(objL); aDynamicL; 
 					aDynamicL=NextDYNAMICL(aDynamicL), subCnt++) {
 				aDynamic = GetPADYNAMIC(aDynamicL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aDynamicL);
 				LogPrintf(LOG_INFO, "stf=%d xd=%d yd=%d endxd=%d %c%c%c\n",
 					aDynamic->staffn, aDynamic->xd, aDynamic->yd, aDynamic->endxd,
@@ -320,7 +325,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 		case SLURtype:
 			for (aSlurL=FirstSubLINK(objL); aSlurL; aSlurL=NextSLURL(aSlurL), subCnt++) {
 				aSlur = GetPASLUR(aSlurL);
-				LogPrintf(LOG_INFO, "     ");
+				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aSlurL);
 				LogPrintf(LOG_INFO, "1stInd=%d lastInd=%d ctl pts=(%d,%d),(%d,%d),(%d,%d),(%d,%d) %c%c%c\n",
 					aSlur->firstInd, aSlur->lastInd, aSlur->seg.knot.h, aSlur->seg.knot.v,
