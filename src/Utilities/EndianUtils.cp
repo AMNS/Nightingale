@@ -8,7 +8,8 @@ Big Endian processor (PowerPC), they do nothing. These should be called immediat
 after opening the file or resource to ensure everything is in the appropriate Endian
 form internally. They should also be called immediately before saving them them to
 ensure everything is saved in Big Endian form, and immediately after to ensure it's
-back to internal form.
+back to internal form. Note that there's no way to tell what the Endian-ness is of a
+value, so, on a Little Endian processor, it must be changed exactly once! 
 
 EndianFixStringPool() does the same thing as these functions for our string pool,
 but the internals of the string pool are intentionally hidden from the outside world;
@@ -237,58 +238,58 @@ void EndianFixHeapHdr(Document * /* doc */, HEAP *heap)
 
 /* ----------------------------------------- Endian functions for objects & subobjects -- */
 
-void EndianFixObject(LINK pL)
+void EndianFixObject(LINK objL)
 {
 	/* First, handle OBJECTHEADER fields, which are common to all objects. */
 	
-//LogPrintf(LOG_DEBUG, "EndianFixObject1: pL=%u LeftLINK(pL)=%u\n", pL, LeftLINK(pL));
-	FIX_END(LeftLINK(pL));
-//LogPrintf(LOG_DEBUG, "EndianFixObject2: pL=%u LeftLINK(pL)=%u\n", pL, LeftLINK(pL));
-	FIX_END(RightLINK(pL));
-	FIX_END(FirstSubLINK(pL));
-	FIX_END(LinkXD(pL));
-	FIX_END(LinkYD(pL));
+//LogPrintf(LOG_DEBUG, "EndianFixObject1: objL=%u LeftLINK(objL)=%u\n", objL, LeftLINK(objL));
+	FIX_END(LeftLINK(objL));
+//LogPrintf(LOG_DEBUG, "EndianFixObject2: objL=%u LeftLINK(objL)=%u\n", objL, LeftLINK(objL));
+	FIX_END(RightLINK(objL));
+	FIX_END(FirstSubLINK(objL));
+	FIX_END(LinkXD(objL));
+	FIX_END(LinkYD(objL));
 
 	/* Now handle object-type-specific fields. */
 
-	switch (ObjLType(pL)) {
+	switch (ObjLType(objL)) {
 		case HEADERtype:
 			break;
 		case TAILtype:
 			break;
 		case SYNCtype:
-			FIX_END(SyncTIME(pL));
+			FIX_END(SyncTIME(objL));
 			break;
 		case RPTENDtype:
-			FIX_END(RptEndFIRSTOBJ(pL));
-			FIX_END(RptEndSTARTRPT(pL));
-			FIX_END(RptEndENDRPT(pL));
+			FIX_END(RptEndFIRSTOBJ(objL));
+			FIX_END(RptEndSTARTRPT(objL));
+			FIX_END(RptEndENDRPT(objL));
 			break;
 		case PAGEtype:
-			FIX_END(LinkLPAGE(pL));
-			FIX_END(LinkRPAGE(pL));
-			FIX_END(SheetNUM(pL));
+			FIX_END(LinkLPAGE(objL));
+			FIX_END(LinkRPAGE(objL));
+			FIX_END(SheetNUM(objL));
 			break;
 		case SYSTEMtype:
-			FIX_END(LinkLSYS(pL));
-			FIX_END(LinkRSYS(pL));
-			FIX_END(SystemNUM(pL));
-			EndianFixRect((Rect *)&SystemRECT(pL));
-			FIX_END(SysPAGE(pL));
+			FIX_END(LinkLSYS(objL));
+			FIX_END(LinkRSYS(objL));
+			FIX_END(SystemNUM(objL));
+			EndianFixRect((Rect *)&SystemRECT(objL));
+			FIX_END(SysPAGE(objL));
 			break;
 		case STAFFtype:
-			FIX_END(LinkLSTAFF(pL));
-			FIX_END(LinkRSTAFF(pL));
-			FIX_END(StaffSYS(pL));
+			FIX_END(LinkLSTAFF(objL));
+			FIX_END(LinkRSTAFF(objL));
+			FIX_END(StaffSYS(objL));
 			break;
 		case MEASUREtype:
-			FIX_END(LinkLMEAS(pL));
-			FIX_END(LinkRMEAS(pL));
-			FIX_END(MeasISFAKE(pL));
-			FIX_END(MeasSPACEPCT(pL));
-			FIX_END(MeasSTAFFL(pL));
-			EndianFixRect(&MeasureBBOX(pL));
-			FIX_END(MeasureTIME(pL));
+			FIX_END(LinkLMEAS(objL));
+			FIX_END(LinkRMEAS(objL));
+			FIX_END(MeasISFAKE(objL));
+			FIX_END(MeasSPACEPCT(objL));
+			FIX_END(MeasSTAFFL(objL));
+			EndianFixRect(&MeasureBBOX(objL));
+			FIX_END(MeasureTIME(objL));
 			break;
 		case CLEFtype:
 			break;
@@ -301,58 +302,58 @@ void EndianFixObject(LINK pL)
 		case CONNECTtype:
 			break;
 		case DYNAMtype:
-			FIX_END(DynamFIRSTSYNC(pL));
-			FIX_END(DynamLASTSYNC(pL));
+			FIX_END(DynamFIRSTSYNC(objL));
+			FIX_END(DynamLASTSYNC(objL));
 			break;
 		case MODNRtype: 		/* There are no objects of this type, only subobjects. */
 			break;
 		case GRAPHICtype:
-			FIX_END(GraphicINFO(pL));
-			FIX_END(GraphicTHICKNESS(pL));
-			FIX_END(GraphicFONTSTYLE(pL));
-			FIX_END(GraphicINFO2(pL));
-			FIX_END(GraphicFIRSTOBJ(pL));
-			FIX_END(GraphicLASTOBJ(pL));
+			FIX_END(GraphicINFO(objL));
+			FIX_END(GraphicTHICKNESS(objL));
+			FIX_END(GraphicFONTSTYLE(objL));
+			FIX_END(GraphicINFO2(objL));
+			FIX_END(GraphicFIRSTOBJ(objL));
+			FIX_END(GraphicLASTOBJ(objL));
 			break;
 		case OTTAVAtype:
-			FIX_END(OttavaXDFIRST(pL));
-			FIX_END(OttavaYDFIRST(pL));
-			FIX_END(OttavaXDLAST(pL));
-			FIX_END(OttavaYDLAST(pL));
+			FIX_END(OttavaXDFIRST(objL));
+			FIX_END(OttavaYDFIRST(objL));
+			FIX_END(OttavaXDLAST(objL));
+			FIX_END(OttavaYDLAST(objL));
 			break;
 		case SLURtype:
-			FIX_END(SlurFIRSTSYNC(pL));
-			FIX_END(SlurLASTSYNC(pL));
+			FIX_END(SlurFIRSTSYNC(objL));
+			FIX_END(SlurLASTSYNC(objL));
 			break;
 		case TUPLETtype:
-			FIX_END(TupletACNXD(pL));
-			FIX_END(TupletACNYD(pL));
-			FIX_END(TupletXDFIRST(pL));
-			FIX_END(TupletYDFIRST(pL));
-			FIX_END(TupletXDLAST(pL));
-			FIX_END(TupletYDLAST(pL));
+			FIX_END(TupletACNXD(objL));
+			FIX_END(TupletACNYD(objL));
+			FIX_END(TupletXDFIRST(objL));
+			FIX_END(TupletYDFIRST(objL));
+			FIX_END(TupletXDLAST(objL));
+			FIX_END(TupletYDLAST(objL));
 			break;
 		case GRSYNCtype:
 			break;
 		case TEMPOtype:
-			FIX_END(TempoMM(pL));
-			FIX_END(TempoSTRING(pL));
-			FIX_END(TempoFIRSTOBJ(pL));
-			FIX_END(TempoMETROSTR(pL));
+			FIX_END(TempoMM(objL));
+			FIX_END(TempoSTRING(objL));
+			FIX_END(TempoFIRSTOBJ(objL));
+			FIX_END(TempoMETROSTR(objL));
 			break;
 		case SPACERtype:
-			FIX_END(SpacerSPWIDTH(pL));
+			FIX_END(SpacerSPWIDTH(objL));
 			break;
 		case ENDINGtype:
-			FIX_END(EndingFIRSTOBJ(pL));
-			FIX_END(EndingLASTOBJ(pL));
-			FIX_END(EndingENDXD(pL));
+			FIX_END(EndingFIRSTOBJ(objL));
+			FIX_END(EndingLASTOBJ(objL));
+			FIX_END(EndingENDXD(objL));
 			break;
 		case PSMEAStype:
 			break;
 		default:
 			MayErrMsg("Object at L%ld has illegal type %ld.  (EndianFixObject)",
-						(long)pL, (long)ObjLType(pL));
+						(long)objL, (long)ObjLType(objL));
 	}
 }
 
@@ -363,6 +364,8 @@ void EndianFixSplineSeg(SplineSeg *seg)
 	EndianFixDPoint(&seg->c0);
 	EndianFixDPoint(&seg->c1);
 }
+
+/* Switch Endian-ness of the given subobject. Return False if we find a problem. */
 
 Boolean EndianFixSubobj(short heapIndex, LINK subL)
 {
@@ -445,7 +448,7 @@ Boolean EndianFixSubobj(short heapIndex, LINK subL)
 			FIX_END(DynamicXD(subL));
 			FIX_END(DynamicYD(subL));
 			FIX_END(DynamicENDXD(subL));
-			FIX_END(DynamicENDXD(subL));
+			FIX_END(DynamicENDYD(subL));
 			break;
 		case MODNRtype:							/* No multibyte fields except <next> */
 			break;
@@ -457,11 +460,7 @@ Boolean EndianFixSubobj(short heapIndex, LINK subL)
 			break;
 		case SLURtype:
 			EndianFixRect(&SlurBOUNDS(subL));
-//LogPrintf(LOG_DEBUG, "EndianFixSubobj1: SlurSEG=(%d,%d),(%d,%d),(%d,%d)\n",
-//SlurSEG(subL).knot.h, SlurSEG(subL).knot.v, SlurSEG(subL).c0.h, SlurSEG(subL).c0.v, SlurSEG(subL).c1.h, SlurSEG(subL).c1.v); 
 			EndianFixSplineSeg(&SlurSEG(subL));
-//LogPrintf(LOG_DEBUG, "EndianFixSubobj2: SlurSEG=(%d,%d),(%d,%d),(%d,%d)\n",
-//SlurSEG(subL).knot.h, SlurSEG(subL).knot.v, SlurSEG(subL).c0.h, SlurSEG(subL).c0.v, SlurSEG(subL).c1.h, SlurSEG(subL).c1.v); 
 			EndianFixPoint(&SlurSTARTPT(subL));
 			EndianFixPoint(&SlurENDPT(subL));
 			EndianFixPoint((Point *)&SlurENDKNOT(subL));		
@@ -491,16 +490,39 @@ Boolean EndianFixSubobj(short heapIndex, LINK subL)
 						(long)subL, (long)heapIndex);
 			return False;
 	}
+
 	return True;
 }
 
 
+static void EndianFixModNRs(LINK aNoteRL);
+static void EndianFixModNRs(LINK aNoteRL)
+{
+	LINK aModL = NoteFIRSTMOD(aNoteRL);
+
+if (aModL) LogPrintf(LOG_DEBUG, "EndianFixModNRs: aNoteRL=L%u NoteFIRSTMOD=L%u\n", aNoteRL, NoteFIRSTMOD(aNoteRL));
+
+	/* Since the LINK to the first ModNR is embedded in the note/rest, it should have
+	   already been fixed, so we start with the second LINK. */
+	   
+	for ( ; aModL; aModL = NextMODNRL(aModL)) {
+//LogPrintf(LOG_DEBUG, "EndianFixModNRs<: NextMODNRL(aModL)=L%u\n", NextMODNRL(aModL));
+		FIX_END(NextMODNRL(aModL));
+//LogPrintf(LOG_DEBUG, "EndianFixModNRs>: NextMODNRL(aModL)=L%u\n", NextMODNRL(aModL));
+	}
+}
+
+/* Switch Endian-ness of all the subobjects of a given object. MODNR subobjects are
+attached to other subobjects -- notes or rests -- rather than objects, so we also
+handle them when do the notes/rests they're attached. */
+ 
 void EndianFixSubobjs(LINK objL)
 {
 	LINK partL, aNoteL, aRptL, aStaffL, aMeasL, aClefL, aKeySigL, aTimeSigL, aNoteBeamL,
-			aConnectL, aDynamicL, aGraphicL, anOttavaL, aSlurL, aTupletL, aGRNoteL;
+			aConnectL, aDynamicL, aGraphicL, anOttavaL, aSlurL, aTupletL, aGRNoteL,
+			aPSMeasL;
 	short heapIndex = ObjLType(objL);
-if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstSubLINK()=%u\n",
+if (DETAIL_SHOW && objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstSubLINK()=%u\n",
 				objL, heapIndex, FirstSubLINK(objL));
 
 	switch (heapIndex) {
@@ -509,8 +531,10 @@ if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstS
 				if (!EndianFixSubobj(heapIndex, partL)) return;
 			break;
 		case SYNCtype:
-			for (aNoteL = FirstSubLINK(objL); aNoteL; aNoteL = NextNOTEL(aNoteL))
+			for (aNoteL = FirstSubLINK(objL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				if (!EndianFixSubobj(heapIndex, aNoteL)) return;
+				EndianFixModNRs(aNoteL);
+			}
 			break;
 		case RPTENDtype:
 			for (aRptL = FirstSubLINK(objL); aRptL; aRptL = NextRPTENDL(aRptL))
@@ -557,13 +581,9 @@ if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstS
 				if (!EndianFixSubobj(heapIndex, aDynamicL)) return;
 			break;
 		case MODNRtype:
-#ifdef NOTYET
-			aModNRL = FirstSubLINK(noteRL);
-			for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL))
-				if (!EndianFixSubobj(heapIndex, aModNRL)) return;
-#else
-			LogPrintf(LOG_WARNING, "Can't convert note modifiers to other Endian!\n");
-#endif
+			/* There are no objects of MODNRtype, so we should never reach here. */
+			
+			AlwaysErrMsg("OBJECT L%ld IS OF MODNRtype!  (EndianFixSubobjs)", (long)objL);
 			break;
 		case GRAPHICtype:
 			aGraphicL = FirstSubLINK(objL);			/* Never has more than one subobject */
@@ -589,6 +609,11 @@ if (objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heapIndex=%d FirstS
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
 				if (!EndianFixSubobj(heapIndex, aGRNoteL)) return;
 			break;
+		case PSMEAStype:
+			aPSMeasL = FirstSubLINK(objL);
+			for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL))
+				if (!EndianFixSubobj(heapIndex, aPSMeasL)) return;
+			break;			
 		default:
 			;
 	}

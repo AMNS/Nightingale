@@ -312,7 +312,7 @@ well, else FIX_LINKS_ERR. */
 
 short HeapFixN105ObjLinks(Document *doc)
 {
-	LINK 	pL, prevPage, prevSystem, prevStaff, prevMeasure;
+	LINK 	objL, prevPage, prevSystem, prevStaff, prevMeasure;
 	Boolean tailFound=False;
 	
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
@@ -332,44 +332,44 @@ NHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 	/* First handle the main object list. */
 
 	FIX_END(doc->headL);
-	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
-		FIX_END(DRightLINK(doc, pL));
-//LogPrintf(LOG_DEBUG, "HeapFixN105ObjLinks: pL=%u type=%d in main obj list\n", pL, DObjLType(doc, pL));
-		switch(DObjLType(doc, pL)) {
+	for (objL = doc->headL; !tailFound; objL = DRightLINK(doc, objL)) {
+		FIX_END(DRightLINK(doc, objL));
+//LogPrintf(LOG_DEBUG, "HeapFixN105ObjLinks: objL=%u type=%d in main obj list\n", objL, DObjLType(doc, objL));
+		switch(DObjLType(doc, objL)) {
 			case TAILtype:
-				doc->tailL = pL;
+				doc->tailL = objL;
 				if (!doc->masterHeadL) {
 					LogPrintf(LOG_ERR, "TAIL of main object list encountered before its HEAD. The file can't be opened.  (HeapFixN105ObjLinks)\n");
 					goto Error;
 				}
-				doc->masterHeadL = pL+1;
+				doc->masterHeadL = objL+1;
 				tailFound = True;
 				DRightLINK(doc, doc->tailL) = NILINK;
 				break;
 			case PAGEtype:
-				DLinkLPAGE_5(doc, pL) = prevPage;
-				if (prevPage) DLinkRPAGE_5(doc, prevPage) = pL;
-				DLinkRPAGE_5(doc, pL) = NILINK;
-				prevPage = pL;
+				DLinkLPAGE_5(doc, objL) = prevPage;
+				if (prevPage) DLinkRPAGE_5(doc, prevPage) = objL;
+				DLinkRPAGE_5(doc, objL) = NILINK;
+				prevPage = objL;
 				break;
 			case SYSTEMtype:
-				DSysPAGE_5(doc, pL) = prevPage;
-				DLinkLSYS_5(doc, pL) = prevSystem;
-				if (prevSystem) DLinkRSYS_5(doc, prevSystem) = pL;
-				prevSystem = pL;
+				DSysPAGE_5(doc, objL) = prevPage;
+				DLinkLSYS_5(doc, objL) = prevSystem;
+				if (prevSystem) DLinkRSYS_5(doc, prevSystem) = objL;
+				prevSystem = objL;
 				break;
 			case STAFFtype:
-				DStaffSYS_5(doc, pL) = prevSystem;
-				DLinkLSTAFF_5(doc, pL) = prevStaff;
-				if (prevStaff) DLinkRSTAFF_5(doc, prevStaff) = pL;
-				prevStaff = pL;
+				DStaffSYS_5(doc, objL) = prevSystem;
+				DLinkLSTAFF_5(doc, objL) = prevStaff;
+				if (prevStaff) DLinkRSTAFF_5(doc, prevStaff) = objL;
+				prevStaff = objL;
 				break;
 			case MEASUREtype:
-				DMeasSYSL_5(doc, pL) = prevSystem;
-				DMeasSTAFFL_5(doc, pL) = prevStaff;
-				DLinkLMEAS_5(doc, pL) = prevMeasure;
-				if (prevMeasure) DLinkRMEAS_5(doc, prevMeasure) = pL;
-				prevMeasure = pL;
+				DMeasSYSL_5(doc, objL) = prevSystem;
+				DMeasSTAFFL_5(doc, objL) = prevStaff;
+				DLinkLMEAS_5(doc, objL) = prevMeasure;
+				if (prevMeasure) DLinkRMEAS_5(doc, prevMeasure) = objL;
+				prevMeasure = objL;
 				break;
 			case SLURtype:
 				break;
@@ -395,41 +395,41 @@ NHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 
 	/* Now do the Master Page list. */
 
-	for (pL = doc->masterHeadL; pL; pL = DRightLINK(doc, pL)) {
-		FIX_END(DRightLINK(doc, pL));
-//LogPrintf(LOG_DEBUG, "HeapFixN105ObjLinks: pL=%u type=%d in Master Page obj list\n", pL, DObjLType(doc, pL));
-		switch(DObjLType(doc, pL)) {
+	for (objL = doc->masterHeadL; objL; objL = DRightLINK(doc, objL)) {
+		FIX_END(DRightLINK(doc, objL));
+//LogPrintf(LOG_DEBUG, "HeapFixN105ObjLinks: objL=%u type=%d in Master Page obj list\n", objL, DObjLType(doc, objL));
+		switch(DObjLType(doc, objL)) {
 			case HEADERtype:
 				DLeftLINK(doc, doc->masterHeadL) = NILINK;
 				break;
 			case TAILtype:
-				doc->masterTailL = pL;
+				doc->masterTailL = objL;
 				DRightLINK(doc, doc->masterTailL) = NILINK;
 				return 0;
 			case PAGEtype:
-				DLinkLPAGE_5(doc, pL) = prevPage;
-				if (prevPage) DLinkRPAGE_5(doc, prevPage) = pL;
-				DLinkRPAGE_5(doc, pL) = NILINK;
-				prevPage = pL;
+				DLinkLPAGE_5(doc, objL) = prevPage;
+				if (prevPage) DLinkRPAGE_5(doc, prevPage) = objL;
+				DLinkRPAGE_5(doc, objL) = NILINK;
+				prevPage = objL;
 				break;
 			case SYSTEMtype:
-				DSysPAGE_5(doc, pL) = prevPage;
-				DLinkLSYS_5(doc, pL) = prevSystem;
-				if (prevSystem) DLinkRSYS_5(doc, prevSystem) = pL;
-				prevSystem = pL;
+				DSysPAGE_5(doc, objL) = prevPage;
+				DLinkLSYS_5(doc, objL) = prevSystem;
+				if (prevSystem) DLinkRSYS_5(doc, prevSystem) = objL;
+				prevSystem = objL;
 				break;
 			case STAFFtype:
-				DStaffSYS_5(doc, pL) = prevSystem;
-				DLinkLSTAFF_5(doc, pL) = prevStaff;
-				if (prevStaff) DLinkRSTAFF_5(doc, prevStaff) = pL;
-				prevStaff = pL;
+				DStaffSYS_5(doc, objL) = prevSystem;
+				DLinkLSTAFF_5(doc, objL) = prevStaff;
+				if (prevStaff) DLinkRSTAFF_5(doc, prevStaff) = objL;
+				prevStaff = objL;
 				break;
 			case MEASUREtype:
-				DMeasSYSL_5(doc, pL) = prevSystem;
-				DMeasSTAFFL_5(doc, pL) = prevStaff;
-				DLinkLMEAS_5(doc, pL) = prevMeasure;
-				if (prevMeasure) DLinkRMEAS_5(doc, prevMeasure) = pL;
-				prevMeasure = pL;
+				DMeasSYSL_5(doc, objL) = prevSystem;
+				DMeasSTAFFL_5(doc, objL) = prevStaff;
+				DLinkLMEAS_5(doc, objL) = prevMeasure;
+				if (prevMeasure) DLinkRMEAS_5(doc, prevMeasure) = objL;
+				prevMeasure = objL;
 				break;
 			default:
 				break;

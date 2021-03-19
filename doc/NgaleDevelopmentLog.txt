@@ -9366,8 +9366,11 @@ has 3 long diagonal lines across it; one at least is supposed to be a hairpin dy
 Debug Check has tons of complaints; other than the correct ones about unanticipated time
 signature changes, they all seem to be about suspicious measure numbers.
 
-Revise the chart of combinations of open/save, file format, processor type from a few days
-ago:
+---------------------------------------------------------------------------------------
+
+14 - 18 Mar.
+
+Revise the chart of combinations of open/save, file format, processor type from early March:
 
 open/save	file  	running	status
 			format	on
@@ -9375,9 +9378,81 @@ open/save	file  	running	status
 Open		N105	PPC		OK
 "			"		Intel	OK: Ngale correctly says "file version too old"
 "			N106	PPC		OK
-"			"		Intel	??UPDATE! Unreliable; randomly fails in different ways; tuplets
-							usually fail disastrously??
+"			"		Intel	??UPDATE! Unreliable; hairpins tend to appear as long diagonal lines*
+
 Save		N106	PPC		OK
 "			"		Intel	OK for simple files (default score; notes, beams, barline,
 							dynamic, text Graphic, slur, tuplets)
+							
+*Bcs endxd & endyd are very large numbers; endxd is negative.
+
+Open 2ndMovement_pp1-29Conv.ngl on Intel =>
+
+	Mar 15 07:21:55 Dons-2017-Air Ngale[92261]:
+	Notice. Opened file '2ndMovement_pp1-29Conv.ngl'.  (DoFileMenu)
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: GARBAGE MODNR LINK 16896 IN VOICE 1 IN SYNC L1238.
+	Warning. *DCheckNode: GARBAGE MODNR LINK 17408 IN VOICE 1 IN SYNC L1239.
+	Warning. *DCheckNode: GARBAGE MODNR LINK 17920 IN VOICE 1 IN SYNC L1240.
+	Warning. *DCheckNode: GARBAGE MODNR LINK 19712 IN VOICE 10 IN SYNC L1317.
+	Warning. *DCheckNode: GARBAGE MODNR LINK 3329 IN VOICE 13 IN SYNC L3742.
+
+There are 288 modifiers in the file; what's special about those 5? The first three (in
+flute in m. 74), are notes with _two_ modifiers; so is the 4th (solo violin, m. 81)!
+the 5th (viola in m. 185) ??
+
+Ah: Of course MODNR subobjects are attached to other subobjects -- notes or rests --
+rather than objects. Our strategy of calling EndianFixSubobjs for every object and having
+it handle all the subobjs of the object doesn't work. But just having EndianFixSubobjs
+for a Sync also handle the MODNR subobjs of each subobj should do the job! Write
+EndianFixModNRs, and call it from EndianFixSubobjs, case SYNCtype; try it on Intel with
+1Note2Modifs.ngl (just what it sounds like) =>
+
+Mar 17 17:01:35 Dons-2017-Air Ngale[3049]:
+debug. EndianFixSubobjs: objL=9 heapIndex=7 FirstSubLINK()=1
+debug. EndianFixModNRs: aNoteRL=L1 NoteFIRSTMOD=L1
+debug. EndianFixModNRs<: aModL=L1
+debug. EndianFixModNRs>: aModL=L256
+debug. EndianFixModNRs<: aModL=L38892
+debug. EndianFixModNRs>: aModL=L60567
+
+No, because NoteFIRSTMOD is embedded in the note/rest and it's already been fixed! Change
+that & try again =>
+
+Mar 17 17:08:32 Dons-2017-Air Ngale[3078]:
+debug. EndianFixSubobjs: objL=9 heapIndex=7 FirstSubLINK()=1
+debug. EndianFixModNRs: aNoteRL=L1 NoteFIRSTMOD=L1
+debug. EndianFixModNRs<: aModL=L512
+debug. EndianFixModNRs>: aModL=L2
+
+Yes, and it's drawn correctly! Open 2Notes5Modifs.ngl (first note has 2 modifiers, 2nd
+note has 3) => it works! Open 2ndMovement_pp1-29Conv.ngl => all OK.
+
+Open AllObjTypes_Conv.ngl on Intel => log ends
+
+	Mar 18 14:31:21 Dons-2017-Air Ngale[7873]:
+	info. Staff sizes in points are  1:20 2:20
+	Notice. Opened file 'AllObjTypes_Conv.ngl'.  (DoFileMenu)
+
+...then Ngale hangs :-( .
+
+Open file Notes+Beams+More2.ngl => OK.
+Open Notes+Beams+More3.ngl (adds 8va) => OK.
+Open Notes+Beams+More4.ngl (adds tuplet) => OK.
+
+Open AllObjTypes_Conv.ngl => looks OK, but, with Debug Check, log ends:
+
+	Mar 18 14:56:33 Dons-2017-Air Ngale[7990]: 
+	info. Staff sizes in points are  1:20 2:20
+	Notice. Opened file 'AllObjTypes_Conv.ngl'.  (DoFileMenu)
+	info. DEBUG 'Menu'-Standard: --CHECK MAIN:
+	Warning. *DCheckNode: SUBOBJ IN PSEUDOMEAS L13 staffn 0 IS BAD.
+	info. Discont. sel, 0 objs in range, 0 sel, 37 total.  2 voices.
+	info. --CHECK MASTER:  Done.
+	info. --CHECK CLIPBOARD:  Done. 1 ERROR(S). 
+
+Cause: EndianFixSubobjs doesn't have a case EndianFixSubobjs! Correct that; open
+AllObjTypes_Conv.ngl on Intel 3x => looks and acts OK and Debug Check has no complaints
+each time. So at the moment, I know of zero file-compatibility problems between PPC and
+Intel!
 

@@ -3188,3 +3188,15 @@ EndianUtils.
 
 Minor changes. Affects FileConversion.h; DebugDisplay, EndianUtils, FileConversion,
 FileOpen, HeapFileIO, MIDIPlay.
+
+---------------------------------------------------------------------------------------
+
+14 - 19 Mar.
+
+Fixed bug: right ends of hairpin dynamics in files opened on Intel machines are far away
+from where they should be. Affects EndianUtils.
+
+Fixed bug: notes or rests with multiple modifiers in files opened on Intel machines
+produce garbage. Affects EndianUtils.
+
+Minor changes. Affects About, DialogUtils, EndianUtils, FileConversion, HeapFileIO.

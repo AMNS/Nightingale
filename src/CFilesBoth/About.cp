@@ -11,7 +11,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-/* --------------------------------------------------------------- DoAboutBox et al -- */
+/* ------------------------------------------------------------------ DoAboutBox et al -- */
 
 #define	CR_LEADING			14		/* Vert. dist. between baselines of credit text */
 #define	PAUSE_CODE			'¹'		/* [opt-p] If line of TEXT resource begins with this,
@@ -26,14 +26,14 @@ static pascal Boolean	AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 static Boolean			SetupCredits(void);
 static void				AnimateCredits(DialogPtr dlog);
 
-static enum {
+enum {
 	BUT1_OK = 1,
 	BUT2_Special,
 	CREDITS_BOX = 3,
 	STXT_HINT1,
 	STXT_HINT2,
 	STXT_VERS
-} E_AboutItems;
+};
 
 static GrafPtr	fullTextPort;
 static Rect		creditRect, textSection;
@@ -75,12 +75,14 @@ void DoAboutBox(
 	}
 	
 	/* Get userItem rect for printing animated credits list */
+	
 	GetDialogItem(dlog, CREDITS_BOX, &type, &hndl, &creditRect);
 	textSection = creditRect;
 	OffsetRect(&textSection, -creditRect.left, -creditRect.top);
 	if (!SetupCredits()) goto broken;
 	
 	/* Get version number string and display it in a static text item. */
+	
 	strcpy((char *)versionPStr, applVerStr);
 	CToPString((char *)versionPStr);
 	PutDlgString(dlog, STXT_VERS, versionPStr, False);
@@ -97,6 +99,7 @@ void DoAboutBox(
 	ShowWindow(GetDialogWindow(dlog));
 	
 	/* Show the first "screen" of animated text */
+	
 	firstAnimateCall = True;
 	
 	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);
@@ -109,9 +112,9 @@ void DoAboutBox(
 	ArrowCursor();
 
 	/* Entertain filtered user events until dialog is dismissed */
+	
 	while (keepGoing) {
 		ModalDialog(filterUPP, &itemHit);
-
 		if (itemHit<1) continue;
 
 		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
@@ -120,7 +123,7 @@ void DoAboutBox(
 				keepGoing = False; okay = True;
 				break;
 			case BUT2_Special:
-				SysBeep(1);		/* For future use; maybe a simple "Debug Check" */
+				SysBeep(1);		/* For future use; maybe "Debug Check", or "Print" (to log?) */
 				break;
 		}
 	}
@@ -182,8 +185,8 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 
 
 /* Prepare an offscreen port holding lines of text read from a TEXT resource.
-	AnimateCredits() will copy a sliding rectangle from this port onto the screen
-	every few ticks (specified by SCROLL_NORM_DELAY). */
+AnimateCredits() will copy a sliding rectangle from this port onto the screen every
+few ticks (specified by SCROLL_NORM_DELAY). */
 	
 Boolean SetupCredits()
 {
@@ -194,6 +197,7 @@ Boolean SetupCredits()
 	short	portWid;
 	
 	/* Get credit text from TEXT resource. (Get1Resource isn't worth the trouble.) */
+	
 	hCreditText = GetResource('TEXT', ABOUT_TEXT);
 	if (!hCreditText) {
 		MayErrMsg("AboutBox: Can't get credit text.");
@@ -215,7 +219,7 @@ Boolean SetupCredits()
 	
 	/* Create offscreen port to hold formatted text */
 
-	portWid = creditRect.right - creditRect.left;				/* creditRect is static global declared above */
+	portWid = creditRect.right - creditRect.left;			/* creditRect is static global declared above */
 	GWorldPtr gwPtr = MakeGWorld(portWid, numLines * CR_LEADING, True);
 	SetGWorld(gwPtr, NULL);
 	
@@ -271,9 +275,8 @@ Boolean SetupCredits()
 
 
 /* Slide the list of credits up one pixel.  Copies desired rectangle from offscreen
-	port containing the complete list to the userItem rect on screen. If we've hit a
-	line beginning with PAUSE_CODE, we wait SCROLL_PAUSE_DELAY ticks before resuming
-	animation. */
+port containing the complete list to the userItem rect on screen. If we've hit a line
+starting with PAUSE_CODE, we wait SCROLL_PAUSE_DELAY ticks before resuming animation. */
 		
 void AnimateCredits(DialogPtr dlog)
 {
@@ -286,17 +289,19 @@ void AnimateCredits(DialogPtr dlog)
 	thisTime = TickCount();
 	
 	/* Is this first time called since the dialog was put up? [AboutBox() initializes
-		firstAnimateCall to True.] If so, we must initialize some static variables. */
+	   firstAnimateCall to True.] If so, we must initialize some static variables. */
+		
 	if (firstAnimateCall == True) {
 		firstAnimateCall = False;
 		lastTime = thisTime;
 		pixelCount = CR_LEADING;
 	}
 	
-	/* Compute current line number */
+	/* Compute current line number. If it's changed, check array to see if we should
+	   pause on this line. */
+	   
 	thisLineNum = pixelCount / CR_LEADING;
 
-	/* If line number has changed, check array to see if we should pause on this line. */
 	if (!(pixelCount % CR_LEADING)) {
 		for (i=0; i<MAX_PAUSE_LINES; i++) {
 			if (pauseLines[i]==thisLineNum) doPause = True;
@@ -307,15 +312,16 @@ void AnimateCredits(DialogPtr dlog)
 			(doPause ? SCROLL_PAUSE_DELAY : SCROLL_NORM_DELAY))) return;
 			
 	/* If we're about to run off the bottom, start at top again */
+	
 	Rect ftPortRect;
 	GetPortBounds(fullTextPort,&ftPortRect);
 	if (textSection.bottom > ftPortRect.bottom) {
 		textSection = creditRect;
 		OffsetRect(&textSection, -creditRect.left, -creditRect.top);
 		pixelCount = CR_LEADING-1;
+		
 		/* Incremented to CR_LEADING below, before we get back to line number computation.
-			Array search, and thus pause, will be skipped if this computation yields a
-			remainder. */
+		   Skip array search, and thus pause, if this computation yields a remainder. */
 	}
 		
 	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);
@@ -327,4 +333,3 @@ void AnimateCredits(DialogPtr dlog)
 
 	lastTime = thisTime;
 }
-

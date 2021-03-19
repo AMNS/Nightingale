@@ -48,31 +48,30 @@ static char *ftoa(char *buffer, double arg)
 }
 
 
-/*
- *	Outline the given item in the given dialog to show it's the default item, or
- *	erase its outline to show its window isn't active.
- */
+/* Outline the given item in the given dialog to show it's the default item, or erase
+its outline to show its window isn't active. */
 
 void FrameDefault(DialogPtr dlog, short item, short)
 {
 	SetDialogDefaultItem(dlog, item);
 }
 
-/*
- *	Note the current editText item and its selection state, or restore state and item.
- *	This lets us install various editText items in dialogs while they're open,
- *	and especially when the user is typing.
- */
+/* Note the current editText item and its selection state, or restore state and item.
+This lets us install various editText items in dialogs while they're open, and especially
+when the user is typing. */
 
 void TextEditState(DialogPtr dlog, Boolean save)
 {
-	static short k, n, m; static TEHandle textH;
+	static short k, n, m;
+	static TEHandle textH;
 	
 	if (save) {	
 		k = GetDialogKeyboardFocusItem(dlog);
 		textH = GetDialogTextEditHandle(dlog);			
 		n = (*textH)->selStart; m = (*textH)->selEnd;
+		
 		/* Force reselection of all if any selected to current end */
+		
 		if (m == (*textH)->teLength) {
 			if (m == n) n = ENDTEXT;
 			m = ENDTEXT;
@@ -119,17 +118,16 @@ Handle PutDlgType(DialogPtr dlog, short item, ResType type, Boolean sel)
 	return(PutDlgString(dlog,item,str,sel));
 }
 
-/*
- *	Install a string into a given text item of a given dialog and, if item is
- *	an editText item, leave it entirely selected or not, according to <sel>.
- *	In all cases, deliver handle of item.
- */
+/* Install a string into a given text item of a given dialog and, if item is an editText
+item, leave it entirely selected or not, according to <sel>. In all cases, deliver handle
+of item. */
 
 Handle PutDlgString(DialogPtr dlog, short item, const unsigned char *str, Boolean sel)
 {
-	short type; Handle hndl; Rect box; GrafPtr oldPort;
+	short type;  Handle hndl;
+	Rect box;  GrafPtr oldPort;
 	
-	GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
+	GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
 	
 	GetDialogItem(dlog,item,&type,&hndl,&box);
 	SetDialogItemText(hndl,str);
@@ -137,7 +135,9 @@ Handle PutDlgString(DialogPtr dlog, short item, const unsigned char *str, Boolea
 	
 	if (type == editText) {
 		SelectDialogItemText(dlog,item,(sel?0:ENDTEXT),ENDTEXT);
+		
 		/* It's not clear if the following InvalRect is necessary. */
+		
 		InvalWindowRect(GetDialogWindow(dlog),&box);
 	}
 	
@@ -147,17 +147,15 @@ Handle PutDlgString(DialogPtr dlog, short item, const unsigned char *str, Boolea
 
 Handle PutDlgChkRadio(DialogPtr dlog, short item, short val)
 {
-	short type; Handle hndl; Rect box;
+	short type;  Handle hndl;  Rect box;
 	
 	GetDialogItem(dlog,item,&type,&hndl,&box);
 	SetControlValue((ControlHandle)hndl,val!=0);
 	return(hndl);
 }
 
-/*
- *	Retrieval routines return 0 or 1 if edit item is empty or not, and value if any
- *	or 0 if no characters in editText item.
- */
+/* Retrieval routines return 0 or 1 if edit item is empty or not, and value if any or
+0 if no characters in editText item. */
 
 short GetDlgLong(DialogPtr dlog, short item, long *num)
 {
@@ -196,7 +194,7 @@ short GetDlgDouble(DialogPtr dlog, short item, double *val)
 
 short GetDlgString(DialogPtr dlog, short item, unsigned char *str)
 {
-	short type; Handle hndl; Rect box;
+	short type;  Handle hndl;  Rect box;
 	
 	GetDialogItem(dlog,item,&type,&hndl,&box);
 	GetDialogItemText(hndl,str);
@@ -205,16 +203,14 @@ short GetDlgString(DialogPtr dlog, short item, unsigned char *str)
 
 short GetDlgChkRadio(DialogPtr dlog, short item)
 {
-	short type; Handle hndl; Rect box;
+	short type;  Handle hndl;  Rect box;
 	
 	GetDialogItem(dlog,item,&type,&hndl,&box);
 	return (GetControlValue((ControlHandle)hndl) != 0);
 }
 
-/*
- *	Read a given editText item as a resource type, delivering True if it was a
- *	legal 4-character string; False otherwise.
- */
+/* Read a given editText item as a resource type, delivering True if it was a legal 4-
+character string; False otherwise. */
 
 short GetDlgType(DialogPtr dlog, short item, ResType *type)
 {
@@ -226,14 +222,12 @@ short GetDlgType(DialogPtr dlog, short item, ResType *type)
 	return(*str == sizeof(OSType));
 }
 
-/*
- *	Deliver the item number of the first empty item in given range, or 0 if none.
- *	Not used in Ngale 5.7.
- */
+/* Deliver the item number of the first empty item in given range, or 0 if none. (Not
+used in Ngale 5.7 or later, but could still be useful.) */
 
 short AnyEmptyDlgItems(DialogPtr dlog, short fromItem, short toItem)
 {
-	short i; Str255 str;
+	short i;  Str255 str;
 
 	for (i=fromItem; i<=toItem; i++)
 		if (!GetDlgString(dlog,i,str)) break;
@@ -245,9 +239,7 @@ short AnyEmptyDlgItems(DialogPtr dlog, short fromItem, short toItem)
 
 /* --------------------------------------------------------------------- Miscellaneous -- */
 
-/*
- *	Show or hide a given item from a given dialog
- */
+/*	Show or hide a given item from a given dialog. */
 
 void ShowHideItem(DialogPtr dlog, short item, Boolean show)
 {
@@ -255,10 +247,8 @@ void ShowHideItem(DialogPtr dlog, short item, Boolean show)
 	 else	  HideDialogItem(dlog, item);
 }
 
-/*
- *	Deliver the number of the current editText item in given dialog if any text
- *	is selected in it, or 0 if none selected.
- */
+/* Deliver the number of the current editText item in given dialog if any text is
+selected in it, or 0 if none selected. */
 
 short TextSelected(DialogPtr dlog)
 {
@@ -271,13 +261,11 @@ short TextSelected(DialogPtr dlog)
 	return(item);
 }
 
-/*
- *	Dialogs like to use null events to force any editText items to have a blinking
- *	caret.  However, if our dialogs have special windowKind fields, they can confuse
- *	the toolbox dialog calls.  So we used to use this routine to temporarily reset the
- *	windowKind field before calling the toolbox to blink the caret. It's unused since
- *	v. 5.4, probably much earlier, and should probably be discarded.
- */
+/* Dialogs like to use null events to force any editText items to have a blinking
+caret; but if our dialogs have special windowKind fields, they can confuse the toolbox
+dialog calls. So we used to use this routine to temporarily reset the windowKind field
+before calling the toolbox to blink the caret. (Unused since v. 5.4, probably much
+earlier, and should probably be discarded.) */
 
 void BlinkCaret(DialogPtr dlog, EventRecord *evt)
 {
@@ -302,11 +290,11 @@ void OutlineOKButton(DialogPtr dlog, Boolean)
 /* ----------------------------------------------------------------------- FlashButton -- */
 /* If the given item is a button, flash it to indicate it's been pressed. */
 
-void FlashButton(DialogPtr theDialog, short item)
+void FlashButton(DialogPtr aDialog, short item)
 {
-	short type; Handle aHdl; Rect aRect;
+	short type;  Handle aHdl;  Rect aRect;
  
-	GetDialogItem(theDialog, item, &type, &aHdl, &aRect);
+	GetDialogItem(aDialog, item, &type, &aHdl, &aRect);
 	if (type == (btnCtrl+ctrlItem)) {
 		HiliteControl((ControlHandle)aHdl, 1);
 		SleepTicks(8L);
@@ -316,23 +304,23 @@ void FlashButton(DialogPtr theDialog, short item)
  
  
 /* ----------------------------------------------------------------------- OKButFilter -- */
-/* This filter outlines the OK Button and performs standard key and command-
-key filtering. */
+/* This filter outlines the OK Button and performs standard key and command-key
+filtering. */
 
-pascal Boolean OKButFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
+pascal Boolean OKButFilter(DialogPtr aDialog, EventRecord *anEvent, short *item)
 {
-	switch (theEvent->what) {
+	switch (anEvent->what) {
 		case updateEvt:
-			BeginUpdate(GetDialogWindow(theDialog));
-			UpdateDialogVisRgn(theDialog);
-			FrameDefault(theDialog,OK,True);
-			EndUpdate(GetDialogWindow(theDialog));
+			BeginUpdate(GetDialogWindow(aDialog));
+			UpdateDialogVisRgn(aDialog);
+			FrameDefault(aDialog,OK,True);
+			EndUpdate(GetDialogWindow(aDialog));
 			*item = 0;
 			return True;
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
+			if (DlgCmdKey(aDialog, anEvent, item, False)) return True;
 			break;
 	}
 	return False;
@@ -340,22 +328,22 @@ pascal Boolean OKButFilter(DialogPtr theDialog, EventRecord *theEvent, short *it
 
 
 /* ------------------------------------------------------------------- OKButDragFilter -- */
-/* This filter outlines the OK Button, performs standard key and command-key
-filtering, and allows dragging the dialog, i.e., does the moving part of "movable
-modal" dialogs. */
+/* This filter outlines the OK Button, performs standard key and command-key filtering,
+and allows dragging the dialog: i.e., it does the moving part of "movable modal"
+dialogs. */
 
-pascal Boolean OKButDragFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
+pascal Boolean OKButDragFilter(DialogPtr aDialog, EventRecord *anEvent, short *item)
 {
-	short part; WindowPtr wind; Rect bounds;
+	short part;  WindowPtr wind;  Rect bounds;
 
-	switch (theEvent->what) {
+	switch (anEvent->what) {
 		case updateEvt:
-			wind = (WindowPtr)theEvent->message;
-			if (wind==GetDialogWindow(theDialog)) {
-				BeginUpdate(GetDialogWindow(theDialog));
-				UpdateDialogVisRgn(theDialog);
-				FrameDefault(theDialog,OK,True);
-				EndUpdate(GetDialogWindow(theDialog));
+			wind = (WindowPtr)anEvent->message;
+			if (wind==GetDialogWindow(aDialog)) {
+				BeginUpdate(GetDialogWindow(aDialog));
+				UpdateDialogVisRgn(aDialog);
+				FrameDefault(aDialog,OK,True);
+				EndUpdate(GetDialogWindow(aDialog));
 			}
 			else if (IsDocumentKind(wind) || IsPaletteKind(wind)) {
 				DoUpdate(wind);
@@ -364,16 +352,16 @@ pascal Boolean OKButDragFilter(DialogPtr theDialog, EventRecord *theEvent, short
 			*item = 0;
 			return True;
 		case mouseDown:
-			part = FindWindow(theEvent->where, &wind);
-			if (part==inDrag && wind==GetDialogWindow(theDialog)) {
+			part = FindWindow(anEvent->where, &wind);
+			if (part==inDrag && wind==GetDialogWindow(aDialog)) {
 				bounds = GetQDScreenBitsBounds();
-				DragWindow(wind, theEvent->where, &bounds);
+				DragWindow(wind, anEvent->where, &bounds);
 				*item = 0;
 				return True;
 			}
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
+			if (DlgCmdKey(aDialog, anEvent, item, False)) return True;
 			break;
 	}
 	return False;
@@ -382,22 +370,21 @@ pascal Boolean OKButDragFilter(DialogPtr theDialog, EventRecord *theEvent, short
 
 /* ------------------------------------------------------------------------- DlgCmdKey -- */
 /*	Adapted from DlgCmdKeyFilter by Douglas Wyatt. Intended to be called by dialog
-filter functions for keyDown and autoKey events, this recognizes Return and Enter
-as synonyms for clicking OK; command-. , X, C, V as Cancel, Cut, Copy, and Paste;
-and command keys at the end of any control title as clicks on that control. If it
-finds something it recognizes, it returns True with *item set to the number of the
-item that the dialog function should consider to have been clicked on; for Cut,
-Copy, and Paste it returns with *item=0 (caveat!).
+filter functions for keyDown and autoKey events, this recognizes Return and Enter as
+synonyms for clicking OK; command-. , X, C, V as Cancel, Cut, Copy, and Paste; and
+command keys at the end of any control title as clicks on that control. If it finds
+something it recognizes, it returns True with *item set to the number of the item that
+the dialog function should consider to have been clicked on; for Cut, Copy, and Paste it
+returns with *item=0 (caveat!).
 
-N.B. Command keys at the end of control title strings take precedence over the
-standard meanings of '.', 'X', 'C', and 'V'. */
+NB: Command keys at the end of control title strings take precedence over the standard
+meanings of '.', 'X', 'C', and 'V'. */
 
-Boolean DlgCmdKey(register DialogPtr dlog, EventRecord *evt,
-				short *item,
+Boolean DlgCmdKey(DialogPtr dlog, EventRecord *evt, short *item,
 				Boolean hotKeys	/* True=don't require cmd key to recognize keystrokes as ctl clicks */
 				)
 {
-	register short i, key;
+	short i, key;
 	short nitems, itemtype;
 	ControlHandle hc;
 	Rect box;
@@ -485,8 +472,8 @@ still down inside of <arrowRect>. Modified from Dave Winzler's TrackArrow. */
 void TrackNumberArrow(Rect *arrowRect, TrackNumberFunc actionProc, short limit,
 								DialogPtr dialogp)
 {
-	long	t;
-	Point	pt;
+	unsigned long	t;
+	Point			pt;
 
 	(*actionProc)(limit, dialogp);								/* do it once */
 	t = TickCount();											/* delay until auto-repeat */
@@ -520,37 +507,37 @@ static short locDurItem;
 static void ClickUp(short, DialogPtr);
 static void ClickDown(short, DialogPtr);
 
-static void ClickUp(short maxVal, DialogPtr theDialog)
+static void ClickUp(short maxVal, DialogPtr aDialog)
 {
 	short		pcNum;
 	
-	GetDlgWord(theDialog, locDurItem, &pcNum);
+	GetDlgWord(aDialog, locDurItem, &pcNum);
 	if (pcNum<maxVal) pcNum++;
-	PutDlgWord(theDialog, locDurItem, pcNum, True);
+	PutDlgWord(aDialog, locDurItem, pcNum, True);
 }
 
-static void ClickDown(short minVal, DialogPtr theDialog)
+static void ClickDown(short minVal, DialogPtr aDialog)
 {
 	short		pcNum;
 	
-	GetDlgWord(theDialog, locDurItem, &pcNum);
+	GetDlgWord(aDialog, locDurItem, &pcNum);
 	if (pcNum>minVal) pcNum--;
-	PutDlgWord(theDialog, locDurItem, pcNum, True);
+	PutDlgWord(aDialog, locDurItem, pcNum, True);
 }
 
 
-Boolean HandleKeyDown(EventRecord *theEvent, short minVal, short maxVal,
-								DialogPtr theDialog)
+Boolean HandleKeyDown(EventRecord *anEvent, short minVal, short maxVal,
+								DialogPtr aDialog)
 {
 	char	theChar;
 
-	theChar =theEvent->message & charCodeMask;
+	theChar =anEvent->message & charCodeMask;
 	if (theChar==UPARROWKEY) {
-		ClickUp(maxVal, theDialog);
+		ClickUp(maxVal, aDialog);
 		return True;
 	}
 	else if (theChar==DOWNARROWKEY) {
-		ClickDown(minVal, theDialog);
+		ClickDown(minVal, aDialog);
 		return True;
 	}
 	else
@@ -558,56 +545,53 @@ Boolean HandleKeyDown(EventRecord *theEvent, short minVal, short maxVal,
 }
 
 
-Boolean HandleMouseDown(EventRecord *theEvent, short minVal, short maxVal,
-								DialogPtr theDialog)
+Boolean HandleMouseDown(EventRecord *anEvent, short minVal, short maxVal,
+								DialogPtr aDialog)
 {
 	Point	where;
 
-	where = theEvent->where;
+	where = anEvent->where;
 	GlobalToLocal(&where);
 	if (PtInRect(where, &upRect)) {
-		SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);		/* Select & unhilite number */
-		TrackNumberArrow(&upRect, &ClickUp, maxVal, theDialog);
+		SelectDialogItemText(aDialog, locDurItem, 0, ENDTEXT);		/* Select & unhilite number */
+		TrackNumberArrow(&upRect, &ClickUp, maxVal, aDialog);
 		return True;
 	}
 	else if (PtInRect(where, &downRect)) {
-		SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);		/* Select & unhilite number */
-		TrackNumberArrow(&downRect, &ClickDown, minVal, theDialog);
+		SelectDialogItemText(aDialog, locDurItem, 0, ENDTEXT);		/* Select & unhilite number */
+		TrackNumberArrow(&downRect, &ClickDown, minVal, aDialog);
 		return True;
 	}
 	else
 		return False;
 }
 
-/*
- *	Before using NumberFilter in a call to ModalDialog, this routine must be called
- *	declare the item numbers of the duration label item and the up and down buttons.
- */
+/* Before using NumberFilter in a call to ModalDialog, this routine must be called to
+declare the item numbers of the duration label item and the up and down buttons. */
 
 void UseNumberFilter(DialogPtr dialogp, short durItem, short upItem, short downItem)
 	{
-		short itype; Handle tHdl;
+		short itype;  Handle tHdl;
 		
 		locDurItem = durItem;
 		GetDialogItem(dialogp, upItem, &itype, &tHdl, &upRect);	
 		GetDialogItem(dialogp, downItem, &itype, &tHdl, &downRect);
 	}
 
-pascal Boolean NumberFilter(register DialogPtr theDialog, EventRecord *theEvent,
-										short *itemHit)
+pascal Boolean NumberFilter(DialogPtr aDialog, EventRecord *anEvent, short *itemHit)
 {
-	switch (theEvent->what) {
+	switch (anEvent->what) {
 		case updateEvt:
-			WindowPtr w = GetDialogWindow(theDialog);
-			if (w == (WindowPtr)theEvent->message) {
-				BeginUpdate(GetDialogWindow(theDialog));
+			WindowPtr w = GetDialogWindow(aDialog);
+			if (w == (WindowPtr)anEvent->message) {
+				BeginUpdate(GetDialogWindow(aDialog));
 				TextFace(0); TextFont(systemFont);
-				DrawDialog(theDialog);
-				OutlineOKButton(theDialog,True);
-				EndUpdate(GetDialogWindow(theDialog));
+				DrawDialog(aDialog);
+				OutlineOKButton(aDialog,True);
+				EndUpdate(GetDialogWindow(aDialog));
 				}
 			 else
-				DoUpdate((WindowPtr)theEvent->message);
+				DoUpdate((WindowPtr)anEvent->message);
 			*itemHit = 0;
 			return True;
 			break;
@@ -616,22 +600,22 @@ pascal Boolean NumberFilter(register DialogPtr theDialog, EventRecord *theEvent,
 			 * Mouse down in elevator button. Handle it, select and hilite the number,
 			 * and make it look like a number was typed, just in case the caller cares.
 			 */
-			if (HandleMouseDown(theEvent, minDlogVal, maxDlogVal, theDialog)) {
-				SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);
+			if (HandleMouseDown(anEvent, minDlogVal, maxDlogVal, aDialog)) {
+				SelectDialogItemText(aDialog, locDurItem, 0, ENDTEXT);
 				*itemHit = locDurItem;
 				return True;
 			}
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, itemHit, False))
+			if (DlgCmdKey(aDialog, anEvent, itemHit, False))
 				return True;
 			else {
 				/*
 				 * Arrow key was typed. Handle it, then select and hilite the number.
 				 */
-				if (HandleKeyDown(theEvent, minDlogVal, maxDlogVal, theDialog)) {
-					SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);
+				if (HandleKeyDown(anEvent, minDlogVal, maxDlogVal, aDialog)) {
+					SelectDialogItemText(aDialog, locDurItem, 0, ENDTEXT);
 					return True;
 				}
 			}

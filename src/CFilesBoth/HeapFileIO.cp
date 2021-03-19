@@ -19,7 +19,7 @@
 #include "FileConversion.h"			/* Must follow Nightingale.precomp.h! */
 
 
-#define EXTRAOBJS 10L
+#define EXTRAOBJS 10L				/* Padding to give a margin of safety */
 
 /* Subobject sizes in 'N105' format files. */
 
@@ -867,7 +867,10 @@ and subobjects will still need more work, which should be done in ConvertObjSubo
 static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 				char *pLink1, long sizeAllInHeap)
 {
+#define NoDEBUG_LOOP
+#ifdef DEBUG_LOOP
 	static Boolean firstCall=True;
+#endif
 	char *src, *dst, *tempHeap;
 	short curType;
 	long len, newLen, n;
@@ -880,8 +883,8 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 		{ OutOfMemory(sizeAllInHeap);  return False; }
 	BlockMove(pLink1, tempHeap, sizeAllInHeap);
 	
-	/* Copy everything to a separate chunk of memory, then copy objects/subobjects
-	   back one at a time, assuming the new sizes. */
+	/* Copy everything to a separate chunk of memory, then copy objects/subobjects back
+	   one at a time, assuming the new sizes. */
 	   
 	src = tempHeap;
 	dst = pLink1;
@@ -905,7 +908,6 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 			newLen = subObjLength[curType];
 		}
 		
-#define NoDEBUG_LOOP
 #ifdef DEBUG_LOOP
 		/* Without the call to SleepMS(), some of the output from the following LogPrintf
 		   is likely to be lost (at least with OS 10.5 and 10.6)! See the comment on this
@@ -1184,7 +1186,7 @@ static short HeapFixObjLinks(Document *doc)
 	
 	for (pL = doc->headL; !tailFound; pL = RightLINK(pL)) {
 		EndianFixObject(pL);							/* Ensure in processor-specific Endian */
-LogPrintf(LOG_DEBUG, "HeapFixObjLinks: pL=%u type=%d in main obj list\n", pL, ObjLType(pL));
+if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "HeapFixObjLinks: pL=%u type=%d in main obj list\n", pL, ObjLType(pL));
 		switch(ObjLType(pL)) {
 			case TAILtype:
 				doc->tailL = pL;
@@ -1240,7 +1242,7 @@ LogPrintf(LOG_DEBUG, "HeapFixObjLinks: pL=%u type=%d in main obj list\n", pL, Ob
 
 	for (pL = doc->masterHeadL; pL; pL = RightLINK(pL)) {
 		EndianFixObject(pL);							/* Ensure in processor-specific Endian */
-LogPrintf(LOG_DEBUG, "HeapFixObjLinks: pL=%u type=%d in Master Page obj list\n", pL, ObjLType(pL));
+if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "HeapFixObjLinks: pL=%u type=%d in Master Page obj list\n", pL, ObjLType(pL));
 		switch(ObjLType(pL)) {
 			case HEADERtype:
 				LeftLINK(doc->masterHeadL) = NILINK;
