@@ -131,13 +131,12 @@ void InitNightFonts()
 {
 	textFontNum = applFont;
 	
-	/*
-	 * NB: The following comment is pre-OS X.
-	 * The "magic no." in next line should theoretically go away: we should get the
-	 * system font size from the Script Manager if it's present (and it should always be).
-	 * However, in every system I've seen, the system font size is 12, so I doubt it's
-	 * a big deal.
-	 */
+	/* NB: The following comment is pre-OS X.
+	   The "magic no." in next line should theoretically go away: we should get the
+	   system font size from the Script Manager if it's present (and it should always
+	   be). However, in every system I've seen, the system font size is 12, so I doubt
+	   it's a big deal. */
+	   
 	textFontSize = 12;
 	textFontSmallSize = textFontSize-3;
 
@@ -151,15 +150,15 @@ of strings found, or -1 if there's an error (probably out of memory). */
 static short InitEndingStrings(void);
 static short InitEndingStrings()
 {
-	char str[256]; short n, strOffset;
+	char str[256];
+	short n, strOffset;
 	
 	endingString = NewPtr(MAX_ENDING_STRINGS*MAX_ENDING_STRLEN);
 	if (!GoodNewPtr(endingString)) return -1;
 	
-	/*
-	 * Get strings up to MAX_ENDING_STRINGS from a resource, terminated by an empty
-	 * string or the last string present. 1st label is string 0 but index 1.
-	 */	
+	/* Get strings up to MAX_ENDING_STRINGS from a resource, terminated by an empty
+	 * string or the last string present. 1st label is string 0 but index 1. */
+	 	
 	n = 1;
 	do {
 		GetIndCString(str, ENDING_STRS, n);
@@ -229,10 +228,10 @@ static Boolean InitNightGlobals()
 
 /* Read 'BBX#', 'MCMp', 'MCOf', and 'MFEx' resources for music fonts we can handle and
 store their information in newly allocated musFontInfo[]. Return True if OK; False if
-error. Assumes that each font has one of all four types of resource mentioned above,
-and that the resource ID's for a font's four types match.  For example, "Petrucci"
-should have 'BBX#' 129, 'MCMp' 129, 'MCOf' 129, and 'MFEx' 129. -JGG, 4/25/01; rev.
-by DAB, 2/1/18. */
+error. Assumes that each font has one of all four types of resource mentioned above, and
+that the resource ID's for a font's four types match.  For example, "Petrucci" should
+have 'BBX#' 129, 'MCMp' 129, 'MCOf' 129, and 'MFEx' 129. -JGG, 4/25/01; rev. by DAB,
+2/1/18. */
 
 #define LPD(z)	if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG, "  %d", (z));
 #define LPDL(z)	if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG, "  %d\n", (z));
@@ -256,6 +255,7 @@ static Boolean InitMusFontTables()
 	numMusFonts = nRes;
 
 	/* Allocate musFontInfo[] large enough to hold all the music fonts we have resources for. */
+	
 	nBytes = numMusFonts * (Size)sizeof(MusFontRec);
 	musFontInfo = (MusFontRec *)NewPtr(nBytes);
 	if (!GoodNewPtr((Ptr)musFontInfo)) {
@@ -264,6 +264,7 @@ static Boolean InitMusFontTables()
 	}
 
 	/* Read 'BBX#' (character bounding box) info. */
+	
 	index = 0;
 	for (i = 1; i<=nRes; i++) {
 		resH = Get1IndResource('BBX#', i); 
@@ -472,32 +473,12 @@ static void PrintInfo()
 }
 
 
-/* GetFontNumber returns in the <fontNum> parameter the number for the font with
-the given font name. If there's no such font, it returns True. From Inside Mac VI,
-12-16. */
-
-static Boolean GetFontNumber(const Str255, short *);
-static Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
-{
-	Str255 systemFontName;
-	
-	GetFNum(fontName, pFontNum);
-	if (*pFontNum==0) {
-		/* Either the font was not found, or it is the system font. */
-		GetFontName(0, systemFontName);
-		return EqualString(fontName, systemFontName, False, False);
-	}
-	else
-		return True;
-}
-
-
 /* Check to see if all the desirable screen fonts are actually present. */
 
 static void CheckScreenFonts()
 {
-	unsigned short	origLen, foundSizes=0;
-	short	fontNum;
+	unsigned short origLen, foundSizes=0;
+	short fontNum;
 
 	if (!GetFontNumber("\pSonata", &fontNum)) {
 		if (CautionAdvise(MUSFONT_ALRT)==Cancel)
@@ -506,11 +487,11 @@ static void CheckScreenFonts()
 			return;
 	}
 
-	/* FIXME: The following comment obviously predates OS X. What's the situation now?
-		--DAB, Mar. 2016
-		"Under System 7, it seems that only the first call to RealFont is meaningful:
-		following calls for any size always return True! So it's not obvious how to find
-		out what sizes are really present without looking at the FONTs or NFNTs." */
+	/* FIXME: The following comment _way_ predates OS X. What's the situation now?
+	   --DAB, Mar. 2016
+	   "Under System 7, it seems that only the first call to RealFont is meaningful:
+	   following calls for any size always return True! So it's not obvious how to find
+	   out what sizes are really present without looking at the FONTs or NFNTs." */
 		
 	GetIndCString(strBuf, INITERRS_STRS, 16);			/* "Screen versions of the Sonata music font not available in size(s):" */
 	origLen = strlen(strBuf);
@@ -548,28 +529,27 @@ static void CheckScreenFonts()
 
 
 /* Handle all initialization tasks relating to the music font: create an offscreen
-bitmap for drawing music characters in style other than black, and initialize
-screen fonts. */
+bitmap for drawing music characters in style other than black, and initialize screen
+fonts. */
 
 void InitMusicFontStuff()
 {
 	short maxPtSize;
 	
-	/*
-	 * We need a grafPort large enough for the largest music character in the largest
-	 * possible size: rastral 0 at MAX_MAGNIFY magnification. With no magnification,
-	 * the best known lower bound is 60 pixels for the standard size of rastral 0, i.e.,
-	 * 28 points; however, we can't just use 60 pixels and magnify it because the actual
-	 * point size of rastral 0 is variable: it might even be smaller than rastral 1. So,
-	 * we find the largest possible point size (either rastral 0 or 1) and scale it by
-	 * 60/28, then magnify.
-	 */
+	/* We need a grafPort large enough for the largest music character in the largest
+	possible size: rastral 0 at MAX_MAGNIFY magnification. With no magnification, the
+	best known lower bound is 60 pixels for the standard size of rastral 0, i.e., 28
+	points; however, the actual point size of rastral 0 is variable: it might even be
+	smaller than rastral 1. So, we find the largest possible point size (either rastral
+	0 or 1) and scale it by 60/28, then magnify. */
+	
 	maxPtSize = n_max(config.rastral0size, pdrSize[1]);
 	maxMCharWid = (60.0/28.0)*maxPtSize;
 	maxMCharWid = UseMagnifiedSize(maxMCharWid, MAX_MAGNIFY);
 	maxMCharHt = maxMCharWid;
 #ifdef USE_GWORLDS
 	/* We lock the pixmap inside MakeGWorld and leave it that way. */
+	
 	fontPort = (GrafPtr)MakeGWorld(maxMCharWid, maxMCharHt, True);
 #else
 	fontPort = NewGrafPort(maxMCharWid, maxMCharHt);

@@ -199,7 +199,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	FIX_END(lastType);
 
 	if (lastType!=LASTtype) {
-		LogPrintf(LOG_ERR, "LAST OBJECT TYPE IS %d BUT SHOULD BE %d.  (OpenFile)\n", lastType, LASTtype);	
+		LogPrintf(LOG_ERR, "LAST OBJECT TYPE IS %d BUT SHOULD BE %d.  The file is probably damaged. (OpenFile)\n", lastType, LASTtype);	
 		errCode = LASTTYPE_ERR;
 		errInfo = HEADERobj;
 		goto Error;

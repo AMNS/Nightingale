@@ -41,7 +41,7 @@
 /* DialogsEditor.c */
 
 	/* The following enums for dialog item numbers have to be available to other
-		files because some of their item numbers are used as return values. */
+	   files because some of their item numbers are used as return values. */
  
 	enum
 	{						/* Set Dialog item numbers */
@@ -69,6 +69,7 @@
 	};
 
 	/* SetDurDialog (DialogsEditor.c) and NMSetDuration (Menu.c) need this. */
+	
 	enum
 	{
 		HALVE_DURS,
@@ -216,6 +217,11 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 	void		EnumerateFonts(Document *doc);
 	void		GetNFontInfo(short, short, short, FontInfo *);
+	Boolean		GetFontNumber(const Str255, short *);
+	short		FontName2Index(Document *, StringPtr);
+	Boolean		FontID2Name(Document *doc, short fontID, StringPtr fontName);
+	short		User2HeaderFontNum(Document *, short);
+	short		Header2UserFontNum(short);
 
 /* HairpinEdit.c, DragDynamic.c */
 

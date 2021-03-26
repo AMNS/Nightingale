@@ -3200,3 +3200,10 @@ Fixed bug: notes or rests with multiple modifiers in files opened on Intel machi
 produce garbage. Affects EndianUtils.
 
 Minor changes. Affects About, DialogUtils, EndianUtils, FileConversion, HeapFileIO.
+
+---------------------------------------------------------------------------------------
+
+20 - 26 Mar.
+
+Minor changes: consolidate font-handling functions, etc. Affects NightTemplates.h,
+Utility.h; Error, FileOpen, FontUtils, InitNightingale, PopUpUtils, Utility.

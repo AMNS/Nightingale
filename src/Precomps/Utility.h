@@ -67,11 +67,6 @@ void ShellSort(short [], short);
 short RelIndexToSize(short, DDIST);
 short GetTextSize(Boolean, short, DDIST);
 
-short FontName2Index(Document *, StringPtr);
-Boolean FontID2Name(Document *doc, short fontID, StringPtr fontName);
-short User2HeaderFontNum(Document *, short);
-short Header2UserFontNum(short);
-
 void Rect2Window(Document *doc, Rect *r);
 void Pt2Window(Document *doc, Point *pt);
 void Pt2Paper(Document *doc, Point *pt);

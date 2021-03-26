@@ -9456,3 +9456,157 @@ AllObjTypes_Conv.ngl on Intel 3x => looks and acts OK and Debug Check has no com
 each time. So at the moment, I know of zero file-compatibility problems between PPC and
 Intel!
 
+---------------------------------------------------------------------------------------
+
+19 - 25 March
+
+SWITCH TO: Trying to use certain commands on an Intel Mac that should open a dialog
+containing a pop-up menu instead just give the log message "Warning. Can't create the
+graphic pop-up. The font may not be available. (InitGPopUp)". The problem commands include
+Set Duration, Add Modifiers, and Fancy Tuplet; also double-clicking a dynamic.
+
+SWITCH TO: Test the old DemoNgaleScores. On PowerPC:
+Alpher Qtet gives error message & draws blank page; w/ 5.8.10, it looks OK & Debug is happy
+Larson HBD gives error message & draws blank page; w/ 5.8.10, it looks OK & Debug is happy
+Mahler has an error in Document header (startPageNumber=32767); with 5.8.10, likewise.
+AliceInW is fine; with 5.8.10, likewise.
+Bach BWV 540 hangs; w/ 5.8.10, it looks OK & Debug is happy.
+These are all N105 format, but the Bach's filename is "Bach-BWV540FMToccata (conv)", so
+it must have been converted from an earlier format.
+
+BACK TO: On Intel, some commands give a warning instead of a pop-up menu. Set Duration
+results in:
+
+	Mar 22 08:08:30 Dons-2017-Air Ngale[2549]:
+	debug. InitGPopUp: numItems=18 numColumns=9 fontSize=30 itemChars=162622544
+	Warning. Can't create the graphic pop-up. The font may not be available.  (InitGPopUp)
+
+Duh. <itemChars> is an address; no wonder it's a huge number. Anyway, the problem really
+is getting the font; what are asking for? Testing on PowerPC, for the Set Duration
+command:
+
+	Mar 22 16:26:17 DonDualG5 Ngale[90585]:
+	debug. InitGPopUp: numItems=18 numColumns=9 fontSize=30 fontname='0x50000opDurs'
+	debug. InitGPopUp: numItems=27 numColumns=9 fontSize=30 fontname='0x50000opDurs'
+
+Double-clicking a dynamic:
+
+	debug. InitGPopUp: numItems=10 numColumns=5 fontSize=30 fontname='0x13850000opDynMod'
+
+Add Modifiers command:
+
+	debug. InitGPopUp: numItems=24 numColumns=6 fontSize=30 fontname='0x13850000opDynMod'
+
+Fancy Tuplet command:
+
+	debug. InitGPopUp: numItems=9 numColumns=9 fontSize=30 fontname='0x5001c80opDurs'
+
+The actual fontnames are "%popDurs" and "%popDynMod". So these are correct except that
+the initial "%p" is replaced by what appears to be a hex number! Where do they come from?
+No wonder the Intel resource manager can't find the fonts, but how is the PowerPC
+resource manager doing it?? Who cares. It's very likely changing the names to something
+with no odd chars. like "%" will solve the problem.
+
+With Resorcerer, change font name from "%popDurs" to "popDursN" in 'chgd' 139
+("SetDur0dot") & 140 ("SetDur1dot"). Compile & run on PPC; Set Duration =>
+
+	Warning. Can't create the graphic pop-up. The font 'popDursN' isn't available.  (InitGPopUp)
+
+-- exactly as expected. In Nightingale.rsrc, change the name of 'fond' 32303 from
+"%popDurs" to "popDursN", try again => no change. That makes sense because an actual font
+resource with that name doesn't exist. NFNT "%popDurs" is in NightingaleUIFonts, a copy of
+NFonts.rsrc; change its name to "popDursN" => no change, and FontBook doesn't show it, even
+after restarting. Likewise with  "%popDynMod" => "popDynModN". Rename "NightingaleUIFonts" to
+"Nightingale2021UIFonts"; use FontBook's Add Fonts command on it => "popDursN" & "popDynModN"
+still don't appear in FontBook. Ugh.
+
+Add to InitGPopUp:
+
+#define HORRIBLE_KLUDGE
+#ifdef HORRIBLE_KLUDGE
+		Pstrcpy(chgdP->fontName, "\pJUNK%1");		
+#endif
+
+...and try again =>
+
+	debug. InitGPopUp: numItems=18 numColumns=9 fontSize=30 fontname='JUNK
+	Warning. Can't create the graphic pop-up. The font 'JUNK-2063592320sn't available.  (InitGPopUp)
+
+Change the above Pstrcpy thus:
+
+		Pstrcpy(chgdP->fontName, "\p%JUNK");		
+
+produces
+
+	debug. InitGPopUp: numItems=18 numColumns=9 fontSize=30 fontname='JUNK'
+	Warning. Can't create the graphic pop-up. The font 'JUNK' isn't available.  (InitGPopUp)
+
+!! It seems that '%' in a Pascal string is a huge problem: it (and possibly following
+chars.) gets replaced with either nothing or some number -- I've seen ca. 8 to 12 -- chars.
+that appear to be a large integer, sometimes in hex (0x) format T(&@$@P$(&%$#+=*! .
+
+Change the string to ""\p%ABCD" =>
+
+	debug. InitGPopUp: 05 25 41 42   43 44 75 72   73 00 32 30   2e 2c 2a 28
+	
+Add a call to NHexDump =>
+
+	debug. InitGPopUp: 05 25 41 42   43 44 75 72   73 00 32 30   2e 2c 2a 28
+	debug. InitGPopUp: numItems=18 numColumns=9 fontSize=30 fontname='-0X1.016008080808P-943BCD'
+	Warning. Can't create the graphic pop-up. The font '0X1.994808080808P-1020BCD' isn't available.  (InitGPopUp)
+
+The first six bytes in the dump are indeed the P string "%ABCD"! Add another LogPrintf:
+
+	debug. InitGPopUp: 05 25 41 42   43 44 75 72   73 00 32 30   2e 2c 2a 28
+	debug. InitGPopUp<: numItems=18 numColumns=9 fontSize=30 fontname='^E-0X1.031008080808P-943BCD�^P���h����'
+	debug. InitGPopUp>: numItems=18 numColumns=9 fontSize=30 fontname='0X1.500008080808P-711BCD'
+	Warning. Can't create the graphic pop-up. The font '0X1.994808080808P-1020BCD' isn't available.  (InitGPopUp)
+
+This makes NO sense!!! There's just a Pstrcpy and a PToCString between the 1st two lines. Add
+another NHexDump and another LogPrintf:
+
+  a debug. InitGPopUp1: chgdP->fontName: 05 25 41 42   43 44 75 72   73 00 32 30   2e 2c 2a 28
+  b	debug. InitGPopUp2: chgdP->fontName: 05 25 41 42   43 44 75 72   73 00 32 30   2e 2c 2a 28
+  c	debug. InitGPopUp3: fontNameC: 05 25 41 42   43 44 bb 30   93 f0 cd 68   bf ff f1 a0
+  d	debug. InitGPopUp<: numItems=18 numColumns=9 fontSize=30 fontname='^E-0X1.030808080808P-943BCD�0���h����'
+  e	debug. InitGPopUp>: numItems=18 numColumns=9 fontSize=30 fontname='0X1.500008080808P-711BCD'
+  f	Warning. Can't create the graphic pop-up. The font '0X1.C05008080808P-1022BCD' isn't available.  (InitGPopUp)
+
+Lines b & c show Pstrcpy is OK. Add yet another NHexDump:
+
+  a	debug. InitGPopUp1: chgdP->fontName: 05 25 41 42   43 44 75 72   73 00 32 30   2e 2c 2a 28
+  b	debug. InitGPopUp2: chgdP->fontName: 05 25 41 42   43 44 75 72   73 00 32 30   2e 2c 2a 28
+  c	debug. InitGPopUp3: fontNameC: 05 25 41 42   43 44 c8 70   93 f0 cd 68   bf ff f1 a0
+  d	debug. InitGPopUp<: numItems=18 numColumns=9 fontSize=30 fontname='^E-0X1.030808080808P-943BCD�p���h����'
+  e	debug. InitGPopUp4: fontNameC: 25 41 42 43   44 00 c8 70   93 f0 cd 68   bf ff f1 a0
+  f	debug. InitGPopUp>: numItems=18 numColumns=9 fontSize=30 fontname='0X1.500008080808P-711BCD'
+  g	Warning. Can't create the graphic pop-up. The font '0X1.C05008080808P-1022BCD' isn't available.  (InitGPopUp)
+
+Lines b & c show Pstrcpy is OK; lines c & e show PToCString is OK -- so how can f have the
+1st two chars of fontNameC replaced by 22 chars of trash? The real problem is what line g
+shows for the font name, of course, but surely it's the same reason! Okay,
+DisplayScoreHdr() uses slightly simpler code to display a font name ?? That doesn't seem
+to help, though I'm not quite sure.
+
+InitNightFonts uses
+	GetFNum("\pSonata", &sonataFontNum);				/* Get ID of Adobe Sonata font */
+
+Does GetFNum help? No; it just gives me the font number for Courier, and trying to use the
+graphic menu in the Set Duration dialog results in
+
+	Warning. Font for graphic menu is missing.  (InitGlobals)
+	Warning. Font for graphic menu is missing.  (SizeMenu)
+
+Well, I could probably kludge around those, so Set Duration would at least be usable! Not
+a great solution :-| .
+
+Another try at adding popDursN & popDynModN: I changed the NFNT names from the originals
+with %'s in Nightingale2021UIFonts, but not the FONDs! Use Resorcerer to fix that; use
+FontBook's Add Fonts command => no change. Why? Use FontBook's Validate File command on
+Nightingale2021UIFonts => it says, for popDursN, the NFNT is OK;the FOND's "font
+association usability" has a serious error, but otherwise is OK. The same thing for
+popDynModN. What can I do about "font association usability"??
+
+Web search finds lots of people with the same problem, starting with OS 10.5.x. What
+happens on OS 10.14? Try on my MacBook => FontBook's Validate File  says exactly the same
+thing about Nightingale2021UIFonts! Good; more likely I can find a solution.

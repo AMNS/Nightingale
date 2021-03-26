@@ -43,7 +43,7 @@ static void		ErrorString(short index, StringPtr msg);
 static short	DoGeneralAlert(StringPtr str);
 
 
-/* Print an error message.  If index is non-zero, then retrieve the index'th string from
+/* Show an error message.  If index is non-zero, then retrieve the index'th string from
 our error strings resource. */
 
 static void ErrorMsg(short index)
@@ -55,7 +55,7 @@ static void ErrorMsg(short index)
 	(void)DoGeneralAlert(str);
 }
 
-/* Print an error message with a string argument. The message is kept in the index'th
+/* Show an error message with a string argument. The message is kept in the index'th
 string in the error strings resource. The string should have a ^0 in it where we'll place
 the argument to the message. */
 
@@ -68,7 +68,7 @@ static void ErrorString(short index, StringPtr msg)
 	(void)DoGeneralAlert(str);
 }
 
-/*Print an error message with a numerical arguments. The message is kept in the index'th
+/* Show an error message with a numerical arguments. The message is kept in the index'th
 string in the error strings. */
 
 static void ErrorNumber(short index, long num)
@@ -188,12 +188,14 @@ void OutOfMemory(long nBytes)				{ ErrorNumber(exhaustedMemory,nBytes); }
 
 /* ----------------------------------------------------------- MayErrMsg, AlwaysErrMsg -- */
 
+#define MAYERRMSG_HOWMANY 5			/* No. of times for MayErrMsg to actually give the alarm */
+
 char	tempStr[256];
 
 static void EMDebugPrintf(char *fmt, ... );
 static void EMDebugPrintf(char *fmt, ... )
 {
-	long args[6]; short i;
+	long args[6];  short i;
 	va_list ap;
 	
 	va_start(ap,fmt);
@@ -208,7 +210,7 @@ void MayErrMsg(char *fmt, ...)
 	va_list ap;
 	long arg1, arg2, arg3, arg4, arg5, arg6;
 	
-	static short alertCount = 3;		/* No. of times to actually give the alarm */
+	static short alertCount = MAYERRMSG_HOWMANY;
 
 	va_start(ap,fmt);
 	arg1 = va_arg(ap, long);
@@ -219,7 +221,7 @@ void MayErrMsg(char *fmt, ...)
 	arg6 = va_arg(ap, long);
 	va_end(ap);
 	
-	sprintf(tempStr, "PROGRAM ERROR: ");  
+	sprintf(tempStr, "Possible program error: "); 
 	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
 	LogPrintf(LOG_ERR, "%s\n", tempStr);
 
