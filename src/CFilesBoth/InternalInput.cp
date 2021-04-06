@@ -631,7 +631,7 @@ getStyle:
 		pGraphic->fontSize = styleRec.fontSize;
 		pGraphic->fontStyle = styleRec.fontStyle;
 	}
-	pGraphic->info = User2HeaderFontNum(doc, textStyle);
+	pGraphic->info = UI2InternalStyle(doc, textStyle);
 	
 	pGraphic->firstObj = anchorL;
 PopLock(OBJheap);

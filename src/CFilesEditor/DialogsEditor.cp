@@ -40,7 +40,7 @@ static void RLargerStaff(void);
 static void RSmallerStaff(void);
 static Boolean RHandleKeyDown(EventRecord *);
 static Boolean RHandleMouseDown(EventRecord *);
-static pascal Boolean RFilter(DialogPtr, EventRecord *, short *);
+static pascal Boolean RastralFilter(DialogPtr, EventRecord *, short *);
 static pascal Boolean TSFilter(DialogPtr, EventRecord *, short *);
 static Boolean TSHandleMouseDown(EventRecord *);
 static void TSDrawStaff(void);
@@ -66,13 +66,14 @@ extern short minDlogVal, maxDlogVal;
 
 Rect firstRect, otherRect;
 
-static pascal Boolean LeftEndFilter(DialogPtr theDialog, EventRecord *theEvt,
-										short *item)
+static pascal Boolean LeftEndFilter(DialogPtr theDialog, EventRecord *theEvt, short *item)
 {
 	switch (theEvt->what) {
 		case updateEvt:
 			BeginUpdate(GetDialogWindow(theDialog));
+			
 			/* Outline the panels in background */
+			
 			FrameRect(&firstRect);
 			FrameRect(&otherRect);
 			UpdateDialogVisRgn(theDialog);
@@ -278,7 +279,6 @@ Boolean LeftEndDialog(short *pFirstNames,
 			*pOtherDist = in2pt(inchTemp)+.5;
 	}
 	
-broken:
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
 	SetPort(oldPort);
@@ -1174,7 +1174,7 @@ static GRAPHIC_POPUP	durPop0dot, durPop1dot, durPop2dot, *curPop;
 static POPKEY			*popKeys0dot, *popKeys1dot, *popKeys2dot;
 static short			popUpHilited=True, show2dots=False;
 
-/* --------------------------------------- Declarations & Help Funcs. for TupletDialog -- */
+/* ------------------------------------ Declarations & Help Functions for TupletDialog -- */
 
 enum {
 	TUPLE_NUM=4,										/* Item numbers */
@@ -1205,6 +1205,7 @@ short tupleDur;						/* Used to index duration strings. */
 short tupleDenomItem;
 
 /* Following declarations are basically a TupleParam but with ints for num/denom. */
+
 short accNum, accDenom;
 short durUnit;
 Boolean numVis, denomVis, brackVis;
@@ -1361,8 +1362,8 @@ static void DrawTupletItems(DialogPtr dlog, short /*ditem*/)
 }
 
 /* ---------------------------------------------------------------------- TupletDialog -- */
-/* Conduct the "Fancy Tuplet" dialog for a new or used tuplet whose initial state
-is described by <ptParam>. Return False on Cancel or error, True on OK. */
+/* Conduct the "Fancy Tuplet" dialog for a new or used tuplet whose initial state is
+described by <ptParam>. Return False on Cancel or error, True on OK. */
 
 Boolean TupletDialog(
 					Document */*doc*/,
@@ -1512,10 +1513,10 @@ Boolean TupletDialog(
 				break;
 			case TPOPUP_ITEM:
 				newLDur = popKeys0dot[curPop->currentChoice].durCode;
-	 			/*
-	 			 *	If user just set the popup for a duration longer than the maximum
-	 			 * allowable, change it to the maximum now.
-	 			 */
+				
+	 			/* If user just set the popup for a duration longer than the maximum
+				   allowable, change it to the maximum now. */
+				   
 				if (newLDur<minDlogVal) {
 					newLDur = minDlogVal;
 					choice = GetDurPopItem(curPop, popKeys0dot, newLDur, 0);
@@ -1609,8 +1610,8 @@ static Boolean IsSelInTuplet(Document *doc)
 }
 
 
-/* Return True if any selected notes (or rests) are in a tuplet, but not all the
-	notes of the tuplet are selected. */
+/* Return True if any selected notes (or rests) are in a tuplet, but not all the notes
+of the tuplet are selected. */
 
 static Boolean IsSelInTupletNotTotallySel(Document *doc)
 {
@@ -1721,11 +1722,12 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 				return True;
 			ch = (unsigned char)evt->message;
 			field = GetDialogKeyboardFocusItem(dlog);
-			/*
-			 * The Dialog Manager considers only EditText fields as candidates for being
-			 *	activated by the tab key, so handle tabbing from field to field ourselves
-			 *	so user can direct keystrokes to the pop-up as well as the EditText fields.
-			 */
+			
+			/* The Dialog Manager considers only EditText fields as candidates for being
+			   activated by the tab key, so handle tabbing from field to field ourselves
+			   so user can direct keystrokes to the pop-up as well as the EditText
+			   fields. */
+			   
 			if (ch=='\t') {
 				field = field==PDURPCT_DI? DUMMYFLD_DI : PDURPCT_DI;
 				popUpHilited = field==PDURPCT_DI? False : True;
@@ -1741,8 +1743,8 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 					HiliteGPopUp(curPop, True);
 					if (setDurGroup!=SETDURSTO_DI)
 						SwitchRadio(dlog, &setDurGroup, SETDURSTO_DI);
-					return True;					/* so no chars get through to DUMMYFLD_DI edit field */
-				}									/* NB: however, DlgCmdKey will let you paste into DUMMYFLD_DI! */
+					return True;			/* so no chars get through to DUMMYFLD_DI edit field */
+				}							/* However, DlgCmdKey will let you paste into DUMMYFLD_DI! */
 			}
 			break;
 	}
@@ -2037,11 +2039,12 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
 				return True;
 			ch = (unsigned char)evt->message;
-			/*
-			 * The Dialog Manager considers only EditText fields as candidates for being
-			 *	activated by the tab key, so handle tabbing from field to field ourselves
-			 *	so user can direct keystrokes to the pop-up as well as the EditText fields.
-			 */
+			
+			/* The Dialog Manager considers only EditText fields as candidates for being
+			   activated by the tab key, so handle tabbing from field to field ourselves
+			   so user can direct keystrokes to the pop-up as well as the EditText
+			   fields. */
+			   
 			field = GetDialogKeyboardFocusItem(dlog);
 			if (ch=='\t') {
 				if (field==VerbalDI) field = TDummyFldDI;
@@ -2234,10 +2237,9 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 				dialogOver = True;
 				break;
 			case TDurPopDI:
-	 			/*
-	 			 *	If user just set the popup to unknown duration, which makes no sense in a
-	 			 * metronome mark, change it back to what it was.
-	 			 */
+	 			/* If user just set the popup to unknown duration, which makes no sense in
+				   a metronome mark, change it back to what it was. */
+				   
 				newLDur = popKeys1dot[curPop->currentChoice].durCode;
 				if (newLDur==UNKNOWN_L_DUR) {
 					newLDur = oldLDur;
@@ -2271,6 +2273,7 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 		*expanded = GetDlgChkRadio(dlog, ExpandDI);
 		
 		/* In the tempo string, replace the UI "start new line" code with CH_CR. */
+		
 		GetDlgString(dlog, VerbalDI, tempoStr);
 		for (k=1; k<=Pstrlen(tempoStr); k++)
 			if (tempoStr[k]==CH_NLDELIM) tempoStr[k] = CH_CR;
@@ -2517,9 +2520,9 @@ static Boolean RHandleMouseDown(EventRecord *theEvt)
 }
 
 
-/* --------------------------------------------------------------------------- RFilter -- */
+/* --------------------------------------------------------------------- RastralFilter -- */
 
-static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvt, short *itemHit)
+static pascal Boolean RastralFilter(DialogPtr theDialog, EventRecord *theEvt, short *itemHit)
 {
 	GrafPtr oldPort;
 
@@ -2588,7 +2591,7 @@ short RastralDialog(
 	GrafPtr	oldPort;
 	ModalFilterUPP filterUPP;
 	
-	filterUPP = NewModalFilterUPP(RFilter);
+	filterUPP = NewModalFilterUPP(RastralFilter);
 	if (filterUPP==NULL) {
 		MissingDialog(STAFFSIZE_DLOG);
 		return NRV_CANCEL;
@@ -2603,10 +2606,8 @@ short RastralDialog(
 	}
 	SetPort(GetDialogWindowPort(rDialogp));
 
-	/*
-	 * Get the sample staff rectangle, as defined by a user item, and get it out of
-	 * the way so it doesn't hide any items underneath.
-	 */
+	/* Get the sample staff rectangle, as defined by a user item, and get it out of the
+	   the way so it doesn't hide any items underneath. */
 	GetDialogItem(rDialogp, StSampITM, &anInt, &aHdl, &staffArea);		
 	HideDialogItem(rDialogp, StSampITM);
 
@@ -2792,9 +2793,9 @@ static short MenuItemNum2StaffLines(short itemNum)
 }
 
 /* ------------------------------------------------------------------ StaffLinesDialog -- */
-/* Conduct dialog to get from user the number of staff lines, whether to show
-ledger lines, and whether to make these changes for all parts or only selected
-parts. Returns True if OK, False if user cancelled or there was an error. */
+/* Conduct dialog to get from user the number of staff lines, whether to show ledger
+lines, and whether to make these changes for all parts or only selected parts. Returns
+True if OK, False if user cancelled or there was an error. */
 
 short StaffLinesDialog(
 			Boolean	canChoosePart,		/* True: enable "Sel parts/All parts" radio buttons */
@@ -2895,8 +2896,8 @@ enum {
 	HEIGHT_DI=15
 };
 
-/* Conduct dialog to set margins. Passes margins in parameters; returns True for
-OK, False for Cancel. */
+/* Conduct dialog to set margins. Passes margins in parameters; returns True for OK,
+False for Cancel. */
 
 Boolean MarginsDialog(Document *doc,
 				short *lMarg, short *tMarg,	/* On entry, old margins; on exit, new ones */
@@ -3006,7 +3007,8 @@ Boolean MarginsDialog(Document *doc,
 			}
 				
 			/* If any of the values are negative or they result in negative paper sizes,
-				do not allow the user to dismiss the dialog. */
+			   do not allow the user to dismiss the dialog. */
+				
 			if (*lMarg<0 || *tMarg<0 || *rMarg<0 || *bMarg<0) {
 					StopInform(BADMARGIN_ALRT);
 					stillGoing = True;
@@ -3019,7 +3021,7 @@ Boolean MarginsDialog(Document *doc,
 
 			}
 			DisposeModalFilterUPP(filterUPP);
-			DisposeDialog(dlog);											/* Free heap space */
+			DisposeDialog(dlog);										/* Free heap space */
 		}
 	else {
 		DisposeModalFilterUPP(filterUPP);
@@ -3057,9 +3059,10 @@ static void KSMoreFlats(void);
 static void KSMoreSharps(void);
 
 /* ---------------------------------------------------------------------- KeySigDialog -- */
-/*	Handle dialog box to get key signature from user.  Returns True if
-user accepts dialog via OK, or False if they CANCEL.  If <insert> is True,
-user is inserting a new keysig; else they're modifying an existing keysig.
+/*	Handle dialog box to get key signature from user.  Returns True if user accepts
+dialog via OK, or False if they cancel.  If <insert> is True, user is inserting a new
+keysig; else they're modifying an existing keysig.
+
 Usage:	if KeySigDialog(&newSharps, &newFlats, &onAllStaves) {
 				sharps = newSharps;
 				flats = newFlats;
@@ -3108,7 +3111,7 @@ Boolean KeySigDialog(short *sharpParam, short *flatParam, Boolean *onAllStaves,
 		ShowWindow(GetDialogWindow(theDialog));
 		ArrowCursor();
 	
-		sharps = *sharpParam;											/* Get initial key signature */
+		sharps = *sharpParam;									/* Get initial key signature */
 		flats = *flatParam;
 		KSDrawStaff();
 
@@ -3189,7 +3192,7 @@ Boolean SetKSDialogGuts(short staffn, short *sharpParam, short *flatParam,
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 	
-		sharps = *sharpParam;											/* Get initial key signature */
+		sharps = *sharpParam;									/* Get initial key signature */
 		flats = *flatParam;
 		KSDrawStaff();
 
@@ -3228,8 +3231,8 @@ Boolean SetKSDialogGuts(short staffn, short *sharpParam, short *flatParam,
 
 
 /* ----------------------------------------------------------------------- KSDrawStaff -- */
-/*	Draw the KeySignature staff user item.  Expects <ksStaffRect>, <sharps> and
-<flats> to be initialized. */
+/*	Draw the KeySignature staff user item.  Expects <ksStaffRect>, <sharps>, and <flats>
+to be initialized. */
 
 static void KSDrawStaff()
 {
@@ -3388,11 +3391,10 @@ Rect tsStaffRect, tsNumUpRect,tsNumDownRect, tsDenomUpRect, tsDenomDownRect;
 ControlHandle cTimeHdl, cutTimeHdl;
 
 /* --------------------------------------------------------------------- TimeSigDialog -- */
-/*	Handle dialog box to get time signature from user.  Returns True if user
-accepts dialog via OK, or False if they CANCEL. All parameters are both inputs
-and outputs. If <insert> is True, user is inserting a new timesig; else they're
-modifying an existing timesig.
-Created: 4/28/87, dbw. */
+/*	Handle dialog box to get time signature from user.  Returns True if user accepts
+dialog via OK, or False if they Cancel. All parameters are both inputs and outputs. If
+<insert> is True, user is inserting a new timesig; else they're modifying an existing
+timesig. Created: 4/28/87, dbw. */
 
 Boolean TimeSigDialog(short *type, short *numParam, short *denomParam,
 								Boolean *onAllStaves, Boolean insert)
@@ -3511,8 +3513,8 @@ Boolean TimeSigDialog(short *type, short *numParam, short *denomParam,
 
 
 /* ----------------------------------------------------------------------- TSDrawStaff -- */
-/*	Draw the TimeSignature staff user item.  Expects <numerator> and
-<denominator> to be initialized. */
+/*	Draw the TimeSignature staff user item.  Expects <numerator> and <denominator> to
+be initialized. */
 
 #define LineV(lineNum) (tsStaffRect.bottom-10-3*(lineNum))
 
@@ -3675,14 +3677,14 @@ static void TSNumeratorUp()
 #define MOUSEREPEATTIME 3			/* ticks between auto-repeats */
 
 /* ------------------------------------------------------------------------ TrackArrow -- */
-/*	Track arrow, calling <actionProc> after MOUSETHRESHTIME ticks, and
-	repeating every MOUSEREPEATTIME ticks thereafter, as long as the mouse
-	is still down inside of <arrowRect>. ??Should replace with TrackNumberArrow.*/
+/* Track arrow, calling <actionProc> after MOUSETHRESHTIME ticks, and repeating every
+MOUSEREPEATTIME ticks thereafter, as long as the mouse is still down inside of
+<arrowRect>. FIXME: Should replace with TrackNumberArrow.*/
 
 void TrackArrow(Rect *arrowRect, TrackArrowFunc actionProc)
 {
-	long	t;
-	Point	pt;
+	unsigned long t;
+	Point pt;
 
 	(*actionProc)();											/* do it once */
 	t = TickCount();											/* delay until auto-repeat */
@@ -3928,7 +3930,8 @@ Boolean SymbolIsBarline()
 	short itemHit;
 	Boolean value;
 	static short assumeBarline=0, oldChoice=0;
-	register DialogPtr dlog; GrafPtr oldPort;
+	DialogPtr dlog;
+	GrafPtr oldPort;
 	Boolean keepGoing=True;
 	static Boolean firstCall=True;
 

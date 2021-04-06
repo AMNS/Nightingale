@@ -113,7 +113,7 @@ void FillFontTable(Document *doc)
 	short j, nMissing;
 	
 	if (doc->nfontsUsed>MAX_SCOREFONTS || doc->nfontsUsed<0)
-		MayErrMsg("FillFontTable: %ld fonts is illegal.", (long)doc->nfontsUsed);
+		MayErrMsg("FillFontTable: %ld fonts is an illegal number.", (long)doc->nfontsUsed);
 
 	EnumerateFonts(doc);	
 

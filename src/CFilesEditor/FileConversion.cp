@@ -1570,7 +1570,6 @@ aDynamicL = FirstSubLINK(dynamicL);
 static Boolean ConvertGRAPHIC(Document * /* doc */, LINK graphicL)
 {
 	GRAPHIC_5 aGraphic;
-	LINK aGraphicL;
 	
 	BlockMove(&tmpSuperObj, &aGraphic, sizeof(GRAPHIC_5));
 	
@@ -1600,7 +1599,7 @@ static Boolean ConvertGRAPHIC(Document * /* doc */, LINK graphicL)
 
 #define NoDEBUG_SKIPPING_LINKS
 #ifdef DEBUG_SKIPPING_LINKS
-	aGraphicL = FirstSubLINK(graphicL);
+	LINK aGraphicL = FirstSubLINK(graphicL);
 	if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    ConvertGRAPHIC subobj: aGraphicL=%u\n", aGraphicL);
 #endif
 
@@ -1875,8 +1874,8 @@ SUBOBJECTS? Return True if all goes well, False if not.
 
 This function assumes that the headers and the entire object list have been read; all
 object and subobject links are valid; and all objects and subobjects are the correct
-lengths. Tweaks that affect lengths or offsets to the headers should be done before
-calling this, in OpenFile(); to objects or subobjects, before calling it, in
+lengths. Tweaks that affect lengths or offsets (1) to the headers should be done before
+calling this, in OpenFile(); (2) to objects or subobjects, before calling it, in
 ReadHeaps(). */
 
 #if SUBOBJ_DETAIL_SHOW || OBJ_DETAIL_SHOW
@@ -1908,13 +1907,15 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 	prevL = startL-1;
 	for (pL = startL; pL; pL = RightLINK(pL)) {
 #ifdef DEBUG_LOOP
-		/* There's a weird bug in the OS 10.5 and 10.6 Console utility where if messages
-		   are written to the log at too high a rate, some just disappear; to make it
-		   worse, the ones that disappear seem to be random! (With 10.6 you at least
-		   get a warning at 500 messages/sec., but not with 10.5.) To help debug this
-		   loop, add a delay each time through. Note that this makes converting large
-		   files much slower, so it should be #ifdef'd out or removed completely if
-		   we're not concerned about log messages from the loop!  */
+		/* There's a weird bug in the OS 10.5 Console utility where if messages are
+		   written to the log at too high a rate, some just disappear; to make it worse,
+		   the ones that disappear seem to be random! With 10.6 you get a warning at 500
+		   messages/sec., presumably because Apple decided it was easier than fixing the
+		   bug and good enough.) To sidestep the bug, add a delay each time through.
+		   Note that this makes converting large files much slower, so it should be
+		   #ifdef'd out or removed completely if we're not concerned about getting all
+		   the messages.  */
+		   
 		if (startL==pL) LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING EACH TIME THRU LOOP TO AID DEBUGGING.  (ConvertObjSubobjs) ******\n");
 		SleepMS(3);
 		//LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);

@@ -9458,7 +9458,7 @@ Intel!
 
 ---------------------------------------------------------------------------------------
 
-19 - 25 March
+19 - 26 March
 
 SWITCH TO: Trying to use certain commands on an Intel Mac that should open a dialog
 containing a pop-up menu instead just give the log message "Warning. Can't create the
@@ -9515,10 +9515,10 @@ With Resorcerer, change font name from "%popDurs" to "popDursN" in 'chgd' 139
 -- exactly as expected. In Nightingale.rsrc, change the name of 'fond' 32303 from
 "%popDurs" to "popDursN", try again => no change. That makes sense because an actual font
 resource with that name doesn't exist. NFNT "%popDurs" is in NightingaleUIFonts, a copy of
-NFonts.rsrc; change its name to "popDursN" => no change, and FontBook doesn't show it, even
-after restarting. Likewise with  "%popDynMod" => "popDynModN". Rename "NightingaleUIFonts" to
-"Nightingale2021UIFonts"; use FontBook's Add Fonts command on it => "popDursN" & "popDynModN"
-still don't appear in FontBook. Ugh.
+NFonts.rsrc; change its name to "popDursN" => no change, and FontBook doesn't show it,
+even after restarting. Likewise with  "%popDynMod" => "popDynModN". Rename
+"NightingaleUIFonts" to "Nightingale2021UIFonts"; use FontBook's Add Fonts command on it
+=> "popDursN" & "popDynModN" still don't appear in FontBook. Ugh.
 
 Add to InitGPopUp:
 
@@ -9607,6 +9607,63 @@ Nightingale2021UIFonts => it says, for popDursN, the NFNT is OK;the FOND's "font
 association usability" has a serious error, but otherwise is OK. The same thing for
 popDynModN. What can I do about "font association usability"??
 
+$%*^&&^)_^$)*)*^&*&%^  Presumably as a result of my messing around with FontBook, my G5
+now has the same problem as my MacBook! So Set Duration, edit tempo mark/MM, etc., are now
+virtually unusable on the G5 too :-( .
+
 Web search finds lots of people with the same problem, starting with OS 10.5.x. What
 happens on OS 10.14? Try on my MacBook => FontBook's Validate File  says exactly the same
 thing about Nightingale2021UIFonts! Good; more likely I can find a solution.
+
+---------------------------------------------------------------------------------------
+
+28 Mar. - 6 April
+
+Does looking at the fonts the system knows about help? We already have an EnumerateFonts()
+function, so modify it to list them. Run on G5 => it finds 143 font families; none of the
+names includes the string "pop". On MBAir, it finds 689(!); none of the names includes
+"pop". Sigh.
+
+Doug McKenna: See if FontForge can open my fonts, then save them in a possibly-better
+state! Nope, it doesn't look like it can open bitmap fonts: not surprising.
+
+Hey, why do I need special fonts? The chars. I want are almost all in Sonata!!  Oops;
+probably not. Besides notehead w/ question mark (for unknown duration), Set Duration needs
+noteheads with stems & flags; does Sonata have those? Yes! But it also needs them with one
+and two dots; it doesn't have those.
+
+Now, what happens ON TORREY'S OLD WHITE MACBOOK, running macOS 10.6.x?  (1) Enumerate Fonts
+lists 354 fonts, none of which includes the string "pop", then runs into the 500 log
+messages per second limit after getting up to fondID 17570. But "%popDurs" and "%popDynMod"
+should be 32303 and 32304 -- that's what they are in NFonts.rsrc; no wonder they aren't
+listed. With the usual kludge to sidestep the max. log messages problem:
+
+	Apr  1 10:30:33 unknown001f5bbee8ff Ngale[790]:
+	...
+	debug. EnumerateFonts: fondID=32303 fontFamilyName='0xbfffdc98opDurs'
+	debug. EnumerateFonts: fondID=32304 fontFamilyName='0xbfffdc98opDynMod'
+	debug. EnumerateFonts: fondID=32401 fontFamilyName='LittleNight'
+
+NB that LittleNight also appears in this list -- BUT Font Book still doesn't list them,
+not even LittleNight! So their non-appearance in Font Book on my G5 and MBAir means
+nothing. And the "%p" in the names of "%popDurs" and "%popDynMod" is a red herring, though
+it's undoubtedly why their names are shown in the log with "%p" replaced by a hex number:
+that certainly seems to be because the %s conversion specifier is interpreting the "%p" in
+the string as if it's itself a conversion specifier, contrary to the C99 standard (or
+AFAIK any other C standard).
+
+(2) Set Duration works!, though the pop-up is blank where every other char. should be.
+Relevant log messages:
+
+	Mar 31 17:28:58 unknown001f5bbee8ff Ngale[224]:
+	debug. InitGPopUp<: numItems=27 numColumns=9 fontSize=30 fontNameC='^H0xbffff638opDurs⍚'
+	debug. InitGPopUp4: fontNameC: 25 70 6f 70   44 75 72 73   00 e2 8d 9a   00 00 00 00
+	debug. InitGPopUp>: numItems=27 numColumns=9 fontSize=30 fontNameC='0xbffff638opDurs'
+	debug. InitGPopUp5: fontNameC: 25 70 6f 70   44 75 72 73   00 e2 8d 9a   00 00 00 00
+	debug. InitGPopUp7: chgdP->fontName: 08 25 70 6f   70 44 75 72   73 00 32 30   2e 2c 2a 28
+	debug. InitGPopUpX: p->fontNum=32303
+
+Check my MAC MINI: In Font Book, Validate File AllNightingaleFontStuff_2002/NightFonts 2000
+(mod. July28, 2001 at 12:48 PM) => 2 minor problems -- but it doesn't look like any of the
+three UI fonts are there, only Sonata plus 'NFNT' 4371, whatever that is.
+ 

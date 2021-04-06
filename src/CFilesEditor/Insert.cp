@@ -313,20 +313,20 @@ Boolean InsertNote(
 			goto Cancelled;
 		}
 
-	/* The click wasn't close to an existing Sync, so we have to decide where
-		to insert it. In graphic mode, get first node to the right of pt.h, and
-		insert a new Sync in first valid slot in object list before this node.
-		In temporal mode, determine if there is a Sync simultaneous with the
-		location of the click FIXME: LOOKS LIKE THIS ALWAYS SAYS "NO"; if so, add the
-		note to this Sync, else add a new Sync at the correct temporal location. */
+	/* The click wasn't close to an existing Sync, so we have to decide where to insert
+	   it. In graphic mode, get first node to the right of pt.h, and insert a new Sync
+	   in first valid slot in object list before this node. In temporal mode, determine
+	   if there is a Sync simultaneous with the location of the click FIXME: LOOKS LIKE
+	   THIS ALWAYS SAYS "NO"; if so, add the note to this Sync, else add a new Sync at
+	   the correct temporal location. */
 
 	if (isGraphic)	{											/* Get noteRightL directly */
 		nodeRightL = FindSymRight(doc, pt, False, False);
 	}
 
-	/* Temporal mode: get the lTime of the last previous item and its duration
-		(its ending time), then search for a Sync at that time. If it exists
-		add to it, else create a new one. */
+	/* Temporal mode: get the lTime of the last previous item and its duration (its
+	   ending time), then search for a Sync at that time. If it exists, add to it, else
+	   create a new one. */
 
 	else {														/* Get addToSyncL or nodeRightL */
 		pLPIL = FindLPI(doc, pt, (doc->lookVoice>=0? ANYONE : clickStaff), voice, True);
@@ -371,8 +371,8 @@ Cancelled:
 
 
 /* ----------------------------------------------------------------------InsertGRNote -- */
-/* Insert a grace note at a place in the object list suitable for a
-mousedown at the given point. Handles feedback and allows cancelling. */
+/* Insert a grace note at a place in the object list suitable for a mousedown at the
+given point. Handles feedback and allows cancelling. */
 
 Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 {
@@ -395,8 +395,8 @@ Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 	if (!AddCheckVoiceTable(doc, clickStaff)) return False;
 	
 	/* Determine if the grace note is to be added to an already existing GRSync. If so,
-		check the GRSync for validity, set the selection range to equal this GRSync,
-		and add it to the GRSync. */ 
+	   check the GRSync for validity, set the selection range to equal this GRSync,
+	   and add it to the GRSync. */ 
 
 	addToGRSyncL = FindGRSync(doc, pt, isGraphic, clickStaff);
 	if (addToGRSyncL) {
@@ -417,30 +417,30 @@ Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 		return False;
 	}
 
-	/* The click wasn't close to an existing GRSync, so we have to decide where
-		to insert it. In graphic mode, get first node to the right of pt.h, and
-		insert a new GRSync in first valid slot in object list before this node.
-		In temporal mode, determine if there is a GRSync simultaneous with the
-		location of the click; if so, add the note to this GRSync, else add a new
-		GRSync at the correct temporal location. */
+	/* The click wasn't close to an existing GRSync, so we have to decide where to
+	   insert it. In graphic mode, get first node to the right of pt.h, and insert a
+	   new GRSync in first valid slot in object list before this node. In temporal
+	   mode, determine if there is a GRSync simultaneous with the location of the
+	   click; if so, add the note to this GRSync, else add a new GRSync at the correct
+	   temporal location. */
 
 	if (isGraphic) {
 		nodeRightL = FindSymRight(doc, pt, False, False);
 		return TrkInsGRSync(doc, nodeRightL, pt, &sym, clickStaff);
 	}
 
-	/* Temporal mode: get the lTime of the last previous item and its duration
-		(its ending time), then search for a Sync at that time. If it exists
-		add to a GRSync to its left, else search to the right for any object
-		at or after that time and add to a GRSync to its left. */
+	/* Temporal mode: get the lTime of the last previous item and its duration (its
+	   ending time), then search for a Sync at that time. If it exists, add to a GRSync
+	   to its left, else search to the right for any object at or after that time and
+	   add to a GRSync to its left. */
 
 	pLPIL = FindLPI(doc, pt, (doc->lookVoice>=0? ANYONE : clickStaff), voice, True);
 	addToSyncL = ObjAtEndTime(doc, pLPIL, GRSYNCtype, voice, &lTime, EXACT_TIME, True);
 	if (addToSyncL) {
 
 		/* If the GRSync already has a note in the voice, create a new GRSync before
-			it. (We have already determined that we are not clicking close enough
-			to it to make a chord.) */
+		   it. (We have already determined that we are not clicking close enough to it
+		   to make a chord.) */
 
 		return AddNewGRSync(doc, addToSyncL, pt, sym, voice, clickStaff);
 	}
@@ -451,8 +451,8 @@ Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 
 
 /* --------------------------------------------------------------------- InsertArpSign -- */
-/* Insert an arpeggio sign at a place in the object list suitable for a
-mousedown at the given point. The point must be on a note (and not a rest). */
+/* Insert an arpeggio sign at a place in the object list suitable for a mousedown at the
+given point. The point must be on a note (and not a rest). */
 
 Boolean InsertArpSign(Document *doc, Point pt)
 {
@@ -471,8 +471,8 @@ Boolean InsertArpSign(Document *doc, Point pt)
 
 
 /* ------------------------------------------------------------------------ InsertLine -- */
-/* Insert a line GRAPHIC into the object list at a place in the object list
-suitable for a mousedown at the given point. Handles feedback and allows cancelling. */
+/* Insert a line GRAPHIC into the object list at a place in the object list suitable
+for a mousedown at the given point. Handles feedback and allows cancelling. */
 
 Boolean InsertLine(Document *doc, Point pt)
 {
@@ -574,11 +574,11 @@ Boolean InsertGraphic(Document *doc, Point pt)
 						&string[1])) goto Cancelled;
 		}
 		else {
-			uStyleChoice = Header2UserFontNum(doc->lastGlobalFont);
+			uStyleChoice = Internal2UIStyle(doc->lastGlobalFont);
 			if (!TextDialog(doc, &uStyleChoice, &newRelSize, &newSize, &newStyle,
 							&newEncl, &newLyric, &newExpanded, newFont, string, &context))
 				goto Cancelled;
-			hStyleChoice = User2HeaderFontNum(doc, uStyleChoice);
+			hStyleChoice = UI2InternalStyle(doc, uStyleChoice);
 		}
 		NewGraphic(doc, pt, palChar, NOONE, voice, 0, newRelSize, newSize, newStyle,
 					newEncl, 0, newLyric, newExpanded, newFont, string, hStyleChoice);
@@ -645,11 +645,11 @@ Boolean InsertGraphic(Document *doc, Point pt)
 			case GRString:
 				GetContext(doc, pL, clickStaff, &context);
 				*string = 0;
-				uStyleChoice = Header2UserFontNum(doc->lastGlobalFont);
+				uStyleChoice = Internal2UIStyle(doc->lastGlobalFont);
 				if (!TextDialog(doc, &uStyleChoice, &newRelSize, &newSize, &newStyle,
 								&newEncl, &newLyric, &newExpanded, newFont, string, &context))
 					goto Cancelled;
-				hStyleChoice = User2HeaderFontNum(doc, uStyleChoice);
+				hStyleChoice = UI2InternalStyle(doc, uStyleChoice);
 				break;
 			case GRMIDIPatch:
 				Pstrcpy((StringPtr)string, (StringPtr)lastMPStr);

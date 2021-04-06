@@ -2,14 +2,17 @@
 
 #pragma options align=mac68k
 
-/* format of 'chgd' resource */
+/* Format of 'chgd' (character grid) resource */
+
 typedef struct {
 	short			numChars;				/* size of chars[] */
 	unsigned char	numColumns;
 	char			filler;
-	short			fontSize;				/* font containing popup chars */
-	unsigned char	fontName[];				/* even (including length byte) Pascal string */
-	/* numChar bytes follow */
+	short			fontSize;				/* popup char. font size */
+	unsigned char	fontName[];				/* even length (incl. length byte) Pascal string */
+
+	/* numChar bytes follow. */
+
 } CHARGRID, *PCHARGRID, **HCHARGRID;
 
 typedef struct {
@@ -20,8 +23,8 @@ typedef struct {
 	short			fontSize;
 	unsigned char	numRows;
 	unsigned char	numColumns;
-	short			numItems;					/* size of itemChars[] */
-	char			*itemChars;					/* 0-based array */
+	short			numItems;				/* size of itemChars[] */
+	char			*itemChars;				/* 0-based array */
 } GRAPHIC_POPUP, *PGRAPHIC_POPUP;
 
 typedef struct {

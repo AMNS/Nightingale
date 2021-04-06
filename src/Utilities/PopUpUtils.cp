@@ -77,7 +77,7 @@ Boolean InitGPopUp(
 #if 0
 		Pstrcpy(chgdP->fontName, "\pABCD");
 		NHexDump(LOG_DEBUG, "InitGPopUp1: chgdP->fontName", chgdP->fontName, 16, 4, 16);
-#else
+#elif 0
 		Pstrcpy((unsigned char *)fontNameC, chgdP->fontName);
 		NHexDump(LOG_DEBUG, "InitGPopUp2: chgdP->fontName", chgdP->fontName, 16, 4, 16);
 		NHexDump(LOG_DEBUG, "InitGPopUp3: fontNameC", (unsigned char *)fontNameC, 16, 4, 16);
@@ -88,6 +88,10 @@ Boolean InitGPopUp(
 		LogPrintf(LOG_DEBUG, "InitGPopUp>: numItems=%d numColumns=%d fontSize=%d fontNameC='%s'\n",
 					p->numItems, p->numColumns, p->fontSize, fontNameC);
 		NHexDump(LOG_DEBUG, "InitGPopUp5: fontNameC", (unsigned char *)fontNameC, 16, 4, 16);
+#else
+		Pstrcpy((unsigned char *)fontNameC, chgdP->fontName);
+		LogPrintf(LOG_DEBUG, "InitGPopUp>: numItems=%d numColumns=%d fontSize=%d fontNameC='%s'\n",
+					p->numItems, p->numColumns, p->fontSize, PToCString((unsigned char *)fontNameC));
 #endif
 	}
     if (p->itemChars==NULL) {
@@ -109,17 +113,17 @@ Boolean InitGPopUp(
 	/* Get popup font number and characteristics */
 	
 	NHexDump(LOG_DEBUG, "InitGPopUp7: chgdP->fontName", chgdP->fontName, 16, 4, 16);
-#define NoHORRIBLE_KLUDGE
-#ifdef HORRIBLE_KLUDGE
-	short fontNum;  GetFNum("\p%popDurs", &fontNum);
-	p->fontNum = (short)fontNum;
+#define NoKLUDGE
+#ifdef KLUDGE
+	short fontNum;
+	if (GetFontNumber("\p%popDurs", &fontNum))	p->fontNum = (short)fontNum;
+	else										p->fontNum = kInvalidFontFamily;
 #else
-	//FMFontFamily fff = FMGetFontFamilyFromName(chgdP->fontName);
-	//FMFontFamily fff = FMGetFontFamilyFromName("\p%popDurs");
-	FMFontFamily fff = FMGetFontFamilyFromName("\pCourier");
+	//FMFontFamily fff = FMGetFontFamilyFromName(chgdP->fontName);	/* CORRECT */
+	FMFontFamily fff = FMGetFontFamilyFromName("\p%popDurs");		/* KLUDGE */
+	//FMFontFamily fff = FMGetFontFamilyFromName("\pCourier");		/* TEST */
 	p->fontNum = (short)fff;
 #endif
-LogPrintf(LOG_DEBUG, "InitGPopUpX: p->fontNum=%d\n", p->fontNum);
 
 	HUnlock(resH);
 	ReleaseResource(resH);

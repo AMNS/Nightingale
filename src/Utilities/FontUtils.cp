@@ -11,46 +11,60 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
+/* Fill score header's fontTable, which maps internal font numbers to system font
+numbers for the computer we're running on, by running through all the fonts the
+system knows about and looking fo matches to the desired font names. */
+
 void EnumerateFonts(Document *doc)
 {
-	FMFontFamilyIterator         fontFamilyIterator;
-	FMFontFamilyInstanceIterator fontFamilyInstanceIterator;
-	FMFontFamily                 fontFamily;
-	OSStatus					status;
-	Str255						fontFamilyName;
+	FMFontFamilyIterator			fontFamilyIterator;
+	FMFontFamilyInstanceIterator	fontFamilyInstanceIterator;
+	FMFontFamily					fontFamily;
+	OSStatus						status;
+	Str255							fontFamilyName;
 	
 	for (short j = 0; j<doc->nfontsUsed; j++)
 		doc->fontTable[j].fontID = -1;
 		
-	/* Create a dummy instance iterator here to avoid creating and destroying it in
-	   the loop. */
+	/* Create dummy instance iterator to avoid creating and destroying it in the loop. */
 	   
 	status = FMCreateFontFamilyInstanceIterator(0, &fontFamilyInstanceIterator);
 
-	/* Create an iterator to enumerate the font families and interate away. */
+	/* Create an iterator to enumerate the font families, and interate away. */
 	
 	status = FMCreateFontFamilyIterator(NULL, NULL, kFMDefaultOptions, 
 											&fontFamilyIterator);
-
 	while ( (status = FMGetNextFontFamily(&fontFamilyIterator, &fontFamily)) == noErr) {
-		status = FMGetFontFamilyName (fontFamily, fontFamilyName);
+		status = FMGetFontFamilyName(fontFamily, fontFamilyName);
+#define DEBUG_FONT_PROBLEMS
+#ifdef DEBUG_FONT_PROBLEMS
+		if (MORE_DETAIL_SHOW) {
+			char fontFNameC[256];
 
+			Pstrcpy((unsigned char *)fontFNameC, fontFamilyName);
+			LogPrintf(LOG_DEBUG, "EnumerateFonts: fondID=%d fontFamilyName='%s'\n",
+							fontFamily, PToCString((unsigned char *)fontFNameC));
+							
+			/* Sidestep weird bug/limitation of OS 10.5 and 10.6 Console utility. See
+			   comments in ConvertObjSubobjs(). */
+		   
+			SleepMS(3);
+		}
+#endif
 		for (short j = 0; j<doc->nfontsUsed; j++)
 			if (Pstrneql((StringPtr)doc->fontTable[j].fontName,
-							 (StringPtr)fontFamilyName, 32)) {
+							(StringPtr)fontFamilyName, 32)) {
 				doc->fontTable[j].fontID = fontFamily;
 		}
 	}
 
-	if (status != noErr && status != kFMIterationCompleted) {
+	if (status!=noErr && status!=kFMIterationCompleted) {
 	
-		/* Invalidate all the font references */
+		/* Something went wrong. Invalidate all the font references. */
 		
 		for (short j = 0; j<doc->nfontsUsed; j++)
 			doc->fontTable[j].fontID = -1;		
 	}
-
-	/* Dispose of the iterators. */
 	
 	FMDisposeFontFamilyIterator (&fontFamilyIterator);
 	FMDisposeFontFamilyInstanceIterator (&fontFamilyInstanceIterator);
@@ -158,11 +172,9 @@ Boolean FontID2Name(Document *doc, short fontID, StringPtr fontName)
 }
 
 
-/* -------------------------------------------- User2HeaderFontNum, Header2UserFontNum -- */
+/* -------------------------------------------- UI2InternalStyle, Internal2UIStyle -- */
 
-/* FIXME: These names are dumb! Change 'em to User2StyleFontNum and Style2UserFontNum. */
-
-short User2HeaderFontNum(Document */*doc*/, short styleChoice)
+short UI2InternalStyle(Document */*doc*/, short styleChoice)
 {
 	switch (styleChoice) {
 		case TSRegular1STYLE:
@@ -186,14 +198,14 @@ short User2HeaderFontNum(Document */*doc*/, short styleChoice)
 		case TSThisItemOnlySTYLE:
 			return FONT_THISITEMONLY;
 		default:
-			MayErrMsg("User2HeaderFontNum: styleChoice %ld is illegal", (long)styleChoice);
+			MayErrMsg("UI2InternalStyle: styleChoice %ld is illegal", (long)styleChoice);
 			return FONT_THISITEMONLY;
 	}
 }
 
-short Header2UserFontNum(short globalFontIndex)
+short Internal2UIStyle(short styleIndex)
 {
-	switch (globalFontIndex) {
+	switch (styleIndex) {
 		case FONT_R1:
 			return TSRegular1STYLE;
 		case FONT_R2:
@@ -215,8 +227,7 @@ short Header2UserFontNum(short globalFontIndex)
 		case FONT_THISITEMONLY:
 			return TSThisItemOnlySTYLE;
 		default:
-			MayErrMsg("Header2UserFontNum: globalFontIndex %ld is illegal",
-						(long)globalFontIndex);
+			MayErrMsg("Internal2UIStyle: styleIndex %ld is illegal", (long)styleIndex);
 			return TSThisItemOnlySTYLE;
 	}
 }

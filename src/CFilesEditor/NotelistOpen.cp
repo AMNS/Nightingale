@@ -971,7 +971,7 @@ static Boolean SetDefaultCoords(Document *doc)
 				}
 				else {
 					pGraphic = GetPGRAPHIC(pL);
-					textStyle = Header2UserFontNum(pGraphic->info);
+					textStyle = Internal2UIStyle(pGraphic->info);
 					switch (textStyle) {
 						case TSRegular2STYLE:						/* for dynamics faked with graphics (see ConvertDynamic) */
 							height = DFLT_DYNAMIC_HEIGHT;

@@ -220,8 +220,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean		GetFontNumber(const Str255, short *);
 	short		FontName2Index(Document *, StringPtr);
 	Boolean		FontID2Name(Document *doc, short fontID, StringPtr fontName);
-	short		User2HeaderFontNum(Document *, short);
-	short		Header2UserFontNum(short);
+	short		UI2InternalStyle(Document *, short);
+	short		Internal2UIStyle(short);
 
 /* HairpinEdit.c, DragDynamic.c */
 

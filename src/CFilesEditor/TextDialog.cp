@@ -721,7 +721,7 @@ static short GetStrFontStyle(Document *doc, short styleChoice)
 {
 	short globalFontIndex;
 
-	globalFontIndex = User2HeaderFontNum(doc, styleChoice);
+	globalFontIndex = UI2InternalStyle(doc, styleChoice);
 
 	switch (globalFontIndex) {
 		case FONT_R1:
@@ -1032,7 +1032,7 @@ Boolean TextDialog(
 		theExpanded = *expanded;
 	}
 	 else {
-	 	currentStyle = Header2UserFontNum(doc->lastGlobalFont);
+	 	currentStyle = Internal2UIStyle(doc->lastGlobalFont);
 	 	TSSetCurrentStyle(currentStyle);
 		Pstrcpy((StringPtr)name, (StringPtr)theCurrent.fontName);
 		theExpanded = False;
@@ -1351,7 +1351,7 @@ Boolean TextDialog(
 		GetDialogItem(dlog, EDIT25_Text, &type, &hndl, &box);
 		GetDialogItemText(hndl, string);
 
-		doc->lastGlobalFont = User2HeaderFontNum(doc, currentStyle);
+		doc->lastGlobalFont = UI2InternalStyle(doc, currentStyle);
 	}
 broken:
 	DisposePopUp(&popup4);

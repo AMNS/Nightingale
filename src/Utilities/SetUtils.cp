@@ -1026,7 +1026,7 @@ Boolean SetSelGraphicStyle(
 						pGraphic = GetPGRAPHIC(pL);
 						pGraphic->fontInd = fontInd;
 					}
-					info = User2HeaderFontNum(doc, styleChoice);
+					info = UI2InternalStyle(doc, styleChoice);
 					pGraphic = GetPGRAPHIC(pL);
 					pGraphic->info = info;
 					didAnything = True;

@@ -3207,3 +3207,11 @@ Minor changes. Affects About, DialogUtils, EndianUtils, FileConversion, HeapFile
 
 Minor changes: consolidate font-handling functions, etc. Affects NightTemplates.h,
 Utility.h; Error, FileOpen, FontUtils, InitNightingale, PopUpUtils, Utility.
+
+---------------------------------------------------------------------------------------
+
+27 Mar. - 5 Apr.
+
+Minor changes. Affects DurationPopUp.h, NightTemplates.h; Check, DialogsEditor,
+DrawObject, FlowInText, FileConversion, FileUtils, FontUtils, Insert, InternalInput,
+NotelistOpen, PopUpUtils, SetUtils, TextDialog.

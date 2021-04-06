@@ -1105,7 +1105,7 @@ PushLock(GRAPHICheap);
 						enclosure = p->enclosure;
 						lyric = (p->graphicType==GRLyric? True : False);
 						expanded = (p->info2!=0);
-						styleChoice = Header2UserFontNum(p->info);
+						styleChoice = Internal2UIStyle(p->info);
 						change = TextDialog(doc, &styleChoice, &relFSize, &fontSize,
 												&fontStyle, &enclosure, &lyric, &expanded,
 												newFont, string, pContext);
@@ -1142,7 +1142,7 @@ PushLock(GRAPHICheap);
 							p->fontStyle = fontStyle;
 							p->enclosure = enclosure;
 							p->fontInd = newFontIndex;
-							p->info = User2HeaderFontNum(doc, styleChoice);
+							p->info = UI2InternalStyle(doc, styleChoice);
 							p->info2 = (expanded? 1 : 0);
 
 							p->multiLine = False;

@@ -592,7 +592,7 @@ PushLock(OBJheap);
 
 		pGraphic->selected = False;
 		pGraphic->justify = GRJustLeft;
-		pGraphic->info = User2HeaderFontNum(doc, font);
+		pGraphic->info = UI2InternalStyle(doc, font);
 	}
 	else
 		NoMoreMemory();
@@ -895,7 +895,7 @@ done:
 void DoTextFlowIn(Document *doc)
 {
 	short theFont=0;			/* NB: this is itemNumber of text style popup in FlowInDialog! 
-								for use in 1 call to User2HeaderFontNum. */
+								for use in 1 call to UI2InternalStyle. */
 	TEXTSTYLE style;
 
 	if (!FlowInDialog(doc, &theFont)) return;
@@ -1104,7 +1104,7 @@ static short CreateHyphenRun(
 			short		v,				/* Attach hyphen graphics to syncs in this voice */
 			DDIST		hyphenWid,		/* width of hyphen char in context of first syllable */
 			short		pitchLev,		/* halfLine pos of first syllable */
-			short		theFont,		/* for User2HeaderFontNum call in InsertNewGraphic */
+			short		theFont,		/* for UI2InternalStyle call in InsertNewGraphic */
 			TEXTSTYLE	theStyle,		/* style properties of first syllable */
 			DDIST		dMaxHyphenDist	/* Maximum horiz. space one hyphen can span */
 			)

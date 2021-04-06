@@ -411,7 +411,7 @@ static void DrawPartName(Document *doc, LINK staffL,
 
 
 /* --------------------------------------------------------------------- DrawInstrInfo -- */
-/* If the given staff is the first staff of its part, draw the part's instrument
+/* If the given staff is the first staff of its part, draw the part's instrument   
 information across the left end of the staff. Intended for use in Master Page. */
 
 #define MIN_INSTRINFO_HT 6		/* Min. staff ht to show instr. info (pixels) */
