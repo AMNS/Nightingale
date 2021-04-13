@@ -56,7 +56,8 @@ enum {
 	LASTTYPE_ERR,				/* Value for LASTtype in file is not we expect it to be */
 	TOOMANYSTAVES_ERR,
 	LOWMEM_ERR,
-	BAD_VERSION_ERR
+	BAD_VERSION_ERR,
+	STROFFSET_ERR				/* headerStrOffset or footerStrOffset exceeds stringPoolSize */
 };
 
 
@@ -215,12 +216,12 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (doc->headerStrOffset > stringPoolSize) {
 		LogPrintf(LOG_ERR, "headerStrOffset is %ld but stringPoolSize is only %ld.  (OpenFile)\n",
 					doc->headerStrOffset, stringPoolSize);
-		errInfo = STRINGobj; goto Error;
+		errCode = STROFFSET_ERR;  errInfo = STRINGobj;  goto Error;
 	}
 	if (doc->footerStrOffset > stringPoolSize) {
 		LogPrintf(LOG_ERR, "footerStrOffset is %ld but stringPoolSize is only %ld.  (OpenFile)\n",
 					doc->footerStrOffset, stringPoolSize);
-		errInfo = STRINGobj; goto Error;
+		errCode = STROFFSET_ERR;  errInfo = STRINGobj;  goto Error;
 	}
 	if (doc->stringPool) DisposeStringPool(doc->stringPool);
 	

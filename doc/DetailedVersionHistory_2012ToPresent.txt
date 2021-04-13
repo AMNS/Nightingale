@@ -3205,7 +3205,7 @@ Minor changes. Affects About, DialogUtils, EndianUtils, FileConversion, HeapFile
 
 20 - 26 Mar.
 
-Minor changes: consolidate font-handling functions, etc. Affects NightTemplates.h,
+Minor changes: consolidated font-handling functions, etc. Affects NightTemplates.h,
 Utility.h; Error, FileOpen, FontUtils, InitNightingale, PopUpUtils, Utility.
 
 ---------------------------------------------------------------------------------------
@@ -3215,3 +3215,14 @@ Utility.h; Error, FileOpen, FontUtils, InitNightingale, PopUpUtils, Utility.
 Minor changes. Affects DurationPopUp.h, NightTemplates.h; Check, DialogsEditor,
 DrawObject, FlowInText, FileConversion, FileUtils, FontUtils, Insert, InternalInput,
 NotelistOpen, PopUpUtils, SetUtils, TextDialog.
+
+---------------------------------------------------------------------------------------
+
+8 - 12 Apr.
+
+Fixed bug: on opening a file, headerStrOffset or footerStrOffset exceeding stringPoolSize
+should be a fatal error; it gives the correct error message but continues trying to
+open the file anyway. Affects FileOpen.
+
+Minor changes. Affects Defs.h, NightTemplates.h; CoreMIDIUtils, FileOpen, FileUtils,
+FontUtils, Initialize, InitNightingale, PopUpUtils, Utility.

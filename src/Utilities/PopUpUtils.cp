@@ -59,9 +59,10 @@ Boolean InitGPopUp(
 	unsigned char	*itemChars;
 	GrafPtr			gp;
 	FontInfo		finfo;
+	Str63			fontName;
 	char			fontNameC[256];
 	
-	p->menu = NULL;	p->itemChars = NULL;		/* in case init fails but DisposeGPopUp(p) called anyway */
+	p->menu = NULL;	 p->itemChars = NULL;		/* in case init fails but DisposeGPopUp(p) called anyway */
 	
 	/* Copy info from 'chgd' resource into popup struct */
 	
@@ -73,6 +74,17 @@ Boolean InitGPopUp(
 	p->numColumns = chgdP->numColumns;
 	p->fontSize = chgdP->fontSize;		FIX_END(p->fontSize);
 	p->itemChars = (char *)NewPtr((Size)p->numItems);
+	
+	/* Choose a compiled-in fontname based on chgdP->fontName. We formerly used
+	chgdP->fontName as the fontname; we no longer do because of we had a great deal
+	of trouble with the UI fonts, so we wanted to check and report on their availability
+	when Nightingale starts up, but getting the fontnames there is surprisingly messy
+	-- more trouble than it's worth. */
+	
+	Pstrcpy((unsigned char *)fontNameC, chgdP->fontName);
+	PToCString((unsigned char *)fontNameC);
+	if (strstr(fontNameC, "dur"))	Pstrcpy(fontName, DUR_MENU_FONTNAME);
+	else							Pstrcpy(fontName, DYNMOD_MENU_FONTNAME);
 	if (DETAIL_SHOW) {
 #if 0
 		Pstrcpy(chgdP->fontName, "\pABCD");
@@ -89,8 +101,8 @@ Boolean InitGPopUp(
 					p->numItems, p->numColumns, p->fontSize, fontNameC);
 		NHexDump(LOG_DEBUG, "InitGPopUp5: fontNameC", (unsigned char *)fontNameC, 16, 4, 16);
 #else
-		Pstrcpy((unsigned char *)fontNameC, chgdP->fontName);
-		LogPrintf(LOG_DEBUG, "InitGPopUp>: numItems=%d numColumns=%d fontSize=%d fontNameC='%s'\n",
+		Pstrcpy((unsigned char *)fontNameC, fontName);
+		LogPrintf(LOG_DEBUG, "InitGPopUp: numItems=%d numColumns=%d fontSize=%d fontNameC='%s'\n",
 					p->numItems, p->numColumns, p->fontSize, PToCString((unsigned char *)fontNameC));
 #endif
 	}
@@ -101,10 +113,9 @@ Boolean InitGPopUp(
         return False;
     }
 
-	NHexDump(LOG_DEBUG, "InitGPopUp6: chgdP->fontName", chgdP->fontName, 16, 4, 16);
-	fontNameLen = chgdP->fontName[0] + 1;
+	fontNameLen = fontName[0] + 1;
 	if (odd(fontNameLen)) fontNameLen++;
-	itemChars = chgdP->fontName + fontNameLen;
+	itemChars = fontName + fontNameLen;
 
 	for (i=0; i<p->numItems; i++)
 		p->itemChars[i] = itemChars[i];
@@ -112,24 +123,15 @@ Boolean InitGPopUp(
 	
 	/* Get popup font number and characteristics */
 	
-	NHexDump(LOG_DEBUG, "InitGPopUp7: chgdP->fontName", chgdP->fontName, 16, 4, 16);
-#define NoKLUDGE
-#ifdef KLUDGE
-	short fontNum;
-	if (GetFontNumber("\p%popDurs", &fontNum))	p->fontNum = (short)fontNum;
-	else										p->fontNum = kInvalidFontFamily;
-#else
-	//FMFontFamily fff = FMGetFontFamilyFromName(chgdP->fontName);	/* CORRECT */
-	FMFontFamily fff = FMGetFontFamilyFromName("\p%popDurs");		/* KLUDGE */
-	//FMFontFamily fff = FMGetFontFamilyFromName("\pCourier");		/* TEST */
+//NHexDump(LOG_DEBUG, "InitGPopUp7: fontName", fontName, 16, 4, 16);
+	FMFontFamily fff = FMGetFontFamilyFromName(fontName);
 	p->fontNum = (short)fff;
-#endif
 
 	HUnlock(resH);
 	ReleaseResource(resH);
 
 	if (p->fontNum==kInvalidFontFamily) {
-		Pstrcpy((unsigned char *)fontNameC, chgdP->fontName);
+		Pstrcpy((unsigned char *)fontNameC, fontName);
 		PToCString((unsigned char *)fontNameC);
 		LogPrintf(LOG_WARNING, "Can't create the graphic pop-up. The font '%s' isn't available.  (InitGPopUp)\n",
 					fontNameC);
@@ -286,6 +288,7 @@ Boolean DoGPopUp(PGRAPHIC_POPUP p)
 	/* Get local position of mouse to decide if we're over popup arrow. FIXME: This
 	   should come from the mousedown event that caused DoGPopUp, because mouse could
 	   move between that event and now!! */
+	   
 	GetMouse(&mPt);
 #endif
 
@@ -390,6 +393,7 @@ void TruncPopUpString(UserPopUp *p)
 	space = p->bounds.right - p->bounds.left - (L_MARGIN+R_MARGIN);
 
 	/* We want the StringWidth ignoring trailing blanks */
+	
 	len = *(unsigned char *)p->str;
 	while (len > 0) if (p->str[len]!=' ') break; else len--;
 	*p->str = len;
@@ -439,7 +443,7 @@ short InitPopUp(
 }
 
 
-/* Invoke a popup menu; return True if new choice was made */
+/* Invoke a popup menu; return True if a new choice was made. */
 
 short DoUserPopUp(UserPopUp *p)
 {
@@ -465,8 +469,8 @@ short DoUserPopUp(UserPopUp *p)
 
 
 /* Change a given popup to a given choice, regardless of the current popup choice.
-This means unchecking the old choice, if any, and checking the new one, resetting
-the display string, and redisplaying. */
+This means unchecking the old choice, if any, and checking the new one, resetting the
+display string, and redisplaying. */
 
 void ChangePopUpChoice(UserPopUp *p, short choice)
 {
@@ -498,12 +502,13 @@ void HilitePopUp(UserPopUp *p, short activ)
 	EraseRect(&p->box);
 
 	/* Redraw the menu string */
+	
 	MoveTo(p->bounds.left+L_MARGIN,p->bounds.bottom-B_MARGIN);
 	DrawString(p->str);
 	DrawPUpTriangle(&p->bounds);
 
 	if (activ) {
-		PenPat(NGetQDGlobalsGray()); PenSize(2,1);
+		PenPat(NGetQDGlobalsGray());  PenSize(2,1);
 		FrameRect(&p->box);			
 		PenNormal();
 	}
@@ -559,9 +564,9 @@ void ShowPopUp(UserPopUp *p, short vis)
 			}	
 			break;
 	}			
-	p->bounds = p->box; InsetRect(&p->bounds,-1,-1);
+	p->bounds = p->box;  InsetRect(&p->bounds,-1,-1);
 	p->shadow = p->bounds;
-	p->shadow.right++; p->shadow.bottom++;
+	p->shadow.right++;  p->shadow.bottom++;
 }
 
 

@@ -1,16 +1,20 @@
 NIGHTINGALE CONVENTIONS FOR MODIFIER KEYS
 Nightingale Technical Note #9
-Don Byrd, December 1999; rev. mid May 2020
+Don Byrd, December 1999; rev. early April 2021
 
-This key combination is used in a consistent way:
+These key combinations are used in a consistent way:
 
-Shift-control
+Shift-control [#define DETAIL_SHOW]
 			Display additional information, mostly for debugging, and normally in the
 			system log file (accessible via the Console utility), but for PostScript
 			printing, on the printed page.
 
-Here are the conventions for keys used alone, but there are many exceptions, especially
-in debug code.
+Shift-control-option [#define MORE_DETAIL_SHOW]
+			Display further information, mostly for debugging, in the system log file
+			(accessible via the Console utility).
+
+These are the conventions for keys used alone; but there are many exceptions,
+especially in debug code.
 
 Caps lock	Use sparingly, and NEVER in public versions! Often for break into the
 			old low-level debugger; otherwise all bets are off.
@@ -24,11 +28,13 @@ Control		Skip checks to disallow situations where Ngale may have problems: e.g.,
 
 Option		Not often used alone outside debug code. In flow-in text, repeat the last
 			word; in editing slurs, move the other endpoint or control point
-			symmetrically. In Browser, jump to the first or last object of the type
+			symmetrically. When invoking Browser, browse Master Page object list;
+			within Browser, jump to the first or last object of the type
 			(middle left and right buttons) or subobject of the object (up and down
 			buttons).
 
-Shift		In Browser, select only current subobject, if there is one. Elsewhere,
-			constrain: e.g., in dragging, to horizontal or vertical motion only. (This
-			is pretty much standard Mac OS usage.)
+Shift		When invoking Browser, browse Undo object list; within Browser, select
+			only current subobject, if there is one. Elsewhere, constrain: e.g., in
+			dragging, to horizontal or vertical motion only. (This is pretty much
+			standard Mac OS usage.)
 			

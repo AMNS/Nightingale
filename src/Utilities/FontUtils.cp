@@ -11,11 +11,43 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
+void DisplayAvailableFonts(void)
+{
+	FMFontFamilyIterator			fontFamilyIterator;
+	FMFontFamilyInstanceIterator	fontFamilyInstanceIterator;
+	FMFontFamily					fontFamily;
+	OSStatus						status;
+	Str255							fontFamilyName;
+
+	/* Create dummy instance iterator to avoid creating and destroying it in the loop. */
+	   
+	status = FMCreateFontFamilyInstanceIterator(0, &fontFamilyInstanceIterator);
+
+	/* Create an iterator to enumerate the font families, and interate away. */
+	
+	status = FMCreateFontFamilyIterator(NULL, NULL, kFMDefaultOptions, 
+											&fontFamilyIterator);
+	while ( (status = FMGetNextFontFamily(&fontFamilyIterator, &fontFamily)) == noErr) {
+		status = FMGetFontFamilyName(fontFamily, fontFamilyName);
+		char fontFNameC[256];
+
+		Pstrcpy((unsigned char *)fontFNameC, fontFamilyName);
+		LogPrintf(LOG_DEBUG, "DisplayAvailableFonts: fondID=%d fontFamilyName='%s'\n",
+						fontFamily, PToCString((unsigned char *)fontFNameC));
+						
+		/* Sidestep weird bug/limitation of OS 10.5 and 10.6 Console utility. See
+		   comments in ConvertObjSubobjs(). */
+	   
+		SleepMS(3);
+	}
+}
+
+
 /* Fill score header's fontTable, which maps internal font numbers to system font
 numbers for the computer we're running on, by running through all the fonts the
-system knows about and looking fo matches to the desired font names. */
+system knows about and looking for matches to the desired font names. */
 
-void EnumerateFonts(Document *doc)
+void EnumerateDocumentFonts(Document *doc)
 {
 	FMFontFamilyIterator			fontFamilyIterator;
 	FMFontFamilyInstanceIterator	fontFamilyInstanceIterator;
@@ -36,21 +68,6 @@ void EnumerateFonts(Document *doc)
 											&fontFamilyIterator);
 	while ( (status = FMGetNextFontFamily(&fontFamilyIterator, &fontFamily)) == noErr) {
 		status = FMGetFontFamilyName(fontFamily, fontFamilyName);
-#define DEBUG_FONT_PROBLEMS
-#ifdef DEBUG_FONT_PROBLEMS
-		if (MORE_DETAIL_SHOW) {
-			char fontFNameC[256];
-
-			Pstrcpy((unsigned char *)fontFNameC, fontFamilyName);
-			LogPrintf(LOG_DEBUG, "EnumerateFonts: fondID=%d fontFamilyName='%s'\n",
-							fontFamily, PToCString((unsigned char *)fontFNameC));
-							
-			/* Sidestep weird bug/limitation of OS 10.5 and 10.6 Console utility. See
-			   comments in ConvertObjSubobjs(). */
-		   
-			SleepMS(3);
-		}
-#endif
 		for (short j = 0; j<doc->nfontsUsed; j++)
 			if (Pstrneql((StringPtr)doc->fontTable[j].fontName,
 							(StringPtr)fontFamilyName, 32)) {

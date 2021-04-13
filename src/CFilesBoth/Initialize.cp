@@ -1171,7 +1171,7 @@ static Boolean GetConfig()
 
 		EndianFixConfig();
 		
-		if (OptionKeyDown() && ControlKeyDown()) {
+		if (OptionKeyDown() && ControlKeyDown() && CmdKeyDown()) {
 			GetIndCString(strBuf, INITERRS_STRS, 11);		/* "Skipping checking the CNFG" */
 			CParamText(strBuf, "", "", "");
 			NoteInform(GENERIC_ALRT);

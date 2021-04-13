@@ -9515,10 +9515,10 @@ With Resorcerer, change font name from "%popDurs" to "popDursN" in 'chgd' 139
 -- exactly as expected. In Nightingale.rsrc, change the name of 'fond' 32303 from
 "%popDurs" to "popDursN", try again => no change. That makes sense because an actual font
 resource with that name doesn't exist. NFNT "%popDurs" is in NightingaleUIFonts, a copy of
-NFonts.rsrc; change its name to "popDursN" => no change, and FontBook doesn't show it,
+NFonts.rsrc; change its name to "popDursN" => no change, and Font Book doesn't show it,
 even after restarting. Likewise with  "%popDynMod" => "popDynModN". Rename
-"NightingaleUIFonts" to "Nightingale2021UIFonts"; use FontBook's Add Fonts command on it
-=> "popDursN" & "popDynModN" still don't appear in FontBook. Ugh.
+"NightingaleUIFonts" to "Nightingale2021UIFonts"; use Font Book's Add Fonts command on it
+=> "popDursN" & "popDynModN" still don't appear in Font Book. Ugh.
 
 Add to InitGPopUp:
 
@@ -9602,17 +9602,17 @@ a great solution :-| .
 
 Another try at adding popDursN & popDynModN: I changed the NFNT names from the originals
 with %'s in Nightingale2021UIFonts, but not the FONDs! Use Resorcerer to fix that; use
-FontBook's Add Fonts command => no change. Why? Use FontBook's Validate File command on
+Font Book's Add Fonts command => no change. Why? Use Font Book's Validate File command on
 Nightingale2021UIFonts => it says, for popDursN, the NFNT is OK;the FOND's "font
 association usability" has a serious error, but otherwise is OK. The same thing for
 popDynModN. What can I do about "font association usability"??
 
-$%*^&&^)_^$)*)*^&*&%^  Presumably as a result of my messing around with FontBook, my G5
+$%*^&&^)_^$)*)*^&*&%^  Presumably as a result of my messing around with Font Book, my G5
 now has the same problem as my MacBook! So Set Duration, edit tempo mark/MM, etc., are now
 virtually unusable on the G5 too :-( .
 
 Web search finds lots of people with the same problem, starting with OS 10.5.x. What
-happens on OS 10.14? Try on my MacBook => FontBook's Validate File  says exactly the same
+happens on OS 10.14? Try on my MacBook => Font Book's Validate File  says exactly the same
 thing about Nightingale2021UIFonts! Good; more likely I can find a solution.
 
 ---------------------------------------------------------------------------------------
@@ -9667,3 +9667,78 @@ Check my MAC MINI: In Font Book, Validate File AllNightingaleFontStuff_2002/Nigh
 (mod. July28, 2001 at 12:48 PM) => 2 minor problems -- but it doesn't look like any of the
 three UI fonts are there, only Sonata plus 'NFNT' 4371, whatever that is.
  
+---------------------------------------------------------------------------------------
+
+7 - 12 April
+
+Could the problem be a conflict with font IDs? The highest IDs on my MBAir:
+
+	debug. EnumerateFonts: fondID=19464 fontFamilyName='Lucida Grande CY'
+	debug. EnumerateFonts: fondID=30742 fontFamilyName='Lucida Grande CE'
+
+On the G5:
+
+	debug. EnumerateFonts: fondID=30742 fontFamilyName='Lucida Grande CE'
+	debug. EnumerateFonts: fondID=30745 fontFamilyName='Courier CE'
+
+On Torrey's Old White MacBook:
+
+	debug. EnumerateFonts: fondID=30742 fontFamilyName='Lucida Grande CE'
+	debug. EnumerateFonts: fondID=32303 fontFamilyName='0xbfffdc98opDurs'
+	debug. EnumerateFonts: fondID=32304 fontFamilyName='0xbfffdc98opDynMod'
+	debug. EnumerateFonts: fondID=32401 fontFamilyName='LittleNight'
+
+It doesn't look like it's a font ID conflict, but it'd be easy to change them!
+
+More ideas for the UI font problem: (1) Change the font IDs to something that doesn't
+conflict w/ any existing font. (2) Get a bitmap font editor, preferably one that claims to
+work all the way thru OS 10.14, and either open and somehow repair the existing fonts, or
+recreate them.
+
+Try #1. Of the fonts EnumerateFonts finds, there are no IDs in the 30500's on any of the
+three Macs. On PPC, in NightingaleUIFontsNEW, change the ID of "%popDurs" to 30503, and
+"%popDynMod" to 30504; drag (a copy of) NightingaleUIFontsNEW into /Library/Fonts. Restart;
+DisplayAvailableFonts (formerly code in EnumerateFonts) doesn't list either, and Set
+Duration =>
+
+	Apr  9 11:25:22 DonDualG5 Ngale[169]:
+	debug. InitGPopUp7: chgdP->fontName: 08 25 70 6f   70 44 75 72   73 00 32 30   2e 2c 2a 28
+	Warning. Can't create the graphic pop-up. The font '0x38363080opDurs' isn't available.  (InitGPopUp)
+
+So that doesn't work.
+
+Grab bitmaps from T.'s Old White MacBook: SetDur_2dots.tiff, ChangeDynamic.tiff,
+and AddModifier.tiff.
+
+Try #2. There seem to be at least three bitmap font editors that run on macOS's thru 10.14:
+BitFonter 3, Glyph Designer, and bmGlyph; that's encouraging. But does that mean they
+create FONDs and NFNTs or some equivalent a C program can use (if there is any
+equivalent)? It doesn't look like it :-( .  Maybe time to try Doug McKenna's idea of 1
+April: 
+
+	Doug: I'm not entirely sure why a font is being used in the popup.  Might some kind of
+	pure bitmap work?  Could you create such a bitmap from doing a screenshot of a working
+	NGale install on some machine?
+
+	Me: I’m sure a pure bitmap would work — and I should be able to get one from the Ngale
+	for PPC on my ancient MacBook. But I haven’t given up on getting the font approach
+	working yet; I’m still gathering information.
+
+SWITCH TO: Test the old DemoNgaleScores. Cf. notes above from 19 - 26 March. On PowerPC:
+Alpher Qtet, w/ 5.8.10, looks OK & Debug is happy; w/ 5.9.x, gives an error message:
+
+	Apr 12 16:10:27 DonDualG5 Ngale[4183]:
+	info. stringPoolSize=1616  (OpenFile)
+	ERROR. footerStrOffset is 47186496 but stringPoolSize is only 1616.  (OpenFile)
+	ERROR. CAN'T OPEN THE FILE. errCode=0 errInfo=-990  (OpenError)
+
+...but opens it anyway and draws a blank page. 
+
+Larson HBD, w/ 5.8.10, looks OK & Debug is happy; w/ 5.9.x, gives an error message:
+
+	info. stringPoolSize=1086  (OpenFile)
+	ERROR. footerStrOffset is 47186532 but stringPoolSize is only 1086.  (OpenFile)
+	ERROR. CAN'T OPEN THE FILE. errCode=0 errInfo=-990  (OpenError)
+
+...but opens it anyway and draws a blank page.
+

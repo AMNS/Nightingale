@@ -582,16 +582,16 @@
 			isa = PBXGroup;
 			children = (
 				32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */,
-				D03E6E870D5F9CFB005FD177 /* CustomLDEF */,
-				D03E6E850D5F9CF6005FD177 /* CustomMDEF */,
+				D03E6AFF0D5F6E3D005FD177 /* CarbonNavServices */,
 				D03E6D4F0D5F92F2005FD177 /* CarbonPrinting */,
-				D088B8300D5FADC30028C2BC /* Utilities */,
-				D03E71210D5FA92E005FD177 /* CFilesCarbon */,
 				D03E70EC0D5FA655005FD177 /* CarbonTEField */,
 				D03E6AAB0D5F6C3D005FD177 /* CFilesBoth */,
+				D03E71210D5FA92E005FD177 /* CFilesCarbon */,
 				D03E6F2D0D5FA4F5005FD177 /* CFilesEditor */,
-				D03E6AFF0D5F6E3D005FD177 /* CarbonNavServices */,
+				D03E6E870D5F9CFB005FD177 /* CustomLDEF */,
+				D03E6E850D5F9CF6005FD177 /* CustomMDEF */,
 				15FD35C12012A11C00198184 /* MIDI */,
+				D088B8300D5FADC30028C2BC /* Utilities */,
 			);
 			name = Sources;
 			sourceTree = "<group>";

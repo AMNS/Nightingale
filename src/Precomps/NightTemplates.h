@@ -215,7 +215,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* FontUtils.c */
 
-	void		EnumerateFonts(Document *doc);
+	void		DisplayAvailableFonts(void);
+	void		EnumerateDocumentFonts(Document *doc);
 	void		GetNFontInfo(short, short, short, FontInfo *);
 	Boolean		GetFontNumber(const Str255, short *);
 	short		FontName2Index(Document *, StringPtr);

@@ -53,8 +53,8 @@ static Boolean CMAcceptPacket(MIDIPacket *pkt)
 	return False;
 }
 
-static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *connRefCon);
-static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *connRefCon)
+static void	NightCMReadProc(const MIDIPacketList *pktlist, void * /* refCon */, void * /* connRefCon */);
+static void	NightCMReadProc(const MIDIPacketList *pktlist, void * /* refCon */, void * /* connRefCon */)
 {
 //	if (CMEndOfBuffer()) return;
 		
@@ -306,10 +306,10 @@ void CMInitTimer(void)
 	NTMInit();                              /* initialize timer */
 }
 
-void CMLoadTimer(short interruptPeriod)
+void CMLoadTimer(short /* interruptPeriod */)
 {
 	if (appOwnsBITimer) {
-			;									/* There's nothing to do here. */
+			;								/* There's nothing to do here. */
 	}
 }
 
@@ -325,7 +325,7 @@ long CMGetCurTime(void)
 {
 	long time;
 
-	time = NTMGetTime();						/* use built-in */
+	time = NTMGetTime();					/* use built-in */
 	return time;
 }
 
@@ -536,7 +536,7 @@ static void CMFBNoteOffDevID(Document *doc, short noteNum, short channel, MIDIUn
 /* Start MIDI "feedback" note by sending a MIDI NoteOn command for the specified note
 and channel. */
 
-void CMFBNoteOn(Document *doc, short noteNum, short channel, short ioRefNum)
+void CMFBNoteOn(Document *doc, short noteNum, short channel, short /* ioRefNum */)
 {
 	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
@@ -549,7 +549,7 @@ void CMFBNoteOn(Document *doc, short noteNum, short channel, short ioRefNum)
 /* End MIDI "feedback" note by sending a MIDI NoteOn command for the specified note
 and channel with velocity 0 (which acts as NoteOff). */
 
-void CMFBNoteOff(Document *doc, short noteNum, short channel, short ioRefNum)
+void CMFBNoteOff(Document *doc, short noteNum, short channel, short /* ioRefNum */)
 {
 	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
@@ -652,7 +652,7 @@ void CMDebugPrintXMission()
 			Boolean ok = CMRecvChannelValid(id, j);
 			long lOk = (long)ok;
 			LogPrintf(LOG_INFO, " ch%ld:%s ", j, (lOk? "ok" : "BAD"));
-			if (j==kMaxChannels) LogPrintf(LOG_INFO, "\n");
+			if (j==kMaxChannels) LogPrintf(LOG_INFO, "  (CMDebugPrintXMission)\n");
 		}
 	}
 	
@@ -926,7 +926,7 @@ MIDIUniqueID CoreMidiGetSelectedOutputDevice(short *outputChannel)
 	return gSelectedOutputDevice;
 }
 
-OSStatus OpenCoreMidiInput(MIDIUniqueID inputDevice)
+OSStatus OpenCoreMidiInput(MIDIUniqueID /* inputDevice */)
 {
 	return noErr;
 }
@@ -1050,7 +1050,7 @@ void SetCMDeviceForPartn(Document *doc, short partn, MIDIUniqueID device)
 	doc->cmPartDeviceList[partn] = device;
 }
 
-void SetCMDeviceForPartL(Document *doc, LINK partL, short partn, MIDIUniqueID device)
+void SetCMDeviceForPartL(Document *doc, LINK /* partL */, short partn, MIDIUniqueID device)
 {
 	//short partn;
 	

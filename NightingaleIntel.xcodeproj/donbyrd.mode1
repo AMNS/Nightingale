@@ -204,7 +204,7 @@
 						<key>_historyCapacity</key>
 						<integer>0</integer>
 						<key>bookmark</key>
-						<string>1584D749261C9AB600B97E09</string>
+						<string>150A084E2624EEB900D0AF11</string>
 						<key>history</key>
 						<array>
 							<string>1559B5AD25FB8C5800A2771A</string>
@@ -214,7 +214,7 @@
 							<string>15B10D192602A6BE00592FB1</string>
 							<string>1592D12D2609046500661B3E</string>
 							<string>1592D12F2609046500661B3E</string>
-							<string>1592D1312609046500661B3E</string>
+							<string>15842CB9262074DF005DD45F</string>
 						</array>
 						<key>prevStack</key>
 						<array>
@@ -376,7 +376,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>1584D748261C9AB600B97E09</string>
+										<string>150A084D2624EEB900D0AF11</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -562,7 +562,7 @@
 											<string>15F00AEF25E826880044F479</string>
 											<string>15DBDD4025FC582F007D6DCB</string>
 											<string>1515172325FCEAF300441145</string>
-											<string>152070112609395E0060D43A</string>
+											<string>15842CB8262074DF005DD45F</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -747,9 +747,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>1584D732261C988E00B97E09</string>
+				<string>150A08462624E70700D0AF11</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>1584D733261C988E00B97E09</string>
+				<string>150A08472624E70700D0AF11</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -886,9 +886,9 @@
 	<key>WindowOrderList</key>
 	<array>
 		<string>15F6E0CD16DFC116001A5B50</string>
+		<string>1559B59825FACA0700A2771A</string>
 		<string>1C0AD2B3069F1EA900FABCE6</string>
 		<string>/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_5p9/NightingaleIntel.xcodeproj</string>
-		<string>1559B59825FACA0700A2771A</string>
 	</array>
 	<key>WindowString</key>
 	<string>748 65 938 993 0 0 1920 1058 </string>
@@ -912,7 +912,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CD0528F0623707200166675</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>&lt;No Editor&gt;</string>
+								<string></string>
 								<key>StatusBarVisibility</key>
 								<true/>
 							</dict>
@@ -929,8 +929,6 @@
 							<string>667pt</string>
 						</dict>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -970,7 +968,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>1584D73D261C98E200B97E09</string>
+				<string>150A08492624E70700D0AF11</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -1332,9 +1330,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>1584D735261C988E00B97E09</string>
+				<string>150A084A2624E70700D0AF11</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>1584D736261C988E00B97E09</string>
+				<string>150A084B2624E70700D0AF11</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

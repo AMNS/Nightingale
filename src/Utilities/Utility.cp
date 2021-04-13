@@ -655,7 +655,7 @@ void SetFont(short which)
 			TextSize(8);
 			break;
 		case 3:	
-			TextFont(32401);							/* Set to tiny LittleNight (really about 7 pt.) */
+			TextFont(TINY_PART_LABEL_FONTNUM);			/* Set to tiny LittleNight (really about 7 pt.) */
 			TextSize(9);
 			break;
 		case 4:	

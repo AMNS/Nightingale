@@ -17,21 +17,21 @@ toolbox has already been initialized and the config struct filled in. */
 // MAS
 #include "CarbonTemplates.h"
 
+static void		NExitToShell(char *msg);
 static Boolean	DoSplashScreen(void);
 static Boolean	InitAllCursors(void);
 static void		InitNightFonts(void);
 static Boolean	InitNightGlobals(void);
 static Boolean	InitTables(void);
-static void 	PrintInfo(void);
+static void 	DisplayInfo(void);
 static void 	CheckScreenFonts(void);
-static void		InitMusicFontStuff(void);
+static void		InitMusicFonts(void);
+static void 	CheckUIFonts(void);
 static Boolean	InitMIDISystem(void);
-
-static void		NExitToShell(char *msg);
 
 void InitNightingale()
 {
-	InitNightFonts();								/* Do this first to be ready for dialogs */
+	InitNightFonts();							/* Do this first to be ready for dialogs */
 
 	if (!config.fastLaunch)
 		if (!DoSplashScreen()) NExitToShell("Splash Screen");
@@ -40,8 +40,9 @@ void InitNightingale()
 	MEInitCaretSystem();
 	
 	if (!InitTables()) NExitToShell("Init Tables");
-	PrintInfo();
-	InitMusicFontStuff();
+	DisplayInfo();
+	InitMusicFonts();
+	CheckUIFonts();
 	if (!InitMIDISystem()) NExitToShell("Init MIDI");
 }
 
@@ -57,15 +58,15 @@ static void NExitToShell(char *msg)
 
 In commercial versions of Nightingale, the splash screen we displayed shows the owner's
 name and organization, to discourage illegal copying. We also checked (but didn't display)
-the copy serial number: if it's wrong, return False. */
+the copy serial number: if it was wrong, return False. */
 
 #define NAME_DI 1
 #define ABOUT_DI 2
 
 static Boolean DoSplashScreen()
 {
-	DialogPtr dlog; GrafPtr oldPort;
-	short aShort; Handle aHdl; Rect aRect;
+	DialogPtr dlog;  GrafPtr oldPort;
+	short aShort;  Handle aHdl;  Rect aRect;
 
 	GetPort(&oldPort);
 	dlog = GetNewDialog(OWNER_DLOG, NULL, BRING_TO_FRONT);
@@ -74,8 +75,8 @@ static Boolean DoSplashScreen()
 
 	GetDialogItem(dlog, NAME_DI, &aShort, &aHdl, &aRect);
 
-	/* If the owner's name and organization aren't filled in, it's no big deal:
-		they should have the default values. */
+	/* If the owner's name and organization aren't filled in, it's no big deal: they
+	   should have the default values. */
 
 	CenterWindow(GetDialogWindow(dlog), 65);
 	ShowWindow(GetDialogWindow(dlog));
@@ -84,7 +85,7 @@ static Boolean DoSplashScreen()
 	SleepTicksWaitButton(120L);							/* So user has time to read it */
 
 	HideWindow(GetDialogWindow(dlog));
-	DisposeDialog(dlog);										/* Free heap space */
+	DisposeDialog(dlog);								/* Free heap space */
 	SetPort(oldPort);
 
 	return True;
@@ -140,7 +141,12 @@ void InitNightFonts()
 	textFontSize = 12;
 	textFontSmallSize = textFontSize-3;
 
-	GetFNum("\pSonata", &sonataFontNum);				/* Get ID of Adobe Sonata font */
+	if (!GetFontNumber("\pSonata", &sonataFontNum)) {	/* Get ID of Adobe Sonata font */
+		if (CautionAdvise(MUSFONT_ALRT)==Cancel)
+			ExitToShell();
+		else
+			return;
+	}
 }
 
 
@@ -271,8 +277,7 @@ static Boolean InitMusFontTables()
 		if (!GoodResource(resH)) goto error;
 		GetResInfo(resH, &resID, &resType, resName);
 		if (ReportResError()) goto error;
-		if (resName[0]>31)					/* font name must have < 32 chars. */
-			goto error;
+		if (resName[0]>31) goto error;				/* font name must have < 32 chars. */
 		Pstrcpy(musFontInfo[index].fontName, resName);
 		GetFNum(resName, &musFontInfo[index].fontID);
 
@@ -312,7 +317,7 @@ static Boolean InitMusFontTables()
 			   bug in the Intel version of the Resource Manager is that values for yb and
 			   yt on Intel are consistently too large by 255! So correct for that. (We're
 			   only concerned with Intels and PowerPCs, so little Endian is equivalent to
-			   Intel.) */
+			   Intel.) --DAB */
 
 #if TARGET_RT_LITTLE_ENDIAN
 			yb -= 255; yt -= 255;
@@ -321,7 +326,7 @@ static Boolean InitMusFontTables()
 			//if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG,
 			//		"InitMusFontTables: ch=%c=%u yt=%d yb=%d\n", ch, ch, yt, yb);
 #endif
-			if (ch>=0 && ch<256)
+			if (ch<256)
 				SetRect(&musFontInfo[index].cBBox[ch], xl, yt, xr, yb);
 			else
 				MayErrMsg("Info on font '%s' refers to illegal char code %u.  (InitMusFontTables)\n",
@@ -336,6 +341,7 @@ static Boolean InitMusFontTables()
 	   same as with the 'BBX#' resource. */
 
 	/* Read 'MCMp' (music character mapping) info. */
+	
 	for (i = 0; i < numMusFonts; i++) {
 		resH = Get1NamedResource('MCMp', musFontInfo[i].fontName);
 		if (!GoodResource(resH)) goto error;
@@ -346,6 +352,7 @@ static Boolean InitMusFontTables()
 	}
 
 	/* Read 'MCOf' (music character x,y offset) info. */
+	
 	for (i = 0; i < numMusFonts; i++) {
 		resH = Get1NamedResource('MCOf', musFontInfo[i].fontName);
 		if (!GoodResource(resH)) goto error;
@@ -358,6 +365,7 @@ static Boolean InitMusFontTables()
 	}
 
 	/* Read 'MFEx' (music font extra) info. */
+	
 	for (i = 0; i < numMusFonts; i++) {
 		resH = Get1NamedResource('MFEx', musFontInfo[i].fontName);
 		if (!GoodResource(resH)) goto error;
@@ -427,6 +435,7 @@ static Boolean InitTables()
 		return False;
 	}
 	/* Set up MIDI modifier velocity offset and duration factor tables */
+	
 	for (i = 0; i<32; i++) {
 		modNRVelOffsets[i] = (*midiModNRH)->velocityOffsets[i];  FIX_END(modNRVelOffsets[i]);
 		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i];  FIX_END(modNRDurFactors[i]);
@@ -449,13 +458,16 @@ static Boolean InitTables()
 }
 
 
-/* Print various information for debugging. */
+/* Show various information for debugging in the log. */
 
-static void PrintInfo()
+static void DisplayInfo()
 {
-#ifndef PUBLIC_VERSION
-#ifdef IDEBUG
+#define DEBUG_FONT_PROBLEMS
+#ifdef DEBUG_FONT_PROBLEMS
+		if (MORE_DETAIL_SHOW) DisplayAvailableFonts();
+#endif
 
+#ifdef IDEBUG
 	LogPrintf(LOG_DEBUG, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
 	
 	LogPrintf(LOG_DEBUG, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
@@ -469,23 +481,14 @@ static void PrintInfo()
 	LogPrintf(LOG_DEBUG, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
 		sizeof(TEMPO), sizeof(SPACER), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
 #endif
-#endif
 }
 
 
-/* Check to see if all the desirable screen fonts are actually present. */
+/* Check if all the desirable screen fonts are actually present and report what we find. */
 
 static void CheckScreenFonts()
 {
 	unsigned short origLen, foundSizes=0;
-	short fontNum;
-
-	if (!GetFontNumber("\pSonata", &fontNum)) {
-		if (CautionAdvise(MUSFONT_ALRT)==Cancel)
-			ExitToShell();
-		else
-			return;
-	}
 
 	/* FIXME: The following comment _way_ predates OS X. What's the situation now?
 	   --DAB, Mar. 2016
@@ -522,39 +525,89 @@ static void CheckScreenFonts()
 		StopInform(GENERIC_ALRT);
 	}
 
-	if (strlen(strBuf)<=origLen) LogPrintf(LOG_INFO,
+	if (strlen(strBuf)<=origLen) LogPrintf(LOG_NOTICE,
 		"Found all %d screen sizes of the Sonata music font.  (CheckScreenFonts)\n", foundSizes);
 	else LogPrintf(LOG_WARNING, "%s (CheckScreenFonts)\n", strBuf);
 }
 
 
 /* Handle all initialization tasks relating to the music font: create an offscreen
-bitmap for drawing music characters in style other than black, and initialize screen
-fonts. */
+bitmap for drawing music characters in style other than black; and check for presence
+of and initialize screen fonts. */
 
-void InitMusicFontStuff()
+void InitMusicFonts()
 {
 	short maxPtSize;
 	
 	/* We need a grafPort large enough for the largest music character in the largest
-	possible size: rastral 0 at MAX_MAGNIFY magnification. With no magnification, the
-	best known lower bound is 60 pixels for the standard size of rastral 0, i.e., 28
-	points; however, the actual point size of rastral 0 is variable: it might even be
-	smaller than rastral 1. So, we find the largest possible point size (either rastral
-	0 or 1) and scale it by 60/28, then magnify. */
+	   possible size: rastral 0 or 1 at MAX_MAGNIFY magnification. With no magnification,
+	   the best known lower bound is 60 pixels for the standard size of rastral 0, i.e.,
+	   28 points; however, the actual point size of rastral 0 is variable: it might even
+	   be smaller than rastral 1. So, we find the largest possible point size (either
+	   rastral 0 or 1) and scale it by 60/28, then magnify. */
 	
 	maxPtSize = n_max(config.rastral0size, pdrSize[1]);
 	maxMCharWid = (60.0/28.0)*maxPtSize;
 	maxMCharWid = UseMagnifiedSize(maxMCharWid, MAX_MAGNIFY);
 	maxMCharHt = maxMCharWid;
+	
 #ifdef USE_GWORLDS
-	/* We lock the pixmap inside MakeGWorld and leave it that way. */
+	/* Lock the pixmap inside MakeGWorld and leave it that way. */
 	
 	fontPort = (GrafPtr)MakeGWorld(maxMCharWid, maxMCharHt, True);
 #else
 	fontPort = NewGrafPort(maxMCharWid, maxMCharHt);
 #endif
 	CheckScreenFonts();
+}
+
+
+/* Check if the user-interface fonts are present and report what we find. NB: Nightingale
+actually gets the names of the fonts from 'chgd' resources. The compiled-in font names
+this checks for may not be correct! But I tried to get the names from the resources;
+that mysteriously failed, and it's not worth much time, since they'll change only once
+in many blue moons. ??FIX! USE DUR_MENU_FONTNAME ETC., NOT 'chgd'!! */
+
+static void CheckUIFonts()
+{
+	short fontNum;
+	Str255 durMenuFontname, dynModMenuFontname;
+	char fontNameC[256];
+	Boolean missingFont=False;
+#if 0
+	Handle resH;
+	PCHARGRID chgdP;
+	
+	resH = Get1Resource('chgd', NODOTDUR_MENU);
+	if (resH==NULL)	return False;
+	chgdP = (PCHARGRID)*resH;
+	Pstrcpy((unsigned char *)fontNameC, chgdP->fontName);
+	ETC. ETC.
+#else
+	Pstrcpy(durMenuFontname, DUR_MENU_FONTNAME);
+	Pstrcpy(dynModMenuFontname, DYNMOD_MENU_FONTNAME);
+#endif
+
+	/* Duration font, for Set Duration command graphic pop-up (NODOTDUR_MENU & ff. resources) */
+	
+	if (!GetFontNumber(durMenuFontname, &fontNum)) {
+		Pstrcpy((unsigned char *)fontNameC, durMenuFontname);
+		LogPrintf(LOG_WARNING, "UI font '%s' for Set Duration not found.  (CheckUIFonts)\n",
+			PToCString((unsigned char *)fontNameC));
+		missingFont = True;
+	}
+
+	/* Dynamics and note modifers font, for change dynamic and Add Modifier graphic pop-ups
+	   (DYNAMIC_MENU and MODIFIER_MENU resources) */
+
+	if (!GetFontNumber(dynModMenuFontname, &fontNum)) {
+		Pstrcpy((unsigned char *)fontNameC, dynModMenuFontname);
+		LogPrintf(LOG_WARNING, "UI font '%s' for [change dynamic] & Add Modifier not found.  (CheckUIFonts)\n",
+			PToCString((unsigned char *)fontNameC));
+		missingFont = True;
+	}
+
+	if (!missingFont) LogPrintf(LOG_NOTICE, "Found all User Interface fonts.  (CheckUIFonts)\n");
 }
 
 
@@ -571,7 +624,8 @@ static Boolean InitChosenMIDISystem()
 
 Boolean InitMIDISystem()
 {
-	/* For now, only support MacOS Core MIDI */
+	/* For the foreseeable future, only support MacOS Core MIDI.  --DAB, April 2021 */
+	
 	useWhichMIDI = MIDIDR_CM;
 
 	return InitChosenMIDISystem();

@@ -14,7 +14,9 @@
 #include "CarbonPrinting.h"
 #include "FileUtils.h"
 
-/*  Created by Michel Alexandre Salim on 2/4/08. */
+/*  Created by Michel Alexandre Salim on 2/4/08.FIXME: This gets a compiler warning
+"'#' flag used with '%s' printf format", and for years it's been called only in
+MidiMap.c. Is that way Score Info always says "No midiMap"? */
 
 FILE *FSpOpenInputFile(Str255 macfName, FSSpec *fsSpec)
 {
@@ -115,7 +117,7 @@ void FillFontTable(Document *doc)
 	if (doc->nfontsUsed>MAX_SCOREFONTS || doc->nfontsUsed<0)
 		MayErrMsg("FillFontTable: %ld fonts is an illegal number.", (long)doc->nfontsUsed);
 
-	EnumerateFonts(doc);	
+	EnumerateDocumentFonts(doc);	
 
 	for (nMissing = j = 0; j<doc->nfontsUsed; j++) {
 		if (doc->fontTable[j].fontID<0) {
