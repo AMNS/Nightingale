@@ -117,7 +117,7 @@ an error code (either a system result code or one of our own codes). */
 short WriteHeaps(Document *doc, short refNum)
 {
 	LINK *firstSubLINKA=NILINK, *objA=NILINK, *modA=NILINK;
-	short errCode;
+	short errType;
 	const char *ps;
 	HEAP *myHeap;
 
@@ -134,17 +134,17 @@ short WriteHeaps(Document *doc, short refNum)
 	}
 
 	if (InitTrackingLinks(doc, &firstSubLINKA, &objA, &modA)) {
-		errCode = WriteSubHeaps(doc, refNum, firstSubLINKA, objA, modA);
-		if (!errCode) errCode = WriteObjHeap(doc, refNum, firstSubLINKA, objA);
+		errType = WriteSubHeaps(doc, refNum, firstSubLINKA, objA, modA);
+		if (!errType) errType = WriteObjHeap(doc, refNum, firstSubLINKA, objA);
 	}
 	else
-		errCode = 9999;
+		errType = 9999;
 	
 	if (firstSubLINKA) DisposePtr((Ptr)firstSubLINKA);
 	if (objA) DisposePtr((Ptr)objA);
 	if (modA) DisposePtr((Ptr)modA);
 	
-	return errCode;
+	return errType;
 }
 
 
@@ -809,7 +809,7 @@ codes). */
 
 short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 {
-	short iHp, errCode=0;
+	short iHp, errType=0;
 	Boolean isViewerFile;
 	LINK objL;
 		
@@ -818,20 +818,21 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	PrepareClips();
 	LogPrintf(LOG_INFO, "Objects and subobjects read:\n");
  	for (iHp=FIRSTtype; iHp<LASTtype-1; iHp++) {
-		errCode = ReadSubHeap(doc, refNum, version, iHp, isViewerFile);
-		if (errCode) return errCode;
+		errType = ReadSubHeap(doc, refNum, version, iHp, isViewerFile);
+		if (errType) return errType;
 	}
-	errCode = ReadObjHeap(doc, refNum, version, isViewerFile);
-	if (errCode) return errCode;
+	errType = ReadObjHeap(doc, refNum, version, isViewerFile);
+	if (errType) return errType;
 
-	/* Fix links ??WHY?. If the file is in the current format, handle the Endian issue;
-	   if it's in an old format, it could only have been written on a machine with the
-	   same Endianness as the machine we're running on -- both must be PowerPC's -- so
-	   it's not a problem. */
+	/* Fix links. This is necessary because ??WHY?I don't know! --DAB.  Then, if the
+	   file is in the current format, handle the Endian issue. If it's in format 'N105',
+	   it could only have been written on a machine with the same Endianness as the one
+	   we're running on -- both must be PowerPC's -- so no need to be concerned with
+	   Endian issues. */
 	   
-	if (version=='N105') errCode = HeapFixN105ObjLinks(doc);
+	if (version=='N105') errType = HeapFixN105ObjLinks(doc);
 	else {
-		errCode = HeapFixObjLinks(doc);
+		errType = HeapFixObjLinks(doc);
 
 for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
 	if (DETAIL_SHOW && (ObjLType(objL)<=MEASUREtype || ObjLType(objL)==TUPLETtype))
@@ -849,7 +850,7 @@ for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
 		DisplayObject(doc, objL, 800+ObjLType(objL), True, True, True);
 }
 
-	if (errCode)	return errCode;
+	if (errType)	return errType;
 	else			return 0;
 }
 

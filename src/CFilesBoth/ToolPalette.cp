@@ -161,6 +161,7 @@ Boolean TranslatePalChar(
 	}
 	
 	/* Remap the character according to 'PLMP' resource */
+	
 	for (i=0; i<numPairs; i++) {
 		if (ch == theCharMap[i].origChar) {
 			ch = theCharMap[i].newChar;
@@ -169,6 +170,7 @@ Boolean TranslatePalChar(
 	}
 	
 	/* Do note/rest toggle on the remapped character. */
+	
 skipMapping:
 	if (doNoteRestToggle) {
 		if (IsDurKey(ch, &isNote)) {
@@ -179,6 +181,7 @@ skipMapping:
 					ch -= 32;							/* turn the note into a rest */
 			}
 			/* NB: Code below used only when hitting a toggle key. See goto skipMapping above. */
+			
 			else if (!isNote && note && !shiftIsDown) {	/* don't defeat shiftkey=>rest action */
 				if (ch == '@')							/* breve */
 					ch = 0xDD;
@@ -226,9 +229,9 @@ static unsigned char durKeys[18] = {
 	'y', 'Y'		/* 128th */
 };
 
-Boolean IsDurKey(register unsigned char ch, register Boolean *isNote)
+Boolean IsDurKey(unsigned char ch, Boolean *isNote)
 {
-	register short i;
+	short i;
 	
 	*isNote = False;
 	
@@ -307,6 +310,7 @@ portRect.top, portRect.left, portRect.bottom, portRect.right);
 	}
 }
 
+
 /* Toggle hiliting the given item in the tool palette. */
 
 pascal void HiliteToolItem(Rect *r, short item)
@@ -316,6 +320,7 @@ pascal void HiliteToolItem(Rect *r, short item)
 	
 	if (item) {
 		/* Don't hilite items outside of current palette if it's been shrunk */
+		
 		row = (item-1) / (*paletteGlobals[TOOL_PALETTE])->maxAcross;
 		col = (item-1) % (*paletteGlobals[TOOL_PALETTE])->maxAcross;
 		
@@ -331,8 +336,9 @@ pascal void HiliteToolItem(Rect *r, short item)
 	}
 }
 
-/* Locate which item in tools palette a point is within.  Returns an item number
-in 1-based menu item coordinates, or 0 if none found. */
+
+/* Locate which item in tools palette a point is within.  Returns an item number in
+1-based menu item coordinates, or 0 if none found. */
 
 pascal short FindToolItem(Point mousePt)
 {
@@ -348,8 +354,9 @@ pascal short FindToolItem(Point mousePt)
 	return(0);
 }
 
-/* Handle a mouse down in the Tool Palette.  This tracks the mouse as as it passes
-over various items in the palette. */
+
+/* Handle a mouse down in the Tool Palette.  This tracks the mouse as as it passes over
+various items in the palette. */
 
 void DoToolContent(Point pt, short modifiers)
 {
@@ -410,20 +417,22 @@ void DoToolContent(Point pt, short modifiers)
 		ch = GetPalChar(item);
 		if (ch != ' ') {
 			HandleToolCursors(item);
-			/*
-			 *	Keep FixCursor() from changing back to an arrow until user moves
-			 *	mouse outside of palette the first time from now.
-			 */
+			
+			/* Keep FixCursor() from changing back to an arrow until user moves mouse
+			   outside of palette the first time from now. */
+			   
 			holdCursor = True;
 		}
 		 else {
 			/* Palette item is empty: revert to arrow */
+			
 			HandleToolCursors(GetPalItem(CH_ENTER));
 			PalKey(CH_ENTER);
 		}
 	}
 	SetPort(oldPort);
 }
+
 
 /* Given two items from the Tool Palette, swap them in their respective positions. */
 
@@ -439,15 +448,20 @@ void SwapTools(short firstItem, short lastItem)
 	scratchPort = NewGrafPort(toolCellWidth+1, toolCellHeight+1);
 	if (scratchPort) {
 		/* Swap source and dest cells in visible palette */
+		
 		PalCopy(scratchPort, port, 0, firstItem);
 		PalCopy(port, port, firstItem,lastItem);
 		PalCopy(port, scratchPort, lastItem, 0);
+		
 		/* Swap source and dest cells in underlying offscreen picture */
+		
 		PalCopy(scratchPort, palPort, 0, firstItem);
 		PalCopy(palPort, palPort, firstItem,lastItem);
 		PalCopy(palPort, scratchPort, lastItem, 0);
 		DisposGrafPort(scratchPort);						/* Toss out offscreen bitmap */
+		
 		/* Swap source and dest info for items */
+		
 		tmp = grid[firstItem-1].ch;
 		grid[firstItem-1].ch = grid[lastItem-1].ch;
 		grid[lastItem-1].ch = tmp;
@@ -456,11 +470,10 @@ void SwapTools(short firstItem, short lastItem)
 	}
 }
 
-/*
- *	Copy the tool item sized bitmap in scrPort to dstPort, in the position
- *	indicated by the source and destination items, srcItem and dstItem.  If
- *	a port is our temporary offscreen port, the corresponding item is 0.
- */
+
+/* Copy the tool item sized bitmap in scrPort to dstPort, in the position indicated by
+the source and destination items, srcItem and dstItem.  If a port is our temporary
+offscreen port, the corresponding item is 0. */
 
 static void PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcItem)
 	{
@@ -477,19 +490,18 @@ static void PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcIt
 		if (srcPort == palPort) OffsetRect(&srcRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
 		if (dstPort == palPort) OffsetRect(&dstRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
 		
-		srcRect.right--; srcRect.bottom--;
-		dstRect.right--; dstRect.bottom--;
+		srcRect.right--;  srcRect.bottom--;
+		dstRect.right--;  dstRect.bottom--;
 		
 		const BitMap *srcPortBits = GetPortBitMapForCopyBits(srcPort);
 		const BitMap *dstPortBits = GetPortBitMapForCopyBits(dstPort);		
 		CopyBits(srcPortBits, dstPortBits, &srcRect, &dstRect, srcCopy, NULL);
 	}
 
-/*
- *	Get cursor corresponding to choice from the tool palette; set globals 
- * currentItem, currentCursor, and palChar.  item should be from 1 to number of
- *	choices in palette (menu item code).
- */
+
+/* Get cursor corresponding to choice from the tool palette; set globals currentItem,
+currentCursor, and palChar.  item should be from 1 to number of choices in palette
+(menu item code). */
 
 void HandleToolCursors(short item)
 	{
@@ -507,15 +519,14 @@ void HandleToolCursors(short item)
 		SetCursor(*currentCursor);					/* So no delay before it changes */
 	}
 
-/*
- * Set the current item in the tool palette to correspond to <ch> and hilite it.
- */
+
+/* Set the current item in the tool palette to correspond to <ch> and hilite it. */
 
 void PalKey(char ch)
 	{
 		short	item, numItems;
 		
-		PaletteGlobals *toolGlobal; GrafPtr oldPort;
+		PaletteGlobals *toolGlobal;  GrafPtr oldPort;
 		WindowPtr w = palettes[TOOL_PALETTE];
 		Rect portRect;
 
@@ -525,7 +536,7 @@ void PalKey(char ch)
 		GetPort(&oldPort); SetPort(GetWindowPort(w));
 		for (item=0; item<numItems; item++)
 			if (grid[item].ch == (unsigned char)ch) {
-				item += 1;			/* Convert back to menu item coordinates */
+				item += 1;						/* Convert back to menu item coordinates */
 				GetWindowPortBounds(w,&portRect);
 				HiliteToolItem(&portRect, toolGlobal->currentItem);
 				HiliteToolItem(&portRect, item);
@@ -535,24 +546,22 @@ void PalKey(char ch)
 		SetPort(oldPort);
 	}
 
-/*
- * Return the palette char corresponding to the item in the tool palette.
- */
+
+/* Return the palette char corresponding to the item in the tool palette. */
  
 char GetPalChar(short item)
 {
 	return grid[item-1].ch;
 }
 
-/*
- *	Search the tools palette for the arrow item, which can be anywhere since
- *	the user has the ability to rearrange the palette.  Delivers the item
- *	number as a menu item code (lowest item is 1).
- */
+
+/* Search the tools palette for the arrow item, which can be anywhere since the user has
+the ability to rearrange the palette.  Delivers the item number as a menu item code
+(lowest item is 1). */
 
 short GetPalItem(short ch)
 {
-	register short item, n;
+	short item, n;
 	short maxRow, maxCol;
 	
 	maxRow = (*paletteGlobals[TOOL_PALETTE])->maxDown;
@@ -566,10 +575,9 @@ short GetPalItem(short ch)
 	return(0);
 }
 
-/*
- *	Handle a key down as a choice from the tool palette, regardless of whether the
- *	tool palette is currently visible or not.
- */
+
+/* Handle a key down as a choice from the tool palette, regardless of whether the tool
+palette is currently visible or not. */
 
 void DoToolKeyDown(
 			short ch,
@@ -583,7 +591,7 @@ void DoToolKeyDown(
 		WindowPtr w = palettes[TOOL_PALETTE];
 		Rect portRect;
 		
-		GetPort(&oldPort); SetPort(GetWindowPort(w));
+		GetPort(&oldPort);  SetPort(GetWindowPort(w));
 		toolGlobal = *paletteGlobals[TOOL_PALETTE];
 		
 		if (ch==CH_ENTER) {
@@ -604,6 +612,7 @@ void DoToolKeyDown(
 		 else {
 			if (key>=0)
 				if (!TranslatePalChar(&ch, (unsigned char)key, False)) ;
+				
 				/* If not, GetResource failed. Maybe no need to warn. */
 
 			if (GetPalChar(toolGlobal->currentItem) != ch) {
@@ -619,32 +628,33 @@ void DoToolKeyDown(
 		 SetPort(oldPort);
 	}
 
-/*
- *	Entertain a mouse down in Tool Palette's grow box, and grow the palette.
- *	pt is the initial mouse down point to pass to GrowWindow().
- */
+
+/* Entertain a mouse down in Tool Palette's grow box, and grow the palette. pt is the
+initial mouse down point to pass to GrowWindow(). */
 
 void DoToolGrow(Point pt)
-	{
-		Rect oldRect,r; WindowPtr w = palettes[TOOL_PALETTE];
-		short margin,x,y,across,down; long newSize;
-		PaletteGlobals *whichPalette = *paletteGlobals[TOOL_PALETTE];
-		
-		GetWindowPortBounds(w,&oldRect);
-		margin = 2*TOOLS_MARGIN;
-		SetRect(&r,toolCellWidth+margin,
-				   toolCellHeight+margin,
-				   whichPalette->maxAcross*toolCellWidth+margin,
-				   whichPalette->maxDown*toolCellHeight+margin);
-				   
-		newSize = GrowWindow(w,pt,&r);
-		if (newSize) {
-			x = LoWord(newSize) - margin; y = HiWord(newSize) - margin;
-			across = (x + toolCellWidth/2) / toolCellWidth;
-			down   = (y + toolCellHeight/2) / toolCellHeight;
-			ChangeToolSize(across, down, False);
-			}
-	}
+{
+	Rect oldRect, r;  WindowPtr w = palettes[TOOL_PALETTE];
+	short margin, x, y, across, down;
+	long newSize;
+	PaletteGlobals *whichPalette = *paletteGlobals[TOOL_PALETTE];
+	
+	GetWindowPortBounds(w,&oldRect);
+	margin = 2*TOOLS_MARGIN;
+	SetRect(&r,toolCellWidth+margin,
+			   toolCellHeight+margin,
+			   whichPalette->maxAcross*toolCellWidth+margin,
+			   whichPalette->maxDown*toolCellHeight+margin);
+			   
+	newSize = GrowWindow(w,pt,&r);
+	if (newSize) {
+		x = LoWord(newSize) - margin; y = HiWord(newSize) - margin;
+		across = (x + toolCellWidth/2) / toolCellWidth;
+		down   = (y + toolCellHeight/2) / toolCellHeight;
+		ChangeToolSize(across, down, False);
+		}
+}
+
 
 /* Set the tools palette window to show the first <across> columns by the first <down>
 rows.  Force everything to be redrawn. If we're not zooming, record the previous palette
@@ -658,8 +668,7 @@ void ChangeToolSize(short across, short down, Boolean doingZoom)
 	WindowPtr w = palettes[TOOL_PALETTE];
 	Rect portRect;
 	
-	SizeWindow(w,across*toolCellWidth +margin-1,
-				   down*toolCellHeight+margin-1, True);
+	SizeWindow(w, across*toolCellWidth +margin-1, down*toolCellHeight+margin-1, True);
 	(*paletteGlobals[TOOL_PALETTE])->across = across;
 	(*paletteGlobals[TOOL_PALETTE])->down = down;
 	GetWindowPortBounds(w,&toolsFrame);
@@ -677,14 +686,15 @@ void ChangeToolSize(short across, short down, Boolean doingZoom)
 	}
 }
 
+
 /* Compute the smallest grid rectangle that encloses all defined tools.  Undefined
 tools are marked in the grid[] array with a space. */
 
 void GetToolZoomBounds()
 {
-	register short r, c;
+	short r, c;
 	short rMax, cMax;
-	register GridRec *g;
+	GridRec *g;
 	
 	PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];
 	
@@ -703,8 +713,9 @@ void GetToolZoomBounds()
 	pg->zoomDown =   rMax + 1;
 }
 
-/* If the user has rearranged the tools palette at all, we ask if they want to save
-the changes, and save them if yes.  Return True if the user chooses either Save or
+
+/* If the user has rearranged the tools palette at all, ask if they want to save the
+changes, and save them if they do.  Return True if the user chooses either Save or
 Discard, False if Cancel.  If inquire is False, then we save without bringing the user
 into it. */
 
@@ -712,8 +723,9 @@ into it. */
 
 Boolean SaveToolPalette(Boolean inquire)
 	{
-		short itemHit, curResFile; PicHandle thePic,toolPicture;
-		Rect picRect; long size; GrafPtr port,oldPort;
+		short itemHit, curResFile;  PicHandle thePic, toolPicture;
+		Rect picRect;  long size;
+		GrafPtr port, oldPort;
 		
 		if (!toolPalChanged) return(True);
 		
@@ -773,14 +785,13 @@ Boolean SaveToolPalette(Boolean inquire)
 		return(True);
 	}
 
-/*
- *	Write the PLCH resource back out, since we're saving the tool palette.
- */
+
+/* Write the PLCH resource back out, since we're saving the tool palette. */
 
 static void UpdateGridCoords()
 	{
 		Handle hdl;
-		register unsigned char *p;
+		unsigned char *p;
 		GridRec *pGrid;
 		short row, col, curResFile;
 		PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];

@@ -3221,8 +3221,18 @@ NotelistOpen, PopUpUtils, SetUtils, TextDialog.
 8 - 12 Apr.
 
 Fixed bug: on opening a file, headerStrOffset or footerStrOffset exceeding stringPoolSize
-should be a fatal error; it gives the correct error message but continues trying to
-open the file anyway. Affects FileOpen.
+gives the correct error message but Nightingale continues trying to open the file anyway;
+instead they're now treated as fatal errors. Affects FileOpen.
 
 Minor changes. Affects Defs.h, NightTemplates.h; CoreMIDIUtils, FileOpen, FileUtils,
 FontUtils, Initialize, InitNightingale, PopUpUtils, Utility.
+
+---------------------------------------------------------------------------------------
+
+15 - 22 Apr.
+
+On opening a file, if headerStrOffset or footerStrOffset exceeds stringPoolSize, a log
+message is given, but it's now a mere warning, and they're just set to 0, thereby
+discarding any existing header and/or footer info. Affects FileOpen.
+
+Minor changes. Affects .rsrc; FileOpen, FileSave, HeapFileIO, Initialize, ToolPalette.

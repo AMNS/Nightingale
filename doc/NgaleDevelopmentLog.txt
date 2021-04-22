@@ -9518,7 +9518,8 @@ resource with that name doesn't exist. NFNT "%popDurs" is in NightingaleUIFonts,
 NFonts.rsrc; change its name to "popDursN" => no change, and Font Book doesn't show it,
 even after restarting. Likewise with  "%popDynMod" => "popDynModN". Rename
 "NightingaleUIFonts" to "Nightingale2021UIFonts"; use Font Book's Add Fonts command on it
-=> "popDursN" & "popDynModN" still don't appear in Font Book. Ugh.
+=> "popDursN" & "popDynModN" still don't appear in Font Book. Ugh. [But not appearing
+there doesn't mean it's not available! See notes for 28 Mar. - 6 April below.] 
 
 Add to InitGPopUp:
 
@@ -9603,17 +9604,19 @@ a great solution :-| .
 Another try at adding popDursN & popDynModN: I changed the NFNT names from the originals
 with %'s in Nightingale2021UIFonts, but not the FONDs! Use Resorcerer to fix that; use
 Font Book's Add Fonts command => no change. Why? Use Font Book's Validate File command on
-Nightingale2021UIFonts => it says, for popDursN, the NFNT is OK;the FOND's "font
+Nightingale2021UIFonts => it says, for popDursN, the NFNT is OK; the FOND's "font
 association usability" has a serious error, but otherwise is OK. The same thing for
 popDynModN. What can I do about "font association usability"??
 
-$%*^&&^)_^$)*)*^&*&%^  Presumably as a result of my messing around with Font Book, my G5
-now has the same problem as my MacBook! So Set Duration, edit tempo mark/MM, etc., are now
-virtually unusable on the G5 too :-( .
+$%*^&&^)_^$)*)*^&*&%^  My G5 now has the same problem as my MacBook! No doubt as a result
+of my messing around with /Library/Fonts or possibly with Font Book. So Set Duration, edit
+tempo mark/MM, etc., are now virtually unusable on the G5 too :-( .
 
-Web search finds lots of people with the same problem, starting with OS 10.5.x. What
-happens on OS 10.14? Try on my MacBook => Font Book's Validate File  says exactly the same
-thing about Nightingale2021UIFonts! Good; more likely I can find a solution.
+Web search finds lots of people with the "'FOND' font association usability" problem,
+starting with OS 10.5.x; very few suggested solutions, and none that seems at all
+relevant. What happens on OS 10.14? Try on my MacBook => Font Book's Validate File  says
+exactly the same thing about Nightingale2021UIFonts! Good; it's more likely I can find a
+solution.
 
 ---------------------------------------------------------------------------------------
 
@@ -9646,7 +9649,9 @@ listed. With the usual kludge to sidestep the max. log messages problem:
 
 NB that LittleNight also appears in this list -- BUT Font Book still doesn't list them,
 not even LittleNight! So their non-appearance in Font Book on my G5 and MBAir means
-nothing. And the "%p" in the names of "%popDurs" and "%popDynMod" is a red herring, though
+nothing. In fact, on my G5, Font Book lists 106 fonts, but EnumerateFonts lists 144.
+
+And the "%p" in the names of "%popDurs" and "%popDynMod" is another red herring, though
 it's undoubtedly why their names are shown in the log with "%p" replaced by a hex number:
 that certainly seems to be because the %s conversion specifier is interpreting the "%p" in
 the string as if it's itself a conversion specifier, contrary to the C99 standard (or
@@ -9741,4 +9746,79 @@ Larson HBD, w/ 5.8.10, looks OK & Debug is happy; w/ 5.9.x, gives an error messa
 	ERROR. CAN'T OPEN THE FILE. errCode=0 errInfo=-990  (OpenError)
 
 ...but opens it anyway and draws a blank page.
+
+---------------------------------------------------------------------------------------
+
+13 - 22 Apr.
+
+BACK TO: UI font problem. Got the demo version of BitFonter 3 & its manual. ON MY G5, open
+one of its sample fonts; hack at a couple of glyphs with pencil tool; Save As Macintosh
+Font Suitcase => accept despite "warning: chars. will be distorted because it's a demo
+version" (problem #1). Validate Font w/ Font Book => "'FOND' font association usability"
+has a serious error! Open an installed font, Zapfino; hack at a couple of glyphs; Save As
+Macintosh Font Suitcase => same problem! (Problem #2)
+
+Create New default font; open AddModifier.tiff; select a glyph; Copy => all looks OK.
+Switch to main font window; select a char => Paste is disabled :-( . (Problem #3)
+
+Problem #1 surely just needs $$ to overcome; problem #3 presumably has a simple answer.
+But problem #2 is scary!
+
+BitFonter's “Import installed font (legacy mode)” would be ideal, but I can’t use it
+because our fonts don’t show up in its scrolling list of fonts -- which is probably
+identical to Font Book's. Grrrrr. Alex Petrov/FontLab says:
+
+	I suspect the first problem is that FontBook just doesn't support bitmap fonts without
+	corresponding outline component. That was a long time ago but I remember we put fonts
+	to the System Fonts folder manually at those times. There was no FontBook in the
+	system. And Apple dropped support of bitmap-only fonts at some point. I just don't
+	remember when exactly. The BitFonter 3 Manual (2007) includes this note on page 204: ​
+
+		Note: Macintosh fonts containing only bitmap fonts (NFNT' or 'FONT' resources)
+		and not containing a link to outlines are no longer supported in MacOS X.
+
+	So you need to somehow add the outline component to your suitcases.
+
+This doesn't explain why Ngale could use these fonts on OS 10.5.x until a few weeks ago,
+or why it can still use them on 10.6.x! -- but I can imagine how that could happen.
+
+On the 3rd hand, I need to make the tool palette work on Intel regardless, and the
+functionality Ngale's dialogs that use the pop-up fonts is identical to what the tool
+palette needs, except for the pop-up aspect, which I don't think is important, and the
+fact that it's within a modal dialog, which shouldn't make much difference. So the
+path of least resistance is probably to work on the tool palette next!
+
+The tool palette is currently drawn from a PICT resource with ?? API. It very likely fails
+on Intel because of PICT-specific fields I'm not Endian fixing; but PICTs are way more
+complex than what I need, and rather than debug it, it looks like it'd be better to use a
+different image format. Several apps on my G5 use TIFFs or JPGs for the graphics, and I
+now have TIFFs of images of Ngale's pop-up menus; switch Ngale to use TIFFs?
+
+BACK TO: Some old DemoNgaleScores, all in N105 format,  have problems on my G5.
+* Alpher Qtet, w/ 5.8.10, looks OK & Debug is happy; w/ 5.9.x, it gives error message
+
+	ERROR. footerStrOffset is 47186496 but stringPoolSize is only 1616.  (OpenFile)
+
+* Larson HBD, w/ 5.8.10, looks OK & Debug is happy; w/ 5.9.x, it gives error message
+	
+	ERROR. footerStrOffset is 47186532 but stringPoolSize is only 1086.  (OpenFile)
+
+* ANightingaleSangInBarclaySquare.ngl, w/ both, has an error in Document header field 10
+(startPageNumber=32767). W/ 5.8b3, it's fine: no complaints, and startPageNumber seems
+to be 1! ??
+
+* MahlerLiedVonDE_27.ngl, the same as ANightingaleSangInBarclaySquare.ngl. ??
+
+* AliceInW is fine with both 5.8.10 and 5.9.1.
+
+* Bach BWV 540 is fine with both 5.8.10 and 5.9.1. (It was converted from 4.5 format, but
+some of the others undoubtedly were too.)
+
+Is the nonsense footerStrOffset value a real problem? Add code to ignore headerStrOffset &
+footerStrOffset iff secret keys are down. Open AlpherQt_20.ngl that way => looks OK (no
+header is drawn, as desired) & Debug is happy. Add a footer => "The operation failed,
+perhaps because Nightingale has run out of memory." Open Larson HBD that way => same
+result. So yes, it's a real problem! How about with 5.8.10? Same result! So it's not a
+new bug, it's just that we now check for it and complain. But what to do? Try just
+replacing illegal values with 0 => seems to solve the problem; adding a footer now works!
 

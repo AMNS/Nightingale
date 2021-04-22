@@ -30,7 +30,7 @@ static void			DisplayConfig(void);
 static Boolean		CheckConfig(void);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
-static Boolean		NInitFloatingWindows(void);
+static Boolean		NInitPalettes(void);
 static void			DisplayToolPalette(PaletteGlobals *whichPalette);
 static Boolean		CheckToolPalette(PaletteGlobals *whichPalette);
 static short		GetToolGrid(PaletteGlobals *whichPalette);
@@ -187,7 +187,7 @@ void Initialize()
 	growZoneUPP = NewGrowZoneUPP(GrowMemory);
 	if (growZoneUPP) SetGrowZone(growZoneUPP);		/* Install simple grow zone function */
 	
-	if (!NInitFloatingWindows()) { BadInit();  ExitToShell(); }
+	if (!NInitPalettes()) { BadInit();  ExitToShell(); }
 	
 	EndianFixMIDIModNRTable();
 	
@@ -1372,84 +1372,84 @@ picture will be displayed centered in the palette window with a TOOLS_MARGIN pix
 margin on all sides. */
 
 static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
-	{
-		PicHandle toolPicture;  Rect picRect;
-		short curResFile;  short defaultToolItem;
-		
-		/* Allocate a grid of characters from the 'PLCH' resource and initialize the
-		   PaletteGlobals fields stored in the resource. */
-		
-		defaultToolItem = GetToolGrid(whichPalette);
-		if (!defaultToolItem) { BadInit(); ExitToShell(); }
-		
-		curResFile = CurResFile();
-		UseResFile(setupFileRefNum);
-		toolPicture = (PicHandle)GetPicture(ToolPaletteID);
-		FIX_END((*toolPicture)->picFrame.bottom);
-		FIX_END((*toolPicture)->picFrame.right);
-		UseResFile(curResFile);
+{
+	PicHandle toolPicture;  Rect picRect;
+	short curResFile;  short defaultToolItem;
+	
+	/* Allocate a grid of characters from the 'PLCH' resource and initialize the
+	   PaletteGlobals fields stored in the resource. */
+	
+	defaultToolItem = GetToolGrid(whichPalette);
+	if (!defaultToolItem) { BadInit(); ExitToShell(); }
+	
+	curResFile = CurResFile();
+	UseResFile(setupFileRefNum);
+	toolPicture = (PicHandle)GetPicture(ToolPaletteID);
+	FIX_END((*toolPicture)->picFrame.bottom);
+	FIX_END((*toolPicture)->picFrame.right);
+	UseResFile(curResFile);
 
-		if(!GoodResource((Handle)toolPicture)) { BadInit(); ExitToShell(); }
-		HNoPurge((Handle)toolPicture);
-		
-		/* Calculate the palette's portRect based on the toolPicture. */
-		
-		picRect = (*toolPicture)->picFrame;
-		OffsetRect(&picRect, -picRect.left, -picRect.top);
-		*windowRect = picRect;
-		
-		SetupPaletteRects(toolRects,
-				whichPalette->maxAcross, whichPalette->maxDown,
-				toolCellWidth = (windowRect->right + 1) / whichPalette->maxAcross,
-				toolCellHeight = (windowRect->bottom + 1) / whichPalette->maxDown);
-		
-		windowRect->right -= (whichPalette->maxAcross-whichPalette->firstAcross) * toolCellWidth;
-		windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;
+	if(!GoodResource((Handle)toolPicture)) { BadInit(); ExitToShell(); }
+	HNoPurge((Handle)toolPicture);
+	
+	/* Calculate the palette's portRect based on the toolPicture. */
+	
+	picRect = (*toolPicture)->picFrame;
+	OffsetRect(&picRect, -picRect.left, -picRect.top);
+	*windowRect = picRect;
+	
+	SetupPaletteRects(toolRects,
+			whichPalette->maxAcross, whichPalette->maxDown,
+			toolCellWidth = (windowRect->right + 1) / whichPalette->maxAcross,
+			toolCellHeight = (windowRect->bottom + 1) / whichPalette->maxDown);
+	
+	windowRect->right -= (whichPalette->maxAcross-whichPalette->firstAcross) * toolCellWidth;
+	windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;
 
-		windowRect->right += 2*TOOLS_MARGIN;
-		windowRect->bottom += 2*TOOLS_MARGIN;
-		toolsFrame = *windowRect;
-		InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);
+	windowRect->right += 2*TOOLS_MARGIN;
+	windowRect->bottom += 2*TOOLS_MARGIN;
+	toolsFrame = *windowRect;
+	InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);
 
-		/* Avoid Issue #67, where the tool palette's initial position is sometimes at
-		   the very top of screen, underneath the menu bar. FIXME: This is certainly not
-		   the right fix. The problem occurs randomly on some computers, consistently
-		   on others, so it's probably an uninitialized variable. */
-		
-		OffsetRect(windowRect, 0, 40);
-		
-		/* Finish initializing the PaletteGlobals structure. */
-		
-	 	whichPalette->currentItem = defaultToolItem;
-		whichPalette->drawMenuProc = (void (*)())DrawToolPalette;
-		whichPalette->findItemProc = (short (*)())FindToolItem;
-		whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
-		
+	/* Avoid Issue #67, where the tool palette's initial position is sometimes at the
+	   very top of screen, underneath the menu bar. FIXME: This is certainly not the
+	   right fix! The problem occurs randomly on some computers, consistently on others,
+	   so it's probably an uninitialized variable. */
+	
+	OffsetRect(windowRect, 0, 40);
+	
+	/* Finish initializing the PaletteGlobals structure. */
+	
+	whichPalette->currentItem = defaultToolItem;
+	whichPalette->drawMenuProc = (void (*)())DrawToolPalette;
+	whichPalette->findItemProc = (short (*)())FindToolItem;
+	whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
+	
 LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
 
-		/* Put picture into offscreen port so that any rearrangements can be saved. */
+	/* Put picture into offscreen port so that any rearrangements can be saved. */
 
-		SaveGWorld();
-		
-		GWorldPtr gwPtr = MakeGWorld(picRect.right, picRect.bottom, True);
-		SetGWorld(gwPtr, NULL);
-		
+	SaveGWorld();
+	
+	GWorldPtr gwPtr = MakeGWorld(picRect.right, picRect.bottom, True);
+	SetGWorld(gwPtr, NULL);
+	
 {
 PixMapHandle portPixMapH = GetPortPixMap(gwPtr); PixMapPtr portPixMap = *portPixMapH;
 LogPixMapInfo("SetupToolPalette1", portPixMap, 1000);
 }
-		HLock((Handle)toolPicture);
-		DrawPicture(toolPicture, &picRect);
-		HUnlock((Handle)toolPicture);
-		ReleaseResource((Handle)toolPicture);
-		
-		palPort = gwPtr;
+	HLock((Handle)toolPicture);
+	DrawPicture(toolPicture, &picRect);
+	HUnlock((Handle)toolPicture);
+	ReleaseResource((Handle)toolPicture);
+	
+	palPort = gwPtr;
 {
 PixMapHandle portPixMapH = GetPortPixMap(palPort); PixMapPtr portPixMap = *portPixMapH;
 LogPixMapInfo("SetupToolPalette2", portPixMap, 1000);
 }
 //		UnlockGWorld(gwPtr);
-		RestoreGWorld();
+	RestoreGWorld();
 }
 
 
@@ -1458,7 +1458,7 @@ the tool palette is our only floating window. We've kept vestigal code for a hel
 (which seems unlikely ever to be used) and for a clavier palette (which might be useful
 someday). */
 
-static Boolean NInitFloatingWindows()
+static Boolean NInitPalettes()
 	{
 		short idx, wdefID;
 		PaletteGlobals *whichPalette;

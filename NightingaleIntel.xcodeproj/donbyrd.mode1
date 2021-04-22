@@ -204,7 +204,7 @@
 						<key>_historyCapacity</key>
 						<integer>0</integer>
 						<key>bookmark</key>
-						<string>150A084E2624EEB900D0AF11</string>
+						<string>154FDA972631970600544C69</string>
 						<key>history</key>
 						<array>
 							<string>1559B5AD25FB8C5800A2771A</string>
@@ -214,7 +214,7 @@
 							<string>15B10D192602A6BE00592FB1</string>
 							<string>1592D12D2609046500661B3E</string>
 							<string>1592D12F2609046500661B3E</string>
-							<string>15842CB9262074DF005DD45F</string>
+							<string>150AE4E026272FE800274089</string>
 						</array>
 						<key>prevStack</key>
 						<array>
@@ -309,19 +309,13 @@
 							<array>
 								<string>20286C29FDCF999611CA2CEA</string>
 								<string>20286C2AFDCF999611CA2CEA</string>
-								<string>D03E6E850D5F9CF6005FD177</string>
-								<string>D088B8300D5FADC30028C2BC</string>
-								<string>D03E70EC0D5FA655005FD177</string>
-								<string>D03E6AAB0D5F6C3D005FD177</string>
-								<string>D03E6AFF0D5F6E3D005FD177</string>
 								<string>D06D06F60D7287740055C107</string>
 								<string>1C37FABC05509CD000000102</string>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>26</integer>
-									<integer>10</integer>
+									<integer>8</integer>
 									<integer>3</integer>
 									<integer>0</integer>
 								</array>
@@ -376,7 +370,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>150A084D2624EEB900D0AF11</string>
+										<string>154FDA962631970600544C69</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -519,7 +513,6 @@
 											<string>1563D19F252B393200EB2ABD</string>
 											<string>1563D1A1252B393200EB2ABD</string>
 											<string>15D75231252B3A3200591F5A</string>
-											<string>1516CD77252B3B0300995060</string>
 											<string>159C509A252B3B9500C9E0CB</string>
 											<string>159C509B252B3B9500C9E0CB</string>
 											<string>159C50C7252B67BB00C9E0CB</string>
@@ -562,7 +555,12 @@
 											<string>15F00AEF25E826880044F479</string>
 											<string>15DBDD4025FC582F007D6DCB</string>
 											<string>1515172325FCEAF300441145</string>
-											<string>15842CB8262074DF005DD45F</string>
+											<string>154FDA8D263196E200544C69</string>
+											<string>150AE4D726272FE700274089</string>
+										</array>
+										<key>nextStack</key>
+										<array>
+											<string>154FDA8E263196E200544C69</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -747,9 +745,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>150A08462624E70700D0AF11</string>
+				<string>154FDA90263196E200544C69</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>150A08472624E70700D0AF11</string>
+				<string>154FDA91263196E200544C69</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -968,7 +966,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>150A08492624E70700D0AF11</string>
+				<string>154FDA93263196E200544C69</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -1330,9 +1328,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>150A084A2624E70700D0AF11</string>
+				<string>154FDA94263196E200544C69</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>150A084B2624E70700D0AF11</string>
+				<string>154FDA95263196E200544C69</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

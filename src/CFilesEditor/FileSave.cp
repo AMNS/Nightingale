@@ -256,7 +256,7 @@ return that error without continuing. Otherwise, return noErr. */
 
 static short WriteFile(Document *doc, short refNum)
 {
-	short			errCode, strPoolErrCode;
+	short			errType, strPoolErrCode;
 	short			lastType;
 	long			count, blockSize, strHdlSizeFile, strHdlSizeInternal;
 	unsigned long	fileTime;
@@ -271,15 +271,15 @@ static short WriteFile(Document *doc, short refNum)
 	
 	version = THIS_FILE_VERSION;  FIX_END(version);
 	count = sizeof(version);
-	errCode = FSWrite(refNum, &count, &version);
-	if (errCode) return VERSIONobj;
+	errType = FSWrite(refNum, &count, &version);
+	if (errType) return VERSIONobj;
 
 	/* Write current date and time using possibly Endian-fixed local copy. */
 	
 	GetDateTime(&fileTime);  FIX_END(fileTime);
 	count = sizeof(fileTime);
-	errCode = FSWrite(refNum, &count, &fileTime);
-	if (errCode) return VERSIONobj;
+	errType = FSWrite(refNum, &count, &fileTime);
+	if (errType) return VERSIONobj;
 
 	/* Write Document and Score headers using possibly Endian-fixed local copy. */
 
@@ -287,12 +287,9 @@ static short WriteFile(Document *doc, short refNum)
 	if (DETAIL_SHOW) DisplayScoreHdr(0, doc);
 
 	count = sizeof(tempDoc);
-//LogPrintf(LOG_DEBUG, "WriteFile: sizeof(doc)=%d sizeof(tempDoc)=%d\n", sizeof(doc), sizeof(tempDoc));
 LogPrintf(LOG_DEBUG, "WriteFile1: count=%ld ->origin=%d,%d ->littleEndian=%u ->firstMNNumber=%d\n",
 			count, doc->origin.v, doc->origin.h, (short)(doc->littleEndian), doc->firstMNNumber);
 	BlockMove(doc, &tempDoc, count);
-LogPrintf(LOG_DEBUG, "WriteFile2: .origin=%d,%d .littleEndian=%u .firstMNNumber=%d\n",
-			tempDoc.origin.v, tempDoc.origin.h, (short)(tempDoc.littleEndian), tempDoc.firstMNNumber);
 
 	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing file headers for CPU's Endian property...  (WriteFile)\n");	
 	EndianFixDocumentHdr(&tempDoc);
@@ -301,19 +298,19 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 			tempDoc.origin.v, tempDoc.origin.h, (short)(tempDoc.littleEndian), tempDoc.firstMNNumber);
 
 	count = sizeof(DOCUMENTHDR);
-	errCode = FSWrite(refNum, &count, &tempDoc.origin);
-	if (errCode) return HEADERobj;
+	errType = FSWrite(refNum, &count, &tempDoc.origin);
+	if (errType) return HEADERobj;
 	
 	count = sizeof(SCOREHEADER);
-	errCode = FSWrite(refNum, &count, &tempDoc.headL);
-	if (errCode) return HEADERobj;
+	errType = FSWrite(refNum, &count, &tempDoc.headL);
+	if (errType) return HEADERobj;
 	
 	/* Write LASTtype using possibly Endian-fixed local copy. */
 	
 	lastType = LASTtype;  FIX_END(lastType);
 	count = sizeof(lastType);
-	errCode = FSWrite(refNum, &count, &lastType);
-	if (errCode) return HEADERobj;
+	errType = FSWrite(refNum, &count, &lastType);
+	if (errType) return HEADERobj;
 
 	/* Write string pool size using possibly Endian-fixed local copy. Write string pool,
 	   possibly Endian-fixed; if Endian-fixed, then undo by redoing it (since the operation is
@@ -327,16 +324,16 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 								strHdlSizeInternal, strHdlSizeFile);
 	FIX_END(strHdlSizeFile);								/* Convert to Big Endian if needed */
 	count = sizeof(strHdlSizeFile);
-	errCode = FSWrite(refNum, &count, &strHdlSizeFile);
-	if (errCode) return STRINGobj;
+	errType = FSWrite(refNum, &count, &strHdlSizeFile);
+	if (errType) return STRINGobj;
 
 	HUnlock((Handle)doc->stringPool);
 	SetStringPool(doc->stringPool);
 	EndianFixStringPool(doc->stringPool);					/* Convert to Big Endian if needed */
 
-	errCode = FSWrite(refNum, &strHdlSizeInternal, *stringHdl);
+	errType = FSWrite(refNum, &strHdlSizeInternal, *stringHdl);
 	HUnlock(stringHdl);
-	if (errCode) return STRINGobj;
+	if (errType) return STRINGobj;
 
 	EndianFixStringPool(doc->stringPool);					/* Back to platform-specific Endian */
 	if (DETAIL_SHOW) DisplayStringPool(doc->stringPool);
@@ -352,21 +349,21 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 	   before continuing!  */
 	
 	if (DETAIL_SHOW) NObjDump("WriteFile", 1, (MORE_DETAIL_SHOW? 30 : 4));
-	errCode = WriteHeaps(doc, refNum);
-	if (errCode) return errCode;
+	errType = WriteHeaps(doc, refNum);
+	if (errType) return errType;
 
 	/* Write info for OMS. FIXME: OMS is obsolete and this code should be removed! */
 
 	count = sizeof(OMSSignature);
 	omsDevHdr = 'devc';
-	errCode = FSWrite(refNum, &count, &omsDevHdr);
-	if (errCode) return SIZEobj;
+	errType = FSWrite(refNum, &count, &omsDevHdr);
+	if (errType) return SIZEobj;
 	count = sizeof(long);
 	omsDevSize = (MAXSTAVES+1) * sizeof(OMSUniqueID);
-	errCode = FSWrite(refNum, &count, &omsDevSize);
-	if (errCode) return SIZEobj;
-	errCode = FSWrite(refNum, &omsDevSize, &(doc->omsPartDeviceList[0]));
-	if (errCode) return SIZEobj;
+	errType = FSWrite(refNum, &count, &omsDevSize);
+	if (errType) return SIZEobj;
+	errType = FSWrite(refNum, &omsDevSize, &(doc->omsPartDeviceList[0]));
+	if (errType) return SIZEobj;
 
 	/* Write info for FreeMIDI input device:
 		1) long having the value 'FMS_' (just a marker)
@@ -376,32 +373,32 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 			
 	count = sizeof(long);
 	fmsDevHdr = FreeMIDISelector;
-	errCode = FSWrite(refNum, &count, &fmsDevHdr);
-	if (errCode) return SIZEobj;
+	errType = FSWrite(refNum, &count, &fmsDevHdr);
+	if (errType) return SIZEobj;
 	count = sizeof(fmsUniqueID);
-	errCode = FSWrite(refNum, &count, &doc->fmsInputDevice);
-	if (errCode) return SIZEobj;
+	errType = FSWrite(refNum, &count, &doc->fmsInputDevice);
+	if (errType) return SIZEobj;
 	count = sizeof(fmsDestinationMatch);
-	errCode = FSWrite(refNum, &count, &doc->fmsInputDestination);
-	if (errCode) return SIZEobj;
+	errType = FSWrite(refNum, &count, &doc->fmsInputDestination);
+	if (errType) return SIZEobj;
 	
 	/* Write info for CoreMIDI (file version >= 'N105') */
 	
 	count = sizeof(long);
 	cmHdr = 'cmdi';
-	errCode = FSWrite(refNum, &count, &cmHdr);
-	if (errCode) return SIZEobj;
+	errType = FSWrite(refNum, &count, &cmHdr);
+	if (errType) return SIZEobj;
 	count = sizeof(long);
 	cmDevSize = (MAXSTAVES+1) * sizeof(MIDIUniqueID);
-	errCode = FSWrite(refNum, &count, &cmDevSize);
-	if (errCode) return SIZEobj;
-	errCode = FSWrite(refNum, &cmDevSize, &(doc->cmPartDeviceList[0]));
-	if (errCode) return SIZEobj;	
+	errType = FSWrite(refNum, &count, &cmDevSize);
+	if (errType) return SIZEobj;
+	errType = FSWrite(refNum, &cmDevSize, &(doc->cmPartDeviceList[0]));
+	if (errType) return SIZEobj;	
 
 	blockSize = 0L;													/* mark end w/ 0x00000000 */
 	count = sizeof(blockSize);
-	errCode = FSWrite(refNum, &count, &blockSize);
-	if (errCode) return SIZEobj;
+	errType = FSWrite(refNum, &count, &blockSize);
+	if (errType) return SIZEobj;
 
 	return noErr;
 }
@@ -451,7 +448,7 @@ static Boolean GetOutputFile(Document *doc)
 
 /* -------------------------------------------------------------------------- SaveFile -- */
 /*	Routine that actually saves the specifed file.  If there's an error, gives an
-error message and returns <errCode>; else returns 0 if successful, NRV_CANCEL if
+error message and returns <errType>; else returns 0 if successful, NRV_CANCEL if
 operation is cancelled. */
 
 #define TEMP_FILENAME "\p**NightTemp**"
@@ -493,29 +490,29 @@ Boolean MakeVariantFilename(
 static short RenameAsBackup(Str255 filename, short vRefNum, Str255 bkpName);
 static short RenameAsBackup(Str255 filename, short vRefNum, Str255 bkpName)
 {
-	short errCode;
+	short errType;
 	FSSpec fsSpec;
 	FSSpec bkpFSSpec;
 
 	MakeVariantFilename(filename, ".bkp", bkpName);
 		
-	errCode = FSMakeFSSpec(vRefNum, 0, bkpName, &bkpFSSpec);
-	if (errCode && errCode!=fnfErr)
-		return errCode;
+	errType = FSMakeFSSpec(vRefNum, 0, bkpName, &bkpFSSpec);
+	if (errType && errType!=fnfErr)
+		return errType;
 
-	//errCode = FSDelete(bkpName, vRefNum);						/* Delete old file */
-	errCode = FSpDelete(&bkpFSSpec);							/* Delete old file */
-	if (errCode && errCode!=fnfErr)								/* Ignore "file not found" */
-		return errCode;
+	//errType = FSDelete(bkpName, vRefNum);						/* Delete old file */
+	errType = FSpDelete(&bkpFSSpec);							/* Delete old file */
+	if (errType && errType!=fnfErr)								/* Ignore "file not found" */
+		return errType;
 
-	errCode = FSMakeFSSpec(vRefNum, 0, filename, &fsSpec);
-	if (errCode)
-		return errCode;
+	errType = FSMakeFSSpec(vRefNum, 0, filename, &fsSpec);
+	if (errType)
+		return errType;
 
-	//errCode = Rename(filename,vRefNum,bkpName);
-	errCode =  FSpRename (&fsSpec, bkpName);
+	//errType = Rename(filename,vRefNum,bkpName);
+	errType =  FSpRename (&fsSpec, bkpName);
 
-	return errCode;
+	return errType;
 }
 
 
@@ -526,7 +523,7 @@ short SaveFile(
 {
 	Str255			filename, bkpName;
 	short			vRefNum;
-	short			errCode, refNum;
+	short			errType, refNum;
 	short 			errInfo=noErr;				/* Type of object being read or other info on error */
 	short			saveType;
 	Boolean			fileIsOpen;
@@ -554,36 +551,36 @@ TryAgain:
 		/* Create and open a temporary file */
 		tempName = TEMP_FILENAME;
 
-		errCode = FSMakeFSSpec(vRefNum, fsSpec.parID, tempName, &tempFSSpec);
-		if (errCode && errCode!=fnfErr)
+		errType = FSMakeFSSpec(vRefNum, fsSpec.parID, tempName, &tempFSSpec);
+		if (errType && errType!=fnfErr)
 			{ errInfo = MAKEFSSPECcall; goto Error; }
 		
 		/* Without the following, if TEMP_FILENAME exists, Safe Save gives an error. */
-		errCode = FSpDelete(&tempFSSpec);						/* Delete any old temp file */
-		if (errCode && errCode!=fnfErr)							/* Ignore "file not found" */
+		errType = FSpDelete(&tempFSSpec);						/* Delete any old temp file */
+		if (errType && errType!=fnfErr)							/* Ignore "file not found" */
 			{ errInfo = DELETEcall; goto Error; }
 
-		errCode = FSpCreate (&tempFSSpec, creatorType, documentType, scriptCode);
-		if (errCode) { errInfo = CREATEcall; goto Error; }
+		errType = FSpCreate (&tempFSSpec, creatorType, documentType, scriptCode);
+		if (errType) { errInfo = CREATEcall; goto Error; }
 		
-		errCode = FSpOpenDF (&tempFSSpec, fsRdWrPerm, &refNum );	/* Open the temp file */
-		if (errCode) { errInfo = OPENcall; goto Error; }
+		errType = FSpOpenDF (&tempFSSpec, fsRdWrPerm, &refNum );	/* Open the temp file */
+		if (errType) { errInfo = OPENcall; goto Error; }
 	}
 	else if (saveType==SF_Replace) {
-		//errCode = FSMakeFSSpec(vRefNum, 0, filename, &fsSpec);
-		//if (errCode && errCode!=fnfErr)
+		//errType = FSMakeFSSpec(vRefNum, 0, filename, &fsSpec);
+		//if (errType && errType!=fnfErr)
 		//	{ errInfo = MAKEFSSPECcall; goto Error; }
 		fsSpec = doc->fsSpec;
 		
-		errCode = FSpDelete(&fsSpec);							/* Delete old file */
-		if (errCode && errCode!=fnfErr)							/* Ignore "file not found" */
+		errType = FSpDelete(&fsSpec);							/* Delete old file */
+		if (errType && errType!=fnfErr)							/* Ignore "file not found" */
 			{ errInfo = DELETEcall; goto Error; }
 			
-		errCode = FSpCreate (&fsSpec, creatorType, documentType, scriptCode);
-		if (errCode) { errInfo = CREATEcall; goto Error; }
+		errType = FSpCreate (&fsSpec, creatorType, documentType, scriptCode);
+		if (errType) { errInfo = CREATEcall; goto Error; }
 		
-		errCode = FSpOpenDF (&fsSpec, fsRdWrPerm, &refNum );	/* Open the file */
-		if (errCode) { errInfo = OPENcall; goto Error; }
+		errType = FSpOpenDF (&fsSpec, fsRdWrPerm, &refNum );	/* Open the file */
+		if (errType) { errInfo = OPENcall; goto Error; }
 	}
 	else if (saveType==SF_SaveAs) {
 		if (!GetOutputFile(doc)) return NRV_CANCEL;				/* User cancelled or FSErr */
@@ -605,8 +602,8 @@ TryAgain:
 	doc->fsSpec	= fsSpec;
 	fileIsOpen = True;
 
-	errCode = WriteFile(doc, refNum);
-	if (errCode) { errInfo = WRITEcall; goto Error; };
+	errType = WriteFile(doc, refNum);
+	if (errType) { errInfo = WRITEcall; goto Error; };
 
 	if (saveType==SF_SafeSave) {
 		/* Close the temporary file; rename as backup or simply delete file at filename
@@ -623,38 +620,38 @@ TryAgain:
 		   fair amount of extra I/O, but it might be the best solution. */
 
 		if (config.makeBackup) {
-			errCode = RenameAsBackup(filename, vRefNum, bkpName);
-			if (errCode && errCode!=fnfErr)							/* Ignore "file not found" */
+			errType = RenameAsBackup(filename, vRefNum, bkpName);
+			if (errType && errType!=fnfErr)							/* Ignore "file not found" */
 				{ errInfo = BACKUPcall; goto Error; }
 		}
 		else {
 			FSSpec oldFSSpec;
 		
-			//errCode = FSMakeFSSpec(vRefNum, 0, filename, &oldFSSpec);
-			//if (errCode && errCode!=fnfErr)
+			//errType = FSMakeFSSpec(vRefNum, 0, filename, &oldFSSpec);
+			//if (errType && errType!=fnfErr)
 			//	{ errInfo = MAKEFSSPECcall; goto Error; }
 			
 			oldFSSpec = fsSpec;
 		
-			errCode = FSpDelete(&oldFSSpec);						/* Delete old file */
-			if (errCode && errCode!=fnfErr)							/* Ignore "file not found" */
+			errType = FSpDelete(&oldFSSpec);						/* Delete old file */
+			if (errType && errType!=fnfErr)							/* Ignore "file not found" */
 				{ errInfo = DELETEcall; goto Error; }
 		}
 
-		errCode = FSClose(refNum);									/* Close doc's file */
-		if (errCode) { errInfo = CLOSEcall; goto Error; }
+		errType = FSClose(refNum);									/* Close doc's file */
+		if (errType) { errInfo = CLOSEcall; goto Error; }
 		
-		errCode =  FSpRename (&tempFSSpec, filename);
-		if (errCode) { errInfo = RENAMEcall; goto Error; }			/* Rename temp to old filename */
+		errType =  FSpRename (&tempFSSpec, filename);
+		if (errType) { errInfo = RENAMEcall; goto Error; }			/* Rename temp to old filename */
 			
 	}
 	else if (saveType==SF_Replace) {
-		errCode = FSClose(refNum);									/* Close doc's file */
-		if (errCode) { errInfo = CLOSEcall; goto Error; }
+		errType = FSClose(refNum);									/* Close doc's file */
+		if (errType) { errInfo = CLOSEcall; goto Error; }
 	}
 	else if (saveType==SF_SaveAs) {
-		errCode = FSClose(refNum);									/* Close the newly created file */
-		if (errCode) { errInfo = CLOSEcall; goto Error; }
+		errType = FSClose(refNum);									/* Close the newly created file */
+		if (errType) { errInfo = CLOSEcall; goto Error; }
 	}
 
 	doc->changed = False;											/* Score isn't dirty */
@@ -672,8 +669,8 @@ TryAgain:
 	return 0;
 
 Error:
-	SaveError(fileIsOpen, refNum, errCode, errInfo);
-	return errCode;
+	SaveError(fileIsOpen, refNum, errType, errInfo);
+	return errType;
 }
 
 
@@ -683,7 +680,7 @@ for OpenError(). */
 
 void SaveError(Boolean fileIsOpen,
 					short refNum,
-					short errCode,
+					short errType,
 					short errInfo)		/* Details: see File.h for codes */
 {
 	char aStr[256], fmtStr[256];
@@ -691,8 +688,8 @@ void SaveError(Boolean fileIsOpen,
 	short strNum;
 
 	SysBeep(1);
-	LogPrintf(LOG_ERR, "Error saving the file. errCode=%d errInfo=%d  (SaveError)\n",
-		errCode, errInfo);
+	LogPrintf(LOG_ERR, "Error saving the file. errType=%d errInfo=%d  (SaveError)\n",
+		errType, errInfo);
 	if (fileIsOpen) FSClose(refNum);
 
 	/* We expect descriptions of the common errors stored by code (negative values,
@@ -700,7 +697,7 @@ void SaveError(Boolean fileIsOpen,
 	   resources. If we find one for this error, print it, else just print the raw
 	   code. */
 	   
-	strHdl = GetString(errCode);
+	strHdl = GetString(errType);
 	if (strHdl) {
 		Pstrcpy((unsigned char *)strBuf, (unsigned char *)*strHdl);
 		PToCString((unsigned char *)strBuf);
@@ -711,7 +708,7 @@ void SaveError(Boolean fileIsOpen,
 	else {
 		strNum = (errInfo>0? 17 : 18);		/* "Error ID=%d (heap object type=%d)." : "Error ID=%d (error code=%d)." */
 		GetIndCString(fmtStr, FILEIO_STRS, strNum);
-		sprintf(aStr, fmtStr, errCode, errInfo);
+		sprintf(aStr, fmtStr, errType, errInfo);
 	}
 
 	LogPrintf(LOG_ERR, aStr); LogPrintf(LOG_ERR, "\n");
