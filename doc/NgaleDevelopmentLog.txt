@@ -9717,7 +9717,7 @@ and AddModifier.tiff.
 
 Try #2. There seem to be at least three bitmap font editors that run on macOS's thru 10.14:
 BitFonter 3, Glyph Designer, and bmGlyph; that's encouraging. But does that mean they
-create FONDs and NFNTs or some equivalent a C program can use (if there is any
+create FONDs and NFNTs or some equivalent a C program can use (assuming there is any
 equivalent)? It doesn't look like it :-( .  Maybe time to try Doug McKenna's idea of 1
 April: 
 
@@ -9818,7 +9818,71 @@ Is the nonsense footerStrOffset value a real problem? Add code to ignore headerS
 footerStrOffset iff secret keys are down. Open AlpherQt_20.ngl that way => looks OK (no
 header is drawn, as desired) & Debug is happy. Add a footer => "The operation failed,
 perhaps because Nightingale has run out of memory." Open Larson HBD that way => same
-result. So yes, it's a real problem! How about with 5.8.10? Same result! So it's not a
+result. So yes, it's a real problem! How about with 5.8.10? Same result. So it's not a
 new bug, it's just that we now check for it and complain. But what to do? Try just
-replacing illegal values with 0 => seems to solve the problem; adding a footer now works!
+replacing illegal values with 0 => seems to solve the problem: adding a real footer now
+works!
+
+---------------------------------------------------------------------------------------
+
+23 - 28 Apr.
+
+Add code to let user choose whether to open files with header errors. Test with
+contrived Document header and Score header errors => OK. Test w/ real scores,
+ANightingaleSangInBarclaySquare.ngl & MahlerLiedVonDE_27.ngl => OK.
+
+BACK TO: UI font problem. Possible solutions are (1) get the existing fonts working
+on Intel Macs on OS versions thru 10.14, and working again on my G5; (2) re-create
+the fonts from the images (I have TIFFs); (3) abandon fonts and use the images as a
+palette, either (3a) as pop-ups or (3b) by displaying the palette whenever the dialog
+is open.
+
+For #1, the problem seems always to be what Font Book's Validate File command describes as
+the FOND's "font association usability" having a serious error, but I don't know what else
+I can try to fix it. For #2, I'd have to use a bitmap font editor. So far, BitFonter 3 is
+a complete failure: just modifying an existing font fails the same way my UI fonts fail,
+with Font Book's complaint about the FOND's "font association usability"! But BitFonter's
+tech support guy has been very helpful, so I could ask him again, or try one of the other
+bitmap font editors (bmGlyph says I can download and try it for free).
+
+#3 has a huge advantage: using palettes instead of UI fonts should also solve, or at least
+#go a long way towards solving, the "tool palette is never filled in on Intel machines"
+problem! What's the easiest way to do that? It looks like libtiff is the standard
+open-source library for TIFFs. "Using The TIFF Library":
+
+	http://www.libtiff.org/libtiff.html
+	
+says "libtiff is a set of C functions (a library) that support the manipulation of TIFF
+image files. The library requires an ANSI C compilation environment for building and
+presumes an ANSI C environment for use."
+
+Hmmm. I don't have to actually read the TIFFs in Ngale! It might be quicker to use
+somebody's sample code in Python or R or whatever to read the TIFFs and convert them to an
+extremely simple format I can read in Ngale without libtiff. Mac OS has tiffutil, which
+has a dump option -- but actually BMP format is probably easier to decode than TIFF, and
+GraphicConverter will give me BMPs! Cf. the Wikipedia article on BMPs and bmp_header_dump
+(https://github.com/ekardnam/bmp_header_dump/blob/master/src/main.rs). BMPs consist of a
+14-byte Bitmap File Header and a 40-byte(?) DIB header, followed by the raw data. But
+it seems the DIB header isn't necessarily 40 bytes. Compare BMPs from Graphic Converter
+of all white, all black, and diagonal stripes -- using hexdump -C -n 96 filename, here's
+the first 96(10) bytes of diagonal stripes:
+
+	00000000  42 4d 3e 01 00 00 00 00  00 00 3e 00 00 00 28 00  |BM>.......>...(.|
+	00000010  00 00 40 00 00 00 20 00  00 00 01 00 01 00 00 00  |..@... .........|
+	00000020  00 00 00 01 00 00 13 0b  00 00 13 0b 00 00 02 00  |................|
+	00000030  00 00 02 00 00 00 00 00  00 00 ff ff ff 00 77 77  |..............ww|
+	00000040  77 77 77 77 77 77 bb bb  bb bb bb bb bb bb dd dd  |wwwwww..........|
+
+The raw data appears to start with the 77's, 62(10) bytes in; white (all ff's) and black
+(all 00's) start at the same place, so that's where the raw data starts! Check: Other than
+the tool palette, Ngale's palettes all have white pixels at every corner, so should have
+ff's starting at that point. Here's hexdump -C -n 96 ChangeDynamicNB.bmp :
+
+	00000000  42 4d 7e 03 00 00 00 00  00 00 3e 00 00 00 28 00  |BM~.......>...(.|
+	00000010  00 00 78 00 00 00 34 00  00 00 01 00 01 00 00 00  |..x...4.........|
+	00000020  00 00 40 03 00 00 13 0b  00 00 13 0b 00 00 02 00  |..@.............|
+	00000030  00 00 02 00 00 00 00 00  00 00 ff ff ff 00 ff ff  |................|
+	00000040  ff ff ff ff ff ff ff ff  ff ff ff ff ff 00 ff ff  |................|
+
+Yes! 
 

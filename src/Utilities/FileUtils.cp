@@ -16,7 +16,7 @@
 
 /*  Created by Michel Alexandre Salim on 2/4/08.FIXME: This gets a compiler warning
 "'#' flag used with '%s' printf format", and for years it's been called only in
-MidiMap.c. Is that way Score Info always says "No midiMap"? */
+MidiMap.c. Is that why Score Info always says "No midiMap"? */
 
 FILE *FSpOpenInputFile(Str255 macfName, FSSpec *fsSpec)
 {
@@ -315,9 +315,10 @@ void DisplayDocumentHdr(short id, Document *doc)
 
 
 /* Do a reality check for Document header values that might be bad. If any problems are
-found, say so and Return False. NB: We're not checking anywhere near everything we could! */
+found, say so. Return the number of errors found. We assume we're called as soon as the
+Document header is read. NB: We're not checking anywhere near everything we could! */
 
-Boolean CheckDocumentHdr(Document *doc)
+short CheckDocumentHdr(Document *doc, short *pFirstErr)
 {
 	short nerr = 0, firstErr = 0;
 	
@@ -329,26 +330,15 @@ Boolean CheckDocumentHdr(Document *doc)
 #endif
 	if (!RectIsValid(doc->origPaperRect, 0, in2pt(12)))  ERR(4);
 	if (!RectIsValid(doc->marginRect, 4, in2pt(12)))  ERR(5);
-	if (doc->numSheets<1 || doc->numSheets>250)  ERR(7);
-	if (doc->firstPageNumber<0 || doc->firstPageNumber>250)  ERR(9);
-	if (doc->startPageNumber<0 || doc->startPageNumber>250)  ERR(10);
+	if (doc->numSheets<1 || doc->numSheets>400)  ERR(7);
+	if (doc->firstPageNumber<0 || doc->firstPageNumber>400)  ERR(9);
+	if (doc->startPageNumber<0 || (doc->startPageNumber>400 && doc->startPageNumber!=SHRT_MAX))
+		ERR(10);
 	if (doc->numRows < 1 || doc->numRows > 250)  ERR(11);
 	if (doc->numCols < 1 || doc->numCols > 250)  ERR(12);
 	if (doc->pageType < 0 || doc->pageType > 20)  ERR(13);
-
-	if (nerr==0) {
-		LogPrintf(LOG_NOTICE, "No errors found.  (CheckDocumentHdr)\n");
-		return True;
-	}
-	else {
-		if (!DETAIL_SHOW) DisplayDocumentHdr(4, doc);
-		sprintf(strBuf, "%d error(s) found.", nerr);
-		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (CheckDocumentHdr)\n",
-					nerr, firstErr);
-		StopInform(GENERIC_ALRT);
-		return False;
-	}
+	*pFirstErr = firstErr;
+	return nerr;
 }
 
 
@@ -409,11 +399,11 @@ void DisplayScoreHdr(short id, Document *doc)
 
 
 /* Do a reality check for Score header values that might be bad. If any problems are
-found, say so and Return False. NB: We're not checking anywhere near everything we could!
-But we assume we're called as soon as the score header is read, and before the stringPool
-size is, so we can't fully check numbers that depend on it. */
+found, say so. Return the number of errors found. NB: We're not checking anywhere near
+everything we could! But we assume we're called as soon as the score header is read,
+and before the stringPool size is, so we can't fully check numbers that depend on that. */
 
-Boolean CheckScoreHdr(Document *doc)
+short CheckScoreHdr(Document *doc, short *pFirstErr)
 {
 	short nerr = 0, firstErr = 0;
 	
@@ -448,21 +438,7 @@ Boolean CheckScoreHdr(Document *doc)
 	if (doc->deflamTime<1 || doc->deflamTime>1000) ERR(33);
 	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) ERR(35);
 	
-	if (nerr==0) {
-		LogPrintf(LOG_NOTICE, "No errors found.  (CheckScoreHdr)\n");
-		return True;
-	}
-	else {
-		if (!DETAIL_SHOW) {
-			LogPrintf(LOG_WARNING, "\n");
-			DisplayScoreHdr(4, doc);
-		}
-		sprintf(strBuf, "%d error(s) found.", nerr);
-		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (CheckScoreHdr)\n",
-					nerr, firstErr);
-		StopInform(GENERIC_ALRT);
-		return False;
-	}
+	*pFirstErr = firstErr;
+	return nerr;
 }
 

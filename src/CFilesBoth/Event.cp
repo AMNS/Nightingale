@@ -95,10 +95,9 @@ Boolean DoEvent()
         	    case diskEvt:
 					result = HiWord(theEvent.message);
 					if (result) {
-						/*
-						 *	It'd be better to center the alert, but anyway, (112,80) was
-						 *	the location used by Finder 6.1.
-						 */
+						/* It'd be better to center the alert, but anyway, (112,80) was
+						   the location used by Finder 6.1. */
+						   
 						SetPt(&corner, 112, 80);
 						}
         	    	break;
@@ -117,11 +116,11 @@ Boolean DoEvent()
 			
 		 else
 			if (closingAll || quitting)
-				/*
-				 *	If the application is quitting or user asked to have all windows
-				 *	closed, we close the top visible window during each pass through the
-				 * event loop until all windows are closed.
-				 */
+			
+				/* If the application is quitting or user asked to have all windows
+				   closed, we close the top visible window during each pass through the
+				   event loop until all windows are closed. */
+				   
 				if (TopWindow)
 					DoCloseWindow(TopWindow);
 				else {
@@ -130,7 +129,9 @@ Boolean DoEvent()
 					}
 			 else {
 				/* Just a plain old vanilla null event */
+				
 				if ((TickCount()-checkMemTime) > MEMCHECK_INTVL) {
+				
 					/* Check avail. memory if enough time has passed since last check. */
 					CheckMemory();
 					checkMemTime = TickCount();
@@ -142,9 +143,9 @@ Boolean DoEvent()
 	}	
 
 
-/* Check for low memory.  This puts up a warning each time the available free
-memory goes from above to below config.lowMemory, and on every call if memory
-goes below config.minMemory. Intended to be called from the main event loop. */
+/* Check for low memory.  This puts up a warning each time the available free memory
+goes from above to below config.lowMemory, and on every call if memory goes below
+config.minMemory. Intended to be called from the main event loop. */
 
 static void CheckMemory()
 	{
@@ -177,7 +178,8 @@ dialogKind temporarily for the benefit of some too-smart-for-our-own-good Toolbo
 
 static void DoNullEvent(EventRecord *evt)
 	{
-		WindowPtr w;  short itemHit;  Boolean other = False;
+		WindowPtr w;  short itemHit; 
+		Boolean other = False;
 		Document *doc;
 		
 		w = TopWindow;
@@ -224,7 +226,9 @@ void DoUpdate(WindowPtr w)
 				doc=GetDocumentFromWindow(w);
 				if (doc!=NULL) {
 					doView = True;
+					
 					/* Get bounding box of region to redraw in local coords */
+					
 					RgnHandle visRgn = NewRgn();
 					GetPortVisibleRegion(GetWindowPort(w), visRgn);
 					GetRegionBounds(visRgn, &bBox);
@@ -277,20 +281,19 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 		HiliteUserWindows();		/* Make sure all windows are properly hilited */
 		
 		if (IsPaletteKind(w))
-			w = TopDocument;			/* Pass the activate event from a palette to the TopDocument. */
+			w = TopDocument;		/* Pass the activate event from a palette to the TopDocument. */
 		
 		if (w == NULL) return;
 		
-		/*
-		 *	If the previously active window was a Desk Accessory, then
-		 *	check for a changed scrap, and pull any scrap in.  If a DA
-		 *	window just got deactivated, it'll be in CurDeactive, but
-		 *	if it just got closed, CurDeactivate will be NULL and no use.
-		 *	We have to remember in wasOurWindow when one of our windows
-		 *	is in front in order to properly convert the scrap.
-		 *	If a DA window is about to get activated, then we have to
-		 *	make the scrap public.
-		 */
+		/* An ancient comment here discusses "Desk Accessories", which haven't existed
+		   for decades! Still, it might say something useful: "If the previously active
+		   window was a Desk Accessory, then check for a changed scrap, and pull any
+		   scrap in.  If a DA window just got deactivated, it'll be in CurDeactive, but
+		   if it just got closed, CurDeactivate will be NULL and no use. We have to
+		   remember in wasOurWindow when one of our windows is in front in order to
+		   properly convert the scrap. If a DA window is about to get activated, then we
+		   have to make the scrap public." */
+		   
 		if (activ) {
 			if (!isJuggle) {
 				GetCurrentScrap(&scrap);
@@ -305,10 +308,9 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 			wasOurWindow = True;
 			}
 		 else {
-		 	/* 
-		 	 * DMcK, 4/11/91: Apple DTS says the top bit of CurActivate is used as
-		 	 * a flag for something or other and should be masked off!
-		 	 */
+		 	/* DMcK, 4/11/91: Apple DTS says the top bit of CurActivate is used as
+		 	 * a flag for something or other and should be masked off! */
+			 
 //			curAct = (WindowPeek)((long)LMGetCurActivate() & 0x7FFFFFFF);
 			curAct = FrontWindow();
 			if (curAct!=NULL && GetWindowKind(curAct)<0) {
@@ -376,6 +378,7 @@ void DoSuspendResume(EventRecord *event)
 						ImportDeskScrap();
 						}
 					/* Convert to activate event */
+					
 					event->modifiers |= activeFlag;
 					inBackground = False;
 					if (clipShow) {
@@ -389,7 +392,9 @@ void DoSuspendResume(EventRecord *event)
 					}
 				 else {				/* Else it's a suspend event */
 					inBackground = True;
+					
 					/* Convert to deactivate event */
+					
 					event->modifiers &= ~activeFlag;
 					clipShow = IsWindowVisible(clipboard->theWindow);
 					if (clipShow) HideWindow(clipboard->theWindow);
@@ -406,7 +411,7 @@ void DoSuspendResume(EventRecord *event)
 	}
 
 
-/* Handle a generic mouse down event */
+/* Handle a generic mouse down event. */
 
 static Boolean DoMouseDown(EventRecord *event)
 	{
@@ -441,10 +446,9 @@ static Boolean DoMouseDown(EventRecord *event)
 			 else {
 			 	frontClick = True;
 				if (!ActiveWindow(w)) {
-					/*
-					 *	If the window clicked in is a palette, bring it to front like
-					 *	any other, but continue processing click as if it had been active.
-					 */
+					/* If the window clicked in is a palette, bring it to front like any
+					   any other, but continue processing click as if it had been active. */
+					   
 					frontClick = (IsPaletteKind(w) && w!=TopPalette);
 					DoSelectWindow(w);
 					if (frontClick) {
@@ -466,10 +470,9 @@ static Boolean DoMouseDown(EventRecord *event)
 						case inZoomIn:
 						case inZoomOut:
 							if (TrackBox(w, pt, part)) {
-								/*
-								 *	Force caret into off state, otherwise any invalid
-								 *	background bits covered by palette may come into view.
-								 */
+								/* Force caret into off state; otherwise any invalid
+								   background bits covered by palette may come into view. */
+								
 								if (IsPaletteKind(w))
 									if (TopDocument)
 										MEHideCaret(GetDocumentFromWindow(TopDocument));
@@ -477,10 +480,9 @@ static Boolean DoMouseDown(EventRecord *event)
 								}
 							break;
 						case inDrag:
-							/*
-							 *	Force caret into off state, otherwise any invalid
-							 *	background bits covered by palette may come into view.
-							 */
+							/* Force caret into off state; otherwise any invalid
+							   background bits covered by palette may come into view. */
+								
 							if (IsPaletteKind(w))
 								if (TopDocument)
 									MEHideCaret(GetDocumentFromWindow(TopDocument));
@@ -500,7 +502,8 @@ static Boolean DoMouseDown(EventRecord *event)
 
 static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 	{
-		short code,val, oldVal,change;   short index;
+		short code,val, oldVal, change;
+		short index;
 		GrafPtr oldPort;
 		ControlHandle control;
 		Rect portRect;
@@ -550,13 +553,15 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 										/* Keep change a multiple of 8 */
 										if (change > 0) change += (8 - (change & 7));
 										 else			change -= (change & 7);
-									/*
-									 *	Reset it, because QuickScroll expects old value,
-									 *	but don't let user see you set it back.
-									 */
+										 
+									/* Reset it, because QuickScroll expects old value,
+									   but don't let user see you set it back. */
+									   
 									SetControlValue(control,oldVal);
 									MEHideCaret(doc);
+									
 									/* OK, now go ahead */
+									
 									if (control==doc->vScroll)	QuickScroll(doc, 0, change, True, True);
 									 else						QuickScroll(doc, change, 0, True,True);
 									}
@@ -613,9 +618,9 @@ void AutoScroll()
 }
 
 
-/* Handle a mouse down event in Document content area, i.e., in a Document window
-but not in a control.  pt is expected in local coords. In documents, entertain
-selection rectangle with automatic scrolling if user drags mouse out of view. */
+/* Handle a mouse down event in Document content area, i.e., in a Document window but
+not in a control.  pt is expected in local coords. In documents, entertain selection
+rectangle with automatic scrolling if user drags mouse out of view. */
 
 static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 	{
@@ -638,6 +643,7 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 					
 					/* Transform to paper relative coords: in pixels relative to
 						upper left corner of page (e.g. by subtracting (-24000, -24000)) */
+						
 					pt.h -= paper.left;
 					pt.v -= paper.top;
 					
@@ -697,6 +703,7 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 		if (LinkSEL(pL))
 			switch (ObjLType(pL)) {
 				/* Move horizontally only, and selected subobjects (notes and rests) only. */
+				
 				case SYNCtype:
 					if (arrowKeyCode==kLeftArrowCharCode) nudgeSignedDist = -NUDGE_DIST;
 					else if (arrowKeyCode==kRightArrowCharCode) nudgeSignedDist = NUDGE_DIST;
@@ -793,15 +800,16 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 }
 
 
-/* Deal with a generic key down event.  In general, keys typed are intended to be
-choices among the various symbols and tools in the Tools Palette, which may or may
-not be visible, and which can be visible even when there's no current document open.
-Other keys, such as DELETE or RETURN, are dealt with separately.  Return value is
-whether to continue event loop or not. */
+/* Deal with a generic key down event.  In general, keys typed are intended to be choices
+among the various symbols and tools in the Tools Palette, which may or may not be visible,
+and which can be visible even when there's no current document open. Other keys, such as
+DELETE or RETURN, are dealt with separately.  Return value is whether to continue event
+loop or not. */
 
 static Boolean DoKeyDown(EventRecord *evt)
 	{
-		short ch, itemHit, key, nparts;  WindowPtr wp;
+		short ch, itemHit, key, nparts;
+		WindowPtr wp;
 		short nInRange, nSelFlag;
 		Boolean scoreView;
 		Document *doc = GetDocumentFromWindow(TopDocument);
@@ -834,6 +842,7 @@ static Boolean DoKeyDown(EventRecord *evt)
 
 		if (GetWindowKind(wp)== dialogKind) {
 			/* Deal with key down in modeless dialog, such as search results window. */
+			
 			if (DialogSelect(evt, (DialogPtr *)&wp, &itemHit)) { }
 			}
 		 else
@@ -878,17 +887,17 @@ static void DoKeyUp(EventRecord */*event*/)
 
 static void DoGrow(WindowPtr w, Point pt, Boolean /*command*/)
 	{
-		Rect limitRect,oldRect,oldMessageRect;  GrafPtr oldPort;
-		long newSize;  short x,y;  long kind;
+		Rect limitRect, oldRect, oldMessageRect;
+		GrafPtr oldPort;
+		long newSize;  short x, y;  long kind;
 		
 		GetPort(&oldPort);
 		
 		switch (GetWindowKind(w)) {
 			case PALETTEKIND:
-				/*
-				 *	Force caret into off state, otherwise invalid background bits
-				 *	covered by palette may come into view.
-				 */
+				/* Force caret into off state; otherwise invalid background bits
+				   covered by palette may come into view. */
+
 				if (TopDocument)
 					MEHideCaret(GetDocumentFromWindow(TopDocument));
 				kind = GetWRefCon(w);
@@ -903,7 +912,7 @@ static void DoGrow(WindowPtr w, Point pt, Boolean /*command*/)
 					PrepareMessageDraw(doc, &oldMessageRect, True);
 					oldMessageRect.top--;		/* Include DrawGrowIcon line */
 					SetRect(&limitRect, MESSAGEBOX_WIDTH+70, 80, 20000, 20000);
-					newSize = GrowWindow(w, pt,&limitRect);
+					newSize = GrowWindow(w, pt, &limitRect);
 					if (newSize) {
 						EraseAndInval(&oldMessageRect);
 						x = LoWord(newSize); y = HiWord(newSize);
@@ -941,8 +950,8 @@ pascal OSErr HandleOAPP(const AppleEvent *appleEvent, AppleEvent */*reply*/, lon
 }
 
 
-/* Finder (or someone) has asked us to open a document, usually when user double-
-clicks on or drag-drops a score in Finder. */
+/* Finder (or someone) has asked us to open a document, usually when user double-clicks
+on or drag-drops a score in Finder. */
 
 pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, long /*refcon*/)
 {
@@ -1007,7 +1016,8 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 	
 	switch (fndrInfo.fdType) {
 		default:
-			/* FIXME: We should give a specific, more helpful error message if it's a Help file. */		
+			/* FIXME: We should give a specific, more helpful error message if it's a Help file. */
+					
 			GetIndCString(fmtStr, FILEIO_STRS, 20);		/* "Finder type is incorrect" */
 			sprintf(aStr, fmtStr);
 			strcat(aStr, "\n");
@@ -1074,10 +1084,9 @@ static OSErr MyGotRequiredParams(const AppleEvent *appleEvent)
 }
 
 
-/* Call this when event manager says a high level event has happened.  This just
-calls back to the Apple Event Manager to call our handlers according to the
-event class: our own events or the core events.  Right now, we support only the
-core events. */
+/* Call this when event manager says a high level event has happened.  This just calls
+back to the Apple Event Manager to call our handlers according to the event class: our
+own events or the core events.  Right now, we support only the core events. */
 
 static void DoHighLevelEvent(EventRecord *evt)
 {

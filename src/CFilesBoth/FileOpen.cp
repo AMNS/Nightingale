@@ -68,7 +68,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 {
 	short		errType, refNum, strPoolErrCode;
 	short 		errInfo=0,				/* Type of object being read or other info on error */
-				lastType, i;
+				nErr, firstErr, lastType, i;
 	long		count, stringPoolSize,
 				fileTime;
 	Boolean		fileIsOpen;
@@ -177,22 +177,36 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	EndianFixDocumentHdr(doc);
 	if (DETAIL_SHOW) DisplayDocumentHdr(2, doc);
 	LogPrintf(LOG_NOTICE, "Checking Document header: ");
-	if (!CheckDocumentHdr(doc)) {
+	nErr = CheckDocumentHdr(doc, &firstErr);
+	if (nErr==0) {
+		LogPrintf(LOG_NOTICE, "No errors found.  (CheckDocumentHdr)\n");
+	}
+	else {
 		if (!DETAIL_SHOW) DisplayDocumentHdr(3, doc);
-		sprintf(strBuf, "Error(s) found in Document header.");
+		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (OpenFile)\n",
+					nErr, firstErr);
+		sprintf(strBuf, "%d", nErr);
 		CParamText(strBuf, "", "", "");
-		goto HeaderError;
+		short itemHit = CautionAlert(504, NULL);
+		if (itemHit == Cancel) goto HeaderError;
 	}
 	
 //DisplayScoreHdr(2, doc);		// ??TEMPORARY, TO DEBUG INTEL VERSION!!!!
 	EndianFixScoreHdr(doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(3, doc);
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");
-	if (!CheckScoreHdr(doc)) {
+	nErr = CheckScoreHdr(doc, &firstErr);
+	if (nErr==0) {
+		LogPrintf(LOG_NOTICE, "No errors found.  (CheckScoreHdr)\n");
+	}
+	else {
 		if (!DETAIL_SHOW) DisplayScoreHdr(3, doc);
-		sprintf(strBuf, "Error(s) found in Score header.");
+		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (OpenFile)\n",
+					nErr, firstErr);
+		sprintf(strBuf, "%d", nErr);
 		CParamText(strBuf, "", "", "");
-		goto HeaderError;
+		short itemHit = CautionAlert(506, NULL);
+		if (itemHit == Cancel) goto HeaderError;
 	}
 
 	count = sizeof(lastType);
@@ -244,7 +258,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (DETAIL_SHOW) DisplayStringPool(doc->stringPool);
 	strPoolErrCode = StringPoolProblem(doc->stringPool);
 	if (strPoolErrCode!=0) {
-		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (OpenFile)\n", (long)strPoolErrCode);
+		AlwaysErrMsg("The file appears to be corrupted: string pool is probably bad (code=%ld).  (OpenFile)\n", (long)strPoolErrCode);
 		errInfo = STRINGobj; goto Error;
 	}
 	
@@ -362,7 +376,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 
 	SetTimeStamps(doc);									/* Up to first meas. w/unknown durs. */
 
-
 	/* Assume that no information in the score having to do with window-relative
 	   positions is valid. Besides clearing the object <valid> flags to indicate this,
 	   protect ourselves against functions that might not check the flags properly by
@@ -383,7 +396,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	return 0;
 
 HeaderError:
-	StopInform(GENERIC_ALRT);
 	errType = HEADER_ERR;
 	errInfo = 0;
 	/* drop through */

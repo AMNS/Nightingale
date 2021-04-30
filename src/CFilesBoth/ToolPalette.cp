@@ -125,12 +125,12 @@ Boolean TranslatePalChar(
 	theCharMap = (PCHARMAP)resP;
 
 	/* See if we're handling a toggle event. First make sure the toggle state is in
-	sync with the currently selected tool palette item. If that item is a duration,
-	the toggle state should be the same type (note or rest) as the item. If the user
-	hits the rest toggle key to enter rests and then clicks on a note in the palette,
-	the toggle state should switch to notes without the user having to hit the key
-	again. This seems the most natural way to handle it. Once that's taken care of,
-	see if this is a toggle key event, and if so, flip the toggle state. */
+	   sync with the currently selected tool palette item. If that item is a duration,
+	   the toggle state should be the same type (note or rest) as the item. If the user
+	   hits the rest toggle key to enter rests and then clicks on a note in the palette,
+	   the toggle state should switch to notes without the user having to hit the key
+	   again. This seems the most natural way to handle it. Once that's taken care of,
+	   see if this is a toggle key event, and if so, flip the toggle state. */
 
 	if (doNoteRestToggle) {
 		if (IsDurKey((unsigned char)palChar, &isNote)) {			/* If user has clicked on a duration in palette, reset toggle state */
@@ -140,7 +140,7 @@ Boolean TranslatePalChar(
 				note = True;		
 		}
 		if ((ch == kpadTogChar && IsOnKeyPad(ch)) ||
-			 (ch == mainTogChar && !IsOnKeyPad(ch))) {
+			(ch == mainTogChar && !IsOnKeyPad(ch))) {
 			note = !note;
 						
 			/* If current palette tool is a note or rest, must toggle the tool.
@@ -175,18 +175,15 @@ skipMapping:
 	if (doNoteRestToggle) {
 		if (IsDurKey(ch, &isNote)) {
 			if (isNote && !note) {
-				if (ch == 0xDD)							/* take care of unruly breve */
-					ch = '@';
-				else
-					ch -= 32;							/* turn the note into a rest */
+				if (ch == 0xDD) ch = '@';				/* take care of unruly breve */
+				else ch -= 32;							/* turn the note into a rest */
 			}
+			
 			/* NB: Code below used only when hitting a toggle key. See goto skipMapping above. */
 			
 			else if (!isNote && note && !shiftIsDown) {	/* don't defeat shiftkey=>rest action */
-				if (ch == '@')							/* breve */
-					ch = 0xDD;
-				else
-					ch += 32;							/* turn the rest into a note */
+				if (ch == '@')	ch = 0xDD;				/* breve */
+				else ch += 32;							/* turn the rest into a note */
 			}
 		}
 	}
@@ -237,8 +234,7 @@ Boolean IsDurKey(unsigned char ch, Boolean *isNote)
 	
 	for (i=0; i<18; i++) {
 		if (ch == durKeys[i]) {
-			if (ch > 96)
-				*isNote = True;
+			if (ch > 96) *isNote = True;
 			return True;
 		}
 	}
@@ -328,6 +324,7 @@ pascal void HiliteToolItem(Rect *r, short item)
 		if (col >= (*paletteGlobals[TOOL_PALETTE])->across) return;
 		
 		/* Otherwise, it's a visible item */
+		
 		hiliteRect = toolRects[item];
 		hiliteRect.bottom -= 1;
 		hiliteRect.right -= 1;
@@ -404,9 +401,9 @@ void DoToolContent(Point pt, short modifiers)
 	
 	if (item) {
 		if (doSwap) {
-			GetWindowPortBounds(w,&portRect);
+			GetWindowPortBounds(w, &portRect);
 			HiliteToolItem(&portRect, item);			/* Unhilite while swapping */
-			SwapTools(firstItem,item);
+			SwapTools(firstItem, item);
 			HiliteToolItem(&portRect, item);			/* Restore hilight */
 			
 			/* CER 10.18.2004: OS 10.3.3 problem? DoUpdate draws the tool in the global
@@ -438,7 +435,8 @@ void DoToolContent(Point pt, short modifiers)
 
 void SwapTools(short firstItem, short lastItem)
 {
-	char tmp; GrafPtr scratchPort, port;
+	char tmp;
+	GrafPtr scratchPort, port;
 	
 	if (firstItem == lastItem) return;
 
@@ -471,32 +469,32 @@ void SwapTools(short firstItem, short lastItem)
 }
 
 
-/* Copy the tool item sized bitmap in scrPort to dstPort, in the position indicated by
+/* Copy the tool-item-sized bitmap in scrPort to dstPort, in the position indicated by
 the source and destination items, srcItem and dstItem.  If a port is our temporary
 offscreen port, the corresponding item is 0. */
 
 static void PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcItem)
-	{
-		Rect srcRect, dstRect;
-		
-		if (srcItem) srcRect = toolRects[srcItem];
-		if (dstItem) dstRect = toolRects[dstItem];
-		
-		if (!srcItem)
-			SetRect(&srcRect,0,0,dstRect.right-dstRect.left,dstRect.bottom-dstRect.top);
-		if (!dstItem)
-			SetRect(&dstRect,0,0,srcRect.right-srcRect.left,srcRect.bottom-srcRect.top);
-		
-		if (srcPort == palPort) OffsetRect(&srcRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
-		if (dstPort == palPort) OffsetRect(&dstRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
-		
-		srcRect.right--;  srcRect.bottom--;
-		dstRect.right--;  dstRect.bottom--;
-		
-		const BitMap *srcPortBits = GetPortBitMapForCopyBits(srcPort);
-		const BitMap *dstPortBits = GetPortBitMapForCopyBits(dstPort);		
-		CopyBits(srcPortBits, dstPortBits, &srcRect, &dstRect, srcCopy, NULL);
-	}
+{
+	Rect srcRect, dstRect;
+	
+	if (srcItem) srcRect = toolRects[srcItem];
+	if (dstItem) dstRect = toolRects[dstItem];
+	
+	if (!srcItem)
+		SetRect(&srcRect,0,0,dstRect.right-dstRect.left,dstRect.bottom-dstRect.top);
+	if (!dstItem)
+		SetRect(&dstRect,0,0,srcRect.right-srcRect.left,srcRect.bottom-srcRect.top);
+	
+	if (srcPort == palPort) OffsetRect(&srcRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
+	if (dstPort == palPort) OffsetRect(&dstRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
+	
+	srcRect.right--;  srcRect.bottom--;
+	dstRect.right--;  dstRect.bottom--;
+	
+	const BitMap *srcPortBits = GetPortBitMapForCopyBits(srcPort);
+	const BitMap *dstPortBits = GetPortBitMapForCopyBits(dstPort);		
+	CopyBits(srcPortBits, dstPortBits, &srcRect, &dstRect, srcCopy, NULL);
+}
 
 
 /* Get cursor corresponding to choice from the tool palette; set globals currentItem,
@@ -504,47 +502,47 @@ currentCursor, and palChar.  item should be from 1 to number of choices in palet
 (menu item code). */
 
 void HandleToolCursors(short item)
-	{
-		short symIndex;
-		
-		palChar = GetPalChar(item);
-		symIndex = GetSymTableIndex(palChar);
-		if (symIndex == NOMATCH) {
-			currentCursor = arrowCursor;
-			PalKey(CH_ENTER);
-			}
-		 else
-			currentCursor = palChar==CH_ENTER ? arrowCursor : cursorList[symIndex];
-		
-		SetCursor(*currentCursor);					/* So no delay before it changes */
-	}
+{
+	short symIndex;
+	
+	palChar = GetPalChar(item);
+	symIndex = GetSymTableIndex(palChar);
+	if (symIndex == NOMATCH) {
+		currentCursor = arrowCursor;
+		PalKey(CH_ENTER);
+		}
+	 else
+		currentCursor = palChar==CH_ENTER ? arrowCursor : cursorList[symIndex];
+	
+	SetCursor(*currentCursor);					/* So no delay before it changes */
+}
 
 
 /* Set the current item in the tool palette to correspond to <ch> and hilite it. */
 
 void PalKey(char ch)
-	{
-		short	item, numItems;
-		
-		PaletteGlobals *toolGlobal;  GrafPtr oldPort;
-		WindowPtr w = palettes[TOOL_PALETTE];
-		Rect portRect;
+{
+	short	item, numItems;
+	
+	PaletteGlobals *toolGlobal;  GrafPtr oldPort;
+	WindowPtr w = palettes[TOOL_PALETTE];
+	Rect portRect;
 
-		toolGlobal = *paletteGlobals[TOOL_PALETTE];
-		numItems = toolGlobal->maxAcross * toolGlobal->maxDown;
+	toolGlobal = *paletteGlobals[TOOL_PALETTE];
+	numItems = toolGlobal->maxAcross * toolGlobal->maxDown;
 
-		GetPort(&oldPort); SetPort(GetWindowPort(w));
-		for (item=0; item<numItems; item++)
-			if (grid[item].ch == (unsigned char)ch) {
-				item += 1;						/* Convert back to menu item coordinates */
-				GetWindowPortBounds(w,&portRect);
-				HiliteToolItem(&portRect, toolGlobal->currentItem);
-				HiliteToolItem(&portRect, item);
-				toolGlobal->currentItem = item;
-				break;
-				}
-		SetPort(oldPort);
-	}
+	GetPort(&oldPort); SetPort(GetWindowPort(w));
+	for (item=0; item<numItems; item++)
+		if (grid[item].ch == (unsigned char)ch) {
+			item += 1;						/* Convert back to menu item coordinates */
+			GetWindowPortBounds(w,&portRect);
+			HiliteToolItem(&portRect, toolGlobal->currentItem);
+			HiliteToolItem(&portRect, item);
+			toolGlobal->currentItem = item;
+			break;
+			}
+	SetPort(oldPort);
+}
 
 
 /* Return the palette char corresponding to the item in the tool palette. */
@@ -599,6 +597,7 @@ void DoToolKeyDown(
 				item = oldItem;
 			 else {
 				/* Save current item, and install arrow, whereever it is */
+				
 				oldItem = toolGlobal->currentItem;
 			 	item = GetPalItem(CH_ENTER);
 				}
@@ -634,7 +633,8 @@ initial mouse down point to pass to GrowWindow(). */
 
 void DoToolGrow(Point pt)
 {
-	Rect oldRect, r;  WindowPtr w = palettes[TOOL_PALETTE];
+	Rect oldRect, r;
+	WindowPtr w = palettes[TOOL_PALETTE];
 	short margin, x, y, across, down;
 	long newSize;
 	PaletteGlobals *whichPalette = *paletteGlobals[TOOL_PALETTE];
@@ -652,7 +652,7 @@ void DoToolGrow(Point pt)
 		across = (x + toolCellWidth/2) / toolCellWidth;
 		down   = (y + toolCellHeight/2) / toolCellHeight;
 		ChangeToolSize(across, down, False);
-		}
+	}
 }
 
 
@@ -723,7 +723,8 @@ into it. */
 
 Boolean SaveToolPalette(Boolean inquire)
 	{
-		short itemHit, curResFile;  PicHandle thePic, toolPicture;
+		short itemHit, curResFile;
+		PicHandle thePic, toolPicture;
 		Rect picRect;  long size;
 		GrafPtr port, oldPort;
 		
@@ -786,7 +787,8 @@ Boolean SaveToolPalette(Boolean inquire)
 	}
 
 
-/* Write the PLCH resource back out, since we're saving the tool palette. */
+/* Write the PLCH resource back out. Intended to be called when we're saving the tool
+palette. */
 
 static void UpdateGridCoords()
 	{

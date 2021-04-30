@@ -3236,3 +3236,14 @@ message is given, but it's now a mere warning, and they're just set to 0, thereb
 discarding any existing header and/or footer info. Affects FileOpen.
 
 Minor changes. Affects .rsrc; FileOpen, FileSave, HeapFileIO, Initialize, ToolPalette.
+
+---------------------------------------------------------------------------------------
+
+23 - 30 Apr.
+
+Fixed bug: on opening a file set to not display page numbers, Nightingale complains
+about an error in the Document header.
+
+Minor changes: let user choose whether to open files with header errors, etc. Affects
+.rsrc (added two ALRTs); File.h; Event, FileOpen, FileUtils, HeapFileIO, Initialize,
+ToolPalette.

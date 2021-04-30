@@ -824,20 +824,23 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	errType = ReadObjHeap(doc, refNum, version, isViewerFile);
 	if (errType) return errType;
 
-	/* Fix links. This is necessary because ??WHY?I don't know! --DAB.  Then, if the
-	   file is in the current format, handle the Endian issue. If it's in format 'N105',
-	   it could only have been written on a machine with the same Endianness as the one
-	   we're running on -- both must be PowerPC's -- so no need to be concerned with
-	   Endian issues. */
+	/* Fix links. This is necessary because ??WHY?I have no idea, but it sure seems to
+	   be necessary!! --DAB.  Then, if the file is in a format other than 'N105', handle
+	   the Endian issue. If it's in format 'N105', it could only have been written on a
+	   machine with the same Endianness as the one we're running on -- both must be
+	   PowerPC's -- so there's no need to be concerned with Endian issues. */
 	   
 	if (version=='N105') errType = HeapFixN105ObjLinks(doc);
 	else {
 		errType = HeapFixObjLinks(doc);
 
-for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
-	if (DETAIL_SHOW && (ObjLType(objL)<=MEASUREtype || ObjLType(objL)==TUPLETtype))
-		DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);
-}
+#define NoDEBUG_READHEAPS
+#ifdef DEBUG_READHEAPS
+	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
+		if (DETAIL_SHOW && (ObjLType(objL)<=MEASUREtype || ObjLType(objL)==TUPLETtype))
+			DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);
+	}
+#endif
 
 		for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
 			EndianFixSubobjs(objL);
@@ -845,10 +848,12 @@ for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
 			EndianFixSubobjs(objL);
 	}
 	
-for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
-	if (DETAIL_SHOW && (ObjLType(objL)<=MEASUREtype || ObjLType(objL)==TUPLETtype))
-		DisplayObject(doc, objL, 800+ObjLType(objL), True, True, True);
-}
+#ifdef DEBUG_READHEAPS
+	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
+		if (DETAIL_SHOW && (ObjLType(objL)<=MEASUREtype || ObjLType(objL)==TUPLETtype))
+			DisplayObject(doc, objL, 800+ObjLType(objL), True, True, True);
+	}
+#endif
 
 	if (errType)	return errType;
 	else			return 0;

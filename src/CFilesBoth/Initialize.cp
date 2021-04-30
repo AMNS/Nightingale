@@ -34,9 +34,9 @@ static Boolean		NInitPalettes(void);
 static void			DisplayToolPalette(PaletteGlobals *whichPalette);
 static Boolean		CheckToolPalette(PaletteGlobals *whichPalette);
 static short		GetToolGrid(PaletteGlobals *whichPalette);
-static void			SetupPaletteRects(Rect *whichRects, short across, short down, short width,
+static void			InitPaletteRects(Rect *whichRects, short across, short down, short width,
 										short height);
-static void			SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
+static void			InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
 static Boolean		PrepareClipDoc(void);
 static void			InstallCoreEventHandlers(void);
 
@@ -1340,7 +1340,7 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 
 /* Install the rectangles for the given pallete rects array and its dimensions */
 
-static void SetupPaletteRects(Rect *whichRects, short itemsAcross, short itemsDown,
+static void InitPaletteRects(Rect *whichRects, short itemsAcross, short itemsDown,
 								short itemWidth, short itemHeight)
 {
 	short across, down;
@@ -1371,7 +1371,7 @@ TOOLS_DOWN are the values taken from the first two bytes of the PLCH resource. T
 picture will be displayed centered in the palette window with a TOOLS_MARGIN pixel
 margin on all sides. */
 
-static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
+static void InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 {
 	PicHandle toolPicture;  Rect picRect;
 	short curResFile;  short defaultToolItem;
@@ -1398,7 +1398,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	OffsetRect(&picRect, -picRect.left, -picRect.top);
 	*windowRect = picRect;
 	
-	SetupPaletteRects(toolRects,
+	InitPaletteRects(toolRects,
 			whichPalette->maxAcross, whichPalette->maxDown,
 			toolCellWidth = (windowRect->right + 1) / whichPalette->maxAcross,
 			toolCellHeight = (windowRect->bottom + 1) / whichPalette->maxDown);
@@ -1425,7 +1425,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	whichPalette->findItemProc = (short (*)())FindToolItem;
 	whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
 	
-LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
+LogPrintf(LOG_DEBUG, "InitToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
 
 	/* Put picture into offscreen port so that any rearrangements can be saved. */
 
@@ -1436,7 +1436,7 @@ LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.r
 	
 {
 PixMapHandle portPixMapH = GetPortPixMap(gwPtr); PixMapPtr portPixMap = *portPixMapH;
-LogPixMapInfo("SetupToolPalette1", portPixMap, 1000);
+LogPixMapInfo("InitToolPalette1", portPixMap, 1000);
 }
 	HLock((Handle)toolPicture);
 	DrawPicture(toolPicture, &picRect);
@@ -1446,7 +1446,7 @@ LogPixMapInfo("SetupToolPalette1", portPixMap, 1000);
 	palPort = gwPtr;
 {
 PixMapHandle portPixMapH = GetPortPixMap(palPort); PixMapPtr portPixMap = *portPixMapH;
-LogPixMapInfo("SetupToolPalette2", portPixMap, 1000);
+LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
 }
 //		UnlockGWorld(gwPtr);
 	RestoreGWorld();
@@ -1479,7 +1479,7 @@ static Boolean NInitPalettes()
 			
 			switch(idx) {
 				case TOOL_PALETTE:
-					SetupToolPalette(whichPalette, &windowRects[idx]);
+					InitToolPalette(whichPalette, &windowRects[idx]);
 					wdefID = ToolPaletteWDEF_ID;
 					break;
 				case HELP_PALETTE:

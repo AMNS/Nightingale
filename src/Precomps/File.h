@@ -38,9 +38,9 @@ error occurs (all negative). */
 
 
 void DisplayDocumentHdr(short id, Document *doc);
-Boolean CheckDocumentHdr(Document *doc);
+short CheckDocumentHdr(Document *doc, short *pFirstErr);
 void DisplayScoreHdr(short id, Document *doc);
-Boolean CheckScoreHdr(Document *doc);
+short CheckScoreHdr(Document *doc, short *pFirstErr);
 
 short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pfsSpec, long *fileVersion);
 void OpenError(Boolean, short, short, short);
