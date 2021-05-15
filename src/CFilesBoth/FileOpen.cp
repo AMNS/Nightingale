@@ -43,11 +43,11 @@ static void SetTimeStamps(Document *doc)
 
 
 /* -------------------------------------------------------------------------- OpenFile -- */
-/* Open and read in the specified file. If there's an error, normally (see comments in
-OpenError) gives an error message, and returns <errType>; else returns noErr (0). Also
-sets *fileVersion to the Nightingale version that created the file. We assume doc exists
-and has had standard fields initialized. FIXME: even though vRefNum is a parameter,
-(routines called by) OpenFile assume the volume is already set! This should be changed. */
+/* Open and read in the specified file Nightingale score file. If there's an error,
+normally (see comments in OpenError) give an error message, and return <errType>; else
+return noErr (0). Also set *fileVersion to the Nightingale version that created the file.
+We assume doc exists and has had standard fields initialized. FIXME: even though vRefNum
+is a parameter, (routines called by) OpenFile assume the volume is already set! */
 
 enum {
 	LOW_VERSION_ERR=-999,

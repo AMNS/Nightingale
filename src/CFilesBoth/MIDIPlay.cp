@@ -40,8 +40,8 @@ FIXME: The old code should be removed!  --DAB */
 
 static long		pageTurnTOffset;
 
-static void		ErrorMsg(short index);
-static short	DoGeneralAlert(unsigned char *str);
+static void		MPErrorMsg(short index);
+static short	MPDoGeneralAlert(unsigned char *str);
 static void		PlayMessage(Document *, LINK, short);
 static Boolean	HiliteSyncRect(Document *doc, Rect *syncRect, Rect *rPaper, Boolean scroll);
 static long		ScaleDurForVariableSpeed(long dur);
@@ -49,21 +49,19 @@ static long		ScaleDurForVariableSpeed(long dur);
 #define CMDEBUG 0
 #define PLDEBUG 0
 
-/* Print an error message.  If index is non-zero, then retrieve the index'th string
-from our error strings resource. */
+/* Print an error message.  If index is non-zero, then retrieve the index'th string from
+our error strings resource. */
 
-#define MIDIErrorStringsID 235
-
-static void ErrorMsg(short index)
+static void MPErrorMsg(short index)
 {
 	Str255 str;
 	
-	if (index > 0)	GetIndString(str, MIDIErrorStringsID, index);
+	if (index > 0)	GetIndString(str, MIDIPLAYERRS_STRS, index);
 	else			*str = 0;
-	(void)DoGeneralAlert(str);
+	(void)MPDoGeneralAlert(str);
 }
 
-static short DoGeneralAlert(unsigned char *str)
+static short MPDoGeneralAlert(unsigned char *str)
 {
 	ParamText(str, "\p", "\p", "\p");
 	PlaceAlert(errorMsgID, NULL, 0, 40);
@@ -72,10 +70,10 @@ static short DoGeneralAlert(unsigned char *str)
 
 
 /* ----------------------------------------------------------------------- PlayMessage -- */
-/* Write a message into the message area saying what measure is playing; if not
-playing at the "correct" (marked) tempo, what the relative speed is; and, if a part
-is muted, saying that. If <pL> is NILINK, use <measNum> as measure no., else get it
-from <pL>'s Measure. */
+/* Write a message into the message area saying what measure is playing; if not playing
+at the "correct" (marked) tempo, what the relative speed is; and, if a part is muted,
+saying that. If <pL> is NILINK, use <measNum> as measure no., else get it from <pL>'s
+Measure. */
 
 static void PlayMessage(Document *doc, LINK pL, short measNum)
 {
@@ -127,17 +125,19 @@ static Boolean HiliteSyncRect(
 	Rect result;  short x, y;
 	Boolean turnedPage=False;
 	
-	/* Temporarily convert r to window coords. Normally, we do this by offsetting
-	   by doc->currentPaper, but in this case, doc->currentPaper may have changed
-	   (if r's Sync was the last played on a page), so we have to use the currentPaper
-	   for r's Sync. */
+	/* Temporarily convert r to window coords. Normally, we do this by offsetting by
+	   doc->currentPaper, but in this case, doc->currentPaper may have changed (if r's
+	   Sync was the last played on a page); so we have to use the currentPaper for r's
+	   Sync. */
 
 	OffsetRect(r, rPaper->left, rPaper->top);
 	
 	/* Code to scroll while playing. See comment on timing above. */
+	
 	if (scroll) {
 		if (!SectRect(r, &doc->viewRect, &result)) {
 			/* Rect to be hilited is outside of window's view, so scroll paper */
+			
 			x = doc->currentPaper.left - config.hPageSep;
 			y = doc->currentPaper.top  - config.vPageSep;
 			QuickScroll(doc, x, y, False, True);
@@ -148,6 +148,7 @@ static Boolean HiliteSyncRect(
 	HiliteRect(r);
 	
 	/* Convert back to paper coords */
+	
 	OffsetRect(r, -rPaper->left, -rPaper->top);
 	
 	return turnedPage;
@@ -208,7 +209,8 @@ static Boolean TupletProblem(Document *doc, LINK insL)
 
 Boolean CloseAddBarlines(Document *doc)
 {
-	short symIndex, n;  CONTEXT context;
+	short symIndex, n;
+	CONTEXT context;
 	LINK insL, newMeasL, firstInsL, lastInsL, saveSelStartL, saveSelEndL, prevSync;
 	Boolean okay=True;
 	char fmtStr[256];
@@ -227,8 +229,8 @@ Boolean CloseAddBarlines(Document *doc)
 	
 	WaitCursor();
 	
-	/* Put barlines that would otherwise go at the beginning of a system at the end
-	 * of the previous system instead. */
+	/* Put barlines that would otherwise go at the beginning of a system at the end of
+	   of the previous system instead. */
 	
 	for (n = 0; n<nBars; n++) {
 		prevSync = SSearch(LeftLINK(barBeforeL[n]), SYNCtype, GO_LEFT);
@@ -237,7 +239,7 @@ Boolean CloseAddBarlines(Document *doc)
 	}
 
 	/* Save current selection range so we can set range for PrepareUndo, then restore
-		it. Since Undo works on whole systems, FindInsertPt can't affect it. */
+	   it. Since Undo works on whole systems, FindInsertPt can't affect it. */
 	
 	saveSelStartL = doc->selStartL;
 	saveSelEndL = doc->selEndL;
@@ -318,7 +320,8 @@ short nkt;
 
 /* -------------------------------------------------------------------------------------- */
 
-static void SetPartPatch(short partn, Byte partPatch[], Byte partChannel[], Byte patchNum)
+static void SetPartPatch(short partn, Byte partPatch[], Byte /* partChannel */ [],
+						Byte patchNum)
 {
 	short patch = patchNum + CM_PATCHNUM_BASE;
 
@@ -344,7 +347,6 @@ static Byte cmAllPanSetting[MAXSTAVES + 1];
 
 /* --------------------------------------------------------------- SendMIDIPatchChange -- */
 /* Steps:
-
 	1. Get the Graphic
 	2. Check that the object it's attached to is a Sync
 	3. Get the partn from the Graphic's staff
@@ -630,24 +632,19 @@ Boolean IsMIDIPan(LINK pL)
 
 Boolean IsMIDIController(LINK pL) 
 {
-	if (IsPedalDown(pL) ||
-		 isPedalUp(pL) ||
-		 IsMIDIPan(pL)) 
-	{
+	if (IsPedalDown(pL) || isPedalUp(pL) || IsMIDIPan(pL)) 
 		return True;
-	}
 	
 	return False;
 }
 
 Byte GetMIDIControlNum(LINK pL) 
 {
-	if (IsPedalDown(pL) || isPedalUp(pL)) {
+	if (IsPedalDown(pL) || isPedalUp(pL))
 		return MSUSTAIN;
-	}
-	if (IsMIDIPan(pL)) {
+	if (IsMIDIPan(pL))
 		return MPAN;
-	}
+
 	return 0;	
 }
 
@@ -655,15 +652,9 @@ Byte GetMIDIControlVal(LINK pL)
 {
 	Byte ctrlVal = 0;
 	
-	if (IsPedalDown(pL)) {
-		ctrlVal = 127;
-	}
-	if (isPedalUp(pL)) {
-		ctrlVal = 0;		
-	}
-	if (IsMIDIPan(pL)) {
-		ctrlVal = GraphicINFO(pL);
-	}
+	if (IsPedalDown(pL)) ctrlVal = 127;
+	if (isPedalUp(pL)) ctrlVal = 0;		
+	if (IsMIDIPan(pL)) ctrlVal = GraphicINFO(pL);
 
 	return ctrlVal;
 }
@@ -681,7 +672,7 @@ static long ScaleDurForVariableSpeed(long rtDur)
 
 /* Display in the log file all notes that are to be played. */
 
-static void DebugListNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean selectedOnly)
+static void ListNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean selectedOnly)
 {
 	LINK pL, aNoteL;
 	short iVoice;
@@ -694,7 +685,7 @@ static void DebugListNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean se
 				if (NoteToBePlayed(doc, aNoteL, selectedOnly)) {
 					iVoice = NoteVOICE(aNoteL);
 					playDur = TiedDur(doc, pL, aNoteL, selectedOnly);
-					LogPrintf(LOG_DEBUG, "Note to play: pL=%u voice=%d noteNum=%d playDur=%ld\n",
+					LogPrintf(LOG_DEBUG, "Note to play: pL=%u voice=%d noteNum=%d playDur=%ld  (ListNotesToPlay)\n",
 								pL, iVoice, NoteNUM(aNoteL), playDur);
 				}
 			}
@@ -728,7 +719,7 @@ void PlaySequence(
 {
 	PPAGE		pPage;
 	PSYSTEM		pSystem;
-	LINK		pL, oldL, showOldL, aNoteL;
+	LINK		objL, oldL, showOldL, aNoteL;
 	LINK		systemL, pageL, measL, newMeasL;
 	CursHandle	playCursor;
 	short		useNoteNum,
@@ -755,22 +746,22 @@ void PlaySequence(
 	short		partIORefNum[MAXSTAVES];
 
 	short		oldCurrentSheet, tempoCount, barTapSlopMS;
-	EventRecord	theEvent;
+	EventRecord	theEvt;
 	char		theChar;
 	TCONVERT	tConvertTab[MAX_PLAY_TEMPOCHANGE];
 	char		fmtStr[256];
 	short		velOffset, durFactor, timeFactor;
-	
+
 	short		notePartn;
 	MIDIUniqueID partDevID;
 	Boolean		patchChangePosted = False;
-	Boolean		sustainOnPosted = False;
-	Boolean		sustainOffPosted = False;
+	Boolean		sustainOnPosted = False, sustainOffPosted = False;
 	Boolean		panPosted = False;
+	OSErr		err;
 	
 	WaitCursor();
 
-/* Get initial system Rect, set all note play times, get part attributes, etc. */
+	/* Get initial system Rect, set all note play times, get part attributes, etc. */
 
 #if DEBUG_KEEPTIMES
 	nkt = 0;
@@ -797,7 +788,7 @@ void PlaySequence(
 #if CMDEBUG
 			CMDebugPrintXMission();
 #endif
-			MayErrMsg("Unable to play score: can't get part device for every part");
+			MayErrMsg("Unable to play score: can't get part device for every part.  (PlaySequence)");
 			return;
 		}
 	}
@@ -811,7 +802,7 @@ void PlaySequence(
 	tempoCount = MakeTConvertTable(doc, fromL, toL, tConvertTab, MAX_PLAY_TEMPOCHANGE);
 	tooManyTempi = (tempoCount<0);
 	if (tooManyTempi) {
-		LogPrintf(LOG_WARNING, "Over %d tempo changes, too many to play correctly.\n", MAX_PLAY_TEMPOCHANGE);
+		LogPrintf(LOG_WARNING, "Over %d tempo changes, too many to play correctly.  (PlaySequence)\n", MAX_PLAY_TEMPOCHANGE);
 		tempoCount = MAX_PLAY_TEMPOCHANGE;						/* Table size exceeded */
 	}
 
@@ -823,9 +814,9 @@ void PlaySequence(
 			break;
 	}
 
-	for (pL = doc->headL; pL!=fromL; pL = RightLINK(pL)) {
-		if (IsMIDIPatchChange(pL)) {
-			PostMIDIPatchChange(doc, pL, partPatch, partChannel);
+	for (objL = doc->headL; objL!=fromL; objL = RightLINK(objL)) {
+		if (IsMIDIPatchChange(objL)) {
+			PostMIDIPatchChange(doc, objL, partPatch, partChannel);
 		}
 	}
 	
@@ -836,46 +827,48 @@ void PlaySequence(
 	ClearAllMIDISustainOn();
 	ClearAllMIDIPan();
 
-	/*	If "play on instruments' parts" is set, send out program changes to the correct
-		patch numbers for all channels that have any instruments assigned to them. */
+	/* If "play on instruments' parts" is set, send out program changes to the correct
+	   patch numbers for all channels that have any instruments assigned to them. */
 		
 	if (useWhichMIDI == MIDIDR_CM) {
-		OSErr err = CMMIDIProgram(doc, partPatch, partChannel);
+		err = CMMIDIProgram(doc, partPatch, partChannel);
 		if (err != noErr) {
-			ErrorMsg(20);
-			//MayErrMsg("Unable to Play Score: go to the Instrument MIDI Settings dialog and make sure a device is set to all parts.");
+			MPErrorMsg(20);
+			MayErrMsg("Can't send patch changes (error %d). Try Instrument MIDI Settings > Set Device To All Parts.  (PlaySequence)",
+						err);
 			return;
 		}
 	}
 	SleepTicks(10L);			/* Let synth settle after patch change, before playing notes. */
 
-	if (DETAIL_SHOW) DebugListNotesToPlay(doc, fromL, toL, selectedOnly);
+	if (DETAIL_SHOW) ListNotesToPlay(doc, fromL, toL, selectedOnly);
 
-	/*  The stored play time of the first Sync we're going to play might be any positive
-		value, but we want to start playing immediately, so pick up our first Sync's play
-		time to use as an offset on all play times. */
+	/* The stored play time of the first Sync we're going to play might be any positive
+	   value, but we want to start playing immediately, so pick up our first Sync's play
+	   time to use as an offset on all play times. */
 	
 	measL = SSearch(fromL, MEASUREtype, GO_LEFT);				/* starting measure */
 	toffset = -1L;												/* Init. time offset to unknown */
-	for (pL = fromL; pL!=toL; pL = RightLINK(pL))
-		switch (ObjLType(pL)) {
+	for (objL = fromL; objL!=toL; objL = RightLINK(objL))
+		switch (ObjLType(objL)) {
 			case MEASUREtype:
-				measL = pL;
+				measL = objL;
 				break;
 			case SYNCtype:
-			  	if (!AnyNoteToPlay(doc, pL, selectedOnly)) break;
-				if (SyncTIME(pL)>MAX_SAFE_MEASDUR)
-					MayErrMsg("PlaySequence: pL=%ld has timeStamp=%ld", (long)pL,
-									(long)SyncTIME(pL));
+			  	if (!AnyNoteToPlay(doc, objL, selectedOnly)) break;
+				if (SyncTIME(objL)>MAX_SAFE_MEASDUR)
+					AlwaysErrMsg("objL L%ld has illegal timeStamp=%ld.  (PlaySequence)",
+									(long)objL, (long)SyncTIME(objL));
 				
 				/* For 1st note to play, convert play time to nominal millisecs. using
 					tempi marked in the score; then, to handle variable-speed playback,
 					convert that time to actual millisec. */
+					
 				if (toffset<0L) {
-					plStartTime = MeasureTIME(measL)+SyncTIME(pL);
+					plStartTime = MeasureTIME(measL)+SyncTIME(objL);
 					startTimeNorm = PDur2RealTime(plStartTime, tConvertTab, tempoCount);
 					toffset = startTimeNorm;
-					LogPrintf(LOG_INFO, "PlaySequence: tempoCount=%d. %ld => toffset=%ld playTempoPercent=%d mutedPart=%d\n",
+					LogPrintf(LOG_INFO, "tempoCount=%d. t=%ld => toffset=%ld playTempoPercent=%d mutedPart=%d  (PlaySequence)\n",
 						tempoCount, plStartTime, toffset, playTempoPercent, doc->mutedPartNum);
 				}
 				break;
@@ -908,10 +901,12 @@ void PlaySequence(
 	newMeasL = measL = SSearch(fromL, MEASUREtype, GO_LEFT);	/* starting measure */
 	newPage = False;
 	
-	for (pL = fromL; pL!=toL; pL = RightLINK(pL)) {
-		switch (ObjLType(pL)) {
+	/* Start playing. */
+	
+	for (objL = fromL; objL!=toL; objL = RightLINK(objL)) {
+		switch (ObjLType(objL)) {
 			case PAGEtype:
-				pPage = GetPPAGE(pL);
+				pPage = GetPPAGE(objL);
 				doc->currentSheet = pPage->sheetNum;
 				paperIsOnDesktop =
 					(GetSheetRect(doc, doc->currentSheet, &doc->currentPaper)==INARRAY_INRANGE);
@@ -919,22 +914,23 @@ void PlaySequence(
 				newPage = True;
 				break;
 			case SYSTEMtype:									/* Remember system rectangles */
-				pSystem = GetPSYSTEM(pL);
+				pSystem = GetPSYSTEM(objL);
 				D2Rect(&pSystem->systemRect, &sysRect);
 				break;
 			case MEASUREtype:
-				newMeasL = measL = pL;
+				newMeasL = measL = objL;
 				break;
 			case SYNCtype:
-			  	if (AnyNoteToPlay(doc, pL, selectedOnly)) {
-			  		if (SyncTIME(pL)>MAX_SAFE_MEASDUR)
-			  			MayErrMsg("PlaySequence: pL=%ld has timeStamp=%ld", (long)pL,
-			  							(long)SyncTIME(pL));
-			  		plStartTime = MeasureTIME(measL)+SyncTIME(pL);
+			  	if (AnyNoteToPlay(doc, objL, selectedOnly)) {
+			  		if (SyncTIME(objL)>MAX_SAFE_MEASDUR)
+						AlwaysErrMsg("objL L%ld has illegal timeStamp=%ld.  (PlaySequence)",
+										(long)objL, (long)SyncTIME(objL));
+			  		plStartTime = MeasureTIME(measL)+SyncTIME(objL);
 					
 					/* Convert play time to nominal millisecs. using tempi marked in the
-						score; then, to handle variable-speed playback, convert that 
-						time to actual millisec. */
+					   score; then, to handle variable-speed playback, convert that time
+					   to actual millisec. */
+						
 					startTimeNorm = PDur2RealTime(plStartTime, tConvertTab, tempoCount);
 #ifdef TDEBUG
 					LogPrintf(LOG_DEBUG, "PlaySequence: toffset=%ld. plStartTime=%ld startTimeNorm=%ld\n",
@@ -944,12 +940,12 @@ void PlaySequence(
 					startTime = ScaleDurForVariableSpeed(startTimeNorm);
 							
 					/*
-					 * Wait 'til it's time to play pL. While waiting, check for notes
+					 * Wait 'til it's time to play objL. While waiting, check for notes
 					 * ending and take care of them. Also check for relevant keyboard
 					 * events: the codes for Stop and Select what's playing, Cancel
 					 * (just stop playing), and Insert Barline. For the latter, if we're
-					 * about to start playing pL, assume the user wants the barline
-					 * before pL; otherwise assume they want it before the previous Sync.
+					 * about to start playing objL, assume the user wants the barline
+					 * before objL; otherwise assume they want it before the previous Sync.
 					 *
 					 * NB: it seems as if the comment in WriteMFNotes about having to write
 					 * notes ending at a given time before those beginning at the same time
@@ -957,6 +953,7 @@ void PlaySequence(
 					 * noticed any problems. And doing it this way should help get notes
 					 * started as close as possible to their correct times.
 					 */
+					 
 					do {
 						t = GetMIDITime(pageTurnTOffset);
 						
@@ -964,10 +961,10 @@ void PlaySequence(
 						if ((moveSel = CheckButton())) goto done;			/* Check for Stop/Select */
 						if (UserInterrupt()) goto done;					/* Check for Cancel */
 						
-						GetNextEvent(keyDownMask, &theEvent);			/* Not Wait/GetNextEvent so we do as little as possible */
-						theChar = (char)theEvent.message & charCodeMask;
+						GetNextEvent(keyDownMask, &theEvt);				/* Not Wait/GetNextEvent so we do as little as possible */
+						theChar = (char)theEvt.message & charCodeMask;
 						if (theChar==CH_BARTAP)	{						/* Check for Insert Barline */
-							LINK insL = (t-oldStartTime<barTapSlopMS? oldL : pL);
+							LINK insL = (t-oldStartTime<barTapSlopMS? oldL : objL);
 							AddBarline(insL);
 						}
 						CheckEventList(pageTurnTOffset);				/* Check for, turn off any notes done */
@@ -982,32 +979,34 @@ void PlaySequence(
 						PlayMessage(doc, newMeasL, -1);
 						newMeasL = NILINK;
 					}
-					oldL = pL;
+					oldL = objL;
 					oldStartTime = startTime;
 					if (showit) {
 						if (showOldL) HiliteSyncRect(doc, &syncRect, &syncPaper, False);  /* unhilite old Sync */
 						if (paperIsOnDesktop) {
 							syncRect = sysRect;
-							/*
-							 * We use the objRect to determine what to hilite. FIXME: If this
-							 * Sync isn't in view, its objRect may be empty or, worse, garbage!
-							 */
-							r = LinkOBJRECT(pL);
+							
+							/* We use the objRect to determine what to hilite. FIXME: If
+							   this Sync isn't in view, its objRect may be empty or, worse,
+							   garbage! */
+							   
+							r = LinkOBJRECT(objL);
 							syncRect.left = r.left;
 							syncRect.right = r.right;
 							syncPaper = pagePaper;
 							tBeforeTurn = GetMIDITime(pageTurnTOffset);
 #if PLDEBUG
-LogPrintf(LOG_DEBUG, "pL=%ld: rect.l=%ld,r=%ld paper.l=%ld,r=%ld\n",
-pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
+LogPrintf(LOG_DEBUG, "objL=%ld: rect.l=%ld,r=%ld paper.l=%ld,r=%ld\n",
+objL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 #endif
 							HiliteSyncRect(doc, &syncRect, &syncPaper, newPage && doScroll); /* hilite new Sync */
 							tElapsed = GetMIDITime(pageTurnTOffset)-tBeforeTurn;
 							pageTurnTOffset += tElapsed;
-							showOldL = pL;								/* remember this Sync */
+							showOldL = objL;								/* remember this Sync */
 							newPage = False;
 							}
-						else showOldL = NILINK;
+						else
+							showOldL = NILINK;
 					}
 					
 					if (patchChangePosted) {
@@ -1030,16 +1029,17 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 						panPosted = False;
 					}
 		
-			/* Play all the notes in <<pL> we're supposed to, adding them to <eventList[]> too */
+					/* Play all the notes in <objL> we're supposed to, adding them to
+					   <eventList[]> too */
 		
-					aNoteL = FirstSubLINK(pL);
+					aNoteL = FirstSubLINK(objL);
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 						if (NoteToBePlayed(doc, aNoteL, selectedOnly)) {
-							/*
-							 *	Get note's MIDI note number, including transposition; velocity,
-							 *	limited to legal range; channel number; and duration, includ-
-							 * ing any tied notes to right.
-							 */
+						
+							/* Get note's MIDI note number, including transposition; velocity,
+							   limited to legal range; channel number; and duration, includ-
+							   ing any tied notes to right. */
+							   
 							if (useWhichMIDI==MIDIDR_CM) {
 								CMGetNotePlayInfo(doc, aNoteL, partTransp, partChannel, partVelo,
 														&useNoteNum, &useChan, &useVelo);
@@ -1048,9 +1048,10 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 								GetNotePlayInfo(doc, aNoteL, partTransp, partChannel, partVelo,
 														&useNoteNum, &useChan, &useVelo);
 							
-							playDur = TiedDur(doc, pL, aNoteL, selectedOnly);
+							playDur = TiedDur(doc, objL, aNoteL, selectedOnly);
 
 							/* NOTE: We don't try to use timeFactor. */
+							
 							if (GetModNREffects(aNoteL, &velOffset, &durFactor, &timeFactor)) {
 								useVelo += velOffset;
 								useVelo = clamp(0, useVelo, 127);
@@ -1062,7 +1063,7 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 							/* If it's a "real" note (not rest or continuation), send it out */
 							
 							if (useNoteNum>=0) {
-								OSStatus err = noErr;
+								err = noErr;
 								notePartn = Staff2Part(doc,NoteSTAFF(aNoteL));
 								partDevID = GetCMDeviceForPartn(doc, notePartn);
 								
@@ -1072,8 +1073,9 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 									err = StartNoteNow(useNoteNum, useChan, useVelo);
 									
 								/* Convert time to nominal millisecs. using tempi marked;
-									then convert that to actual millisec. to handle
-									variable-speed playback. */
+								   then convert that to actual millisec. to handle
+								   variable-speed playback. */
+									
 								endTimeNorm = PDur2RealTime(plEndTime, tConvertTab, tempoCount);	/* Convert time to millisecs. */
 								endTimeNorm -= toffset;
 								endTime = ScaleDurForVariableSpeed(endTimeNorm);
@@ -1102,17 +1104,17 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 				break;
 			case GRAPHICtype:
 				if (useWhichMIDI==MIDIDR_CM) {	
-					if (IsMIDIPatchChange(pL)) {
-						patchChangePosted = PostMIDIPatchChange(doc, pL, partPatch, partChannel);						
+					if (IsMIDIPatchChange(objL)) {
+						patchChangePosted = PostMIDIPatchChange(doc, objL, partPatch, partChannel);						
 					}
-					else if (IsPedalDown(pL)) {
-						sustainOnPosted = PostMIDISustain(doc, pL, True);
+					else if (IsPedalDown(objL)) {
+						sustainOnPosted = PostMIDISustain(doc, objL, True);
 					}
-					else if (isPedalUp(pL)) {
-						sustainOffPosted = PostMIDISustain(doc, pL, False);
+					else if (isPedalUp(objL)) {
+						sustainOffPosted = PostMIDISustain(doc, objL, False);
 					}
-					else if (IsMIDIPan(pL)) {
-						panPosted = PostMIDIPan(doc, pL);
+					else if (IsMIDIPan(objL)) {
+						panPosted = PostMIDIPan(doc, objL);
 					}					
 				}
 				break;
@@ -1127,8 +1129,8 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 			if ((moveSel = CheckButton())) goto done;			/* Check for Stop/Select */
 			if (UserInterrupt()) goto done;						/* Check for Cancel */
 
-			GetNextEvent(keyDownMask, &theEvent);
-			theChar = (char)theEvent.message & charCodeMask;
+			GetNextEvent(keyDownMask, &theEvt);
+			theChar = (char)theEvt.message & charCodeMask;
 			if (theChar==CH_BARTAP)								/* Check for Insert Barline */
 			AddBarline(oldL);
 		}
@@ -1139,15 +1141,17 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 			if ((moveSel = CheckButton())) goto done;			/* Check for Stop/Select */
 			if (UserInterrupt()) goto done;						/* Check for Cancel */
 
-			GetNextEvent(keyDownMask, &theEvent);
-			theChar = (char)theEvent.message & charCodeMask;
+			GetNextEvent(keyDownMask, &theEvt);
+			theChar = (char)theEvt.message & charCodeMask;
 			if (theChar==CH_BARTAP)								/* Check for Insert Barline */
 			AddBarline(oldL);
 		}
 	}
 			
 done:
-	if (showit && showOldL) HiliteSyncRect(doc,&syncRect,&syncPaper,False); /* unhilite last Sync */
+	if (err) LogPrintf(LOG_ERR, "Can't play the score (error %d). Try Instrument MIDI Settings > Set Device To All Parts.  (PlaySequence)\n",
+				err);
+	if (showit && showOldL) HiliteSyncRect(doc, &syncRect, &syncPaper, False);	/* unhilite last Sync */
 
 	doc->currentSheet = oldCurrentSheet;
 	doc->currentPaper = oldPaper;
@@ -1170,12 +1174,12 @@ done:
 	}
 
 	if (moveSel) {
-	/*
-	 *	We want to change the selection to only the notes we were just playing.
-	 *	If the Sync that was playing is in the selection range, we deselect every-
-	 *	thing else in the range, otherwise we deselect absolutely everything.  Then
-	 *	we make sure that the correct notes in the Sync are selected.
-	 */
+	
+		/* We want to change the selection to only the notes we were just playing. If the
+		   Sync that was playing is in the selection range, we deselect everything else
+		   in the range, otherwise we deselect absolutely everything.  Then we make sure
+		   the correct notes in the Sync are selected. */
+	   
 		if (WithinRange(doc->selStartL, oldL, doc->selEndL)) {
 			DeselRange(doc, doc->selStartL, oldL);
 			DeselRange(doc, RightLINK(oldL), doc->selEndL);

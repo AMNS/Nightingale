@@ -24,19 +24,21 @@
 
 static void			InitToolbox(void);
 static Boolean		AddPrefsResource(Handle);
-static OSStatus		FindPrefsFile(unsigned char *name, OSType fType, OSType fCreator,
+static OSStatus		GetPrefsFileSpec(unsigned char *name, OSType fType, OSType fCreator,
 									FSSpec *prefsSpec);
 static void			DisplayConfig(void);
 static Boolean		CheckConfig(void);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
-static Boolean		NInitPalettes(void);
 static void			DisplayToolPalette(PaletteGlobals *whichPalette);
 static Boolean		CheckToolPalette(PaletteGlobals *whichPalette);
 static short		GetToolGrid(PaletteGlobals *whichPalette);
 static void			InitPaletteRects(Rect *whichRects, short across, short down, short width,
 										short height);
 static void			InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
+static Boolean		InitSetDurPalette(PaletteGlobals *whichPalette, Rect *windowRect);
+static Boolean		NInitPalettes(void);
+
 static Boolean		PrepareClipDoc(void);
 static void			InstallCoreEventHandlers(void);
 
@@ -214,7 +216,7 @@ void Initialize()
 
 /* ------------------------------------------------------------------------ Prefs file -- */
 
-static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCreator,
+static OSStatus GetPrefsFileSpec(unsigned char *fileName, OSType fType, OSType fCreator,
 								FSSpec *prefsSpec) 
 {
 	short pvol;
@@ -242,7 +244,8 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 				(cat.hFileInfo.ioFlFndrInfo.fdType == fType) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdCreator == fCreator) &&
 				Pstreql(name, fileName)) {
-			/* make a fsspec referring to the file */
+			/* Found it. Make a fsspec referring to the file */
+			
 			return FSMakeFSSpec(pvol, pdir, name, prefsSpec);
 		}
 		
@@ -250,9 +253,12 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 		cat.hFileInfo.ioDirID = pdir;
 	}
 	
+	/* We couldn't find it: tell the caller. FIXME: But why call FSMakeFSSpec first?
+	   Am I missing something? */
+	
 	err = FSMakeFSSpec(pvol, pdir, PREFS_PATH, prefsSpec);
 	LogPrintf(LOG_INFO, "FSMakeFSSpec: err=%d (fnfErr=%d)  (FindPrefsFile)\n", err, fnfErr);
-	return fnfErr;		// FIXME: HUH? ALWAYS RETURN AN ERROR? ISN'T THIS "FILE NOT FOUND"?
+	return fnfErr;
 } 
 
 
@@ -426,18 +432,15 @@ Boolean OpenPrefsFile()
 	
 	Pstrcpy(setupFileName, PREFS_FILE_NAME);
 
-	theErr = FindPrefsFile(setupFileName, prefsFileType, creatorType, &rfSpec);
-	LogPrintf(LOG_INFO, "FindPrefsFile (filename '%s') returned theErr=%d  (OpenPrefsFile)\n",
+	theErr = GetPrefsFileSpec(setupFileName, prefsFileType, creatorType, &rfSpec);
+	LogPrintf(LOG_INFO, "GetPrefsFileSpec (filename '%s') returned theErr=%d  (OpenPrefsFile)\n",
 				PToCString(setupFileName), theErr);
-	if (theErr==noErr)
-		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
+	if (theErr==noErr) setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
 	
 	/* If we can't open it, create a new one using app's own CNFG and other resources. */
 	
-	if (theErr==noErr)
-		result = ResError();
-	else
-		result = theErr;
+	if (theErr==noErr)	result = ResError();
+	else				result = theErr;
 		
 //	if (result==fnfErr || result==dirNFErr) {
 	if (result==fnfErr) {
@@ -1269,7 +1272,7 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 		short curResFile;
 		GridRec *pGrid;
 		Handle hdl;
-		unsigned char *p;			/* Careful: contains both binary and char data! */
+		Byte *p;										/* Contains both binary and char data */
 		
 		curResFile = CurResFile();
 		UseResFile(setupFileRefNum);
@@ -1453,10 +1456,74 @@ LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
 }
 
 
-/* Initialize everything about the floating windows, a.k.a. palettes. NB: as of v. 5.8.10,
-the tool palette is our only floating window. We've kept vestigal code for a help palette
-(which seems unlikely ever to be used) and for a clavier palette (which might be useful
-someday). */
+#define SETDUR_PALETTE_FN		"\pSetDur_2dots1bitNB.bmp"
+#define SETDUR_PALETTE_PATH 	"\p:SetDur_2dots1bitNB.bmp"
+
+static Boolean InitSetDurPalette(PaletteGlobals *whichPalette, Rect *windowRect)
+{
+#ifdef NOTYET
+	FSSpec fsSpec;
+	Str255 palFileName;
+	short refNum, vRefNum, errType;
+	long dirID, byteCount;
+	Byte bmpHeader[54];
+	
+	LogPrintf(LOG_DEBUG, "??  (InitSetDurPalette)\n");
+
+	Pstrcpy(palFileName, SETDUR_PALETTE_FN);
+
+#if 0
+FOLLOWING CODE IS FROM GetPrefsFileSpec() AND NEEDS TO BE MODIFIED -- OR, PROBABLY BETTER,
+GENERALIZE GetPrefsFileSpec (WHICH WILL THEN BELONG IN FileUtils.c!) AND JUST CALL IT HERE.
+...OR IS THE MUCH, MUCH SIMPLER FSpOpenInputFile() APPROPRIATE?
+	/* Find the preferences folder, normally ~/Library/Preferences */
+	
+	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
+	//LogPrintf(LOG_DEBUG, "FindFolder: err=%d  (FindPrefsFile)\n", err);
+	if (err!=noErr) return err;
+	
+	/* Search the folder for the file */
+	
+	BlockZero(&cat, sizeof(cat));
+	cat.hFileInfo.ioNamePtr = name;
+	cat.hFileInfo.ioVRefNum = pvol;
+	cat.hFileInfo.ioFDirIndex = 1;
+	cat.hFileInfo.ioDirID = pdir;
+	
+	while (PBGetCatInfoSync(&cat) == noErr) {
+		if (( (cat.hFileInfo.ioFlAttrib & 16) == 0) &&
+				(cat.hFileInfo.ioFlFndrInfo.fdType == fType) &&
+				(cat.hFileInfo.ioFlFndrInfo.fdCreator == fCreator) &&
+				Pstreql(name, fileName)) {
+			/* make a fsspec referring to the file */
+			return FSMakeFSSpec(pvol, pdir, name, prefsSpec);
+		}
+		
+		cat.hFileInfo.ioFDirIndex++;
+		cat.hFileInfo.ioDirID = pdir;
+	}
+	//ImportMIDIFile(&fsSpec);	MAYBE COMPARE CODE TO HERE?
+#endif
+	FSMakeFSSpec(vRefNum, dirID, palFileName, &fsSpec);
+
+	/* Open the file and read the BMP header. We expect a basic 54-byte header. ??IS THAT RIGHT? */
+	
+	errType = FSpOpenDF(&fsSpec, fsRdWrPerm, &refNum);
+	if (errType!=noError) {
+		LogPrintf(LOG_ERR, "Can't open the Set Duration palette image file.  (InitSetDurPalette)");
+		return False;		
+	}
+
+	errType = FSRead(refNum, &byteCount, &bmpHeader);
+#endif
+	return True;
+}
+
+
+/* Initialize everything about the palettes (formerly called "floating windows"). NB:
+as of v. 5.8.10, the tool palette is our only floating window. We've kept vestigal code
+for a help palette (which seems unlikely ever to be used) and for a clavier palette
+(which might be useful someday). ??REWRITE!! */
 
 static Boolean NInitPalettes()
 	{
@@ -1483,6 +1550,9 @@ static Boolean NInitPalettes()
 					wdefID = ToolPaletteWDEF_ID;
 					break;
 				case HELP_PALETTE:
+					InitSetDurPalette(whichPalette, &windowRects[idx]);
+					wdefID = ToolPaletteWDEF_ID;						// ??REALLY?
+					break;
 				case CLAVIER_PALETTE:
 					break;
 				}

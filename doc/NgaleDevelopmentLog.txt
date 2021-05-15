@@ -9861,11 +9861,12 @@ somebody's sample code in Python or R or whatever to read the TIFFs and convert 
 extremely simple format I can read in Ngale without libtiff. Mac OS has tiffutil, which
 has a dump option -- but actually BMP format is probably easier to decode than TIFF, and
 GraphicConverter will give me BMPs! Cf. the Wikipedia article on BMPs and bmp_header_dump
-(https://github.com/ekardnam/bmp_header_dump/blob/master/src/main.rs). BMPs consist of a
-14-byte Bitmap File Header and a 40-byte(?) DIB header, followed by the raw data. But
-it seems the DIB header isn't necessarily 40 bytes. Compare BMPs from Graphic Converter
-of all white, all black, and diagonal stripes -- using hexdump -C -n 96 filename, here's
-the first 96(10) bytes of diagonal stripes:
+(https://github.com/ekardnam/bmp_header_dump/blob/master/src/main.rs).
+
+BMPs consist of a 14-byte Bitmap File Header and a 40-byte(?) DIB header, followed by the
+raw data. But it seems the DIB header isn't necessarily 40 bytes. Compare BMPs from
+Graphic Converter of all white, all black, and diagonal stripes -- using hexdump -C -n 96
+filename, here's the first 96(10) bytes of diagonal stripes:
 
 	00000000  42 4d 3e 01 00 00 00 00  00 00 3e 00 00 00 28 00  |BM>.......>...(.|
 	00000010  00 00 40 00 00 00 20 00  00 00 01 00 01 00 00 00  |..@... .........|
@@ -9885,4 +9886,33 @@ ff's starting at that point. Here's hexdump -C -n 96 ChangeDynamicNB.bmp :
 	00000040  ff ff ff ff ff ff ff ff  ff ff ff ff ff 00 ff ff  |................|
 
 Yes! 
+
+---------------------------------------------------------------------------------------
+
+1 - 14 May
+
+Work towards getting Set Duration palette from a .bmp: write InitSetDurPalette(). At the
+moment it includes (#ifdef'd out) a lot of code from GetPrefsFileSpec() that needs to be
+modified -- or, probably better, generalize GetPrefsFileSpec (which will then belong in
+FileUtils.c!) and just call it here. ...or, is the much, much simpler FSpOpenInputFile()
+appropriate??
+
+SWITCH TO: There's a long-standing bug where trying to play ancient files results in
+nothing happening until you click Set Device To All Parts in the Instrument MIDI Settings
+Dialog; I haven't seen it in any file created in many years, until today :-( . It happens
+with both VnDuet.ngl and VnDuetN106.ngl (the latter on Intel as well as G5), versions of
+3 May, ca. 6 PM. Cf. loop in PlaySequence(). After the comment "Play all the notes in <pL>
+we're supposed to...", how can we stop instantly just because of whatever Set Device To
+All Parts fixes? We play notes by calling CMStartNoteNow(); it returns an error code,
+which we ignore; but CMEndNoteLater() returns an error code, which may lead us to jump to
+done and stop playing -- and we don't tell the user there was an error!! Add reporting =>
+
+	ERROR. Can't play the score (error -16961). Try Instrument MIDI Settings > Set Device To All Parts.  (PlaySequence)
+
+As usual, Set Device To All Parts fixes. What is error -16961? It's not listed in
+MacErrors.h, version CarbonCore-769~1 of (based on its copyright notice) 2008. Oh well;
+it's not worth pursuing now! BUT, trying to play 2ndMovementConv.ngl, I got the message
+"There are no devices available to play part %s.  You may proceed but no MIDI output will
+occur." -- string #15 of STR# 235 (MIDIPLAYERRS_STRS); then it _did_ play!?! Also not
+worth pursuing now.
 

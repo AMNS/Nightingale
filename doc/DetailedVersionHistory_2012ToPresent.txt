@@ -3247,3 +3247,11 @@ about an error in the Document header.
 Minor changes: let user choose whether to open files with header errors, etc. Affects
 .rsrc (added two ALRTs); File.h; Event, FileOpen, FileUtils, HeapFileIO, Initialize,
 ToolPalette.
+
+---------------------------------------------------------------------------------------
+
+1 - 14 May
+
+Work towards getting Set Duration palette from a .bmp. Affects Initialize.
+
+Minor changes. Affects CoreMIDIUtils, FileOpen, InstrDialog, MIDIPlay.

@@ -40,8 +40,7 @@ static long MIDIPacketSize(int len)
 static Boolean CMEndOfBuffer(MIDIPacket *pkt, int len);
 static Boolean CMEndOfBuffer(MIDIPacket *pkt, int len)
 {
-	return ((char*)pkt + MIDIPacketSize(len)) > 
-				((char*)gMIDIPacketListBuf + kCMBufLen);
+	return ((char*)pkt + MIDIPacketSize(len)) > ((char*)gMIDIPacketListBuf + kCMBufLen);
 }
 
 static Boolean CMAcceptPacket(MIDIPacket *pkt);
@@ -67,11 +66,11 @@ static void	NightCMReadProc(const MIDIPacketList *pktlist, void * /* refCon */, 
 				packet->length); j++) {
 		
 			/* Take only packets that are acceptable to us. For example, active sensing is
-				sent once every 300 milliseconds. */
+			   sent once every 300 milliseconds. */
 			
 			if (CMAcceptPacket(packet)) {
-				packetToAdd = MIDIPacketListAdd(gMIDIPacketList, sizeof(gMIDIPacketListBuf), packetToAdd, 
-													packet->timeStamp, packet->length, packet->data);
+				packetToAdd = MIDIPacketListAdd(gMIDIPacketList, sizeof(gMIDIPacketListBuf),
+								packetToAdd, packet->timeStamp, packet->length, packet->data);
 			}
 			packet = MIDIPacketNext(packet);
 		}
@@ -97,8 +96,7 @@ static Boolean AllocCMPacketList(void)
 
 /* --------------------------------------------------------------- ResetMIDIPacketList -- */
 /* Same implementation as AllocCMPacketList. Fulfill different functions for which
- * implementation will diverge when we dynamically allocate the buffer.
- */
+implementation will diverge when we dynamically allocate the buffer. */
 
 Boolean ResetMIDIPacketList()
 {
@@ -126,7 +124,7 @@ void ClearCMMIDIPacket()
 
 /* ------------------------------------------------------------------- GetCMMIDIPacket -- */
 /* ASSUMPTION, since buffer element is returned to Queue, it is unlikely to be reused
-  before caller has a chance to use the packet */
+before caller has a chance to use the packet */
   
 MIDIPacket *GetCMMIDIPacket(void)
 {
@@ -180,9 +178,7 @@ MIDIPacket *PeekAtNextCMMIDIPacket(Boolean first)
 
 void DeletePeekedAtCMMIDIPacket(void)
 {
-	if (gPeekedPkt != NULL) {
-		gPeekedPkt->data[0] = 0;
-	}
+	if (gPeekedPkt != NULL) gPeekedPkt->data[0] = 0;
 }
 
 // -----------------------------------------------------------------------------------------
@@ -244,7 +240,7 @@ long CMGetHostTimeMillis()
 
 void CMNormalizeTimeStamps()
 {
-	MIDITimeStamp firstTimeStamp;
+	MIDITimeStamp firstTimeStamp=0;
 	Boolean haveTimeStamp = False;
 	
 	MIDIPacket *packet = gCurrPktListBegin;
@@ -295,8 +291,8 @@ Boolean ResetMIDIWritePacketList()
 
 
 
-// -------------------------------------------------------- Timing calls for Core MIDI -- */
-// Use the Nightingale Time Manager.
+/* -------------------------------------------------------- Timing calls for Core MIDI -- */
+/* Use the Nightingale Time Manager. */
 
 void CMInitTimer(void)
 {
@@ -325,7 +321,7 @@ long CMGetCurTime(void)
 {
 	long time;
 
-	time = NTMGetTime();					/* use built-in */
+	time = NTMGetTime();						/* use built-in */
 	return time;
 }
 
@@ -404,7 +400,7 @@ void CMTeardown(void)
 //
 // Need to figure out how to set up the packet
 
-//  ------------------------------------------------------------ CM End/Start Note Now -- */
+/* ------------------------------------------------------------- CM End/Start Note Now -- */
 
 
 OSStatus CMWritePacket(MIDIUniqueID destDevID, MIDITimeStamp tStamp, UInt16 pktLen, Byte *data)
@@ -442,7 +438,7 @@ OSStatus CMWritePacket(MIDIUniqueID destDevID, MIDITimeStamp tStamp, UInt16 pktL
 OSStatus CMEndNoteNow(MIDIUniqueID destDevID, short noteNum, char channel)
 {
 	Byte noteOff[] = { 0x90, 60, 0 };
-	MIDITimeStamp tStamp = 0;				// Indicates perform NOW.
+	MIDITimeStamp tStamp = 0;				/* Indicates do it NOW. */
 
 	noteOff[0] |= channel;
 	noteOff[1] = noteNum;
@@ -454,7 +450,7 @@ OSStatus CMEndNoteNow(MIDIUniqueID destDevID, short noteNum, char channel)
 OSStatus CMStartNoteNow(MIDIUniqueID destDevID, short noteNum, char channel, char velocity)
 {
 	Byte noteOn[] = { 0x90, 60, 64 };
-	MIDITimeStamp tStamp = 0;				// Indicates perform NOW.
+	MIDITimeStamp tStamp = 0;				/* Indicates do it NOW. */
 
 	noteOn[0] |= channel;
 	noteOn[1] = noteNum;
@@ -573,7 +569,6 @@ void CMAllNotesOff()
 	short 			noteNum;
 	Boolean			deviceFound;
 	short			i, j;
-	OSStatus		err = noErr;
 	
 	if (currentDoc == NULL) return;
 	
@@ -707,10 +702,9 @@ static MIDIEndpointRef GetMIDIEndpointByID(MIDIUniqueID id)
 
 static void GetInitialDefaultInputDevice()
 {
-	MIDIEndpointRef cfg = GetMIDIEndpointByID(config.cmDfltInputDev );
+	MIDIEndpointRef cfg = GetMIDIEndpointByID(config.cmDfltInputDev);
 	
-	MIDIEndpointRef src = NULL;
-	MIDIEndpointRef s = NULL;
+	MIDIEndpointRef src = NULL, s = NULL;
 	
 	int n = MIDIGetNumberOfSources();
 	int i = 0;
@@ -772,15 +766,12 @@ Boolean CMTransmitChannelValid(MIDIUniqueID endPtID, int channel)
 	if (!CMChannelValidRange(channel))
 		return False;
 
-	// Check cannot be made unless there are destinations.
-	// If no destinations, will play with software AudioUnit,
-	// which is active on all channels [I think. CER 7/16/2003]
+	/* Check cannot be made unless there are destinations. If no destinations, will play
+	   with software AudioUnit, which is active on all channels [I think. CER 7/16/2003] */
 	
-	if (gCMNoDestinations)
-		return True;
+	if (gCMNoDestinations) return True;
 		
-	if (endPtID == gAuMidiControllerID)
-		return True;
+	if (endPtID == gAuMidiControllerID) return True;
 		
 	MIDIEndpointRef endpt = GetMIDIEndpointByID(endPtID);
 	long channelMap, channelValid = 0;
@@ -897,10 +888,10 @@ static void CheckDefaultDevices()
 }
 
 
-// These calls use a selected input / MIDI thru device & channel, check if the
-// device / channel combos are valid, and get IORefNums for each for the MidiReadProc.
-//
-// Does Core MIDI have an IORefNum for its read proc that needs to do this?
+/* These calls use a selected input / MIDI thru device & channel, check if the
+device / channel combos are valid, and get IORefNums for each for the MidiReadProc.
+
+Does Core MIDI have an IORefNum for its read proc that needs to do this? */
 
 void CoreMidiSetSelectedInputDevice(MIDIUniqueID inputDevice, short inputChannel)
 {
@@ -1069,7 +1060,9 @@ void InsertPartnCMDevice(Document *doc, short partn, short numadd)
 	
 	if (!doc) doc = currentDoc;
 	curLastPartn = LinkNENTRIES(doc->headL) - 1;
-	/* shift list from partn through curLastPartn up by numadd */
+	
+	/* Shift list from partn through curLastPartn up by numadd */
+	
 	for (i=curLastPartn, j=i+numadd;i >= partn;)
 		doc->cmPartDeviceList[j--] = doc->cmPartDeviceList[i--];
 	for (i=partn;i<partn+numadd;)
@@ -1097,6 +1090,7 @@ void DeletePartnCMDevice(Document *doc, short partn)
 	curLastPartn = LinkNENTRIES(doc->headL) - 1;
 	
 	/* Shift list from partn+1 through curLastPartn down by 1 */
+	
 	for (i=partn+1, j=i-1;i >= curLastPartn;)
 		doc->cmPartDeviceList[i++] = doc->cmPartDeviceList[j++];
 	doc->cmPartDeviceList[curLastPartn] = 0;
@@ -1115,11 +1109,9 @@ void DeletePartLCMDevice(Document *doc, LINK partL)
 /* -------------------------------------------------------------------------------------- */
 /* MIDI Programs & Patches */
 
-/*
- * This provides a conditional channel base depending on whether we are using
- * a hardware or software device.
- * We're currently not using it as both hardware and software are 0-based and use
- * CM_CHANNEL_BASE 1.
+/* This provides a conditional channel base depending on whether we are using a hardware
+or software device. We're currently not using it since both hardware and software are
+0-based and use CM_CHANNEL_BASE 1.
  
 static int CMGetChannelBase(Document *doc, short partn)
 {
@@ -1134,8 +1126,9 @@ static int CMGetChannelBase(Document *doc, short partn)
 
 
 /* If "play on instruments' parts" is set, send out program (patch) changes to the
-correct patch numbers for all channels that have any parts assigned to them. Conflicts
-are possible if two or more parts are on the same channel, but we won't detect them. */
+correct patch numbers for all channels that have any parts assigned to them. Note that
+conflicts are possible if two or more parts are on the same channel, but we don't detect
+them. */
 
 OSErr CMMIDIProgram(Document *doc, unsigned char *partPatch, unsigned char *partChannel)
 {
@@ -1157,7 +1150,8 @@ OSErr CMMIDIProgram(Document *doc, unsigned char *partPatch, unsigned char *part
 			programChange[1] = patch;
 			
 			/* Try to send the program change to the desired device; if for any reason
-				that doesn't work, just send it to the default device. */
+			   that doesn't work, just send it to the default device. */
+			   
 			MIDIUniqueID destDevID = GetCMDeviceForPartn(doc, i);
 			err = CMWritePacket(destDevID, tStampZero, 2, programChange);
 			if (err != noErr) {
