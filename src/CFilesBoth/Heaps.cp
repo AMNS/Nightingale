@@ -177,7 +177,8 @@ Boolean ExpandFreeList(HEAP *heap,
 	/* Temporarily unlock the data block, if necessary, and expand it. */
 	
 	if (heap->lockLevel != 0) {
-		AlwaysErrMsg("Heap was locked. Unlocking it and proceeding.  (ExpandFreeList)");
+		MayErrMsg("Heap was locked (lockLevel=%ld). Unlocking it and proceeding.  (ExpandFreeList)",
+					(long)heap->lockLevel);
 		HUnlock(heap->block);
 	}
 	SetHandleSize(heap->block, newSize * heap->objSize);
@@ -240,11 +241,11 @@ LINK HeapAlloc(HEAP *heap, unsigned short nObjs)
 	char *p=NILINK, *start;
 	
 	if (nObjs <= 0) {
-		MayErrMsg("HeapAlloc: nObjs=%ld is illegal. heap=%ld", (long)nObjs, heap-Heap);
+		MayErrMsg("nObjs=%ld is illegal. heap=%ld  (HeapAlloc)", (long)nObjs, heap-Heap);
 		return(NILINK);
 	}
 	if (heap->objSize == 0) {
-		MayErrMsg("HeapAlloc: object size is 0.  heap=%ld", heap-Heap);
+		MayErrMsg("Object size is 0.  heap=%ld  (HeapAlloc)", heap-Heap);
 		return(NILINK);
 	}
 	

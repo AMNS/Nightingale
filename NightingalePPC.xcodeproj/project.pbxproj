@@ -35,6 +35,7 @@
 		1573CD1F1F9CB85100C967E6 /* NMiscTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */; };
 		157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157437C41D05153300C5A4DF /* DelAddRedAccs.cp */; };
 		157A13BC24E96DA500EC4849 /* MiscUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157A13BB24E96DA500EC4849 /* MiscUtils.cp */; };
+		157D429C265BD2A600E7FDBF /* BMP.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 157D429B265BD2A600E7FDBF /* BMP.h */; };
 		15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */; };
 		15A13E1522A5638F0037F95B /* SelUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1422A5638F0037F95B /* SelUtils.cp */; };
 		15A13E1722A563BC0037F95B /* PopUpUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1622A563BC0037F95B /* PopUpUtils.cp */; };
@@ -230,6 +231,7 @@
 				15EA1B0521A463490041C5E8 /* NObjTypesN105.h in CopyFiles */,
 				1566053E2268FB0800156E81 /* NDocAndCnfgTypes.h in CopyFiles */,
 				156605402268FB1300156E81 /* NDocAndCnfgTypesN105.h in CopyFiles */,
+				157D429C265BD2A600E7FDBF /* BMP.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,6 +266,7 @@
 		1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */ = {isa = PBXFileReference; fileEncoding = 12; lastKnownFileType = sourcecode.c.h; path = NMiscTypes.h; sourceTree = "<group>"; };
 		157437C41D05153300C5A4DF /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
 		157A13BB24E96DA500EC4849 /* MiscUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MiscUtils.cp; sourceTree = "<group>"; };
+		157D429B265BD2A600E7FDBF /* BMP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMP.h; sourceTree = "<group>"; };
 		15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedTimeSigs.cp; sourceTree = "<group>"; };
 		15A13E1422A5638F0037F95B /* SelUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelUtils.cp; sourceTree = "<group>"; };
 		15A13E1622A563BC0037F95B /* PopUpUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PopUpUtils.cp; sourceTree = "<group>"; };
@@ -658,6 +661,7 @@
 			isa = PBXGroup;
 			children = (
 				D03E6B8E0D5F7807005FD177 /* Beam.h */,
+				157D429B265BD2A600E7FDBF /* BMP.h */,
 				D03E6B8F0D5F7807005FD177 /* Browser.h */,
 				D03E69740D5F60AB005FD177 /* CarbonCompat.h */,
 				D03E69750D5F60AB005FD177 /* CarbonTemplates.h */,

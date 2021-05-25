@@ -60,6 +60,7 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 /* Other Nightingale headers */
 
 #include "Beam.h"
+#include "BMP.h"
 #include "Browser.h"
 #include "Check.h"
 #include "CheckUtils.h"

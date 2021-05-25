@@ -221,7 +221,7 @@ void MayErrMsg(char *fmt, ...)
 	arg6 = va_arg(ap, long);
 	va_end(ap);
 	
-	sprintf(tempStr, "Possible program error: "); 
+	sprintf(tempStr, "ERROR: Possible bug in program: "); 
 	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
 	LogPrintf(LOG_ERR, "%s\n", tempStr);
 
@@ -248,7 +248,7 @@ void AlwaysErrMsg(char *fmt, ...)
 	arg6 = va_arg(ap, long);
 	va_end(ap);
 	
-	sprintf(tempStr, "PROGRAM ERROR: ");  
+	sprintf(tempStr, "ERROR: BUG IN PROGRAM: ");  
 	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
 	LogPrintf(LOG_ERR, "%s\n", tempStr);
 

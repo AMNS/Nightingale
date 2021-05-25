@@ -3255,3 +3255,12 @@ ToolPalette.
 Work towards getting Set Duration palette from a .bmp. Affects Initialize.
 
 Minor changes. Affects CoreMIDIUtils, FileOpen, InstrDialog, MIDIPlay.
+
+---------------------------------------------------------------------------------------
+
+15 - 23 May
+
+Work towards getting Set Duration palette from a .bmp. Affects Nightingale_Prefix.pch;
+BMP.h, Endian.h; EndianUtils, Initialize.
+
+Minor changes. Affects Error, Heaps, MIDIPlay.

@@ -996,7 +996,7 @@ void PlaySequence(
 							syncPaper = pagePaper;
 							tBeforeTurn = GetMIDITime(pageTurnTOffset);
 #if PLDEBUG
-LogPrintf(LOG_DEBUG, "objL=%ld: rect.l=%ld,r=%ld paper.l=%ld,r=%ld\n",
+LogPrintf(LOG_DEBUG, "objL=%ld: rect.l=%ld,r=%ld paper.l=%ld,r=%ld  (PlaySequence)\n",
 objL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 #endif
 							HiliteSyncRect(doc, &syncRect, &syncPaper, newPage && doScroll); /* hilite new Sync */
@@ -1149,7 +1149,7 @@ objL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 	}
 			
 done:
-	if (err) LogPrintf(LOG_ERR, "Can't play the score (error %d). Try Instrument MIDI Settings > Set Device To All Parts.  (PlaySequence)\n",
+	if (err) MayErrMsg("Can't play the score (error %d). Try Instrument MIDI Settings > Set Device To All Parts.  (PlaySequence)\n",
 				err);
 	if (showit && showOldL) HiliteSyncRect(doc, &syncRect, &syncPaper, False);	/* unhilite last Sync */
 
@@ -1197,7 +1197,7 @@ done:
 
 #if DEBUG_KEEPTIMES
 	{ short nk; for (nk=0; nk<nkt; nk++)
-		LogPrintf(LOG_DEBUG, "nk=%d kStartTime[]=%ld\n", nk, kStartTime[nk]-kStartTime[0]);
+		LogPrintf(LOG_DEBUG, "nk=%d kStartTime[]=%ld (PlaySequence)\n", nk, kStartTime[nk]-kStartTime[0]);
 	}
 #endif
 }

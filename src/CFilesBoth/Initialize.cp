@@ -1456,66 +1456,76 @@ LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
 }
 
 
-#define SETDUR_PALETTE_FN		"\pSetDur_2dots1bitNB.bmp"
-#define SETDUR_PALETTE_PATH 	"\p:SetDur_2dots1bitNB.bmp"
+#define SETDUR_PALETTE_FN		"SetDur_2dots1bitNB.bmp"
+//#define SETDUR_PALETTE_PATH 	":SetDur_2dots1bitNB.bmp"
+
+#define BITMAP_SPACE 1000
+#define BITMAP_READBYTES 32
+#if (BITMAP_READBYTES>BITMAP_SPACE)
+	#error
+#endif
+
+FILE *bmpf;
+char signature[2];
+char bitmap[BITMAP_SPACE];
+
 
 static Boolean InitSetDurPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 {
-#ifdef NOTYET
-	FSSpec fsSpec;
-	Str255 palFileName;
-	short refNum, vRefNum, errType;
-	long dirID, byteCount;
-	Byte bmpHeader[54];
+	BMPFileHeader fileHdr;
+	BMPInfoHeader infoHdr;
+	short nRead;
 	
-	LogPrintf(LOG_DEBUG, "??  (InitSetDurPalette)\n");
-
-	Pstrcpy(palFileName, SETDUR_PALETTE_FN);
-
-#if 0
-FOLLOWING CODE IS FROM GetPrefsFileSpec() AND NEEDS TO BE MODIFIED -- OR, PROBABLY BETTER,
-GENERALIZE GetPrefsFileSpec (WHICH WILL THEN BELONG IN FileUtils.c!) AND JUST CALL IT HERE.
-...OR IS THE MUCH, MUCH SIMPLER FSpOpenInputFile() APPROPRIATE?
-	/* Find the preferences folder, normally ~/Library/Preferences */
-	
-	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
-	//LogPrintf(LOG_DEBUG, "FindFolder: err=%d  (FindPrefsFile)\n", err);
-	if (err!=noErr) return err;
-	
-	/* Search the folder for the file */
-	
-	BlockZero(&cat, sizeof(cat));
-	cat.hFileInfo.ioNamePtr = name;
-	cat.hFileInfo.ioVRefNum = pvol;
-	cat.hFileInfo.ioFDirIndex = 1;
-	cat.hFileInfo.ioDirID = pdir;
-	
-	while (PBGetCatInfoSync(&cat) == noErr) {
-		if (( (cat.hFileInfo.ioFlAttrib & 16) == 0) &&
-				(cat.hFileInfo.ioFlFndrInfo.fdType == fType) &&
-				(cat.hFileInfo.ioFlFndrInfo.fdCreator == fCreator) &&
-				Pstreql(name, fileName)) {
-			/* make a fsspec referring to the file */
-			return FSMakeFSSpec(pvol, pdir, name, prefsSpec);
-		}
-		
-		cat.hFileInfo.ioFDirIndex++;
-		cat.hFileInfo.ioDirID = pdir;
-	}
-	//ImportMIDIFile(&fsSpec);	MAYBE COMPARE CODE TO HERE?
-#endif
-	FSMakeFSSpec(vRefNum, dirID, palFileName, &fsSpec);
+	LogPrintf(LOG_DEBUG, "Opening BMP file '%s'...  (InitSetDurPalette)\n", SETDUR_PALETTE_FN);
 
 	/* Open the file and read the BMP header. We expect a basic 54-byte header. ??IS THAT RIGHT? */
 	
-	errType = FSpOpenDF(&fsSpec, fsRdWrPerm, &refNum);
-	if (errType!=noError) {
-		LogPrintf(LOG_ERR, "Can't open the Set Duration palette image file.  (InitSetDurPalette)");
-		return False;		
+	errno = 0;
+	bmpf = fopen((const char *)SETDUR_PALETTE_FN, "r");
+	if (!bmpf) {
+		LogPrintf(LOG_ERR, "Can't open palette bitmap image file '%s'. errno=%d  (InitSetDurPalette)\n",
+							SETDUR_PALETTE_FN, errno);
+		return False;
+	}
+	nRead = fread(&signature[0], 2, 1, bmpf);
+	if (signature[0]!='B' || signature[1]!='M') {
+		LogPrintf(LOG_ERR, "BMP file doesn't start with required characters 'BM'.  (InitSetDurPalette)\n");
+		return False;
 	}
 
-	errType = FSRead(refNum, &byteCount, &bmpHeader);
-#endif
+	nRead = fread(&fileHdr, sizeof(BMPFileHeader), 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the BMP file header.  (InitSetDurPalette)\n");
+		return False;
+	}
+	EndianFixBMPFileHdr(&fileHdr);
+	LogPrintf(LOG_DEBUG, "fileSize=%u offsetToPixelArray=%u\n", fileHdr.fileSize, fileHdr.offsetToPixelArray);
+
+	nRead = fread(&infoHdr, sizeof(BMPInfoHeader), 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the BMP info header.  (InitSetDurPalette)\n");
+		return False;
+	}
+	
+	EndianFixBMPInfoHdr(&infoHdr);
+	LogPrintf(LOG_DEBUG, "infoHdrSize=%u width=%u height=%u bits=%u\n", infoHdr.infoHdrSize,
+		   infoHdr.width, infoHdr.height, infoHdr.bits);
+	LogPrintf(LOG_DEBUG, "imageSize=%u xResolution=%u yResolution=%u colors=%u\n", infoHdr.imageSize,
+		   infoHdr.xResolution, infoHdr.yResolution, infoHdr.colors);
+	
+	long offset = fileHdr.offsetToPixelArray;
+	if (fseek(bmpf, offset, SEEK_SET)!=0) {
+		LogPrintf(LOG_ERR, "fseek to offset %ld in BMP file failed.  (InitSetDurPalette)\n", offset);
+		return False;
+	}
+	
+	nRead = fread(&bitmap, BITMAP_READBYTES, 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the bitmap from BMP file.  (InitSetDurPalette)\n");
+		return False;
+	}
+	NHexDump(LOG_DEBUG, "bitmap", (unsigned char *)bitmap, BITMAP_READBYTES, 4, 16);
+
 	return True;
 }
 
@@ -1550,7 +1560,9 @@ static Boolean NInitPalettes()
 					wdefID = ToolPaletteWDEF_ID;
 					break;
 				case HELP_PALETTE:
-					InitSetDurPalette(whichPalette, &windowRects[idx]);
+					if (!InitSetDurPalette(whichPalette, &windowRects[idx])) {
+						MayErrMsg("Can't get the Set Duration palette from BMP file.  (InitSetDurPalette)");
+					}
 					wdefID = ToolPaletteWDEF_ID;						// ??REALLY?
 					break;
 				case CLAVIER_PALETTE:

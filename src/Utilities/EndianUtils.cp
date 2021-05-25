@@ -1,6 +1,10 @@
 /*	EndianUtils.c
 
-Nightingale score files are stored in Big Endian form, and so are many of Nightingale's
+NB: Most of the functions in this file are to handle Big Endian data when running on a
+Little Endian processor. A few functions do the reverse; they're at the end of the
+file. */
+
+/* Nightingale score files are stored in Big Endian form, and so are many of its
 resources -- the CNFG, MIDI ModNR table, PaletteGlobals resources, etc. If we're
 running on a Little Endian processor (Intel or compatible), these functions convert
 the byte order in fields of more than one byte to the opposite Endian; if we're on a
@@ -500,15 +504,13 @@ static void EndianFixModNRs(LINK aNoteRL)
 {
 	LINK aModL = NoteFIRSTMOD(aNoteRL);
 
-if (aModL) LogPrintf(LOG_DEBUG, "EndianFixModNRs: aNoteRL=L%u NoteFIRSTMOD=L%u\n", aNoteRL, NoteFIRSTMOD(aNoteRL));
+//if (aModL) LogPrintf(LOG_DEBUG, "EndianFixModNRs: aNoteRL=L%u NoteFIRSTMOD=L%u\n", aNoteRL, NoteFIRSTMOD(aNoteRL));
 
 	/* Since the LINK to the first ModNR is embedded in the note/rest, it should have
 	   already been fixed, so we start with the second LINK. */
 	   
 	for ( ; aModL; aModL = NextMODNRL(aModL)) {
-//LogPrintf(LOG_DEBUG, "EndianFixModNRs<: NextMODNRL(aModL)=L%u\n", NextMODNRL(aModL));
 		FIX_END(NextMODNRL(aModL));
-//LogPrintf(LOG_DEBUG, "EndianFixModNRs>: NextMODNRL(aModL)=L%u\n", NextMODNRL(aModL));
 	}
 }
 
@@ -617,4 +619,28 @@ if (DETAIL_SHOW && objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heap
 		default:
 			;
 	}
+}
+
+/* ------------------------------------------------------- Endian functions for .BMP's -- */
+/* BMP files, which Nightingale reads images of its palettes from, are Little Endian.
+If we're running on a Big Endian processor (PowerPC), these functions convert
+the byte order in fields of more than one byte to the opposite Endian; if we're on a
+Little Endian processor (Intel or compatible), they do nothing. */
+
+void EndianFixBMPFileHdr(BMPFileHeader *pFileHdr)
+{
+	FIX_END_LE(pFileHdr->fileSize);
+	FIX_END_LE(pFileHdr->offsetToPixelArray);
+}
+
+void EndianFixBMPInfoHdr(BMPInfoHeader *pInfoHdr)
+{
+	FIX_END_LE(pInfoHdr->infoHdrSize);
+	FIX_END_LE(pInfoHdr->width);
+	FIX_END_LE(pInfoHdr->height);
+	FIX_END_LE(pInfoHdr->bits);
+	FIX_END_LE(pInfoHdr->imageSize);
+	FIX_END_LE(pInfoHdr->xResolution);
+	FIX_END_LE(pInfoHdr->yResolution);
+	FIX_END_LE(pInfoHdr->colors);
 }

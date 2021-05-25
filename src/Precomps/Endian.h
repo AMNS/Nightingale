@@ -14,6 +14,16 @@ else { LogPrintf(LOG_ERR, "PROGRAM ERROR: FIX_ENDIAN called with size %d\n", n);
 #define FIX_ENDIAN(n, v) v = v
 #endif
 
+#if TARGET_RT_LITTLE_ENDIAN
+#define FIX_END_LE(v) v = v
+#define FIX_ENDIAN_LE(n, v) v = v
+#else
+#define FIX_END_LE(v) FIX_ENDIAN_LE(sizeof(v), v)
+#define FIX_ENDIAN_LE(n, v) if (n==2) { v = CFSwapInt16LittleToHost(v); }	\
+else if (n==4) { v = CFSwapInt32LittleToHost(v); }							\
+else { LogPrintf(LOG_ERR, "PROGRAM ERROR: FIX_ENDIAN_LE called with size %d\n", n); exit(148); }
+#endif
+
 void		EndianFixRect(Rect *pRect);
 void		EndianFixPoint(Point *pPoint);
 void		EndianFixConfig(void);
@@ -26,3 +36,5 @@ void		EndianFixHeapHdr(Document *doc, HEAP *heap);
 void		EndianFixObject(LINK pL);
 Boolean		EndianFixSubobj(short heapIndex, LINK subL);
 void		EndianFixSubobjs(LINK objL);
+void		EndianFixBMPFileHdr(BMPFileHeader *pFileHdr);
+void		EndianFixBMPInfoHdr(BMPInfoHeader *pInfoHdr);

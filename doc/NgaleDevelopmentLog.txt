@@ -9916,3 +9916,23 @@ it's not worth pursuing now! BUT, trying to play 2ndMovementConv.ngl, I got the 
 occur." -- string #15 of STR# 235 (MIDIPLAYERRS_STRS); then it _did_ play!?! Also not
 worth pursuing now.
 
+---------------------------------------------------------------------------------------
+
+15 - 18 May
+
+BACK TO: UI font problem, solution #3: abandon fonts and use the images as a palette,
+either (3a) as pop-ups or (3b) by displaying the palette whenever the dialog is open.
+
+Write code to read BMPs & display important fields, SimpleBMPUtil; test w/ the double-
+click "change dynamic" palette:
+
+	Dons-2017-Air:Debug donbyrd$ ./SimpleBMPUtil ChangeDynamicNB.bmp 
+	SimpleBMPUtil - May 2021
+	input file 'ChangeDynamicNB.bmp'
+	fileSize=894 offsetToPixelArray=62
+	infoHdrSize=40 width=120 height=52 bits=1
+	imageSize=832 xResolution=2835 yResolution=2835 colors=2
+
+The important fields are <offsetToPixelArray> and <colors>; they're as expected, and
+everything makes sense! Test with the other 3 palettes => all OK.
+
