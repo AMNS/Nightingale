@@ -3264,3 +3264,14 @@ Work towards getting Set Duration palette from a .bmp. Affects Nightingale_Prefi
 BMP.h, Endian.h; EndianUtils, Initialize.
 
 Minor changes. Affects Error, Heaps, MIDIPlay.
+
+---------------------------------------------------------------------------------------
+
+25 May - 13 June
+
+Fixed bug: scrolling text in the About box doesn't handle pause or boldface codes.
+Affects About.
+
+Minor changes: got rid of compiler warnings about "multi-character character constant",
+etc. Affects Defs.h, vars.h; About, DialogsEditor, DrawUtils, Initialize, ToolPalette,
+UIFUtils, Utility.

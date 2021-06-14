@@ -696,9 +696,9 @@ SPACETIMEINFO *AllocSpTimeInfo()
 
 
 /* ------------------------------------------------------------ MakeGWorld and friends -- */
-/* Functions for managing offscreen graphics ports using Apple's GWorld mechanism.
-These make it easy to work with color images.  See Apple documentation ("Offscreen
-Graphics Worlds.pdf") for more.   JGG, 8/11/01 */
+/* Functions for managing offscreen graphics ports using Apple's GWorld mechanism. These
+make it easy to work with color images.  See Apple documentation ("Offscreen Graphics
+Worlds.pdf") for more.   JGG, 8/11/01 */
 
 /* Create a new graphics world (GWorld) for offscreen drawing, having the given
 dimensions.  If <lock> is True, the PixMap of this GWorld will be locked on return.
@@ -718,18 +718,23 @@ GWorldPtr MakeGWorld(short width, short height, Boolean lock)
 
 	err = NewGWorld(&theGWorld, 0, &portRect, NULL, NULL, 0);
 	if (theGWorld==NULL || err!=noErr) {
+		LogPrintf(LOG_ERR, "Couldn't create GWorld of width %d and height %d.  (MakeGWorld)\n",
+					width, height);
 		NoMoreMemory();
 		return NULL;
 	}
 	pixMapH = GetGWorldPixMap(theGWorld);
 	result = LockPixels(pixMapH);
 	if (!result) {			/* This shouldn't happen with the kind of GWorld we make. */
+		LogPrintf(LOG_ERR, "Couldn't lock GWorld (width %d, height %d).  (MakeGWorld)\n",
+					width, height);
 		DisposeGWorld(theGWorld);
 		NoMoreMemory();
 		return NULL;
 	}
 
 	/* Erase pixels */
+	
 	GetGWorld(&origGrafPtr, &origDevH);
 	SetGWorld(theGWorld, NULL);
 		
@@ -740,8 +745,7 @@ GWorldPtr MakeGWorld(short width, short height, Boolean lock)
 	//EraseRect(&theGWorld->portRect);
 	SetGWorld(origGrafPtr, origDevH);
 
-	if (!lock)
-		UnlockPixels(pixMapH);
+	if (!lock) UnlockPixels(pixMapH);
 
 	return theGWorld;
 }
@@ -805,7 +809,7 @@ height.  Returns a pointer to the GrafPort, but does NOT set it to be the curren
 
 The GrafPort thus created should be disposed of with the DisposGrafPort function. */
 
-GrafPtr NewGrafPort(short width, short height)	/* required size of requested GrafPort */
+GrafPtr NewGrafPort(short width, short height)	/* required size of GrafPort */
 {
 
 	GrafPtr	oldPort,
@@ -938,7 +942,7 @@ void SetDPt(DPoint *dPoint, DDIST dx, DDIST dy)
 	dPoint->v = dy;
 }
 
-/* Offset (move) DPoint <*dest> by <src>, */
+/* Offset (move) DPoint <*dest> by <src>. */
 
 void OffsetDPt(DPoint src, DPoint *dest)
 {

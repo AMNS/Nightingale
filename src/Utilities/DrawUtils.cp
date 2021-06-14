@@ -110,7 +110,7 @@ extern short gMCharTop;
 extern short gMCharLeft;
 
 void DrawMChar(
-		Document *doc,				/* Used to get maximum char. size */
+		Document * /* doc */,		/* FIXME: NOT! Used to get maximum char. size */
 		short mchar,
 		short shape,				/* NO_VIS=invisible, any other=normal */
 		Boolean	dim 				/* Should character be dimmed? */
@@ -232,10 +232,9 @@ static void LCGet8Pos(SignedByte, DDIST, DDIST *,  DDIST *);
 static void LCGet8Pos(SignedByte clefType, DDIST dLnHeight, DDIST *xdOctDelta,
 								DDIST *ydOctDelta)
 {
-	/*
-	 * Careful: the vertical origin of the italic "8" in Sonata and compatible fonts
-	 * is at the bottom, but the Roman's is in the middle!
-	 */
+	/* Careful: the vertical origin of the italic "8" in Sonata and compatible fonts
+	   is at the bottom, but the Roman's is in the middle! */
+	   
 	*xdOctDelta = (DDIST)NRV_CANCEL;
 	
 	switch (clefType) {

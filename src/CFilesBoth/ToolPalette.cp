@@ -267,11 +267,11 @@ pascal void DrawToolPalette(Rect *r)
 	
 	src = port;
 	OffsetRect(&src, -src.left, -src.top);
-	const BitMap *palPortBits = GetPortBitMapForCopyBits(palPort);
+	const BitMap *palPortBits = GetPortBitMapForCopyBits(toolPalPort);
 	const BitMap *thePortBits = GetPortBitMapForCopyBits(GetQDGlobalsThePort());
 	CopyBits(palPortBits, thePortBits, &src, &port, srcCopy, NULL);
 { Rect portRect;
-long len = 1000; GetPortBounds(palPort, &portRect);
+long len = 1000; GetPortBounds(toolPalPort, &portRect);
 LogPrintf(LOG_DEBUG, "DrawToolPalette: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
 len, MemBitCount((unsigned char *)palPortBits, len),
 portRect.top, portRect.left, portRect.bottom, portRect.right);
@@ -453,9 +453,9 @@ void SwapTools(short firstItem, short lastItem)
 		
 		/* Swap source and dest cells in underlying offscreen picture */
 		
-		PalCopy(scratchPort, palPort, 0, firstItem);
-		PalCopy(palPort, palPort, firstItem,lastItem);
-		PalCopy(palPort, scratchPort, lastItem, 0);
+		PalCopy(scratchPort, toolPalPort, 0, firstItem);
+		PalCopy(toolPalPort, toolPalPort, firstItem, lastItem);
+		PalCopy(toolPalPort, scratchPort, lastItem, 0);
 		DisposGrafPort(scratchPort);						/* Toss out offscreen bitmap */
 		
 		/* Swap source and dest info for items */
@@ -485,8 +485,8 @@ static void PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcIt
 	if (!dstItem)
 		SetRect(&dstRect,0,0,srcRect.right-srcRect.left,srcRect.bottom-srcRect.top);
 	
-	if (srcPort == palPort) OffsetRect(&srcRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
-	if (dstPort == palPort) OffsetRect(&dstRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
+	if (srcPort == toolPalPort) OffsetRect(&srcRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
+	if (dstPort == toolPalPort) OffsetRect(&dstRect,-TOOLS_MARGIN,-TOOLS_MARGIN);
 	
 	srcRect.right--;  srcRect.bottom--;
 	dstRect.right--;  dstRect.bottom--;
@@ -761,7 +761,7 @@ Boolean SaveToolPalette(Boolean inquire)
 			SetPort(port);
 			thePic = OpenPicture(&picRect);
 			if (thePic) {
-				const BitMap *palPortBits = GetPortBitMapForCopyBits(palPort);
+				const BitMap *palPortBits = GetPortBitMapForCopyBits(toolPalPort);
 				const BitMap *portBits = GetPortBitMapForCopyBits(port);		
 				CopyBits(palPortBits,portBits,&picRect,&picRect,srcCopy,NULL);
 				ClosePicture();

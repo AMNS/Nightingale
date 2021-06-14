@@ -212,9 +212,9 @@ void FixCursor()
 	
 	/* If option key is down and shift key is NOT down, use "general drag" cursor, no
 	   matter what. The shift key test is unfortunately necessary so we can use
-	   shift-option-E (for example) as the keyboard equivalent for eighth grace
-	   note without confusing users by having the wrong cursor as long they actually
-	   have the option key down. */
+	   shift-option-E (for example) as the keyboard equivalent for eighth grace note
+	   without confusing users by having the wrong cursor as long they actually have the
+	   option key down. */
 
 	if (OptionKeyDown() && !ShiftKeyDown()) newCursor = genlDragCursor;
 	
@@ -1513,8 +1513,7 @@ void FlushDialogPortRect(DialogPtr d)
 	FlushWindowPortRect(GetDialogWindow(d));
 }
 
-
-/* Port font, face, size */
+/* Port font, face, size, mode */
 
 short GetPortTxFont()
 {

@@ -9936,3 +9936,147 @@ click "change dynamic" palette:
 The important fields are <offsetToPixelArray> and <colors>; they're as expected, and
 everything makes sense! Test with the other 3 palettes => all OK.
 
+---------------------------------------------------------------------------------------
+
+24 May - 2 June
+
+SWITCH TO: abandon UI fonts and use the images as a palette, **** USING NGALE 5.8. ****
+
+The problem commands and corresponding palettes:
+
+	Set Duration: SetDur_2dots1bitNB
+	Add Modifiers: AddModifierNB
+	Fancy Tuplet: SetDur_2dots1bitNB (top row only)
+	[Double-click non-hairpin dynamic]: ChangeDynamicNB
+
+We also want to abandon the PICT for the tool palette and use a bitmap image for that.
+But first, try opening the palette bitmap image file:
+
+	May 26 06:35:06 DonDualG5 Ngale[14267]:
+	debug. Opening BMP file 'SetDur_2dots1bitNB.bmp'...  (InitSetDurPalette)
+	ERROR. Can't open palette bitmap image file 'SetDur_2dots1bitNB.bmp'. errno=2  (InitSetDurPalette)
+	ERROR. PROGRAM ERROR: Can't get the Set Duration palette from BMP file.  (InitSetDurPalette)
+
+What's errno=2? Open Transport Reference (in Xcode Developer Docs) says errno=2 is ENOENT;
+what does that mean? errno.h should say more! In /Xcode2.5/SDKs/MacOSX10.4u.sdk/usr/include/sys/errno.h:
+
+	#define	ENOENT		2		/* No such file or directory */
+
+No surprise. Copy SetDur_2dots1bitNB.bmp into the build/Release folder => it works! --
+i.e., it opens and correctly reads the headers & (I think) the bitmap.
+
+Hmmm. These new palettes are in pop-up windows or modal dialogs; actually, all could be
+modal dialogs. Anyway, they're definitely not floating windows, so pretty different "under
+the hood" from the tool palette; I probably shouldn't use NInitPalettes() for them!
+
+But wait. The problem is fonts, not pop-ups! Why not keep these commands using pop-ups,
+just make the contents of the pop-up menus bitmaps instead of character strings? Bcs we're
+using the Apple menu machinery, just with our UI fonts instead of standard fonts, and our
+fonts are now unusable! I'm sure it's possible to replace the "menus" with bitmaps and have
+things work the way we want, but it might be difficult -- and we'd still have to solve the
+"tool palette is never filled in" problem, which appears to be difficult because it depends
+on a PICT. Oh well.
+
+Should I use GWorlds or GrafPorts? GWorlds seem to have replaced GrafPorts for at least some
+purposes; I've never understood why, but the #define in compilerFlags.h has been there since
+Oct. 2016, probably longer, so... Ah, apparently they make color GrafPorts easier. Irrelevant
+for these palettes, but no reason not to use them.
+
+Ngale uses a GWorld for the scrolling text in the About box; that looks like by far the
+most similar thing in Ngale to what I want to do. So next step: Make the Set Duration dialog
+much larger; replace the pop-up item with whatever the About box uses; and... TBD. Well,
+the About box of course has a user item!; that's what we need, but we want to start out by
+drawing the palette, and when it's clicked, just do hilighting etc. instead of all the
+pop-up stuff.
+
+Launch Ngale, New, enter a note, Set Duration; click ?anywhere? => crashes in SetDurFilter.
+Make SetDurFilter just return False => clicking anywhere except OK doesn't crash (or do
+anything else); clicking OK crashes.
+
+Make SetDurFilter behave normally except case updateEvt just returns False => clicking a
+button crashes. Make cases mouseDown, mouseUp j. r. False => clicking anywhere does
+nothing. Ah, curPop is undefined, so curPop->box is garbage, so PtInRect(where, &curPop->box)
+crashes! We want the bounding box of the user item containing the palette image => OK.
+
+Move the code in About.cp to copy an offscreen bitmap to a dialog into a new function
+CopyOffScreenBitsToDlog so can use it for palettes.
+
+---------------------------------------------------------------------------------------
+
+3 - 7 June
+
+Generalize CopyOffScreenBitsToDlog => CopyOffScreenBitsToWindow.
+
+Replacing the PICT for the tool palette with a bitmap image for it should be a good start on
+replacing UI fonts with images; code is in InitToolPalette() & DrawToolPalette(). PICT 2001,
+the tool palette at maximum size with no margins, is 271 x 399. Can we replace picRect.right
+& picRect.bottom with infoHdr.width & infoHdr.height?
+
+	picRect.right=271 bottom=399
+	infoHdrSize=40 width=271 height=399 bits=1  (NOpenBMPFile)
+
+Sure looks like it: it's exactly the right size! Rewrite InitToolPalette() to read in the
+BMP file and call CopyOffScreenBitsToWindow instead of DrawPicture() => it doesn't get drawn
+:-( . With the old code, using a PICT:
+
+	Jun  5 17:13:37 DonDualG5 Ngale[37043]:
+	debug. InitToolPalette: windowRect tlbr=40,0,353,98
+	debug. InitToolPalette1: aPixMap->rowBytes=-32368 ->bounds.tlbr=0,0,353,98 ->pmVersion=1 MemBitCount(palPortBits, 1000)=7872
+	debug. InitToolPalette2: aPixMap->rowBytes=-32368 ->bounds.tlbr=0,0,353,98 ->pmVersion=1 MemBitCount(palPortBits, 1000)=7536
+
+With the new code, using a BMP:
+
+	debug. InitToolPalette: windowRect tlbr=40,0,353,98
+	debug. InitToolPalette2: aPixMap->rowBytes=-32368 ->bounds.tlbr=0,0,353,98 ->pmVersion=1 MemBitCount(palPortBits, 1000)=7872
+
+But the new code draws into windowRect; what about picRect? With the old code, using a PICT:
+
+	Jun  6 22:01:35 DonDualG5 Ngale[1102]:
+	debug. InitToolPalette: windowRect tlbr=40,0,353,98 toolCellWidth,Height=17,25
+	debug. InitToolPalette: picRect tlbr=0,0,399,271
+	debug. InitToolPalette1: aPixMap->rowBytes=-32368 ->bounds.tlbr=0,0,353,98 ->pmVersion=1 MemBitCount(palPortBits, 1000)=7872
+	debug. InitToolPalette2: aPixMap->rowBytes=-32368 ->bounds.tlbr=0,0,353,98 ->pmVersion=1 MemBitCount(palPortBits, 1000)=7536
+
+With the new code, using a BMP:
+	Jun  7 15:58:49 DonDualG5 Ngale[2027]:
+	debug. InitToolPalette: windowRect tlbr=40,0,353,98 toolCellWidth,Height=17,25
+	debug. InitToolPalette: maxToolsRect tlbr=0,0,399,271
+	debug. InitToolPalette2: aPixMap->rowBytes=-32368 ->bounds.tlbr=0,0,353,98 ->pmVersion=1 MemBitCount(palPortBits, 1000)=7872
+
+The tool Palette parameters are:
+	maxAcross=16  maxDown=16  across=5  down=12  oldAcross=5  oldDown=12  firstAcross=5  firstDown=12
+
+The max. palette size is 16x16 cells; the default is 5 wide, 12 high. TOOLS_MARGIN is 7. So,
+not counting margins, width should be 5 x 17 = 85 pixels; w/ margins, 85+14 = 99. Height w/o
+margins should be 12 x 25 = 300 pixels; w/ margins, 300+14 = 314. And windowRect's width
+[0,98] is indeed 99 pixels; its height [40,353] is 314. So why does the BMP approach leave the
+palette blank??
+
+---------------------------------------------------------------------------------------
+
+8 - 10 June
+
+I need help with the "BMP approach leaves the palette blank" problem, and asked Doug McK.!
+In the meantime,
+SWITCH TO: Get rid of (at least some) compiler warnings about "multi-character
+character constant". NB: Despite the warning, all of these work! I can only think that the
+UTF-8 encoding takes more than one byte but it's converted to the one-character encoding ??
+
++ About.c: PAUSE_CODE and BOLD_CODE just need to match the character codes in a 'TEXT' resource.
+
+PAUSE_CODE	'¹' (draws pi) =>			 0xB9	/* [opt-p in Mac Roman] Pause scrolling (cf. SCROLL_PAUSE_DELAY) */
+BOLD_CODE	'º' (draws integral sign) => 0xBA	/* [opt-b in Mac Roman] Draw this line in bold */
+
++ Error.c: Again we just need to match the character codes in a resource (here, 'STR#').
+
+	#define OPEN_GUILLEMET 0xC7			/* Codepoint in the ancient Mac Roman encoding */
+	#define CLOSE_GUILLEMET 0xC8		/* Codepoint in the ancient Mac Roman encoding */
+
++ Defs.h (used in DrawUtils.c): We need the Sonata font encodings.
+
+MCH_upbow '²' => 0xB2 (NB: 'v' works too; dunno why, but MCH_heavyAccentBelow can't be the same!)
+MCH_downbow '³' => 0xB3
+
+- ChordSym.c:
+
+		if (eStr[1]=='-') eStr[1] = '–';				/* prevent dotted line in menu! */

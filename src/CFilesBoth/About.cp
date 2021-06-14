@@ -14,13 +14,15 @@
 /* ------------------------------------------------------------------ DoAboutBox et al -- */
 
 #define	CR_LEADING			14		/* Vert. dist. between baselines of credit text */
-#define	PAUSE_CODE			'¹'		/* [opt-p] If line of TEXT resource begins with this,
-										animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
-#define	BOLD_CODE			'º'		/* [opt-b] If this begins a line of TEXT resource, or follows
-										PAUSE_CODE, that line will be drawn in bold. */
 #define	SCROLL_PAUSE_DELAY	90		/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
 #define	SCROLL_NORM_DELAY	4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
 #define	MAX_PAUSE_LINES		10		/* Max number of lines that can begin with PAUSE_CODE */
+
+/* These codes must begin a line of the TEXT resource. If both are present, PAUSE_CODE
+must appear first. */
+
+#define	PAUSE_CODE			0xB9	/* [opt-p in Mac Roman] Pause scrolling (cf. SCROLL_PAUSE_DELAY) */
+#define	BOLD_CODE			0xBA	/* [opt-b in Mac Roman] Draw this line in bold */
 
 static pascal Boolean	AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static Boolean			SetupCredits(void);
@@ -39,6 +41,15 @@ static GrafPtr	fullTextPort;
 static Rect		creditRect, textSection;
 static short	pauseLines[MAX_PAUSE_LINES];
 static Boolean	firstAnimateCall;
+
+static void CopyOffScreenBitsToDialog(GrafPtr offScreenPort, DialogPtr dlog, Rect offRect,
+				Rect dlogRect)
+{
+	const BitMap *offPortBits = GetPortBitMapForCopyBits(offScreenPort);
+	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
+	CopyBits(offPortBits, dlogPortBits, &offRect, &dlogRect, srcCopy, NULL);
+}
+
 
 void DoAboutBox(
 	Boolean /*first*/			/* Currently unused */
@@ -74,7 +85,7 @@ void DoAboutBox(
 		return;
 	}
 	
-	/* Get userItem rect for printing animated credits list */
+	/* Get userItem rect for printing animated credits list and prepare offsceen port. */
 	
 	GetDialogItem(dlog, CREDITS_BOX, &type, &hndl, &creditRect);
 	textSection = creditRect;
@@ -102,9 +113,7 @@ void DoAboutBox(
 	
 	firstAnimateCall = True;
 	
-	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);
-	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
-	CopyBits(ftpPortBits, dlogPortBits, &textSection, &creditRect, srcCopy, NULL);
+	CopyOffScreenBitsToDialog(fullTextPort, dlog, textSection, creditRect);
 
 //	CopyBits(&fullTextPort->portBits, &dlog->portBits,	&textSection,
 //					&creditRect, srcCopy, NULL);
@@ -185,7 +194,7 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 
 
 /* Prepare an offscreen port holding lines of text read from a TEXT resource.
-AnimateCredits() will copy a sliding rectangle from this port onto the screen every
+AnimateCredits() should copy a sliding rectangle from this port onto the screen every
 few ticks (specified by SCROLL_NORM_DELAY). */
 	
 Boolean SetupCredits()
@@ -205,20 +214,20 @@ Boolean SetupCredits()
 	}
 	textLen = GetResourceSizeOnDisk(hCreditText);
 	
-	/* Lock and dereference handle to text */
+	/* Lock and dereference handle to text and count the lines in it */
+	
 	HLock(hCreditText);
 	textPtr = (char *) *hCreditText;
-		
-	/* How many lines in text? */
-	for (i=0, numLines=0; i<textLen; i++, textPtr++) {
+	
+	for (i=0, numLines=0; i<textLen; i++, textPtr++)
 		if (*textPtr == CH_CR) numLines++;
-	}
 	textPtr = (char *) *hCreditText;								/* reset ptr */
+
+	/* Save the current graphics environment and switch to an offscreen port to hold
+	   formatted text. */
 
 	SaveGWorld();
 	
-	/* Create offscreen port to hold formatted text */
-
 	portWid = creditRect.right - creditRect.left;			/* creditRect is static global declared above */
 	GWorldPtr gwPtr = MakeGWorld(portWid, numLines * CR_LEADING, True);
 	SetGWorld(gwPtr, NULL);
@@ -226,7 +235,7 @@ Boolean SetupCredits()
 	TextFont(textFontNum);
 	TextSize(textFontSmallSize);
 
-	/* Initialize pauseLines[], so that we won't pause inadvertantly on a line whose
+	/* Initialize pauseLines[] so that we won't pause inadvertently on a line whose
 	   number happens to be given by garbage. */
 	   
 	for (i=0; i<MAX_PAUSE_LINES; i++)
@@ -241,13 +250,14 @@ Boolean SetupCredits()
 	for (i=0, lineNum=1, pauseLineCount=0; i<textLen; i++) {
 		if (*textPtr == CH_CR) {
 			*strP = '\0';										/* this string complete */
+//LogPrintf(LOG_DEBUG, "SetupCredits: PAUSE_CODE=%x *thisStr=%hhx ='%c'\n", PAUSE_CODE, *thisStr, *thisStr);
 			/* Parse next line for codes */
-			if (*thisStr==PAUSE_CODE) {
+			if (*thisStr==(char)PAUSE_CODE) {
 				if (pauseLineCount<=MAX_PAUSE_LINES)
 					pauseLines[pauseLineCount++] = lineNum;		/* put this line number in array of lines to pause on */
 				thisStr++;
 			}
-			if (*thisStr==BOLD_CODE) {
+			if (*thisStr==(char)BOLD_CODE) {
 				TextFace(bold);									/* style is bold */
 				thisStr++;
 			}
@@ -314,7 +324,7 @@ void AnimateCredits(DialogPtr dlog)
 	/* If we're about to run off the bottom, start at top again */
 	
 	Rect ftPortRect;
-	GetPortBounds(fullTextPort,&ftPortRect);
+	GetPortBounds(fullTextPort, &ftPortRect);
 	if (textSection.bottom > ftPortRect.bottom) {
 		textSection = creditRect;
 		OffsetRect(&textSection, -creditRect.left, -creditRect.top);
@@ -324,9 +334,7 @@ void AnimateCredits(DialogPtr dlog)
 		   Skip array search, and thus pause, if this computation yields a remainder. */
 	}
 		
-	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);
-	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
-	CopyBits(ftpPortBits, dlogPortBits, &textSection, &creditRect, srcCopy, NULL);
+	CopyOffScreenBitsToDialog(fullTextPort, dlog, textSection, creditRect);
 					
 	textSection.top++;  textSection.bottom++;
 	pixelCount++;

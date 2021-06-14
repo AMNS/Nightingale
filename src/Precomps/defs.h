@@ -168,8 +168,8 @@ enum {								/*  Dialog buttons FIXME: lousy old names; should change!  */
 #define MCH_turn 'T'
 #define MCH_plus '+'
 #define MCH_circle 'o'
-#define MCH_upbow '²'
-#define MCH_downbow '³'
+#define MCH_upbow 0xB2
+#define MCH_downbow 0xB3
 #define MCH_heavyAccAndStaccato 0xAC		/* =option-u option-u */
 #define MCH_heavyAccAndStaccatoBelow 0xE8	/* =shift-option-u */
 #define MCH_longInvMordent 0xB5				/* =option-m */

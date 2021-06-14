@@ -1446,9 +1446,9 @@ LogPixMapInfo("InitToolPalette1", portPixMap, 1000);
 	HUnlock((Handle)toolPicture);
 	ReleaseResource((Handle)toolPicture);
 	
-	palPort = gwPtr;
+	toolPalPort = gwPtr;
 {
-PixMapHandle portPixMapH = GetPortPixMap(palPort); PixMapPtr portPixMap = *portPixMapH;
+PixMapHandle portPixMapH = GetPortPixMap(toolPalPort); PixMapPtr portPixMap = *portPixMapH;
 LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
 }
 //		UnlockGWorld(gwPtr);

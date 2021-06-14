@@ -1598,7 +1598,7 @@ static short setDurGroup;
 
 static Boolean IsSelInTuplet(Document *doc)
 {
-	LINK pL,aNoteL;
+	LINK pL, aNoteL;
 
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL))
@@ -1610,8 +1610,8 @@ static Boolean IsSelInTuplet(Document *doc)
 }
 
 
-/* Return True if any selected notes (or rests) are in a tuplet, but not all the notes
-of the tuplet are selected. */
+/* Return True if any selected notes (or rests) are in a tuplet, but not all the notes of
+the tuplet are selected. */
 
 static Boolean IsSelInTupletNotTotallySel(Document *doc)
 {
@@ -1632,10 +1632,8 @@ static Boolean IsSelInTupletNotTotallySel(Document *doc)
 				aNoteL = FirstSubLINK(tpSyncL);
 				for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
 					if (NoteVOICE(aNoteL)==voice) {
-						if (NoteSEL(aNoteL))
-							numSelNotes++;
-						else
-							numNotSelNotes++;
+						if (NoteSEL(aNoteL))	numSelNotes++;
+						else					numNotSelNotes++;
 					}
 			}
 			if (numSelNotes>0 && numNotSelNotes>0)
@@ -1883,16 +1881,14 @@ Boolean SetDurDialog(
 				GetDlgWord(dlog, PDURPCT_DI, &newpDurPct);
 				newSetLDur = GetDlgChkRadio(dlog, SETLDUR_DI);
 				
-				if (setDurGroup==HALVEDURS_DI)
-					*lDurAction = HALVE_DURS;
-				else if (setDurGroup==DOUBLEDURS_DI)
-					*lDurAction = DOUBLE_DURS;
-				else
-					*lDurAction = SET_DURS_TO;
+				if (setDurGroup==HALVEDURS_DI)			*lDurAction = HALVE_DURS;
+				else if (setDurGroup==DOUBLEDURS_DI)	*lDurAction = DOUBLE_DURS;
+				else									*lDurAction = SET_DURS_TO;
 
 				if (!SDAnyBadValues(doc, dlog, newSetLDur, *lDurAction, newnDots, newpDurPct)) {
-					/* If any selected note is beamed, tell user it must be unbeamed if the
-						logical durations are to be set. */
+				
+					/* If the logical durations are to be set and any selected note is beamed,
+					   it must be unbeamed first; tell the user. */
 			
 					if (newSetLDur && beamed) {
 						if (CautionAdvise(SDBEAM_ALRT)==Cancel) break;
@@ -2237,8 +2233,8 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 				dialogOver = True;
 				break;
 			case TDurPopDI:
-	 			/* If user just set the popup to unknown duration, which makes no sense in
-				   a metronome mark, change it back to what it was. */
+	 			/* If user just set the popup to unknown duration, which makes no sense in a
+	 			   metronome mark, change it back to what it was. */
 				   
 				newLDur = popKeys1dot[curPop->currentChoice].durCode;
 				if (newLDur==UNKNOWN_L_DUR) {
@@ -2608,6 +2604,7 @@ short RastralDialog(
 
 	/* Get the sample staff rectangle, as defined by a user item, and get it out of the
 	   the way so it doesn't hide any items underneath. */
+	   
 	GetDialogItem(rDialogp, StSampITM, &anInt, &aHdl, &staffArea);		
 	HideDialogItem(rDialogp, StSampITM);
 
@@ -3386,7 +3383,7 @@ enum {								/* Time Signature Dialog items */
 	iTSReplaceIt
 };
 
-short	numerator, denominator, radio1, radio2;
+short numerator, denominator, radio1, radio2;
 Rect tsStaffRect, tsNumUpRect,tsNumDownRect, tsDenomUpRect, tsDenomDownRect;
 ControlHandle cTimeHdl, cutTimeHdl;
 
@@ -4019,7 +4016,7 @@ Boolean InsMeasUnkDurDialog()
 {
 	static Boolean assumeOK=False;
 	short itemHit, okay, keepGoing=True;
-	DialogPtr dlog; GrafPtr oldPort;
+	DialogPtr dlog;  GrafPtr oldPort;
 	ModalFilterUPP filterUPP;
 
 	if (assumeOK) return True;
