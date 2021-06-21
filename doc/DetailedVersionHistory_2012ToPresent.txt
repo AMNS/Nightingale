@@ -3275,3 +3275,12 @@ Affects About.
 Minor changes: got rid of compiler warnings about "multi-character character constant",
 etc. Affects Defs.h, vars.h; About, DialogsEditor, DrawUtils, Initialize, ToolPalette,
 UIFUtils, Utility.
+
+---------------------------------------------------------------------------------------
+
+16 - 17 June
+
+RENAMED VERSION 5.9 AS 6.0. Affects Info.plist.
+
+Minor changes: got rid of compiler warnings about "multi-character character constant",
+etc. Affects VersionStrings.h; UIFUtils.

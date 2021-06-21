@@ -291,17 +291,17 @@ void CenterRect(Rect *r, Rect *inside, Rect *ans)
 	OffsetRect(ans, ix-rx, iy-ry);
 }
 
-/* Force a rectangle to be entirely enclosed by another (presumably larger) one. If
-the "enclosed" rectangle is larger, then we leave the bottom right within. <margin>
-margin is a slop factor to bring the rectangle a little farther in than just to the
-outer rectangle's border. */
+/* Force a rectangle to be entirely enclosed by another (presumably) larger one. If the
+"enclosed" rectangle is larger, then we leave the bottom right within. margin is a slop
+factor to bring the rectangle a little farther in than just to the outer rectangle's
+border. */
 
 void PullInsideRect(Rect *r, Rect *inside, short margin)
 {
-	Rect ans, tmp;
+	Rect ans,tmp;
 	
 	tmp = *inside;
-	InsetRect(&tmp, margin, margin);
+	InsetRect(&tmp,margin,margin);
 	
 	SectRect(r, &tmp, &ans);
 	if (!EqualRect(r, &ans)) {
@@ -313,8 +313,8 @@ void PullInsideRect(Rect *r, Rect *inside, short margin)
 	}
 }
 
-/*	Return True if r is completely inside the bounds rect; False if outside or
-partially outside. */
+/*	Return True if r is completely inside the bounds rect; False if outside or partially
+outside. */
 
 Boolean ContainedRect(Rect *r, Rect *bounds)
 {
@@ -489,7 +489,7 @@ active screen device we intersect the rect with the device's bounds, keeping tra
 that device whose intersection's area is the largest. If the machine doesn't
 <hasColorQD>, we assume it has only one screen and just deliver the usual screenBits.bounds.
 The one problem with this is it doesn't handle some ancient Macs with more than one
-screen, e.g., SE/30s with third-party large monitors; who cares.
+screen, e.g., SE/30s with third-party large monitors (ca. 1990); who cares.
 
 The two arguments can point to the same rectangle. Returns the number of screens with
 which the given rectangle intersects unless it's a non-<hasColorQD> machine, in which
@@ -1147,17 +1147,18 @@ equivalent character according to the type of character that precedes it, if any
 return the converted character.  If the character not a neutral quote or apostrophe,
 then just return it unchanged.
 
-The conversion to open quote is done if the previous char was a space, tab, option-space
+The conversion to open quote is done if the previous char was a space, tab, option-space,
 or return; closed quote otherwise, unless it's the first character in the string, in
 which case it's always open. If you want to allow the typing of standard ASCII single or
 double quote, do it as a Command key char. */
 
-/* NB: The following codes are for the ancient Macintosh Roman encoding, as required by
-the Carbon toolkit. */
-#define OPEN_DOUBLE_QUOTE	0xD2
-#define CLOSE_DOUBLE_QUOTE	0xD3
-#define OPEN_SINGLE_QUOTE	0xD4
-#define CLOSE_SINGLE_QUOTE	0xD5
+/* NB: The following codes are for Macintosh Roman, as required by the Carbon toolkit. */
+
+#define MRCH_OPEN_DOUBLE_QUOTE	0xD2
+#define MRCH_CLOSE_DOUBLE_QUOTE	0xD3
+#define MRCH_OPEN_SINGLE_QUOTE	0xD4
+#define MRCH_CLOSE_SINGLE_QUOTE	0xD5
+#define MRCH_OPTION_SPACE		0xCA
 
 short SmartenQuote(TEHandle textH, short ch)
 {
@@ -1167,10 +1168,11 @@ short SmartenQuote(TEHandle textH, short ch)
 		if (ch=='"' || ch=='\'') {
 			n = (*textH)->selStart;
 			prev = (n > 0) ? ((unsigned char) *(*((*textH)->hText) + n-1)) : 0;
-			if (prev=='\r' || prev==' ' || prev=='�' || prev=='\t' || n==0)
-				ch = (ch=='"' ? OPEN_DOUBLE_QUOTE : OPEN_SINGLE_QUOTE);
+//LogPrintf(LOG_DEBUG, "prev char='%c' =%hx\n", prev, (Byte)prev);
+			if (prev=='\r' || prev==' ' || prev==MRCH_OPTION_SPACE || prev=='\t' || n==0)
+				ch = (ch=='"' ? MRCH_OPEN_DOUBLE_QUOTE : MRCH_OPEN_SINGLE_QUOTE);
 			 else
-				ch = (ch=='"' ? CLOSE_DOUBLE_QUOTE : CLOSE_SINGLE_QUOTE);
+				ch = (ch=='"' ? MRCH_CLOSE_DOUBLE_QUOTE : MRCH_CLOSE_SINGLE_QUOTE);
 		}
 
 	return ch;
@@ -1660,9 +1662,8 @@ to a large number (not a small one!), say 999.  --DAB, July 2017. */
 
 #define LOG_TO_STDERR False					/* Print to stderr as well as system log? */
 
-char inStr[1000], outStr[1000];
-
 #ifdef NOTYET
+//FIXME: This just doesn't work.
 static Boolean HaveNewline(const char *str);
 static Boolean HaveNewline(const char *str)
 {
@@ -1673,6 +1674,8 @@ static Boolean HaveNewline(const char *str)
 	return False;
 }
 #endif
+
+char inStr[1000], outStr[1000];
 
 Boolean VLogPrintf(const char *fmt, va_list argp)
 {

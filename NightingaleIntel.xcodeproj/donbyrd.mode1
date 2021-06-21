@@ -306,7 +306,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>FileConversion.cp</string>
+								<string>CarbonPrinting.h</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -314,11 +314,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>FileConversion.cp</string>
+										<string>CarbonPrinting.h</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>15511BB5267699EE00D75677</string>
+										<string>15C4B29A267CE8040038ED17</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -489,7 +489,6 @@
 											<string>15507DA325C7523800E42F2C</string>
 											<string>157EE53E25C9D3AA00845120</string>
 											<string>157EE53F25C9D3AA00845120</string>
-											<string>157EE54025C9D3AA00845120</string>
 											<string>15B1F92E25D0E0F400A4723F</string>
 											<string>155D266525D43889002485B3</string>
 											<string>155D266625D43889002485B3</string>
@@ -501,7 +500,8 @@
 											<string>15DBDD4025FC582F007D6DCB</string>
 											<string>1515172325FCEAF300441145</string>
 											<string>153F03C1264DEE96002D9130</string>
-											<string>156FF78B265D0FB400708310</string>
+											<string>15C4B297267CE8040038ED17</string>
+											<string>15C4B298267CE8040038ED17</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -627,6 +627,7 @@
 											<string>157EE54225C9D3AA00845120</string>
 											<string>15E920E425D764A80065CCF8</string>
 											<string>15DBDD4125FC582F007D6DCB</string>
+											<string>15C4B299267CE8040038ED17</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -684,9 +685,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>15511BAE267698A600D75677</string>
+				<string>15C4B29B267CE8040038ED17</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>15511BAF267698A600D75677</string>
+				<string>15C4B29C267CE8040038ED17</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -824,7 +825,7 @@
 	<array>
 		<string>15F6E0CD16DFC116001A5B50</string>
 		<string>1C0AD2B3069F1EA900FABCE6</string>
-		<string>/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_5p9/NightingaleIntel.xcodeproj</string>
+		<string>/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/NightingaleIntel.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
 	<string>748 156 903 902 0 0 1920 1058 </string>
@@ -848,7 +849,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CD0528F0623707200166675</string>
 								<key>PBXProjectModuleLabel</key>
-								<string></string>
+								<string>FileSave.cp</string>
 								<key>StatusBarVisibility</key>
 								<true/>
 							</dict>
@@ -906,7 +907,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>15511BB0267698A600D75677</string>
+				<string>15C4B29D267CE8040038ED17</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -917,7 +918,7 @@
 			<key>WindowToolGUID</key>
 			<string>15F6E0CD16DFC116001A5B50</string>
 			<key>WindowToolIsVisible</key>
-			<false/>
+			<true/>
 		</dict>
 		<dict>
 			<key>FirstTimeWindowDisplayed</key>
@@ -1268,9 +1269,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>15511BB1267698A600D75677</string>
+				<string>15C4B29E267CE8040038ED17</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>15511BB2267698A600D75677</string>
+				<string>15C4B29F267CE8040038ED17</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

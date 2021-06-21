@@ -10080,3 +10080,34 @@ MCH_downbow '³' => 0xB3
 - ChordSym.c:
 
 		if (eStr[1]=='-') eStr[1] = '–';				/* prevent dotted line in menu! */
+
+
+---------------------------------------------------------------------------------------
+
+12 - 13 June
+
+BACK TO: UI font problem, solution #3: abandon fonts and use the images as a palette,
+Using bitmap images for the tool palette instead of a PICT, and for several dialogs and other
+commands instead of UI fonts, is taking so long and requiring so many changes to the 5.8
+code, complicated by my customary code cleanup, that integrating the changes into 5.9 is
+likely to be a serious pain! In addition, 5.8.11 is going to have lots of changes relative
+to 5.8.10 -- so many it's probably best to give it a distinct .1 version number.
+So:
+
++ (1) Port the stable changes so far back to 5.9
+
+---------------------------------------------------------------------------------------
+
+16 - 17 June
+
++- (2) Rename 5.9 as 6.0. CAREFUL!!
+
+BACK TO: Get rid of (at least some) compiler warnings about "multi-character character
+constant".
+
++ UIFUtils.cp:1170:
+
+		if (prev=='\r' || prev==' ' || prev=='�' || prev=='\t' || n==0)
+
+This line in SmartenQuote() is to decide when to use an open curly quote. '�' should be
+option-space: in Macintosh Roman (ugh), 0xCA.
