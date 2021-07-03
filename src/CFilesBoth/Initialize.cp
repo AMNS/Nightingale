@@ -30,8 +30,8 @@ static void			DisplayConfig(void);
 static Boolean		CheckConfig(void);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
-static void			DisplayToolPalette(PaletteGlobals *whichPalette);
-static Boolean		CheckToolPalette(PaletteGlobals *whichPalette);
+static void			DisplayToolPaletteParams(PaletteGlobals *whichPalette);
+static Boolean		CheckToolPaletteParams(PaletteGlobals *whichPalette);
 static short		GetToolGrid(PaletteGlobals *whichPalette);
 static void			InitPaletteRects(Rect *whichRects, short across, short down, short width,
 										short height);
@@ -112,7 +112,7 @@ void Initialize()
 	
 	InitToolbox();
 
-	/* Store away resource file and volume refNum and dir ID of Nightingale appl. */
+	/* Save resource file and volume refNum and dir ID of Nightingale application. */
 
 	appRFRefNum = CurResFile();
 	dummyVolName[0] = 0;
@@ -176,8 +176,8 @@ void Initialize()
 	/* Allocate a large grow zone handle, which gets freed when we run out of memory,
 	   so that whoever is asking for memory will probably get what they need without
 	   our having to crash or die prematurely except in the rarest occasions. (This is
-	   a "rainy day" memory fund. It's ancient code, and highly unlikely it's useful
-	   any more.  --DAB, Sept. 2019) */
+	   a "rainy day" memory fund. It's ancient code, and I doubt it's useful any more.
+	   --DAB, Sept. 2019) */
 	   
 	memoryBuffer = NewHandle(config.rainyDayMemory*1024L);
 	if (!GoodNewHandle(memoryBuffer)) {
@@ -189,6 +189,7 @@ void Initialize()
 	growZoneUPP = NewGrowZoneUPP(GrowMemory);
 	if (growZoneUPP) SetGrowZone(growZoneUPP);		/* Install simple grow zone function */
 	
+	LogPrintf(LOG_NOTICE, "Initializing palettes and palette windows...  (Initialize)\n");
 	if (!NInitPalettes()) { BadInit();  ExitToShell(); }
 	
 	EndianFixMIDIModNRTable();
@@ -385,7 +386,7 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
 
-	/* Finally, close the setup file. */
+	/* Finally, close the Prefs file. */
 
 	CloseResFile(setupFileRefNum);
 	
@@ -408,7 +409,7 @@ Boolean OpenPrefsFile()
 	OSErr result;  Boolean okay=True;
 	Str63 volName;
 	StringHandle strHdl;  char fmtStr[256];
-	Str255 setupFileName;
+	Str255 prefsFileName;
 
 	short oldVRefNum, vRefNum;
 	long oldDirID, dirID;
@@ -430,11 +431,11 @@ Boolean OpenPrefsFile()
 	/* Try to open the Prefs file. Under "classic" Mac OS (9 and before), it was normally
 	   in the System Folder; under OS X, it's in ~/Library/Preferences . */
 	
-	Pstrcpy(setupFileName, PREFS_FILE_NAME);
+	Pstrcpy(prefsFileName, PREFS_FILE_NAME);
 
-	theErr = GetPrefsFileSpec(setupFileName, prefsFileType, creatorType, &rfSpec);
+	theErr = GetPrefsFileSpec(prefsFileName, prefsFileType, creatorType, &rfSpec);
 	LogPrintf(LOG_INFO, "GetPrefsFileSpec (filename '%s') returned theErr=%d  (OpenPrefsFile)\n",
-				PToCString(setupFileName), theErr);
+				PToCString(prefsFileName), theErr);
 	if (theErr==noErr) setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
 	
 	/* If we can't open it, create a new one using app's own CNFG and other resources. */
@@ -448,8 +449,8 @@ Boolean OpenPrefsFile()
 		   This is dumb -- it should use PREFS_FILE_NAME, of course -- but ProgressMsg()
 		   can't handle that!*/
 		   
-		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.\n",
-					PToCString(setupFileName));
+		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.  (OpenPrefsFile)\n",
+					PToCString(prefsFileName));
 		ProgressMsg(CREATE_PREFS_PMSTR, "");
 		SleepTicks((unsigned)(5*60L));					/* Give user time to read the msg */
 		if (!CreatePrefsFile(&rfSpec)) {
@@ -1230,7 +1231,7 @@ static Boolean InitMemory(short numMasters)
 
 /* ------------------------------------------------------------------------ Palette(s) -- */
 
-static void DisplayToolPalette(PaletteGlobals *whichPalette)
+static void DisplayToolPaletteParams(PaletteGlobals *whichPalette)
 {
 	LogPrintf(LOG_INFO, "Displaying Tool Palette parameters:\n");
 	LogPrintf(LOG_INFO, "  maxAcross=%d", whichPalette->maxAcross);
@@ -1246,7 +1247,7 @@ static void DisplayToolPalette(PaletteGlobals *whichPalette)
 /* Do a reality check for palette values that might be bad. If no problems are found,
 return True, else False. */
 
-static Boolean CheckToolPalette(PaletteGlobals *whichPalette)
+static Boolean CheckToolPaletteParams(PaletteGlobals *whichPalette)
 {
 	if (whichPalette->maxAcross<4 || whichPalette->maxAcross>150) return False;
 	if (whichPalette->maxDown<4 || whichPalette->maxDown>150) return False;
@@ -1301,11 +1302,11 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 		   fields!} What was I thinking of? WHAT values?? <PaletteGlobals> has no one-
 		   byte fields.  --DAB */
 		
-		if (DETAIL_SHOW) DisplayToolPalette(whichPalette);
+		if (DETAIL_SHOW) DisplayToolPaletteParams(whichPalette);
 		LogPrintf(LOG_NOTICE, "Checking Tool Palette parameters: ");
-		if (CheckToolPalette(whichPalette)) LogPrintf(LOG_NOTICE, "No errors found.  (GetToolGrid)\n");
+		if (CheckToolPaletteParams(whichPalette)) LogPrintf(LOG_NOTICE, "No errors found.  (GetToolGrid)\n");
 		else {
-			if (!DETAIL_SHOW) DisplayToolPalette(whichPalette);
+			if (!DETAIL_SHOW) DisplayToolPaletteParams(whichPalette);
 			GetIndCString(strBuf, INITERRS_STRS, 34);	/* "Your Prefs file has illegal values for the tool palette..." */
 			CParamText(strBuf, "", "", "");
 			LogPrintf(LOG_ERR, "%s\n", strBuf);
@@ -1408,7 +1409,6 @@ static void InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	
 	windowRect->right -= (whichPalette->maxAcross-whichPalette->firstAcross) * toolCellWidth;
 	windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;
-
 	windowRect->right += 2*TOOLS_MARGIN;
 	windowRect->bottom += 2*TOOLS_MARGIN;
 	toolsFrame = *windowRect;
@@ -1451,7 +1451,7 @@ LogPixMapInfo("InitToolPalette1", portPixMap, 1000);
 PixMapHandle portPixMapH = GetPortPixMap(toolPalPort); PixMapPtr portPixMap = *portPixMapH;
 LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
 }
-//		UnlockGWorld(gwPtr);
+//	UnlockGWorld(gwPtr);
 	RestoreGWorld();
 }
 
@@ -1521,7 +1521,7 @@ static Boolean InitSetDurPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	
 	nRead = fread(&bitmap, BITMAP_READBYTES, 1, bmpf);
 	if (nRead!=1) {
-		LogPrintf(LOG_ERR, "Couldn't read the bitmap from BMP file.  (InitSetDurPalette)\n");
+		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitSetDurPalette)\n");
 		return False;
 	}
 	NHexDump(LOG_DEBUG, "bitmap", (unsigned char *)bitmap, BITMAP_READBYTES, 4, 16);
@@ -1596,10 +1596,10 @@ static Boolean NInitPalettes()
 			SetWindowKind(palettes[idx], PALETTEKIND);
 			
 			HUnlock((Handle)paletteGlobals[idx]);
-			}
+		}
 	
 	return True;
-	}
+}
 
 
 /* -------------------------------------------------------------------------------------- */
@@ -1634,14 +1634,14 @@ static Boolean PrepareClipDoc()
 	}
 	
 Boolean BuildEmptyDoc(Document *doc) 
-	{
-		if (!InitAllHeaps(doc)) { NoMoreMemory(); return False; }
-		InstallDoc(doc);
-		BuildEmptyList(doc,&doc->headL,&doc->tailL);
-		
-		doc->selStartL = doc->selEndL = doc->tailL;			/* Empty selection  */	
-		return True;
-	}
+{
+	if (!InitAllHeaps(doc)) { NoMoreMemory(); return False; }
+	InstallDoc(doc);
+	BuildEmptyList(doc,&doc->headL,&doc->tailL);
+	
+	doc->selStartL = doc->selEndL = doc->tailL;			/* Empty selection  */	
+	return True;
+}
 
 	
 //#define TEST_MDEF_CODE
@@ -1801,7 +1801,7 @@ static AEEventHandlerUPP editUPP, closUPP;
 
 static void InstallCoreEventHandlers()
 {
-	OSErr err;
+	OSErr err = noErr;
 	
 	/* Leave these UPP's permanently allocated. */
 	oappUPP = NewAEEventHandlerUPP(HandleOAPP);
@@ -1834,6 +1834,7 @@ static void InstallCoreEventHandlers()
 #endif
 
 broken:
-	if (err) {
+	if (err!=noErr) {
+		LogPrintf(LOG_ERR, "AEInstallEventHandler failed.  (InstallCoreEventHandlers)\n");
 	}
 }

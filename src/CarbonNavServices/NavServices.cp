@@ -1,8 +1,4 @@
-/*
-	File:		NavServices.c
-	Contains:	Code to support Navigation Services in Nightingale
-	Version:	Mac OS X
-*/
+/* NavServices.c: Code to support Navigation Services in Nightingale */
 
 // MAS
 //#include "Nightingale.precomp.h"
@@ -108,12 +104,14 @@ OSStatus SaveFileDialog(
 
 	NavGetDefaultDialogCreationOptions(&dialogOptions);
 
-	dialogOptions.clientName = CFStringCreateWithPascalString(NULL, LMGetCurApName(), GetApplicationTextEncoding());
+	dialogOptions.clientName = CFStringCreateWithPascalString(NULL, LMGetCurApName(),
+								GetApplicationTextEncoding());
 	dialogOptions.saveFileName = documentName;
 	dialogOptions.modality = kWindowModalityAppModal;
 	dialogOptions.parentWindow = parentWindow;
 
-	theErr = NavCreatePutFileDialog(&dialogOptions, filetype, fileCreator, GetNavSaveFileEventUPP(), pNSD, &gSaveFileDialog);
+	theErr = NavCreatePutFileDialog(&dialogOptions, filetype, fileCreator,
+								GetNavSaveFileEventUPP(), pNSD, &gSaveFileDialog);
 	
 	if (theErr == noErr) {
 		theErr = NavDialogRun(gSaveFileDialog);
@@ -155,7 +153,7 @@ void HandleNewButton(ControlHandle /* theButton */, NavCBRecPtr callBackParms)
 
 	theErr = NavCustomControl(callBackParms->context, kNavCtlCancel, NULL);
 
-	if (theErr == noErr) Boolean ok = DoFileMenu(FM_New);
+	if (theErr == noErr) (void)DoFileMenu(FM_New);
 }
 
 
@@ -173,23 +171,26 @@ void HandleCustomMouseDown(NavCBRecPtr callBackParms)
 	short			realItem = 0;
 	short			partCode = 0;
 		
-	GlobalToLocal(&where);
-	theItem = FindDialogItem(GetDialogFromWindow(callBackParms->window), where);	// get the item number of the control
-	partCode = FindControl(where,callBackParms->window, &whichControl);	// get the control itself
+	/* Get the control */
 	
-	// Ssk NavServices for the first custom control's ID
-	if (callBackParms->context != 0) {				// always check to see if the context is correct
+	GlobalToLocal(&where);
+	theItem = FindDialogItem(GetDialogFromWindow(callBackParms->window), where);
+	partCode = FindControl(where,callBackParms->window, &whichControl);
+	
+	/* Ask NavServices for the first custom control's ID. If the context is correct, map
+	   it to our DITL constants. */
+	   
+	if (callBackParms->context != 0) {
 		theErr = NavCustomControl(callBackParms->context, kNavCtlGetFirstControlID,&firstItem);	
-		realItem = theItem - firstItem + 1;			// map it to our DITL constants
+		realItem = theItem - firstItem + 1;			
 	}
 				
 	if (realItem == NEW_COMMAND_DI) HandleNewButton(whichControl, callBackParms);
 }
 
 
-//
-// NSHandleOpenEvent
-//
+/* NSHandleOpenEvent */
+
 static void NSHandleOpenEvent(NavCBRecPtr callbackParms)
 {
 	EventRecord *pEvent = callbackParms->eventData.eventDataParms.event;
@@ -233,17 +234,19 @@ static pascal void NSNavOpenEventProc(const NavEventCallbackMessage callbackSele
 				
 				short neededWidth =  callbackParms->customRect.left + CUSTOM_WIDTH;
 				short neededHeight = callbackParms->customRect.top + CUSTOM_HEIGHT;
-LogPrintf(LOG_DEBUG, "NSNavOpenEventProc 1: customRect.top=%d neededHeight=%d\n",
-callbackParms->customRect.top, neededHeight);
+//LogPrintf(LOG_DEBUG, "NSNavOpenEventProc 1: customRect.top=%d neededHeight=%d\n",
+//callbackParms->customRect.top, neededHeight);
 				            
-				/* If this is 1st round of negotiations, tell NavServices the dimensions we want */
+				/* If this is 1st round of negotiations, tell NavServices the dimensions
+				   we want */
 				
 				if ((callbackParms->customRect.right == 0) && (callbackParms->customRect.bottom == 0)) {
 				   callbackParms->customRect.right = neededWidth;
 				   callbackParms->customRect.bottom = neededHeight;
 				}
 				else {
-				   /* We're in the middle of negotiating. Is the given width or height too small? */
+				   /* We're in the middle of negotiating. Is the width or height enough? */
+				   
 				   if (gLastTryWidth != callbackParms->customRect.right)
 				      if (callbackParms->customRect.right < neededWidth)   
 				         callbackParms->customRect.right = neededWidth;
@@ -257,8 +260,8 @@ callbackParms->customRect.top, neededHeight);
 				
 				gLastTryWidth = callbackParms->customRect.right;
 				gLastTryHeight = callbackParms->customRect.bottom;
-LogPrintf(LOG_DEBUG, "NSNavOpenEventProc 2: customRect.top=%d neededHeight=%d\n",
-callbackParms->customRect.top, neededHeight);
+//LogPrintf(LOG_DEBUG, "NSNavOpenEventProc 2: customRect.top=%d neededHeight=%d\n",
+//callbackParms->customRect.top, neededHeight);
 			}
 			break;
 
@@ -267,7 +270,8 @@ callbackParms->customRect.top, neededHeight);
 				UInt16 firstItem = 0;	
 				OSStatus theErr = noErr;
 				
-				// add the rest of the custom controls via the DITL resource list:
+				/* Add the rest of the custom controls via the DITL resource list: */
+				
 				gDitlList = GetResource('DITL',CONTROL_LIST_ID);
 				if ((gDitlList != NULL) && (ResError() == noErr)) {
 					if ((theErr = NavCustomControl(callbackParms->context,kNavCtlAddControlList,gDitlList)) == noErr)
@@ -675,7 +679,7 @@ OSStatus CompleteSave( NavReplyRecord* inReply, FSRef* inFileRef, Boolean inDidW
 //
 // TerminateDialog
 //
-static void TerminateDialog(NavDialogRef inDialog)
+static void TerminateDialog(NavDialogRef /* inDialog */)
 {
 	// MAS: this is apparently unnecessary
 	// in Leopard, NavCustomControl never returns, so presumably

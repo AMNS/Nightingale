@@ -230,12 +230,19 @@ Boolean ClosePrefsFile()
 
 void Finalize()
 {
+	char bigOrLittleEndian;
+
 	if (!OpenPrefsFile()) return;			/* If it fails, there's nothing worth doing ??REALLY? */
 	
 	if (!CheckUpdatePrefsFile()) LogPrintf(LOG_ERR, "Couldn't update the Nightingale Preferences file!  (Finalize)\n");
 
 	ClosePrefsFile();
 	
-	LogPrintf(LOG_NOTICE, "QUITTING NIGHTINGALE %s  (Finalize)\n", applVerStr);
-
+#if TARGET_RT_LITTLE_ENDIAN
+	bigOrLittleEndian = 'L';
+#else
+	bigOrLittleEndian = 'B';
+#endif
+	LogPrintf(LOG_NOTICE, "QUITTING NIGHTINGALE %s-%cE  (Finalize)\n", applVerStr,
+				bigOrLittleEndian);
 }

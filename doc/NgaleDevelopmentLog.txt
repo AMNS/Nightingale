@@ -10100,7 +10100,7 @@ So:
 
 16 - 17 June
 
-+- (2) Rename 5.9 as 6.0. CAREFUL!!
++- (2) RENAME VERSION 5.9 AS 6.0. CAREFUL!!
 
 BACK TO: Get rid of (at least some) compiler warnings about "multi-character character
 constant".
@@ -10111,3 +10111,19 @@ constant".
 
 This line in SmartenQuote() is to decide when to use an open curly quote. '�' should be
 option-space: in Macintosh Roman (ugh), 0xCA.
+
+---------------------------------------------------------------------------------------
+
+29 June - 3 July
+
+RENAME THE CURRENT VERSION 5.8, with work towards using bitmap images instead of a PICT
+for the tool palette and instead of UI fonts for various commands. AS 5.9. CAREFUL!!
+
+RENAME VERSION 5.8.10 AS 5.8 -- except that Executables/Nightingale5p8p10PPC.app is time-
+stamped Nov. 14, 2020, 7:49 PM, but the build/Release/Nightingale.app in the
+NightingaleDABVer_5p8 folder backup of Nov. 14, 2020, ca. 9 PM, is time-stamped July 16,
+2020, 7:56 AM, and the build/Release/Nightingale.app in every backup from then until ca.
+June 2021 has the same time stamp! Weird, but not worth worrying about. The changes in
+5.8.10 between July 16 and Nov. 14, 2020 affected FileOpen.cp, FileSave.cp, and
+SysPageEdit.cp (and no other .cp's), but I'm pretty sure they were minor.
+
