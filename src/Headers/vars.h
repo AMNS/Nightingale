@@ -90,9 +90,8 @@ GLOBAL short		sonataFontNum,			/* font ID number of Sonata font */
 
 GLOBAL DDIST		drSize[MAXRASTRAL+1];	/* Sizes for staff rastral nos. */
 GLOBAL GridRec		*grid;					/* Character grid for Tool Palette */
-GLOBAL short		maxMCharWid, maxMCharHt; /* Max. size of any music char.in any view */
-GLOBAL GrafPtr		fontPort,				/* Offscreen bitmap to store image of a single music char */
-					toolPalPort;			/* Offscreen port to hold copy of tool palette picture */
+//GLOBAL short		maxMCharWid, maxMCharHt; /* (unused) Max. size of any music char. in any view */
+GLOBAL GrafPtr		toolPalPort;			/* Offscreen port to hold copy of tool palette picture */
 
 GLOBAL Rect			revertWinPosition;		/* Where to replace Document window */
 GLOBAL short		theSelectionType;		/* Current selection type (for autoscrolling) */

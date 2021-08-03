@@ -36,15 +36,15 @@ seems that they would on any reasonable compiler and processor, e.g., PCs, but
 be careful. (NB: I'm pretty sure there are other places in Nightingale that
 make similar assumptions.) */
 
-/* ------------------------------------------------------ Coordinate Conversion -- */
+/* ------------------------------------------------------------- Coordinate Conversion -- */
 /* D2PFunc: same as the d2p macro: convert DDISTs to pixels, rounding.
 	D2PXFunc: same as the d2px macro: convert DDISTs to pixels, truncating.
 	P2DFunc: same as the p2d macro: convert pixels to DDISTs.
 	
 	Magnification	25%	37.5%	50%	75%	100%	150%	200%	300%	400%	600%
-	magnify			-4		-3		-2		-1		0		1		2		3		4		5
-	magShift			6		6		5		5		4		4		3		3		2		2
-	magRound			32		32?	16		16?	8		8?		4		4?		2		2?
+	magnify			-4	-3		-2		-1		0		1		2		3		4		5
+	magShift		6		6		5		5		4		4		3		3		2		2
+	magRound		32		32?		16		16?		8		8?		4		4?		2		2?
 */
 
 short D2PFunc(DDIST d)
@@ -52,13 +52,12 @@ short D2PFunc(DDIST d)
 	short nPixels, nPixBase, nPixPlus;
 	
 	if (odd(magMagnify)) {
-		/*
-		 * We need extra protection against roundoff because, after truncating,
-		 * we're going to increase our value by 50%. Tricky.
-		 */
+		/* We need extra protection against roundoff because, after truncating, we're
+		   going to increase our value by 50%. Tricky. */
+		   
 		nPixBase = (d+magRound) >> magShift;
-		nPixPlus = (d+magRound+divby2(magRound)) >> magShift;
-		nPixels = nPixBase+divby2(nPixBase);			/* ... nPixBase+(nPixBase/2) */
+		nPixPlus = (d+magRound+DIVBY2(magRound)) >> magShift;
+		nPixels = nPixBase+DIVBY2(nPixBase);			/* ... nPixBase+(nPixBase/2) */
 		if (nPixPlus>nPixBase) nPixels++;
 	}
 	else
@@ -73,7 +72,7 @@ short D2PXFunc(DDIST d)
 	
 	nPixels = d >> magShift;
 	if (odd(magMagnify))
-		nPixels += divby2(nPixels);						/* ... += nPixels/2 */
+		nPixels += DIVBY2(nPixels);						/* ... += nPixels/2 */
 
 	return nPixels;
 }
@@ -92,11 +91,11 @@ DDIST P2DFunc(short p)
 		return p << magShift;
 }
 
-/* ------------------------------------------------------------ UseMagnifiedSize -- */
-/* Given actual size and magnification, get the size to use. Use this instead of
-our coordinate-conversion routines (d2p, d2px, p2d, etc.) when we're computing
-arguments for toolbox routines, e.g., to convert font size from points to pixels
-(which, as far as toolbox routines know, *are* points). */
+/* ------------------------------------------------------------------ UseMagnifiedSize -- */
+/* Given actual size and magnification, get the size to use. Use this instead of our
+coordinate-conversion routines (d2p, d2px, p2d, etc.) when we're computing arguments for
+toolbox routines, e.g., to convert font size from points to pixels (which, as far as
+toolbox routines know, _are_ points). */
 
 short UseMagnifiedSize(
 				short size,				/* Actual (unmagnified) size */
@@ -105,22 +104,22 @@ short UseMagnifiedSize(
 {
 	short powerOf2, magSize;
 	
-	powerOf2 = divby2(magnify);
+	powerOf2 = DIVBY2(magnify);
 	if (magnify<0) {
 		magSize = size>>(-powerOf2);
-		if (odd(magnify)) magSize -= divby4(magSize);		/* ... -= magSize/4 */
+		if (odd(magnify)) magSize -= DIVBY4(magSize);		/* ... -= magSize/4 */
 	}
 	else {
 		magSize = size<<powerOf2;
-		if (odd(magnify)) magSize += divby2(magSize);		/* ... += magSize/2 */
+		if (odd(magnify)) magSize += DIVBY2(magSize);		/* ... += magSize/2 */
 	}
 	
 	return magSize;
 }
 
-/* --------------------------------------------------------- UseRelMagnifiedSize -- */
-/* Given size for the maximum magnification, plus another magnification, get
-the size to use at the other magnification. */
+/* --------------------------------------------------------------- UseRelMagnifiedSize -- */
+/* Given size for the maximum magnification, plus another magnification, get the size
+to use at the other magnification. */
 
 short UseRelMagnifiedSize(
 			short maxMagSize,				/* Size for magnification MAX_MAGNIFY */
@@ -137,7 +136,7 @@ short UseRelMagnifiedSize(
 	return magSize;
 }
 
-/* ----------------------------------------------------------------- UseTextSize -- */
+/* ----------------------------------------------------------------------- UseTextSize -- */
 /* Get the font size to use for the given magnification. */
 
 short UseTextSize(
@@ -145,18 +144,16 @@ short UseTextSize(
 			short magnify
 			)
 {
-	/*
-	 * UseTextSize is currently identical to UseMagnifiedSize, but I can imagine
-	 * it needing to do something different, so leave it separate.
-	 */
+	/* UseTextSize is currently identical to UseMagnifiedSize, but I can imagine it
+	   needing to do something different, so leave it separate. */
+	   
 	return UseMagnifiedSize(fontSize, magnify);
 }
 
-/* ---------------------------------------------------------------- UseMTextSize -- */
-/* Get the music font size to use for the given magnification, taking into account
-the silly names the Adobe screen sizes of Sonata have (Sonata 14 is "really" 16,
-etc.). ??NB: if the music font isn't Sonata, should probably do nothing! Cf.
-<doAdjust>.  */
+/* ---------------------------------------------------------------------- UseMTextSize -- */
+/* Get the music font size to use for the given magnification, taking into account the
+silly names the Adobe screen sizes of Sonata have (Sonata 14 is "really" 16, etc.).
+FIXME: if the music font isn't Sonata, should probably do nothing! Cf. <doAdjust>.  */
 
 short UseMTextSize(
 			short fontSize,			/* Actual (unmagnified) font size */

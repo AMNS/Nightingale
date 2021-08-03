@@ -605,7 +605,7 @@ void NHexDump(short logLevel,
 				short nPerLine			/* Number of items to print in a line */
 				)
 {
-	long l;
+	long pos;
 	unsigned short n;
 	char blankLabel[256];
 	Boolean firstTime=True;
@@ -621,21 +621,21 @@ void NHexDump(short logLevel,
 	/* Assemble lines and display complete lines. */
 	
 	strBuf[0] = 0;
-	for (l = 0; l<nBytes; l++) {
-		sprintf(&strBuf[strlen(strBuf)], "%02x", pBuffer[l]); 
-		if ((l+1)%(long)nPerLine==0L) {
+	for (pos = 0; pos<nBytes; pos++) {
+		sprintf(&strBuf[strlen(strBuf)], "%02x", pBuffer[pos]); 
+		if ((pos+1)%(long)nPerLine==0L) {
 			sprintf(&strBuf[strlen(strBuf)], "\n");
 			LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
 			strBuf[0] = 0;
 			firstTime = False;
 		}
-		else if ((l+1)%(long)nPerGroup==0L)	sprintf(&strBuf[strlen(strBuf)], "   ");
-		else								sprintf(&strBuf[strlen(strBuf)], " ");
+		else if ((pos+1)%(long)nPerGroup==0L)	sprintf(&strBuf[strlen(strBuf)], "   ");
+		else									sprintf(&strBuf[strlen(strBuf)], " ");
 	}
 	
 	/* Display anything left over. */
 
-	if (l%(long)nPerLine!=0L) {
+	if (pos%(long)nPerLine!=0L) {
 		sprintf(&strBuf[strlen(strBuf)], "\n");
 		LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
 	}

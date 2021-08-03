@@ -58,7 +58,7 @@ static void NExitToShell(char *msg)
 
 In commercial versions of Nightingale, the splash screen we displayed shows the owner's
 name and organization, to discourage illegal copying. We also checked (but didn't display)
-the copy serial number: if it was wrong, return False. */
+the copy serial number, and if it was wrong, returned False. */
 
 #define NAME_DI 1
 #define ABOUT_DI 2
@@ -132,7 +132,7 @@ void InitNightFonts()
 {
 	textFontNum = applFont;
 	
-	/* NB: The following comment is pre-OS X.
+	/* NB: The following comment is pre-OS X and should be taken with a grain of salt!:
 	   The "magic no." in next line should theoretically go away: we should get the
 	   system font size from the Script Manager if it's present (and it should always
 	   be). However, in every system I've seen, the system font size is 12, so I doubt
@@ -537,6 +537,10 @@ of and initialize screen fonts. */
 
 void InitMusicFonts()
 {
+#ifdef NOMORE
+	/* This code hasn't been used since v. 5.7, if not longer; still, it seems worth
+	   keeping for possible future use. --DAB, July 2021
+	   
 	short maxPtSize;
 	
 	/* We need a grafPort large enough for the largest music character in the largest
@@ -558,6 +562,8 @@ void InitMusicFonts()
 #else
 	fontPort = NewGrafPort(maxMCharWid, maxMCharHt);
 #endif
+#endif
+
 	CheckScreenFonts();
 }
 

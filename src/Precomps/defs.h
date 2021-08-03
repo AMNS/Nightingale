@@ -336,10 +336,10 @@ moved there eventually). */
 #define min3(a, b, c)	( n_min(n_min((a), (b)), (c)) )
 #define n_max(a,b)		( (a)>(b) ? (a) : (b) )					/* maximum functions */
 #define max3(a, b, c)	( n_max(n_max((a), (b)), (c)) )
-#define clamp(low, val, high)	( (val)<(low)?(low):((val)>(high)?(high):(val)) )
+#define CLAMP(low, val, high)	( (val)<(low)?(low):((val)>(high)?(high):(val)) )
 
-#define divby2(num) 	( (num)>=0? (num)>>1 : (-(-(num)>>1)) )	/* num must be an integer */
-#define divby4(num) 	( (num)>=0? (num)>>2 : (-(-(num)>>2)) )	/* num must be an integer */
+#define DIVBY2(num) 	( (num)>=0? (num)>>1 : (-(-(num)>>1)) )	/* num must be an integer */
+#define DIVBY4(num) 	( (num)>=0? (num)>>2 : (-(-(num)>>2)) )	/* num must be an integer */
 
 #define LXOR(a, b)  (((a)!=0) ^ ((b)!=0))						/* Logical exclusive or */
 
@@ -547,6 +547,4 @@ values forbidden by MAX_TSDENOM (defined elsewhere)! */
 
 #define GetWindowType(wind)		  ( ((WindowPeek)(wind))->windowKind-userKind-1 )
 #define SetWindowType(wind, type)	((WindowPeek)(wind))->windowKind = (type)+userKind+1
-
-#define PORT_IS_FREE(portStatus) ((portStatus & 0x80)!=0)
 

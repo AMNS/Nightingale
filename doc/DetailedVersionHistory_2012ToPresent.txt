@@ -3290,3 +3290,12 @@ etc. Affects VersionStrings.h; UIFUtils.
 29 June - 3 July
 
 Minor changes. Affects Finalize, Initialize, NavServices.
+
+---------------------------------------------------------------------------------------
+
+5 July - 3 August
+
+Minor changes: removed global <fontPort> and code related to it, updated dates in About
+box to reflect the fact that it's no longer 2018, improved initialization error message,
+etc. Affects .rsrc; Defs.h, vars.h; DebugDisplay, InitNightingale, Magnify, MIDIPlay.
+

@@ -10086,7 +10086,7 @@ MCH_downbow '³' => 0xB3
 
 12 - 13 June
 
-BACK TO: UI font problem, solution #3: abandon fonts and use the images as a palette,
+BACK TO: UI font problem, solution #3: abandon fonts and use the images as a palette.
 Using bitmap images for the tool palette instead of a PICT, and for several dialogs and other
 commands instead of UI fonts, is taking so long and requiring so many changes to the 5.8
 code, complicated by my customary code cleanup, that integrating the changes into 5.9 is
@@ -10116,8 +10116,8 @@ option-space: in Macintosh Roman (ugh), 0xCA.
 
 29 June - 3 July
 
-RENAME THE CURRENT VERSION 5.8, with work towards using bitmap images instead of a PICT
-for the tool palette and instead of UI fonts for various commands. AS 5.9. CAREFUL!!
+RENAME THE CURRENT VERSION 5.8 (with work towards using bitmap images instead of a PICT
+for the tool palette and instead of UI fonts for various commands) AS 5.9. CAREFUL!!
 
 RENAME VERSION 5.8.10 AS 5.8 -- except that Executables/Nightingale5p8p10PPC.app is time-
 stamped Nov. 14, 2020, 7:49 PM, but the build/Release/Nightingale.app in the
@@ -10125,5 +10125,119 @@ NightingaleDABVer_5p8 folder backup of Nov. 14, 2020, ca. 9 PM, is time-stamped 
 2020, 7:56 AM, and the build/Release/Nightingale.app in every backup from then until ca.
 June 2021 has the same time stamp! Weird, but not worth worrying about. The changes in
 5.8.10 between July 16 and Nov. 14, 2020 affected FileOpen.cp, FileSave.cp, and
-SysPageEdit.cp (and no other .cp's), but I'm pretty sure they were minor.
+SysPageEdit.cp (and no other .cp's), but I'm pretty sure they were minor!
+
+---------------------------------------------------------------------------------------
+
+5 - 15 July
+
+BACK TO: abandon the PICT for the tool palette and UI fonts for some dialogs; replace
+them with bitmap images read from BMP files.
+
+Cf. notes for 24 May - 2 June. The scrolling text in the About box is drawn into an
+offscreen bitmap, then moved to the screen via CopyBits; that's worked for years. But
+the same procedure for the tool palette displays nothing. Why?
+
+In the About box, build a Pattern & overwriting part of the scrolling text => it works.
+In the tool palette, draw text & a pattern => it works.
+See results in HackedPalette+AboutBox.png.
+
+In the Set Duration dialog, try to fill the user item w/ something => does nothing. ??
+
+Well, I should be able to make a _ton_ of Patterns each duplicating an 8x8 grid of pixels
+of the pattern I want! Uuuuuuugly, but let's give it a try. In the About box, draw two
+arbitrary Patterns side-by-side in the scrolling text area (code in new function DrawBMP)
+=> it works! In the tool palette, do the same thing => it works!
+
+Now do the same thing using Patterns from the BMP file => ??
+
+---------------------------------------------------------------------------------------
+
+16 - 29 July
+
+Make SimpleBMPUtil display the BMP content graphically as well as in hex; test with
+ChangeDynamicNB.bmp =>
+
+bitmap: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00		6 rows of all white
+		....
+      : ff ff ff ff   ff ff ff ff   ff ff 1f ff   ff ff ff 00		3 black pixels = top of "f"?
+      : ff 3f ff f9   cf ff e7 39   ff ff 2f ff   ff ff ff 00		lots of black pixels!
+      : ff 5f ff fa   d7 ff eb 5a   ff ff e7 ff   ff ff ff 00
+		....														ca. 10 more similar rows
+      : ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00		14 rows of all white
+		....
+      : 87 0e 1f f8   61 ff ff 0f   ff ff e1 ff   ff e7 ff 00		ca. 11 rows with lots of black
+      : cf 9f 3f fc   f3 ff ff 9f   ff ff f3 ff   ff eb ff 00
+		....
+      : ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00		4-3/4(>) rows of all white
+      : ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+      : ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+      : ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+      : ff ff ff ff   ff ff ff ff   ff ff ff ff   00 00 00 00
+
+graphic:
+
+  0: . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . * .* 
+  1: . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . * .* . . . .* . . . .* 
+  2: . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . * .* . . . .* . . . .* . . . .* . . . .  
+  3: . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . * .* . . . .* . . . .* . . . .* . . . .  .*. . .* . . . .  
+  4: . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . * .* . . . .* . . . .* . . . .* . . . .  .*. . .* . . . .  .** . .* . . . .  
+  5: . . . .  . . . .* . . . .  . . . .* . . * .* . . . .* . . . .* . . . .* . . . .  .*. . .* . . . .  .** . .* . . . .  . * . .* . . . .  
+  6: . . . .  . . . .* . . * .* . . . .* . . . .* . . . .* . . . .  .*. . .* . . . .  .** . .* . . . .  . * . .* . . . .  . * . .* .*. * .* 
+  7: . . * .* . . . .* . . . .* . . . .* . . . .  .*. . .* . . . .  .** . .* . . . .  . * . .* . . . .  . * . .* .*. * .* . * . .* . . . .* 
+  8: . . . .* . . . .* . . . .  .*. . .* . . . .  .** . .* . . . .  . * . .* . . . .  . * . .* .*. * .* . * . .* . . . .* . * . .* . . . .* 
+  9: . . . .  .*. . .* . . . .  .** . .* . . . .  . * . .* . . . .  . * . .* .*. * .* . * . .* . . . .* . * . .* . . . .* . * . .* . . . .* 
+ 10: . . . .  .** . .* . . . .  . * . .* . . . .  . * . .* .*. * .* . * . .* . . . .* . * . .* . . . .* . * . .* . . . .* . . . .* .*. * .  
+ 11: . . . .  . * . .* . . . .  . * . .* .*. * .* . * . .* . . . .* . * . .* . . . .* . * . .* . . . .* . . . .* .*. * .  . . . .* . . . .  
+ 12: . . . .  . * . .* .*. * .* . * . .* . . . .* . * . .* . . . .* . * . .* . . . .* . . . .* .*. * .  . . . .* . . . .  . . . .* . . . .  
+ 13: .*. * .* . * . .* . . . .* . * . .* . . . .* . * . .* . . . .* . . . .* .*. * .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  
+ 14: . . . .* . * . .* . . . .* . * . .* . . . .* . . . .* .*. * .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  
+ 15: . . . .* . * . .* . . . .* . . . .* .*. * .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  
+ 16: . . . .* . . . .* .*. * .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  
+ 17: .*. * .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  
+ 18: . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  . . . .* . . . .  
+	etc. etc.
+
+ChangeDynamicNB.bmp is roughly
+
+	ppp pp  p   mp  mf
+	
+	f   ff  fff sf
+
+Well, the hex generally looks a lot like the actual image, but details are off: e.g., the
+ascender on the "f" at end of first row is 3 pixels high, but the hex has only one row of
+just a few black pixels near the end. The graphic vaguely suggests the image, but it has
+major differences all over the place. ??
+
+Need to test w/ a much smaller and simpler 1-bit/pixel image.
+
+---------------------------------------------------------------------------------------
+
+30 July - 2 Aug.
+
+Fixed some bugs. Now test with a much smaller and simpler 1-bit/pixel image.
+
+	Opening BMP file 'DiagonalLines1b.bmp'...  (OpenBMPFile)
+	fileSize=318 offsetToPixelArray=62  (OpenBMPFile)
+	infoHdrSize=40 width=64 height=32 bits=1  (OpenBMPFile)
+	imageSize=256 xResolution=2835 yResolution=2835 colors=2  (OpenBMPFile)
+	
+	bitmap  0: 77 77 77 77   77 77 77 77   bb bb bb bb   bb bb bb bb
+			1: dd dd dd dd   dd dd dd dd   ee ee ee ee   ee ee ee ee
+			2: 77 77 77 77   77 77 77 77   bb bb bb bb   bb bb bb bb
+			3: dd dd dd dd   dd dd dd dd   ee ee ee ee   ee ee ee ee
+				(etc. etc.)
+	bWidth=8 bWidthWithPad=8
+	  0: *...*... .*...*.. ..*...*. ...*...* *...*... .*...*.. ..*...*. ...*...* 
+	  1: .*...*.. ..*...*. ...*...* *...*... .*...*.. ..*...*. ...*...* *...*... 
+	  2: ..*...*. ...*...* *...*... .*...*.. ..*...*. ...*...* *...*... .*...*.. 
+	  3: ...*...* *...*... .*...*.. ..*...*. ...*...* *...*... .*...*.. ..*...*. 
+	  4: *...*... .*...*.. ..*...*. ...*...* *...*... .*...*.. ..*...*. ...*...* 
+				(etc. etc.)
+
+The bitmap hex looks correct. So does the graphic version, except the stripes are going in
+the wrong direction! The bitmap goes 7, b, d, e = 0111, 1011, 1101, 1110. Ah, I've confused
+<width> and <bWidth>, so I'm skipping all over the place! Fix that => stripes are still
+going in the wrong direction. Try ChangeDynamicNB.bmp => SUCCESS! I.e., the image is very
+recognizable; it's just upside down!
 

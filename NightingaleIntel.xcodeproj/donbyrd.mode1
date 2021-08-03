@@ -219,8 +219,6 @@
 			<key>Layout</key>
 			<array>
 				<dict>
-					<key>BecomeActive</key>
-					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -302,12 +300,14 @@
 					<key>Dock</key>
 					<array>
 						<dict>
+							<key>BecomeActive</key>
+							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>Initialize.cp</string>
+								<string>HeapFileIO.cp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -315,11 +315,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>Initialize.cp</string>
+										<string>HeapFileIO.cp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>15686AE82690996A00B1B019</string>
+										<string>15E64B2E26B9763A0012883B</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -448,7 +448,6 @@
 											<string>157DC0942071334E00DEDBE7</string>
 											<string>157DC0952071334E00DEDBE7</string>
 											<string>157DC09E207137FB00DEDBE7</string>
-											<string>152E238C2073FEFB005AAB20</string>
 											<string>152E23902073FEFB005AAB20</string>
 											<string>1588D8192075149E00F0A4F0</string>
 											<string>1588D81A2075149E00F0A4F0</string>
@@ -498,13 +497,11 @@
 											<string>15E920E125D764A80065CCF8</string>
 											<string>15BEEB3925D9C22000554B8F</string>
 											<string>15F00AEF25E826880044F479</string>
-											<string>15DBDD4025FC582F007D6DCB</string>
 											<string>1515172325FCEAF300441145</string>
 											<string>153F03C1264DEE96002D9130</string>
-											<string>15C4B297267CE8040038ED17</string>
 											<string>153E85A6268D49D10068368C</string>
-											<string>15686AE52690996900B1B019</string>
-											<string>15686AE62690996900B1B019</string>
+											<string>15EF60C626B8DF1500A9090E</string>
+											<string>157DCFA226B971FA006DBEFB</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -629,9 +626,6 @@
 											<string>15524F32256214C400794F80</string>
 											<string>157EE54225C9D3AA00845120</string>
 											<string>15E920E425D764A80065CCF8</string>
-											<string>15DBDD4125FC582F007D6DCB</string>
-											<string>15C4B299267CE8040038ED17</string>
-											<string>15686AE72690996A00B1B019</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -689,9 +683,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>15686AE92690996A00B1B019</string>
+				<string>15E64B2826B972160012883B</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>15686AEA2690996A00B1B019</string>
+				<string>15E64B2926B972160012883B</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -828,8 +822,8 @@
 	<key>WindowOrderList</key>
 	<array>
 		<string>15F6E0CD16DFC116001A5B50</string>
-		<string>/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/NightingaleIntel.xcodeproj</string>
 		<string>1C0AD2B3069F1EA900FABCE6</string>
+		<string>/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/NightingaleIntel.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
 	<string>748 156 903 902 0 0 1920 1058 </string>
@@ -909,7 +903,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>15686AEB2690996A00B1B019</string>
+				<string>15E64B2A26B972160012883B</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -1271,9 +1265,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>15686AEC2690996A00B1B019</string>
+				<string>15E64B2B26B972160012883B</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>15686AED2690996A00B1B019</string>
+				<string>15E64B2C26B972160012883B</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

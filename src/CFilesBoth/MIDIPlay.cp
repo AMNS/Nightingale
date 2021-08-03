@@ -1054,7 +1054,7 @@ objL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 							
 							if (GetModNREffects(aNoteL, &velOffset, &durFactor, &timeFactor)) {
 								useVelo += velOffset;
-								useVelo = clamp(0, useVelo, 127);
+								useVelo = CLAMP(0, useVelo, 127);
 								playDur = (long)(playDur * durFactor) / 100L;
 							}
 
