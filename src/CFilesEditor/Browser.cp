@@ -737,8 +737,8 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 	if (index<0) {
 		short startV; Boolean pageEmpty;
 
-		/* Show a "page" of the voice-mapping table. If the current page is empty
-		   or it's past the end of the table, go back to the first page. */
+		/* Show a "page" of the voice-mapping table. If the current page is empty or
+		   it's past the end of the table, go back to the first page. */
 		   
 		startV = showBPage*VOICEPAGESIZE+1;
 		if (startV>MAXVOICES)
@@ -818,7 +818,7 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 						GetHandleSize((Handle)doc->stringPool), doc->nfontsUsed);
 		DrawTextLine(s);
 		
-	/* Show at most the first 10 fonts used because of dialog space limitations. */
+		/* Show at most the first 10 fonts used because of dialog space limitations. */
 	
 		for (i = 0; i<doc->nfontsUsed && i<=10; i++) {
 			Pstrcpy((StringPtr)string, (StringPtr)(doc->fontTable[i].fontName));
@@ -1129,7 +1129,6 @@ void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);
 	KeySigSprintf((PKSINFO)(KeySigKSITEM(qL)), ksStr);
 	DrawTextLine(ksStr);
-//NHexDump(LOG_DEBUG, "BrowseKeySig", (unsigned char *)&q->KSItem, 30, 4, 16);
 	
 	subL = qL;
 }
@@ -1239,8 +1238,6 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "nKSItems=%hd", q->nKSItems);
 //LogPrintf(LOG_DEBUG, "BrowseMeasure1: link=%u nKSItems=%hd &q=%d &q->KSItem=%d\n", qL, q->nKSItems,
 //&q, &q->KSItem);
-//NHexDump(LOG_DEBUG, "BrowseMeasure1:q->KSitem", (unsigned char *)&q->KSItem, 30, 4, 16);
-//NHexDump(LOG_DEBUG, "BrowseMeasure1:q", (unsigned char *)&q, 30, 4, 16);
 	DrawTextLine(s);	q = GetPAMEASURE(qL); 
 	KeySigSprintf((PKSINFO)(MeasKSITEM(qL)), s);
 	//KeySigSprintf((PKSINFO)(&q->KSItem), s);

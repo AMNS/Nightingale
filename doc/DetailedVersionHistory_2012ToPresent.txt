@@ -3299,3 +3299,10 @@ Minor changes: removed global <fontPort> and code related to it, updated dates i
 box to reflect the fact that it's no longer 2018, improved initialization error message,
 etc. Affects .rsrc; Defs.h, vars.h; DebugDisplay, InitNightingale, Magnify, MIDIPlay.
 
+---------------------------------------------------------------------------------------
+
+19 - 20 August
+
+Minor changes: rename NHexDump to DHexDump & add a parameter, etc. Affects Debug.h;
+Browser, DebugDisplay, Error, FileConversion, Finalize, HeapFileIO, Heaps, Initialize,
+MIDIFOCmd, PopUpUtils.

@@ -10155,8 +10155,8 @@ Now do the same thing using Patterns from the BMP file => ??
 
 16 - 29 July
 
-Make SimpleBMPUtil display the BMP content graphically as well as in hex; test with
-ChangeDynamicNB.bmp =>
+Make SimpleBMPUtil display the BMP content graphically as well as in hex via a new function,
+DPrintRow; test with ChangeDynamicNB.bmp =>
 
 bitmap: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00		6 rows of all white
 		....
@@ -10213,7 +10213,7 @@ Need to test w/ a much smaller and simpler 1-bit/pixel image.
 
 ---------------------------------------------------------------------------------------
 
-30 July - 2 Aug.
+30 July - 16 Aug.
 
 Fixed some bugs. Now test with a much smaller and simpler 1-bit/pixel image.
 
@@ -10240,4 +10240,67 @@ the wrong direction! The bitmap goes 7, b, d, e = 0111, 1011, 1101, 1110. Ah, I'
 <width> and <bWidth>, so I'm skipping all over the place! Fix that => stripes are still
 going in the wrong direction. Try ChangeDynamicNB.bmp => SUCCESS! I.e., the image is very
 recognizable; it's just upside down!
+
+There's still some trash at the top of most images, i.e., the last bytes read. Ah, I'm
+computing nBytesToRead without considering padding! Fix that => the graphics SimpleBMPUtil
+displays for ChangeDynamicNB.bmp and ToolPaletteNB1b.bmp look perfect!
+
+Returning to Ngale 5.9, update the code in InitToolPalette() => as shown in ToolPalette_Bad.png,
+no change :-(
+
+OK, let's test with something simpler, ChangeDynamicNB1b.bmp instead of the real tool palette.
+SimpleBMPUtil reports:
+
+	bitmap  0: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+			1: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+			2: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+			3: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+			4: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+			5: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+			6: ff ff ff ff   ff ff ff ff   ff ff 1f ff   ff ff ff 00
+			7: ff 3f ff f9   cf ff e7 39   ff ff 2f ff   ff ff ff 00
+			8: ff 5f ff fa   d7 ff eb 5a   ff ff e7 ff   ff ff ff 00
+	  9: ........ ..**.... ........ .......* *...**.. ........ .....**. ..**...* *....... ......** **.**... ........ ........ ........ ........ 
+	  8: ........ *.*..... ........ .....*.* ..*.*... ........ ...*.*.. *.*..*.* ........ ........ ...**... ........ ........ ........ ........ 
+	  7: ........ **...... ........ .....**. ..**.... ........ ...**... **...**. ........ ........ **.*.... ........ ........ ........ ........ 
+	  6: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ***..... ........ ........ ........ ........ 
+	  5: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  4: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  3: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  2: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  1: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  0: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+
+...which looks exactly right. Have Ngale also use DPrintRow as well as DHexDump to display
+the BMP =>
+
+	Aug 12 07:58:05 DonDualG5 Ngale[63740]:
+	debug. Tools: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+	debug.      : ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+	--- last message repeated 4 times ---
+	debug.      : ff ff ff ff   ff ff ff ff   ff ff 1f ff   ff ff ff 00
+	debug.      : ff 3f ff f9   cf ff e7 39   ff ff 2f ff   ff ff ff 00
+
+	  9: ........ ..**.... ........ .......* *...**.. ........ .....**. ..**...* *....... ......** **.**... ........ ........ ........ ........ 
+	  8: ........ *.*..... ........ .....*.* ..*.*... ........ ...*.*.. *.*..*.* ........ ........ ...**... ........ ........ ........ ........ 
+	  7: ........ **...... ........ .....**. ..**.... ........ ...**... **...**. ........ ........ **.*.... ........ ........ ........ ........ 
+	  6: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ***..... ........ ........ ........ ........ 
+	  5: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  4: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  3: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  2: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  1: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+	  0: ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ ........ 
+
+...which also looks exactly right. So the problem must be something DrawBMP does -- almost
+certainly DrawRow! Ah, it's actually _DrawRows_: it builds and draws Patterns, which of course
+are 8x8. Change code accordingly => absolutely no visible effect!?
+
+---------------------------------------------------------------------------------------
+
+17 - 18 Aug.
+
+Let's work on converting one of the UI-font-dependent dialogs to use a BMP: the "change
+dynamic" one. Rename DynamicPopUp.cp to DynamicEdit.cp; remove the code for handling the pop-up;
+enlarge the user item in the DLOG to the size of the image, 120x52.
 

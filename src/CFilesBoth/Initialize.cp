@@ -1460,7 +1460,7 @@ LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
 //#define SETDUR_PALETTE_PATH 	":SetDur_2dots1bitNB.bmp"
 
 #define BITMAP_SPACE 1000
-#define BITMAP_READBYTES 32
+#define BITMAP_READBYTES 56
 #if (BITMAP_READBYTES>BITMAP_SPACE)
 	#error
 #endif
@@ -1524,7 +1524,7 @@ static Boolean InitSetDurPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitSetDurPalette)\n");
 		return False;
 	}
-	NHexDump(LOG_DEBUG, "bitmap", (unsigned char *)bitmap, BITMAP_READBYTES, 4, 16);
+	DHexDump(LOG_DEBUG, "SD bitmap", (unsigned char *)bitmap, BITMAP_READBYTES, 4, 16, False);
 
 	return True;
 }

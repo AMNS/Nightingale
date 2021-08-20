@@ -160,8 +160,8 @@ static Boolean CheckUpdatePrefsFile()
 								(size_t)sizeof(Configuration) );
 #ifdef DEBUG_INTEL_PREFS
 	if (cnfgChanged) {
-		NHexDump(LOG_DEBUG, "*cnfgResH", (unsigned char *)*cnfgResH, (size_t)sizeof(Configuration), 4, 16);
-		NHexDump(LOG_DEBUG, "config   ", (unsigned char *)&config, (size_t)sizeof(Configuration), 4, 16);
+		DHexDump(LOG_DEBUG, "*cnfgResH", (unsigned char *)*cnfgResH, (size_t)sizeof(Configuration), 4, 16);
+		DHexDump(LOG_DEBUG, "config   ", (unsigned char *)&config, (size_t)sizeof(Configuration), 4, 16);
 	}
 #endif
 

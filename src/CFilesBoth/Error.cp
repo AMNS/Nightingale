@@ -116,7 +116,7 @@ void InstallArg(StringPtr str, StringPtr msg, short n)
 	/* Scan backwards from last character for close-guillemet, the start of the
 	   argument insertion point. */
 	
-//NHexDump(LOG_DEBUG, "InstallArg", str, strLen+1, 4, 16);
+//DHexDump(LOG_DEBUG, "InstallArg", str, strLen+1, 4, 16);
 	dst = str+strLen;
 	while (dst > str)
 		if (*dst-- == (unsigned char)CLOSE_GUILLEMET)

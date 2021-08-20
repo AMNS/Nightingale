@@ -56,8 +56,8 @@ void DKeySigPrintf(PKSINFO);
 void DisplayObject(Document *, LINK, short, Boolean, Boolean, Boolean);
 void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, short, short *);
-void NHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
-				short nPerGroup, short nPerLine);
+void DHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
+				short nPerGroup, short nPerLine, Boolean numberLines);
 void NObjDump(char *label, short nFrom, short nTo);
 
 /* If we're running inside Xcode, #define'ing _DebugPrintf_ as simply _printf_ is OK:

@@ -9,7 +9,7 @@
 /* File DebugDisplay.c - printing functions for the Debug command and debugging in general:
 	KeySigSprintf			DKeySigPrintf			DisplaySubobjects
 	DisplayObject			MemUsageStats			DisplayIndexNode
-	NHexDump
+	DHexDump
 */
 
 #include "Nightingale_Prefix.pch"
@@ -151,7 +151,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aStaffL);
 				LogPrintf(LOG_INFO,
-					"stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
+					"stf=%d tlbr=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
 					aStaff->staffn, aStaff->staffTop,
 					aStaff->staffLeft, aStaff->staffHeight,
 					aStaff->staffRight, aStaff->staffLines,
@@ -170,7 +170,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				LogPrintfINDENT;
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aMeasureL);
 				LogPrintf(LOG_INFO, 
-					"stf=%d m#=%d barTp=%d conStf=%d clef=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
+					"stf=%d m#=%d barTp=%d conStf=%d clef=%d mR tlbr=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
 					aMeasure->staffn, aMeasure->measureNum, aMeasure->subType,
 					aMeasure->connStaff, aMeasure->clefType,
 					aMeasure->measSizeRect.top, aMeasure->measSizeRect.left,
@@ -223,7 +223,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				if (aKeySig->nKSItems==0)
 					LogPrintf(LOG_INFO, " nNatItems=%d", aKeySig->subType);
 				DKeySigPrintf((PKSINFO)(&aKeySig->KSItem[0]));
-//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "DisplayObject/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
+//if (DETAIL_SHOW) DHexDump(LOG_DEBUG, "DisplayObject/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
 //					sizeof(AKEYSIG), 4, 16);
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
@@ -387,7 +387,7 @@ void DisplayObject(Document *doc, LINK objL,
 	switch (ObjLType(objL)) {
 		case HEADERtype:
 			if (!nonMain)
-				LogPrintf(LOG_INFO, " sr=%d mrRect(t,l,b,r)=p%d,%d,%d,%d nst=%d nsys=%d",
+				LogPrintf(LOG_INFO, " sr=%d mrRect tlbr=p%d,%d,%d,%d nst=%d nsys=%d",
 					doc->srastral,
 					doc->marginRect.top, doc->marginRect.left,
 					doc->marginRect.bottom, doc->marginRect.right,
@@ -407,13 +407,13 @@ void DisplayObject(Document *doc, LINK objL,
 			LogPrintf(LOG_INFO, " p#=%d", ((PPAGE)p)->sheetNum);
 			break;
 		case SYSTEMtype:
-			LogPrintf(LOG_INFO, " sRect(t,l,b,r)=d%d,%d,%d,%d s#=%d",
+			LogPrintf(LOG_INFO, " sRect tlbr=d%d,%d,%d,%d s#=%d",
 				((PSYSTEM)p)->systemRect.top, ((PSYSTEM)p)->systemRect.left,
 				((PSYSTEM)p)->systemRect.bottom, ((PSYSTEM)p)->systemRect.right,
 								((PSYSTEM)p)->systemNum);
 			break;
 		case MEASUREtype:
-			LogPrintf(LOG_INFO, " Box(t,l,b,r)=p%d,%d,%d,%d s%%=%d TS=%ld",
+			LogPrintf(LOG_INFO, " Box tlbr=p%d,%d,%d,%d s%%=%d TS=%ld",
 				((PMEASURE)p)->measureBBox.top, ((PMEASURE)p)->measureBBox.left,
 				((PMEASURE)p)->measureBBox.bottom, ((PMEASURE)p)->measureBBox.right,
 				((PMEASURE)p)->spacePercent,
@@ -593,39 +593,57 @@ void DisplayIndexNode(Document *doc, LINK pL, short kount, short *inLinep)
 }
 
 
-/* -------------------------------------------------------------------------- NHexDump -- */
+/* -------------------------------------------------------------------------- DHexDump -- */
 /* Dump the specified block of memory, displayed as bytes in hexadecimal, into the log
 file. */
 
-void NHexDump(short logLevel,
+void DHexDump(short logLevel,
 				char *label,
 				unsigned char *pBuffer,
 				long nBytes,
 				short nPerGroup,		/* Number of items to print in a group */
-				short nPerLine			/* Number of items to print in a line */
+				short nPerLine,			/* Number of items to print in a line */
+				Boolean numberLines		/* Add line numbers? */
 				)
 {
 	long pos;
-	unsigned short n;
-	char blankLabel[256];
+	unsigned short n, lineNum;
+	char blankLabel[256], blankLabelC[256], str[256], labelC[256], lineNumStr[10];
 	Boolean firstTime=True;
 	
 	if (strlen(label)>255 || nPerLine>255) {
-		MayErrMsg("Illegal call to NHexDump: label or nPerLine is too large.\n");
+		MayErrMsg("Illegal call to DHexDump: label or nPerLine is too large.\n");
 		return;
 	}
-		
-	for (n = 0; n<strlen(label); n++) blankLabel[n] = ' ';
-	blankLabel[strlen(label)] = 0;
+	strcpy(labelC, label);
+	
+	for (n = 0; n<strlen(labelC); n++) blankLabel[n] = ' ';
+	blankLabel[strlen(labelC)] = 0;
+	if (numberLines) strcat(labelC, "  0");
 	
 	/* Assemble lines and display complete lines. */
 	
 	strBuf[0] = 0;
+	lineNum = 0;
 	for (pos = 0; pos<nBytes; pos++) {
 		sprintf(&strBuf[strlen(strBuf)], "%02x", pBuffer[pos]); 
 		if ((pos+1)%(long)nPerLine==0L) {
+#if 1
 			sprintf(&strBuf[strlen(strBuf)], "\n");
+
+			strcpy(blankLabelC, blankLabel);
+			if (!firstTime && numberLines) {
+				lineNum++;
+				sprintf(lineNumStr, "%3d", lineNum);
+				strcat(blankLabelC, lineNumStr);
+			}
+			else if (numberLines)
+				strcat(blankLabelC, "   ");
+			printf("%s: %s", (firstTime? labelC : blankLabelC), strBuf);
+			LogPrintf(logLevel, "%s: %s", (firstTime? labelC : blankLabelC), strBuf);
+#else
 			LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
+#endif
 			strBuf[0] = 0;
 			firstTime = False;
 		}
@@ -637,7 +655,17 @@ void NHexDump(short logLevel,
 
 	if (pos%(long)nPerLine!=0L) {
 		sprintf(&strBuf[strlen(strBuf)], "\n");
+#if 1
+		if (!firstTime && numberLines) {
+			lineNum++;
+			sprintf(lineNumStr, "%3d", lineNum);
+			strcpy(blankLabelC, blankLabel);
+			strcat(blankLabelC, lineNumStr);
+		}
+		LogPrintf(logLevel, "%s: %s", (firstTime? labelC : blankLabelC), strBuf);
+#else
 		LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
+#endif
 	}
 }
 
@@ -685,11 +713,11 @@ void NObjDump(char *label, short nFrom, short nTo)
 		/* Dump the object header first, then the body. */
 		
 		sprintf(mStr, "  %d%c", m, 'H');
-		NHexDump(LOG_DEBUG, mStr, pSObj, sizeof(OBJHDR), 4, 16);
+		DHexDump(LOG_DEBUG, mStr, pSObj, sizeof(OBJHDR), 4, 16, False);
 		bodyLength = typeIsLegal? objLength[theObjType]-sizeof(OBJHDR) : 0;
 		if (bodyLength>0) {
 			sprintf(mStr, "  %d%c", m, 'B');		
-			NHexDump(LOG_DEBUG, mStr, pSObj+sizeof(OBJHDR), bodyLength, 4, 16);
+			DHexDump(LOG_DEBUG, mStr, pSObj+sizeof(OBJHDR), bodyLength, 4, 16, False);
 		}
 
 #if 0

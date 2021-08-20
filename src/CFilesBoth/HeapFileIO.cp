@@ -1023,9 +1023,9 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	if (MORE_DETAIL_SHOW) {
 		unsigned char *pSObj;
 		pSObj = (unsigned char *)GetPSUPEROBJ(1);
-		NHexDump(LOG_DEBUG, "ReadObjHeap: L1", pSObj, 46, 4, 16);
+		DHexDump(LOG_DEBUG, "ReadObjHeap: L1", pSObj, 46, 4, 16, False);
 		pSObj = (unsigned char *)GetPSUPEROBJ(2);
-		NHexDump(LOG_DEBUG, "ReadObjHeap: L2", pSObj, 46, 4, 16);
+		DHexDump(LOG_DEBUG, "ReadObjHeap: L2", pSObj, 46, 4, 16, False);
 	}
 
 	return 0;
@@ -1093,7 +1093,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadSubHeap: pLink1=%ld FPos:%ld\n", pLink1, position);
 	
 	ioErr = FSRead(refNum, &sizeAllInFile, pLink1);
-//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadSubHeap0", (unsigned char *)pLink1, 64, 4, 16);
+//if (DETAIL_SHOW) DHexDump(LOG_DEBUG, "ReadSubHeap0", (unsigned char *)pLink1, 64, 4, 16);
 
 	/* If file is in an old format, move the contents of the subobject heap around
 	   so each subobject has space for any new fields. (Unlike objects, subobjects are
@@ -1109,7 +1109,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	PopLock(myHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, iHp); return ioErr; }
 	RebuildFreeList(doc, iHp, nFObjs);
-//if (DETAIL_SHOW) NHexDump(LOG_DEBUG, "ReadSubHeap3", (unsigned char *)pLink1, 78, 4, 16);
+//if (DETAIL_SHOW) DHexDump(LOG_DEBUG, "ReadSubHeap3", (unsigned char *)pLink1, 78, 4, 16);
 	
 	return 0;
 }
@@ -1238,9 +1238,9 @@ if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "HeapFixObjLinks: pL=%u type=%d in main ob
 
 {	//unsigned char *pSObj;
 //pSObj = (unsigned char *)GetPSUPEROBJ(1);
-//NHexDump(LOG_DEBUG, "HeapFixObjLinks L1", pSObj, 46, 4, 16);
+//DHexDump(LOG_DEBUG, "HeapFixObjLinks L1", pSObj, 46, 4, 16);
 //pSObj = (unsigned char *)GetPSUPEROBJ(2);
-//NHexDump(LOG_DEBUG, "HeapFixObjLinks L2", pSObj, 46, 4, 16);
+//DHexDump(LOG_DEBUG, "HeapFixObjLinks L2", pSObj, 46, 4, 16);
 }
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 

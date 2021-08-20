@@ -88,18 +88,18 @@ Boolean InitGPopUp(
 	if (DETAIL_SHOW) {
 #if 0
 		Pstrcpy(chgdP->fontName, "\pABCD");
-		NHexDump(LOG_DEBUG, "InitGPopUp1: chgdP->fontName", chgdP->fontName, 16, 4, 16);
+		DHexDump(LOG_DEBUG, "InitGPopUp1: chgdP->fontName", chgdP->fontName, 16, 4, 16);
 #elif 0
 		Pstrcpy((unsigned char *)fontNameC, chgdP->fontName);
-		NHexDump(LOG_DEBUG, "InitGPopUp2: chgdP->fontName", chgdP->fontName, 16, 4, 16);
-		NHexDump(LOG_DEBUG, "InitGPopUp3: fontNameC", (unsigned char *)fontNameC, 16, 4, 16);
+		DHexDump(LOG_DEBUG, "InitGPopUp2: chgdP->fontName", chgdP->fontName, 16, 4, 16);
+		DHexDump(LOG_DEBUG, "InitGPopUp3: fontNameC", (unsigned char *)fontNameC, 16, 4, 16);
 		LogPrintf(LOG_DEBUG, "InitGPopUp<: numItems=%d numColumns=%d fontSize=%d fontNameC='%s'\n",
 					p->numItems, p->numColumns, p->fontSize, fontNameC);
 		PToCString((unsigned char *)fontNameC);
-		NHexDump(LOG_DEBUG, "InitGPopUp4: fontNameC", (unsigned char *)fontNameC, 16, 4, 16);
+		DHexDump(LOG_DEBUG, "InitGPopUp4: fontNameC", (unsigned char *)fontNameC, 16, 4, 16);
 		LogPrintf(LOG_DEBUG, "InitGPopUp>: numItems=%d numColumns=%d fontSize=%d fontNameC='%s'\n",
 					p->numItems, p->numColumns, p->fontSize, fontNameC);
-		NHexDump(LOG_DEBUG, "InitGPopUp5: fontNameC", (unsigned char *)fontNameC, 16, 4, 16);
+		DHexDump(LOG_DEBUG, "InitGPopUp5: fontNameC", (unsigned char *)fontNameC, 16, 4, 16);
 #else
 		Pstrcpy((unsigned char *)fontNameC, fontName);
 		LogPrintf(LOG_DEBUG, "InitGPopUp: numItems=%d numColumns=%d fontSize=%d fontNameC='%s'\n",
@@ -123,7 +123,7 @@ Boolean InitGPopUp(
 	
 	/* Get popup font number and characteristics */
 	
-//NHexDump(LOG_DEBUG, "InitGPopUp7: fontName", fontName, 16, 4, 16);
+//DHexDump(LOG_DEBUG, "InitGPopUp7: fontName", fontName, 16, 4, 16);
 	FMFontFamily fff = FMGetFontFamilyFromName(fontName);
 	p->fontNum = (short)fff;
 
