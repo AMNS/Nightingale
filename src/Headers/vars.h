@@ -338,7 +338,7 @@ unsigned char MCH_rests[MAX_L_DUR] =
 short restYOffset[MAX_L_DUR+1] = 
 					{ 0, 0, 0, 0, 0, -1, 1, 1, 3, 3 };
 
-short noteOffset[] = { 7, 14, 21, -7, -14, -21 };				/* Vert. offset for ottavas, in half-lines */
+short noteOffset[] = { 7, 14, 21, -7, -14, -21 };			/* Vert. offset for ottavas, in half-spaces */
 
 /*	Text sizes, in interline spaces:
                              Tiny VSmall Small Medium Large VLarge Jumbo ------- StaffHt */
@@ -351,8 +351,8 @@ short subObjLength[] = {
 		sizeof(PARTINFO),		/* HEADER subobject */
 		0,						/* No TAIL subobjects */
 		sizeof(ANOTE),			/* SYNC subobject */
-		sizeof(ARPTEND),		/* etc. */
-		0,
+		sizeof(ARPTEND),		/* RPTEND subobject */
+		0,						/* etc. */
 		0,
 		sizeof(ASTAFF),
 		sizeof(AMEASURE),

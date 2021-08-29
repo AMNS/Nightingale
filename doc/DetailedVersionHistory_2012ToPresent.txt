@@ -3303,6 +3303,25 @@ etc. Affects .rsrc; Defs.h, vars.h; DebugDisplay, InitNightingale, Magnify, MIDI
 
 19 - 20 August
 
-Minor changes: rename NHexDump to DHexDump & add a parameter, etc. Affects Debug.h;
+Minor changes: renamed NHexDump to DHexDump & add a parameter, etc. Affects Debug.h;
 Browser, DebugDisplay, Error, FileConversion, Finalize, HeapFileIO, Heaps, Initialize,
 MIDIFOCmd, PopUpUtils.
+
+---------------------------------------------------------------------------------------
+
+28 - 29 August
+
+INTEGRATED CHANGES FROM NIGHTINGALE 5.9 CODE OF 25 MAY TO 25 AUGUST:
+
+Work to replace all UI fonts with BMP files. Affects FileUtils.h; FileUtils.
+
+Work to replace the "change dynamic" pop-up palette (using a UI font) with a fixed
+palette (from a BMP file). Affects DynamicEdit.h, DrawUtils.h; DrawUtils, DynamicEdit
+(renamed from DynamicPopUp).
+
+Fixed bug: scrolling text in the About box doesn't handle pause or boldface codes.
+Affects About.
+
+Minor changes: got rid of compiler warning about "multi-character character constant",
+etc. Affects Debug.h, Utility.h, vars.h; About, DrawUtils, UIFUtils, Utility.
+

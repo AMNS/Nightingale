@@ -442,3 +442,75 @@ short CheckScoreHdr(Document *doc, short *pFirstErr)
 	return nerr;
 }
 
+
+/* ---------------------------------------------------------------------- NOpenBMPFile -- */
+/* Open the given BMP file. If we succeed, return a pointer to it, with parameters set to
+the offset from the beginning of the file to the pixel array and the width and height of
+the image; if we fail, return NULL. */
+
+FILE *NOpenBMPFile(char *filename, long *pixOffset, short *pWidth, short *pByteWidth,
+		short *pByteWidthWithPad, short *pHeight)
+{
+	FILE *bmpf;
+	BMPFileHeader fileHdr;
+	BMPInfoHeader infoHdr;
+	short nRead, byteWidth, n4BChunks;
+	char signature[2];
+	char detailStr[256];
+	
+	LogPrintf(LOG_DEBUG, "Opening BMP file '%s'...  (NOpenBMPFile)\n", filename);
+
+	/* Open the file and read the BMP header.  */
+	
+	errno = 0;
+	bmpf = fopen((const char *)filename, "r");
+	if (!bmpf) {
+		strcpy(detailStr, " ");
+		if (errno==ENOENT) strcpy(detailStr, "(No such file) ");
+		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'. errno=%d %s (NOpenBMPFile)\n",
+							filename, errno, detailStr);
+		return NULL;
+	}
+	nRead = fread(&signature[0], 2, 1, bmpf);
+	if (signature[0]!='B' || signature[1]!='M') {
+		LogPrintf(LOG_ERR, "BMP file doesn't start with 'BM' signature.  (NOpenBMPFile)\n");
+		return NULL;
+	}
+
+	nRead = fread(&fileHdr, sizeof(BMPFileHeader), 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the BMP file header.  (NOpenBMPFile)\n");
+		return NULL;
+	}
+	EndianFixBMPFileHdr(&fileHdr);
+	LogPrintf(LOG_DEBUG, "fileSize=%u offsetToPixelArray=%u  (NOpenBMPFile)\n",
+					fileHdr.fileSize, fileHdr.offsetToPixelArray);
+
+	nRead = fread(&infoHdr, sizeof(BMPInfoHeader), 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the BMP info header.  (NOpenBMPFile)\n");
+		return NULL;
+	}
+	
+	EndianFixBMPInfoHdr(&infoHdr);
+	LogPrintf(LOG_DEBUG, "infoHdrSize=%u width=%u height=%u bits=%u  (NOpenBMPFile)\n",
+		infoHdr.infoHdrSize, infoHdr.width, infoHdr.height, infoHdr.bits);
+	LogPrintf(LOG_DEBUG, "imageSize=%u xResolution=%u yResolution=%u colors=%u  (NOpenBMPFile)\n",
+		infoHdr.imageSize, infoHdr.xResolution, infoHdr.yResolution, infoHdr.colors);
+
+	if (infoHdr.colors!=BITMAP_NCOLORS) {
+		LogPrintf(LOG_ERR, "BMP file has %d colors instead of the required %d.  (NOpenBMPFile)\n",
+			infoHdr.colors, BITMAP_NCOLORS);
+		return NULL;
+	}
+	
+	*pixOffset = fileHdr.offsetToPixelArray;
+	*pWidth = infoHdr.width;
+	*pHeight = infoHdr.height;
+	byteWidth = infoHdr.width/8;
+	n4BChunks = (byteWidth%4==0? byteWidth/4 : (byteWidth/4)+1);	/* Round up unless divisible by 4 */
+	*pByteWidth = byteWidth;
+	*pByteWidthWithPad = 4*n4BChunks;
+
+	return bmpf;
+}

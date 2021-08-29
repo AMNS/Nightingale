@@ -594,12 +594,13 @@ void DisplayIndexNode(Document *doc, LINK pL, short kount, short *inLinep)
 
 
 /* -------------------------------------------------------------------------- DHexDump -- */
-/* Dump the specified block of memory, displayed as bytes in hexadecimal, into the log
-file. */
+/* Dump the specified area as bytes in hexadecimal into the log file. Similar to the
+Unix command-line utility hexdump: in particular, HexDump() with nPerGroup = nPerLine is
+a lot like <hexdump -n nBytes>. */
 
 void DHexDump(short logLevel,
 				char *label,
-				unsigned char *pBuffer,
+				Byte *pBuffer,
 				long nBytes,
 				short nPerGroup,		/* Number of items to print in a group */
 				short nPerLine,			/* Number of items to print in a line */
@@ -670,7 +671,6 @@ void DHexDump(short logLevel,
 }
 
 
-
 /* -------------------------------------------------------------------------- NObjDump -- */
 /* Dump objects with positions in the object heap -- not links -- in the range [nFrom,
 nTo] into the log file, displaying them in hexadecimal. We assume objects are in the
@@ -726,5 +726,37 @@ void NObjDump(char *label, short nFrom, short nTo)
 			return;
 		}
 #endif
+	}
+}
+
+
+/* ------------------------------------------------------------------------- DPrintRow -- */
+
+/* Print a row of 1-bit flags, e.g., to display a bitmap as a low-resolution graphic. */
+
+void DPrintRow(Byte bitmap[], short nRow, short bWidth, short startLoc,
+			Boolean foreIsAOne,		/* Is a 1 bit foreground? */
+			Boolean skipBits)		/* skip alternate background bits so foreground stands out? */
+{
+	printf("%3d: ", nRow);
+	for (short k = 0; k<bWidth; k++) {
+		Boolean even = False;
+//printf("(%d %02x)", startLoc+k, bitmap[startLoc+k]);
+		for (short bn = 0; bn<8; bn++) {
+			char backgroundChar = '.';
+			
+			/* It seems that 1 = white (background), 0 = black in the BMPs I have. */
+			
+			Boolean aBit = !((bitmap[startLoc+k]>>(7-bn)) & 0x01);
+			if (skipBits) {
+				even = !even;
+				backgroundChar = (even? '.' : ' ');
+			}
+			if (foreIsAOne)	printf("%c", (aBit? backgroundChar : '*'));
+			else			printf("%c", (aBit? '*' : backgroundChar));
+//printf("bn=%d bn&0x01=%d even=%d bC='%c'\n", bn, bn&0x01, even, backgroundChar);
+			
+		}
+		printf(" ");		
 	}
 }

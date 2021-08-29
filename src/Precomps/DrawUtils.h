@@ -51,6 +51,10 @@ Boolean ShouldDrawMeasNum(Document *, LINK, LINK);
 void DrawPSMSubType(short, short, short, short);
 void DrawNonArp(short, short, DDIST, DDIST);
 void DrawArp(Document *, short, short, DDIST, DDIST, Byte, PCONTEXT);
+
+void DrawBMP(Byte bmpBits[], short bWidth, short bWidthWithPad, short height,
+			Rect maxRect);
+
 char TempoGlyph(LINK);
 short GetGraphicOrTempoDrawInfo(Document *, LINK, LINK, short, DDIST *, DDIST *, PCONTEXT);
 short GetGRDrawLastDrawInfo(Document *, LINK, LINK, short, DDIST *, DDIST *);

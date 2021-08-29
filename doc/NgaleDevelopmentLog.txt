@@ -10298,9 +10298,10 @@ are 8x8. Change code accordingly => absolutely no visible effect!?
 
 ---------------------------------------------------------------------------------------
 
-17 - 18 Aug.
+17 - 25 Aug.
 
 Let's work on converting one of the UI-font-dependent dialogs to use a BMP: the "change
 dynamic" one. Rename DynamicPopUp.cp to DynamicEdit.cp; remove the code for handling the pop-up;
-enlarge the user item in the DLOG to the size of the image, 120x52.
+enlarge the user item in the DLOG to the size of the image, 120x52. Etc. => double-click
+dynamic => shows dynamics in the user item readably but with a lot of distortion.
 

@@ -16,7 +16,7 @@
 #define	CR_LEADING			14		/* Vert. dist. between baselines of credit text */
 #define	SCROLL_PAUSE_DELAY	90		/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
 #define	SCROLL_NORM_DELAY	4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
-#define	MAX_PAUSE_LINES		10		/* Max number of lines that can begin with PAUSE_CODE */
+#define	MAX_PAUSE_LINES		20		/* Max number of lines that can begin with PAUSE_CODE */
 
 /* These codes must begin a line of the TEXT resource. If both are present, PAUSE_CODE
 must appear first. */
@@ -41,14 +41,6 @@ static GrafPtr	fullTextPort;
 static Rect		creditRect, textSection;
 static short	pauseLines[MAX_PAUSE_LINES];
 static Boolean	firstAnimateCall;
-
-static void CopyOffScreenBitsToDialog(GrafPtr offScreenPort, DialogPtr dlog, Rect offRect,
-				Rect dlogRect)
-{
-	const BitMap *offPortBits = GetPortBitMapForCopyBits(offScreenPort);
-	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
-	CopyBits(offPortBits, dlogPortBits, &offRect, &dlogRect, srcCopy, NULL);
-}
 
 
 void DoAboutBox(
@@ -112,12 +104,7 @@ void DoAboutBox(
 	/* Show the first "screen" of animated text */
 	
 	firstAnimateCall = True;
-	
-	CopyOffScreenBitsToDialog(fullTextPort, dlog, textSection, creditRect);
-
-//	CopyBits(&fullTextPort->portBits, &dlog->portBits,	&textSection,
-//					&creditRect, srcCopy, NULL);
-	
+	CopyOffScreenBitsToWindow(fullTextPort, GetDialogWindowPort(dlog), textSection, creditRect);
 	ArrowCursor();
 
 	/* Entertain filtered user events until dialog is dismissed */
@@ -241,20 +228,21 @@ Boolean SetupCredits()
 	for (i=0; i<MAX_PAUSE_LINES; i++)
 		pauseLines[i] = -1;
 	
-	/* Break text into lines, draw them into offscreen port, interpreting the codes
+	/* Break text into lines and draw them into offscreen port, interpreting the codes
 	   that might begin a line. NB: the pause code must precede the bold code if both
-	   are used in the same line.  After the first MAX_PAUSE_LINES pause codes have been
+	   are used in the same line. After the first MAX_PAUSE_LINES pause codes have been
 	   interpreted, any following ones are ignored. */
 	   
 	thisStr = strP = textPtr;
 	for (i=0, lineNum=1, pauseLineCount=0; i<textLen; i++) {
 		if (*textPtr == CH_CR) {
 			*strP = '\0';										/* this string complete */
-//LogPrintf(LOG_DEBUG, "SetupCredits: PAUSE_CODE=%x *thisStr=%hhx ='%c'\n", PAUSE_CODE, *thisStr, *thisStr);
-			/* Parse next line for codes */
+
+			/* Parse next line for codes and handle any we find. */
+
 			if (*thisStr==(char)PAUSE_CODE) {
 				if (pauseLineCount<=MAX_PAUSE_LINES)
-					pauseLines[pauseLineCount++] = lineNum;		/* put this line number in array of lines to pause on */
+					pauseLines[pauseLineCount++] = lineNum;
 				thisStr++;
 			}
 			if (*thisStr==(char)BOLD_CODE) {
@@ -262,11 +250,14 @@ Boolean SetupCredits()
 				thisStr++;
 			}
 			else TextFace(0);									/* style is plain */
-			strWid = TextWidth(thisStr, 0, strlen(thisStr));	/* compute position for centered text */
+			
+			/* Compute position for centering, draw text, and advance line number. */
+			
+			strWid = TextWidth(thisStr, 0, strlen(thisStr));
 			offset = (portWid - strWid) / 2;
-			MoveTo(offset, lineNum * CR_LEADING);				/* draw text */
+			MoveTo(offset, lineNum * CR_LEADING);
 			DrawText(thisStr, 0, strlen(thisStr));
-			lineNum++;											/* advance line number */
+			lineNum++;
 			thisStr = strP = ++textPtr;
 		}
 		else *strP++ = *textPtr++;
@@ -284,7 +275,7 @@ Boolean SetupCredits()
 }
 
 
-/* Slide the list of credits up one pixel.  Copies desired rectangle from offscreen
+/* Slide the list of credits up one pixel by copying desired rectangle from offscreen
 port containing the complete list to the userItem rect on screen. If we've hit a line
 starting with PAUSE_CODE, we wait SCROLL_PAUSE_DELAY ticks before resuming animation. */
 		
@@ -298,8 +289,8 @@ void AnimateCredits(DialogPtr dlog)
 
 	thisTime = TickCount();
 	
-	/* Is this first time called since the dialog was put up? [AboutBox() initializes
-	   firstAnimateCall to True.] If so, we must initialize some static variables. */
+	/* If this is the first time called since the dialog was put up, initialize some
+	   static variables. */
 		
 	if (firstAnimateCall == True) {
 		firstAnimateCall = False;
@@ -307,8 +298,7 @@ void AnimateCredits(DialogPtr dlog)
 		pixelCount = CR_LEADING;
 	}
 	
-	/* Compute current line number. If it's changed, check array to see if we should
-	   pause on this line. */
+	/* If line number changed, check to see if we should pause on this line. */
 	   
 	thisLineNum = pixelCount / CR_LEADING;
 
@@ -334,7 +324,7 @@ void AnimateCredits(DialogPtr dlog)
 		   Skip array search, and thus pause, if this computation yields a remainder. */
 	}
 		
-	CopyOffScreenBitsToDialog(fullTextPort, dlog, textSection, creditRect);
+	CopyOffScreenBitsToWindow(fullTextPort, GetDialogWindowPort(dlog), textSection, creditRect);
 					
 	textSection.top++;  textSection.bottom++;
 	pixelCount++;

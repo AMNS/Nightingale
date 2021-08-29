@@ -557,6 +557,10 @@ void GetRptEndDrawInfo(
 		case RPT_LR:
 			lWidth = 4; rWidth = 4;
 			break;
+		default:
+			LogPrintf(LOG_ERR, "RepeatEnd subtype %d is illegal.  (GetRptEndDrawInfo)\n",
+						p->subType);
+			return;
 	}
 	staff = RptEndSTAFF(aRptL);
 	pContext = &context[staff];
@@ -622,6 +626,9 @@ void DrawRptBar(Document *doc,
 		case SWDraw:
 			dTop = pContext->measureTop = pContext->staffTop-p2d(mBBox.top);
 			break;
+		default:
+			LogPrintf(LOG_ERR, "RepeatEnd mode %d is illegal.  (DrawRptBar)\n", mode);
+			return;
 	}
 
 	if (connStaff==0) {
@@ -654,8 +661,10 @@ void DrawRptBar(Document *doc,
 		sizePercent = 150;		/* Aug. dots are generally smaller than the dots in MCH_rptDots, so scale them up. */
 		dotsGlyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 		xdDots = dLeft + SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, dotsGlyph, lnSpace));
+
 		/* Origin of MCH_rptDots is bottom staff line, so have to use higher ydDots for MCH_dot.
-			5*lnSpace/2 is 2 and a half spaces -- where the top dot should go. */
+		   5*lnSpace/2 is 2 and a half spaces -- where the top dot should go. */
+
 		ydDots = (staffBottom - (5*lnSpace/2))
 						+ SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, dotsGlyph, lnSpace));
 		useTxSize = UseMTextSize(SizePercentSCALE(pContext->fontSize), doc->magnify);
@@ -1687,9 +1696,9 @@ static void VisStavesInRange(
 	if (*lastVisStf<=0 || *lastVisStf<r1stStaff) *lastVisStf = -1;
 }
 
-/* For the given Staff object, return the numbers of the top and bottom visible
-staves in the given part. If no staves in the part are visible, return -1 for
-both top and bottom. */
+/* For the given Staff object, return the numbers of the top and bottom visible staves
+in the given part. If no staves in the part are visible, return -1 for both top and
+bottom. */
 
 void VisStavesForPart(
 			Document *doc,
@@ -1705,6 +1714,8 @@ void VisStavesForPart(
 																		lastStaff);
 }
 
+
+/* ======================================= "Should Draw" functions for various symbols == */
 
 /* ----------------------------------------------------------------- ShouldDrawConnect -- */
 /* For the given CONNECT subobject, if we should actually draw it, return True;
@@ -1776,11 +1787,9 @@ Boolean ShouldREDrawBarline(
 	if (theRptEnd->connStaff!=0 || !theRptEnd->connAbove)
 		{ topRptEndL = theRptEndL; goto DrawAll; }
 	
-	/*
-	 * This is a "subordinate" staff, i.e., one in a group and not the top staff
-	 * of the group. Draw Dots Only unless all staves above this one in its group
-	 * are invisible.
-	 */
+	/* This is a "subordinate" staff, i.e., one in a group and not the top staff of the
+	   group. Draw dots only unless all staves above this one in its group are invisible. */
+	   
 	aRptEndL = FirstSubLINK(rptEndObjL);
 	for ( ; aRptEndL; aRptEndL = NextRPTENDL(aRptEndL)) {
 		if (aRptEndL==theRptEndL) break;
@@ -1833,11 +1842,9 @@ Boolean ShouldDrawBarline(
 	if (theMeas->connStaff!=0 || !theMeas->connAbove)
 			{ gBottomStf = theMeas->connStaff; goto DrawAll; }
 	
-	/*
-	 * This is a "subordinate" staff, i.e., one in a group and not the top staff
-	 * of the group. Draw dots only unless all staves above this one in its group
-	 * are invisible.
-	 */
+	/* This is a "subordinate" staff, i.e., one in a group and not the top staff of the
+	   group. Draw dots only unless all staves above this one in its group are invisible. */
+	   
 	theStf = MeasureSTAFF(theMeasL);
 	aMeasL = FirstSubLINK(measObjL);
 	for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
@@ -1849,10 +1856,9 @@ Boolean ShouldDrawBarline(
 			}
 	}
 
-	/*
-	 * We know the top staff of the group; now see if it and all staves below it and
-	 *	above <theStf> are invisible.
-	 */
+	/* We know the top staff of the group; now see if it and all staves below it and
+	   above <theStf> are invisible. */
+	   
 	aMeasL = FirstSubLINK(measObjL);
 	for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
 		if (MeasureSTAFF(aMeasL)>=gTopStf && MeasureSTAFF(aMeasL)<theStf) {
@@ -2054,6 +2060,76 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
 	TextFont(oldFont);
 	TextFace(oldStyle);
 }
+
+
+/* --------------------------------------------------------------------------- DrawBMP -- */
+
+/* Draw eight rows of 1-bit pixels by converting each 8x8 array of pixels to a Pattern and
+filling a 8x8-pixel Rect with the Pattern. We assume 0 = black and 1 = white (since that's
+what our BMPs are, I don't know why). */
+
+static void DrawRows(Byte bmpBits[], short nBotRow, short bWidth, short bWPadded,
+				short startLoc, Rect bmpRect);
+static void DrawRows(Byte bmpBits[], short nBotRow, short bWidth, short bWPadded,
+				short startLoc, Rect bmpRect)
+{
+	short xStart, xLeft, yTop, locOffset;
+	Rect aRect;
+	union {
+		Pattern aPattern;
+		Byte patternArr[8];
+	};
+
+	xStart = bmpRect.left+2;
+	// ??FOR TESTING ONLY! MUST BE JUST -nBotRow
+	//yTop = bmpRect.top+4+((nBotRow/8)*9);
+	yTop = bmpRect.bottom-9-nBotRow;
+//LogPrintf(LOG_DEBUG, "DrawRows: xStart=%d yTop=%d\n", xStart, yTop);
+
+	for (short patNum = 0; patNum<bWidth; patNum++) {
+		for (short bn=0; bn<=7; bn++) {
+			locOffset = (8*patNum)+(bWPadded*bn);			// ??OR JUST patNum+ ?
+			locOffset = patNum+(bWPadded*bn);
+			patternArr[7-bn] = ~bmpBits[startLoc+locOffset];
+LogPrintf(LOG_DEBUG, "DrawRows: patNum=%d bn=%d startLoc=%d locOffset=%d patternArr[]=%02x\n",
+patNum, bn, startLoc, locOffset, patternArr[7-bn]);
+		}
+#if 13
+LogPrintf(LOG_DEBUG, "DrawRows: nBotRow=%d startLoc=%d patNum=%d xStart=%d yTop=%d patternArr[0:3]=%02x,%02x,%02x,%02x\n",
+nBotRow, startLoc, patNum, xStart, yTop, patternArr[0], patternArr[1], patternArr[2], patternArr[3]);
+		// ??FOR TESTING ONLY!
+		//short colors[4] = { greenColor, redColor, cyanColor, magentaColor };
+		//ForeColor(colors[patNum%4]);
+#endif
+		xLeft = xStart+8*patNum;
+		SetRect(&aRect, xLeft, yTop, xLeft+8, yTop+8);
+		FillRect(&aRect, &aPattern);
+	}
+}
+
+
+/* Draw the image <bmpBits>, which is assumed to be black-and-white (one bit per pixel). */
+
+void DrawBMP(Byte bmpBits[], short bWidth, short bWPadded, short height, Rect bmpRect)
+{
+	short startLoc;
+	
+	/* Images in BMPs are stored "upside down": the first row of bytes represents the
+	   bottom row of pixels and the last row of bytes represents the top row. */
+	
+	//for (short nBotRow = height-1; nBotRow>=0; nBotRow = nBotRow-8) {
+	for (short nBotRow = 0; nBotRow<=height; nBotRow += 8) {
+	//for (short nBotRow = 0; nBotRow<=16; nBotRow += 8) {				// ??TEST DRAW JSUT A FEW ROWS!!!
+		startLoc = nBotRow*bWPadded;
+		//startLoc = (nBotRow*bWPadded)/8;
+LogPrintf(LOG_DEBUG, "bmpRect tlbr=%d,%d,%d,%d nBotRow=%d bWPadded=%d startLoc=%d\n",
+bmpRect.top, bmpRect.left, bmpRect.bottom, bmpRect.right,
+nBotRow, bWPadded, startLoc);
+		DrawRows(bmpBits, nBotRow, bWidth, bWPadded, startLoc, bmpRect);
+	}
+}
+
+
 
 
 /* ------------------------------------------------------------------------ TempoGlyph -- */

@@ -45,6 +45,8 @@ void UnlockGWorld(GWorldPtr);
 GrafPtr NewGrafPort(short, short);
 void DisposGrafPort(GrafPtr);
 void LogPixMapInfo(char *name, PixMapPtr aPixMap, long len);
+void CopyOffScreenBitsToWindow(GrafPtr offScreenPort, GrafPtr windPort,
+			Rect offRect, Rect windRect);
 
 void D2Rect(DRect *, Rect *);
 void Rect2D(Rect *, DRect *);

@@ -295,8 +295,9 @@ void ApplHeapCheck()
 }
 
 
-/* -------------------------------------------------------------------------- Char2Dur -- */
-/*	Convert input character to duration code. */
+/* ---------------------------------------------------------------- Char2Dur, Dur2Char -- */
+
+/*	Convert input character to duration code */
 
 short Char2Dur(char token)
 {
@@ -309,8 +310,7 @@ short Char2Dur(char token)
 }
 
 
-/* -------------------------------------------------------------------------- Dur2Char -- */
-/*	Convert duration code to input character. */
+/*	Convert duration code to input character */
 
 short Dur2Char(short dur)
 {
@@ -846,6 +846,15 @@ void LogPixMapInfo(char *name, PixMapPtr aPixMap, long len)
 		"%s: aPixMap->rowBytes=%d ->bounds.tlbr=%d,%d,%d,%d ->pmVersion=%d MemBitCount(palPortBits, %ld)=%ld\n",
 		name, aPixMap->rowBytes, aPixMap->bounds.top, bounds.left, bounds.bottom, bounds.right,
 		aPixMap->pmVersion, len, MemBitCount((unsigned char *)aPixMap->baseAddr, len));
+}
+ 
+
+void CopyOffScreenBitsToWindow(GrafPtr offScreenPort, GrafPtr windPort, Rect offRect,
+			Rect windRect)
+{
+	const BitMap *offPortBits = GetPortBitMapForCopyBits(offScreenPort);
+	const BitMap *windPortBits = GetPortBitMapForCopyBits(windPort);
+	CopyBits(offPortBits, windPortBits, &offRect, &windRect, srcCopy, NULL);
 }
 
 

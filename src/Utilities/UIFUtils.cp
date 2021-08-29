@@ -430,7 +430,7 @@ void GetGlobalPort(WindowPtr w, Rect *r)
 /* Given an origin, orig, 0 <= i < n, compute the offset position, ans, for that index
 into n.  All coords are expected to be global, and all windows are expected to be
 standard sized. This can be used to position multiple windows being opened at the same
-time; however, it's not used in v. 5.8.x. */
+time; however, it's not used in v. 5.9.x. */
 
 void GetIndWinPosition(WindowPtr w, short i, short n, Point *ans)
 {
@@ -501,8 +501,8 @@ before call; this could easily be added again. */
 
 short GetMyScreen(Rect *r, Rect *bnds)
 {
-	GDHandle dev;  Rect test,ans,bounds;
-	long area,maxArea=0L;  short nScreens = 0;
+	GDHandle dev;  Rect test, ans, bounds;
+	long area, maxArea=0L;  short nScreens = 0;
 	
 	bounds = GetQDScreenBitsBounds();
 	bounds.top += GetMBarHeight();						/* Exclude menu bar */
