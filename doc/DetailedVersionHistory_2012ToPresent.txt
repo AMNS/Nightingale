@@ -3303,7 +3303,7 @@ etc. Affects .rsrc; Defs.h, vars.h; DebugDisplay, InitNightingale, Magnify, MIDI
 
 19 - 20 August
 
-Minor changes: renamed NHexDump to DHexDump & add a parameter, etc. Affects Debug.h;
+Minor changes: renamed NHexDump to DHexDump & added a parameter, etc. Affects Debug.h;
 Browser, DebugDisplay, Error, FileConversion, Finalize, HeapFileIO, Heaps, Initialize,
 MIDIFOCmd, PopUpUtils.
 
@@ -3325,3 +3325,14 @@ Affects About.
 Minor changes: got rid of compiler warning about "multi-character character constant",
 etc. Affects Debug.h, Utility.h, vars.h; About, DrawUtils, UIFUtils, Utility.
 
+---------------------------------------------------------------------------------------
+
+1 - 8 Sept.
+
+Work to replace all UI fonts and the Tool Palette PICT with BMP files. Affects
+Initialize, InitNightingale, ToolPalette.
+
+Work to replace the "change dynamic" pop-up palette (using a UI font) with a fixed
+palette (from a BMP file). Affects .rsrc; DynamicEdit, DrawUtils.
+
+Minor changes. Affects DebugDisplay, DynamicEdit.

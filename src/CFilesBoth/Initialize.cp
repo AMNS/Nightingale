@@ -17,8 +17,9 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#include "GraphicMDEF.h"
 #include "Endian.h"
+#include "FileUtils.h"
+#include "GraphicMDEF.h"
 
 /* Private routines */
 
@@ -30,15 +31,14 @@ static void			DisplayConfig(void);
 static Boolean		CheckConfig(void);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
+static Boolean		NInitPaletteWindows(void);
 static void			DisplayToolPaletteParams(PaletteGlobals *whichPalette);
 static Boolean		CheckToolPaletteParams(PaletteGlobals *whichPalette);
 static short		GetToolGrid(PaletteGlobals *whichPalette);
 static void			InitPaletteRects(Rect *whichRects, short across, short down, short width,
 										short height);
-static void			InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
-static Boolean		InitSetDurPalette(PaletteGlobals *whichPalette, Rect *windowRect);
-static Boolean		NInitPalettes(void);
-
+static Boolean		InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
+static Boolean		InitSetDurPalette();
 static Boolean		PrepareClipDoc(void);
 static void			InstallCoreEventHandlers(void);
 
@@ -190,9 +190,10 @@ void Initialize()
 	if (growZoneUPP) SetGrowZone(growZoneUPP);		/* Install simple grow zone function */
 	
 	LogPrintf(LOG_NOTICE, "Initializing palettes and palette windows...  (Initialize)\n");
-	if (!NInitPalettes()) { BadInit();  ExitToShell(); }
-	
-	EndianFixMIDIModNRTable();
+	if (!NInitPaletteWindows()) { BadInit(); ExitToShell(); }
+	if (!InitSetDurPalette()) { BadInit(); ExitToShell(); }
+	//if (!InitAddModifierPalette()) { BadInit(); ExitToShell(); }
+	//if (!InitChangeDynamicPalette()) { BadInit(); ExitToShell(); }
 	
 	InitCursor();
 	WaitCursor();
@@ -1263,7 +1264,7 @@ static Boolean CheckToolPaletteParams(PaletteGlobals *whichPalette)
 
 /* Allocate a grid of characters from the 'PLCH' resource; uses GridRec dataType to
 store the information for a maximal maxRow by maxCol grid, where the dimensions are
-stored in the PLCH resource itself and should match the PICT that is being used to draw
+stored in the PLCH resource itself and should match the BMP that is being used to draw
 the palette.  We also initialize PaletteGlobals fields read from the resource and check
 them. Returns the item number of the default tool (normally arrow), or 0 if problem. */
 
@@ -1366,7 +1367,8 @@ static void InitPaletteRects(Rect *whichRects, short itemsAcross, short itemsDow
 }
 
 
-/* Initialise the tool palette: We use the size of the PICT in resources as well as
+/* Initialise the tool palette: ??REWRITE! IGNORE THE PICT!!
+We use the size of the PICT in resources as well as
 the grid dimensions in the PLCH resource to determine the size of the palette, with a
 margin around the cells so that there is space in the lower right corner for a grow box.
 The PICT should have a frame size that is (TOOLS_ACROSS * TOOLS_CELL_WIDTH)-1 pixels
@@ -1375,32 +1377,70 @@ TOOLS_DOWN are the values taken from the first two bytes of the PLCH resource. T
 picture will be displayed centered in the palette window with a TOOLS_MARGIN pixel
 margin on all sides. */
 
-static void InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
+#define TOOL_PALETTE_FN		"ToolPaletteNB1b.bmp"
+//#define TOOL_PALETTE_FN		"ChangeDynamicNB1b.bmp"			// TEST!
+
+#define BITMAP_SPACE 30000
+
+Byte bitmapTools[BITMAP_SPACE];
+
+void CopyGWorldBitsToWindow(GWorldPtr offScreenGW, GrafPtr windPort, Rect offRect,
+			Rect windRect)
 {
-	PicHandle toolPicture;  Rect picRect;
-	short curResFile;  short defaultToolItem;
+	GrafPtr offScreenPort = 00000;		// ??????????????????WHAT??????????????????????????
+	const BitMap *offPortBits = GetPortBitMapForCopyBits(offScreenPort);
+	const BitMap *windPortBits = GetPortBitMapForCopyBits(windPort);
+	CopyBits(offPortBits, windPortBits, &offRect, &windRect, srcCopy, NULL);
+}
+
+
+static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
+{
+	short defaultToolItem, nRead, width, bWidth, bWidthWithPad, height;
+	FILE *bmpf;
+	Rect maxToolsRect;
+	long pixOffset, nBytesToRead;
 	
 	/* Allocate a grid of characters from the 'PLCH' resource and initialize the
 	   PaletteGlobals fields stored in the resource. */
 	
 	defaultToolItem = GetToolGrid(whichPalette);
 	if (!defaultToolItem) { BadInit(); ExitToShell(); }
-	
-	curResFile = CurResFile();
-	UseResFile(setupFileRefNum);
-	toolPicture = (PicHandle)GetPicture(ToolPaletteID);
-	FIX_END((*toolPicture)->picFrame.bottom);
-	FIX_END((*toolPicture)->picFrame.right);
-	UseResFile(curResFile);
+		
+	/* Now open the BMP file and read the actual bitmap image. */
 
-	if(!GoodResource((Handle)toolPicture)) { BadInit(); ExitToShell(); }
-	HNoPurge((Handle)toolPicture);
+	bmpf = NOpenBMPFile(TOOL_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthWithPad, &height);
+	if (!bmpf) {
+		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitToolPalette)\n", TOOL_PALETTE_FN);
+		return False;
+	}
+	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
+		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file failed.  (InitToolPalette)\n",
+					pixOffset);
+		return False;
+	}
+
+	nBytesToRead = bWidthWithPad*height;
+	LogPrintf(LOG_DEBUG, "bWidth=%d bWidthWithPad=%d height=%d nBytesToRead=%d  (InitToolPalette)\n",
+		bWidth, bWidthWithPad, height, nBytesToRead);
+	if (nBytesToRead>BITMAP_SPACE) {
+		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitToolPalette)\n",
+					nBytesToRead, BITMAP_SPACE);
+		return False;
+	}
+	nRead = fread(bitmapTools, nBytesToRead, 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitToolPalette)\n");
+		return False;
+	}
 	
-	/* Calculate the palette's portRect based on the toolPicture. */
+	SetRect(&maxToolsRect, 0, 0, width, height);
 	
-	picRect = (*toolPicture)->picFrame;
-	OffsetRect(&picRect, -picRect.left, -picRect.top);
-	*windowRect = picRect;
+	*windowRect = maxToolsRect;
+		
+	/* windowRect now has its top left corner at (0, 0). Use it to set toolRects[], the
+	   bounding boxes for all the cells in the palette. Then resize windowRect for the
+	   area that's initially visible, with a margin of TOOLS_MARGIN on every side. */
 	
 	InitPaletteRects(toolRects,
 			whichPalette->maxAcross, whichPalette->maxDown,
@@ -1411,15 +1451,15 @@ static void InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;
 	windowRect->right += 2*TOOLS_MARGIN;
 	windowRect->bottom += 2*TOOLS_MARGIN;
-	toolsFrame = *windowRect;
-	InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);
+	//toolsFrame = *windowRect;
+	//InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);	/* FIXME: This is never used! */
 
 	/* Avoid Issue #67, where the tool palette's initial position is sometimes at the
 	   very top of screen, underneath the menu bar. FIXME: This is certainly not the
 	   right fix! The problem occurs randomly on some computers, consistently on others,
 	   so it's probably an uninitialized variable. */
 	
-	OffsetRect(windowRect, 0, 40);
+	OffsetRect(windowRect, 0, 300);
 	
 	/* Finish initializing the PaletteGlobals structure. */
 	
@@ -1427,25 +1467,38 @@ static void InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	whichPalette->drawMenuProc = (void (*)())DrawToolPalette;
 	whichPalette->findItemProc = (short (*)())FindToolItem;
 	whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
-	
-LogPrintf(LOG_DEBUG, "InitToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
+		
+LogPrintf(LOG_DEBUG, "InitToolPalette: windowRect tlbr=%d,%d,%d,%d toolCellWidth,Height=%d,%d\n",
+windowRect->top, windowRect->left, windowRect->bottom, windowRect->right, toolCellWidth,
+toolCellHeight);
 
-	/* Put picture into offscreen port so that any rearrangements can be saved. */
+	/* Put bitmap image into offscreen port so that any rearrangements can be saved. */
 
 	SaveGWorld();
 	
-	GWorldPtr gwPtr = MakeGWorld(picRect.right, picRect.bottom, True);
+	GWorldPtr gwPtr = MakeGWorld(windowRect->right, windowRect->bottom, True);
 	SetGWorld(gwPtr, NULL);
-	
-{
-PixMapHandle portPixMapH = GetPortPixMap(gwPtr); PixMapPtr portPixMap = *portPixMapH;
-LogPixMapInfo("InitToolPalette1", portPixMap, 1000);
-}
-	HLock((Handle)toolPicture);
-	DrawPicture(toolPicture, &picRect);
-	HUnlock((Handle)toolPicture);
-	ReleaseResource((Handle)toolPicture);
-	
+
+LogPrintf(LOG_DEBUG, "InitToolPalette: maxToolsRect tlbr=%d,%d,%d,%d\n", maxToolsRect.top,
+maxToolsRect.left, maxToolsRect.bottom, maxToolsRect.right);
+DHexDump(LOG_DEBUG, "ToolPal", bitmapTools, 8*16, 4, 16, True);
+	short startLoc;
+	for (short nRow = 12; nRow>=0; nRow--) {
+		startLoc = nRow*bWidthWithPad;
+//printf("nRow=%d startLoc=%d\n", nRow, startLoc);
+		DPrintRow(bitmapTools, nRow, bWidth, startLoc, False, False);
+		printf("\n");
+	}
+
+	ForeColor(yellowColor);
+	SetRect(&maxToolsRect, 10, 60, 200, 200);
+	FillRect(&maxToolsRect, NGetQDGlobalsGray());
+
+	//CopyGWorldBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
+	//CopyOffScreenBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
+	ForeColor(blueColor);
+	SetRect(&maxToolsRect, 0, 0, 300, 300);
+	DrawBMP(bitmapTools, bWidth, bWidthWithPad, height, maxToolsRect);
 	toolPalPort = gwPtr;
 {
 PixMapHandle portPixMapH = GetPortPixMap(toolPalPort); PixMapPtr portPixMap = *portPixMapH;
@@ -1453,151 +1506,115 @@ LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
 }
 //	UnlockGWorld(gwPtr);
 	RestoreGWorld();
+	return True;
 }
 
 
-#define SETDUR_PALETTE_FN		"SetDur_2dots1bitNB.bmp"
+
+#define SETDUR_PALETTE_FN		"SetDur_2dotsNB1b.bmp"
 //#define SETDUR_PALETTE_PATH 	":SetDur_2dots1bitNB.bmp"
 
-#define BITMAP_SPACE 1000
-#define BITMAP_READBYTES 56
-#if (BITMAP_READBYTES>BITMAP_SPACE)
-	#error
-#endif
 
-FILE *bmpf;
-char signature[2];
-char bitmap[BITMAP_SPACE];
+Byte bitmapSetDur[BITMAP_SPACE];
 
-
-static Boolean InitSetDurPalette(PaletteGlobals *whichPalette, Rect *windowRect)
+static Boolean InitSetDurPalette()
 {
-	BMPFileHeader fileHdr;
-	BMPInfoHeader infoHdr;
-	short nRead;
-	
-	LogPrintf(LOG_DEBUG, "Opening BMP file '%s'...  (InitSetDurPalette)\n", SETDUR_PALETTE_FN);
+	FILE *bmpf;
+	short nRead, width, bWidth, bWidthWithPad, height;
+	long pixOffset, nBytesToRead;
 
-	/* Open the file and read the BMP header. We expect a basic 54-byte header. ??IS THAT RIGHT? */
-	
-	errno = 0;
-	bmpf = fopen((const char *)SETDUR_PALETTE_FN, "r");
+	bmpf = NOpenBMPFile(SETDUR_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthWithPad, &height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Can't open palette bitmap image file '%s'. errno=%d  (InitSetDurPalette)\n",
-							SETDUR_PALETTE_FN, errno);
-		return False;
-	}
-	nRead = fread(&signature[0], 2, 1, bmpf);
-	if (signature[0]!='B' || signature[1]!='M') {
-		LogPrintf(LOG_ERR, "BMP file doesn't start with required characters 'BM'.  (InitSetDurPalette)\n");
+		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitSetDurPalette)\n", SETDUR_PALETTE_FN);
 		return False;
 	}
 
-	nRead = fread(&fileHdr, sizeof(BMPFileHeader), 1, bmpf);
-	if (nRead!=1) {
-		LogPrintf(LOG_ERR, "Couldn't read the BMP file header.  (InitSetDurPalette)\n");
+	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
+		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file failed.  (InitSetDurPalette)\n", pixOffset);
 		return False;
 	}
-	EndianFixBMPFileHdr(&fileHdr);
-	LogPrintf(LOG_DEBUG, "fileSize=%u offsetToPixelArray=%u\n", fileHdr.fileSize, fileHdr.offsetToPixelArray);
-
-	nRead = fread(&infoHdr, sizeof(BMPInfoHeader), 1, bmpf);
-	if (nRead!=1) {
-		LogPrintf(LOG_ERR, "Couldn't read the BMP info header.  (InitSetDurPalette)\n");
+		
+	nBytesToRead = bWidthWithPad*height;
+	if (nBytesToRead>BITMAP_SPACE) {
+		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitSetDurPalette)\n",
+					nBytesToRead, BITMAP_SPACE);
 		return False;
 	}
-	
-	EndianFixBMPInfoHdr(&infoHdr);
-	LogPrintf(LOG_DEBUG, "infoHdrSize=%u width=%u height=%u bits=%u\n", infoHdr.infoHdrSize,
-		   infoHdr.width, infoHdr.height, infoHdr.bits);
-	LogPrintf(LOG_DEBUG, "imageSize=%u xResolution=%u yResolution=%u colors=%u\n", infoHdr.imageSize,
-		   infoHdr.xResolution, infoHdr.yResolution, infoHdr.colors);
-	
-	long offset = fileHdr.offsetToPixelArray;
-	if (fseek(bmpf, offset, SEEK_SET)!=0) {
-		LogPrintf(LOG_ERR, "fseek to offset %ld in BMP file failed.  (InitSetDurPalette)\n", offset);
-		return False;
-	}
-	
-	nRead = fread(&bitmap, BITMAP_READBYTES, 1, bmpf);
+	nRead = fread(&bitmapSetDur, nBytesToRead, 1, bmpf);
 	if (nRead!=1) {
 		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitSetDurPalette)\n");
 		return False;
 	}
-	DHexDump(LOG_DEBUG, "SD bitmap", (unsigned char *)bitmap, BITMAP_READBYTES, 4, 16, False);
+DHexDump(LOG_DEBUG, "SetDur", bitmapSetDur, 4*16, 4, 16, True);
 
 	return True;
 }
 
 
 /* Initialize everything about the palettes (formerly called "floating windows"). NB:
-as of v. 5.8.10, the tool palette is our only floating window. We've kept vestigal code
+through v. 5.8.10, the tool palette was the only one; the Set Duration and Add Modifiers
+command and the double-click "change dynamics" facilities used our own bitmap fonts.
+In 5.8.11, we use palettes with bitmap images for those commands, and those palettes
+have to be initialized.
+??REWRITE OR REMOVE FOLLOWING We've kept vestigal code
 for a help palette (which seems unlikely ever to be used) and for a clavier palette
-(which might be useful someday). ??REWRITE!! */
+(which might be useful someday). */
 
-static Boolean NInitPalettes()
-	{
-		short idx, wdefID;
-		PaletteGlobals *whichPalette;
-		Rect windowRects[TOTAL_PALETTES];
-		short totalPalettes = TOTAL_PALETTES;
-		
-		for (idx=0; idx<totalPalettes; idx++) {
-		
-			/* Get a handle to a PaletteGlobals structure for this palette */
-			
-			paletteGlobals[idx] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+idx);
-			if (!GoodResource((Handle)paletteGlobals[idx])) return False;
-			EndianFixPaletteGlobals(idx);
-
-			MoveHHi((Handle)paletteGlobals[idx]);
-			HLock((Handle)paletteGlobals[idx]);
-			whichPalette = *paletteGlobals[idx];
-			
-			switch(idx) {
-				case TOOL_PALETTE:
-					InitToolPalette(whichPalette, &windowRects[idx]);
-					wdefID = ToolPaletteWDEF_ID;
-					break;
-				case HELP_PALETTE:
-					if (!InitSetDurPalette(whichPalette, &windowRects[idx])) {
-						MayErrMsg("Can't get the Set Duration palette from BMP file.  (InitSetDurPalette)");
-					}
-					wdefID = ToolPaletteWDEF_ID;						// ??REALLY?
-					break;
-				case CLAVIER_PALETTE:
-					break;
-				}
-
-			wdefID = floatGrowProc;
-			
-			if (thisMac.hasColorQD)
-				palettes[idx] = (WindowPtr)NewCWindow(NULL, &windowRects[idx],
-										"\p", False, wdefID, BRING_TO_FRONT, True,
-										(long)idx);
-			 else
-				palettes[idx] = (WindowPtr)NewWindow(NULL, &windowRects[idx],
-										"\p", False, wdefID, BRING_TO_FRONT, True,
-										(long)idx);
-			if (!GoodNewPtr((Ptr)palettes[idx])) return False;
-		
-			//	((WindowPeek)palettes[idx])->spareFlag = (idx==TOOL_PALETTE || idx==HELP_PALETTE);
-			
-			/* Add a zoom box to tools and help palette */
-			
-			if (idx==TOOL_PALETTE || idx==HELP_PALETTE) {
-				ChangeWindowAttributes(palettes[idx], kWindowFullZoomAttribute, kWindowNoAttributes);
-			}
-
-			/* Finish initializing the TearOffMenuGlobals structure. */
-			
-			whichPalette->environment = &thisMac;
-			whichPalette->paletteWindow = palettes[idx];
-			SetWindowKind(palettes[idx], PALETTEKIND);
-			
-			HUnlock((Handle)paletteGlobals[idx]);
-		}
+static Boolean NInitPaletteWindows()
+{
+	short idx, wdefID;
+	PaletteGlobals *whichPalette;
+	Rect windowRects[TOTAL_PALETTES];
+	short totalPalettes = TOTAL_PALETTES;
 	
+	for (idx=0; idx<totalPalettes; idx++) {
+	
+		/* Get a handle to a PaletteGlobals structure for this palette */
+		
+		paletteGlobals[idx] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+idx);
+		if (!GoodResource((Handle)paletteGlobals[idx])) return False;
+		EndianFixPaletteGlobals(idx);
+
+		MoveHHi((Handle)paletteGlobals[idx]);
+		HLock((Handle)paletteGlobals[idx]);
+		whichPalette = *paletteGlobals[idx];
+		
+		switch(idx) {
+			case TOOL_PALETTE:
+				if (!InitToolPalette(whichPalette, &windowRects[idx])) return False;
+				wdefID = ToolPaletteWDEF_ID;
+				break;
+			case HELP_PALETTE:
+				wdefID = ToolPaletteWDEF_ID;						// ??REALLY?
+				break;
+			case CLAVIER_PALETTE:
+				break;
+		}
+
+		wdefID = floatGrowProc;
+		
+		palettes[idx] = (WindowPtr)NewCWindow(NULL, &windowRects[idx],
+								"\p", False, wdefID, BRING_TO_FRONT, True,
+								(long)idx);
+		if (!GoodNewPtr((Ptr)palettes[idx])) return False;
+	
+		//	((WindowPeek)palettes[idx])->spareFlag = (idx==TOOL_PALETTE || idx==HELP_PALETTE);
+		
+		/* Add a zoom box to tools and help palette */
+		
+		if (idx==TOOL_PALETTE || idx==HELP_PALETTE) {
+			ChangeWindowAttributes(palettes[idx], kWindowFullZoomAttribute, kWindowNoAttributes);
+		}
+
+		/* Finish initializing the TearOffMenuGlobals structure. */
+		
+		whichPalette->environment = &thisMac;
+		whichPalette->paletteWindow = palettes[idx];
+		SetWindowKind(palettes[idx], PALETTEKIND);
+		
+		HUnlock((Handle)paletteGlobals[idx]);
+	}
+
 	return True;
 }
 
@@ -1607,31 +1624,31 @@ static Boolean NInitPalettes()
 /* Provide the pre-allocated clipboard document with default values. */
 	
 static Boolean PrepareClipDoc()
-	{
-		WindowPtr w;  char title[256];
-		LINK pL;  long junkVersion;
+{
+	WindowPtr w;  char title[256];
+	LINK pL;  long junkVersion;
 
-		clipboard = documentTable;
-		clipboard->inUse = True;
-		w = GetNewWindow(docWindowID, NULL, (WindowPtr)-1);
-		if (w == NULL) return(False);
-		
-		clipboard->theWindow = w;
-		SetWindowKind(w, DOCUMENTKIND);
+	clipboard = documentTable;
+	clipboard->inUse = True;
+	w = GetNewWindow(docWindowID, NULL, (WindowPtr)-1);
+	if (w == NULL) return(False);
+	
+	clipboard->theWindow = w;
+	SetWindowKind(w, DOCUMENTKIND);
 
-		//		((WindowPeek)w)->spareFlag = True;
-		ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
+	//		((WindowPeek)w)->spareFlag = True;
+	ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
 
-		if (!BuildDocument(clipboard, NULL, 0, NULL, &junkVersion, True))
-			return False;
-		for (pL=clipboard->headL; pL!=clipboard->tailL; pL=DRightLINK(clipboard, pL))
-			if (DObjLType(clipboard, pL)==MEASUREtype)
-				{ clipFirstMeas = pL; break; }
-		clipboard->canCutCopy = False;
-		GetIndCString(title, MiscStringsID, 2);
-		SetWCTitle((WindowPtr)clipboard, title);
-		return True;
-	}
+	if (!BuildDocument(clipboard, NULL, 0, NULL, &junkVersion, True))
+		return False;
+	for (pL=clipboard->headL; pL!=clipboard->tailL; pL=DRightLINK(clipboard, pL))
+		if (DObjLType(clipboard, pL)==MEASUREtype)
+			{ clipFirstMeas = pL; break; }
+	clipboard->canCutCopy = False;
+	GetIndCString(title, MiscStringsID, 2);
+	SetWCTitle((WindowPtr)clipboard, title);
+	return True;
+}
 	
 Boolean BuildEmptyDoc(Document *doc) 
 {

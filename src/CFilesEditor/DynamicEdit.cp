@@ -22,9 +22,9 @@ when user double-clicks a dynamic.                      -- John Gibson, 8/5/00 *
 /* -------------------------------------------------------------------------------------- */
 /* SetDynamicDialog */
 
-static enum {
+enum {
 	DYNAM_CHOICES_DI=4
-} E_SetDynItems;
+};
 
 static short dynamicIdx = 3;		// ??INITIALIZE IT TO WHAT REALLY?
 
@@ -37,13 +37,13 @@ Byte bitmapPalette[BITMAP_SPACE];
 static Boolean DrawDynamicPalette(Rect *pBox);
 static Boolean DrawDynamicPalette(Rect *pBox)
 {
-	short defaultDynamic, nRead, width, bWidth, bWidthWithPad, height;
+	short nRead, width, bWidth, bWidthPadded, height;
 	FILE *bmpf;
 	long pixOffset, nBytesToRead;
 
 	/* Open the BMP file and read the actual bitmap image. */
 
-	bmpf = NOpenBMPFile(DYNAMIC_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthWithPad,
+	bmpf = NOpenBMPFile(DYNAMIC_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
 						&height);
 	if (!bmpf) {
 		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (DrawDynamicPalette)\n",
@@ -56,9 +56,9 @@ static Boolean DrawDynamicPalette(Rect *pBox)
 		return False;
 	}
 
-	nBytesToRead = bWidthWithPad*height;
-	LogPrintf(LOG_DEBUG, "bWidth=%d bWidthWithPad=%d height=%d nBytesToRead=%d  (DrawDynamicPalette)\n",
-		bWidth, bWidthWithPad, height, nBytesToRead);
+	nBytesToRead = bWidthPadded*height;
+	LogPrintf(LOG_DEBUG, "bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (DrawDynamicPalette)\n",
+		bWidth, bWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (DrawDynamicPalette)\n",
 					nBytesToRead, BITMAP_SPACE);
@@ -71,14 +71,8 @@ static Boolean DrawDynamicPalette(Rect *pBox)
 	}
 	
 DHexDump(LOG_DEBUG, "DynPal", bitmapPalette, 8*16, 4, 16, True);
-	short startLoc;
-	for (short nRow = 12; nRow>=0; nRow--) {
-		startLoc = nRow*bWidthWithPad;
-//printf("nRow=%d startLoc=%d\n", nRow, startLoc);
-		DPrintRow(bitmapPalette, nRow, bWidth, startLoc, False, False);
-		printf("\n");
-	}
-	DrawBMP(bitmapPalette, bWidth, bWidthWithPad, height, *pBox);
+
+	DrawBMP(bitmapPalette, bWidth, bWidthPadded, height, *pBox);
 	return True;
 }
 

@@ -10298,10 +10298,70 @@ are 8x8. Change code accordingly => absolutely no visible effect!?
 
 ---------------------------------------------------------------------------------------
 
-17 - 25 Aug.
+17 Aug. - 4 Sept.:
 
 Let's work on converting one of the UI-font-dependent dialogs to use a BMP: the "change
 dynamic" one. Rename DynamicPopUp.cp to DynamicEdit.cp; remove the code for handling the pop-up;
 enlarge the user item in the DLOG to the size of the image, 120x52. Etc. => double-click
 dynamic => shows dynamics in the user item readably but with a lot of distortion.
 
+Add stmts to DrawBMP and DrawRows => ovewhelming detail w/ no obvious reason for the distortion!
+Have DrawBMP just draw the bottom three sets of 8 rows:
+
+	//for (short nBotRow = 0; nBotRow<=height; nBotRow += 8) {
+	for (short nBotRow = 0; nBotRow<=16; nBotRow += 8) {
+
+...and have DrawRows just draw the leftmost three Patterns -- i.e., 24 pixels -- in each row:
+
+	//for (short patNum = 0; patNum<bWidth; patNum++) {
+	for (short patNum = 0; patNum<3; patNum++) {
+
+Results: As expected, draws just the distorted "f". Log output w/ bit-by-bit complements 
+(since DrawRows does that bcs our BMPs have 0 for black, 1 for white):
+
+	Sep  2 21:42:55 DonDualG5 Ngale[15524]:
+	debug. DynamicFilter: box tlbr=14,160,66,280
+	debug. Opening BMP file 'ChangeDynamicNB1b.bmp'...  (NOpenBMPFile)
+	debug. fileSize=894 offsetToPixelArray=62  (NOpenBMPFile)
+	debug. infoHdrSize=40 width=120 height=52 bits=1  (NOpenBMPFile)
+	debug. imageSize=832 xResolution=2835 yResolution=2835 colors=2  (NOpenBMPFile)
+	debug. bWidth=15 bWidthWithPad=16 height=52 nBytesToRead=832  (DrawDynamicPalette)
+	debug. DynPal  0: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+	debug.         1: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+	debug.         2: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+	debug.         3: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+	debug.         4: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+	debug.         5: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff 00
+	debug.         6: ff ff ff ff   ff ff ff ff   ff ff 1f ff   ff ff ff 00
+	debug.         7: ff 3f ff f9   cf ff e7 39   ff ff 2f ff   ff ff ff 00
+	debug. DrawBMP: bmpRect tlbr=14,160,66,280 nBotRow=0 bWPadded=16 startLoc=0
+	debug. DrawRows: nBotRow=0 startLoc=0 patNum=0 xStart=162 yTop=57
+	debug.           patternArr[]=00 00 00 00 00 00 00 00					// 1st bytes of rows 0-7
+	debug. DrawRows: nBotRow=0 startLoc=0 patNum=1 xStart=162 yTop=57
+	debug.           patternArr[]=c0 00 00 00 00 00 00 00					// 2nd bytes of rows 0-7
+					 COMPLEMENT:  3f ff ff ff ff ff ff ff 
+	debug. DrawRows: nBotRow=0 startLoc=0 patNum=2 xStart=162 yTop=57
+	debug.           patternArr[]=00 00 00 00 00 00 00 00					// 3rd bytes of rows 0-7
+	debug. DrawBMP: bmpRect tlbr=14,160,66,280 nBotRow=8 bWPadded=16 startLoc=128
+	debug. DrawRows: nBotRow=8 startLoc=128 patNum=0 xStart=162 yTop=49
+	debug.           patternArr[]=00 00 00 00 00 00 00 00					// 1st bytes of rows 8-15
+	debug. DrawRows: nBotRow=8 startLoc=128 patNum=1 xStart=162 yTop=49
+	debug.           patternArr[]=0c 0c 3e 18 18 10 30 a0					// 2nd bytes of rows 8-15
+					 COMPLEMENT:  f3 f3 c1 e7 e7 ef cf 5f 
+	debug. DrawRows: nBotRow=8 startLoc=128 patNum=2 xStart=162 yTop=49
+	debug.           patternArr[]=00 00 00 00 00 00 00 00
+	debug. DrawBMP: bmpRect tlbr=14,160,66,280 nBotRow=16 bWPadded=16 startLoc=256
+	debug. DrawRows: nBotRow=16 startLoc=256 patNum=0 xStart=162 yTop=41
+	debug.           patternArr[]=00 00 00 00 00 00 00 00
+	debug. DrawRows: nBotRow=16 startLoc=256 patNum=1 xStart=162 yTop=41
+	debug.           patternArr[]=00 00 00 00 00 00 03 05
+					 COMPLEMENT:  ff ff ff ff ff ff fc fa 
+	debug. DrawRows: nBotRow=16 startLoc=256 patNum=2 xStart=162 yTop=41
+	debug.           patternArr[]=00 00 00 00 00 00 00 00
+	
+??
+	DynPal row 7:	0c 0c 3e 18 18 10 30 a0
+	complement:		f3 f3 c1 e7 e7 ef cf 5f
+
+This is a real mess! I'm sure I could debug it eventually, but why not redesign to use the
+one-row-at-a-time approach DPrintRow() uses? DPrintRow already works!

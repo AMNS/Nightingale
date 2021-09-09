@@ -9,7 +9,7 @@
 /* File DebugDisplay.c - printing functions for the Debug command and debugging in general:
 	KeySigSprintf			DKeySigPrintf			DisplaySubobjects
 	DisplayObject			MemUsageStats			DisplayIndexNode
-	DHexDump
+	DHexDump				NObjDump				DPrintRow
 */
 
 #include "Nightingale_Prefix.pch"
@@ -353,9 +353,9 @@ void DisplayObject(Document *doc, LINK objL,
 				Boolean nonMain				/* Somewhere besides doc's main object list? */
 				)
 {
-	PMEVENT			p;
-	char			selFlag;
-	const char		*ps;
+	PMEVENT		p;
+	char		selFlag;
+	const char	*ps;
 
 #ifdef DDB
 	PushLock(OBJheap);
@@ -609,7 +609,7 @@ void DHexDump(short logLevel,
 {
 	long pos;
 	unsigned short n, lineNum;
-	char blankLabel[256], blankLabelC[256], str[256], labelC[256], lineNumStr[10];
+	char blankLabel[256], blankLabelC[256], labelC[256], lineNumStr[10];
 	Boolean firstTime=True;
 	
 	if (strlen(label)>255 || nPerLine>255) {
@@ -698,7 +698,6 @@ void NObjDump(char *label, short nFrom, short nTo)
 		if (HeapLinkIsFree(objHeap, pL)) {
 			LogPrintf(LOG_DEBUG, "NObjDump: %s: heap object %d (link %u) isn't in use.\n",
 						label, m, pL);
-//LogPrintf(LOG_DEBUG, "NObjDump1: pL=%u type=%d\n", pL, ObjLType(pL));
 			continue;
 		}
 
@@ -744,8 +743,6 @@ void DPrintRow(Byte bitmap[], short nRow, short bWidth, short startLoc,
 //printf("(%d %02x)", startLoc+k, bitmap[startLoc+k]);
 		for (short bn = 0; bn<8; bn++) {
 			char backgroundChar = '.';
-			
-			/* It seems that 1 = white (background), 0 = black in the BMPs I have. */
 			
 			Boolean aBit = !((bitmap[startLoc+k]>>(7-bn)) & 0x01);
 			if (skipBits) {

@@ -319,7 +319,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>1570B7B026DBE30600A2D57D</string>
+										<string>15911B6426E9784F00149886</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -506,7 +506,7 @@
 											<string>1570B7A626DBCADD00A2D57D</string>
 											<string>1570B7A726DBCADD00A2D57D</string>
 											<string>1570B7A826DBCADD00A2D57D</string>
-											<string>1570B7A926DBCADD00A2D57D</string>
+											<string>1570B7B026DBE30600A2D57D</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -637,8 +637,6 @@
 											<string>1554545026DAFA1400FF8EB0</string>
 											<string>1570B7AA26DBCADD00A2D57D</string>
 											<string>1570B7AB26DBCADD00A2D57D</string>
-											<string>1570B7AC26DBCADD00A2D57D</string>
-											<string>1570B7AD26DBCADD00A2D57D</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -696,9 +694,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>1570B79626DBC0C200A2D57D</string>
+				<string>15911B6526E9784F00149886</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>1570B79726DBC0C200A2D57D</string>
+				<string>15911B6626E9784F00149886</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -835,7 +833,6 @@
 	<key>WindowOrderList</key>
 	<array>
 		<string>15F6E0CD16DFC116001A5B50</string>
-		<string>1C530D57069F1CE1000CFCEE</string>
 		<string>1C0AD2B3069F1EA900FABCE6</string>
 		<string>/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/NightingaleIntel.xcodeproj</string>
 	</array>
@@ -917,7 +914,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>1570B79826DBC0C200A2D57D</string>
+				<string>15911B6726E9784F00149886</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -1279,9 +1276,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>1570B79926DBC0C200A2D57D</string>
+				<string>15911B6826E9784F00149886</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>1570B79A26DBC0C200A2D57D</string>
+				<string>15911B6926E9784F00149886</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

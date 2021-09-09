@@ -2062,18 +2062,19 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
 }
 
 
-/* --------------------------------------------------------------------------- DrawBMP -- */
+/* --------------------------------------------------------------- DrawBMP and friends -- */
+
+#define MAX_BITMAP_WIDTH 2000
+
+Byte patBits[8][MAX_BITMAP_WIDTH];
 
 /* Draw eight rows of 1-bit pixels by converting each 8x8 array of pixels to a Pattern and
-filling a 8x8-pixel Rect with the Pattern. We assume 0 = black and 1 = white (since that's
-what our BMPs are, I don't know why). */
+filling a 8x8-pixel Rect with the Pattern. We assume 0 = black and 1 = white. */
 
-static void DrawRows(Byte bmpBits[], short nBotRow, short bWidth, short bWPadded,
-				short startLoc, Rect bmpRect);
-static void DrawRows(Byte bmpBits[], short nBotRow, short bWidth, short bWPadded,
-				short startLoc, Rect bmpRect)
+static void DrawRows(short nBotRow, short bWidth, Rect bmpRect);
+static void DrawRows(short nBotRow, short bWidth, Rect bmpRect)
 {
-	short xStart, xLeft, yTop, locOffset;
+	short xStart, xLeft, yTop;
 	Rect aRect;
 	union {
 		Pattern aPattern;
@@ -2081,55 +2082,123 @@ static void DrawRows(Byte bmpBits[], short nBotRow, short bWidth, short bWPadded
 	};
 
 	xStart = bmpRect.left+2;
-	// ??FOR TESTING ONLY! MUST BE JUST -nBotRow
-	//yTop = bmpRect.top+4+((nBotRow/8)*9);
 	yTop = bmpRect.bottom-9-nBotRow;
 //LogPrintf(LOG_DEBUG, "DrawRows: xStart=%d yTop=%d\n", xStart, yTop);
 
-	for (short patNum = 0; patNum<bWidth; patNum++) {
-		for (short bn=0; bn<=7; bn++) {
-			locOffset = (8*patNum)+(bWPadded*bn);			// ??OR JUST patNum+ ?
-			locOffset = patNum+(bWPadded*bn);
-			patternArr[7-bn] = ~bmpBits[startLoc+locOffset];
-LogPrintf(LOG_DEBUG, "DrawRows: patNum=%d bn=%d startLoc=%d locOffset=%d patternArr[]=%02x\n",
-patNum, bn, startLoc, locOffset, patternArr[7-bn]);
+	//for (short patNum = 0; patNum<bWidth; patNum++) {
+	for (short patNum = 0; patNum<2; patNum++) {				// ??? TEST!!!!!!!!!
+		for (short rowN=0; rowN<=7; rowN++) {
+			patternArr[7-rowN] = 0x0;
+			for (short colN=0; colN<=7; colN++) {
+				Boolean aBit = patBits[rowN][8*patNum+colN]<<(7-colN);			
+				patternArr[7-rowN] |= aBit;
+LogPrintf(LOG_DEBUG, "DrawRows: patNum=%d rowN=%d aBit=%d patternArr[%d]=%02x\n",
+patNum, rowN, aBit, 7-rowN, patternArr[7-rowN]);
+			}
 		}
-#if 13
-LogPrintf(LOG_DEBUG, "DrawRows: nBotRow=%d startLoc=%d patNum=%d xStart=%d yTop=%d patternArr[0:3]=%02x,%02x,%02x,%02x\n",
-nBotRow, startLoc, patNum, xStart, yTop, patternArr[0], patternArr[1], patternArr[2], patternArr[3]);
-		// ??FOR TESTING ONLY!
-		//short colors[4] = { greenColor, redColor, cyanColor, magentaColor };
-		//ForeColor(colors[patNum%4]);
-#endif
+
 		xLeft = xStart+8*patNum;
+LogPrintf(LOG_DEBUG, "DrawRows: nBotRow=%d patNum=%d xLeft=%d yTop=%d\n",
+nBotRow, patNum, xLeft, yTop);
+LogPrintf(LOG_DEBUG, "          patternArr[]=%02x %02x %02x %02x %02x %02x %02x %02x\n",
+patternArr[0], patternArr[1], patternArr[2], patternArr[3], patternArr[4], patternArr[5],
+patternArr[6], patternArr[7]);
 		SetRect(&aRect, xLeft, yTop, xLeft+8, yTop+8);
 		FillRect(&aRect, &aPattern);
 	}
 }
 
 
+static short patRow;
+
+/* Draw a row of 1-bit flags from a BMP file to display a bitmap. We actually just
+accumulate rows in <patBits> until we have eight, then call DrawRows. This is because we
+assume DrawRows uses Patterns, which are always 8x8 pixels.
+
+Say the image is 120 pixels wide; then bWidth = 15 (bytes). Rows of pixels in a BMP are
+padded to a multiple of 4 bytes, so each row occupies 16 bytes. The lower-left corner
+Pattern is composed of bits from the given locations in the file (m.n = nth bit from the
+right in the byte at offset m):
+
+	112.7 112.6 112.5 112.4 112.3 112.2 112.1 112.0
+	96.7  96.6  96.5  96.4  96.3  96.2  96.1  96.0
+	80.7  80.6  80.5  80.4  80.3  80.2  80.1  80.0
+	64.7  64.6  64.5  64.4  64.3  64.2  64.1  64.0
+	48.7  48.6  48.5  48.4  48.3  48.2  48.1  48.0
+	32.7  32.6  32.5  32.4  32.3  32.2  32.1  32.0
+	16.7  16.6  16.5  16.4  16.3  16.2  16.1  16.0
+	0.7   0.6   0.5   0.4   0.3   0.2   0.1   0.0
+
+*/
+
+static void DrawRow(Byte bitmap[], short nRow, short bWidth, short startLoc,
+			Boolean foreIsAOne, Rect bmpRect);
+static void DrawRow(Byte bitmap[], short nRow, short bWidth, short startLoc,
+			Boolean foreIsAOne,								/* Is a 1 bit foreground? */
+			Rect bmpRect)
+{
+LogPrintf(LOG_DEBUG, "DrawRow: patRow=%d bWidth=%d bitmap[22]=%02x bitmap[113]=%02x\n", patRow,
+bWidth, bitmap[22], bitmap[113]);
+	for (short k = 0; k<bWidth; k++) {
+		for (short bitN = 0; bitN<8; bitN++) {
+#if 0
+			Byte aBit = (Byte)(bitmap[startLoc+k]>>(7-bitN)) & 0x01;
+			if (foreIsAOne)	patBits[patRow][k] = aBit;
+			else			patBits[patRow][k] = ~aBit;
+#else
+			Byte aBit, otherBit;
+			aBit = (Byte)(bitmap[startLoc+k]>>(7-bitN));
+			otherBit = aBit & 0x01;
+			patBits[patRow][k] = otherBit;
+//			if (bitmap[startLoc+k]>>(7-bitN) & 0x01) patBits[patRow][k] = 1;
+//			else patBits[patRow][k] = 0;
+//			if (foreIsAOne)	patBits[patRow][k] = 1-patBits[patRow][k];
+#endif
+if (bitN==7)
+LogPrintf(LOG_DEBUG, "DrawRow: patRow=%d startLoc=%d k=%d bitmap[]=%02x >>=%02x &=%02x patBits[]=%01x %01x %01x %01x %01x %01x %01x %01x\n",
+patRow, startLoc, k, bitmap[startLoc+k],
+aBit, otherBit,
+patBits[patRow][0], patBits[patRow][1], patBits[patRow][2], patBits[patRow][3],
+patBits[patRow][4], patBits[patRow][5], patBits[patRow][6], patBits[patRow][7]);
+else
+LogPrintf(LOG_DEBUG, "DrawRow: patRow=%d startLoc=%d k=%d bitmap[]=%02x >>=%02x &=%02x\n",
+patRow, startLoc, k, bitmap[startLoc+k],
+//bitmap[startLoc+k]>>(7-bitN), (Byte)(bitmap[startLoc+k]>>(7-bitN)) & 0x01,
+aBit, otherBit);
+SleepMS(1);
+		}
+		if (patRow==7) {
+			DrawRows(nRow, bWidth, bmpRect);
+			patRow = 0;
+		}
+	}
+	
+	patRow++;
+}
+
+
 /* Draw the image <bmpBits>, which is assumed to be black-and-white (one bit per pixel). */
 
-void DrawBMP(Byte bmpBits[], short bWidth, short bWPadded, short height, Rect bmpRect)
+void DrawBMP(Byte bmpBits[], short bWidth, short bWidthPadded, short height, Rect bmpRect)
 {
 	short startLoc;
+	
+	patRow = 0;
 	
 	/* Images in BMPs are stored "upside down": the first row of bytes represents the
 	   bottom row of pixels and the last row of bytes represents the top row. */
 	
-	//for (short nBotRow = height-1; nBotRow>=0; nBotRow = nBotRow-8) {
-	for (short nBotRow = 0; nBotRow<=height; nBotRow += 8) {
-	//for (short nBotRow = 0; nBotRow<=16; nBotRow += 8) {				// ??TEST DRAW JSUT A FEW ROWS!!!
-		startLoc = nBotRow*bWPadded;
-		//startLoc = (nBotRow*bWPadded)/8;
-LogPrintf(LOG_DEBUG, "bmpRect tlbr=%d,%d,%d,%d nBotRow=%d bWPadded=%d startLoc=%d\n",
-bmpRect.top, bmpRect.left, bmpRect.bottom, bmpRect.right,
-nBotRow, bWPadded, startLoc);
-		DrawRows(bmpBits, nBotRow, bWidth, bWPadded, startLoc, bmpRect);
+	//for (short nRow = height-1; nRow>=0; nRow--) {
+	for (short nRow = 16; nRow>=0; nRow--) {				// ???TEST !!!!!!!!!!
+		startLoc = nRow*bWidthPadded;
+
+		/* It seems that 1 = white (background), 0 = black in the BMPs I have. */
+			
+DPrintRow(bmpBits, nRow, bWidth, startLoc, False, False);
+printf("\n");
+		DrawRow(bmpBits, nRow, bWidth, startLoc, False, bmpRect);
 	}
 }
-
-
 
 
 /* ------------------------------------------------------------------------ TempoGlyph -- */

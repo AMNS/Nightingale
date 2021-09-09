@@ -267,15 +267,16 @@ pascal void DrawToolPalette(Rect *r)
 	
 	src = port;
 	OffsetRect(&src, -src.left, -src.top);
-	const BitMap *palPortBits = GetPortBitMapForCopyBits(toolPalPort);
-	const BitMap *thePortBits = GetPortBitMapForCopyBits(GetQDGlobalsThePort());
-	CopyBits(palPortBits, thePortBits, &src, &port, srcCopy, NULL);
+	CopyOffScreenBitsToWindow(toolPalPort, GetQDGlobalsThePort(), src, port);
+#if USELESS_FOR_DEBUGGING
 { Rect portRect;
 long len = 1000; GetPortBounds(toolPalPort, &portRect);
+const BitMap *palPortBits = GetPortBitMapForCopyBits(toolPalPort);
 LogPrintf(LOG_DEBUG, "DrawToolPalette: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
 len, MemBitCount((unsigned char *)palPortBits, len),
 portRect.top, portRect.left, portRect.bottom, portRect.right);
 }
+#endif
 
 	/* Add frame surrounding picture */
 	

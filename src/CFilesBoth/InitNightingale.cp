@@ -25,8 +25,7 @@ static Boolean	InitNightGlobals(void);
 static Boolean	InitTables(void);
 static void 	DisplayInfo(void);
 static void 	CheckScreenFonts(void);
-static void		InitMusicFonts(void);
-static void 	CheckUIFonts(void);
+static void		InitMusicFontStuff(void);
 static Boolean	InitMIDISystem(void);
 
 void InitNightingale()
@@ -41,8 +40,7 @@ void InitNightingale()
 	
 	if (!InitTables()) NExitToShell("Init Tables");
 	DisplayInfo();
-	InitMusicFonts();
-	CheckUIFonts();
+	InitMusicFontStuff();
 	if (!InitMIDISystem()) NExitToShell("Init MIDI");
 }
 
@@ -326,7 +324,7 @@ static Boolean InitMusFontTables()
 			//if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG,
 			//		"InitMusFontTables: ch=%c=%u yt=%d yb=%d\n", ch, ch, yt, yb);
 #endif
-			if (ch<256)
+			if (ch>=0 && ch<256)
 				SetRect(&musFontInfo[index].cBBox[ch], xl, yt, xr, yb);
 			else
 				MayErrMsg("Info on font '%s' refers to illegal char code %u.  (InitMusFontTables)\n",
@@ -535,7 +533,7 @@ static void CheckScreenFonts()
 bitmap for drawing music characters in style other than black; and check for presence
 of and initialize screen fonts. */
 
-void InitMusicFonts()
+void InitMusicFontStuff()
 {
 #ifdef NOMORE
 	/* This code hasn't been used since v. 5.7, if not longer; still, it seems worth
@@ -565,55 +563,6 @@ void InitMusicFonts()
 #endif
 
 	CheckScreenFonts();
-}
-
-
-/* Check if the user-interface fonts are present and report what we find. NB: Nightingale
-actually gets the names of the fonts from 'chgd' resources. The compiled-in font names
-this checks for may not be correct! But I tried to get the names from the resources;
-that mysteriously failed, and it's not worth much time, since they'll change only once
-in many blue moons. ??FIX! USE DUR_MENU_FONTNAME ETC., NOT 'chgd'!! */
-
-static void CheckUIFonts()
-{
-	short fontNum;
-	Str255 durMenuFontname, dynModMenuFontname;
-	char fontNameC[256];
-	Boolean missingFont=False;
-#if 0
-	Handle resH;
-	PCHARGRID chgdP;
-	
-	resH = Get1Resource('chgd', NODOTDUR_MENU);
-	if (resH==NULL)	return False;
-	chgdP = (PCHARGRID)*resH;
-	Pstrcpy((unsigned char *)fontNameC, chgdP->fontName);
-	ETC. ETC.
-#else
-	Pstrcpy(durMenuFontname, DUR_MENU_FONTNAME);
-	Pstrcpy(dynModMenuFontname, DYNMOD_MENU_FONTNAME);
-#endif
-
-	/* Duration font, for Set Duration command graphic pop-up (NODOTDUR_MENU & ff. resources) */
-	
-	if (!GetFontNumber(durMenuFontname, &fontNum)) {
-		Pstrcpy((unsigned char *)fontNameC, durMenuFontname);
-		LogPrintf(LOG_WARNING, "UI font '%s' for Set Duration not found.  (CheckUIFonts)\n",
-			PToCString((unsigned char *)fontNameC));
-		missingFont = True;
-	}
-
-	/* Dynamics and note modifers font, for change dynamic and Add Modifier graphic pop-ups
-	   (DYNAMIC_MENU and MODIFIER_MENU resources) */
-
-	if (!GetFontNumber(dynModMenuFontname, &fontNum)) {
-		Pstrcpy((unsigned char *)fontNameC, dynModMenuFontname);
-		LogPrintf(LOG_WARNING, "UI font '%s' for [change dynamic] & Add Modifier not found.  (CheckUIFonts)\n",
-			PToCString((unsigned char *)fontNameC));
-		missingFont = True;
-	}
-
-	if (!missingFont) LogPrintf(LOG_NOTICE, "Found all User Interface fonts.  (CheckUIFonts)\n");
 }
 
 
