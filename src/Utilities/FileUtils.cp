@@ -12,7 +12,6 @@
 #include "Nightingale.appl.h"
 
 #include "CarbonPrinting.h"
-#include "FileUtils.h"
 
 /*  Created by Michel Alexandre Salim on 2/4/08.FIXME: This gets a compiler warning
 "'#' flag used with '%s' printf format", and for years it's been called only in

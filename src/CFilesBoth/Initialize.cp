@@ -18,7 +18,6 @@
 #include "Nightingale.appl.h"
 
 #include "Endian.h"
-#include "FileUtils.h"
 #include "GraphicMDEF.h"
 
 /* Private routines */
@@ -1498,7 +1497,7 @@ DHexDump(LOG_DEBUG, "ToolPal", bitmapTools, 8*16, 4, 16, True);
 	//CopyOffScreenBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
 	ForeColor(blueColor);
 	SetRect(&maxToolsRect, 0, 0, 300, 300);
-	DrawBMP(bitmapTools, bWidth, bWidthWithPad, height, maxToolsRect);
+	//DrawBMP(bitmapTools, bWidth, bWidthWithPad, height, maxToolsRect);	// ??SKIP WHILE DEBUGGING DYNAMIC PALETTE
 	toolPalPort = gwPtr;
 {
 PixMapHandle portPixMapH = GetPortPixMap(toolPalPort); PixMapPtr portPixMap = *portPixMapH;
@@ -1581,6 +1580,7 @@ static Boolean NInitPaletteWindows()
 		
 		switch(idx) {
 			case TOOL_PALETTE:
+			
 				if (!InitToolPalette(whichPalette, &windowRects[idx])) return False;
 				wdefID = ToolPaletteWDEF_ID;
 				break;
@@ -1593,18 +1593,16 @@ static Boolean NInitPaletteWindows()
 
 		wdefID = floatGrowProc;
 		
-		palettes[idx] = (WindowPtr)NewCWindow(NULL, &windowRects[idx],
-								"\p", False, wdefID, BRING_TO_FRONT, True,
-								(long)idx);
+		palettes[idx] = (WindowPtr)NewCWindow(NULL, &windowRects[idx], "\p", False,
+								wdefID, BRING_TO_FRONT, True, (long)idx);
 		if (!GoodNewPtr((Ptr)palettes[idx])) return False;
 	
 		//	((WindowPeek)palettes[idx])->spareFlag = (idx==TOOL_PALETTE || idx==HELP_PALETTE);
 		
 		/* Add a zoom box to tools and help palette */
 		
-		if (idx==TOOL_PALETTE || idx==HELP_PALETTE) {
+		if (idx==TOOL_PALETTE || idx==HELP_PALETTE)
 			ChangeWindowAttributes(palettes[idx], kWindowFullZoomAttribute, kWindowNoAttributes);
-		}
 
 		/* Finish initializing the TearOffMenuGlobals structure. */
 		

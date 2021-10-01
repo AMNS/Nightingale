@@ -15,7 +15,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 #include "CarbonPrinting.h"
-#include "FileUtils.h"
 #include "MidiMap.h"
 
 
@@ -163,7 +162,7 @@ static long GetFreeSpace(Document *doc, long *vAlBlkSize)
 	err = vInfo.volumeParam.ioResult;
 	if (err==noErr) {
 		vFreeSpace = ((unsigned short)vInfo.volumeParam.ioVFrBlk) * 
-                                   vInfo.volumeParam.ioVAlBlkSiz;
+										vInfo.volumeParam.ioVAlBlkSiz;
 		*vAlBlkSize = vInfo.volumeParam.ioVAlBlkSiz;
 		return vFreeSpace;
 	} 

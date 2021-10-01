@@ -1,8 +1,8 @@
 /****************************************************************************************
 	FILE:	Preferences.c
 	PROJ:	Nightingale
-	DESC:	Routines for handling a text preferences file, i.e., a text file
-			containing a list of key value pairs in the format
+	DESC:	Routines for handling a text preferences file, i.e., a text file containing
+			a list of key value pairs in the format
 				key=value
 			Nomenclature follows that of config file routines in Initialize.c .
 			NB: THIS IS REALLY A WORK IN PROGRESS, but there are already calls to
@@ -27,7 +27,6 @@
 #include "Notelist.h"
 
 // MAS #include <Fsp_fopen.h>
-#include "FileUtils.h"
 
 static short rfVRefNum;
 static long rfVolDirID;
@@ -43,9 +42,8 @@ typedef struct {
 	char *value;
 } KeyValuePair;
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Local prototypes */
-
 
 
 /*

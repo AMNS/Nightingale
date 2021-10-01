@@ -16,7 +16,6 @@
 #include "Nightingale.appl.h"
 #include "FileConversion.h"			/* Must follow Nightingale.precomp.h! */
 #include "CarbonPrinting.h"
-#include "FileUtils.h"
 #include "MidiMap.h"
 
 

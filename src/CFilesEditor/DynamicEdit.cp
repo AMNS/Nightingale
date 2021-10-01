@@ -1,12 +1,12 @@
 /* DynamicEdit.c for Nightingale - formerly DynamicPopUp, for use with accompanying graphic
-MDEF. ??NEED TO USE A BMP, PROBABLY NON-POPUP! */
+MDEF; it now uses a BMP displayed in its entirety.  */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2016-21 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 /* Includes code for managing key presses that select from a popup menu of dynamics.
@@ -16,7 +16,6 @@ when user double-clicks a dynamic.                      -- John Gibson, 8/5/00 *
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
-#include "FileUtils.h"				// ??TEMPORARY! ADD THIS TO Nightingale_Prefix.pch!
 
 
 /* -------------------------------------------------------------------------------------- */
@@ -51,14 +50,14 @@ static Boolean DrawDynamicPalette(Rect *pBox)
 		return False;
 	}
 	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
-		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file failed.  (DrawDynamicPalette)\n",
-					pixOffset);
+		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file '%s' failed.  (DrawDynamicPalette)\n",
+					pixOffset, DYNAMIC_PALETTE_FN);
 		return False;
 	}
 
 	nBytesToRead = bWidthPadded*height;
-	LogPrintf(LOG_DEBUG, "bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (DrawDynamicPalette)\n",
-		bWidth, bWidthPadded, height, nBytesToRead);
+LogPrintf(LOG_DEBUG, "DrawDynamicPalette: bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d\n",
+bWidth, bWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (DrawDynamicPalette)\n",
 					nBytesToRead, BITMAP_SPACE);
@@ -77,17 +76,63 @@ DHexDump(LOG_DEBUG, "DynPal", bitmapPalette, 8*16, 4, 16, True);
 }
 
 
+#define NROWS 2		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
+#define NCOLS 5		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
+
+static Rect dynamicCell[NROWS*NCOLS];
+
+static void InitDynamicCells(Rect *pBox);
+static void InitDynamicCells(Rect *pBox)
+{
+	short cellWidth, cellHeight, cellNum;
+	
+	cellWidth = (pBox->right-pBox->left)/NCOLS;
+	cellHeight = (pBox->bottom-pBox->top)/NROWS;
+LogPrintf(LOG_DEBUG, "InitDynamicCells: cellWidth=%d cellHeight==%d\n", cellWidth, cellHeight);
+
+	for (short rn = 0; rn<NROWS; rn++)
+		for (short cn = 0; cn<NCOLS; cn++) {
+			cellNum = (NCOLS*rn) + cn;
+			dynamicCell[cellNum].top = cellHeight*rn;
+			dynamicCell[cellNum].left = cellWidth*cn;
+			dynamicCell[cellNum].bottom = dynamicCell[cellNum].top+cellHeight;
+			dynamicCell[cellNum].right = dynamicCell[cellNum].left+cellWidth;
+LogPrintf(LOG_DEBUG, "InitDynamicCells: rn=%d cn=%d cellNum=%d dynamicCell tlbr=%d,%d,%d,%d\n",
+rn, cn, cellNum, dynamicCell[cellNum].top, dynamicCell[cellNum].left,
+dynamicCell[cellNum].bottom, dynamicCell[cellNum].right);
+		}
+}
+
 static short FindDynamicCell(Point where, Rect *pBox);
 static short FindDynamicCell(Point where, Rect *pBox)
 {
-	short xBox, yBox, rowNum, colNum, cellNum;
+	short xInBox, yInBox, cellNum, tryCell;
 	
-	xBox = where.h - pBox->left;
-	yBox = where.v - pBox->top;
-	rowNum = (yBox>20? 1 : 0);
-	colNum = (xBox>40? 3 : 2);
+	xInBox = where.h - pBox->left;
+	yInBox = where.v - pBox->top;
+#if 1
+	cellNum = -1;
+	for (short rn = 0; rn<NROWS; rn++)
+		for (short cn = 0; cn<NCOLS; cn++) {
+			tryCell = (NCOLS*rn) + cn;
+			if (yInBox<dynamicCell[tryCell].top) continue;
+			if (xInBox<dynamicCell[tryCell].left) continue;
+			if (yInBox>=dynamicCell[tryCell].bottom) continue;
+			if (xInBox>=dynamicCell[tryCell].right) continue;
+			cellNum = tryCell;  break;
+		}
+#else
+	rowNum = (yInBox>20? 1 : 0);
+	colNum = (xInBox>40? 3 : 2);
 	cellNum = (5*rowNum) + colNum;
-LogPrintf(LOG_DEBUG, "xBox=%d yBox=%d cellNum=%d\n", xBox, yBox, cellNum);
+#endif
+
+LogPrintf(LOG_DEBUG, "FindDynamicCell: xInBox=%d yInBox=%d cellNum=%d\n", xInBox, yInBox, cellNum);
+	if (cellNum<0) {
+		LogPrintf(LOG_WARNING, "Can't find cell for where=(%d,%d) xInBox=%d yInBox=%d.  (FindDynamicCell)\n",
+					where.h, where.v, xInBox, yInBox);
+		cellNum = 1;
+	}
 	return cellNum;
 }
 
@@ -131,13 +176,19 @@ box.right);
 			break;
 		case mouseDown:
 		case mouseUp:
+			Rect newCell;
 			where = evt->where;
 			GlobalToLocal(&where);
 #if 13
 			GetDialogItem(dlog, DYNAM_CHOICES_DI, &type, &hndl, &box);
 			if (PtInRect(where, &box)) {
-				dynamicIdx = FindDynamicCell(where, &box);
-				//		??HILIGHT THE CELL!
+				if (evt->what==mouseUp) {
+					/* Unhilite the previously-selected cell and hilite the new one. */
+					dynamicIdx = FindDynamicCell(where, &box);
+					newCell = dynamicCell[dynamicIdx];
+					OffsetRect(&newCell, box.left, box.top);
+					InvertRect(&newCell);
+				}
 				SysBeep(1);
 #else
 			if (PtInRect(where, &curPop->box)) {
@@ -199,6 +250,7 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 
 	GetDialogItem(dlog, DYNAM_CHOICES_DI, &type, &hndl, &box);
 #if 13
+	InitDynamicCells(&box);
 #else
 	if (!InitGPopUp(&dynamicPop, TOP_LEFT(box), DYNAMIC_MENU, 1)) goto broken;
 	popKeysDynamic = InitDynamicPopupKey(&dynamicPop);

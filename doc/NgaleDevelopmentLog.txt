@@ -10298,12 +10298,16 @@ are 8x8. Change code accordingly => absolutely no visible effect!?
 
 ---------------------------------------------------------------------------------------
 
-17 Aug. - 4 Sept.:
+17 - 29 Aug.
 
 Let's work on converting one of the UI-font-dependent dialogs to use a BMP: the "change
 dynamic" one. Rename DynamicPopUp.cp to DynamicEdit.cp; remove the code for handling the pop-up;
 enlarge the user item in the DLOG to the size of the image, 120x52. Etc. => double-click
 dynamic => shows dynamics in the user item readably but with a lot of distortion.
+
+---------------------------------------------------------------------------------------
+
+1 - 8 Sept.
 
 Add stmts to DrawBMP and DrawRows => ovewhelming detail w/ no obvious reason for the distortion!
 Have DrawBMP just draw the bottom three sets of 8 rows:
@@ -10365,3 +10369,57 @@ Results: As expected, draws just the distorted "f". Log output w/ bit-by-bit com
 
 This is a real mess! I'm sure I could debug it eventually, but why not redesign to use the
 one-row-at-a-time approach DPrintRow() uses? DPrintRow already works!
+
+Redesign done; test => yeech! Very different, but totally wrong; it's not even recognizable
+now :-( .
+
+---------------------------------------------------------------------------------------
+
+9 - 17 Sept.
+
+The problem certainly seems to be in DrawRow. Doug McKenna sez I'm using the rows/columns of
+patBits inconsistently in DrawRow()! The declaration is
+
+	Byte patBits[8][MAX_BITMAP_WIDTH];
+
+So the 1st subscript is the row number (not bit number within a byte); the 2nd is the Pattern
+number within rows -- and it's completely consistent. No, that's not it. Lines from
+DrawDynamicPaletteLog3.txt:
+
+	line 24: patRow=0 startLoc=256 k=0 bitN=7 bitmap[]=ff >>=ff &=01 patBits[]=1 1 1 1 1 1 1 1
+	line 32: patRow=0 startLoc=256 k=1 bitN=7 bitmap[]=fa >>=fa &=00 patBits[]=1 0 1 1 1 1 1 1
+	line 40: patRow=0 startLoc=256 k=2 bitN=7 bitmap[]=ff >>=ff &=01 patBits[]=1 0 1 1 1 1 1 1
+	line 48: patRow=0 startLoc=256 k=3 bitN=7 bitmap[]=ff >>=ff &=01 patBits[]=1 0 1 1 1 1 1 1
+
+The bitmap[] values are 0xff, 0xfa, 0xff, 0xff; but the patBits[] are the same for lines 32, 40,
+and 48, and they're correct for 0xfd (or bf?), not fa _or_ ff! ??
+
+Ah! Doug points out line 2152 is
+
+	patBits[patRow][k] = otherBit;
+
+-- but it's inside these two loops:
+
+	for (short k = 0; k<bWidth; k++) {
+		for (short bitN = 0; bitN<8; bitN++) {
+
+So inside the inner loop <k> doesn't change! The subscript should be <bitN>, viz.
+
+	patBits[patRow][bitN] = otherBit;
+
+!! OK, but I _still_ don't have a recognizable image.
+
+After much fiddling around, Doug realized that QuickDraw aligns the Pattern with the
+underlying coordinates of the port, so it won't look the same at any given origin. That's
+unacceptable, so we can't use Patterns! A brand-new approach:
+
+	/* Brute force draw every horizontal sequence of black (0) pixels as a line, in rows from
+	   bottom to top. Leave the white (1) pixels untouched (this implies entire bmpRect must
+	   be erased earlier). */
+	
+And it works! -- for the dynamics palette, that is. It should be trivial to use it with
+the Add Modifier and Set Duration commands, and probably also for the tool palette. Other
+changes needed for Add Modifier and Set Duration should be analogous to those for [change
+dynamic], and almost trivial. The tool palette still needs more work. And all four need
+hilighting when an "icon" is selected.
+

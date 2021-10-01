@@ -28,7 +28,6 @@
 
 // MAS
 //#include <Fsp_fopen.h>
-#include "FileUtils.h"
 // MAS
 
 /* -------------------------------------------------------------------------------------- */
@@ -78,14 +77,12 @@ PNL_NODE	gNodeList;					/* list of notelist objects, dynamically allocated */
 HNL_MOD		gHModList;					/* relocatable 1-based array of note modifiers */
 Handle		gHStringPool;				/* relocatable block of null-terminated strings */
 
-/* An ancient comment (Motorola 68000s have been gone for a long, long time):
-	"Each string in <gHStringPool> must begin at an even address, so that we won't
-	crash on 68000 machines. Therefore, strings with an even number of chars
-	(not including terminating null) will require an additional null to pad them.
-	Since we won't know how big this block must be before parsing, we will
-	have to expand it whenever we add a string. (At least this is the easiest,
-	if not the fastest, way.)"
-*/
+/* An ancient comment (Motorola 68000s have been gone for a long, long time): "Each
+string in <gHStringPool> must begin at an even address, so that we won't crash on 68000
+machines. Therefore, strings with an even number of chars (not including terminating
+null) will require an additional null to pad them. Since we won't know how big this
+block must be before parsing, we will have to expand it whenever we add a string. (At
+least this is the easiest, if not the fastest, way.)" */
 
 NLINK		gNumNLItems;				/* number of items in notelist, not including HEAD */
 NLINK		gNextEmptyNode;				/* index into gNodeList of next empty node; advanced by each parser */
@@ -1302,7 +1299,7 @@ illegal:
 }
 
 
-/* -------------------------------------------------------------- ExtractNoteMods -- */
+/* ------------------------------------------------------------------- ExtractNoteMods -- */
 /* Parses modifier strings like these:
 	mods=2				[one modifier]
 	mods=3,10,12		[multiple modifiers]
@@ -1383,13 +1380,13 @@ broken:
 
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Notelist search and utility functions */
 
-/* --------------------------------------------------------------------- NLSearch -- */
-/* Modelled on LSSearch in Search.c, but used for searching the temporary Notelist data structure.
-NB: startL is included in the search. So, for example, if <startL> is the same object type as
-<type>, then NLSearch will deliver <startL> without looking any further.
+/* -------------------------------------------------------------------------- NLSearch -- */
+/* Modelled on LSSearch in Search.c, but used for searching the temporary Notelist data
+structure. NB: startL is included in the search. So, for example, if <startL> is the same
+object type as <type>, then NLSearch will deliver <startL> without looking any further.
 If search fails to find a suitable target, returns NILINK. */
 
 NLINK NLSearch(NLINK		startL,		/* Place to start looking */
@@ -1417,7 +1414,7 @@ NLINK NLSearch(NLINK		startL,		/* Place to start looking */
 }
 
 
-/* ------------------------------------------------------------- CheckNLNoteRests -- */
+/* ------------------------------------------------------------------ CheckNLNoteRests -- */
 
 static Boolean CheckNLNoteRests(void)
 {
@@ -1435,6 +1432,7 @@ static Boolean CheckNLNoteRests(void)
 		lDur = CalcNLNoteLDur(nr1L);
 		if (lDur==0L) {
 			/* ??This and following messages refer to "notes" but apparently apply to rests too. */
+			
 			GetIndCString(fmtStr, NOTELIST_STRS, 32);	/* "Note at time %ld has bad lDur." */
 			sprintf(str, fmtStr, pNR1->lStartTime);
 			CParamText(str, "", "", ""); 
@@ -1477,7 +1475,7 @@ static Boolean CheckNLNoteRests(void)
 }
 
 
-/* --------------------------------------------------------------- CheckNLTuplets -- */
+/* -------------------------------------------------------------------- CheckNLTuplets -- */
 
 static Boolean CheckNLTuplets(void)
 {
@@ -1494,7 +1492,7 @@ static Boolean CheckNLTuplets(void)
 }
 
 
-/* -------------------------------------------------------------- CheckNLBarlines -- */
+/* ------------------------------------------------------------------- CheckNLBarlines -- */
 /* Check the barlines in the Notelist data structure for timing consistency. If any
 barline's lStartTime comes before that of the previous barline or after that of the
 following barline, give an error message and return False; else return True. */
@@ -1524,23 +1522,22 @@ static Boolean CheckNLBarlines(void)
 }
 
 
-/* -------------------------------------------------------------- CheckNLTimeSigs -- */
-/* Examine the time signatures in the Notelist data structure. We're trying to
-avoid a problem that would crop up if we simply converted all time sig. records
-into Nightingale objects. Consider a score in which there is a time signature
-change on all staves at the same time. When Ngale writes a Notelist	of such a
-score, it writes a separate time sig.	record for each staff. This would cause
-a simple-minded converter to create a separate object for each time sig., rather
-than one object with a subobject for each staff. The former arrangement would
-cause spacing problems in Nightingale -- time signatures that ought to be aligned
-vertically would have different horizontal offsets. To avoid this, we have to
-massage the Notelist data a bit. Specifically, whenever there are <gNumNLStaves>
-consecutive time sig. records in the Notelist, we set the <staff> of the first
-one to ANYONE and the <staff> of the others to NOONE. Doing so lets the converter
-create a single time sig. object with a subobject for each staff. (ConvertTimesig
-skips Notelist records whose <staff> is NOONE.) NB: The numerator and denominator
-used for all staves will be those stored into the first time sig. Return True if
-all is well, False if error. FIXME: ALWAYS RETURNS True! */
+/* ------------------------------------------------------------------- CheckNLTimeSigs -- */
+/* Examine the time signatures in the Notelist data structure. We're trying to avoid a
+problem that would crop up if we simply converted all time sig. records into Nightingale
+objects. Consider a score in which there is a time signature change on all staves at the
+same time. When Ngale writes a Notelist	of such a score, it writes a separate time
+sig. record for each staff. This would cause a simple-minded converter to create a
+separate object for each time sig., rather than one object with a subobject for each
+staff. The former arrangement would cause spacing problems in Nightingale -- time
+signatures that ought to be aligned vertically would have different horizontal offsets.
+To avoid this, we have to massage the Notelist data a bit. Specifically, whenever there
+are <gNumNLStaves> consecutive time sig. records in the Notelist, we set the <staff> of
+the first one to ANYONE and the <staff> of the others to NOONE. Doing so lets the
+converter create a single time sig. object with a subobject for each staff.
+(ConvertTimesig skips Notelist records whose <staff> is NOONE.) NB: The numerator and
+denominator used for all staves will be those stored into the first time sig. Return
+True if all is well, False if error. FIXME: ALWAYS RETURNS True! */
 
 static Boolean CheckNLTimeSigs(void)
 {
@@ -1578,7 +1575,7 @@ static Boolean CheckNLTimeSigs(void)
 }
 
 
-/* -------------------------------------------------------------- AnalyzeNLTuplet -- */
+/* ------------------------------------------------------------------- AnalyzeNLTuplet -- */
 /* Analyze the given Notelist tuplet record, fill in its <nInTuple> field, and check its
 <num> and <denom> fields for consistency with the notes that follow it. Also, fill in
 its staff field to match the staff of its first note. If error, give a message and
@@ -1674,7 +1671,7 @@ broken:
 }
 
 
-/* ----------------------------------------------------------------- NLSimpleLDur -- */
+/* ---------------------------------------------------------------------- NLSimpleLDur -- */
 /*	Given a note or rest in the Notelist data structure, return its logical duration.
 Return 0L if there's a problem. (Based on SimpleLDur in SpaceTime.c.) */
 
@@ -1688,12 +1685,12 @@ static long NLSimpleLDur(NLINK noteL)
 }
 
 
-/* --------------------------------------------------------------- CalcNLNoteLDur -- */
-/*	Compute the logical duration of a Notelist note/rest, taking into account
-tuplet membership. For whole-measure rests, return one measure's duration.
-For multibar rests, return the total duration of the meaures spanned by the rest.
-Return -1 if there is a problem with tuplet membership.
-(Based on -- but not quite analogous to -- CalcNoteLDur in SpaceTime.c.) */
+/* -------------------------------------------------------------------- CalcNLNoteLDur -- */
+/*	Compute the logical duration of a Notelist note/rest, taking into account tuplet
+membership. For whole-measure rests, return one measure's duration. For multibar rests,
+return the total duration of the meaures spanned by the rest. Return -1 if there's a
+problem with tuplet membership. (Based on -- but not quite analogous to -- CalcNoteLDur
+in SpaceTime.c.) */
 
 static long CalcNLNoteLDur(NLINK noteL)
 {
@@ -1734,7 +1731,7 @@ static long CalcNLNoteLDur(NLINK noteL)
 }
 
 
-/* ----------------------------------------------------------- ReportParseFailure -- */
+/* ---------------------------------------------------------------- ReportParseFailure -- */
 
 #define STRNUM_OFFSET 4
 
@@ -1752,10 +1749,10 @@ static void ReportParseFailure(
 }
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Functions that call Macintosh Toolbox routines. */
 
-/* ------------------------------------------------------------- NotelistVersion -- */
+/* ------------------------------------------------------------------- NotelistVersion -- */
 /* If the input file is a version of Notelist that we support, return a nonnegative
 integer version number, else return -1. Assumes that the file position indicator is at
 the top of the file. NB: This function advances the file position indicator.
@@ -1844,7 +1841,7 @@ Err:
 }
 
 
-/* -------------------------------------------------------------- PrintNotelistDS -- */
+/* ------------------------------------------------------------------- PrintNotelistDS -- */
 
 #if PRINTNOTELIST
 static void PrintNotelistDS(void)
@@ -1974,7 +1971,7 @@ static void PrintNotelistDS(void)
 #endif /* #if PRINTNOTELIST */
 
 
-/* ------------------------------------------------------------------ StoreString -- */
+/* ----------------------------------------------------------------------- StoreString -- */
 /*	Store the C-string <str> into our string pool handle, gHStringPool. If <str> contains
 an even number of bytes, not including its terminating null, add one extra null byte
 at the end. (This is to avoid odd address accesses on 68000 Macs.)
@@ -2018,7 +2015,7 @@ static NLINK StoreString(char str[])
 }
 
 
-/* ------------------------------------------------------------------ FetchString -- */
+/* ----------------------------------------------------------------------- FetchString -- */
 /*	Make a copy of the C-string beginning at <offset> bytes from the start of gHStringPool.
 Copy into <str>, which must be large enough to hold MAX_CHARS (including terminating null).
 Returns False if <offset> is odd or out of range; otherwise returns True.
@@ -2047,7 +2044,7 @@ Boolean FetchString(NLINK	offset,		/* offset of requested string from start of g
 }
 
 
-/* ---------------------------------------------------------------- StoreModifier -- */
+/* --------------------------------------------------------------------- StoreModifier -- */
 /*	Store the given note modifier in gHModList, first expanding the block to accommodate it.
 Return index into this 1-based array if ok, NILINK if error. */
 
@@ -2075,7 +2072,7 @@ static NLINK StoreModifier(PNL_MOD pMod)
 }
 
 
-/* ---------------------------------------------------------------- FetchModifier -- */
+/* --------------------------------------------------------------------- FetchModifier -- */
 /*	Fill in the given modifier struct from the specified modifier in the gHModList array.
 (NB: gHModList is a relocatable 1-based array.) Return True if ok, False if error. */
 
@@ -2138,7 +2135,7 @@ broken:
 }
 
 
-/* --------------------------------------------------------- DisposNotelistMemory -- */
+/* -------------------------------------------------------------- DisposNotelistMemory -- */
 
 void DisposNotelistMemory(void)
 {

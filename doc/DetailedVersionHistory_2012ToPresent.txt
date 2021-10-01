@@ -3336,3 +3336,15 @@ Work to replace the "change dynamic" pop-up palette (using a UI font) with a fix
 palette (from a BMP file). Affects .rsrc; DynamicEdit, DrawUtils.
 
 Minor changes. Affects DebugDisplay, DynamicEdit.
+
+---------------------------------------------------------------------------------------
+
+9 - 29 Sept.
+
+Work to replace the "change dynamic" pop-up palette (using a UI font) with a fixed
+palette (from a BMP file). Affects DrawUtils, DynamicEdit.
+
+Minor changes: add optional hex display to DPrintRow(), add FileUtils.h to the
+precompiled header, etc. Affects Nightingale_Prefix.pch; DebugDisplay, DialogsEditor,
+DrawUtils, DynamicEdit, FileOpen, FileSave, FileUtils, Initialize, MidiMap,
+NotelistParse, Preferences.

@@ -731,6 +731,9 @@ void NObjDump(char *label, short nFrom, short nTo)
 
 /* ------------------------------------------------------------------------- DPrintRow -- */
 
+#define SHOW_GRAPHIC 1		/* Show the row of flags in the obvious graphical way? */
+#define SHOW_HEX 0			/* Show the flags as "(offset value)"?
+
 /* Print a row of 1-bit flags, e.g., to display a bitmap as a low-resolution graphic. */
 
 void DPrintRow(Byte bitmap[], short nRow, short bWidth, short startLoc,
@@ -739,6 +742,8 @@ void DPrintRow(Byte bitmap[], short nRow, short bWidth, short startLoc,
 {
 	printf("%3d: ", nRow);
 	for (short k = 0; k<bWidth; k++) {
+		if (SHOW_HEX) printf("(%d %02x)", startLoc+k, bitmap[startLoc+k]);
+		if (!SHOW_GRAPHIC) continue;
 		Boolean even = False;
 //printf("(%d %02x)", startLoc+k, bitmap[startLoc+k]);
 		for (short bn = 0; bn<8; bn++) {

@@ -2020,7 +2020,7 @@ broken:
 /* --------------------------------------------------- Tempo Dialog & helper functions -- */
 
 static pascal Boolean TempoFilter(DialogPtr, EventRecord *, short *);
-static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr);
+static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char * /* metroStr */);
 static Boolean AllIsWell(DialogPtr dlog);
 
 enum {
@@ -2112,7 +2112,7 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 /* Disable and dim the number-entry field and fields subordinate to it, or enable and
 undim them. */
 
-static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr)
+static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char * /* metroStr */)
 {
 	short	type, newType;
 	Handle	hndl;
@@ -2140,7 +2140,7 @@ static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char
 static Boolean AllIsWell(DialogPtr dlog)
 {
 	short expandedSetting, maxLenExpanded, type, i;
-	Handle hndl; Rect box;
+	Handle hndl;  Rect box;
 	long beatsPM; 
 	Str255 str, metStr;
 	char fmtStr[256];
@@ -2793,7 +2793,6 @@ static pascal Boolean SLFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 			break;
 		case activateEvt:
 			if (w == GetDialogWindow(dlog)) {
-				short activ = (evt->modifiers & activeFlag)!=0;
 				SetPort(GetWindowPort(w));
 			}
 			break;

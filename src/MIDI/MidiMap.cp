@@ -11,7 +11,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#include "FileUtils.h"
 // MAS
 
 #include "MidiMap.h"
@@ -30,7 +29,7 @@
 #define MMPrintMidiMap	1		/* Override setting in MidiMap.h - change June 1, 2011 1 to 0 */
 
 /* -------------------------------------------------------------------------------------- */
-/* Local prototypes and module globals*/
+/* Local prototypes and module globals */
 
 static Boolean ParseMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec);
 //static FILE *FSpOpenInputFile(Str255 macfName, FSSpec *fsSpec);
@@ -174,9 +173,9 @@ void InstallMidiMap(Document *doc, Handle fsSpecHdl)
 	doc->midiMapFSSpecHdl = fsSpecHdl;	
 }
 
-/* ------------------------------------------------------------ InstallMidiMap -- */
-/* Install the fsSpec of the midi map in the document. FIXME: don't
-give multiple functions the same name: that's a C++ feature not in C99! */
+/* -------------------------------------------------------------------- InstallMidiMap -- */
+/* Install the fsSpec of the midi map in the document. FIXME: don't give multiple
+functions the same name: that's a C++ feature not in C99! */
 
 void InstallMidiMap(Document *doc, FSSpec *fsSpec)
 {
@@ -204,10 +203,9 @@ Boolean HasMidiMap(Document *doc)
 	return(doc->midiMapFSSpecHdl != NULL);	
 }
 
-/* ------------------------------------------------------------------------ HasMidiMap -- */
-/* Return True if the given midiMap fsSpec is different from the document's
- * installed Midi Map 
- */
+/* -------------------------------------------------------------------------------------- */
+
+/* Is the given midiMap fsSpec different from the document's installed Midi Map? */
 
 Boolean ChangedMidiMap(Document *doc, FSSpec *fsSpec)
 {
@@ -263,15 +261,13 @@ Boolean SaveMidiMap(Document *doc)
 
 		if (err == noErr) {
 		
-			/*
-			 *	We want to add the data in the print record to the resource file
-			 *	but leave the record in memory independent of it, so we add it
-			 * to the resource file, write out the file, detach the handle from
-			 * the resource, and close the file. Before doing any of this, we
-			 * RemoveResource the print record; this should be unnecessary, since
-			 * we DetachResource print records after reading them in, but we're
-			 *	playing it safe.
-			 */
+			/* We want to add the data in the print record to the resource file but
+			   leave the record in memory independent of it, so we add it to the
+			   resource file, write out the file, detach the handle from the resource,
+			   and close the file. Before doing any of this, we RemoveResource the print
+			   record; this should be unnecessary, since we DetachResource print records
+			   after reading them in, but we're playing it safe. */
+			   
 			GetResAttrs(doc->midiMapFSSpecHdl);
 			if (!ResError()) RemoveResource(doc->midiMapFSSpecHdl);
 
@@ -427,8 +423,8 @@ short GetMappedNoteNum(Document *doc, short noteNum)
 }
  
 /* ---------------------------------------------------------------------- PrintMidiMap -- */
-/* Print the array of note list mappings */
+/* Print the array of note list mappings. FIXME: Unimplemented */
 
-static void PrintMidiMap(Document *doc)
+static void PrintMidiMap(Document * /* doc */)
 {
 }
