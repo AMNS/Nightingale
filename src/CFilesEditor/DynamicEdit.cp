@@ -18,63 +18,27 @@ when user double-clicks a dynamic.                      -- John Gibson, 8/5/00 *
 #include "Nightingale.appl.h"
 
 
-/* -------------------------------------------------------------------------------------- */
-/* SetDynamicDialog */
-
 enum {
 	DYNAM_CHOICES_DI=4
 };
 
-static short dynamicIdx = 3;		// ??INITIALIZE IT TO WHAT REALLY?
-
-#define DYNAMIC_PALETTE_FN		"ChangeDynamicNB1b.bmp"
-
-#define BITMAP_SPACE 30000
-
-Byte bitmapPalette[BITMAP_SPACE];
+static short dynamicIdx;
 
 static Boolean DrawDynamicPalette(Rect *pBox);
 static Boolean DrawDynamicPalette(Rect *pBox)
-{
-	short nRead, width, bWidth, bWidthPadded, height;
-	FILE *bmpf;
-	long pixOffset, nBytesToRead;
+{	
+DHexDump(LOG_DEBUG, "DynPal", bmpDynamicPal.bitmap, 8*16, 4, 16, True);
 
-	/* Open the BMP file and read the actual bitmap image. */
-
-	bmpf = NOpenBMPFile(DYNAMIC_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
-						&height);
-	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (DrawDynamicPalette)\n",
-					DYNAMIC_PALETTE_FN);
-		return False;
-	}
-	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
-		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file '%s' failed.  (DrawDynamicPalette)\n",
-					pixOffset, DYNAMIC_PALETTE_FN);
-		return False;
-	}
-
-	nBytesToRead = bWidthPadded*height;
-LogPrintf(LOG_DEBUG, "DrawDynamicPalette: bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d\n",
-bWidth, bWidthPadded, height, nBytesToRead);
-	if (nBytesToRead>BITMAP_SPACE) {
-		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (DrawDynamicPalette)\n",
-					nBytesToRead, BITMAP_SPACE);
-		return False;
-	}
-	nRead = fread(bitmapPalette, nBytesToRead, 1, bmpf);
-	if (nRead!=1) {
-		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (DrawDynamicPalette)\n");
-		return False;
-	}
-	
-DHexDump(LOG_DEBUG, "DynPal", bitmapPalette, 8*16, 4, 16, True);
-
-	DrawBMP(bitmapPalette, bWidth, bWidthPadded, height, *pBox);
+	DrawBMP(bmpDynamicPal.bitmap, bmpDynamicPal.bWidth, bmpDynamicPal.bWidthPadded,
+			bmpDynamicPal.height, *pBox);
 	return True;
 }
 
+
+static short dynamicCode[] = { PPP_DYNAM,PP_DYNAM, P_DYNAM, MP_DYNAM, MF_DYNAM,
+								F_DYNAM, FF_DYNAM, FFF_DYNAM, SF_DYNAM };
+								
+#define NDYNAMS (sizeof dynamicCode/sizeof(short))
 
 #define NROWS 2		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
 #define NCOLS 5		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
@@ -88,7 +52,7 @@ static void InitDynamicCells(Rect *pBox)
 	
 	cellWidth = (pBox->right-pBox->left)/NCOLS;
 	cellHeight = (pBox->bottom-pBox->top)/NROWS;
-LogPrintf(LOG_DEBUG, "InitDynamicCells: cellWidth=%d cellHeight==%d\n", cellWidth, cellHeight);
+//LogPrintf(LOG_DEBUG, "InitDynamicCells: cellWidth=%d cellHeight==%d\n", cellWidth, cellHeight);
 
 	for (short rn = 0; rn<NROWS; rn++)
 		for (short cn = 0; cn<NCOLS; cn++) {
@@ -97,12 +61,16 @@ LogPrintf(LOG_DEBUG, "InitDynamicCells: cellWidth=%d cellHeight==%d\n", cellWidt
 			dynamicCell[cellNum].left = cellWidth*cn;
 			dynamicCell[cellNum].bottom = dynamicCell[cellNum].top+cellHeight;
 			dynamicCell[cellNum].right = dynamicCell[cellNum].left+cellWidth;
-LogPrintf(LOG_DEBUG, "InitDynamicCells: rn=%d cn=%d cellNum=%d dynamicCell tlbr=%d,%d,%d,%d\n",
-rn, cn, cellNum, dynamicCell[cellNum].top, dynamicCell[cellNum].left,
-dynamicCell[cellNum].bottom, dynamicCell[cellNum].right);
+//LogPrintf(LOG_DEBUG, "InitDynamicCells: rn=%d cn=%d cellNum=%d dynamicCell tlbr=%d,%d,%d,%d\n",
+//rn, cn, cellNum, dynamicCell[cellNum].top, dynamicCell[cellNum].left,
+//dynamicCell[cellNum].bottom, dynamicCell[cellNum].right);
 		}
 }
 
+
+/* Return the number of the cell in the dynamic palette containing the given point. We
+don't check whether cell is a valid selection; it's up to the calling routine to do that. */
+ 
 static short FindDynamicCell(Point where, Rect *pBox);
 static short FindDynamicCell(Point where, Rect *pBox)
 {
@@ -110,7 +78,6 @@ static short FindDynamicCell(Point where, Rect *pBox)
 	
 	xInBox = where.h - pBox->left;
 	yInBox = where.v - pBox->top;
-#if 1
 	cellNum = -1;
 	for (short rn = 0; rn<NROWS; rn++)
 		for (short cn = 0; cn<NCOLS; cn++) {
@@ -121,21 +88,44 @@ static short FindDynamicCell(Point where, Rect *pBox)
 			if (xInBox>=dynamicCell[tryCell].right) continue;
 			cellNum = tryCell;  break;
 		}
-#else
-	rowNum = (yInBox>20? 1 : 0);
-	colNum = (xInBox>40? 3 : 2);
-	cellNum = (5*rowNum) + colNum;
-#endif
 
-LogPrintf(LOG_DEBUG, "FindDynamicCell: xInBox=%d yInBox=%d cellNum=%d\n", xInBox, yInBox, cellNum);
+//LogPrintf(LOG_DEBUG, "FindDynamicCell: xInBox=%d yInBox=%d cellNum=%d\n", xInBox, yInBox, cellNum);
 	if (cellNum<0) {
 		LogPrintf(LOG_WARNING, "Can't find cell for where=(%d,%d) xInBox=%d yInBox=%d.  (FindDynamicCell)\n",
 					where.h, where.v, xInBox, yInBox);
 		cellNum = 1;
 	}
+	
 	return cellNum;
 }
 
+
+static void HiliteCell(short dynIdx, Rect *box);
+static void HiliteCell(short dynIdx, Rect *box)
+{
+	Rect theCell = dynamicCell[dynIdx];
+	OffsetRect(&theCell, box->left, box->top);
+	InvertRect(&theCell);
+}
+
+static short DynamicKey(unsigned char theChar);
+static short DynamicKey(unsigned char theChar)
+{
+	short newDynIdx=-1, intChar, sym;
+		
+	/* First remap theChar according to the 'PLMP' resource. */
+	
+	intChar = (short)theChar;
+	TranslatePalChar(&intChar, 0, False);
+	theChar = (unsigned char)intChar;
+
+	sym = GetSymTableIndex(theChar);
+	if (symtable[sym].objtype!=DYNAMtype) return -1;
+	for (unsigned short k = 0; k<NDYNAMS; k++)
+		if (symtable[sym].subtype==dynamicCode[k]) { newDynIdx = k;  break; }
+	
+	return newDynIdx;
+}
 
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
@@ -155,16 +145,12 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				BeginUpdate(GetDialogWindow(dlog));
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, True);
-#if 13
 				GetDialogItem(dlog, DYNAM_CHOICES_DI, &type, &hndl, &box);
-LogPrintf(LOG_DEBUG, "DynamicFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
-box.right);
+//LogPrintf(LOG_DEBUG, "DynamicFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
+//box.right);
 				FrameRect(&box);
 				DrawDynamicPalette(&box);
-#else
-				DrawGPopUp(curPop);		
-				HiliteGPopUp(curPop, popUpHilited);
-#endif
+				HiliteCell(dynamicIdx, &box);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -176,24 +162,22 @@ box.right);
 			break;
 		case mouseDown:
 		case mouseUp:
-			Rect newCell;
 			where = evt->where;
 			GlobalToLocal(&where);
-#if 13
 			GetDialogItem(dlog, DYNAM_CHOICES_DI, &type, &hndl, &box);
 			if (PtInRect(where, &box)) {
 				if (evt->what==mouseUp) {
-					/* Unhilite the previously-selected cell and hilite the new one. */
-					dynamicIdx = FindDynamicCell(where, &box);
-					newCell = dynamicCell[dynamicIdx];
-					OffsetRect(&newCell, box.left, box.top);
-					InvertRect(&newCell);
+					/* If the mouseUp was in an invalid (presumably because empty) cell,
+					   ignore it. Otherwise, unhilite the previously-selected cell and
+					   hilite the new one. */
+
+					short newDynIdx = FindDynamicCell(where, &box);
+					if (newDynIdx<0 || newDynIdx>(short)NDYNAMS-1) return False;
+										
+					HiliteCell(dynamicIdx, &box);
+					dynamicIdx = newDynIdx;
+					HiliteCell(dynamicIdx, &box);
 				}
-				SysBeep(1);
-#else
-			if (PtInRect(where, &curPop->box)) {
-				DoGPopUp(curPop);
-#endif
 				*itemHit = DYNAM_CHOICES_DI;
 				return True;
 			}
@@ -201,31 +185,29 @@ box.right);
 		case keyDown:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			ch = (unsigned char)evt->message;
-#if 13
-			dynamicIdx = 7;			// ?????????????REALLY GET IT FROM THE CHAR. CODE
-			ans = 1;				// ??????????????WHAT REALLY???
-			*itemHit = ans? DYNAM_CHOICES_DI : 0;
-			;						// ???????????????HIGHLIGHT WHAT?
-#else
-			ans = DynamicPopupKey(curPop, popKeysDynamic, ch);
-			*itemHit = ans? DYNAM_CHOICES_DI : 0;
-			HiliteGPopUp(curPop, True);
-#endif
-			return True;
-			break;
+			GetDialogItem(dlog, DYNAM_CHOICES_DI, &type, &hndl, &box);
+			*itemHit = 0;
+			ans = DynamicKey(ch);
+			if (ans>=0) {
+LogPrintf(LOG_DEBUG, "ch='%c' dynamicIdx=%d ans=%d\n", ch, dynamicIdx, ans);  
+				HiliteCell(dynamicIdx, &box);
+				dynamicIdx = ans;
+				HiliteCell(dynamicIdx, &box);
+				*itemHit = DYNAM_CHOICES_DI;
+				return True;
+			}
 	}
 	
 	return False;
 }
 
-
 Boolean SetDynamicDialog(SignedByte *dynamicType)
 {	
 	DialogPtr dlog;
 	short ditem=Cancel, type, oldResFile;
-	short choice;
 	Boolean dialogOver;
-	Handle hndl;  Rect box;
+	Handle hndl;
+	Rect box, theCell;
 	GrafPtr oldPort;
 	ModalFilterUPP	filterUPP;
 
@@ -249,18 +231,19 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 	UseResFile(appRFRefNum);							/* popup code uses Get1Resource */
 
 	GetDialogItem(dlog, DYNAM_CHOICES_DI, &type, &hndl, &box);
-#if 13
 	InitDynamicCells(&box);
-#else
-	if (!InitGPopUp(&dynamicPop, TOP_LEFT(box), DYNAMIC_MENU, 1)) goto broken;
-	popKeysDynamic = InitDynamicPopupKey(&dynamicPop);
-	if (popKeysDynamic==NULL) goto broken;
-	curPop = &dynamicPop;
 	
-	choice = GetDynamicPopItem(curPop, popKeysDynamic, *dynamicType);
-	if (choice==NOMATCH) choice = 1;
-	SetGPopUpChoice(curPop, choice);
-#endif
+	/* Find and hilite the initially-selected cell. We should always find it, but if
+	   we can't, make an arbitrary choice. */
+	
+	dynamicIdx = 3;									/* In case we can't find it */
+	for (unsigned short k = 0; k<NDYNAMS; k++) {
+		if (*dynamicType==dynamicCode[k]) { dynamicIdx = k;  break; }
+	}
+	
+	theCell = dynamicCell[dynamicIdx];
+	OffsetRect(&theCell, box.left, box.top);
+	InvertRect(&theCell);
 
 	CenterWindow(GetDialogWindow(dlog), 100);
 	ShowWindow(GetDialogWindow(dlog));
@@ -279,13 +262,8 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 		}
 	}
 	if (ditem==OK)
-#if 13
-		*dynamicType = dynamicIdx;					// ???????????????????????????WHAT??
-#else
-		*dynamicType = popKeysDynamic[curPop->currentChoice].dynamicType;
-#endif
+		*dynamicType = dynamicCode[dynamicIdx];
 		
-broken:
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
 	
@@ -293,4 +271,3 @@ broken:
 	SetPort(oldPort);
 	return (ditem==OK);
 }
-

@@ -37,7 +37,8 @@ static short		GetToolGrid(PaletteGlobals *whichPalette);
 static void			InitPaletteRects(Rect *whichRects, short across, short down, short width,
 										short height);
 static Boolean		InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
-static Boolean		InitSetDurPalette();
+static Boolean		InitDynamicPalette(void);
+static Boolean		InitSetDurPalette(void);
 static Boolean		PrepareClipDoc(void);
 static void			InstallCoreEventHandlers(void);
 
@@ -190,9 +191,9 @@ void Initialize()
 	
 	LogPrintf(LOG_NOTICE, "Initializing palettes and palette windows...  (Initialize)\n");
 	if (!NInitPaletteWindows()) { BadInit(); ExitToShell(); }
-	if (!InitSetDurPalette()) { BadInit(); ExitToShell(); }
 	//if (!InitAddModifierPalette()) { BadInit(); ExitToShell(); }
-	//if (!InitChangeDynamicPalette()) { BadInit(); ExitToShell(); }
+	if (!InitDynamicPalette()) { BadInit(); ExitToShell(); }
+	if (!InitSetDurPalette()) { BadInit(); ExitToShell(); }
 	
 	InitCursor();
 	WaitCursor();
@@ -310,11 +311,13 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (!AddPrefsResource(resH)) return False;
 
 	/* Now copy the instrument list. */
+	
 	resH = GetResource('STR#', INSTR_STRS);
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
 
 	/* Next, the MIDI velocity table and its template. */
+	
 	resH = GetResource('MIDI', PREFS_MIDI);
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
@@ -324,6 +327,7 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (!AddPrefsResource(resH)) return False;
 
 	/* The MIDI modifier prefs table and its template. */
+	
 	resH = GetResource('MIDM', PREFS_MIDI_MODNR);
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
@@ -351,6 +355,7 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (!AddPrefsResource(resH)) return False;
 
 	/* Now copy the MIDI Manager port resources. */
+	
 	resH = GetResource('port', time_port);
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
@@ -713,6 +718,7 @@ static Boolean CheckConfig()
 #define STEMLEN_GRACE_DFLT 10
 
 /* Assume compiled-in minimum values for these are OK: currently they're all 0 or 1. */
+
 #define SP_AFTER_BAR_DFLT 6
 #define MINSP_BEFORE_BAR_DFLT 5
 #define MINRSP_DFLT 2
@@ -1377,7 +1383,6 @@ picture will be displayed centered in the palette window with a TOOLS_MARGIN pix
 margin on all sides. */
 
 #define TOOL_PALETTE_FN		"ToolPaletteNB1b.bmp"
-//#define TOOL_PALETTE_FN		"ChangeDynamicNB1b.bmp"			// TEST!
 
 #define BITMAP_SPACE 30000
 
@@ -1408,15 +1413,16 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		
 	/* Now open the BMP file and read the actual bitmap image. */
 
+	ParamText("\ptool", "\p", "\p", "\p");					/* In case of any of several problems */
 	bmpf = NOpenBMPFile(TOOL_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthWithPad, &height);
 	if (!bmpf) {
 		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitToolPalette)\n", TOOL_PALETTE_FN);
-		return False;
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
 	}
 	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
 		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file failed.  (InitToolPalette)\n",
 					pixOffset);
-		return False;
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
 	}
 
 	nBytesToRead = bWidthWithPad*height;
@@ -1425,12 +1431,12 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitToolPalette)\n",
 					nBytesToRead, BITMAP_SPACE);
-		return False;
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
 	}
 	nRead = fread(bitmapTools, nBytesToRead, 1, bmpf);
 	if (nRead!=1) {
 		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitToolPalette)\n");
-		return False;
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
 	}
 	
 	SetRect(&maxToolsRect, 0, 0, width, height);
@@ -1509,10 +1515,122 @@ LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
 }
 
 
+/* Initialize everything about the palettes (formerly called "floating windows"). NB:
+through v. 5.8.10, the tool palette was the only one; the Set Duration and Add Modifiers
+command and the double-click "change dynamics" facilities used our own bitmap fonts.
+In 5.8.11, we use palettes with bitmap images for those commands, and those palettes
+have to be initialized.
+??REWRITE OR REMOVE FOLLOWING We've kept vestigal code
+for a help palette (which seems unlikely ever to be used) and for a clavier palette
+(which might be useful someday). */
+
+static Boolean NInitPaletteWindows()
+{
+	short idx, wdefID;
+	PaletteGlobals *whichPalette;
+	Rect windowRects[TOTAL_PALETTES];
+	short totalPalettes = TOTAL_PALETTES;
+	
+	for (idx=0; idx<totalPalettes; idx++) {
+	
+		/* Get a handle to a PaletteGlobals structure for this palette */
+		
+		paletteGlobals[idx] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+idx);
+		if (!GoodResource((Handle)paletteGlobals[idx])) return False;
+		EndianFixPaletteGlobals(idx);
+
+		MoveHHi((Handle)paletteGlobals[idx]);
+		HLock((Handle)paletteGlobals[idx]);
+		whichPalette = *paletteGlobals[idx];
+		
+		switch(idx) {
+			case TOOL_PALETTE:
+				if (!InitToolPalette(whichPalette, &windowRects[idx])) return False;
+				wdefID = ToolPaletteWDEF_ID;
+				break;
+			case HELP_PALETTE:
+				wdefID = ToolPaletteWDEF_ID;						// ??REALLY?
+				break;
+			case CLAVIER_PALETTE:
+				break;
+		}
+
+		wdefID = floatGrowProc;
+		
+		palettes[idx] = (WindowPtr)NewCWindow(NULL, &windowRects[idx], "\p", False,
+								wdefID, BRING_TO_FRONT, True, (long)idx);
+		if (!GoodNewPtr((Ptr)palettes[idx])) return False;
+	
+		//	((WindowPeek)palettes[idx])->spareFlag = (idx==TOOL_PALETTE || idx==HELP_PALETTE);
+		
+		/* Add a zoom box to tools and help palette */
+		
+		if (idx==TOOL_PALETTE || idx==HELP_PALETTE)
+			ChangeWindowAttributes(palettes[idx], kWindowFullZoomAttribute, kWindowNoAttributes);
+
+		/* Finish initializing the TearOffMenuGlobals structure. */
+		
+		whichPalette->environment = &thisMac;
+		whichPalette->paletteWindow = palettes[idx];
+		SetWindowKind(palettes[idx], PALETTEKIND);
+		
+		HUnlock((Handle)paletteGlobals[idx]);
+	}
+
+	return True;
+}
+
+
+/* --------------------------------------------------- Initialize palettes for dialogs -- */
+
+#define DYNAMIC_PALETTE_FN		"ChangeDynamicNB1b.bmp"
+
+static Boolean InitDynamicPalette()
+{
+	short nRead, width, bWidth, bWidthPadded, height;
+	FILE *bmpf;
+	long pixOffset, nBytesToRead;
+
+	/* Open the BMP file and read the actual bitmap image. */
+
+	ParamText("\pdynamics", "\p", "\p", "\p");					/* In case of any of several problems */
+	bmpf = NOpenBMPFile(DYNAMIC_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
+						&height);
+	if (!bmpf) {
+		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitDynamicPalette)\n",
+					DYNAMIC_PALETTE_FN);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+
+	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
+		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file '%s' failed.  (InitDynamicPalette)\n",
+					pixOffset, DYNAMIC_PALETTE_FN);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+
+	nBytesToRead = bWidthPadded*height;
+LogPrintf(LOG_DEBUG, "InitDynamicPalette: bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d\n",
+bWidth, bWidthPadded, height, nBytesToRead);
+	if (nBytesToRead>BITMAP_SPACE) {
+		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitDynamicPalette)\n",
+					nBytesToRead, BITMAP_SPACE);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+	nRead = fread(bmpDynamicPal.bitmap, nBytesToRead, 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitDynamicPalette)\n");
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+
+	bmpDynamicPal.bWidth = bWidth;
+	bmpDynamicPal.bWidthPadded = bWidthPadded;
+	bmpDynamicPal.height = height;
+	return True;
+}
+
 
 #define SETDUR_PALETTE_FN		"SetDur_2dotsNB1b.bmp"
 //#define SETDUR_PALETTE_PATH 	":SetDur_2dots1bitNB.bmp"
-
 
 Byte bitmapSetDur[BITMAP_SPACE];
 
@@ -1549,72 +1667,6 @@ DHexDump(LOG_DEBUG, "SetDur", bitmapSetDur, 4*16, 4, 16, True);
 	return True;
 }
 
-
-/* Initialize everything about the palettes (formerly called "floating windows"). NB:
-through v. 5.8.10, the tool palette was the only one; the Set Duration and Add Modifiers
-command and the double-click "change dynamics" facilities used our own bitmap fonts.
-In 5.8.11, we use palettes with bitmap images for those commands, and those palettes
-have to be initialized.
-??REWRITE OR REMOVE FOLLOWING We've kept vestigal code
-for a help palette (which seems unlikely ever to be used) and for a clavier palette
-(which might be useful someday). */
-
-static Boolean NInitPaletteWindows()
-{
-	short idx, wdefID;
-	PaletteGlobals *whichPalette;
-	Rect windowRects[TOTAL_PALETTES];
-	short totalPalettes = TOTAL_PALETTES;
-	
-	for (idx=0; idx<totalPalettes; idx++) {
-	
-		/* Get a handle to a PaletteGlobals structure for this palette */
-		
-		paletteGlobals[idx] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+idx);
-		if (!GoodResource((Handle)paletteGlobals[idx])) return False;
-		EndianFixPaletteGlobals(idx);
-
-		MoveHHi((Handle)paletteGlobals[idx]);
-		HLock((Handle)paletteGlobals[idx]);
-		whichPalette = *paletteGlobals[idx];
-		
-		switch(idx) {
-			case TOOL_PALETTE:
-			
-				if (!InitToolPalette(whichPalette, &windowRects[idx])) return False;
-				wdefID = ToolPaletteWDEF_ID;
-				break;
-			case HELP_PALETTE:
-				wdefID = ToolPaletteWDEF_ID;						// ??REALLY?
-				break;
-			case CLAVIER_PALETTE:
-				break;
-		}
-
-		wdefID = floatGrowProc;
-		
-		palettes[idx] = (WindowPtr)NewCWindow(NULL, &windowRects[idx], "\p", False,
-								wdefID, BRING_TO_FRONT, True, (long)idx);
-		if (!GoodNewPtr((Ptr)palettes[idx])) return False;
-	
-		//	((WindowPeek)palettes[idx])->spareFlag = (idx==TOOL_PALETTE || idx==HELP_PALETTE);
-		
-		/* Add a zoom box to tools and help palette */
-		
-		if (idx==TOOL_PALETTE || idx==HELP_PALETTE)
-			ChangeWindowAttributes(palettes[idx], kWindowFullZoomAttribute, kWindowNoAttributes);
-
-		/* Finish initializing the TearOffMenuGlobals structure. */
-		
-		whichPalette->environment = &thisMac;
-		whichPalette->paletteWindow = palettes[idx];
-		SetWindowKind(palettes[idx], PALETTEKIND);
-		
-		HUnlock((Handle)paletteGlobals[idx]);
-	}
-
-	return True;
-}
 
 
 /* -------------------------------------------------------------------------------------- */

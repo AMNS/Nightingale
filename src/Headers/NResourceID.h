@@ -61,8 +61,8 @@
 #define SAVENOTELIST_ALRT 374
 #define GUESSDUR_ALRT 375
 #define READNOTESCAN_ALRT 376
-#define OPENTEXTFILE_ALRT		378
-#define WRITETEXTFILE_ALRT		379
+#define OPENTEXTFILE_ALRT	378
+#define WRITETEXTFILE_ALRT	379
 #define SAFESAVE_ALRT 380
 #define SAFESAVE1_ALRT 381
 #define SAFESAVEINFO_ALRT 385
@@ -94,6 +94,7 @@
 #define RASTRAL_ALRT 484				/* Rastral must be 0 to whatever */
 #define BADMARGIN_ALRT 486				/* Illegal margin */
 #define DEBUGERR_ALRT 550				/* Lots of errors found by Debug */
+#define BMP_ALRT 552					/* Can’t open BMP file */
 #define PASTE_STFCLIP_ALRT 660			/* More staves in clipboard than below ins. pt. */
 
 #define LIGHTVERS_MAXPAGES_ALRT 560		/* Can't have more than 3 pages in NightLight */

@@ -370,7 +370,7 @@ Cancelled:
 }
 
 
-/* ----------------------------------------------------------------------InsertGRNote -- */
+/* -----------------------------------------------------------------------InsertGRNote -- */
 /* Insert a grace note at a place in the object list suitable for a mousedown at the
 given point. Handles feedback and allows cancelling. */
 
@@ -530,10 +530,8 @@ Boolean InsertGraphic(Document *doc, Point pt)
 	sym = GetSymTableIndex(palChar);
 	if (!ChkGraphicRelObj(pL, symtable[sym].subtype)) return False;
 
-	/*
-	 * At this point, if the Graphic is to be attached to a System or Page, it
-	 * must be either a GRString (text or lyric) or a GRChordFrame.
-	 */
+	/* At this point, if the Graphic is to be attached to a System or Page, it must be
+	   either a GRString (text or lyric) or a GRChordFrame. */
 	switch (ObjLType(pL)) {
 		case SYSTEMtype:
 		case PAGEtype:
@@ -551,10 +549,9 @@ Boolean InsertGraphic(Document *doc, Point pt)
 	}
 															/* #2 */
 
-	/* GRAPHICs must be after the page they are attached to, due to problems
-		with functions like BeforeFirstMeas, that rely on no object in a page
-		or system being located before the page or system object itself in the
-		object list. */
+	/* GRAPHICs must be after the page they are attached to, since functions like
+	   BeforeFirstMeas that assume no object in a page or system precedes the page or
+	   system object itself in the object list. */
 
 	doc->selStartL = (PageTYPE(pL) ? SSearch(pL,SYSTEMtype,GO_RIGHT) : pL);
 	doc->selEndL = doc->selStartL;
@@ -568,6 +565,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 		*string = 0;
 		if (symtable[sym].subtype==GRChordFrame) {
 			/* Chord frames are compatible with possible extensions to multiple characters. */
+			
 			string[0] = 1;
 			string[1] = CHORD_FRAME_DEFAULT;
 			if (!ChordFrameDialog(doc, &newRelSize, &newSize, &newStyle, &newEncl, newFont,
@@ -622,6 +620,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 					static short CSAuxInfo = -1;
 
 					/* NOTE: This will have to be changed if we encode other options in CSAuxInfo. */
+					
 					if (CSAuxInfo==-1)								/* first time */
 						CSAuxInfo = config.chordSymDrawPar? 1 : 0;
 					string[0] = 1;
@@ -637,6 +636,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				break;
 			case GRChordFrame:
 				/* Chord frames are compatible with possible extensions to multiple characters. */
+				
 				string[0] = 1;
 				string[1] = CHORD_FRAME_DEFAULT;
 				if (!ChordFrameDialog(doc, &newRelSize, &newSize, &newStyle, &newEncl,
@@ -714,8 +714,8 @@ Cancelled:
 
 
 /* Given objtype and subtype, return the corresponding symbol table index. Cf.
-InitNightGlobals for another way to do this: it's probably better to use this
-function locally and avoid globals. */
+InitNightGlobals for another way to do this: it's probably better to use this function
+locally and avoid globals. */
 
 static short Type2SymTableIndex(SignedByte objtype, SignedByte subtype)
 {
@@ -740,8 +740,10 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 	unsigned char string[2];
 	char stringInchar;
 	Boolean firstCall = True;
+	
 	/* musicChar maps symtable[sym].durcode value to corresponding font character:
 			"Ped." (sustain pedal down),  "*" (pedal up)   */
+			
 	char musicChar[] = { 0xA1, '*' };
 	short index;
 
@@ -826,9 +828,8 @@ static Boolean ChkInsMODNR(LINK insSyncL, short sym)
 }
 
 /* ------------------------------------------------------------------------InsertMODNR -- */
-/* Adds a MODNR ("Modify Note/Rest") or augmentation dot to a note or rest at
-the given point. Handles feedback and (other than for aug. dots) and allows
-cancelling. */
+/* Adds a MODNR ("Modify Note/Rest") or augmentation dot to a note or rest at the given
+point. Handles feedback and (other than for aug. dots) and allows cancelling. */
 
 Boolean InsertMODNR(Document *doc, Point pt)
 {
@@ -840,6 +841,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 	if (staff==NOONE) return False;
 	
 	/* Find the symbol clicked on. */
+	
 	insSyncL = FindAndActOnObject(doc, pt, &index, SMFind);
 	if (!insSyncL) return False;
 
@@ -847,6 +849,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 	if (!ChkInsMODNR(insSyncL,sym)) return False;
 		
 	/* Find the note/rest to be modified. */
+	
 	aNoteL = FirstSubLINK(insSyncL);
 	for (i = 0; aNoteL; i++, aNoteL = NextNOTEL(aNoteL))
 		if (i==index) break;
@@ -878,9 +881,9 @@ Boolean InsertMODNR(Document *doc, Point pt)
 			slashes = newSlashes;
 			
 			/* Tremolos really belong to a chord, not a note: to get correct position,
-				substitute the voice's MainNote for the one clicked on. Since we already
-				got the staff, this assumes MainNote is always on the same staff--true
-				as of v.2.0. */
+			   substitute the voice's MainNote for the one clicked on. Since we already
+			   got the staff, this assumes MainNote is always on the same staff--true
+			   as of v.2.0. */
 				
 			aNoteL = FindMainNote(insSyncL, NoteVOICE(aNoteL));
 
@@ -888,6 +891,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 		}
 		else if (status<0) {
 			/* No vertical mouse mvmt: ask an "expert" for <qPitchLev> to use */
+			
 			qPitchLev = ModNRPitchLev(doc, symtable[sym].subtype, insSyncL, aNoteL);
 		}
 		else
@@ -906,9 +910,9 @@ Boolean InsertMODNR(Document *doc, Point pt)
 }
 
 
-/* ----------------------------------------------------------------------InsertRptEnd -- */
-/* Insert a RepeatEnd at a place in the object list suitable for a mousedown
-at the given point. RptEnds are J_IT objects. */
+/* -----------------------------------------------------------------------InsertRptEnd -- */
+/* Insert a RepeatEnd at a place in the object list suitable for a mousedown at the
+given point. RptEnds are J_IT objects. */
 
 Boolean InsertRptEnd(Document *doc, Point pt)
 {
@@ -925,10 +929,10 @@ Boolean InsertRptEnd(Document *doc, Point pt)
 }
 
 
-/* --------------------------------------------------------------------- InsertEnding -- */
-/* Insert an ending when the user clicks in the score with the Ending tool. Find
-the relative object for the ending located at pt, if one exists, and add the
-ending to the object list. Endings are J_D objects. */
+/* ---------------------------------------------------------------------- InsertEnding -- */
+/* Insert an ending when the user clicks in the score with the Ending tool. Find the
+relative object for the ending located at pt, if one exists, and add the ending to the
+object list. Endings are J_D objects. */
 
 Boolean InsertEnding(Document *doc, Point pt)
 {
@@ -948,7 +952,7 @@ Boolean InsertEnding(Document *doc, Point pt)
 }
 
 
-/* -------------------------------------------------------- InsertMeasure helpers -- */
+/* ------------------------------------------------------------- InsertMeasure helpers -- */
 
 static Boolean InsMeasTupletOK(Document *);
 static Boolean InsMeasUnkDurOK(Document *);
@@ -988,8 +992,8 @@ static Boolean InsMeasUnkDurOK(Document *doc)
 }
 
 /* --------------------------------------------------------------------- InsertMeasure -- */
-/* Insert a Measure at a place in the object list suitable for a mousedown at
-the given point. */
+/* Insert a Measure at a place in the object list suitable for a mousedown at the
+given point. */
 
 Boolean InsertMeasure(Document *doc, Point pt)
 {
@@ -999,8 +1003,9 @@ Boolean InsertMeasure(Document *doc, Point pt)
 	clickStaff = FindStaffSetSys(doc, pt);					/* Sets doc->currentSystem */
 	if (clickStaff==NOONE) return False;					/* Quit if no staff clicked on */
 
-	/* If mouseDown before System's initial (invisible) barline, force it after
-		that barline. */
+	/* If mouseDown is before System's initial (invisible) barline, force it after that
+	   barline. */
+	   
 	pt.h = ForceInMeasure(doc, pt.h);
 	pLPIL = FindLPI(doc, pt, ANYONE, ANYONE, False);		/* Find Last Prev. Item on ANY staff */
 	
@@ -1014,8 +1019,8 @@ Boolean InsertMeasure(Document *doc, Point pt)
 
 
 /* ------------------------------------------------------------------ InsertPseudoMeas -- */
-/* Insert a pseudomeasure at a place in the object list suitable for a mousedown
-at the given point. */
+/* Insert a pseudomeasure at a place in the object list suitable for a mousedown at the
+given point. */
 
 Boolean InsertPseudoMeas(Document *doc, Point pt)
 {
@@ -1038,8 +1043,8 @@ Boolean InsertPseudoMeas(Document *doc, Point pt)
 
 
 /* ------------------------------------------------------------------------ InsertClef -- */
-/* Insert a clef at a place in the object list suitable for a mousedown at the
-given point. */
+/* Insert a clef at a place in the object list suitable for a mousedown at the given
+point. */
 
 Boolean InsertClef(Document *doc, Point pt)
 {
@@ -1077,8 +1082,8 @@ Boolean InsertClef(Document *doc, Point pt)
 
 
 /* ---------------------------------------------------------------------- InsertKeySig -- */
-/* Insert a key signature at a place in the object list suitable for a mousedown
-at the given point. */
+/* Insert a key signature at a place in the object list suitable for a mousedown at
+the given point. */
 
 Boolean InsertKeySig(Document *doc, Point pt)
 {
@@ -1121,8 +1126,8 @@ Boolean InsertKeySig(Document *doc, Point pt)
 
 
 /* --------------------------------------------------------------------- InsertTimeSig -- */
-/* Insert a time signature at a place in the object list suitable for a	mousedown
-at the given point. */
+/* Insert a time signature at a place in the object list suitable for a	mousedown at
+the given point. */
 
 Boolean InsertTimeSig(Document *doc, Point pt)
 {
@@ -1172,10 +1177,10 @@ static Boolean InsertHairpin(Document *doc, Point pt, LINK /*pL*/, short clickSt
  	subtype = symtable[sym].subtype;
 
 	/* Graphically search left for a Sync. If found, search again on clickStaff to
-		insure sync is on the proper staff. If none, we're before the first sync of
-		the system; search right graphically. If none, no Sync; return. Otherwise,
-		see if Sync found graphically is in a different measure from mouseDown pt;
-		if so, get the first Sync in the mouseDown pt's measure. If none, return. */
+	   insure sync is on the proper staff. If none, we're before the first sync of
+	   the system; search right graphically. If none, no Sync; return. Otherwise,
+	   see if Sync found graphically is in a different measure from mouseDown pt;
+	   if so, get the first Sync in the mouseDown pt's measure. If none, return. */
 
 	insSyncL = FindSyncLeft(doc, pt, True);
 	if (insSyncL)
@@ -1197,17 +1202,17 @@ static Boolean InsertHairpin(Document *doc, Point pt, LINK /*pL*/, short clickSt
 
 
 /* --------------------------------------------------------------------- InsertDynamic -- */
-/* Insert a dynamic marking at a place in the object list suitable for a
-mousedown at the given point. Handles feedback and allows cancelling. */
+/* Insert a dynamic marking at a place in the object list suitable for a mousedown at
+the given point. Handles feedback and allows cancelling. */
 
 Boolean InsertDynamic(Document *doc, Point pt)
 {
-	short pitchLev,sym,clickStaff,index,staff,subtype;
-	LINK pL,insSyncL;
+	short pitchLev, sym, clickStaff, index, staff, subtype;
+	LINK pL, insSyncL;
 	Point startPt;  CONTEXT context;
 
-	/* Get the staff to insert on (and set doc->currentSystem). If click was
-		on a symbol, use that symbol's staff, otherwise use the closest staff. */
+	/* Get the staff to insert on (and set doc->currentSystem). If click was on a
+	   symbol, use that symbol's staff, otherwise use the closest staff. */
 
 	clickStaff = FindStaffSetSys(doc, pt);
 	if (clickStaff==NOONE) return False;
@@ -1222,17 +1227,18 @@ Boolean InsertDynamic(Document *doc, Point pt)
 		if (staff!=NOONE) clickStaff = staff;
 	}
 
-	/* If mouseDown before System's initial (invisible) barline, force it after
-		that barline. */
+	/* If mouseDown was before System's initial (invisible) barline, force it after
+	   that barline. */
+		
 	pt.h = ForceInMeasure(doc, pt.h);
 
 	if (subtype==DIM_DYNAM || subtype==CRESC_DYNAM)
 		return InsertHairpin(doc, pt, pL, clickStaff);
 
 	/* Graphically search left for a Sync. If none, we're before the first Sync of the
-		system; search right graphically. If none, no Sync; return. Otherwise, see
-		if Sync found graphically in a different measure from mouseDown pt; if so,
-		get the first Sync in the mouseDown pt's measure. If none, return. */
+	   system; search right graphically. If none, no Sync; return. Otherwise, see if
+	   Sync found graphically in a different measure from mouseDown pt; if so, get the
+	   first Sync in the mouseDown pt's measure. If none, return. */
 
 	startPt = pt;
 	startPt.h -= UseMagnifiedSize(3, doc->magnify);						/* Allow user some slop */
@@ -1259,6 +1265,7 @@ static short GetNoteStfVoice(LINK pL, short index, short *v)
 	LINK aNoteL; short i;
 
 	/* Return the voice and staff of the note at index. */
+	
 	aNoteL = FirstSubLINK(pL);
 	for (i = 0; aNoteL; i++, aNoteL=NextNOTEL(aNoteL))
 		if (i==index) {

@@ -3348,3 +3348,14 @@ Minor changes: add optional hex display to DPrintRow(), add FileUtils.h to the
 precompiled header, etc. Affects Nightingale_Prefix.pch; DebugDisplay, DialogsEditor,
 DrawUtils, DynamicEdit, FileOpen, FileSave, FileUtils, Initialize, MidiMap,
 NotelistParse, Preferences.
+
+---------------------------------------------------------------------------------------
+
+1 - 5 Oct.
+
+Work to replace the "change dynamic" pop-up palette (using a UI font) with a fixed
+palette (from a BMP file). Affects BMP.h, vars.h; DynamicEdit, Initialize.
+
+Minor changes: let user continue even if the BMPs can't be opened; enlarge buttons in
+some ALRTs, etc. Affects .rsrc; NResourceID.h; Initialize, Insert.
+
