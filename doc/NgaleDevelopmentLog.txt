@@ -10423,3 +10423,62 @@ changes needed for Add Modifier and Set Duration should be analogous to those fo
 dynamic], and almost trivial. The tool palette still needs more work. And all four need
 hilighting when an "icon" is selected.
 
+---------------------------------------------------------------------------------------
+
+12 - 19 October
+
+Yes, it works for the dynamics palette on my G5. But on my MacBook Air, Ngale quits on
+launch, saying it "can't open a BMP file containing an image file needed to display the
+tool palette" :-( ; specifically there's "No such file". From the log:
+
+	Oct 12 13:03:23 Dons-2017-MacBook-Air Ngale[68785]:
+	Notice. Checking Tool Palette parameters: No errors found.  (GetToolGrid)
+	debug. Opening BMP file 'ToolPaletteNB1b.bmp'...  (NOpenBMPFile)
+	ERROR. Can't open bitmap image file 'ToolPaletteNB1b.bmp'. errno=2 (No such file)  (NOpenBMPFile)
+	ERROR. Can't open bitmap image file 'ToolPaletteNB1b.bmp'.  (InitToolPalette)
+
+This is despite the fact that ToolPaletteNB1b.bmp is in the same folder as the app
+package, NightingaleIntel.app -- and on G5, Ngale does expects it to be in the same folder
+as the app. But Ngale doesn't say where to look for it, and maybe on an Intel machine
+running OS 10.14, it expects it to be in the same folder as the Unix executable
+Nightingale instead of the app package? No, that doesn't help! ?!? I guess the next thing
+to try is to have NOpenBMPFile display the full path instead of just the filename. How to
+do that? On the other hand, it'd be better if Ngale did specify the folder to find it in,
+and it's not clear being in the folder with the app is the best place.
+
+Say, it looks like Xcode puts everything in the project's Resources into the Resources
+folder in the app! Maybe all I need to do is to put the BMPs into the project's Resources.
+Try it => it works!: i.e., the BMPs appear in the app's Resources folder. But how do I get
+NOpenBMPFile() to find them? FindFolder() is only for system-related directories. And
+GetResource() is only for resources, not files. I should be able to turn the contents of
+the files into resources, but is that a good idea? Resource forks go away starting (I think)
+in OS 10.15, but so does QuickDraw; it's not at all clear Ngale will ever get there! Still,
+seems like it'd be better to stick with files. Of course I want the relative path, but where
+am I starting?
+
+getenv("pwd") does something crazy, but getcwd() works.
+
+	char cwd[PATH_MAX];
+	if (getcwd(cwd, sizeof(cwd)) != NULL)
+	   LogPrintf(LOG_DEBUG, "Current working dir: %s\n", cwd);
+	else
+	   LogPrintf(LOG_DEBUG, "getcwd() error\n");
+
+Result on PPC:
+
+	debug. Current working dir: /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/build/Release
+	
+And the path I want is
+
+	/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/build/Release/Nightingale.app/Contents/Resources 
+
+From the starting point, that's
+
+	/Nightingale.app/Contents/Resources
+
+Of course the app filename isn't necessarily Nightingale.app :-| . Besides, what does getcwd
+say on Intel (with OS 10.14.x)?
+
+	debug. Current working dir: /
+
+#$%&^(@$P#)_(*@!  Okay, surely there's a way to get the full path to the app! ??

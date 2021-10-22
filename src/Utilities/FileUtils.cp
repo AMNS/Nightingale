@@ -457,10 +457,18 @@ FILE *NOpenBMPFile(char *filename, long *pixOffset, short *pWidth, short *pByteW
 	char signature[2];
 	char detailStr[256];
 	
-	LogPrintf(LOG_DEBUG, "Opening BMP file '%s'...  (NOpenBMPFile)\n", filename);
+	LogPrintf(LOG_INFO, "Opening BMP file '%s'...  (NOpenBMPFile)\n", filename);
 
 	/* Open the file and read the BMP header.  */
 	
+#if 13
+char cwd[PATH_MAX];
+if (getcwd(cwd, sizeof(cwd)) != NULL)
+   LogPrintf(LOG_DEBUG, "Current working dir: %s\n", cwd);
+else
+   LogPrintf(LOG_DEBUG, "getcwd() error\n");
+#endif
+
 	errno = 0;
 	bmpf = fopen((const char *)filename, "r");
 	if (!bmpf) {
@@ -472,7 +480,7 @@ FILE *NOpenBMPFile(char *filename, long *pixOffset, short *pWidth, short *pByteW
 	}
 	nRead = fread(&signature[0], 2, 1, bmpf);
 	if (signature[0]!='B' || signature[1]!='M') {
-		LogPrintf(LOG_ERR, "BMP file doesn't start with 'BM' signature.  (NOpenBMPFile)\n");
+		LogPrintf(LOG_ERR, "BMP file doesn't start with the 'BM' signature.  (NOpenBMPFile)\n");
 		return NULL;
 	}
 

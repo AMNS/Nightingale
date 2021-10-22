@@ -8,11 +8,10 @@
  * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
-/* The Instrument Dialog displays a List Manager list of instruments; selecting
-one initializes its full and short name, range, and transposition.  This
-information is obtained from STR# resource ID INSTR_STRS, each string of which
-is an "instrument record". An instrument record consists of 15 colon-separated
-fields, all on one line.
+/* The Instrument Dialog displays a List Manager list of instruments; selecting one
+initializes its full and short name, range, and transposition.  This information is
+obtained from STR# resource ID INSTR_STRS, each string of which is an "instrument
+record". An instrument record consists of 15 colon-separated fields, all on one line.
  
 Here are descriptions and sizes of each field, with each field on a separate line
 for readability:
@@ -45,7 +44,7 @@ Here is a complete correct entry.
 Either 'n' or <space> can be used for natural.
  
 FIXME: It appears that if the MIDI note no. and the note/accidental disagree,
-MIDI note no. 0 and C-natural are used instead--not good! */
+MIDI note no. 0 and C-natural are used instead: not good! */
  
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -106,6 +105,7 @@ static void 			ClickEraseRange(void);
 #define DOWN			-1
 
 /* set of radio buttons FIXME: There's no need for this struct; simplify some day! */
+
 static struct radSet 
 {
 	unsigned char	defaultOn;
@@ -113,6 +113,7 @@ static struct radSet
 } radSet;
 
 /* list struct */
+
 static struct instr_list
 {
 	Rect			instr_box;
@@ -133,7 +134,7 @@ static Rect noteNameRect;
 static unsigned long *origMPDevice;		/* can be either MIDIUniqueID, OMSUniqueID or fmsUniqueID */
 static Rect deviceMenuBox;
 
-/* default for range */
+/* Default for range */
 
 static rangeMaster dfault =
 {
@@ -159,9 +160,9 @@ static MenuHandle 			cmOutputMenuH;
 static UserPopUp			cmOutputPopup;
 static MIDIUniqueIDVector 	*cmVecDevices;
 
-static Boolean ValidCMDeviceIndex(short idx)
+static Boolean ValidCMDeviceIndex(unsigned short idx)
 {
-	return (idx >= 0 && idx <cmVecDevices->size());
+	return (idx < cmVecDevices->size());
 }
 
 static short GetCMDeviceIndex(MIDIUniqueID dev)
@@ -181,7 +182,7 @@ static short GetCMDeviceIndex(MIDIUniqueID dev)
 
 static MIDIUniqueID GetCMOutputDeviceID()
 {
-	short choice = cmOutputPopup.currentChoice-1;
+	unsigned short choice = cmOutputPopup.currentChoice-1;
 	
 	if (ValidCMDeviceIndex(choice)) {
 		return cmVecDevices->at(choice);
@@ -278,7 +279,7 @@ short InstrDialog(Document * /*doc*/, PARTINFO *mp)
 	instruments = GetResource('STR#', INSTR_STRS);
 	if (!instruments) {
 		MayErrMsg("InstrDialog: unable to get instrument definition STR# resource");
-		itemHit = 0;	/* forces return(0) */
+		itemHit = 0;		/* forces return(0) */
 		goto broken;
 	}
 
@@ -424,7 +425,7 @@ short InstrDialog(Document * /*doc*/, PARTINFO *mp)
 	while (dialogOver==0) {
 		do {	
 			ModalDialog(filterUPP, &itemHit);
-			if (itemHit<1) continue;									/* in case returned by filter */
+			if (itemHit<1) continue;						/* in case returned by filter */
 			GetDialogItem(theDialog, itemHit, &theType, &itemHdl, &itemBox);
 			switch(theType) {
 				case ctrlItem+btnCtrl:
@@ -568,6 +569,7 @@ broken:
 	return (itemHit == OK? 1 : 0);
 }
 
+#define REPEAT_DELAY 6L		/* Delay between changes for auto-repeat */
 
 static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvt, short *itemHit)
 {		
@@ -624,6 +626,7 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvt, short 
 						
 			if (part == kControlButtonPart) {					
 				/* Code in "do" loop below needs this switch to set "range" local var. */
+				
 				switch(radSet.nowOn) {
 					case TOP_RAD:
 						range = TOP; break;
@@ -642,16 +645,12 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvt, short 
 					if (PtInRect(mouseLoc, &upBox)) {
 						HiliteControl((ControlHandle)upBtnHdl, BTNON);
 						InstrMoveRange(&master.ttb[range], range, UP);
-						/* in case notes move too fast */
-						SleepTicks(4L);
+						SleepTicks(REPEAT_DELAY);				/* keep note from changing too fast */
 					}
 					else if (PtInRect(mouseLoc, &dwnBox)) {
 						HiliteControl((ControlHandle)dwnBtnHdl, BTNON);
 						InstrMoveRange(&master.ttb[range], range, DOWN);
-						
-						/* in case notes move too fast */
-						
-						SleepTicks(4L);				
+						SleepTicks(REPEAT_DELAY);				/* keep note from changing too fast */
 					}
 				} while (Button());
 				
@@ -869,7 +868,7 @@ static void InstrMoveRange(
 			return;
 	}
 
-	if (radSet.nowOn == TOP_RAD) {				/* prevent overlap */
+	if (radSet.nowOn == TOP_RAD) {									/* prevent overlap */
 		if ((t->midiNote == master.ttb[BOT].midiNote + MIN_RANGE)
 										&& direction == DOWN) return;
 	}
@@ -1197,11 +1196,10 @@ static rangeHandle ReadInstr(
 		
 	tmpRngPtr = *rangeHdl;								/* save start of struct array */
 	
-	/*
-	 * For each instrument in the resource, get a string from the resource and
-	 * convert it to a C string. If we can parse it, store in struct array.
-	 * Then set it in list and move on to next available (blank) struct in array.
-	 */
+	/* For each instrument in the resource, get a string from the resource and convert
+	   it to a C string. If we can parse it, store in struct array; then set it in list
+	   and move on to next available (blank) struct in array. */
+	   
 	for (i = 0; i < i_tot; i++) {
 		GetIndCString(anInstr, rsrc_num, i + 1);
 	 	if (GetInstr(rangeHdl, (char *)anInstr)) {
@@ -1238,63 +1236,64 @@ static rangeHandle ReadInstr(
 }
 
 
-/* Get information on the given instrument from the resource; try to parse it and
-store its values into the given rangeMaster. Return True if we succeed, False if
-there's a problem. */
+/* Get information on the instrument from the given string; try to parse it and store
+its values into the given rangeMaster. Return True if we succeed, False if there's a
+problem. */
 
 static Boolean GetInstr(rangeHandle rHdl, char *strPtr)
 {
 	char tmp_str[256];
 	short i;
 	
-	/*
-	 * the record layout expected from the resource is as follows:
-	 *
-	 * instrname:abrv:topMIDI:name:acc:transMIDI:name:acc:botMIDI:name:acc:chan:patch:velBalance
-	 * (and for OMS) :device
-	 *
-	 * Where instrname and abrv are the name and abreviated name of the instrument
-	 * up to NM_SIZE - 1 or  AB_SIZE -1, and [top|trans|bot]MIDI is the MIDI note
-	 * value of the top of range, transposition, and bottom of range, respectively.
-	 *
-	 * Due to the fact some ranges are expressed in flats and some (such as
-	 * harp and bass trombone) in sharps, we need the note name (C, D, E...)
-	 * and the accidental (#, b, n) for each MIDI note value. This will be used
-	 * in the display.
-	 *   
-	 * This function gets substring from strPtr into tmp_str and saves start of
-	 * next substring in strPtr. Copy tmp_str to appropriate struct member in
-	 * in range or rangeMaster. Get instrument name and abrv: if missing, return
-	 * False.
-	 */
+	/* The record layout expected is as follows:
+	
+	     instrname:abrv:topMIDI:name:acc:transMIDI:name:acc:botMIDI:name:acc:chan:patch:velBalance
+	     (and for OMS) :device
+	
+	   ...where instrname and abrv are the name and abreviated name of the instrument
+	   up to NM_SIZE - 1 or  AB_SIZE -1, and [top|trans|bot]MIDI is the MIDI note
+	   value of the top of range, transposition, and bottom of range, respectively.
+	
+	   Since some ranges are conventionally expressed with flats and some (such as
+	   harp and bass trombone) in sharps, we need the note name and accidental for
+	   each MIDI note value. This will be used in the display.
+	     
+	   This function gets substring from strPtr into tmp_str and saves the start of
+	   next substring in strPtr. Copy tmp_str to appropriate struct member in range
+	   or rangeMaster. Get instrument name and abbrev: if missing, return False. */
 	 
-	/* instrument name */		
+	/* instrument name */
+	
 	if ((strPtr = strcut(tmp_str, strPtr, NM_SIZE)) != NULL)
 		strcpy((*rHdl)->name, (char *)tmp_str);
 	else
 		return(False);
 	 
-	/* instrument abbreviation */		
+	/* instrument abbreviation */
+	
 	if ((strPtr = strcut(tmp_str, strPtr, NM_SIZE)) != NULL)
 		strcpy((*rHdl)->abbr, (char *)tmp_str);
 	else
 		return(False);	
 	
 	for (i = TOP; i <= BOT; i++) {
+	
 		/* range */
-		if ((strPtr = strcut(tmp_str, strPtr, RSIZE)) != NULL)	
-			/* FIXME: With improper input, atoi can crash. We should use strtol instead. */
-			(*rHdl)->ttb[i].midiNote = (char)atoi(tmp_str);
+		
+		if ((strPtr = strcut(tmp_str, strPtr, RSIZE)) != NULL)
+			(*rHdl)->ttb[i].midiNote = (char)strtol(tmp_str, (char **)NULL, 10);
 		else
 			return(False);
 			
 		/* note name */
+		
 		if ((strPtr = strcut(tmp_str, strPtr, 1)) != NULL)	
 			(*rHdl)->ttb[i].name = tmp_str[0];
 		else
 			return(False);
 		
 		/* accidental */
+		
 		if ((strPtr = strcut(tmp_str, strPtr, 1)) != NULL)	{
 			if (tmp_str[0] == 'n') tmp_str[0] = ' ';	/* substitute <space> for 'n' (natural) */
 			(*rHdl)->ttb[i].acc = tmp_str[0];
@@ -1304,18 +1303,21 @@ static Boolean GetInstr(rangeHandle rHdl, char *strPtr)
 	}
 	
 	/* channel */
+	
 	if ((strPtr = strcut(tmp_str, strPtr, 2)) != NULL)	
 		(*rHdl)->channel = (char)atoi(tmp_str);
 	else
 		return(False);
 
 	/* patch number */
+	
 	if ((strPtr = strcut(tmp_str, strPtr, 3)) != NULL)
 		(*rHdl)->patchNum = (char)atoi(tmp_str);
 	else
 		return(False);
 
 	/* velocity bias */
+	
 	if ((strPtr = strcut(tmp_str, strPtr, 3)) != NULL)
 		(*rHdl)->velBalance = (char)atoi(tmp_str);
 	else
@@ -1344,18 +1346,15 @@ char *strcut(char *r,			/* ptr to temp buffer where data will go */
 		|| *s == (char)NULL || size <= 0 || size >= STRBUF_SIZE)
 		return(NULL);
 	else {
-		/* 
-		 * check for max size, NULL byte, separation char, and if ok, copy to temp buf.
-		 */
+		/* Check for max size, NULL byte, separation char, and if ok, copy to temp buf. */
 		 
 		while (i++ <= size) {
 		 	switch(*s) {
 		 		case SEPARATOR:
 		 		
-		 		/* mark end of temp buf and return ptr
-				 * skipping SEPARATOR so this will now point to
-				 * next substring head or (char)NULL.
-				 */
+		 		/* Mark end of temp buf and return ptr skipping SEPARATOR so this will
+				   now point to next substring head or (char)NULL. */
+				   
 		 			*r = (char)NULL;	
 					return(++s);
 					
@@ -1366,20 +1365,18 @@ char *strcut(char *r,			/* ptr to temp buffer where data will go */
 		 			return(s);
 		 			
 		 		default:
-		 		/* char is copied as we seek separator or end of input */
+		 		/* Copy char as we seek separator or end of input */
 		 				
 					*r++ = *s++;
 					break;
 			}
 		}
 		
-		/* 
-		 * If we are here, substring was longer than maximum size...this will
-		 * cause all subsequent substrings to be lost! No other checks seem
-		 * worth the trouble, because the resource has been improperly edited:
-		 * who can guess what is now there? So, clean-up as best we can.
-		 * Mark end of temp buf in case anyone uses it. 
-		 */
+		/* If we reach here, substring was longer than maximum size; this will cause
+		   all subsequent substrings to be lost! No other checks seem worth the trouble
+		   because the resource has been improperly edited: who can guess what is now
+		   there? So clean up as best we can. Mark end of temp buf in case anyone uses
+		   it. */
 		  			
 		*r = (char)NULL;	
 		return(NULL);
@@ -1400,10 +1397,8 @@ void InitRange(
 	 
 	extern struct scaleTblEnt *noteInfo[3];
 	
-	/*
-	 * one noteInfo each for TOP, BOT, TRANS. noteInfo[] ptrs will keep track of what
-	 * is currently displayed  by the drawing functions.
-	 */
+	/* One noteInfo each for TOP, BOT, TRANS. noteInfo[] ptrs will keep track of what
+	   is currently displayed  by the drawing functions. */
 	 
 	struct scaleTblEnt *savedp;
 	short r, i, pc, found;
@@ -1470,8 +1465,7 @@ Boolean MpCheck(PARTINFO *p)
 
 	minPatchNum = 1;
 
-	if (p!=NULL)
-	{
+	if (p!=NULL) {
 		if (useWhichMIDI==MIDIDR_CM && !CMTransmitChannelValid(*origMPDevice , p->channel)) {
 			master.cmDevice = config.cmDfltOutputDev;
 			master.channel = config.cmDfltOutputChannel;
@@ -1560,29 +1554,36 @@ Boolean PartMIDIDialog(Document * /*doc*/, PARTINFO *mp, Boolean *allParts)
 
 	if (useWhichMIDI==MIDIDR_CM) {
 		/* create the popup menu of available output devices */
+		
 		GetDialogItem(theDialog, PM_DEVICE_CM, &scratch, &hndl, &deviceMenuBox);
 		cmOutputMenuH = CreateCMOutputMenu(theDialog, &cmOutputPopup, &deviceMenuBox, NULL, PM_DEVICE_CM);
 	}
 
 	if (MpCheck(mp)) {
-		/* instrument name and abbrv. */		
+		/* instrument name and abbrv. */
+		
 		GoodStrncpy(master.name, mp->name, (unsigned long)NM_SIZE - 1);
 		GoodStrncpy(master.abbr, mp->shortName, (unsigned long)AB_SIZE - 1);
 		
 		/* channel, patch number and velocity balance */
+		
 		master.channel = mp->channel;
 		master.patchNum = mp->patchNum;
 		master.velBalance = mp->partVelocity;
 
-		/* set unique device ID for OMS.
-			See code in GetOMSPartPlayInfo for a similar situation.  -JGG, 7/23/00 */
+		/* Set unique device ID for OMS. See code in GetOMSPartPlayInfo for a similar\
+		   situation.  -JGG, 7/23/00 */
+		   
 		if (useWhichMIDI == MIDIDR_CM) {
 			/* Validate device / channel combination. */
+			
 			if (CMTransmitChannelValid(*origMPDevice, (short)(mp->channel)))
 				master.cmDevice = *origMPDevice;
 			else
 				master.cmDevice = config.cmDfltOutputDev;
+				
 			/* It's possible our device has changed, so validate again. */
+			
 			if (CMTransmitChannelValid(master.cmDevice, (short)(mp->channel)))
 				master.channel = mp->channel;
 			else
@@ -1620,8 +1621,8 @@ Boolean PartMIDIDialog(Document * /*doc*/, PARTINFO *mp, Boolean *allParts)
 		DrawPopUp(&cmOutputPopup);
 	}
 
-	// 5_17r4: we are now using MIDIDR_CM and the selected text is the patch text, 
-	// not the channel
+	/* 5_17r4: we are now using MIDIDR_CM and the selected text is the patch text,
+	   not the channel. */
 	
 	if (useWhichMIDI==MIDIDR_CM)
 		SelectDialogItemText(theDialog, PM_PATCH, 0, ENDTEXT);
@@ -1844,7 +1845,9 @@ pascal Boolean TheCMPMFilter(DialogPtr theDialog, EventRecord *theEvt, short *it
 			mouseLoc = theEvt->where;
 			GlobalToLocal(&mouseLoc);
 			
-			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
+			/* If user hit the OK or Cancel button, bypass the rest of the control
+			   stuff below. */
+			
 			GetDialogItem(theDialog, OKBTN, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	break;
 			GetDialogItem(theDialog, CANCELBTN, &type, &hndl, &box);

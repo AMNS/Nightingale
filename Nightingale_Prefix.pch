@@ -34,12 +34,6 @@ in the Nightingale project. */
 // MAS
 #include "CarbonCompat.h"
 
-/* Define the platform. NB: When it wasn't running on a Motorola 680x0 family CPU, Mac
-OSs used to include an emulator for it, so we could use 680x0 code on any MacOS machine.
-But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K code! */
-
-#define OS_MAC					/* Generate code for MacOS */
-
 /* General Nightingale headers */
 
 #include "NLimits.h"

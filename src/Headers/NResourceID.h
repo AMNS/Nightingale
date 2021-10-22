@@ -97,14 +97,12 @@
 #define BMP_ALRT 552					/* Can’t open BMP file */
 #define PASTE_STFCLIP_ALRT 660			/* More staves in clipboard than below ins. pt. */
 
-#define LIGHTVERS_MAXPAGES_ALRT 560		/* Can't have more than 3 pages in NightLight */
-
 #define ABOUT_DLOG 451					/* "About Nightingale..." */
 #define STAFFLINES_DLOG 454				/* Staff/Ledger lines dialog */
 #define STAFFSIZE_DLOG 455				/* Set staff size dialog */
 #define ADDPART_DLOG 456				/* Add part dialog */
 #define MARGINS_DLOG 460
-#define USEMIDIDR_DLOG 485				/* This replaces all the USE... ALRTs (formerly 332-337) */
+#define USEMIDIDR_DLOG 485				/* This replaces the USE...MIDI driver ALRTs (formerly 332-337) */
 #define MIDISETUP_DLOG 489				/* Old MIDI setup dialog */
 #define CM_MIDISETUP_DLOG 490			/* MIDI setup dialog for Core MIDI (and formerly OMS) */
 
@@ -217,14 +215,14 @@ enum {
 	gotoPopID,
 	dTransposePopID,
 	octavePopID
-	};
+};
 
 /* Menu item codes */
 
 enum {
 	AM_About = 1,				/* Apple menu */
 	AM_Help
-	};
+};
 	
 enum {							/* File menu */
 	FM_New = 1,
@@ -257,11 +255,10 @@ enum {							/* File menu */
 	FM_Preferences,
 	FM_SearchInFiles,
 	FM_Quit
-	};
+};
 
-// CER 5/17/2004
-// If the Edit Menu items are changed, make sure EM_LastItem still equals
-// the last menu item
+/* If you change the Edit Menu items, make sure EM_LastItem still equals the last menu
+item.  --CER 5/17/2004 */
 
 enum {							/* Edit menu */
 	EM_Undo = 1,
@@ -285,7 +282,6 @@ enum {							/* Edit menu */
 	EM_Set,
 	EM_GetInfo,
 	EM_ModifierInfo,
-#define TEST_SEARCH_NG				// ??TEMPORARY! BELONGS IN Nightingale.precomp.c!!!!!!!!
 #ifdef TEST_SEARCH_NG
 	EM_____________6,
 	EM_SearchMelody,
@@ -298,7 +294,7 @@ enum {							/* Edit menu */
 	EM_Debug,
 	EM_ShowDebug,
 	EM_DeleteObjs
-	};
+};
 
 enum {							/* Test menu */
 	TS_Browser = 1,
@@ -403,7 +399,7 @@ enum {							/* View menu */
 	VM_ToollPalette,
 	VM_ShowSearchPattern,
 	VM_LastItem=VM_ShowSearchPattern
-	};
+};
 
 enum {							/* Play/Record menu */
     PL_PlayEntire = 1,
@@ -451,6 +447,7 @@ enum {							/* Format menu */
 };
 
 /* Miscellaneous temporarily-installed popup menus */
+
 #define FONT_POPUP				20
 #define SIZE_POPUP				21
 #define STAFFREL_POPUP			22
@@ -459,6 +456,7 @@ enum {							/* Format menu */
 #define FLOWTEXTSTYLE_POPUP		37
 
 /* Popup menus for the QuickChange (formerly Set) command */
+
 #define LYRICSTYLE_POPUP FLOWTEXTSTYLE_POPUP	/* OK if they're never used together! */
 #define	MAINSET_POPUP			49
 #define	NOTEPROPERTY_POPUP		50

@@ -42,15 +42,10 @@ typedef struct {
 	char *value;
 } KeyValuePair;
 
+
 /* -------------------------------------------------------------------------------------- */
-/* Local prototypes */
 
-
-/*
- * FindTextPreferencesFile
- *
- * Creates FSSpec for Nightingale_X_Prefs.txt
- */
+/* Create an FSSpec for the text Preferences file */
 
 static OSStatus FindTextPreferencesFile(OSType fType, OSType fCreator, FSSpec *prefsSpec) 
 {
@@ -60,25 +55,25 @@ static OSStatus FindTextPreferencesFile(OSType fType, OSType fCreator, FSSpec *p
 	CInfoPBRec cat;
 	OSStatus err;
 	
-	// find the preferences folder
-	err = FindFolder( kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
+	/* Find the preferences folder and search it for our file */
+	
+	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
 	if (err != noErr) return err;
 	
-	// search the folder for the file
 	BlockZero(&cat, sizeof(cat));
 	cat.hFileInfo.ioNamePtr = name;
 	cat.hFileInfo.ioVRefNum = pvol;
 	cat.hFileInfo.ioFDirIndex = 1;
 	cat.hFileInfo.ioDirID = pdir;
 	
-	while (PBGetCatInfoSync(&cat) == noErr) 
-	{
+	while (PBGetCatInfoSync(&cat) == noErr) {
 		if (( (cat.hFileInfo.ioFlAttrib & 16) == 0) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdType == fType) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdCreator == fCreator) &&
-				Pstreql(name, (unsigned char *)SETUP_TEXTFILE_NAME) )
-		{
-			// make a fsspec referring to the file
+				Pstreql(name, (unsigned char *)PREFS_TEXTFILE_NAME) ) {
+				
+			/* Make an fsspec referring to the file */
+			
 			return FSMakeFSSpec(pvol, pdir, name, prefsSpec);
 		}
 		
@@ -100,17 +95,16 @@ static short AddNewLine(char *buf)
 
 static Boolean AddSetupStrings(Handle resH, short refNum)
 {
-	short 	numStrings, i;
+	short		numStrings, i;
 	long		count;
-	char 		buf[512];
-	OSStatus theErr;
+	char		buf[512];
+	OSStatus	theErr;
 	
 	numStrings = *(short *)(*resH);
-	for (i = 0; i < numStrings; i++) 
-	{
+	for (i = 0; i < numStrings; i++) {
 		GetIndCString(buf, TEXTPREFS_STRS, i + 1);
 		
-		// Write the line to the file
+		/* Write the line to the file */
 		
 		count = AddNewLine(buf);
 		theErr = FSWrite(refNum, &count, buf);
@@ -122,24 +116,26 @@ static Boolean AddSetupStrings(Handle resH, short refNum)
 
 
 
-/* ---------------------------------------------------------- CreateTextSetupFile -- */
-static Boolean CreateTextSetupFile(FSSpec *fsSpec)
+/* ---------------------------------------------------------- CreateTextPrefsFile -- */
+
+static Boolean CreateTextPrefsFile(FSSpec *fsSpec)
 {
 	ScriptCode	scriptCode = smRoman;
 	OSStatus 	theErr;
 	Handle		resH;
-	short			refNum;
+	short		refNum;
 	
-	// Create a new text preferences file.
+	/* Create a new text preferences file. */
 
-	Pstrcpy(fsSpec->name, SETUP_TEXTFILE_PATH);	
+	Pstrcpy(fsSpec->name, PREFS_TEXTFILE_PATH);	
 	theErr = FSpCreate(fsSpec, creatorType, prefsTextFileType, scriptCode);
 	if (theErr) return False;
 	
-	theErr = FSpOpenDF (fsSpec, fsRdWrPerm, &refNum);
+	theErr = FSpOpenDF(fsSpec, fsRdWrPerm, &refNum);
 	if (theErr) return False;
 		
 	/* Now copy the instrument list. */
+	
 	resH = GetResource('STR#', TEXTPREFS_STRS);
 	
 	if (!GoodResource(resH)) return False;		
@@ -165,18 +161,19 @@ well, return True. */
 
 Boolean OpenTextSetupFile()
 {
-	OSErr result; Boolean okay=True; Str63 volName;
-	StringHandle strHdl; char fmtStr[256];
+	OSErr result;  Boolean okay=True;  Str63 volName;
+	StringHandle strHdl;  char fmtStr[256];
 	
-	short oldVRefNum; long oldDirID;
-	short vRefNum; long dirID;
+	short oldVRefNum;
+	short vRefNum;
+	long oldDirID, dirID;
 
 	OSErr theErr;
 	
 	theErr = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder, &vRefNum, &dirID);
 	
 	HGetVol(volName,&oldVRefNum,&oldDirID);
-	HSetVol(volName,vRefNum,dirID);		// Need to specify a location for setup file
+	HSetVol(volName,vRefNum,dirID);		/* Need to specify a location for Prefs file */
 
 	rfVRefNum = vRefNum;
 	rfVolDirID = dirID;
@@ -190,20 +187,21 @@ Boolean OpenTextSetupFile()
 	result = theErr;
 		
 	if (result==fnfErr) {
-		/* Note that the progress message has the setup filename embedded in it: this is
-		 * lousy--it should use SETUP_FILE_NAME, of course--but ProgressMsg() can't
-		 * handle that!
-		 */
+		/* Note that the progress message has the Prefs filename embedded in it: this is
+		   lousy--it should use SETUP_FILE_NAME, of course--but ProgressMsg() can't
+		   handle that! */
+		   
 		ProgressMsg(CREATE_PREFS_PMSTR, "");
 		SleepTicks(60L);								/* Be sure user can read the msg */
-		if (!CreateTextSetupFile(&prefsFSSpec)) {
+		if (!CreateTextPrefsFile(&prefsFSSpec)) {
 			GetIndCString(strBuf, INITERRS_STRS, 2);	/* "Can't create Prefs file" */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
 			okay = False;
 			goto done;
 		}
-		/* Try opening the brand-new one. */
+		/* Try opening the brand-new file. */
+		
 		theErr = FSpOpenDF(&prefsFSSpec, fsRdWrPerm, &setupFileRefNum);
 
 		ProgressMsg(0, "");
@@ -241,27 +239,22 @@ Ptr CleanData(Ptr data, long count)
 	Ptr newData = NewPtr(count + 2);
 	if (!GoodNewPtr(newData)) return NULL;
 	
-	// ensure that we have null-terminated string which ends with
-	// a newline
+	/* nsure that we have a null-terminated string which ends with a newline */
 	
 	newData[count] = '\n';
 	newData[count+1] = '\0';
-	
-	
+
 	char *p = data;
 	long i = 0;
 	
-	for ( ; i<count; i++) 
-	{
+	for ( ; i<count; i++) {
 		if (*p == '\r') {
 			*p++ = '\n';
 		}
 	}
 	
-	for (i=0,p=data; i<count-1; i++) 
-	{	
+	for (i=0,p=data; i<count-1; i++) {	
 		if (*p == '\n') {
-			
 			char *r = p+1;
 			if (*r == '\n') {
 				*r = ' ';				
@@ -271,8 +264,7 @@ Ptr CleanData(Ptr data, long count)
 	
 	char *q = newData;
 	long j = 0;
-	for (i=0,p=data; i<count; i++) 
-	{	
+	for (i=0,p=data; i<count; i++) {	
 		if (ValidChar(*p)) {
 			*q++ = *p;
 			j++;
@@ -371,7 +363,7 @@ Boolean GetTextConfig()
 	
 	newData = CleanData(data, count);
 	if (newData == NULL) {
-		ok = False; goto done;
+		ok = False;  goto done;
 	}
 	
 	numLines = CountLines(newData);
@@ -380,20 +372,18 @@ Boolean GetTextConfig()
 	
 	prefsTbl = NewPtr(numLines * sizeof(KeyValuePair));
 	if (!GoodNewPtr(prefsTbl)) {
-		ok = False; goto done;
+		ok = False;  goto done;
 	}
 	
 	ok = ReadPrefsTbl(newData, (KeyValuePair *)prefsTbl, numLines);
 	
 done:
-	if (data)
-		DisposePtr(data);
+	if (data) DisposePtr(data);
 	
 	theErr = FSClose(refNum);
 	if (theErr) ok = False;
 	
 	if (ok == False) {
-	
 		if (newData)
 			DisposePtr(newData);
 		

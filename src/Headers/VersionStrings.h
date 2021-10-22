@@ -9,13 +9,14 @@ VersionString(). */
 
 #define PROGRAM_NAME 	"Nightingale"								/* C string */
 
-/* NB: The The path separators are mandatory in these #defines. */
+/* NB: The path separators are mandatory in these #defines. */
+
 #define PREFS_PATH		"\p:Preferences:"
 #define PREFS_FILE_PATH "\p:Nightingale AMNF Prefs"
 #define PREFS_FILE_NAME	"\pNightingale AMNF Prefs"
 
-#define SETUP_TEXTFILE_PATH 	"\p:Nightingale_AMNF_Prefs.txt"
-#define SETUP_TEXTFILE_NAME 	"\pNightingale_AMNF_Prefs.txt"
+#define PREFS_TEXTFILE_PATH 	"\p:Nightingale_AMNF_Prefs.txt"
+#define PREFS_TEXTFILE_NAME 	"\pNightingale_AMNF_Prefs.txt"
 
 #define HELP_FILE_NAME 	"Nightingale 2004 Help"						/* C string */
 
