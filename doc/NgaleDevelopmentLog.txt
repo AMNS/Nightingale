@@ -9635,11 +9635,13 @@ probably not. Besides notehead w/ question mark (for unknown duration), Set Dura
 noteheads with stems & flags; does Sonata have those? Yes! But it also needs them with one
 and two dots; it doesn't have those.
 
-Now, what happens ON TORREY'S OLD WHITE MACBOOK, running macOS 10.6.x?  (1) Enumerate Fonts
-lists 354 fonts, none of which includes the string "pop", then runs into the 500 log
-messages per second limit after getting up to fondID 17570. But "%popDurs" and "%popDynMod"
-should be 32303 and 32304 -- that's what they are in NFonts.rsrc; no wonder they aren't
-listed. With the usual kludge to sidestep the max. log messages problem:
+Now, what happens ON TORREY'S OLD WHITE MACBOOK, running macOS 10.6.x?
+
+(1) Enumerate Fonts lists 354 fonts, none of which includes the string "pop", then runs
+into the 500 log messages per second limit after getting up to fondID 17570. But
+"%popDurs" and "%popDynMod" should be 32303 and 32304 -- that's what they are in
+NFonts.rsrc; no wonder they aren't listed. With the usual kludge to sidestep the max. log
+messages problem:
 
 	Apr  1 10:30:33 unknown001f5bbee8ff Ngale[790]:
 	...
@@ -10481,4 +10483,27 @@ say on Intel (with OS 10.14.x)?
 
 	debug. Current working dir: /
 
-#$%&^(@$P#)_(*@!  Okay, surely there's a way to get the full path to the app! ??
+#$%&^(@$P#)_(*@!  Okay, but surely there's a way to get the full path to the app! ??
+
+---------------------------------------------------------------------------------------
+
+24 - 27 Oct.
+
+Actually, on macOS, the current working directory always seems to be the folder the app
+package is in, so we could just go from there -- but we need the filename of the app.
+Ah, but argv[0] in main() seems to give the full path to the actual executable, not to
+the app package, and not just the app filename! In my case
+
+	G5: /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/build/Release/Nightingale.app/Contents/MacOS/Nightingale
+
+	MBAir: /_INCOMING_MBA/NightingaleIntel.app/Contents/MacOS/Nightingale
+
+With either, to get the path to the Resources folder, remove the stuff after the last
+slash; then go to
+
+	../../Resources
+
+The tempo/metronome mark dialog also uses the Set Duration palette; so does the Fancy
+Tuplet command! So the problem commands that used to rely on a UI font include Set
+Duration, insert or edit tempo/metronome mark, Fancy Tuplet (all using the Set Duration
+menu); Add Modifiers; and double-clicking a dynamic.

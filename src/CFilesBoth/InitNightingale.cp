@@ -1,6 +1,6 @@
 /* InitNightingale.c for Nightingale
-One-time initialization of Nightingale-specific stuff. Assumes the Macintosh
-toolbox has already been initialized and the config struct filled in. */
+One-time initialization of Nightingale-specific stuff. Assumes the Macintosh toolbox
+has already been initialized and the config struct filled in. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -20,13 +20,20 @@ toolbox has already been initialized and the config struct filled in. */
 static void		NExitToShell(char *msg);
 static Boolean	DoSplashScreen(void);
 static Boolean	InitAllCursors(void);
-static void		InitNightFonts(void);
 static Boolean	InitNightGlobals(void);
 static Boolean	InitTables(void);
 static void 	DisplayInfo(void);
+static void		InitNightFonts(void);
+static Boolean	InitMusFontTables(void);
 static void 	CheckScreenFonts(void);
 static void		InitMusicFontStuff(void);
 static Boolean	InitMIDISystem(void);
+static void		DisplayToolPaletteParams(PaletteGlobals *whichPalette);
+static Boolean	CheckToolPaletteParams(PaletteGlobals *whichPalette);
+static short	GetToolGrid(PaletteGlobals *whichPalette);
+static void		InitPaletteRects(Rect *whichRects, short across, short down, short width,
+										short height);
+static Boolean	InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
 
 void InitNightingale()
 {
@@ -124,30 +131,6 @@ Error:
 }
 
 
-/* Set globals describing our standard text font and our standard music font. */
-
-void InitNightFonts()
-{
-	textFontNum = applFont;
-	
-	/* NB: The following comment is pre-OS X and should be taken with a grain of salt!:
-	   The "magic no." in next line should theoretically go away: we should get the
-	   system font size from the Script Manager if it's present (and it should always
-	   be). However, in every system I've seen, the system font size is 12, so I doubt
-	   it's a big deal. */
-	   
-	textFontSize = 12;
-	textFontSmallSize = textFontSize-3;
-
-	if (!GetFontNumber("\pSonata", &sonataFontNum)) {	/* Get ID of Adobe Sonata font */
-		if (CautionAdvise(MUSFONT_ALRT)==Cancel)
-			ExitToShell();
-		else
-			return;
-	}
-}
-
-
 /* Allocate <endingString> and get label strings for Endings into it. Return the number
 of strings found, or -1 if there's an error (probably out of memory). */
 
@@ -227,6 +210,119 @@ static Boolean InitNightGlobals()
 	}
 	
 	return True;
+}
+
+
+/* Initialize duration, rastral size, dynam to MIDI velocity, etc. tables. If there's
+a serious problem, return False, else True. */
+
+static Boolean InitTables()
+{
+	MIDIPreferences **midiStuff;
+	MIDIModNRPreferences **midiModNRH;
+	short i;
+
+	l2p_durs[MAX_L_DUR] = PDURUNIT;					/* Set up lookup table to convert */
+	for (i = MAX_L_DUR-1; i>0; i--)					/*   logical to physical durations */
+		l2p_durs[i] = 2*l2p_durs[i+1];
+		
+	pdrSize[0] = config.rastral0size;
+	for (i = 0; i<=MAXRASTRAL; i++)					/* Set up DDIST table of rastral sizes */
+		drSize[i] = pt2d(pdrSize[i]);
+		
+	if (LAST_DYNAM!=24) {
+		MayErrMsg("InitTables: dynam2velo table setup problem.");
+		return False;
+	}
+	midiStuff = (MIDIPreferences **)GetResource('MIDI', PREFS_MIDI);
+	if (midiStuff==NULL || *midiStuff==NULL) {
+		GetIndCString(strBuf, INITERRS_STRS, 8);	/* "Can't find MIDI resource" */
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return False;
+	}
+	for (i = 1; i<LAST_DYNAM; i++)						/* Set up dynamic-mark-to-MIDI-velocity table */
+		dynam2velo[i] = (*midiStuff)->velocities[i-1];
+
+	midiModNRH = (MIDIModNRPreferences **)GetResource('MIDM', PREFS_MIDI_MODNR);
+	if (midiModNRH==NULL || *midiModNRH==NULL) {
+		GetIndCString(strBuf, INITERRS_STRS, 31);		/* "Can't find MIDM resource" */
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return False;
+	}
+	/* Set up MIDI modifier velocity offset and duration factor tables */
+	
+	for (i = 0; i<32; i++) {
+		modNRVelOffsets[i] = (*midiModNRH)->velocityOffsets[i];  FIX_END(modNRVelOffsets[i]);
+		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i];  FIX_END(modNRDurFactors[i]);
+	}
+
+	if (!InitMusFontTables()) return False;
+	
+	if (!InitStringPools(256L, 0)) {
+		NoMoreMemory();
+		return False;
+	}
+	
+	contextA = (CONTEXT *)NewPtr((MAXSTAVES+1)*(Size)sizeof(CONTEXT));
+	if (!GoodNewPtr((Ptr)contextA)) {
+		OutOfMemory((long)(MAXSTAVES+1)*(Size)sizeof(CONTEXT));
+		return False;
+	}
+	
+	return True;	
+}
+
+
+/* Show various information for debugging in the log. */
+
+static void DisplayInfo()
+{
+#define DEBUG_FONT_PROBLEMS
+#ifdef DEBUG_FONT_PROBLEMS
+		if (MORE_DETAIL_SHOW) DisplayAvailableFonts();
+#endif
+
+#ifdef IDEBUG
+	LogPrintf(LOG_DEBUG, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
+	
+	LogPrintf(LOG_DEBUG, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
+		sizeof(HEADER), sizeof(TAIL), sizeof(SYNC), sizeof(RPTEND), sizeof(PAGE));
+	LogPrintf(LOG_DEBUG, "Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
+		sizeof(SYSTEM), sizeof(STAFF), sizeof(MEASURE), sizeof(CLEF), sizeof(KEYSIG));
+	LogPrintf(LOG_DEBUG, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
+		sizeof(TIMESIG), sizeof(BEAMSET), sizeof(CONNECT), sizeof(DYNAMIC));
+	LogPrintf(LOG_DEBUG, "Size of GRAPHIC=%ld OTTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
+		sizeof(GRAPHIC), sizeof(OTTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
+	LogPrintf(LOG_DEBUG, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
+		sizeof(TEMPO), sizeof(SPACER), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
+#endif
+}
+
+/* ----------------------------------------------------------------------------- Fonts -- */
+
+/* Set globals describing our standard text font and our standard music font. */
+
+void InitNightFonts()
+{
+	textFontNum = applFont;
+	
+	/* NB: The following comment is pre-OS X and should be taken with a grain of salt!:
+	   The "magic no." in next line should theoretically go away: we should get the
+	   system font size from the Script Manager if it's present (and it should always
+	   be). However, in every system I've seen, the system font size is 12, so I doubt
+	   it's a big deal. */
+	   
+	textFontSize = 12;
+	textFontSmallSize = textFontSize-3;
+
+	if (!GetFontNumber("\pSonata", &sonataFontNum)) {	/* Get ID of Adobe Sonata font */
+		if (CautionAdvise(MUSFONT_ALRT)==Cancel)
+			ExitToShell();
+		else
+			return;
+	}
 }
 
 
@@ -394,94 +490,6 @@ error:
 }
 
 
-/* Initialize duration, rastral size, dynam to MIDI velocity, etc. tables. If there's
-a serious problem, return False, else True. */
-
-static Boolean InitTables()
-{
-	MIDIPreferences **midiStuff;
-	MIDIModNRPreferences **midiModNRH;
-	short i;
-
-	l2p_durs[MAX_L_DUR] = PDURUNIT;					/* Set up lookup table to convert */
-	for (i = MAX_L_DUR-1; i>0; i--)					/*   logical to physical durations */
-		l2p_durs[i] = 2*l2p_durs[i+1];
-		
-	pdrSize[0] = config.rastral0size;
-	for (i = 0; i<=MAXRASTRAL; i++)					/* Set up DDIST table of rastral sizes */
-		drSize[i] = pt2d(pdrSize[i]);
-		
-	if (LAST_DYNAM!=24) {
-		MayErrMsg("InitTables: dynam2velo table setup problem.");
-		return False;
-	}
-	midiStuff = (MIDIPreferences **)GetResource('MIDI', PREFS_MIDI);
-	if (midiStuff==NULL || *midiStuff==NULL) {
-		GetIndCString(strBuf, INITERRS_STRS, 8);	/* "Can't find MIDI resource" */
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
-		return False;
-	}
-	for (i = 1; i<LAST_DYNAM; i++)						/* Set up dynamic-mark-to-MIDI-velocity table */
-		dynam2velo[i] = (*midiStuff)->velocities[i-1];
-
-	midiModNRH = (MIDIModNRPreferences **)GetResource('MIDM', PREFS_MIDI_MODNR);
-	if (midiModNRH==NULL || *midiModNRH==NULL) {
-		GetIndCString(strBuf, INITERRS_STRS, 31);		/* "Can't find MIDM resource" */
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
-		return False;
-	}
-	/* Set up MIDI modifier velocity offset and duration factor tables */
-	
-	for (i = 0; i<32; i++) {
-		modNRVelOffsets[i] = (*midiModNRH)->velocityOffsets[i];  FIX_END(modNRVelOffsets[i]);
-		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i];  FIX_END(modNRDurFactors[i]);
-	}
-
-	if (!InitMusFontTables()) return False;
-	
-	if (!InitStringPools(256L, 0)) {
-		NoMoreMemory();
-		return False;
-	}
-	
-	contextA = (CONTEXT *)NewPtr((MAXSTAVES+1)*(Size)sizeof(CONTEXT));
-	if (!GoodNewPtr((Ptr)contextA)) {
-		OutOfMemory((long)(MAXSTAVES+1)*(Size)sizeof(CONTEXT));
-		return False;
-	}
-	
-	return True;	
-}
-
-
-/* Show various information for debugging in the log. */
-
-static void DisplayInfo()
-{
-#define DEBUG_FONT_PROBLEMS
-#ifdef DEBUG_FONT_PROBLEMS
-		if (MORE_DETAIL_SHOW) DisplayAvailableFonts();
-#endif
-
-#ifdef IDEBUG
-	LogPrintf(LOG_DEBUG, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
-	
-	LogPrintf(LOG_DEBUG, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
-		sizeof(HEADER), sizeof(TAIL), sizeof(SYNC), sizeof(RPTEND), sizeof(PAGE));
-	LogPrintf(LOG_DEBUG, "Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
-		sizeof(SYSTEM), sizeof(STAFF), sizeof(MEASURE), sizeof(CLEF), sizeof(KEYSIG));
-	LogPrintf(LOG_DEBUG, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
-		sizeof(TIMESIG), sizeof(BEAMSET), sizeof(CONNECT), sizeof(DYNAMIC));
-	LogPrintf(LOG_DEBUG, "Size of GRAPHIC=%ld OTTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
-		sizeof(GRAPHIC), sizeof(OTTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
-	LogPrintf(LOG_DEBUG, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
-		sizeof(TEMPO), sizeof(SPACER), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
-#endif
-}
-
-
 /* Check if all the desirable screen fonts are actually present and report what we find. */
 
 static void CheckScreenFonts()
@@ -565,23 +573,478 @@ void InitMusicFontStuff()
 	CheckScreenFonts();
 }
 
+/* ------------------------------------------------------------------------------ MIDI -- */
 
 static Boolean InitChosenMIDISystem()
 {
 	Boolean midiOK = True;
 	
-	if (useWhichMIDI == MIDIDR_CM)
-		midiOK = InitCoreMIDI();
+	if (useWhichMIDI == MIDIDR_CM) midiOK = InitCoreMIDI();
 	
 	LogPrintf(LOG_INFO, "useWhichMIDI=%d midiOK=%d  (InitChosenMIDISystem)\n", useWhichMIDI, midiOK);
 	return midiOK;
 }
 
-Boolean InitMIDISystem()
+static Boolean InitMIDISystem()
 {
 	/* For the foreseeable future, only support MacOS Core MIDI.  --DAB, April 2021 */
 	
 	useWhichMIDI = MIDIDR_CM;
 
 	return InitChosenMIDISystem();
+}
+
+
+/* ------------------------------------------------------------------------ Palette(s) -- */
+
+static void DisplayToolPaletteParams(PaletteGlobals *whichPalette)
+{
+	LogPrintf(LOG_INFO, "Displaying Tool Palette parameters:\n");
+	LogPrintf(LOG_INFO, "  maxAcross=%d", whichPalette->maxAcross);
+	LogPrintf(LOG_INFO, "  maxDown=%d", whichPalette->maxDown);
+	LogPrintf(LOG_INFO, "  across=%d", whichPalette->across);
+	LogPrintf(LOG_INFO, "  down=%d", whichPalette->down);
+	LogPrintf(LOG_INFO, "  oldAcross=%d", whichPalette->oldAcross);
+	LogPrintf(LOG_INFO, "  oldDown=%d", whichPalette->oldDown);
+	LogPrintf(LOG_INFO, "  firstAcross=%d", whichPalette->firstAcross);
+	LogPrintf(LOG_INFO, "  firstDown=%d\n", whichPalette->firstDown);
+}
+
+/* Do a reality check for palette values that might be bad. If no problems are found,
+return True, else False. */
+
+static Boolean CheckToolPaletteParams(PaletteGlobals *whichPalette)
+{
+	if (whichPalette->maxAcross<4 || whichPalette->maxAcross>150) return False;
+	if (whichPalette->maxDown<4 || whichPalette->maxDown>150) return False;
+	if (whichPalette->across<1 || whichPalette->across>80) return False;
+	if (whichPalette->down<1 || whichPalette->down>80) return False;
+	if (whichPalette->oldAcross<1 || whichPalette->oldAcross>80) return False;
+	if (whichPalette->oldDown<1 || whichPalette->oldDown>80) return False;
+	if (whichPalette->firstAcross<1 || whichPalette->firstAcross>80) return False;
+	if (whichPalette->firstDown<1 || whichPalette->firstDown>80) return False;
+	
+	return True;
+}
+
+/* Allocate a grid of characters from the 'PLCH' resource; uses GridRec dataType to
+store the information for a maximal maxRow by maxCol grid, where the dimensions are
+stored in the PLCH resource itself and should match the BMP that is being used to draw
+the palette.  We also initialize PaletteGlobals fields read from the resource and check
+them. Returns the item number of the default tool (normally arrow), or 0 if problem. */
+
+static short GetToolGrid(PaletteGlobals *whichPalette)
+	{
+		short maxRow, maxCol, row, col, item, defItem = 0; 
+		short curResFile;
+		GridRec *pGrid;
+		Handle hdl;
+		Byte *p;										/* Contains both binary and char data */
+		
+		curResFile = CurResFile();
+		UseResFile(setupFileRefNum);
+
+		hdl = GetResource('PLCH', ToolPaletteID);		/* get info on and char map of palette */
+		if (!GoodResource(hdl)) {
+			GetIndCString(strBuf, INITERRS_STRS, 6);	/* "can't get Tool Palette resource" */
+			CParamText(strBuf, "", "", "");
+			StopInform(GENERIC_ALRT);
+			UseResFile(curResFile);
+			return(0);
+			}
+		
+		UseResFile(curResFile);
+
+		/* Pull in the maximum and suggested sizes for palette. */
+		
+		p = (unsigned char *)*hdl;
+		whichPalette->maxAcross = *p++;
+		whichPalette->maxDown = *p++;
+		whichPalette->firstAcross = whichPalette->oldAcross = whichPalette->across = *p++;
+		whichPalette->firstDown   = whichPalette->oldDown   = whichPalette->down   = *p++;
+		
+		/* FIXME: This comment (written by me between Oct. 2017 and Aug. 2018) makes no
+		   sense: {We must _not_ "Endian fix" these values: they're read from one-byte
+		   fields!} What was I thinking of? WHAT values?? <PaletteGlobals> has no one-
+		   byte fields.  --DAB */
+		
+		if (DETAIL_SHOW) DisplayToolPaletteParams(whichPalette);
+		LogPrintf(LOG_NOTICE, "Checking Tool Palette parameters: ");
+		if (CheckToolPaletteParams(whichPalette)) LogPrintf(LOG_NOTICE, "No errors found.  (GetToolGrid)\n");
+		else {
+			if (!DETAIL_SHOW) DisplayToolPaletteParams(whichPalette);
+			GetIndCString(strBuf, INITERRS_STRS, 34);	/* "Your Prefs file has illegal values for the tool palette..." */
+			CParamText(strBuf, "", "", "");
+			LogPrintf(LOG_ERR, "%s\n", strBuf);
+			StopInform(GENERIC_ALRT);
+			return 0;
+		}
+		
+		/* Create storage for 2-D table of char/positions for palette grid */
+		
+		maxCol = whichPalette->maxAcross;
+		maxRow = whichPalette->maxDown;
+		
+		grid = (GridRec *)NewPtr((Size)maxRow*maxCol*sizeof(GridRec));
+		if (!GoodNewPtr((Ptr)grid)) {
+			OutOfMemory((long)maxRow*maxCol*sizeof(GridRec));
+			return 0;
+			}
+
+		/* And scan through resource to install grid cells */
+		
+		p = (unsigned char *) (*hdl + 4*sizeof(long));			/* Skip header stuff */
+		pGrid = grid;
+		item = 1;
+		for (row=0; row<maxRow; row++)							/* initialize grid[] */
+			for (col=0; col<maxCol; col++, pGrid++, item++) {
+				SetPt(&pGrid->cell, col, row);					/* Doesn't move memory */
+				if ((pGrid->ch = *p++) == CH_ENTER)
+					if (defItem == 0) defItem = item; 
+				}
+		
+		GetToolZoomBounds();
+		return defItem;
+	}
+
+
+/* Install the rectangles for the given pallete rects array and its dimensions */
+
+static void InitPaletteRects(Rect *whichRects, short itemsAcross, short itemsDown,
+								short itemWidth, short itemHeight)
+{
+	short across, down;
+	
+	whichRects->left = 0;
+	whichRects->top = 0;
+	whichRects->right = 0;
+	whichRects->bottom = 0;
+
+	whichRects++;
+	for (down=0; down<itemsDown; down++)
+		for (across=0; across<itemsAcross; across++, whichRects++) {
+			whichRects->left = across * itemWidth;
+			whichRects->top = down * itemHeight;
+			whichRects->right = (across + 1) * itemWidth;
+			whichRects->bottom = (down + 1) * itemHeight;
+			OffsetRect(whichRects, TOOLS_MARGIN, TOOLS_MARGIN);
+		}
+}
+
+
+/* Initialise the tool palette: ??REWRITE! IGNORE THE PICT!!
+We use the size of the PICT in resources as well as
+the grid dimensions in the PLCH resource to determine the size of the palette, with a
+margin around the cells so that there is space in the lower right corner for a grow box.
+The PICT should have a frame size that is (TOOLS_ACROSS * TOOLS_CELL_WIDTH)-1 pixels
+wide and (TOOLS_DOWN * TOOLS_CELL_HEIGHT) - 1 pixels high, where TOOLS_ACROSS and
+TOOLS_DOWN are the values taken from the first two bytes of the PLCH resource. This
+picture will be displayed centered in the palette window with a TOOLS_MARGIN pixel
+margin on all sides. */
+
+#define TOOL_PALETTE_FN		"ToolPaletteNB1b.bmp"
+
+#define BITMAP_SPACE 30000
+
+Byte bitmapTools[BITMAP_SPACE];
+
+void CopyGWorldBitsToWindow(GWorldPtr offScreenGW, GrafPtr windPort, Rect offRect,
+			Rect windRect)
+{
+	GrafPtr offScreenPort = 00000;		// ??????????????????WHAT??????????????????????????
+	const BitMap *offPortBits = GetPortBitMapForCopyBits(offScreenPort);
+	const BitMap *windPortBits = GetPortBitMapForCopyBits(windPort);
+	CopyBits(offPortBits, windPortBits, &offRect, &windRect, srcCopy, NULL);
+}
+
+
+static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
+{
+	short defaultToolItem, nRead, width, bWidth, bWidthPadded, height;
+	FILE *bmpf;
+	Rect maxToolsRect;
+	long pixOffset, nBytesToRead;
+	
+	/* Allocate a grid of characters from the 'PLCH' resource and initialize the
+	   PaletteGlobals fields stored in the resource. */
+	
+	defaultToolItem = GetToolGrid(whichPalette);
+	if (!defaultToolItem) { BadInit(); ExitToShell(); }
+		
+	/* Now open the BMP file and read the actual bitmap image. */
+
+	ParamText("\ptool", "\p", "\p", "\p");					/* In case of any of several problems */
+	bmpf = NOpenBMPFile(TOOL_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded, &height);
+	if (!bmpf) {
+		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitToolPalette)\n", TOOL_PALETTE_FN);
+		//if (CautionAdvise(BMP_ALRT)==OK) return False;
+		return (CautionAdvise(BMP_ALRT)!=OK);
+	}
+	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
+		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file failed.  (InitToolPalette)\n",
+					pixOffset);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+
+	nBytesToRead = bWidthPadded*height;
+	LogPrintf(LOG_DEBUG, "bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (InitToolPalette)\n",
+		bWidth, bWidthPadded, height, nBytesToRead);
+	if (nBytesToRead>BITMAP_SPACE) {
+		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitToolPalette)\n",
+					nBytesToRead, BITMAP_SPACE);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+	nRead = fread(bitmapTools, nBytesToRead, 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitToolPalette)\n");
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+	
+	SetRect(&maxToolsRect, 0, 0, width, height);
+	
+	*windowRect = maxToolsRect;
+		
+	/* windowRect now has its top left corner at (0, 0). Use it to set toolRects[], the
+	   bounding boxes for all the cells in the palette. Then resize windowRect for the
+	   area that's initially visible, with a margin of TOOLS_MARGIN on every side. */
+	
+	InitPaletteRects(toolRects,
+			whichPalette->maxAcross, whichPalette->maxDown,
+			toolCellWidth = (windowRect->right + 1) / whichPalette->maxAcross,
+			toolCellHeight = (windowRect->bottom + 1) / whichPalette->maxDown);
+	
+	windowRect->right -= (whichPalette->maxAcross-whichPalette->firstAcross) * toolCellWidth;
+	windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;
+	windowRect->right += 2*TOOLS_MARGIN;
+	windowRect->bottom += 2*TOOLS_MARGIN;
+	//toolsFrame = *windowRect;
+	//InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);	/* FIXME: This is never used! */
+
+	/* Avoid Issue #67, where the tool palette's initial position is sometimes at the
+	   very top of screen, underneath the menu bar. FIXME: This is certainly not the
+	   right fix! The problem occurs randomly on some computers, consistently on others,
+	   so it's probably an uninitialized variable. */
+	
+	OffsetRect(windowRect, 0, 300);
+	
+	/* Finish initializing the PaletteGlobals structure. */
+	
+	whichPalette->currentItem = defaultToolItem;
+	whichPalette->drawMenuProc = (void (*)())DrawToolPalette;
+	whichPalette->findItemProc = (short (*)())FindToolItem;
+	whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
+		
+LogPrintf(LOG_DEBUG, "InitToolPalette: windowRect tlbr=%d,%d,%d,%d toolCellWidth,Height=%d,%d\n",
+windowRect->top, windowRect->left, windowRect->bottom, windowRect->right, toolCellWidth,
+toolCellHeight);
+
+	/* Put bitmap image into offscreen port so that any rearrangements can be saved. */
+
+	SaveGWorld();
+	
+	GWorldPtr gwPtr = MakeGWorld(windowRect->right, windowRect->bottom, True);
+	SetGWorld(gwPtr, NULL);
+
+LogPrintf(LOG_DEBUG, "InitToolPalette: maxToolsRect tlbr=%d,%d,%d,%d\n", maxToolsRect.top,
+maxToolsRect.left, maxToolsRect.bottom, maxToolsRect.right);
+DHexDump(LOG_DEBUG, "ToolPal", bitmapTools, 5*16, 4, 16, True);
+	short startLoc;
+	for (short nRow = 12; nRow>=0; nRow--) {
+		startLoc = nRow*bWidthPadded;
+//printf("nRow=%d startLoc=%d\n", nRow, startLoc);
+		DPrintRow(bitmapTools, nRow, bWidth, startLoc, False, False);
+		printf("\n");
+	}
+
+	ForeColor(yellowColor);
+	SetRect(&maxToolsRect, 10, 60, 200, 200);
+	FillRect(&maxToolsRect, NGetQDGlobalsGray());
+
+	//CopyGWorldBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
+	//CopyOffScreenBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
+	ForeColor(blueColor);
+	SetRect(&maxToolsRect, 0, 0, 300, 300);
+	//DrawBMP(bitmapTools, bWidth, bWidthPadded, height, maxToolsRect);	// ??SKIP WHILE DEBUGGING DYNAMIC PALETTE
+	toolPalPort = gwPtr;
+{
+PixMapHandle portPixMapH = GetPortPixMap(toolPalPort); PixMapPtr portPixMap = *portPixMapH;
+LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
+}
+//	UnlockGWorld(gwPtr);
+	RestoreGWorld();
+	return True;
+}
+
+
+/* Initialize everything about the palettes (formerly called "floating windows"). NB:
+through v. 5.8.10, the tool palette was the only one; the Set Duration and Add Modifiers
+command and the double-click "change dynamics" facilities used our own bitmap fonts.
+In 5.8.11, we use palettes with bitmap images for those commands, and those palettes
+have to be initialized.
+??REWRITE OR REMOVE FOLLOWING We've kept vestigal code
+for a help palette (which seems unlikely ever to be used) and for a clavier palette
+(which might be useful someday). */
+
+Boolean NInitPaletteWindows()
+{
+	short idx, wdefID;
+	PaletteGlobals *whichPalette;
+	Rect windowRects[TOTAL_PALETTES];
+	short totalPalettes = TOTAL_PALETTES;
+	
+	for (idx=0; idx<totalPalettes; idx++) {
+	
+		/* Get a handle to a PaletteGlobals structure for this palette */
+		
+		paletteGlobals[idx] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+idx);
+		if (!GoodResource((Handle)paletteGlobals[idx])) return False;
+		EndianFixPaletteGlobals(idx);
+
+		MoveHHi((Handle)paletteGlobals[idx]);
+		HLock((Handle)paletteGlobals[idx]);
+		whichPalette = *paletteGlobals[idx];
+		
+		switch(idx) {
+			case TOOL_PALETTE:
+				if (!InitToolPalette(whichPalette, &windowRects[idx])) return False;
+				wdefID = ToolPaletteWDEF_ID;
+				break;
+			case HELP_PALETTE:
+				wdefID = ToolPaletteWDEF_ID;						// ??REALLY?
+				break;
+			case CLAVIER_PALETTE:
+				break;
+		}
+
+		wdefID = floatGrowProc;
+		
+		palettes[idx] = (WindowPtr)NewCWindow(NULL, &windowRects[idx], "\p", False,
+								wdefID, BRING_TO_FRONT, True, (long)idx);
+		if (!GoodNewPtr((Ptr)palettes[idx])) return False;
+	
+		//	((WindowPeek)palettes[idx])->spareFlag = (idx==TOOL_PALETTE || idx==HELP_PALETTE);
+		
+		/* Add a zoom box to tools and help palette */
+		
+		if (idx==TOOL_PALETTE || idx==HELP_PALETTE)
+			ChangeWindowAttributes(palettes[idx], kWindowFullZoomAttribute, kWindowNoAttributes);
+
+		/* Finish initializing the TearOffMenuGlobals structure. */
+		
+		whichPalette->environment = &thisMac;
+		whichPalette->paletteWindow = palettes[idx];
+		SetWindowKind(palettes[idx], PALETTEKIND);
+		
+		HUnlock((Handle)paletteGlobals[idx]);
+	}
+
+	return True;
+}
+
+
+/* --------------------------------------------------- Initialize palettes for dialogs -- */
+
+#define DYNAMIC_PALETTE_FN		"ChangeDynamicNB1b.bmp"
+
+Boolean InitDynamicPalette()
+{
+	short nRead, width, bWidth, bWidthPadded, height;
+	FILE *bmpf;
+	long pixOffset, nBytesToRead;
+
+	/* Open the BMP file and read the actual bitmap image. */
+
+	ParamText("\pdynamics", "\p", "\p", "\p");					/* In case of any of several problems */
+	bmpf = NOpenBMPFile(DYNAMIC_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
+						&height);
+	if (!bmpf) {
+		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitDynamicPalette)\n",
+					DYNAMIC_PALETTE_FN);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+		else {
+			/* Use reasonable values for the bitmap parameters. */
+		
+			bmpDynamicPal.bWidth = 15;
+			bmpDynamicPal.bWidthPadded = 16;
+			bmpDynamicPal.height = 52;
+			return True;
+		}
+	}
+
+	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
+		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file '%s' failed.  (InitDynamicPalette)\n",
+					pixOffset, DYNAMIC_PALETTE_FN);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+
+	nBytesToRead = bWidthPadded*height;
+LogPrintf(LOG_DEBUG, "InitDynamicPalette: bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d\n",
+bWidth, bWidthPadded, height, nBytesToRead);
+	if (nBytesToRead>BITMAP_SPACE) {
+		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitDynamicPalette)\n",
+					nBytesToRead, BITMAP_SPACE);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+	nRead = fread(bmpDynamicPal.bitmap, nBytesToRead, 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitDynamicPalette)\n");
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+
+	bmpDynamicPal.bWidth = bWidth;
+	bmpDynamicPal.bWidthPadded = bWidthPadded;
+	bmpDynamicPal.height = height;
+	return True;
+}
+
+
+#define SETDUR_PALETTE_FN		"SetDur_2dotsNB1b.bmp"
+//#define SETDUR_PALETTE_PATH 	":SetDur_2dots1bitNB.bmp"
+
+Byte bitmapSetDur[BITMAP_SPACE];
+
+Boolean InitSetDurPalette()
+{
+	FILE *bmpf;
+	short nRead, width, bWidth, bWidthPadded, height;
+	long pixOffset, nBytesToRead;
+
+	/* Open the BMP file and read the actual bitmap image. */
+
+	ParamText("\pSet Duration", "\p", "\p", "\p");					/* In case of any of several problems */
+	bmpf = NOpenBMPFile(SETDUR_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded, &height);
+	if (!bmpf) {
+		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitSetDurPalette)\n", SETDUR_PALETTE_FN);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+		else {
+			/* Use reasonable values for the bitmap parameters. */
+		
+			bmpSetDur.bWidth = 27;
+			bmpSetDur.bWidthPadded = 28;
+			bmpSetDur.height = 78;
+			return True;
+		}
+	}
+
+	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
+		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file failed.  (InitSetDurPalette)\n", pixOffset);
+		return False;
+	}
+		
+	nBytesToRead = bWidthPadded*height;
+LogPrintf(LOG_DEBUG, "InitSetDurPalette: bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d\n",
+bWidth, bWidthPadded, height, nBytesToRead);
+	if (nBytesToRead>BITMAP_SPACE) {
+		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitSetDurPalette)\n",
+					nBytesToRead, BITMAP_SPACE);
+		return False;
+	}
+	nRead = fread(&bitmapSetDur, nBytesToRead, 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitSetDurPalette)\n");
+		return False;
+	}
+DHexDump(LOG_DEBUG, "SetDur", bitmapSetDur, 4*16, 4, 16, True);
+
+	return True;
 }

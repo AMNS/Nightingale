@@ -9,11 +9,6 @@ MDEF; it now uses a BMP displayed in its entirety.  */
  * Copyright © 2016-21 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
-/* Includes code for managing key presses that select from a popup menu of dynamics.
-This code parallels that for duration popups in DurationPopUp.c, and (especially)
-for modifier popups in ModNRPopUp.c. Also in this file are dialog routines invoked
-when user double-clicks a dynamic.                      -- John Gibson, 8/5/00 */
-
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 

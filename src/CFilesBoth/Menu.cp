@@ -162,9 +162,9 @@ Boolean DoMenu(long menuChoice)
 		return(keepGoing);
 	}
 
-/*
- *	Handle a choice from the Apple Menu.
- */
+
+/* -------------------------------------------------------------------------------------- */
+/*	Handle a choice from the Apple Menu. */
 
 static void DoAppleMenu(short choice)
 {
@@ -227,9 +227,7 @@ static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD)
 }
 
 
-/*
- *	Handle a choice from the File Menu.  Return False if it's time to quit.
- */
+/*	Handle a choice from the File Menu.  Return False if it's time to quit. */
 
 Boolean DoFileMenu(short choice)
 	{
@@ -326,6 +324,7 @@ Boolean DoFileMenu(short choice)
 				break;
 			case FM_GetETF:
 				/* ETF (Finale Enigma Transportable File) support removed, so do nothing. */
+				
 				break;
 			case FM_GetNotelist:
 				NSClientData nsData;
@@ -386,9 +385,7 @@ Boolean DoFileMenu(short choice)
 
 
 /* -------------------------------------------------------------------------------------- */
-/*
- *	Handle a choice from the Edit Menu.
- */
+/*	Handle a choice from the Edit Menu. */
 
 void DoEditMenu(short choice)
 	{
@@ -448,7 +445,7 @@ void DoEditMenu(short choice)
 				InfoDialog(doc);
 				break;
 			case EM_ModifierInfo:
-				ModNRDialog(doc);
+				ModNRInfoDialog(doc);
 				break;
 			case EM_Set:
 				DoSet(doc);
@@ -556,9 +553,7 @@ static void ResetAllMeasNumPos(Document *doc)
 	InvalWindow(doc);
 }
 
-/*
- *	Handle a choice from the Test Menu.
- */
+/*	Handle a choice from the Test Menu. */
 
 static void DoTestMenu(short choice)
 	{
@@ -627,9 +622,7 @@ static void DoTestMenu(short choice)
 
 
 /* -------------------------------------------------------------------------------------- */
-/*
- *	Handle a choice from the Score Menu.
- */
+/*	Handle a choice from the Score Menu. */
 
 static void DoScoreMenu(short choice)
 	{
@@ -756,10 +749,7 @@ static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
 	return True;
 }
 
-
-/*
- *	Handle a choice from the Notes Menu.
- */
+/*	Handle a choice from the Notes Menu. */
 
 static void DoNotesMenu(short choice)
 	{
@@ -860,9 +850,7 @@ static void DoNotesMenu(short choice)
 
 
 /* -------------------------------------------------------------------------------------- */
-/*
- *	Handle a choice from the Groups Menu.
- */
+/*	Handle a choice from the Groups Menu. */
 
 void DoGroupsMenu(short choice)
 	{
@@ -912,9 +900,7 @@ void DoGroupsMenu(short choice)
 
 
 /* -------------------------------------------------------------------------------------- */
-/*
- *	Handle a choice from the View Menu.
- */
+/*	Handle a choice from the View Menu. */
 
 void DoViewMenu(short choice)
 	{
@@ -984,9 +970,8 @@ void DoViewMenu(short choice)
 
 
 /* -------------------------------------------------------------------------------------- */
-/*
- * Handle the "MIDI Dynamics Preferences" command.
- */
+
+/* Handle the "MIDI Dynamics Preferences" command. */
 
 static void PLMIDIDynPrefs(Document *doc)
 {
@@ -1003,9 +988,7 @@ static void PLMIDIDynPrefs(Document *doc)
 }
 
 
-/*
- * Handle the "MIDI Dynamics Preferences" command.
- */
+/* Handle the "MIDI Modifier Preferences" command. */
 
 static void PLMIDIModPrefs(Document *doc)
 {
@@ -1015,9 +998,7 @@ static void PLMIDIModPrefs(Document *doc)
 }
 
 
-/*
- * Toggle the document's "transposed score" flag.
- */
+/* Toggle the document's "transposed score" flag. */
 
 static void PLTransposedScore(Document *doc)
 {
@@ -1093,7 +1074,9 @@ void EditPartMIDI(Document *doc)
 		}
 	}
 	else if (PartMIDIDialog(doc, &partInfo, &allParts)) {
+	
 		/* Update the PARTINFO in both the main object list and Master Page. */
+		
 		pPart = GetPPARTINFO(partL);
 		*pPart = partInfo;
 		pMPartL = Staff2PartL(doc, doc->masterHeadL, firstStaff);
@@ -1103,9 +1086,7 @@ void EditPartMIDI(Document *doc)
 	}
 }
 
-/*
- *	Handle a choice from the Play/Record Menu
- */
+/* Handle a choice from the Play/Record Menu */
 
 void DoPlayRecMenu(short choice)
 	{		
@@ -1228,9 +1209,7 @@ void MPCombineParts(Document *doc)
 }
 #endif
 
-/*
- *	Handle a choice from the MasterPage Menu
- */
+/* Handle a choice from the MasterPage Menu */
 
 static void DoMasterPgMenu(short choice)
 {		
@@ -1279,9 +1258,7 @@ static void DoMasterPgMenu(short choice)
 
 
 /* -------------------------------------------------------------------------------------- */
-/*
- *	Handle a choice from the Show Format Menu
- */
+/*	Handle a choice from the Show Format Menu */
 
 static void DoFormatMenu(short choice)
 {		
@@ -1302,9 +1279,7 @@ static void DoFormatMenu(short choice)
 
 
 /* -------------------------------------------------------------------------------------- */
-/*
- *	Handle a choice from the Reduce/Enlarge To (Magnify) Menu
- */
+/*	Handle a choice from the Reduce/Enlarge To (Magnify) Menu */
 
 static void DoMagnifyMenu(short choice)
 {		
@@ -1452,9 +1427,7 @@ static void SMLeftEnd(Document *doc)
 }
 
 
-/*
- *	Set global font characteristics.
- */
+/*	Set global font characteristics. */
  
 static void SMTextStyle(Document *doc)
 {
@@ -1468,7 +1441,7 @@ static void SMTextStyle(Document *doc)
 	GetContext(doc, firstMeas, 1, &context);
 
 	if (firstCall) {
-		GetIndString(tmpStr, MiscStringsID, 6);	/* Get default sample string */
+		GetIndString(tmpStr, MiscStringsID, 6);		/* Get default sample string */
 		Pstrcpy(string,tmpStr);
 		firstCall = False;
 	}
@@ -1556,10 +1529,8 @@ static void SMRealign(Document *doc)
 }
 
 
-/*
- * Reformat first System of selection thru last System of selection in accordance
- * with parameters set by user in dialog.
- */
+/* Reformat first System of selection thru last System of selection in accordance
+with parameters set by user in dialog. */
 
 static void SMReformat(Document *doc)
 {
@@ -1703,9 +1674,7 @@ static short CountSelVoices(Document *doc)
 }
 
 	
-/*
- * Apply multivoice notation rules as specified by user in dialog.
- */
+/* Apply multivoice notation rules as specified by user in dialog. */
 	
 static void NMMultiVoice(Document *doc)
 {
@@ -1718,9 +1687,7 @@ static void NMMultiVoice(Document *doc)
 }
 	
 
-/*
- * Set logical and/or physical duration of selected notes/rests as specified by user.
- */
+/* Set logical and/or physical duration of selected notes/rests as specified by user. */
 	
 static void NMSetDuration(Document *doc)
 {
@@ -1765,9 +1732,7 @@ static void NMSetDuration(Document *doc)
 }
 
 	
-/*
- * Choose whether notes should be inserted graphically or temporally.
- */
+/* Choose whether notes should be inserted graphically or temporally. */
 
 static void NMInsertByPos(Document *doc)
 {
@@ -1775,9 +1740,7 @@ static void NMInsertByPos(Document *doc)
 }
 
 
-/*
- * Set multibar rests to the number of measures specified by user.
- */
+/* Set multibar rests to the number of measures specified by user. */
 	
 static void NMSetMBRest(Document *doc)
 {
@@ -1798,9 +1761,7 @@ static void NMSetMBRest(Document *doc)
 }
 
 
-/*
- * Fill empty measures in user-specified range with whole-measure rests.
- */
+/* Fill empty measures in user-specified range with whole-measure rests. */
 	
 static void NMFillEmptyMeas(Document *doc)
 {
@@ -2001,8 +1962,8 @@ static void VMToollPalette()
 	GetWindowPortBounds(palettes[palIndex], &pal);
 	OffsetRect(&pal, -pal.left, -pal.right);
 	if (TopDocument) {
-		/* Initial position is the offset in config.toolsPosition from the
-		   upper left corner of the document's window, but not offscreen. */
+		/* Initial position is the offset in config.toolsPosition from the upper
+		   left corner of the document's window, but not offscreen. */
 							 
 		GetWindowRgnBounds(TopDocument, kWindowContentRgn, &docRect);					
 		docRect.right = docRect.left + pal.right;
@@ -2070,9 +2031,7 @@ static Boolean OKToRecord(Document *doc)
 }
 
 
-/*
- * Record MIDI data in real time.
- */
+/* Record MIDI data in real time. */
 
 static void PLRecord(Document *doc, Boolean merge)
 {
@@ -2093,9 +2052,7 @@ static void PLRecord(Document *doc, Boolean merge)
 }
 
 
-/*
- * Step-record MIDI data.
- */
+/* Step-record MIDI data. */
 
 static void PLStepRecord(Document *doc, Boolean merge)
 {
@@ -2106,10 +2063,10 @@ static void PLStepRecord(Document *doc, Boolean merge)
 	PrepareUndo(doc, doc->selStartL, U_Record, 27);					/* "Step Record" */
 	if (StepRecord(doc, merge)) {
 		spaceProp = MeasSpaceProp(doc->selStartL);
-		/*
-		 * Reformatting (even if done by RespaceBars calling Reformat) may destroy
-		 * selection status, so we use notes' tempFlags to save and restore it.
-		 */
+		
+		/* Reformatting (even if done by RespaceBars calling Reformat) may destroy
+		   selection status, so we use notes' tempFlags to save and restore it. */
+		 
 		NotesSel2TempFlags(doc);
 		if (merge) {
 			if (RespaceBars(doc, doc->selStartL, doc->selEndL, spaceProp, False, True))

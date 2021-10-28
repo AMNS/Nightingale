@@ -33,8 +33,8 @@
 /* -------------------------------------------------------------------------------------- */
 /* Local prototypes */
 
-static Boolean FSPreProcessNotelist(short refNum);
-static Boolean FSProcessNotelist(short refNum);
+static Boolean PreProcessNotelist(short refNum);
+static Boolean ProcessNotelist(short refNum);
 static Boolean PostProcessNotelist(void);
 
 static Boolean ParseNRGR(void);
@@ -63,7 +63,7 @@ static long CalcNLNoteLDur(NLINK noteL);
 static void ReportParseFailure(char *functionName, short errCode);
 
 /* Functions that call the Macintosh Toolbox */
-static short FSNotelistVersion(short refNum);
+static short NotelistVersion(short refNum);
 static void PrintNotelistDS(void);
 static NLINK StoreString(char str[]);
 static NLINK StoreModifier(PNL_MOD pMod);
@@ -154,7 +154,7 @@ Boolean ParseNotelistFile(Str255 /*fileName*/, FSSpec *fsSpec)
 	Boolean		ok, printNotelist = True;
 	short		refNum;
 
-	short errCode = FSOpenInputFile(fsSpec,&refNum);
+	short errCode = IIOpenInputFile(fsSpec,&refNum);
 	if (errCode != noErr) return False;
 	
 #if CNTLKEYFORPRINTNOTELIST
@@ -165,14 +165,14 @@ Boolean ParseNotelistFile(Str255 /*fileName*/, FSSpec *fsSpec)
 	if (!printNotelist)
 		ProgressMsg(CONVERTNOTELIST_PMSTR, " 1...");	/* "Converting Notelist file: step 1..." */
 
-	ok = FSPreProcessNotelist(refNum);
+	ok = PreProcessNotelist(refNum);
 	if (!ok) {
-		FSCloseInputFile(refNum);
+		IICloseInputFile(refNum);
 		goto Err;
 	}
 	
-	ok = FSProcessNotelist(refNum);
-	FSCloseInputFile(refNum);		// done with input file
+	ok = ProcessNotelist(refNum);
+	IICloseInputFile(refNum);			/* done with input file */
 	if (!ok) goto Err;
 
 	ok = PostProcessNotelist();
@@ -190,18 +190,18 @@ Err:
 	return False;
 }
 
-static Boolean FSPreProcessNotelist(short refNum)
+static Boolean PreProcessNotelist(short refNum)
 {
 	char	firstChar;
 	short	ans;
 	Boolean	ok;
 		
-	gNotelistVersion = FSNotelistVersion(refNum);
+	gNotelistVersion = NotelistVersion(refNum);
 	if (gNotelistVersion<0) return False;
 	
 	/* Count the objects we're interested in. */
 	gNumNLItems = 0;
-	while (FSReadLine(gInBuf, LINELEN, refNum)) {
+	while (IIReadLine(gInBuf, LINELEN, refNum)) {
 		gLineCount++;
 
 		ans = sscanf(gInBuf, "%c", &firstChar);
@@ -227,7 +227,7 @@ static Boolean FSPreProcessNotelist(short refNum)
 	ok = AllocNotelistMemory();
 	if (!ok) return False;
 	
-	FSRewind(refNum);
+	IIRewind(refNum);
 
 	return True;
 }
@@ -237,7 +237,7 @@ static Boolean FSPreProcessNotelist(short refNum)
 
 #define NOTELISTCODE_ALRT 310
 
-static Boolean FSProcessNotelist(short refNum)
+static Boolean ProcessNotelist(short refNum)
 {
 	short	ans;
 	char	firstChar, secondChar;
@@ -248,7 +248,7 @@ static Boolean FSProcessNotelist(short refNum)
 	gNextEmptyNode = 0;
 	gLastTime = 0L;
 	
-	while (FSReadLine(gInBuf, LINELEN, refNum)) {
+	while (IIReadLine(gInBuf, LINELEN, refNum)) {
 		gLineCount++;
 
 		ans = sscanf(gInBuf, "%c", &firstChar);
@@ -292,7 +292,7 @@ static Boolean FSProcessNotelist(short refNum)
 		if (!ok) return False;								/* This may be too drastic in some cases. */
 	}
 	
-	LogPrintf(LOG_NOTICE, "Notelist file read: %ld lines.\n", gLineCount);
+	LogPrintf(LOG_NOTICE, "Notelist file read: %ld lines.  (ProcessNotelist)\n", gLineCount);
 	return True;
 }
 
@@ -409,8 +409,8 @@ static Boolean ParseNRGR()
 	if (along<1L || along>(long)MAXSTAVES) goto broken;
 	pNRGR->part = along;
 
-	/* ??Code here and elsewhere checks the staff no. is from 1 to MAXSTAVES: this doesn't
-		catch cases where it's greater than the actual no. of staves in the score. */
+	/* FIXME: Code here and elsewhere checks the staff no. is from 1 to MAXSTAVES: this
+	   doesn't catch cases where it's greater than the no. of staves in the score! */
 		
 	err = NLERR_BADSTAFF;
 	if (!ExtractVal(staffStr, &along)) goto broken;
@@ -804,8 +804,8 @@ static Boolean ParseTempoMark()
 	pTempo->staff = along;
 
 	/* Extract tempo string, which is enclosed in single-quotes and can contain whitespace.
-		First copy it into a temporary buffer (str); then store into gHStringPool. NB:
-		If there is no string, it will be encoded as two single-quotes (''). */
+	   First copy it into a temporary buffer (str); then store into gHStringPool. NB:
+	   If there is no string, it will be encoded as two single-quotes (''). */
 		
 	err = NLERR_MISCELLANEOUS;
 	p = (unsigned char *)strchr(gInBuf, '\'');
@@ -956,7 +956,7 @@ static Boolean ParseTextGraphic()
 	}
 
 	/* Extract string, which is enclosed in single-quotes and can contain whitespace.
-		First copy it into a temporary buffer (str); then store into gHStringPool. */
+	   First copy it into a temporary buffer (str); then store into gHStringPool. */
 		
 	p = strchr(gInBuf, '\'');
 	if (!p) goto broken;
@@ -1357,8 +1357,8 @@ static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 		
 		/* If this is the first modifier, store its index (into gHModList) into
 			the owning note. Otherwise, store its index into the <next> field of the
-			previous modifier.
-		*/
+			previous modifier. */
+			
 		if (pNRGR->firstMod==NILINK)
 			pNRGR->firstMod = offset;
 		else
@@ -1606,8 +1606,8 @@ static Boolean AnalyzeNLTuplet(NLINK tupletL)
 		score).) Fill in the tuplet's staff from its first note: this should be safe
 		because the tuplet can't be cross-staff ??or can it?
 		NB: Assumes that notes that are consecutive in the data structure do not
-		overlap (because CheckNLNoteRests has not been called yet).
-	*/
+		overlap (because CheckNLNoteRests has not been called yet). */
+		
 	nInTuple = 0;
 	totLDur = 0L;
 	curTime = -1L;
@@ -1643,8 +1643,8 @@ static Boolean AnalyzeNLTuplet(NLINK tupletL)
 		logical duration represented by their note values (totLDur). (NB: This
 		is of course longer than the actual duration of the tuplet.) Check that
 		these two pieces of information square with the numerator and denominator
-		of our tuplet.
-	*/
+		of our tuplet. */
+		
 	if (nInTuple<2) {
 		GetIndCString(fmtStr, NOTELIST_STRS, 36);		/* "Tuplet...has only one note." */
 		sprintf(str, fmtStr, curTime, part, uVoice);
@@ -1764,7 +1764,7 @@ If you change any of the COMMENT_NLHEADER's or add a new one, cf. ParseStructCom
 #define COMMENT_NLHEADER2	"%%Notelist-V2 file="	/* start of structured comment: Ngale 99 */
 #define COMMENT_LINELEN		1024
 
-static short FSNotelistVersion(short refNum)
+static short NotelistVersion(short refNum)
 {
 	int		c;
 	Boolean	ok;
@@ -1775,34 +1775,35 @@ static short FSNotelistVersion(short refNum)
 	char	headerVerString[256];
 
 	/* Skip over any whitespace at beginning of file. */
+	
 	while (True) {
-		errCode = FSReadChar(refNum, (char*)&c);		
+		errCode = IIReadChar(refNum, (char*)&c);		
 		if (errCode != noErr || c==EOF) { errStage = 1; goto Err; }
 		else if (c==COMMENT_CHAR) {
-			errCode = FSReadChar(refNum, (char*)&c);		
+			errCode = IIReadChar(refNum, (char*)&c);		
 			if (errCode != noErr)  { errStage = 2; goto Err; }
 			if (c==COMMENT_CHAR) {				/* found structured comment */
 				long fPos;
 				GetFPos(refNum,&fPos);
 				printf("readComment: fpos %ld", fPos);
 				
-				errCode = FSUngetChar(refNum);		
+				errCode = IIUngetChar(refNum);		
 				if (errCode != noErr)  { errStage = 3; goto Err; }
-				errCode = FSUngetChar(refNum);		
+				errCode = IIUngetChar(refNum);		
 				if (errCode != noErr)  { errStage = 4; goto Err; }
 				
 				GetFPos(refNum,&fPos);
-				printf("readComment after FSUngetChar: fpos %ld", fPos);
+				printf("readComment after IIUngetChar: fpos %ld", fPos);
 				
 				break;
 			}
 			else {								/* normal comment precedes structured comment */
-				ok = FSReadLine(dummybuf, COMMENT_LINELEN, refNum);
+				ok = IIReadLine(dummybuf, COMMENT_LINELEN, refNum);
 				if (!ok) return -1;
 			}
 		}
 		else if (!isspace(c)) {					/* found structured comment */
-			errCode = FSUngetChar(refNum);		
+			errCode = IIUngetChar(refNum);		
 			if (errCode != noErr)  { errStage = 5; goto Err; }
 			break;
 		}
@@ -1811,10 +1812,10 @@ static short FSNotelistVersion(short refNum)
 	/* See if file starts with a Notelist structured comment header (e.g.,
 		"%%Score file='Mozart clart quintet'  partstaves=1 1 1 1 1 0")
 	*/
-	if (!FSReadLine(gInBuf, LINELEN, refNum))  { errStage = 6; goto Err; }
+	if (!IIReadLine(gInBuf, LINELEN, refNum))  { errStage = 6; goto Err; }
 	
 	GoodStrncpy(headerVerString, gInBuf, strlen(COMMENT_NLHEADER2));
-	LogPrintf(LOG_NOTICE, "Notelist header string='%s'\n", headerVerString);
+	LogPrintf(LOG_INFO, "Notelist header string='%s'  (NotelistVersion)\n", headerVerString);
 
 	if (strncmp(gInBuf, COMMENT_NLHEADER0, strlen(COMMENT_NLHEADER0))==0)
 		return 0;

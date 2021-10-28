@@ -1469,16 +1469,13 @@ Boolean ReadLine(char inBuf[], short maxChars, FILE *f)
 	char c = fgetc(f);
 	char *p = inBuf;
 	
-	for (; i<maxChars-1 && c != EOF; i++, c = fgetc(f))
-	{
-		if (c == '\n')
-		{
+	for (; i<maxChars-1 && c != EOF; i++, c = fgetc(f)) {
+		if (c == '\n') {
 			*p++ = '\n';		
 			*p = '\0';
 			return (c != EOF);
 		}
-		else if (c == '\r')
-		{
+		else if (c == '\r') {
 			char cc = fgetc(f);				/* advance past windows terminator char if necessary */
 			if (cc != '\n' && cc != EOF)	/* can't unget EOF */
 				ungetc(cc, f);
@@ -1497,7 +1494,7 @@ Boolean ReadLine(char inBuf[], short maxChars, FILE *f)
 }
 
 
-short FSOpenInputFile(FSSpec *fsSpec, short *refNum)
+short IIOpenInputFile(FSSpec *fsSpec, short *refNum)
 {
 	short errCode;
 	
@@ -1509,7 +1506,7 @@ short FSOpenInputFile(FSSpec *fsSpec, short *refNum)
 	return errCode;
 }
 
-short FSReadChar(short refNum, char *c)
+short IIReadChar(short refNum, char *c)
 {
 	short errCode = noErr;
 	long count = 1;
@@ -1518,7 +1515,7 @@ short FSReadChar(short refNum, char *c)
 	return errCode;
 }
 
-short FSUngetChar(short refNum)
+short IIUngetChar(short refNum)
 {
 	short errCode = noErr;
 	long fPos = 0;
@@ -1529,32 +1526,29 @@ short FSUngetChar(short refNum)
 	return errCode;
 }
 
-Boolean FSReadLine(char inBuf[], short maxChars, short refNum)
+Boolean IIReadLine(char inBuf[], short maxChars, short refNum)
 {
 	int i = 0;
 	short errCode = noErr;
 	char c,cc;
 	
-	errCode = FSReadChar(refNum, &c);
+	errCode = IIReadChar(refNum, &c);
 	if (errCode != noError) return False;
 	
 	char *p = inBuf;
 	
-	for (; i<maxChars-1 && c != EOF; )
-	{
-		if (c == '\n')
-		{
+	for (; i<maxChars-1 && c != EOF; ) {
+		if (c == '\n') {
 			*p++ = '\n';		
 			*p = '\0';
 			return (c != EOF);
 		}
-		else if (c == '\r')
-		{
-			errCode = FSReadChar(refNum, &cc);		/* advance past windows terminator char if necessary */
+		else if (c == '\r') {
+			errCode = IIReadChar(refNum, &cc);		/* advance past windows terminator char if necessary */
 			if (errCode != noError) goto errorReturn;
 			
 			if (cc != '\n' && cc != EOF) {			/* can't unget EOF */
-				errCode = FSUngetChar(refNum);
+				errCode = IIUngetChar(refNum);
 				if (errCode != noError) goto errorReturn;
 			}
 				
@@ -1566,7 +1560,7 @@ Boolean FSReadLine(char inBuf[], short maxChars, short refNum)
 			*p++ = c;
 		}
 		i++;
-		errCode = FSReadChar(refNum, &c);
+		errCode = IIReadChar(refNum, &c);
 		if (errCode != noError) goto errorReturn;
 	}
 	
@@ -1578,14 +1572,14 @@ errorReturn:
 	return False;		/* don't keep reading file if error */
 }
 
-short FSCloseInputFile(short refNum)
+short IICloseInputFile(short refNum)
 {
 	short errCode = noErr;
 	errCode = FSClose(refNum);
 	return errCode;
 }
 
-short FSRewind(short refNum)
+short IIRewind(short refNum)
 {
 	short errCode;
 	

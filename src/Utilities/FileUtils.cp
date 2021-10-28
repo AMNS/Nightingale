@@ -490,8 +490,8 @@ else
 		return NULL;
 	}
 	EndianFixBMPFileHdr(&fileHdr);
-	LogPrintf(LOG_DEBUG, "fileSize=%u offsetToPixelArray=%u  (NOpenBMPFile)\n",
-					fileHdr.fileSize, fileHdr.offsetToPixelArray);
+//LogPrintf(LOG_DEBUG, "fileSize=%u offsetToPixelArray=%u  (NOpenBMPFile)\n",
+//				fileHdr.fileSize, fileHdr.offsetToPixelArray);
 
 	nRead = fread(&infoHdr, sizeof(BMPInfoHeader), 1, bmpf);
 	if (nRead!=1) {
@@ -500,10 +500,10 @@ else
 	}
 	
 	EndianFixBMPInfoHdr(&infoHdr);
-	LogPrintf(LOG_DEBUG, "infoHdrSize=%u width=%u height=%u bits=%u  (NOpenBMPFile)\n",
-		infoHdr.infoHdrSize, infoHdr.width, infoHdr.height, infoHdr.bits);
-	LogPrintf(LOG_DEBUG, "imageSize=%u xResolution=%u yResolution=%u colors=%u  (NOpenBMPFile)\n",
-		infoHdr.imageSize, infoHdr.xResolution, infoHdr.yResolution, infoHdr.colors);
+//LogPrintf(LOG_DEBUG, "infoHdrSize=%u width=%u height=%u bits=%u  (NOpenBMPFile)\n",
+//	infoHdr.infoHdrSize, infoHdr.width, infoHdr.height, infoHdr.bits);
+//LogPrintf(LOG_DEBUG, "imageSize=%u xResolution=%u yResolution=%u colors=%u  (NOpenBMPFile)\n",
+//	infoHdr.imageSize, infoHdr.xResolution, infoHdr.yResolution, infoHdr.colors);
 
 	if (infoHdr.colors!=BITMAP_NCOLORS) {
 		LogPrintf(LOG_ERR, "BMP file has %d colors instead of the required %d.  (NOpenBMPFile)\n",

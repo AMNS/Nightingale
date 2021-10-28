@@ -3368,3 +3368,15 @@ InstrDialog.
 
 Minor changes. Affects .rsrc, NResourceID.h, VersionStrings.h; FileUtils, Initialize,
 InstrDialog, Preferences.
+
+---------------------------------------------------------------------------------------
+
+24 - 28 Oct.
+
+Work to replace the "Set Duration" pop-up palette (using a UI font) with a fixed palette
+(from a BMP file). Affects .rsrc.
+
+Minor changes: move palette code to a different module, etc. Affects .rsrc,
+InternalInput.h, NightTemplates.h; DynamicEdit, FileUtils, InfoDialog, Initialize,
+InitNightingale, InternalInput, Main, Menu, NotelistParse, Score.
+

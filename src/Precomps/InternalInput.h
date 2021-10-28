@@ -35,9 +35,9 @@ short CloseInputFile(FILE *f);
 Boolean ReadLine(char inBuf[], short maxChars, FILE *f);
 Boolean SaveTextToFile(Ptr pText, Str255 suggestedFileName, short promptStrID);
 
-short FSOpenInputFile(FSSpec *fsSpec, short *refNum);
-Boolean FSReadLine(char inBuf[], short maxChars, short refNum);
-short FSCloseInputFile(short refNum);
-short FSRewind(short refNum);
-short FSReadChar(short refNum, char *c);
-short FSUngetChar(short refNum);
+short IIOpenInputFile(FSSpec *fsSpec, short *refNum);
+Boolean IIReadLine(char inBuf[], short maxChars, short refNum);
+short IICloseInputFile(short refNum);
+short IIRewind(short refNum);
+short IIReadChar(short refNum, char *c);
+short IIUngetChar(short refNum);

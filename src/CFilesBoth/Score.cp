@@ -187,8 +187,8 @@ void FixGraphicFont(Document *doc, LINK pL)
 
 /* ----------------------------------------------------------------------- NewDocScore -- */
 /*	Create a virgin score and (unless doc is the clipboard) Master Page. Assumes
-doc->headL and doc->tailL already exist. Return True if we succeed, False if we
-find a problem (usually out of memory). */
+doc->headL and doc->tailL already exist. Return True if we succeed, False if we find
+a problem (usually out of memory). */
 
 Boolean NewDocScore(Document *doc)
 {
@@ -327,14 +327,13 @@ void FixTopSystemYs(Document *doc, LINK startSysL, LINK endSysL)
 
 
 /* ------------------------------------------------------------------- PageFixSysRects -- */
-/* Using the systemRect.top for the first System, fix up systemRect.tops for all
-other systems and systemRect.bottoms for all systems on pageL. Optionally use the
-measureRect.bottom for the bottom staff in the first measure of the first System
-to reset all systemRect heights (this may be dangerous if not all systems have
-the same visibility of staves!). Otherwise preserve the current systemRect heights.
-FIXME: It's not obvious this function works correctly if there's only System per
-Page, and it's not obvious that prevSysBottom and sysHeight get set correctly or at
-all in all cases. */
+/* Using the systemRect.top for the first System, fix up systemRect.tops for all other
+systems and systemRect.bottoms for all systems on pageL. Optionally use the
+measureRect.bottom for the bottom staff in the first measure of the first System to
+reset all systemRect heights (this may be dangerous if not all systems have the same
+visibility of staves!). Otherwise preserve the current systemRect heights. FIXME: It's
+not obvious this function works correctly if there's only System per Page, and it's not
+obvious that prevSysBottom and sysHeight get set correctly or at all in all cases. */
 
 void PageFixSysRects(
 			Document *doc,
@@ -370,8 +369,6 @@ void PageFixSysRects(
 			pSystem = GetPSYSTEM(sysL);
 			if (!setSysHts) sysHeight = pSystem->systemRect.bottom-pSystem->systemRect.top;
 			pSystem->systemRect.top = prevSysBottom+doc->yBetweenSys;
-//LogPrintf(LOG_DEBUG, "PageFixSysRects: sysL=%d sysHeight=%d prevSysBottom=%d ->systemRect.top=%d\n",
-//sysL, sysHeight, prevSysBottom, pSystem->systemRect.top); 
 		}
 		
 		/* We now have sysHeight, and sysL's systemRect.top is correct, in all cases. */
@@ -1530,8 +1527,8 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 	MeasSTAFFL(pL) = staffL;
 
 	xd = (where==SuccMeas? LinkXD(prevMeasL)+spBefore : LinkXD(prevL)+spBefore);
-LogPrintf(LOG_DEBUG, "MakeMeasure: where=%d SuccMeas=%d LinkXD(prevL)=%d spBefore=%d xd=%d\n",
-where, SuccMeas, LinkXD(prevL), spBefore, xd);
+//LogPrintf(LOG_DEBUG, "MakeMeasure: where=%d SuccMeas=%d LinkXD(prevL)=%d spBefore=%d xd=%d\n",
+//where, SuccMeas, LinkXD(prevL), spBefore, xd);
 	SetObject(pL, xd, 0, False, False, True);
 	LinkTWEAKED(pL) = False;
 	pMeasure = GetPMEASURE(pL);

@@ -15,7 +15,7 @@
 /* File InfoDialog.c - "Get Info" dialog routines:
 	InfoDialog				LegalStaff/Vert			SyncInfoDialog
 	PageRelGraphic			GenInfoDialog			ExtendInfoDialog
-	ModNRDialog and friends
+	ModNRInfoDialog and friends
 */
 
 #include "Nightingale_Prefix.pch"
@@ -1679,7 +1679,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 }
 
 
-/* =========================================================== ModNRDialog and friends == */
+/* ======================================================= ModNRInfoDialog and friends == */
 
 enum {
 	HORIZ=4,
@@ -1835,11 +1835,11 @@ static Boolean GetModNRValues(PAMODNR aModNR)
 }
 
 
-/* ----------------------------------------------------------------------- ModNRDialog -- */
+/* ------------------------------------------------------------------- ModNRInfoDialog -- */
 /* Handler for note/rest modifier dialog. Assumes the first selected node is a Sync.
  Returns True if dialog is OK'ed, False if cancelled or an error occurs. */
 
-Boolean ModNRDialog(Document *doc)
+Boolean ModNRInfoDialog(Document *doc)
 {
 	LINK pL, aNoteL, aModNRL;
 	PANOTE aNote;

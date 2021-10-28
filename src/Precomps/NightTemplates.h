@@ -245,7 +245,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 /* InfoDialog.c */
 
 	void		InfoDialog(Document *);
-	Boolean		ModNRDialog(Document *);
+	Boolean		ModNRInfoDialog(Document *);
 	void		XLoadInfoDialogSeg(void);
 
 /* Initialize.c */
@@ -259,6 +259,9 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 /* InitNightingale.c */
 
 	void		InitNightingale(void);
+	Boolean		NInitPaletteWindows(void);
+	Boolean		InitDynamicPalette(void);
+	Boolean		InitSetDurPalette(void);
 
 /* Magnify.c */
 
@@ -273,7 +276,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* main.c */
 
-	int			main(void);
+	int			main(int argc, const char * argv[]);
 	void		DoOpenApplication(Boolean askForFile);
 
 /* MeasFill.c */
