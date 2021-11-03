@@ -30,6 +30,7 @@
 		15683E8C1F826D0F00355A40 /* Double.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683E8B1F826D0F00355A40 /* Double.cp */; };
 		15683EB21F851B3B00355A40 /* About.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683EB11F851B3B00355A40 /* About.cp */; };
 		15683ED01F851D7200355A40 /* MIDIFOCmd.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683ECF1F851D7200355A40 /* MIDIFOCmd.cp */; };
+		156EE0A3272D84BF009C83AF /* ModNREdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 156EE0A2272D84BF009C83AF /* ModNREdit.cp */; };
 		1573CCCB1F9B779D00C967E6 /* InternalInput.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1573CCCA1F9B779D00C967E6 /* InternalInput.h */; };
 		1573CD1F1F9CB85100C967E6 /* NMiscTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */; };
 		157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157437C41D05153300C5A4DF /* DelAddRedAccs.cp */; };
@@ -150,7 +151,6 @@
 		D03E70C60D5FA5B2005FD177 /* MIDIFSave.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E707F0D5FA5B2005FD177 /* MIDIFSave.cp */; };
 		D03E70C70D5FA5B2005FD177 /* MIDIPlayWhileRec.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70800D5FA5B2005FD177 /* MIDIPlayWhileRec.cp */; };
 		D03E70C80D5FA5B2005FD177 /* MIDIRecord.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70810D5FA5B2005FD177 /* MIDIRecord.cp */; };
-		D03E70CA0D5FA5B2005FD177 /* ModNRPopUp.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70830D5FA5B2005FD177 /* ModNRPopUp.cp */; };
 		D03E70CB0D5FA5B2005FD177 /* MoveUpDown.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70840D5FA5B2005FD177 /* MoveUpDown.cp */; };
 		D03E70CD0D5FA5B2005FD177 /* MPCommands.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70860D5FA5B2005FD177 /* MPCommands.cp */; };
 		D03E70CE0D5FA5B2005FD177 /* MPImportExport.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70870D5FA5B2005FD177 /* MPImportExport.cp */; };
@@ -263,6 +263,7 @@
 		15683E8B1F826D0F00355A40 /* Double.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Double.cp; sourceTree = "<group>"; };
 		15683EB11F851B3B00355A40 /* About.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = About.cp; sourceTree = "<group>"; };
 		15683ECF1F851D7200355A40 /* MIDIFOCmd.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIFOCmd.cp; sourceTree = "<group>"; };
+		156EE0A2272D84BF009C83AF /* ModNREdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModNREdit.cp; sourceTree = "<group>"; };
 		1573CCCA1F9B779D00C967E6 /* InternalInput.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = InternalInput.h; sourceTree = "<group>"; };
 		1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */ = {isa = PBXFileReference; fileEncoding = 12; lastKnownFileType = sourcecode.c.h; path = NMiscTypes.h; sourceTree = "<group>"; };
 		157437C41D05153300C5A4DF /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
@@ -366,7 +367,6 @@
 		D03E6BAA0D5F7807005FD177 /* MCaret.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MCaret.h; sourceTree = "<group>"; };
 		D03E6BAB0D5F7807005FD177 /* Merge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Merge.h; sourceTree = "<group>"; };
 		D03E6BAF0D5F7870005FD177 /* MIDIGeneral.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDIGeneral.h; sourceTree = "<group>"; };
-		D03E6BB00D5F7870005FD177 /* ModNRPopUp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModNRPopUp.h; sourceTree = "<group>"; };
 		D03E6BB10D5F7870005FD177 /* MPImportExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPImportExport.h; sourceTree = "<group>"; };
 		D03E6BB20D5F7870005FD177 /* Multivoice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Multivoice.h; sourceTree = "<group>"; };
 		D03E6BB30D5F7870005FD177 /* MusicFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MusicFont.h; sourceTree = "<group>"; };
@@ -466,7 +466,6 @@
 		D03E707F0D5FA5B2005FD177 /* MIDIFSave.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIFSave.cp; sourceTree = "<group>"; };
 		D03E70800D5FA5B2005FD177 /* MIDIPlayWhileRec.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIPlayWhileRec.cp; sourceTree = "<group>"; };
 		D03E70810D5FA5B2005FD177 /* MIDIRecord.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIRecord.cp; sourceTree = "<group>"; };
-		D03E70830D5FA5B2005FD177 /* ModNRPopUp.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModNRPopUp.cp; sourceTree = "<group>"; };
 		D03E70840D5FA5B2005FD177 /* MoveUpDown.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveUpDown.cp; sourceTree = "<group>"; };
 		D03E70850D5FA5B2005FD177 /* MPCombineParts.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MPCombineParts.cp; sourceTree = "<group>"; };
 		D03E70860D5FA5B2005FD177 /* MPCommands.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MPCommands.cp; sourceTree = "<group>"; };
@@ -699,7 +698,6 @@
 				D03E6BAB0D5F7807005FD177 /* Merge.h */,
 				D03E69A30D5F625D005FD177 /* MIDI */,
 				15A56884218C8B6000236325 /* MiscUtils.h */,
-				D03E6BB00D5F7870005FD177 /* ModNRPopUp.h */,
 				D03E6BB10D5F7870005FD177 /* MPImportExport.h */,
 				D03E6BB20D5F7870005FD177 /* Multivoice.h */,
 				D03E6BB30D5F7870005FD177 /* MusicFont.h */,
@@ -913,7 +911,7 @@
 				D03E707F0D5FA5B2005FD177 /* MIDIFSave.cp */,
 				D03E70800D5FA5B2005FD177 /* MIDIPlayWhileRec.cp */,
 				D03E70810D5FA5B2005FD177 /* MIDIRecord.cp */,
-				D03E70830D5FA5B2005FD177 /* ModNRPopUp.cp */,
+				156EE0A2272D84BF009C83AF /* ModNREdit.cp */,
 				D03E70840D5FA5B2005FD177 /* MoveUpDown.cp */,
 				D03E70850D5FA5B2005FD177 /* MPCombineParts.cp */,
 				D03E70860D5FA5B2005FD177 /* MPCommands.cp */,
@@ -1145,7 +1143,6 @@
 				D03E70C60D5FA5B2005FD177 /* MIDIFSave.cp in Sources */,
 				D03E70C70D5FA5B2005FD177 /* MIDIPlayWhileRec.cp in Sources */,
 				D03E70C80D5FA5B2005FD177 /* MIDIRecord.cp in Sources */,
-				D03E70CA0D5FA5B2005FD177 /* ModNRPopUp.cp in Sources */,
 				D03E70CB0D5FA5B2005FD177 /* MoveUpDown.cp in Sources */,
 				D03E70CD0D5FA5B2005FD177 /* MPCommands.cp in Sources */,
 				D03E70CE0D5FA5B2005FD177 /* MPImportExport.cp in Sources */,
@@ -1236,6 +1233,7 @@
 				15768ED3272578F200DC1646 /* InternalInput.cp in Sources */,
 				15A58274272A384700F97F0F /* DynamicEdit.cp in Sources */,
 				15A58276272A38A000F97F0F /* DurationPopUp.cp in Sources */,
+				156EE0A3272D84BF009C83AF /* ModNREdit.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

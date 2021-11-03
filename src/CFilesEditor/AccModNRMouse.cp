@@ -48,8 +48,8 @@ static short FindAccModNR(Document *doc, Point pt,
 	   BELOW its system rect or is in the measure to the RIGHT of the one its note is
 	   in, we'll still eventually reach the symbol's note. But if our search finds nothing,
 	   we must start again at the top of the page and search to the original startL, just
-	   in case we've clicked on a symbol that's ABOVE its system rect or is in the measure
-	   to the LEFT of its note's measure. */
+	   in case the user clicked on a symbol that's ABOVE its system rect or is in the
+	   measure to the LEFT of its note's measure. */
 	   
 	startL = NILINK;
 	firstMeasL = LSSearch(pageL, MEASUREtype, ANYONE, GO_RIGHT, False);
@@ -122,7 +122,7 @@ Boolean DoOpenModNR(Document *doc, Point pt)
 	if (result==MODNR) {
 		DisableUndo(doc, False);
 		modCode = ModNRMODCODE(modNRL);
-		change = SetModNRDialog(&modCode);
+		change = ModNRDialog(SETMOD_DLOG, &modCode);
 		if (change) {
 			ModNRMODCODE(modNRL) = modCode;
 
@@ -170,7 +170,7 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 }
 
 
-/* =========================================================== Accidental functions == */
+/* ============================================================== Accidental functions == */
 
 #define ADD_SLOP_THRESH 6	/* in pixels */
 #define SLOP_TO_ADD 2		/* in pixels */
@@ -213,9 +213,10 @@ static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBB
 	accBBox->left = d2p(xdNorm) - d2p(accXOffset);
 	accBBox->right = accBBox->left + charWid;
 
-	/* If it's a courtesy accidental, increase width to allow for the parentheses.
-	   This code doesn't take into account <small> accidentals, whose parens are
-	   closer to the accidental; shouldn't make too much difference, though. */
+	/* If it's a courtesy accidental, increase width to allow for the parentheses. This
+	   code doesn't take into account <small> accidentals, whose parens are closer to
+	   the accidental; it shouldn't make much difference, though. */
+	   
 	aNote = GetPANOTE(noteL);
 	if (aNote->courtesyAcc) {
 		d8thSp = LNSPACE(&context)/8;

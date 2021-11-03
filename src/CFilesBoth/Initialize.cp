@@ -183,6 +183,7 @@ void Initialize()
 	if (!NInitPaletteWindows()) { BadInit(); ExitToShell(); }
 	//if (!InitAddModifierPalette()) { BadInit(); ExitToShell(); }
 	if (!InitDynamicPalette()) { BadInit(); ExitToShell(); }
+	if (!InitModNRPalette()) { BadInit(); ExitToShell(); }
 	if (!InitSetDurPalette()) { BadInit(); ExitToShell(); }
 	
 	InitCursor();

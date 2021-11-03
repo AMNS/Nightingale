@@ -261,6 +261,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	void		InitNightingale(void);
 	Boolean		NInitPaletteWindows(void);
 	Boolean		InitDynamicPalette(void);
+	Boolean		InitModNRPalette(void);
 	Boolean		InitSetDurPalette(void);
 
 /* Magnify.c */
@@ -364,6 +365,10 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean	StepRecord(Document *, Boolean);
 	
 	Boolean	RTMRecord(Document *);
+
+/* ModNREdit.c */
+
+	Boolean	ModNRDialog(unsigned short dlogID, Byte *modCode);
 
 /* MoveUpDown.c */
 

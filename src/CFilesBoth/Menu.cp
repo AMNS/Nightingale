@@ -1590,7 +1590,7 @@ static void NMAddModifiers(Document *doc)
 	char		data = 0;
 	static Byte	modCode = MOD_STACCATO;
 	
-	if (AddModNRDialog(&modCode)) {
+	if (ModNRDialog(ADDMOD_DLOG, &modCode)) {
 		WaitCursor();
 		PrepareUndo(doc, doc->selStartL, U_AddMods, 49);    		/* "Add Modifiers" */
 		for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))

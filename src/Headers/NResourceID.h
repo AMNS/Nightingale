@@ -119,7 +119,7 @@
 #define SYNCINFO_DLOG 596				/* Get Info dialog for SYNCs & GRSYNCs */
 #define EXTINFO_DLOG 597				/* Get Info dialog for extended objects */
 #define GENERALINFO_DLOG 598			/* General Get Info dialog */
-#define MODNR_DLOG 599					/* Note Modifier Info dialog */
+#define MODNRINFO_DLOG 599				/* Note Modifier Info dialog */
 
 #define PREFS_DLOG 601					/* Preferences */
 #define SCOREINFO_DLOG 640

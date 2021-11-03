@@ -3380,3 +3380,13 @@ Minor changes: move palette code to a different module, etc. Affects .rsrc,
 InternalInput.h, NightTemplates.h; DynamicEdit, FileUtils, InfoDialog, Initialize,
 InitNightingale, InternalInput, Main, Menu, NotelistParse, Score.
 
+---------------------------------------------------------------------------------------
+
+29 Oct. - 2 Nov.
+
+Work to replace the "Add/Set Modifiers" pop-up palette (using a UI font) with a fixed
+palette (from a BMP file). Affects .rsrc, NightTemplates.h; AccModNRMouse, Menu,
+ModNREdit (renamed from ModNRPopUp); ModNRPopUp.h removed.
+
+Minor changes. Affects NResourceID.h, vars.h; DynamicEdit, InfoDialog, Initialize,
+InitNightingale.

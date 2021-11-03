@@ -100,8 +100,13 @@ static void HiliteCell(short dynIdx, Rect *box)
 {
 	Rect theCell = dynamicCell[dynIdx];
 	OffsetRect(&theCell, box->left, box->top);
+	InsetRect(&theCell, 1, 1);
 	InvertRect(&theCell);
 }
+
+
+/* Return the index into our palette for the given character. If the character isn't in
+the palette, return -1. */
 
 static short DynamicKey(unsigned char theChar);
 static short DynamicKey(unsigned char theChar)
@@ -121,6 +126,7 @@ static short DynamicKey(unsigned char theChar)
 	
 	return newDynIdx;
 }
+
 
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)

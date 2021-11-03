@@ -10507,3 +10507,15 @@ The tempo/metronome mark dialog also uses the Set Duration palette; so does the 
 Tuplet command! So the problem commands that used to rely on a UI font include Set
 Duration, insert or edit tempo/metronome mark, Fancy Tuplet (all using the Set Duration
 menu); Add Modifiers; and double-clicking a dynamic.
+
+---------------------------------------------------------------------------------------
+
+29 Oct. - 2 Nov.
+
+Work on Add/Set Modifiers command: .rsrc; replace ModNRPopUp.c with ModNREdit.c, and merge
+dialog handlers for Add Modifiers and Set Modifiers => ModNRDialog(); AccModNRMouse: use
+ModNRDialog for both => done. But Add Modifiers dialog ignores clicks on the palette item;
+Set Modifiers handles it. Why?
+
+Clean up a few details in both ModNREdit.c and DynamicEdit.c => Set Modifiers and double-
+click dynamic => both work perfectly! What about Add Modifiers??

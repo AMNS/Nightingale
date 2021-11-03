@@ -998,10 +998,61 @@ bWidth, bWidthPadded, height, nBytesToRead);
 }
 
 
-#define SETDUR_PALETTE_FN		"SetDur_2dotsNB1b.bmp"
-//#define SETDUR_PALETTE_PATH 	":SetDur_2dots1bitNB.bmp"
+#define MODNR_PALETTE_FN		"NRModifierNB1b.bmp"
 
-Byte bitmapSetDur[BITMAP_SPACE];
+Boolean InitModNRPalette()
+{
+	short nRead, width, bWidth, bWidthPadded, height;
+	FILE *bmpf;
+	long pixOffset, nBytesToRead;
+
+	/* Open the BMP file and read the actual bitmap image. */
+
+	ParamText("\pnote/rest modifier", "\p", "\p", "\p");				/* In case of any of several problems */
+	bmpf = NOpenBMPFile(MODNR_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
+						&height);
+	if (!bmpf) {
+		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitModNRPalette)\n",
+					MODNR_PALETTE_FN);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+		else {
+			/* Use reasonable values for the bitmap parameters. */
+		
+			bmpModifierPal.bWidth = 18;
+			bmpModifierPal.bWidthPadded = 20;
+			bmpModifierPal.height = 104;
+			return True;
+		}
+	}
+
+	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
+		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file '%s' failed.  (InitModNRPalette)\n",
+					pixOffset, MODNR_PALETTE_FN);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+
+	nBytesToRead = bWidthPadded*height;
+LogPrintf(LOG_DEBUG, "InitModNRPalette: bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d\n",
+bWidth, bWidthPadded, height, nBytesToRead);
+	if (nBytesToRead>BITMAP_SPACE) {
+		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitModNRPalette)\n",
+					nBytesToRead, BITMAP_SPACE);
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+	nRead = fread(bmpModifierPal.bitmap, nBytesToRead, 1, bmpf);
+	if (nRead!=1) {
+		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitModNRPalette)\n");
+		if (CautionAdvise(BMP_ALRT)==OK) return False;
+	}
+
+	bmpModifierPal.bWidth = bWidth;
+	bmpModifierPal.bWidthPadded = bWidthPadded;
+	bmpModifierPal.height = height;
+	return True;
+}
+
+
+#define SETDUR_PALETTE_FN		"SetDur_2dotsNB1b.bmp"
 
 Boolean InitSetDurPalette()
 {
@@ -1019,9 +1070,9 @@ Boolean InitSetDurPalette()
 		else {
 			/* Use reasonable values for the bitmap parameters. */
 		
-			bmpSetDur.bWidth = 27;
-			bmpSetDur.bWidthPadded = 28;
-			bmpSetDur.height = 78;
+			bmpSetDurPal.bWidth = 27;
+			bmpSetDurPal.bWidthPadded = 28;
+			bmpSetDurPal.height = 78;
 			return True;
 		}
 	}
@@ -1039,12 +1090,12 @@ bWidth, bWidthPadded, height, nBytesToRead);
 					nBytesToRead, BITMAP_SPACE);
 		return False;
 	}
-	nRead = fread(&bitmapSetDur, nBytesToRead, 1, bmpf);
+	nRead = fread(&bmpSetDurPal, nBytesToRead, 1, bmpf);
 	if (nRead!=1) {
 		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitSetDurPalette)\n");
 		return False;
 	}
-DHexDump(LOG_DEBUG, "SetDur", bitmapSetDur, 4*16, 4, 16, True);
+DHexDump(LOG_DEBUG, "SetDur", bmpSetDurPal.bitmap, 4*16, 4, 16, True);
 
 	return True;
 }

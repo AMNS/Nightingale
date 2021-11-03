@@ -155,8 +155,9 @@ GLOBAL Boolean		unisonsOK;				/* If True, don't object to unisons (perfect or au
 
 GLOBAL Boolean		ignoreChord[MAX_MEASNODES][MAXVOICES+1];
 
-GLOBAL NBMP			bmpDynamicPal;
-GLOBAL NBMP			bmpSetDur;
+GLOBAL NBMP			bmpDynamicPal;			/* Bitmaps for palettes */
+GLOBAL NBMP			bmpModifierPal;
+GLOBAL NBMP			bmpSetDurPal;
 
 
 /* --------------------------------------------------------------- With Initialization -- */

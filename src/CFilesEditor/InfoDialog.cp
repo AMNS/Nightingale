@@ -1888,22 +1888,22 @@ Boolean ModNRInfoDialog(Document *doc)
 
 	userDrawModNRUPP = NewUserItemUPP(UserDrawModNR);
 	if (userDrawModNRUPP==NULL) {
-		MissingDialog(MODNR_DLOG);
+		MissingDialog(MODNRINFO_DLOG);
 		return False;
 	}
 	filterUPP = NewModalFilterUPP(OKButDragFilter);
 	if (filterUPP == NULL) {
 		DisposeUserItemUPP(userDrawModNRUPP);
-		MissingDialog(MODNR_DLOG);
+		MissingDialog(MODNRINFO_DLOG);
 		return False;
 	}
 								
 	GetPort(&oldPort);
-	mDlog = GetNewDialog(MODNR_DLOG, NULL, BRING_TO_FRONT);
+	mDlog = GetNewDialog(MODNRINFO_DLOG, NULL, BRING_TO_FRONT);
 	if (!mDlog) {
 		DisposeUserItemUPP(userDrawModNRUPP);
 		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(MODNR_DLOG);
+		MissingDialog(MODNRINFO_DLOG);
 		return False;
 	}
 	SetPort(GetDialogWindowPort(mDlog));

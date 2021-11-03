@@ -89,7 +89,6 @@ in the Nightingale project. */
 #include "MIDIGeneral.h"
 #include "MIDIRecUtils.h"
 #include "MiscUtils.h"
-#include "ModNRPopUp.h"
 #include "MPImportExport.h"
 #include "Multivoice.h"
 #include "MusicFont.h"
