@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10)
 Nightingale Technical Note #1
-Don Byrd, rev. early February 2021
+Don Byrd, rev. early November 2021
 
 A general note:
 
@@ -60,7 +60,30 @@ comments at the beginning of VoiceTable.c.
 
 ---------------------------------------------------------------------------------------
 
-About Nightingale File Structure
+Representation of Music Notation Information in Nightingale
+
+The infomation represented in Conventional Western Music Notation is extraordinarily
+complex and subtle. One reason is that it specifies, and often implies, information in
+several _domains_: Logical, Graphical, and Performance/Playback. (See Byrd, Donald, &
+Isaacson, Eric (2003). A Music Representation Requirement Specification for Academia.
+Computer Music Journal 27, no. 4, pp. 43–57. A heavily revised 2106 version is available
+at https://homes.luddy.indiana.edu/donbyrd/Papers/MusicRepReqForAcad.doc .) These are
+symbolized in source code as "L", "G", and "P". For example, here are three lines from
+the declaration of ANOTE:
+
+	Byte		ymovedots;	/* G: Y-offset on aug. dot pos. (half-spaces, 2=same as note, except 0=invisible) */
+	Byte		ndots;		/* LG: No. of aug. dots */
+	short		playDur;	/* P: PDURticks that note plays for */
+
+<ymovedots> affects the position of augmentation dots and nothing else. <ndots>, the
+number of augmentation dots, affects the rhythmic structure of the music as well as the
+visible notation. Contrary to what you might think, it does _not_ affect Nightingale's
+playback because that's given by <playDur>. However, <playDur> is updated when <ndots>
+is changed.
+
+---------------------------------------------------------------------------------------
+
+Nightingale File Structure
 
 Every Nightingale file begins with a Document header and a Score header, followed by
 the content. Files in “N105” format begin (offset and length are in bytes in base 10):
@@ -96,7 +119,7 @@ Offset			Length		Offset			Length	Item
 
 ---------------------------------------------------------------------------------------
 
-About Nightingale Data Structures
+Nightingale Data Structures
 
 Nightingale's main data structure is what is called an _object list_. For each open
 file, there's a "main" object list and one for the score’s Master Page. In addition,
