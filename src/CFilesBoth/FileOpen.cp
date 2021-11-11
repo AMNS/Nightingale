@@ -69,7 +69,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	short 		errInfo=0,				/* Type of object being read or other info on error */
 				nErr, firstErr, lastType, i;
 	long		count, stringPoolSize,
-				fileTime;
+				fileTime, fPos;
 	Boolean		fileIsOpen;
 	OMSSignature omsDevHdr;
 	long		fmsDevHdr;
@@ -102,7 +102,9 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	MacTypeToString(version, versionCString);
 	
 #ifdef NOT_NOW
-	/* If user has the secret keys down, pretend file is in current version. */
+	/* If user has the secret keys down, pretend file is in current version. This is
+	   almost certainly a waste of time if the file format has changed more than a
+	   little bit. */
 	
 	if (DETAIL_SHOW && !OptionKeyDown() && CmdKeyDown()) {
 		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%s'.  (OpenFile)\n", versionCString);
@@ -143,7 +145,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	errType = FSRead(refNum, &count, &fileTime);
 	FIX_END(fileTime);
 	if (errType) { errInfo = VERSIONobj; goto Error; }
-//{ long fPos;  GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(1)=%ld\n", fPos); }
 		
 	/* Read and, if necessary, convert Document (i.e., Sheets) and Score headers. */
 	
@@ -166,10 +167,12 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 			count = sizeof(DOCUMENTHDR);
 			errType = FSRead(refNum, &count, &doc->origin);
 			if (errType) { errInfo = HEADERobj; goto Error; }
+			if (MORE_DETAIL_SHOW) { GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(1)=%ld\n", fPos); }
 			
 			count = sizeof(SCOREHEADER);
 			errType = FSRead(refNum, &count, &doc->headL);
 			if (errType) { errInfo = HEADERobj; goto Error; }
+			if (MORE_DETAIL_SHOW) { GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(2)=%ld\n", fPos); }
 	}
 
 	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing file headers for CPU's Endian property...  (OpenFile)\n");	
@@ -190,7 +193,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		if (itemHit == Cancel) goto HeaderError;
 	}
 	
-//DisplayScoreHdr(2, doc);		// ??TEMPORARY, TO DEBUG INTEL VERSION!!!!
 	EndianFixScoreHdr(doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(3, doc);
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");
@@ -210,12 +212,14 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 
 	count = sizeof(lastType);
 	errType = FSRead(refNum, &count, &lastType);
-//{ long fPos;  GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(4)=%ld\n", fPos); }
 	if (errType) { errInfo = HEADERobj; goto Error; }
 	FIX_END(lastType);
 
+	GetFPos(refNum, &fPos);
+	if (MORE_DETAIL_SHOW) { LogPrintf(LOG_DEBUG, "lastType=%d fPos(3)=%ld\n", lastType, fPos); }
 	if (lastType!=LASTtype) {
-		LogPrintf(LOG_ERR, "LAST OBJECT TYPE IS %d BUT SHOULD BE %d.  The file is probably damaged. (OpenFile)\n", lastType, LASTtype);	
+		LogPrintf(LOG_ERR, "LAST OBJECT TYPE IS %d BUT SHOULD BE %d.  The file is unreadable. fPos=%ld (OpenFile)\n",
+					lastType, LASTtype, fPos);
 		errType = LASTTYPE_ERR;
 		errInfo = HEADERobj;
 		goto Error;
@@ -257,7 +261,8 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (DETAIL_SHOW) DisplayStringPool(doc->stringPool);
 	strPoolErrCode = StringPoolProblem(doc->stringPool);
 	if (strPoolErrCode!=0) {
-		AlwaysErrMsg("The file appears to be corrupted: string pool is probably bad (code=%ld).  (OpenFile)\n", (long)strPoolErrCode);
+		AlwaysErrMsg("The file appears to be corrupted: string pool is probably bad (code=%ld).  (OpenFile)\n",
+						(long)strPoolErrCode);
 		errInfo = STRINGobj; goto Error;
 	}
 	

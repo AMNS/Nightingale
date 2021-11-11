@@ -272,7 +272,9 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	}
 		
 	for (j = 0; j<256-(MAXVOICES+1); j++)
-		doc->expansion[j] = 0;	
+		doc->expansion[j].partn = 0;
+		doc->expansion[j].voiceRole = 0;
+		doc->expansion[j].relVoice = 0;
 }
 
 
@@ -707,8 +709,6 @@ aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteR
 		   without having to worry about clobbering anything. */
 
 		pSSubObj = (unsigned char *)GetObjectPtr(MODNRheap, aModNRL, PAMODNR);
-//LogPrintf(LOG_DEBUG, "->block=%ld aModNRL=%d sizeof(AMODNR)*aModNRL=%d pSSubObj=%ld\n", (MODNRheap)->block,
-//aModNRL, sizeof(AMODNR)*aModNRL, pSSubObj);
 		BlockMove(pSSubObj, &tmpModNR, sizeof(AMODNR));
 
 		Convert1MODNR(doc, aModNRL);
@@ -774,23 +774,21 @@ static Boolean Convert1STAFF(Document * /* doc */, LINK aStaffL)
 	StaffSHOWLEDGERS(aStaffL) = (&a1Staff)->showLedgers;
 	StaffSHOWLINES(aStaffL) = (&a1Staff)->showLines;
 
-//if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    Convert1STAFF: aStaffL=%u staffn=%d staffTop=%d staffHeight=%d staffLines=%d\n",
-//aStaffL, StaffSTAFFN(aStaffL), StaffTOP(aStaffL), StaffHEIGHT(aStaffL), StaffSTAFFLINES(aStaffL));
-{ PASTAFF			aStaff;
-aStaff = GetPASTAFF(aStaffL);
-if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG,
-		"    Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
-	aStaff->staffn, aStaff->staffTop,
-	aStaff->staffLeft, aStaff->staffHeight,
-	aStaff->staffRight, aStaff->staffLines,
-	aStaff->fontSize,
-	(aStaff->selected? 'S' : '.') ,
-	(aStaff->visible? 'V' : '.'),
-	aStaff->clefType,
-	aStaff->timeSigType,
-	aStaff->numerator,
-	aStaff->denominator );
-}
+	{ PASTAFF aStaff;
+	aStaff = GetPASTAFF(aStaffL);
+	if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG,
+			"    Convert1STAFF: st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c clef=%d TS=%d,%d/%d\n",
+		aStaff->staffn, aStaff->staffTop,
+		aStaff->staffLeft, aStaff->staffHeight,
+		aStaff->staffRight, aStaff->staffLines,
+		aStaff->fontSize,
+		(aStaff->selected? 'S' : '.') ,
+		(aStaff->visible? 'V' : '.'),
+		aStaff->clefType,
+		aStaff->timeSigType,
+		aStaff->numerator,
+		aStaff->denominator );
+	}
 	return True;
 }
 
@@ -1273,8 +1271,6 @@ static Boolean ConvertSYSTEM(Document * /* doc */, LINK sysL)
 	
 	if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertSYSTEM: sysL=L%u type=%d xd=%d sel=%d vis=%d\n", sysL, ObjLType(sysL),
 				LinkXD(sysL), LinkSEL(sysL), LinkVIS(sysL));
-//LogPrintf(LOG_DEBUG, "ConvertSYSTEM: SysRect(t,l,b,r)=%d,%d,%d,%d\n", SysRectTOP(sysL),
-//SysRectLEFT(sysL), SysRectBOTTOM(sysL), SysRectRIGHT(sysL));
 	return True;
 }
 
@@ -1300,8 +1296,6 @@ static Boolean ConvertSTAFF(Document *doc, LINK staffL)
 		   without having to worry about clobbering anything. */
 
 		pSSubObj = (unsigned char *)GetObjectPtr(STAFFheap, aStaffL, PASTAFF);
-//LogPrintf(LOG_DEBUG, "->block=%ld aStaffL=%d sizeof(ASTAFF)*aStaffL=%d pSSubObj=%ld\n", (STAFFheap)->block,
-//aStaffL, sizeof(ASTAFF)*aStaffL, pSSubObj);
 		BlockMove(pSSubObj, &tmpAStaff, sizeof(ASTAFF));
 
 		Convert1STAFF(doc, aStaffL);
@@ -1492,8 +1486,6 @@ static Boolean ConvertCONNECT(Document *doc, LINK connectL)
 		the place without having to worry about clobbering anything. */
 
 		pSSubObj = (unsigned char *)GetObjectPtr(CONNECTheap, aConnectL, PACONNECT);
-//LogPrintf(LOG_DEBUG, "->block=%ld aConnectL=%d sizeof(ACONNECT)*aConnectL=%d pSSubObj=%ld\n",
-//(CONNECTheap)->block, aConnectL, sizeof(ACONNECT)*aConnectL, pSSubObj);
 		BlockMove(pSSubObj, &tmpAConnect, sizeof(ACONNECT));
 
 		Convert1CONNECT(doc, aConnectL);
@@ -2027,8 +2019,8 @@ static void ShowStfTops(Document *doc, LINK pL, short staffN1, short staffN2)
 static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2);
 static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2)
 {
-	LINK aStaffL, aMeasureL, aPSMeasL, aClefL, aKeySigL, aTimeSigL, aNoteL,
-			aTupletL, aRptEndL, aDynamicL, aGRNoteL;
+	LINK aStaffL, aMeasureL, aPSMeasL, aClefL, aKeySigL, aTimeSigL, aNoteL, aTupletL,
+			aRptEndL, aDynamicL, aGRNoteL;
 	CONTEXT context;
 	short staffTop1, staffTop2;
 

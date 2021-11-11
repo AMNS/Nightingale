@@ -19,11 +19,13 @@
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
 		154C91D31EDBB86F00AAC011 /* AutoBeam.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154C91D21EDBB86F00AAC011 /* AutoBeam.cp */; };
 		154FABBD1EF2ADF300666F3F /* Reconstruct.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154FABBC1EF2ADF300666F3F /* Reconstruct.cp */; };
+		15510E272739EBD7007E26D1 /* DurationPopUpOLD.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15510E262739EBD7007E26D1 /* DurationPopUpOLD.cp */; };
 		1556A2F61D3FA4E700A0B147 /* InsNew.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1556A2F51D3FA4E700A0B147 /* InsNew.cp */; };
 		155F2FE22012E88600E6A344 /* CoreMIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 155F2FE12012E88600E6A344 /* CoreMIDIUtils.cp */; };
 		15602EE71D20BEF300BAEBF6 /* Browser.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EE61D20BEF300BAEBF6 /* Browser.cp */; };
 		15602EEF1D20BF7400BAEBF6 /* Dragging.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EEE1D20BF7400BAEBF6 /* Dragging.cp */; };
 		15641170212E4E6300FD52E6 /* NObjTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1564116F212E4E6300FD52E6 /* NObjTypes.h */; };
+		15642F342739DA9800077218 /* DurationEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15642F332739DA9800077218 /* DurationEdit.cp */; };
 		1566053E2268FB0800156E81 /* NDocAndCnfgTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1566053D2268FB0800156E81 /* NDocAndCnfgTypes.h */; };
 		156605402268FB1300156E81 /* NDocAndCnfgTypesN105.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1566053F2268FB1300156E81 /* NDocAndCnfgTypesN105.h */; };
 		15683E8A1F826BEA00355A40 /* CarbonStubs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683E891F826BEA00355A40 /* CarbonStubs.cp */; };
@@ -50,7 +52,6 @@
 		15A56897218C8BE400236325 /* UIFUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A56896218C8BE400236325 /* UIFUtils.cp */; };
 		15A56899218C8C0B00236325 /* StringUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A56898218C8C0B00236325 /* StringUtils.cp */; };
 		15A58274272A384700F97F0F /* DynamicEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A58273272A384700F97F0F /* DynamicEdit.cp */; };
-		15A58276272A38A000F97F0F /* DurationPopUp.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A58275272A38A000F97F0F /* DurationPopUp.cp */; };
 		15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B639401ECDA9E00029EDD7 /* CompactVoices.cp */; };
 		15B6F8CB23CBADBE00A164AD /* FileConversion.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B6F8CA23CBADBE00A164AD /* FileConversion.cp */; };
 		15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BCF5991E9D27D30069F7EB /* Undo.cp */; };
@@ -252,11 +253,13 @@
 		1547A4772146B35000C5B716 /* PopUpUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopUpUtils.h; sourceTree = "<group>"; };
 		154C91D21EDBB86F00AAC011 /* AutoBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoBeam.cp; sourceTree = "<group>"; };
 		154FABBC1EF2ADF300666F3F /* Reconstruct.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Reconstruct.cp; sourceTree = "<group>"; };
+		15510E262739EBD7007E26D1 /* DurationPopUpOLD.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DurationPopUpOLD.cp; sourceTree = "<group>"; };
 		1556A2F51D3FA4E700A0B147 /* InsNew.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNew.cp; sourceTree = "<group>"; };
 		155F2FE12012E88600E6A344 /* CoreMIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMIDIUtils.cp; sourceTree = "<group>"; };
 		15602EE61D20BEF300BAEBF6 /* Browser.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Browser.cp; sourceTree = "<group>"; };
 		15602EEE1D20BF7400BAEBF6 /* Dragging.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dragging.cp; sourceTree = "<group>"; };
 		1564116F212E4E6300FD52E6 /* NObjTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NObjTypes.h; sourceTree = "<group>"; };
+		15642F332739DA9800077218 /* DurationEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DurationEdit.cp; sourceTree = "<group>"; };
 		1566053D2268FB0800156E81 /* NDocAndCnfgTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDocAndCnfgTypes.h; sourceTree = "<group>"; };
 		1566053F2268FB1300156E81 /* NDocAndCnfgTypesN105.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDocAndCnfgTypesN105.h; sourceTree = "<group>"; };
 		15683E891F826BEA00355A40 /* CarbonStubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CarbonStubs.cp; sourceTree = "<group>"; };
@@ -283,7 +286,6 @@
 		15A56896218C8BE400236325 /* UIFUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UIFUtils.cp; sourceTree = "<group>"; };
 		15A56898218C8C0B00236325 /* StringUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtils.cp; sourceTree = "<group>"; };
 		15A58273272A384700F97F0F /* DynamicEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicEdit.cp; sourceTree = "<group>"; };
-		15A58275272A38A000F97F0F /* DurationPopUp.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DurationPopUp.cp; sourceTree = "<group>"; };
 		15B639401ECDA9E00029EDD7 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
 		15B6F8CA23CBADBE00A164AD /* FileConversion.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileConversion.cp; sourceTree = "<group>"; };
 		15BCF5991E9D27D30069F7EB /* Undo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Undo.cp; sourceTree = "<group>"; };
@@ -888,7 +890,8 @@
 				D03E706A0D5FA5B2005FD177 /* DragSet.cp */,
 				D03E706B0D5FA5B2005FD177 /* DragUtils.cp */,
 				D03E706C0D5FA5B2005FD177 /* DrawingEdit.cp */,
-				15A58275272A38A000F97F0F /* DurationPopUp.cp */,
+				15642F332739DA9800077218 /* DurationEdit.cp */,
+				15510E262739EBD7007E26D1 /* DurationPopUpOLD.cp */,
 				15A58273272A384700F97F0F /* DynamicEdit.cp */,
 				D03E70700D5FA5B2005FD177 /* Extract.cp */,
 				D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */,
@@ -1232,8 +1235,9 @@
 				15E24203256DFA09004AB7A3 /* EndianUtils.cp in Sources */,
 				15768ED3272578F200DC1646 /* InternalInput.cp in Sources */,
 				15A58274272A384700F97F0F /* DynamicEdit.cp in Sources */,
-				15A58276272A38A000F97F0F /* DurationPopUp.cp in Sources */,
 				156EE0A3272D84BF009C83AF /* ModNREdit.cp in Sources */,
+				15642F342739DA9800077218 /* DurationEdit.cp in Sources */,
+				15510E272739EBD7007E26D1 /* DurationPopUpOLD.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

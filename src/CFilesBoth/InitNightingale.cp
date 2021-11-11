@@ -1070,9 +1070,9 @@ Boolean InitSetDurPalette()
 		else {
 			/* Use reasonable values for the bitmap parameters. */
 		
-			bmpSetDurPal.bWidth = 27;
-			bmpSetDurPal.bWidthPadded = 28;
-			bmpSetDurPal.height = 78;
+			bmpDurationPal.bWidth = 27;
+			bmpDurationPal.bWidthPadded = 28;
+			bmpDurationPal.height = 78;
 			return True;
 		}
 	}
@@ -1090,12 +1090,12 @@ bWidth, bWidthPadded, height, nBytesToRead);
 					nBytesToRead, BITMAP_SPACE);
 		return False;
 	}
-	nRead = fread(&bmpSetDurPal, nBytesToRead, 1, bmpf);
+	nRead = fread(&bmpDurationPal, nBytesToRead, 1, bmpf);
 	if (nRead!=1) {
 		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitSetDurPalette)\n");
 		return False;
 	}
-DHexDump(LOG_DEBUG, "SetDur", bmpSetDurPal.bitmap, 4*16, 4, 16, True);
+DHexDump(LOG_DEBUG, "SetDur", bmpDurationPal.bitmap, 4*16, 4, 16, True);
 
 	return True;
 }

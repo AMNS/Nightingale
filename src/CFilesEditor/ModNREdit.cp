@@ -130,6 +130,9 @@ static short ModNRKey(unsigned char theChar)
 	return newModNRIdx;
 }
 
+
+#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteCell((curIdx), pBox); curIdx = (newIdx); HiliteCell((curIdx), pBox)
+
 static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
@@ -177,10 +180,7 @@ LogPrintf(LOG_DEBUG, "ModNRFilter: where=%d,%d\n", where.h, where.v);
 
 					short newModNRIdx = FindModNRCell(where, &box);
 					if (newModNRIdx<0 || newModNRIdx>(short)NMODNRS-1) return False;
-										
-					HiliteCell(modNRIdx, &box);
-					modNRIdx = newModNRIdx;
-					HiliteCell(modNRIdx, &box);
+					SWITCH_HILITE(modNRIdx, newModNRIdx, &box);
 				}
 				*itemHit = MODNR_CHOICES_DI;
 				return True;
@@ -194,9 +194,7 @@ LogPrintf(LOG_DEBUG, "ModNRFilter: where=%d,%d\n", where.h, where.v);
 			ans = ModNRKey(ch);
 			if (ans>=0) {
 LogPrintf(LOG_DEBUG, "ModNRFilter: ch='%c' modNRIdx=%d ans=%d\n", ch, modNRIdx, ans);
-				HiliteCell(modNRIdx, &box);
-				modNRIdx = ans;
-				HiliteCell(modNRIdx, &box);
+				SWITCH_HILITE(modNRIdx, ans, &box);
 				*itemHit = MODNR_CHOICES_DI;
 				return True;
 			}

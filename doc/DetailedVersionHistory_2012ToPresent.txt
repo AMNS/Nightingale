@@ -3317,7 +3317,7 @@ Work to replace all UI fonts with BMP files. Affects FileUtils.h; FileUtils.
 
 Work to replace the "change dynamic" pop-up palette (using a UI font) with a fixed
 palette (from a BMP file). Affects DynamicEdit.h, DrawUtils.h; DrawUtils, DynamicEdit
-(renamed from DynamicPopUp).
+(replacing DynamicPopUp).
 
 Fixed bug: scrolling text in the About box doesn't handle pause or boldface codes.
 Affects About.
@@ -3386,7 +3386,21 @@ InitNightingale, InternalInput, Main, Menu, NotelistParse, Score.
 
 Work to replace the "Add/Set Modifiers" pop-up palette (using a UI font) with a fixed
 palette (from a BMP file). Affects .rsrc, NightTemplates.h; AccModNRMouse, Menu,
-ModNREdit (renamed from ModNRPopUp); ModNRPopUp.h removed.
+ModNREdit (replacing ModNRPopUp); ModNRPopUp.h removed.
 
 Minor changes. Affects NResourceID.h, vars.h; DynamicEdit, InfoDialog, Initialize,
 InitNightingale.
+
+---------------------------------------------------------------------------------------
+
+4 - 11 Nov.
+
+Work to replace the "Set Duration" pop-up palette (using a UI font) with a fixed
+palette (from a BMP file). Affects .rsrc, vars.h; DurationEdit (replacing DurationPopUp),
+InitNightingale.
+
+To avoid file-compatibility problems if MAXVOICES is ever increased, enlarge
+NIGHTSCOREHEADER. Affects NDocAndCnfgTypes.h.
+
+Minor changes. Affects NDocAndCnfgTypes.h, NLimits.h, NObjTypes.h; CarbonPrinting,
+DynamicEdit, FileConversion, FileOpen, ModNREdit.

@@ -128,6 +128,8 @@ static short DynamicKey(unsigned char theChar)
 }
 
 
+#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteCell((curIdx), pBox); curIdx = (newIdx); HiliteCell((curIdx), pBox)
+
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
@@ -174,10 +176,7 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 
 					short newDynIdx = FindDynamicCell(where, &box);
 					if (newDynIdx<0 || newDynIdx>(short)NDYNAMS-1) return False;
-										
-					HiliteCell(dynamicIdx, &box);
-					dynamicIdx = newDynIdx;
-					HiliteCell(dynamicIdx, &box);
+					SWITCH_HILITE(dynamicIdx, newDynIdx, &box);
 				}
 				*itemHit = DYNAM_CHOICES_DI;
 				return True;
@@ -191,9 +190,7 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			ans = DynamicKey(ch);
 			if (ans>=0) {
 LogPrintf(LOG_DEBUG, "ch='%c' dynamicIdx=%d ans=%d\n", ch, dynamicIdx, ans);  
-				HiliteCell(dynamicIdx, &box);
-				dynamicIdx = ans;
-				HiliteCell(dynamicIdx, &box);
+				SWITCH_HILITE(dynamicIdx, ans, &box);
 				*itemHit = DYNAM_CHOICES_DI;
 				return True;
 			}

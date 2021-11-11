@@ -151,8 +151,8 @@ typedef struct {
 	SignedByte	fillerMB;			/* unused */												\
 	DDIST		filler2,			/* unused */												\
 				dIndentOther;		/* Amount to indent Systems other than first */				\
-	SignedByte	firstNames,			/* Code for drawing part names: see enum above */			\
-				otherNames,			/* Code for drawing part names: see enum above */			\
+	SignedByte	firstNames,			/* Code for drawing part names on first system */			\
+				otherNames,			/* Code for drawing part names on other systems */			\
 				lastGlobalFont,		/* Header index of most recent text style used */			\
 				xMNOffset,			/* Horiz. pos. offset for meas. nos. (half-spaces) */		\
 				yMNOffset,			/* Vert. pos. offset for meas. nos. (half-spaces) */		\
@@ -317,17 +317,17 @@ typedef struct {
 					pianoroll,			/* Display everything in pianoroll, not CMN, form? */	\
 					showSyncs,			/* Show (with InvertSymbolHilite) lines on every Sync? */	\
 					frameSystems,		/* Frame systemRects (for debugging)? */				\
-					fillerEM,			/* unused */											\
-					colorVoices,		/* 0=normal, 1=show non-dflt voices in color, 2=show all but voice 1 in color */ \
-					showInvis,			/* Display invisible objects? */						\
+					fillerEM;			/* unused */											\
+	unsigned char	colorVoices;		/* 0=normal, 1=show non-dflt voices in color, 2=show all but voice 1 in color */ \
+	Boolean			showInvis,			/* Display invisible objects? */						\
 					showDurProb,		/* Show measures with duration/time sig. problems? */	\
 					recordFlats;		/* True if black-key notes recorded should use flats */ \
 																								\
 	long			spaceMap[MAX_L_DUR];	/* Ideal spacing of basic (undotted, non-tuplet) durs. */ \
-	DDIST			dIndentFirst,		/* Amount to indent first System */						\
-					yBetweenSys;		/* obsolete, was vert. "dead" space btwn Systems */		\
-	VOICEINFO		voiceTab[MAXVOICES+1];	/* Descriptions of voices in use */					\
-	short			expansion[256-(MAXVOICES+1)];
+	DDIST			dIndentFirst,			/* Amount to indent first System */						\
+					yBetweenSys;			/* obsolete, was vert. "dead" space btwn Systems */		\
+	VOICEINFO		voiceTab[MAXVOICES+1];	/* Descriptions of voices in use */						\
+	VOICEINFO		expansion[256-(MAXVOICES+1)];
 
 
 typedef struct {

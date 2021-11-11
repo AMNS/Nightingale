@@ -10503,19 +10503,77 @@ slash; then go to
 
 	../../Resources
 
-The tempo/metronome mark dialog also uses the Set Duration palette; so does the Fancy
-Tuplet command! So the problem commands that used to rely on a UI font include Set
-Duration, insert or edit tempo/metronome mark, Fancy Tuplet (all using the Set Duration
-menu); Add Modifiers; and double-clicking a dynamic.
+The tempo/metronome mark dialog also uses the choose-duration palette; so does the Fancy
+Tuplet command! So the problem commands that used to rely on a UI font but now use a
+.bmp include Set Duration, insert or edit tempo/metronome mark, Fancy Tuplet (all using
+the Set Duration menu); Add Modifiers; and double-clicking a dynamic.
 
 ---------------------------------------------------------------------------------------
 
-29 Oct. - 2 Nov.
+29 Oct. - 3 Nov.
 
-Work on Add/Set Modifiers command: .rsrc; replace ModNRPopUp.c with ModNREdit.c, and merge
-dialog handlers for Add Modifiers and Set Modifiers => ModNRDialog(); AccModNRMouse: use
-ModNRDialog for both => done. But Add Modifiers dialog ignores clicks on the palette item;
-Set Modifiers handles it. Why?
+SWITCH TO Work on commands that use the other palettes, "choose duration" and "choose
+modifier". For the Add/Set Modifiers command: .rsrc: edit the dialogs; replace
+ModNRPopUp.c with ModNREdit.c, based on DynamicEdit.c, and merge dialog handlers for Add
+Modifiers and Set Modifiers => ModNRDialog(); AccModNRMouse: use ModNRDialog for both =>
+done. But Add Modifiers dialog ignores clicks on the palette item; Set Modifiers handles
+it. Why?
 
 Clean up a few details in both ModNREdit.c and DynamicEdit.c => Set Modifiers and double-
-click dynamic => both work perfectly! What about Add Modifiers??
+click dynamic => both work perfectly! What about Add Modifiers?? Put it off for now;
+likewise finding the BMPs, for which I hope Doug or Geoff will help.
+
+---------------------------------------------------------------------------------------
+
+5 - 10 Nov.
+
+Wait! Is it Set Modifiers or Add Modifiers that fails? Neither! Both work perfectly now!!
+I don't know what happened a couple of days ago, but my test file NotesWithModifiers.ngl
+seems to be corrupt & can't be opened. That's probably not a coincidence; anyway, rename
+it NotesWithModifiersBAD.ngl.
+
+Now for the choose-duration palette. Actually, there are _five_ commands/features that use
+it:
+	Set Duration: calls DialogsEditor.c > SetDurDialog
+	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
+	Fancy Tuplet: calls DialogsEditor.c > TupletDialog
+	Import MIDI File: calls MIDIFOCmd.c > TranscribeMFDialog
+	Transcribe Recording: calls Transcribe.c > DoQuantize, for "unknown" dur. notes. Low priority.
+
+The pop-up menu is handled by calls to InitDurPopupKey() in dialog functions and
+DurPopupKey() for case keyDown in their filters; now that we're displaying the entire
+palette at once, we have to let users click on an item as well as use the keyboard, so
+must handle case mouseDown/mouseUp too.
+
+A concern: unlike dynamics and modifiers, symtable[] doesn't distinguish among durations of
+notes by subtype (all are 0), nor durations of rests by subtype (all are 1). Is this a
+problem for dialog handlers? If so, change symtable[].subtype, thereby risking nasty side
+effects? No: symtable[].durcode does the job! So no problem.
+
+rsrc: edit the Set Duration dialog only, for now. Replace DurationPopUp.c with DurationEdit.c,
+based on DynamicEdit.c => done; but the Set Duration dialog is way more complicated than
+the set-dynamic dialog or the choose-modifier dialog! Maybe work on the Fancy Tuplet or
+tempo/metronome mark dialog first? Hmm -- those are somewhat simpler, though not as simple
+as set dynamic or choose modifier. But they also look a lot better with a pop-up menu than
+a static palette! Ah: leave the little user item, displaying one symbol, as is; if someone
+clicks on it, instead of bringing up a real pop-up menu, bring up a simple dialog like the
+set-dynamic or the choose-modifier dialog. Not quite as elegant as a pop-up menu, but not
+bad at all!
+
+SWITCH TO: Recent versions of Ngale on Intel can't open N106 files! They all give the
+message "LAST OBJECT TYPE IS 0 BUT SHOULD BE 25." ...though I think I once saw it with a
+large number instead of 0.
+
+	Nov  9 22:00:59 Dons-2017-Air Ngale[35367]:
+	Notice. Opening file '1NoteG5.ngl'...
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	Notice. Checking Document header: No errors found.  (CheckDocumentHdr)
+	Notice. Checking Score header: No errors found.  (CheckScoreHdr)
+	ERROR. LAST OBJECT TYPE IS 0 BUT SHOULD BE 25.  The file is probably damaged. (OpenFile)
+	ERROR. CAN'T OPEN THE FILE. errType=-996 errInfo=-999  (OpenError)
+
+This happens with Intel builds of Nov. 3, Oct. 28, and Jun. 18, the only ones I have handy.
+R%@*$&**@)$@Q#!(   Ah: the recent "minor" change to NDocAndCnfgTypes.h, intended to avoid
+file-compatibility problems in the future if MAXVOICES is increased, caused a file-
+compatibility problem :-) because DOCUMENTHEADER is larger than it used to be. Fixed.
+

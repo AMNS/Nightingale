@@ -4,7 +4,7 @@
 early days of OS X, problems were often reported with anything over 31 chars., but not
 in recent years. However, the Carbon toolkit seems to retain the OS 9 limit, so that's
 still all we can handle. --DAB, Oct. 2017.  FIXME: FILENAME_MAXLEN should be used in
-several more places, e.g., DoPostScript, NameMFScore. */
+several more places, e.g., NameMFScore. */
 
 #define FILENAME_MAXLEN 31	/* Max. number of chars. in a filename */
 
@@ -20,7 +20,7 @@ several more places, e.g., DoPostScript, NameMFScore. */
 #define MAXINOTTAVA	127		/* Maximum no. of notes/chords in an ottava */
 #define MAXINTUPLET	80		/* Maximum no. of notes/chords in an tuplet */
 #define MAX_TUPLENUM 255	/* Maximum possible numerator and denominator in a tuplet */
-#define MAX_MEASNODES 250	/* Maximum no. of nodes in a measure */
+#define MAX_MEASNODES 250	/* Maximum no. of nodes (objects) in a measure */
 #define MAX_L_DUR 9			/* Max. legal SYNC l_dur code; the shortest legal */
 							/*   duration = 1/2^(MAX_L_DUR-WHOLE_L_DUR) */
 #define MAX_KSITEMS 7		/* Maximum no. of items in key signature */

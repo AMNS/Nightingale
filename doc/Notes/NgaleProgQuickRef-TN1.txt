@@ -10,7 +10,8 @@ designed in the mid- and late-1980's to run on some of the first Macintosh compu
 e.g., the Macintosh Plus and SE. Those machines were hundreds, perhaps thousands, of
 times slower than modern (say, 2010 and later) computers: their processors were Motorola
 68000s, 16-bit CPUs running at 8 MHz. They also had a thousand or more times less memory
-than modern computers: typically one or two megabytes, four at the most. As a result:
+than modern computers: typically one or two megabytes, at the most four, vs. the
+multiple _gigabytes_ our machines have now. As a result:
 
 * For speed, Nightingale's main data structure, the object list, has cross links on
 	multiple levels. Of course the cross links can become inconsistent.
@@ -28,7 +29,7 @@ than modern computers: typically one or two megabytes, four at the most. As a re
 	MemMacros.h, but a large amount of Nightingale code doesn't use them where it
 	could. However, all new code should use them!)
 * The Macintosh toolkit of the time -- later dubbed "Carbon" -- was designed primarily
-	for use from Pascal, and it expects strings in Pascal's format of a length byte
+	for use from Pascal, and it expects strings in Pascal's format: a length byte
 	followed by at most 255 characters. Thus Nightingale frequently converts strings
 	from C to Pascal format and vice-versa.
 
@@ -101,7 +102,7 @@ Offset	Length	Item
 
 As of this writing, an “N106” format is under development. In terms of the details above,
 it’s identical except bytes 0 to 3 are "N106", and the length of the Score header is
-2492. Thus LASTtype has offset 2572 = 0xA0C, and the string pool has offset 2578 = 0xA12.
+2802. Thus LASTtype has offset 2882 = 0xB42, and the string pool has offset 2888 = 0xB48.
 
 The score header contains many, many fields; here's a kind of overview.
 

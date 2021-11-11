@@ -157,7 +157,7 @@ GLOBAL Boolean		ignoreChord[MAX_MEASNODES][MAXVOICES+1];
 
 GLOBAL NBMP			bmpDynamicPal;			/* Bitmaps for palettes */
 GLOBAL NBMP			bmpModifierPal;
-GLOBAL NBMP			bmpSetDurPal;
+GLOBAL NBMP			bmpDurationPal;
 
 
 /* --------------------------------------------------------------- With Initialization -- */

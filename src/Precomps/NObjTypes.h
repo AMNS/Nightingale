@@ -1,6 +1,12 @@
 /* NObjTypes.h for Nightingale - typedefs for objects, subobjects, and related things.
 NB: Very many of these appear in Nightingale score files, so changing them may be a
-problem for backward compatibility.*/
+problem for backward compatibility.
+
+The infomation represented in Conventional Western Music Notation is extraordinarily
+complex and subtle. One reason is that it specifies, and often implies, information in
+several _domains_: Logical, Graphical, and Performance/Playback. These are symbolized
+in comments by "L", "G", and "P". See Nightingale Technical Note #1 for a reference. 
+*/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
