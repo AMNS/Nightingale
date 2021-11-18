@@ -1782,6 +1782,7 @@ static void XableLDurPanel(DialogPtr dlog, Boolean enable)
 }
 
 
+#ifdef NOMORE
 Boolean SetDurDialog(
 				Document *doc,
 				Boolean *setLDur,			/* Set "notated" (logical) durations? */
@@ -2015,6 +2016,7 @@ broken:
 	SetPort(oldPort);
 	return (ditem==OK);
 }
+#endif
 
 
 /* --------------------------------------------------- Tempo Dialog & helper functions -- */

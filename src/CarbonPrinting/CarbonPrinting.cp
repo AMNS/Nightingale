@@ -1156,14 +1156,14 @@ Boolean DoPostScript(Document *doc)
 	}
 
 
-static enum {
+enum {
 	BUT1_OK = 1,
 	BUT2_Cancel,
 	ICON3,
 	RAD4_EPSF,
 	RAD5_PostScript,
 	STXT6_Specify
-	} E_PSTypeItems;
+};
 
 static short group1;
 

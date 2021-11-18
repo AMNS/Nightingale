@@ -43,8 +43,7 @@
 	/* The following enums for dialog item numbers have to be available to other
 	   files because some of their item numbers are used as return values. */
  
-	enum
-	{						/* Set Dialog item numbers */
+	enum {						/* Set Dialog item numbers */
 		VOICE_DI=9,
 		STAFF_DI,
 		NRSHAPE_DI,
@@ -56,22 +55,19 @@
 		SLURSHAPE_DI
 	};
 	
-	enum
-	{
+	enum {
 		DELSOFT_REDUNDANTACCS_DI=3,
 		DELALL_REDUNDANTACCS_DI=1
 	};
 
-	enum
-	{
+	enum {
 		NONAT_ADDREDUNDANTACCS_DI=1,
 		ALL_ADDREDUNDANTACCS_DI=3
 	};
 
-	/* SetDurDialog (DialogsEditor.c) and NMSetDuration (Menu.c) need this. */
+	/* SetDurationDialog (DurationEdit.c) and NMSetDuration (Menu.c) need this. */
 	
-	enum
-	{
+	enum {
 		HALVE_DURS,
 		DOUBLE_DURS,
 		SET_DURS_TO
@@ -262,7 +258,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean		NInitPaletteWindows(void);
 	Boolean		InitDynamicPalette(void);
 	Boolean		InitModNRPalette(void);
-	Boolean		InitSetDurPalette(void);
+	Boolean		InitDurationPalette(void);
 
 /* Magnify.c */
 

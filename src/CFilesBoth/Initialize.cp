@@ -181,10 +181,9 @@ void Initialize()
 	
 	LogPrintf(LOG_NOTICE, "Initializing palettes and palette windows...  (Initialize)\n");
 	if (!NInitPaletteWindows()) { BadInit(); ExitToShell(); }
-	//if (!InitAddModifierPalette()) { BadInit(); ExitToShell(); }
 	if (!InitDynamicPalette()) { BadInit(); ExitToShell(); }
 	if (!InitModNRPalette()) { BadInit(); ExitToShell(); }
-	if (!InitSetDurPalette()) { BadInit(); ExitToShell(); }
+	if (!InitDurationPalette()) { BadInit(); ExitToShell(); }
 	
 	InitCursor();
 	WaitCursor();

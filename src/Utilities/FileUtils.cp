@@ -505,6 +505,12 @@ else
 //LogPrintf(LOG_DEBUG, "imageSize=%u xResolution=%u yResolution=%u colors=%u  (NOpenBMPFile)\n",
 //	infoHdr.imageSize, infoHdr.xResolution, infoHdr.yResolution, infoHdr.colors);
 
+	if (infoHdr.width< 1 || infoHdr.height<1) {
+		LogPrintf(LOG_ERR, "The BMP info header doesn't make sense: width=%d height=%d.  (NOpenBMPFile)\n",
+					infoHdr.width< 1 || infoHdr.height);
+		return NULL;
+	}
+
 	if (infoHdr.colors!=BITMAP_NCOLORS) {
 		LogPrintf(LOG_ERR, "BMP file has %d colors instead of the required %d.  (NOpenBMPFile)\n",
 			infoHdr.colors, BITMAP_NCOLORS);

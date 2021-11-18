@@ -3404,3 +3404,15 @@ NIGHTSCOREHEADER. Affects NDocAndCnfgTypes.h.
 
 Minor changes. Affects NDocAndCnfgTypes.h, NLimits.h, NObjTypes.h; CarbonPrinting,
 DynamicEdit, FileConversion, FileOpen, ModNREdit.
+
+---------------------------------------------------------------------------------------
+
+12 - 18 Nov.
+
+Work to replace the "Set Duration" pop-up palette (using a UI font) with a fixed
+palette (from a BMP file). Affects DurationEdit, InitNightingale.
+
+Minor changes: rename two BMP files, etc. Affects NightTemplates.h, Duration_2dotsNB1b.bmp,
+DynamicsNB1b.bmp; CarbonPrinting, DialogsEditor, DrawUtils, DurationEdit, FileUtils,
+Initialize, InitNightingale.
+

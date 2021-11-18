@@ -15,14 +15,10 @@ graphic MDEF; it now uses a BMP displayed in its entirety.  */
 
 static short durationIdx;
 
-enum {
-	DURATION_CHOICES_DI=4
-};
-
 static Boolean DrawDurationPalette(Rect *pBox);
 static Boolean DrawDurationPalette(Rect *pBox)
 {	
-DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 8*16, 4, 16, True);
+DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 4*16, 4, 16, True);
 
 	DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded,
 			bmpDurationPal.height, *pBox);
@@ -30,8 +26,12 @@ DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 8*16, 4, 16, True);
 }
 
 
-static short durationCode[] = { 9, 8, 7, 6, 5, 4, 3, 2, 1 };
-								
+static short durationCode[] =	{ 9, 8, 7, 6, 5, 4, 3, 2, 1,
+								  9, 8, 7, 6, 5, 4, 3, 2, 1,
+								  9, 8, 7, 6, 5, 4, 3, 2, 1 };
+static short durNDots[] =		{ 0, 0, 0, 0, 0, 0, 0, 0, 0,
+								  1, 1, 1, 1, 1, 1, 1, 1, 1,
+								  2, 2, 2, 2, 2, 2, 2, 2, 2 };
 #define NDURATIONS (sizeof durationCode/sizeof(short))
 
 #define NROWS 3		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
@@ -127,10 +127,116 @@ static short DurationKey(unsigned char theChar)
 }
 
 
+/* ---------------------------------------------------------------------- SetDurDialog -- */
+
+static Boolean IsSelInTuplet(Document *doc);
+static Boolean IsSelInTupletNotTotallySel(Document *doc);
+static Boolean SDAnyBadValues(Document *, DialogPtr, Boolean, short, short, short);
+static pascal Boolean SetDurFilter(DialogPtr, EventRecord *, short *);
+
+enum {
+	SETLDUR_DI=3,
+	SDDURPAL_DI,
+	SHOW2DOTS_DI,
+	CV_DI,
+	SETPDUR_DI,
+	PDURPCT_DI,
+	DUMMYFLD_DI=11,
+	HALVEDURS_DI=12,
+	DOUBLEDURS_DI,
+	SETDURSTO_DI
+};
+
+static short show2dots=False;
+static short setDurGroup;
+
+
+/* Return True if any selected notes (or rests) are in tuplets. */
+
+static Boolean IsSelInTuplet(Document *doc)
+{
+	LINK pL, aNoteL;
+
+	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
+		if (LinkSEL(pL) && SyncTYPE(pL))
+			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
+				if (NoteINTUPLET(aNoteL) && NoteSEL(aNoteL))
+					return True;
+	
+	return False;			
+}
+
+
+/* Return True if any selected notes (or rests) are in a tuplet, but not all the notes of
+the tuplet are selected. */
+
+static Boolean IsSelInTupletNotTotallySel(Document *doc)
+{
+	LINK pL, aNoteL, voice, aTupletL, tpSyncL;
+	short numSelNotes, numNotSelNotes;
+
+	pL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, False);
+	if (pL==NILINK)
+		pL = doc->selStartL;
+
+	for ( ; pL!=doc->selEndL; pL=RightLINK(pL))
+		if (TupletTYPE(pL)) {
+			voice = TupletVOICE(pL);
+			numSelNotes = numNotSelNotes = 0;
+			aTupletL = FirstSubLINK(pL);
+			for ( ; aTupletL; aTupletL=NextNOTETUPLEL(aTupletL)) {
+				tpSyncL = NoteTupleTPSYNC(aTupletL);
+				aNoteL = FirstSubLINK(tpSyncL);
+				for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
+					if (NoteVOICE(aNoteL)==voice) {
+						if (NoteSEL(aNoteL))	numSelNotes++;
+						else					numNotSelNotes++;
+					}
+			}
+			if (numSelNotes>0 && numNotSelNotes>0)
+				return True;
+		}
+
+	return False;			
+}
+
+
+static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
+								short newLDurAction, short /*newnDots*/, short newpDurPct)
+{	
+	if (newpDurPct<1 || newpDurPct>500) {
+		GetIndCString(strBuf, DIALOGERRS_STRS, 13);				/* "Play duration percent must be..." */
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
+		return True;
+	}
+
+	if (newSetLDur) {
+		if (newLDurAction==SET_DURS_TO) {
+			if (IsSelInTuplet(doc)) {
+				GetIndCString(strBuf, DIALOGERRS_STRS, 14);		/* "can't Set notated Duration in tuplets" */
+				CParamText(strBuf, "", "", "");
+				StopInform(GENERIC_ALRT);
+				return True;
+			}
+		}
+		else {
+			if (IsSelInTupletNotTotallySel(doc)) {
+				GetIndCString(strBuf, DIALOGERRS_STRS, 21);		/* "...select all the notes of the tuplet" */
+				CParamText(strBuf, "", "", "");
+				StopInform(GENERIC_ALRT);
+				return True;
+			}
+		}
+	}
+
+	return False;
+}
+
 #define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteCell((curIdx), pBox); curIdx = (newIdx); HiliteCell((curIdx), pBox)
 
-static pascal Boolean DurationFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
-static pascal Boolean DurationFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
+static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
 	short			ch, ans, type;
@@ -147,7 +253,7 @@ static pascal Boolean DurationFilter(DialogPtr dlog, EventRecord *evt, short *it
 				BeginUpdate(GetDialogWindow(dlog));
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, True);
-				GetDialogItem(dlog, DURATION_CHOICES_DI, &type, &hndl, &box);
+				GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &box);
 //LogPrintf(LOG_DEBUG, "DurationFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
 //box.right);
 				FrameRect(&box);
@@ -166,7 +272,7 @@ static pascal Boolean DurationFilter(DialogPtr dlog, EventRecord *evt, short *it
 		case mouseUp:
 			where = evt->where;
 			GlobalToLocal(&where);
-			GetDialogItem(dlog, DURATION_CHOICES_DI, &type, &hndl, &box);
+			GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &box);
 			if (PtInRect(where, &box)) {
 				if (evt->what==mouseUp) {
 					/* If the mouseUp was in an invalid (presumably because empty) cell,
@@ -177,20 +283,20 @@ static pascal Boolean DurationFilter(DialogPtr dlog, EventRecord *evt, short *it
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
 					SWITCH_HILITE(durationIdx, newDurIdx, &box);
 				}
-				*itemHit = DURATION_CHOICES_DI;
+				*itemHit = SDDURPAL_DI;
 				return True;
 			}
 			break;
 		case keyDown:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			ch = (unsigned char)evt->message;
-			GetDialogItem(dlog, DURATION_CHOICES_DI, &type, &hndl, &box);
+			GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &box);
 			*itemHit = 0;
 			ans = DurationKey(ch);
 			if (ans>=0) {
 LogPrintf(LOG_DEBUG, "ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);  
 				SWITCH_HILITE(durationIdx, ans, &box);
-				*itemHit = DURATION_CHOICES_DI;
+				*itemHit = SDDURPAL_DI;
 				return True;
 			}
 	}
@@ -198,17 +304,50 @@ LogPrintf(LOG_DEBUG, "ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);
 	return False;
 }
 
-Boolean SetDurationDialog(SignedByte *durationType)
+
+static void XableLDurPanel(DialogPtr dlog, Boolean enable)
+{
+	if (enable) {
+		XableControl(dlog, HALVEDURS_DI, True);
+		XableControl(dlog, DOUBLEDURS_DI, True);
+		XableControl(dlog, SETDURSTO_DI, True);
+		XableControl(dlog, SHOW2DOTS_DI, True);
+		XableControl(dlog, CV_DI, True);
+	}
+	else {
+		XableControl(dlog, HALVEDURS_DI, False);
+		XableControl(dlog, DOUBLEDURS_DI, False);
+		XableControl(dlog, SETDURSTO_DI, False);
+		XableControl(dlog, SHOW2DOTS_DI, False);
+		XableControl(dlog, CV_DI, False);
+	}
+}
+
+Boolean SetDurDialog(
+				Document *doc,
+				Boolean *setLDur,			/* Set "notated" (logical) durations? */
+				short *lDurAction,			/* HALVE_DURS, DOUBLE_DURS, or SET_DURS_TO */
+				short *lDurCode,
+				short *nDots,
+				Boolean *setPDur,			/* Set play durations? */
+				short *pDurPct,
+				Boolean *cptV,				/* Compact Voices (remove gaps) afterwards? */
+				Boolean *doUnbeam			/* Unbeam selection first? */
+				)	
 {	
 	DialogPtr dlog;
-	short ditem=Cancel, type, oldResFile;
-	Boolean dialogOver;
+	short ditem=Cancel, type;
+	Boolean dialogOver, beamed;
 	Handle hndl;
 	Rect box, theCell;
 	GrafPtr oldPort;
 	ModalFilterUPP	filterUPP;
+	short newpDurPct;
+	short newnDots, newSetLDur, newLDur;
 
-	filterUPP = NewModalFilterUPP(DurationFilter);
+LogPrintf(LOG_DEBUG, "SetDurDialog: bWidth=%d bWidthPadded=%d height=%d\n",
+bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
+	filterUPP = NewModalFilterUPP(SetDurFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(SETDUR_DLOG);
 		return False;
@@ -224,10 +363,26 @@ Boolean SetDurationDialog(SignedByte *durationType)
 	GetPort(&oldPort);
 	SetPort(GetDialogWindowPort(dlog));
 
-	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);							/* popup code uses Get1Resource */
+	if (*nDots>2) {
+		SysBeep(1);										/* popup has 2 dots maximum */
+		LogPrintf(LOG_WARNING, "Can't handle %d dots: 2 is the maximum.  (SetDurDialog)\n", *nDots);
+		 *nDots = 2;
+	}
 
-	GetDialogItem(dlog, DURATION_CHOICES_DI, &type, &hndl, &box);
+	*doUnbeam = False;
+	beamed = (SelBeamedNote(doc)!=NILINK);
+
+	newLDur = *lDurCode;
+	newnDots = *nDots;
+	newpDurPct = *pDurPct;
+	if (newnDots>1) show2dots = True;
+	
+	if (*lDurAction==HALVE_DURS)		setDurGroup = HALVEDURS_DI;
+	else if (*lDurAction==DOUBLE_DURS)	setDurGroup = DOUBLEDURS_DI;
+	else								setDurGroup = SETDURSTO_DI;
+	PutDlgChkRadio(dlog, setDurGroup, True);
+
+	GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &box);
 	InitDurationCells(&box);
 	
 	/* Find and hilite the initially-selected cell. We should always find it, but if
@@ -235,13 +390,29 @@ Boolean SetDurationDialog(SignedByte *durationType)
 	
 	durationIdx = 3;									/* In case we can't find it */
 	for (unsigned short k = 0; k<NDURATIONS; k++) {
-		if (*durationType==durationCode[k]) { durationIdx = k;  break; }
+		if (*lDurCode==durationCode[k] && *nDots==durNDots[k]) { durationIdx = k;  break; }
 	}
 	
 	theCell = durationCell[durationIdx];
 	OffsetRect(&theCell, box.left, box.top);
 	InvertRect(&theCell);
 
+	PutDlgChkRadio(dlog, SHOW2DOTS_DI, show2dots);
+	PutDlgChkRadio(dlog, SETLDUR_DI, *setLDur);
+	PutDlgChkRadio(dlog, SETPDUR_DI, *setPDur);
+	hndl = PutDlgChkRadio(dlog, CV_DI, *cptV);
+	HiliteControl((ControlHandle)hndl, (*setLDur? CTL_ACTIVE : CTL_INACTIVE));
+	
+	PutDlgWord(dlog, PDURPCT_DI, *pDurPct, False);
+
+	if (*setLDur) {
+		XableLDurPanel(dlog, True);
+		SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
+	}
+	else {
+		XableLDurPanel(dlog, False);
+		SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
+	}
 	CenterWindow(GetDialogWindow(dlog), 100);
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
@@ -251,20 +422,108 @@ Boolean SetDurationDialog(SignedByte *durationType)
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
+				show2dots = GetDlgChkRadio(dlog, SHOW2DOTS_DI);
+				GetDlgWord(dlog, PDURPCT_DI, &newpDurPct);
+				newSetLDur = GetDlgChkRadio(dlog, SETLDUR_DI);
+				
+				if (setDurGroup==HALVEDURS_DI)			*lDurAction = HALVE_DURS;
+				else if (setDurGroup==DOUBLEDURS_DI)	*lDurAction = DOUBLE_DURS;
+				else									*lDurAction = SET_DURS_TO;
+
+				if (!SDAnyBadValues(doc, dlog, newSetLDur, *lDurAction, newnDots, newpDurPct)) {
+				
+					/* If the logical durations are to be set and any selected note is beamed,
+					   it must be unbeamed first; tell the user. */
+			
+					if (newSetLDur && beamed) {
+						if (CautionAdvise(SDBEAM_ALRT)==Cancel) break;
+						*doUnbeam = True;						
+					}
+					*setLDur = newSetLDur;
+					*lDurCode = durationCode[durationIdx];
+					*nDots = durNDots[durationIdx];
+					*setPDur = GetDlgChkRadio(dlog, SETPDUR_DI);
+					*pDurPct = newpDurPct;
+					*cptV = GetDlgChkRadio(dlog, CV_DI);
+					dialogOver = True;
+				}
 			case Cancel:
 				dialogOver = True;
+				break;
+			case HALVEDURS_DI:
+			case DOUBLEDURS_DI:
+			case SETDURSTO_DI:
+				if (ditem!=setDurGroup)
+					SwitchRadio(dlog, &setDurGroup, ditem);
+				break;
+			case SETLDUR_DI:
+				PutDlgChkRadio(dlog, SETLDUR_DI, !GetDlgChkRadio(dlog, SETLDUR_DI));
+				newSetLDur = GetDlgChkRadio(dlog, SETLDUR_DI);
+				if (newSetLDur) {
+					XableLDurPanel(dlog, True);
+				}
+				else {
+					XableLDurPanel(dlog, False);
+					SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
+					//HiliteGPopUp(curPop, popUpHilited = False);
+				}
+				break;
+			case SDDURPAL_DI:
+				PutDlgChkRadio(dlog, SETLDUR_DI, newSetLDur = True);
+				XableLDurPanel(dlog, True);
+				if (setDurGroup!=SETDURSTO_DI)
+					SwitchRadio(dlog, &setDurGroup, SETDURSTO_DI);
+#ifdef NOTYET
+				SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
+				//HiliteGPopUp(curPop, popUpHilited = True);
+#endif
+				break;
+			case SHOW2DOTS_DI:
+#ifdef NOTYET
+				PutDlgChkRadio(dlog, SHOW2DOTS_DI, !GetDlgChkRadio(dlog, SHOW2DOTS_DI));
+				show2dots = GetDlgChkRadio(dlog, SHOW2DOTS_DI);
+				choice = curPop->currentChoice;
+				if (show2dots) {
+#if 11
+					choice = 17;		// ARBITRARY CHOICE FOR TESTING!!!!!!!!!!!!!!!!!!!!!!
+#else
+					choice = GetDurPopItem(&durPop2dot, popKeys2dot,
+										popKeys1dot[choice].durCode, popKeys1dot[choice].numDots);
+					curPop = &durPop2dot;
+#endif
+				}
+				else {
+#if 11
+#else
+					newnDots = popKeys2dot[choice].numDots;
+					if (newnDots==2) newnDots--;
+					choice = GetDurPopItem(&durPop1dot, popKeys1dot,
+										popKeys2dot[choice].durCode, newnDots);
+					curPop = &durPop1dot;
+#endif
+				}
+				//SetGPopUpChoice(curPop, choice);
+				SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
+				//HiliteGPopUp(curPop, popUpHilited = True);
+				break;
+#endif
+			case CV_DI:
+			case SETPDUR_DI:
+				PutDlgChkRadio(dlog, ditem, !GetDlgChkRadio(dlog, ditem));
+				break;
+			case PDURPCT_DI:
+				//if (popUpHilited)
+					//HiliteGPopUp(curPop, popUpHilited = False);
+				PutDlgChkRadio(dlog, SETPDUR_DI, True);
 				break;
 			default:
 				;
 		}
 	}
-	if (ditem==OK)
-		*durationType = durationCode[durationIdx];
 		
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
 	
-	UseResFile(oldResFile);
 	SetPort(oldPort);
 	return (ditem==OK);
 }

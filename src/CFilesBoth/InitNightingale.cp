@@ -787,7 +787,7 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	}
 
 	nBytesToRead = bWidthPadded*height;
-	LogPrintf(LOG_DEBUG, "bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (InitToolPalette)\n",
+	LogPrintf(LOG_INFO, "bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (InitToolPalette)\n",
 		bWidth, bWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitToolPalette)\n",
@@ -847,7 +847,7 @@ toolCellHeight);
 
 LogPrintf(LOG_DEBUG, "InitToolPalette: maxToolsRect tlbr=%d,%d,%d,%d\n", maxToolsRect.top,
 maxToolsRect.left, maxToolsRect.bottom, maxToolsRect.right);
-DHexDump(LOG_DEBUG, "ToolPal", bitmapTools, 5*16, 4, 16, True);
+DHexDump(LOG_DEBUG, "ToolPal", bitmapTools, 4*16, 4, 16, True);
 	short startLoc;
 	for (short nRow = 12; nRow>=0; nRow--) {
 		startLoc = nRow*bWidthPadded;
@@ -944,7 +944,7 @@ Boolean NInitPaletteWindows()
 
 /* --------------------------------------------------- Initialize palettes for dialogs -- */
 
-#define DYNAMIC_PALETTE_FN		"ChangeDynamicNB1b.bmp"
+#define DYNAMIC_PALETTE_FN		"DynamicsNB1b.bmp"
 
 Boolean InitDynamicPalette()
 {
@@ -978,8 +978,8 @@ Boolean InitDynamicPalette()
 	}
 
 	nBytesToRead = bWidthPadded*height;
-LogPrintf(LOG_DEBUG, "InitDynamicPalette: bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d\n",
-bWidth, bWidthPadded, height, nBytesToRead);
+	LogPrintf(LOG_INFO, "bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (InitDynamicPalette)\n",
+	bWidth, bWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitDynamicPalette)\n",
 					nBytesToRead, BITMAP_SPACE);
@@ -1032,8 +1032,8 @@ Boolean InitModNRPalette()
 	}
 
 	nBytesToRead = bWidthPadded*height;
-LogPrintf(LOG_DEBUG, "InitModNRPalette: bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d\n",
-bWidth, bWidthPadded, height, nBytesToRead);
+	LogPrintf(LOG_INFO, " bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (InitModNRPalette)\n",
+	bWidth, bWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitModNRPalette)\n",
 					nBytesToRead, BITMAP_SPACE);
@@ -1052,9 +1052,9 @@ bWidth, bWidthPadded, height, nBytesToRead);
 }
 
 
-#define SETDUR_PALETTE_FN		"SetDur_2dotsNB1b.bmp"
+#define DURATIONS_PALETTE_FN		"Duration_2dotsNB1b.bmp"
 
-Boolean InitSetDurPalette()
+Boolean InitDurationPalette()
 {
 	FILE *bmpf;
 	short nRead, width, bWidth, bWidthPadded, height;
@@ -1062,10 +1062,12 @@ Boolean InitSetDurPalette()
 
 	/* Open the BMP file and read the actual bitmap image. */
 
-	ParamText("\pSet Duration", "\p", "\p", "\p");					/* In case of any of several problems */
-	bmpf = NOpenBMPFile(SETDUR_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded, &height);
+	ParamText("\pnote/rest duration", "\p", "\p", "\p");				/* In case of any of several problems */
+	bmpf = NOpenBMPFile(DURATIONS_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
+						&height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitSetDurPalette)\n", SETDUR_PALETTE_FN);
+		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitDurationPalette)\n",
+					DURATIONS_PALETTE_FN);
 		if (CautionAdvise(BMP_ALRT)==OK) return False;
 		else {
 			/* Use reasonable values for the bitmap parameters. */
@@ -1078,24 +1080,28 @@ Boolean InitSetDurPalette()
 	}
 
 	if (fseek(bmpf, pixOffset, SEEK_SET)!=0) {
-		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file failed.  (InitSetDurPalette)\n", pixOffset);
+		LogPrintf(LOG_ERR, "fseek to offset %ld in bitmap image file failed.  (InitDurationPalette)\n",
+					pixOffset);
 		return False;
 	}
 		
 	nBytesToRead = bWidthPadded*height;
-LogPrintf(LOG_DEBUG, "InitSetDurPalette: bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d\n",
-bWidth, bWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
-		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitSetDurPalette)\n",
+		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitDurationPalette)\n",
 					nBytesToRead, BITMAP_SPACE);
 		return False;
 	}
 	nRead = fread(&bmpDurationPal, nBytesToRead, 1, bmpf);
 	if (nRead!=1) {
-		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitSetDurPalette)\n");
+		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitDurationPalette)\n");
 		return False;
 	}
-DHexDump(LOG_DEBUG, "SetDur", bmpDurationPal.bitmap, 4*16, 4, 16, True);
 
+	bmpDurationPal.bWidth = bWidth;
+	bmpDurationPal.bWidthPadded = bWidthPadded;
+	bmpDurationPal.height = height;
+//DHexDump(LOG_DEBUG, "Duration", bmpDurationPal.bitmap, 4*16, 4, 16, True);
+	LogPrintf(LOG_INFO, "bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (InitDurationPalette)\n",
+				bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
 	return True;
 }

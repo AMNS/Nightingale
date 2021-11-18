@@ -415,11 +415,11 @@ void GetClefDrawInfo(
 
 	if (outputTo!=toPostScript) {
 		if (small) {
-		/*
-		 *	We've tried various "bald-faced kludges" to <ydR> here to correct the QuickDraw
-		 * positions of small clefs, which are sometimes too high and sometimes too low,
-		 * but none has worked very well. Someday we'll have to figure out what's going on.
-		 */
+		/* We've tried various "bald-faced kludges" to <ydR> here to correct the QuickDraw
+		   positions of small clefs, which are sometimes too high and sometimes too low,
+		   but none has worked very well. Someday we'll have to figure out what's going
+		   on. */
+		   
 			TextSize(UseMTextSize(txSize, doc->magnify));
 		}
 		else
@@ -493,8 +493,9 @@ void GetDynamicDrawInfo(
 	dTop = pContext->measureTop;
 	dLeft = pContext->measureLeft;
 	
-/* Make the dynamic xd relative to the firstSync of the dynamic. Offset is contained
-in subObject; LinkXD(pL) is set to 0 inside NewObjPrepare. */
+	/* Make the dynamic xd relative to the firstSync of the dynamic. Offset is contained
+	   in subObject; LinkXD(pL) is set to 0 inside NewObjPrepare. */
+	   
 	*xd = SysRelxd(DynamFIRSTSYNC(pL)) + LinkXD(pL) + aDynamic->xd
 					+ pContext->systemLeft;
 	*yd = dTop + aDynamic->yd;
@@ -744,6 +745,7 @@ void DrawRptBar(Document *doc,
 short GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
 {
 /* Octave-adjusted position for:		   F  E  D  C  B  A  G	(0=top staff line) */
+
 	static SignedByte trebleSharpPos[] = { 0, 1, 2, 3, 4, 5,-1 };
 	static SignedByte trebleFlatPos[]  = { 7, 1, 2, 3, 4, 5, 6 };
 	
@@ -991,7 +993,7 @@ void DrawKSItems(Document *doc,
 	}
 	else {														/* No, so cancel previous key sig. */
 		prevKSL = LSSearch(LeftLINK(pL), KEYSIGtype, staffn, GO_LEFT, False);
-		if (prevKSL)	{										/* Anything to change from? */
+		if (prevKSL) {											/* Anything to change from? */
 			prevKS = GetPKEYSIG(prevKSL);
 			aPrevKSL = FirstSubLINK(prevKSL);
 			for ( ; aPrevKSL; aPrevKSL = NextKEYSIGL(aPrevKSL)) {
@@ -1093,6 +1095,7 @@ short  FillTimeSig(Document *doc,
 			NumToString(aTimeSig->numerator, nStr);			/* Overwrite nStr[0] */
 	}
 	/* We have to do this here for NPtStringWidth to work correctly below. */
+	
 	MapMusPString(doc->musFontInfoIndex, nStr);
 	MapMusPString(doc->musFontInfoIndex, dStr);
 
@@ -1331,8 +1334,8 @@ Boolean GetModNRInfo(
 
 /* -------------------------------------------------------------------------- NoteXLoc -- */
 /* Return the horizontal position of the left edge of the given note or rest. Also
-return the "normal" horizontal position of the note, which is also the "normal"
-position of its accidental, if any. */
+return the "normal" horizontal position of the note, which is also the "normal" position
+of its accidental, if any. */
 
 DDIST NoteXLoc(
 			LINK syncL, LINK aNoteL,
@@ -1361,8 +1364,8 @@ DDIST NoteXLoc(
 
 
 /* ------------------------------------------------------------------------ GRNoteXLoc -- */
-/* Return the horizontal position of the left edge of the given grace note. Also
-return the horizontal origin of its accidental, if any. */
+/* Return the horizontal position of the left edge of the given grace note. Also return
+the horizontal origin of its accidental, if any. */
 
 DDIST GRNoteXLoc(
 			LINK syncL, LINK aGRNoteL,
@@ -1546,6 +1549,7 @@ void DrawNoteLedgers(
 					if (yqpitSus==0) yqpitSus = midlineqd;
 				}
 				/* The 4's below are the QDIST distance between staff lines. */
+				
 				for (lineqd = startqd; lineqd>=yqpit; lineqd -= 4) {
 					if (lineqd>=yqpitSus) {
 						leftNow = d2p(dLSusLeft); lenNow = d2p(dLongLen)-1;
@@ -1736,15 +1740,15 @@ Boolean ShouldDrawConnect(
 	drawThisOne = True;
 
 	if (!doc->masterView) {
-		/*
-		 *	CMN convention is usually to not show Connects if they include only one
-		 *	staff, except on groups (instrument choirs, etc.), where they're shown if
-		 *	any staves are visible.
-		 */
+		/* CMN convention is usually to not show Connects if they include only one
+		   staff, except on groups (instrument choirs, etc.), where they're shown if
+		   any staves are visible. */
+		   
 		aConnect = GetPACONNECT(aConnectL);
 		switch (aConnect->connLevel) {
 			case SystemLevel:
 				/* Zero visible staves in the system should never happen. */
+				
 				drawThisOne = (NumVisStaves(pL)>1 || config.show1StfSysConn);
 				break;
 			case GroupLevel:
@@ -1895,11 +1899,10 @@ Boolean ShouldPSMDrawBarline(
 	if (thePSMeas->connStaff!=0 || !thePSMeas->connAbove)
 		{ gBottomStf = thePSMeas->connStaff; goto DrawAll; }
 	
-	/*
-	 * This is a "subordinate" staff, i.e., one in a group and not the top staff
-	 * of the group. Skip barline unless all staves above this one in its group
-	 * are invisible.
-	 */
+	/* This is a "subordinate" staff, i.e., one in a group and not the top staff
+	   of the group. Skip barline unless all staves above this one in its group
+	   are invisible. */
+	   
 	theStf = PSMeasSTAFF(thePSMeasL);
 	aPSMeasL = FirstSubLINK(measObjL);
 	for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
@@ -1911,10 +1914,9 @@ Boolean ShouldPSMDrawBarline(
 			}
 	}
 
-	/*
-	 * We know the top staff of the group; now see if it and all staves below it and
-	 *	above <theStf> are invisible.
-	 */
+	/* We know the top staff of the group; now see if it and all staves below it and
+	   above <theStf> are invisible. */
+	   
 	aPSMeasL = FirstSubLINK(measObjL);
 	for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
 		if (PSMeasSTAFF(aPSMeasL)>=gTopStf && PSMeasSTAFF(aPSMeasL)<theStf) {
@@ -2063,19 +2065,23 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
 
 
 /* ------------------------------------------------------------------------- DrawBMP -- */
-
-/* Draw a black-and-white image from a BMP file. */
+/* Draw a black-and-white image from a black-and-white (one bit/pixel) bitmap. Intended
+for drawing palettes read from BMP files. bmpBits[] has a B&W bitmap in it, with an image
+whose logical width is bWidth bytes; the first bWidthPadded bytes represent the lowest
+row of the image. */
 
 void DrawBMP(Byte bmpBits[], short bWidth, short bWidthPadded, short height, Rect bmpRect)
 {
-	/* bmpBits[] has a B&W bitmap in it, with an image whose logical width is bWidth bytes; the
-	   first bWidthPadded bytes represent the lowest row of the image.  We can't use Patterns
-	   because QuickDraw aligns the Pattern with the underlying coordinates of the port, so it
-	   won't look the same at any given origin. */
+	/* We can't use Patterns because QuickDraw aligns the Pattern with the underlying
+	   coordinates of the port, so it won't look the same at any given origin. Instead,
+	   brute force draw every horizontal sequence of black (0) pixels as a line, in rows
+	   from bottom to top. Leave the white (1) pixels untouched (this implies entire
+	   bmpRect must be erased earlier). */
 	
-	/* Brute force draw every horizontal sequence of black (0) pixels as a line, in rows from
-	   bottom to top. Leave the white (1) pixels untouched (this implies entire bmpRect must
-	   be erased earlier). */
+	if (bWidth< 1 || bWidthPadded<1 || bWidthPadded<bWidth || height<2) {
+		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. bWidth=%d bWidthPadded=%d height=%d  (DrawBMP)\n",
+					bWidth, bWidthPadded, height);
+	}
 	
 	short y = bmpRect.bottom-1;
 	for (short kRow=0; kRow<height; kRow++) {
@@ -2101,6 +2107,7 @@ if (DETAIL_SHOW) DPrintRow(bmpBits, kRow, bWidth, startOfRow, False, False);  pr
 			}
 			 else {
 				/* White pixel. If any saved black pixels, draw a horizontal line. */
+				
 				if (blackRunLength>0) {
 				    MoveTo(runStart, y);
 					LineTo(x-1, y);

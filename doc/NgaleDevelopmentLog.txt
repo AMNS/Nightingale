@@ -10577,3 +10577,50 @@ R%@*$&**@)$@Q#!(   Ah: the recent "minor" change to NDocAndCnfgTypes.h, intended
 file-compatibility problems in the future if MAXVOICES is increased, caused a file-
 compatibility problem :-) because DOCUMENTHEADER is larger than it used to be. Fixed.
 
+---------------------------------------------------------------------------------------
+
+13 - 17 Nov.
+
+SWITCH TO: Why does the debugger behave so poorly on my G5 as to be essentially useless?
+On the Mac mini Doug McKenna is using, it seems to work fine! Well, I've been using the
+Release build 100% of the time; it's set to maximum optimization (-O4: "fastest,
+smallest"), which tends to make debuggers work poorly! Let's try less optimization. Set it
+to no optimization (-O0) => makes the app much larger (5.6 MB vs. 3.8), as expected. But
+on a quick test -- setting a breakpoint in main() -- it doesn't behave any better; oh
+well. Change the setting to "fastest" (-O3) => it's 4.0 MB; back to -O4 => back to 3.8 MB.
+
+BACK TO: Implement the new choose-duration palette. Set Duration now works to some extent:
+it changes the durations of selected notes, but the palette is never filled in, and it
+ignores clicks on any of the buttons and typing. Add some obvious code from the old pop-up
+SetDurDialog() and SetDurFilter() => almost all buttons and typing work. "Show 2 dots"
+still doesn't, but it should probably be removed anyway. But why isn't the palette filled
+in??
+
+	Nov 17 08:46:13 DonDualG5 Ngale[88942]:
+	info. Opening BMP file 'ToolPaletteNB1b.bmp'...  (NOpenBMPFile)
+	debug. Current working dir: /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/build/Release
+	info. bWidth=33 bWidthPadded=36 height=399 nBytesToRead=14364  (InitToolPalette)
+	debug. InitToolPalette: windowRect tlbr=300,0,613,98 toolCellWidth,Height=17,25
+	debug. InitToolPalette: maxToolsRect tlbr=0,0,399,271
+	debug. ToolPal  0: ff ff 7f ff   bf ff df ff   ef ff f7 ff   fb ff fd ff
+	. . .
+	debug. InitToolPalette2: aPixMap->rowBytes=-32368 ->bounds.tlbr=0,0,613,98 ->pmVersion=1 MemBitCount(palPortBits, 1000)=7872
+	info. Opening BMP file 'DynamicsNB1b.bmp'...  (NOpenBMPFile)
+	debug. Current working dir: /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/build/Release
+	info. bWidth=15 bWidthPadded=16 height=52 nBytesToRead=832  (InitDynamicPalette)
+	info. Opening BMP file 'NRModifierNB1b.bmp'...  (NOpenBMPFile)
+	debug. Current working dir: /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/build/Release
+	info.  bWidth=18 bWidthPadded=20 height=104 nBytesToRead=2080  (InitModNRPalette)
+	info. Opening BMP file 'Duration_2dotsNB1b.bmp'...  (NOpenBMPFile)
+	debug. Current working dir: /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/build/Release
+	debug. Duration  0: ff ff ff ff   ff ff ff ff   ff ff ff ff   ff ff ff ff
+	. . .
+	info. bWidth=27 bWidthPadded=28 height=78 nBytesToRead=2184  (InitDurationPalette)
+	debug. Initialize: duration bWidth=-1 bWidthPadded=-1 height=-1
+
+It's not filled in because bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, and
+bmpDurationPal.height have been trashed! Where? The line from InitDurationPalette showing the
+bmpDurationPal fields have the correct values is the last statement in InitDurationPalette
+before it returns; the line from Initialize showing all three are -1 is the 1st statement
+after the call. How is that possible?  @$^@#()*%#$#(*
+

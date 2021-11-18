@@ -59,6 +59,10 @@
 		15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B639401ECDA9E00029EDD7 /* CompactVoices.cp */; };
 		15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BCF5991E9D27D30069F7EB /* Undo.cp */; };
 		15C22B1D2732EFDD00CBBC76 /* ModNREdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15C22B1C2732EFDD00CBBC76 /* ModNREdit.cp */; };
+		15C3297B273EB2E1006F6B30 /* NRModifierNB1b.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 15C3297A273EB2E1006F6B30 /* NRModifierNB1b.bmp */; };
+		15C3297D273EB2EC006F6B30 /* DynamicsNB1b.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 15C3297C273EB2EC006F6B30 /* DynamicsNB1b.bmp */; };
+		15C3297F273EB2F6006F6B30 /* Duration_2dotsNB1b.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 15C3297E273EB2F6006F6B30 /* Duration_2dotsNB1b.bmp */; };
+		15C32981273EB2FF006F6B30 /* ToolPaletteNB1b.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 15C32980273EB2FF006F6B30 /* ToolPaletteNB1b.bmp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
 		15CC0992206403DA007075DF /* Endian.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15CC0991206403DA007075DF /* Endian.h */; };
 		15D7521B252B396300591F5A /* FileUtils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15D7521A252B396300591F5A /* FileUtils.h */; };
@@ -291,6 +295,10 @@
 		15B639401ECDA9E00029EDD7 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
 		15BCF5991E9D27D30069F7EB /* Undo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Undo.cp; sourceTree = "<group>"; };
 		15C22B1C2732EFDD00CBBC76 /* ModNREdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModNREdit.cp; sourceTree = "<group>"; };
+		15C3297A273EB2E1006F6B30 /* NRModifierNB1b.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = NRModifierNB1b.bmp; path = Resources/NRModifierNB1b.bmp; sourceTree = "<group>"; };
+		15C3297C273EB2EC006F6B30 /* DynamicsNB1b.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = DynamicsNB1b.bmp; path = Resources/DynamicsNB1b.bmp; sourceTree = "<group>"; };
+		15C3297E273EB2F6006F6B30 /* Duration_2dotsNB1b.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = Duration_2dotsNB1b.bmp; path = Resources/Duration_2dotsNB1b.bmp; sourceTree = "<group>"; };
+		15C32980273EB2FF006F6B30 /* ToolPaletteNB1b.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = ToolPaletteNB1b.bmp; path = Resources/ToolPaletteNB1b.bmp; sourceTree = "<group>"; };
 		15CC0991206403DA007075DF /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
 		15D7521A252B396300591F5A /* FileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileUtils.h; sourceTree = "<group>"; };
 		15D7521C252B398B00591F5A /* NBasicTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBasicTypes.h; sourceTree = "<group>"; };
@@ -604,6 +612,8 @@
 			isa = PBXGroup;
 			children = (
 				D06D070E0D7287ED0055C107 /* APPL.icns */,
+				15C3297E273EB2F6006F6B30 /* Duration_2dotsNB1b.bmp */,
+				15C3297C273EB2EC006F6B30 /* DynamicsNB1b.bmp */,
 				D06D070F0D7287ED0055C107 /* EPSF.icns */,
 				8D0C4E960486CD37000505A6 /* Info.plist */,
 				0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */,
@@ -611,10 +621,12 @@
 				D06D07110D7287ED0055C107 /* NGNL.icns */,
 				D06D07120D7287ED0055C107 /* NHLP.icns */,
 				D0DDAAFB0D6641D7004B30F7 /* Nightingale.rsrc */,
+				15C3297A273EB2E1006F6B30 /* NRModifierNB1b.bmp */,
 				D06D07130D7287ED0055C107 /* NSET.icns */,
 				D06D07140D7287ED0055C107 /* ps.icns */,
 				D06D07160D7287ED0055C107 /* SCOR.icns */,
 				D06D07170D7287ED0055C107 /* Text.icns */,
+				15C32980273EB2FF006F6B30 /* ToolPaletteNB1b.bmp */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1062,6 +1074,10 @@
 				D06D071E0D7287ED0055C107 /* ps.icns in Resources */,
 				D06D07200D7287ED0055C107 /* SCOR.icns in Resources */,
 				D06D07210D7287ED0055C107 /* Text.icns in Resources */,
+				15C3297B273EB2E1006F6B30 /* NRModifierNB1b.bmp in Resources */,
+				15C3297D273EB2EC006F6B30 /* DynamicsNB1b.bmp in Resources */,
+				15C3297F273EB2F6006F6B30 /* Duration_2dotsNB1b.bmp in Resources */,
+				15C32981273EB2FF006F6B30 /* ToolPaletteNB1b.bmp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
