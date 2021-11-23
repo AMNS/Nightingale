@@ -3416,3 +3416,12 @@ Minor changes: rename two BMP files, etc. Affects NightTemplates.h, Duration_2do
 DynamicsNB1b.bmp; CarbonPrinting, DialogsEditor, DrawUtils, DurationEdit, FileUtils,
 Initialize, InitNightingale.
 
+---------------------------------------------------------------------------------------
+
+19 - 23 Nov.
+
+Work to replace the tool palette's PICT with an image in a BMP file. Affects
+InitNightingale.
+
+Minor changes. Affects Debug.h, Defs.h; ChordSym, DebugDisplay, DrawUtils, FileOpen,
+FileSave, InitNightingale, Select.

@@ -776,7 +776,7 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	ParamText("\ptool", "\p", "\p", "\p");					/* In case of any of several problems */
 	bmpf = NOpenBMPFile(TOOL_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded, &height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitToolPalette)\n", TOOL_PALETTE_FN);
+		LogPrintf(LOG_ERR, "Bitmap image file '%s' is unusable.  (InitToolPalette)\n", TOOL_PALETTE_FN);
 		//if (CautionAdvise(BMP_ALRT)==OK) return False;
 		return (CautionAdvise(BMP_ALRT)!=OK);
 	}
@@ -788,7 +788,7 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 
 	nBytesToRead = bWidthPadded*height;
 	LogPrintf(LOG_INFO, "bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (InitToolPalette)\n",
-		bWidth, bWidthPadded, height, nBytesToRead);
+				bWidth, bWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitToolPalette)\n",
 					nBytesToRead, BITMAP_SPACE);
@@ -845,26 +845,28 @@ toolCellHeight);
 	GWorldPtr gwPtr = MakeGWorld(windowRect->right, windowRect->bottom, True);
 	SetGWorld(gwPtr, NULL);
 
-LogPrintf(LOG_DEBUG, "InitToolPalette: maxToolsRect tlbr=%d,%d,%d,%d\n", maxToolsRect.top,
-maxToolsRect.left, maxToolsRect.bottom, maxToolsRect.right);
-DHexDump(LOG_DEBUG, "ToolPal", bitmapTools, 4*16, 4, 16, True);
+#ifdef DBG_TOOLS
+//LogPrintf(LOG_DEBUG, "InitToolPalette: maxToolsRect tlbr=%d,%d,%d,%d\n", maxToolsRect.top,
+//maxToolsRect.left, maxToolsRect.bottom, maxToolsRect.right);
+//DHexDump(LOG_DEBUG, "ToolPal", bitmapTools, 4*16, 4, 16, True);
 	short startLoc;
-	for (short nRow = 12; nRow>=0; nRow--) {
+	for (short nRow = n_min(height, 800); nRow>=0; nRow--) {
 		startLoc = nRow*bWidthPadded;
 //printf("nRow=%d startLoc=%d\n", nRow, startLoc);
-		DPrintRow(bitmapTools, nRow, bWidth, startLoc, False, False);
+//		DPrintRow(bitmapTools, nRow, bWidth, startLoc, False, False);
+		DPrintRow(bitmapTools, nRow, n_min(bWidth, 20), startLoc, False, True);
 		printf("\n");
 	}
-
 	ForeColor(yellowColor);
 	SetRect(&maxToolsRect, 10, 60, 200, 200);
 	FillRect(&maxToolsRect, NGetQDGlobalsGray());
+	ForeColor(blackColor);
+	SetRect(&maxToolsRect, 0, 0, width, height);
+#endif
 
 	//CopyGWorldBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
 	//CopyOffScreenBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
-	ForeColor(blueColor);
-	SetRect(&maxToolsRect, 0, 0, 300, 300);
-	//DrawBMP(bitmapTools, bWidth, bWidthPadded, height, maxToolsRect);	// ??SKIP WHILE DEBUGGING DYNAMIC PALETTE
+	DrawBMP(bitmapTools, bWidth, bWidthPadded, height, maxToolsRect);
 	toolPalPort = gwPtr;
 {
 PixMapHandle portPixMapH = GetPortPixMap(toolPalPort); PixMapPtr portPixMap = *portPixMapH;
@@ -958,7 +960,7 @@ Boolean InitDynamicPalette()
 	bmpf = NOpenBMPFile(DYNAMIC_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
 						&height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitDynamicPalette)\n",
+		LogPrintf(LOG_ERR, "Bitmap image file '%s' is unusable '%s'.  (InitDynamicPalette)\n",
 					DYNAMIC_PALETTE_FN);
 		if (CautionAdvise(BMP_ALRT)==OK) return False;
 		else {
@@ -979,7 +981,7 @@ Boolean InitDynamicPalette()
 
 	nBytesToRead = bWidthPadded*height;
 	LogPrintf(LOG_INFO, "bWidth=%d bWidthPadded=%d height=%d nBytesToRead=%d  (InitDynamicPalette)\n",
-	bWidth, bWidthPadded, height, nBytesToRead);
+				bWidth, bWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitDynamicPalette)\n",
 					nBytesToRead, BITMAP_SPACE);
@@ -1012,7 +1014,7 @@ Boolean InitModNRPalette()
 	bmpf = NOpenBMPFile(MODNR_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
 						&height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitModNRPalette)\n",
+		LogPrintf(LOG_ERR, "Bitmap image file '%s' is unusable '%s'.  (InitModNRPalette)\n",
 					MODNR_PALETTE_FN);
 		if (CautionAdvise(BMP_ALRT)==OK) return False;
 		else {
@@ -1066,7 +1068,7 @@ Boolean InitDurationPalette()
 	bmpf = NOpenBMPFile(DURATIONS_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
 						&height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Can't open bitmap image file '%s'.  (InitDurationPalette)\n",
+		LogPrintf(LOG_ERR, "Bitmap image file '%s' is unusable '%s'.  (InitDurationPalette)\n",
 					DURATIONS_PALETTE_FN);
 		if (CautionAdvise(BMP_ALRT)==OK) return False;
 		else {
@@ -1091,7 +1093,7 @@ Boolean InitDurationPalette()
 					nBytesToRead, BITMAP_SPACE);
 		return False;
 	}
-	nRead = fread(&bmpDurationPal, nBytesToRead, 1, bmpf);
+	nRead = fread(bmpDurationPal.bitmap, nBytesToRead, 1, bmpf);
 	if (nRead!=1) {
 		LogPrintf(LOG_ERR, "Couldn't read the bitmap from image file.  (InitDurationPalette)\n");
 		return False;

@@ -9,7 +9,7 @@
 /* File DebugDisplay.c - printing functions for the Debug command and debugging in general:
 	KeySigSprintf			DKeySigPrintf			DisplaySubobjects
 	DisplayObject			MemUsageStats			DisplayIndexNode
-	DHexDump				NObjDump				DPrintRow
+	DHexDump				DObjDump				DPrintRow
 */
 
 #include "Nightingale_Prefix.pch"
@@ -671,7 +671,7 @@ void DHexDump(short logLevel,
 }
 
 
-/* -------------------------------------------------------------------------- NObjDump -- */
+/* -------------------------------------------------------------------------- DObjDump -- */
 /* Dump objects with positions in the object heap -- not links -- in the range [nFrom,
 nTo] into the log file, displaying them in hexadecimal. We assume objects are in the
 current format, so if a score in an old format was just opened, objects should be
@@ -683,7 +683,7 @@ typedef struct {
 	OBJECTHEADER
 } OBJHDR;
 
-void NObjDump(char *label, short nFrom, short nTo)
+void DObjDump(char *label, short nFrom, short nTo)
 {
 	unsigned char *pSObj;
 	char mStr[12];				/* Enough digits enough for any 32-bit number, signed or not */
@@ -696,13 +696,13 @@ void NObjDump(char *label, short nFrom, short nTo)
 		pSObj = (unsigned char *)GetPSUPEROBJ(m);
 		pL = PtrToLink(objHeap, pSObj);
 		if (HeapLinkIsFree(objHeap, pL)) {
-			LogPrintf(LOG_DEBUG, "NObjDump: %s: heap object %d (link %u) isn't in use.\n",
+			LogPrintf(LOG_DEBUG, "DObjDump: %s: heap object %d (link %u) isn't in use.\n",
 						label, m, pL);
 			continue;
 		}
 
 		theObjType = ((OBJHDR *)pSObj)->type;
-		LogPrintf(LOG_DEBUG, "NObjDump: %s: heap object %d (link %u) type=%d",
+		LogPrintf(LOG_DEBUG, "DObjDump: %s: heap object %d (link %u) type=%d",
 					label, m, pL, theObjType);
 		typeIsLegal = (theObjType>=FIRSTtype && theObjType<=LASTtype-1);
 		if (typeIsLegal)	LogPrintf(LOG_DEBUG, " (%s) length=%d\n",
@@ -721,7 +721,7 @@ void NObjDump(char *label, short nFrom, short nTo)
 
 #if 0
 		if (objType==TAILtype && m<nTo) {
-			LogPrintf(LOG_DEBUG, "NObjDump: quitting because TAIL reached.\n");
+			LogPrintf(LOG_DEBUG, "DObjDump: quitting because TAIL reached.\n");
 			return;
 		}
 #endif

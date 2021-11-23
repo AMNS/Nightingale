@@ -289,7 +289,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		ConvertObjSubobjs(doc, version, fileTime, True);
 	}
 
-	if (DETAIL_SHOW) NObjDump("OpenFile", 1, (MORE_DETAIL_SHOW? 30 : 4));
+	if (DETAIL_SHOW) DObjDump("OpenFile", 1, (MORE_DETAIL_SHOW? 30 : 4));
 
 	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;

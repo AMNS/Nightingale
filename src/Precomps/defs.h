@@ -333,9 +333,9 @@ moved there eventually). */
 
 // CER: 02.19.2003 changed min, max to n_min, n_max
 #define n_min(a,b)		( (a)<(b) ? (a) : (b) )					/* minimum functions */
-#define min3(a, b, c)	( n_min(n_min((a), (b)), (c)) )
+#define MIN3(a, b, c)	( n_min(n_min((a), (b)), (c)) )
 #define n_max(a,b)		( (a)>(b) ? (a) : (b) )					/* maximum functions */
-#define max3(a, b, c)	( n_max(n_max((a), (b)), (c)) )
+#define MAX3(a, b, c)	( n_max(n_max((a), (b)), (c)) )
 #define CLAMP(low, val, high)	( (val)<(low)?(low):((val)>(high)?(high):(val)) )
 
 #define DIVBY2(num) 	( (num)>=0? (num)>>1 : (-(-(num)>>1)) )	/* num must be an integer */

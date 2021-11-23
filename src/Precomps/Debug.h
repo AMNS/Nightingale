@@ -60,7 +60,7 @@ void DHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
 				short nPerGroup, short nPerLine, Boolean numberLines);
 void DPrintRow(Byte bitmap[], short nRow, short bWidth, short startLoc, Boolean foreIsAOne,
 				Boolean skipBits);
-void NObjDump(char *label, short nFrom, short nTo);
+void DObjDump(char *label, short nFrom, short nTo);
 
 /* If we're running inside Xcode, #define'ing _DebugPrintf_ as simply _printf_ is OK:
 then DebugPrintf output will appear in the Run Log window. But if we're not in Xcode,

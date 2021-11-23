@@ -347,7 +347,7 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 	/* Write heaps. NB they must be Endian fixed before they're written, and fixed back
 	   before continuing!  */
 	
-	if (DETAIL_SHOW) NObjDump("WriteFile", 1, (MORE_DETAIL_SHOW? 30 : 4));
+	if (DETAIL_SHOW) DObjDump("WriteFile", 1, (MORE_DETAIL_SHOW? 30 : 4));
 	errType = WriteHeaps(doc, refNum);
 	if (errType) return errType;
 

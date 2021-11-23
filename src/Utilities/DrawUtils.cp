@@ -67,10 +67,10 @@ Rect ContextedObjRect(Document *doc, LINK pL, short staff, PCONTEXT pContext)
 not all what you'd expect or like. */
 
 /* -------------------------------------------------------------------- DrawPaddedChar -- */
-/* Draw the given character with several blanks of padding. This is to alleviate
-a long-standing bug in the Font Manager(?) of many Macs that results in characters
-being truncated on the right (see comments in DrawMChar): it doesn't completely
-avoid the problem. */
+/* Draw the given character with several blanks of padding. An ancient (as of 2021)
+comment: "This is to alleviate a long-standing bug in the Font Manager(?) of many Macs
+that results in characters being truncated on the right (see comments in DrawMChar):
+it doesn't completely avoid the problem." */
 
 void DrawPaddedChar(unsigned char ch)
 {
@@ -80,7 +80,7 @@ void DrawPaddedChar(unsigned char ch)
 	pt.h += CharWidth(ch);
 	
 	/* Fill string with a dummy char. and padding, then replace the dummy char. Use
-		4 blanks padding, though that's still not enough in all cases. */
+	   4 blanks padding, though that's still not enough in all cases. */
 	
 	strcpy(sch, "X    ");
 	sch[0] = ch;
@@ -2066,9 +2066,9 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
 
 /* ------------------------------------------------------------------------- DrawBMP -- */
 /* Draw a black-and-white image from a black-and-white (one bit/pixel) bitmap. Intended
-for drawing palettes read from BMP files. bmpBits[] has a B&W bitmap in it, with an image
-whose logical width is bWidth bytes; the first bWidthPadded bytes represent the lowest
-row of the image. */
+for drawing palettes read from BMP files. bmpBits[] should contain a B&W (one bit/pixel)
+bitmap, with an image whose logical width is bWidth bytes; the first bWidthPadded bytes
+represent the lowest row of the image. */
 
 void DrawBMP(Byte bmpBits[], short bWidth, short bWidthPadded, short height, Rect bmpRect)
 {
@@ -2087,7 +2087,7 @@ void DrawBMP(Byte bmpBits[], short bWidth, short bWidthPadded, short height, Rec
 	for (short kRow=0; kRow<height; kRow++) {
 		short x = bmpRect.left+1;
 		short startOfRow = kRow * bWidthPadded;
-if (DETAIL_SHOW) DPrintRow(bmpBits, kRow, bWidth, startOfRow, False, False);  printf("\n");
+if (DETAIL_SHOW) { DPrintRow(bmpBits, kRow, bWidth, startOfRow, False, False);  printf("\n"); }
 		short runStart;
 		short blackRunLength = 0;
 		for (short kCol=0; kCol<bWidth*8; kCol++) {

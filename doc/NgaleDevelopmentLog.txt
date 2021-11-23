@@ -10533,17 +10533,18 @@ seems to be corrupt & can't be opened. That's probably not a coincidence; anyway
 it NotesWithModifiersBAD.ngl.
 
 Now for the choose-duration palette. Actually, there are _five_ commands/features that use
-it:
+it. High priority:
 	Set Duration: calls DialogsEditor.c > SetDurDialog
 	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
 	Fancy Tuplet: calls DialogsEditor.c > TupletDialog
+Lower priority (but should be easy to handle once the above three are working):
 	Import MIDI File: calls MIDIFOCmd.c > TranscribeMFDialog
-	Transcribe Recording: calls Transcribe.c > DoQuantize, for "unknown" dur. notes. Low priority.
+	Transcribe Recording: calls Transcribe.c > DoQuantize, for "unknown" dur. notes
 
-The pop-up menu is handled by calls to InitDurPopupKey() in dialog functions and
-DurPopupKey() for case keyDown in their filters; now that we're displaying the entire
-palette at once, we have to let users click on an item as well as use the keyboard, so
-must handle case mouseDown/mouseUp too.
+The pop-up menu is handled by calls to InitDurPopupKey() and GetDurPopItem() in dialog
+functions and DurPopupKey() for case keyDown in their filters; now that we're displaying
+the entire palette at once, we have to let users click on an item as well as use the
+keyboard, so must handle case mouseDown/mouseUp too.
 
 A concern: unlike dynamics and modifiers, symtable[] doesn't distinguish among durations of
 notes by subtype (all are 0), nor durations of rests by subtype (all are 1). Is this a
@@ -10579,7 +10580,7 @@ compatibility problem :-) because DOCUMENTHEADER is larger than it used to be. F
 
 ---------------------------------------------------------------------------------------
 
-13 - 17 Nov.
+13 - 18 Nov.
 
 SWITCH TO: Why does the debugger behave so poorly on my G5 as to be essentially useless?
 On the Mac mini Doug McKenna is using, it seems to work fine! Well, I've been using the
@@ -10597,14 +10598,6 @@ still doesn't, but it should probably be removed anyway. But why isn't the palet
 in??
 
 	Nov 17 08:46:13 DonDualG5 Ngale[88942]:
-	info. Opening BMP file 'ToolPaletteNB1b.bmp'...  (NOpenBMPFile)
-	debug. Current working dir: /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/build/Release
-	info. bWidth=33 bWidthPadded=36 height=399 nBytesToRead=14364  (InitToolPalette)
-	debug. InitToolPalette: windowRect tlbr=300,0,613,98 toolCellWidth,Height=17,25
-	debug. InitToolPalette: maxToolsRect tlbr=0,0,399,271
-	debug. ToolPal  0: ff ff 7f ff   bf ff df ff   ef ff f7 ff   fb ff fd ff
-	. . .
-	debug. InitToolPalette2: aPixMap->rowBytes=-32368 ->bounds.tlbr=0,0,613,98 ->pmVersion=1 MemBitCount(palPortBits, 1000)=7872
 	info. Opening BMP file 'DynamicsNB1b.bmp'...  (NOpenBMPFile)
 	debug. Current working dir: /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/build/Release
 	info. bWidth=15 bWidthPadded=16 height=52 nBytesToRead=832  (InitDynamicPalette)
@@ -10619,8 +10612,54 @@ in??
 	debug. Initialize: duration bWidth=-1 bWidthPadded=-1 height=-1
 
 It's not filled in because bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, and
-bmpDurationPal.height have been trashed! Where? The line from InitDurationPalette showing the
-bmpDurationPal fields have the correct values is the last statement in InitDurationPalette
-before it returns; the line from Initialize showing all three are -1 is the 1st statement
-after the call. How is that possible?  @$^@#()*%#$#(*
+bmpDurationPal.height have been trashed! Where? The line from InitDurationPalette showing
+the bmpDurationPal fields have the correct values is the last statement in
+InitDurationPalette before it returns; the line from Initialize showing all three are -1 is
+the 1st statement after the call. How is that possible??  @$^@#()*%#$#(*
 
+It's possible bcs the the last statement in InitDurationPalette is displaying the local
+variables, not the fields of bmpDurationPal!  @$^@#()*%#$#(*  Fixed: it's filled in now, but
+the horizontal origin is way off & it's drawn with circular shift left by ca. 3 columns.
+
+---------------------------------------------------------------------------------------
+
+19 - 22 Nov.
+
+Doug McK. points out the tool palette isn't being drawn because the call to DrawBMP is
+commented out! Change that => it's drawn, but the vertical origin is shifted by quite a
+bit. The situation for the four palettes is now:
+
+	Tools: vert. (circular? it's unclear) shift up by 4 rows
+	Durations: horiz. circular shift left by ca. 3 columns
+	Dynamics: OK
+	Modifiers: OK
+	
+DPrintRow confirms the bitmap for durations is shifted the way it's drawn; it's really hard
+to tell about the tool bitmap.
+
+Ah! For the duration palette, I have
+
+	nRead = fread(&bmpDurationPal, nBytesToRead, 1, bmpf);
+	
+...but the first parameter should be <&bmpDurationPal.bitmap>. Correct that => duration
+palette looks good! But the tool palette situation is different. bitmapTools is an array
+of Bytes, like the .bitmap's of the others. ??
+
+We're doing
+
+	nRead = fread(bitmapTools, nBytesToRead, 1, bmpf);
+	nRead = fread(bmpDynamicPal.bitmap, nBytesToRead, 1, bmpf);
+	nRead = fread(bmpModifierPal.bitmap, nBytesToRead, 1, bmpf);
+	nRead = fread(&bmpDurationPal.bitmap, nBytesToRead, 1, bmpf);
+	
+The 1st parameter is an array in all cases, so the address of the 1st element should be
+passed and the initial "&" ignored. Check => yep. Ah-hah: just before calling DrawBMP,
+we do
+
+	SetRect(&maxToolsRect, 0, 0, 300, 300);
+
+...but the 300's are completely arbitrary! change it to 	
+
+	SetRect(&maxToolsRect, 0, 0, width, height);
+
+and all is sweetness and light! Or something like that. So all four palettes are good now!

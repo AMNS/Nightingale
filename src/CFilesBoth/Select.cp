@@ -169,23 +169,23 @@ void DeselAllNoHilite(Document *doc)
 
 
 /* ---------------------------------------------------------------- DeselRangeNoHilite -- */
-/* Deselect given range.  Don't change screen hiliting. Leaves the selection
-range endpoints untouched. */
+/* Deselect given range.  Don't change screen hiliting. Leaves the selection range
+endpoints untouched. */
 
 void DeselRangeNoHilite(Document */*doc*/, LINK startL, LINK endL)
 {
 	LINK pL;
 
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
-		if (LinkSEL(pL))							/* We need LinkSEL bcs DeselectNode can't handle Pages, etc. */
+		if (LinkSEL(pL))						/* We need LinkSEL bcs DeselectNode can't handle Pages, etc. */
  			DeselectNode(pL);
 }
 
 
 /* ---------------------------------------------------------------------- DoOpenSymbol -- */
-/* Open symbol for editing. Currently (v. 5.7b9) this just handles double clicks,
-but it could also be used by an "Edit Symbol" command. Returns LINK of object
-opened, or NILINK if no object found for mouse click. */
+/* Open symbol for editing. Currently (v. 5.7b9) this just handles double clicks, but
+it could also be used by an "Edit Symbol" command. Returns LINK of object opened, or
+NILINK if no object found for mouse click. */
 
 LINK DoOpenSymbol(Document *doc, Point pt)
 {
@@ -208,9 +208,9 @@ LINK DoOpenSymbol(Document *doc, Point pt)
 
 
 /* --------------------------------------------------------------------- DoAccumSelect -- */
-/*	Handle user cmd-selection: accumulate selected objects into selection range,
-optimize selection, and set blinking caret if user deselected everything. The
-resulting selection can be discontinuous. */
+/* Handle user cmd-selection: accumulate selected objects into selection range, optimize
+selection, and set blinking caret if user deselected everything. The resulting selection
+can be discontinuous. */
 
 static void DoAccumSelect(Document	*doc, LINK oldSelStartL, LINK oldSelEndL)
 {
@@ -224,7 +224,7 @@ static void DoAccumSelect(Document	*doc, LINK oldSelStartL, LINK oldSelEndL)
 
 
 /* -------------------------------------------------------------------- DoExtendSelect -- */
-/*	Handle user shift-selection: accumulate selected objects into selection range,
+/* Handle user shift-selection: accumulate selected objects into selection range,
 optimize selection, and set blinking caret if user deselected everything. The resulting
 selection will be continuous. */
 
@@ -258,6 +258,7 @@ static void DoExtendSelect(
 	soon = TickCount()+60L;
 
 	/* Extend selection to include J_D symbols to left of sync. */
+	
 	if (SyncTYPE(doc->selStartL) || J_DTYPE(doc->selStartL))	{ 		/*???should I include other types? */
 		for (pL = LeftLINK(doc->selStartL); J_DTYPE(pL); pL = LeftLINK(pL))
 			doc->selStartL = pL;
@@ -277,23 +278,22 @@ static void DoExtendSelect(
 	oldSheet = doc->currentSheet;
 	oldPaper = doc->currentPaper;
 
-	/*
-	 * We'll use CheckObject with mode SMStaffDrag to select everything in the staff
-	 * range. Set graphic bounds to "infinity", since we want it to select regardless
-	 * of graphic position. (It might be better to define a new mode that doesn't even
-	 * consider graphic restrictions; it'd probably run faster, at least.)
-	 */
+	/* We'll use CheckObject with mode SMStaffDrag to select everything in the staff
+	   range. Set graphic bounds to "infinity", since we want it to select regardless
+	   of graphic position. (It might be better to define a new mode that doesn't even
+	   consider graphic restrictions; it'd probably run faster, at least.) */
+	   
 	SetRect(&selRect, -32767, -32767, 32767, 32767);											
 
 	GetStfRangeOfSel(doc, &stfRange);
-	stfRange.topStaff = min3(stfRange.topStaff, oldSelStaff, doc->selStaff);
-	stfRange.bottomStaff = max3(stfRange.bottomStaff, oldSelStaff, doc->selStaff);
+	stfRange.topStaff = MIN3(stfRange.topStaff, oldSelStaff, doc->selStaff);
+	stfRange.bottomStaff = MAX3(stfRange.bottomStaff, oldSelStaff, doc->selStaff);
 
 	pL = doc->selStartL;
 	
-	if (GraphicTYPE(pL)) {						/* If doc->selStartL is a page-rel graphic... */
+	if (GraphicTYPE(pL)) {					/* If doc->selStartL is a page-rel graphic... */
 		LINK fooL = GraphicFIRSTOBJ(pL);
-		if (PageTYPE(fooL)) pL = fooL;			/* ... pL=its page, so that we get correct pg context below */
+		if (PageTYPE(fooL)) pL = fooL;		/* ... pL=its page, so that we get correct pg context below */
 	}
 
 	for ( ; pL!=doc->selEndL; pL = RightLINK(pL)) {
@@ -480,9 +480,8 @@ void SelectAll(register Document *doc)
 
 
 /* ------------------------------------------------------------------ SelRangeNoHilite -- */
-/* Select all visible objects in the range (startL, endL]; doesn't change 
-hiliting or make any other user-interface assumptions. Written for use 
-in file importing routines. */
+/* Select all visible objects in the range (startL, endL]; doesn't change hiliting or
+make any other user-interface assumptions. Written for use in file importing routines. */
 
 void SelRangeNoHilite(Document *doc, LINK startL, LINK endL)
 {
@@ -510,8 +509,8 @@ void SelRangeNoHilite(Document *doc, LINK startL, LINK endL)
 
 
 /* -------------------------------------------------------------------- SelAllNoHilite -- */
-/* Select all objects in score; doesn't change hiliting or make any other
-user-interface assumptions. Written for use in file importing routines. */
+/* Select all objects in score; doesn't change hiliting or make any other user-
+interface assumptions. Written for use in file importing routines. */
 
 void SelAllNoHilite(register Document *doc)
 {
@@ -577,7 +576,7 @@ void DeselectNode(LINK pL)
 			
 			for (subObjL = FirstSubObjPtr(p, pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
 				subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
-				subObj->selected = False;							/* Deselect all the subobjects */
+				subObj->selected = False;						/* Deselect all the subobjects */
 			}
 			break;
 		case SLURtype: {

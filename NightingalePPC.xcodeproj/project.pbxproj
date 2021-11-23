@@ -410,7 +410,7 @@
 		D03E6DC30D5F9720005FD177 /* Slurs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Slurs.cp; sourceTree = "<group>"; };
 		D03E6DD70D5F986D005FD177 /* Beam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Beam.cp; sourceTree = "<group>"; };
 		D03E6DD80D5F986D005FD177 /* Check.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Check.cp; sourceTree = "<group>"; };
-		D03E6DDA0D5F986D005FD177 /* ChordSym.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = ChordSym.cp; sourceTree = "<group>"; };
+		D03E6DDA0D5F986D005FD177 /* ChordSym.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChordSym.cp; sourceTree = "<group>"; };
 		D03E6DDD0D5F986D005FD177 /* DialogsBoth.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogsBoth.cp; sourceTree = "<group>"; };
 		D03E6DDF0D5F986D005FD177 /* DrawDocument.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawDocument.cp; sourceTree = "<group>"; };
 		D03E6DE00D5F986D005FD177 /* DrawHighLevel.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawHighLevel.cp; sourceTree = "<group>"; };

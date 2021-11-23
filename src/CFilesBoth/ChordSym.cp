@@ -64,6 +64,7 @@ Boolean ParseChordSym(
 	if (len==0) return False;
 	
 	/* copy graphic's Pascal string into local C string */
+	
 	BlockMove(&csStr[1], tempStr, len);
 	tempStr[len] = 0;
 	
@@ -121,9 +122,9 @@ Boolean ParseChordSym(
 static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
 							unsigned char *p)		/* ptr to current char in string */
 {
-	/* If there's a previous char. in the root string and it's a letter name,
-	 *	recognize all accidentals; otherwise recognize only flat and sharp.
-	 */
+	/* If there's a previous char. in the root string and it's a letter name, recognize
+	   all accidentals; otherwise recognize only flat and sharp. */
+	   
 	if (*(p-1)>='A' && *(p-1)<='G')
 		return (Char2Acc(*p)>0);
 	else
@@ -204,20 +205,26 @@ void DrawChordSym(Document *doc,
 		
 			csFont = GetPortTxFont();
 			csFace = GetPortTxFace();
+			
 			/* sizes for root string */
+			
 			csSize = GetPortTxSize();
 			musicSize = config.chordSymMusSize*(long)csSize/100L;
+			
 			/* sizes for other fields */
+			
 			csSmallSize = csSize*(long)config.chordSymSmallSize/100L;
 			musSmallSize = musicSize*(long)config.chordSymSmallSize/100L;
 			
 			/* superscript, inter-chunk gap, etc. */
+			
 			superScript = csSize*(long)config.chordSymSuperscr/100L;
 			gap = csSmallSize*(long)CS_GAPBTWFIELDS/100L;
 			dblGap = gap*2;
 			parenTweak = csSmallSize*(long)CS_PAREN_YOFFSET/100L;
 	
 			/* begin computation of dBox (for objRect) */
+			
 			dBox->left = dBox->right = 0;
 			dBox->bottom = dBox->top = 0;
 			GetFontInfo(&finfo);					/* of csFont, csSize */
@@ -233,11 +240,11 @@ void DrawChordSym(Document *doc,
 			hadAccident = False;
 			for (p=(unsigned char *)rootStr; *p; p++) {
 				if (IsCSAcc(rootStr, p)) {
-					/* Switch to the music font for this one character. Sonata's character
-					 * sizes and origins are very different from those of text fonts, so
-					 * we have to fiddle around to make things look good. 
-					 */
+					/* Switch to the music font for this one character. Sonata's char.
+					   sizes and origins are very different from those of text fonts,
+					   so we have to fiddle around to make things look good. */
 // FIXME: Note that the rest of this stuff doesn't map the acc char, etc.!
+
 					TextFont(doc->musicFontNum);  TextSize(musicSize);  TextFace(0);
 					yTweak = *p==SonataAcc[AC_FLAT]? musicSize/6 : musicSize/3;
 					Move(musicSize/10, -(yTweak+superScript));
@@ -264,6 +271,7 @@ void DrawChordSym(Document *doc,
 			GetFontInfo(&finfo);					/* of csFont, csSmallSize */
 
 			/* Draw quality string (???no accidentals recognized). */
+			
 			hadSuperscript = False;
 			if (*qualStr) {
 				Move(gap, 0);
@@ -281,6 +289,7 @@ void DrawChordSym(Document *doc,
 				}
 				
 				/* continue computation of dBox (for objRect) */
+				
 				GetPen(&newPt);
 				dBox->right += p2d(newPt.h-pt.h);
 				pt = newPt;
@@ -289,6 +298,7 @@ void DrawChordSym(Document *doc,
 			Move(0, -superScript);					/* for rest of chord symbol */
 
 			/* Draw extension string (no parentheses). */
+			
 			if (*extStr) {
 				hadSuperscript = True;
 				Move(gap, 0);
@@ -310,6 +320,7 @@ void DrawChordSym(Document *doc,
 				}
 				
 				/* continue computation of dBox (for objRect) */
+				
 				GetPen(&newPt);
 				dBox->right += p2d(newPt.h-pt.h);
 				pt = newPt;
@@ -319,15 +330,16 @@ void DrawChordSym(Document *doc,
 			if (*extStk1Str || *extStk2Str || *extStk3Str)
 				pt.h += dblGap;							/* double the gap (it needs it) */
 			
-			/* Draw 3 extension stack strings, each level center justified and enclosed in parentheses.
-			 * First determine justification by calling Draw1Extension with draw=False.
-			 */
+			/* Draw 3 extension stack strings, each level center justified and enclosed
+			   in parentheses. First determine justification by calling Draw1Extension 
+			   with draw=False. */
+			   
 			start2 = start3 = 0;
 			wid1 = wid2 = wid3 = 0;
 
 			stkLineHt = finfo.ascent + finfo.descent + finfo.leading; /* finfo of csFont, csSmallSize */
 			/* To allow for the greater ascent and descent of accidentals, increase
-				leading by chordSymStkLead percent times chordSymMusSize. */
+			   leading by chordSymStkLead percent times chordSymMusSize. */
 			
 			extraLeading = config.chordSymMusSize*(long)stkLineHt/100L;
 			extraLeading = (long)config.chordSymStkLead*extraLeading/100L;
@@ -350,7 +362,7 @@ void DrawChordSym(Document *doc,
 								parenTweak, dim, showParens, True);
 
 			/* continue computation of dBox (for objRect) */
-			maxWid = max3(wid1, wid2, wid3);
+			maxWid = MAX3(wid1, wid2, wid3);
 			if (maxWid) {							/* if any part of extension stack was drawn */
 				dBox->right += p2d(maxWid+dblGap);
 				pt.h += maxWid;
@@ -433,21 +445,24 @@ void DrawChordSym(Document *doc,
 			musSmallSize = musicSize*(long)config.chordSymSmallSize/100L;
    
 			/* superscript, inter-chunk gap, etc. */
+			
 			superScriptD = pt2d(csSize*(long)config.chordSymSuperscr/100L);
 
 			/* Need more precision for this; otherwise, it's often zero. */
+			
 			gapD = pt2d((short)rint((double)csSmallSize*((double)(CS_GAPBTWFIELDS)/100.0)));
 			dblGapD = gapD*2;
 			parenTweak = csSmallSize*(long)CS_PAREN_YOFFSET/100L;
 	
 			/* Draw root string. */
+			
 			for (p=(unsigned char *)rootStr; *p; p++) {
 				substr[0] = 1;	substr[1] = *p;
 				if (IsCSAcc(rootStr, p)) {
-					/* Switch to the music font for this one character. Sonata's character
-					 *	sizes and origins are very different from those of text fonts, so
-					 * we have to fiddle around to make things look good. 
-					 */
+						/* Switch to the music font for this one character. Sonata's char.
+						   sizes and origins are very different from those of text fonts,
+						   so we have to fiddle around to make things look good. */
+						   
 					xTweakD = pt2d(musicSize/10);				/* before AND after the accidental */
 					yTweakD = *p==SonataAcc[AC_FLAT]? pt2d(musicSize/6) : pt2d(musicSize/3);
 					PS_FontString(doc, xd+xTweakD, yd-(yTweakD+superScriptD), substr, musFontName, musicSize, 0);
@@ -456,6 +471,7 @@ void DrawChordSym(Document *doc,
 #else
 					/* Prepare to measure width of character in points */
 // FIXME: Note that the previous code doesn't map the acc char, etc.!
+
 					TextFont(doc->musicFontNum);  TextSize(musicSize);  TextFace(0);
 #endif
 					xTweakD *= 2;								/* include enclosing padding in width. */
@@ -467,6 +483,7 @@ void DrawChordSym(Document *doc,
 					w = NPtStringWidth(doc, substr, csFont, csSize, csFace);
 #else
 					/* Prepare to measure width of character in points */
+					
 					TextFont(csFont);  TextSize(csSize);  TextFace(csFace);
 #endif
 				}
@@ -477,9 +494,11 @@ void DrawChordSym(Document *doc,
 			}
 
 			/* Draw quality string (???no accidentals recognized). */
+			
 			if (*qualStr) {
 				xd += gapD;
 				/* Prepare to measure width of characters in points */
+				
 				TextFont(csFont);  TextSize(csSmallSize);  TextFace(csFace);
 				for (p=(unsigned char *)qualStr; *p; p++) {
 					substr[0] = 1;	substr[1] = *p;
@@ -495,9 +514,10 @@ void DrawChordSym(Document *doc,
 			}
 			
 			ydRoot = yd;
-			yd -= superScriptD;									/* for rest of chord symbol (until /bass) */
+			yd -= superScriptD;									/* for rest of chord sym (until /bass) */
 
 			/* Draw extension string (no parentheses). */
+			
 			if (*extStr) {
 				xd += gapD;
 				for (p=(unsigned char *)extStr; *p; p++) {
@@ -522,6 +542,7 @@ void DrawChordSym(Document *doc,
 						w = NPtStringWidth(doc, substr, csFont, csSmallSize, csFace);
 #else
 						/* Prepare to measure width of character in points */
+						
 						TextFont(csFont);  TextSize(csSmallSize);  TextFace(csFace);
 #endif
 					}
@@ -535,9 +556,10 @@ void DrawChordSym(Document *doc,
 			if (*extStk1Str || *extStk2Str || *extStk3Str)
 				xd += dblGapD;					/* double the gap (it needs it) */
 
-			/* Draw 3 extension stack strings, each level center justified and enclosed in parentheses.
-			 * First determine justification by calling Draw1Extension with draw=False.
-			 */
+			/* Draw 3 extension stack strings, each level center justified and enclosed
+			   in parentheses. First determine justification by calling Draw1Extension
+			   with draw=False. */
+			   
 			start2 = start3 = 0;
 			wid1 = wid2 = wid3 = 0;
 
@@ -566,15 +588,17 @@ void DrawChordSym(Document *doc,
 				wid3 = Draw1Extension(doc, extStk3Str, d2pt(xd)+start3, baseline-(stkLineHt<<1), musFontName, csName,
 								musSmallSize, csFont, csSmallSize, csFace, parenTweak, dim, showParens, True);
 
-			maxWid = max3(wid1, wid2, wid3);
+			maxWid = MAX3(wid1, wid2, wid3);
 			extStackWidD = pt2d(maxWid);
 
 			/* Draw bass note string. */
+			
 			if (*bassStr) {
 				xd += extStackWidD + (dblGapD+gapD);		/* Seems to need more of a gap. */
 				yd = ydRoot;
 
 				/* Draw slash */
+				
 				substr[0] = 1;	substr[1] = '/';
 				PS_FontString(doc, xd, yd, substr, csName, csSize, doc->fontStyleCS);
 
@@ -582,6 +606,7 @@ void DrawChordSym(Document *doc,
 				w = NPtStringWidth(doc, substr, csFont, csSize, csFace);
 #else
 				/* Prepare to measure width of character in points */
+				
 				TextFont(csFont);  TextSize(csSize);  TextFace(csFace);
 				w = CharWidth('/');
 #endif
@@ -590,10 +615,10 @@ void DrawChordSym(Document *doc,
 				for (p=(unsigned char *)bassStr; *p; p++) {
 					substr[0] = 1;	substr[1] = *p;
 					if (IsCSAcc(bassStr, p)) {
-						/* Switch to the music font for this one character. Sonata's character
-						 *	sizes and origins are very different from those of text fonts, so
-						 * we have to fiddle around to make things look good. 
-						 */
+						/* Switch to the music font for this one character. Sonata's char.
+						   sizes and origins are very different from those of text fonts,
+						   so we have to fiddle around to make things look good. */
+						   
 						xTweakD = pt2d(musicSize/10);				/* before AND after the accidental */
 						yTweakD = *p==SonataAcc[AC_FLAT]? pt2d(musicSize/6) : pt2d(musicSize/3);
 						PS_FontString(doc, xd+xTweakD, yd-(yTweakD+superScriptD), substr, musFontName, musicSize, 0);
@@ -602,6 +627,7 @@ void DrawChordSym(Document *doc,
 #else
 						/* Prepare to measure width of character in points */
 // FIXME: Note that the previous code doesn't map the acc char, etc.!
+
 						TextFont(doc->musicFontNum);  TextSize(musicSize);  TextFace(0);
 #endif
 						xTweakD *= 2;									/* include enclosing padding in width. */
@@ -613,6 +639,7 @@ void DrawChordSym(Document *doc,
 						w = NPtStringWidth(doc, substr, csFont, csSize, csFace);
 #else
 						/* Prepare to measure width of character in points */
+						
 						TextFont(csFont);  TextSize(csSize);  TextFace(csFace);
 #endif
 					}
