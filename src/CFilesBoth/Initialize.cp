@@ -1,8 +1,9 @@
 /* Initialize.c for Nightingale
-One-time initialization of stuff that's mostly not Nightingale-specific. All one-time
--only initialization code should be in this file or InitNightingale.c. (This was
-originally so they could be unloaded by the caller after initialization to reclaim
-heap space, but with gigabytes of RAM, who cares anymore.  --DAB, Jan. 2020) */
+One-time initialization of stuff that's not music-notation-specific -- well, mostly.
+All one-time-only initialization code should be in this file or InitNightingale.c.
+(This was originally so they could be unloaded by the caller after initialization to
+reclaim heap space, but with the gigabytes of RAM modern computers have, who cares.
+--DAB, Jan. 2020) */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -22,6 +23,8 @@ heap space, but with gigabytes of RAM, who cares anymore.  --DAB, Jan. 2020) */
 /* Private routines */
 
 static void			InitToolbox(void);
+static void			LogScoreHeaderFormatInfo(void);
+static void			InitNPalettes(void);
 static Boolean		AddPrefsResource(Handle);
 static OSStatus		GetPrefsFileSpec(unsigned char *name, OSType fType, OSType fCreator,
 									FSSpec *prefsSpec);
@@ -37,7 +40,7 @@ static void			InstallCoreEventHandlers(void);
 /* Do everything that must be done prior to entering main event loop. A great deal of
 this is platform-dependent. */
 
-static void InitToolbox()
+static void InitToolbox(void)
 {
 	FlushEvents(everyEvent, 0);
 }
@@ -46,7 +49,7 @@ static void InitToolbox()
 #define ScoreHdrFieldOffset(dc, field)	(long)&(dc->field)-(long)&(dc->headL)
 #define NoDISP_SCOREHDR_STRUCT
 
-static void LogScoreHeaderFormatInfo()
+static void LogScoreHeaderFormatInfo(void)
 {
 #ifdef DISP_SCOREHDR_STRUCT
 	Document *tD;
@@ -89,11 +92,37 @@ static void LogScoreHeaderFormatInfo()
 }
 
 
-static GrowZoneUPP growZoneUPP;			/* permanent GrowZone UPP */
+#define NPALETTE_IMAGE_DIR "/Library/Application\ Support"
+
+#define SHOWWD errno = 0; if (getcwd(cwd, sizeof(cwd))!=NULL) LogPrintf(LOG_DEBUG, "SHOWWD: Current working dir: '%s'. errno=%d\n", \
+cwd, errno); \
+else { LogPrintf(LOG_DEBUG, "SHOWWD: getcwd() error. errno=%d\n", errno); }
+
+static void InitNPalettes(void)
+{
+	char cwdSave[PATH_MAX], cwd[PATH_MAX];
+
+	LogPrintf(LOG_NOTICE, "Initializing palettes & palette windows from images in %s...  (Initialize)\n",
+				NPALETTE_IMAGE_DIR);
+	if (getcwd(cwdSave, sizeof(cwdSave))==NULL) LogPrintf(LOG_ERR,
+							"Can't save the current working directory.  (InitNPalettes)\n");
+	errno = 0; chdir(NPALETTE_IMAGE_DIR);
+	if (errno!=0)  LogPrintf(LOG_ERR, "Can't change to palette image directory. errno=%d  (InitNPalettes)\n",
+							errno); SHOWWD;
+
+	if (!NInitPaletteWindows()) { BadInit(); ExitToShell(); }
+	if (!InitDynamicPalette()) { BadInit(); ExitToShell(); }
+	if (!InitModNRPalette()) { BadInit(); ExitToShell(); }
+	if (!InitDurationPalette()) { BadInit(); ExitToShell(); }
+	
+	chdir(cwdSave);
+}
 
 #define STRBUF_SIZE 256
 
-void Initialize()
+static GrowZoneUPP growZoneUPP;			/* permanent GrowZone UPP */
+
+void Initialize(void)
 {
 	OSErr err;
 	Str63 dummyVolName;
@@ -179,12 +208,7 @@ void Initialize()
 	growZoneUPP = NewGrowZoneUPP(GrowMemory);
 	if (growZoneUPP) SetGrowZone(growZoneUPP);		/* Install simple grow zone function */
 	
-	LogPrintf(LOG_NOTICE, "Initializing palettes and palette windows...  (Initialize)\n");
-	if (!NInitPaletteWindows()) { BadInit(); ExitToShell(); }
-	if (!InitDynamicPalette()) { BadInit(); ExitToShell(); }
-	if (!InitModNRPalette()) { BadInit(); ExitToShell(); }
-	if (!InitDurationPalette()) { BadInit(); ExitToShell(); }
-	
+	InitNPalettes();
 	InitCursor();
 	WaitCursor();
 
@@ -226,6 +250,7 @@ static OSStatus GetPrefsFileSpec(unsigned char *fileName, OSType fType, OSType f
 	/* Search the folder for the file */
 	
 	BlockZero(&cat, sizeof(cat));
+//LogPrintf(LOG_DEBUG, "FindFolder: name='%s'  (FindPrefsFile)\n", cat.hFileInfo.ioNamePtr);
 	cat.hFileInfo.ioNamePtr = name;
 	cat.hFileInfo.ioVRefNum = pvol;
 	cat.hFileInfo.ioFDirIndex = 1;
@@ -245,8 +270,8 @@ static OSStatus GetPrefsFileSpec(unsigned char *fileName, OSType fType, OSType f
 		cat.hFileInfo.ioDirID = pdir;
 	}
 	
-	/* We couldn't find it: tell the caller. FIXME: But why call FSMakeFSSpec first?
-	   Am I missing something? */
+	/* We couldn't find it: tell the calling routine. Call FSMakeFSSpec first in the
+	   hope of giving the user (or a tech support person) helpful information. */
 	
 	err = FSMakeFSSpec(pvol, pdir, PREFS_PATH, prefsSpec);
 	LogPrintf(LOG_INFO, "FSMakeFSSpec: err=%d (fnfErr=%d)  (FindPrefsFile)\n", err, fnfErr);
@@ -269,8 +294,8 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	short			nSPTB, i;
 	ScriptCode		scriptCode = smRoman;
 	
-	/* Create a new file in the ~/Library/Preferences and give it a resource fork.
-	   If there is no Preferences folder in ~/Library, create it. */
+	/* Create a new file in the ~/Library/Preferences and give it a resource fork. If
+	   there is no Preferences folder in ~/Library, create it. */
 	
 	Pstrcpy(rfSpec->name, PREFS_FILE_PATH);	
 	FSpCreateResFile(rfSpec, creatorType, 'NSET', scriptCode);
@@ -279,7 +304,7 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 
 	if (theErr!=noErr) return False;
 	
-	/* Open it, setting global setupFileRefNum.  NB: HOpenResFile makes the file it
+	/* Open it, setting global setupFileRefNum. NB: HOpenResFile makes the file it
 	   opens the current resource file. */
 		
 	setupFileRefNum = FSpOpenResFile(rfSpec, fsRdWrPerm);
@@ -399,7 +424,7 @@ fork is open but with only read permission, I suspect we won't detect that and i
 won't be made the current resource file: bad, but unlikely.) If all goes well, return
 True. */
 
-Boolean OpenPrefsFile()
+Boolean OpenPrefsFile(void)
 {
 	OSErr result;  Boolean okay=True;
 	Str63 volName;
@@ -517,7 +542,7 @@ static Boolean AddPrefsResource(Handle resH)
 
 /* --------------------------------------------------------------------------- Config -- */
 
-static void DisplayConfig()
+static void DisplayConfig(void)
 {
 	LogPrintf(LOG_INFO, "Displaying CNFG:\n");
 	LogPrintf(LOG_INFO, "  (1)maxDocuments=%d", config.maxDocuments);
@@ -683,7 +708,7 @@ message and set the field to a reasonable default value. If no problems are foun
 return TRUE. If problems are found, tell user and give them a chance to quit immediately;
 if they decline, return FALSE. */
 
-static Boolean CheckConfig()
+static Boolean CheckConfig(void)
 {
 	short nerr, firstErr;
 	char fmtStr[256];
@@ -1030,7 +1055,7 @@ static Boolean CheckConfig()
 /* Install our configuration data from the Prefs file; also check for, report, and
 correct any illegal values. Assumes the Prefs file is the current resource file. */
 
-static Boolean GetConfig()
+static Boolean GetConfig(void)
 {
 	Handle cnfgH;
 	long cnfgSize;
@@ -1229,7 +1254,7 @@ static Boolean InitMemory(short numMasters)
 
 /* Provide the pre-allocated clipboard document with default values. */
 	
-static Boolean PrepareClipDoc()
+static Boolean PrepareClipDoc(void)
 {
 	WindowPtr w;  char title[256];
 	LINK pL;  long junkVersion;
@@ -1295,7 +1320,7 @@ static void AddSampleItems(MenuRef menu)
 
 /* Initialize application-specific globals, etc. */
 
-Boolean InitGlobals()
+Boolean InitGlobals(void)
 	{
 		long size;
 		Document *doc;
@@ -1422,11 +1447,12 @@ static AEEventHandlerUPP oappUPP, odocUPP, pdocUPP, quitUPP;
 static AEEventHandlerUPP editUPP, closUPP;
 #endif
 
-static void InstallCoreEventHandlers()
+static void InstallCoreEventHandlers(void)
 {
 	OSErr err = noErr;
 	
 	/* Leave these UPP's permanently allocated. */
+	
 	oappUPP = NewAEEventHandlerUPP(HandleOAPP);
 	odocUPP = NewAEEventHandlerUPP(HandleODOC);
 	pdocUPP = NewAEEventHandlerUPP(HandlePDOC);

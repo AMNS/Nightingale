@@ -22,7 +22,7 @@ static short dynamicIdx;
 static Boolean DrawDynamicPalette(Rect *pBox);
 static Boolean DrawDynamicPalette(Rect *pBox)
 {	
-DHexDump(LOG_DEBUG, "DynPal", bmpDynamicPal.bitmap, 8*16, 4, 16, True);
+//DHexDump(LOG_DEBUG, "DynPal", bmpDynamicPal.bitmap, 5*16, 4, 16, True);
 
 	DrawBMP(bmpDynamicPal.bitmap, bmpDynamicPal.bWidth, bmpDynamicPal.bWidthPadded,
 			bmpDynamicPal.height, *pBox);

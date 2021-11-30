@@ -10506,7 +10506,7 @@ slash; then go to
 The tempo/metronome mark dialog also uses the choose-duration palette; so does the Fancy
 Tuplet command! So the problem commands that used to rely on a UI font but now use a
 .bmp include Set Duration, insert or edit tempo/metronome mark, Fancy Tuplet (all using
-the Set Duration menu); Add Modifiers; and double-clicking a dynamic.
+the Set Duration menu); Set/Add Modifiers; and double-clicking a dynamic.
 
 ---------------------------------------------------------------------------------------
 
@@ -10663,3 +10663,65 @@ we do
 	SetRect(&maxToolsRect, 0, 0, width, height);
 
 and all is sweetness and light! Or something like that. So all four palettes are good now!
+
+---------------------------------------------------------------------------------------
+
+24 - 28 Nov.
+
+Features using palettes that are in good shape:
+
+* Set/Add Modifiers: no problems AFAIK.
+
+* Double-clicking a dynamic: no problems AFAIK.
+
+* Commands/features that use the choose-duration palette: High priority:
+	Set Duration: calls DialogsEditor.c > SetDurDialog
+		"Show 2 dots" doesn't work; it should probably be removed.
+	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
+	Fancy Tuplet: calls DialogsEditor.c > TupletDialog
+Lower priority:
+	Import MIDI File: calls MIDIFOCmd.c > TranscribeMFDialog
+	Transcribe Recording: calls Transcribe.c > DoQuantize, for "unknown" dur. notes
+
+* Tool palette: usable, but code is a mess.
+	- I doubt if rearranging works, at least saving the rearrangement, but do I care?
+	- Resizing to a smaller size is OK; to a larger, it doesn't draw the new area.
+	- Closing and reopening are OK.
+
+* Opening BMP files: help Ngale find them; they're helpless on their own :-( . (Putting
+them in the folder with the app seems to work running inside Xcode but not otherwise.)
+
+The last is most critical. It seems that putting them in ~/Library/Application\ Support is
+where the BMPs should go. It's not obvious how Apple expected the app to find that folder!,
+but they provided a way to get to ~/Library/Preferences; from there, simply going to
+../Application\ Support should do it. Both getcwd() and chdir() work as expected. But how
+do I "simply" go there? Getting to ~/Library/Preferences via GetPrefsFileSpec() doesn't
+set the working directory, so I don't have the full path! Ah, but if chdir() recognizes
+"~" beginning a path as the user's home directory, I can just
+
+	chdir("~/Library/Application\ Support");
+
+Does that work? No.
+
+	errno = 0; chdir("~/Library/Application\ Support"); LogPrintf(LOG_DEBUG, ">chdir errno=%d\n", errno); SHOWWD;
+
+says errno =  2, i.e., no such file :-( .
+
+	errno = 0; chdir("/Users/donbyrd/Library/Application\ Support"); LogPrintf(LOG_DEBUG, ">chdir errno=%d\n", errno); SHOWWD;
+
+works, but compiling in "donbyrd" doesn't seem like a viable solution :-| .
+
+Time to reconsider turning the BMP files into resources, let's say 'BMPF' resources. Seems
+it'd be easiest, with no significant downside, to copy exactly the entire contents of each
+file into a resource -- or do I even have to do a copy? Can I just put each file into the
+Xcode Resources folder w/ an appropriate filename? Maybe, but it looks likely to be easier
+to add 'em to Nightingale.rsrc... except how do I copy anything into a resource??
+
+Ah! I can't get BMP files from ~/Library/Application\ Support bcs chdir doesn't understand
+~ as meaning the user's home directory. But they don't have to be in the user's Library
+(and maybe shouldn't be); they can be in the system's Library, i.e., /Library/Application\
+Support. Test => it works on both PowerPC and Intel!! Unfortunately, putting anything in
+the system Library requires admin permission, but that's acceptable, at least for the time
+being.
+
+

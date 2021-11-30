@@ -44,7 +44,7 @@ static void		FileStartup(void);
 
 /* Main routine and entry point for application */
 
-int main(int argc, const char * argv[])
+int main(int /* argc */, const char * /* argv */ [])
 {
 #ifndef PUBLIC_VERSION
 	if (CapsLockKeyDown() && ShiftKeyDown() && OptionKeyDown() && ControlKeyDown())
@@ -52,7 +52,6 @@ int main(int argc, const char * argv[])
 #endif
 	Initialize();
 
-#define SHOW_PATHS
 #ifdef SHOW_PATHS
 	LogPrintf(LOG_DEBUG, "main: argv[0]='%s'.\n", argv[0]);
 	char cwd[PATH_MAX];

@@ -420,11 +420,7 @@ static Boolean InitMusFontTables()
 			//if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG,
 			//		"InitMusFontTables: ch=%c=%u yt=%d yb=%d\n", ch, ch, yt, yb);
 #endif
-			if (ch>=0 && ch<256)
-				SetRect(&musFontInfo[index].cBBox[ch], xl, yt, xr, yb);
-			else
-				MayErrMsg("Info on font '%s' refers to illegal char code %u.  (InitMusFontTables)\n",
-							musFontName, ch);
+			SetRect(&musFontInfo[index].cBBox[ch], xl, yt, xr, yb);
 		}
 		ReleaseResource(resH);
 		index++;
@@ -776,7 +772,7 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	ParamText("\ptool", "\p", "\p", "\p");					/* In case of any of several problems */
 	bmpf = NOpenBMPFile(TOOL_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded, &height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Bitmap image file '%s' is unusable.  (InitToolPalette)\n", TOOL_PALETTE_FN);
+		LogPrintf(LOG_ERR, "Bitmap image file '%s' is missing or can't be opened.  (InitToolPalette)\n", TOOL_PALETTE_FN);
 		//if (CautionAdvise(BMP_ALRT)==OK) return False;
 		return (CautionAdvise(BMP_ALRT)!=OK);
 	}
@@ -852,8 +848,6 @@ toolCellHeight);
 	short startLoc;
 	for (short nRow = n_min(height, 800); nRow>=0; nRow--) {
 		startLoc = nRow*bWidthPadded;
-//printf("nRow=%d startLoc=%d\n", nRow, startLoc);
-//		DPrintRow(bitmapTools, nRow, bWidth, startLoc, False, False);
 		DPrintRow(bitmapTools, nRow, n_min(bWidth, 20), startLoc, False, True);
 		printf("\n");
 	}
@@ -868,24 +862,21 @@ toolCellHeight);
 	//CopyOffScreenBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
 	DrawBMP(bitmapTools, bWidth, bWidthPadded, height, maxToolsRect);
 	toolPalPort = gwPtr;
+#if 0
 {
 PixMapHandle portPixMapH = GetPortPixMap(toolPalPort); PixMapPtr portPixMap = *portPixMapH;
 LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
 }
+#endif
 //	UnlockGWorld(gwPtr);
 	RestoreGWorld();
 	return True;
 }
 
 
-/* Initialize everything about the palettes (formerly called "floating windows"). NB:
-through v. 5.8.10, the tool palette was the only one; the Set Duration and Add Modifiers
-command and the double-click "change dynamics" facilities used our own bitmap fonts.
-In 5.8.11, we use palettes with bitmap images for those commands, and those palettes
-have to be initialized.
-??REWRITE OR REMOVE FOLLOWING We've kept vestigal code
-for a help palette (which seems unlikely ever to be used) and for a clavier palette
-(which might be useful someday). */
+/* Initialize everything about the palettes used in floating windows. ??REWRITE OR REMOVE
+FOLLOWING We've kept vestigal code for a help palette (which seems unlikely ever to be
+used) and for a clavier palette (which really might be useful someday). */
 
 Boolean NInitPaletteWindows()
 {
@@ -960,7 +951,7 @@ Boolean InitDynamicPalette()
 	bmpf = NOpenBMPFile(DYNAMIC_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
 						&height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Bitmap image file '%s' is unusable '%s'.  (InitDynamicPalette)\n",
+		LogPrintf(LOG_ERR, "Bitmap image file '%s' is missing or can't be opened.  (InitDynamicPalette)\n",
 					DYNAMIC_PALETTE_FN);
 		if (CautionAdvise(BMP_ALRT)==OK) return False;
 		else {
@@ -1014,7 +1005,7 @@ Boolean InitModNRPalette()
 	bmpf = NOpenBMPFile(MODNR_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
 						&height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Bitmap image file '%s' is unusable '%s'.  (InitModNRPalette)\n",
+		LogPrintf(LOG_ERR, "Bitmap image file '%s' is missing or can't be opened.  (InitModNRPalette)\n",
 					MODNR_PALETTE_FN);
 		if (CautionAdvise(BMP_ALRT)==OK) return False;
 		else {
@@ -1068,7 +1059,7 @@ Boolean InitDurationPalette()
 	bmpf = NOpenBMPFile(DURATIONS_PALETTE_FN, &pixOffset, &width, &bWidth, &bWidthPadded,
 						&height);
 	if (!bmpf) {
-		LogPrintf(LOG_ERR, "Bitmap image file '%s' is unusable '%s'.  (InitDurationPalette)\n",
+		LogPrintf(LOG_ERR, "Bitmap image file '%s' is missing or can't be opened.  (InitDurationPalette)\n",
 					DURATIONS_PALETTE_FN);
 		if (CautionAdvise(BMP_ALRT)==OK) return False;
 		else {

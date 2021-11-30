@@ -283,7 +283,7 @@ portRect.top, portRect.left, portRect.bottom, portRect.right);
 	InsetRect(&frame, -1, -1);
 	FrameRect(&frame);
 	
-	/* Erase area to right and below frame, in case window was just shrunk */
+	/* Erase area to right and below frame in case window was just shrunk */
 	
 	tmp = *r;
 	tmp.left = tmp.right - (TOOLS_MARGIN-1);
@@ -583,50 +583,50 @@ void DoToolKeyDown(
 			short key,				/* <0 means simulated key down so key is undef. and NO REMAPPING */
 			short /*modifiers*/		/* <0 means simulated key down so modifiers are undefined */
 			)
-	{
-		GrafPtr oldPort;
-		PaletteGlobals *toolGlobal;
-		short item;
-		WindowPtr w = palettes[TOOL_PALETTE];
-		Rect portRect;
-		
-		GetPort(&oldPort);  SetPort(GetWindowPort(w));
-		toolGlobal = *paletteGlobals[TOOL_PALETTE];
-		
-		if (ch==CH_ENTER) {
-			if (currentCursor == arrowCursor)		/* Go back to old item saved */
-				item = oldItem;
-			 else {
-				/* Save current item, and install arrow, whereever it is */
-				
-				oldItem = toolGlobal->currentItem;
-			 	item = GetPalItem(CH_ENTER);
-				}
-			shook = currentCursor;
-			HandleToolCursors(item);
-			GetWindowPortBounds(w,&portRect);
-			HiliteToolItem(&portRect, toolGlobal->currentItem);
-			HiliteToolItem(&portRect, item);
-			toolGlobal->currentItem = item;
-			}
+{
+	GrafPtr oldPort;
+	PaletteGlobals *toolGlobal;
+	short item;
+	WindowPtr w = palettes[TOOL_PALETTE];
+	Rect portRect;
+	
+	GetPort(&oldPort);  SetPort(GetWindowPort(w));
+	toolGlobal = *paletteGlobals[TOOL_PALETTE];
+	
+	if (ch==CH_ENTER) {
+		if (currentCursor == arrowCursor)		/* Go back to old item saved */
+			item = oldItem;
 		 else {
-			if (key>=0)
-				if (!TranslatePalChar(&ch, (unsigned char)key, False)) ;
-				
-				/* If not, GetResource failed. Maybe no need to warn. */
+			/* Save current item, and install arrow, whereever it is */
+			
+			oldItem = toolGlobal->currentItem;
+			item = GetPalItem(CH_ENTER);
+		}
+		shook = currentCursor;
+		HandleToolCursors(item);
+		GetWindowPortBounds(w,&portRect);
+		HiliteToolItem(&portRect, toolGlobal->currentItem);
+		HiliteToolItem(&portRect, item);
+		toolGlobal->currentItem = item;
+		}
+	 else {
+		if (key>=0)
+			if (!TranslatePalChar(&ch, (unsigned char)key, False)) ;
+			
+			/* If not, GetResource failed. Maybe no need to warn. */
 
-			if (GetPalChar(toolGlobal->currentItem) != ch) {
-				item = GetPalItem(ch);
-				if (item) {
-					HandleToolCursors(item);
-					PalKey(ch);
-					holdCursor = True;
-					}
-				}
+		if (GetPalChar(toolGlobal->currentItem) != ch) {
+			item = GetPalItem(ch);
+			if (item) {
+				HandleToolCursors(item);
+				PalKey(ch);
+				holdCursor = True;
 			}
-		 
-		 SetPort(oldPort);
+		}
 	}
+	 
+	SetPort(oldPort);
+}
 
 
 /* Entertain a mouse down in Tool Palette's grow box, and grow the palette. pt is the
@@ -647,7 +647,7 @@ void DoToolGrow(Point pt)
 			   whichPalette->maxAcross*toolCellWidth+margin,
 			   whichPalette->maxDown*toolCellHeight+margin);
 			   
-	newSize = GrowWindow(w,pt,&r);
+	newSize = GrowWindow(w, pt, &r);
 	if (newSize) {
 		x = LoWord(newSize) - margin; y = HiWord(newSize) - margin;
 		across = (x + toolCellWidth/2) / toolCellWidth;
@@ -672,15 +672,15 @@ void ChangeToolSize(short across, short down, Boolean doingZoom)
 	SizeWindow(w, across*toolCellWidth +margin-1, down*toolCellHeight+margin-1, True);
 	(*paletteGlobals[TOOL_PALETTE])->across = across;
 	(*paletteGlobals[TOOL_PALETTE])->down = down;
-	GetWindowPortBounds(w,&toolsFrame);
-	InsetRect(&toolsFrame,TOOLS_MARGIN,TOOLS_MARGIN);
+	GetWindowPortBounds(w, &toolsFrame);
+	InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);
 	
 	if (!doingZoom) {
 		(*paletteGlobals[TOOL_PALETTE])->oldAcross = across;
 		(*paletteGlobals[TOOL_PALETTE])->oldDown = down;
 	}
 	if (IsWindowVisible(w)) {
-		GetPort(&oldPort); SetPort(GetWindowPort(w));
+		GetPort(&oldPort);  SetPort(GetWindowPort(w));
 		GetWindowPortBounds(w, &portRect);
 		InvalWindowRect(w, &portRect);
 		SetPort(oldPort);
@@ -832,7 +832,7 @@ static void UpdateGridCoords()
 			for (col=0; col<pg->maxAcross; col++,pGrid++)
 				*p++ = pGrid->ch;
 
-		/* Write out the resource so we can restore the current resource file. */
+		/* Write out the resource and restore the current resource file. */
 		
 		ChangedResource(hdl);
 		UpdateResFile(HomeResFile(hdl));

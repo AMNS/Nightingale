@@ -22,7 +22,7 @@ static short modNRIdx;
 static Boolean DrawModNRPalette(Rect *pBox);
 static Boolean DrawModNRPalette(Rect *pBox)
 {	
-DHexDump(LOG_DEBUG, "ModNRPal", bmpModifierPal.bitmap, 8*16, 4, 16, True);
+//DHexDump(LOG_DEBUG, "ModNRPal", bmpModifierPal.bitmap, 5*16, 4, 16, True);
 
 	DrawBMP(bmpModifierPal.bitmap, bmpModifierPal.bWidth, bmpModifierPal.bWidthPadded,
 			bmpModifierPal.height, *pBox);

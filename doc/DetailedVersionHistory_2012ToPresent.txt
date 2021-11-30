@@ -3344,7 +3344,7 @@ Minor changes. Affects DebugDisplay, DynamicEdit.
 Work to replace the "change dynamic" pop-up palette (using a UI font) with a fixed
 palette (from a BMP file). Affects DrawUtils, DynamicEdit.
 
-Minor changes: add optional hex display to DPrintRow(), add FileUtils.h to the
+Minor changes: added optional hex display to DPrintRow(), added FileUtils.h to the
 precompiled header, etc. Affects Nightingale_Prefix.pch; DebugDisplay, DialogsEditor,
 DrawUtils, DynamicEdit, FileOpen, FileSave, FileUtils, Initialize, MidiMap,
 NotelistParse, Preferences.
@@ -3356,15 +3356,15 @@ NotelistParse, Preferences.
 Work to replace the "change dynamic" pop-up palette (using a UI font) with a fixed
 palette (from a BMP file). Affects BMP.h, vars.h; DynamicEdit, Initialize.
 
-Minor changes: let user continue even if the BMPs can't be opened; enlarge buttons in
+Minor changes: let user continue even if the BMPs can't be opened; enlarged buttons in
 some ALRTs, etc. Affects .rsrc; NResourceID.h; Initialize, Insert.
 
 ---------------------------------------------------------------------------------------
 
 17 - 22 Oct.
 
-Alleviate or fix excessively fast auto-repeat in Instrument dialog (Issue #188). Affects
-InstrDialog.
+Alleviated or fixed excessively fast auto-repeat in Instrument dialog (Issue #188).
+Affects InstrDialog.
 
 Minor changes. Affects .rsrc, NResourceID.h, VersionStrings.h; FileUtils, Initialize,
 InstrDialog, Preferences.
@@ -3376,7 +3376,7 @@ InstrDialog, Preferences.
 Work to replace the "Set Duration" pop-up palette (using a UI font) with a fixed palette
 (from a BMP file). Affects .rsrc.
 
-Minor changes: move palette code to a different module, etc. Affects .rsrc,
+Minor changes: moved palette code to a different module, etc. Affects .rsrc,
 InternalInput.h, NightTemplates.h; DynamicEdit, FileUtils, InfoDialog, Initialize,
 InitNightingale, InternalInput, Main, Menu, NotelistParse, Score.
 
@@ -3399,7 +3399,7 @@ Work to replace the "Set Duration" pop-up palette (using a UI font) with a fixed
 palette (from a BMP file). Affects .rsrc, vars.h; DurationEdit (replacing DurationPopUp),
 InitNightingale.
 
-To avoid file-compatibility problems if MAXVOICES is ever increased, enlarge
+To avoid file-compatibility problems if MAXVOICES is ever increased, enlarged
 NIGHTSCOREHEADER. Affects NDocAndCnfgTypes.h.
 
 Minor changes. Affects NDocAndCnfgTypes.h, NLimits.h, NObjTypes.h; CarbonPrinting,
@@ -3425,3 +3425,16 @@ InitNightingale.
 
 Minor changes. Affects Debug.h, Defs.h; ChordSym, DebugDisplay, DrawUtils, FileOpen,
 FileSave, InitNightingale, Select.
+
+---------------------------------------------------------------------------------------
+
+26 - 29 Nov.
+
+Fixed bug: Nightingale doesn't know where to look for the BMPs for its four palettes. It
+now expects them to be in /Library/Application\ Support . Affects Initialize.
+
+Fixed bug: if the BMP file for any palette other the tool palette can't be opened,
+Nightingale is likely to crash. Affects InitNightingale.
+
+Minor changes. Affects .rsrc; DynamicEdit, FileUtils, Initialize, InitNightingale, Main,
+ModNREdit, ToolPalette.
