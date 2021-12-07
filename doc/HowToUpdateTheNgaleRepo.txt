@@ -25,9 +25,9 @@ The following steps are on the git machine.
 4.	Rename the original folder as "N6p0 TO REPO" or some such. If anything in the
 	Resources folder has changed (a rare occurrence), handle that. NB that git doesn't
 	know about resource forks and doesn't store their contents (though though it saves the
-	files with their data forks and proper names!), so if it's the .rsrc, compress it.
-	(The same is probably true of other files in Resources.) Throw away any obvious temp
-	files/folders.
+	files with their data forks and proper names!), so if it's the .rsrc, compress it
+	and throw away the uncompressed form. (The same is probably true of other files in
+	Resources.) Throw away any obvious temp files/folders.
 5.	In N6p0_TO_REPO, move build/Release/NightingalePPC.app and build/Release/NightingaleIntel.app
 	to NgaleDev/Executables; throw away the rest of the build folder.
 6.	Compress NightingalePPC.app and NightingaleIntel.app, and move the compressed versions

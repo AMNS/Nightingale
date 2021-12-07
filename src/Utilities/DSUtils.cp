@@ -1547,7 +1547,6 @@ Boolean IsLastSysInPage(LINK sysL)
 }
 
 
-/* ------------------------------------------------------------------ GetLastSysInPage -- */
 /* Return the last system in page pageL. */
 
 LINK GetLastSysInPage(LINK pageL)
@@ -1563,7 +1562,7 @@ LINK GetLastSysInPage(LINK pageL)
 	return NILINK;
 }
 
-/* -------------------------------------------------------------------- FirstSysInPage -- */
+/* --------------------------------------------------------- FirstSysInPage,, -InScore -- */
 /* Determines if sysL is the first System of its page. Assumes that sysL is a LINK
 to an object of type SYSTEM. NB: We cannot assume that System always immediately
 follows Page, because of Page-relative Graphics. FIXME: Name should be changed to
@@ -1580,9 +1579,8 @@ Boolean FirstSysInPage(LINK sysL)
 	return True;											/* First system of score */
 }
 
-
-/* ------------------------------------------------------------------- FirstSysInScore -- */
-/* Return True if sysL is the first System of the score. */
+/* Return True if sysL is the first System of the score. Assumes that sysL is a LINK
+to an object of type SYSTEM. */
 
 Boolean FirstSysInScore(LINK sysL)
 {
@@ -1918,7 +1916,7 @@ void MoveTimeMeasures(LINK startL, LINK endL, long diffTime)
 
 /* ===================================================== Object and Subobject Counting == */
 
-/* ----------------------------------------------------------------- CountNotesInRange -- */
+/* ------------------------------------------------ CountNotesInRange, -GRNotesInRange -- */
 /* Counts notes in range [startL,endL) on staff <staff>, not including rests, and
 with each chord counting as 1 note. */
 
@@ -1939,7 +1937,6 @@ unsigned short CountNotesInRange(short staff, LINK startL, LINK endL, Boolean se
 }
 
 
-/* --------------------------------------------------------------- CountGRNotesInRange -- */
 /* Counts GRNotes in range [startL,endL) on staff <staff> (there are no GRRrests),
 and with each chord counting as 1 GRNote. */
 
@@ -1960,7 +1957,7 @@ unsigned short CountGRNotesInRange(short staff, LINK startL, LINK endL, Boolean 
 }
 
 
-/* ------------------------------------------------------------------------ CountNotes -- */
+/* --------------------------------------------------------- CountNotes -- */
 /* Counts notes/rests in range on staff, with each Sync (not chord: they can be
 different if there are multiple voices on the staff) optionally counting as 1 note.
 Cf. CountNotesInRange: should perhaps be combined with it, but NB: that function ignores
@@ -3173,6 +3170,58 @@ short GetSelectionStaff(Document *doc)
 				}
 		}
 	return firstStaff;
+}
+
+
+/* --------------------------------------------- IsSelInTuplet, -InTupletNotTotallySel -- */
+
+/* Return True if any selected notes (or rests) are in tuplets. */
+
+Boolean IsSelInTuplet(Document *doc)
+{
+	LINK pL, aNoteL;
+
+	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
+		if (LinkSEL(pL) && SyncTYPE(pL))
+			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
+				if (NoteINTUPLET(aNoteL) && NoteSEL(aNoteL))
+					return True;
+	
+	return False;			
+}
+
+
+/* Return True if any selected notes (or rests) are in a tuplet, but not all the notes of
+the tuplet are selected. */
+
+Boolean IsSelInTupletNotTotallySel(Document *doc)
+{
+	LINK pL, aNoteL, voice, aTupletL, tpSyncL;
+	short numSelNotes, numNotSelNotes;
+
+	pL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, False);
+	if (pL==NILINK)
+		pL = doc->selStartL;
+
+	for ( ; pL!=doc->selEndL; pL=RightLINK(pL))
+		if (TupletTYPE(pL)) {
+			voice = TupletVOICE(pL);
+			numSelNotes = numNotSelNotes = 0;
+			aTupletL = FirstSubLINK(pL);
+			for ( ; aTupletL; aTupletL=NextNOTETUPLEL(aTupletL)) {
+				tpSyncL = NoteTupleTPSYNC(aTupletL);
+				aNoteL = FirstSubLINK(tpSyncL);
+				for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
+					if (NoteVOICE(aNoteL)==voice) {
+						if (NoteSEL(aNoteL))	numSelNotes++;
+						else					numNotSelNotes++;
+					}
+			}
+			if (numSelNotes>0 && numNotSelNotes>0)
+				return True;
+		}
+
+	return False;			
 }
 
 

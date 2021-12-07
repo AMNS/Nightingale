@@ -25,7 +25,7 @@ static Boolean DrawModNRPalette(Rect *pBox)
 //DHexDump(LOG_DEBUG, "ModNRPal", bmpModifierPal.bitmap, 5*16, 4, 16, True);
 
 	DrawBMP(bmpModifierPal.bitmap, bmpModifierPal.bWidth, bmpModifierPal.bWidthPadded,
-			bmpModifierPal.height, *pBox);
+			bmpModifierPal.height, bmpModifierPal.height, *pBox);
 	return True;
 }
 
@@ -99,8 +99,8 @@ static short FindModNRCell(Point where, Rect *pBox)
 }
 
 
-static void HiliteCell(short modIdx, Rect *box);
-static void HiliteCell(short modIdx, Rect *box)
+static void HiliteModNRCell(short modIdx, Rect *box);
+static void HiliteModNRCell(short modIdx, Rect *box)
 {
 	Rect theCell = modNRCell[modIdx];
 	OffsetRect(&theCell, box->left, box->top);
@@ -131,7 +131,7 @@ static short ModNRKey(unsigned char theChar)
 }
 
 
-#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteCell((curIdx), pBox); curIdx = (newIdx); HiliteCell((curIdx), pBox)
+#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteModNRCell((curIdx), (pBox)); curIdx = (newIdx); HiliteModNRCell((curIdx), (pBox))
 
 static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
@@ -156,7 +156,7 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 //box.right);
 				FrameRect(&box);
 				DrawModNRPalette(&box);
-				HiliteCell(modNRIdx, &box);
+				HiliteModNRCell(modNRIdx, &box);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;

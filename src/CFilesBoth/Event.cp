@@ -989,7 +989,7 @@ pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, lon
 					DoCloseWindow(doc->theWindow);
 				}
 				else if (isFirst)
-					DoViewMenu(VM_ToollPalette);
+					DoViewMenu(VM_ToolPalette);
 			}
 			 else
 				break;					/* Couldn't open; error already reported */

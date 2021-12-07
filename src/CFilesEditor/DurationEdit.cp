@@ -13,15 +13,85 @@ graphic MDEF; it now uses a BMP displayed in its entirety.  */
 #include "Nightingale.appl.h"
 
 
+/* ----------------------------------- General routines to handle the duration palette -- */
+/* Note durations appear in features of Nightingale other than Set Duration: metronome
+marks, "fancy" tuplets, and quantizing durations. Note that different features allow
+different numbers of augmentation dots and therefore different subsets of the palette!
+The following routines are generic. */
+
+void InitDurationCells(Rect *pBox, short nCols, short nRows, Rect durCell[])
+{
+	short cellWidth, cellHeight, cellNum;
+	
+	cellWidth = (pBox->right-pBox->left)/nCols;
+	cellHeight = (pBox->bottom-pBox->top)/nRows;
+//LogPrintf(LOG_DEBUG, "InitDurationCells: cellWidth=%d cellHeight==%d\n", cellWidth, cellHeight);
+
+	for (short rn = 0; rn<nRows; rn++)
+		for (short cn = 0; cn<nCols; cn++) {
+			cellNum = (nCols*rn) + cn;
+			durCell[cellNum].top = cellHeight*rn;
+			durCell[cellNum].left = cellWidth*cn;
+			durCell[cellNum].bottom = durCell[cellNum].top+cellHeight;
+			durCell[cellNum].right = durCell[cellNum].left+cellWidth;
+//LogPrintf(LOG_DEBUG, "InitDurationCells: rn=%d cn=%d cellNum=%d durCell tlbr=%d,%d,%d,%d\n",
+//rn, cn, cellNum, durCell[cellNum].top, durCell[cellNum].left,
+//durCell[cellNum].bottom, durCell[cellNum].right);
+		}
+}
+
+
+/* Return the number of the cell in the duration palette containing the given point. We
+don't check whether cell is a valid selection; it's up to the calling routine to do that. */
+ 
+short FindDurationCell(Point where, Rect *pBox, short nCols, short nRows, Rect durCell[])
+{
+	short xInBox, yInBox, cellNum, tryCell;
+	
+	xInBox = where.h - pBox->left;
+	yInBox = where.v - pBox->top;
+	cellNum = -1;
+	for (short rn = 0; rn<nRows; rn++)
+		for (short cn = 0; cn<nCols; cn++) {
+			tryCell = (nCols*rn) + cn;
+			if (yInBox<durCell[tryCell].top) continue;
+			if (xInBox<durCell[tryCell].left) continue;
+			if (yInBox>=durCell[tryCell].bottom) continue;
+			if (xInBox>=durCell[tryCell].right) continue;
+			cellNum = tryCell;  break;
+		}
+
+//LogPrintf(LOG_DEBUG, "FindDurationCell: xInBox=%d yInBox=%d cellNum=%d\n", xInBox, yInBox, cellNum);
+	if (cellNum<0) {
+		LogPrintf(LOG_WARNING, "Can't find cell for where=(%d,%d) xInBox=%d yInBox=%d.  (FindDurationCell)\n",
+					where.h, where.v, xInBox, yInBox);
+		cellNum = 1;
+	}
+	
+	return cellNum;
+}
+
+
+void HiliteDurCell(short durIdx, Rect *pBox, Rect durCell[])
+{
+	Rect theCell = durCell[durIdx];
+	OffsetRect(&theCell, pBox->left, pBox->top);
+	InsetRect(&theCell, 1, 1);
+	InvertRect(&theCell);
+}
+
+
+/* ------------------------------------------------- Code for the Set Duration command -- */
+
 static short durationIdx;
 
 static Boolean DrawDurationPalette(Rect *pBox);
 static Boolean DrawDurationPalette(Rect *pBox)
 {	
-DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 4*16, 4, 16, True);
+//DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 4*16, 4, 16, True);
 
 	DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded,
-			bmpDurationPal.height, *pBox);
+			bmpDurationPal.height, bmpDurationPal.height, *pBox);
 	return True;
 }
 
@@ -38,70 +108,6 @@ static short durNDots[] =		{ 0, 0, 0, 0, 0, 0, 0, 0, 0,
 #define NCOLS 9		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
 
 static Rect durationCell[NROWS*NCOLS];
-
-static void InitDurationCells(Rect *pBox);
-static void InitDurationCells(Rect *pBox)
-{
-	short cellWidth, cellHeight, cellNum;
-	
-	cellWidth = (pBox->right-pBox->left)/NCOLS;
-	cellHeight = (pBox->bottom-pBox->top)/NROWS;
-//LogPrintf(LOG_DEBUG, "InitDurationCells: cellWidth=%d cellHeight==%d\n", cellWidth, cellHeight);
-
-	for (short rn = 0; rn<NROWS; rn++)
-		for (short cn = 0; cn<NCOLS; cn++) {
-			cellNum = (NCOLS*rn) + cn;
-			durationCell[cellNum].top = cellHeight*rn;
-			durationCell[cellNum].left = cellWidth*cn;
-			durationCell[cellNum].bottom = durationCell[cellNum].top+cellHeight;
-			durationCell[cellNum].right = durationCell[cellNum].left+cellWidth;
-//LogPrintf(LOG_DEBUG, "InitDurationCells: rn=%d cn=%d cellNum=%d durationCell tlbr=%d,%d,%d,%d\n",
-//rn, cn, cellNum, durationCell[cellNum].top, durationCell[cellNum].left,
-//durationCell[cellNum].bottom, durationCell[cellNum].right);
-		}
-}
-
-
-/* Return the number of the cell in the duration palette containing the given point. We
-don't check whether cell is a valid selection; it's up to the calling routine to do that. */
- 
-static short FindDurationCell(Point where, Rect *pBox);
-static short FindDurationCell(Point where, Rect *pBox)
-{
-	short xInBox, yInBox, cellNum, tryCell;
-	
-	xInBox = where.h - pBox->left;
-	yInBox = where.v - pBox->top;
-	cellNum = -1;
-	for (short rn = 0; rn<NROWS; rn++)
-		for (short cn = 0; cn<NCOLS; cn++) {
-			tryCell = (NCOLS*rn) + cn;
-			if (yInBox<durationCell[tryCell].top) continue;
-			if (xInBox<durationCell[tryCell].left) continue;
-			if (yInBox>=durationCell[tryCell].bottom) continue;
-			if (xInBox>=durationCell[tryCell].right) continue;
-			cellNum = tryCell;  break;
-		}
-
-//LogPrintf(LOG_DEBUG, "FindDurationCell: xInBox=%d yInBox=%d cellNum=%d\n", xInBox, yInBox, cellNum);
-	if (cellNum<0) {
-		LogPrintf(LOG_WARNING, "Can't find cell for where=(%d,%d) xInBox=%d yInBox=%d.  (FindDurationCell)\n",
-					where.h, where.v, xInBox, yInBox);
-		cellNum = 1;
-	}
-	
-	return cellNum;
-}
-
-
-static void HiliteCell(short durIdx, Rect *box);
-static void HiliteCell(short durIdx, Rect *box)
-{
-	Rect theCell = durationCell[durIdx];
-	OffsetRect(&theCell, box->left, box->top);
-	InsetRect(&theCell, 1, 1);
-	InvertRect(&theCell);
-}
 
 
 /* Return the index into our palette for the given character. If the character isn't in
@@ -129,77 +135,22 @@ static short DurationKey(unsigned char theChar)
 
 /* ---------------------------------------------------------------------- SetDurDialog -- */
 
-static Boolean IsSelInTuplet(Document *doc);
-static Boolean IsSelInTupletNotTotallySel(Document *doc);
 static Boolean SDAnyBadValues(Document *, DialogPtr, Boolean, short, short, short);
 static pascal Boolean SetDurFilter(DialogPtr, EventRecord *, short *);
 
 enum {
 	SETLDUR_DI=3,
 	SDDURPAL_DI,
-	SHOW2DOTS_DI,
 	CV_DI,
 	SETPDUR_DI,
 	PDURPCT_DI,
-	DUMMYFLD_DI=11,
-	HALVEDURS_DI=12,
+	DUMMYFLD_DI=9,
+	HALVEDURS_DI=10,
 	DOUBLEDURS_DI,
 	SETDURSTO_DI
 };
 
-static short show2dots=False;
 static short setDurGroup;
-
-
-/* Return True if any selected notes (or rests) are in tuplets. */
-
-static Boolean IsSelInTuplet(Document *doc)
-{
-	LINK pL, aNoteL;
-
-	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
-		if (LinkSEL(pL) && SyncTYPE(pL))
-			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
-				if (NoteINTUPLET(aNoteL) && NoteSEL(aNoteL))
-					return True;
-	
-	return False;			
-}
-
-
-/* Return True if any selected notes (or rests) are in a tuplet, but not all the notes of
-the tuplet are selected. */
-
-static Boolean IsSelInTupletNotTotallySel(Document *doc)
-{
-	LINK pL, aNoteL, voice, aTupletL, tpSyncL;
-	short numSelNotes, numNotSelNotes;
-
-	pL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, False);
-	if (pL==NILINK)
-		pL = doc->selStartL;
-
-	for ( ; pL!=doc->selEndL; pL=RightLINK(pL))
-		if (TupletTYPE(pL)) {
-			voice = TupletVOICE(pL);
-			numSelNotes = numNotSelNotes = 0;
-			aTupletL = FirstSubLINK(pL);
-			for ( ; aTupletL; aTupletL=NextNOTETUPLEL(aTupletL)) {
-				tpSyncL = NoteTupleTPSYNC(aTupletL);
-				aNoteL = FirstSubLINK(tpSyncL);
-				for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
-					if (NoteVOICE(aNoteL)==voice) {
-						if (NoteSEL(aNoteL))	numSelNotes++;
-						else					numNotSelNotes++;
-					}
-			}
-			if (numSelNotes>0 && numNotSelNotes>0)
-				return True;
-		}
-
-	return False;			
-}
-
 
 static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
 								short newLDurAction, short /*newnDots*/, short newpDurPct)
@@ -234,7 +185,7 @@ static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
 	return False;
 }
 
-#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteCell((curIdx), pBox); curIdx = (newIdx); HiliteCell((curIdx), pBox)
+#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteDurCell((curIdx), (pBox), durationCell); curIdx = (newIdx); HiliteDurCell((curIdx), (pBox), durationCell)
 
 static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
@@ -258,7 +209,7 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 //box.right);
 				FrameRect(&box);
 				DrawDurationPalette(&box);
-				HiliteCell(durationIdx, &box);
+				HiliteDurCell(durationIdx, &box, durationCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -279,7 +230,7 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 					   ignore it. Otherwise, unhilite the previously-selected cell and
 					   hilite the new one. */
 
-					short newDurIdx = FindDurationCell(where, &box);
+					short newDurIdx = FindDurationCell(where, &box, NCOLS, NROWS, durationCell);
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
 					SWITCH_HILITE(durationIdx, newDurIdx, &box);
 				}
@@ -294,7 +245,7 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 			*itemHit = 0;
 			ans = DurationKey(ch);
 			if (ans>=0) {
-LogPrintf(LOG_DEBUG, "ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);  
+//LogPrintf(LOG_DEBUG, "ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);  
 				SWITCH_HILITE(durationIdx, ans, &box);
 				*itemHit = SDDURPAL_DI;
 				return True;
@@ -311,14 +262,12 @@ static void XableLDurPanel(DialogPtr dlog, Boolean enable)
 		XableControl(dlog, HALVEDURS_DI, True);
 		XableControl(dlog, DOUBLEDURS_DI, True);
 		XableControl(dlog, SETDURSTO_DI, True);
-		XableControl(dlog, SHOW2DOTS_DI, True);
 		XableControl(dlog, CV_DI, True);
 	}
 	else {
 		XableControl(dlog, HALVEDURS_DI, False);
 		XableControl(dlog, DOUBLEDURS_DI, False);
 		XableControl(dlog, SETDURSTO_DI, False);
-		XableControl(dlog, SHOW2DOTS_DI, False);
 		XableControl(dlog, CV_DI, False);
 	}
 }
@@ -375,7 +324,6 @@ bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
 	newLDur = *lDurCode;
 	newnDots = *nDots;
 	newpDurPct = *pDurPct;
-	if (newnDots>1) show2dots = True;
 	
 	if (*lDurAction==HALVE_DURS)		setDurGroup = HALVEDURS_DI;
 	else if (*lDurAction==DOUBLE_DURS)	setDurGroup = DOUBLEDURS_DI;
@@ -383,7 +331,7 @@ bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
 	PutDlgChkRadio(dlog, setDurGroup, True);
 
 	GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &box);
-	InitDurationCells(&box);
+	InitDurationCells(&box, NCOLS, NROWS, durationCell);
 	
 	/* Find and hilite the initially-selected cell. We should always find it, but if
 	   we can't, make an arbitrary choice. */
@@ -397,7 +345,6 @@ bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
 	OffsetRect(&theCell, box.left, box.top);
 	InvertRect(&theCell);
 
-	PutDlgChkRadio(dlog, SHOW2DOTS_DI, show2dots);
 	PutDlgChkRadio(dlog, SETLDUR_DI, *setLDur);
 	PutDlgChkRadio(dlog, SETPDUR_DI, *setPDur);
 	hndl = PutDlgChkRadio(dlog, CV_DI, *cptV);
@@ -422,7 +369,6 @@ bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
-				show2dots = GetDlgChkRadio(dlog, SHOW2DOTS_DI);
 				GetDlgWord(dlog, PDURPCT_DI, &newpDurPct);
 				newSetLDur = GetDlgChkRadio(dlog, SETLDUR_DI);
 				
@@ -478,35 +424,6 @@ bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
 				//HiliteGPopUp(curPop, popUpHilited = True);
 #endif
 				break;
-			case SHOW2DOTS_DI:
-#ifdef NOTYET
-				PutDlgChkRadio(dlog, SHOW2DOTS_DI, !GetDlgChkRadio(dlog, SHOW2DOTS_DI));
-				show2dots = GetDlgChkRadio(dlog, SHOW2DOTS_DI);
-				choice = curPop->currentChoice;
-				if (show2dots) {
-#if 11
-					choice = 17;		// ARBITRARY CHOICE FOR TESTING!!!!!!!!!!!!!!!!!!!!!!
-#else
-					choice = GetDurPopItem(&durPop2dot, popKeys2dot,
-										popKeys1dot[choice].durCode, popKeys1dot[choice].numDots);
-					curPop = &durPop2dot;
-#endif
-				}
-				else {
-#if 11
-#else
-					newnDots = popKeys2dot[choice].numDots;
-					if (newnDots==2) newnDots--;
-					choice = GetDurPopItem(&durPop1dot, popKeys1dot,
-										popKeys2dot[choice].durCode, newnDots);
-					curPop = &durPop1dot;
-#endif
-				}
-				//SetGPopUpChoice(curPop, choice);
-				SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
-				//HiliteGPopUp(curPop, popUpHilited = True);
-				break;
-#endif
 			case CV_DI:
 			case SETPDUR_DI:
 				PutDlgChkRadio(dlog, ditem, !GetDlgChkRadio(dlog, ditem));

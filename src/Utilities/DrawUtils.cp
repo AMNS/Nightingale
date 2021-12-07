@@ -2064,13 +2064,15 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
 }
 
 
-/* ------------------------------------------------------------------------- DrawBMP -- */
+/* --------------------------------------------------------------------------- DrawBMP -- */
 /* Draw a black-and-white image from a black-and-white (one bit/pixel) bitmap. Intended
-for drawing palettes read from BMP files. bmpBits[] should contain a B&W (one bit/pixel)
-bitmap, with an image whose logical width is bWidth bytes; the first bWidthPadded bytes
-represent the lowest row of the image. */
+for drawing palettes read from BMP files. <bmpBits[]> should contain a B&W (one bit/pixel)
+bitmap, with an image whose logical width is <bWidth> bytes; the first <bWidthPadded>
+bytes represent the lowest row of the image. The height is <height> pixels, of which only
+the top <drawHeight> rows will be drawn. */
 
-void DrawBMP(Byte bmpBits[], short bWidth, short bWidthPadded, short height, Rect bmpRect)
+void DrawBMP(Byte bmpBits[], short bWidth, short bWidthPadded, short height,
+														short drawHeight, Rect bmpRect)
 {
 	/* We can't use Patterns because QuickDraw aligns the Pattern with the underlying
 	   coordinates of the port, so it won't look the same at any given origin. Instead,
@@ -2078,13 +2080,13 @@ void DrawBMP(Byte bmpBits[], short bWidth, short bWidthPadded, short height, Rec
 	   from bottom to top. Leave the white (1) pixels untouched (this implies entire
 	   bmpRect must be erased earlier). */
 	
-	if (bWidth< 1 || bWidthPadded<1 || bWidthPadded<bWidth || height<2) {
-		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. bWidth=%d bWidthPadded=%d height=%d  (DrawBMP)\n",
-					bWidth, bWidthPadded, height);
+	if (bWidth< 1 || bWidthPadded<1 || bWidthPadded<bWidth || height<2 || drawHeight>height) {
+		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. bWidth=%d bWidthPadded=%d height=%d drawHeight=%d  (DrawBMP)\n",
+					bWidth, bWidthPadded, height, drawHeight);
 	}
 	
 	short y = bmpRect.bottom-1;
-	for (short kRow=0; kRow<height; kRow++) {
+	for (short kRow=height-drawHeight; kRow<height; kRow++) {
 		short x = bmpRect.left+1;
 		short startOfRow = kRow * bWidthPadded;
 if (DETAIL_SHOW) { DPrintRow(bmpBits, kRow, bWidth, startOfRow, False, False);  printf("\n"); }

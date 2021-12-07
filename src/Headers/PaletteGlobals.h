@@ -7,6 +7,7 @@
 #define PALETTE_TITLE_BAR_HEIGHT	10
 
 /* Initial h & v position of tool palette */
+
 #define INIT_H						450
 #define INIT_V						90
 
@@ -30,15 +31,14 @@
 #define HELP_MARGIN					4
 #define DEFAULT_HELP				1
 
-/*
- *	The shared structure for palettes and their MDEF that lets them be torn off.
- */
+/* The shared structure for palettes and their MDEF that lets them be torn off. All
+short fields are numbers of cells, not pixels. */
 
 #pragma options align=mac68k
 
 typedef struct {
 	short		currentItem;
-	short		itemHilited;			/* (unused) */
+	short		itemHilited;
 	short		maxAcross;				/* used when zooming */
 	short		maxDown;				/* used when zooming */
 	short		across;

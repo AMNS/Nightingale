@@ -163,6 +163,8 @@ void SetSpareFlags(LINK, LINK, Boolean);
 Boolean IsSyncMultiVoice(LINK pL, short staff);
 Boolean IsNeighborhoodMultiVoice(LINK syncL, short staff, short voice);
 short GetSelectionStaff(Document *doc);
+Boolean IsSelInTuplet(Document *doc);
+Boolean IsSelInTupletNotTotallySel(Document *doc);
 void TweakSubRects(Rect *r, LINK aNoteL, CONTEXT *pContext);
 Boolean CompareScoreFormat(Document *doc1, Document *doc2, short pasteType);
 LINK GetaMeasL(LINK measL, short stf);

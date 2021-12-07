@@ -60,7 +60,7 @@ static void	VMShowSyncs(void);
 static void	VMShowInvisibles(void);
 static void	VMColorVoices(void);
 static void	VMPianoRoll(void);
-static void	VMToollPalette(void);
+static void	VMShowToolPalette(void);
 static void	VMActivate(short);
 
 static void	PLRecord(Document *doc, Boolean merge);
@@ -244,7 +244,7 @@ Boolean DoFileMenu(short choice)
 				LogPrintf(LOG_NOTICE, "Opened new score.  (DoFileMenu)\n");
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
-					DoViewMenu(VM_ToollPalette);
+					DoViewMenu(VM_ToolPalette);
 				}
 				break;
 			case FM_Open:
@@ -956,8 +956,8 @@ void DoViewMenu(short choice)
 			case VM_ShowClipboard:
 				ShowClipDocument();
 				break;
-			case VM_ToollPalette:
-				VMToollPalette();
+			case VM_ToolPalette:
+				VMShowToolPalette();
 				break;
 			case VM_ShowSearchPattern:
 				//Do nothing; Nightingale Search has been temporarily removed
@@ -1953,7 +1953,7 @@ static void VMPianoRoll()
 }
 
 
-static void VMToollPalette()
+static void VMShowToolPalette()
 {
 	short palIndex;
 	Rect screen, pal, docRect;
@@ -1971,13 +1971,13 @@ static void VMToollPalette()
 		GetMyScreen(&docRect, &screen);
 		OffsetRect(&docRect, config.toolsPosition.h, config.toolsPosition.v);
 		PullInsideRect(&docRect, &screen, 2);
-//LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d\n", docRect.top);  // FIX ISSUE 67
+//LogPrintf(LOG_DEBUG, "VMShowToolPalette: docRect.top=%d\n", docRect.top);  // FIX ISSUE 67
 	}
 	else {
 		/* Initial position is upper left corner of main screen */
 		GetQDScreenBitsBounds(&docRect);
 		InsetRect(&docRect, 10, GetMBarHeight()+16);
-//LogPrintf(LOG_DEBUG, "VMToollPalette: docRect.top=%d GetMBarHeight()=%d\n", docRect.top,
+//LogPrintf(LOG_DEBUG, "VMShowToolPalette: docRect.top=%d GetMBarHeight()=%d\n", docRect.top,
 //GetMBarHeight());														// FIX ISSUE 67
 	}
 	(*paletteGlobals[palIndex])->position.h = docRect.left;
@@ -2958,7 +2958,7 @@ static void FixViewMenu(Document *doc)
 	
 	XableItem(viewMenu, VM_ShowClipboard, doc!=NULL && doc!=clipboard);
 	
-	XableItem(viewMenu, VM_ToollPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
+	XableItem(viewMenu, VM_ToolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
 
 	CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
 	CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);

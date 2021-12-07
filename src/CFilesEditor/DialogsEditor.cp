@@ -16,8 +16,7 @@
 	LeftEndDialog & friends		SpaceDialog
 	BefMeasSpaceDialog			TremSlashesDialog			EndingDialog
 	MeasNumDialog				PageNumDialog				OttavaDialog
-	TupletDialog & friends		SetDurDialog & friends		TempoDialog & friends
-	SetMBRestDialog
+	TupletDialog & friends		TempoDialog & friends		SetMBRestDialog
 	DrawSampleStaff				RLarger/RSmallerStaff		RHandleKeyDown
 	RHandleMouseDown			RFilter						RastralDialog
 	MarginsDialog				KeySigDialog & friends		SetKSDialogGuts
@@ -1164,8 +1163,7 @@ Boolean FTupletCheck(Document *doc, TupleParam *ptParam)
 }
 
 
-static GRAPHIC_POPUP	*curPop;
-static short			popUpHilited=True, show2dots=False;
+static short			paletteHilited=True;
 
 /* ------------------------------------ Declarations & Help Functions for TupletDialog -- */
 
@@ -1178,7 +1176,7 @@ enum {
 	NEITHER_VIS,
 	SAMPLE_ITEM,
 	BRACK_VIS,
-	TPOPUP_ITEM,
+	TPALETTE_ITEM,
 	STAT_TUPLE_DENOM,
 	TDUMMY_ITEM
 };
@@ -1194,6 +1192,19 @@ enum {
 #define ONE28TH_DUR		15
 #define NO_DUR			0
 
+static short durationIdx;
+
+static short durationCode[] =	{ 9, 8, 7, 6, 5, 4, 3, 2, 1,
+								  9, 8, 7, 6, 5, 4, 3, 2, 1 };
+static short durNDots[] =		{ 0, 0, 0, 0, 0, 0, 0, 0, 0,
+								  1, 1, 1, 1, 1, 1, 1, 1, 1 };
+#define NDURATIONS (sizeof durationCode/sizeof(short))
+
+#define NROWS 2		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
+#define NCOLS 9		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
+
+static Rect durationCell[NROWS*NCOLS];
+
 short tupleDur;						/* Used to index duration strings. */
 short tupleDenomItem;
 
@@ -1204,13 +1215,16 @@ short durUnit;
 Boolean numVis, denomVis, brackVis;
 
 /* Local prototypes for TupletDialog. */
+
 static pascal Boolean TupleFilter(DialogPtr, EventRecord *, short *);
 static void DrawTupletItems(DialogPtr, short);
 
 static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
-	short			ch, field, ans;
+	short			ch, field, ans, type;
+	Handle			hndl;
+	Rect			box;
 	Point			where;
 	GrafPtr			oldPort;
 	short			anInt;
@@ -1222,13 +1236,25 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 	switch (evt->what) {
 		case updateEvt:
 			if (w==GetDialogWindow(dlog)) {
-				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
+				GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));			
 				UpdateDialogVisRgn(dlog);
-				DrawTupletItems(dlog,SAMPLE_ITEM);
+				DrawTupletItems(dlog, SAMPLE_ITEM);
 				FrameDefault(dlog, OK, True);
+#if 11
+				GetDialogItem(dlog, TPALETTE_ITEM, &type, &hndl, &box);
+LogPrintf(LOG_DEBUG, "TupleFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
+box.right);
+				FrameRect(&box);
+//DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 4*16, 4, 16, True);
+
+				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded,
+						bmpDurationPal.height, 2*27, box);
+				HiliteDurCell(durationIdx, &box, durationCell);
+#else
 				DrawGPopUp(curPop);		
 				HiliteGPopUp(curPop, popUpHilited);
+#endif
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -1243,11 +1269,22 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 		case mouseUp:
 			where = evt->where;
 			GlobalToLocal(&where);
-			if (PtInRect(where, &curPop->box)) {
-				DoGPopUp(curPop);
-				*itemHit = TPOPUP_ITEM;
-				return True;
-			}
+			GetDialogItem(dlog, TPALETTE_ITEM, &type, &hndl, &box);
+			if (PtInRect(where, &box)) {
+				if (evt->what==mouseUp) {
+#ifdef NOTYET
+					/* If the mouseUp was in an invalid (presumably because empty) cell,
+					   ignore it. Otherwise, unhilite the previously-selected cell and
+					   hilite the new one. */
+
+					short newDurIdx = FindDurationCell(where, &box);
+					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
+					SWITCH_HILITE(durationIdx, newDurIdx, &box);
+#endif
+				}
+			*itemHit = TPALETTE_ITEM;
+			return True;
+		}
 			break;
 		case keyDown:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
@@ -1265,9 +1302,12 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (ch=='\t') {
 				if (denomItemVisible) {
 					field = field==ED_TUPLE_DENOM? TDUMMY_ITEM : ED_TUPLE_DENOM;
+#if 11
+#else
 					popUpHilited = field==ED_TUPLE_DENOM? False : True;
 					SelectDialogItemText(dlog, field, 0, ENDTEXT);
 					HiliteGPopUp(curPop, popUpHilited);
+#endif
 					*itemHit = 0;
 					return True;
 				}
@@ -1443,9 +1483,10 @@ Boolean TupletDialog(
 	popKeys0dot = NULL;
 #endif
 
-	GetDialogItem(dlog, TPOPUP_ITEM, &type, &hndl, &box);
 #if 11
+	GetDialogItem(dlog, TPALETTE_ITEM, &type, &hndl, &box);
 #else
+	GetDialogItem(dlog, TPOPUP_ITEM, &type, &hndl, &box);
 	if (!InitGPopUp(&durPop0dot, TOP_LEFT(box), NODOTDUR_MENU, 1)) goto broken;
 	popKeys0dot = InitDurPopupKey(&durPop0dot);
 	if (popKeys0dot==NULL) goto broken;
@@ -1460,22 +1501,21 @@ Boolean TupletDialog(
 	tupleDenomItem = (tupletNew? ED_TUPLE_DENOM : STAT_TUPLE_DENOM);
 	ShowDialogItem(dlog, (tupletNew? ED_TUPLE_DENOM : STAT_TUPLE_DENOM));
 	HideDialogItem(dlog, (tupletNew? STAT_TUPLE_DENOM : ED_TUPLE_DENOM));
-	PutDlgWord(dlog,TUPLE_NUM,accNum,False);
-	PutDlgWord(dlog,tupleDenomItem,accDenom,tupletNew);
+	PutDlgWord(dlog, TUPLE_NUM, accNum, False);
+	PutDlgWord(dlog, tupleDenomItem, accDenom, tupletNew);
 
-	/* logDenom is the log2 of the accessory denominator; (tupleDur-logDenom+1) is the max.
-	 *	duration at which the denominator is at least 2. evenNum is the number of times the
-	 * numerator can be divided by 2 exactly. The minimum of these two can be subtracted
-	 *	from tupleDur to give the maximum duration note allowable.
-	 */
+	/* logDenom is the log2 of the accessory denominator; (tupleDur-logDenom+1) is the
+	   max. duration at which the denominator is at least 2. evenNum is the number of
+	   times the numerator can be divided by 2 exactly. The minimum of these two can be
+	   subtracted from tupleDur to give the maximum duration note allowable. */
+	   
 	for (logDenom=0, i=1; i<accDenom; i*=2) logDenom++;
 	tempNum = accNum;
 	for (evenNum=0; !odd(tempNum); tempNum /= 2) evenNum++;
 	maxChange = n_min(logDenom-1, evenNum);
 	minDlogVal = tupleDur-maxChange;
 	
-	GetDialogItem(dlog, SAMPLE_ITEM, &type, &tHdl, &staffRect);
-	/* Sample is a user Item */
+	GetDialogItem(dlog, SAMPLE_ITEM, &type, &tHdl, &staffRect);		/* Sample is a user Item */
 
 	if (denomVis) radio = BOTH_VIS;
 	else if (numVis) radio = NUM_VIS;
@@ -1485,10 +1525,13 @@ Boolean TupletDialog(
 	PutDlgChkRadio(dlog,NEITHER_VIS,radio==NEITHER_VIS);
 	PutDlgChkRadio(dlog,BRACK_VIS,brackVis);
 
+#if 11
+#else
 	if (popUpHilited)
 		SelectDialogItemText(dlog, TDUMMY_ITEM, 0, ENDTEXT);
 	else
 		SelectDialogItemText(dlog, TPOPUP_ITEM, 0, ENDTEXT);
+#endif
 
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
@@ -1513,8 +1556,11 @@ Boolean TupletDialog(
 				GetDlgWord(dlog,TUPLE_NUM,&accNum);
 				GetDlgWord(dlog,tupleDenomItem,&accDenom);
 				break;
-			case TPOPUP_ITEM:
-				//newLDur = popKeys0dot[curPop->currentChoice].durCode;
+			case TPALETTE_ITEM:
+#if 11
+#else
+				newLDur = popKeys0dot[curPop->currentChoice].durCode;
+#endif
 				
 	 			/* If user just set the popup for a duration longer than the maximum
 				   allowable, change it to the maximum now. */
@@ -1522,6 +1568,7 @@ Boolean TupletDialog(
 				if (newLDur<minDlogVal) {
 					newLDur = minDlogVal;
 #if 11
+					newLDur = tupleDur;		// ?????? TEMPORARY ???????
 #else
 					choice = GetDurPopItem(curPop, popKeys0dot, newLDur, 0);
 					if (choice==NOMATCH) choice = 1;
@@ -1541,7 +1588,7 @@ Boolean TupletDialog(
 				PutDlgWord(dlog,tupleDenomItem,accDenom,tupletNew);
 				oldLDur = newLDur;
 				SelectDialogItemText(dlog, TDUMMY_ITEM, 0, ENDTEXT);
-				HiliteGPopUp(curPop, popUpHilited = True);
+//				HiliteGPopUp(curPop, popUpHilited = True);
 				break;
 			case BOTH_VIS:
 			case NUM_VIS:
@@ -1580,446 +1627,7 @@ broken:
 }
 
 
-/* ---------------------------------------------------------------------- SetDurDialog -- */
-
-static Boolean IsSelInTuplet(Document *doc);
-static Boolean IsSelInTupletNotTotallySel(Document *doc);
-static Boolean SDAnyBadValues(Document *, DialogPtr, Boolean, short, short, short);
-static pascal Boolean SetDurFilter(DialogPtr, EventRecord *, short *);
-
-enum {
-	SETLDUR_DI=3,
-	SDDURPAL_DI,
-	SHOW2DOTS_DI,
-	CV_DI,
-	SETPDUR_DI,
-	PDURPCT_DI,
-	DUMMYFLD_DI=11,
-	HALVEDURS_DI=12,
-	DOUBLEDURS_DI,
-	SETDURSTO_DI
-};
-
-static short setDurGroup;
-static Rect palBox;
-
-/* Return True if any selected notes (or rests) are in tuplets. */
-
-static Boolean IsSelInTuplet(Document *doc)
-{
-	LINK pL, aNoteL;
-
-	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
-		if (LinkSEL(pL) && SyncTYPE(pL))
-			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
-				if (NoteINTUPLET(aNoteL) && NoteSEL(aNoteL))
-					return True;
-	
-	return False;			
-}
-
-
-/* Return True if any selected notes (or rests) are in a tuplet, but not all the notes of
-the tuplet are selected. */
-
-static Boolean IsSelInTupletNotTotallySel(Document *doc)
-{
-	LINK pL, aNoteL, voice, aTupletL, tpSyncL;
-	short numSelNotes, numNotSelNotes;
-
-	pL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, False);
-	if (pL==NILINK)
-		pL = doc->selStartL;
-
-	for ( ; pL!=doc->selEndL; pL=RightLINK(pL))
-		if (TupletTYPE(pL)) {
-			voice = TupletVOICE(pL);
-			numSelNotes = numNotSelNotes = 0;
-			aTupletL = FirstSubLINK(pL);
-			for ( ; aTupletL; aTupletL=NextNOTETUPLEL(aTupletL)) {
-				tpSyncL = NoteTupleTPSYNC(aTupletL);
-				aNoteL = FirstSubLINK(tpSyncL);
-				for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
-					if (NoteVOICE(aNoteL)==voice) {
-						if (NoteSEL(aNoteL))	numSelNotes++;
-						else					numNotSelNotes++;
-					}
-			}
-			if (numSelNotes>0 && numNotSelNotes>0)
-				return True;
-		}
-
-	return False;			
-}
-
-
-static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
-								short newLDurAction, short /*newnDots*/, short newpDurPct)
-{	
-	if (newpDurPct<1 || newpDurPct>500) {
-		GetIndCString(strBuf, DIALOGERRS_STRS, 13);				/* "Play duration percent must be..." */
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
-		SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
-		return True;
-	}
-
-	if (newSetLDur) {
-		if (newLDurAction==SET_DURS_TO) {
-			if (IsSelInTuplet(doc)) {
-				GetIndCString(strBuf, DIALOGERRS_STRS, 14);		/* "can't Set notated Duration in tuplets" */
-				CParamText(strBuf, "", "", "");
-				StopInform(GENERIC_ALRT);
-				return True;
-			}
-		}
-		else {
-			if (IsSelInTupletNotTotallySel(doc)) {
-				GetIndCString(strBuf, DIALOGERRS_STRS, 21);		/* "...select all the notes of the tuplet" */
-				CParamText(strBuf, "", "", "");
-				StopInform(GENERIC_ALRT);
-				return True;
-			}
-		}
-	}
-
-	return False;
-}
-
-
-static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
-{
-	WindowPtr	w;
-	short		ch, field, ans;
-	Point		where;
-	GrafPtr		oldPort;
-	
-	w = (WindowPtr)(evt->message);
-	switch (evt->what) {
-		case updateEvt:
-			if (w==GetDialogWindow(dlog)) {
-				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
-				BeginUpdate(GetDialogWindow(dlog));			
-				UpdateDialogVisRgn(dlog);
-				FrameDefault(dlog, OK, True);
-				//DrawGPopUp(curPop);		
-				//HiliteGPopUp(curPop, popUpHilited);
-				EndUpdate(GetDialogWindow(dlog));
-				SetPort(oldPort);
-				*itemHit = 0;
-				return True;
-			}
-			break;
-		case activateEvt:
-			if (w==GetDialogWindow(dlog))
-				SetPort(GetDialogWindowPort(dlog));
-			break;
-		case mouseDown:
-		case mouseUp:
-			where = evt->where;
-			GlobalToLocal(&where);
-			if (PtInRect(where, &palBox)) {
-				//DoGPopUp(curPop);
-				*itemHit = SDDURPAL_DI;
-				return True;
-			}
-			break;
-		case keyDown:
-			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
-				return True;
-			ch = (unsigned char)evt->message;
-			field = GetDialogKeyboardFocusItem(dlog);
-			
-			/* The Dialog Manager considers only EditText fields as candidates for being
-			   activated by the tab key, so handle tabbing from field to field ourselves
-			   so user can direct keystrokes to the palette as well as the EditText
-			   fields. */
-			   
-			if (ch=='\t') {
-				field = field==PDURPCT_DI? DUMMYFLD_DI : PDURPCT_DI;
-				popUpHilited = field==PDURPCT_DI? False : True;
-				SelectDialogItemText(dlog, field, 0, ENDTEXT);
-				//HiliteGPopUp(curPop, popUpHilited);
-				*itemHit = 0;
-				return True;
-			}
-			else {
-				if (field==DUMMYFLD_DI) {
-#if 11
-#else
-					ans = DurPopupKey(curPop, show2dots? popKeys2dot : popKeys1dot, ch);
-					*itemHit = ans? SDDURPAL_DI : 0;
-					HiliteGPopUp(curPop, True);
-#endif
-					if (setDurGroup!=SETDURSTO_DI)
-						SwitchRadio(dlog, &setDurGroup, SETDURSTO_DI);
-					return True;					/* so no chars get through to DUMMYFLD_DI edit field */
-				}									/* NB: however, DlgCmdKey will let you paste into DUMMYFLD_DI! */
-			}
-			break;
-	}
-	
-	return False;
-}
-
-
-static void XableLDurPanel(DialogPtr dlog, Boolean enable)
-{
-	if (enable) {
-		XableControl(dlog, HALVEDURS_DI, True);
-		XableControl(dlog, DOUBLEDURS_DI, True);
-		XableControl(dlog, SETDURSTO_DI, True);
-		XableControl(dlog, SHOW2DOTS_DI, True);
-		XableControl(dlog, CV_DI, True);
-	}
-	else {
-		XableControl(dlog, HALVEDURS_DI, False);
-		XableControl(dlog, DOUBLEDURS_DI, False);
-		XableControl(dlog, SETDURSTO_DI, False);
-		XableControl(dlog, SHOW2DOTS_DI, False);
-		XableControl(dlog, CV_DI, False);
-	}
-}
-
-
-#ifdef NOMORE
-Boolean SetDurDialog(
-				Document *doc,
-				Boolean *setLDur,			/* Set "notated" (logical) durations? */
-				short *lDurAction,			/* HALVE_DURS, DOUBLE_DURS, or SET_DURS_TO */
-				short *lDur, short *nDots,
-				Boolean *setPDur,			/* Set play durations? */
-				short *pDurPct,
-				Boolean *cptV,				/* Compact Voices afterwards? */
-				Boolean *doUnbeam			/* Unbeam selection first? */
-				)	
-{
-	DialogPtr		dlog;
-	GrafPtr			oldPort;
-	short			newnDots, newSetLDur,
-					oldResFile, newLDur, choice;
-	short			ditem=0;
-	short			type, newpDurPct;
-	Handle			hndl;
-	POPKEY			*pk;
-	Boolean			beamed, done;
-	ModalFilterUPP	filterUPP;
-
-	filterUPP = NewModalFilterUPP(SetDurFilter);
-	if (filterUPP == NULL) {
-		MissingDialog(SETDUR_DLOG);
-		return False;
-	}
-	
-	dlog = GetNewDialog(SETDUR_DLOG, NULL, BRING_TO_FRONT);
-	if (!dlog) {
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(SETDUR_DLOG);
-		return False;
-	}
-
-	GetPort(&oldPort);
-	SetPort(GetDialogWindowPort(dlog));
-
-#if 11
-#else
-	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);							/* popup code uses Get1Resource */
-#endif
-
-	if (*nDots>2) {
-		SysBeep(1);										/* popup has 2 dots maximum */
-		LogPrintf(LOG_WARNING, "Can't handle %d dots: 2 is the maximum.  (SetDurDialog)\n", *nDots);
-		 *nDots = 2;
-	}
-
-	*doUnbeam = False;
-	beamed = (SelBeamedNote(doc)!=NILINK);
-
-	newLDur = *lDur;
-	newnDots = *nDots;
-	newpDurPct = *pDurPct;
-	if (newnDots>1) show2dots = True;
-	
-	if (*lDurAction==HALVE_DURS)		setDurGroup = HALVEDURS_DI;
-	else if (*lDurAction==DOUBLE_DURS)	setDurGroup = DOUBLEDURS_DI;
-	else								setDurGroup = SETDURSTO_DI;
-	PutDlgChkRadio(dlog, setDurGroup, True);
-
-#if 11
-#else
-	durPop1dot.menu = durPop2dot.menu = NULL;					/* NULL makes any goto broken safe */
-	durPop1dot.itemChars = durPop2dot.itemChars = NULL;
-	popKeys1dot = popKeys2dot = NULL;
-#endif
-
-	GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &palBox);
-#if 11
-	ForeColor(magentaColor);
-	FillRect(&palBox, NGetQDGlobalsGray());
-	choice = 5;		// ARBITRARY CHOICE FOR TESTING!!!!!!!!!!!!!!!!!!!!!!
-#else
-	if (!InitGPopUp(&durPop1dot, TOP_LEFT(palBox), ONEDOTDUR_MENU, 1)) goto broken;
-	if (!InitGPopUp(&durPop2dot, TOP_LEFT(palBox), TWODOTDUR_MENU, 1)) goto broken;
-	popKeys1dot = InitDurPopupKey(&durPop1dot);
-	if (popKeys1dot==NULL) goto broken;
-	popKeys2dot = InitDurPopupKey(&durPop2dot);
-	if (popKeys2dot==NULL) goto broken;
-	curPop = show2dots? &durPop2dot : &durPop1dot;
-	
-	choice = GetDurPopItem(curPop, show2dots?popKeys2dot:popKeys1dot, newLDur, newnDots);
-	if (choice==NOMATCH) choice = 1;
-	SetGPopUpChoice(curPop, choice);
-#endif
-
-	PutDlgChkRadio(dlog, SHOW2DOTS_DI, show2dots);
-	PutDlgChkRadio(dlog, SETLDUR_DI, *setLDur);
-	PutDlgChkRadio(dlog, SETPDUR_DI, *setPDur);
-	hndl = PutDlgChkRadio(dlog, CV_DI, *cptV);
-	HiliteControl((ControlHandle)hndl, (*setLDur? CTL_ACTIVE : CTL_INACTIVE));
-	
-	PutDlgWord(dlog, PDURPCT_DI, *pDurPct, False);
-
-	if (*setLDur) {
-		XableLDurPanel(dlog, True);
-		SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
-	}
-	else {
-		XableLDurPanel(dlog, False);
-		SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
-	}
-
-	CenterWindow(GetDialogWindow(dlog), 75);
-	ShowWindow(GetDialogWindow(dlog));
-	ArrowCursor();
-	
-	done = False;
-	while (!done) {
-		ModalDialog(filterUPP, &ditem);
-
-//LogPrintf(LOG_DEBUG, "SetDurDialog: ditem=%d\n", ditem);
-		switch (ditem) {
-			case OK:
-				show2dots = GetDlgChkRadio(dlog, SHOW2DOTS_DI);
-				//pk = show2dots? popKeys2dot : popKeys1dot;
-#if 1
-				newLDur = 4;
-				newnDots = 1;
-#else
-				newLDur = pk[curPop->currentChoice].durCode;
-				newnDots = pk[curPop->currentChoice].numDots;
-#endif
-				GetDlgWord(dlog, PDURPCT_DI, &newpDurPct);
-				newSetLDur = GetDlgChkRadio(dlog, SETLDUR_DI);
-				
-				if (setDurGroup==HALVEDURS_DI)			*lDurAction = HALVE_DURS;
-				else if (setDurGroup==DOUBLEDURS_DI)	*lDurAction = DOUBLE_DURS;
-				else									*lDurAction = SET_DURS_TO;
-
-				if (!SDAnyBadValues(doc, dlog, newSetLDur, *lDurAction, newnDots, newpDurPct)) {
-				
-					/* If the logical durations are to be set and any selected note is beamed,
-					   it must be unbeamed first; tell the user. */
-			
-					if (newSetLDur && beamed) {
-						if (CautionAdvise(SDBEAM_ALRT)==Cancel) break;
-						*doUnbeam = True;						
-					}
-					*setLDur = newSetLDur;
-					*lDur = newLDur;
-					*nDots = newnDots;
-					*setPDur = GetDlgChkRadio(dlog, SETPDUR_DI);
-					*pDurPct = newpDurPct;
-					*cptV = GetDlgChkRadio(dlog, CV_DI);
-					done = True;
-				}
-				break;
-			case Cancel:
-				done = True;
-				break;
-			case HALVEDURS_DI:
-			case DOUBLEDURS_DI:
-			case SETDURSTO_DI:
-				if (ditem!=setDurGroup)
-					SwitchRadio(dlog, &setDurGroup, ditem);
-				break;
-			case SETLDUR_DI:
-				PutDlgChkRadio(dlog, SETLDUR_DI, !GetDlgChkRadio(dlog, SETLDUR_DI));
-				newSetLDur = GetDlgChkRadio(dlog, SETLDUR_DI);
-				if (newSetLDur) {
-					XableLDurPanel(dlog, True);
-				}
-				else {
-					XableLDurPanel(dlog, False);
-					SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
-					//HiliteGPopUp(curPop, popUpHilited = False);
-				}
-				break;
-			case SDDURPAL_DI:
-				SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
-				//HiliteGPopUp(curPop, popUpHilited = True);
-				PutDlgChkRadio(dlog, SETLDUR_DI, newSetLDur = True);
-				XableLDurPanel(dlog, True);
-				if (setDurGroup!=SETDURSTO_DI)
-					SwitchRadio(dlog, &setDurGroup, SETDURSTO_DI);
-				break;
-			case SHOW2DOTS_DI:
-				PutDlgChkRadio(dlog, SHOW2DOTS_DI, !GetDlgChkRadio(dlog, SHOW2DOTS_DI));
-				show2dots = GetDlgChkRadio(dlog, SHOW2DOTS_DI);
-				choice = curPop->currentChoice;
-				if (show2dots) {
-#if 11
-					choice = 17;		// ARBITRARY CHOICE FOR TESTING!!!!!!!!!!!!!!!!!!!!!!
-#else
-					choice = GetDurPopItem(&durPop2dot, popKeys2dot,
-										popKeys1dot[choice].durCode, popKeys1dot[choice].numDots);
-					curPop = &durPop2dot;
-#endif
-				}
-				else {
-#if 11
-#else
-					newnDots = popKeys2dot[choice].numDots;
-					if (newnDots==2) newnDots--;
-					choice = GetDurPopItem(&durPop1dot, popKeys1dot,
-										popKeys2dot[choice].durCode, newnDots);
-					curPop = &durPop1dot;
-#endif
-				}
-				//SetGPopUpChoice(curPop, choice);
-				SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
-				//HiliteGPopUp(curPop, popUpHilited = True);
-				break;
-			case CV_DI:
-			case SETPDUR_DI:
-				PutDlgChkRadio(dlog, ditem, !GetDlgChkRadio(dlog, ditem));
-				break;
-			case PDURPCT_DI:
-				if (popUpHilited)
-					//HiliteGPopUp(curPop, popUpHilited = False);
-				PutDlgChkRadio(dlog, SETPDUR_DI, True);
-				break;
-		}
-	}
-broken:			
-#if 11
-#else
-	DisposeGPopUp(&durPop1dot);
-	DisposeGPopUp(&durPop2dot);
-	if (popKeys1dot) DisposePtr((Ptr)popKeys1dot);
-	if (popKeys2dot) DisposePtr((Ptr)popKeys2dot);
-#endif
-	DisposeModalFilterUPP(filterUPP);
-	DisposeDialog(dlog);
-	
-	UseResFile(oldResFile);
-	SetPort(oldPort);
-	return (ditem==OK);
-}
-#endif
-
-
-/* --------------------------------------------------- Tempo Dialog & helper functions -- */
+/* =============================== Tempo Dialog & helper functions ====================== */
 
 static pascal Boolean TempoFilter(DialogPtr, EventRecord *, short *);
 static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char * /* metroStr */);
@@ -2051,8 +1659,11 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				BeginUpdate(GetDialogWindow(dlog));			
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, True);
+#if 11
+#else
 				DrawGPopUp(curPop);		
 				HiliteGPopUp(curPop, popUpHilited);
+#endif
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -2067,29 +1678,44 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 		case mouseUp:
 			where = evt->where;
 			GlobalToLocal(&where);
-			if (PtInRect(where, &curPop->box)) {
-				DoGPopUp(curPop);
+#ifdef NOTYET
+			GetDialogItem(dlog, TDurPopDI, &type, &hndl, &box);
+			if (PtInRect(where, &box)) {
+				if (evt->what==mouseUp) {
+					/* If the mouseUp was in an invalid (presumably because empty) cell,
+					   ignore it. Otherwise, unhilite the previously-selected cell and
+					   hilite the new one. */
+
+					short newDurIdx = FindDurationCell(where, &box);
+					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
+					SWITCH_HILITE(durationIdx, newDurIdx, &box);
+				}
 				*itemHit = TDurPopDI;
 				return True;
 			}
+#endif
 			break;
 		case keyDown:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
 				return True;
 			ch = (unsigned char)evt->message;
-			/*
-			 * The Dialog Manager considers only EditText fields as candidates for being
-			 *	activated by the tab key, so handle tabbing from field to field ourselves
-			 *	so user can direct keystrokes to the pop-up as well as the EditText fields.
-			 */
+			
+			/* The Dialog Manager considers only EditText fields as candidates for being
+			   activated by the tab key, so handle tabbing from field to field ourselves
+			   so user can direct keystrokes to the pop-up as well as the EditText
+			   fields. */
+			   
 			field = GetDialogKeyboardFocusItem(dlog);
 			if (ch=='\t') {
 				if (field==VerbalDI) field = TDummyFldDI;
 				else if (field==TDummyFldDI) field = MetroDI;
 				else field = VerbalDI;
+#if 11
+#else
 				popUpHilited = (field==TDummyFldDI);
 				SelectDialogItemText(dlog, field, 0, ENDTEXT);
 				HiliteGPopUp(curPop, popUpHilited);
+#endif
 				*itemHit = 0;
 				return True;
 			}
@@ -2267,7 +1893,7 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 	/* If the M.M. option isn't chosen, disable and dim the number-entry field */
 	DimOrUndimMMNumberEntry(dlog, *useMM, metroStr);
 
-	SelectDialogItemText(dlog, (popUpHilited? TDummyFldDI : VerbalDI), 0, ENDTEXT);
+	SelectDialogItemText(dlog, (paletteHilited? TDummyFldDI : VerbalDI), 0, ENDTEXT);
 
 	CenterWindow(GetDialogWindow(dlog), 70);
 	ShowWindow(GetDialogWindow(dlog));

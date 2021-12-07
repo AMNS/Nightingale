@@ -630,78 +630,78 @@ the palette.  We also initialize PaletteGlobals fields read from the resource an
 them. Returns the item number of the default tool (normally arrow), or 0 if problem. */
 
 static short GetToolGrid(PaletteGlobals *whichPalette)
-	{
-		short maxRow, maxCol, row, col, item, defItem = 0; 
-		short curResFile;
-		GridRec *pGrid;
-		Handle hdl;
-		Byte *p;										/* Contains both binary and char data */
-		
-		curResFile = CurResFile();
-		UseResFile(setupFileRefNum);
+{
+	short maxRow, maxCol, row, col, item, defItem = 0; 
+	short curResFile;
+	GridRec *pGrid;
+	Handle hdl;
+	Byte *p;										/* Contains both binary and char data */
+	
+	curResFile = CurResFile();
+	UseResFile(setupFileRefNum);
 
-		hdl = GetResource('PLCH', ToolPaletteID);		/* get info on and char map of palette */
-		if (!GoodResource(hdl)) {
-			GetIndCString(strBuf, INITERRS_STRS, 6);	/* "can't get Tool Palette resource" */
-			CParamText(strBuf, "", "", "");
-			StopInform(GENERIC_ALRT);
-			UseResFile(curResFile);
-			return(0);
-			}
-		
+	hdl = GetResource('PLCH', ToolPaletteID);		/* get info on and char map of palette */
+	if (!GoodResource(hdl)) {
+		GetIndCString(strBuf, INITERRS_STRS, 6);	/* "can't get Tool Palette resource" */
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
 		UseResFile(curResFile);
-
-		/* Pull in the maximum and suggested sizes for palette. */
-		
-		p = (unsigned char *)*hdl;
-		whichPalette->maxAcross = *p++;
-		whichPalette->maxDown = *p++;
-		whichPalette->firstAcross = whichPalette->oldAcross = whichPalette->across = *p++;
-		whichPalette->firstDown   = whichPalette->oldDown   = whichPalette->down   = *p++;
-		
-		/* FIXME: This comment (written by me between Oct. 2017 and Aug. 2018) makes no
-		   sense: {We must _not_ "Endian fix" these values: they're read from one-byte
-		   fields!} What was I thinking of? WHAT values?? <PaletteGlobals> has no one-
-		   byte fields.  --DAB */
-		
-		if (DETAIL_SHOW) DisplayToolPaletteParams(whichPalette);
-		LogPrintf(LOG_NOTICE, "Checking Tool Palette parameters: ");
-		if (CheckToolPaletteParams(whichPalette)) LogPrintf(LOG_NOTICE, "No errors found.  (GetToolGrid)\n");
-		else {
-			if (!DETAIL_SHOW) DisplayToolPaletteParams(whichPalette);
-			GetIndCString(strBuf, INITERRS_STRS, 34);	/* "Your Prefs file has illegal values for the tool palette..." */
-			CParamText(strBuf, "", "", "");
-			LogPrintf(LOG_ERR, "%s\n", strBuf);
-			StopInform(GENERIC_ALRT);
-			return 0;
-		}
-		
-		/* Create storage for 2-D table of char/positions for palette grid */
-		
-		maxCol = whichPalette->maxAcross;
-		maxRow = whichPalette->maxDown;
-		
-		grid = (GridRec *)NewPtr((Size)maxRow*maxCol*sizeof(GridRec));
-		if (!GoodNewPtr((Ptr)grid)) {
-			OutOfMemory((long)maxRow*maxCol*sizeof(GridRec));
-			return 0;
-			}
-
-		/* And scan through resource to install grid cells */
-		
-		p = (unsigned char *) (*hdl + 4*sizeof(long));			/* Skip header stuff */
-		pGrid = grid;
-		item = 1;
-		for (row=0; row<maxRow; row++)							/* initialize grid[] */
-			for (col=0; col<maxCol; col++, pGrid++, item++) {
-				SetPt(&pGrid->cell, col, row);					/* Doesn't move memory */
-				if ((pGrid->ch = *p++) == CH_ENTER)
-					if (defItem == 0) defItem = item; 
-				}
-		
-		GetToolZoomBounds();
-		return defItem;
+		return(0);
 	}
+	
+	UseResFile(curResFile);
+
+	/* Pull in the maximum and suggested sizes for palette. */
+	
+	p = (unsigned char *)*hdl;
+	whichPalette->maxAcross = *p++;
+	whichPalette->maxDown = *p++;
+	whichPalette->firstAcross = whichPalette->oldAcross = whichPalette->across = *p++;
+	whichPalette->firstDown   = whichPalette->oldDown   = whichPalette->down   = *p++;
+	
+	/* FIXME: This comment (written by me between Oct. 2017 and Aug. 2018) makes no
+	   sense: {We must _not_ "Endian fix" these values: they're read from one-byte
+	   fields!} What was I thinking of? WHAT values?? <PaletteGlobals> has no one-
+	   byte fields.  --DAB */
+	
+	if (DETAIL_SHOW) DisplayToolPaletteParams(whichPalette);
+	LogPrintf(LOG_NOTICE, "Checking Tool Palette parameters: ");
+	if (CheckToolPaletteParams(whichPalette)) LogPrintf(LOG_NOTICE, "No errors found.  (GetToolGrid)\n");
+	else {
+		if (!DETAIL_SHOW) DisplayToolPaletteParams(whichPalette);
+		GetIndCString(strBuf, INITERRS_STRS, 34);	/* "Your Prefs file has illegal values for the tool palette..." */
+		CParamText(strBuf, "", "", "");
+		LogPrintf(LOG_ERR, "%s\n", strBuf);
+		StopInform(GENERIC_ALRT);
+		return 0;
+	}
+	
+	/* Create storage for 2-D table of char/positions for palette grid */
+	
+	maxCol = whichPalette->maxAcross;
+	maxRow = whichPalette->maxDown;
+	
+	grid = (GridRec *)NewPtr((Size)maxRow*maxCol*sizeof(GridRec));
+	if (!GoodNewPtr((Ptr)grid)) {
+		OutOfMemory((long)maxRow*maxCol*sizeof(GridRec));
+		return 0;
+	}
+
+	/* And scan through resource to install grid cells */
+	
+	p = (unsigned char *) (*hdl + 4*sizeof(long));			/* Skip header stuff */
+	pGrid = grid;
+	item = 1;
+	for (row=0; row<maxRow; row++)							/* initialize grid[] */
+		for (col=0; col<maxCol; col++, pGrid++, item++) {
+			SetPt(&pGrid->cell, col, row);					/* Doesn't move memory */
+			if ((pGrid->ch = *p++) == CH_ENTER)
+				if (defItem == 0) defItem = item; 
+		}
+	
+	GetToolZoomBounds();
+	return defItem;
+}
 
 
 /* Install the rectangles for the given pallete rects array and its dimensions */
@@ -860,14 +860,8 @@ toolCellHeight);
 
 	//CopyGWorldBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
 	//CopyOffScreenBitsToWindow(gwPtr, GetQDGlobalsThePort(), *windowRect, *windowRect);
-	DrawBMP(bitmapTools, bWidth, bWidthPadded, height, maxToolsRect);
+	DrawBMP(bitmapTools, bWidth, bWidthPadded, height, height, maxToolsRect);
 	toolPalPort = gwPtr;
-#if 0
-{
-PixMapHandle portPixMapH = GetPortPixMap(toolPalPort); PixMapPtr portPixMap = *portPixMapH;
-LogPixMapInfo("InitToolPalette2", portPixMap, 1000);
-}
-#endif
 //	UnlockGWorld(gwPtr);
 	RestoreGWorld();
 	return True;

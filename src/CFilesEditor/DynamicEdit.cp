@@ -25,7 +25,7 @@ static Boolean DrawDynamicPalette(Rect *pBox)
 //DHexDump(LOG_DEBUG, "DynPal", bmpDynamicPal.bitmap, 5*16, 4, 16, True);
 
 	DrawBMP(bmpDynamicPal.bitmap, bmpDynamicPal.bWidth, bmpDynamicPal.bWidthPadded,
-			bmpDynamicPal.height, *pBox);
+			bmpDynamicPal.height, bmpDynamicPal.height, *pBox);
 	return True;
 }
 
@@ -95,8 +95,8 @@ static short FindDynamicCell(Point where, Rect *pBox)
 }
 
 
-static void HiliteCell(short dynIdx, Rect *box);
-static void HiliteCell(short dynIdx, Rect *box)
+static void HiliteDynCell(short dynIdx, Rect *box);
+static void HiliteDynCell(short dynIdx, Rect *box)
 {
 	Rect theCell = dynamicCell[dynIdx];
 	OffsetRect(&theCell, box->left, box->top);
@@ -128,7 +128,7 @@ static short DynamicKey(unsigned char theChar)
 }
 
 
-#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteCell((curIdx), pBox); curIdx = (newIdx); HiliteCell((curIdx), pBox)
+#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteDynCell((curIdx), (pBox)); curIdx = (newIdx); HiliteDynCell((curIdx), (pBox))
 
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
@@ -153,7 +153,7 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 //box.right);
 				FrameRect(&box);
 				DrawDynamicPalette(&box);
-				HiliteCell(dynamicIdx, &box);
+				HiliteDynCell(dynamicIdx, &box);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;

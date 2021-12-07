@@ -3412,9 +3412,9 @@ DynamicEdit, FileConversion, FileOpen, ModNREdit.
 Work to replace the "Set Duration" pop-up palette (using a UI font) with a fixed
 palette (from a BMP file). Affects DurationEdit, InitNightingale.
 
-Minor changes: rename two BMP files, etc. Affects NightTemplates.h, Duration_2dotsNB1b.bmp,
-DynamicsNB1b.bmp; CarbonPrinting, DialogsEditor, DrawUtils, DurationEdit, FileUtils,
-Initialize, InitNightingale.
+Minor changes: rename two BMP files, etc. Affects NightTemplates.h,
+Duration_2dotsNB1b.bmp, DynamicsNB1b.bmp; CarbonPrinting, DialogsEditor, DrawUtils,
+DurationEdit, FileUtils, Initialize, InitNightingale.
 
 ---------------------------------------------------------------------------------------
 
@@ -3438,3 +3438,17 @@ Nightingale is likely to crash. Affects InitNightingale.
 
 Minor changes. Affects .rsrc; DynamicEdit, FileUtils, Initialize, InitNightingale, Main,
 ModNREdit, ToolPalette.
+
+---------------------------------------------------------------------------------------
+
+1 - 6 Dec.
+
+Removed the "Show 2 dots" checkbox (which is neither functional nor useful now) in the
+Set Duration dialog. Affects .rsrc; DurationEdit.
+
+Work to replace the set duration pop-up palette (using a UI font) in the Tuplet (mostly)
+and Tempo/Metronome Mark (a bit) dialogs with a fixed palette (from a BMP file). Affects
+.rsrc, DrawUtils.h, NightTemplates.h; DialogsEditor, DrawUtils, DurationEdit.
+
+Minor changes. Affects .rsrc, DSUtils.h, NResourceID.h, PaletteGlobals.h; DialogsEditor,
+DSUtils, DurationEdit, DynamicEdit, Event, InitNightingale, Main, Menu, ModNREdit.

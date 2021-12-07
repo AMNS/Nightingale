@@ -396,7 +396,7 @@ enum {							/* View menu */
 	VM_RedrawScr,
 	VM_____________4,
 	VM_ShowClipboard,
-	VM_ToollPalette,
+	VM_ToolPalette,
 	VM_ShowSearchPattern,
 	VM_LastItem=VM_ShowSearchPattern
 };

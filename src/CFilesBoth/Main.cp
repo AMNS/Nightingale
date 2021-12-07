@@ -83,5 +83,5 @@ void DoOpenApplication(Boolean askForFile)
 	if (askForFile) DoFileMenu(FM_Open);
 	
 	AnalyzeWindows();
-	if (TopDocument) DoViewMenu(VM_ToollPalette);
+	if (TopDocument) DoViewMenu(VM_ToolPalette);
 }

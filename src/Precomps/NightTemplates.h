@@ -85,8 +85,6 @@
 	short		GoToDialog(Document *, short *, short *, LINK *);
 	Boolean		FTupletCheck(Document *, TupleParam *);
 	Boolean		TupletDialog(Document *, TupleParam *, Boolean);
-	Boolean		SetDurDialog(Document *, Boolean *, short *, short *, short *, Boolean *, 
-						short *, Boolean *, Boolean *);
 	Boolean		SetMBRestDialog(Document *, short *);
 	short		RastralDialog(Boolean, short, Boolean *, Boolean *);
 	short		StaffLinesDialog(Boolean, short *, Boolean *, Boolean *);
@@ -148,6 +146,14 @@
 /* DrawingEdit.c */
 
 	void		DoDrawingEdit(Document *, LINK);
+
+/* DurationEdit.c */
+
+	void		InitDurationCells(Rect *pBox, short nCols, short nRows, Rect durCell[]);
+	short		FindDurationCell(Point where, Rect *pBox, short nCols, short nRows, Rect durCell[]);
+	void		HiliteDurCell(short durIdx, Rect *pBox, Rect durCell[]);
+	Boolean		SetDurDialog(Document *, Boolean *, short *, short *, short *, Boolean *, 
+								short *, Boolean *, Boolean *);
 
 /* EnigmaConvert.c */
 

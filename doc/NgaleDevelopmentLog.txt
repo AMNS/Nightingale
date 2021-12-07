@@ -10724,4 +10724,23 @@ Support. Test => it works on both PowerPC and Intel!! Unfortunately, putting any
 the system Library requires admin permission, but that's acceptable, at least for the time
 being.
 
+---------------------------------------------------------------------------------------
+
+1 - 4 Dec.
+
+Removed the "Show 2 dots" checkbox from Set Duration dialog => everything in the dialog seems
+to be OK on PowerPC.
+
+To get the tool palette filled in when it's enlarged, can I just draw the whole thing
+once and for all? That'd be in InitToolPalette(). GetToolZoomBounds() computes the smallest
+grid rectangle that encloses all defined tools, if that's relevant? It shouldn't be... Hmmm,
+making this "simple" change gets into the code to support several floating window palettes
+and rearranging the tool palette. Only one such palette -- the tool palette -- was ever
+implemented, and to my knowledge no one ever cared about rearranging the tool palette; at
+least I never did, and I still don't! This deserves more thought. Plus tard.
+
+Let's work on the other features that use the duration palette. Insert/edit tempo/metronome mark
+needs undotted and 1-dot durations (the top two rows); Fancy Tuplet, Import MIDI File, and
+Transcribe Recording need undotted durations only (just the top row). So DrawBMP() needs to
+be able to draw just the top part of an image: add a <drawHeight> parameter to specify => done.
 
