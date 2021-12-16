@@ -53,13 +53,14 @@ void DrawNonArp(short, short, DDIST, DDIST);
 void DrawArp(Document *, short, short, DDIST, DDIST, Byte, PCONTEXT);
 
 void DrawBMP(Byte bmpBits[], short bWidth, short bWidthWithPad, short height,
-				short drawHeight, Rect bmpRect);
+														short drawHeight, Rect bmpRect);
+void DrawBMPChar(Byte bmpBits[], short offset, short width, short height, Rect bmpRect);
 
 char TempoGlyph(LINK);
 short GetGraphicOrTempoDrawInfo(Document *, LINK, LINK, short, DDIST *, DDIST *, PCONTEXT);
 short GetGRDrawLastDrawInfo(Document *, LINK, LINK, short, DDIST *, DDIST *);
 void GetGraphicFontInfo(Document *doc, LINK pL, PCONTEXT pContext, short *pFontID,
-									short *pFontSize, short *pFontStyle);
+												short *pFontSize, short *pFontStyle);
 
 short Voice2Color(Document *doc, short iVoice);
 

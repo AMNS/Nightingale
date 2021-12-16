@@ -15,8 +15,8 @@ graphic MDEF; it now uses a BMP displayed in its entirety.  */
 
 /* ----------------------------------- General routines to handle the duration palette -- */
 /* Note durations appear in features of Nightingale other than Set Duration: metronome
-marks, "fancy" tuplets, and quantizing durations. Note that different features allow
-different numbers of augmentation dots and therefore different subsets of the palette!
+marks, "fancy" tuplets, and quantizing durations. The different features allow
+different numbers of augmentation dots, and therefore different subsets of the palette!
 The following routines are generic. */
 
 void InitDurationCells(Rect *pBox, short nCols, short nRows, Rect durCell[])
@@ -96,12 +96,18 @@ static Boolean DrawDurationPalette(Rect *pBox)
 }
 
 
-static short durationCode[] =	{ 9, 8, 7, 6, 5, 4, 3, 2, 1,
-								  9, 8, 7, 6, 5, 4, 3, 2, 1,
-								  9, 8, 7, 6, 5, 4, 3, 2, 1 };
-static short durNDots[] =		{ 0, 0, 0, 0, 0, 0, 0, 0, 0,
-								  1, 1, 1, 1, 1, 1, 1, 1, 1,
-								  2, 2, 2, 2, 2, 2, 2, 2, 2 };
+	
+static short durationCode[] = { 
+	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
+	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
+	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR
+								 };
+static short durNDots[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 2, 2, 2, 2, 2, 2, 2
+								 };
+								 
 #define NDURATIONS (sizeof durationCode/sizeof(short))
 
 #define NROWS 3		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
@@ -173,7 +179,7 @@ static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
 			}
 		}
 		else {
-			if (IsSelInTupletNotTotallySel(doc)) {
+			if (IsSelInTupletNotAllSel(doc)) {
 				GetIndCString(strBuf, DIALOGERRS_STRS, 21);		/* "...select all the notes of the tuplet" */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
@@ -288,7 +294,7 @@ Boolean SetDurDialog(
 	short ditem=Cancel, type;
 	Boolean dialogOver, beamed;
 	Handle hndl;
-	Rect box, theCell;
+	Rect box;
 	GrafPtr oldPort;
 	ModalFilterUPP	filterUPP;
 	short newpDurPct;
@@ -341,9 +347,13 @@ bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
 		if (*lDurCode==durationCode[k] && *nDots==durNDots[k]) { durationIdx = k;  break; }
 	}
 	
+#if 99
+	HiliteDurCell(durationIdx, &box, durationCell);
+#else
 	theCell = durationCell[durationIdx];
 	OffsetRect(&theCell, box.left, box.top);
 	InvertRect(&theCell);
+#endif
 
 	PutDlgChkRadio(dlog, SETLDUR_DI, *setLDur);
 	PutDlgChkRadio(dlog, SETPDUR_DI, *setPDur);
@@ -364,6 +374,8 @@ bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
+	/* Entertain filtered user events until dialog is dismissed */
+
 	dialogOver = False;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
@@ -429,8 +441,7 @@ bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
 				PutDlgChkRadio(dlog, ditem, !GetDlgChkRadio(dlog, ditem));
 				break;
 			case PDURPCT_DI:
-				//if (popUpHilited)
-					//HiliteGPopUp(curPop, popUpHilited = False);
+				//if (popUpHilited) HiliteGPopUp(curPop, popUpHilited = False);
 				PutDlgChkRadio(dlog, SETPDUR_DI, True);
 				break;
 			default:

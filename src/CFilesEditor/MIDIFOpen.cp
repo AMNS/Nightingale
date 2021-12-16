@@ -20,7 +20,7 @@ long eofpos;
 /* The format of Standard MIDI Files was originally described in a document of that
 name available from the International MIDI Association. As of this writing (March 2017),
 it appears that the "official" descripion is only in a 1996 document plus four
-supplements of 1998 thru 2001 available from the MIDI Association, but only after
+supplements of 1998 thru 2001 available from the MIDI Association, and only after
 registering with them. Much easier to get the unoficial (and not-quite-up-to-date) 1999
 "Standard MIDI-File Format Spec. 1.1, updated", found in various places on the Web.
 
@@ -34,7 +34,7 @@ interface-level routines. */
 
 static short errCode;
 
-Word nTracks, timeBase;
+Word mfNTracks, mfTimeBase;
 long qtrNTicks;					/* Ticks per quarter in Nightingale (not in the MIDI file!) */
 			
 /* Prototypes for local functions */
@@ -672,7 +672,7 @@ Boolean GetTimingTrackInfo(
 	Byte eventData[255];
 	Byte command;
 	short tsDenom, maxDenom, totCount=0;
-	Boolean runStatus, okay=False;
+	Boolean runStatus;
 	long tickDur;
 	short denomTab[MAX_DENOM_POW2+1] = { 1, 2, 4, 8, 16, 32, 64 };
 
@@ -698,15 +698,12 @@ Boolean GetTimingTrackInfo(
 		}
 	}
 	
-	okay = True;
-
-Done:
 	if (totCount==0) maxDenom = 1;
 	tickDur = l2p_durs[WHOLE_L_DUR]/(long)maxDenom;
 	*quantumLDur = Time2LDurQuantum(tickDur, False);
 	*tsCount = totCount;
 	*lastEvent = tickTime;
-	return okay;
+	return True;
 }
 
 
@@ -946,10 +943,10 @@ static void NamePart(LINK partL, char *fullName)
 
 
 /* Convert time from MIDI file's ticks to Nightingale's and vice-versa. Be sure to
-initialize qtrNTicks & timeBase before using! */
+initialize qtrNTicks and mfTimeBase before using! */
 
-#define MFTicks2NTicks(t)	(qtrNTicks==timeBase? (t) : (qtrNTicks*(long)(t))/timeBase )
-#define NTicks2MFTicks(t)	(qtrNTicks==timeBase? (t) : (timeBase*(long)(t))/qtrNTicks )
+#define MFTicks2NTicks(t)	(qtrNTicks==mfTimeBase? (t) : (qtrNTicks*(long)(t))/mfTimeBase )
+#define NTicks2MFTicks(t)	(qtrNTicks==mfTimeBase? (t) : (mfTimeBase*(long)(t))/qtrNTicks )
 
 /* Convert info in an MFNote (MIDNight note) into the form needed for a Nightingale note. */
 
@@ -2057,7 +2054,7 @@ static short Track2Night(
 	char		fmtStr[256];
 
 	isTempoMap = (track==1);						/* an OK assumption for format 1 MIDI files */
-	isLastTrack = (track==nTracks);
+	isLastTrack = (track==mfNTracks);
 	if (isTempoMap) InitTrack2Night(doc, &mergeTabSize, &oneTrackTabSize);
 	if (isTempoMap)
 		LogPrintf(LOG_DEBUG, "Track2Night: mergeTabSize=%ld oneTrackTabSize=%ld\n", mergeTabSize, oneTrackTabSize);
@@ -2232,7 +2229,7 @@ short MIDNight2Night(
 
 	/* Convert one track at a time. */
 	
-	for (t = 1; t<=nTracks; t++) {
+	for (t = 1; t<=mfNTracks; t++) {
 		if (trackInfo[t].okay) {
 			if (t==1)
 				ProgressMsg(TIMINGTRACK_PMSTR, "...");
@@ -2246,7 +2243,7 @@ short MIDNight2Night(
 			if (status==FAILURE) break;
 			if (status==OP_COMPLETE) gotNotes = True;
 		}
-		if (t<nTracks && CheckAbort()) {							/* Check for user cancelling */
+		if (t<mfNTracks && CheckAbort()) {							/* Check for user cancelling */
 			ProgressMsg(SKIPTRACKS_PMSTR, "");
 			SleepTicks(120L);										/* So user has time to read the msg */
 			break;
@@ -2273,7 +2270,7 @@ short MIDNight2Night(
 		if (measL) DeleteMeasure(doc, measL);
 		UpdateMeasNums(doc, NILINK);
 
-		for (t = 2; t<=nTracks; t++)
+		for (t = 2; t<=mfNTracks; t++)
 			AvoidUnisonsInRange(doc, doc->headL, doc->tailL, t-1);
 
 		doc->selStartL = doc->headL;

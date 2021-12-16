@@ -804,10 +804,10 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	   bounding boxes for all the cells in the palette. Then resize windowRect for the
 	   area that's initially visible, with a margin of TOOLS_MARGIN on every side. */
 	
-	InitPaletteRects(toolRects,
-			whichPalette->maxAcross, whichPalette->maxDown,
-			toolCellWidth = (windowRect->right + 1) / whichPalette->maxAcross,
-			toolCellHeight = (windowRect->bottom + 1) / whichPalette->maxDown);
+	toolCellWidth = (windowRect->right + 1) / whichPalette->maxAcross;
+	toolCellHeight = (windowRect->bottom + 1) / whichPalette->maxDown;
+	InitPaletteRects(toolRects, whichPalette->maxAcross, whichPalette->maxDown,
+						toolCellWidth, toolCellHeight);
 	
 	windowRect->right -= (whichPalette->maxAcross-whichPalette->firstAcross) * toolCellWidth;
 	windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;

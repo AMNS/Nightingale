@@ -35,7 +35,7 @@ enum {								/* Goto types */
 	gotoREHEARSALMARK
 };
 
-enum {								/* l_dur code (subType) for: */
+enum {								/* l_dur code (ANOTE subType) for: */
 	WHOLEMR_L_DUR=-1,				/*   whole measure rest */
 	UNKNOWN_L_DUR=0,				/*   unknown CMN value */
 	BREVE_L_DUR=1,					/*   breve */
@@ -47,7 +47,9 @@ enum {								/* l_dur code (subType) for: */
 	THIRTY2ND_L_DUR,				/*   32nd note/rest */
 	SIXTY4TH_L_DUR,					/*   64th note/rest */
 	ONE28TH_L_DUR,					/*   128th note/rest */
-	NO_L_DUR						/*   none (unknown) */
+	/* FIXME: NO_L_DUR seems redundant. The few places it's used should probably be changed to UNKNOWN_L_DUR */
+	NO_L_DUR,						/*   none (unknown) */
+	LAST_L_DUR=NO_L_DUR
 };
 
 enum {								/* Codes for accidentals */

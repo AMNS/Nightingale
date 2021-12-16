@@ -3194,7 +3194,7 @@ Boolean IsSelInTuplet(Document *doc)
 /* Return True if any selected notes (or rests) are in a tuplet, but not all the notes of
 the tuplet are selected. */
 
-Boolean IsSelInTupletNotTotallySel(Document *doc)
+Boolean IsSelInTupletNotAllSel(Document *doc)
 {
 	LINK pL, aNoteL, voice, aTupletL, tpSyncL;
 	short numSelNotes, numNotSelNotes;

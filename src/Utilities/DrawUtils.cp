@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018-21 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -20,11 +20,11 @@ static void DrawSharp(Document *, short, short, DDIST, DDIST, DDIST, short, shor
 static void DrawNatural(Document *, short, short, DDIST, DDIST, DDIST, short, short *, PCONTEXT, short);
 
 /* ------------------------------------------------------------------- GetSmallerRSize -- */
-/* Given a rastral size, get the next smaller "Preferred" rastral size, i.e., the
-next smaller size that has an integral no. of points (and therefore an integral no.
-of pixels on screen at 100% magnification) between staff lines, if such a smaller
-size has at least 2 pixels between staff lines center-to-center. (1 pixel between
-staff lines isn't much use, since the staff line itself needs a pixel.) */
+/* Given a rastral size, get the next smaller "Preferred" rastral size, i.e., the next
+smaller size that has an integral no. of points (and therefore an integral no. of pixels
+on screen at 100% magnification) between staff lines, if such a smaller size has at least
+2 pixels between staff lines center-to-center. (1 pixel between staff lines isn't much
+use, since the staff line itself needs a pixel.) */
 
 short GetSmallerRSize(short rSize)
 {
@@ -53,11 +53,11 @@ Rect ContextedObjRect(Document *doc, LINK pL, short staff, PCONTEXT pContext)
 	LINK contextL; Rect r; 
 
 	contextL = (LinkBefFirstMeas(pL) ?
-						LSSearch(pL,MEASUREtype,ANYONE,GO_RIGHT,False) : pL);
+						LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, False) : pL);
 
 	GetContext(doc, contextL, staff, pContext);
 	r = LinkOBJRECT(pL);
-	OffsetRect(&r,pContext->paper.left,pContext->paper.top);
+	OffsetRect(&r, pContext->paper.left, pContext->paper.top);
 
 	return r;
 }
@@ -177,9 +177,7 @@ void DrawMChar(
 
 void DrawMString(Document *doc, unsigned char *mstr, short shape, Boolean dim)
 {
-	short i;
-	
-	for (i=1; i<=mstr[0]; i++) {
+	for (short i = 1; i<=mstr[0]; i++) {
 		DrawMChar(doc, mstr[i], shape, dim);
 		short wid = CharWidth(mstr[i]);
 //LogPrintf(LOG_DEBUG, "DrawMString: CharWidth()=%d\n", wid);
@@ -190,9 +188,9 @@ void DrawMString(Document *doc, unsigned char *mstr, short shape, Boolean dim)
 
 /* ------------------------------------------------------------------------ DrawMColon -- */
 /* Draw a QuickDraw colon in the music font. Since Sonata and compatible fonts don't
-include a colon, this is the do-it-yourself version: two augmentation dots, one
-above or (if italic) above and to the right of the other. The augmentation dot is
-bigger than a dot in a colon, so we also reduce the font size temporarily. */
+include a colon, this is the do-it-yourself version: two augmentation dots, one above
+or (if italic) above and to the right of the other. The augmentation dot is bigger than
+a dot in a colon, so we also reduce the font size temporarily. */
 
 void DrawMColon(Document *doc, Boolean italic, Boolean dim, DDIST lnSpace)
 {
@@ -318,14 +316,13 @@ void GetClefDrawInfo(
  	
 	if (outputTo!=toPostScript)
 		if (small) {
-		/*
-		 * Override the given <sizePercent> and just choose a nice size for screen fonts.
-		 */
+		/* Override the given <sizePercent> and just choose a nice size for screen fonts. */
+		
 		txSize = Staff2MFontSize(drSize[GetSmallerRSize(doc->srastral)]);
 		sizePercent = (100*txSize)/pContext->fontSize;
 		}
 
-/* Clefs in Sonata and compatible fonts, other than the percussion clef, have their
+	/* Clefs in Sonata and compatible fonts, other than the percussion clef, have their
 	origins at the bottom line of a 5-line staff for their standard size and (for C
 	clef) "normal" position; however, in the sense of the point on the clef whose staff
 	position must be preserved when the clef is drawn in a non-standard size, each
@@ -350,6 +347,7 @@ void GetClefDrawInfo(
 			break;
 
 		/* The next cases are the C clefs, in order from the bottom line on up */
+		
 		case SOPRANO_CLEF:
 			ydR = 4*dLnHeight + SizePercentSCALE(0L);
 			ydR += SizePercentSCALE(2*dLnHeight);				/* Correct "normal" position */
@@ -1030,7 +1028,6 @@ void GetKeySigDrawInfo(Document *doc,
 	PMEVENT p;
 	PAKEYSIG aKeySig;
 	DDIST dLeft;
-	short k;
 	CONTEXT localContext;
 	
 	p = GetPMEVENT(pL);
@@ -1045,7 +1042,7 @@ void GetKeySigDrawInfo(Document *doc,
 		dLeft = localContext.staffLeft;
 	}
 	localContext.nKSItems = aKeySig->nKSItems;				/* Copy this key sig. */
-	for (k = 0; k<aKeySig->nKSItems; k++)					/* into the localContext */
+	for (short k = 0; k<aKeySig->nKSItems; k++)				/* into the localContext */
 		localContext.KSItem[k] = aKeySig->KSItem[k];
 	*xd = dLeft + LinkXD(pL) + aKeySig->xd;
 	*yd = *dTop;
@@ -1085,12 +1082,9 @@ short  FillTimeSig(Document *doc,
 	}
 	else {
 		nStr[0] = 1;
-		if (subType==C_TIME)
-			nStr[1] = MCH_common;
-		else if (subType==CUT_TIME)
-			nStr[1] = MCH_cut;
-		else if (subType==ZERO_TIME)
-			nStr[1] = '0';
+		if (subType==C_TIME)			nStr[1] = MCH_common;
+		else if (subType==CUT_TIME)		nStr[1] = MCH_cut;
+		else if (subType==ZERO_TIME)	nStr[1] = '0';
 		else
 			NumToString(aTimeSig->numerator, nStr);			/* Overwrite nStr[0] */
 	}
@@ -2064,35 +2058,111 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
 }
 
 
-/* --------------------------------------------------------------------------- DrawBMP -- */
-/* Draw a black-and-white image from a black-and-white (one bit/pixel) bitmap. Intended
-for drawing palettes read from BMP files. <bmpBits[]> should contain a B&W (one bit/pixel)
-bitmap, with an image whose logical width is <bWidth> bytes; the first <bWidthPadded>
-bytes represent the lowest row of the image. The height is <height> pixels, of which only
-the top <drawHeight> rows will be drawn. */
+/* ------------------------------------------------------------- DrawBMP,  DrawBMPChar -- */
 
-void DrawBMP(Byte bmpBits[], short bWidth, short bWidthPadded, short height,
-														short drawHeight, Rect bmpRect)
+/* Draw all or part of a black-and-white image from a black-and-white (one bit/pixel)
+bitmap with rows padded. Intended for drawing palettes read from BMP files (the rows
+in their bitmaps are padded to a multiple of 4 bytes). <bmpBits[]> should contain the
+B&W bitmap, with an image whose logical width is <byWidth> bytes; the first
+<byWidthPadded> bytes represent the lowest row of the image. The bitmap's height is
+<height> pixels, of which only the top <drawHeight> rows will be drawn. They'll be drawn
+into <dstRect>. */
+
+void DrawBMP(Byte bmpBits[], short byWidth, short byWidthPadded, short height,
+														short drawHeight, Rect dstRect)
 {
 	/* We can't use Patterns because QuickDraw aligns the Pattern with the underlying
 	   coordinates of the port, so it won't look the same at any given origin. Instead,
 	   brute force draw every horizontal sequence of black (0) pixels as a line, in rows
 	   from bottom to top. Leave the white (1) pixels untouched (this implies entire
-	   bmpRect must be erased earlier). */
+	   dstRect must be erased earlier). */
 	
-	if (bWidth< 1 || bWidthPadded<1 || bWidthPadded<bWidth || height<2 || drawHeight>height) {
-		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. bWidth=%d bWidthPadded=%d height=%d drawHeight=%d  (DrawBMP)\n",
-					bWidth, bWidthPadded, height, drawHeight);
+	if (byWidth< 1 || byWidthPadded<1 || byWidthPadded<byWidth || height<2 || drawHeight>height) {
+		//MayErrMsg?
+		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. byWidth=%d byWidthPadded=%d height=%d drawHeight=%d  (DrawBMP)\n",
+					byWidth, byWidthPadded, height, drawHeight);
+		return;
 	}
 	
-	short y = bmpRect.bottom-1;
+	short y = dstRect.bottom-1;
 	for (short kRow=height-drawHeight; kRow<height; kRow++) {
-		short x = bmpRect.left+1;
-		short startOfRow = kRow * bWidthPadded;
-if (DETAIL_SHOW) { DPrintRow(bmpBits, kRow, bWidth, startOfRow, False, False);  printf("\n"); }
+		short x = dstRect.left+1;
+		short startOfRow = kRow * byWidthPadded;
+		if (DETAIL_SHOW)
+			{ DPrintRow(bmpBits, kRow, byWidth, startOfRow, False, False);  printf("\n"); }
 		short runStart;
 		short blackRunLength = 0;
-		for (short kCol=0; kCol<bWidth*8; kCol++) {
+		for (short kCol=0; kCol<byWidth*8; kCol++) {
+		
+			/* Examine the bit in the bitmap at (kCol,kRow) */
+			
+			Byte b = bmpBits[startOfRow + kCol/8];
+			Byte mask = ( 1 << (7 - (kCol%8)) );
+			Byte aBit = (b & mask)!=0;
+			
+			if (aBit==0) {
+				/* Black pixel. Don't draw; just increment run length, and if first in
+				   run, record its position. */
+				
+				if (blackRunLength==0) runStart = x;
+				blackRunLength++;
+			}
+			 else {
+				/* White pixel. If any saved black pixels, draw a horizontal line. */
+				
+				if (blackRunLength>0) {
+				    MoveTo(runStart, y);
+					LineTo(x-1, y);
+					blackRunLength = 0;
+				}
+			}
+			x++;
+		}
+		
+		/* Row ended, but we still have to flush any saved black pixels. */
+		
+		if (blackRunLength>0) {
+			MoveTo(runStart, y);
+			LineTo(x-1, y);
+		}
+
+		y--;
+	}
+}
+
+
+/* Draw part of a black-and-white image from a black-and-white (one bit/pixel) bitmap
+with rows padded. Intended for drawing indivdual characters of palettes read from BMP
+files (the bitmaps in their rows are padded to a multiple of 4 bytes). <bmpBits[]>
+should contain the B&W bitmap. The character to be drawn is <palCharNum> in the
+bitmap. Its size is <width> by <height> bits, and it'll be drawn into <dstRect>. 
+??NO! THE BITMAP CONTAINS ONLY THE CHARACTER!
+NB:
+To avoid dealing with padding, we assume the area to be drawn doesn't contain any! */
+
+void DrawBMPChar(Byte bmpBits[], short palCharNum, short width, short height, Rect dstRect)
+{
+	short byWidth;
+
+	if (width<8 || width>300 || height<8 || height>300) {
+		//MayErrMsg?
+		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. width=%d height=%d  (DrawBMPChar)\n",
+					width, height);
+		return;
+	}
+	
+	short y = dstRect.bottom-1;
+	for (short kRow=0; kRow<height; kRow++) {
+		short x = dstRect.left+1;
+		short startOfRow = 0;
+		if (DETAIL_SHOW) {
+			byWidth = width/8;
+			DPrintRow(bmpBits, kRow, byWidth, startOfRow, False, False); 
+			printf("\n");
+		}
+		short runStart;
+		short blackRunLength = 0;
+		for (short kCol=0; kCol<width; kCol++) {
 		
 			/* Examine the bit in the bitmap at (kCol,kRow) */
 			

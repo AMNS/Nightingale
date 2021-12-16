@@ -3452,3 +3452,14 @@ and Tempo/Metronome Mark (a bit) dialogs with a fixed palette (from a BMP file).
 
 Minor changes. Affects .rsrc, DSUtils.h, NResourceID.h, PaletteGlobals.h; DialogsEditor,
 DSUtils, DurationEdit, DynamicEdit, Event, InitNightingale, Main, Menu, ModNREdit.
+
+---------------------------------------------------------------------------------------
+
+7 - 15 Dec.
+
+Work to replace the set duration pop-up palette (using a UI font) in the Import MIDI File
+dialog with a fixed palette (from a BMP file). Affects .rsrc, DrawUtils.h; DrawUtils,
+MIDIFOCmd.
+
+Minor changes. Affects Defs.h, DSUtils.h, NDocAndCnfgTypes.h; ChooseCharDlog, DSUtils,
+DurationEdit, InitNightingale, MIDIFOCmd, MIDIFOpen, SpaceHighLevel.

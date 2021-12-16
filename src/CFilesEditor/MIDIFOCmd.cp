@@ -19,7 +19,7 @@ extern long eofpos;
 
 #define MAXTRACKS (MAXSTAVES+1)			/* So we can open any file we save: need 1 extra for timing track */
 
-extern Word nTracks, timeBase;
+extern Word mfNTracks, mfTimeBase;
 extern long qtrNTicks;					/* Ticks per quarter in Nightingale (NOT in the file!) */
 
 extern Byte *pChunkMF;					/* MIDI file track pointer */
@@ -115,7 +115,7 @@ void ShowMFInfoPage(
 	GetIndCString(skippedStr, MIDIFILE_STRS, 37); 				/* "SKIPPED" */
 
  	first = 1+(pageNum-1)*linesPerPage;
-	for (t = first; t<=first+linesPerPage-1 && t<=nTracks; t++) {
+	for (t = first; t<=first+linesPerPage-1 && t<=mfNTracks; t++) {
  		if (!trackInfo[t].okay)
  			sprintf(strBuf, "\t%d.\t(%d) %s\t\t\t  %ld",
  						t, nTrackNotes[t], skippedStr, lastTrEvent[t]);
@@ -149,12 +149,12 @@ void ShowMFInfoPage(
 }
 
 
-static enum {
+enum {
 	TEXT_DI=2,
 	PREV_DI,
 	NEXT_DI,
 	TICKS_DI
-} E_MFInfoItems;
+};
 
 static void MFInfoDialog(
 					TRACKINFO trackInfo[],
@@ -187,22 +187,22 @@ static void MFInfoDialog(
 	ArrowCursor();
 	OutlineOKButton(dialogp, True);
 
-	nPages = nTracks/linesPerPage;
-	if (nTracks%linesPerPage!=0) nPages++;
+	nPages = mfNTracks/linesPerPage;
+	if (mfNTracks%linesPerPage!=0) nPages++;
 	GetDialogItem(dialogp, PREV_DI, &aShort, &prevHdl, &aRect);
 	GetDialogItem(dialogp, NEXT_DI, &aShort, &nextHdl, &aRect);
 
 	TextFont(textFontNum); TextSize(textFontSmallSize); TextFace(0);	/* face 0 = plain */
 	MoveTo(ticksRect.left+1, ticksRect.top+9);
 	GetIndCString(fmtStr, MIDIFILE_STRS, 10);							/* "%d ticks per quarter" */
-	sprintf(strBuf, fmtStr, timeBase); 
+	sprintf(strBuf, fmtStr, mfTimeBase); 
 	DrawCString(strBuf);
 
-	for (lastEvTime = 0, t =1; t<=nTracks; t++)
+	for (lastEvTime = 0, t =1; t<=mfNTracks; t++)
 		lastEvTime = n_max(lastEvTime, lastTrEvent[t]);
 	MoveTo(ticksRect.left+1, ticksRect.top+20);
 	GetIndCString(fmtStr, MIDIFILE_STRS, 11);							/* "Approx. %ld quarters" */
-	sprintf(strBuf, fmtStr, lastEvTime/timeBase); 
+	sprintf(strBuf, fmtStr, lastEvTime/mfTimeBase); 
 	DrawCString(strBuf);
 
 	pageNum = 1;
@@ -233,23 +233,233 @@ static void MFInfoDialog(
 	} while (!dialogOver);
 
 	HideWindow(GetDialogWindow(dialogp));
-	
 	DisposeDialog(dialogp);
 	SetPort(oldPort);
 }
 
 
-static GRAPHIC_POPUP	durPop0dot, *curPop;
-static POPKEY			*popKeys0dot;
-static short			popUpHilited=True;
+/* ----------------------------------------------------------------- PaletteChoiceDlog -- */
 
-#define CurEditField(dlog) (((DialogPeek)(dlog))->editField+1)
+/* Dialog item numbers */
+
+#define PALETTE_DI	4
+#define LASTITEM	PALETTE_DI
+
+static short durationIdx;
+static short durationCode[] =	{ 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+
+#define NDURATIONS (sizeof durationCode/sizeof(short))
+
+#define NROWS 1		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
+#define NCOLS 9		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
+
+#define ROW_HEIGHT 26	/* in pixels */
+#define COL_WIDTH 24	/* in pixels */
+
+
+static Rect durationCell[NROWS*NCOLS];
+
+#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteDurCell((curIdx), (pBox), durationCell); curIdx = (newIdx); HiliteDurCell((curIdx), (pBox), durationCell)
+
+static pascal Boolean PaletteChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
+static pascal Boolean PaletteChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
+{
+	Boolean			ans=False, doHilite=False;
+	WindowPtr		w;
+	short			ch, type;
+	Handle			hndl;
+	Rect			box;
+	Cell			aCell;
+	Point			clickPt;
+	GrafPtr			oldPort;
+	unsigned char	oldCellCh;
+	
+	w = (WindowPtr)(evt->message);
+	switch(evt->what) {
+		case updateEvt:
+			if (w == GetDialogWindow(dlog)) {
+				GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
+				BeginUpdate(GetDialogWindow(dlog));
+				UpdateDialogVisRgn(dlog);
+				FrameDefault(dlog, OK, True);
+				GetDialogItem(dlog, PALETTE_DI, &type, &hndl, &box);
+//LogPrintf(LOG_DEBUG, "PaletteChoiceFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
+//box.right);
+				FrameRect(&box);
+				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded,
+							bmpDurationPal.height, NROWS*ROW_HEIGHT, box);
+				HiliteDurCell(durationIdx, &box, durationCell);
+				EndUpdate(GetDialogWindow(dlog));
+				SetPort(oldPort);
+				ans = True;
+				*itemHit = 0;
+			}
+			break;
+		case activateEvt:
+			if (w == GetDialogWindow(dlog)) {
+				SetPort(GetDialogWindowPort(dlog));
+				*itemHit = 0;
+			}
+			break;
+		case mouseDown:
+		case mouseUp:
+			clickPt = evt->where;
+			GlobalToLocal(&clickPt);
+			GetDialogItem(dlog, PALETTE_DI, &type, &hndl, &box);
+			if (PtInRect(clickPt, &box)) {
+				if (evt->what==mouseUp) {
+					/* If the mouseUp was in an invalid (presumably because empty) cell,
+					   ignore it. Otherwise, unhilite the previously-selected cell and
+					   hilite the new one. */
+
+					short newDurIdx = FindDurationCell(clickPt, &box, NCOLS, NROWS, durationCell);
+					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
+					SWITCH_HILITE(durationIdx, newDurIdx, &box);
+				}
+				*itemHit = PALETTE_DI;
+				return True;
+			}
+			break;
+		case autoKey:										/* arrow keys need autoKey events */
+		case keyDown:
+			ch = (unsigned char)evt->message;
+			if (ch==CH_CR || ch==CH_ENTER) {
+				*itemHit = OK;
+				doHilite = ans = True;
+			}
+			else if (ch=='.' && evt->modifiers & cmdKey) {
+				*itemHit = Cancel;
+				doHilite = True;
+				ans = True;									/* Ignore other cmd-chars */
+			}
+			else {				
+				aCell.h = aCell.v = 0;
+				oldCellCh = (aCell.v * NCOLS) + aCell.h;
+				switch (ch) {
+					case LEFTARROWKEY:
+						if (oldCellCh>0) oldCellCh--;
+						break;
+					case RIGHTARROWKEY:
+						if (oldCellCh<(NCOLS*NROWS)-1) oldCellCh++;		// ?SURELY WRONG
+						break;
+					case UPARROWKEY:
+						if (oldCellCh>NCOLS-1) oldCellCh -= NCOLS;
+						break;
+					case DOWNARROWKEY:
+						if (oldCellCh<NCOLS*(NROWS-1)) oldCellCh += NCOLS;	// ?SURELY WRONG
+						break;
+					default:								/* select the character typed */
+						oldCellCh = ch;
+						break;
+				}
+				aCell.h = oldCellCh % NCOLS;
+				aCell.v = oldCellCh / NCOLS;
+				//SWITCH_HILITE?
+				ans = True;
+			}
+			break;
+	}
+	if (doHilite)
+		FlashButton(dlog, *itemHit);
+		
+	return ans;
+}
+
+#define DURCHOICE_DLOG 878
+
+/* Display the palette choice modal dialog.  Return True if OK, False if Cancel or error. */
+
+short PaletteChoiceDlog(short durCode)
+{
+	short			itemHit, type;
+	Boolean			okay, keepGoing=True;
+	DialogPtr		dlog;
+	Handle			hndl;
+	Rect			box;
+	GrafPtr			oldPort;
+	ModalFilterUPP	filterUPP;
+
+	filterUPP = NewModalFilterUPP(PaletteChoiceFilter);
+	if (filterUPP == NULL) {
+		MissingDialog(DURCHOICE_DLOG);
+		return -1;
+	}
+
+	dlog = GetNewDialog(DURCHOICE_DLOG, NULL, BRING_TO_FRONT);
+	if (dlog == NULL) {
+		DisposeModalFilterUPP(filterUPP);
+		MissingDialog(DURCHOICE_DLOG);
+		return -1;
+	}
+
+	GetPort(&oldPort);
+	SetPort(GetDialogWindowPort(dlog));
+	
+	CenterWindow(GetDialogWindow(dlog), 120);
+	ShowWindow(GetDialogWindow(dlog));
+
+#if 1
+	/* Find and hilite the initially-selected cell. We should always find it, but if
+	   we can't, make an arbitrary choice. */
+	
+	durationIdx = 3;									/* In case we can't find it */
+	for (unsigned short k = 0; k<NDURATIONS; k++) {
+		if (durCode==durationCode[k]) { durationIdx = k;  break; }
+	}
+	
+#if 99
+	HiliteDurCell(durationIdx, &box, durationCell);
+#else
+	theCell = durationCell[durationIdx];
+	OffsetRect(&theCell, box.left, box.top);
+	InvertRect(&theCell);
+#endif
+#endif
+
+	/* Entertain filtered user events until dialog is dismissed */
+	
+	while (keepGoing) {
+		ModalDialog(filterUPP, &itemHit);
+		if (itemHit<1 || itemHit>=LASTITEM) continue;
+		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
+		switch (itemHit) {
+			case OK:
+				keepGoing = False; okay = True;
+				break;
+			case Cancel:
+				keepGoing = False;
+				break;
+			case PALETTE_DI:					/* handled in filter */
+				break;
+		}
+	}
+	
+	DisposeModalFilterUPP(PaletteChoiceFilter);
+	DisposeDialog(dlog);
+	SetPort(oldPort);
+	okay = (itemHit==OK);
+	return (okay? durationCode[durationIdx] : -1);
+}
+
 
 /* ---------------------------------------------------------------- TranscribeMFDialog -- */
 
-static enum
+short DurCodeToPalettePos(short durCode, short nDots);
+short DurCodeToPalettePos(short durCode, short nDots)
 {
-	MFDURPOP_DI=4,												/* Item numbers */
+#ifdef NOTYET
+	for (short palP = 0; palP<=??; palP++) {
+		if (??==durCode && ??==nDots) return palP;
+	}
+#endif	
+	return -1;
+}
+
+
+#define CurEditField(dlog) (((DialogPeek)(dlog))->editField+1)
+
+enum {
+	MFSET_DUR_DI=4,												/* Item numbers */
 	AUTOBEAM_DI,
 	QUANTIZE_DI,
 	NOQUANTIZE_DI,
@@ -262,14 +472,17 @@ static enum
 	MAXMEAS_DI=19,
 	CLEFCHANGE_DI=21,
 	MFDUMMY_DI
-} E_TranscribeItems;
+};
 
+short durCode;
 
 static pascal Boolean TransMFFilter(DialogPtr, EventRecord *, short *);
 static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr	w;
-	short		ch, field, ans;
+	short		ch, field, type, palCharNum;
+	Handle		hndl;
+	Rect		box;
 	Point		where;
 	GrafPtr		oldPort;
 	
@@ -282,8 +495,20 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				UpdateDialogVisRgn(dlog);		
 				//UpdateDialog(dlog, dlog->visRgn);
 				FrameDefault(dlog, OK, True);
-				DrawGPopUp(curPop);		
-				HiliteGPopUp(curPop, popUpHilited);
+				GetDialogItem(dlog, MFSET_DUR_DI, &type, &hndl, &box);
+//LogPrintf(LOG_DEBUG, "TransMFFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
+//box.right);
+#if 11
+				//byOffset = 0;			// ??HOW TO COMPUTE?
+				//DrawBMPChar(bmpDurationPal.bitmap, byOffset, COL_WIDTH, ROW_HEIGHT, box);
+				//OR...
+				palCharNum = DurCodeToPalettePos(durCode, 0);
+				DrawBMPChar(bmpDurationPal.bitmap, palCharNum, COL_WIDTH, ROW_HEIGHT, box);
+#else
+				DrawBMP(bmpDurationPal.bitmap, COL_WIDTH, bmpDurationPal.bWidthPadded,
+							ROW_HEIGHT, ROW_HEIGHT, box);
+#endif
+				FrameRect(&box);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -298,9 +523,11 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 		case mouseUp:
 			where = evt->where;
 			GlobalToLocal(&where);
-			if (PtInRect(where, &curPop->box)) {
-				DoGPopUp(curPop);
-				*itemHit = MFDURPOP_DI;
+			GetDialogItem(dlog, MFSET_DUR_DI, &type, &hndl, &box);
+			if (PtInRect(where, &box)) {
+				SysBeep(1);
+				NoteInform(878);					// ???TEMPORARY!!!!!!!!!!!!!!
+				*itemHit = MFSET_DUR_DI;
 				return True;
 			}
 			break;
@@ -315,17 +542,20 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			 */
 			if (ch=='\t') {
 				field = field==MAXMEAS_DI? MFDUMMY_DI : MAXMEAS_DI;
-				popUpHilited = (field==MAXMEAS_DI)? False : True;
+				//popUpHilited = (field==MAXMEAS_DI)? False : True;
 				SelectDialogItemText(dlog, field, 0, ENDTEXT);
-				HiliteGPopUp(curPop, popUpHilited);
+				//HiliteGPopUp(curPop, popUpHilited);
 				*itemHit = 0;
 				return True;
 			}
 			else {
 				if (field==MFDUMMY_DI) {
+#if 11
+#else
 					ans = DurPopupKey(curPop, popKeys0dot, ch);
-					*itemHit = ans? MFDURPOP_DI : 0;
+					*itemHit = ans? MFSET_DUR_DI : 0;
 					HiliteGPopUp(curPop, True);
+#endif
 					return True;							/* so no chars get through to MFDUMMY_DI edit field */
 				}											/* NB: however, DlgCmdKey will let you paste into MFDUMMY_DI! */
 			}
@@ -338,11 +568,11 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 	HiliteControl((ControlHandle)beamHdl, (rButGroup==NOQUANTIZE_DI ? CTL_INACTIVE : CTL_ACTIVE));	\
 	HiliteControl((ControlHandle)tripHdl, (rButGroup==NOQUANTIZE_DI ? CTL_INACTIVE : CTL_ACTIVE))
 
-Boolean TranscribeMFDialog(TRACKINFO [],short [],short [],Boolean [][MAXCHANNEL],
-				short [], Boolean [],long [],short,short,short,short *,Boolean *,
-				Boolean *,Boolean *,short *);
+static Boolean TranscribeMFDialog(TRACKINFO [],short [],short [], Boolean [][MAXCHANNEL],
+				short [], Boolean [],long [],short, short, short, short *, Boolean *,
+				Boolean *, Boolean *, short *);
 
-Boolean TranscribeMFDialog(									
+static Boolean TranscribeMFDialog(									
 				TRACKINFO trackInfo[],
 				short nTrackNotes[], short nTooLong[],	/* Specific track-by-track info */
 				Boolean chanUsed[][MAXCHANNEL],
@@ -352,7 +582,7 @@ Boolean TranscribeMFDialog(
 				short nNotes,							/* Totals for all tracks */
 				short /*nGoodTrs*/,
 				short qAllLDur,
-				short *qDur,
+				short *qDurCode,						/* Duration to quantize to */
 				Boolean *autoBeam,						/* Beam automatically? */
 				Boolean *triplets,						/* Consider triplet rhythms? */
 				Boolean *clefChanges,					/* Generate clef changes? */
@@ -361,9 +591,10 @@ Boolean TranscribeMFDialog(
 {
 	DialogPtr dlog;  GrafPtr oldPort;
 	short ditem, aShort;
-	short rButGroup, newDur, oldDur, maxMeas, t;
+	short rButGroup, newDurCode, maxMeas, t;
 	short oldResFile; 
-	Boolean done, autoBm, trips, clefs, needTrips;  short choice;
+	Boolean done, autoBm, trips, clefs, needTrips;
+	short choice;
 	Handle ndHdl, beamHdl, tripHdl;  Rect aRect;
 	char durStr[256], tripletsStr[32];
 	Handle hndl; Rect box;
@@ -389,22 +620,26 @@ Boolean TranscribeMFDialog(
 	oldResFile = CurResFile();
 	UseResFile(appRFRefNum);									/* popup code uses Get1Resource */
 		
+#if 11
+	GetDialogItem(dlog, MFSET_DUR_DI, &aShort, &hndl, &box);
+#else
 	durPop0dot.menu = NULL;										/* NULL makes any "goto broken" safe */
 	durPop0dot.itemChars = NULL;
 	popKeys0dot = NULL;
 
-	GetDialogItem(dlog, MFDURPOP_DI, &aShort, &hndl, &box);
+	GetDialogItem(dlog, MFSET_DUR_DI, &aShort, &hndl, &box);
 	if (!InitGPopUp(&durPop0dot, TOP_LEFT(box), NODOTDUR_MENU, 1)) goto broken;
 	popKeys0dot = InitDurPopupKey(&durPop0dot);
 	if (popKeys0dot==NULL) goto broken;
 	curPop = &durPop0dot;
+#endif
 	
 	Pstrcpy((StringPtr)strBuf, filename);
 	PStrCat((StringPtr)strBuf, "\pÓ");
 	PutDlgString(dlog, FILENAME_DI, (StringPtr)strBuf, False);
 
 	PutDlgWord(dlog, NNOTES_DI, nNotes, False);
-	PutDlgWord(dlog, NTRACKS_DI, nTracks, False);
+	PutDlgWord(dlog, NTRACKS_DI, mfNTracks, False);
 
 	GetDialogItem(dlog, NEEDDUR_DI, &aShort, &ndHdl, &aRect);
 	if (qAllLDur==UNKNOWN_L_DUR) {
@@ -412,7 +647,7 @@ Boolean TranscribeMFDialog(
 		SetDialogItemCText(ndHdl, strBuf);
 	} else {
 		strcpy(durStr, &durStrs[qAllLDur][0]);
-		for (needTrips = False, t = 1; t<=nTracks; t++)
+		for (needTrips = False, t = 1; t<=mfNTracks; t++)
 			if (qTrLDur[t]!=UNKNOWN_L_DUR)
 				if (qTrTriplets[t]) needTrips = True;
 		if (needTrips) {
@@ -426,23 +661,23 @@ Boolean TranscribeMFDialog(
 
 	/* Set up radio button group for quantize/noquantize */
 	
-	rButGroup = (*qDur==UNKNOWN_L_DUR? NOQUANTIZE_DI : QUANTIZE_DI);
+	rButGroup = (*qDurCode==UNKNOWN_L_DUR? NOQUANTIZE_DI : QUANTIZE_DI);
 	PutDlgChkRadio(dlog, rButGroup, True);
 
-	/* Set the suggested (initial) quantization unit. Use the finest value among
-		tracks whose attacks fit a (non-tuplet) metric grid and time sig. denoms. But
-		in no case suggest anything coarser than eighths or finer than 32nds. */
+	/* Set the suggested (initial) quantization unit. Use the finest value among tracks
+	   whose attacks fit a (non-tuplet) metric grid and time sig. denoms. But in no case
+	   suggest anything coarser than eighths or finer than 32nds. */
 		
-	newDur = WHOLE_L_DUR;
-	for (t = 1; t<=nTracks; t++)
-		if (qTrLDur[t]!=UNKNOWN_L_DUR)
-			newDur = n_max(newDur, qTrLDur[t]);
-	if (newDur<EIGHTH_L_DUR) newDur = EIGHTH_L_DUR;
-	if (newDur>THIRTY2ND_L_DUR) newDur = THIRTY2ND_L_DUR;
-	choice = GetDurPopItem(curPop, popKeys0dot, newDur, 0);
-	if (choice==NOMATCH) choice = 1;
-	SetGPopUpChoice(curPop, choice);
-	oldDur = newDur;
+	durCode = WHOLE_L_DUR;
+	
+	for (t = 1; t<=mfNTracks; t++)
+		if (qTrLDur[t]!=UNKNOWN_L_DUR) newDurCode = n_max(newDurCode, qTrLDur[t]);
+	if (newDurCode<EIGHTH_L_DUR) newDurCode = EIGHTH_L_DUR;
+	if (newDurCode>THIRTY2ND_L_DUR) newDurCode = THIRTY2ND_L_DUR;
+	//choice = GetDurPopItem(curPop, popKeys0dot, newDurCode, 0);
+	//if (choice==NOMATCH) choice = 1;
+	choice = 2;									// ???TESTING!!!!!!!!!!!!!!!
+	//SetGPopUpChoice(curPop, choice);
 
 	PutDlgChkRadio(dlog, AUTOBEAM_DI, *autoBeam);
 	PutDlgChkRadio(dlog, TRIPLETS_DI, *triplets);
@@ -453,27 +688,27 @@ Boolean TranscribeMFDialog(
 	GetDialogItem(dlog, TRIPLETS_DI, &aShort, &tripHdl, &aRect);
 	XACTIVEATE_CTLS;
 
-	SelectDialogItemText(dlog, (popUpHilited? MFDUMMY_DI : MAXMEAS_DI), 0, ENDTEXT);
+	//SelectDialogItemText(dlog, (popUpHilited? MFDUMMY_DI : MAXMEAS_DI), 0, ENDTEXT);
 	CenterWindow(GetDialogWindow(dlog), 65);
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	oldDur = newDur;
+	durCode = newDurCode;
 	done = False;
 	while (!done) {
 		ModalDialog(filterUPP, &ditem);
-		if (newDur!=oldDur) {
+		if (newDurCode!=durCode) {
 			SwitchRadio(dlog, &rButGroup, QUANTIZE_DI);
 			XACTIVEATE_CTLS;
 		}
-		oldDur = newDur;
+		durCode = newDurCode;
 		switch (ditem) {
 		case OK:
 			done = True;
-			autoBm = GetDlgChkRadio(dlog,AUTOBEAM_DI);
-			trips = GetDlgChkRadio(dlog,TRIPLETS_DI);
-			clefs = GetDlgChkRadio(dlog,CLEFCHANGE_DI);
-			GetDlgWord(dlog,MAXMEAS_DI,&maxMeas);
+			autoBm = GetDlgChkRadio(dlog, AUTOBEAM_DI);
+			trips = GetDlgChkRadio(dlog, TRIPLETS_DI);
+			clefs = GetDlgChkRadio(dlog, CLEFCHANGE_DI);
+			GetDlgWord(dlog, MAXMEAS_DI, &maxMeas);
 			if (maxMeas<=0) {
 				GetIndCString(strBuf, MIDIFILE_STRS, 2);    /* "The maximum number of measures must be greater than 0." */
 				CParamText(strBuf, "", "", "");
@@ -481,21 +716,20 @@ Boolean TranscribeMFDialog(
 				done = False;
 			}
 			if (rButGroup==QUANTIZE_DI) {
-				*qDur = newDur;
-				if (trips && newDur<qTrLDur[1]) {
+				*qDurCode = newDurCode;
+				if (trips && newDurCode<qTrLDur[1]) {
 					StopInform(TOO_COARSE_QUANT_ALRT);
 					done = False;
 				}
-				else if (!(ControlKeyDown())
-							&& trips && newDur>SIXTEENTH_L_DUR) {
+				else if (!(ControlKeyDown()) && trips && newDurCode>SIXTEENTH_L_DUR) {
 					StopInform(TOO_FINE_QUANT_ALRT);
 					done = False;
 				}
-				else if (newDur<qAllLDur && qAllLDur!=UNKNOWN_L_DUR)
+				else if (newDurCode<qAllLDur && qAllLDur!=UNKNOWN_L_DUR)
 					done = (CautionAdvise(COARSE_QUANTIZE_ALRT)==OK);
 			}
 			else
-				*qDur = UNKNOWN_L_DUR;
+				*qDurCode = UNKNOWN_L_DUR;
 			break;
 		case Cancel:
 			done = True;
@@ -507,23 +741,27 @@ Boolean TranscribeMFDialog(
 				XACTIVEATE_CTLS;
 			}
 			break;
-		case MFDURPOP_DI:
-			newDur = popKeys0dot[curPop->currentChoice].durCode;
+		case MFSET_DUR_DI:
+#if 11
+			newDurCode = PaletteChoiceDlog(newDurCode);
+#else
+			newDurCode = popKeys0dot[curPop->currentChoice].durCode;
 			SelectDialogItemText(dlog, MFDUMMY_DI, 0, ENDTEXT);
 			HiliteGPopUp(curPop, popUpHilited = True);
+#endif
 			break;
 		case AUTOBEAM_DI:
-			PutDlgChkRadio(dlog,AUTOBEAM_DI,!GetDlgChkRadio(dlog,AUTOBEAM_DI));
+			PutDlgChkRadio(dlog, AUTOBEAM_DI, !GetDlgChkRadio(dlog, AUTOBEAM_DI));
 			break;
 		case INFO_DI:
 			MFInfoDialog(trackInfo, nTrackNotes, nTooLong, chanUsed, qTrLDur, qTrTriplets,
 								lastTrEvent);
 			break;
 		case TRIPLETS_DI:
-			PutDlgChkRadio(dlog,TRIPLETS_DI,!GetDlgChkRadio(dlog,TRIPLETS_DI));
+			PutDlgChkRadio(dlog, TRIPLETS_DI, !GetDlgChkRadio(dlog, TRIPLETS_DI));
 			break;
 		case CLEFCHANGE_DI:
-			PutDlgChkRadio(dlog,CLEFCHANGE_DI,!GetDlgChkRadio(dlog,CLEFCHANGE_DI));
+			PutDlgChkRadio(dlog, CLEFCHANGE_DI, !GetDlgChkRadio(dlog, CLEFCHANGE_DI));
 			break;
 		}
 	}
@@ -535,9 +773,8 @@ Boolean TranscribeMFDialog(
 		*clefChanges = clefs;
 	}
 	
-broken:
-	DisposeGPopUp(&durPop0dot);
-	if (popKeys0dot) DisposePtr((Ptr)popKeys0dot);
+	//DisposeGPopUp(&durPop0dot);
+	//if (popKeys0dot) DisposePtr((Ptr)popKeys0dot);
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
 	
@@ -550,8 +787,8 @@ broken:
 /* ----------------------------------------------------------------------- NameMFScore -- */
 /* Give the score a name based on the name of the Imported MIDI file it came from. */
 
-void NameMFScore(Document *);
-void NameMFScore(Document *doc)
+static void NameMFScore(Document *);
+static void NameMFScore(Document *doc)
 {
 	Str63 str;
 	WindowPtr w=(WindowPtr)doc;
@@ -568,6 +805,15 @@ void NameMFScore(Document *doc)
 
 
 /* ------------------------------------------------------------------------ MFHeaderOK -- */
+
+static void MFStopInform(void);
+static void MFStopInform(void)
+{
+	LogPrintf(LOG_WARNING, "%s  (GetMIDIFileInfo)\n", strBuf);
+	CParamText(strBuf, "", "", "");
+	StopInform(READMIDI_ALRT);
+}
+
 
 static Boolean MFHeaderOK(Byte, Word, Word);
 static Boolean MFHeaderOK(Byte midiFileFormat, Word nTracks, Word timeBase)
@@ -605,12 +851,12 @@ static Boolean MFHeaderOK(Byte midiFileFormat, Word nTracks, Word timeBase)
 
 /* ------------------------------------------------------------------- GetMIDIFileInfo -- */
 
-Boolean GetMIDIFileInfo(TRACKINFO [], short *, long *, short [], short [],
+static Boolean GetMIDIFileInfo(TRACKINFO [], short *, long *, short [], short [],
 							Boolean [][MAXCHANNEL], short [], Boolean [], long [], short *,
 							short *, short *);
-Boolean GetMIDIFileInfo(
+static Boolean GetMIDIFileInfo(
 				TRACKINFO trackInfo[],
-				short */*pQuantCode*/,			/* ??Unused--should be removed! */
+				short */*pQuantCode*/,			/* FIXME: Unused--should be removed! */
 				long *pLastEvent,				/* Output, in MIDI file (not Nightingale!) ticks */
 				short nTrackNotes[],			/* Output, trk-by-trk no. of notes */
 				short nTooLong[],				/* Output, trk-by-trk no. of notes over max. dur. */
@@ -631,36 +877,34 @@ Boolean GetMIDIFileInfo(
 
 	/* Read and check the MIDI file header. */
 	
-	if (!ReadMFHeader(&midiFileFormat, &nTracks, &timeBase)) {
+	if (!ReadMFHeader(&midiFileFormat, &mfNTracks, &mfTimeBase)) {
 		GetIndCString(strBuf, MIDIFILE_STRS, 4);    /* "Unable to read MIDI file header." */
-		CParamText(strBuf, "", "", "");
-		StopInform(READMIDI_ALRT);
+		MFStopInform();
 		return False;
 	}
-	if (!MFHeaderOK(midiFileFormat, nTracks, timeBase))
+	if (!MFHeaderOK(midiFileFormat, mfNTracks, mfTimeBase))
 		return False;
 	
 	/* Get information about the notes and check that the file can be read and parsed;
-		then restore its previous position. */
+	   then restore its previous position. */
 	
 	GetFPos(infile, &fPos);
 	nNotes = 0;
 	qAllLDur = WHOLE_L_DUR;
 	*pLastEvent = 0L;
-	for (t = 1; t<=nTracks; t++) {
+	for (t = 1; t<=mfNTracks; t++) {
 		lenMF = ReadTrack(&pChunkMF);
-		if (lenMF==0)
-			return False;
+		if (lenMF==0) return False;
 
 		trackInfo[t].okay = True;
 		if (GetTrackInfo(&nTrackNotes[t], &nTooLong[t], chanUsed[t], &qTrLDur[t],
 								&qTrTriplets[t], &lastTrEvent[t])) {
 
 			/* Timing tracks with an end time of zero seem to be somewhat common: cf. Peter
-			 * Stone. Peter's seem to cause no problems, but one produced by Nightingale,
-			 * I'm not sure how, and starting with a very long note, has the very long note
-			 * truncated to almost nothing. So it's not clear whether to warn about them.
-			 */
+			   Stone. Peter's seem to cause no problems, but one produced by Nightingale,
+			   I'm not sure how, and starting with a very long note, has the very long note
+			   truncated to almost nothing. So it's not clear whether to warn about them. */
+			   
 			if (t!=1 && lastTrEvent[t]==0) {
 				GetIndCString(fmtStr, MIDIFILE_STRS, 38);    /* "Track %d has an ending time of zero: this MIDI file may be damaged." */
 				sprintf(strBuf, fmtStr, t); 
@@ -729,7 +973,7 @@ Boolean GetMIDIFileInfo(
 		return False;
 	}
 	
-	for (nGoodTrs = 0, t = 2; t<=nTracks; t++)
+	for (nGoodTrs = 0, t = 2; t<=mfNTracks; t++)
 		if (trackInfo[t].okay) nGoodTrs++;
 	if (nGoodTrs==0) {
 		GetIndCString(strBuf, MIDIFILE_STRS, 7);    /* "None of the tracks are good except the timing track." */
@@ -747,14 +991,15 @@ Boolean GetMIDIFileInfo(
 
 /* ------------------------------------------------------------------- CheckAndConsult -- */
 
-static Boolean CheckAndConsult(TRACKINFO [],short *,Boolean *,Boolean *,Boolean *,short *,long *);
+static Boolean CheckAndConsult(TRACKINFO [], short *, Boolean *,Boolean *, Boolean *,
+					short *, long *);
 static Boolean CheckAndConsult(
-						TRACKINFO trackInfo[],
-						short *pQuantCode,
-						Boolean *pAutoBeam, Boolean *pTriplets, Boolean *pClefChanges,
-						short *pMaxMeasures,
-						long *pLastEvent						/* in MIDI file (not Nightingale!) ticks */
-						)
+					TRACKINFO trackInfo[],
+					short *pQuantCode,
+					Boolean *pAutoBeam, Boolean *pTriplets, Boolean *pClefChanges,
+					short *pMaxMeasures,
+					long *pLastEvent					/* in MIDI file (not Nightingale!) ticks */
+					)
 {
 	short nTrackNotes[MAXTRACKS+1], nTooLong[MAXTRACKS+1], qTrLDur[MAXTRACKS+1];
 	Boolean chanUsed[MAXTRACKS+1][MAXCHANNEL];
@@ -768,10 +1013,10 @@ static Boolean CheckAndConsult(
 	
 	/* Tell user what we found and ask them what to do now. */
 	
-	LogPrintf(LOG_NOTICE, "CheckAndConsult: lastEvent=%ld\n", *pLastEvent);
+	LogPrintf(LOG_INFO, "lastEvent=%ld  (CheckAndConsult)\n", *pLastEvent);
 	return TranscribeMFDialog(trackInfo, nTrackNotes, nTooLong, chanUsed, qTrLDur,
-										qTrTriplets, lastTrEvent, nNotes, nGoodTrs, qAllLDur,
-										pQuantCode, pAutoBeam, pTriplets, pClefChanges, pMaxMeasures);
+								qTrTriplets, lastTrEvent, nNotes, nGoodTrs, qAllLDur,
+								pQuantCode, pAutoBeam, pTriplets, pClefChanges, pMaxMeasures);
 }
 
 
@@ -818,13 +1063,12 @@ static Boolean OpenMIDIFile()
 
 		durQuantum = (quantCode==UNKNOWN_L_DUR? 1 : Code2LDur(quantCode, 0));
 
-		/*
-		 * We now have a default score with one part of two staves. In a format 1 MIDI
-		 * file, the first track is the tempo map, which won't get a staff; for every
-		 * other track, add a part of one staff below all existing staves. Then get
-		 * rid of the default part.
-		 */
-		for (stf = 1; stf<nTracks; stf++) {
+		/* We now have a default score with one part of two staves. In a format 1 MIDI
+		   file, the first track is the tempo map, which won't get a staff; for every
+		   other track, add a part of one staff below all existing staves. Then get rid
+		   of the default part. */
+		   
+		for (stf = 1; stf<mfNTracks; stf++) {
 			partL = AddPart(doc, 2+(stf-1), 1, SHOW_ALL_LINES);
 			if (partL==NILINK) return False;
 			InitPart(partL, 2+stf, 2+stf);
@@ -833,12 +1077,12 @@ static Boolean OpenMIDIFile()
 
 		FixMeasRectYs(doc, NILINK, True, True, False);		/* Fix measure & system tops & bottoms */
 		Score2MasterPage(doc);
-		/*
-		 * Read in each track and convert okay ones to our "MIDNight" intermediate form.
-		 * Note that neither pChunkMF nor pChunk is allocated here: ReadTrack and
-		 * MF2MIDNight are respectively responsible for that.
-		 */
-		for (t = 1; t<=nTracks; t++) {
+		
+		/* Read in each track and convert okay ones to our "MIDNight" intermediate form.
+		   Note that neither pChunkMF nor pChunk is allocated here: ReadTrack and
+		   MF2MIDNight are respectively responsible for that. */
+		   
+		for (t = 1; t<=mfNTracks; t++) {
 			lenMF = ReadTrack(&pChunkMF);
 			if (lenMF==0) {
 				if (pChunkMF) DisposePtr((Ptr)pChunkMF);
@@ -877,17 +1121,16 @@ static Boolean OpenMIDIFile()
 
 		NameMFScore(doc);
 
-		/*
-		 *	Convert MIDNight form for all okay tracks to Nightingale data structure, format
-		 * it, and clean up.
-		 */
+		/* Convert MIDNight form for all okay tracks to Nightingale data structure, format
+		   it, and clean up. */
+		   
 		tripletBias = (triplets? -config.noTripletBias : -100);
-		LogPrintf(LOG_INFO, "OpenMIDIFile: Calling MIDNight2Night with nTracks=%d...\n", nTracks);
-		status = MIDNight2Night(doc,trackInfo,durQuantum,tripletBias,
-									config.delRedundantAccs,clefChanges,RESET_PLAYDURS,
-									maxMeasures,lastEvent);
+		LogPrintf(LOG_INFO, "Calling MIDNight2Night with %d tracks...  (OpenMIDIFile)\n", mfNTracks);
+		status = MIDNight2Night(doc,trackInfo, durQuantum, tripletBias,
+									config.delRedundantAccs, clefChanges, RESET_PLAYDURS,
+									maxMeasures, lastEvent);
 
-		for (t = 1; t<=nTracks; t++)
+		for (t = 1; t<=mfNTracks; t++)
 			if (trackInfo[t].pChunk) DisposePtr((Ptr)trackInfo[t].pChunk);
 
 		if (status==FAILURE) return False;

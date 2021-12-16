@@ -10726,7 +10726,7 @@ being.
 
 ---------------------------------------------------------------------------------------
 
-1 - 4 Dec.
+1 - 5 Dec.
 
 Removed the "Show 2 dots" checkbox from Set Duration dialog => everything in the dialog seems
 to be OK on PowerPC.
@@ -10743,4 +10743,28 @@ Let's work on the other features that use the duration palette. Insert/edit temp
 needs undotted and 1-dot durations (the top two rows); Fancy Tuplet, Import MIDI File, and
 Transcribe Recording need undotted durations only (just the top row). So DrawBMP() needs to
 be able to draw just the top part of an image: add a <drawHeight> parameter to specify => done.
+
+---------------------------------------------------------------------------------------
+
+7 - 15 Dec.
+
+Hey, instead of enlarging the dialogs to accomodate the full palettes, why not use the
+dialogs unchanged, but clicking the user item to use the palette brings up a modal dialog
+containing the full palette? Overall, that'd probably be better user-interface-wise as
+well as reducing the amount of code to change and restricting code changes mostly to the
+file(s) that handle(s) the modal dialog(s)! However, it needs code to draw the current
+choice into the dialog's user item, presumably copying it from the BMP: conceptually trivial
+but messy :-) . Generalize DrawBMP to draw an arbitrary rectangular chunk of BMP? That's
+more general than needed, esp. since it'd require handling padding; anyway drawing a small
+rectangle is very different from drawing the top n rows. Better to write DrawBMPChar().
+Test w/ Import MIDI File => ...wait; it's still not obvious how to find the part of the
+bitmap we need for a given cell number because we don't know how large the cells are! But
+Ngale needs to know that to handle the tool palette (hiliting, etc.); is it getting it from
+the 'PGLB' resource? Yes, but it's not explicit there! InitToolPalette() computes
+
+	toolCellWidth = (windowRect->right + 1) / whichPalette->maxAcross;
+	toolCellHeight = (windowRect->bottom + 1) / whichPalette->maxDown;
+
+maxAcross and maxDown are straight out of the PGLB; ??
+
 

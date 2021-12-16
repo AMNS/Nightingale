@@ -15,16 +15,17 @@
 
 /* No one point size is good for both music fonts and normal text fonts. 24 is a nice
 size for Sonata and similar fonts, whether compatible or not. */
+
 #define MIN_FONTSIZE 	14		/* still too small for music fonts! */
-#define MAX_FONTSIZE 	48		/* too big for non-music fonts? too small for 72pt Seville, etc.*/
+#define MAX_FONTSIZE 	48		/* too big for non-music fonts? too small for 72pt Seville, etc. */
 #define MIN_CELLWIDTH	32		/* pixels */
 #define MIN_CELLHEIGHT	32
 
 #define USE_CUSTOMLIST
 
 /* dialog item numbers */
-#define LIST3		3
-#define LASTITEM	LIST3
+#define LIST_DI		3
+#define LASTITEM	LIST_DI
 
 static ListHandle charListHndl;
 static Rect	charListBounds;
@@ -32,6 +33,7 @@ static short numColumns, numRows;
 static short lastChoice;
 
 /* local prototypes */
+
 static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static Boolean BuildList(DialogPtr dlog);
 
@@ -43,7 +45,7 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 	short			itemHit, type;
 	Boolean			okay, keepGoing=True;
 	Cell			aCell;
-	register DialogPtr dlog;
+	DialogPtr		dlog;
 	Handle			hndl;
 	Rect			box;
 	GrafPtr			oldPort;
@@ -72,9 +74,8 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 	/* Only use sizes that are installed, so we don't get ugly scaling. (All sizes of
 		TrueType and, I assume, ATM fonts are "real" fonts.) */
 	if (!RealFont(fontNum, fontSize)) {
-		register short i;
 		Boolean gotIt=False;
-		for (i=fontSize; i<=MAX_FONTSIZE; i++) {			/* look for a larger installed size */
+		for (short i=fontSize; i<=MAX_FONTSIZE; i++) {			/* look for a larger installed size */
 			if (RealFont(fontNum, i)) {
 				gotIt = True;
 				fontSize = i;
@@ -82,7 +83,7 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 			}
 		}
 		if (!gotIt) {
-			for (i=fontSize; i>=MIN_FONTSIZE; i--) {		/* look for a smaller installed size */
+			for (short i=fontSize; i>=MIN_FONTSIZE; i--) {		/* look for a smaller installed size */
 				if (RealFont(fontNum, i)) {
 					fontSize = i;
 					break;
@@ -93,6 +94,7 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 	}
 
 	/* Set font for list */
+	
 	TextFont(fontNum);
 	TextSize(fontSize);
 	
@@ -101,7 +103,8 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 	CenterWindow(GetDialogWindow(dlog), 0);
 	ShowWindow(GetDialogWindow(dlog));
 
-	/* Entertain filtered user events until dialog is dismissed */	
+	/* Entertain filtered user events until dialog is dismissed */
+	
 	while (keepGoing) {
 		ModalDialog(filterUPP, &itemHit);
 		if (itemHit<1 || itemHit>=LASTITEM) continue;
@@ -113,7 +116,7 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 			case Cancel:
 				keepGoing = False;
 				break;
-			case LIST3:					/* handled in filter */
+			case LIST_DI:					/* handled in filter */
 				break;
 		}
 	}
@@ -208,20 +211,16 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 				oldCellCh = (aCell.v * numColumns) + aCell.h;
 				switch (ch) {
 					case LEFTARROWKEY:
-						if (oldCellCh > 0)
-							oldCellCh--;
+						if (oldCellCh>0) oldCellCh--;
 						break;
 					case RIGHTARROWKEY:
-						if (oldCellCh < (numColumns*numRows)-1)
-							oldCellCh++;
+						if (oldCellCh<(numColumns*numRows)-1) oldCellCh++;
 						break;
 					case UPARROWKEY:
-						if (oldCellCh > numColumns-1)
-							oldCellCh -= numColumns;
+						if (oldCellCh>numColumns-1) oldCellCh -= numColumns;
 						break;
 					case DOWNARROWKEY:
-						if (oldCellCh < numColumns*(numRows-1))
-							oldCellCh += numColumns;
+						if (oldCellCh<numColumns*(numRows-1)) oldCellCh += numColumns;
 						break;
 					default:								/* select the character typed */
 						oldCellCh = ch;
@@ -242,7 +241,7 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 }
 
 
-/* Build a new list in the LIST3 user item box of dlog. The list displays 256
+/* Build a new list in the LIST_DI user item box of dlog. The list displays 256
 characters in the current font and size, using a custom LDEF, which draws dotted
 gray cell borders and centers chars within cells. The size of the list depends on the
 size of the font and some defined constants. The window is sized accordingly, and the
@@ -261,22 +260,25 @@ static Boolean BuildList(DialogPtr dlog)
 	Point		cSize;
 
 	/* Get screen size */
+	
 	limitRect = GetQDScreenBitsBounds();
 	limitRect.top += GetMBarHeight();
 	InsetRect(&limitRect, 30, 30);
 	scrnWid = limitRect.right - limitRect.left;
 	scrnHt = limitRect.bottom - limitRect.top;
 
-	/* Get margins from user item rect. */
-	GetDialogItem(dlog, LIST3, &type, &hndl, &userBox);
+	/* Get margins from user item rect. NB: right and bottom are dist. between list and
+	   closest edge of window. */
+	   
+	GetDialogItem(dlog, LIST_DI, &type, &hndl, &userBox);
 	lMarg = userBox;
 	
 	GetDialogPortBounds(dlog, &portRect);
-	/* NB: right & bottom are dist. between list and closest edge of window */
 	lMarg.right = portRect.right - userBox.right;
 	lMarg.bottom = portRect.bottom - userBox.bottom;
 
 	/* Calculate cell dimensions from current font characteristics */
+	
 	GetFontInfo(&fontInfo);
 	cellWid = fontInfo.widMax;
 	cellHt = fontInfo.ascent + fontInfo.descent + fontInfo.leading;
@@ -284,26 +286,28 @@ static Boolean BuildList(DialogPtr dlog)
 	cellHt = n_max(cellHt, MIN_CELLHEIGHT);
 
 	/* Determine how many cells can fit in a comfortably sized window */
+	
 	maxColumns = (scrnWid - (lMarg.left + lMarg.right)) / cellWid;
 	numColumns = maxColumns>=16? 16 : (maxColumns>=8? 8 : 4);
-	numRowsVis = (scrnHt - (lMarg.top + lMarg.bottom)) / cellHt;		/* number of rows visible at a time (without scrolling) */
-	numRows = 256/numColumns;											/* total number of rows */
+	numRowsVis = (scrnHt - (lMarg.top + lMarg.bottom)) / cellHt;	/* number of rows visible at a time (without scrolling) */
+	numRows = 256/numColumns;										/* total number of rows */
 	if (numRowsVis>numRows) numRowsVis = numRows;
-	scrollBarWid = numRowsVis==numRows? 0 : SCROLLBAR_WIDTH;			/* may not need scroll bar */
+	scrollBarWid = numRowsVis==numRows? 0 : SCROLLBAR_WIDTH;		/* may not need scroll bar */
 	
 	/* Calculate size of list and dialog window */
+	
 	userBox.right = userBox.left + (cellWid*numColumns) + scrollBarWid;
 	userBox.bottom = userBox.top + (cellHt*numRowsVis);
 
-	/* set list bounding rect */
+	/* Set list bounding rect and change window size */
+	
 	charListBounds = userBox; InsetRect(&charListBounds, -1, -1);
-	SetDialogItem(dlog, LIST3, userItem, NULL, &charListBounds);		/* so we get clicks in updated user item rect, I guess */
-
-	/* Change window size */
+	SetDialogItem(dlog, LIST_DI, userItem, NULL, &charListBounds);	/* so we get clicks in updated user item rect, I guess */
 	SizeWindow(GetDialogWindow(dlog), (userBox.right - userBox.left) + (lMarg.left + lMarg.right),
 					(userBox.bottom - userBox.top) + (lMarg.top + lMarg.bottom), False);
 	
 	/* Move Cancel button */
+	
 	GetDialogItem(dlog, Cancel, &type, &hndl, &cancelBox);
 	butWid = cancelBox.right - cancelBox.left;
 	butHt = cancelBox.bottom - cancelBox.top;
@@ -316,6 +320,7 @@ static Boolean BuildList(DialogPtr dlog)
 	MoveControl((ControlHandle)hndl, cancelBox.left, cancelBox.top);	/* have to do this too */
 
 	/* Move OK button */
+	
 	GetDialogItem(dlog, OK, &type, &hndl, &OKbox);
 	butWid = OKbox.right - OKbox.left;
 	butHt = OKbox.bottom - OKbox.top;
@@ -327,9 +332,10 @@ static Boolean BuildList(DialogPtr dlog)
 	MoveControl((ControlHandle)hndl, OKbox.left, OKbox.top);
 
 	/* Content area (plus scroll bar) of list corresponds to modified user item box */
+	
 	contentRect = userBox; contentRect.right = userBox.right - scrollBarWid;
 
-	SetRect(&dataBounds, 0, 0, numColumns, numRows);		/* for 256 chars */
+	SetRect(&dataBounds, 0, 0, numColumns, numRows);			/* for 256 chars */
 	cSize.h = cellWid;	cSize.v = cellHt;
 	
 #ifdef USE_CUSTOMLIST
@@ -352,14 +358,14 @@ static Boolean BuildList(DialogPtr dlog)
 		for (i=0; i<numRows; i++) {
 			for (j=0; j<numColumns; j++) {
 				aCell.h = j;  aCell.v = i;
-				*data = (unsigned char)((i*numColumns)+j);	/* an ASCII value */
+				*data = (unsigned char)((i*numColumns)+j);		/* an ASCII value */
 				LSetCell(data, 1, aCell, charListHndl);
 			}
 		}
 		aCell.h = lastChoice % numColumns;
 		aCell.v = lastChoice / numColumns;
-		LSetSelect(True, aCell, charListHndl);				/* select default (or sticky) cell */
-		LAutoScroll(charListHndl);							/* and scroll to it */
+		LSetSelect(True, aCell, charListHndl);					/* select default (or sticky) cell */
+		LAutoScroll(charListHndl);								/* and scroll to it */
 		LSetDrawingMode(True, charListHndl);
 	}
 	

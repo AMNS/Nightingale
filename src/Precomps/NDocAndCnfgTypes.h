@@ -6,9 +6,9 @@ problem for backward compatibility.*/
 #include <CoreMIDI/MIDIServices.h>		/* for MIDIUniqueID */
 
 /* An old comment here by MAS: "we want to /always/ use mac68k alignment." Why? I suspect
-for compatibility of files containing bitfields, which we no longer use. Still, it
-shouldn't cause any problems, so leave as is until there's a reason to change it. --DAB,
-2018(?) */
+for compatibility of files containing bitfields, which (starting with the 'N106' file
+format) we no longer use. Still, it shouldn't cause any problems, so leave as is until
+there's a reason to change it. --DAB, 2018(?) */
  
 #pragma options align=mac68k
 
@@ -168,7 +168,7 @@ typedef struct {
 																								\
 	/* <nFontRecords>  TEXTSTYLE records, 44 bytes each. Fontnames are Pascal strings.			\
 	   We declare each record explicitly simply so every field of every record has a			\
-	   unique name. It's far from clear this is a good idea! */									\
+	   unique name. It's far from clear this is the best way to do things! */									\
 																								\
 	unsigned char fontNameMN[32];	/* MEASURE NO. FONT: default name, size and style */		\
 	unsigned short	fillerMN;																	\
@@ -295,7 +295,7 @@ typedef struct {
 	short			nfontsUsed;			/* no. of entries in fontTable */						\
 	FONTITEM		fontTable[MAX_SCOREFONTS]; /* To convert stored to system font nos. */		\
 																								\
-	unsigned char musFontName[32]; /* name of this document's music font */						\
+	unsigned char musFontName[32];		/* name of this document's music font */						\
 																								\
 	short			magnify,			/* Current reduce/enlarge magnification, 0=none */		\
 					selStaff;			/* If sel. is empty, insertion pt's staff, else undefined */ \
@@ -335,28 +335,27 @@ typedef struct {
 } SCOREHEADER, *PSCOREHEADER;
 
 
-/* The <Document> struct includes a DOCUMENTHEADER, a set of Heaps, and a 
-NIGHTSCOREHEADER, along with many other fields. Each open Document file is represented
-on the desktop by a single window with which the user edits the Document. This
-Document's window record is the first field of an extended Document struct, so that
-pointers to Documents can be used anywhere a WindowPtr can.  Each Document consists of
-a standard page size and margin for all pages, and between 1 and numSheets pages,
-called <sheets>.
+/* The <Document> struct includes a DOCUMENTHEADER, a set of Heaps, and a
+NIGHTSCOREHEADER, along with many other fields. Each open Document file is represented on
+the desktop by a single window with which the user edits the Document. This Document's
+window record is the first field of an extended Document struct, so that pointers to
+Documents can be used anywhere a WindowPtr can.  Each Document consists of a standard page
+size and margin for all pages, and between 1 and numSheets pages, called <sheets>.
 
- Sheets, the internal form of pages, are always numbered from 0 to (numSheets-1);
- pages are numbered according to the user's whim.  Sheets are laid out to tile the space
- in the window, extending first horizontally and then vertically into the window space. 
- There is always a currentSheet that we're editing, and whose upper left corner is always
- (0,0) with respect to any drawing routines that draw on the sheets. However, sheets are
- kept in an array whose upper left origin (sheetOrigin) is usually chosen very negative
- so that we can use as much of Quickdraw's 16-bits space as possible. The coordinate
- system of the window is continually danced around as the current sheet changes, as well
- as during scrolling.  The bounding box of all sheets is used to compute the scrolling
- bounds.  The background region is used to paint a background pattern behind all sheets
- in the array. */
+Sheets, the internal form of pages, are always numbered from 0 to (numSheets-1); pages are
+numbered according to the user's whim.  Sheets are laid out to tile the space in the
+window, extending first horizontally and then vertically into the window space. There is
+always a currentSheet that we're editing, and whose upper left corner is always (0,0) with
+respect to any drawing routines that draw on the sheets. However, sheets are kept in an
+array whose upper left origin (sheetOrigin) is usually chosen very negative so that we can
+use as much of Quickdraw's 16-bits space as possible. The coordinate system of the window
+is continually danced around as the current sheet changes, as well as during scrolling. 
+The bounding box of all sheets is used to compute the scrolling bounds.  The background
+region is used to paint a background pattern behind all sheets in the array. */
 
 typedef struct {
-/* These first fields don't need to be saved. */
+	/* These first fields don't need to be saved. */
+
 	WindowPtr		theWindow;			/* The window being used to show this doc */
 	Str255			name;				/* File name */
 	FSSpec			fsSpec;
@@ -402,14 +401,17 @@ typedef struct {
 					moreUnused:11;
 	UNDOREC			undo;				/* Undo record for the Document */
 	
-/* Non-Nightingale-specific fields which need to be saved */
+	/* Non-Nightingale-specific fields which need to be saved */
+
 	DOCUMENTHEADER
 
-/* Nightingale-specific fields which need to be saved */
+	/* Nightingale-specific fields which need to be saved */
+
 	HEAP 			Heap[LASTtype];			/* One HEAP for every type of object */
 	NIGHTSCOREHEADER
 
-/* MIDI driver fields. We now support only Core MIDI; OMS and FreeMIDI are pre-OS X. */
+	/* MIDI driver fields. We now support only Core MIDI; OMS and FreeMIDI are pre-OS X. */
+
 	/* OMS (obsolete) */
 	OMSUniqueID		omsPartDeviceList[MAXSTAVES];	/* OMS MIDI dev data for each part on MP, */
 													/*   indexed by partn associated with PARTINFOheap */
@@ -422,7 +424,8 @@ typedef struct {
 													/*   indexed by partn associated with PARTINFOheap */
 	MIDIUniqueID	cmInputDevice;  				/* CoreMIDI dev data for recording inputs */
 
-/* The remaining fields don't need to be saved. */
+	/* The remaining fields don't need to be saved. */
+
 	Rect			prevMargin;			/* doc->marginRect upon entering Master Page */
 	short			srastralMP;			/* srastral set inside Master Page */
 	short			nSysMP;				/* Number of systems which can fit on a page */
@@ -462,7 +465,6 @@ typedef struct {
 
 
 /* --------------------------------------------------------------------- Configuration -- */
-
 /* General configuration information is kept in a 'CNFG' resource, with the structure
  given below; its size is 256 bytes.
  
@@ -684,7 +686,7 @@ typedef struct {
 	SignedByte	thruChannel;			/* U: Channel for MIDI thru output */
 	unsigned short thruDevice;			/* U: Device for MIDI thru output */
 
-	/* Following fields were added after Nightingale 4.0, file format version "N104". */
+	/* Following fields were added after Nightingale 4.0, file format version 'N104'. */
 	
 	MIDIUniqueID cmMetroDev;			/* P: Core MIDI identifier for metronome synth */
 	MIDIUniqueID cmDfltInputDev;		/* P: Core MIDI identifier for default input synth */
@@ -702,10 +704,8 @@ typedef struct {
 	} Configuration;
 
 
-/*
- *	MIDI configuration information (currently, just the dynamic-mark-to-velocity table)
- * is kept in a 'MIDI' resource, with this structure.
- */
+/* MIDI configuration information (currently, just the dynamic-mark-to-velocity table)
+is kept in a 'MIDI' resource, with this structure. */
 
 typedef struct {
 	SignedByte	velocities[23];		/* Dynamic velocities */
@@ -725,11 +725,13 @@ typedef struct {
 
 
 /* For support of music fonts other than Sonata */
+
 typedef struct {
 	short			fontID;
 	Str31			fontName;
 
 	/* from 'MFEx' rsrc */
+	
 	Boolean			sonataFlagMethod;		/* (unused) Draw flags like Sonata? */
 	Boolean			has16thFlagChars;		/* Has 16th flag chars? */
 	Boolean			hasCurlyBraceChars;		/* Has curly brace chars (as in Sonata) */
@@ -750,6 +752,7 @@ typedef struct {
 } MusFontRec;
 
 /* Navigation Services client data */
+
 typedef struct NSClientData {
 	char 		nsFileName[256];		/* Name of file for open or save dialog */
 	FSSpec 		nsFSSpec;				/* FSSpec to uniquely id the file */
