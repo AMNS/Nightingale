@@ -27,8 +27,8 @@ typedef struct {
 #define BITMAP_SPACE 30000			/* Size of buffers for BMP images */
 
 typedef struct {
-	short bWidth;
-	short bWidthPadded;
+	short byWidth;
+	short byWidthPadded;
 	short height;
 	Byte bitmap[BITMAP_SPACE];
 } NBMP;

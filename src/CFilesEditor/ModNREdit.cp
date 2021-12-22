@@ -24,7 +24,7 @@ static Boolean DrawModNRPalette(Rect *pBox)
 {	
 //DHexDump(LOG_DEBUG, "ModNRPal", bmpModifierPal.bitmap, 5*16, 4, 16, True);
 
-	DrawBMP(bmpModifierPal.bitmap, bmpModifierPal.bWidth, bmpModifierPal.bWidthPadded,
+	DrawBMP(bmpModifierPal.bitmap, bmpModifierPal.byWidth, bmpModifierPal.byWidthPadded,
 			bmpModifierPal.height, bmpModifierPal.height, *pBox);
 	return True;
 }

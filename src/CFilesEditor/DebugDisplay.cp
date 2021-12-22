@@ -734,22 +734,24 @@ void DObjDump(char *label, short nFrom, short nTo)
 #define SHOW_GRAPHIC 1		/* Show the row of flags in the obvious graphical way? */
 #define SHOW_HEX 0			/* Show the flags as "(offset value)"?
 
-/* Print a row of 1-bit flags, e.g., to display a bitmap as a low-resolution graphic. */
+/* Print a row of 1-bit flags, e.g., to display a bitmap as a low-resolution graphic.
+Intended for use with bitmaps read from BMP files, where rows are padded, but we have
+<startLoc>, so the padding is irrelevant. */
 
-void DPrintRow(Byte bitmap[], short nRow, short bWidth, short startLoc,
+void DPrintRow(Byte bitmap[], short startLoc, short byWidth, short rowNum,
 			Boolean foreIsAOne,		/* Is a 1 bit foreground? */
 			Boolean skipBits)		/* skip alternate background bits so foreground stands out? */
 {
-	printf("%3d: ", nRow);
-	for (short k = 0; k<bWidth; k++) {
-		if (SHOW_HEX) printf("(%d %02x)", startLoc+k, bitmap[startLoc+k]);
+	printf("%3d: ", rowNum);
+	for (short kCol = 0; kCol<byWidth; kCol++) {
+		if (SHOW_HEX) printf("(%d %02x)", startLoc+kCol, bitmap[startLoc+kCol]);
 		if (!SHOW_GRAPHIC) continue;
 		Boolean even = False;
-//printf("(%d %02x)", startLoc+k, bitmap[startLoc+k]);
+//printf("(%d %02x)", startLoc+kCol, bitmap[startLoc+kCol]);
 		for (short bn = 0; bn<8; bn++) {
 			char backgroundChar = '.';
 			
-			Boolean aBit = !((bitmap[startLoc+k]>>(7-bn)) & 0x01);
+			Boolean aBit = !((bitmap[startLoc+kCol]>>(7-bn)) & 0x01);
 			if (skipBits) {
 				even = !even;
 				backgroundChar = (even? '.' : ' ');

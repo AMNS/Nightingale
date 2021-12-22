@@ -24,7 +24,7 @@ static Boolean DrawDynamicPalette(Rect *pBox)
 {	
 //DHexDump(LOG_DEBUG, "DynPal", bmpDynamicPal.bitmap, 5*16, 4, 16, True);
 
-	DrawBMP(bmpDynamicPal.bitmap, bmpDynamicPal.bWidth, bmpDynamicPal.bWidthPadded,
+	DrawBMP(bmpDynamicPal.bitmap, bmpDynamicPal.byWidth, bmpDynamicPal.byWidthPadded,
 			bmpDynamicPal.height, bmpDynamicPal.height, *pBox);
 	return True;
 }

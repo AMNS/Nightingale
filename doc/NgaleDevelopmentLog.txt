@@ -10760,11 +10760,46 @@ rectangle is very different from drawing the top n rows. Better to write DrawBMP
 Test w/ Import MIDI File => ...wait; it's still not obvious how to find the part of the
 bitmap we need for a given cell number because we don't know how large the cells are! But
 Ngale needs to know that to handle the tool palette (hiliting, etc.); is it getting it from
-the 'PGLB' resource? Yes, but it's not explicit there! InitToolPalette() computes
+the 'PGLB' resource? Yes, but it's not explicit there! Cf. InitToolPalette().
+
+---------------------------------------------------------------------------------------
+
+17 - 21 Dec.
+
+ InitToolPalette() computes
 
 	toolCellWidth = (windowRect->right + 1) / whichPalette->maxAcross;
 	toolCellHeight = (windowRect->bottom + 1) / whichPalette->maxDown;
 
-maxAcross and maxDown are straight out of the PGLB; ??
+It gets windowRect coords. via:
 
+	bmpf = NOpenBMPFile(TOOL_PALETTE_FN, &pixOffset, &width, &byWidth, &byWidthPadded, &height);
+	...
+	SetRect(&maxToolsRect, 0, 0, width, height);
+	*windowRect = maxToolsRect;
+
+NOpenBMPFile gets width and height straight out of the BMP file information header.
+maxAcross and maxDown are straight out of the PGLB.
+
+Probably best to add explicit cell width and height to the PGLB, but leave the tool palette
+code as is & have it either ignore the new PGLB fields or use them just for error checking.
+
+Cell count (rows*cols) & size (ht*width):
+	Tool palette: 16*16 cells each 25*17 = 400*272 pixels
+	Duration " : 3*9 cells each 26*24 = 78*216
+	Dynamics " : 2*5 cells each 26*24 = 52*120
+	Modifiers " : 4*6 cells each 26*24 = 104*144
+	
+The best calling sequence for DrawBMPChar isn't obvious!; it needs full info about the bitmap
+as well as the section to draw, but w/ x coords. in bits or bytes? And use <dstRect> for its
+size? Ah, both it and DrawBMP do the "same thing" for each row!
+
+Pull DrawRow() out of DrawBMP; make its calling sequence similar to DPrintRow; & call it from
+DrawBMP (and later DrawBMPChar) => well, DPrintRow still shows the right stuff for both the
+tool palette and the Set Duration palette, but both actual palettes are now blank! Likewise
+for the modifier and dynamics palettes. ?? go back to DrawUtils.cp of 19 Dec. => no change.
+Earlier versions don't link because of a change to calling sequence of DrawBMPChar, but the
+palettes are all drawn with NightingalePPC.app of 16 Dec. 7:14A. Ah, now the palettes aren't
+blank, but only the beginning of each row of pixels is drawn. Cause: the <byWidth> parameter
+to DrawRow is actually the width in bits, not bytes! Correct that => all OK.
 

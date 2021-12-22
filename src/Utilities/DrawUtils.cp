@@ -2058,7 +2058,48 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
 }
 
 
-/* ------------------------------------------------------------- DrawBMP,  DrawBMPChar -- */
+/* ---------------------------------------------------------------------- Drawing BMPs -- */
+
+static void DrawRow(Byte bmpBits[], short startLoc, short width, short x, short y);
+static void DrawRow(Byte bmpBits[], short startLoc, short width, short x, short y)
+{
+	short runStart;
+	short blackRunLength = 0;
+
+	for (short kCol = 0; kCol<width; kCol++) {
+	
+		/* Examine the bit in the bitmap at (kCol,kRow) */
+		
+		Byte b = bmpBits[startLoc + kCol/8];
+		Byte mask = ( 1 << (7 - (kCol%8)) );
+		Byte aBit = (b & mask)!=0;
+		
+		if (aBit==0) {
+			/* Black pixel. Don't draw; just increment run length, and if first in
+			   run, record its position. */
+			
+			if (blackRunLength==0) runStart = x;
+			blackRunLength++;
+		}
+		 else {
+			/* White pixel. If any saved black pixels, draw a horizontal line. */
+			
+			if (blackRunLength>0) {
+				MoveTo(runStart, y);
+				LineTo(x-1, y);
+				blackRunLength = 0;
+			}
+		}
+		x++;
+	}
+	
+	/* Row ended, but we still have to flush any saved black pixels. */
+	
+	if (blackRunLength>0) {
+		MoveTo(runStart, y);
+		LineTo(x-1, y);
+	}
+}
 
 /* Draw all or part of a black-and-white image from a black-and-white (one bit/pixel)
 bitmap with rows padded. Intended for drawing palettes read from BMP files (the rows
@@ -2066,7 +2107,7 @@ in their bitmaps are padded to a multiple of 4 bytes). <bmpBits[]> should contai
 B&W bitmap, with an image whose logical width is <byWidth> bytes; the first
 <byWidthPadded> bytes represent the lowest row of the image. The bitmap's height is
 <height> pixels, of which only the top <drawHeight> rows will be drawn. They'll be drawn
-into <dstRect>. */
+into <dstRect>. Caveat: horizontal parameters are in bytes, vertical params in pixels! */
 
 void DrawBMP(Byte bmpBits[], short byWidth, short byWidthPadded, short height,
 														short drawHeight, Rect dstRect)
@@ -2087,45 +2128,10 @@ void DrawBMP(Byte bmpBits[], short byWidth, short byWidthPadded, short height,
 	short y = dstRect.bottom-1;
 	for (short kRow=height-drawHeight; kRow<height; kRow++) {
 		short x = dstRect.left+1;
-		short startOfRow = kRow * byWidthPadded;
+		short startOfRow = kRow*byWidthPadded;
 		if (DETAIL_SHOW)
-			{ DPrintRow(bmpBits, kRow, byWidth, startOfRow, False, False);  printf("\n"); }
-		short runStart;
-		short blackRunLength = 0;
-		for (short kCol=0; kCol<byWidth*8; kCol++) {
-		
-			/* Examine the bit in the bitmap at (kCol,kRow) */
-			
-			Byte b = bmpBits[startOfRow + kCol/8];
-			Byte mask = ( 1 << (7 - (kCol%8)) );
-			Byte aBit = (b & mask)!=0;
-			
-			if (aBit==0) {
-				/* Black pixel. Don't draw; just increment run length, and if first in
-				   run, record its position. */
-				
-				if (blackRunLength==0) runStart = x;
-				blackRunLength++;
-			}
-			 else {
-				/* White pixel. If any saved black pixels, draw a horizontal line. */
-				
-				if (blackRunLength>0) {
-				    MoveTo(runStart, y);
-					LineTo(x-1, y);
-					blackRunLength = 0;
-				}
-			}
-			x++;
-		}
-		
-		/* Row ended, but we still have to flush any saved black pixels. */
-		
-		if (blackRunLength>0) {
-			MoveTo(runStart, y);
-			LineTo(x-1, y);
-		}
-
+			{ DPrintRow(bmpBits, startOfRow, byWidth, kRow, False, False);  printf("\n"); }
+		DrawRow(bmpBits, startOfRow, byWidth*8, x, y);
 		y--;
 	}
 }
@@ -2134,35 +2140,37 @@ void DrawBMP(Byte bmpBits[], short byWidth, short byWidthPadded, short height,
 /* Draw part of a black-and-white image from a black-and-white (one bit/pixel) bitmap
 with rows padded. Intended for drawing indivdual characters of palettes read from BMP
 files (the bitmaps in their rows are padded to a multiple of 4 bytes). <bmpBits[]>
-should contain the B&W bitmap. The character to be drawn is <palCharNum> in the
-bitmap. Its size is <width> by <height> bits, and it'll be drawn into <dstRect>. 
-??NO! THE BITMAP CONTAINS ONLY THE CHARACTER!
-NB:
-To avoid dealing with padding, we assume the area to be drawn doesn't contain any! */
+should contain the B&W bitmap, with an image whose logical width is <byWidth> bytes; the
+first <byWidthPadded> bytes represent the lowest row of the image. The bitmap's height is
+<height> pixels, of which only the section whose top left pixel is (chLeft,chTop) will
+be drawn. It'll be drawn into <dstRect>, the dimensions of which give the width and
+height of the character. NB: To avoid dealing with padding, we assume the area to be
+drawn doesn't contain any; that should never happen with chars in a BMP anyway.  Caveat:
+horizontal parameters are in bytes, vertical params in pixels! */
 
-void DrawBMPChar(Byte bmpBits[], short palCharNum, short width, short height, Rect dstRect)
+void DrawBMPChar(Byte bmpBits[], short byWidth, short byWidthPadded, short height,
+													short chLeft, short chTop, Rect dstRect)
 {
-	short byWidth;
-
-	if (width<8 || width>300 || height<8 || height>300) {
+	if (chLeft<0 || chTop<0 || byWidth<2 || height<2) {
 		//MayErrMsg?
-		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. width=%d height=%d  (DrawBMPChar)\n",
-					width, height);
+		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. chLeft=%d chTop=%d byWidth=%d height=%d  (DrawBMPChar)\n",
+					chLeft, chTop, byWidth, height);
 		return;
 	}
 	
+	// ??MORE! :-)
+	//if (DETAIL_SHOW)
+	//	{ DPrintRow(bmpBits, kRow, byWidth, startOfRow, False, False);  printf("\n"); }
+
 	short y = dstRect.bottom-1;
-	for (short kRow=0; kRow<height; kRow++) {
+	for (short kRow=chTop; kRow<chTop+height; kRow++) {
 		short x = dstRect.left+1;
-		short startOfRow = 0;
-		if (DETAIL_SHOW) {
-			byWidth = width/8;
-			DPrintRow(bmpBits, kRow, byWidth, startOfRow, False, False); 
-			printf("\n");
-		}
+		short startOfRow = kRow * byWidthPadded;
+		if (DETAIL_SHOW)
+			{ DPrintRow(bmpBits, kRow, byWidth, startOfRow, False, False);  printf("\n"); }
 		short runStart;
 		short blackRunLength = 0;
-		for (short kCol=0; kCol<width; kCol++) {
+		for (short kCol=chLeft; kCol<chLeft+(8*byWidth); kCol++) {
 		
 			/* Examine the bit in the bitmap at (kCol,kRow) */
 			

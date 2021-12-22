@@ -3463,3 +3463,13 @@ MIDIFOCmd.
 
 Minor changes. Affects Defs.h, DSUtils.h, NDocAndCnfgTypes.h; ChooseCharDlog, DSUtils,
 DurationEdit, InitNightingale, MIDIFOCmd, MIDIFOpen, SpaceHighLevel.
+
+---------------------------------------------------------------------------------------
+
+17 - 21 Dec.
+
+Work to replace the set duration pop-up palette (using a UI font) in the Import MIDI File
+dialog with a fixed palette (from a BMP file). Affects DrawUtils.
+
+Minor changes. Affects BMP.h, Debug.h, DrawUtils.h; DebugDisplay, DialogsEditor,
+DurationEdit, DynamicsEdit, InitNightingale, MIDIFOCmd, ModNREdit.

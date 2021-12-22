@@ -58,7 +58,7 @@ void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, short, short *);
 void DHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
 				short nPerGroup, short nPerLine, Boolean numberLines);
-void DPrintRow(Byte bitmap[], short nRow, short bWidth, short startLoc, Boolean foreIsAOne,
+void DPrintRow(Byte bitmap[], short startLoc, short byWidth, short rowNum, Boolean foreIsAOne,
 				Boolean skipBits);
 void DObjDump(char *label, short nFrom, short nTo);
 

@@ -1248,8 +1248,8 @@ box.right);
 				FrameRect(&box);
 //DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 4*16, 4, 16, True);
 
-				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded,
-						bmpDurationPal.height, 2*27, box);
+				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.byWidth,
+						bmpDurationPal.byWidthPadded, bmpDurationPal.height, 2*27, box);
 				HiliteDurCell(durationIdx, &box, durationCell);
 #else
 				DrawGPopUp(curPop);		

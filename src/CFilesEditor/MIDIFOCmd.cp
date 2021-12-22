@@ -286,8 +286,8 @@ static pascal Boolean PaletteChoiceFilter(DialogPtr dlog, EventRecord *evt, shor
 //LogPrintf(LOG_DEBUG, "PaletteChoiceFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
 //box.right);
 				FrameRect(&box);
-				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded,
-							bmpDurationPal.height, NROWS*ROW_HEIGHT, box);
+				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.byWidth,
+						bmpDurationPal.byWidthPadded, bmpDurationPal.height, NROWS*ROW_HEIGHT, box);
 				HiliteDurCell(durationIdx, &box, durationCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
@@ -474,13 +474,11 @@ enum {
 	MFDUMMY_DI
 };
 
-short durCode;
-
 static pascal Boolean TransMFFilter(DialogPtr, EventRecord *, short *);
 static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr	w;
-	short		ch, field, type, palCharNum;
+	short		ch, field, type, byChLeft, chTop;
 	Handle		hndl;
 	Rect		box;
 	Point		where;
@@ -502,10 +500,14 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				//byOffset = 0;			// ??HOW TO COMPUTE?
 				//DrawBMPChar(bmpDurationPal.bitmap, byOffset, COL_WIDTH, ROW_HEIGHT, box);
 				//OR...
-				palCharNum = DurCodeToPalettePos(durCode, 0);
-				DrawBMPChar(bmpDurationPal.bitmap, palCharNum, COL_WIDTH, ROW_HEIGHT, box);
+				//palCharNum = DurCodeToPalettePos(durCode, 0);
+				//DrawBMPChar(bmpDurationPal.bitmap, palCharNum, COL_WIDTH, ROW_HEIGHT, box);
+				byChLeft = 0;				// ??TERMPORARY!
+				chTop = 0;				// ??TERMPORARY!
+				DrawBMPChar(bmpDurationPal.bitmap, bmpDurationPal.byWidth,
+						bmpDurationPal.byWidthPadded, bmpDurationPal.height, byChLeft, chTop, box);
 #else
-				DrawBMP(bmpDurationPal.bitmap, COL_WIDTH, bmpDurationPal.bWidthPadded,
+				DrawBMP(bmpDurationPal.bitmap, COL_WIDTH, bmpDurationPal.byWidthPadded,
 							ROW_HEIGHT, ROW_HEIGHT, box);
 #endif
 				FrameRect(&box);
@@ -591,7 +593,7 @@ static Boolean TranscribeMFDialog(
 {
 	DialogPtr dlog;  GrafPtr oldPort;
 	short ditem, aShort;
-	short rButGroup, newDurCode, maxMeas, t;
+	short rButGroup, newDurCode, oldDurCode, maxMeas, t;
 	short oldResFile; 
 	Boolean done, autoBm, trips, clefs, needTrips;
 	short choice;
@@ -668,7 +670,7 @@ static Boolean TranscribeMFDialog(
 	   whose attacks fit a (non-tuplet) metric grid and time sig. denoms. But in no case
 	   suggest anything coarser than eighths or finer than 32nds. */
 		
-	durCode = WHOLE_L_DUR;
+	newDurCode = WHOLE_L_DUR;
 	
 	for (t = 1; t<=mfNTracks; t++)
 		if (qTrLDur[t]!=UNKNOWN_L_DUR) newDurCode = n_max(newDurCode, qTrLDur[t]);
@@ -693,15 +695,15 @@ static Boolean TranscribeMFDialog(
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	durCode = newDurCode;
+	oldDurCode = newDurCode;
 	done = False;
 	while (!done) {
 		ModalDialog(filterUPP, &ditem);
-		if (newDurCode!=durCode) {
+		if (newDurCode!=oldDurCode) {
 			SwitchRadio(dlog, &rButGroup, QUANTIZE_DI);
 			XACTIVEATE_CTLS;
 		}
-		durCode = newDurCode;
+		oldDurCode = newDurCode;
 		switch (ditem) {
 		case OK:
 			done = True;

@@ -90,7 +90,7 @@ static Boolean DrawDurationPalette(Rect *pBox)
 {	
 //DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 4*16, 4, 16, True);
 
-	DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded,
+	DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded,
 			bmpDurationPal.height, bmpDurationPal.height, *pBox);
 	return True;
 }
@@ -300,8 +300,8 @@ Boolean SetDurDialog(
 	short newpDurPct;
 	short newnDots, newSetLDur, newLDur;
 
-LogPrintf(LOG_DEBUG, "SetDurDialog: bWidth=%d bWidthPadded=%d height=%d\n",
-bmpDurationPal.bWidth, bmpDurationPal.bWidthPadded, bmpDurationPal.height);
+LogPrintf(LOG_DEBUG, "SetDurDialog: byWidth=%d byWidthPadded=%d height=%d\n",
+bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded, bmpDurationPal.height);
 	filterUPP = NewModalFilterUPP(SetDurFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(SETDUR_DLOG);

@@ -52,9 +52,10 @@ void DrawPSMSubType(short, short, short, short);
 void DrawNonArp(short, short, DDIST, DDIST);
 void DrawArp(Document *, short, short, DDIST, DDIST, Byte, PCONTEXT);
 
-void DrawBMP(Byte bmpBits[], short bWidth, short bWidthWithPad, short height,
+void DrawBMP(Byte bmpBits[], short byWidth, short byWidthWithPad, short height,
 														short drawHeight, Rect bmpRect);
-void DrawBMPChar(Byte bmpBits[], short offset, short width, short height, Rect bmpRect);
+void DrawBMPChar(Byte bmpBits[], short byWidth, short byWidthWithPad, short height,
+												short chLeft, short chTop, Rect dstRect);
 
 char TempoGlyph(LINK);
 short GetGraphicOrTempoDrawInfo(Document *, LINK, LINK, short, DDIST *, DDIST *, PCONTEXT);
