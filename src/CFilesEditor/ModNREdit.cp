@@ -131,7 +131,7 @@ static short ModNRKey(unsigned char theChar)
 }
 
 
-#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteModNRCell((curIdx), (pBox)); curIdx = (newIdx); HiliteModNRCell((curIdx), (pBox))
+#define SWITCH_CELL(curIdx, newIdx, pBox)	HiliteModNRCell((curIdx), (pBox)); curIdx = (newIdx); HiliteModNRCell((curIdx), (pBox))
 
 static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
@@ -172,7 +172,7 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			GlobalToLocal(&where);
 			GetDialogItem(dlog, MODNR_CHOICES_DI, &type, &hndl, &box);
 			if (PtInRect(where, &box)) {
-LogPrintf(LOG_DEBUG, "ModNRFilter: where=%d,%d\n", where.h, where.v);
+//LogPrintf(LOG_DEBUG, "ModNRFilter: where=%d,%d\n", where.h, where.v);
 				if (evt->what==mouseUp) {
 					/* If the mouseUp was in an invalid (presumably because empty) cell,
 					   ignore it. Otherwise, unhilite the previously-selected cell and
@@ -180,7 +180,7 @@ LogPrintf(LOG_DEBUG, "ModNRFilter: where=%d,%d\n", where.h, where.v);
 
 					short newModNRIdx = FindModNRCell(where, &box);
 					if (newModNRIdx<0 || newModNRIdx>(short)NMODNRS-1) return False;
-					SWITCH_HILITE(modNRIdx, newModNRIdx, &box);
+					SWITCH_CELL(modNRIdx, newModNRIdx, &box);
 				}
 				*itemHit = MODNR_CHOICES_DI;
 				return True;
@@ -191,12 +191,36 @@ LogPrintf(LOG_DEBUG, "ModNRFilter: where=%d,%d\n", where.h, where.v);
 			ch = (unsigned char)evt->message;
 			GetDialogItem(dlog, MODNR_CHOICES_DI, &type, &hndl, &box);
 			*itemHit = 0;
+
+			/* If the character is something in the palette, use that something; if not
+			   and it's an arrow key, move in the appropriate direction; otherwise ignore
+			   it. */
+			   
 			ans = ModNRKey(ch);
 			if (ans>=0) {
-LogPrintf(LOG_DEBUG, "ModNRFilter: ch='%c' modNRIdx=%d ans=%d\n", ch, modNRIdx, ans);
-				SWITCH_HILITE(modNRIdx, ans, &box);
+//LogPrintf(LOG_DEBUG, "ModNRFilter: ch='%c' modNRIdx=%d ans=%d\n", ch, modNRIdx, ans);
+				SWITCH_CELL(modNRIdx, ans, &box);
 				*itemHit = MODNR_CHOICES_DI;
 				return True;
+			}
+			else {
+				ans = modNRIdx;
+				switch (ch) {
+					case LEFTARROWKEY:
+						if (modNRIdx>0) { ans--; SWITCH_CELL(modNRIdx, ans, &box); }
+						break;
+					case RIGHTARROWKEY:
+						if (modNRIdx<(NCOLS*NROWS)-1) { ans++; SWITCH_CELL(modNRIdx, ans, &box); }
+						break;
+					case UPARROWKEY:
+						if (modNRIdx>NCOLS-1) { ans -= NCOLS; SWITCH_CELL(modNRIdx, ans, &box); }
+						break;
+					case DOWNARROWKEY:
+						if (modNRIdx<NCOLS*(NROWS-1)) { ans += NCOLS; SWITCH_CELL(modNRIdx, ans, &box); }
+						break;
+					default:
+						break;
+				}
 			}
 	}
 	

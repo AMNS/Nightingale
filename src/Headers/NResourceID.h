@@ -182,6 +182,7 @@
 #define MIDIMODTABLES_DLOG 862
 #define FILLEMPTY_DLOG 870				/* Fill empty measures */
 #define RESPACE_BEF_MEAS_DLOG 874		/* Respace area before system's 1st measure */
+#define DURCHOICE_NODOTS_DLOG 878
 #define MISSINGFONTS_DLOG 880
 #define MFINFO_DLOG 890					/* MIDI File Info */
 #define MESSAGE_DLOG 900				/* Generic message with no controls */

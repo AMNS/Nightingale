@@ -3472,4 +3472,15 @@ Work to replace the set duration pop-up palette (using a UI font) in the Import 
 dialog with a fixed palette (from a BMP file). Affects DrawUtils.
 
 Minor changes. Affects BMP.h, Debug.h, DrawUtils.h; DebugDisplay, DialogsEditor,
-DurationEdit, DynamicsEdit, InitNightingale, MIDIFOCmd, ModNREdit.
+DurationEdit, DynamicEdit, InitNightingale, MIDIFOCmd, ModNREdit.
+
+---------------------------------------------------------------------------------------
+
+22 - 29 Dec.
+
+Work to replace the set duration pop-up palette (using a UI font) in the Import MIDI File
+dialog with a fixed palette (from a BMP file). Affects .rsrc, DrawUtils.h; DrawUtils,
+MIDIFOCmd.
+
+Minor changes. Affects .rsrc; DialogsEditor, DrawUtils, DurationEdit, DynamicEdit, MIDIFOCmd,
+ModNREdit.

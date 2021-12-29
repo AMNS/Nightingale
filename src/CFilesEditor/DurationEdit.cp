@@ -110,7 +110,7 @@ static short durNDots[] = {
 								 
 #define NDURATIONS (sizeof durationCode/sizeof(short))
 
-#define NROWS 3		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
+#define NROWS 3		/* Show all three rows (no dots, one dot, two dots) of duration palette */
 #define NCOLS 9		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
 
 static Rect durationCell[NROWS*NCOLS];
@@ -191,7 +191,7 @@ static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
 	return False;
 }
 
-#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteDurCell((curIdx), (pBox), durationCell); curIdx = (newIdx); HiliteDurCell((curIdx), (pBox), durationCell)
+#define SWITCH_CELL(curIdx, newIdx, pBox)	HiliteDurCell((curIdx), (pBox), durationCell); curIdx = (newIdx); HiliteDurCell((curIdx), (pBox), durationCell)
 
 static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
@@ -237,8 +237,9 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 					   hilite the new one. */
 
 					short newDurIdx = FindDurationCell(where, &box, NCOLS, NROWS, durationCell);
+LogPrintf(LOG_DEBUG, "SetDurFilter: durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
-					SWITCH_HILITE(durationIdx, newDurIdx, &box);
+					SWITCH_CELL(durationIdx, newDurIdx, &box);
 				}
 				*itemHit = SDDURPAL_DI;
 				return True;
@@ -249,12 +250,36 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 			ch = (unsigned char)evt->message;
 			GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &box);
 			*itemHit = 0;
+			
+			/* If the character is something in the palette, use that something; if not
+			   and it's an arrow key, move in the appropriate direction; otherwise ignore
+			   it. */
+			   
 			ans = DurationKey(ch);
 			if (ans>=0) {
-//LogPrintf(LOG_DEBUG, "ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);  
-				SWITCH_HILITE(durationIdx, ans, &box);
+LogPrintf(LOG_DEBUG, "SetDurFilter: ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);
+				SWITCH_CELL(durationIdx, ans, &box);
 				*itemHit = SDDURPAL_DI;
 				return True;
+			}
+			else {
+				ans = durationIdx;
+				switch (ch) {
+					case LEFTARROWKEY:
+						if (durationIdx>0) { ans--; SWITCH_CELL(durationIdx, ans, &box); }
+						break;
+					case RIGHTARROWKEY:
+						if (durationIdx<(NCOLS*NROWS)-1) { ans++; SWITCH_CELL(durationIdx, ans, &box); }
+						break;
+					case UPARROWKEY:
+						if (durationIdx>NCOLS-1) { ans -= NCOLS; SWITCH_CELL(durationIdx, ans, &box); }
+						break;
+					case DOWNARROWKEY:
+						if (durationIdx<NCOLS*(NROWS-1)) { ans += NCOLS; SWITCH_CELL(durationIdx, ans, &box); }
+						break;
+					default:
+						break;
+				}
 			}
 	}
 	
@@ -347,13 +372,7 @@ bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded, bmpDurationPal.height);
 		if (*lDurCode==durationCode[k] && *nDots==durNDots[k]) { durationIdx = k;  break; }
 	}
 	
-#if 99
 	HiliteDurCell(durationIdx, &box, durationCell);
-#else
-	theCell = durationCell[durationIdx];
-	OffsetRect(&theCell, box.left, box.top);
-	InvertRect(&theCell);
-#endif
 
 	PutDlgChkRadio(dlog, SETLDUR_DI, *setLDur);
 	PutDlgChkRadio(dlog, SETPDUR_DI, *setPDur);

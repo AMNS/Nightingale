@@ -35,7 +35,7 @@ static short dynamicCode[] = { PPP_DYNAM,PP_DYNAM, P_DYNAM, MP_DYNAM, MF_DYNAM,
 								
 #define NDYNAMS (sizeof dynamicCode/sizeof(short))
 
-#define NROWS 2		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
+#define NROWS 2		/* Dynamic palette has two rows */
 #define NCOLS 5		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
 
 static Rect dynamicCell[NROWS*NCOLS];
@@ -128,7 +128,7 @@ static short DynamicKey(unsigned char theChar)
 }
 
 
-#define SWITCH_HILITE(curIdx, newIdx, pBox)		HiliteDynCell((curIdx), (pBox)); curIdx = (newIdx); HiliteDynCell((curIdx), (pBox))
+#define SWITCH_CELL(curIdx, newIdx, pBox)	HiliteDynCell((curIdx), (pBox)); curIdx = (newIdx); HiliteDynCell((curIdx), (pBox))
 
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
@@ -176,7 +176,7 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 
 					short newDynIdx = FindDynamicCell(where, &box);
 					if (newDynIdx<0 || newDynIdx>(short)NDYNAMS-1) return False;
-					SWITCH_HILITE(dynamicIdx, newDynIdx, &box);
+					SWITCH_CELL(dynamicIdx, newDynIdx, &box);
 				}
 				*itemHit = DYNAM_CHOICES_DI;
 				return True;
@@ -187,12 +187,36 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			ch = (unsigned char)evt->message;
 			GetDialogItem(dlog, DYNAM_CHOICES_DI, &type, &hndl, &box);
 			*itemHit = 0;
+
+			/* If the character is something in the palette, use that something; if not
+			   and it's an arrow key, move in the appropriate direction; otherwise ignore
+			   it. */
+			   
 			ans = DynamicKey(ch);
 			if (ans>=0) {
-LogPrintf(LOG_DEBUG, "ch='%c' dynamicIdx=%d ans=%d\n", ch, dynamicIdx, ans);  
-				SWITCH_HILITE(dynamicIdx, ans, &box);
+//LogPrintf(LOG_DEBUG, "ch='%c' dynamicIdx=%d ans=%d\n", ch, dynamicIdx, ans);  
+				SWITCH_CELL(dynamicIdx, ans, &box);
 				*itemHit = DYNAM_CHOICES_DI;
 				return True;
+			}
+			else {
+				ans = dynamicIdx;
+				switch (ch) {
+					case LEFTARROWKEY:
+						if (dynamicIdx>0) { ans--; SWITCH_CELL(dynamicIdx, ans, &box); }
+						break;
+					case RIGHTARROWKEY:
+						if (dynamicIdx<(NCOLS*NROWS)-1) { ans++; SWITCH_CELL(dynamicIdx, ans, &box); }
+						break;
+					case UPARROWKEY:
+						if (dynamicIdx>NCOLS-1) { ans -= NCOLS; SWITCH_CELL(dynamicIdx, ans, &box); }
+						break;
+					case DOWNARROWKEY:
+						if (dynamicIdx<NCOLS*(NROWS-1)) { ans += NCOLS; SWITCH_CELL(dynamicIdx, ans, &box); }
+						break;
+					default:
+						break;
+				}
 			}
 	}
 	
@@ -202,7 +226,7 @@ LogPrintf(LOG_DEBUG, "ch='%c' dynamicIdx=%d ans=%d\n", ch, dynamicIdx, ans);
 Boolean SetDynamicDialog(SignedByte *dynamicType)
 {	
 	DialogPtr dlog;
-	short ditem=Cancel, type, oldResFile;
+	short ditem=Cancel, type;
 	Boolean dialogOver;
 	Handle hndl;
 	Rect box, theCell;
@@ -224,9 +248,6 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 
 	GetPort(&oldPort);
 	SetPort(GetDialogWindowPort(dlog));
-
-	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);							/* popup code uses Get1Resource */
 
 	GetDialogItem(dlog, DYNAM_CHOICES_DI, &type, &hndl, &box);
 	InitDynamicCells(&box);
@@ -265,7 +286,6 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
 	
-	UseResFile(oldResFile);
 	SetPort(oldPort);
 	return (ditem==OK);
 }

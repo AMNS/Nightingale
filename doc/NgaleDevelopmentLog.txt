@@ -10803,3 +10803,28 @@ palettes are all drawn with NightingalePPC.app of 16 Dec. 7:14A. Ah, now the pal
 blank, but only the beginning of each row of pixels is drawn. Cause: the <byWidth> parameter
 to DrawRow is actually the width in bits, not bytes! Correct that => all OK.
 
+---------------------------------------------------------------------------------------
+
+22 - 29 Dec.
+
+Features using palettes that are in good shape:
+
+* Tool palette: no problems AFAIK except resize to enlarge, but code is a mess.
+	- Resizing to a smaller size is OK; to a larger, it doesn't draw the new area.
+	- Closing and reopening are OK.
+	- I doubt if rearranging works, at least saving the rearrangement, but do I care?
+
+* Set/Add Modifiers: no problems AFAIK except arrow keys don't ignore empty cells.
+
+* Double-clicking a dynamic: no problems AFAIK except arrow keys don't ignore empty cells.
+
+* Set Duration: no problems AFAIK except doesn't ignore clicks on empty cells & arrow keys
+don't ignore empty cells.
+
+* Other commands/features that use the choose-duration palette: High priority:
+	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
+	Fancy Tuplet: calls DialogsEditor.c > TupletDialog
+Lower priority:
+	Import MIDI File: calls MIDIFOCmd.c > TranscribeMFDialog
+	Transcribe Recording: calls Transcribe.c > DoQuantize, for "unknown" dur. notes
+

@@ -1200,7 +1200,7 @@ static short durNDots[] =		{ 0, 0, 0, 0, 0, 0, 0, 0, 0,
 								  1, 1, 1, 1, 1, 1, 1, 1, 1 };
 #define NDURATIONS (sizeof durationCode/sizeof(short))
 
-#define NROWS 2		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
+#define NROWS 2	/* Show just the top two rows (no dots & one dot) of duration palette */
 #define NCOLS 9		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
 
 static Rect durationCell[NROWS*NCOLS];
@@ -1247,9 +1247,8 @@ LogPrintf(LOG_DEBUG, "TupleFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, b
 box.right);
 				FrameRect(&box);
 //DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 4*16, 4, 16, True);
-
 				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.byWidth,
-						bmpDurationPal.byWidthPadded, bmpDurationPal.height, 2*27, box);
+						bmpDurationPal.byWidthPadded, bmpDurationPal.height, NROWS*27, box);
 				HiliteDurCell(durationIdx, &box, durationCell);
 #else
 				DrawGPopUp(curPop);		
@@ -1279,7 +1278,7 @@ box.right);
 
 					short newDurIdx = FindDurationCell(where, &box);
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
-					SWITCH_HILITE(durationIdx, newDurIdx, &box);
+					SWITCH_CELL(durationIdx, newDurIdx, &box);
 #endif
 				}
 			*itemHit = TPALETTE_ITEM;
@@ -1688,7 +1687,7 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 
 					short newDurIdx = FindDurationCell(where, &box);
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
-					SWITCH_HILITE(durationIdx, newDurIdx, &box);
+					SWITCH_CELL(durationIdx, newDurIdx, &box);
 				}
 				*itemHit = TDurPopDI;
 				return True;
@@ -1835,7 +1834,7 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 	short choice, newLDur, oldLDur, k;
 	Boolean dialogOver, oldDotted;
 	Handle hndl; Rect box;
-	GrafPtr oldPort; POPKEY *pk;
+	GrafPtr oldPort;
 	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(TempoFilter);

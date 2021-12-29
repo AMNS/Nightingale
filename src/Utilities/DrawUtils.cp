@@ -2060,6 +2060,11 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
 
 /* ---------------------------------------------------------------------- Drawing BMPs -- */
 
+/* Draw a row of pixels from a black-and-white (one bit/pixel) bitmap. A "row" here may
+be all or part of a row in the bitmap. We draw <width> pixels starting with the first
+pixel at bmpBits[startLoc] into a line from (x,y) to (x+width-1,y). NB: We assume 0
+is black, 1 is white! */
+
 static void DrawRow(Byte bmpBits[], short startLoc, short width, short x, short y);
 static void DrawRow(Byte bmpBits[], short startLoc, short width, short x, short y)
 {
@@ -2149,61 +2154,26 @@ drawn doesn't contain any; that should never happen with chars in a BMP anyway. 
 horizontal parameters are in bytes, vertical params in pixels! */
 
 void DrawBMPChar(Byte bmpBits[], short byWidth, short byWidthPadded, short height,
-													short chLeft, short chTop, Rect dstRect)
+													short byChLeftPos, short chTopPos, Rect dstRect)
 {
-	if (chLeft<0 || chTop<0 || byWidth<2 || height<2) {
+LogPrintf(LOG_DEBUG, "DrawBMPChar: byWidth=%d byWidthPadded=%d height=%d byChLeftPos=%d chTopPos=%d\n",
+				byWidth, byWidthPadded, height, byChLeftPos, chTopPos);
+	if (byChLeftPos<0 || chTopPos<0 || byWidth<1 || height<4) {
 		//MayErrMsg?
-		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. chLeft=%d chTop=%d byWidth=%d height=%d  (DrawBMPChar)\n",
-					chLeft, chTop, byWidth, height);
+		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. byChLeftPos=%d chTopPos=%d byWidth=%d height=%d  (DrawBMPChar)\n",
+					byChLeftPos, chTopPos, byWidth, height);
 		return;
 	}
 	
-	// ??MORE! :-)
-	//if (DETAIL_SHOW)
-	//	{ DPrintRow(bmpBits, kRow, byWidth, startOfRow, False, False);  printf("\n"); }
-
 	short y = dstRect.bottom-1;
-	for (short kRow=chTop; kRow<chTop+height; kRow++) {
+	for (short kRow=chTopPos-height; kRow<chTopPos; kRow++) {
 		short x = dstRect.left+1;
-		short startOfRow = kRow * byWidthPadded;
+		short startOfRow = kRow*byWidthPadded;
 		if (DETAIL_SHOW)
 			{ DPrintRow(bmpBits, kRow, byWidth, startOfRow, False, False);  printf("\n"); }
 		short runStart;
-		short blackRunLength = 0;
-		for (short kCol=chLeft; kCol<chLeft+(8*byWidth); kCol++) {
-		
-			/* Examine the bit in the bitmap at (kCol,kRow) */
-			
-			Byte b = bmpBits[startOfRow + kCol/8];
-			Byte mask = ( 1 << (7 - (kCol%8)) );
-			Byte aBit = (b & mask)!=0;
-			
-			if (aBit==0) {
-				/* Black pixel. Don't draw; just increment run length, and if first in
-				   run, record its position. */
-				
-				if (blackRunLength==0) runStart = x;
-				blackRunLength++;
-			}
-			 else {
-				/* White pixel. If any saved black pixels, draw a horizontal line. */
-				
-				if (blackRunLength>0) {
-				    MoveTo(runStart, y);
-					LineTo(x-1, y);
-					blackRunLength = 0;
-				}
-			}
-			x++;
-		}
-		
-		/* Row ended, but we still have to flush any saved black pixels. */
-		
-		if (blackRunLength>0) {
-			MoveTo(runStart, y);
-			LineTo(x-1, y);
-		}
 
+		DrawRow(bmpBits, startOfRow+byChLeftPos, byWidth*8, x, y);
 		y--;
 	}
 }
