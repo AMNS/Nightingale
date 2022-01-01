@@ -1,0 +1,9 @@
+WHAT MACHINES CAN RUN NIGHTINGALE?
+Nightingale Tech Note #20
+Don Byrd, early January 2022
+
+The only operating system Nightingale can run under is the Mac OS, and versions before 6.0 only on PowerPC processors or systems that simulate them: in other words, Mac OS 10.6 and earlier. iPads don't use Mac OS at all -- like iPhones, they use an operating system called iOS -- so they're out completely. And no new Mac for years has been able to run 10.6, much less earlier versions.  (You can see what version a computer is running with the "About This Mac" command in the Apple menu.) This would seem to leave every MacBook since the one-piece white ones of around 2008(?) out in the cold. However, there are three programs that make it possible to run older versions of the Mac OS _on top of_ a newer version: Parallels’ Parallels Desktop for Mac, VMware’s VMware Fusion 5, and the open-source VirtualBox. Essentially, they set up a window that acts like a separate monitor on a separate computer running the older version. Then you can run Nightingale in that window. In theory, that is: to my knowledge, no one has tried yet. But Parallels and VMWare Fusion look very good; I don't know anything about VirtualBox. (Yet another possibility is SheepShaver, which emulates Mac OS 8 and 9, but then you'd have to run an ancient version of Nightingale -- and the SheepShaver software can't run without the old Macintosh ROMs.)
+
+Nightingale 6.0 runs on both PowerPCs and Intel Macs. The PowerPC version is still limited to OS 10.6; the Intel version can run on any OS up to and including 10.14. (Later MacOS's don't support QuickDraw, the ancient "toolbox"
+Nightingale uses.)
+

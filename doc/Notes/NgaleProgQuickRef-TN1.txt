@@ -1,6 +1,6 @@
-NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10)
+NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10, with premonitions of 6.0)
 Nightingale Technical Note #1
-Don Byrd, rev. early November 2021
+Don Byrd, rev. late December 2021
 
 A general note:
 
@@ -10,18 +10,18 @@ designed in the mid- and late-1980's to run on some of the first Macintosh compu
 e.g., the Macintosh Plus and SE. Those machines were hundreds, perhaps thousands, of
 times slower than modern (say, 2010 and later) computers: their processors were Motorola
 68000s, 16-bit CPUs running at 8 MHz. They also had a thousand or more times less memory
-than modern computers: typically one or two megabytes, at the most four, vs. the
+than modern computers: typically one or two megabytes, and at the most four, vs. the
 multiple _gigabytes_ our machines have now. As a result:
 
 * For speed, Nightingale's main data structure, the object list, has cross links on
 	multiple levels. Of course the cross links can become inconsistent.
 * For speed, Nightingale tries pretty hard not to redraw more than necessary. Of
-	course it can redraw _less_ than necesssary.
+	course it can redraw _less_ than necesssary, and it sometimes does.
 * Nightingale's data structures -- in particular, the object list (see below) -- were
 	designed with heavy emphasis on saving memory.
-* Nightingale's file format closely resembles its in-memory data structures, making it
-	much harder to add functionality that requires keeping information around while
-	retaining backwards compatability.
+* For speed, Nightingale's file format closely resembles its in-memory data structures,
+	making it hard to add functionality that requires keeping information around
+	while retaining backwards compatability.
 * Nightingale has its own mid-level memory management routines, involving structures
 	called _heaps_. These must be "locked" at times to keep the Mac OS's own memory
 	manager, with its fixed _handles_, from moving things around and leaving pointers
@@ -100,9 +100,10 @@ Offset	Length	Item
 2234	SL		String pool, containing all the character strings
 2234+SL var.	Heaps, containing the content of the score
 
-As of this writing, an “N106” format is under development. In terms of the details above,
-it’s identical except bytes 0 to 3 are "N106", and the length of the Score header is
-2802. Thus LASTtype has offset 2882 = 0xB42, and the string pool has offset 2888 = 0xB48.
+As of this writing, an “N106” format is under development; it will be used by Nightingale
+version 6.0 and later. In terms of the details above, the “N106” format is identical
+except that bytes 0 to 3 are "N106", and the length of the Score header is 2802. Thus
+LASTtype has offset 2882 = 0xB42, and the string pool has offset 2888 = 0xB48.
 
 The score header contains many, many fields; here's a kind of overview.
 

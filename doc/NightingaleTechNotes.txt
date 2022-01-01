@@ -1,4 +1,4 @@
-NIGHTINGALE TECH NOTES - Don Byrd, rev. late January 2020
+NIGHTINGALE TECH NOTES - Don Byrd, rev. early January 2022
 
 As compared to earlier versions of this list (through early 2016), I've added numbers to
 several of the formerly unnumbered tech notes, and re-organized the full collection into
@@ -18,11 +18,12 @@ USER ORIENTED
 7	OK?	To get music from Nightingale into MS Word (GettingMusicIntoMSWord-TN7.txt)
 8	OK?	The Nightingale "Debug" Command, Especially for Finding Accidental Problems (DebugAndAccPblms-TN8.txt)
 10	OK?	Cleaning Up MIDI files Imported Into Nightingale (CleaningImpMIDIFiles-TN10.txt)
-12	OK	Installing Music Fonts for Nightingale (InstallingNightingaleFonts-TN12.pdf)
+12	OK	Installing and Troubleshooting Music Fonts and Palettes for Nightingale (InstallingNightingaleFonts+Palettes-TN12.pdf)
 14	OK?	Cleaning Up Notelist files in Nightingale (CleaningNotelistFiles-TN14.txt)
 16	OK	Nightingale 5.X "CNFG" Resource Fields and Values (CNFGFields+Info-TN16.txt)
 17	OK	Linewidths For Printing and Display in Small Sizes (LineWidthsForSmallPrinting-TN17.txt)
 19	OK	Nightingale Notelist Technical Update (NotelistTechUpdate-TN19.txt)
+20	OK	What Machines Can Run Nightingale? (WhatMachinesCanRunNgale-TN20.txt)
 
 MOSTLY FOR DEVELOPERS
 
