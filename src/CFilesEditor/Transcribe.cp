@@ -13,7 +13,7 @@ clarifying rhythm of unknown-duration notes in existing scores. */
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#define MERGE_TAB_SIZE 2500		/* Max. syncs in table for merging into */
+#define MERGE_TAB_SIZE 4000		/* Max. syncs in table for merging into */
 #define MAX_TSCHANGE 1000		/* Max. no. of time sig. changes in area */
 
 static short measTabLen=0;
@@ -34,7 +34,7 @@ static Boolean QuantizeSelDurs(Document *, short, Boolean);
 static Boolean QuantizeDialog(Document *, short *, Boolean *, Boolean *);
 
 
-/* ---------------------------------------------------------------- InitQuantize -- */
+/* ---------------------------------------------------------------------- InitQuantize -- */
 /* Initialize for Voice2KnownDurs: build measInfoTab[]. */
 
 static Boolean InitQuantize(Document *doc, Boolean merge)
@@ -67,7 +67,7 @@ static Boolean InitQuantize(Document *doc, Boolean merge)
 	return True;
 }
 
-/* -------------------------------------------------------------- Voice2RTStructs -- */
+/* ------------------------------------------------------------------- Voice2RTStructs -- */
 
 #define DEBUG_NOTE if (DETAIL_SHOW)										\
 						LogPrintf(LOG_DEBUG, "iSync=%d %cvoice=%d [%d] noteNum=%d dur=%ld\n",	\
@@ -151,7 +151,7 @@ static short Voice2RTStructs(
 	return (iSync>=0? OP_COMPLETE : NOTHING_TO_DO);
 }
 
-/* -------------------------------------------------------------- Voice2KnownDurs -- */
+/* ------------------------------------------------------------------- Voice2KnownDurs -- */
 
 static void CantHandleVoice(Document *, short, short);
 static void CantHandleVoice(Document *doc, short voice, short tVErr)
@@ -278,7 +278,7 @@ Done:
 }
 
 
-/* ---------------------------------------------------------------- GDNewMeasure -- */
+/* --------------------------------------------------------------------- GDNewMeasure -- */
 /* Add a new Measure object just before <pL> and leave an insertion point set just
 before <pL>. At the moment, virtually identical to MFNewMeasure. */
 
@@ -294,7 +294,7 @@ static LINK GDNewMeasure(Document *doc, LINK pL)
 }
 
 
-/* ----------------------------------------------------- GDFixTStampsForTimeSigs -- */
+/* ---------------------------------------------------------- GDFixTStampsForTimeSigs -- */
 /* Starting at a given point in the score, set the timestamp of the next Measure to 0;
 then set the timestamp of every following Measure until a given point to reflect the
 notated (i.e., time signature's) duration of the previous Measure, paying no attention
@@ -343,7 +343,7 @@ static void GDFixTStampsForTimeSigs(
 }
 
 
-/* ---------------------------------------------------------------- GDAddMeasures -- */
+/* --------------------------------------------------------------------- GDAddMeasures -- */
 /* Just before <qEndL>, add an "extra" Measure, which should later be removed, to
 create a temporary storage area, and add Measures as described by <measInfoTab[0]>
 (at some future time we may support time sig. changes, as Import MIDI File's
@@ -389,12 +389,13 @@ Done:
 }
 
 
-/* ----------------------------------------------------------- DelAndMoveMeasure -- */
+/* ---------------------------------------------------------------- DelAndMoveMeasure -- */
 
 static void DelAndMoveMeasure(Document *, LINK);
 static void DelAndMoveMeasure(Document *doc, LINK measL)
 {
-	LINK prevMeasL; DDIST xMove, prevWidth, width;
+	LINK prevMeasL;
+	DDIST xMove, prevWidth, width;
 	
 	/* Adjust objects' x-coords. to make relative to their new measure but
 		keep them in the same place on the page. */
@@ -413,7 +414,7 @@ static void DelAndMoveMeasure(Document *doc, LINK measL)
 	if (measL) DeleteMeasure(doc, measL);
 }
 
-/* -------------------------------------------------------------- QuantAllVoices -- */
+/* -------------------------------------------------------------------- QuantAllVoices -- */
 /* Quantize the selection. Restrictions:
 	- Between doc->selStartL and selEndL, there can only be Syncs and Measures.
 	- Every Sync in the range must be selected.
@@ -506,10 +507,10 @@ static LINK QuantAllVoices(
 	InitQuantize(doc, merge);
 	
 	/* Since the notes can't have any modifiers nor be beamed, tied, etc., the
-		rawSyncTab[]'s and the rawNoteAux[]'s have all the information there is about the
-		notes, except for spelling, which we won't worry about. So we now delete the
-		selection and replace it with zero or more Measures: this gives us an empty area
-		with the correct structure for merging back into. */
+	   rawSyncTab[]'s and the rawNoteAux[]'s have all the information there is about the
+	   notes, except for spelling, which we won't worry about. So we now delete the
+	   selection and replace it with zero or more Measures: this gives us an empty area
+	   with the correct structure for merging back into. */
 
 	qEndL = doc->selEndL;
 	DeleteRange(doc, RightLINK(prevMeasL), qEndL);
@@ -594,11 +595,11 @@ Done:
 }
 
 
-/* ------------------------------------------------------------ SyncOKToQuantize -- */
+/* ------------------------------------------------------------------ SyncOKToQuantize -- */
 
 static Boolean SyncOKToQuantize(LINK syncL)
 {
-	LINK aNoteL; PANOTE aNote;
+	LINK aNoteL;  PANOTE aNote;
 	
 	for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
@@ -613,7 +614,7 @@ static Boolean SyncOKToQuantize(LINK syncL)
 	return True;
 }
 
-/* ------------------------------------------------------ SyncHasNondefaultVoice -- */
+/* ------------------------------------------------------------ SyncHasNondefaultVoice -- */
 
 static Boolean SyncHasNondefaultVoice(LINK);
 static Boolean SyncHasNondefaultVoice(LINK syncL)
@@ -627,7 +628,7 @@ static Boolean SyncHasNondefaultVoice(LINK syncL)
 }
 
 
-/* --------------------------------------------------- GDRespAndRfmt and Helpers -- */
+/* --------------------------------------------------------- GDRespAndRfmt and Helpers -- */
 
 /* For every content object in the range of LINKs [startL, endL), SelectRange2
 selects the object in the INCLUSIVE range of staves [firstStf, lastStf]: if it or
@@ -640,7 +641,7 @@ You'd think a loop calling CheckObject could do the same thing, but probably not
 could be added to do this, but this is enough of a special case that I think it
 makes sense having a separate routine for it.
 
-??This is the same as SelectRange EXCEPT it skips non-inMeasure Clefs, KeySigs,
+FIXME: This is the same as SelectRange EXCEPT it skips non-inMeasure Clefs, KeySigs,
 and TimeSigs, which really aren't content objects; this should probably replace
 SelectRange. */
 
@@ -648,10 +649,10 @@ static void SelectRange2(Document *, LINK, LINK, short, short);
 static void SelectRange2(Document *doc, LINK startL, LINK endL, short firstStf,
 									short lastStf)
 {
-	LINK 			pL,subObjL,aSlurL;
+	LINK 		pL,subObjL,aSlurL;
 	PMEVENT		p;
 	GenSubObj 	*subObj;
-	HEAP 			*tmpHeap;
+	HEAP 		*tmpHeap;
 
 	for (pL = startL; pL!=endL; pL = RightLINK(pL)) {
 		if (ClefTYPE(pL) && !ClefINMEAS(pL)) continue;
@@ -703,13 +704,14 @@ static void SelectRange2(Document *doc, LINK startL, LINK endL, short firstStf,
 }
 
 
-/* Get the nos. of the Measures enclosing the selection range. If <selEndL> is
-after the last Measure, return -1 for <*pEndNum>. */
+/* Get the nos. of the Measures enclosing the selection range. If <selEndL> is after
+the last Measure, return -1 for <*pEndNum>. */
 
 void GetSelMeasNums(Document *, short *, short *);
 void GetSelMeasNums(Document *doc, short *pStartNum, short *pEndNum)
 {
-	LINK startL, endL, aMeasureL; PAMEASURE aMeasure;
+	LINK startL, endL, aMeasureL;
+	PAMEASURE aMeasure;
 	
 	startL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, False);
 	aMeasureL = FirstSubLINK(startL);
@@ -727,8 +729,8 @@ void GetSelMeasNums(Document *doc, short *pStartNum, short *pEndNum)
 }
 
 
-/* If any Measure in the score exceeds the maximum legal no. of objects, give an
-error message and return True. */
+/* If any Measure in the score exceeds the maximum legal no. of objects, give an error
+message and return True. */
 
 Boolean AnyOverfullMeasure(Document *doc)
 {
@@ -829,7 +831,7 @@ Boolean GDRespAndRfmt(
 }
 
 
-/* ------------------------------------------------------------- QuantizeSelDurs -- */
+/* ------------------------------------------------------------------- QuantizeSelDurs -- */
 /* Extend the selection to include everything in every measure in the selection
 range; then quantize the attack time and duration of every selected note/rest/chord
 to a grid whose points are separated by the duration described by <quantumDur>. If
@@ -841,10 +843,10 @@ should call FixTimeStamps afterwards. */
 
 Boolean QuantizeSelDurs(Document *doc, short quantumDur, Boolean tuplets)
 {
-	short			quantum, tripletBias;
+	short		quantum, tripletBias;
 	Boolean		didAnything;
-	LINK			startL, endL, pL, nextL, startMeasL, saveEndL;
-	char			fmtStr[256];
+	LINK		startL, endL, pL, nextL, startMeasL, saveEndL;
+	char		fmtStr[256];
 	
 	didAnything = False;
 	
@@ -940,25 +942,24 @@ Trouble:
 }
 
 
-/* -------------------------------------------------------------- QuantizeDialog -- */
+/* -------------------------------------------------------------------- QuantizeDialog -- */
 
 static GRAPHIC_POPUP	durPop0dot, *curPop;
 static POPKEY			*popKeys0dot;
 static short			popUpHilited=True;
 
-static enum
-{
+enum {
 	QDURPOPUP_DI=4,				/* Item numbers */
 	QTUPLET_DI,
 	AUTOBEAM_DI=7
-} E_QUANTITEMS;
+};
 
 static pascal Boolean QuantFilter(DialogPtr, EventRecord *, short *);
 static pascal Boolean QuantFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
 	register short	ch, ans;
-	Point				where;
+	Point			where;
 	GrafPtr			oldPort;
 	
 	w = (WindowPtr)(evt->message);
@@ -969,8 +970,8 @@ static pascal Boolean QuantFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				BeginUpdate(GetDialogWindow(dlog));			
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, True);
-				DrawGPopUp(curPop);		
-				HiliteGPopUp(curPop, popUpHilited);
+				//DrawGPopUp(curPop);		
+				//HiliteGPopUp(curPop, popUpHilited);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -986,7 +987,7 @@ static pascal Boolean QuantFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			where = evt->where;
 			GlobalToLocal(&where);
 			if (PtInRect(where, &curPop->box)) {
-				DoGPopUp(curPop);
+				//DoGPopUp(curPop);
 				*itemHit = QDURPOPUP_DI;
 				return True;
 			}
@@ -995,9 +996,9 @@ static pascal Boolean QuantFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
 				return True;
 			ch = (unsigned char)evt->message;
-			ans = DurPopupKey(curPop, popKeys0dot, ch);
-			*itemHit = ans? QDURPOPUP_DI : 0;
-			HiliteGPopUp(curPop, True);
+			//ans = DurPopupKey(curPop, popKeys0dot, ch);
+			//*itemHit = ans? QDURPOPUP_DI : 0;
+			//HiliteGPopUp(curPop, True);
 			return True;
 	}
 
@@ -1051,14 +1052,14 @@ Boolean QuantizeDialog(Document *doc,
 	popKeys0dot = NULL;
 
 	GetDialogItem(dlog, QDURPOPUP_DI, &aShort, &aHdl, &box);
-	if (!InitGPopUp(&durPop0dot, TOP_LEFT(box), NODOTDUR_MENU, 1)) goto Broken;
-	popKeys0dot = InitDurPopupKey(&durPop0dot);
+	//if (!InitGPopUp(&durPop0dot, TOP_LEFT(box), NODOTDUR_MENU, 1)) goto Broken;
+	//popKeys0dot = InitDurPopupKey(&durPop0dot);
 	if (popKeys0dot==NULL) goto Broken;
 	curPop = &durPop0dot;
 		
-	choice = GetDurPopItem(curPop, popKeys0dot, newDur, 0);
+	//choice = GetDurPopItem(curPop, popKeys0dot, newDur, 0);
 	if (choice==NOMATCH) choice = 1;
-	SetGPopUpChoice(curPop, choice);
+	//SetGPopUpChoice(curPop, choice);
 
 	PutDlgChkRadio(dlog,QTUPLET_DI,*tuplet);
 	PutDlgChkRadio(dlog,AUTOBEAM_DI,*autoBeam);
@@ -1097,7 +1098,7 @@ Boolean QuantizeDialog(Document *doc,
 			break;
 		case QDURPOPUP_DI:
 			newDur = popKeys0dot[curPop->currentChoice].durCode;
-			HiliteGPopUp(curPop, popUpHilited = True);
+			//HiliteGPopUp(curPop, popUpHilited = True);
 			break;
 		case QTUPLET_DI:
 			PutDlgChkRadio(dlog,QTUPLET_DI,!GetDlgChkRadio(dlog,QTUPLET_DI));
@@ -1109,7 +1110,7 @@ Boolean QuantizeDialog(Document *doc,
 		}
 		
 Broken:			
-	DisposeGPopUp(&durPop0dot);
+	//DisposeGPopUp(&durPop0dot);
 	if (popKeys0dot) DisposePtr((Ptr)popKeys0dot);
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
@@ -1120,7 +1121,7 @@ Broken:
 }
 
 
-/* ------------------------------------------------------------------- DoQuantize -- */
+/* ------------------------------------------------------------------------ DoQuantize -- */
 /* Guess durations of notes/chords in the selection range as specified by user in
 dialog. */
 	
@@ -1133,13 +1134,16 @@ void DoQuantize(Document *doc)
 		PrepareUndo(doc, doc->selStartL, U_Quantize, 37);		/* "Undo Transcribe Recording" */
 		if (QuantizeSelDurs(doc, newDur, tuplet)) {
 			/* Start fixing timestamps before the range quantized so the Measure starting
-				the range has the correct timestamp. */
+			   the range has the correct timestamp. */
+			   
 			FixTimeStamps(doc, LeftLINK(doc->selStartL), doc->selEndL);
 
 			if (autoBeam) {
 				if (!AutoBeam(doc)) return;
+				
 				/* Set visibility of tuplet brackets to the conventional default: hide the
-					bracket iff some beam has elements identical to the tuplet's. */
+				   bracket iff some beam has elements identical to the tuplet's. */
+				   
 				SetBracketsVis(doc, doc->selStartL, doc->selEndL);
 			}
 		}
@@ -1147,9 +1151,9 @@ void DoQuantize(Document *doc)
 }
 
 
-/* ===================================================== Record/Transcribe Merge == */
+/* =========================================================== Record/Transcribe Merge == */
 
-/* --------------------------------------------------------- RTMQuantizeSelDurs -- */
+/* ---------------------------------------------------------------- RTMQuantizeSelDurs -- */
 /* Quantize the attack time and duration of every selected note/rest/chord
 to a grid whose points are separated by the duration described by <quantumDur>
 and merge by time with following Syncs. If there are pauses between the quantized
@@ -1174,9 +1178,9 @@ static Boolean RTMQuantizeSelDurs(Document *doc, short quantumDur, Boolean tuple
 	tripletBias = (tuplets? -config.noTripletBias : -100);
 	
 	/* Save selection range info, do the actual quantizing and merging, then set
-		the selection range to include everything we quantized. This may leave the
-		selection range slightly too large (e.g., including an extraneous Measure at the
-		start and end) and with anomalies; we count on GDRespAndRfmt to fix these. */
+	   the selection range to include everything we quantized. This may leave the
+	   selection range slightly too large (e.g., including an extraneous Measure at the
+	   start and end) and with anomalies; we count on GDRespAndRfmt to fix these. */
 	
 	saveStartL = LeftLINK(doc->selStartL);
 
@@ -1201,11 +1205,10 @@ static Boolean RTMQuantizeSelDurs(Document *doc, short quantumDur, Boolean tuple
 	return False;		
 }
 
-/* --------------------------------------------------------------- RecTransMerge -- */
-/* Record, Transcribe, and Merge: Record data from MIDI and generate Nightingale
-notes of unknown duration; transcribe them, i.e., identify their durations as
-Transcribe Recording does; and merge them into the object list at the insertion
-point. */
+/* --------------------------------------------------------------------- RecTransMerge -- */
+/* Record, Transcribe, and Merge: Record data from MIDI and generate Nightingale notes
+of unknown duration; transcribe them, i.e., identify their durations as Transcribe
+Recording does; and merge them into the object list at the insertion point. */
 
 Boolean RecTransMerge(Document *doc)
 {

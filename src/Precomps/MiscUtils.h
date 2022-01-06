@@ -30,8 +30,6 @@ Boolean			PreflightMem(short nKBytes);
 
 long			MemBitCount(unsigned char *pCh, long n);
 
-Boolean			CheckAbort(void);
-Boolean			IsDoubleClick(Point clickPt, short tol, long now);
 OSType			CanPaste(short n, ...);
 
 void			UseStandardType(OSType type);

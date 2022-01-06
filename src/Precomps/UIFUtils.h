@@ -33,6 +33,9 @@ Boolean		CapsLockKeyDown(void);
 Boolean		ControlKeyDown(void);
 Boolean		CommandKeyDown(void);
 
+Boolean		CheckAbort(void);
+Boolean		IsDoubleClick(Point clickPt, short tol, long now);
+
 void InvertSymbolHilite(Document *, LINK, short, Boolean);
 void InvertTwoSymbolHilite(Document *, LINK, LINK, short);
 void HiliteAttPoints(Document *, LINK, LINK, short);

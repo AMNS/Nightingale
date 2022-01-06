@@ -99,8 +99,8 @@ static Boolean DrawDurationPalette(Rect *pBox)
 	
 static short durationCode[] = { 
 	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
-	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
-	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR
+	NO_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
+	UNKNOWN_L_DUR, NO_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR
 								 };
 static short durNDots[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -239,6 +239,7 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 					short newDurIdx = FindDurationCell(where, &box, NCOLS, NROWS, durationCell);
 LogPrintf(LOG_DEBUG, "SetDurFilter: durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
+					if (durationCode[newDurIdx]==NO_L_DUR) return False;
 					SWITCH_CELL(durationIdx, newDurIdx, &box);
 				}
 				*itemHit = SDDURPAL_DI;
@@ -252,8 +253,8 @@ LogPrintf(LOG_DEBUG, "SetDurFilter: durationIdx=%d newDurIdx=%d\n", durationIdx,
 			*itemHit = 0;
 			
 			/* If the character is something in the palette, use that something; if not
-			   and it's an arrow key, move in the appropriate direction; otherwise ignore
-			   it. */
+			   and it's an arrow key, move in the appropriate direction, but ignore it
+			   if the new cell is empty; otherwise ignore it. */
 			   
 			ans = DurationKey(ch);
 			if (ans>=0) {
@@ -266,19 +267,23 @@ LogPrintf(LOG_DEBUG, "SetDurFilter: ch='%c' durationIdx=%d ans=%d\n", ch, durati
 				ans = durationIdx;
 				switch (ch) {
 					case LEFTARROWKEY:
-						if (durationIdx>0) { ans--; SWITCH_CELL(durationIdx, ans, &box); }
+						if (durationIdx>0) ans--;
 						break;
 					case RIGHTARROWKEY:
-						if (durationIdx<(NCOLS*NROWS)-1) { ans++; SWITCH_CELL(durationIdx, ans, &box); }
+						if (durationIdx<(NCOLS*NROWS)-1) ans++;
 						break;
 					case UPARROWKEY:
-						if (durationIdx>NCOLS-1) { ans -= NCOLS; SWITCH_CELL(durationIdx, ans, &box); }
+						if (durationIdx>NCOLS-1) ans -= NCOLS;
 						break;
 					case DOWNARROWKEY:
-						if (durationIdx<NCOLS*(NROWS-1)) { ans += NCOLS; SWITCH_CELL(durationIdx, ans, &box); }
+						if (durationIdx<NCOLS*(NROWS-1)) ans += NCOLS;
 						break;
 					default:
-						break;
+						;
+					}
+				if (ans!=durationIdx) {
+					if (durationCode[ans]==NO_L_DUR) return False;
+					SWITCH_CELL(durationIdx, ans, &box);
 				}
 			}
 	}

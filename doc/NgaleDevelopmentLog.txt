@@ -10828,3 +10828,15 @@ Lower priority:
 	Import MIDI File: calls MIDIFOCmd.c > TranscribeMFDialog
 	Transcribe Recording: calls Transcribe.c > DoQuantize, for "unknown" dur. notes
 
+---------------------------------------------------------------------------------------
+
+1 - 5 Jan. ** 2022 **
+
+Fix bug: in the Set Duration palette, clicking on a blank cell isn't ignored, nor is
+getting to a blank cell via arrow keys => OK.
+
+The Fancy Tuplet dialog is partly working. With 3 quarters, it correctly defaults to 3:2.
+With LongTuplet.ngl, it sometimes shows the correct 80:64, but sometimes 0:0. Or am I
+confused?
+
+

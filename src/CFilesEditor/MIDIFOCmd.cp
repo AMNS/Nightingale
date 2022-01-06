@@ -320,13 +320,27 @@ LogPrintf(LOG_DEBUG, "durationIdx=%d newDurIdx=%d ans=%d\n", durationIdx, newDur
 			ch = (unsigned char)evt->message;
 			GetDialogItem(dlog, DUR_CHOICES_DI, &type, &hndl, &box);
 			*itemHit = 0;
-			//ans = DurationKey(ch);
-			ans = 0;		// ??TEMPORARY!!!!!!!!!!!!
+			ans = -1;		/* Using a version of DurationKey(ch) would be nice, but not important */
 			if (ans>=0) {
 LogPrintf(LOG_DEBUG, "ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);  
 				SWITCH_CELL(durationIdx, ans, &box);
 				*itemHit = DUR_CHOICES_DI;
 				return True;
+			}
+			else {
+				ans = durationIdx;
+				switch (ch) {
+					case LEFTARROWKEY:
+						if (durationIdx>0) { ans--; SWITCH_CELL(durationIdx, ans, &box); }
+						break;
+					case RIGHTARROWKEY:
+						if (durationIdx<(NCOLS*NROWS)-1) { ans++; SWITCH_CELL(durationIdx, ans, &box); }
+						break;
+					case UPARROWKEY:		/* We have only one row, so ignore vertical mvmt */
+					case DOWNARROWKEY:		/* We have only one row, so ignore vertical mvmt */
+					default:
+						break;
+				}
 			}
 	}
 	
@@ -519,13 +533,17 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 	HiliteControl((ControlHandle)beamHdl, (rButGroup==NOQUANTIZE_DI ? CTL_INACTIVE : CTL_ACTIVE));	\
 	HiliteControl((ControlHandle)tripHdl, (rButGroup==NOQUANTIZE_DI ? CTL_INACTIVE : CTL_ACTIVE))
 
+/* Run the very complex Transcribe MIDI File dialog. Parameters labeled "I+O" are both
+input and output! */
+
 static Boolean TranscribeMFDialog(TRACKINFO [],short [],short [], Boolean [][MAXCHANNEL],
 				short [], Boolean [],long [],short, short, short, short *, Boolean *,
 				Boolean *, Boolean *, short *);
 
 static Boolean TranscribeMFDialog(									
 				TRACKINFO trackInfo[],
-				short nTrackNotes[], short nTooLong[],	/* Specific track-by-track info */
+				short nTrackNotes[],					/* Specific track-by-track info */
+				short nTooLong[],						/* Specific track-by-track info */
 				Boolean chanUsed[][MAXCHANNEL],
 				short qTrLDur[],
 				Boolean qTrTriplets[],
@@ -533,10 +551,10 @@ static Boolean TranscribeMFDialog(
 				short nNotes,							/* Totals for all tracks */
 				short /*nGoodTrs*/,
 				short qAllLDur,
-				short *qDurCode,						/* Duration to quantize to */
-				Boolean *autoBeam,						/* Beam automatically? */
-				Boolean *triplets,						/* Consider triplet rhythms? */
-				Boolean *clefChanges,					/* Generate clef changes? */
+				short *qDurCode,						/* Duration to quantize to (I+O) */
+				Boolean *autoBeam,						/* Beam automatically? (I+O) */
+				Boolean *triplets,						/* Consider triplet rhythms? (I+O) */
+				Boolean *clefChanges,					/* Generate clef changes? (I+O) */
 				short *maxMeasures
 				)
 {
@@ -545,11 +563,12 @@ static Boolean TranscribeMFDialog(
 	short rButGroup, newDurCode, oldDurCode, maxMeas, t;
 	short oldResFile; 
 	Boolean done, autoBm, trips, clefs, needTrips;
-	Handle ndHdl, beamHdl, tripHdl;  Rect aRect;
+	Handle ndHdl, beamHdl, tripHdl;
 	char durStr[256], tripletsStr[32];
-	Handle hndl; Rect box;
+	Handle hndl;
+	Rect aRect, box;
 	char fmtStr[256];
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(TransMFFilter);
 	if (filterUPP == NULL) {
@@ -619,13 +638,14 @@ static Boolean TranscribeMFDialog(
 	   suggest anything coarser than eighths or finer than 32nds. */
 		
 	newDurCode = WHOLE_L_DUR;
-	
 	for (t = 1; t<=mfNTracks; t++)
 		if (qTrLDur[t]!=UNKNOWN_L_DUR) newDurCode = n_max(newDurCode, qTrLDur[t]);
 	if (newDurCode<EIGHTH_L_DUR) newDurCode = EIGHTH_L_DUR;
 	if (newDurCode>THIRTY2ND_L_DUR) newDurCode = THIRTY2ND_L_DUR;
 	oldDurCode = newDurCode;
-LogPrintf(LOG_DEBUG, "TranscribeMFDialog: newDurCode=%d oldDurCode=%d\n", newDurCode, oldDurCode);
+LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d newDurCode=%d oldDurCode=%d\n",
+qAllLDur, newDurCode, oldDurCode);
+
 	PutDlgChkRadio(dlog, AUTOBEAM_DI, *autoBeam);
 	PutDlgChkRadio(dlog, TRIPLETS_DI, *triplets);
 	PutDlgWord(dlog, MAXMEAS_DI, *maxMeasures, False);

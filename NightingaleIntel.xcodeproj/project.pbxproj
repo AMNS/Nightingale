@@ -47,7 +47,6 @@
 		1573CCCB1F9B779D00C967E6 /* InternalInput.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1573CCCA1F9B779D00C967E6 /* InternalInput.h */; };
 		1573CD1F1F9CB85100C967E6 /* NMiscTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */; };
 		157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157437C41D05153300C5A4DF /* DelAddRedAccs.cp */; };
-		15892520273C080300130EE1 /* DurationPopUpOLD.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1589251F273C080300130EE1 /* DurationPopUpOLD.cp */; };
 		15904CD6273C065C006BA03D /* DurationEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15904CD5273C065C006BA03D /* DurationEdit.cp */; };
 		15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */; };
 		159C5093252B3B6A00C9E0CB /* NBasicTypesN105.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 159C5092252B3B6A00C9E0CB /* NBasicTypesN105.h */; };
@@ -279,7 +278,6 @@
 		1573CCCA1F9B779D00C967E6 /* InternalInput.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = InternalInput.h; sourceTree = "<group>"; };
 		1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */ = {isa = PBXFileReference; fileEncoding = 12; lastKnownFileType = sourcecode.c.h; path = NMiscTypes.h; sourceTree = "<group>"; };
 		157437C41D05153300C5A4DF /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
-		1589251F273C080300130EE1 /* DurationPopUpOLD.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DurationPopUpOLD.cp; sourceTree = "<group>"; };
 		15904CD5273C065C006BA03D /* DurationEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DurationEdit.cp; sourceTree = "<group>"; };
 		15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedTimeSigs.cp; sourceTree = "<group>"; };
 		159C5092252B3B6A00C9E0CB /* NBasicTypesN105.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBasicTypesN105.h; sourceTree = "<group>"; };
@@ -889,7 +887,6 @@
 				D03E706B0D5FA5B2005FD177 /* DragUtils.cp */,
 				D03E706C0D5FA5B2005FD177 /* DrawingEdit.cp */,
 				15904CD5273C065C006BA03D /* DurationEdit.cp */,
-				1589251F273C080300130EE1 /* DurationPopUpOLD.cp */,
 				1554544226DADD3F00FF8EB0 /* DynamicEdit.cp */,
 				D03E70700D5FA5B2005FD177 /* Extract.cp */,
 				D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */,
@@ -1235,7 +1232,6 @@
 				15E025FD27258CC000618D44 /* InternalInput.cp in Sources */,
 				15C22B1D2732EFDD00CBBC76 /* ModNREdit.cp in Sources */,
 				15904CD6273C065C006BA03D /* DurationEdit.cp in Sources */,
-				15892520273C080300130EE1 /* DurationPopUpOLD.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

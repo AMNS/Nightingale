@@ -2524,7 +2524,7 @@ Minor cleanup. Affects MemMacros.h, NObjTypes.h; FileOpen, HeapFileIO.
 
 -------------------------------------------------------------------------------
 
-31 Dec. - 9 Jan. 2020	*IN 5.9
+31 Dec. - 9 Jan. ** 2020 **		*IN 5.9
 
 Worked on opening format 'N105' files while using a new format internally: handling
 heaps and converting fields of objects. Affects FileOpen, HeapFileIO.
@@ -2534,7 +2534,7 @@ HeapFileIO, Select, SpaceTime.
 
 -------------------------------------------------------------------------------
 
-10 - 15 Jan. 2020	*IN 5.9
+10 - 15 Jan. ** 2020 **		*IN 5.9
 
 Worked on opening format 'N105' files while using a new format internally: converting
 fields of objects. New file FileConversion.c. Affects FileConversion.h; FileOpen.
@@ -3090,7 +3090,7 @@ Menu, MIDIUtils, NewSlur, SelUtils.
 
 ---------------------------------------------------------------------------------------
 
-1 - 7 Jan. 2021
+1 - 7 Jan. ** 2021 **
 
 Progress toward fixing bug: can't open files written on Intel machines because some
 multibyte fields in the Score header are in the wrong Endian form. Affects EndianUtils.
@@ -3100,7 +3100,7 @@ DSUtils, EndianUtils, FileConversion, FileOpen, FileSave, Finalize, Objects, Spa
 
 ---------------------------------------------------------------------------------------
 
-7 - 14 Jan. 2021
+7 - 14 Jan. ** 2021 **
 
 Minor changes. Affects DebugDisplay, Debug2Utils, EndianUtils, FileOpen, FileSave,
 HeapFileIO.
@@ -3482,5 +3482,19 @@ Work to replace the set duration pop-up palette (using a UI font) in the Import 
 dialog with a fixed palette (from a BMP file). Affects .rsrc, DrawUtils.h; DrawUtils,
 MIDIFOCmd.
 
-Minor changes. Affects .rsrc; DialogsEditor, DrawUtils, DurationEdit, DynamicEdit, MIDIFOCmd,
-ModNREdit.
+Minor changes. Affects .rsrc; DialogsEditor, DrawUtils, DurationEdit, DynamicEdit,
+MIDIFOCmd, ModNREdit.
+
+---------------------------------------------------------------------------------------
+
+1 - 5 Jan. ** 2022 **
+
+Finally removed DurationPopUpOLD from the project.
+
+We now display a beta version number in the About box. Affects .rsrc, Info.plist.
+
+Fixed bug: in the Set Duration palette, clicking on a blank cell isn't ignored, nor is
+getting to a blank cell via arrow keys. Affects DurationEdit.
+
+Minor changes. Affects .rsrc, Defs.h, MiscUtils.h, UIFUtils.h; DurationEdit, MIDIFOCmd,
+MiscUtils, SpaceHighLevel, Transcribe, UIFUtils.

@@ -10,6 +10,7 @@
 		CenterWindow			EraseAndInval
 		KeyIsDown				CmdKeyDown				OptionKeyDown
 		ShiftKeyDown			CapsLockKeyDown			ControlKeyDown
+		CommandKeyDown			CheckAbort				IsDoubleClick
 		GetStaffLim
 		InvertSymbolHilite		InvertTwoSymbolHilite
 		HiliteAttPoints			FlashRect				SamePoint
@@ -702,6 +703,54 @@ functions, and it looks less system-dependent. So we should probably switch. */
 
 Boolean CommandKeyDown() {
 	return (GetCurrentKeyModifiers() & cmdKey) != 0;
+}
+
+
+/* ----------------------------------------------------------- Special keyboard things -- */
+
+/* Return True iff the next event is a keystroke of period and the command key is down.
+FIXME: This appears to effectively do the same thing as UserInterrupt(), though it might
+not in some circumstances; anyway, consider removing one or the other. */
+
+Boolean CheckAbort()
+{
+	EventRecord evt;  short ch;
+	Boolean quit = False;
+
+	if (!WaitNextEvent(keyDownMask+app4Mask, &evt, 0, NULL)) return(quit);
+
+	switch(evt.what) {
+		case keyDown:
+			ch = evt.message & charCodeMask;
+			if (ch=='.' && (evt.modifiers&cmdKey)!=0) quit = True;
+			break;
+		case app4Evt:
+			DoSuspendResume(&evt);
+			break;
+	}
+	
+	return(quit);
+}
+
+/* Determine if a mouse click is a double click, using given position tolerance, all in
+current port. */
+
+Boolean IsDoubleClick(Point pt, short tol, long now)
+{
+	Rect box;  Boolean ans=False;
+	static long lastTime;  static Point thePt;
+	
+	if ((unsigned long)(now-lastTime)<GetDblTime()) {
+		SetRect(&box, thePt.h-tol, thePt.v-tol, thePt.h+tol+1, thePt.v+tol+1);
+		ans = PtInRect(pt, &box);
+		lastTime = 0;
+		thePt.h = thePt.v = 0;
+	}
+	else {
+		lastTime = now;
+		thePt = pt;
+	}
+	return ans;
 }
 
 

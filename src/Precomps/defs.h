@@ -39,7 +39,7 @@ enum {								/* l_dur code (ANOTE subType) for: */
 	WHOLEMR_L_DUR=-1,				/*   whole measure rest */
 	UNKNOWN_L_DUR=0,				/*   unknown CMN value */
 	BREVE_L_DUR=1,					/*   breve */
-	WHOLE_L_DUR,					/*   whole note/rest */
+	WHOLE_L_DUR,					/*   whole note/rest (NB: not whole measure rest) */
 	HALF_L_DUR,						/*   half note/rest */
 	QTR_L_DUR,						/*   quarter note/rest */
 	EIGHTH_L_DUR,					/*   eighth note/rest */
@@ -47,8 +47,7 @@ enum {								/* l_dur code (ANOTE subType) for: */
 	THIRTY2ND_L_DUR,				/*   32nd note/rest */
 	SIXTY4TH_L_DUR,					/*   64th note/rest */
 	ONE28TH_L_DUR,					/*   128th note/rest */
-	/* FIXME: NO_L_DUR seems redundant. The few places it's used should probably be changed to UNKNOWN_L_DUR */
-	NO_L_DUR,						/*   none (unknown) */
+	NO_L_DUR,						/*   none (illegal) */
 	LAST_L_DUR=NO_L_DUR
 };
 

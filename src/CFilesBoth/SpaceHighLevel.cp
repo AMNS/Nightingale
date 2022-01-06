@@ -174,14 +174,14 @@ static Boolean IsLyricPunct(unsigned char ch)
 	return (ch==':' || ch==';' || ch=='.' || ch==',' || ch=='?');
 }
 
-/* Return True if the lyric should be allowed to overlap following notes, i.e., if
-its last non-whitespace, non-punctuation character is hyphen or underline (a poor
-person's extender) or hard blank. FIXME: Should use C string (via CCopy) instead of
-Pascal. */
+/* Return True if the lyric should be allowed to overlap following notes, i.e., if its
+last non-whitespace, non-punctuation character is hyphen or underline (a poor person's
+extender) or hard blank. FIXME: Should use C string (via CCopy) instead of Pascal. */
 
 static Boolean AllowOverlap(LINK lyricL)
 {
-	Str255 string;  unsigned char lastChar;  short i;
+	Str255 string;  unsigned char lastChar;
+	short i;
 
 	Pstrcpy((StringPtr)string, (StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(lyricL))->strOffset));
 	
@@ -310,8 +310,8 @@ static STDIST IPGroupWidth(short staff, short ind, SPACETIMEINFO spaceTimeInfo[]
 	
 		/* If this object is not J_IP, this is the end of the group. If it's J_IP but
 		   not on this staff, the situation depends on whether we've found any J_IPs
-		   on this staff yet: if so, we're at the end of the group; if not, we may
-		   not even have reached the beginning of the group yet. */
+		   on this staff yet: if so, we're at the end of the group; if not, we may not
+		   even have reached the beginning of the group yet. */
 		   
 		if (spaceTimeInfo[j].justType!=J_IP) break;
 		if (!ObjOnStaff(spaceTimeInfo[j].link, staff, False)) {
@@ -444,7 +444,7 @@ static void ConsiderITWidths(
 					STDIST fSpBefore[]				/* Output: space-before table: only entries for J_IT objs are used */
 					)
 {
-	register short i, s, t;
+	short i, s, t;
 	STDIST needLeft, prevNeedRight[MAXSTAVES+1], gNeedLeft, gNeedRight;
 	LONGSTDIST fSpNeeded, fAvailSp[MAXSTAVES+1];
 	Boolean staffUsed[MAXSTAVES+1];
@@ -532,14 +532,14 @@ static void ConsiderITWidths(
 syncs, etc.) and adjust spacing accordingly. Handles one measure. */
 
 static void ConsiderIPWidths(
-				register Document *doc,
+				Document		*doc,
 				short			nLast,
 				SPACETIMEINFO	spaceTimeInfo[],
 				STDIST			fSpBefore[],		/* Space-before table: entries for J_IT & J_IP objs are used */
 				LONGSTDIST		position[] 			/* Position table for J_IT & J_IP objs. for the measure */
 				)
 {
-	register short i;
+	short i;
 	short s, j;
 	STDIST spNeeded, fSpNeeded;
 	STDIST fSpAfter[MAX_MEASNODES];		/* Fine STDIST space-after table for J_IP objs. for the measure */
@@ -646,7 +646,7 @@ both have ledger lines below the staff, consider adding space to keep the ledger
 apart. */
 
 static void ConsiderLedgerLines(
-				register Document *doc,
+				Document		*doc,
 				short			nLast,
 				SPACETIMEINFO	spaceTimeInfo[],
 				STDIST			fSpBefore[]
@@ -731,7 +731,7 @@ static void ConsiderSPWidths(
 				LONGSTDIST	position[] 			/* Position table for J_IT & J_IP objs. for the measure */
 				)
 {
-	register short i, j;
+	short	i, j;
 	STDIST	spWidth;
 	LINK	spaceL;
 
@@ -1239,7 +1239,7 @@ static short RespWithinMeasures(
 {
 	short mindex, inSel, nLastItem;
 	DDIST oldMWidth, newMWidth; SPACETIMEINFO *spTimeInfo=0L;
-	register LINK measL, firstL, lastL;			/* 1st obj in, obj ending current Measure */
+	LINK measL, firstL, lastL;					/* 1st obj in, obj ending current Measure */
 
 	spTimeInfo = AllocSpTimeInfo();
 	if (!spTimeInfo) return -1;
@@ -1298,7 +1298,7 @@ static Boolean PositionWholeMeasures(
 		)
 {
 	LINK		startInvalL;
-	register short m;
+	short		m;
 	short		first; 
 	Boolean		reformat, goAhead;
 	CONTEXT		context;
@@ -1410,7 +1410,7 @@ typedef struct {
 #define EXTRAOBJS	4
 
 Boolean RespaceBars(
-			register Document *doc,
+			Document *doc,
 			LINK startL,
 			LINK endL,
 			long spaceProp,			/* >0 means use spaceProp/(RESFACTOR*100) of normal

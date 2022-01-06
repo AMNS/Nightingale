@@ -29,7 +29,9 @@ elsewhere. */
 
 /* Set a block of nBytes bytes, starting at a given address <loc>, to zero. (An ancient
 comment here said "loc must be even". That's probably a relic from the days of 68000s;
-I doubt it's true on PowerPC G5's or modern Intel processors. --DAB, August 2020) */
+I doubt it's true on PowerPC G5's or modern Intel processors. --DAB, August 2020)
+FIXME: Replace calls to ZeroMem(lll, nnn) with FillMem(0, lll, nnn). Or at least replace
+the body of ZeroMem with "FillMem(0, loc, nBytes)"! */
 
 void ZeroMem(void *loc, long nBytes)
 {
@@ -92,8 +94,8 @@ Boolean GoodResource(Handle hndl)
 
 /* The below functions date back to the 1980's, when machines had just a few megabytes
 of memory. Now that machines have gigabytes, running out of memory is hardly worth
-worrying about, but I doubt if the code (which to my knowledge has worked perfectly
-for decades now) is worth touching.  --DAB, May 2020 */
+worrying about; but I doubt if the code (which to my knowledge has worked perfectly
+for decades now) is worth touching other than maybe removing it.  --DAB, May 2020 */
 
 /* GrowMemory() is a very simple grow zone function designed to prevent the ROM or
 resident software from generating out-of-memory errors. GrowMemory assumes we've
@@ -164,50 +166,6 @@ long MemBitCount(unsigned char *pCh, long n)
 	}
 		
 	return count;
-}
-
-
-/* ----------------------------------------------------------- Special keyboard things -- */
-
-Boolean CheckAbort()
-{
-	EventRecord evt;  int ch;
-	Boolean quit = False;
-
-	if (!WaitNextEvent(keyDownMask+app4Mask, &evt, 0, NULL)) return(quit);
-
-	switch(evt.what) {
-		case keyDown:
-			ch = evt.message & charCodeMask;
-			if (ch=='.' && (evt.modifiers&cmdKey)!=0) quit = True;
-			break;
-		case app4Evt:
-			DoSuspendResume(&evt);
-			break;
-	}
-	
-	return(quit);
-}
-
-/* Determine if a mouse click is a double click, using given position tolerance, all
-in current port. */
-
-Boolean IsDoubleClick(Point pt, short tol, long now)
-{
-	Rect box;  Boolean ans=False;
-	static long lastTime;  static Point thePt;
-	
-	if ((unsigned long)(now-lastTime)<GetDblTime()) {
-		SetRect(&box, thePt.h-tol, thePt.v-tol, thePt.h+tol+1, thePt.v+tol+1);
-		ans = PtInRect(pt, &box);
-		lastTime = 0;
-		thePt.h = thePt.v = 0;
-	}
-	else {
-		lastTime = now;
-		thePt = pt;
-	}
-	return ans;
 }
 
 
@@ -283,7 +241,6 @@ short GetInputName(char */*prompt*/, Boolean /*newButton*/, unsigned char *name,
 {
 	OSStatus err = noErr;
 	
-	//err = OpenFileDialog(CREATOR_TYPE_NORMAL, numGetTypes, inputType, nsData);
 	err = OpenFileDialog(kNavGenericSignature, numGetTypes, inputType, nsData);
 	
 	strncpy((char *)name, nsData->nsFileName, 255);
@@ -305,7 +262,6 @@ Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *n
 	OSStatus anErr;
 	CFStringRef	defaultName;
 	
-	//defaultName = CFSTR("Nightingale Document");
 	defaultName = CFStringCreateWithPascalString(NULL, name, smRoman);
 
 	anErr = SaveFileDialog( NULL, defaultName, 'TEXT', 'BYRD', nsData );
