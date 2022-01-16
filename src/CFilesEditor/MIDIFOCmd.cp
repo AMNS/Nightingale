@@ -307,7 +307,7 @@ durationIdx, box.top, box.left, box.bottom, box.right);
 					   hilite the new one. */
 
 					short newDurIdx = FindDurationCell(where, &box, NCOLS, NROWS, durationCell);
-LogPrintf(LOG_DEBUG, "durationIdx=%d newDurIdx=%d ans=%d\n", durationIdx, newDurIdx, ans);  
+//LogPrintf(LOG_DEBUG, "durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);  
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
 					SWITCH_CELL(durationIdx, newDurIdx, &box);
 				}
@@ -316,11 +316,12 @@ LogPrintf(LOG_DEBUG, "durationIdx=%d newDurIdx=%d ans=%d\n", durationIdx, newDur
 			}
 			break;
 		case keyDown:
+		case autoKey:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			ch = (unsigned char)evt->message;
 			GetDialogItem(dlog, DUR_CHOICES_DI, &type, &hndl, &box);
 			*itemHit = 0;
-			ans = -1;		/* Using a version of DurationKey(ch) would be nice, but not important */
+			ans = DurationKey(ch, NDURATIONS);
 			if (ans>=0) {
 LogPrintf(LOG_DEBUG, "ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);  
 				SWITCH_CELL(durationIdx, ans, &box);
@@ -419,18 +420,6 @@ static short PaletteChoiceDlog(short durCode)
 
 /* ---------------------------------------------------------------- TranscribeMFDialog -- */
 
-short DurCodeToPalettePos(short durCode, short nDots);
-short DurCodeToPalettePos(short durCode, short nDots)
-{
-#ifdef NOTYET
-	for (short palP = 0; palP<=??; palP++) {
-		if (??==durCode && ??==nDots) return palP;
-	}
-#endif	
-	return -1;
-}
-
-
 #define CurEditField(dlog) (((DialogPeek)(dlog))->editField+1)
 
 enum {
@@ -497,6 +486,7 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			}
 			break;
 		case keyDown:
+		case autoKey:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			ch = (unsigned char)evt->message;
 			field = GetDialogKeyboardFocusItem(dlog);
@@ -589,19 +579,7 @@ static Boolean TranscribeMFDialog(
 	oldResFile = CurResFile();
 	UseResFile(appRFRefNum);									/* popup code uses Get1Resource */
 		
-#if 11
 	GetDialogItem(dlog, MFSET_DUR_DI, &aShort, &hndl, &box);
-#else
-	durPop0dot.menu = NULL;										/* NULL makes any "goto broken" safe */
-	durPop0dot.itemChars = NULL;
-	popKeys0dot = NULL;
-
-	GetDialogItem(dlog, MFSET_DUR_DI, &aShort, &hndl, &box);
-	if (!InitGPopUp(&durPop0dot, TOP_LEFT(box), NODOTDUR_MENU, 1)) goto broken;
-	popKeys0dot = InitDurPopupKey(&durPop0dot);
-	if (popKeys0dot==NULL) goto broken;
-	curPop = &durPop0dot;
-#endif
 	
 	Pstrcpy((StringPtr)strBuf, filename);
 	PStrCat((StringPtr)strBuf, "\pÓ");

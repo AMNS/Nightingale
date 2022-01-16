@@ -192,19 +192,6 @@ void OutOfMemory(long nBytes)				{ ErrorNumber(exhaustedMemory,nBytes); }
 
 char	tempStr[256];
 
-static void EMDebugPrintf(char *fmt, ... );
-static void EMDebugPrintf(char *fmt, ... )
-{
-	long args[6];  short i;
-	va_list ap;
-	
-	va_start(ap,fmt);
-	for (i=0; i<6; i++) args[i] = va_arg(ap,long);
-	va_end(ap);
-	
-	LogPrintf(LOG_WARNING, fmt, args[0], args[1], args[2], args[3], args[4], args[5]);
-}
-
 void MayErrMsg(char *fmt, ...)
 {
 	va_list ap;
@@ -221,7 +208,7 @@ void MayErrMsg(char *fmt, ...)
 	arg6 = va_arg(ap, long);
 	va_end(ap);
 	
-	sprintf(tempStr, "ERROR: Possible bug in program: "); 
+	sprintf(tempStr, "Possible bug in program: "); 
 	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
 	LogPrintf(LOG_ERR, "%s\n", tempStr);
 
@@ -248,7 +235,7 @@ void AlwaysErrMsg(char *fmt, ...)
 	arg6 = va_arg(ap, long);
 	va_end(ap);
 	
-	sprintf(tempStr, "ERROR: BUG IN PROGRAM: ");  
+	sprintf(tempStr, "BUG IN PROGRAM: ");
 	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
 	LogPrintf(LOG_ERR, "%s\n", tempStr);
 

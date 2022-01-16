@@ -802,8 +802,6 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;
 	windowRect->right += 2*TOOLS_MARGIN;
 	windowRect->bottom += 2*TOOLS_MARGIN;
-	//toolsFrame = *windowRect;
-	//InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);	/* FIXME: This is never used! */
 
 	/* Avoid Issue #67, where the tool palette's initial position is sometimes at the
 	   very top of screen, underneath the menu bar. FIXME: This is certainly not the

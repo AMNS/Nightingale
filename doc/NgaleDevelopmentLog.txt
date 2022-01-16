@@ -10807,19 +10807,23 @@ to DrawRow is actually the width in bits, not bytes! Correct that => all OK.
 
 22 - 29 Dec.
 
-Features using palettes that are in good shape:
+Features using palettes that are in reasonably good shape:
 
-* Tool palette: no problems AFAIK except resize to enlarge, but code is a mess.
+* Tool palette:
+	- Code is a mess.
+	- On Intel, nothing is hilited intially; after that, two cells are hilited
 	- Resizing to a smaller size is OK; to a larger, it doesn't draw the new area.
 	- Closing and reopening are OK.
 	- I doubt if rearranging works, at least saving the rearrangement, but do I care?
 
-* Set/Add Modifiers: no problems AFAIK except arrow keys don't ignore empty cells.
+* Set/Add Modifiers: no problems AFAIK except arrow keys don't ignore empty cells,
+& arrow keys don't auto-repeat.
 
-* Double-clicking a dynamic: no problems AFAIK except arrow keys don't ignore empty cells.
+* Double-clicking a dynamic: no problems AFAIK except arrow keys don't ignore empty cells,
+& arrow keys don't auto-repeat.
 
 * Set Duration: no problems AFAIK except doesn't ignore clicks on empty cells & arrow keys
-don't ignore empty cells.
+don't ignore empty cells, & arrow keys don't auto-repeat.
 
 * Other commands/features that use the choose-duration palette: High priority:
 	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
@@ -10833,10 +10837,43 @@ Lower priority:
 1 - 5 Jan. ** 2022 **
 
 Fix bug: in the Set Duration palette, clicking on a blank cell isn't ignored, nor is
-getting to a blank cell via arrow keys => OK.
+getting to a blank cell via arrow keys => OK now.
 
-The Fancy Tuplet dialog is partly working. With 3 quarters, it correctly defaults to 3:2.
+---------------------------------------------------------------------------------------
+
+9 - 15 Jan. ** 2022 **
+
+Implement arrow keys auto-repeating in Set Duration, Add/Set Modifiers, & Import MIDI File
+dialogs & double-click dynamic window => all OK.
+
+A bug in the tool palette: The regular pointer tool cell always has the wrong hilite status.
+Initially nothing is hilighted (inverted); once you click on something, that cell and the
+one you click on are hilighted. This is obviously because the pointer tool cell in the tool
+palette BMP is hilighted, and the best solution is probably also the easiest: change the
+palette BMP.
+
+Updated status of features:
+
+* Tool palette:
+	- Code is a mess.
+	- Resizing to a smaller size is OK; to a larger, it doesn't draw the new area.
+	- Closing and reopening are OK.
+	- I doubt if rearranging works, at least saving the rearrangement, but do we care?
+
+* Set/Add Modifiers: no problems AFAIK.
+
+* Double-clicking a dynamic: no problems AFAIK.
+
+* Set Duration: no problems AFAIK.
+
+* Import MIDI File: no problems AFAIK except the initial quantum shows as 16th but is
+actually 8th.
+
+* The Fancy Tuplet dialog is partly working. With 3 quarters, it correctly defaults to 3:2.
 With LongTuplet.ngl, it sometimes shows the correct 80:64, but sometimes 0:0. Or am I
 confused?
 
-
+* Other commands/features that use the choose-duration palette: High priority:
+	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
+Lower priority:
+	Transcribe Recording: no change

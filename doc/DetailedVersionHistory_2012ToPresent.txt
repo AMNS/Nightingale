@@ -31,7 +31,7 @@ March 2013 - ??
 	CMDEBUG as 0.
 * Remove code to check expiration date. Affects InitNightingale.cp .
 
------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 March-June 2013
 
@@ -54,7 +54,7 @@ declaration of <NOTEHEAD_GRAPH_WIDTH>.
 * Minor cleanup. Affects SpaceHighLevel.c; DrawUtils.cp: DrawMChar: removed #if'd-out
 code
 
------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 mid-Aug. - Nov. 2013
 
@@ -64,7 +64,7 @@ improve description of how to add features; various.
 
 * DrawObject.cp: comment out DebugPrintf(s).
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 23 Mar.- 5 Apr. 2015
 
@@ -89,7 +89,7 @@ STR# 240; DialogsEditor.cp.
 initial Keysigs of systems with no sharps/flats that their objRects are "GARBAGE
 (UNSELECTABLE)". Affects DebugUtils.c: DCheckNode.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 11 May - 14 June 2015
 
@@ -115,7 +115,7 @@ InstrDialog.cp: InstrDialog().
 * Correct wording of an error message from the Instrument settings dialog. Affects
 .rsrc: STR# 265.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 22 July - 12 August
 
@@ -128,7 +128,7 @@ playback.)
 Do debug printing for the Import MIDI File command if the shift & control keys are down;
 minor cleanup. Affects MIDIFOpen.cp.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 30 August - 9 Sept.
 
@@ -139,7 +139,7 @@ Change keyboard shortcut for Relative Playback Speed from command-8 (which was a
 taken by Create Octave Sign!) to shift-command-0; make its dialog slightly wider; make
 the MIDI Modifier Effects dialog slightly smaller. Affects .rsrc.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 12 - 16 Sept.
 
@@ -156,7 +156,7 @@ a bad idea) to GetTempoRelObj and GetCtrlRelObj; clean up code.
 MIDIFSave.cp: Clarify DebugPrintf's; warn (via DebugPrintf) if tempo change is at the
 same time as a previous tempo change; minor cleanup.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 17 - 30 Sept.
 
@@ -167,7 +167,7 @@ StringToolbox.cp: minor cleanup.
 
 MIDIPlay.cp: Change more instances of "Midi" in function names to "MIDI".
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 2 - 4 October
 
@@ -179,7 +179,7 @@ Update/simplify About box. Affects About.cp, .rsrc: DLOG 451.
 
 Change version number from 5.4 to 5.5! Affects Info.plist.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 27 Sept. - 18 Oct.
 
@@ -196,7 +196,7 @@ PS_Stdio: clarify comments; minor cleanup.
 Make Debug Check's checking for "SYSTEM AT xxx RECT PAST RIGHT MARGIN" less strict.
 Affects DebugUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 20 - 26 Oct.
 
@@ -208,7 +208,7 @@ Clarify a comment. Affects DebugUtils.
 Tweak the Info dialog for notes/rests and the one for most other symbols (DLOGs 596 and
 598) to make them more readable. Affects .rsrc.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 27-28 Oct.			======== NIGHTINGALE 5.5 (28 Oct. 2015) ========
 
@@ -226,8 +226,7 @@ Check, DialogsEditor, DrawObject, Insert, InsNew, InsNew.h, MIDIFOpen, NightTemp
 NTypes.h.
 
 
-=======================================================================================
-
+===========================================================================================
 
 3-16 Nov.
 
@@ -252,7 +251,7 @@ make it more reaable. Affects .rsrc.
 
 Display the tempo in effect in the Context window. Affects .rsrc; Browser.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 17-26 Nov.
 
@@ -270,7 +269,7 @@ just "3". Affects Browser.
 
 In error conditions, explain via DebugPrintf; minor cleanup. Affects Browser.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28 Nov.
 
@@ -279,7 +278,7 @@ CarbonPrinting: minor cleanup.
 Clarify error message for attempt to zoom in further than the Screen Page Layout
 allows. Affects .rsrc .
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 29 Nov. - 28 Dec.
 
@@ -302,7 +301,7 @@ or (via compile-time option, "#define MULTNOTES_PLAYMAXDUR") stop playing that n
 the first one ends, as Ngale has always done. (Issue #30) Affects MIDIUtils;
 MIDIGeneral.h.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28-31 Dec.
 
@@ -324,7 +323,7 @@ MergeUtils, MoveUpDown.
 
 Update version number in About box to 5.6b1. Affects info.plist .
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 2 - 10 Jan. 2016
 
@@ -346,7 +345,7 @@ final measures of right-justified systems. Affects DebugDisplay, DebugUtils.
 Minor cleanup. Affects defs.h; Browser, DebugDisplay, DebugUtils, DrawObject, File,
 Initialize, SpaceHighLevel, VoiceNumbers.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 11-14 Jan.			==== NIGHTINGALE 5.6b1 ====
 
@@ -361,7 +360,7 @@ InfoDialog, UIFUtils.
 
 Minor cleanup. Affects Browser, Double, InfoDialog, UIFUtils.
 
-===============================================================================
+===========================================================================================
 
 18 - 3 Feb.
 
@@ -389,13 +388,13 @@ Check.c, DrawNRGR, Initialize, UIFUtils.
 
 Update long version no. to 5.6. Affects info.plist.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 5 Feb.			==== NIGHTINGALE 5.6b2 ====
 
 Clarify comments; minor cleanup. Affects Error, Insert.
 
-===============================================================================
+===========================================================================================
 
 9-17 Feb.
 
@@ -415,14 +414,14 @@ Add units to _tempoMarkHGap_ in the CNFG Resorcerer template. Affects .rsrc.
 Rename SPACE objects to SPACER. Affects MemMacros.h, NTypes.h, vars.h, and
 about 40 C files.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25-26 Feb.			==== NIGHTINGALE 5.6b3 ====
 
 Add to Debug Check a check for Measures of zero width that nonetheless contain
 something. Affects DebugUtils.
 
-===============================================================================
+===========================================================================================
 
 27-29 Feb.
 
@@ -433,7 +432,7 @@ Update version number in About box to 5.6b4. Affects info.plist .
 
 Restore mysteriously lost code changes; minor changes. Affects DebugUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 2-7 Mar.
 
@@ -454,7 +453,7 @@ Affects Menu.
 
 Minor cleanup. Affects DrawObject, MeasFill, Menu.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 8-11 Mar.			       ==== NIGHTINGALE 5.6b4 ====
 
@@ -470,7 +469,7 @@ Change CNFG defaults:
 
 Minor cleanup. Affects PitchCmds, ScoreInfo.
 
-===============================================================================
+===========================================================================================
 
 21-25 Mar.
 
@@ -495,7 +494,7 @@ Affects Context.
 
 Minor cleanup. Affects Dragging, Context, etc.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 27 Mar.-9 Apr.
 
@@ -518,7 +517,7 @@ bassoon range _more_ conservative. Change the heading on the Instrument dialog f
 Minor cleanup. Affects About, DrawObject, Extract, ExtractHighLevel, HeaderFooterDialog,
 InstrDialog, Menu, MIDIFSave, MIDIUtils, ScoreInfo.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 11-13 Apr.
 
@@ -533,7 +532,7 @@ Move definitions of four limits from defs.h to NLimits.h.
 Minor cleanup. Affects NLimits.h, Reconstruct.h; ExtractHighLevel, File, Menu,
 MergeUtils, NotelistSave, Reconstruct, SelUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 14 Apr. - 5 May			       ==== NIGHTINGALE 5.6b5 ====
 
@@ -559,7 +558,7 @@ Adept Music Notation Solutions.
 Minor cleanup. Affects MemMacros.h; DebugHighLevel, DebugUtils, DrawNRGR, DrawObject,
 Extract, File, MasterPage, StringUtils, and a few others.
 
-===============================================================================
+===========================================================================================
 
 9 - 31 May
 
@@ -591,7 +590,7 @@ Remove #ifdef'd-out code & comments re "Mackey's disease". Affects Event, File, 
 Minor cleanup. Affects CarbonPrinting, DialogsEditor, DrawNRGR, InfoDialog, Initialize,
 MasterPage.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 2-9 June
 
@@ -627,7 +626,7 @@ Increase minimum legal tempo from 1 to 10 BPM. Affects DialogsEditor.
 
 Minor cleanup. Affects Extract, ExtractHighLevel, HeaderFooterDialog, NTypes.h.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 12-14 June
 
@@ -638,7 +637,7 @@ MAXBPM to MAX_BPM. Affects NLimits.h; DialogsEditor, Initialize; .rsrc.
 
 Minor cleanup. Affects DialogsEditor.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 June			    ======== NIGHTINGALE 5.6 (16 June 2016) ========
 
@@ -651,7 +650,7 @@ standard terminology, but it's what the related alert calls the command. Affects
 Make the "MIDI Dynamic Prefs" and "Instrument MIDI Settings" dialogs a little prettier.
 Affects .rsrc.
 
-===============================================================================
+===========================================================================================
 
 23-24 June
 
@@ -664,7 +663,7 @@ when lastObj is a Measure, which is actually legal. Affects Reconstruct.
 
 Minor cleanup. Affects style.h, DebugUtils, Reconstruct.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 26-27 June
 
@@ -681,7 +680,7 @@ that are really okay. Affects DebugUtils.
 
 Minor cleanup. Affects Browser, Clipboard, DebugUtils, Dragging.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28 - 30 June
 
@@ -704,7 +703,7 @@ soon). Affects .rsrc; MPCommands.
 Rename Boolean functions PartSel, PartRangeSel, & GroupSel to PartIsSel, PartRangeIsSel,
 & GroupIsSel, respectively. Affects MasterPage.h; Event, MasterPage, Menu, MPCommands.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 5 July			       ==== NIGHTINGALE 5.7b1 ====
 
@@ -714,7 +713,7 @@ Improve error messages for the Split Part command. Affects .rsrc; MPCommands.
 
 Minor cleanup. Affects DebugHighLevel, MPCommands.
 
-===============================================================================
+===========================================================================================
 
 7 - 14 July
 
@@ -726,7 +725,7 @@ damaged UTF-8, and it can't save defs.h because it's confused about its encoding
 Minor cleanup. Affects defs.h; DialogsEditor, DrawNRGR, DrawObject, Dragging,
 MPCommands, TextDialog.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 17 July
 
@@ -735,7 +734,7 @@ DrawUtils.
 
 Minor cleanup. Affects DrawObject, Drawutils.
 
-===============================================================================
+===========================================================================================
 
 19-20 July
 
@@ -751,7 +750,7 @@ InsNewUtils.
 
 Minor cleanup.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 22 July - 6 August			       ==== NIGHTINGALE 5.7b2 ====
 
@@ -774,7 +773,7 @@ other changes to prepare for multiline tempo marks. Affects DrawObject.
 Minor cleanup. Affects DrawObject, DrawUtils, FileInput, InfoDialog, MusicFont, PS_Stdio,
 Search, Utility.
 
-===============================================================================
+===========================================================================================
 
 8 - 12 August			       ==== NIGHTINGALE 5.7b3 ====
 
@@ -795,7 +794,7 @@ just "TEXT". Affects InfoDialog.
 Fix bug: feedback for dragging an expanded text Graphic isn't expanded. Affects
 Dragging.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 13 - 26 August
 
@@ -809,7 +808,7 @@ TextDialog, Utility.
 
 Update README.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 7 Sept.			       ==== NIGHTINGALE 5.7b4 ====
 
@@ -824,7 +823,7 @@ In extracted parts, set Left End of Systems for "Other" systems (not the first) 
 Minor cleanup. Affects MemMacros.h; DurationPopUp, ExtractHighLevel, MCaret, MIDIFOCmd,
 MIDIRecord, NotelistParse, Objects, Reformat, Transcribe, UIFUtils.
 
-===============================================================================
+===========================================================================================
 
 14 - 15 Sept.
 
@@ -836,7 +835,7 @@ NewSlur, TrackVMove.
 Increase max. no. of tempo changes on playback from 100 to 300; reword error message
 for exceeding the limit. Affects .rsrc; MIDIPlay.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 19 - 23 Sept.
 
@@ -854,7 +853,7 @@ they have no effect on MIDI files Ngale writes. Affects MIDIFSave.
 Minor cleanup. Affects MIDIGeneral.h; CoreMidiUtils, DebugDisplay, DialogsEditor,
 MIDIFOCmd, MIDIFSave, MIDIPlay.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 24 - 27 Sept.
 
@@ -870,20 +869,20 @@ MIDIFSave.
 Minor cleanup and enhancements. Affects MIDIGeneral.h; Documents, File, MIDIFOCmd,
 MIDIFOpen, MIDIUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 30 Sept. - 11 Oct.
 
 Minor cleanup and enhancements. Affects Ottava.h; Dragging, MIDIFOpen, MIDIFSave,
 Ottava, RTRhythmDur.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 12 - 15 Oct.			       ==== NIGHTINGALE 5.7b5 ====
 
 Minor cleanup. Affects NightTemplates.h; Initialize, InitNightingale, Insert, Tuplet.
 
-===============================================================================
+===========================================================================================
 
 17 - 20 Oct.
 
@@ -896,7 +895,7 @@ Clarify labels and minor cleanup in Get Info dialogs. Affects .rsrc; InfoDialog.
 
 Minor cleanup. Affects Event, Menu.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21 - 27 Oct.
 
@@ -913,7 +912,7 @@ Change all occurrences of _toPostscript_ to _toBitmapPrint_. Affects about
 
 Minor cleanup. Affects defs.h; CarbonPrinting, DrawHighLevel, Menu, NotelistConvert.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 29 Oct. - 2 Nov.
 
@@ -929,7 +928,7 @@ Move NewSlur.cp from folder CFilesBoth to CFilesEditor. Affects Nightingale.xcod
 
 Minor cleanup. Affects DrawObject, NewSlur.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 4-8 Nov.			       ==== NIGHTINGALE 5.7b6 ====
 
@@ -942,7 +941,7 @@ otherwise long names like "Arpeggio" won't be shown at all. Affects .rsrc; UIFUt
 
 Minor cleanup. Affects MemMacros.h, NTypes.h; Event, Ottava, Slurs, SpaceTime.
 
-===============================================================================
+===========================================================================================
 
 9-16 Nov.
 
@@ -961,7 +960,7 @@ context setting, the way key signatures have always been handled. Affects Noteli
 In Notelists, handle multiple-line tempo marks so as to keep the notelist entry on one
 line.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 17-19 Nov.
 
@@ -971,7 +970,7 @@ styles 6 through 9 as unknown; they now shown all styles correctly. Affects Note
 Clarify code & minor cleanup. Affects Notelist.h, SpaceTime.h; Check, Debug2Utils,
 DrawObject, Extract, MIDIFSave, Ottava, Score, ScoreInfo, SpaceTime, TextDialog.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 20-23 Nov.
 
@@ -986,7 +985,7 @@ Minor cleanup; improve code readability, etc. Affects defs.h, MemMacros.h, Utili
 Browser, Debug2Utils, Documents, DragBeam, DrawingEdit, DrawObject, HairpinEdit,
 Initialize, Merge, MIDIFSave, RfmtRaw, Score, ScoreInfo, SpaceTime, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 24-28 Nov.			       ==== NIGHTINGALE 5.7b7 ====
 
@@ -1001,7 +1000,7 @@ Debug.h; Debug2Utils, DebugHighLevel.
 Minor cleanup. Affects Utility.h; Browser, Context, DebugHighLevel, DelRedTimeSigs,
 DragGraphic, Utility.
 
-===============================================================================
+===========================================================================================
 
 30 Nov. - 2 Dec.
 
@@ -1016,7 +1015,7 @@ affects Debug.h.
 
 Minor cleanup. Affects DebugHighLevel, Debug2Utils, DebugUtils, SpaceTime, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9 Dec.
 
@@ -1026,7 +1025,7 @@ Debug2Utils.
 
 Minor cleanup. Affects DebugHighLevel, DrawObject, Menu.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 19 Dec.
 
@@ -1039,7 +1038,7 @@ DrawUtils, PS_Stdio, TrackVMove, Tuplet, Utility.
 
 Minor cleanup. Affects vars.h; DrawUtils, InitNightingale, Ottava.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21-29 Dec.
 
@@ -1053,7 +1052,7 @@ Make grace notes a tiny bit smaller, ala Gould's _Behind Bars_. Affects style.h.
 
 Minor cleanup. Affects ChooseCharDlog, InfoDialog, Inval.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 7-9 Jan. 2017
 
@@ -1064,7 +1063,7 @@ courtesy time signatures more helpful. Affects Debug2Utils.
 
 Minor cleanup. Affects Debug2Utils, Event, MIDIFSave.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 10 Jan.			       ==== NIGHTINGALE 5.7b8 ====
 
@@ -1074,7 +1073,7 @@ score, but they rarely (if ever) do. Affects InfoDialog.
 
 Minor cleanup. Affects DSUtils, InfoDialog, InsNew, InsUtils, Search.
 
-===============================================================================
+===========================================================================================
 
 14-19 Jan.
 
@@ -1089,7 +1088,7 @@ extracted from. Affects Extract.
 Minor cleanup. Affects DebugUtils, Debug2Utils (change all "AT %u" to "L%u"),
 DrawObject, Extract.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21-25 Jan.
 
@@ -1107,7 +1106,7 @@ internal, not user, voice number. Affects Browser.
 
 Minor cleanup. Affects DrawNRGR, DrawObject, SpaceTime.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 26-27 Jan.
 
@@ -1116,7 +1115,7 @@ DebugUtils.h; DebugUtils, Debug2Utils.
 
 Minor cleanup. Affects DrawNRGR, DebugUtils, Debug2Utils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 29 Jan.-3 Feb.
 
@@ -1132,7 +1131,7 @@ File sometimes crashes or writes files with garbage timing" bug. Affects MIDIFSa
 
 Minor cleanup. Affects .rsrc; MIDIFOpen, MIDIFSave.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 3-5 Feb.
 
@@ -1155,7 +1154,7 @@ Affects Inval.
 
 Minor cleanup. Affects DrawObject, Inval, MIDIFOpen, MIDIFSave, Select.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 7 Feb.
 
@@ -1163,7 +1162,7 @@ Make metronome marks smaller (Issue #131): they've always been larger than the s
 size, and making them smaller is particularly important for parts, where measures tend
 to be much narrower and more crowded, etc. Affects Style.h; Dragging, DrawObject.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 8-13 Feb.
 
@@ -1175,7 +1174,7 @@ MemMacros.h, NTypes.h; about 16 C files.
 
 Minor cleanup. Affects Browser, DebugUtils, SFormatHighLevel.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 15-20 Feb.
 
@@ -1188,7 +1187,7 @@ many files.
 
 Minor cleanup. Affects MemMacros.h; Browser, DSUtils, InsUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21 Feb.			       ==== NIGHTINGALE 5.7b9 ====
 
@@ -1198,7 +1197,7 @@ Dragging.h, Slurs.h; DragUtils, Slurs.
 Minor cleanup, mostly of dragging-related files. Affects MemMacros.h; Dragging,
 DragSet, DragUtils, Slurs.
 
-===============================================================================
+===========================================================================================
 
 22-26 Feb.
 
@@ -1214,7 +1213,7 @@ Avoid possibly uninitialized variables. Affects Menu, MIDIFSave.
 
 Minor cleanup. DebugUtils.h; DebugUtils, InstrDialog, Menu, MIDIFSave.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 27 Feb.
 
@@ -1226,7 +1225,7 @@ wider. Affects .rsrc.
 Reorganize Style.h; rename some #defines for consistency. Affects Style.h; Dragging,
 Ottava.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28 Feb.-6 Mar.
 
@@ -1239,7 +1238,7 @@ Make "slop" values more explicit via #defines. Affects DragDynamic, UIFUtils.
 Minor cleanup. Affects AccModNRMouse, DragDynamic, Dragging, DragUtils, DrawObject,
 DSUtils, InitNightingale, UIFUtils, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 7-9 Mar.
 
@@ -1248,7 +1247,7 @@ MasterMouse, MasterPage, SFormatHighLevel, UIFUtils.
 
 Other minor cleanup. Affects DragBeam, DSUtils, Insert, InsUtils, MasterMouse, Utility, 
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 12-15 Mar.			       ==== NIGHTINGALE 5.7b10 ====
 
@@ -1266,7 +1265,7 @@ Defs.h; MoveUpDown, Reformat, RfmtRaw, Score.
 
 Minor cleanup. Affects Notelist.h; FileInput, MIDIFOpen, NotelistParse, Score, Utility.
 
-===============================================================================
+===========================================================================================
 
 16 Mar.
 
@@ -1277,7 +1276,7 @@ then crashes. Affects Score.
 
 Minor cleanup. Affects OpenNotelist, Reformat, Score, SpaceHighLevel.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 18 Mar.
 
@@ -1288,7 +1287,7 @@ Avoid possibly uninitialized variables. Affects DrawObject.
 
 Minor cleanup. Affects DrawObject, Menu, MIDIPlay.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 19-20 Mar.
 
@@ -1299,7 +1298,7 @@ Make "slop" values more explicit via #defines. Affects Slurs.
 
 Minor cleanup. Affects MIDIPlay, MIDIUtils, Slurs, Ottava, TextDialog.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21-22 Mar.
 
@@ -1310,7 +1309,7 @@ Avoid 119 "missing braces" compiler warnings. Affects vars.h.
 
 Minor cleanup. Affects vars.h; Events, Initialize, Main.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 23-28 Mar.			       ==== NIGHTINGALE 5.7b11 ====
 
@@ -1324,7 +1323,7 @@ HeapBrowser, Score, Slurs.
 Avoid many "missing braces" compiler warnings; other minor cleanup. Affects Dragging,
 Error, InsNew, InsUtils, NotelistOpen, Select, Slurs.
 
-===============================================================================
+===========================================================================================
 
 29 Mar.-3 Apr.
 
@@ -1336,7 +1335,7 @@ Make "slop" values more explicit via #defines. Affects AccModNRMouse.
 
 Minor cleanup. Affects MemMacros.h; AccModNRMouse, CheckUtils, ScoreInfo, Slurs.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 4-5 Apr.
 
@@ -1346,7 +1345,7 @@ Reconstruct, Search, SysPageEdit.
 
 Minor cleanup. Affects MemMacros.h; DebugUtils, InsUtils, Slurs, SysPageEdit.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 6-11 Apr.
 
@@ -1362,7 +1361,7 @@ MemMacros.h; AutoBeam, Context, CrossSystem, DebugUtils, Debug2Utils, Documents,
 ExtractHighLevel, Initialize, InsNewUtils, Menu, MIDIFSave, NotelistOpen,
 Window.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 13-14 Apr.
 
@@ -1372,7 +1371,7 @@ Besides those two files, affects NightTemplates.h; Menu.
 Minor cleanup. Affects DSUtils.h; CombineParts, DelAddRedAccs, DSUtils, EssentialTools,
 Menu, MPCombineParts, NotelistOpen, ScoreInfo, Windows.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 15-19 Apr.
 
@@ -1390,7 +1389,7 @@ DSUtils.h; DragSet, DSUtils, NewSlur, RfmtRaw.
 Minor cleanup. Affects .rsrc; DebugUtils, DSUtils, Extract, Finalize, Menu, MIDIRecUtils,
 NotelistSave, PS_Stdio, RTRhythmDur.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 20-23 Apr.	======== (FIRST CANDIDATE) NIGHTINGALE 5.7 (23 April 2017) ========
 
@@ -1423,7 +1422,7 @@ Renamed ExpandString() to ExpandPString() and other minor cleanup. Affects
 NightTemplates.h, Utility,h; About, AutoBeam, Beam, Dragging, DrawObject, Extract, File,
 PS_Stdio, StringUtils, TextDialog, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 30 Apr.-3 May			 ======== NIGHTINGALE 5.7 (3 May 2017) ========
 
@@ -1437,7 +1436,7 @@ Redefined version 5.7 by changing the version number from 5.8b1 back to 5.7; thi
 desirable because I failed to preserve the 5.7 source (as previously defined) in the
 GitHub repository. Affects Info.plist.
 
-===============================================================================
+===========================================================================================
 
 4-5 May
 
@@ -1449,7 +1448,7 @@ AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem.
 Moved HomogenizeSel() from SelUtils to SetUtils; other minor cleanup. Affects SelUtils.h;
 AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem, SelUtils, SetUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 6-10 May
 
@@ -1468,7 +1467,7 @@ Replaced some "unsigned char [256]" with "Str255" and "unsigned char*" with "Str
 other minor cleanup. Affects Check, ChooseCharDlog, Menu, PitchUtils, TextDialog,
 Tuplet, Undo, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 11-13 May
 
@@ -1486,7 +1485,7 @@ Ottava, Score, SFormatHighLevel, Tuplet.
 Minor cleanup. Affects About, Check, CheckUtils, Clipboard, DSUtils, MergeUtils,
 MoveUpDown, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 17-21 May
 
@@ -1497,7 +1496,7 @@ Moved CompactVoices from folder CFilesBoth to CFilesEditor.
 
 Minor cleanup. Affects CompactVoices, Context, FileInput, Menu, Merge.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25-26 May
 
@@ -1512,7 +1511,7 @@ DSUtils, MoveUpDown.
 
 Minor cleanup. Affects Clipboard, FileInput, Menu, MoveUpDown, SetUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28-31 May
 
@@ -1531,7 +1530,7 @@ duration less than the time signature indicates. Affects DrawObject.
 Minor cleanup. Affects Clipboard, DrawObject, DSUtils, Menu, Merge, MergeUtils,
 MIDIFOCmd, Objects.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1-7 June
 
@@ -1539,7 +1538,7 @@ Continued implementation of "Paste as Cue" command. Affects .rsrc, Merge.
 
 Minor cleanup. Affects Merge, MergeUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 8-15 June
 
@@ -1560,7 +1559,7 @@ Documents, MIDIFOCmd.
 Minor cleanup. Affects Reconstruct.h; Browser, Delete, Documents, DrawUtils, Event,
 Menu, Merge, MIDIFOCmd, Nodes, Reconstruct.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16-21 June
 
@@ -1577,7 +1576,7 @@ voices on the staff. Affects PitchUtils.
 Minor cleanup, including renaming FixRespelledVoice() to FixVoiceForPitchChange().
 Affects PitchUtils.h; Delete, DrawUtils, Merge, Objects, PitchCmds, PitchUtils, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 22-27 June
 
@@ -1593,7 +1592,7 @@ causing Xcode's repeated problems finding Menu.cp unreadable. Affects Menu.
 
 Minor cleanup. Affects Browser, DebugUtils, MCaret, Menu, Merge, Reconstruct.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28 June-18 July
 
@@ -1613,7 +1612,7 @@ Renamed CoreMidiUtils to CoreMIDIUtils.
 
 Minor cleanup. Affects vars.h; Copy, CoreMIDIUtils, Error, Merge, Reconstruct.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 19-22 July			       ==== NIGHTINGALE 5.8b1 ====
 
@@ -1628,7 +1627,7 @@ key while dragging either makes the other move symmetrically. Affects Slurs.
 
 Minor cleanup. Affects DrawDocument, Merge, Reconstruct, Slurs.
 
-===============================================================================
+===========================================================================================
 
 23-31 July
 
@@ -1640,20 +1639,20 @@ Minor cleanup: Improved debug messages, moved def'n of CS_DELIMITER to a header,
 Affects Defs.h; ChordSym, DebugUtils, Debug2Utils, File, InternalInput, Menu,
 PitchUtils, Slurs.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 2-8 Aug.
 
 Minor cleanup: replaced "TRUE" and "FALSE" with the more standard "true" and "false",
 improve error messages, etc. Affects DebugUtils, Debug2Utils, Scroll, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9-14 Aug.
 
 Minor cleanup. Affects Utility.h; CarbonPrinting, DebugUtils, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 15-20 Aug.
 
@@ -1667,7 +1666,7 @@ Minor cleanup: in Score Info dialog code, remove silly shift-key option, stop
 immediately if no score is open; etc. Affects Utility,h; CarbonPrinting, DebugUtils,
 InternalInput, ScoreInfo, SpaceTime, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 24-26 Aug.			 ======== NIGHTINGALE 5.8b2 (26 Aug. 2017) ========
 
@@ -1679,7 +1678,7 @@ ScoreInfo.
 
 Minor cleanup: refactor code slightly, etc. Affects .rsrc; ScoreInfo, SpaceTime.
 
-===============================================================================
+===========================================================================================
 
 27 Aug. - 14 Sept.
 
@@ -1706,7 +1705,7 @@ modifier key usage, especially shift-option more consistent; etc. Affects CoreMi
 DragDynamic, EssentialTools, File, HeapFileIO, Inval, Menu, MIDIFOCmd, MIDIRecord,
 RTRhythmDur, ScoreInfo, SpaceHighLevel, Transcribe, UIFUtils, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 15-19 Sept.			 ======== NIGHTINGALE 5.8b3 (19 Sept. 2017) ========
 
@@ -1723,7 +1722,7 @@ if and only if those modifier keys are down and no others are. Affects DragBeam,
 
 Minor cleanup. Affects DSUtils, NotelistSave.
 
-===============================================================================
+===========================================================================================
 
 30 Sept. - 2 Oct.
 
@@ -1737,7 +1736,7 @@ Precomps, 6 in Headers, etc.
 Converted some C files with encoding ISO Latin-1 to UTF-8. Affects CarbonStubs, Double,
 DrawUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 4 - 5 Oct.
 
@@ -1748,7 +1747,7 @@ Replaced all occurrences of "true" and "false" (other than in comments) with "Tr
 "False": the latter are probably less standard, but they fit Nightingale conventions
 better and lead (I think) to more readable code. Affects at least 60 files.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 12 Oct.
 
@@ -1757,7 +1756,7 @@ garbled. Affects UIFUtils.
 
 Minor cleanup. Affects UIFUtils.h; FlowInText, TEfield, TextDialog, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 - 19 Oct.
 
@@ -1767,7 +1766,7 @@ which has been obsolete for 20 years or so; etc. Affects EssentialTools.h, Style
 DialogsBoth, DialogsEditor, DialogUtils, EssentialTools, Event, Initialize, MIDIDialogs,
 TextDialog.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21 - 23 Oct.
 
@@ -1776,7 +1775,7 @@ cruft, avoid a possible uninitialized variable, etc. Affects Application.h,
 InternalInput.h (renamed from FileInput.h), NMiscTypes.h (renamed from
 applicationTypes.h), NTypes.h; CarbonStubs, CoreMIDIUtils, NotelistSave, TEField.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25 - 28 Oct.
 
@@ -1786,7 +1785,7 @@ MIDIFOpen, MIDIFSave.
 
 Minor cleanup. Affects Beam, DrawHighLevel, GRBeam, MidiMap, MidiMapInfo, MIDIPlay.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 31 Oct. - 5 Nov.
 
@@ -1797,7 +1796,7 @@ PitchCmds,PitchUtils.
 
 Minor cleanup. Affects MergeUtils, MIDIPlay, PitchCmds, PitchUtils, Utility, VoiceTable.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 7 - 9 Nov.			 ======== NIGHTINGALE 5.8b4 (9 Nov. 2017) ========
 
@@ -1810,7 +1809,7 @@ complex rules. Affects Beam, DSUtils, PitchUtils.
 Minor cleanup: renamed InDataStruct to InObjectList, avoid possibly uninitialized
 variables, etc. Affects Beam, Browser, DebugUtils, Delete, MasterPage, Menu, Utility.
 
-===============================================================================
+===========================================================================================
 
 10 - 12 Nov.
 
@@ -1828,7 +1827,7 @@ Minor cleanup: cleaned the HiliteInsertNode/HiliteTwoNodesOn/HiliteAttPoints mes
 UIFUtils.h; Check, DialogsEditor, FlowInText, Initialize, Insert, InsUtils, MIDIRecord,
 NewSlur, Slurs, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 13 Nov.
 
@@ -1837,7 +1836,7 @@ Multivoice dialog item numbers, etc. Affects Multivoice.h; Beam, Check, CombineP
 DebugUtils, InsNew, InternalInput, MeasFill, MPCombineParts, Multivoice, Objects,
 Part, PitchCmds, RhythmDur, SetUtils, Utility, VoiceTable.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 14 - 19 Nov.
 
@@ -1853,7 +1852,7 @@ Minor cleanup: changed all instances of "while (1)" to "while (True)", avoid pos
 uninitialized variables, etc. Affects DebugUtils, DialogsBoth, FlowInText, Menu,
 Multivoice.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 19 - 27 Nov.
 
@@ -1875,7 +1874,7 @@ variables, etc. Affects DSUtils.h, NTypes.h, style.h, vars.h; Browser, Check,
 CheckUtils, DebugUtils, Debug2Utils, DebugDisplay, Dragging, DrawObject, DSUtils, Event,
 File, FlowInText, Insert, InsNew, Inval, MIDIPlay, ScoreInfo, TextDialog, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28 Nov. - 1 Dec.
 
@@ -1885,14 +1884,14 @@ MIDIGeneral.h, MidiMap.h, NTypes.h, vars.h; Browser, Check, CheckUtils, CoreMIDI
 Dragging, DrawObject, InitNightingale, Insert, InsNew, InsUtils, MasterMouse,
 MIDIDialogs, MIDIFSave, MIDIPlay, NewSlur, Select, SetCommand, SFormat, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 2 - 5 Dec.
 
 Minor cleanup. Affects DSUtils.h, MemMacros.h; Check, CheckUtils, DSUtils, InsUtils,
 MasterMouse, RfmtRaw, Score, SetCommand, SetUtils, SpaceHighLevel.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 6 - 8 Dec.
 
@@ -1904,7 +1903,7 @@ all staves in the group. Affects DSUtils.h; Check, DSUtils.
 Minor cleanup: rewrote some incredibly confusing code in DrawMEASURE(), etc. Affects
 Check, DrawObject, SetUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9 - 16 Dec.			 ======== NIGHTINGALE 5.8b5 (17 Dec. 2017) ========
 
@@ -1921,7 +1920,7 @@ MasterPage, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIUtils, Score, ScoreIn
 SelUtils, SFormat, SFormatHighLevel, SpaceHighLevel, SpaceTime, ToolPalette, Transcribe,
 UIFUtils.
 
-===============================================================================
+===========================================================================================
 
 17 - 31 Dec.
 
@@ -1933,7 +1932,7 @@ whole rests to (Issue #59). Affects MeasFill, Menu.
 Minor cleanup. Affects DialogsBoth, MeasFill, Menu, MiscUtils, MPCommands, Score,
 ScoreInfo, SetCommand, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 7 Jan. 2018
 
@@ -1944,7 +1943,7 @@ Minor cleanup: removed all references to TARGET_API_MAC_CARBON_MIDI, etc. Affect
 Nightingale.precomp.pch, Defs.h, UIFUtils.h, Utility.h; InitNightingale, MIDIUtils,
 TrackVMove, UIFUtils, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 8 Jan.
 
@@ -1952,7 +1951,7 @@ Minor cleanup: removed all references to TARGET_API_MAC_CARBON_FILEIO, etc. Affe
 Nightingale.precomp.pch, NightTemplates.h; Documents, Event, Menu, MiscUtils,
 NotelistSave, StringToolbox.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9 - 10 Jan.
 
@@ -1961,7 +1960,7 @@ ApplicData.h, CarbonPrinting.h, MiscUtils.h, NMiscTypes.h, NightTemplates.h;
 CarbonPrinting, CarbonStubs, Documents, DurationPopUp, Event, File, Initialize, Menu,
 MiscUtils, PS_Stdio, StringToolbox, UIFUtils, Utility, Windows; SampleMDEF.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 11-16 Jan.
 
@@ -1970,7 +1969,7 @@ Increased max. no. of tempo changes on playback from 300 to 500. Affects MIDIPla
 Minor cleanup. Affects NightTemplates.h, OpcodeNightingaleData.h; Menu, MIDIDialogs,
 MIDIPlay, MIDIUtils, MusicFont.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 17 - 19 Jan.
 
@@ -1985,7 +1984,7 @@ OMSCompat.h, .rsrc; CarbonPrinting, CarbonStubs, CoreMIDIUtils, DebugDisplay,
 DelRedAccs, Documents, Double, Extract, InstrDialog, MIDIDialogs, MIDIFOCmd, MIDIPlay,
 MIDIRecord, MIDIRecUtils, MIDIUtils, MusicFont, Objects, PS_Stdio, RhythmDur, SpaceTime.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21 - 24 Jan.
 
@@ -1999,7 +1998,7 @@ because of Endian issues.
 Minor cleanup: removed references to and code and resources to handle OMS and FreeMIDI,
 etc. Affects CoreMIDIUtils, MIDIDialogs, RhythmDur.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25 - 26 Jan.
 
@@ -2015,7 +2014,7 @@ RTRhythmDur, ScoreInfo, SpaceHighLevel, StringPool, TextDialog, Transcribe.
 
 Built separately for PowerPC and Intel. Affects project.pbxproj (in Nightingale.xcodeproj).
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 27 - 29 Jan.
 
@@ -2032,7 +2031,7 @@ Minor cleanup. Affects Defs.h, NightTemplates.h, NMiscTypes.h, NResourceID.h,
 VersionStrings.h; Check, CoreMIDIUtils, DebugDisplay, File, Finalize, Initialize,
 InstrDialog, MIDIDialogs, MIDIRecord, MiscUtils, Preferences, PS_Stdio, Score.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 30 Jan. - 1 Feb.
 
@@ -2045,7 +2044,7 @@ Minor cleanup: reworded an ALRT, added error checking, etc. Affects .rsrc, MiscU
 MusicFont.h, NightTemplates.h, NMiscTypes.h; CoreMIDIUtils, DurationPopUp, File,
 Finalize, FontUtils, Initialize, Menu, MiscUtils, MusicFont, PrefsDialog, ToolPalette.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 6 Feb.
 
@@ -2062,7 +2061,7 @@ Minor cleanup: moved UI utilities from MiscUtils to a better home, reword an ale
 Affects Defs.h, MiscUtils.h, NTypes.h, UIFUtils.h., .rsrc; CoreMIDIUtils, DrawObject,
 Finalize, GraphicMDEF, Initialize, InitNightingale, MiscUtils, ToolPalette, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 6 - 8 Feb.
 
@@ -2080,7 +2079,7 @@ Intel version. Affects Finalize, MiscUtils.
 Minor cleanup: renamed DrawToolMenu to DrawToolPalette, etc. Affects NightTemplates.h;
 About, DrawObject, Finalize, Initialize, ToolPalette, UIFUtils, Windows.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 10 - 12 Feb.
 
@@ -2098,7 +2097,7 @@ Minor cleanup: removed comment referring to a 'TOMG' resource, etc. Affects
 PaletteGlobals.h; AccModNRMouse, Event, Initialize, MiscUtils, SpaceTime, ToolPalette,
 UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 12 - 14 Feb.			 ======== NIGHTINGALE 5.8b6 (15 Feb. 2018) ========
 
@@ -2113,7 +2112,7 @@ InitNightingale, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIRecord, MIDIUtil
 NotelistParse, PS_Stdio, RTRhythmDur, ScoreInfo, SpaceHighLevel, SpaceTime, TextDialog,
 ToolPalette, Transcribe.
 
-===============================================================================
+===========================================================================================
 
 15 - 17 Feb.
 
@@ -2133,7 +2132,7 @@ GraphicMDEF, HeapFileIO, Initialize, InitNightingale, Insert, Menu, MIDIFOCmd,
 MIDIRecord, NotelistOpen, PS_Stdio, SpaceHighLevel, SpaceTime, StringUtils, TextDialog,
 UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 19 - 21 Feb.
 
@@ -2144,7 +2143,7 @@ Got rid of two useless files. Affects SampleMDEF.h; SampleMDEF.
 Minor cleanup. Affects NightTemplates.h, Utility.h: Documents, DurationPopUp, FontUtils,
 GraphicMDEF, Initialize, Main, MiscUtils, NavServices, ToolPalette, UIFUtils, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 22 - 25 Feb.
 
@@ -2153,7 +2152,7 @@ made most MIDI-related messages on startup only given if DETAIL_SHOW, etc. Affec
 GraphicMDEF.h; CoreMIDIUtils, DrawObject, DurationPopUp, GraphicMDEF, Initialize,
 ToolPalette.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 6 - 7 Mar.
 
@@ -2163,7 +2162,7 @@ Minor cleanup: on calls to LogPrintf(LOG_ERR... and LOG_WARNING, added SysBeep()
 etc. Affects Double, DrawObject, DurationPopUp, File, HeaderFooterDialog, Initialize,
 UIFUtils, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 8 - 14 Mar.
 
@@ -2172,7 +2171,7 @@ in most symbols' bounding boxes being too low. Affects InitNightingale.
 
 Minor cleanup. Affects CheckUtils, Error, NavServices.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 18 - 19 Mar.
 
@@ -2184,7 +2183,7 @@ Most error messages now write a message of level LOG_ERR to the log. Affects Err
 Minor cleanup: tweak log messages about music fonts, etc. Affects MiscUtils.h; File,
 Initialize, InitNightingle, MiscUtils, MusicFont, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 20 - 21 Mar.
 
@@ -2193,7 +2192,7 @@ of the Intel version. Affects MiscUtils.h; File, MiscUtils.
 
 Minor cleanup. Affects File, Initialize, MiscUtils, StringPool, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 22-28 Mar.
 
@@ -2206,7 +2205,7 @@ Endian.h; Endian, HeapFileIO.
 
 Minor cleanup. Affects NMiscTypes.h; File, HeapFileIO, StringPool.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 29 - 2 April
 
@@ -2220,7 +2219,7 @@ Minor cleanup: DisplayDocumentHdr() and DisplayScoreHdr() now display more, rena
 #define in NLimits, etc. Affects FileConversion.h, NLimits.h; File, HeapFileIO,
 SysPageEdit.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 3 - 11 April
 
@@ -2235,7 +2234,7 @@ Utility.h; Browser, Clipboard, DelAddRedTimeSigs, DialogsEditor, Documents, Draw
 DSUtils, Endian, Extract, File, Initialize, InsNewUtils, MasterPage, Menu, MPCommands,
 NotelistOpen, Reformat, Score, SpaceHighLevel, SysPageEdit, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 12 - 16 April
 
@@ -2243,7 +2242,7 @@ Minor cleanup: improve appearance of Page Numbers/Headers/Footers/ dialog, etc. 
 NMiscTypes.h, .rsrc; Beam, Browser, Check, Documents, Double, HeaderFooterDialog,
 Initialize, NotelistOpen.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 18 - 25 April			======== NIGHTINGALE 5.8b7 (25 April 2018) ========
 
@@ -2251,7 +2250,7 @@ Minor cleanup: move a couple of MIDI-to-accidental functions to a new home, etc.
 Affects File.h, FileConversion.h, MIDIGeneral.h; AutoBeam, DelAddRedAccs, Documents,
 Endian, File, MidiMap, MIDIUtils, MiscUtils, NotelistOpen.
 
-===============================================================================
+===========================================================================================
 
 26 April - 16 May
 
@@ -2259,7 +2258,7 @@ Changed version number from 5.8b7 to 5.8b8. Affects Info.plist.
 
 Minor cleanup. Affects NResourceID.h; Event, File, InfoDialog, Main, Menu, MIDIUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21-29 May
 
@@ -2269,7 +2268,7 @@ Affects DrawNRGR, DrawUtils, SpaceTime.
 Minor cleanup. Affects DrawUtils.h; CarbonPrinting, DebugDisplay, DragBeam, DrawingEdit,
 DrawNRGR, DrawUtils, InstrDialog, Sheet, SpaceTime.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 31 May - 14 June
 
@@ -2280,13 +2279,13 @@ SpaceHighLevel.
 Minor cleanup. Affects DSUtils.h, NTypes.h; DrawUtils, DSUtils, SpaceHighLevel,
 SpaceTime.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 June			======== NIGHTINGALE 5.8b8 (16 June 2018) ========
 
 Minor cleanup. Affects Defs.h, Style.h; SpaceHighLevel.
 
-===============================================================================
+===========================================================================================
 
 11-12 August
 
@@ -2301,7 +2300,7 @@ Fixed bug: if any note in a Sync has an accidental and any note in the Sync (whe
 that note or another) has ledger lines, the minimum space we leave before the Sync
 is too large. Affects SpaceHighLevel.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16-23 August
 
@@ -2315,7 +2314,7 @@ Minor cleanup: changed all LOG_NOTICE in DebugDisplay() to LOG_INFO, give more d
 if a file can't be opened because of heap header problems, etc. Affects Draw.h,
 NMiscTypes.h; DebugDisplay, DurationPopUp, HeapFileIO.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25-30 August
 
@@ -2327,14 +2326,14 @@ Minor cleanup: Pulled VMToollPalette() out of DoViewMenu(), move a struct out of
 etc. Affects ApplicData.h, NMiscTypes.h, NTypes.h; Event, Heaps, Initialize, Menu,
 ToolPalette, Windows.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 31 August - 1 Sept.
 
 Minor cleanup: moved some structs and enums out of NTypes.h, etc. Affects NMiscTypes.h,
 NObjectTypes.h, NTypes.h, OpcodeNightingaleDefs.h.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9 Sept.
 
@@ -2343,7 +2342,7 @@ enums out of NTypes.h; renamed NTypes.h to NBasicTypes.h; re-allocate type decla
 among three "NxxxTypes.h" headers; etc. Affects Debug.h, NMiscTypes.h, Notelist.h,
 NTypes.h, OpcodeNightingaleDefs.h, vars.h; about eight .c files.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 10 Sept.			======== NIGHTINGALE 5.8b9 (10 Sept. 2018) ========
 
@@ -2355,7 +2354,7 @@ Moved code for graphic and "regular" popups into a new file; minor cleanup. Adds
 PopUpUtils.h; PopUpUtils. Affects DurationPopUp.h, UIFUtils.h; DebugHighLevel,
 DurationPopUp, GraphicMDEF, UIFUtils.
 
-===============================================================================
+===========================================================================================
 
 1-4 Nov.
 
@@ -2367,7 +2366,7 @@ Changed version number from 5.8b9 to 5.8.9. Affects Info.plist.
 Minor cleanup: removed an item that's always hidden from the About box, etc. Affects
 .rsrc; About.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 23-29 Nov.
 
@@ -2375,7 +2374,7 @@ Minor cleanup: moved some file utilities to FileUtils; split File.cp into two ch
 one to open and one to save files; etc. Affects CarbonPrinting.h, compilerFlags.h,
 FileConversion.h, FileUtils.h; File (gone), FileOpen (new), FileSave (new), FileUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 6-9 Jan. 2019			======== NIGHTINGALE 5.8.9 (8 Jan. 2019) ========
 
@@ -2388,7 +2387,7 @@ Minor cleanup: #ifdef'ed out print statements to prepare for port to Intel CPUs;
 renamed global MAX_CHANGES to MAX_MPCHANGES; etc. Affects compilerFlags.h, NLimits.h,
 NMiscTypes.h; FileUtils, Inval, Menu, MIDIFOpen, MIDIPlay, MPImportExport, Tuplet.
 
-===============================================================================
+===========================================================================================
 
 10-13 Jan. 2019	 *IN 5.9
 
@@ -2404,7 +2403,7 @@ NObjTypes.h.
 Minor cleanup: revised an obsolete error message; removed unreferenced "typedef struct"
 names, etc. Affects .rsrc; NObjTypes.h, NResourceID.h.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 14-30 March	*IN 5.8 & 5.9
 
@@ -2413,7 +2412,7 @@ GenSubObj to simply contain SUBOBJHEADER instead of the (fungible) fields of the
 SUBOBJHEADER. Affects NObjTypes.h, Objects.h; FileOpen, Search, Select, SelUtils, Tuplet.
 *MOST OF THESE IN 5.9 ONLY; SelUtils IN 5.8.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 10 April-3 June	*IN 5.8 & 5.9
 
@@ -2433,7 +2432,7 @@ Divided a header containing declarations for score headers and unrelated stuff i
 hacked code for opening files towards goal of converting "N105" format files to "N106".
 Affects NMiscTypes.h, (new) NDocAndCnfgTypes.h; FileOpen. *IN 5.9 ONLY
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9-15 July
 
@@ -2442,7 +2441,7 @@ Affects CarbonPrinting.
 
 Minor cleanup. Affects CarbonPrinting, DebugUtils, DrawObject.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16-23 July	*IN 5.8 & 5.9
 
@@ -2455,13 +2454,13 @@ StringUtils.
 Got code cleanup of Nightingale 5.8 into 5.9. Affects CarbonPrinting, DebugUtils,
 DrawObject.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 24 July - 2 August	 *IN 5.8 & 5.9
 
 Minor cleanup. Affects DSUtils, FlowInText.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 18 August - 27 Oct.	 *IN 5.8 & 5.9
 
@@ -2470,7 +2469,7 @@ courtesyAccLXD & courtesyAccPSize slightly; DrawNRGR.
 
 Minor cleanup. Affects Style.h; DrawNRGR, FlowInText, Initialize.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 4 Nov.	*IN 5.8 & 5.9
 
@@ -2481,7 +2480,7 @@ Minor cleanup: The score header field <comment> is used as a C string, but it's 
 NMiscTypes.h (5.8), NDocAndCnfgTypes.h (5.9); FileOpen (5.9 only?), MIDIFOCmd,
 NotelistOpen, Score, ScoreInfo.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 6? - 25 Nov.	*IN 5.9
 
@@ -2491,7 +2490,7 @@ NDocAndCnfgTypesN105.h; FileOpen.
 
 Minor cleanup. Affects NBasicTypesN105.h; Initialize.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 11 Dec.	*IN 5.9
 
@@ -2503,7 +2502,7 @@ related global, add more helpful messages to log, etc. Affects FreeMIDICompat.h,
 MemMacros.h, NBasicTypes.h, NObjTypes.h, NObjTypesN105.h; Event, FileOpen, FileSave,
 HeapFileIO, Menu, Objects.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 12 - 26 Dec.	*IN 5.9
 
@@ -2513,7 +2512,7 @@ heaps. Affects HeapFileIO.
 Minor cleanup: remove code for handling obsolete file versions, etc. Affects File.h,
 Score.h; FileOpen, FileUtils, HeapFileIO, Score.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 27-30 Dec.	*IN 5.9
 
@@ -2522,7 +2521,7 @@ heaps. Affects HeapFileIO.
 
 Minor cleanup. Affects MemMacros.h, NObjTypes.h; FileOpen, HeapFileIO.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 31 Dec. - 9 Jan. ** 2020 **		*IN 5.9
 
@@ -2532,7 +2531,7 @@ heaps and converting fields of objects. Affects FileOpen, HeapFileIO.
 Minor cleanup. Affects MemMacros.h; Browser, DebugDisplay, DebugHighLevel, FileOpen,
 HeapFileIO, Select, SpaceTime.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 10 - 15 Jan. ** 2020 **		*IN 5.9
 
@@ -2542,7 +2541,7 @@ fields of objects. New file FileConversion.c. Affects FileConversion.h; FileOpen
 Minor cleanup: made improvements to DHexDump(), etc. Affects Debug.h, MemMacros.h;
 DebugDisplay, HeapFileIO, Initialize, MIDIFOCmd.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 - 18 Jan.	*IN 5.9
 
@@ -2552,7 +2551,7 @@ object headers. Affects FileConversion.h; FileConversion.
 Minor cleanup: renamed SPACEheap, etc. Affects FileConversion.h, MemMacros.h, NBasicTypes.h,
 vars.h; Documents, FileConversion, FileOpen.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 19 - 24 Jan.	*IN 5.9
 
@@ -2562,14 +2561,14 @@ objects. Affects FileConversion.
 Minor cleanup. Affects FileConversion.h; DebugDisplay, DebugUtils, FileConversion,
 FileOpen, HeapFileIO.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25 - 29 Jan.		*IN 5.8 ONLY
 
 Minor cleanup to support debugging 5.9: improvements to DHexDump() (code from 5.9), etc.
 Affects Debug.h; DebugDisplay, FileOpen, HeapFileIO, MIDIDFOCmd.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 26 - 30 Jan.	*IN 5.9
 
@@ -2578,7 +2577,7 @@ objects. Affects FileConversion.h; FileConversion, FileOpen, HeapFileIO.
 
 Minor cleanup. Affects NObjTypesN105.h; Browser, Initialize.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 31 Jan. - 3 Feb.	*IN 5.9
 
@@ -2593,7 +2592,7 @@ Updated one tech note; add a doc describing how to update the GitHub repository.
 Minor cleanup: improved error messages, etc. Affects Context, DebugHighLevel, DebugUtils,
 HeapFileIO.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 4 - 8 Feb.	*IN 5.9
 
@@ -2603,7 +2602,7 @@ score header & subobjects. Affects MemMacros.h; FileConversion.
 Minor cleanup: renamed DHexDump() to NHexDump(), etc. Affects Debug.h; DebugDisplay,
 FileConversion, FileOpen, HeapBrowser, HeapFileIO, MIDIFOCmd, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9 - 16 Feb.
 
@@ -2612,7 +2611,7 @@ subobjects. Affects FileConversion, HeapFileIO.
 
 Minor cleanup. Affects DrawObject, FileConversion.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 17 - 20 Feb.
 
@@ -2623,7 +2622,7 @@ HeapFileIO.
 Minor cleanup: renamed a macro, etc. Affects MemMacros.h; Context, DebugUtils,
 FileConversion, InsNewUtils, MasterPage.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21 - 24 Feb.
 
@@ -2634,7 +2633,7 @@ Minor cleanup: renamed two macros and added one, etc. Affects Defs.h, MemMacros.
 NOjTypesN105.h; DebugUtils, Initialize, InsNewUtils, MIDIFOpen, NotelistParse, Ottava,
 PrefsDialog, RTRhythmDur.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25 - 28 Feb.
 
@@ -2644,7 +2643,7 @@ objects & subobjects. Affects MemMacros.h; FileConversion.
 Minor cleanup. Affects MemMacros.h, NObjTypes; AccModNRMouse, DebugHighLevel, DebugUtils,
 DrawNRGR, DrawUtils, Extract, HeapFileIO.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 29 Feb. - 2 Mar.
 
@@ -2653,7 +2652,7 @@ objects & subobjects. Affects MemMacros.h; FileConversion.
 
 Minor cleanup. Affects NObjTypes.h, NObjTypesN105.h; DebugDisplay, DebugUtils, MergeUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 2 - 5 Mar.
 
@@ -2663,7 +2662,7 @@ objects & subobjects. Affects MemMacros.h; FileConversion.
 Minor cleanup: rearrange object declarations by type code, etc. Affects NObjTypes.h,
 NObjTypesN105.h; DebugDisplay, DebugUtils, FileConversion, HeapFileIO.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 7 - 10 Mar.
 
@@ -2673,7 +2672,7 @@ objects & subobjects. Affects MemMacros.h; FileConversion.
 Minor cleanup: corrected two messages from BrowseTempo(), etc. Affects MemMacros.h;
 Browser, DebugUtils, DrawObject.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 11 - 15 Mar.
 
@@ -2684,7 +2683,7 @@ Minor cleanup. Affects Clipboard, Context, CrossSystem, DebugUtils, Debug2Utils,
 DelRedAccs, Dragging, DragSet, FileConversion, FileOpen, Insert, MergeUtils, Ottava,
 UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 - 19 Mar.
 
@@ -2693,7 +2692,7 @@ objects & subobjects. Affects MemMacros.h; FileConversion.
 
 Minor cleanup. Affects DebugUtils, FileOpen, HeapFileIO, PitchUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21 - 25 Mar.
 
@@ -2703,7 +2702,7 @@ objects & subobjects. Affects NBasicTypesN105.h, NObjTypesN105.h; FileConversion
 Minor cleanup. Affects Debug.h, Defs.h, MemMacros.h; DebugDisplay, DebugUtils,
 FileConversion, HeapFileIO, PitchUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 26 - 30 Mar.
 
@@ -2713,7 +2712,7 @@ subobjects. Affects FileConversion.
 Minor cleanup. Affects MemMacros.h; DebugDisplay, FileConversion, HeapBrowser,
 HeapFileIO, InsNew.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 31 Mar. - 3 April
 
@@ -2723,7 +2722,7 @@ objects & subobjects. Affects NObjTypesN105.h; FileConversion.
 Minor cleanup: improved debug info, etc. Affects Debug.h; Browser, DebugDisplay,
 Debug2Utils, PitchUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 4 - 9 April
 
@@ -2733,7 +2732,7 @@ objects & subobjects. Affects FileConversion.
 Minor cleanup: improved Debug info and HeapBrowser(), etc. Affects Browser.h,
 NBasicTypes.h; Browser, DebugDisplay, DebugUtils, HeapBrowser, Menu.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 10 - 15 April
 
@@ -2741,14 +2740,14 @@ Minor cleanup: improved error checking, reporting of document and score header e
 etc. Affects NObjTypes.h; Browser, DebugUtils, FileConversion, FileOpen, HeapFileIO,
 Ottava.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 - 22 April
 
 Minor cleanup to support debugging, etc. Affects MemMacros.h, UIFUtils.h; Browser,
 DebugUtils, FileConversion, Ottava, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 23 - 25 April
 
@@ -2756,7 +2755,7 @@ Minor cleanup: integrated teensy changes from 5.8.10, etc. Affects NBasicTypes.h
 NDocAndCnfgTypes.h, NMiscTypes.h; DebugDisplay, FileConversion, FileOpen, FlowInText,
 HeapFileIO, Menu.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 26 - 30 April
 
@@ -2767,14 +2766,14 @@ Minor cleanup: improved error checking, reporting of document and score header e
 etc. Affects File.h, NDocAndCnfgTypes.h; FileConversion, FileOpen, FlowInText, Ottava,
 Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 7 May
 
 Minor cleanup. Affects settings for project warnings; NDocAndCnfgTypes.h; CombineParts,
 DebugUtils, FileConversion, FileOpen, HeapFileIO, Inval.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9 - 15 May
 
@@ -2787,20 +2786,20 @@ Minor cleanup: removed the _long_ obsolete LinkToPtr function (in 68000 assembly
 language!) and references to it; etc. Affects Heaps.h, MemMacros.h; Beam, Browser,
 FlowInText, Heaps, InsUtils, MiscUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 17 - 21 May
 
 Minor cleanup. Affects FileOpen, Finalize, HeapFileIO, Heaps, NTimeMgr, Undo, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 22 - 29 May
 
 Minor cleanup. Affects vars.h; Documents, FileConversion, FileOpen, Heaps, HeapFileIO,
 NTimeMgr.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 29 - 31 May
 
@@ -2811,7 +2810,7 @@ NDocAndCnfgTypes.h; Clipboard, CoreMIDIUtils, Dragging, DragUtils, Extract,
 FileConversion, FileOpen, Finalize, Initialize, MIDIDialogs, MIDIUtils, Score,
 TrackVMove.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 9 June
 
@@ -2824,7 +2823,7 @@ Updated the programmer's reference tech note.
 
 Minor cleanup. Affects Browser, FileOpen, HeapFileIO, Initialize.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 11 - 14 June
 
@@ -2833,7 +2832,7 @@ HeapFileIO.
 
 Minor cleanup. Affects MemMacros.h; FileConversion, FileOpen, HeapFileIO, Heaps, Menu.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 15 - 21 June
 
@@ -2841,7 +2840,7 @@ Minor cleanup: made all LOG_ERR log messages also show an alert via AlwaysErrMsg
 Affects Beam, DebugUtils, DrawObject, Error, FileConversion, FileOpen, FileSave,
 HeapFileIO, InsUtils, PopUpUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 24 - 27 June
 
@@ -2850,21 +2849,21 @@ Fixed the GraphicTHICKNESS macro. Affects MemMacros.h; FileConversion.
 Minor cleanup: widened a dialog, enhanced Heap Browser, etc. Affects .rsrc, Heaps.h,
 NObjTypes.h; Browser, DebugUtils, HeapBrowser, HeapFileIO, Heaps, Initialize.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28 June - 2 July
 
 Minor cleanup. Affects FileConversion.h; Browser, FileConversion, FileOpen, HeapBrowser,
 HeapFileIO.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 4 - 7 July
 
 Minor changes. Affects NResource.h; DebugUtils, DialogsEditor, DSUtils, FileConversion,
 GraphicMDEF, InsUtils, MIDIUtils, PS_Stdio, SpaceHighLevel.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 8 - 11 July
 
@@ -2875,7 +2874,7 @@ DialogsEditor, Menu.
 
 Minor changes. Affects .rsrc; MeasFill, Part, Score.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 July	*IN 5.8: CHANGES FROM 5.9 (of 8 - 11 July)
 
@@ -2884,39 +2883,39 @@ selected and it's before the first measure of its system, set the width of the b
 area before the first (invisible) barline. Affects .rsrc, NightTemplates.h, NResource.h;
 DialogsEditor, Menu.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 - 20 July
 
 Minor changes. Affects FileConversion, HeapFileIO, Menu, MPCommands, Score.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 22 - 26 July
 
 Minor changes: rewrote MoveObjSubobjs(), etc. Affects Error, FileConversion, HeapFileIO,
 MiscUtils, UIFUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 27 July - 18 August
 
 Minor changes. Affects Beam, DebugUtils, FileConversion, HeapFileIO, MiscUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 20 - 25 August
 
 Minor changes. Affects NLimits.h; Beam, DebugUtils, Heaps, HeapFileIO, NotelistParse.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 27 - 29 August
 
 Minor changes. Affects MemMacros.h, MiscUtils.h, NightTemplates.h, Utility.h;
 AutoBeam, FileConversion, HeapFileIO, Heaps, MiscUtils, Utility.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 30 August - 7 Sept.
 
@@ -2925,7 +2924,7 @@ Fixed bug in DCheckBeams(). Affects DebugUtils.
 Minor changes. Affects Debug.h, DebugUtils.h, MemMacros.h; DebugUtils, DragBeam,
 DSUtils, FileConversion, Search.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 8 - 14 Sept.
 
@@ -2933,13 +2932,13 @@ Minor changes: replaced "GraceBEAM" with "BeamGRACE" everywhere, etc. Affects
 MemMacros.h; Beam, Clipboard, CrossLinks, CrossSystem, DebugHighLevel, Delete,
 Dragging, DragSet, DrawHighLevel, FileConversion, MergeUtils, MIDIFSave, Reconstruct.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 14 - 25 Sept.
 
 Minor changes. Affects Check, DialogsBoth, FileConversion, MasterPage, RTRhythmDur.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 26 Sept. - 6 Oct.
 
@@ -2948,7 +2947,7 @@ order, i.e., '601N' instead of 'N106'.
 
 Minor changes. Affects DebugUtils, DSUtils, FileSave, FileUtils, Heaps, MIDIPlayWhileRec.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 7 - 15 Oct.
 
@@ -2962,7 +2961,7 @@ Affects FileOpen.
 Minor changes. Affects File.h; DebugHighLevel, DialogsEditor, Endian, FileOpen, FileSave,
 Initialize, SetCommand.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 17 - 20 Oct.
 
@@ -2972,7 +2971,7 @@ FileSave, FileUtils.
 
 Minor changes. Affects FileUtils, Initialize.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 30 Oct. - 2 Nov.
 
@@ -2985,7 +2984,7 @@ Fixed a recently-created and disastrous bug in saving files. Affects FileSave.
 Minor changes. Affects .rsrc (renamed PICTs), SResourceID.h; DrawObject, Endian,
 InfoDialog, Initialize.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 3 - 6 Nov.
 
@@ -2996,14 +2995,14 @@ Beam, GRBeam.
 
 Minor changes. Affects NObjTypes.h; Beam, DialogsBoth, FileConversion, GRBeam.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9 - 12 Nov.
 
 Minor changes. Affects Endian.h, StringPool.h; AccModNRMouse, CombineParts, Endian,
 FileOpen, Finalize, StringPool.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 13 - 15 Nov.
 
@@ -3014,7 +3013,7 @@ saved, trying to open it again results in an error message. Affects SysPageEdit.
 Minor changes. Affects Beam, DebugUtils, DragBeam, FileSave, Heaps, SysPageEdit,
 TextDialog.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 - 19 Nov.
 
@@ -3023,7 +3022,7 @@ and it ends up replacing a good Prefs file with a bad one. Affects Finalize.
 
 Minor changes. Affects PaletteGlobals.h; DebugUtils, Finalize, Initialize, MIDIDialogs.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 21 - 24 Nov.
 
@@ -3034,7 +3033,7 @@ Renamed Endian to EndianUtils and moved it to the Utilities folder.
 
 Minor changes. Affects Clipboard, StringPool.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25 Nov. - 3 Dec.
 
@@ -3046,7 +3045,7 @@ FileConversion.
 Minor changes. Affects File.h; EndianUtils, FileConversion, FileSave, Initialize,
 UIFUtils.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 7 - 12 Dec.
 
@@ -3055,7 +3054,7 @@ and <sizeAllObjsFile> are in the wrong Endian form. Affects HeapFileIO.
 
 Minor changes. Affects FileSave, FileUtils, HeapFileIO, Heaps.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 13 - 21 Dec.
 
@@ -3066,7 +3065,7 @@ EndianUtils, HeapFileIO.
 Minor changes. Affects Defs.h, Endian.h, NightTemplates.h, NObjTypes.h; Documents,
 EndianUtils, Error, HeapFileIO, Menu.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 22 - 28 Dec.
 
@@ -3076,7 +3075,7 @@ fields in subobjects are in the wrong Endian form. Affects EndianUtils.
 Minor changes. Affects Defs.h, MemMacros.h, NObjTypes.h; DSUtils, EndianUtils,
 FileConversion, NewSlur.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28 - 31 Dec. 
 
@@ -3088,7 +3087,7 @@ DebugDisplay, DelAddRedAccs, DialogsBoth, DialogsEditor, Documents, DrawObject, 
 DSUtils, EndianUtils, FileConversion, FileOpen, FileSave, HeapFileIO, Insert, MasterPage,
 Menu, MIDIUtils, NewSlur, SelUtils.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 7 Jan. ** 2021 **
 
@@ -3098,21 +3097,21 @@ multibyte fields in the Score header are in the wrong Endian form. Affects Endia
 Minor changes. Affects Debug.h, NObjTypes.h; DebugDisplay, DebugHighLevel, Documents,
 DSUtils, EndianUtils, FileConversion, FileOpen, FileSave, Finalize, Objects, SpaceTime.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 7 - 14 Jan. ** 2021 **
 
 Minor changes. Affects DebugDisplay, Debug2Utils, EndianUtils, FileOpen, FileSave,
 HeapFileIO.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 15 - 24 Jan.
 
 Minor changes: remove extraneous newlines at ends of some strings, etc. Affects .rsrc;
 NLimits.h; DebugDisplay, FileOpen, FileSave, HeapFileIO.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25 - 31 Jan.
 
@@ -3122,7 +3121,7 @@ multibyte fields in the Score header are in the wrong Endian form. Affects Endia
 Minor changes. Affects Defs.h, NDocAndCnfgTypes.h; EndianUtils, FileConversion,
 FileOpen, FileSave, HeapFileIO, Initialize, Score, VoiceTable.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 8 Feb.
 
@@ -3133,7 +3132,7 @@ Affects EndianUtils, HeapFileIO.
 Minor changes. Affects DynamicPopUp, FileOpen, FileSave, FileUtils, HeapFileIO,
 StringPool.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9 - 15 Feb.
 
@@ -3143,7 +3142,7 @@ that's valid and expected if they contain only one Sync. Affects DebugUtils.
 Minor changes. Affects Endian.h, File.h, NObjTypes.h; DebugDisplay, DebugUtils,
 DynamicPopUp, EndianUtils, FileOpen, HeapFileIO.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 - 22 Feb.
 
@@ -3156,7 +3155,7 @@ Affects FileUtils.
 
 Minor changes. Affects DebugDisplay, DebugUtils, EndianUtils, HeapFileIO, Menu.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 23 - 28 Feb.
 
@@ -3166,7 +3165,7 @@ multibyte fields in subobjects are in the wrong Endian form. Affects EndianUtils
 Minor changes. Affects Defs.h, Endian.h, NBasicTypes.h, NObjTypes.h; DebugDisplay,
 EndianUtils, FileOpen, HeapFileIO.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 10 Mar.
 
@@ -3176,7 +3175,7 @@ and for character strings in Graphics. Affects DebugDisplay.
 Minor changes. Affects Defs.h, MiscUtils.h; DebugDisplay, EndianUtils, Extract,
 HeapFileIO, Insert, MasterPage, MPCommands, Score.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 11 - 13 Mar.
 
@@ -3189,7 +3188,7 @@ EndianUtils.
 Minor changes. Affects FileConversion.h; DebugDisplay, EndianUtils, FileConversion,
 FileOpen, HeapFileIO, MIDIPlay.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 14 - 19 Mar.
 
@@ -3201,14 +3200,14 @@ produce garbage. Affects EndianUtils.
 
 Minor changes. Affects About, DialogUtils, EndianUtils, FileConversion, HeapFileIO.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 20 - 26 Mar.
 
 Minor changes: consolidated font-handling functions, etc. Affects NightTemplates.h,
 Utility.h; Error, FileOpen, FontUtils, InitNightingale, PopUpUtils, Utility.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 27 Mar. - 5 Apr.
 
@@ -3216,7 +3215,7 @@ Minor changes. Affects DurationPopUp.h, NightTemplates.h; Check, DialogsEditor,
 DrawObject, FlowInText, FileConversion, FileUtils, FontUtils, Insert, InternalInput,
 NotelistOpen, PopUpUtils, SetUtils, TextDialog.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 8 - 12 Apr.
 
@@ -3227,7 +3226,7 @@ instead they're now treated as fatal errors. Affects FileOpen.
 Minor changes. Affects Defs.h, NightTemplates.h; CoreMIDIUtils, FileOpen, FileUtils,
 FontUtils, Initialize, InitNightingale, PopUpUtils, Utility.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 15 - 22 Apr.
 
@@ -3237,7 +3236,7 @@ discarding any existing header and/or footer info. Affects FileOpen.
 
 Minor changes. Affects .rsrc; FileOpen, FileSave, HeapFileIO, Initialize, ToolPalette.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 23 - 30 Apr.
 
@@ -3248,7 +3247,7 @@ Minor changes: let user choose whether to open files with header errors, etc. Af
 .rsrc (added two ALRTs); File.h; Event, FileOpen, FileUtils, HeapFileIO, Initialize,
 ToolPalette.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 14 May
 
@@ -3256,7 +3255,7 @@ Work towards getting Set Duration palette from a .bmp. Affects Initialize.
 
 Minor changes. Affects CoreMIDIUtils, FileOpen, InstrDialog, MIDIPlay.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 15 - 23 May
 
@@ -3265,7 +3264,7 @@ BMP.h, Endian.h; EndianUtils, Initialize.
 
 Minor changes. Affects Error, Heaps, MIDIPlay.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 25 May - 13 June
 
@@ -3276,7 +3275,7 @@ Minor changes: got rid of compiler warnings about "multi-character character con
 etc. Affects Defs.h, vars.h; About, DialogsEditor, DrawUtils, Initialize, ToolPalette,
 UIFUtils, Utility.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 16 - 17 June
 
@@ -3285,13 +3284,13 @@ RENAMED VERSION 5.9 AS 6.0. Affects Info.plist.
 Minor changes: got rid of compiler warnings about "multi-character character constant",
 etc. Affects VersionStrings.h; UIFUtils.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 29 June - 3 July
 
 Minor changes. Affects Finalize, Initialize, NavServices.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 5 July - 3 August
 
@@ -3299,7 +3298,7 @@ Minor changes: removed global <fontPort> and code related to it, updated dates i
 box to reflect the fact that it's no longer 2018, improved initialization error message,
 etc. Affects .rsrc; Defs.h, vars.h; DebugDisplay, InitNightingale, Magnify, MIDIPlay.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 19 - 20 August
 
@@ -3307,7 +3306,7 @@ Minor changes: renamed NHexDump to DHexDump & added a parameter, etc. Affects De
 Browser, DebugDisplay, Error, FileConversion, Finalize, HeapFileIO, Heaps, Initialize,
 MIDIFOCmd, PopUpUtils.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 28 - 29 August
 
@@ -3325,7 +3324,7 @@ Affects About.
 Minor changes: got rid of compiler warning about "multi-character character constant",
 etc. Affects Debug.h, Utility.h, vars.h; About, DrawUtils, UIFUtils, Utility.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 1 - 8 Sept.
 
@@ -3337,7 +3336,7 @@ palette (from a BMP file). Affects .rsrc; DynamicEdit, DrawUtils.
 
 Minor changes. Affects DebugDisplay, DynamicEdit.
 
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 9 - 29 Sept.
 
@@ -3498,3 +3497,23 @@ getting to a blank cell via arrow keys. Affects DurationEdit.
 
 Minor changes. Affects .rsrc, Defs.h, MiscUtils.h, UIFUtils.h; DurationEdit, MIDIFOCmd,
 MiscUtils, SpaceHighLevel, Transcribe, UIFUtils.
+
+-------------------------------------------------------------------------------------------
+
+9 - 15 Jan. ** 2022 **
+
+Fixed bug: the regular pointer tool cell always has the wrong hilite status. Affects
+ToolPaletteNB1b.bmp.
+
+Fixed bug: in the choose modifier and choose dynamic palette, getting to a blank cell via
+arrow keys isn't ignored. Affects DynamicEdit, ModNREdit.
+
+Implemented arrow keys auto-repeating in Set Duration, Add/Set Modifiers, and Import MIDI
+File dialogs & double-click dynamic window. Affects DurationEdit, DynamicEdit, MIDIFOCmd,
+ModNREdit.
+
+Allow keystrokes to choose duration in the Import MIDI File dialog. Affects
+NightTemplates.h; DurationEdit, MIDIFOCmd.
+
+Minor cleanup. Affects NObjTypes.h; DurationEdit, DynamicEdit, Error, InitNightngale,
+MIDIFOCmd, ModNREdit.

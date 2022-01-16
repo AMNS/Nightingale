@@ -22,8 +22,6 @@ static short dynamicIdx;
 static Boolean DrawDynamicPalette(Rect *pBox);
 static Boolean DrawDynamicPalette(Rect *pBox)
 {	
-//DHexDump(LOG_DEBUG, "DynPal", bmpDynamicPal.bitmap, 5*16, 4, 16, True);
-
 	DrawBMP(bmpDynamicPal.bitmap, bmpDynamicPal.byWidth, bmpDynamicPal.byWidthPadded,
 			bmpDynamicPal.height, bmpDynamicPal.height, *pBox);
 	return True;
@@ -47,7 +45,6 @@ static void InitDynamicCells(Rect *pBox)
 	
 	cellWidth = (pBox->right-pBox->left)/NCOLS;
 	cellHeight = (pBox->bottom-pBox->top)/NROWS;
-//LogPrintf(LOG_DEBUG, "InitDynamicCells: cellWidth=%d cellHeight==%d\n", cellWidth, cellHeight);
 
 	for (short rn = 0; rn<NROWS; rn++)
 		for (short cn = 0; cn<NCOLS; cn++) {
@@ -183,18 +180,19 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			}
 			break;
 		case keyDown:
+		case autoKey:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			ch = (unsigned char)evt->message;
 			GetDialogItem(dlog, DYNAM_CHOICES_DI, &type, &hndl, &box);
 			*itemHit = 0;
 
 			/* If the character is something in the palette, use that something; if not
-			   and it's an arrow key, move in the appropriate direction; otherwise ignore
-			   it. */
+			   and it's an arrow key, move in the appropriate direction, but ignore it
+			   if the new cell is empty; otherwise ignore it. */
 			   
 			ans = DynamicKey(ch);
 			if (ans>=0) {
-//LogPrintf(LOG_DEBUG, "ch='%c' dynamicIdx=%d ans=%d\n", ch, dynamicIdx, ans);  
+//LogPrintf(LOG_DEBUG, "ch='%c' dynamicIdx=%d ans=%d\n", ch, dynamicIdx, ans);
 				SWITCH_CELL(dynamicIdx, ans, &box);
 				*itemHit = DYNAM_CHOICES_DI;
 				return True;
@@ -203,20 +201,21 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				ans = dynamicIdx;
 				switch (ch) {
 					case LEFTARROWKEY:
-						if (dynamicIdx>0) { ans--; SWITCH_CELL(dynamicIdx, ans, &box); }
+						if (ans-1>=0) { ans--; SWITCH_CELL(dynamicIdx, ans, &box); }
 						break;
 					case RIGHTARROWKEY:
-						if (dynamicIdx<(NCOLS*NROWS)-1) { ans++; SWITCH_CELL(dynamicIdx, ans, &box); }
+//LogPrintf(LOG_DEBUG, "dynamicIdx=%d NDYNAMS=%d ans=%d\n", dynamicIdx, NDYNAMS, ans);
+						if (ans+1<=(short)NDYNAMS-1) { ans++; SWITCH_CELL(dynamicIdx, ans, &box); }
 						break;
 					case UPARROWKEY:
-						if (dynamicIdx>NCOLS-1) { ans -= NCOLS; SWITCH_CELL(dynamicIdx, ans, &box); }
+						if (ans-NCOLS>=0) { ans -= NCOLS; SWITCH_CELL(dynamicIdx, ans, &box); }
 						break;
 					case DOWNARROWKEY:
-						if (dynamicIdx<NCOLS*(NROWS-1)) { ans += NCOLS; SWITCH_CELL(dynamicIdx, ans, &box); }
+						if (ans+NCOLS<=(short)NDYNAMS-1) { ans += NCOLS; SWITCH_CELL(dynamicIdx, ans, &box); }
 						break;
 					default:
-						break;
-				}
+						;
+					}
 			}
 	}
 	

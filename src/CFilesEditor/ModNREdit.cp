@@ -22,8 +22,6 @@ static short modNRIdx;
 static Boolean DrawModNRPalette(Rect *pBox);
 static Boolean DrawModNRPalette(Rect *pBox)
 {	
-//DHexDump(LOG_DEBUG, "ModNRPal", bmpModifierPal.bitmap, 5*16, 4, 16, True);
-
 	DrawBMP(bmpModifierPal.bitmap, bmpModifierPal.byWidth, bmpModifierPal.byWidthPadded,
 			bmpModifierPal.height, bmpModifierPal.height, *pBox);
 	return True;
@@ -51,7 +49,6 @@ static void InitModNRCells(Rect *pBox)
 	
 	cellWidth = (pBox->right-pBox->left)/NCOLS;
 	cellHeight = (pBox->bottom-pBox->top)/NROWS;
-//LogPrintf(LOG_DEBUG, "InitModNRCells: cellWidth=%d cellHeight==%d\n", cellWidth, cellHeight);
 
 	for (short rn = 0; rn<NROWS; rn++)
 		for (short cn = 0; cn<NCOLS; cn++) {
@@ -172,7 +169,6 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			GlobalToLocal(&where);
 			GetDialogItem(dlog, MODNR_CHOICES_DI, &type, &hndl, &box);
 			if (PtInRect(where, &box)) {
-//LogPrintf(LOG_DEBUG, "ModNRFilter: where=%d,%d\n", where.h, where.v);
 				if (evt->what==mouseUp) {
 					/* If the mouseUp was in an invalid (presumably because empty) cell,
 					   ignore it. Otherwise, unhilite the previously-selected cell and
@@ -187,14 +183,15 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			}
 			break;
 		case keyDown:
+		case autoKey:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			ch = (unsigned char)evt->message;
 			GetDialogItem(dlog, MODNR_CHOICES_DI, &type, &hndl, &box);
 			*itemHit = 0;
 
 			/* If the character is something in the palette, use that something; if not
-			   and it's an arrow key, move in the appropriate direction; otherwise ignore
-			   it. */
+			   and it's an arrow key, move in the appropriate direction, but ignore it
+			   if the new cell is empty; otherwise ignore it. */
 			   
 			ans = ModNRKey(ch);
 			if (ans>=0) {
@@ -207,19 +204,19 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				ans = modNRIdx;
 				switch (ch) {
 					case LEFTARROWKEY:
-						if (modNRIdx>0) { ans--; SWITCH_CELL(modNRIdx, ans, &box); }
+						if (ans-1>=0) { ans--; SWITCH_CELL(modNRIdx, ans, &box); }
 						break;
 					case RIGHTARROWKEY:
-						if (modNRIdx<(NCOLS*NROWS)-1) { ans++; SWITCH_CELL(modNRIdx, ans, &box); }
+						if (ans+1<=(short)NMODNRS-1) { ans++; SWITCH_CELL(modNRIdx, ans, &box); }
 						break;
 					case UPARROWKEY:
-						if (modNRIdx>NCOLS-1) { ans -= NCOLS; SWITCH_CELL(modNRIdx, ans, &box); }
+						if (ans-NCOLS>=0) { ans -= NCOLS; SWITCH_CELL(modNRIdx, ans, &box); }
 						break;
 					case DOWNARROWKEY:
-						if (modNRIdx<NCOLS*(NROWS-1)) { ans += NCOLS; SWITCH_CELL(modNRIdx, ans, &box); }
+						if (ans+NCOLS<=(short)NMODNRS-1) { ans += NCOLS; SWITCH_CELL(modNRIdx, ans, &box); }
 						break;
 					default:
-						break;
+						;
 				}
 			}
 	}

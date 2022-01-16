@@ -25,7 +25,6 @@ void InitDurationCells(Rect *pBox, short nCols, short nRows, Rect durCell[])
 	
 	cellWidth = (pBox->right-pBox->left)/nCols;
 	cellHeight = (pBox->bottom-pBox->top)/nRows;
-//LogPrintf(LOG_DEBUG, "InitDurationCells: cellWidth=%d cellHeight==%d\n", cellWidth, cellHeight);
 
 	for (short rn = 0; rn<nRows; rn++)
 		for (short cn = 0; cn<nCols; cn++) {
@@ -81,6 +80,35 @@ void HiliteDurCell(short durIdx, Rect *pBox, Rect durCell[])
 }
 
 
+static short durationCode[] = { 
+	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
+	NO_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
+	UNKNOWN_L_DUR, NO_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR
+								 };
+
+/* Return the index into our palette for the given character. If the character occurs
+more than once in the palette, return the index of the first occurrence; if it isn't in
+the palette, return -1. */
+
+short DurationKey(unsigned char theChar, unsigned short numDurations)
+{
+	short newDurIdx=-1, intChar, sym;
+		
+	/* First remap theChar according to the 'PLMP' resource. */
+	
+	intChar = (short)theChar;
+	TranslatePalChar(&intChar, 0, False);
+	theChar = (unsigned char)intChar;
+
+	sym = GetSymTableIndex(theChar);
+	if (symtable[sym].objtype!=SYNCtype) return -1;
+	for (unsigned short k = 0; k<numDurations; k++)
+		if (symtable[sym].durcode==durationCode[k]) { newDurIdx = k;  break; }
+	
+	return newDurIdx;
+}
+
+
 /* ------------------------------------------------- Code for the Set Duration command -- */
 
 static short durationIdx;
@@ -96,12 +124,6 @@ static Boolean DrawDurationPalette(Rect *pBox)
 }
 
 
-	
-static short durationCode[] = { 
-	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
-	NO_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
-	UNKNOWN_L_DUR, NO_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR
-								 };
 static short durNDots[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0,
 	1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -114,30 +136,6 @@ static short durNDots[] = {
 #define NCOLS 9		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
 
 static Rect durationCell[NROWS*NCOLS];
-
-
-/* Return the index into our palette for the given character. If the character isn't in
-the palette, return -1. */
-
-static short DurationKey(unsigned char theChar);
-static short DurationKey(unsigned char theChar)
-{
-	short newDurIdx=-1, intChar, sym;
-		
-	/* First remap theChar according to the 'PLMP' resource. */
-	
-	intChar = (short)theChar;
-	TranslatePalChar(&intChar, 0, False);
-	theChar = (unsigned char)intChar;
-
-	sym = GetSymTableIndex(theChar);
-	if (symtable[sym].objtype!=SYNCtype) return -1;
-	for (unsigned short k = 0; k<NDURATIONS; k++)
-		if (symtable[sym].durcode==durationCode[k]) { newDurIdx = k;  break; }
-	
-	return newDurIdx;
-}
-
 
 /* ---------------------------------------------------------------------- SetDurDialog -- */
 
@@ -237,7 +235,7 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 					   hilite the new one. */
 
 					short newDurIdx = FindDurationCell(where, &box, NCOLS, NROWS, durationCell);
-LogPrintf(LOG_DEBUG, "SetDurFilter: durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);
+//LogPrintf(LOG_DEBUG, "SetDurFilter: durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
 					if (durationCode[newDurIdx]==NO_L_DUR) return False;
 					SWITCH_CELL(durationIdx, newDurIdx, &box);
@@ -247,6 +245,7 @@ LogPrintf(LOG_DEBUG, "SetDurFilter: durationIdx=%d newDurIdx=%d\n", durationIdx,
 			}
 			break;
 		case keyDown:
+		case autoKey:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			ch = (unsigned char)evt->message;
 			GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &box);
@@ -254,11 +253,12 @@ LogPrintf(LOG_DEBUG, "SetDurFilter: durationIdx=%d newDurIdx=%d\n", durationIdx,
 			
 			/* If the character is something in the palette, use that something; if not
 			   and it's an arrow key, move in the appropriate direction, but ignore it
-			   if the new cell is empty; otherwise ignore it. */
+			   if the new cell is empty (it is iff its code is NO_L_DUR); otherwise
+			   ignore it. */
 			   
-			ans = DurationKey(ch);
+			ans = DurationKey(ch, NDURATIONS);
 			if (ans>=0) {
-LogPrintf(LOG_DEBUG, "SetDurFilter: ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);
+//LogPrintf(LOG_DEBUG, "SetDurFilter: ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);
 				SWITCH_CELL(durationIdx, ans, &box);
 				*itemHit = SDDURPAL_DI;
 				return True;
@@ -267,16 +267,16 @@ LogPrintf(LOG_DEBUG, "SetDurFilter: ch='%c' durationIdx=%d ans=%d\n", ch, durati
 				ans = durationIdx;
 				switch (ch) {
 					case LEFTARROWKEY:
-						if (durationIdx>0) ans--;
+						if (ans>0) ans--;
 						break;
 					case RIGHTARROWKEY:
-						if (durationIdx<(NCOLS*NROWS)-1) ans++;
+						if (ans<(NCOLS*NROWS)-1) ans++;
 						break;
 					case UPARROWKEY:
-						if (durationIdx>NCOLS-1) ans -= NCOLS;
+						if (ans>NCOLS-1) ans -= NCOLS;
 						break;
 					case DOWNARROWKEY:
-						if (durationIdx<NCOLS*(NROWS-1)) ans += NCOLS;
+						if (ans<NCOLS*(NROWS-1)) ans += NCOLS;
 						break;
 					default:
 						;
@@ -330,8 +330,8 @@ Boolean SetDurDialog(
 	short newpDurPct;
 	short newnDots, newSetLDur, newLDur;
 
-LogPrintf(LOG_DEBUG, "SetDurDialog: byWidth=%d byWidthPadded=%d height=%d\n",
-bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded, bmpDurationPal.height);
+//LogPrintf(LOG_DEBUG, "SetDurDialog: byWidth=%d byWidthPadded=%d height=%d\n",
+//bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded, bmpDurationPal.height);
 	filterUPP = NewModalFilterUPP(SetDurFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(SETDUR_DLOG);
@@ -349,7 +349,7 @@ bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded, bmpDurationPal.height);
 	SetPort(GetDialogWindowPort(dlog));
 
 	if (*nDots>2) {
-		SysBeep(1);										/* popup has 2 dots maximum */
+		SysBeep(1);										/* palette has 2 dots maximum */
 		LogPrintf(LOG_WARNING, "Can't handle %d dots: 2 is the maximum.  (SetDurDialog)\n", *nDots);
 		 *nDots = 2;
 	}
@@ -447,7 +447,6 @@ bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded, bmpDurationPal.height);
 				else {
 					XableLDurPanel(dlog, False);
 					SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
-					//HiliteGPopUp(curPop, popUpHilited = False);
 				}
 				break;
 			case SDDURPAL_DI:
@@ -465,7 +464,6 @@ bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded, bmpDurationPal.height);
 				PutDlgChkRadio(dlog, ditem, !GetDlgChkRadio(dlog, ditem));
 				break;
 			case PDURPCT_DI:
-				//if (popUpHilited) HiliteGPopUp(curPop, popUpHilited = False);
 				PutDlgChkRadio(dlog, SETPDUR_DI, True);
 				break;
 			default:
