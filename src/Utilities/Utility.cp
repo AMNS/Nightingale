@@ -1,10 +1,14 @@
 /*******************************************************************************************
 *	FILE:	Utility.c
 *	PROJ:	Nightingale
-*	DESC:	Miscellaneous utility routines. NB: There are better places for utility
-*			functions of various types, e.g., UIFUtils.c (for user-interface related
-*			functions), DialogUtils.c, DrawUtils.c, FontUtils.c, InsUtils.c,
-*			PitchUtils.c, etc.
+*	DESC:	Miscellaneous utility routines.
+
+There are better places for utility functions of various types, e.g., UIFUtils.c (for
+user-interface related functions), DialogUtils.c, DrawUtils.c, FontUtils.c, InsUtils.c,
+PitchUtils.c, etc. Miscellaneous utilities that don't fit elsewhere but are more-or-less
+specific to Nightingale go here; generally-useful extensions to the MacOS Toolbox routines
+belong in MiscUtils.c.
+
 
 		CalcYStem				GetNoteYStem			GetGRNoteYStem
 		ShortenStem				GetCStemInfo			GetStemInfo
@@ -126,8 +130,8 @@ DDIST GetGRNoteYStem(LINK aGRNoteL, CONTEXT context)
 }
 
 
-/*	Returns True if the given note and stem direction require a shorter-than-normal
-stem; intended for use in 2-voice notation. */
+/*	Returns True if the given note and stem direction require a shorter-than-normal stem.
+Intended for use in 2-voice notation. */
 
 Boolean ShortenStem(LINK aNoteL, CONTEXT context, Boolean stemDown)
 {
@@ -155,7 +159,8 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 						short *qStemLen)
 {
 	Byte voiceRole;  PANOTE aNote;
-	short halfLn, midCHalfLn;  QDIST yqpit;
+	short halfLn, midCHalfLn;
+	QDIST yqpit;
 	Boolean stemDown;
 	LINK partL;  PPARTINFO pPart;
 	
@@ -192,9 +197,9 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 }
 
 
-/* Given a note, return (in <qStemLen>) its normal stem length and (as function
-value) whether it should be stem down. Considers voice role but assumes the note
-is not in a chord. */
+/* Given a note, return (in <qStemLen>) its normal stem length and (as function value)
+whether it should be stem down. Considers voice role but assumes the note is not in a
+chord. */
 
 Boolean GetStemInfo(Document *doc, LINK syncL, LINK aNoteL, short *qStemLen)
 {
@@ -509,6 +514,7 @@ void GetNPtStringBBox(
 	
 	if (multiLine) {
 		/* Count lines; take width from the longest line. */
+		
 		short i, j, totalLen, curLineLen, curLineWidth;
 		Str255 tempStr;
 		Byte *p;
@@ -541,8 +547,9 @@ void GetNPtStringBBox(
 	if (fontID==doc->musicFontNum || fontID==sonataFontNum) {
 		GetMusicAscDesc(doc, string, size, &ascent, &descent);
 		if (multiLine) {
-			/* You'd think we'd have to consider leading here, but it doesn't seem
-				to be necessary; the results are good as is. */
+			/* You'd think we'd have to consider leading here, but it doesn't seem to be
+			   necessary; the results are good as is. */
+				
 			lineHt = ascent + descent;
 			bBox->top = -ascent;
 			bBox->bottom = descent + (lineHt * (nLines-1));
@@ -725,7 +732,7 @@ GWorldPtr MakeGWorld(short width, short height, Boolean lock)
 	}
 	pixMapH = GetGWorldPixMap(theGWorld);
 	result = LockPixels(pixMapH);
-	if (!result) {			/* This shouldn't happen with the kind of GWorld we make. */
+	if (!result) {					/* This shouldn't happen with the kind of GWorld we make */
 		LogPrintf(LOG_ERR, "Couldn't lock GWorld (width %d, height %d).  (MakeGWorld)\n",
 					width, height);
 		DisposeGWorld(theGWorld);
@@ -806,7 +813,6 @@ void UnlockGWorld(GWorldPtr theGWorld)
 /* ---------------------------------------------------------------- GrafPort functions -- */
 /* Create a new GrafPort large enough to hold a bit image of the specified width and
 height.  Returns a pointer to the GrafPort, but does NOT set it to be the current port.
-
 The GrafPort thus created should be disposed of with the DisposGrafPort function. */
 
 GrafPtr NewGrafPort(short width, short height)	/* required size of GrafPort */
@@ -1006,8 +1012,8 @@ double RoundDouble(double value, double quantum)
 
 
 /* ------------------------------------------------------------------ RoundSignedInt -- */
-/* Given a signed <value> and a non-zero <quantum>, round <value> to the nearest
-multiple of <quantum>. FIXME: Not sure this will work if <quantum> is negative! */
+/* Given a signed <value> and a non-zero <quantum>, round <value> to the nearest multiple
+of <quantum>. FIXME: Not sure this will work if <quantum> is negative! */
 
 short RoundSignedInt(short value, short quantum)
 {
@@ -1040,8 +1046,8 @@ short InterpY(short x0, short y0, short x1, short y1, short ptx)
 }
 
 /* ------------------------------------------------------------------- FindIntInString -- */
-/* Find the first recognizable unsigned (long) integer, simply a string of digits, in
-the given string. If the string contains no digits, return -1. */
+/* Find the first recognizable unsigned (long) integer, simply a string of digits, in the
+given string. If the string contains no digits, return -1. */
 
 long FindIntInString(unsigned char *string)
 {
@@ -1067,11 +1073,11 @@ long FindIntInString(unsigned char *string)
 
 
 /* -------------------------------------------------------------------------- ShellSort -- */
-/* ShellSort does a Shell (diminishing increment) sort on the given array, putting
-it into ascending order. Intended for use on at most a few thousand elements. The
-increments we use are powers of 2, which does not give the fastest possible execution,
-but the difference should be negligible for such small arrays. See Knuth, The Art of
-Computer Programming, vol. 2, pp. 84-95. */
+/* ShellSort does a Shell (diminishing increment) sort on the given array, putting it
+into ascending order. Intended for use on at most a few thousand elements. The increments
+we use are powers of 2, which does not give the fastest possible execution, but the
+difference should be negligible for such small arrays. See Knuth, The Art of Computer
+Programming, vol. 2, pp. 84-95. */
 
 void ShellSort(short array[], short nsize)
 {
@@ -1131,6 +1137,7 @@ short GetTextSize(Boolean relFSize, short fontSize, DDIST lineSpace)
 
 
 /* ---------------------------------------------------- Convert to/from screen coords. -- */
+
 /* Convert rect r from paper to window coordinates. */
 
 void Rect2Window(Document *doc, Rect *r)
@@ -1558,4 +1565,97 @@ short CountUnjustifiedSystems(Document *doc, LINK startPageL, LINK endPageL, sho
 		
 	*pfirstUnjustPg = firstUnjustPg;
 	return nUnjust;
+}
+
+
+/* ---------------------------------------------------------------------- FTupletCheck -- */
+
+static short VoiceTotalDur(short, LINK, LINK);
+static short VoiceTotalDur(short voice, LINK voiceStartL, LINK voiceEndL)
+{
+	LINK pL, aNoteL;
+	short totalDur;
+	
+	totalDur = 0;
+	for (pL = voiceStartL; pL!= voiceEndL; pL = RightLINK(pL))
+		if (ObjLType(pL)==SYNCtype) {
+			aNoteL = FirstSubLINK(pL);
+			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+				if (NoteVOICE(aNoteL)==voice) {
+					totalDur += SimpleLDur(aNoteL);
+					break;						/* Assumes all notes in chord have same duration. */
+				}
+			}
+		}
+	return totalDur;
+}
+
+/* Get values with which to initialize Fancy Tuplet Dialog from the current
+selection. First check all voices to see that tupleNum (the prospective accessory
+numeral) can be the same for all, and if not, return False. Otherwise, fill in all
+fields of the TupleParam and return True. */
+
+#define DIFF_TUPLETS	\
+	GetIndCString(strBuf, DIALOGERRS_STRS, 20);		/* "Fancy Tuplet can't handle different tuplets..." */	\
+	CParamText(strBuf, "", "", "");					\
+	StopInform(GENERIC_ALRT)
+
+Boolean FTupletCheck(Document *doc, TupleParam *ptParam)
+{
+	short i, voice, firstVoice, tupleNum, tupleDenom, firstTupleNum, totalDur, selStf;
+	LINK  voiceStartL, voiceEndL;
+	TupleParam tempParam;
+	char fmtStr[256];
+	
+	firstVoice = -1;
+	for (voice = 1; voice<=MAXVOICES; voice++)
+		if (VOICE_MAYBE_USED(doc, voice)) {
+			GetNoteSelRange(doc, voice, &voiceStartL, &voiceEndL, NOTES_ONLY);
+			if (voiceStartL!=NILINK && voiceEndL!=NILINK) {
+			
+				/* This voice has something selected. If it's not tuplable, or it is
+				   but its numerator is different from that of the first selected voice,
+				   we know the selection can't be Fancy Tupled. */
+				   
+				if (!CheckMaxTupleNum(voice, voiceStartL, voiceEndL, &tempParam)) {
+					GetIndCString(fmtStr, DIALOGERRS_STRS, 16);			/* "numerator or denominator exceeds max..." */
+					sprintf(strBuf, fmtStr, voice);
+					CParamText(strBuf, "", "", "");
+					StopInform(GENERIC_ALRT);
+					return False;
+				}
+				tupleNum = GetTupleNum(voiceStartL, voiceEndL, voice, True);
+				if (tupleNum<=0) { DIFF_TUPLETS; return False; }
+				if (firstVoice<0) {
+					firstTupleNum = tupleNum;
+					firstVoice = voice;
+				}
+				else {
+					if (tupleNum!=firstTupleNum) { DIFF_TUPLETS; return False; }
+				}
+			}
+		}
+		
+	GetNoteSelRange(doc, firstVoice, &voiceStartL, &voiceEndL, NOTES_ONLY);
+	ptParam->accNum = firstTupleNum;
+	
+	if (firstTupleNum==4)
+		tupleDenom = 3;
+	else
+		for (i = 1; i<firstTupleNum; i *= 2)
+			tupleDenom = i;
+
+	ptParam->accDenom = tupleDenom;
+
+	totalDur = VoiceTotalDur(firstVoice, voiceStartL, voiceEndL);
+	ptParam->durUnit = GetDurUnit(totalDur, ptParam->accNum, ptParam->accDenom);
+
+	ptParam->numVis = True;
+	ptParam->denomVis = False;
+	if ((selStf = GetSelectionStaff(doc)) == NOONE)
+		ptParam->brackVis = True;
+	else
+		ptParam->brackVis = GetBracketVis(doc, doc->selStartL, doc->selEndL, selStf);
+
+	return True;
 }

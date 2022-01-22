@@ -3515,5 +3515,18 @@ ModNREdit.
 Allow keystrokes to choose duration in the Import MIDI File dialog. Affects
 NightTemplates.h; DurationEdit, MIDIFOCmd.
 
-Minor cleanup. Affects NObjTypes.h; DurationEdit, DynamicEdit, Error, InitNightngale,
+Minor changes. Affects NObjTypes.h; DurationEdit, DynamicEdit, Error, InitNightngale,
 MIDIFOCmd, ModNREdit.
+
+-------------------------------------------------------------------------------------------
+
+16 - 21 Jan.
+
+Move the tuplet dialog code to a new file. Affects DialogsEditor, TupletEdit.
+
+Work to replace the set duration pop-up palette (using a UI font) in the Fancy Tuplet
+dialog with a fixed palette (from a BMP file). Affects .rsrc, DrawUtils.h; DrawUtils,
+MIDIFOCmd.
+
+Minor changes. Affects info.plist, .rsrc, NightTemplates.h, NObjTypes.h, UIFUtils.h,
+Utility.h; DebugDisplay, MIDIFOCmd, SelUtils, UIFUtils, Utility.

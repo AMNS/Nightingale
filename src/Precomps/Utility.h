@@ -88,3 +88,5 @@ Boolean TrapAvailable(short);
 
 Boolean FitStavesOnPaper(Document *);
 short CountUnjustifiedSystems(Document *doc, LINK startPageL, LINK endPageL, short *pfirstUnjustPg);
+
+Boolean	FTupletCheck(Document *, TupleParam *);

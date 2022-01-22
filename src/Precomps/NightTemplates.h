@@ -83,7 +83,6 @@
 	Boolean		OttavaDialog(Document *, Byte *);
 	short		LookAtDialog(Document *, short, LINK);
 	short		GoToDialog(Document *, short *, short *, LINK *);
-	Boolean		FTupletCheck(Document *, TupleParam *);
 	Boolean		TupletDialog(Document *, TupleParam *, Boolean);
 	Boolean		SetMBRestDialog(Document *, short *);
 	short		RastralDialog(Boolean, short, Boolean *, Boolean *);

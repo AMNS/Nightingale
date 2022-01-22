@@ -238,7 +238,7 @@ static void MFInfoDialog(
 }
 
 
-/* ----------------------------------------------------------------- PaletteChoiceDlog -- */
+/* ================================ Open MIDI File dialog =============================== */ 
 
 /* Dialog item numbers */
 
@@ -261,8 +261,11 @@ static Rect durationCell[NROWS*NCOLS];
 
 #define SWITCH_CELL(curIdx, newIdx, pBox)	HiliteDurCell((curIdx), (pBox), durationCell); curIdx = (newIdx); HiliteDurCell((curIdx), (pBox), durationCell)
 
-static pascal Boolean PaletteChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
-static pascal Boolean PaletteChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
+
+/* ------------------------------------------------------------------ DurPalChoiceDlog -- */
+
+static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
+static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
 	short			ch, ans, type;
@@ -280,7 +283,7 @@ static pascal Boolean PaletteChoiceFilter(DialogPtr dlog, EventRecord *evt, shor
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, True);
 				GetDialogItem(dlog, DUR_CHOICES_DI, &type, &hndl, &box);
-LogPrintf(LOG_DEBUG, "PaletteChoiceFilter: durationIdx=%d box tlbr=%d,%d,%d,%d\n",
+LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: durationIdx=%d box tlbr=%d,%d,%d,%d\n",
 durationIdx, box.top, box.left, box.bottom, box.right);
 				FrameRect(&box);
 				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded,
@@ -350,8 +353,8 @@ LogPrintf(LOG_DEBUG, "ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);
 
 /* Display the palette choice modal dialog.  Return True if OK, False if Cancel or error. */
 
-static short PaletteChoiceDlog(short durCode);
-static short PaletteChoiceDlog(short durCode)
+static short DurPalChoiceDlog(short durCode);
+static short DurPalChoiceDlog(short durCode)
 {
 	DialogPtr		dlog;
 	short			itemHit, type;
@@ -361,7 +364,7 @@ static short PaletteChoiceDlog(short durCode)
 	GrafPtr			oldPort;
 	ModalFilterUPP	filterUPP;
 
-	filterUPP = NewModalFilterUPP(PaletteChoiceFilter);
+	filterUPP = NewModalFilterUPP(DurPalChoiceFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(DURCHOICE_NODOTS_DLOG);
 		return -1;
@@ -410,7 +413,7 @@ static short PaletteChoiceDlog(short durCode)
 		}
 	}
 	
-	DisposeModalFilterUPP(PaletteChoiceFilter);
+	DisposeModalFilterUPP(DurPalChoiceFilter);
 	DisposeDialog(dlog);
 	SetPort(oldPort);
 	okay = (itemHit==OK);
@@ -463,7 +466,7 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				byChLeftPos = durationIdx*(COL_WIDTH/8);				// ??TERMPORARY!
 				DrawBMPChar(bmpDurationPal.bitmap, COL_WIDTH/8,
 						bmpDurationPal.byWidthPadded, ROW_HEIGHT, byChLeftPos, 3*ROW_HEIGHT, box);
-				FrameRect(&box);
+				FrameShadowRect(&box);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -550,7 +553,7 @@ static Boolean TranscribeMFDialog(
 {
 	DialogPtr dlog;  GrafPtr oldPort;
 	short ditem, aShort;
-	short rButGroup, newDurCode, oldDurCode, maxMeas, t;
+	short rButGroup, newLDurCode, oldLDurCode, maxMeas, t;
 	short oldResFile; 
 	Boolean done, autoBm, trips, clefs, needTrips;
 	Handle ndHdl, beamHdl, tripHdl;
@@ -615,14 +618,14 @@ static Boolean TranscribeMFDialog(
 	   whose attacks fit a (non-tuplet) metric grid and time sig. denoms. But in no case
 	   suggest anything coarser than eighths or finer than 32nds. */
 		
-	newDurCode = WHOLE_L_DUR;
+	newLDurCode = WHOLE_L_DUR;
 	for (t = 1; t<=mfNTracks; t++)
-		if (qTrLDur[t]!=UNKNOWN_L_DUR) newDurCode = n_max(newDurCode, qTrLDur[t]);
-	if (newDurCode<EIGHTH_L_DUR) newDurCode = EIGHTH_L_DUR;
-	if (newDurCode>THIRTY2ND_L_DUR) newDurCode = THIRTY2ND_L_DUR;
-	oldDurCode = newDurCode;
-LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d newDurCode=%d oldDurCode=%d\n",
-qAllLDur, newDurCode, oldDurCode);
+		if (qTrLDur[t]!=UNKNOWN_L_DUR) newLDurCode = n_max(newLDurCode, qTrLDur[t]);
+	if (newLDurCode<EIGHTH_L_DUR) newLDurCode = EIGHTH_L_DUR;
+	if (newLDurCode>THIRTY2ND_L_DUR) newLDurCode = THIRTY2ND_L_DUR;
+	oldLDurCode = newLDurCode;
+LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d newLDurCode=%d oldLDurCode=%d\n",
+qAllLDur, newLDurCode, oldLDurCode);
 
 	PutDlgChkRadio(dlog, AUTOBEAM_DI, *autoBeam);
 	PutDlgChkRadio(dlog, TRIPLETS_DI, *triplets);
@@ -638,15 +641,15 @@ qAllLDur, newDurCode, oldDurCode);
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	oldDurCode = newDurCode;
+	oldLDurCode = newLDurCode;
 	done = False;
 	while (!done) {
 		ModalDialog(filterUPP, &ditem);
-		if (newDurCode!=oldDurCode) {
+		if (newLDurCode!=oldLDurCode) {
 			SwitchRadio(dlog, &rButGroup, QUANTIZE_DI);
 			XACTIVEATE_CTLS;
 		}
-		oldDurCode = newDurCode;
+		oldLDurCode = newLDurCode;
 		switch (ditem) {
 		case OK:
 			done = True;
@@ -661,20 +664,26 @@ qAllLDur, newDurCode, oldDurCode);
 				done = False;
 			}
 			if (rButGroup==QUANTIZE_DI) {
-				*qDurCode = newDurCode;
-				if (trips && newDurCode<qTrLDur[1]) {
+				*qDurCode = newLDurCode;
+				if (trips && newLDurCode<qTrLDur[1]) {
 					StopInform(TOO_COARSE_QUANT_ALRT);
 					done = False;
 				}
-				else if (!(ControlKeyDown()) && trips && newDurCode>SIXTEENTH_L_DUR) {
+				else if (!(ControlKeyDown()) && trips && newLDurCode>SIXTEENTH_L_DUR) {
 					StopInform(TOO_FINE_QUANT_ALRT);
 					done = False;
 				}
-				else if (newDurCode<qAllLDur && qAllLDur!=UNKNOWN_L_DUR)
+				else if (newLDurCode<qAllLDur && qAllLDur!=UNKNOWN_L_DUR)
 					done = (CautionAdvise(COARSE_QUANTIZE_ALRT)==OK);
 			}
 			else
 				*qDurCode = UNKNOWN_L_DUR;
+			if (done) {
+				*autoBeam = autoBm;
+				*triplets = trips;
+				*maxMeasures = maxMeas;
+				*clefChanges = clefs;
+			}
 			break;
 		case Cancel:
 			done = True;
@@ -688,8 +697,8 @@ qAllLDur, newDurCode, oldDurCode);
 			break;
 		case MFSET_DUR_DI:
 #if 11
-			newDurCode = PaletteChoiceDlog(newDurCode);
-			if (newDurCode!=oldDurCode) {
+			newLDurCode = DurPalChoiceDlog(newLDurCode);
+			if (newLDurCode!=oldLDurCode) {
 				short byChLeftPos = durationIdx*(COL_WIDTH/8);				// ??TERMPORARY!
 				EraseRect(&box);
 				FrameRect(&box);
@@ -697,7 +706,7 @@ qAllLDur, newDurCode, oldDurCode);
 					bmpDurationPal.byWidthPadded, ROW_HEIGHT, byChLeftPos, 3*ROW_HEIGHT, box);
 			}
 #else
-			newDurCode = popKeys0dot[curPop->currentChoice].durCode;
+			newLDurCode = popKeys0dot[curPop->currentChoice].durCode;
 			SelectDialogItemText(dlog, MFDUMMY_DI, 0, ENDTEXT);
 			HiliteGPopUp(curPop, popUpHilited = True);
 #endif
@@ -718,13 +727,6 @@ qAllLDur, newDurCode, oldDurCode);
 		}
 	}
 			
-	if (ditem==OK) {
-		*autoBeam = autoBm;
-		*triplets = trips;
-		*maxMeasures = maxMeas;
-		*clefChanges = clefs;
-	}
-	
 	//DisposeGPopUp(&durPop0dot);
 	//if (popKeys0dot) DisposePtr((Ptr)popKeys0dot);
 	DisposeModalFilterUPP(filterUPP);
@@ -735,6 +737,8 @@ qAllLDur, newDurCode, oldDurCode);
 	return (ditem==OK);
 }
 
+
+/* ====================================================================================== */ 
 
 /* ----------------------------------------------------------------------- NameMFScore -- */
 /* Give the score a name based on the name of the Imported MIDI file it came from. */

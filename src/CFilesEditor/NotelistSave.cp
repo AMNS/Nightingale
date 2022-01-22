@@ -1,7 +1,7 @@
 /* NotelistSave.c for Nightingale - write Notelist file */
 
 /* Besides doing something useful, this file is intended as a model for user-written
-written functions. Hence, (1) the overly-generic name, and (2) the exceptionally detailed
+functions. Hence, (1) the overly-generic name, and (2) the exceptionally detailed
 detailed comments that refer to what "you" might do.
 
 NB: The compiled-in English words are not an internationalization problem, since the
@@ -54,8 +54,8 @@ Tuplet			P v=%d npt=%d num=%d denom=%d appear=%d
 Beam			B v=%d npt=%d count=%d
 Comment			% (anything)
 
-The only forms of text included now are GRStrings and GRLyrics.
-NB: the current (Nightingale 5.8) version of Open Notelist ignores Beam lines.
+The only forms of text included now are GRStrings and GRLyrics. NB: as of version
+5.9, Nightingale's Open Notelist ignores Beam lines.
 
 CER-12.02.2002: fgets called by ReadLine [InternalInput.c] reads to a \n. The sprintf
 here was writing to a \r. The MSL handles platform conversion of special chars

@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10, with premonitions of 6.0)
 Nightingale Technical Note #1
-Don Byrd, rev. late December 2021
+Don Byrd, rev. mid January 2022
 
 A general note:
 
@@ -39,12 +39,12 @@ applies to versions of Nightingale at least as far back as v. 2000.
 Also see the important source-code header files themselves:
 
 	precomp includes
-		NDocAndCnfgTypes.h: major structs including DOCUMENTHEADER, SCOREHEADER,
-					Document, Configuration
 		NBasicTypes.h & NMiscTypes.h: structs and defines for our basic data types plus
 					important constants, enums, and macros
 		NObjTypes.h: structs and defines for most of the data structures in the object list
 					(objects and subobjects)
+		NDocAndCnfgTypes.h: major structs _not_ used in the object list, including
+					DOCUMENTHEADER, SCOREHEADER, Document, and Configuration.
 		NLimits.h: most limits, i.e., maximum and minimum values
 		defs.h: important #defines other than memory mgmt and the above, plus a few limits
 	
@@ -64,13 +64,14 @@ comments at the beginning of VoiceTable.c.
 Representation of Music Notation Information in Nightingale
 
 The infomation represented in Conventional Western Music Notation is extraordinarily
-complex and subtle. One reason is that it specifies, and often implies, information in
-several _domains_: Logical, Graphical, and Performance/Playback. (See Byrd, Donald, &
-Isaacson, Eric (2003). A Music Representation Requirement Specification for Academia.
-Computer Music Journal 27, no. 4, pp. 43–57. A heavily revised 2106 version is available
-at https://homes.luddy.indiana.edu/donbyrd/Papers/MusicRepReqForAcad.doc .) These are
-symbolized in source code as "L", "G", and "P". For example, here are three lines from
-the declaration of ANOTE:
+complex and subtle. One reason is that it specifies -- often only implicitly --
+information in several _domains_: Logical, Graphical, and Performance/Playback. (See
+Byrd, Donald, & Isaacson, Eric (2003). A Music Representation Requirement
+Specification for Academia. Computer Music Journal 27, no. 4, pp. 43–57. A heavily
+revised 2016 version is available at
+https://homes.luddy.indiana.edu/donbyrd/Papers/MusicRepReqForAcad.doc .) These domains
+are symbolized in source code as "L", "G", and "P". For example, here are three lines
+from the declaration of ANOTE:
 
 	Byte		ymovedots;	/* G: Y-offset on aug. dot pos. (half-spaces, 2=same as note, except 0=invisible) */
 	Byte		ndots;		/* LG: No. of aug. dots */
@@ -123,25 +124,26 @@ Offset			Length		Offset			Length	Item
 
 Nightingale Data Structures
 
-Nightingale's main data structure is what is called an _object list_. For each open
-file, there's a "main" object list and one for the score’s Master Page. In addition,
+Nightingale's main data structure is what is called an _object list_. For each open file,
+there are exactly two object lists: one for the score proper, and one for the score’s
+Master Page. The latter has a fixed length with only a handful of objects. In addition,
 there's one for the Undo command and one for the clipboard. An object list is a
 doubly-linked list of Nightingale objects. Most object types, e.g., HEAD, MEASURE, and
-SYNC, have singly-linked lists of subobjects attached to them; a few, e.g., TAIL and
-PAGE, have no subobjects. For SYNCs, by far the most important and complex objects, the
+SYNC, have singly-linked lists of subobjects attached to them; a few, e.g., TAIL and PAGE,
+have no subobjects. For SYNCs, by far the most important and complex objects, the
 subobjects are notes and rests. There’s also one type of subobject, MODNRs (note/rest
 modifiers), that doesn’t have its own object type: instead, a list of MODNRs can be
 attached to a SYNC subobject. Every Nightingale file contains exactly two object lists:
 one for the score proper, and a very short one for the score’s Master Page.
 
-Not surprisingly, every object list must begin with a HEAD and end with a TAIL, but
-there are many other rules about the order in which objects can appear. For one thing,
-PAGEs, SYSTEMs, STAFFs, and MEASUREs have a heirarchic relationship, and each of them
-must follow whatever contains them. And every DYNAMIC, GRAPHIC, and SLUR affecting a
-note must precede the SYNC containing the note. Unfortunately, as far as I know, there's
-no explicit statement anywhere of all the rules, but many of them are implemented in or
-discussed in the comments on the debugging functions DCheckHeirarchy() and
-DCheckJDOrder(). See also Tech Note #4, "Nightingale Files and Troubleshooting Files
+Since object lists are doubly linked, every object list must begin with a HEAD and end
+with a TAIL, but there are many other rules about the order in which objects can appear.
+For example, (1) PAGEs, SYSTEMs, STAFFs, and MEASUREs have a heirarchic relationship, and
+each of them must follow whatever contains them; and (2) every DYNAMIC, GRAPHIC, and SLUR
+affecting a note must precede the SYNC containing the note. Unfortunately, as far as I
+know, there's no explicit statement anywhere of all the rules, but many of them are
+implemented in or discussed in the comments on the debugging functions DCheckHeirarchy()
+and DCheckJDOrder(). See also Tech Note #4, "Nightingale Files and Troubleshooting Files
 Nightingale Can’t Open".
 
 ---------------------------------------------------------------------------------------
@@ -152,7 +154,7 @@ including 5.8.x, and file format 'N105'.
 Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 							Subobject size  (- = type has no subobjs)
 									Contents/comment
-----  -----------			---	----------------
+---- 	-----------		---	---		--------------------
 0		HEADERtype		24	62		part info
 1		TAILtype		24	-
 2		SYNCtype		26	30		note, rest
@@ -187,7 +189,7 @@ Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 
 ---------------------------------------------------------------------------------------
 
-Basic Data Structures (from NTypes.h)
+Basic Data Structures (from NBasicTypes.h and NObjTypes.h)
 
 typedef unsigned INT16 LINK;
 
@@ -235,7 +237,7 @@ other fields as well. */
 
 ---------------------------------------------------------------------------------------
 
-Object table (from vars.h)
+Object features table (from vars.h)
 
 OBJDATA objTable[] = {
 	/*	objtype  justType	minEnt	maxEnt	objRectOrd */
@@ -293,12 +295,13 @@ Boolean	showWind;					/* Bring info display window to front? */
 /* Dump the specified area as bytes in hexadecimal into the log file. NB: If <nPerLine> is
 unreasonably large, this function can overflow <strBuf>!  */
 
-void NHexDump(short logLevel,
+void DHexDump(short logLevel,			/* From LOG_DEBUG to LOG_ERR */
 				char *label,
-				unsigned char *pBuffer,
+				Byte *pBuffer,
 				long nBytes,
 				short nPerGroup,		/* Number of items to print in a group */
-				short nPerLine			/* Number of items to print in a line */
+				short nPerLine,			/* Number of items to print in a line */
+				Boolean numberLines		/* Add line numbers? */
 				)
 
 

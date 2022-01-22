@@ -10877,3 +10877,10 @@ confused?
 	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
 Lower priority:
 	Transcribe Recording: no change
+
+---------------------------------------------------------------------------------------
+16 - 17 Jan.
+
+* The Fancy Tuplet dialog never hilites the duration unit. If you click on a unit when
+creating a tuplet, the numbers are unchanged, but if you click on one when editing a
+tuplet, both numbers change to 0.

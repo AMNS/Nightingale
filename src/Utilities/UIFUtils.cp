@@ -5,15 +5,16 @@
 		WaitCursor				ArrowCursor				FixCursor
 		XableItem				UpdateMenu				UpdateMenuBar
 		CenterRect				PullInsideRect			ContainedRect
-		ZoomRect				GetGlobalPort			GetIndWinPosition
+		ZoomRect				
+		GetGlobalPort			GetIndWinPosition
 		AdjustWinPosition		GetMyScreen	PlaceAlert	PlaceWindow
 		CenterWindow			EraseAndInval
 		KeyIsDown				CmdKeyDown				OptionKeyDown
 		ShiftKeyDown			CapsLockKeyDown			ControlKeyDown
 		CommandKeyDown			CheckAbort				IsDoubleClick
-		GetStaffLim
-		InvertSymbolHilite		InvertTwoSymbolHilite
-		HiliteAttPoints			FlashRect				SamePoint
+		GetStaffLim				InvertSymbolHilite		InvertTwoSymbolHilite
+		HiliteAttPoints			HiliteRect				FrameShadowRect
+		FlashRect				SamePoint
 		Advise					NoteAdvise				CautionAdvise
 		StopAdvise				Inform					NoteInform
 		CautionInform			StopInform				ProgressMsg
@@ -21,7 +22,7 @@
 		NameHeapType			NameObjType				NameGraphicType
 		DynamicToString			ClefToString
 		SmartenQuote			DrawBox					DrawGrowBox
-		DrawTheSelection		HiliteRect
+		DrawTheSelection		
 		Voice2UserStr			Staff2UserStr
 		VLogPrintf				LogPrintf				InitLogPrintf	
 /******************************************************************************************/
@@ -782,6 +783,9 @@ static DDIST GetStaffLim(
 	return blackBottom;
 }
 
+
+/* ======================================================== Hilite, Frame, Flash Rects == */
+
 /* ---------------------------------------------------------------- InvertSymbolHilite -- */
 /* Hilite a symbol, the graphical representation of an object, in a distinctive way to
 show it's the one into which a subobject is about to be inserted, or to which something
@@ -876,6 +880,33 @@ void HiliteAttPoints(
 	
 	InvertSymbolHilite(doc, firstL, staffn, False);								/* Off */
 	if (lastL && firstL!=lastL) InvertSymbolHilite(doc, lastL, staffn, False);	/* Off */
+}
+
+
+/* ------------------------------------------------------------------------ HiliteRect -- */
+/*	Toggle the hiliting of the given rectangle, using the selection color. Intended
+for object/subobject hiliting. */
+
+void HiliteRect(Rect *r)
+{
+	LMSetHiliteMode(LMGetHiliteMode() & 0x7F);	/* Clear top bit = hilite in selection color */
+
+	InsetRect(r,-config.enlargeHilite,-config.enlargeHilite);
+	InvertRect(r);
+	InsetRect(r,config.enlargeHilite,config.enlargeHilite);
+}
+
+
+/* ------------------------------------------------------------------- FrameShadowRect -- */
+
+void FrameShadowRect(Rect *pBox)
+{
+	FrameRect(pBox);
+	PenSize(2, 2);
+	MoveTo(pBox->left, pBox->bottom);			/* drop shadow */
+	LineTo(pBox->right, pBox->bottom);
+	LineTo(pBox->right, pBox->top);
+	PenSize(1, 1);
 }
 
 
@@ -1284,20 +1315,6 @@ void DrawTheSelection()
 		default:
 			;
 	}
-}
-
-
-/* ------------------------------------------------------------------------ HiliteRect -- */
-/*	Toggle the hiliting of the given rectangle, using the selection color. Intended
-for object/subobject  hiliting. */
-
-void HiliteRect(Rect *r)
-{
-	LMSetHiliteMode(LMGetHiliteMode() & 0x7F);	/* Clear top bit = hilite in selection color */
-
-	InsetRect(r,-config.enlargeHilite,-config.enlargeHilite);
-	InvertRect(r);
-	InsetRect(r,config.enlargeHilite,config.enlargeHilite);
 }
 
 

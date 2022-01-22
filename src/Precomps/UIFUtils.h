@@ -39,6 +39,8 @@ Boolean		IsDoubleClick(Point clickPt, short tol, long now);
 void InvertSymbolHilite(Document *, LINK, short, Boolean);
 void InvertTwoSymbolHilite(Document *, LINK, LINK, short);
 void HiliteAttPoints(Document *, LINK, LINK, short);
+void HiliteRect(Rect *);
+void FrameShadowRect(Rect *pBox);
 void FlashRect(Rect *);
 Boolean SamePoint(Point, Point);
 
@@ -67,7 +69,6 @@ short SmartenQuote(TEHandle textH, short ch);
 void DrawBox(Point pt,short size);
 void DrawGrowBox(WindowPtr w, Point pt, Boolean drawit);
 void DrawTheSelection(void);
-void HiliteRect(Rect *);
 
 void Voice2UserStr(Document *doc, short voice, char str[]);
 void Staff2UserStr(Document *doc, short staffn, char str[]);

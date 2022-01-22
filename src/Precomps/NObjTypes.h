@@ -3,9 +3,10 @@ NB: Very many of these appear in Nightingale score files, so changing them may b
 problem for backward compatibility.
 
 The infomation represented in Conventional Western Music Notation is extraordinarily
-complex and subtle. One reason is that it specifies, and often implies, information in
-several _domains_: Logical, Graphical, and Performance/Playback. These are symbolized
-in comments by "L", "G", and "P". See Nightingale Technical Note #1 for a reference. 
+complex and subtle. One reason is that it specifies -- often implicitly -- information
+in several _domains_: Logical, Graphical, and Performance/Playback. These are symbolized
+in comments by "L", "G", and "P". See Nightingale Technical Note #1 for some details
+and a reference. 
 */
 
 /*
@@ -87,8 +88,8 @@ typedef struct {
 	Byte		noteNum;			/* P: MIDI note number (unused for rests) */
 	Byte		onVelocity;			/* P: MIDI note-on velocity, normally loudness (unused for rests) */
 	Byte		offVelocity;		/* P: MIDI note-off (release) velocity (unused for rests) */
-	Boolean		tiedL;				/* True if tied to left */
-	Boolean		tiedR;				/* True if tied to right */
+	Boolean		tiedL;				/* LGP: True if tied to left */
+	Boolean		tiedR;				/* LGP: True if tied to right */
 	Byte		ymovedots;			/* G: Y-offset on aug. dot pos. (half-spaces, 2=same as note, except 0=invisible) */
 	Byte		ndots;				/* LG: No. of aug. dots */
 	SignedByte	voice;				/* L: Voice number */
@@ -104,11 +105,11 @@ typedef struct {
 	Byte		headShape;			/* G: Special notehead or rest shape; see list below */
 	Byte		xmovedots;			/* G: X-offset on aug. dot position */
 	LINK		firstMod;			/* LG: Note-related symbols (articulation, fingering, etc.) */
-	Byte		slurredL;			/* True if endpoint of slur to left */
-	Byte		slurredR;			/* True if endpoint of slur to right */
+	Byte		slurredL;			/* G: True if endpoint of slur to left */
+	Byte		slurredR;			/* G: True if endpoint of slur to right */
 	Byte		inTuplet;			/* True if in a tuplet */
 	Byte		inOttava;			/* True if in an octave sign */
-	Byte		small;				/* True if a small (cue, cadenza-like, etc.) note */
+	Byte		small;				/* G: True if a small (cue, cadenza-like, etc.) note */
 	Byte		tempFlag;			/* temporary flag for benefit of functions that need it */
 	long		reservedN;			/* For future use */
 } ANOTE, *PANOTE;
@@ -746,12 +747,12 @@ typedef struct {
 typedef struct {
 	OBJECTHEADER
 	EXTOBJHEADER
-	SignedByte		subType;		/* beat: same units as note's l_dur */
-	Boolean			expanded;
+	SignedByte		subType;		/* "Beat": same units as note's l_dur */
+	Boolean			expanded;		/* Stretch out the text? */
 	Boolean			noMM;			/* False = play at _tempoMM_ BPM, True = ignore it */
 	char			filler;
-	Boolean			dotted;
-	Boolean			hideMM;
+	Boolean			dotted;			/* Does beat unit have an augmentation dot? */
+	Boolean			hideMM;			/* False = show Metronome mark, True = don't show it */
 	short			tempoMM;		/* new playback speed in beats per minute */	
 	STRINGOFFSET	strOffset;		/* "tempo" string index return by String Manager */
 	LINK			firstObjL;		/* object tempo depends on */

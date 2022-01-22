@@ -22,6 +22,7 @@
 		151FF905252B37EE0082C8AF /* MIDIRecUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151FF904252B37EE0082C8AF /* MIDIRecUtils.cp */; };
 		151FF907252B37F90082C8AF /* MIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151FF906252B37F90082C8AF /* MIDIUtils.cp */; };
 		151FF909252B380F0082C8AF /* MiscUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151FF908252B380F0082C8AF /* MiscUtils.cp */; };
+		1541BDA2279B0298002830A7 /* TupletEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1541BDA1279B0298002830A7 /* TupletEdit.cp */; };
 		1544E9B31E645DA400431548 /* Style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B21E645DA400431548 /* Style.h */; };
 		1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B41E645DEF00431548 /* Defs.h */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
@@ -254,6 +255,7 @@
 		151FF904252B37EE0082C8AF /* MIDIRecUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIRecUtils.cp; sourceTree = "<group>"; };
 		151FF906252B37F90082C8AF /* MIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIUtils.cp; sourceTree = "<group>"; };
 		151FF908252B380F0082C8AF /* MiscUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MiscUtils.cp; sourceTree = "<group>"; };
+		1541BDA1279B0298002830A7 /* TupletEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TupletEdit.cp; sourceTree = "<group>"; };
 		1544E9B21E645DA400431548 /* Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Style.h; sourceTree = "<group>"; };
 		1544E9B41E645DEF00431548 /* Defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defs.h; sourceTree = "<group>"; };
 		154C91D21EDBB86F00AAC011 /* AutoBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoBeam.cp; sourceTree = "<group>"; };
@@ -932,6 +934,7 @@
 				D03E70990D5FA5B2005FD177 /* TextDialog.cp */,
 				D03E709A0D5FA5B2005FD177 /* TrackVMove.cp */,
 				D03E709B0D5FA5B2005FD177 /* Transcribe.cp */,
+				1541BDA1279B0298002830A7 /* TupletEdit.cp */,
 				15BCF5991E9D27D30069F7EB /* Undo.cp */,
 			);
 			name = CFilesEditor;
@@ -1232,6 +1235,7 @@
 				15E025FD27258CC000618D44 /* InternalInput.cp in Sources */,
 				15C22B1D2732EFDD00CBBC76 /* ModNREdit.cp in Sources */,
 				15904CD6273C065C006BA03D /* DurationEdit.cp in Sources */,
+				1541BDA2279B0298002830A7 /* TupletEdit.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

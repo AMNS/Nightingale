@@ -598,7 +598,7 @@ void DisplayIndexNode(Document *doc, LINK pL, short kount, short *inLinep)
 Unix command-line utility hexdump: in particular, HexDump() with nPerGroup = nPerLine is
 a lot like <hexdump -n nBytes>. */
 
-void DHexDump(short logLevel,
+void DHexDump(short logLevel,			/* From LOG_DEBUG to LOG_ERR */
 				char *label,
 				Byte *pBuffer,
 				long nBytes,
