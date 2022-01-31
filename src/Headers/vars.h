@@ -66,7 +66,7 @@ GLOBAL CursHandle	handCursor,				/* various cursors */
 GLOBAL char 		palChar,				/* current palette character */
 					oldKey,					/* for enter key arrow toggle */
 					*strBuf,				/* General temporary string buffer */
-					applVerStr[16],			/* Application version no. (C string) */
+					applVerStr[20],			/* Application version no. (C string) */
 					*checkDrawStr,			/* Key equivs. for interrupting drawing */
 					*endingString;			/* Ending labels */
 GLOBAL SignedByte	accTable[MAX_STAFFPOS]; /* Acc./pitch modif. table, by staff ln/space */
@@ -159,6 +159,7 @@ GLOBAL NBMP			bmpDynamicPal;			/* Bitmaps for palettes */
 GLOBAL NBMP			bmpModifierPal;
 GLOBAL NBMP			bmpDurationPal;
 
+GLOBAL Rect			durPalCell[DP_NROWS*DP_NCOLS];
 
 /* --------------------------------------------------------------- With Initialization -- */
 
@@ -412,6 +413,18 @@ short objLength[] = {
 
 GLOBAL SignedByte threadableType=SYNCtype;
 
+GLOBAL short DurPalCode[] = { 
+	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
+	NO_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
+	UNKNOWN_L_DUR, NO_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR
+	};
+
+GLOBAL short durPalNDots[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 2, 2, 2, 2, 2, 2, 2
+	};
+
 #else
 
 GLOBAL SYMDATA symtable[];
@@ -430,6 +443,9 @@ GLOBAL short subObjLength[];
 GLOBAL short objLength[];
 
 GLOBAL SignedByte threadableType;
+
+GLOBAL short DurPalCode[];
+GLOBAL short durPalNDots[];
 
 #endif
 

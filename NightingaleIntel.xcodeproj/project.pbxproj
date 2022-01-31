@@ -22,6 +22,7 @@
 		151FF905252B37EE0082C8AF /* MIDIRecUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151FF904252B37EE0082C8AF /* MIDIRecUtils.cp */; };
 		151FF907252B37F90082C8AF /* MIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151FF906252B37F90082C8AF /* MIDIUtils.cp */; };
 		151FF909252B380F0082C8AF /* MiscUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151FF908252B380F0082C8AF /* MiscUtils.cp */; };
+		153212AE27A4543200747DF3 /* DurationEdit.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 153212AD27A4543200747DF3 /* DurationEdit.h */; };
 		1541BDA2279B0298002830A7 /* TupletEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1541BDA1279B0298002830A7 /* TupletEdit.cp */; };
 		1544E9B31E645DA400431548 /* Style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B21E645DA400431548 /* Style.h */; };
 		1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B41E645DEF00431548 /* Defs.h */; };
@@ -233,6 +234,7 @@
 				159C5097252B3B7A00C9E0CB /* NObjTypesN105.h in CopyFiles */,
 				156FF788265C01E700708310 /* BMP.h in CopyFiles */,
 				1554544126DADD1D00FF8EB0 /* DynamicEdit.h in CopyFiles */,
+				153212AE27A4543200747DF3 /* DurationEdit.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,6 +257,7 @@
 		151FF904252B37EE0082C8AF /* MIDIRecUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIRecUtils.cp; sourceTree = "<group>"; };
 		151FF906252B37F90082C8AF /* MIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIUtils.cp; sourceTree = "<group>"; };
 		151FF908252B380F0082C8AF /* MiscUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MiscUtils.cp; sourceTree = "<group>"; };
+		153212AD27A4543200747DF3 /* DurationEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DurationEdit.h; sourceTree = "<group>"; };
 		1541BDA1279B0298002830A7 /* TupletEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TupletEdit.cp; sourceTree = "<group>"; };
 		1544E9B21E645DA400431548 /* Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Style.h; sourceTree = "<group>"; };
 		1544E9B41E645DEF00431548 /* Defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defs.h; sourceTree = "<group>"; };
@@ -680,6 +683,7 @@
 				D03E6B9A0D5F7807005FD177 /* Draw.h */,
 				D03E6B9B0D5F7807005FD177 /* DrawUtils.h */,
 				D03E6B9C0D5F7807005FD177 /* DSUtils.h */,
+				153212AD27A4543200747DF3 /* DurationEdit.h */,
 				D03E6B9D0D5F7807005FD177 /* DurationPopUp.h */,
 				1554544026DADD1D00FF8EB0 /* DynamicEdit.h */,
 				15CC0991206403DA007075DF /* Endian.h */,

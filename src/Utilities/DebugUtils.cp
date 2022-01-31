@@ -78,9 +78,14 @@ Boolean DBadLink(
 
 	if (pL==NILINK) return !allowNIL;
 	
-	heap = doc->Heap+type;
+#if 1
+	if (GARBAGEL(type, pL)) return True;
 	
+	heap = doc->Heap+type;
+#else
+	heap = doc->Heap+type;
 	if (pL>=heap->nObjs) return True;
+#endif
 	
 	/* Look through the freelist for pL. If we find it, it's not valid! */
 	
@@ -455,8 +460,8 @@ short DCheckNode(
 			)
 {
 	short		minEntries, maxEntries;
-	Boolean		bad;
-	Boolean		terrible, abnormal, objRectOrdered, lRectOrdered, rRectOrdered;
+	Boolean		bad, terrible, abnormal;
+	Boolean		objRectOrdered, lRectOrdered, rRectOrdered;
 	PMEVENT		p;
 	PMEVENT		apLeft, apRight, pLeft, pRight;
 	PSYSTEM		pSystem;
@@ -565,7 +570,7 @@ short DCheckNode(
 /* CHECK the objRect's relative horizontal position. --------------------------------
 We first try find objects in this System to its left and/or right in the object list
 that have meaningful objRects. If we find such object(s), we check whether their relative
- positions agree with their relative object-list positions. */
+positions agree with their relative object-list positions. */
 
 				for (lRectOrdered = False, apLeftL = LeftLINK(pL);
 						apLeftL!=doc->headL; apLeftL = LeftLINK(apLeftL)) {

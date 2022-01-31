@@ -163,7 +163,7 @@ void Initialize(void)
 	
 	Pstrcpy((unsigned char *)strBuf, VersionString(versionPStr));
 	PToCString((unsigned char *)strBuf);
-	GoodStrncpy(applVerStr, strBuf, 15);			/* Allow one char. for terminator */
+	GoodStrncpy(applVerStr, strBuf, 20);			/* Allow one char. for terminator */
 	
 #if TARGET_RT_LITTLE_ENDIAN
 	bigOrLittleEndian = 'L';

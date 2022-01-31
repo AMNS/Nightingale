@@ -174,11 +174,10 @@ Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 
 /* ------------------------------------------------------------------------- GetVarLen -- */
 /* Get the value of a MIDI file "variable-length number" whose first byte is at
-chunk[*pLoc], and increment *pLoc to point to the first byte after the number.
-According to the Standard MIDI File spec, a variable-length number must fit in four
-bytes: it's unsigned, and since there are 7 significant bits per byte, it must be
-less than 2**28. If the number occupies more than four bytes, we return an illegal
-value (0xFFFFFFFF). */
+chunk[*pLoc], and increment *pLoc to point to the first byte after the number. According
+to the Standard MIDI File spec, a variable-length number must fit in four bytes: it's
+unsigned, and since there are 7 significant bits per byte, it must be less than 2**28.
+If the number occupies more than four bytes, we return an illegal value (0xFFFFFFFF). */
 
 static DoubleWord GetVarLen(Byte chunk[], DoubleWord *pLoc)
 {
@@ -187,7 +186,9 @@ static DoubleWord GetVarLen(Byte chunk[], DoubleWord *pLoc)
 	Byte addend;
 	
 	value = 0L;
+	
 	/* Accumulate significant bits and watch the top bit for the end-of-number flag. */
+	
 	for (i = 1; i<=4; i++, (*pLoc)++) {
 		addend = chunk[*pLoc] & 0x7F;
 		value = (value<<7)+addend;
@@ -197,9 +198,8 @@ static DoubleWord GetVarLen(Byte chunk[], DoubleWord *pLoc)
 		}
 	}
 	
-	/*
-	 * Something is wrong: the number seems to occupy more than four bytes.
-	 */
+	/* Something is wrong: the number seems to occupy more than four bytes. */
+	
 	return 0xFFFFFFFF;
 }
 
@@ -343,11 +343,10 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 			opStatus = OP_COMPLETE;
 			break;
 		case MSYSEX:
-			/* 
-			 *	This handles only the original one-chunk form of SysEx message. See
-			 *	midifile.c in Tim Thompson's mftext for some elegant code for
-			 *	collecting arbitrary chunks of SysEx.
-			 */
+			/* This handles only the original one-chunk form of SysEx message. See
+			   midifile.c in Tim Thompson's mftext for some elegant code for collecting
+			   arbitrary chunks of SysEx. */
+			   
 			n = 1;
 			while (pChunkMF[locMF]!=MEOX)
 				eventData[n++] = pChunkMF[locMF++];
@@ -359,11 +358,13 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 			eventData[2] = pChunkMF[locMF];
 			for (i = 1; i<=pChunkMF[locMF]; i++)
 				eventData[i+2] = pChunkMF[locMF+i];
-			/* JGG &DAB: Combining the next two operations with:
-				locMF += pChunkMF[locMF++];
-			...	doesn't work right on the CodeWarrior PowerPC compiler (ca. 2000?).
-			Not that we care about CodeWarrior or PowerPCs anymore, but it might be
-			a problem with other compilers too. */
+				
+			/* JGG & DAB: Combining the next two operations with:
+					locMF += pChunkMF[locMF++];
+			   ...	doesn't work right on the CodeWarrior PowerPC compiler (ca. 2000?).
+			   Not that we care about CodeWarrior or PowerPCs anymore, but it might be
+			   a problem with other compilers too. */
+			   
 			locMF += pChunkMF[locMF];
 			locMF++;
 			opStatus = OP_COMPLETE;
@@ -896,7 +897,6 @@ static Boolean MakeMNote(MFNote *, Byte, MNOTE *);
 static LINK MFNewMeasure(Document *, LINK);
 static void FixTStampsForTimeSigs(Document *, LINK);
 static Boolean MFAddMeasures(Document *, short, long *);
-static void DeleteAllMeasures(Document *, LINK, LINK);
 static Boolean DoMetaEvent(Document *, short, MFEvent *, short);
 
 static void InitTrack2Night(Document *, long *, long *);
@@ -993,7 +993,9 @@ static void FixTStampsForTimeSigs(
 					Document *doc,
 					LINK resetL)		/* Reset timestamps to 0 at 1st Measure at or after this, or NILINK */
 {
-	long measDur; LINK measL, nextMeasL, resetML; CONTEXT context;
+	long measDur;
+	LINK measL, nextMeasL, resetML;
+	CONTEXT context;
 	
 	resetML = (resetL? SSearch(resetL, MEASUREtype, GO_RIGHT) : NILINK);
 	
@@ -1071,7 +1073,7 @@ Done:
 	return True;
 }
 
-
+#ifdef NOMORE
 static void DeleteAllMeasures(Document *doc, LINK startL, LINK endL)
 {
 	LINK pL, nextL;
@@ -1081,6 +1083,7 @@ static void DeleteAllMeasures(Document *doc, LINK startL, LINK endL)
 		if (MeasureTYPE(pL)) DeleteMeasure(doc, pL);
 	}
 }
+#endif
 
 static unsigned long GetTempoMicrosecsPQ(MFEvent *p) 
 {
@@ -2056,8 +2059,8 @@ static short Track2Night(
 	isTempoMap = (track==1);						/* an OK assumption for format 1 MIDI files */
 	isLastTrack = (track==mfNTracks);
 	if (isTempoMap) InitTrack2Night(doc, &mergeTabSize, &oneTrackTabSize);
-	if (isTempoMap)
-		LogPrintf(LOG_DEBUG, "Track2Night: mergeTabSize=%ld oneTrackTabSize=%ld\n", mergeTabSize, oneTrackTabSize);
+	//if (isTempoMap && DBG) LogPrintf(LOG_DEBUG, "Track2Night: mergeTabSize=%ld oneTrackTabSize=%ld\n",
+	//mergeTabSize, oneTrackTabSize);
 
 	len = oneTrackTabSize*sizeof(LINKTIMEINFO);
 	rawSyncTab = (LINKTIMEINFO *)NewPtr(len);
@@ -2098,7 +2101,7 @@ static short Track2Night(
 		measInfoTab[measTabLen-1].count = count;
 		if (!MFAddMeasures(doc, maxMeasures, &cStopTime)) goto Done;
 		cStopTime = NTicks2MFTicks(cStopTime);
-		LogPrintf(LOG_DEBUG, "cStart/StopTime=%ld/%ld quantum=%d tripBias=%d tryLev=%d leastSq=%d timeOff=%d\n",
+		if (DBG) LogPrintf(LOG_DEBUG, "cStart/StopTime=%ld/%ld quantum=%d tripBias=%d tryLev=%d leastSq=%d timeOff=%d\n",
 							cStartTime, cStopTime, quantum, tripletBias,
 							config.tryTupLevels, config.leastSquares, timeOffset);
 	}

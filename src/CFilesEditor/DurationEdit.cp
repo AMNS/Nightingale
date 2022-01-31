@@ -1,5 +1,7 @@
 /* DurationEdit.c for Nightingale - formerly DurationPopUp, for use with accompanying
-graphic MDEF; it now uses a BMP displayed in its entirety.  */
+graphic MDEF; it now uses a BMP displayed in its entirety. Nightingale has several
+features that let the user choose a duration, and this file includes both general routines
+for handling the duration palette and the code for the Set Duration command. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -12,8 +14,7 @@ graphic MDEF; it now uses a BMP displayed in its entirety.  */
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-
-/* ----------------------------------- General routines to handle the duration palette -- */
+/* =================================== General routines to handle the duration palette == */
 /* Note durations appear in features of Nightingale other than Set Duration: metronome
 marks, "fancy" tuplets, and quantizing durations. The different features allow
 different numbers of augmentation dots, and therefore different subsets of the palette!
@@ -80,12 +81,6 @@ void HiliteDurCell(short durIdx, Rect *pBox, Rect durCell[])
 }
 
 
-static short durationCode[] = { 
-	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
-	NO_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
-	UNKNOWN_L_DUR, NO_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR
-								 };
-
 /* Return the index into our palette for the given character. If the character occurs
 more than once in the palette, return the index of the first occurrence; if it isn't in
 the palette, return -1. */
@@ -103,15 +98,174 @@ short DurationKey(unsigned char theChar, unsigned short numDurations)
 	sym = GetSymTableIndex(theChar);
 	if (symtable[sym].objtype!=SYNCtype) return -1;
 	for (unsigned short k = 0; k<numDurations; k++)
-		if (symtable[sym].durcode==durationCode[k]) { newDurIdx = k;  break; }
+		if (symtable[sym].durcode==DurPalCode[k]) { newDurIdx = k;  break; }
 	
 	return newDurIdx;
 }
 
-
-/* ------------------------------------------------- Code for the Set Duration command -- */
+/* ------------------------------------------------------------------ DurPalChoiceDlog -- */
 
 static short durationIdx;
+
+static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
+static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
+{
+	WindowPtr		w;
+	short			ch, ans, type;
+	Handle			hndl;
+	Rect			box;
+	Point			where;
+	GrafPtr			oldPort;
+	
+	w = (WindowPtr)(evt->message);
+	switch (evt->what) {
+		case updateEvt:
+			if (w==GetDialogWindow(dlog)) {
+				GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
+				BeginUpdate(GetDialogWindow(dlog));
+				UpdateDialogVisRgn(dlog);
+				FrameDefault(dlog, OK, True);
+				GetDialogItem(dlog, DP_DURCHOICE_DI, &type, &hndl, &box);
+LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: durationIdx=%d box tlbr=%d,%d,%d,%d\n",
+durationIdx, box.top, box.left, box.bottom, box.right);
+				FrameRect(&box);
+				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded,
+						bmpDurationPal.height, DP_ROW_HEIGHT, box);
+				HiliteDurCell(durationIdx, &box, durPalCell);
+				EndUpdate(GetDialogWindow(dlog));
+				SetPort(oldPort);
+				*itemHit = 0;
+				return True;
+			}
+			break;
+		case activateEvt:
+			if (w==GetDialogWindow(dlog)) SetPort(GetDialogWindowPort(dlog));
+			break;
+		case mouseDown:
+		case mouseUp:
+			where = evt->where;
+			GlobalToLocal(&where);
+			GetDialogItem(dlog, DP_DURCHOICE_DI, &type, &hndl, &box);
+			if (PtInRect(where, &box)) {
+				if (evt->what==mouseUp) {
+					/* If the mouseUp was in an invalid (presumably because empty) cell,
+					   ignore it. Otherwise, unhilite the previously-selected cell and
+					   hilite the new one. */
+
+					short newDurIdx = FindDurationCell(where, &box, DP_NCOLS, DP_NROWS_SD,
+										durPalCell);
+//LogPrintf(LOG_DEBUG, "durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);  
+					if (newDurIdx<0 || newDurIdx>(short)DP_NDURATIONS-1) return False;
+					SWITCH_DPCELL(durationIdx, newDurIdx, &box);
+				}
+				*itemHit = DP_DURCHOICE_DI;
+				return True;
+			}
+			break;
+		case keyDown:
+		case autoKey:
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
+			ch = (unsigned char)evt->message;
+			GetDialogItem(dlog, DP_DURCHOICE_DI, &type, &hndl, &box);
+			*itemHit = 0;
+			ans = DurationKey(ch, DP_NDURATIONS);
+			if (ans>=0) {
+LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);  
+				SWITCH_DPCELL(durationIdx, ans, &box);
+				*itemHit = DP_DURCHOICE_DI;
+				return True;
+			}
+			else {
+				ans = durationIdx;
+				switch (ch) {
+					case LEFTARROWKEY:
+						if (durationIdx>0) { ans--; SWITCH_DPCELL(durationIdx, ans, &box); }
+						break;
+					case RIGHTARROWKEY:
+						if (durationIdx<(DP_NCOLS*DP_NROWS_SD)-1)
+							{ ans++; SWITCH_DPCELL(durationIdx, ans, &box); }
+						break;
+					case UPARROWKEY:		/* We have only one row, so ignore vertical mvmt */
+					case DOWNARROWKEY:		/* We have only one row, so ignore vertical mvmt */
+					default:
+						break;
+				}
+			}
+	}
+	
+	return False;
+}
+
+/* Display a simple modal dialog for choosing an undotted duration.  <durationIdx> is
+an index into the full duration palette. Return the new <durationIdx> if OK, -1 if
+Cancel or error. */
+
+short DurPalChoiceDlog(short durPalIdx)
+{
+	DialogPtr		dlog;
+	short			itemHit, type;
+	Boolean			okay, keepGoing=True;
+	Handle			hndl;
+	Rect			box;
+	GrafPtr			oldPort;
+	ModalFilterUPP	filterUPP;
+
+	filterUPP = NewModalFilterUPP(DurPalChoiceFilter);
+	if (filterUPP == NULL) {
+		MissingDialog(DURCHOICE_NODOTS_DLOG);
+		return -1;
+	}
+
+	dlog = GetNewDialog(DURCHOICE_NODOTS_DLOG, NULL, BRING_TO_FRONT);
+	if (dlog == NULL) {
+		DisposeModalFilterUPP(filterUPP);
+		MissingDialog(DURCHOICE_NODOTS_DLOG);
+		return -1;
+	}
+
+	GetPort(&oldPort);
+	SetPort(GetDialogWindowPort(dlog));
+
+	GetDialogItem(dlog, DP_DURCHOICE_DI, &type, &hndl, &box);
+	InitDurationCells(&box, DP_NCOLS, DP_NROWS_SD, durPalCell);
+
+	/* Find and hilite the initially-selected cell. */
+	
+	durationIdx = durPalIdx;
+	HiliteDurCell(durationIdx, &box, durPalCell);
+	
+	CenterWindow(GetDialogWindow(dlog), 120);
+	ShowWindow(GetDialogWindow(dlog));
+
+	/* Entertain filtered user events until dialog is dismissed */
+	
+	while (keepGoing) {
+		ModalDialog(filterUPP, &itemHit);
+		if (itemHit<1 || itemHit>=DP_LAST_DI_SD) continue;
+		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
+		switch (itemHit) {
+			case OK:
+				keepGoing = False; okay = True;
+				break;
+			case Cancel:
+				keepGoing = False;
+				break;
+			case DP_DURCHOICE_DI:					/* handled in filter */
+				break;
+		}
+	}
+	
+	DisposeModalFilterUPP(DurPalChoiceFilter);
+	DisposeDialog(dlog);
+	SetPort(oldPort);
+	okay = (itemHit==OK);
+	return (okay? durationIdx : -1);
+}
+
+
+/* ================================================= Code for the Set Duration command == */
+
+//static short durationIdx;	//USE A DIFF. VARIABLE FROM ABOVE? I DON'T SEE WHY
 
 static Boolean DrawDurationPalette(Rect *pBox);
 static Boolean DrawDurationPalette(Rect *pBox)
@@ -122,20 +276,10 @@ static Boolean DrawDurationPalette(Rect *pBox)
 			bmpDurationPal.height, bmpDurationPal.height, *pBox);
 	return True;
 }
-
-
-static short durNDots[] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 1, 1, 1, 1, 1,
-	2, 2, 2, 2, 2, 2, 2, 2, 2
-								 };
 								 
-#define NDURATIONS (sizeof durationCode/sizeof(short))
 
-#define NROWS 3		/* Show all three rows (no dots, one dot, two dots) of duration palette */
-#define NCOLS 9		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
-
-static Rect durationCell[NROWS*NCOLS];
+#define DE_NROWS 3		/* Show all three rows (no dots, one dot, two dots) of duration palette */
+#define NDURATIONS DE_NROWS*DP_NCOLS
 
 /* ---------------------------------------------------------------------- SetDurDialog -- */
 
@@ -189,7 +333,8 @@ static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
 	return False;
 }
 
-#define SWITCH_CELL(curIdx, newIdx, pBox)	HiliteDurCell((curIdx), (pBox), durationCell); curIdx = (newIdx); HiliteDurCell((curIdx), (pBox), durationCell)
+// ??WHY NOT USE SWITCH_DPCELL????????????????????????????
+#define SWITCH_CELL(curIdx, newIdx, pBox)	HiliteDurCell((curIdx), (pBox), durPalCell); curIdx = (newIdx); HiliteDurCell((curIdx), (pBox), durPalCell)
 
 static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
@@ -213,7 +358,7 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 //box.right);
 				FrameRect(&box);
 				DrawDurationPalette(&box);
-				HiliteDurCell(durationIdx, &box, durationCell);
+				HiliteDurCell(durationIdx, &box, durPalCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -234,10 +379,10 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 					   ignore it. Otherwise, unhilite the previously-selected cell and
 					   hilite the new one. */
 
-					short newDurIdx = FindDurationCell(where, &box, NCOLS, NROWS, durationCell);
+					short newDurIdx = FindDurationCell(where, &box, DP_NCOLS, DP_NROWS, durPalCell);
 //LogPrintf(LOG_DEBUG, "SetDurFilter: durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
-					if (durationCode[newDurIdx]==NO_L_DUR) return False;
+					if (DurPalCode[newDurIdx]==NO_L_DUR) return False;
 					SWITCH_CELL(durationIdx, newDurIdx, &box);
 				}
 				*itemHit = SDDURPAL_DI;
@@ -270,19 +415,19 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 						if (ans>0) ans--;
 						break;
 					case RIGHTARROWKEY:
-						if (ans<(NCOLS*NROWS)-1) ans++;
+						if (ans<(DP_NCOLS*DP_NROWS)-1) ans++;
 						break;
 					case UPARROWKEY:
-						if (ans>NCOLS-1) ans -= NCOLS;
+						if (ans>DP_NCOLS-1) ans -= DP_NCOLS;
 						break;
 					case DOWNARROWKEY:
-						if (ans<NCOLS*(NROWS-1)) ans += NCOLS;
+						if (ans<DP_NCOLS*(DP_NROWS-1)) ans += DP_NCOLS;
 						break;
 					default:
 						;
 					}
 				if (ans!=durationIdx) {
-					if (durationCode[ans]==NO_L_DUR) return False;
+					if (DurPalCode[ans]==NO_L_DUR) return False;
 					SWITCH_CELL(durationIdx, ans, &box);
 				}
 			}
@@ -367,17 +512,17 @@ Boolean SetDurDialog(
 	PutDlgChkRadio(dlog, setDurGroup, True);
 
 	GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &box);
-	InitDurationCells(&box, NCOLS, NROWS, durationCell);
+	InitDurationCells(&box, DP_NCOLS, DP_NROWS, durPalCell);
 	
-	/* Find and hilite the initially-selected cell. We should always find it, but if
-	   we can't, make an arbitrary choice. */
+	/* Find and hilite the initially-selected cell. We should always find it, but if we
+	   can't, make an arbitrary choice. */
 	
 	durationIdx = 3;									/* In case we can't find it */
 	for (unsigned short k = 0; k<NDURATIONS; k++) {
-		if (*lDurCode==durationCode[k] && *nDots==durNDots[k]) { durationIdx = k;  break; }
+		if (*lDurCode==DurPalCode[k] && *nDots==durPalNDots[k]) { durationIdx = k;  break; }
 	}
 	
-	HiliteDurCell(durationIdx, &box, durationCell);
+	HiliteDurCell(durationIdx, &box, durPalCell);
 
 	PutDlgChkRadio(dlog, SETLDUR_DI, *setLDur);
 	PutDlgChkRadio(dlog, SETPDUR_DI, *setPDur);
@@ -422,8 +567,8 @@ Boolean SetDurDialog(
 						*doUnbeam = True;						
 					}
 					*setLDur = newSetLDur;
-					*lDurCode = durationCode[durationIdx];
-					*nDots = durNDots[durationIdx];
+					*lDurCode = DurPalCode[durationIdx];
+					*nDots = durPalNDots[durationIdx];
 					*setPDur = GetDlgChkRadio(dlog, SETPDUR_DI);
 					*pDurPct = newpDurPct;
 					*cptV = GetDlgChkRadio(dlog, CV_DI);

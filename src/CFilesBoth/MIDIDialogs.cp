@@ -1113,7 +1113,7 @@ enum {
 	HVYACCENTSTAC_DUR_DI,
 	TENUTO_VEL_DI,
 	TENUTO_DUR_DI,
-	LAST_ITEM
+	LAST_MDI
 };
 
 Boolean MIDIModifierDialog(Document */*doc*/)
@@ -1158,7 +1158,7 @@ Boolean MIDIModifierDialog(Document */*doc*/)
 			ModalDialog(filterUPP, &ditem);
 			if (ditem==OK) {
 				valuesOK = True;
-				for (i = STAC_VEL_DI; i<LAST_ITEM; i+=2) {
+				for (i = STAC_VEL_DI; i<LAST_MDI; i+=2) {
 					GetDlgWord(dlog, i, &value);
 					if (value<-128 || value>127) {
 						GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 17);	/* "Velocity offsets must be..." */
@@ -1170,7 +1170,7 @@ Boolean MIDIModifierDialog(Document */*doc*/)
 						break;
 					}
 				}
-				for (i = STAC_DUR_DI; i<LAST_ITEM; i+=2) {
+				for (i = STAC_DUR_DI; i<LAST_MDI; i+=2) {
 					GetDlgWord(dlog, i, &value);
 					if (value<1 || value>10000) {
 						GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 18);	/* "Duration change percent must be..." */

@@ -69,7 +69,8 @@ in the Nightingale project. */
 #include "Draw.h"
 #include "DrawUtils.h"
 #include "DSUtils.h"
-#include "DurationPopUp.h"
+#include "DurationEdit.h"
+#include "DurationPopUp.h"		// ??TO BE REMOVED ASAP!
 #include "DynamicEdit.h"
 #include "Endian.h"
 #include "InternalInput.h"

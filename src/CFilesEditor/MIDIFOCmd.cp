@@ -166,7 +166,8 @@ static void MFInfoDialog(
 					)
 {
 	DialogPtr dialogp;  GrafPtr oldPort;
-	Handle prevHdl, nextHdl, aHdl;  Rect aRect, ticksRect;
+	Handle prevHdl, nextHdl, aHdl;
+	Rect aRect, ticksRect;
 	short ditem, aShort;
 	short dialogOver, linesPerPage, nPages, pageNum, t;
 	long lastEvTime;
@@ -240,186 +241,7 @@ static void MFInfoDialog(
 
 /* ================================ Open MIDI File dialog =============================== */ 
 
-/* Dialog item numbers */
-
-#define DUR_CHOICES_DI	4
-#define LASTITEM		DUR_CHOICES_DI
-
-static short durationIdx = 3;
-static short durationCode[] =	{ 9, 8, 7, 6, 5, 4, 3, 2, 1 };
-
-#define NDURATIONS (sizeof durationCode/sizeof(short))
-
-#define NROWS 1		/* Show just the top row (no dots) of duration palette */
-#define NCOLS 9		// ??NOT THE BEST WAY TO DO THIS. Is it worth doing better?
-
-#define ROW_HEIGHT 26	/* in pixels */
-#define COL_WIDTH 24	/* in pixels; should be a multiple of 8 */
-
-
-static Rect durationCell[NROWS*NCOLS];
-
-#define SWITCH_CELL(curIdx, newIdx, pBox)	HiliteDurCell((curIdx), (pBox), durationCell); curIdx = (newIdx); HiliteDurCell((curIdx), (pBox), durationCell)
-
-
-/* ------------------------------------------------------------------ DurPalChoiceDlog -- */
-
-static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
-static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
-{
-	WindowPtr		w;
-	short			ch, ans, type;
-	Handle			hndl;
-	Rect			box;
-	Point			where;
-	GrafPtr			oldPort;
-	
-	w = (WindowPtr)(evt->message);
-	switch (evt->what) {
-		case updateEvt:
-			if (w==GetDialogWindow(dlog)) {
-				GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
-				BeginUpdate(GetDialogWindow(dlog));
-				UpdateDialogVisRgn(dlog);
-				FrameDefault(dlog, OK, True);
-				GetDialogItem(dlog, DUR_CHOICES_DI, &type, &hndl, &box);
-LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: durationIdx=%d box tlbr=%d,%d,%d,%d\n",
-durationIdx, box.top, box.left, box.bottom, box.right);
-				FrameRect(&box);
-				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded,
-						bmpDurationPal.height, ROW_HEIGHT, box);
-				HiliteDurCell(durationIdx, &box, durationCell);
-				EndUpdate(GetDialogWindow(dlog));
-				SetPort(oldPort);
-				*itemHit = 0;
-				return True;
-			}
-			break;
-		case activateEvt:
-			if (w==GetDialogWindow(dlog)) SetPort(GetDialogWindowPort(dlog));
-			break;
-		case mouseDown:
-		case mouseUp:
-			where = evt->where;
-			GlobalToLocal(&where);
-			GetDialogItem(dlog, DUR_CHOICES_DI, &type, &hndl, &box);
-			if (PtInRect(where, &box)) {
-				if (evt->what==mouseUp) {
-					/* If the mouseUp was in an invalid (presumably because empty) cell,
-					   ignore it. Otherwise, unhilite the previously-selected cell and
-					   hilite the new one. */
-
-					short newDurIdx = FindDurationCell(where, &box, NCOLS, NROWS, durationCell);
-//LogPrintf(LOG_DEBUG, "durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);  
-					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
-					SWITCH_CELL(durationIdx, newDurIdx, &box);
-				}
-				*itemHit = DUR_CHOICES_DI;
-				return True;
-			}
-			break;
-		case keyDown:
-		case autoKey:
-			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
-			ch = (unsigned char)evt->message;
-			GetDialogItem(dlog, DUR_CHOICES_DI, &type, &hndl, &box);
-			*itemHit = 0;
-			ans = DurationKey(ch, NDURATIONS);
-			if (ans>=0) {
-LogPrintf(LOG_DEBUG, "ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);  
-				SWITCH_CELL(durationIdx, ans, &box);
-				*itemHit = DUR_CHOICES_DI;
-				return True;
-			}
-			else {
-				ans = durationIdx;
-				switch (ch) {
-					case LEFTARROWKEY:
-						if (durationIdx>0) { ans--; SWITCH_CELL(durationIdx, ans, &box); }
-						break;
-					case RIGHTARROWKEY:
-						if (durationIdx<(NCOLS*NROWS)-1) { ans++; SWITCH_CELL(durationIdx, ans, &box); }
-						break;
-					case UPARROWKEY:		/* We have only one row, so ignore vertical mvmt */
-					case DOWNARROWKEY:		/* We have only one row, so ignore vertical mvmt */
-					default:
-						break;
-				}
-			}
-	}
-	
-	return False;
-}
-
-/* Display the palette choice modal dialog.  Return True if OK, False if Cancel or error. */
-
-static short DurPalChoiceDlog(short durCode);
-static short DurPalChoiceDlog(short durCode)
-{
-	DialogPtr		dlog;
-	short			itemHit, type;
-	Boolean			okay, keepGoing=True;
-	Handle			hndl;
-	Rect			box;
-	GrafPtr			oldPort;
-	ModalFilterUPP	filterUPP;
-
-	filterUPP = NewModalFilterUPP(DurPalChoiceFilter);
-	if (filterUPP == NULL) {
-		MissingDialog(DURCHOICE_NODOTS_DLOG);
-		return -1;
-	}
-
-	dlog = GetNewDialog(DURCHOICE_NODOTS_DLOG, NULL, BRING_TO_FRONT);
-	if (dlog == NULL) {
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(DURCHOICE_NODOTS_DLOG);
-		return -1;
-	}
-
-	GetPort(&oldPort);
-	SetPort(GetDialogWindowPort(dlog));
-
-	GetDialogItem(dlog, DUR_CHOICES_DI, &type, &hndl, &box);
-	InitDurationCells(&box, NCOLS, NROWS, durationCell);
-
-	/* Find and hilite the initially-selected cell. We should always find it, but if
-	   we can't, make an arbitrary choice. */
-	
-	durationIdx = 3;									/* In case we can't find it */
-	for (unsigned short k = 0; k<NDURATIONS; k++) {
-		if (durCode==durationCode[k]) { durationIdx = k;  break; }
-	}
-	HiliteDurCell(durationIdx, &box, durationCell);
-	
-	CenterWindow(GetDialogWindow(dlog), 120);
-	ShowWindow(GetDialogWindow(dlog));
-
-	/* Entertain filtered user events until dialog is dismissed */
-	
-	while (keepGoing) {
-		ModalDialog(filterUPP, &itemHit);
-		if (itemHit<1 || itemHit>=LASTITEM) continue;
-		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
-		switch (itemHit) {
-			case OK:
-				keepGoing = False; okay = True;
-				break;
-			case Cancel:
-				keepGoing = False;
-				break;
-			case DUR_CHOICES_DI:					/* handled in filter */
-				break;
-		}
-	}
-	
-	DisposeModalFilterUPP(DurPalChoiceFilter);
-	DisposeDialog(dlog);
-	SetPort(oldPort);
-	okay = (itemHit==OK);
-	return (okay? durationCode[durationIdx] : -1);
-}
-
+static short durationIdx;
 
 /* ---------------------------------------------------------------- TranscribeMFDialog -- */
 
@@ -463,9 +285,10 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				GetDialogItem(dlog, MFSET_DUR_DI, &type, &hndl, &box);
 //LogPrintf(LOG_DEBUG, "TransMFFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
 //box.right);
-				byChLeftPos = durationIdx*(COL_WIDTH/8);				// ??TERMPORARY!
-				DrawBMPChar(bmpDurationPal.bitmap, COL_WIDTH/8,
-						bmpDurationPal.byWidthPadded, ROW_HEIGHT, byChLeftPos, 3*ROW_HEIGHT, box);
+				byChLeftPos = durationIdx*(DP_COL_WIDTH/8);
+				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8, bmpDurationPal.byWidthPadded,
+							DP_ROW_HEIGHT, byChLeftPos, 3*DP_ROW_HEIGHT, box);
+LogPrintf(LOG_DEBUG, "TransMFFilter: durationIdx=%d byChLeftPos=%d\n", durationIdx, byChLeftPos);
 				FrameShadowRect(&box);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
@@ -533,7 +356,7 @@ static Boolean TranscribeMFDialog(TRACKINFO [],short [],short [], Boolean [][MAX
 				short [], Boolean [],long [],short, short, short, short *, Boolean *,
 				Boolean *, Boolean *, short *);
 
-static Boolean TranscribeMFDialog(									
+static Boolean TranscribeMFDialog(
 				TRACKINFO trackInfo[],
 				short nTrackNotes[],					/* Specific track-by-track info */
 				short nTooLong[],						/* Specific track-by-track info */
@@ -552,8 +375,8 @@ static Boolean TranscribeMFDialog(
 				)
 {
 	DialogPtr dlog;  GrafPtr oldPort;
-	short ditem, aShort;
-	short rButGroup, newLDurCode, oldLDurCode, maxMeas, t;
+	short ditem, aShort, oldDurationIdx;
+	short rButGroup, lDurCode, oldLDurCode, maxMeas, t;
 	short oldResFile; 
 	Boolean done, autoBm, trips, clefs, needTrips;
 	Handle ndHdl, beamHdl, tripHdl;
@@ -618,14 +441,18 @@ static Boolean TranscribeMFDialog(
 	   whose attacks fit a (non-tuplet) metric grid and time sig. denoms. But in no case
 	   suggest anything coarser than eighths or finer than 32nds. */
 		
-	newLDurCode = WHOLE_L_DUR;
+	lDurCode = WHOLE_L_DUR;
 	for (t = 1; t<=mfNTracks; t++)
-		if (qTrLDur[t]!=UNKNOWN_L_DUR) newLDurCode = n_max(newLDurCode, qTrLDur[t]);
-	if (newLDurCode<EIGHTH_L_DUR) newLDurCode = EIGHTH_L_DUR;
-	if (newLDurCode>THIRTY2ND_L_DUR) newLDurCode = THIRTY2ND_L_DUR;
-	oldLDurCode = newLDurCode;
-LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d newLDurCode=%d oldLDurCode=%d\n",
-qAllLDur, newLDurCode, oldLDurCode);
+		if (qTrLDur[t]!=UNKNOWN_L_DUR) lDurCode = n_max(lDurCode, qTrLDur[t]);
+	if (lDurCode<EIGHTH_L_DUR) lDurCode = EIGHTH_L_DUR;
+	if (lDurCode>THIRTY2ND_L_DUR) lDurCode = THIRTY2ND_L_DUR;
+	durationIdx = 3;									/* In case we can't find it */
+	for (unsigned short k = 0; k<DP_NDURATIONS; k++) {
+		if (lDurCode==DurPalCode[k]) { durationIdx = k;  break; }
+	}
+
+LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d lDurCode=%d durationIdx=%d\n",
+qAllLDur, lDurCode, durationIdx);
 
 	PutDlgChkRadio(dlog, AUTOBEAM_DI, *autoBeam);
 	PutDlgChkRadio(dlog, TRIPLETS_DI, *triplets);
@@ -641,15 +468,15 @@ qAllLDur, newLDurCode, oldLDurCode);
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	oldLDurCode = newLDurCode;
+	oldLDurCode = lDurCode;
 	done = False;
 	while (!done) {
 		ModalDialog(filterUPP, &ditem);
-		if (newLDurCode!=oldLDurCode) {
+		if (lDurCode!=oldLDurCode) {
 			SwitchRadio(dlog, &rButGroup, QUANTIZE_DI);
 			XACTIVEATE_CTLS;
 		}
-		oldLDurCode = newLDurCode;
+		oldLDurCode = lDurCode;
 		switch (ditem) {
 		case OK:
 			done = True;
@@ -664,16 +491,16 @@ qAllLDur, newLDurCode, oldLDurCode);
 				done = False;
 			}
 			if (rButGroup==QUANTIZE_DI) {
-				*qDurCode = newLDurCode;
-				if (trips && newLDurCode<qTrLDur[1]) {
+				*qDurCode = lDurCode;
+				if (trips && lDurCode<qTrLDur[1]) {
 					StopInform(TOO_COARSE_QUANT_ALRT);
 					done = False;
 				}
-				else if (!(ControlKeyDown()) && trips && newLDurCode>SIXTEENTH_L_DUR) {
+				else if (!(ControlKeyDown()) && trips && lDurCode>SIXTEENTH_L_DUR) {
 					StopInform(TOO_FINE_QUANT_ALRT);
 					done = False;
 				}
-				else if (newLDurCode<qAllLDur && qAllLDur!=UNKNOWN_L_DUR)
+				else if (lDurCode<qAllLDur && qAllLDur!=UNKNOWN_L_DUR)
 					done = (CautionAdvise(COARSE_QUANTIZE_ALRT)==OK);
 			}
 			else
@@ -697,16 +524,20 @@ qAllLDur, newLDurCode, oldLDurCode);
 			break;
 		case MFSET_DUR_DI:
 #if 11
-			newLDurCode = DurPalChoiceDlog(newLDurCode);
-			if (newLDurCode!=oldLDurCode) {
-				short byChLeftPos = durationIdx*(COL_WIDTH/8);				// ??TERMPORARY!
+			oldDurationIdx = durationIdx;
+			durationIdx = DurPalChoiceDlog(durationIdx);
+			if (durationIdx!=oldDurationIdx) {
+				lDurCode = DurPalCode[durationIdx];
+				short byChLeftPos = durationIdx*(DP_COL_WIDTH/8);
 				EraseRect(&box);
 				FrameRect(&box);
-				DrawBMPChar(bmpDurationPal.bitmap, COL_WIDTH/8,
-					bmpDurationPal.byWidthPadded, ROW_HEIGHT, byChLeftPos, 3*ROW_HEIGHT, box);
+				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8, bmpDurationPal.byWidthPadded,
+					DP_ROW_HEIGHT, byChLeftPos, 3*DP_ROW_HEIGHT, box);
+LogPrintf(LOG_DEBUG, "TranscribeMFDialog: oldDurationIdx=%d durationIdx=%d byChLeftPos=%d\n",
+oldDurationIdx, durationIdx, byChLeftPos);
 			}
 #else
-			newLDurCode = popKeys0dot[curPop->currentChoice].durCode;
+			lDurCode = popKeys0dot[curPop->currentChoice].durCode;
 			SelectDialogItemText(dlog, MFDUMMY_DI, 0, ENDTEXT);
 			HiliteGPopUp(curPop, popUpHilited = True);
 #endif

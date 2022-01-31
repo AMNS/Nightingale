@@ -10850,7 +10850,7 @@ A bug in the tool palette: The regular pointer tool cell always has the wrong hi
 Initially nothing is hilighted (inverted); once you click on something, that cell and the
 one you click on are hilighted. This is obviously because the pointer tool cell in the tool
 palette BMP is hilighted, and the best solution is probably also the easiest: change the
-palette BMP.
+palette BMP => done.
 
 Updated status of features:
 
@@ -10879,8 +10879,41 @@ Lower priority:
 	Transcribe Recording: no change
 
 ---------------------------------------------------------------------------------------
-16 - 17 Jan.
+16 - 21 Jan.
 
 * The Fancy Tuplet dialog never hilites the duration unit. If you click on a unit when
 creating a tuplet, the numbers are unchanged, but if you click on one when editing a
 tuplet, both numbers change to 0.
+
+---------------------------------------------------------------------------------------
+
+25 - 29 Jan.
+
+Let's refactor the code for the dialogs that use the duration palette. Add a DurationEdit.h
+to hold the common declarations & definitions and #include it in Nightingale_Prefix.pch => !?!
+ld gives me lots of messages like this:
+
+	/Users/donbyrd/Documents/NgaleDev/.../Nightingale.build/Objects-normal/ppc/TupletEdit.o private external definition of _durPalCell in section (__DATA,__common)
+
+What does "private external definition of _durPalCell" mean??
+
+durPalCell is defined in DurationEdit.h:
+
+	Rect durPalCell[DP_NROWS*DP_NCOLS];
+	
+DurationEdit.h is needed by DurationEdit.cp and TupletEdit.cp (which reference durPalCell), plus
+MIDIFOcmd and Menu. which don't; pull the  #include ?? out of Nightingale_Prefix.pch and
+#include it in those four modules => ld says "private external definition of _durPalCell" for just
+those four modules!
+
+Do several clean builds of the PPC project and one of the Intel project, quitting and relaunching
+Xcode in between => no change. ?? Well, maybe not clean enough. Let’s try moving the
+NightingalePPC.build folder out of the project /build folder => no change. ?!? Ah, DurationEdit.h
+declares several global variables, which of course are declared over and over as compilation
+proceeds! We've handled this problem in vars.h, so move those declarations there => OK :-) .
+
+However, now selecting a new duration in the Open MIDI File dialog doesn't change the character
+displayed in the user item there. Reason: TranscribeMFDialog() ignores the return value
+from DurPalChoiceDlog() -- which is the new code, contrary to its comments (and maybe what we
+want is the new index, not the code?).
+

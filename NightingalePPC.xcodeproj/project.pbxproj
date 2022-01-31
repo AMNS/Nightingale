@@ -73,6 +73,7 @@
 		15EA1BA021B07DB80041C5E8 /* FileSave.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15EA1B9F21B07DB80041C5E8 /* FileSave.cp */; };
 		15EB587326DAB5DC000B92D3 /* DynamicEdit.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15EB587226DAB5DC000B92D3 /* DynamicEdit.h */; };
 		15F5512B22F52C8E00B5FC19 /* DSUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15F5512A22F52C8E00B5FC19 /* DSUtils.cp */; };
+		15F925BD27A1AC340011BDA1 /* DurationEdit.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15F925BC27A1AC340011BDA1 /* DurationEdit.h */; };
 		15FD35C72012A11C00198184 /* CASoftMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD35C22012A11C00198184 /* CASoftMidi.cpp */; };
 		15FD35C82012A11C00198184 /* CoreMIDIDefs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15FD35C32012A11C00198184 /* CoreMIDIDefs.h */; };
 		15FD35CA2012A11C00198184 /* MidiMap.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD35C52012A11C00198184 /* MidiMap.cp */; };
@@ -235,6 +236,7 @@
 				156605402268FB1300156E81 /* NDocAndCnfgTypesN105.h in CopyFiles */,
 				157D429C265BD2A600E7FDBF /* BMP.h in CopyFiles */,
 				15EB587326DAB5DC000B92D3 /* DynamicEdit.h in CopyFiles */,
+				15F925BD27A1AC340011BDA1 /* DurationEdit.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,6 +308,7 @@
 		15EA1B9F21B07DB80041C5E8 /* FileSave.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSave.cp; sourceTree = "<group>"; };
 		15EB587226DAB5DC000B92D3 /* DynamicEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynamicEdit.h; sourceTree = "<group>"; };
 		15F5512A22F52C8E00B5FC19 /* DSUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DSUtils.cp; sourceTree = "<group>"; };
+		15F925BC27A1AC340011BDA1 /* DurationEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DurationEdit.h; sourceTree = "<group>"; };
 		15FD35C22012A11C00198184 /* CASoftMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CASoftMidi.cpp; sourceTree = "<group>"; };
 		15FD35C32012A11C00198184 /* CoreMIDIDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMIDIDefs.h; sourceTree = "<group>"; };
 		15FD35C52012A11C00198184 /* MidiMap.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MidiMap.cp; sourceTree = "<group>"; };
@@ -682,6 +685,7 @@
 				D03E6B9A0D5F7807005FD177 /* Draw.h */,
 				D03E6B9B0D5F7807005FD177 /* DrawUtils.h */,
 				D03E6B9C0D5F7807005FD177 /* DSUtils.h */,
+				15F925BC27A1AC340011BDA1 /* DurationEdit.h */,
 				D03E6B9D0D5F7807005FD177 /* DurationPopUp.h */,
 				15EB587226DAB5DC000B92D3 /* DynamicEdit.h */,
 				1546E7912063F00F000AFC57 /* Endian.h */,

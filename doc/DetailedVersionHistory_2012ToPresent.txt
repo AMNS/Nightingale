@@ -3530,3 +3530,14 @@ MIDIFOCmd.
 
 Minor changes. Affects info.plist, .rsrc, NightTemplates.h, NObjTypes.h, UIFUtils.h,
 Utility.h; DebugDisplay, MIDIFOCmd, SelUtils, UIFUtils, Utility.
+
+-------------------------------------------------------------------------------------------
+
+24 - 30 Jan.
+
+Work to replace the set duration pop-up palette (using a UI font) in the Fancy Tuplet
+dialog with a fixed palette (from a BMP file). Affects .rsrc, DurationEdit.h (new file);
+DurationEdit, TupletEdit.
+
+Minor changes. Affects .rsrc, Defs.h, NightTemplates.h, NObjTypes.h, vars.h; DebugUtils,
+DurationEdit, Initialize, MIDIFOCmd, MIDIFOpen, PS_Stdio, TupletEdit.

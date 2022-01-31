@@ -12,6 +12,21 @@ LaserWriter reference manual, etc., should really be updated. */
  *
  * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
+ 
+/* To clip the image, e.g., for short musical examples, just edit the "%%BoundingBox"
+line in the PostScript file. It looks like this:
+
+	%%BoundingBox: left bottom right top
+
+-- where left, bottom, right, and top are relative to the lower-left corner of the page.
+For example, for a U.S. letter-size (8.5 x 11 in.) page, it'll normally be
+
+	%%BoundingBox: 0 0 612 792
+
+To show a rectangle 4 in. wide and 3 in. high at the top-left of the page, make it
+
+	%%BoundingBox: 0 576 288 792
+*/
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -172,11 +187,9 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
  	}
 
 
-/*
- *	Close the currently open PostScript output file and/or printer connection,
- *	writing whatever tail information needed to wind things down.  If no currently
- *	open output file, does nothing.
- */
+/* Close the currently open PostScript output file and/or printer connection, writing
+whatever tail information needed to wind things down.  If no currently open output file,
+does nothing. */
 
 OSErr PS_Close()
 	{
@@ -203,11 +216,9 @@ OSErr PS_Close()
 	}
 
 
-/*
- *	Deliver the handle to the current text being formatted using PS_Open() with
- *	USING_HANDLE.  Caller should not dispose of the reference delivered by this
- *	routine; PS_Close is for doing that.
- */
+/* Deliver the handle to the current text being formatted using PS_Open() with USING_HANDLE.
+Caller should not dispose of the reference delivered by this routine; PS_Close is for doing
+that. */
 
 Handle PS_GetTextHandle()
 	{

@@ -103,7 +103,7 @@ typedef struct {
 	Byte		courtesyAcc;		/* G: Accidental is a "courtesy accidental" */
 	Byte		doubleDur;			/* G: Draw as if double the actual duration */
 	Byte		headShape;			/* G: Special notehead or rest shape; see list below */
-	Byte		xmovedots;			/* G: X-offset on aug. dot position */
+	Byte		xmovedots;			/* G: X-offset on aug. dot position (quarter-spaces) */
 	LINK		firstMod;			/* LG: Note-related symbols (articulation, fingering, etc.) */
 	Byte		slurredL;			/* G: True if endpoint of slur to left */
 	Byte		slurredR;			/* G: True if endpoint of slur to right */
@@ -540,7 +540,7 @@ typedef struct {
 	OBJECTHEADER
 	EXTOBJHEADER					/* NB: staff number can be 0 here */
 	SignedByte	graphicType;		/* graphic class (subtype) */
-	SignedByte	voice;				/* Voice number (only with some types of relObjs) */
+	SignedByte	voice;				/* Voice number (but with some types of relObjs, NOONE) */
 	Byte		enclosure;			/* Enclosure type; see list below */
 	Byte		justify;			/* (unused) justify left/center/right */
 	Boolean		vConstrain;			/* (unused) True if object is vertically constrained */

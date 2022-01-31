@@ -20,15 +20,15 @@
 extern short minDlogVal, maxDlogVal;
 
 enum {
-	TUPLE_NUM=4,										/* Item numbers */
+	SET_DUR_ITEM=4,										/* Item numbers */
+	TUPLE_NUM,
 	TUPLE_PTEXT,
 	ED_TUPLE_DENOM,
 	BOTH_VIS,
 	NUM_VIS,
 	NEITHER_VIS,
-	SAMPLE_ITEM,
 	BRACK_VIS,
-	SET_DUR_ITEM,
+	SAMPLE_ITEM,
 	STAT_TUPLE_DENOM,
 	TDUMMY_ITEM
 };
@@ -45,20 +45,6 @@ enum {
 #define NO_DUR			0
 
 static short durationIdx;
-
-static short durationCode[] =	{ 9, 8, 7, 6, 5, 4, 3, 2, 1,
-								  9, 8, 7, 6, 5, 4, 3, 2, 1 };
-static short durNDots[] =		{ 0, 0, 0, 0, 0, 0, 0, 0, 0,
-								  1, 1, 1, 1, 1, 1, 1, 1, 1 };
-#define NDURATIONS (sizeof durationCode/sizeof(short))
-
-#define NROWS 1		/* Show just the top row (no dots) of duration palette */
-#define NCOLS 9		// ??Not the best way to do this. Is it worth doing better?
-
-#define ROW_HEIGHT 26	/* in pixels */
-#define COL_WIDTH 24	/* in pixels; should be a multiple of 8 */
-
-static Rect durationCell[NROWS*NCOLS];
 
 short tupleDur;						/* Used to index duration strings. */
 short tupleDenomItem;
@@ -99,12 +85,13 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				GetDialogItem(dlog, SET_DUR_ITEM, &type, &hndl, &box);
 LogPrintf(LOG_DEBUG, "TupleFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
 box.right);
-				byChLeftPos = durationIdx*(COL_WIDTH/8);				// ??TERMPORARY!
-				DrawBMPChar(bmpDurationPal.bitmap, COL_WIDTH/8,
-						bmpDurationPal.byWidthPadded, ROW_HEIGHT, byChLeftPos, 3*ROW_HEIGHT, box);
+				byChLeftPos = durationIdx*(DP_COL_WIDTH/8);				// ??TERMPORARY!
+				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8,
+						bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
+						3*DP_ROW_HEIGHT, box);
 				FrameShadowRect(&box);
 //DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 4*16, 4, 16, True);
-				HiliteDurCell(durationIdx, &box, durationCell);
+				HiliteDurCell(durationIdx, &box, durPalCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -128,7 +115,7 @@ box.right);
 					   hilite the new one. */
 
 					short newDurIdx = FindDurationCell(where, &box);
-					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
+					if (newDurIdx<0 || newDurIdx>(short)NGDDURATIONS-1) return False;
 					SWITCH_CELL(durationIdx, newDurIdx, &box);
 #endif
 				}
@@ -204,12 +191,12 @@ static void DrawTupletItems(DialogPtr dlog, short /*ditem*/)
 
 		NumToSonataStr((long)accNum, tupleStr);
 		tupleWidth = StringWidth(tupleStr);
+		xColon = tupleWidth;
 		if (denomVis) {
 			/* Since Sonata has no ':', leave space and we'll fake it */
 			
 			tupleLen = tupleStr[0]+1;
 			tupleStr[tupleLen] = ' ';
-			xColon = tupleWidth;
 
 			/* Append the denominator string. */
 			
@@ -328,17 +315,15 @@ Boolean TupletDialog(
 
 #if 11
 	GetDialogItem(dlog, SET_DUR_ITEM, &type, &hndl, &box);
-	InitDurationCells(&box, NCOLS, NROWS, durationCell);
+	InitDurationCells(&box, DP_NCOLS, DP_NROWS_SD, durPalCell);
 	
 	/* Find and hilite the initially-selected cell. We should always find it, but if
 	   we can't, make an arbitrary choice. */
 	
 	durationIdx = 3;									/* In case we can't find it */
-#ifdef NOTYET
-	for (unsigned short k = 0; k<NDURATIONS; k++) {
-		if (*lDurCode==durationCode[k] && durNDots[k]==0) { durationIdx = k;  break; }
+	for (unsigned short k = 0; k<DP_NCOLS; k++) {
+		if (durUnit==DurPalCode[k]) { durationIdx = k;  break; }
 	}
-#endif
 #else
 	GetDialogItem(dlog, TPOPUP_ITEM, &type, &hndl, &box);
 	if (!InitGPopUp(&durPop0dot, TOP_LEFT(box), NODOTDUR_MENU, 1)) goto broken;
@@ -412,15 +397,8 @@ Boolean TupletDialog(
 				break;
 			case SET_DUR_ITEM:
 #if 11
-				//newLDurCode = PaletteChoiceDlog(newLDurCode);
-				newLDurCode = THIRTY2ND_DUR;						// ??TEST!!!!!
-				if (newLDurCode!=oldLDurCode) {
-					short byChLeftPos = durationIdx*(COL_WIDTH/8);				// ??TERMPORARY!
-					EraseRect(&box);
-					FrameRect(&box);
-					DrawBMPChar(bmpDurationPal.bitmap, COL_WIDTH/8,
-						bmpDurationPal.byWidthPadded, ROW_HEIGHT, byChLeftPos, 3*ROW_HEIGHT, box);
-				}
+				newLDurCode = DurPalChoiceDlog(oldLDurCode);
+				//newLDurCode = THIRTY2ND_DUR;						// ??TEST!!!!!
 #else
 				newLDurCode = popKeys0dot[curPop->currentChoice].durCode;
 #endif
@@ -431,7 +409,15 @@ Boolean TupletDialog(
 				if (newLDurCode<minDlogVal) {
 					newLDurCode = minDlogVal;
 #if 11
-					newLDurCode = tupleDur;		// ?????? TEMPORARY ???????
+					if (newLDurCode!=oldLDurCode) {
+						//durationIdx = ??
+						short byChLeftPos = durationIdx*(DP_COL_WIDTH/8);				// ??TERMPORARY!
+						EraseRect(&box);
+						FrameRect(&box);
+						DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8,
+							bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
+							3*DP_ROW_HEIGHT, box);
+					}
 #else
 					choice = GetDurPopItem(curPop, popKeys0dot, newLDurCode, 0);
 					if (choice==NOMATCH) choice = 1;
