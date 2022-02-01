@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10, with premonitions of 6.0)
 Nightingale Technical Note #1
-Don Byrd, rev. mid January 2022
+Don Byrd, rev. late January 2022
 
 A general note:
 
@@ -142,9 +142,9 @@ For example, (1) PAGEs, SYSTEMs, STAFFs, and MEASUREs have a heirarchic relation
 each of them must follow whatever contains them; and (2) every DYNAMIC, GRAPHIC, and SLUR
 affecting a note must precede the SYNC containing the note. Unfortunately, as far as I
 know, there's no explicit statement anywhere of all the rules, but many of them are
-implemented in or discussed in the comments on the debugging functions DCheckHeirarchy()
-and DCheckJDOrder(). See also Tech Note #4, "Nightingale Files and Troubleshooting Files
-Nightingale Can’t Open".
+implemented in or discussed in the comments on the debugging functions in DebugUils.cp,
+especially DCheckHeirarchy() and DCheckJDOrder(). See also Tech Note #4, "Nightingale
+Files and Troubleshooting Files Nightingale Can’t Open".
 
 ---------------------------------------------------------------------------------------
 
