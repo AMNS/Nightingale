@@ -413,7 +413,7 @@ short objLength[] = {
 
 GLOBAL SignedByte threadableType=SYNCtype;
 
-GLOBAL short DurPalCode[] = { 
+GLOBAL short durPalCode[] = { 
 	ONE28TH_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
 	NO_L_DUR, SIXTY4TH_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR,
 	UNKNOWN_L_DUR, NO_L_DUR, THIRTY2ND_L_DUR, SIXTEENTH_L_DUR, EIGHTH_L_DUR, QTR_L_DUR, HALF_L_DUR, WHOLE_L_DUR, BREVE_L_DUR
@@ -444,7 +444,7 @@ GLOBAL short objLength[];
 
 GLOBAL SignedByte threadableType;
 
-GLOBAL short DurPalCode[];
+GLOBAL short durPalCode[];
 GLOBAL short durPalNDots[];
 
 #endif

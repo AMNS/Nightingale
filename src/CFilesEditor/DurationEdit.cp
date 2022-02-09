@@ -98,14 +98,15 @@ short DurationKey(unsigned char theChar, unsigned short numDurations)
 	sym = GetSymTableIndex(theChar);
 	if (symtable[sym].objtype!=SYNCtype) return -1;
 	for (unsigned short k = 0; k<numDurations; k++)
-		if (symtable[sym].durcode==DurPalCode[k]) { newDurIdx = k;  break; }
+		if (symtable[sym].durcode==durPalCode[k]) { newDurIdx = k;  break; }
 	
 	return newDurIdx;
 }
 
 /* ------------------------------------------------------------------ DurPalChoiceDlog -- */
+/* Display a simple modal dialog for choosing an undotted or single-dotted duration. */
 
-static short durationIdx;
+static short choiceIdx, nPalRows;
 
 static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
@@ -126,12 +127,12 @@ static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, True);
 				GetDialogItem(dlog, DP_DURCHOICE_DI, &type, &hndl, &box);
-LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: durationIdx=%d box tlbr=%d,%d,%d,%d\n",
-durationIdx, box.top, box.left, box.bottom, box.right);
+LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: choiceIdx=%d box tlbr=%d,%d,%d,%d\n",
+choiceIdx, box.top, box.left, box.bottom, box.right);
 				FrameRect(&box);
 				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded,
-						bmpDurationPal.height, DP_ROW_HEIGHT, box);
-				HiliteDurCell(durationIdx, &box, durPalCell);
+						bmpDurationPal.height, nPalRows*DP_ROW_HEIGHT, box);
+				HiliteDurCell(choiceIdx, &box, durPalCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -152,11 +153,12 @@ durationIdx, box.top, box.left, box.bottom, box.right);
 					   ignore it. Otherwise, unhilite the previously-selected cell and
 					   hilite the new one. */
 
-					short newDurIdx = FindDurationCell(where, &box, DP_NCOLS, DP_NROWS_SD,
+					short newDurIdx = FindDurationCell(where, &box, DP_NCOLS, nPalRows,
 										durPalCell);
-//LogPrintf(LOG_DEBUG, "durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);  
+LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: choiceIdx=%d newDurIdx=%d\n", choiceIdx, newDurIdx);  
 					if (newDurIdx<0 || newDurIdx>(short)DP_NDURATIONS-1) return False;
-					SWITCH_DPCELL(durationIdx, newDurIdx, &box);
+					if (durPalCode[newDurIdx]==NO_L_DUR) return False;
+					SWITCH_DPCELL(choiceIdx, newDurIdx, &box);
 				}
 				*itemHit = DP_DURCHOICE_DI;
 				return True;
@@ -170,25 +172,32 @@ durationIdx, box.top, box.left, box.bottom, box.right);
 			*itemHit = 0;
 			ans = DurationKey(ch, DP_NDURATIONS);
 			if (ans>=0) {
-LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);  
-				SWITCH_DPCELL(durationIdx, ans, &box);
+LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: ch='%c' choiceIdx=%d ans=%d\n", ch, choiceIdx, ans);  
+				SWITCH_DPCELL(choiceIdx, ans, &box);
 				*itemHit = DP_DURCHOICE_DI;
 				return True;
 			}
 			else {
-				ans = durationIdx;
+				ans = choiceIdx;
 				switch (ch) {
 					case LEFTARROWKEY:
-						if (durationIdx>0) { ans--; SWITCH_DPCELL(durationIdx, ans, &box); }
+						if (ans>0) ans--;
 						break;
 					case RIGHTARROWKEY:
-						if (durationIdx<(DP_NCOLS*DP_NROWS_SD)-1)
-							{ ans++; SWITCH_DPCELL(durationIdx, ans, &box); }
+						if (ans<(DP_NCOLS*nPalRows)-1) ans++;
 						break;
-					case UPARROWKEY:		/* We have only one row, so ignore vertical mvmt */
-					case DOWNARROWKEY:		/* We have only one row, so ignore vertical mvmt */
+					case UPARROWKEY:
+						if (ans>DP_NCOLS-1) ans -= DP_NCOLS;
+						break;
+					case DOWNARROWKEY:
+						if (ans<DP_NCOLS*(nPalRows-1)) ans += DP_NCOLS;
+						break;
 					default:
-						break;
+						;
+					}
+				if (ans!=choiceIdx) {
+					if (durPalCode[ans]==NO_L_DUR) return False;
+					SWITCH_DPCELL(choiceIdx, ans, &box);
 				}
 			}
 	}
@@ -196,13 +205,15 @@ LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: ch='%c' durationIdx=%d ans=%d\n", ch, 
 	return False;
 }
 
-/* Display a simple modal dialog for choosing an undotted duration.  <durationIdx> is
-an index into the full duration palette. Return the new <durationIdx> if OK, -1 if
-Cancel or error. */
+/* Display a simple modal dialog for choosing an undotted or single-dotted duration.
+<durPalIdx> is an index into the full duration palette; <maxDots> must be 0 or 1.
+Attempts to choose cells with code NO_L_DUR (presumably blank) are ignored. Return
+the new <durPalIdx> if OK, -1 if Cancel or error. */
 
-short DurPalChoiceDlog(short durPalIdx)
+short DurPalChoiceDlog(short durPalIdx, short maxDots)
 {
 	DialogPtr		dlog;
+	unsigned short	durChoiceDlogID;
 	short			itemHit, type;
 	Boolean			okay, keepGoing=True;
 	Handle			hndl;
@@ -210,29 +221,42 @@ short DurPalChoiceDlog(short durPalIdx)
 	GrafPtr			oldPort;
 	ModalFilterUPP	filterUPP;
 
-	filterUPP = NewModalFilterUPP(DurPalChoiceFilter);
-	if (filterUPP == NULL) {
-		MissingDialog(DURCHOICE_NODOTS_DLOG);
+	if (maxDots!=0 && maxDots!=1) {
+		AlwaysErrMsg("DurPalChoiceDlog: maxDots must be 0 or 1!");
 		return -1;
 	}
 
-	dlog = GetNewDialog(DURCHOICE_NODOTS_DLOG, NULL, BRING_TO_FRONT);
-	if (dlog == NULL) {
+LogPrintf(LOG_DEBUG, "DurPalChoiceDlog: maxDots=%d\n", maxDots);
+	if (maxDots==1) {
+		filterUPP = NewModalFilterUPP(DurPalChoiceFilter);
+		if (filterUPP==NULL) { MissingDialog(DURCHOICE_1DOT_DLOG); return -1; }
+		durChoiceDlogID = DURCHOICE_1DOT_DLOG;
+	}
+	else {
+		filterUPP = NewModalFilterUPP(DurPalChoiceFilter);
+		if (filterUPP==NULL) { MissingDialog(DURCHOICE_NODOTS_DLOG); return -1; }
+		durChoiceDlogID = DURCHOICE_NODOTS_DLOG;
+	}
+
+	dlog = GetNewDialog(durChoiceDlogID, NULL, BRING_TO_FRONT);
+	if (dlog==NULL) {
 		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(DURCHOICE_NODOTS_DLOG);
+		MissingDialog(durChoiceDlogID);
 		return -1;
 	}
+	
+	nPalRows = maxDots+1;
 
 	GetPort(&oldPort);
 	SetPort(GetDialogWindowPort(dlog));
 
 	GetDialogItem(dlog, DP_DURCHOICE_DI, &type, &hndl, &box);
-	InitDurationCells(&box, DP_NCOLS, DP_NROWS_SD, durPalCell);
+	InitDurationCells(&box, DP_NCOLS, nPalRows, durPalCell);
 
-	/* Find and hilite the initially-selected cell. */
+	/* Hilite the initially-selected cell. */
 	
-	durationIdx = durPalIdx;
-	HiliteDurCell(durationIdx, &box, durPalCell);
+	choiceIdx = durPalIdx;
+	HiliteDurCell(choiceIdx, &box, durPalCell);
 	
 	CenterWindow(GetDialogWindow(dlog), 120);
 	ShowWindow(GetDialogWindow(dlog));
@@ -259,13 +283,13 @@ short DurPalChoiceDlog(short durPalIdx)
 	DisposeDialog(dlog);
 	SetPort(oldPort);
 	okay = (itemHit==OK);
-	return (okay? durationIdx : -1);
+	return (okay? choiceIdx : -1);
 }
 
 
 /* ================================================= Code for the Set Duration command == */
 
-//static short durationIdx;	//USE A DIFF. VARIABLE FROM ABOVE? I DON'T SEE WHY
+//static short choiceIdx;	//USE A DIFF. VARIABLE FROM ABOVE? I DON'T SEE WHY
 
 static Boolean DrawDurationPalette(Rect *pBox);
 static Boolean DrawDurationPalette(Rect *pBox)
@@ -333,9 +357,6 @@ static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
 	return False;
 }
 
-// ??WHY NOT USE SWITCH_DPCELL????????????????????????????
-#define SWITCH_CELL(curIdx, newIdx, pBox)	HiliteDurCell((curIdx), (pBox), durPalCell); curIdx = (newIdx); HiliteDurCell((curIdx), (pBox), durPalCell)
-
 static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
@@ -358,7 +379,7 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 //box.right);
 				FrameRect(&box);
 				DrawDurationPalette(&box);
-				HiliteDurCell(durationIdx, &box, durPalCell);
+				HiliteDurCell(choiceIdx, &box, durPalCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -380,10 +401,10 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 					   hilite the new one. */
 
 					short newDurIdx = FindDurationCell(where, &box, DP_NCOLS, DP_NROWS, durPalCell);
-//LogPrintf(LOG_DEBUG, "SetDurFilter: durationIdx=%d newDurIdx=%d\n", durationIdx, newDurIdx);
+//LogPrintf(LOG_DEBUG, "SetDurFilter: choiceIdx=%d newDurIdx=%d\n", choiceIdx, newDurIdx);
 					if (newDurIdx<0 || newDurIdx>(short)NDURATIONS-1) return False;
-					if (DurPalCode[newDurIdx]==NO_L_DUR) return False;
-					SWITCH_CELL(durationIdx, newDurIdx, &box);
+					if (durPalCode[newDurIdx]==NO_L_DUR) return False;
+					SWITCH_DPCELL(choiceIdx, newDurIdx, &box);
 				}
 				*itemHit = SDDURPAL_DI;
 				return True;
@@ -403,13 +424,13 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 			   
 			ans = DurationKey(ch, NDURATIONS);
 			if (ans>=0) {
-//LogPrintf(LOG_DEBUG, "SetDurFilter: ch='%c' durationIdx=%d ans=%d\n", ch, durationIdx, ans);
-				SWITCH_CELL(durationIdx, ans, &box);
+//LogPrintf(LOG_DEBUG, "SetDurFilter: ch='%c' choiceIdx=%d ans=%d\n", ch, choiceIdx, ans);
+				SWITCH_DPCELL(choiceIdx, ans, &box);
 				*itemHit = SDDURPAL_DI;
 				return True;
 			}
 			else {
-				ans = durationIdx;
+				ans = choiceIdx;
 				switch (ch) {
 					case LEFTARROWKEY:
 						if (ans>0) ans--;
@@ -426,9 +447,9 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 					default:
 						;
 					}
-				if (ans!=durationIdx) {
-					if (DurPalCode[ans]==NO_L_DUR) return False;
-					SWITCH_CELL(durationIdx, ans, &box);
+				if (ans!=choiceIdx) {
+					if (durPalCode[ans]==NO_L_DUR) return False;
+					SWITCH_DPCELL(choiceIdx, ans, &box);
 				}
 			}
 	}
@@ -517,12 +538,12 @@ Boolean SetDurDialog(
 	/* Find and hilite the initially-selected cell. We should always find it, but if we
 	   can't, make an arbitrary choice. */
 	
-	durationIdx = 3;									/* In case we can't find it */
+	choiceIdx = 3;									/* In case we can't find it */
 	for (unsigned short k = 0; k<NDURATIONS; k++) {
-		if (*lDurCode==DurPalCode[k] && *nDots==durPalNDots[k]) { durationIdx = k;  break; }
+		if (*lDurCode==durPalCode[k] && *nDots==durPalNDots[k]) { choiceIdx = k;  break; }
 	}
 	
-	HiliteDurCell(durationIdx, &box, durPalCell);
+	HiliteDurCell(choiceIdx, &box, durPalCell);
 
 	PutDlgChkRadio(dlog, SETLDUR_DI, *setLDur);
 	PutDlgChkRadio(dlog, SETPDUR_DI, *setPDur);
@@ -567,8 +588,8 @@ Boolean SetDurDialog(
 						*doUnbeam = True;						
 					}
 					*setLDur = newSetLDur;
-					*lDurCode = DurPalCode[durationIdx];
-					*nDots = durPalNDots[durationIdx];
+					*lDurCode = durPalCode[choiceIdx];
+					*nDots = durPalNDots[choiceIdx];
 					*setPDur = GetDlgChkRadio(dlog, SETPDUR_DI);
 					*pDurPct = newpDurPct;
 					*cptV = GetDlgChkRadio(dlog, CV_DI);

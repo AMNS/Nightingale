@@ -17,6 +17,32 @@
 
 /* ------------------------------------ Declarations & Help Functions for TupletDialog -- */
 
+// MOVE ELSEWHERE!!!
+
+short DurCodeToDurPalIdx(short durCode, short nDots, short nDurations);
+short DurCodeToDurPalIdx(short durCode, short nDots, short nDurations)
+{
+	short durationIdx = -1;									/* In case we can't find it */
+	for (unsigned short k = 0; k<nDurations; k++) {
+		if (durCode==durPalCode[k] && nDots==durPalNDots[k]) {
+			durationIdx = k;
+			break;
+		}
+	}
+	return durationIdx;
+}
+
+short DurPalIdxToDurCode(short durPalIdx, short *pNDots);
+short DurPalIdxToDurCode(short durPalIdx, short *pNDots)
+{
+	*pNDots = durPalNDots[durPalIdx];
+	return durPalCode[durPalIdx];
+}
+
+
+// END MOVE!!
+
+
 extern short minDlogVal, maxDlogVal;
 
 enum {
@@ -46,7 +72,7 @@ enum {
 
 static short durationIdx;
 
-short tupleDur;						/* Used to index duration strings. */
+short durUnitCode;						/* Used to index duration strings. */
 short tupleDenomItem;
 
 /* Following declarations are basically a TupleParam but with ints for num/denom. */
@@ -83,14 +109,13 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				DrawTupletItems(dlog, SAMPLE_ITEM);
 				FrameDefault(dlog, OK, True);
 				GetDialogItem(dlog, SET_DUR_ITEM, &type, &hndl, &box);
-LogPrintf(LOG_DEBUG, "TupleFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
-box.right);
-				byChLeftPos = durationIdx*(DP_COL_WIDTH/8);				// ??TERMPORARY!
+//LogPrintf(LOG_DEBUG, "TupleFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
+//box.right);
+				byChLeftPos = durationIdx*(DP_COL_WIDTH/8);
 				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8,
 						bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
 						3*DP_ROW_HEIGHT, box);
 				FrameShadowRect(&box);
-//DHexDump(LOG_DEBUG, "DurPal", bmpDurationPal.bitmap, 4*16, 4, 16, True);
 				HiliteDurCell(durationIdx, &box, durPalCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
@@ -235,7 +260,7 @@ static void DrawTupletItems(DialogPtr dlog, short /*ditem*/)
 }
 
 /* ---------------------------------------------------------------------- TupletDialog -- */
-/* Conduct the "Fancy Tuplet" dialog for a new or used tuplet whose initial state is
+/* Conduct the "Fancy Tuplet" dialog for a new or existing tuplet whose initial state is
 described by <ptParam>. Return False on Cancel or error, True on OK. */
 
 Boolean TupletDialog(
@@ -247,7 +272,7 @@ Boolean TupletDialog(
 	GrafPtr		oldPort;
 	short		ditem, type, i, logDenom, tempNum, maxChange, evenNum, radio;
 	short		oldResFile;
-	short		choice, newLDurCode, oldLDurCode, deltaLDur;
+	short		choice, newLDurCode, lDurCode, deltaLDur, nDotsDummy;
 	Rect		staffRect;
 	Handle		tHdl, hndl;
 	Rect		box;
@@ -282,34 +307,34 @@ Boolean TupletDialog(
 
 	switch (durUnit) {
 		case BREVE_DUR:
-			tupleDur = BREVE_L_DUR;
+			durUnitCode = BREVE_L_DUR;
 			break;
 		case WHOLE_DUR:
-			tupleDur = WHOLE_L_DUR;
+			durUnitCode = WHOLE_L_DUR;
 			break;
 		case HALF_DUR:
-			tupleDur = HALF_L_DUR;
+			durUnitCode = HALF_L_DUR;
 			break;
 		case QUARTER_DUR:
-			tupleDur = QTR_L_DUR;
+			durUnitCode = QTR_L_DUR;
 			break;
 		case EIGHTH_DUR:
-			tupleDur = EIGHTH_L_DUR;
+			durUnitCode = EIGHTH_L_DUR;
 			break;
 		case SIXTEENTH_DUR:
-			tupleDur = SIXTEENTH_L_DUR;
+			durUnitCode = SIXTEENTH_L_DUR;
 			break;
 		case THIRTY2ND_DUR:
-			tupleDur = THIRTY2ND_L_DUR;
+			durUnitCode = THIRTY2ND_L_DUR;
 			break;
 		case SIXTY4TH_DUR:
-			tupleDur = SIXTY4TH_L_DUR;
+			durUnitCode = SIXTY4TH_L_DUR;
 			break;
 		case ONE28TH_DUR:
-			tupleDur = ONE28TH_L_DUR;
+			durUnitCode = ONE28TH_L_DUR;
 			break;
 		default:
-			tupleDur = NO_L_DUR;
+			durUnitCode = NO_L_DUR;
 			break;
 		}
 
@@ -321,8 +346,8 @@ Boolean TupletDialog(
 	   we can't, make an arbitrary choice. */
 	
 	durationIdx = 3;									/* In case we can't find it */
-	for (unsigned short k = 0; k<DP_NCOLS; k++) {
-		if (durUnit==DurPalCode[k]) { durationIdx = k;  break; }
+	for (unsigned short k = 0; k<DP_NCOLS*DP_NROWS_SD; k++) {
+		if (durUnit==durPalCode[k]) { durationIdx = k;  break; }
 	}
 #else
 	GetDialogItem(dlog, TPOPUP_ITEM, &type, &hndl, &box);
@@ -331,11 +356,11 @@ Boolean TupletDialog(
 	if (popKeys0dot==NULL) goto broken;
 	curPop = &durPop0dot;
 	
-	choice = GetDurPopItem(curPop, popKeys0dot, tupleDur, 0);
+	choice = GetDurPopItem(curPop, popKeys0dot, durUnitCode, 0);
 	if (choice==NOMATCH) choice = 1;
 	//SetGPopUpChoice(curPop, choice);
 #endif
-	oldLDurCode = tupleDur;
+	lDurCode = durUnitCode;
 
 	tupleDenomItem = (tupletNew? ED_TUPLE_DENOM : STAT_TUPLE_DENOM);
 	ShowDialogItem(dlog, (tupletNew? ED_TUPLE_DENOM : STAT_TUPLE_DENOM));
@@ -343,16 +368,16 @@ Boolean TupletDialog(
 	PutDlgWord(dlog, TUPLE_NUM, accNum, False);
 	PutDlgWord(dlog, tupleDenomItem, accDenom, tupletNew);
 
-	/* logDenom is the log2 of the accessory denominator; (tupleDur-logDenom+1) is the
+	/* logDenom is the log2 of the accessory denominator; (durUnitCode-logDenom+1) is the
 	   max. duration at which the denominator is at least 2. evenNum is the number of
 	   times the numerator can be divided by 2 exactly. The minimum of these two can be
-	   subtracted from tupleDur to give the maximum duration note allowable. */
+	   subtracted from durUnitCode to give the maximum duration note allowable. */
 	   
 	for (logDenom=0, i=1; i<accDenom; i*=2) logDenom++;
 	tempNum = accNum;
 	for (evenNum=0; !odd(tempNum); tempNum /= 2) evenNum++;
 	maxChange = n_min(logDenom-1, evenNum);
-	minDlogVal = tupleDur-maxChange;
+	minDlogVal = durUnitCode-maxChange;
 	
 	GetDialogItem(dlog, SAMPLE_ITEM, &type, &tHdl, &staffRect);		/* Sample is a user Item */
 
@@ -397,21 +422,25 @@ Boolean TupletDialog(
 				break;
 			case SET_DUR_ITEM:
 #if 11
-				newLDurCode = DurPalChoiceDlog(oldLDurCode);
-				//newLDurCode = THIRTY2ND_DUR;						// ??TEST!!!!!
+				durationIdx = DurPalChoiceDlog(durationIdx, 0);
+				newLDurCode = DurPalIdxToDurCode(durationIdx, &nDotsDummy);
 #else
 				newLDurCode = popKeys0dot[curPop->currentChoice].durCode;
 #endif
 				
-	 			/* If user just set the popup for a duration longer than the maximum
-				   allowable, change it to the maximum now. */
+	 			/* If user set the duration unit to something longer than the maximum
+				   allowable, change it to the maximum. */
 				   
 				if (newLDurCode<minDlogVal) {
-					newLDurCode = minDlogVal;
 #if 11
-					if (newLDurCode!=oldLDurCode) {
-						//durationIdx = ??
-						short byChLeftPos = durationIdx*(DP_COL_WIDTH/8);				// ??TERMPORARY!
+LogPrintf(LOG_DEBUG, "TupletDialog: lDurCode=%d minDlogVal=%d newLDurCode=%d\n",
+lDurCode, minDlogVal, newLDurCode);  
+					newLDurCode = minDlogVal;
+					if (newLDurCode!=lDurCode) {
+						durationIdx = DurCodeToDurPalIdx(newLDurCode, 0, DP_NCOLS);
+LogPrintf(LOG_DEBUG, "TupletDialog: lDurCode=%d newLDurCode=%d durationIdx=%d\n",
+lDurCode, newLDurCode, durationIdx);  
+						short byChLeftPos = durationIdx*(DP_COL_WIDTH/8);
 						EraseRect(&box);
 						FrameRect(&box);
 						DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8,
@@ -424,7 +453,7 @@ Boolean TupletDialog(
 					SetGPopUpChoice(curPop, choice);
 #endif
 				}
-				deltaLDur = newLDurCode-oldLDurCode;
+				deltaLDur = newLDurCode-lDurCode;
 				if (deltaLDur>0)
 					for (i= 1; i<=ABS(deltaLDur); i++) {
 						accNum *= 2; accDenom *= 2;
@@ -435,7 +464,7 @@ Boolean TupletDialog(
 					}
 				PutDlgWord(dlog,TUPLE_NUM,accNum,False);
 				PutDlgWord(dlog,tupleDenomItem,accDenom,tupletNew);
-				oldLDurCode = newLDurCode;
+				lDurCode = newLDurCode;
 				SelectDialogItemText(dlog, TDUMMY_ITEM, 0, ENDTEXT);
 //				HiliteGPopUp(curPop, popUpHilited = True);
 				break;

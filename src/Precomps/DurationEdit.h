@@ -25,7 +25,7 @@
 	short		FindDurationCell(Point where, Rect *pBox, short nCols, short nRows, Rect durCell[]);
 	void		HiliteDurCell(short durIdx, Rect *pBox, Rect durCell[]);
 	short		DurationKey(unsigned char theChar, unsigned short numDurations);
-	short		DurPalChoiceDlog(short durPalIdx);
+	short		DurPalChoiceDlog(short durPalIdx, short maxDots);
 	Boolean		SetDurDialog(Document *, Boolean *, short *, short *, short *, Boolean *, 
 								short *, Boolean *, Boolean *);
 

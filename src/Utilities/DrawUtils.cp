@@ -2147,14 +2147,14 @@ with rows padded. Intended for drawing indivdual characters of palettes read fro
 files (the bitmaps in their rows are padded to a multiple of 4 bytes). <bmpBits[]>
 should contain the B&W bitmap, with an image whose logical width is <byWidth> bytes; the
 first <byWidthPadded> bytes represent the lowest row of the image. The bitmap's height is
-<height> pixels, of which only the section whose top left pixel is (chLeft,chTop) will
-be drawn. It'll be drawn into <dstRect>, the dimensions of which give the width and
-height of the character. NB: To avoid dealing with padding, we assume the area to be
+<height> pixels and its width is DP_COL_WIDTH pixels, of which only the section whose top
+left pixel is (chLeft,chTop) will be drawn.??HUH?? WRONG! It'll be drawn into <dstRect>,
+the dimensions of which give the width and height of the character. NB: To avoid dealing with padding, we assume the area to be
 drawn doesn't contain any; that should never happen with chars in a BMP anyway.  Caveat:
-horizontal parameters are in bytes, vertical params in pixels! */
+horizontal parameters are in bytes, but vertical params in pixels! */
 
 void DrawBMPChar(Byte bmpBits[], short byWidth, short byWidthPadded, short height,
-													short byChLeftPos, short chTopPos, Rect dstRect)
+											short byChLeftPos, short chTopPos, Rect dstRect)
 {
 LogPrintf(LOG_DEBUG, "DrawBMPChar: byWidth=%d byWidthPadded=%d height=%d byChLeftPos=%d chTopPos=%d\n",
 				byWidth, byWidthPadded, height, byChLeftPos, chTopPos);
@@ -2170,10 +2170,9 @@ LogPrintf(LOG_DEBUG, "DrawBMPChar: byWidth=%d byWidthPadded=%d height=%d byChLef
 		short x = dstRect.left+1;
 		short startOfRow = kRow*byWidthPadded;
 		if (DETAIL_SHOW)
-			{ DPrintRow(bmpBits, kRow, byWidth, startOfRow, False, False);  printf("\n"); }
-		short runStart;
+			{ DPrintRow(bmpBits, startOfRow+byChLeftPos, DP_COL_WIDTH/8, kRow, False, False);  printf("\n"); }
 
-		DrawRow(bmpBits, startOfRow+byChLeftPos, byWidth*8, x, y);
+		DrawRow(bmpBits, startOfRow+byChLeftPos, DP_COL_WIDTH, x, y);
 		y--;
 	}
 }

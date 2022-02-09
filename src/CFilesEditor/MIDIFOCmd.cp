@@ -447,8 +447,12 @@ static Boolean TranscribeMFDialog(
 	if (lDurCode<EIGHTH_L_DUR) lDurCode = EIGHTH_L_DUR;
 	if (lDurCode>THIRTY2ND_L_DUR) lDurCode = THIRTY2ND_L_DUR;
 	durationIdx = 3;									/* In case we can't find it */
+#if 0
 	for (unsigned short k = 0; k<DP_NDURATIONS; k++) {
-		if (lDurCode==DurPalCode[k]) { durationIdx = k;  break; }
+#else
+	for (unsigned short k = 0; k<DP_NCOLS*DP_NROWS_SD; k++) {
+#endif
+		if (lDurCode==durPalCode[k]) { durationIdx = k;  break; }
 	}
 
 LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d lDurCode=%d durationIdx=%d\n",
@@ -525,9 +529,9 @@ qAllLDur, lDurCode, durationIdx);
 		case MFSET_DUR_DI:
 #if 11
 			oldDurationIdx = durationIdx;
-			durationIdx = DurPalChoiceDlog(durationIdx);
+			durationIdx = DurPalChoiceDlog(durationIdx, 0);
 			if (durationIdx!=oldDurationIdx) {
-				lDurCode = DurPalCode[durationIdx];
+				lDurCode = durPalCode[durationIdx];
 				short byChLeftPos = durationIdx*(DP_COL_WIDTH/8);
 				EraseRect(&box);
 				FrameRect(&box);

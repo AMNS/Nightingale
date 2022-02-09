@@ -10866,12 +10866,10 @@ Updated status of features:
 
 * Set Duration: no problems AFAIK.
 
-* Import MIDI File: no problems AFAIK except the initial quantum shows as 16th but is
-actually 8th.
+* Import MIDI File: no problems AFAIK except initial quantum shows as 16th but is really 8th.
 
 * The Fancy Tuplet dialog is partly working. With 3 quarters, it correctly defaults to 3:2.
-With LongTuplet.ngl, it sometimes shows the correct 80:64, but sometimes 0:0. Or am I
-confused?
+With LongTuplet.ngl, sometimes shows the correct 80:64, but sometimes 0:0. Or am I confused?
 
 * Other commands/features that use the choose-duration palette: High priority:
 	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
@@ -10895,7 +10893,7 @@ ld gives me lots of messages like this:
 
 	/Users/donbyrd/Documents/NgaleDev/.../Nightingale.build/Objects-normal/ppc/TupletEdit.o private external definition of _durPalCell in section (__DATA,__common)
 
-What does "private external definition of _durPalCell" mean??
+#&^*)$#A%(#@$#$  What does "private external definition of _durPalCell" mean??
 
 durPalCell is defined in DurationEdit.h:
 
@@ -10917,3 +10915,29 @@ displayed in the user item there. Reason: TranscribeMFDialog() ignores the retur
 from DurPalChoiceDlog() -- which is the new code, contrary to its comments (and maybe what we
 want is the new index, not the code?).
 
+---------------------------------------------------------------------------------------
+
+31 Jan. - 8 Feb.
+
+Status of duration-palette features:
+
+* Set Duration: no problems AFAIK.
+
+* Import MIDI File: no problems AFAIK except initial quantum shows as 16th but is really 8th.
+
+* Fancy Tuplet dialog: Always shows initial quantum is 16th, but palette highlites different
+durations, ??
+
+* Other commands/features that use the choose-duration palette: High priority:
+	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
+Lower priority:
+	Transcribe Recording: no change
+
+We now have DurPalChoiceDlog() for choosing an undotted or single-dotted duration. It
+displays a simple modal dialog containing just the top one or two rows of the palette and OK
+and Cancel buttons; if user tries to choose "unknown duration", it's ignored. Set Duration
+can't use DurPalChoiceDlog, but many of the others should display just the current choice
+and call it to handle the choice, rather than displaying the whole palette and handling the
+choosing process themselves.
+
+displaying the wh

@@ -3348,7 +3348,7 @@ precompiled header, etc. Affects Nightingale_Prefix.pch; DebugDisplay, DialogsEd
 DrawUtils, DynamicEdit, FileOpen, FileSave, FileUtils, Initialize, MidiMap,
 NotelistParse, Preferences.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 1 - 5 Oct.
 
@@ -3358,7 +3358,7 @@ palette (from a BMP file). Affects BMP.h, vars.h; DynamicEdit, Initialize.
 Minor changes: let user continue even if the BMPs can't be opened; enlarged buttons in
 some ALRTs, etc. Affects .rsrc; NResourceID.h; Initialize, Insert.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 17 - 22 Oct.
 
@@ -3368,7 +3368,7 @@ Affects InstrDialog.
 Minor changes. Affects .rsrc, NResourceID.h, VersionStrings.h; FileUtils, Initialize,
 InstrDialog, Preferences.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 24 - 28 Oct.
 
@@ -3379,7 +3379,7 @@ Minor changes: moved palette code to a different module, etc. Affects .rsrc,
 InternalInput.h, NightTemplates.h; DynamicEdit, FileUtils, InfoDialog, Initialize,
 InitNightingale, InternalInput, Main, Menu, NotelistParse, Score.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 29 Oct. - 2 Nov.
 
@@ -3390,7 +3390,7 @@ ModNREdit (replacing ModNRPopUp); ModNRPopUp.h removed.
 Minor changes. Affects NResourceID.h, vars.h; DynamicEdit, InfoDialog, Initialize,
 InitNightingale.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 4 - 11 Nov.
 
@@ -3404,7 +3404,7 @@ NIGHTSCOREHEADER. Affects NDocAndCnfgTypes.h.
 Minor changes. Affects NDocAndCnfgTypes.h, NLimits.h, NObjTypes.h; CarbonPrinting,
 DynamicEdit, FileConversion, FileOpen, ModNREdit.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 12 - 18 Nov.
 
@@ -3415,7 +3415,7 @@ Minor changes: rename two BMP files, etc. Affects NightTemplates.h,
 Duration_2dotsNB1b.bmp, DynamicsNB1b.bmp; CarbonPrinting, DialogsEditor, DrawUtils,
 DurationEdit, FileUtils, Initialize, InitNightingale.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 19 - 23 Nov.
 
@@ -3425,7 +3425,7 @@ InitNightingale.
 Minor changes. Affects Debug.h, Defs.h; ChordSym, DebugDisplay, DrawUtils, FileOpen,
 FileSave, InitNightingale, Select.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 26 - 29 Nov.
 
@@ -3438,7 +3438,7 @@ Nightingale is likely to crash. Affects InitNightingale.
 Minor changes. Affects .rsrc; DynamicEdit, FileUtils, Initialize, InitNightingale, Main,
 ModNREdit, ToolPalette.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 1 - 6 Dec.
 
@@ -3452,7 +3452,7 @@ and Tempo/Metronome Mark (a bit) dialogs with a fixed palette (from a BMP file).
 Minor changes. Affects .rsrc, DSUtils.h, NResourceID.h, PaletteGlobals.h; DialogsEditor,
 DSUtils, DurationEdit, DynamicEdit, Event, InitNightingale, Main, Menu, ModNREdit.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 7 - 15 Dec.
 
@@ -3463,7 +3463,7 @@ MIDIFOCmd.
 Minor changes. Affects Defs.h, DSUtils.h, NDocAndCnfgTypes.h; ChooseCharDlog, DSUtils,
 DurationEdit, InitNightingale, MIDIFOCmd, MIDIFOpen, SpaceHighLevel.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 17 - 21 Dec.
 
@@ -3473,7 +3473,7 @@ dialog with a fixed palette (from a BMP file). Affects DrawUtils.
 Minor changes. Affects BMP.h, Debug.h, DrawUtils.h; DebugDisplay, DialogsEditor,
 DurationEdit, DynamicEdit, InitNightingale, MIDIFOCmd, ModNREdit.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 22 - 29 Dec.
 
@@ -3484,7 +3484,7 @@ MIDIFOCmd.
 Minor changes. Affects .rsrc; DialogsEditor, DrawUtils, DurationEdit, DynamicEdit,
 MIDIFOCmd, ModNREdit.
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 1 - 5 Jan. ** 2022 **
 
@@ -3498,7 +3498,7 @@ getting to a blank cell via arrow keys. Affects DurationEdit.
 Minor changes. Affects .rsrc, Defs.h, MiscUtils.h, UIFUtils.h; DurationEdit, MIDIFOCmd,
 MiscUtils, SpaceHighLevel, Transcribe, UIFUtils.
 
--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 9 - 15 Jan. ** 2022 **
 
@@ -3518,7 +3518,7 @@ NightTemplates.h; DurationEdit, MIDIFOCmd.
 Minor changes. Affects NObjTypes.h; DurationEdit, DynamicEdit, Error, InitNightngale,
 MIDIFOCmd, ModNREdit.
 
--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 16 - 21 Jan.
 
@@ -3531,7 +3531,7 @@ MIDIFOCmd.
 Minor changes. Affects info.plist, .rsrc, NightTemplates.h, NObjTypes.h, UIFUtils.h,
 Utility.h; DebugDisplay, MIDIFOCmd, SelUtils, UIFUtils, Utility.
 
--------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------- B2
 
 24 - 30 Jan.
 
@@ -3539,5 +3539,18 @@ Work to replace the set duration pop-up palette (using a UI font) in the Fancy T
 dialog with a fixed palette (from a BMP file). Affects .rsrc, DurationEdit.h (new file);
 DurationEdit, TupletEdit.
 
-Minor changes. Affects .rsrc, Defs.h, NightTemplates.h, NObjTypes.h, vars.h; DebugUtils,
-DurationEdit, Initialize, MIDIFOCmd, MIDIFOpen, PS_Stdio, TupletEdit.
+Minor changes. Affects .rsrc, NightTemplates.h, NObjTypes.h, vars.h; DebugUtils,
+DurationEdit, Initialize, MIDIDialogs, MIDIFOCmd, MIDIFOpen, PS_Stdio, TupletEdit.
+
+----------------------------------------------------------------------------------------- B3
+
+31 Jan. - 8 Feb.
+
+Work to replace the set duration pop-up palette (using a UI font) in the Tempo dialog
+with a fixed palette (from a BMP file). Affects DurationEdit.h, NResource.h;
+DialogsEditor, DrawUtils, DurationEdit, MIDIFOCmd, TempoEdit (new file), TupletEdit.
+
+Minor changes. Affects .rsrc, info.plist, vars.h; DrawUtils, DurationEdit, MIDIFOCmd,
+TupletEdit.
+
+----------------------------------------------------------------------------------------- B4

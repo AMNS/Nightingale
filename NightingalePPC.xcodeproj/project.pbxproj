@@ -11,6 +11,7 @@
 		150C7EA9218BA27000AEE9A2 /* MIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 150C7EA8218BA27000AEE9A2 /* MIDIUtils.cp */; };
 		150C7EC2218BA44A00AEE9A2 /* MIDIRecUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 150C7EC1218BA44A00AEE9A2 /* MIDIRecUtils.cp */; };
 		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
+		15424A7027AD77A900B13744 /* TempoEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15424A6F27AD77A900B13744 /* TempoEdit.cp */; };
 		1544E9B31E645DA400431548 /* Style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B21E645DA400431548 /* Style.h */; };
 		1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B41E645DEF00431548 /* Defs.h */; };
 		1546E7922063F00F000AFC57 /* Endian.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1546E7912063F00F000AFC57 /* Endian.h */; };
@@ -45,6 +46,7 @@
 		15A13E1B22A564050037F95B /* DrawUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1A22A564050037F95B /* DrawUtils.cp */; };
 		15A13E1D22A5642B0037F95B /* CheckUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1C22A5642B0037F95B /* CheckUtils.cp */; };
 		15A13E1F22A564760037F95B /* DialogUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1E22A564760037F95B /* DialogUtils.cp */; };
+		15A1A5F427B3186000127A57 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 15A1A5F327B3186000127A57 /* Info.plist */; };
 		15A5687F218C8A7700236325 /* PitchUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A5687E218C8A7700236325 /* PitchUtils.cp */; };
 		15A56883218C8B5200236325 /* FileUtils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15A56882218C8B5200236325 /* FileUtils.h */; };
 		15A56885218C8B6000236325 /* MiscUtils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15A56884218C8B6000236325 /* MiscUtils.h */; };
@@ -248,6 +250,7 @@
 		150C7EA8218BA27000AEE9A2 /* MIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIUtils.cp; sourceTree = "<group>"; };
 		150C7EC1218BA44A00AEE9A2 /* MIDIRecUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIRecUtils.cp; sourceTree = "<group>"; };
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
+		15424A6F27AD77A900B13744 /* TempoEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TempoEdit.cp; sourceTree = "<group>"; };
 		1544E9B21E645DA400431548 /* Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Style.h; sourceTree = "<group>"; };
 		1544E9B41E645DEF00431548 /* Defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defs.h; sourceTree = "<group>"; };
 		1546E7912063F00F000AFC57 /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
@@ -281,6 +284,7 @@
 		15A13E1A22A564050037F95B /* DrawUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawUtils.cp; sourceTree = "<group>"; };
 		15A13E1C22A5642B0037F95B /* CheckUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckUtils.cp; sourceTree = "<group>"; };
 		15A13E1E22A564760037F95B /* DialogUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogUtils.cp; sourceTree = "<group>"; };
+		15A1A5F327B3186000127A57 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
 		15A5687E218C8A7700236325 /* PitchUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PitchUtils.cp; sourceTree = "<group>"; };
 		15A56882218C8B5200236325 /* FileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileUtils.h; sourceTree = "<group>"; };
 		15A56884218C8B6000236325 /* MiscUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiscUtils.h; sourceTree = "<group>"; };
@@ -317,7 +321,6 @@
 		32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nightingale_Prefix.pch; sourceTree = "<group>"; };
 		4A9504C8FFE6A3BC11CA0CBA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
 		4A9504CAFFE6A41611CA0CBA /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
-		8D0C4E960486CD37000505A6 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = text.plist; fileEncoding = 4; path = Info.plist; sourceTree = "<group>"; };
 		D03AF84F0D6F4F9C0018F558 /* Main.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cp; sourceTree = "<group>"; };
 		D03E69740D5F60AB005FD177 /* CarbonCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CarbonCompat.h; sourceTree = "<group>"; };
 		D03E69750D5F60AB005FD177 /* CarbonTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CarbonTemplates.h; sourceTree = "<group>"; };
@@ -610,7 +613,7 @@
 			children = (
 				D06D070E0D7287ED0055C107 /* APPL.icns */,
 				D06D070F0D7287ED0055C107 /* EPSF.icns */,
-				8D0C4E960486CD37000505A6 /* Info.plist */,
+				15A1A5F327B3186000127A57 /* Info.plist */,
 				0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */,
 				D06D07100D7287ED0055C107 /* Midi.icns */,
 				D06D07110D7287ED0055C107 /* NGNL.icns */,
@@ -937,6 +940,7 @@
 				D03E70960D5FA5B2005FD177 /* ScoreInfo.cp */,
 				D03E70970D5FA5B2005FD177 /* SetCommand.cp */,
 				D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */,
+				15424A6F27AD77A900B13744 /* TempoEdit.cp */,
 				D03E70990D5FA5B2005FD177 /* TextDialog.cp */,
 				D03E709A0D5FA5B2005FD177 /* TrackVMove.cp */,
 				D03E709B0D5FA5B2005FD177 /* Transcribe.cp */,
@@ -1068,6 +1072,7 @@
 				D06D071E0D7287ED0055C107 /* ps.icns in Resources */,
 				D06D07200D7287ED0055C107 /* SCOR.icns in Resources */,
 				D06D07210D7287ED0055C107 /* Text.icns in Resources */,
+				15A1A5F427B3186000127A57 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1242,6 +1247,7 @@
 				156EE0A3272D84BF009C83AF /* ModNREdit.cp in Sources */,
 				15642F342739DA9800077218 /* DurationEdit.cp in Sources */,
 				15788210279B02CB008C38C9 /* TupletEdit.cp in Sources */,
+				15424A7027AD77A900B13744 /* TempoEdit.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
