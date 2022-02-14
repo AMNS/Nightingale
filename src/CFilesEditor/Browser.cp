@@ -220,7 +220,6 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 		
 		if (pL!=oldpL || index!=oldIndex
 		|| (ObjLType(pL)==HEADERtype && index<0 && showBPage!=oldShowBPage)) {
-		
 			EraseRect(&bRect);
 			
 			InvertObjRect(doc, &objRect);				/* Restore previous objRect */
@@ -247,6 +246,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			  	break;
 			case iHead:
 				/* Go back to start of object list */
+				
 			  	pL = headL;
 				index = 0;
 			  	break;
@@ -256,6 +256,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 				}
 				 else {
 					/* Search back for previous or (with mod key) 1st obj of same type as pL */
+					
 					type = ObjLType(pL);
 					oldL = pL;
 					while (LeftLINK(pL)) {
@@ -271,12 +272,17 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 				break;
 			case iLeft:
 				/* Go to previous object regardless of type */
+				
 				if (LeftLINK(pL)) pL = LeftLINK(pL);
 				index = 0;
 				break;
 			case iTail:
 				/* If tailL is NILINK, it's not a disaster, but ignore user's action */
-				if (tailL==NILINK) SysBeep(1);
+				
+				if (tailL==NILINK) {
+					SysBeep(1);
+					LogPrintf(LOG_WARNING, "tailL is NILINK. (Browser)\n");
+				}
 				else pL = tailL;
 				index = 0;
 				break;
@@ -286,6 +292,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 				}
 				 else {
 					/* Search ahead for next or (with mod key) last object of same type as pL */
+					
 					type = ObjLType(pL);
 					oldL = pL;
 					while (RightLINK(pL)) {
@@ -362,6 +369,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 				break;
 			case iSelect:
 				/* If shift key down, select only current subobject, if there is one */
+				
 				if (headL==doc->headL)
 			 		ChangeSelectObj(doc, pL, index, SMSelect, ShiftKeyDown(), &objRect);
 			   break;
@@ -389,8 +397,8 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 						index = 0;
 						break;
 					}
-				/* User tried to go to a nonexistent linK: ignore their action */
 				SysBeep(1);
+				LogPrintf(LOG_WARNING, "Tried to go to a nonexistent link. (Browser)\n");
 				break;
 			case iShowMore:
 				showBPage++;
@@ -1941,7 +1949,7 @@ void ShowContext(Document *doc)
 	PAGRAPHIC	aGraphic;
 	char		s2[256];
 
-/* Get LINK to and staff number of first selected object or of insertion point. */
+	/* Get LINK to and staff number of first selected object or of insertion point. */
 
 	if (doc->selStartL==doc->selEndL) {
 		pL = doc->selStartL;
@@ -2023,8 +2031,8 @@ void ShowContext(Document *doc)
 	DrawTextLine(s);
 	
 	/* Though they're not part of the CONTEXT object, the current tempo is really part
-		of the context in the normal sense, and the last previous Graphic may well be
-		(e.g., if it's "solo", "pizz.", etc.); both are worth showing. */
+	   of the context in the normal sense, and the last previous Graphic may well be
+	   (e.g., if it's "solo", "pizz.", etc.); both are worth showing. */
 	
 	DrawTextLine("----------------------------");
 	tempoL = LSSearch(pL, TEMPOtype, ANYONE, GO_LEFT, False);

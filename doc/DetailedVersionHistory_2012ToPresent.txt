@@ -3554,3 +3554,14 @@ Minor changes. Affects .rsrc, info.plist, vars.h; DrawUtils, DurationEdit, MIDIF
 TupletEdit.
 
 ----------------------------------------------------------------------------------------- B4
+
+9 - 14 Feb.
+
+Work to replace the set duration pop-up palette (using a UI font) in the Fancy Tuplet and
+Tempo dialogs with a fixed palette (from a BMP file). Affects DurationEdit, TempoEdit,
+TupletEdit.
+
+Minor changes. Affects .rsrc, info.plist, DurationEdit.h; Browser, DrawUtils, DurationEdit,
+Menu, MIDIFOCmd, TempoEdit, TupletEdit.
+
+----------------------------------------------------------------------------------------- B5

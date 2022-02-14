@@ -185,40 +185,7 @@
 	<key>Notifications</key>
 	<array/>
 	<key>OpenEditors</key>
-	<array>
-		<dict>
-			<key>Content</key>
-			<dict>
-				<key>PBXProjectModuleGUID</key>
-				<string>153212B127A4547600747DF3</string>
-				<key>PBXProjectModuleLabel</key>
-				<string>DurationEdit.h</string>
-				<key>PBXSplitModuleInNavigatorKey</key>
-				<dict>
-					<key>Split0</key>
-					<dict>
-						<key>PBXProjectModuleGUID</key>
-						<string>153212D227A46C0900747DF3</string>
-						<key>PBXProjectModuleLabel</key>
-						<string>DurationEdit.h</string>
-					</dict>
-					<key>SplitCount</key>
-					<string>1</string>
-				</dict>
-				<key>StatusBarVisibility</key>
-				<true/>
-			</dict>
-			<key>Geometry</key>
-			<dict>
-				<key>Frame</key>
-				<string>{{0, 20}, {669, 711}}</string>
-				<key>PBXModuleWindowStatusBarHidden2</key>
-				<false/>
-				<key>RubberWindowFrame</key>
-				<string>427 272 669 752 0 0 1920 1058 </string>
-			</dict>
-		</dict>
-	</array>
+	<array/>
 	<key>PerspectiveWidths</key>
 	<array>
 		<integer>-1</integer>
@@ -252,8 +219,6 @@
 			<key>Layout</key>
 			<array>
 				<dict>
-					<key>BecomeActive</key>
-					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -336,6 +301,8 @@
 					<key>Dock</key>
 					<array>
 						<dict>
+							<key>BecomeActive</key>
+							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -353,7 +320,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>15A1A69827B318CD00127A57</string>
+										<string>1574F83727BAEE1B005BD08A</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -503,7 +470,7 @@
 											<string>153212C627A46C0900747DF3</string>
 											<string>153212C727A46C0900747DF3</string>
 											<string>153212C827A46C0900747DF3</string>
-											<string>153387C727B314F50093B1A4</string>
+											<string>15A1A69827B318CD00127A57</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -662,9 +629,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>15A1A69127B318CB00127A57</string>
+				<string>1574F83827BAEE1B005BD08A</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>15A1A69227B318CB00127A57</string>
+				<string>1574F83927BAEE1B005BD08A</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -801,7 +768,6 @@
 	<key>WindowOrderList</key>
 	<array>
 		<string>15F6E0CD16DFC116001A5B50</string>
-		<string>153212B127A4547600747DF3</string>
 		<string>1C0AD2B3069F1EA900FABCE6</string>
 		<string>/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/NightingaleIntel.xcodeproj</string>
 	</array>
@@ -883,7 +849,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>15A1A69427B318CB00127A57</string>
+				<string>1574F83A27BAEE1B005BD08A</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -1245,9 +1211,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>15A1A69527B318CB00127A57</string>
+				<string>1574F83B27BAEE1B005BD08A</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>15A1A69627B318CB00127A57</string>
+				<string>1574F83C27BAEE1B005BD08A</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

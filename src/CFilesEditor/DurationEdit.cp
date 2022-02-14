@@ -103,6 +103,26 @@ short DurationKey(unsigned char theChar, unsigned short numDurations)
 	return newDurIdx;
 }
 
+
+short DurCodeToDurPalIdx(short durCode, short nDots, short nDurations)
+{
+	short durPalIdx = -1;									/* In case we can't find it */
+	for (unsigned short k = 0; k<nDurations; k++) {
+		if (durCode==durPalCode[k] && nDots==durPalNDots[k]) {
+			durPalIdx = k;
+			break;
+		}
+	}
+	return durPalIdx;
+}
+
+short DurPalIdxToDurCode(short durPalIdx, short *pNDots)
+{
+	*pNDots = durPalNDots[durPalIdx];
+	return durPalCode[durPalIdx];
+}
+
+
 /* ------------------------------------------------------------------ DurPalChoiceDlog -- */
 /* Display a simple modal dialog for choosing an undotted or single-dotted duration. */
 
@@ -127,8 +147,8 @@ static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, True);
 				GetDialogItem(dlog, DP_DURCHOICE_DI, &type, &hndl, &box);
-LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: choiceIdx=%d box tlbr=%d,%d,%d,%d\n",
-choiceIdx, box.top, box.left, box.bottom, box.right);
+//LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: choiceIdx=%d box tlbr=%d,%d,%d,%d\n",
+//choiceIdx, box.top, box.left, box.bottom, box.right);
 				FrameRect(&box);
 				DrawBMP(bmpDurationPal.bitmap, bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded,
 						bmpDurationPal.height, nPalRows*DP_ROW_HEIGHT, box);
@@ -226,7 +246,7 @@ short DurPalChoiceDlog(short durPalIdx, short maxDots)
 		return -1;
 	}
 
-LogPrintf(LOG_DEBUG, "DurPalChoiceDlog: maxDots=%d\n", maxDots);
+//LogPrintf(LOG_DEBUG, "DurPalChoiceDlog: maxDots=%d\n", maxDots);
 	if (maxDots==1) {
 		filterUPP = NewModalFilterUPP(DurPalChoiceFilter);
 		if (filterUPP==NULL) { MissingDialog(DURCHOICE_1DOT_DLOG); return -1; }
@@ -535,12 +555,12 @@ Boolean SetDurDialog(
 	GetDialogItem(dlog, SDDURPAL_DI, &type, &hndl, &box);
 	InitDurationCells(&box, DP_NCOLS, DP_NROWS, durPalCell);
 	
-	/* Find and hilite the initially-selected cell. We should always find it, but if we
-	   can't, make an arbitrary choice. */
-	
-	choiceIdx = 3;									/* In case we can't find it */
-	for (unsigned short k = 0; k<NDURATIONS; k++) {
-		if (*lDurCode==durPalCode[k] && *nDots==durPalNDots[k]) { choiceIdx = k;  break; }
+	choiceIdx = DurCodeToDurPalIdx(*lDurCode, *nDots, NDURATIONS);
+	if (choiceIdx<0) {
+		SysBeep(1);
+		LogPrintf(LOG_WARNING, "Illegal code %d for tuplet duration unit.  (SetDurDialog)\n",
+					*lDurCode);
+		choiceIdx = 3;									/* An arbitrary choice */
 	}
 	
 	HiliteDurCell(choiceIdx, &box, durPalCell);
@@ -601,8 +621,7 @@ Boolean SetDurDialog(
 			case HALVEDURS_DI:
 			case DOUBLEDURS_DI:
 			case SETDURSTO_DI:
-				if (ditem!=setDurGroup)
-					SwitchRadio(dlog, &setDurGroup, ditem);
+				if (ditem!=setDurGroup) SwitchRadio(dlog, &setDurGroup, ditem);
 				break;
 			case SETLDUR_DI:
 				PutDlgChkRadio(dlog, SETLDUR_DI, !GetDlgChkRadio(dlog, SETLDUR_DI));
@@ -618,8 +637,7 @@ Boolean SetDurDialog(
 			case SDDURPAL_DI:
 				PutDlgChkRadio(dlog, SETLDUR_DI, newSetLDur = True);
 				XableLDurPanel(dlog, True);
-				if (setDurGroup!=SETDURSTO_DI)
-					SwitchRadio(dlog, &setDurGroup, SETDURSTO_DI);
+				if (setDurGroup!=SETDURSTO_DI) SwitchRadio(dlog, &setDurGroup, SETDURSTO_DI);
 #ifdef NOTYET
 				SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
 				//HiliteGPopUp(curPop, popUpHilited = True);

@@ -10923,13 +10923,15 @@ Status of duration-palette features:
 
 * Set Duration: no problems AFAIK.
 
-* Import MIDI File: no problems AFAIK except initial quantum shows as 16th but is really 8th.
+* Import MIDI File: no problems AFAIK except initial quantum shows as 16th but is really
+8th.
 
-* Fancy Tuplet dialog: Always shows initial quantum is 16th, but palette highlites different
-durations, ??
+* Fancy Tuplet dialog: Always shows initial quantum as 16th and never changes it; otherwise
+seems to work properly.
+
+* Insert/edit tempo/metronome mark code is now in TempoEdit. It doesn't work very well.
 
 * Other commands/features that use the choose-duration palette: High priority:
-	insert/edit tempo/metronome mark: calls DialogsEditor.c > TempoDialog
 Lower priority:
 	Transcribe Recording: no change
 
@@ -10940,4 +10942,21 @@ can't use DurPalChoiceDlog, but many of the others should display just the curre
 and call it to handle the choice, rather than displaying the whole palette and handling the
 choosing process themselves.
 
-displaying the wh
+---------------------------------------------------------------------------------------
+
+9 - 14 Feb.
+
+Import MIDI File now does everything right, AFAIK.
+
+Fancy Tuplet still never changes the quantum; otherwise it seems to work properly,
+including showing the correct initial quantum. Ah, a silly bug in TupletDialog; fixed!
+It now does everything right, AFAIK.
+
+Insert/edit tempo/metronome mark now works nicely!
+
+DrawBMPChar() doesn't display dotted notes properly. It seemed to start drawing one
+byte to the left of where it should be; that must be from not considering the padding
+between rows of glyphs, but the obvious correction moves it up by a row instead of right
+by a byte! ?? I see: have to adjust the <chTopPos> as well as the <byChLeftPos> param
+=> OK.
+

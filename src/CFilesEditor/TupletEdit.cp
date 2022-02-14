@@ -17,36 +17,10 @@
 
 /* ------------------------------------ Declarations & Help Functions for TupletDialog -- */
 
-// MOVE ELSEWHERE!!!
-
-short DurCodeToDurPalIdx(short durCode, short nDots, short nDurations);
-short DurCodeToDurPalIdx(short durCode, short nDots, short nDurations)
-{
-	short durationIdx = -1;									/* In case we can't find it */
-	for (unsigned short k = 0; k<nDurations; k++) {
-		if (durCode==durPalCode[k] && nDots==durPalNDots[k]) {
-			durationIdx = k;
-			break;
-		}
-	}
-	return durationIdx;
-}
-
-short DurPalIdxToDurCode(short durPalIdx, short *pNDots);
-short DurPalIdxToDurCode(short durPalIdx, short *pNDots)
-{
-	*pNDots = durPalNDots[durPalIdx];
-	return durPalCode[durPalIdx];
-}
-
-
-// END MOVE!!
-
-
 extern short minDlogVal, maxDlogVal;
 
 enum {
-	SET_DUR_ITEM=4,										/* Item numbers */
+	SET_DUR_DI=4,										/* Item numbers */
 	TUPLE_NUM,
 	TUPLE_PTEXT,
 	ED_TUPLE_DENOM,
@@ -54,9 +28,9 @@ enum {
 	NUM_VIS,
 	NEITHER_VIS,
 	BRACK_VIS,
-	SAMPLE_ITEM,
+	SAMPLE_DI,
 	STAT_TUPLE_DENOM,
-	TDUMMY_ITEM
+	TDUMMY_DI
 };
 
 #define BREVE_DUR		3840
@@ -70,7 +44,7 @@ enum {
 #define ONE28TH_DUR		15
 #define NO_DUR			0
 
-static short durationIdx;
+static short choiceIdx;
 
 short durUnitCode;						/* Used to index duration strings. */
 short tupleDenomItem;
@@ -106,17 +80,17 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));			
 				UpdateDialogVisRgn(dlog);
-				DrawTupletItems(dlog, SAMPLE_ITEM);
+				DrawTupletItems(dlog, SAMPLE_DI);
 				FrameDefault(dlog, OK, True);
-				GetDialogItem(dlog, SET_DUR_ITEM, &type, &hndl, &box);
+				GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
 //LogPrintf(LOG_DEBUG, "TupleFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
 //box.right);
-				byChLeftPos = durationIdx*(DP_COL_WIDTH/8);
+				byChLeftPos = choiceIdx*(DP_COL_WIDTH/8);
 				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8,
 						bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
 						3*DP_ROW_HEIGHT, box);
 				FrameShadowRect(&box);
-				HiliteDurCell(durationIdx, &box, durPalCell);
+				HiliteDurCell(choiceIdx, &box, durPalCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -131,7 +105,7 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 		case mouseUp:
 			where = evt->where;
 			GlobalToLocal(&where);
-			GetDialogItem(dlog, SET_DUR_ITEM, &type, &hndl, &box);
+			GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
 			if (PtInRect(where, &box)) {
 				if (evt->what==mouseUp) {
 #ifdef NOTYET
@@ -141,10 +115,10 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 
 					short newDurIdx = FindDurationCell(where, &box);
 					if (newDurIdx<0 || newDurIdx>(short)NGDDURATIONS-1) return False;
-					SWITCH_CELL(durationIdx, newDurIdx, &box);
+					SWITCH_CELL(choiceIdx, newDurIdx, &box);
 #endif
 				}
-			*itemHit = SET_DUR_ITEM;
+			*itemHit = SET_DUR_DI;
 			return True;
 		}
 			break;
@@ -163,7 +137,7 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			denomItemVisible = (tdRect.left<8192);
 			if (ch=='\t') {
 				if (denomItemVisible) {
-					field = field==ED_TUPLE_DENOM? TDUMMY_ITEM : ED_TUPLE_DENOM;
+					field = field==ED_TUPLE_DENOM? TDUMMY_DI : ED_TUPLE_DENOM;
 #if 11
 #else
 					popUpHilited = field==ED_TUPLE_DENOM? False : True;
@@ -175,15 +149,15 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				}
 			}
 			else {
-				if (field==TDUMMY_ITEM || !denomItemVisible) {
+				if (field==TDUMMY_DI || !denomItemVisible) {
 #if 11
 #else
 					ans = DurPopupKey(curPop, popKeys0dot, ch);
-					*itemHit = ans? TPOPUP_ITEM : 0;
+					*itemHit = ans? TPOPUP_DI : 0;
 					HiliteGPopUp(curPop, True);
 #endif
-					return True;			/* so no chars get through to TDUMMY_ITEM edit field */
-				}							/* NB: however, DlgCmdKey will let you paste into TDUMMY_ITEM! */
+					return True;			/* so no chars get through to TDUMMY_DI edit field */
+				}							/* NB: however, DlgCmdKey will let you paste into TDUMMY_DI! */
 			}
 			break;
 	}
@@ -203,7 +177,7 @@ static void DrawTupletItems(DialogPtr dlog, short /*ditem*/)
 	
 	if (doc==NULL) return;
 
-	GetDialogItem(dlog, SAMPLE_ITEM, &itype, &tHdl, &userRect);
+	GetDialogItem(dlog, SAMPLE_DI, &itype, &tHdl, &userRect);
 	EraseRect(&userRect);
 	xp = userRect.left + (userRect.right-userRect.left)/2;
 	yp = userRect.top + (userRect.bottom-userRect.top)/2;
@@ -272,7 +246,7 @@ Boolean TupletDialog(
 	GrafPtr		oldPort;
 	short		ditem, type, i, logDenom, tempNum, maxChange, evenNum, radio;
 	short		oldResFile;
-	short		choice, newLDurCode, lDurCode, deltaLDur, nDotsDummy;
+	short		newLDurCode, lDurCode, deltaLDur, nDotsDummy;
 	Rect		staffRect;
 	Handle		tHdl, hndl;
 	Rect		box;
@@ -338,28 +312,16 @@ Boolean TupletDialog(
 			break;
 		}
 
-#if 11
-	GetDialogItem(dlog, SET_DUR_ITEM, &type, &hndl, &box);
+	GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
 	InitDurationCells(&box, DP_NCOLS, DP_NROWS_SD, durPalCell);
 	
-	/* Find and hilite the initially-selected cell. We should always find it, but if
-	   we can't, make an arbitrary choice. */
-	
-	durationIdx = 3;									/* In case we can't find it */
-	for (unsigned short k = 0; k<DP_NCOLS*DP_NROWS_SD; k++) {
-		if (durUnit==durPalCode[k]) { durationIdx = k;  break; }
+	choiceIdx = DurCodeToDurPalIdx(durUnitCode, 0, DP_NCOLS);
+	if (choiceIdx<0) {
+		SysBeep(1);
+		LogPrintf(LOG_WARNING, "Illegal code %d for tuplet duration unit.  (TupletDialog)\n",
+					durUnitCode);
+		choiceIdx = 3;									/* An arbitrary choice */
 	}
-#else
-	GetDialogItem(dlog, TPOPUP_ITEM, &type, &hndl, &box);
-	if (!InitGPopUp(&durPop0dot, TOP_LEFT(box), NODOTDUR_MENU, 1)) goto broken;
-	popKeys0dot = InitDurPopupKey(&durPop0dot);
-	if (popKeys0dot==NULL) goto broken;
-	curPop = &durPop0dot;
-	
-	choice = GetDurPopItem(curPop, popKeys0dot, durUnitCode, 0);
-	if (choice==NOMATCH) choice = 1;
-	//SetGPopUpChoice(curPop, choice);
-#endif
 	lDurCode = durUnitCode;
 
 	tupleDenomItem = (tupletNew? ED_TUPLE_DENOM : STAT_TUPLE_DENOM);
@@ -379,7 +341,7 @@ Boolean TupletDialog(
 	maxChange = n_min(logDenom-1, evenNum);
 	minDlogVal = durUnitCode-maxChange;
 	
-	GetDialogItem(dlog, SAMPLE_ITEM, &type, &tHdl, &staffRect);		/* Sample is a user Item */
+	GetDialogItem(dlog, SAMPLE_DI, &type, &tHdl, &staffRect);		/* Sample is a user Item */
 
 	if (denomVis) radio = BOTH_VIS;
 	else if (numVis) radio = NUM_VIS;
@@ -392,9 +354,9 @@ Boolean TupletDialog(
 #if 11
 #else
 	if (popUpHilited)
-		SelectDialogItemText(dlog, TDUMMY_ITEM, 0, ENDTEXT);
+		SelectDialogItemText(dlog, TDUMMY_DI, 0, ENDTEXT);
 	else
-		SelectDialogItemText(dlog, TPOPUP_ITEM, 0, ENDTEXT);
+		SelectDialogItemText(dlog, TPOPUP_DI, 0, ENDTEXT);
 #endif
 
 	ShowWindow(GetDialogWindow(dlog));
@@ -420,10 +382,10 @@ Boolean TupletDialog(
 				GetDlgWord(dlog, TUPLE_NUM, &accNum);
 				GetDlgWord(dlog, tupleDenomItem, &accDenom);
 				break;
-			case SET_DUR_ITEM:
+			case SET_DUR_DI:
 #if 11
-				durationIdx = DurPalChoiceDlog(durationIdx, 0);
-				newLDurCode = DurPalIdxToDurCode(durationIdx, &nDotsDummy);
+				choiceIdx = DurPalChoiceDlog(choiceIdx, 0);
+				newLDurCode = DurPalIdxToDurCode(choiceIdx, &nDotsDummy);
 #else
 				newLDurCode = popKeys0dot[curPop->currentChoice].durCode;
 #endif
@@ -432,27 +394,32 @@ Boolean TupletDialog(
 				   allowable, change it to the maximum. */
 				   
 				if (newLDurCode<minDlogVal) {
-#if 11
-LogPrintf(LOG_DEBUG, "TupletDialog: lDurCode=%d minDlogVal=%d newLDurCode=%d\n",
-lDurCode, minDlogVal, newLDurCode);  
+					SysBeep(1);
+					LogPrintf(LOG_WARNING, "Selected duration unit is too long. (TupletDialog)\n");					
 					newLDurCode = minDlogVal;
-					if (newLDurCode!=lDurCode) {
-						durationIdx = DurCodeToDurPalIdx(newLDurCode, 0, DP_NCOLS);
-LogPrintf(LOG_DEBUG, "TupletDialog: lDurCode=%d newLDurCode=%d durationIdx=%d\n",
-lDurCode, newLDurCode, durationIdx);  
-						short byChLeftPos = durationIdx*(DP_COL_WIDTH/8);
-						EraseRect(&box);
-						FrameRect(&box);
-						DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8,
-							bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
-							3*DP_ROW_HEIGHT, box);
-					}
-#else
-					choice = GetDurPopItem(curPop, popKeys0dot, newLDurCode, 0);
-					if (choice==NOMATCH) choice = 1;
-					SetGPopUpChoice(curPop, choice);
-#endif
 				}
+#if 11
+//LogPrintf(LOG_DEBUG, "TupletDialog: lDurCode=%d minDlogVal=%d newLDurCode=%d\n",
+//lDurCode, minDlogVal, newLDurCode);  
+				if (newLDurCode!=lDurCode) {
+					choiceIdx = DurCodeToDurPalIdx(newLDurCode, 0, DP_NCOLS);
+LogPrintf(LOG_DEBUG, "TupletDialog: lDurCode=%d newLDurCode=%d choiceIdx=%d\n",
+lDurCode, newLDurCode, choiceIdx);  
+					short byChLeftPos = choiceIdx*(DP_COL_WIDTH/8);
+					EraseRect(&box);
+					FrameRect(&box);
+					DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8,
+						bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
+						3*DP_ROW_HEIGHT, box);
+				}
+#else
+				choice = GetDurPopItem(curPop, popKeys0dot, newLDurCode, 0);
+				if (choice==NOMATCH) choice = 1;
+				SetGPopUpChoice(curPop, choice);
+#endif
+
+
+
 				deltaLDur = newLDurCode-lDurCode;
 				if (deltaLDur>0)
 					for (i= 1; i<=ABS(deltaLDur); i++) {
@@ -465,7 +432,7 @@ lDurCode, newLDurCode, durationIdx);
 				PutDlgWord(dlog,TUPLE_NUM,accNum,False);
 				PutDlgWord(dlog,tupleDenomItem,accDenom,tupletNew);
 				lDurCode = newLDurCode;
-				SelectDialogItemText(dlog, TDUMMY_ITEM, 0, ENDTEXT);
+				SelectDialogItemText(dlog, TDUMMY_DI, 0, ENDTEXT);
 //				HiliteGPopUp(curPop, popUpHilited = True);
 				break;
 			case BOTH_VIS:
@@ -479,7 +446,7 @@ lDurCode, newLDurCode, durationIdx);
 		   	PutDlgChkRadio(dlog,ditem,brackVis = !brackVis);
 		   	break;
 			}
-		DrawTupletItems(dlog, SAMPLE_ITEM);
+		DrawTupletItems(dlog, SAMPLE_DI);
 	}
 	
 	if (ditem==OK) {

@@ -2147,19 +2147,19 @@ with rows padded. Intended for drawing indivdual characters of palettes read fro
 files (the bitmaps in their rows are padded to a multiple of 4 bytes). <bmpBits[]>
 should contain the B&W bitmap, with an image whose logical width is <byWidth> bytes; the
 first <byWidthPadded> bytes represent the lowest row of the image. The bitmap's height is
-<height> pixels and its width is DP_COL_WIDTH pixels, of which only the section whose top
-left pixel is (chLeft,chTop) will be drawn.??HUH?? WRONG! It'll be drawn into <dstRect>,
-the dimensions of which give the width and height of the character. NB: To avoid dealing with padding, we assume the area to be
-drawn doesn't contain any; that should never happen with chars in a BMP anyway.  Caveat:
-horizontal parameters are in bytes, but vertical params in pixels! */
+<height> pixels and its width is DP_COL_WIDTH pixels. It'll be drawn into <dstRect>, the
+dimensions of which give the width and height of the character. NB: To avoid dealing with
+padding, we assume the area to be drawn doesn't contain any; that should never happen
+with glyphs in a BMP anyway.  Caveat: horizontal parameters are in bytes, but vertical
+parameters are in pixels! */
 
 void DrawBMPChar(Byte bmpBits[], short byWidth, short byWidthPadded, short height,
-											short byChLeftPos, short chTopPos, Rect dstRect)
+										short byChLeftPos, short chTopPos, Rect dstRect)
 {
 LogPrintf(LOG_DEBUG, "DrawBMPChar: byWidth=%d byWidthPadded=%d height=%d byChLeftPos=%d chTopPos=%d\n",
 				byWidth, byWidthPadded, height, byChLeftPos, chTopPos);
 	if (byChLeftPos<0 || chTopPos<0 || byWidth<1 || height<4) {
-		//MayErrMsg?
+		//AlwaysErrMsg?
 		LogPrintf(LOG_ERR, "Can't draw bitmap: parameter(s) don't make sense. byChLeftPos=%d chTopPos=%d byWidth=%d height=%d  (DrawBMPChar)\n",
 					byChLeftPos, chTopPos, byWidth, height);
 		return;
@@ -2169,8 +2169,10 @@ LogPrintf(LOG_DEBUG, "DrawBMPChar: byWidth=%d byWidthPadded=%d height=%d byChLef
 	for (short kRow=chTopPos-height; kRow<chTopPos; kRow++) {
 		short x = dstRect.left+1;
 		short startOfRow = kRow*byWidthPadded;
-		if (DETAIL_SHOW)
-			{ DPrintRow(bmpBits, startOfRow+byChLeftPos, DP_COL_WIDTH/8, kRow, False, False);  printf("\n"); }
+		if (DETAIL_SHOW) {
+			DPrintRow(bmpBits, startOfRow+byChLeftPos, DP_COL_WIDTH/8, kRow, False, False);
+			printf("\n");
+		}
 
 		DrawRow(bmpBits, startOfRow+byChLeftPos, DP_COL_WIDTH, x, y);
 		y--;

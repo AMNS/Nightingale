@@ -241,8 +241,6 @@ static void MFInfoDialog(
 
 /* ================================ Open MIDI File dialog =============================== */ 
 
-static short durationIdx;
-
 /* ---------------------------------------------------------------- TranscribeMFDialog -- */
 
 #define CurEditField(dlog) (((DialogPeek)(dlog))->editField+1)
@@ -263,6 +261,8 @@ enum {
 	MFDUMMY_DI
 };
 
+static short choiceIdx;
+
 static pascal Boolean TransMFFilter(DialogPtr, EventRecord *, short *);
 static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
@@ -277,7 +277,7 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 	switch (evt->what) {
 		case updateEvt:
 			if (w==GetDialogWindow(dlog)) {
-				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
+				GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));	
 				UpdateDialogVisRgn(dlog);		
 				//UpdateDialog(dlog, dlog->visRgn);
@@ -285,10 +285,10 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				GetDialogItem(dlog, MFSET_DUR_DI, &type, &hndl, &box);
 //LogPrintf(LOG_DEBUG, "TransMFFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
 //box.right);
-				byChLeftPos = durationIdx*(DP_COL_WIDTH/8);
+				byChLeftPos = choiceIdx*(DP_COL_WIDTH/8);
 				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8, bmpDurationPal.byWidthPadded,
 							DP_ROW_HEIGHT, byChLeftPos, 3*DP_ROW_HEIGHT, box);
-LogPrintf(LOG_DEBUG, "TransMFFilter: durationIdx=%d byChLeftPos=%d\n", durationIdx, byChLeftPos);
+LogPrintf(LOG_DEBUG, "TransMFFilter: choiceIdx=%d byChLeftPos=%d\n", choiceIdx, byChLeftPos);
 				FrameShadowRect(&box);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
@@ -375,7 +375,7 @@ static Boolean TranscribeMFDialog(
 				)
 {
 	DialogPtr dlog;  GrafPtr oldPort;
-	short ditem, aShort, oldDurationIdx;
+	short ditem, aShort, oldChoiceIdx;
 	short rButGroup, lDurCode, oldLDurCode, maxMeas, t;
 	short oldResFile; 
 	Boolean done, autoBm, trips, clefs, needTrips;
@@ -446,17 +446,17 @@ static Boolean TranscribeMFDialog(
 		if (qTrLDur[t]!=UNKNOWN_L_DUR) lDurCode = n_max(lDurCode, qTrLDur[t]);
 	if (lDurCode<EIGHTH_L_DUR) lDurCode = EIGHTH_L_DUR;
 	if (lDurCode>THIRTY2ND_L_DUR) lDurCode = THIRTY2ND_L_DUR;
-	durationIdx = 3;									/* In case we can't find it */
+	choiceIdx = 3;									/* In case we can't find it */
 #if 0
 	for (unsigned short k = 0; k<DP_NDURATIONS; k++) {
 #else
 	for (unsigned short k = 0; k<DP_NCOLS*DP_NROWS_SD; k++) {
 #endif
-		if (lDurCode==durPalCode[k]) { durationIdx = k;  break; }
+		if (lDurCode==durPalCode[k]) { choiceIdx = k;  break; }
 	}
 
-LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d lDurCode=%d durationIdx=%d\n",
-qAllLDur, lDurCode, durationIdx);
+LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d lDurCode=%d choiceIdx=%d\n",
+qAllLDur, lDurCode, choiceIdx);
 
 	PutDlgChkRadio(dlog, AUTOBEAM_DI, *autoBeam);
 	PutDlgChkRadio(dlog, TRIPLETS_DI, *triplets);
@@ -528,17 +528,17 @@ qAllLDur, lDurCode, durationIdx);
 			break;
 		case MFSET_DUR_DI:
 #if 11
-			oldDurationIdx = durationIdx;
-			durationIdx = DurPalChoiceDlog(durationIdx, 0);
-			if (durationIdx!=oldDurationIdx) {
-				lDurCode = durPalCode[durationIdx];
-				short byChLeftPos = durationIdx*(DP_COL_WIDTH/8);
+			oldChoiceIdx = choiceIdx;
+			choiceIdx = DurPalChoiceDlog(choiceIdx, 0);
+			if (choiceIdx!=oldChoiceIdx) {
+				lDurCode = durPalCode[choiceIdx];
+				short byChLeftPos = choiceIdx*(DP_COL_WIDTH/8);
 				EraseRect(&box);
 				FrameRect(&box);
 				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8, bmpDurationPal.byWidthPadded,
 					DP_ROW_HEIGHT, byChLeftPos, 3*DP_ROW_HEIGHT, box);
-LogPrintf(LOG_DEBUG, "TranscribeMFDialog: oldDurationIdx=%d durationIdx=%d byChLeftPos=%d\n",
-oldDurationIdx, durationIdx, byChLeftPos);
+LogPrintf(LOG_DEBUG, "TranscribeMFDialog: oldChoiceIdx=%d choiceIdx=%d byChLeftPos=%d\n",
+oldChoiceIdx, choiceIdx, byChLeftPos);
 			}
 #else
 			lDurCode = popKeys0dot[curPop->currentChoice].durCode;

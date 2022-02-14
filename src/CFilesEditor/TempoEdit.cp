@@ -37,7 +37,7 @@ enum {
 static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr	w;
-	short		ch, field, type, byChLeftPos, ans;
+	short		ch, field, type, byChLeftPos, chTopPos, ans;
 	Handle		hndl;
 	Rect		box;
 	Point		where;
@@ -52,14 +52,16 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, True);
 				GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
-//LogPrintf(LOG_DEBUG, "TempoFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
-//box.right);
 				byChLeftPos = choiceIdx*(DP_COL_WIDTH/8);
-				if (choiceIdx>DP_NCOLS) byChLeftPos++;		/* Correct for padding ??CHECK! */
+				chTopPos = 3*DP_ROW_HEIGHT;
+				if (choiceIdx>DP_NCOLS) {
+					byChLeftPos -= DP_NCOLS*(DP_COL_WIDTH/8);
+					chTopPos -= DP_ROW_HEIGHT;	/* Correct for padding ??CHECK! */
+				}
 				DrawBMPChar(bmpDurationPal.bitmap, bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded,
-							DP_ROW_HEIGHT, byChLeftPos, 3*DP_ROW_HEIGHT, box);
-LogPrintf(LOG_DEBUG, "TempoFilter: choiceIdx=%d DP_NCOLS=%d byChLeftPos=%d\n", choiceIdx,
-DP_NCOLS, byChLeftPos);
+							DP_ROW_HEIGHT, byChLeftPos, chTopPos, box);
+//LogPrintf(LOG_DEBUG, "TempoFilter: choiceIdx=%d DP_NCOLS=%d byChLeftPos=%d\n", choiceIdx,
+//DP_NCOLS, byChLeftPos);
 				FrameShadowRect(&box);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
@@ -217,34 +219,9 @@ static Boolean AllIsWell(DialogPtr dlog)
 }
 
 
-// MOVE ELSEWHERE!!!
+static short paletteHilited=True;
 
-static short DurCodeToDurPalIdx(short durCode, short nDots, short nDurations);
-static short DurCodeToDurPalIdx(short durCode, short nDots, short nDurations)
-{
-	short durPalIdx = -1;									/* In case we can't find it */
-	for (unsigned short k = 0; k<nDurations; k++) {
-		if (durCode==durPalCode[k] && nDots==durPalNDots[k]) {
-			durPalIdx = k;
-			break;
-		}
-	}
-	return durPalIdx;
-}
-
-static short DurPalIdxToDurCode(short durPalIdx, short *pNDots);
-static short DurPalIdxToDurCode(short durPalIdx, short *pNDots)
-{
-	*pNDots = durPalNDots[durPalIdx];
-	return durPalCode[durPalIdx];
-}
-
-
-// END MOVE!!
-
-static short			paletteHilited=True;
-
-/* Dialog to get Tempo and metronome mark parameters from user. */
+/* Conduct dialog to get Tempo and metronome mark parameters from user. */
 
 Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *durCode, Boolean *dotted,
 			Boolean *expanded, unsigned char *tempoStr, unsigned char *metroStr)
@@ -276,25 +253,7 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *durCode, Boolean *do
 	oldResFile = CurResFile();
 	UseResFile(appRFRefNum);								/* popup code uses Get1Resource */
 
-#if 11
-#else
-	durPop1dot.menu = NULL;									/* NULL makes any goto broken safe */
-	durPop1dot.itemChars = NULL;
-	popKeys1dot = NULL;
-#endif
-
 	GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
-#if 11
-#else
-	if (!InitGPopUp(&durPop1dot, TOP_LEFT(box), ONEDOTDUR_MENU, 1)) goto broken;
-	popKeys1dot = InitDurPopupKey(&durPop1dot);
-	if (popKeys1dot==NULL) goto broken;
-	curPop = &durPop1dot;
-	
-	choice = GetDurPopItem(curPop, popKeys1dot, *durCode, (*dotted? 1 : 0));
-	if (choice==NOMATCH) choice = 1;
-	SetGPopUpChoice(curPop, choice);
-#endif
 
 	oldLDurCode = *durCode;
 	oldDotted = *dotted;
@@ -335,34 +294,25 @@ oldDotted, choiceIdx);
 				dialogOver = True;
 				break;
 			case SET_DUR_DI:
-#if 11
-			oldChoiceIdx = choiceIdx;
-			choiceIdx = DurPalChoiceDlog(choiceIdx, 1);
-			if (choiceIdx!=oldChoiceIdx) {
-				lDurCode = durPalCode[choiceIdx];
-				short byChLeftPos = choiceIdx*(DP_COL_WIDTH/8);
-				if (choiceIdx>DP_NCOLS) byChLeftPos++;		/* Correct for padding ??CHECK! */
-				EraseRect(&box);
-				FrameRect(&box);
-				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8, bmpDurationPal.byWidthPadded,
-					DP_ROW_HEIGHT, byChLeftPos, 3*DP_ROW_HEIGHT, box);
-LogPrintf(LOG_DEBUG, "TempoDialog: oldChoiceIdx=%d choiceIdx=%d byChLeftPos=%d\n",
-oldChoiceIdx, choiceIdx, byChLeftPos);
-			}
-#else
-	 			/* If user just set the popup to unknown duration, which makes no sense in a
-	 			   metronome mark, change it back to what it was. */
-				   
-				lDurCode = popKeys1dot[curPop->currentChoice].durCode;
-				if (lDurCode==UNKNOWN_L_DUR) {
-					lDurCode = oldLDurCode;
-					choice = GetDurPopItem(curPop, popKeys1dot, lDurCode, (oldDotted? 1 : 0));
-					if (choice==NOMATCH) choice = 1;
-					SetGPopUpChoice(curPop, choice);
+				oldChoiceIdx = choiceIdx;
+				choiceIdx = DurPalChoiceDlog(choiceIdx, 1);
+				if (choiceIdx!=oldChoiceIdx) {
+					lDurCode = durPalCode[choiceIdx];
+					short byChLeftPos = choiceIdx*(DP_COL_WIDTH/8);
+					short chTopPos = 3*DP_ROW_HEIGHT;
+LogPrintf(LOG_DEBUG, "TempoDialog1: oldChoiceIdx=%d choiceIdx=%d DP_NCOLS=%d byChLeftPos=%d chTopPos=%d\n",
+oldChoiceIdx, choiceIdx, DP_NCOLS, byChLeftPos, chTopPos);
+					if (choiceIdx>DP_NCOLS) {
+						byChLeftPos -= DP_NCOLS*(DP_COL_WIDTH/8);
+						chTopPos -= DP_ROW_HEIGHT;	/* Correct for padding ??CHECK! */
+					}
+					EraseRect(&box);
+					FrameRect(&box);
+					DrawBMPChar(bmpDurationPal.bitmap, bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded,
+								DP_ROW_HEIGHT, byChLeftPos, chTopPos, box);
+LogPrintf(LOG_DEBUG, "TempoDialog2: oldChoiceIdx=%d choiceIdx=%d DP_NCOLS=%d byChLeftPos=%d chTopPos=%d\n",
+oldChoiceIdx, choiceIdx, DP_NCOLS, byChLeftPos, chTopPos);
 				}
-				oldLDurCode = lDurCode;
-				oldDotted = (popKeys1dot[curPop->currentChoice].numDots>0);
-#endif
 				break;
 			case UseMMDI:
 				PutDlgChkRadio(dlog, UseMMDI, !GetDlgChkRadio(dlog, UseMMDI));
@@ -379,14 +329,8 @@ oldChoiceIdx, choiceIdx, byChLeftPos);
 			}
 		}
 	if (ditem==OK) {
-#if 11
 		*durCode = DurPalIdxToDurCode(choiceIdx, &numDots);
 		*dotted = (numDots>0);
-#else
-		pk = popKeys1dot;
-		*durCode = pk[curPop->currentChoice].durCode;
-		*dotted = (pk[curPop->currentChoice].numDots>0);
-#endif
 		*useMM = GetDlgChkRadio(dlog, UseMMDI);
 		*showMM = GetDlgChkRadio(dlog, ShowMMDI);
 		*expanded = GetDlgChkRadio(dlog, ExpandDI);
@@ -400,12 +344,6 @@ oldChoiceIdx, choiceIdx, byChLeftPos);
 		GetDlgString(dlog, MetroDI, metroStr);
 	}
 		
-broken:
-#if 11
-#else
-	DisposeGPopUp(&durPop1dot);
-	if (popKeys1dot) DisposePtr((Ptr)popKeys1dot);
-#endif
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
 	

@@ -1490,9 +1490,10 @@ static void SMRespace(Document *doc)
 {
 	short spMin, spMax, dval;
 
+	/* Do it only if selection is a single object and is before 1st measure of system */
+	
 	if (doc->selEndL==RightLINK(doc->selStartL) && LinkBefFirstMeas(doc->selStartL)) {
 		RespaceBefFirstMeas(doc, doc->selStartL);
-		SysBeep(1);
 		return;
 	}
 	
