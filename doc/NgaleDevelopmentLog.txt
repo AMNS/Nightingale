@@ -10960,3 +10960,28 @@ between rows of glyphs, but the obvious correction moves it up by a row instead 
 by a byte! ?? I see: have to adjust the <chTopPos> as well as the <byChLeftPos> param
 => OK.
 
+---------------------------------------------------------------------------------------
+
+15 - 20 Feb.
+
+I have no MIDI input device, so I can't test Transcribe Recording in full. It's not worth
+a lot of time anyway, but the palette stuff is fesh in my mind these days, so worth some.
+
+Structure and status of duration-palette features:
+
+* Set Duration: SetDurDialog itself displays the full palette. Minor bug: Setting notes to
+unknown duration makes them double dotted. Change vars.h => OK now.
+
+* Import MIDI File: MIDIFOCmd>TranscribeMFDialog uses DurPalChoiceDlog to display undotted
+durations only. No problems AFAIK.
+
+* Fancy Tuplet dialog: TupletDialog uses DurPalChoiceDlog to display undotted durations
+only. No problems AFAIK.
+
+* Insert/edit tempo/metronome mark: TempoEdit>TempoDialog uses DurPalChoiceDlog to display
+undotted and single-dot durations. No problems AFAIK.
+
+* Transcribe Recording: QuantizeDialog uses DurPalChoiceDlog to display undotted durations
+only. Seems to have no problems except the dialog sometimes has a black box the same size
+as & to the right of the user item?!? Oh well, _really_ not worth spending time on!
+

@@ -63,15 +63,11 @@ static void DrawTupletItems(DialogPtr, short);
 static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
-	short			ch, field, type, byChLeftPos;
+	short			ch, type, byChLeftPos;
 	Handle			hndl;
 	Rect			box;
 	Point			where;
 	GrafPtr			oldPort;
-	short			anInt;
-	Handle			aHdl;
-	Rect			tdRect;
-	Boolean			denomItemVisible;
 	
 	w = (WindowPtr)(evt->message);
 	switch (evt->what) {
@@ -83,8 +79,6 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				DrawTupletItems(dlog, SAMPLE_DI);
 				FrameDefault(dlog, OK, True);
 				GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
-//LogPrintf(LOG_DEBUG, "TupleFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
-//box.right);
 				byChLeftPos = choiceIdx*(DP_COL_WIDTH/8);
 				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8,
 						bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
@@ -108,14 +102,15 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
 			if (PtInRect(where, &box)) {
 				if (evt->what==mouseUp) {
-#ifdef NOTYET
+#if 1
 					/* If the mouseUp was in an invalid (presumably because empty) cell,
 					   ignore it. Otherwise, unhilite the previously-selected cell and
 					   hilite the new one. */
 
-					short newDurIdx = FindDurationCell(where, &box);
-					if (newDurIdx<0 || newDurIdx>(short)NGDDURATIONS-1) return False;
-					SWITCH_CELL(choiceIdx, newDurIdx, &box);
+					short newDurIdx = FindDurationCell(where, &box, DP_NCOLS, 1,
+										durPalCell);
+					if (newDurIdx<0 || newDurIdx>(short)DP_NDURATIONS-1) return False;
+					SWITCH_DPCELL(choiceIdx, newDurIdx, &box);
 #endif
 				}
 			*itemHit = SET_DUR_DI;
@@ -126,39 +121,7 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
 				return True;
 			ch = (unsigned char)evt->message;
-			field = GetDialogKeyboardFocusItem(dlog);
 			
-			/* The Dialog Manager considers only EditText fields as candidates for being
-			   activated by the tab key, so handle tabbing from field to field ourselves
-			   so that user can direct keystrokes to the pop-up as well as the EditText
-			   fields. But skip this if ED_TUPLE_DENOM isn't visible. */
-			   
-			GetDialogItem(dlog, ED_TUPLE_DENOM, &anInt, &aHdl, &tdRect);
-			denomItemVisible = (tdRect.left<8192);
-			if (ch=='\t') {
-				if (denomItemVisible) {
-					field = field==ED_TUPLE_DENOM? TDUMMY_DI : ED_TUPLE_DENOM;
-#if 11
-#else
-					popUpHilited = field==ED_TUPLE_DENOM? False : True;
-					SelectDialogItemText(dlog, field, 0, ENDTEXT);
-					HiliteGPopUp(curPop, popUpHilited);
-#endif
-					*itemHit = 0;
-					return True;
-				}
-			}
-			else {
-				if (field==TDUMMY_DI || !denomItemVisible) {
-#if 11
-#else
-					ans = DurPopupKey(curPop, popKeys0dot, ch);
-					*itemHit = ans? TPOPUP_DI : 0;
-					HiliteGPopUp(curPop, True);
-#endif
-					return True;			/* so no chars get through to TDUMMY_DI edit field */
-				}							/* NB: however, DlgCmdKey will let you paste into TDUMMY_DI! */
-			}
 			break;
 	}
 	return False;
@@ -383,12 +346,8 @@ Boolean TupletDialog(
 				GetDlgWord(dlog, tupleDenomItem, &accDenom);
 				break;
 			case SET_DUR_DI:
-#if 11
 				choiceIdx = DurPalChoiceDlog(choiceIdx, 0);
 				newLDurCode = DurPalIdxToDurCode(choiceIdx, &nDotsDummy);
-#else
-				newLDurCode = popKeys0dot[curPop->currentChoice].durCode;
-#endif
 				
 	 			/* If user set the duration unit to something longer than the maximum
 				   allowable, change it to the maximum. */
@@ -398,7 +357,6 @@ Boolean TupletDialog(
 					LogPrintf(LOG_WARNING, "Selected duration unit is too long. (TupletDialog)\n");					
 					newLDurCode = minDlogVal;
 				}
-#if 11
 //LogPrintf(LOG_DEBUG, "TupletDialog: lDurCode=%d minDlogVal=%d newLDurCode=%d\n",
 //lDurCode, minDlogVal, newLDurCode);  
 				if (newLDurCode!=lDurCode) {
@@ -412,13 +370,6 @@ lDurCode, newLDurCode, choiceIdx);
 						bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
 						3*DP_ROW_HEIGHT, box);
 				}
-#else
-				choice = GetDurPopItem(curPop, popKeys0dot, newLDurCode, 0);
-				if (choice==NOMATCH) choice = 1;
-				SetGPopUpChoice(curPop, choice);
-#endif
-
-
 
 				deltaLDur = newLDurCode-lDurCode;
 				if (deltaLDur>0)
@@ -458,12 +409,6 @@ lDurCode, newLDurCode, choiceIdx);
 		ptParam->brackVis = brackVis;
 	}
 
-broken:			
-#if 11
-#else
-	DisposeGPopUp(&durPop0dot);
-	if (popKeys0dot) DisposePtr((Ptr)popKeys0dot);
-#endif
 	DisposeDialog(dlog);
 	
 	UseResFile(oldResFile);

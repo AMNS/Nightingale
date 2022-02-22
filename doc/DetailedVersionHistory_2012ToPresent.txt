@@ -3565,3 +3565,15 @@ Minor changes. Affects .rsrc, info.plist, DurationEdit.h; Browser, DrawUtils, Du
 Menu, MIDIFOCmd, TempoEdit, TupletEdit.
 
 ----------------------------------------------------------------------------------------- B5
+
+15 - 20 Feb.
+
+Work to replace the set duration pop-up palette (using a UI font) in the Transcribe Recording
+(Quantize) dialog with a fixed palette (from a BMP file). Affects Transcribe.
+
+Fixed bug: Setting notes to unknown duration makes them double dotted. Affects vars.h.
+
+Minor changes. Affects .rsrc, info.plist, NResourceID.h; DurationEdit, Menu, MIDIFOCmd,
+TempoEdit, Transcribe, TupletEdit.
+
+----------------------------------------------------------------------------------------- B6

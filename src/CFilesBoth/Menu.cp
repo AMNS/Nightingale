@@ -441,15 +441,21 @@ void DoEditMenu(short choice)
 			case EM_ExtendSel:
 				ExtendSelection(doc);
 				break;
+			case EM_Set:				/* Originally "Set"; now "QuickChange" */
+				DoSet(doc);
+				break;
 			case EM_GetInfo:
 				InfoDialog(doc);
 				break;
 			case EM_ModifierInfo:
 				ModNRInfoDialog(doc);
 				break;
-			case EM_Set:
-				DoSet(doc);
+#ifdef TEST_SEARCH_NG
+			case EM_SearchMelody:
 				break;
+			case EM_SearchAgain:
+				break;
+#endif
 			case EM_AddTimeSigs:
 				EMAddCautionaryTimeSigs(doc);
 				break;

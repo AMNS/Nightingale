@@ -61,8 +61,8 @@ short FindDurationCell(Point where, Rect *pBox, short nCols, short nRows, Rect d
 			cellNum = tryCell;  break;
 		}
 
-//LogPrintf(LOG_DEBUG, "FindDurationCell: xInBox=%d yInBox=%d cellNum=%d\n", xInBox, yInBox, cellNum);
 	if (cellNum<0) {
+		SysBeep(1);
 		LogPrintf(LOG_WARNING, "Can't find cell for where=(%d,%d) xInBox=%d yInBox=%d.  (FindDurationCell)\n",
 					where.h, where.v, xInBox, yInBox);
 		cellNum = 1;
@@ -175,7 +175,7 @@ static pascal Boolean DurPalChoiceFilter(DialogPtr dlog, EventRecord *evt, short
 
 					short newDurIdx = FindDurationCell(where, &box, DP_NCOLS, nPalRows,
 										durPalCell);
-LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: choiceIdx=%d newDurIdx=%d\n", choiceIdx, newDurIdx);  
+//LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: choiceIdx=%d newDurIdx=%d\n", choiceIdx, newDurIdx);  
 					if (newDurIdx<0 || newDurIdx>(short)DP_NDURATIONS-1) return False;
 					if (durPalCode[newDurIdx]==NO_L_DUR) return False;
 					SWITCH_DPCELL(choiceIdx, newDurIdx, &box);
@@ -192,7 +192,7 @@ LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: choiceIdx=%d newDurIdx=%d\n", choiceId
 			*itemHit = 0;
 			ans = DurationKey(ch, DP_NDURATIONS);
 			if (ans>=0) {
-LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: ch='%c' choiceIdx=%d ans=%d\n", ch, choiceIdx, ans);  
+//LogPrintf(LOG_DEBUG, "DurPalChoiceFilter: ch='%c' choiceIdx=%d ans=%d\n", ch, choiceIdx, ans);  
 				SWITCH_DPCELL(choiceIdx, ans, &box);
 				*itemHit = DP_DURCHOICE_DI;
 				return True;
@@ -246,7 +246,6 @@ short DurPalChoiceDlog(short durPalIdx, short maxDots)
 		return -1;
 	}
 
-//LogPrintf(LOG_DEBUG, "DurPalChoiceDlog: maxDots=%d\n", maxDots);
 	if (maxDots==1) {
 		filterUPP = NewModalFilterUPP(DurPalChoiceFilter);
 		if (filterUPP==NULL) { MissingDialog(DURCHOICE_1DOT_DLOG); return -1; }

@@ -37,7 +37,7 @@ enum {
 static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr	w;
-	short		ch, field, type, byChLeftPos, chTopPos, ans;
+	short		ch, field, type, byChLeftPos, chTopPos;
 	Handle		hndl;
 	Rect		box;
 	Point		where;
@@ -117,7 +117,7 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				if (field==TDummyFldDI) {
 #if 11
 #else
-					ans = DurPopupKey(curPop, popKeys1dot, ch);
+					short ans = DurPopupKey(curPop, popKeys1dot, ch);
 					*itemHit = ans? SET_DUR_DI : 0;
 					HiliteGPopUp(curPop, True);
 #endif

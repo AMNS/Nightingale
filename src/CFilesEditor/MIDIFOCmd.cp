@@ -600,6 +600,7 @@ static void NameMFScore(Document *doc)
 static void MFStopInform(void);
 static void MFStopInform(void)
 {
+	SysBeep(1);
 	LogPrintf(LOG_WARNING, "%s  (GetMIDIFileInfo)\n", strBuf);
 	CParamText(strBuf, "", "", "");
 	StopInform(READMIDI_ALRT);
@@ -691,10 +692,11 @@ static Boolean GetMIDIFileInfo(
 		if (GetTrackInfo(&nTrackNotes[t], &nTooLong[t], chanUsed[t], &qTrLDur[t],
 								&qTrTriplets[t], &lastTrEvent[t])) {
 
-			/* Timing tracks with an end time of zero seem to be somewhat common: cf. Peter
-			   Stone. Peter's seem to cause no problems, but one produced by Nightingale,
-			   I'm not sure how, and starting with a very long note, has the very long note
-			   truncated to almost nothing. So it's not clear whether to warn about them. */
+			/* A comment from the late 1990's or so: Timing tracks with an end time of zero
+			   seem to be somewhat common: cf. Peter Stone. Peter's seem to cause no
+			   problems, but one produced by Nightingale, I'm not sure how, and starting
+			   with a very long note, has the very long note truncated to almost nothing.
+			   So it's not clear whether to warn about them, but we will. */
 			   
 			if (t!=1 && lastTrEvent[t]==0) {
 				GetIndCString(fmtStr, MIDIFILE_STRS, 38);    /* "Track %d has an ending time of zero: this MIDI file may be damaged." */
