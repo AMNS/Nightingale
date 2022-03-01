@@ -444,7 +444,8 @@ static LINK QuantAllVoices(
 	LINKTIMEINFO *rawSyncTab[MAXVOICES+1];		/* Arrays of pointers to tables */
 	NOTEAUX	*rawNoteAux[MAXVOICES+1];
 	short maxSyncs[MAXVOICES+1], nRawSyncs[MAXVOICES+1], nAux[MAXVOICES+1];
-	LINK prevMeasL, endExtraL, qStartL, qEndL, lastL;
+	LINK prevMeasL, endExtraL, qStartL, qEndL;
+	LINK lastL=NILINK;
 	
 	measInfoTab = NULL;
 	for (v = 1; v<=MAXVOICES; v++) {
@@ -938,7 +939,7 @@ Trouble:
 }
 
 
-/* -------------------------------------------------------------------- QuantizeDialog -- */
+/* -------------------------------------------------------- QuantizeDialog and friends -- */
 
 enum {
 	QSET_DUR_DI=4,				/* Item numbers */
@@ -974,7 +975,6 @@ static pascal Boolean QuantFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 						bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
 						3*DP_ROW_HEIGHT, box);
 				FrameShadowRect(&box);
-				HiliteDurCell(choiceIdx, &box, durPalCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -982,28 +982,18 @@ static pascal Boolean QuantFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			}
 			break;
 		case activateEvt:
-			if (w==GetDialogWindow(dlog))
-				SetPort(GetDialogWindowPort(dlog));
+			if (w==GetDialogWindow(dlog)) SetPort(GetDialogWindowPort(dlog));
 			break;
 		case mouseDown:
 		case mouseUp:
 			where = evt->where;
 			GlobalToLocal(&where);
 			GetDialogItem(dlog, QSET_DUR_DI, &type, &hndl, &box);
-			if (PtInRect(where, &box)) {
-				*itemHit = QSET_DUR_DI;
-				return True;
-			}
+			if (PtInRect(where, &box)) { *itemHit = QSET_DUR_DI;  return True; }
 			break;
 		case keyDown:
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
-#ifdef NOMORE
-			ch = (unsigned char)evt->message;
-			ans = DurPopupKey(curPop, popKeys0dot, ch);
-			*itemHit = ans? QSET_DUR_DI : 0;
-			HiliteGPopUp(curPop, True);
-			return True;
-#endif
+			break;
 	}
 
 	return False;
@@ -1016,11 +1006,12 @@ static Boolean QuantizeDialog(Document *doc,
 {
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
-	short			ditem, aShort, oldChoiceIdx, startNum, endNum, lDurCode;
+	short			ditem, aShort, oldChoiceIdx, startNum, endNum;
+	short			lDurCode, nDotsDummy;
 	Handle			aHdl;
 	Rect			box;
 	char			numStr1[15], numStr2[15];
-	short			oldResFile;
+	//short			oldResFile;
 	Boolean			done, tups;
 	ModalFilterUPP	filterUPP;
 
@@ -1040,8 +1031,8 @@ static Boolean QuantizeDialog(Document *doc,
 	GetPort(&oldPort);
 	SetPort(GetDialogWindowPort(dlog));
 
-	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);									/* popup code uses Get1Resource */
+	//oldResFile = CurResFile();
+	//UseResFile(appRFRefNum);									/* popup code uses Get1Resource */
 	
 	startNum = GetMeasNum(doc, doc->selStartL);
 	endNum = GetMeasNum(doc, LeftLINK(doc->selEndL));
@@ -1050,20 +1041,15 @@ static Boolean QuantizeDialog(Document *doc,
 	CParamText(numStr1, numStr2, "", "");
 
 	lDurCode = *durCode;
-
-LogPrintf(LOG_DEBUG, "QuantizeDialog: *durCode=%d\n", *durCode);
+	choiceIdx = DurCodeToDurPalIdx(lDurCode, 0, DP_NCOLS);
+LogPrintf(LOG_DEBUG, "QuantizeDialog: lDurCode=%d choiceIdx=%d\n", lDurCode, choiceIdx);
+	if (choiceIdx<0) {
+		SysBeep(1);
+		LogPrintf(LOG_WARNING, "Illegal code %d for gird duration unit.  (QuantizeDialog)\n",
+					lDurCode);
+		choiceIdx = 3;									/* An arbitrary choice */
+	}
 	GetDialogItem(dlog, QSET_DUR_DI, &aShort, &aHdl, &box);
-#if 11
-#else
-	if (!InitGPopUp(&durPop0dot, TOP_LEFT(box), NODOTDUR_MENU, 1)) goto Broken;
-	popKeys0dot = InitDurPopupKey(&durPop0dot);
-	if (popKeys0dot==NULL) goto Broken;
-	curPop = &durPop0dot;
-		
-	short choice = GetDurPopItem(curPop, popKeys0dot, lDurCode, 0);
-	if (choice==NOMATCH) choice = 1;
-	SetGPopUpChoice(curPop, choice);
-#endif
 
 	PutDlgChkRadio(dlog, QTUPLET_DI, *tuplet);
 	PutDlgChkRadio(dlog, AUTOBEAM_DI, *autoBeam);
@@ -1090,7 +1076,7 @@ LogPrintf(LOG_DEBUG, "QuantizeDialog: *durCode=%d\n", *durCode);
 				break;
 			}
 			
-			*durCode = lDurCode;
+			*durCode = DurPalIdxToDurCode(choiceIdx, &nDotsDummy);
 			*tuplet = GetDlgChkRadio(dlog, QTUPLET_DI);
 			*autoBeam = GetDlgChkRadio(dlog, AUTOBEAM_DI);
 			done = True;
@@ -1121,23 +1107,17 @@ oldChoiceIdx, choiceIdx, byChLeftPos);
 			}
 		}
 		
-#ifdef NOMORE
-Broken:			
-	DisposeGPopUp(&durPop0dot);
-	if (popKeys0dot) DisposePtr((Ptr)popKeys0dot);
-#endif
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
 	
-	UseResFile(oldResFile);
+	//UseResFile(oldResFile);
 	SetPort(oldPort);
 	return (ditem==OK);
 }
 
 
 /* ------------------------------------------------------------------------ DoQuantize -- */
-/* Guess durations of notes/chords in the selection range as specified by user in
-dialog. */
+/* Guess durations of notes/chords in the selection range as specified by user in dialog. */
 	
 void DoQuantize(Document *doc)
 {

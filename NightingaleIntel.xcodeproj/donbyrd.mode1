@@ -320,7 +320,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>15E5999B27C33DD000D4856A</string>
+										<string>157990EA27CE9EFF0094ECF2</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -470,7 +470,7 @@
 											<string>153212C627A46C0900747DF3</string>
 											<string>153212C727A46C0900747DF3</string>
 											<string>153212C827A46C0900747DF3</string>
-											<string>1574F83727BAEE1B005BD08A</string>
+											<string>15E5999B27C33DD000D4856A</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -629,9 +629,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>15E5999527C3396000D4856A</string>
+				<string>157990E327CE75A30094ECF2</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>15E5999627C3396000D4856A</string>
+				<string>157990E427CE75A30094ECF2</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -768,8 +768,8 @@
 	<key>WindowOrderList</key>
 	<array>
 		<string>15F6E0CD16DFC116001A5B50</string>
-		<string>1C0AD2B3069F1EA900FABCE6</string>
 		<string>/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0/NightingaleIntel.xcodeproj</string>
+		<string>1C0AD2B3069F1EA900FABCE6</string>
 	</array>
 	<key>WindowString</key>
 	<string>748 143 866 915 0 0 1920 1058 </string>
@@ -849,7 +849,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>15E5999727C3396000D4856A</string>
+				<string>157990EB27CE9EFF0094ECF2</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -1211,9 +1211,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>15E5999827C3396000D4856A</string>
+				<string>157990E527CE75A30094ECF2</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>15E5999927C3396000D4856A</string>
+				<string>157990E627CE75A30094ECF2</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

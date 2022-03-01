@@ -58,8 +58,9 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 					byChLeftPos -= DP_NCOLS*(DP_COL_WIDTH/8);
 					chTopPos -= DP_ROW_HEIGHT;	/* Correct for padding ??CHECK! */
 				}
-				DrawBMPChar(bmpDurationPal.bitmap, bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded,
-							DP_ROW_HEIGHT, byChLeftPos, chTopPos, box);
+				DrawBMPChar(bmpDurationPal.bitmap, bmpDurationPal.byWidth,
+							bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
+							chTopPos, box);
 //LogPrintf(LOG_DEBUG, "TempoFilter: choiceIdx=%d DP_NCOLS=%d byChLeftPos=%d\n", choiceIdx,
 //DP_NCOLS, byChLeftPos);
 				FrameShadowRect(&box);
@@ -70,8 +71,7 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			}
 			break;
 		case activateEvt:
-			if (w==GetDialogWindow(dlog))
-				SetPort(GetDialogWindowPort(dlog));
+			if (w==GetDialogWindow(dlog)) SetPort(GetDialogWindowPort(dlog));
 			break;
 		case mouseDown:
 		case mouseUp:
@@ -81,12 +81,7 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			where = evt->where;
 			GlobalToLocal(&where);
 			GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
-			if (PtInRect(where, &box)) {
-// ??WHAT IS THIS FOR???????????????????????????????
-				NoteInform(DURCHOICE_1DOT_DLOG);
-				*itemHit = SET_DUR_DI;
-				return True;
-			}
+			if (PtInRect(where, &box)) { *itemHit = SET_DUR_DI; return True; }
 			break;
 #endif
 		case keyDown:

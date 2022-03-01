@@ -105,16 +105,16 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 
 
 /* -------------------------------------------------------------------- HiliteSyncRect -- */
-/* Given a rectange, r, in paper-relative coordinates, hilite it in the current
-window.  If it's not in view, "scroll" so its page is in the window (though r might
-still not be in the window!) and return True; else return False.
+/* Given a rectange, r, in paper-relative coordinates, hilite it in the current window. 
+If it's not in view, "scroll" so its page is in the window (though r might still not be in
+the window!) and return True; else return False.
 
-Note that scrolling while playing screws up timing (simply by introducing a break)
-unless interrupt-driven, but after all, Nightingale is a notation program, not a
-sequencer: it's more important that the music being played is in view.
+Note that scrolling while playing screws up timing (simply by introducing a break) unless
+interrupt-driven, but after all, Nightingale is a notation program, not a sequencer: it's
+more important that the music being played is in view.
 
-NB: The "scrolling" code here can itself change doc->currentPaper. For this and
-other reasons, we expect the appropriate doc->currentPaper as a parameter. */
+NB: The "scrolling" code here can itself change doc->currentPaper. For this and other
+reasons, we expect the appropriate doc->currentPaper as a parameter. */
 
 static Boolean HiliteSyncRect(
 					Document *doc,
@@ -156,8 +156,8 @@ static Boolean HiliteSyncRect(
 
 
 /* ------------------------------------------------------------- AddBarlines functions -- */
-/* For the "add barlines while playing" feature, build up a list of places to add
-single barlines (actually Measure objects):
+/* For the "add barlines while playing" feature, build up a list of places to add single
+barlines (actually Measure objects):
 	InitAddBarlines()			Initialize these functions
 	AddBarline(pL)				Request adding a barline before <pL>
 	CloseAddBarlines(doc)		Add the barlines at all requested places
@@ -199,7 +199,7 @@ static Boolean TupletProblem(Document *doc, LINK insL)
 	if (tupStaff<=0)
 		return False;
 	else {
-		GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 1);	/* "can't add a barline in middle of tuplet" */
+		GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 1);	/* "You can't add a barline in middle of tuplet" */
 		sprintf(strBuf, fmtStr, tupStaff);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
@@ -230,7 +230,7 @@ Boolean CloseAddBarlines(Document *doc)
 	WaitCursor();
 	
 	/* Put barlines that would otherwise go at the beginning of a system at the end of
-	   of the previous system instead. */
+	   the previous system instead. */
 	
 	for (n = 0; n<nBars; n++) {
 		prevSync = SSearch(LeftLINK(barBeforeL[n]), SYNCtype, GO_LEFT);
@@ -273,7 +273,7 @@ Boolean CloseAddBarlines(Document *doc)
 
 
 /* ------------------------------------------------------------------ SelAndHiliteSync -- */
-/* Select and hilite the given Sync, and set the document's scaleCenter (for
+/* Select and hilite the given Sync, and set the document's scaleCenter (used for
 magnification) to it. */
 
 static void SelAndHiliteSync(Document *, LINK);
@@ -477,7 +477,7 @@ static void ResetMIDISustain(Document *doc, unsigned char *partChannel)
 	
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		if (cmAllSustainOn[j]) {
-			short partn = Staff2Part(doc,j);
+			short partn = Staff2Part(doc, j);
 			MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 			short channel = CMGetUseChannel(partChannel, partn);
 			SendMIDISustainOff(doc, partDevID, channel, tStamp);										
@@ -503,7 +503,7 @@ static void ResetMIDIPan(Document *doc, unsigned char *partChannel)
 	
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		if (ValidPanSetting(cmAllPanSetting[j])) {
-			short partn = Staff2Part(doc,j);
+			short partn = Staff2Part(doc, j);
 			MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 			short channel = CMGetUseChannel(partChannel, partn);
 			SendMIDIPan(doc, partDevID, channel, PAN_CENTER, tStamp);		
@@ -520,7 +520,7 @@ static void SendAllMIDISustains(Document *doc, unsigned char *partChannel, Boole
 	if (susOn) {
 		for (int j = 1; j<=MAXSTAVES; j++) {
 			if (cmSustainOn[j]) {
-				short partn = Staff2Part(doc,j);
+				short partn = Staff2Part(doc, j);
 				MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 				short channel = CMGetUseChannel(partChannel, partn);
 				SendMIDISustainOn(doc, partDevID, channel);							
@@ -530,7 +530,7 @@ static void SendAllMIDISustains(Document *doc, unsigned char *partChannel, Boole
 	else {
 		for (int j = 1; j<=MAXSTAVES; j++) {
 			if (cmSustainOff[j]) {
-				short partn = Staff2Part(doc,j);
+				short partn = Staff2Part(doc, j);
 				MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 				short channel = CMGetUseChannel(partChannel, partn);
 				SendMIDISustainOff(doc, partDevID, channel);							
@@ -757,7 +757,7 @@ void PlaySequence(
 	Boolean		patchChangePosted = False;
 	Boolean		sustainOnPosted = False, sustainOffPosted = False;
 	Boolean		panPosted = False;
-	OSErr		err;
+	OSErr		err = noErr;
 	
 	WaitCursor();
 
@@ -788,7 +788,7 @@ void PlaySequence(
 #if CMDEBUG
 			CMDebugPrintXMission();
 #endif
-			MayErrMsg("Unable to play score: can't get part device for every part.  (PlaySequence)");
+			MayErrMsg("Can't play the score: can't get part device for every part.  (PlaySequence)");
 			return;
 		}
 	}
@@ -832,9 +832,9 @@ void PlaySequence(
 		
 	if (useWhichMIDI == MIDIDR_CM) {
 		err = CMMIDIProgram(doc, partPatch, partChannel);
-		if (err != noErr) {
+		if (err!=noErr) {
 			MPErrorMsg(20);
-			MayErrMsg("Can't send patch changes (error %d). Try Instrument MIDI Settings > Set Device To All Parts.  (PlaySequence)",
+			MayErrMsg("Can't send patch changes (error %d). With the Instrument MIDI Settings command, Set Device To All Parts.  (PlaySequence)",
 						err);
 			return;
 		}
@@ -1064,7 +1064,7 @@ objL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 							
 							if (useNoteNum>=0) {
 								err = noErr;
-								notePartn = Staff2Part(doc,NoteSTAFF(aNoteL));
+								notePartn = Staff2Part(doc, NoteSTAFF(aNoteL));
 								partDevID = GetCMDeviceForPartn(doc, notePartn);
 								
 								if (useWhichMIDI==MIDIDR_CM)
@@ -1147,9 +1147,9 @@ objL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 			AddBarline(oldL);
 		}
 	}
-			
+	
 done:
-	if (err) MayErrMsg("Can't play the score (error %d). Try Instrument MIDI Settings > Set Device To All Parts.  (PlaySequence)\n",
+	if (err) MayErrMsg("Can't play the score (error %d). With the Instrument MIDI Settings command, Set Device To All Parts.  (PlaySequence)\n",
 				err);
 	if (showit && showOldL) HiliteSyncRect(doc, &syncRect, &syncPaper, False);	/* unhilite last Sync */
 

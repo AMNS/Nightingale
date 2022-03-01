@@ -11,6 +11,7 @@
 		150C7EA9218BA27000AEE9A2 /* MIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 150C7EA8218BA27000AEE9A2 /* MIDIUtils.cp */; };
 		150C7EC2218BA44A00AEE9A2 /* MIDIRecUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 150C7EC1218BA44A00AEE9A2 /* MIDIRecUtils.cp */; };
 		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
+		15420AE827CAE50000E0D841 /* PopUpUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15420AE727CAE50000E0D841 /* PopUpUtils.cp */; };
 		15424A7027AD77A900B13744 /* TempoEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15424A6F27AD77A900B13744 /* TempoEdit.cp */; };
 		1544E9B31E645DA400431548 /* Style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B21E645DA400431548 /* Style.h */; };
 		1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B41E645DEF00431548 /* Defs.h */; };
@@ -42,7 +43,6 @@
 		157D429C265BD2A600E7FDBF /* BMP.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 157D429B265BD2A600E7FDBF /* BMP.h */; };
 		15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */; };
 		15A13E1522A5638F0037F95B /* SelUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1422A5638F0037F95B /* SelUtils.cp */; };
-		15A13E1722A563BC0037F95B /* PopUpUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1622A563BC0037F95B /* PopUpUtils.cp */; };
 		15A13E1B22A564050037F95B /* DrawUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1A22A564050037F95B /* DrawUtils.cp */; };
 		15A13E1D22A5642B0037F95B /* CheckUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1C22A5642B0037F95B /* CheckUtils.cp */; };
 		15A13E1F22A564760037F95B /* DialogUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1E22A564760037F95B /* DialogUtils.cp */; };
@@ -250,6 +250,7 @@
 		150C7EA8218BA27000AEE9A2 /* MIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIUtils.cp; sourceTree = "<group>"; };
 		150C7EC1218BA44A00AEE9A2 /* MIDIRecUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIRecUtils.cp; sourceTree = "<group>"; };
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
+		15420AE727CAE50000E0D841 /* PopUpUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PopUpUtils.cp; sourceTree = "<group>"; };
 		15424A6F27AD77A900B13744 /* TempoEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TempoEdit.cp; sourceTree = "<group>"; };
 		1544E9B21E645DA400431548 /* Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Style.h; sourceTree = "<group>"; };
 		1544E9B41E645DEF00431548 /* Defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defs.h; sourceTree = "<group>"; };
@@ -280,7 +281,6 @@
 		157D429B265BD2A600E7FDBF /* BMP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMP.h; sourceTree = "<group>"; };
 		15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedTimeSigs.cp; sourceTree = "<group>"; };
 		15A13E1422A5638F0037F95B /* SelUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelUtils.cp; sourceTree = "<group>"; };
-		15A13E1622A563BC0037F95B /* PopUpUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PopUpUtils.cp; sourceTree = "<group>"; };
 		15A13E1A22A564050037F95B /* DrawUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawUtils.cp; sourceTree = "<group>"; };
 		15A13E1C22A5642B0037F95B /* CheckUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckUtils.cp; sourceTree = "<group>"; };
 		15A13E1E22A564760037F95B /* DialogUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogUtils.cp; sourceTree = "<group>"; };
@@ -999,7 +999,7 @@
 				150C7EA8218BA27000AEE9A2 /* MIDIUtils.cp */,
 				157A13BB24E96DA500EC4849 /* MiscUtils.cp */,
 				15A5687E218C8A7700236325 /* PitchUtils.cp */,
-				15A13E1622A563BC0037F95B /* PopUpUtils.cp */,
+				15420AE727CAE50000E0D841 /* PopUpUtils.cp */,
 				15A13E1422A5638F0037F95B /* SelUtils.cp */,
 				15C46F7E218C979200D84142 /* SetUtils.cp */,
 				15A56898218C8C0B00236325 /* StringUtils.cp */,
@@ -1234,7 +1234,6 @@
 				15EA1B9E21B07CDE0041C5E8 /* FileOpen.cp in Sources */,
 				15EA1BA021B07DB80041C5E8 /* FileSave.cp in Sources */,
 				15A13E1522A5638F0037F95B /* SelUtils.cp in Sources */,
-				15A13E1722A563BC0037F95B /* PopUpUtils.cp in Sources */,
 				15A13E1B22A564050037F95B /* DrawUtils.cp in Sources */,
 				15A13E1D22A5642B0037F95B /* CheckUtils.cp in Sources */,
 				15A13E1F22A564760037F95B /* DialogUtils.cp in Sources */,
@@ -1248,6 +1247,7 @@
 				15642F342739DA9800077218 /* DurationEdit.cp in Sources */,
 				15788210279B02CB008C38C9 /* TupletEdit.cp in Sources */,
 				15424A7027AD77A900B13744 /* TempoEdit.cp in Sources */,
+				15420AE827CAE50000E0D841 /* PopUpUtils.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10965,7 +10965,7 @@ by a byte! ?? I see: have to adjust the <chTopPos> as well as the <byChLeftPos> 
 15 - 20 Feb.
 
 I have no MIDI input device, so I can't test Transcribe Recording in full. It's not worth
-a lot of time anyway, but the palette stuff is fesh in my mind these days, so worth some.
+a lot of time anyway, but the palette stuff is fresh in my mind these days, so worth some.
 
 Structure and status of duration-palette features:
 
@@ -10984,4 +10984,31 @@ undotted and single-dot durations. No problems AFAIK.
 * Transcribe Recording: QuantizeDialog uses DurPalChoiceDlog to display undotted durations
 only. Seems to have no problems except the dialog sometimes has a black box the same size
 as & to the right of the user item?!? Oh well, _really_ not worth spending time on!
+
+---------------------------------------------------------------------------------------
+
+21 - 22 Feb.
+
+Looks like I fixed the "black box the same size as & to the right of the user item" bug
+in Transcribe Recording; it was a nonsensical call to HiliteDurCell in the filter.
+
+Do palettes deserve any more attention? Yes.
+
+- Tool palette:
+	- Code is a mess.
+	- Resizing to a larger size doesn't draw the new area.
++ Set/Add Modifiers: OK
++ Double-clicking a dynamic: OK
+-+ Duration-palette features:
+	+ Set Duration: OK, including code.
+	+ Import MIDI File: OK, but code is a mess; nice if could open palette via keyboard
+	+ Fancy Tuplet: ditto
+	+ Tempo/metronome mark: ditto
+	- Transcribe Recording: ditto
+
+Clean up the code => done (enough, that is).
+
+
+It'd be awfully nice to pin down the N106 file format so people will be motivated to start
+using Ngale 6! -- though I don't plan to myself for awhile.
 

@@ -24,6 +24,7 @@ reclaim heap space, but with the gigabytes of RAM modern computers have, who car
 
 static void			InitToolbox(void);
 static void			LogScoreHeaderFormatInfo(void);
+static void			LogObjAndSubobjInfo(void);
 static void			InitNPalettes(void);
 static Boolean		AddPrefsResource(Handle);
 static OSStatus		GetPrefsFileSpec(unsigned char *name, OSType fType, OSType fCreator,
@@ -36,7 +37,7 @@ static Boolean		PrepareClipDoc(void);
 static void			InstallCoreEventHandlers(void);
 
 
-/* --------------------------------------------------------------- Initialize and ally -- */
+/* ------------------------------------------------------------- Initialize and allies -- */
 /* Do everything that must be done prior to entering main event loop. A great deal of
 this is platform-dependent. */
 
@@ -45,13 +46,13 @@ static void InitToolbox(void)
 	FlushEvents(everyEvent, 0);
 }
 		
+#define DISP_STRUCT_INFO
 #define ScoreHdrFieldOffsetQQ(field)	(long)&((field))-(long)&(headL)
 #define ScoreHdrFieldOffset(dc, field)	(long)&(dc->field)-(long)&(dc->headL)
-#define NoDISP_SCOREHDR_STRUCT
 
 static void LogScoreHeaderFormatInfo(void)
 {
-#ifdef DISP_SCOREHDR_STRUCT
+#ifdef DISP_STRUCT_INFO
 	Document *tD;
 	DocumentN105 *tD5;
 	long noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff, spaceMapOff,
@@ -88,6 +89,40 @@ static void LogScoreHeaderFormatInfo(void)
 	LogPrintf(LOG_DEBUG,
 		"      spaceMap=%ld voiceTab=%ld afterEnd=%ld\n",
 			spaceMapOff, voiceTabOff, afterEnd);
+#endif
+}
+
+static void LogObjAndSubobjInfo(void)
+{
+#ifdef DISP_STRUCT_INFO
+	LogPrintf(LOG_DEBUG,
+		"OBJ SIZES ('N106' fmt): HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld SYSTEM=%ld\n",
+		sizeof(HEADER), sizeof(TAIL), sizeof(SYNC), sizeof(RPTEND), sizeof(PAGE), sizeof(SYSTEM));
+	LogPrintf(LOG_DEBUG,
+		"                        STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld TIMESIG=%ld BEAMSET=%ld\n",
+		sizeof(STAFF), sizeof(MEASURE), sizeof(CLEF), sizeof(KEYSIG), sizeof(TIMESIG), sizeof(BEAMSET));
+	LogPrintf(LOG_DEBUG,
+		"                        CONNECT=%ld DYNAMIC=%ld (no obj) GRAPHIC=%ld OTTAVA=%ld SLUR=%ld\n",
+		sizeof(CONNECT), sizeof(DYNAMIC), sizeof(GRAPHIC), sizeof(OTTAVA), sizeof(SLUR));
+	LogPrintf(LOG_DEBUG,
+		"                        TUPLET=%ld GRSYNC=%ld TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld\n",
+		sizeof(TUPLET), sizeof(GRSYNC), sizeof(TEMPO), sizeof(SPACER), sizeof(ENDING), sizeof(PSMEAS));
+	LogPrintf(LOG_DEBUG,
+		"                        SUPEROBJ=%ld\n",
+		sizeof(SUPEROBJ));
+
+	LogPrintf(LOG_DEBUG,
+		"SUBOBJ SIZES ('N106'):  (no sub) (no sub) ANOTE=%ld ARPTEND=%ld (no sub) (no sub)\n",
+		sizeof(ANOTE), sizeof(ARPTEND));
+	LogPrintf(LOG_DEBUG,
+		"                        ASTAFF=%ld AMEASURE=%ld ACLEF=%ld AKEYSIG=%ld ATIMESIG=%ld ANOTEBEAM=%ld\n",
+		sizeof(ASTAFF), sizeof(AMEASURE), sizeof(ACLEF), sizeof(AKEYSIG), sizeof(ATIMESIG), sizeof(ANOTEBEAM));
+	LogPrintf(LOG_DEBUG,
+		"                        ACONNECT=%ld ADYNAMIC=%d AMODNR=%ld AGRAPHIC=%d ANOTEOTTAVA=%ld ASLUR=%ld\n",
+		sizeof(ACONNECT), sizeof(ADYNAMIC), sizeof(AMODNR), sizeof(AGRAPHIC), sizeof(ANOTEOTTAVA), sizeof(ASLUR));
+	LogPrintf(LOG_DEBUG,
+		"                        ANOTETUPLE=%ld AGRNOTE=%ld (no sub) (no sub) (no sub) APSMEAS=%ld\n",
+		sizeof(ANOTETUPLE), sizeof(AGRNOTE), sizeof(APSMEAS));
 #endif
 }
 
@@ -218,6 +253,7 @@ void Initialize(void)
 	Init_Help();
 	
 	LogScoreHeaderFormatInfo();
+	LogObjAndSubobjInfo();
 	
 	/* See if we have enough memory that the user should be able to do SOMETHING
 	   useful, and enough to get back to the main event loop, where we do our regular

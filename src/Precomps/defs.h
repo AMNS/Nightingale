@@ -112,10 +112,11 @@ enum {								/*  Dialog buttons FIXME: lousy old names; should change!  */
 
 /* -------------------------------------------------------------- User Interface Fonts -- */
 
-#define DUR_MENU_FONTNAME		"\p%popDurs"
-#define DYNMOD_MENU_FONTNAME	"\p%popDynMod"
 #define TINY_PART_LABEL_FONTNUM	32401
 
+/* #defines for names of custom fonts -- one for a pop-up menu of durations and one for
+a pop-up menu of dynamics -- formerly appeared here. In Nightingale 6.0 they're replaced
+by bitmaps read from BMP files. */
 
 /* ------------------------------------------------------------------ Music Characters -- */
 /* Characters in our standard music font, Adobe's "Sonata", and compatible fonts. */

@@ -40,11 +40,14 @@
 #define POPUPSYM_OFFSET 10
 #endif
 
-static void DrawPopupSymbol(short, short);
 #endif
 
 
 /* ============================================= Functions for handling graphic popups == */
+
+/* As of v. 6.0, Nightingale no longer uses graphic popups. */
+
+#ifdef NOMORE_GPOPUPS
 
 Boolean InitGPopUp(
 	PGRAPHIC_POPUP	p,				/* pointer to GRAPHIC_POPUP allocated by caller */
@@ -242,6 +245,7 @@ void DrawGPopUp(PGRAPHIC_POPUP p)
 #define ARROW_LINES 6
 #endif
 
+static void DrawPopupSymbol(short, short);
 static void DrawPopupSymbol(short h, short v)
 {
 	short loop;
@@ -326,7 +330,7 @@ void DisposeGPopUp(PGRAPHIC_POPUP p)
 	p->menu = NULL;
 	if (p->itemChars) DisposePtr(p->itemChars);
 }
-
+#endif
 
 /* ============================== Utilities for handling regular (non-graphic) pop-ups == */
 /* The following utilities for handling pop-ups were written by Resorcerer and are
@@ -604,4 +608,3 @@ void HiliteArrowKey(DialogPtr /*dlog*/, short whichKey, UserPopUp *pPopup,
 		HilitePopUp(p,True);
 	}
 }
-

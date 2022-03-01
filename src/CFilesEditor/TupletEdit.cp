@@ -62,12 +62,12 @@ static void DrawTupletItems(DialogPtr, short);
 
 static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
-	WindowPtr		w;
-	short			ch, type, byChLeftPos;
-	Handle			hndl;
-	Rect			box;
-	Point			where;
-	GrafPtr			oldPort;
+	WindowPtr	w;
+	short		type, byChLeftPos;
+	Handle		hndl;
+	Rect		box;
+	Point		where;
+	GrafPtr		oldPort;
 	
 	w = (WindowPtr)(evt->message);
 	switch (evt->what) {
@@ -84,7 +84,6 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 						bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
 						3*DP_ROW_HEIGHT, box);
 				FrameShadowRect(&box);
-				HiliteDurCell(choiceIdx, &box, durPalCell);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
@@ -92,36 +91,17 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			}
 			break;
 		case activateEvt:
-			if (w==GetDialogWindow(dlog))
-				SetPort(GetDialogWindowPort(dlog));
+			if (w==GetDialogWindow(dlog)) SetPort(GetDialogWindowPort(dlog));
 			break;
 		case mouseDown:
 		case mouseUp:
 			where = evt->where;
 			GlobalToLocal(&where);
 			GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
-			if (PtInRect(where, &box)) {
-				if (evt->what==mouseUp) {
-#if 1
-					/* If the mouseUp was in an invalid (presumably because empty) cell,
-					   ignore it. Otherwise, unhilite the previously-selected cell and
-					   hilite the new one. */
-
-					short newDurIdx = FindDurationCell(where, &box, DP_NCOLS, 1,
-										durPalCell);
-					if (newDurIdx<0 || newDurIdx>(short)DP_NDURATIONS-1) return False;
-					SWITCH_DPCELL(choiceIdx, newDurIdx, &box);
-#endif
-				}
-			*itemHit = SET_DUR_DI;
-			return True;
-		}
+			if (PtInRect(where, &box)) { *itemHit = SET_DUR_DI;  return True; }
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
-				return True;
-			ch = (unsigned char)evt->message;
-			
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			break;
 	}
 	return False;
@@ -208,7 +188,7 @@ Boolean TupletDialog(
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
 	short		ditem, type, i, logDenom, tempNum, maxChange, evenNum, radio;
-	short		oldResFile;
+	//short		oldResFile;
 	short		newLDurCode, lDurCode, deltaLDur, nDotsDummy;
 	Rect		staffRect;
 	Handle		tHdl, hndl;
@@ -232,8 +212,8 @@ Boolean TupletDialog(
 	SetPort(GetDialogWindowPort(dlog));
 	CenterWindow(GetDialogWindow(dlog), 50);
 
-	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);								/* popup code uses Get1Resource */
+	//oldResFile = CurResFile();
+	//UseResFile(appRFRefNum);								/* popup code uses Get1Resource */
 
 	accNum = ptParam->accNum;
 	accDenom = ptParam->accDenom;
@@ -276,7 +256,6 @@ Boolean TupletDialog(
 		}
 
 	GetDialogItem(dlog, SET_DUR_DI, &type, &hndl, &box);
-	InitDurationCells(&box, DP_NCOLS, DP_NROWS_SD, durPalCell);
 	
 	choiceIdx = DurCodeToDurPalIdx(durUnitCode, 0, DP_NCOLS);
 	if (choiceIdx<0) {
@@ -411,7 +390,7 @@ lDurCode, newLDurCode, choiceIdx);
 
 	DisposeDialog(dlog);
 	
-	UseResFile(oldResFile);
+	//UseResFile(oldResFile);
 	SetPort(oldPort);
 	return (ditem==OK);
 }

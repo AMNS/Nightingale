@@ -280,15 +280,14 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));	
 				UpdateDialogVisRgn(dlog);		
-				//UpdateDialog(dlog, dlog->visRgn);
 				FrameDefault(dlog, OK, True);
 				GetDialogItem(dlog, MFSET_DUR_DI, &type, &hndl, &box);
 //LogPrintf(LOG_DEBUG, "TransMFFilter: box tlbr=%d,%d,%d,%d\n", box.top, box.left, box.bottom,
 //box.right);
 				byChLeftPos = choiceIdx*(DP_COL_WIDTH/8);
-				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8, bmpDurationPal.byWidthPadded,
-							DP_ROW_HEIGHT, byChLeftPos, 3*DP_ROW_HEIGHT, box);
-LogPrintf(LOG_DEBUG, "TransMFFilter: choiceIdx=%d byChLeftPos=%d\n", choiceIdx, byChLeftPos);
+				DrawBMPChar(bmpDurationPal.bitmap, DP_COL_WIDTH/8,
+							bmpDurationPal.byWidthPadded, DP_ROW_HEIGHT, byChLeftPos,
+							3*DP_ROW_HEIGHT, box);
 				FrameShadowRect(&box);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
@@ -297,19 +296,14 @@ LogPrintf(LOG_DEBUG, "TransMFFilter: choiceIdx=%d byChLeftPos=%d\n", choiceIdx, 
 			}
 			break;
 		case activateEvt:
-			if (w==GetDialogWindow(dlog))
-				SetPort(GetDialogWindowPort(dlog));
+			if (w==GetDialogWindow(dlog)) SetPort(GetDialogWindowPort(dlog));
 			break;
 		case mouseDown:
 		case mouseUp:
 			where = evt->where;
 			GlobalToLocal(&where);
 			GetDialogItem(dlog, MFSET_DUR_DI, &type, &hndl, &box);
-			if (PtInRect(where, &box)) {
-				NoteInform(DURCHOICE_NODOTS_DLOG);
-				*itemHit = MFSET_DUR_DI;
-				return True;
-			}
+			if (PtInRect(where, &box)) { *itemHit = MFSET_DUR_DI;  return True; }
 			break;
 		case keyDown:
 		case autoKey:

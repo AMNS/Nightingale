@@ -5,7 +5,7 @@ problem for backward compatibility.
 The infomation represented in Conventional Western Music Notation is extraordinarily
 complex and subtle. One reason is that it specifies -- often implicitly -- information
 in several _domains_: Logical, Graphical, and Performance/Playback. These are symbolized
-in comments by "L", "G", and "P". See Nightingale Technical Note #1 for some details
+in comments below by "L", "G", and "P". See Nightingale Technical Note #1 for some details
 and a reference. 
 */
 
@@ -134,7 +134,7 @@ enum {								/* Notehead and rest appearances: */
 };
 
 
-/* ---------------------------------------------------------------- Type 3 = REPEATEND -- */
+/* ---------------------------------------------- Type 3 = ARPTEND, RPTEND (REPEATEND) -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType is in object so unused here */
@@ -188,7 +188,7 @@ typedef struct {
 } SYSTEM, *PSYSTEM;
 
 
-/* -------------------------------------------------------------------- Type 6 = STAFF -- */
+/* ------------------------------------------------------------ Type 6 = ASTAFF, STAFF -- */
 
 #define SHOW_ALL_LINES	15
 
@@ -230,7 +230,7 @@ typedef struct {
 } STAFF, *PSTAFF;
 
 
-/* ------------------------------------------------------------------ Type 7 = MEASURE -- */
+/* -------------------------------------------------------- Type 7 = AMEASURE, MEASURE -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=barline type (see enum below) */
@@ -311,7 +311,7 @@ enum {								/* clef subTypes: */
 #define HIGH_CLEF PERC_CLEF
 
 
-/* ------------------------------------------------------------------- Type 9 = KEYSIG -- */
+/* ---------------------------------------------------------- Type 9 = AKEYSIG, KEYSIG -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=no. of naturals, if nKSItems==0 */
@@ -329,7 +329,7 @@ typedef struct {
 } KEYSIG, *PKEYSIG;
 
 
-/* ----------------------------------------------------------------- Type 10 = TIMESIG -- */
+/* ------------------------------------------------------- Type 10 = ATIMESIG, TIMESIG -- */
 
 typedef struct {
 	SUBOBJHEADER
@@ -363,7 +363,7 @@ enum {								/* subtypes: */
 #define HIGH_TSTYPE N_OVER_DOTTEDEIGHTH
 
 
-/* ----------------------------------------------------------------- Type 11 = BEAMSET -- */
+/* ------------------------------------------------------ Type 11 = ANOTEBEAM, BEAMSET -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -380,7 +380,7 @@ typedef struct {
 	SignedByte	voice;				/* Voice number */
 	Byte		thin;				/* True=narrow lines, False=normal width */
 	Byte		beamRests;			/* True if beam can contain rests */
-	Byte		feather;			/* (unused) 0=normal,1=feather L end (accel.), 2=feather R (decel.) */
+	Byte		feather;			/* (unused) 0=normal, 1=feather L end (accel.), 2=feather R (decel.) */
 	Byte		grace;				/* True if beam consists of grace notes */
 	Byte		firstSystem;		/* True if on first system of cross-system beam */	
 	Byte		crossStaff;			/* True if the beam is cross-staff: staffn=top staff */
@@ -401,7 +401,7 @@ typedef struct {
 } BEAMINFO;
 
 
-/* ----------------------------------------------------------------- Type 12 = CONNECT -- */
+/* ------------------------------------------------------- Type 12 = ACONNECT, CONNECT -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -529,7 +529,7 @@ enum {								/* modCode values */
 };
 
 
-/* ----------------------------------------------------------------- Type 15 = GRAPHIC -- */
+/* ------------------------------------------------------- Type 15 = AGRAPHIC, GRAPHIC -- */
 
 typedef struct {
 	LINK next;
@@ -619,7 +619,7 @@ enum {								/* GRArpeggio sub-subtypes */
 };
 
 
-/* ------------------------------------------------------------------ Type 16 = OTTAVA -- */
+/* ----------------------------------------------------- Type 16 = ANOTEOTTAVA, OTTAVA -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -653,7 +653,7 @@ enum {
 };
 
 
-/* -------------------------------------------------------------------- Type 17 = SLUR -- */
+/* ------------------------------------------------------------- Type 17 = ASLUR, SLUR -- */
 
 /* Types of Slursor behavior: */
 
@@ -696,7 +696,7 @@ typedef struct {
 } SLUR, *PSLUR;
 
 
-/* ------------------------------------------------------------------ Type 18 = TUPLET -- */
+/* ------------------------------------------------------ Type 18 = ANOTETUPLE, TUPLET -- */
 
 /* This struct is used to get information from TupletDialog. */
 
@@ -712,7 +712,7 @@ typedef struct {
 
 typedef struct {
 	LINK			next;			/* index of next subobj */
-	LINK			tpSync;			/* link to Sync containing note/chord */
+	LINK			tpSync;			/* link to Sync containing note/chord/rest */
 } ANOTETUPLE, *PANOTETUPLE;
 
 typedef struct {
@@ -732,7 +732,7 @@ typedef struct {
 } TUPLET, *PTUPLET;
 
 
-/* ---------------------------------------------------------- Type 19 = GRNOTE, GRSYNC -- */
+/* --------------------------------------------------------- Type 19 = AGRNOTE, GRSYNC -- */
 
 typedef ANOTE AGRNOTE;				/* Same struct, though not all fields are used here */
 typedef PANOTE PAGRNOTE;
@@ -784,9 +784,10 @@ typedef struct {
 } ENDING, *PENDING;
 
 
-/* -------------------------------------------------------------- Type 23 = PSEUDOMEAS -- */
+/* -------------------------------------------- Type 23 = APSMEAS, PSMEAS (PSEUDOMEAS) -- */
 /* Pseudomeasures are symbols that look like barlines but have no semantics, i.e., dotted
-barlines and double bars that don't coincide with "real" barlines. */
+barlines and double bars that don't coincide with "real" barlines: they're G domain only,
+while Measures are L and G domain. */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=barline type (see enum below) */
@@ -839,6 +840,9 @@ typedef struct {
 	Byte bogus[sizeof(SUPEROBJ)];
 } SUPEROBJECT, *PSUPEROBJECT;
 
+
+/* ============================================================= Miscellaneous structs == */
+/* The following structs aren't actually object types. */
 
 /* --------------------------------------------------------------------------- CONTEXT -- */
 

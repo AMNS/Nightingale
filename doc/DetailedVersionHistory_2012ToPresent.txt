@@ -3551,7 +3551,7 @@ with a fixed palette (from a BMP file). Affects DurationEdit.h, NResource.h;
 DialogsEditor, DrawUtils, DurationEdit, MIDIFOCmd, TempoEdit (new file), TupletEdit.
 
 Minor changes. Affects .rsrc, info.plist, vars.h; DrawUtils, DurationEdit, MIDIFOCmd,
-TupletEdit.
+MIDIPlay, TupletEdit.
 
 ----------------------------------------------------------------------------------------- B4
 
@@ -3577,3 +3577,12 @@ Minor changes. Affects .rsrc, info.plist, NResourceID.h; DurationEdit, Menu, MID
 TempoEdit, Transcribe, TupletEdit.
 
 ----------------------------------------------------------------------------------------- B6
+
+21 Feb. - 1 Mar.
+
+Removed code to support graphic pop-ups. Affects PopUpUtils.
+
+Minor changes. Affects .rsrc, info.plist, Defs.h, NObjTypes.h; Initialize, MIDIFOCmd,
+MIDIPlay, Transcribe, TupletEdit.
+
+----------------------------------------------------------------------------------------- B7
