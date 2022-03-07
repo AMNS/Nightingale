@@ -16,8 +16,8 @@ Be careful: It's neither a valid C string nor a valid Pascal string! */
 
 #define MEM_ERRINFO 99				/* ExpandFreeList failed */
 
-/* Codes for object types being read/written or for non-read/write call when an I/O
-error occurs (all negative). */
+/* Codes for the object type being read or written or for the non-read/write call when an
+I/O error occurs (all negative) */
 
 #define	HEADERobj -999
 #define VERSIONobj -998
@@ -35,7 +35,9 @@ error occurs (all negative). */
 #define MAKEFSSPECcall -986
 #define NENTRIESerr -899
 #define READHEAPScall -898
-
+#define OMS_Call -799
+#define FM_Call -798
+#define CM_Call -797
 
 void DisplayDocumentHdr(short id, Document *doc);
 short CheckDocumentHdr(Document *doc, short *pFirstErr);

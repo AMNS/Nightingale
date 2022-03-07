@@ -1565,7 +1565,7 @@ Menu, Merge, MIDIFOCmd, Nodes, Reconstruct.
 
 Swapped the association of voice no. and color for red and green. Affects DrawUtils.
 
-Ngale now knows when a note is a cue note; that info is stored in a formerly ununsed bit
+Ngale now knows when a note is a cue note; that info is stored in a formerly unused bit
 in the ANOTE struct (not that it helps anything quite yet). Affects MemMacros.h,
 NTypes.h; Merge.
 
@@ -3586,3 +3586,17 @@ Minor changes. Affects .rsrc, info.plist, Defs.h, NObjTypes.h; Initialize, MIDIF
 MIDIPlay, Transcribe, TupletEdit.
 
 ----------------------------------------------------------------------------------------- B7
+
+2 - 6 Mar.
+
+Formerly, if certain problems were encountered opening a file, Nightingale would give up
+without saying anything; now it gives an error message. Affects File.h; FileOpen.
+
+Formerly, if certain problems were encountered saving a file, Nightingale would give the
+wrong error message; now it gives a correct message. Affects File.h; FileSave.
+
+Minor changes. Affects info.plist, NightTemplates.h, NResourceID.h; DebugHighLevel,
+FileConversion, FileOpen, FileSave, Initialize, InstrDialog, Menu, MIDIMap, MIDIMapInfo,
+PS_Stdio.
+
+----------------------------------------------------------------------------------------- B8

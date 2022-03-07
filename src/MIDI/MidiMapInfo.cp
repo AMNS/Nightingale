@@ -31,15 +31,15 @@ static char *str;
 
 /* Local Prototypes */
 
-static void SIDrawLine(char *);
+static void MMIDrawLine(char *);
 static Boolean GetMidiMapFile(Str255 macfName, NSClientDataPtr pNSD);
 
 
 /* -------------------------------------------------------------------------------------- */
 
-/* Draw the specified C string on the next line in Score Info dialog */
+/* Draw the specified C string on the next line in MIDI Map Info dialog */
 
-static void SIDrawLine(char *s)
+static void MMIDrawLine(char *s)
 {
 	MoveTo(textRect.left, textRect.top+linenum*LEADING);
 	DrawCString(s);
@@ -56,9 +56,7 @@ static Boolean GetMidiMapFile(Str255 macfName, NSClientDataPtr pNSD)
 
 	err = OpenFileDialog(kNavGenericSignature, 0, inputType, pNSD);
 	
-	if (err != noErr || pNSD->nsOpCancel) {
-		return False;
-	}		
+	if (err != noErr || pNSD->nsOpCancel) return False;
 	
 	FSSpec fsSpec = pNSD->nsFSSpec;
 	Pstrcpy(macfName, fsSpec.name);
@@ -66,9 +64,7 @@ static Boolean GetMidiMapFile(Str255 macfName, NSClientDataPtr pNSD)
 }
 
 
-/* 
- * Draw text border 
- */
+/* Draw text border */
 	
 static void FrameTextRect(Rect *txRect) 
 {
@@ -88,7 +84,7 @@ static void PrintMidiMap(Document *doc)
 	
 	GetIndCString(fmtStr, MIDIMAPINFO_STRS, 7);   		/* "        A system contains %d staves." */
 	sprintf(str, fmtStr);
-	SIDrawLine(str);
+	MMIDrawLine(str);
 	
 	GetIndCString(fmtStr, MIDIMAPINFO_STRS, 8);   		/* "        A system contains %d staves." */
 	PMMMidiMap pMidiMap = GetDocMidiMap(doc); 
@@ -101,7 +97,7 @@ static void PrintMidiMap(Document *doc)
 								 i + 2, pMidiMap->noteNumMap[i+2],
 								 i + 3,  pMidiMap->noteNumMap[i+3]);
 								 
-		SIDrawLine(str);
+		MMIDrawLine(str);
 	}
 	ReleaseDocMidiMap(doc);
 }
@@ -115,7 +111,7 @@ static void DrawMidiMapText(Document *doc)
 	linenum = 1;
 	GetIndCString(fmtStr, MIDIMAPINFO_STRS, 1);					/* "MIDI Map Information" */
 	sprintf(str, fmtStr);
-	SIDrawLine(str);
+	MMIDrawLine(str);
 	if (doc) {
 		if (HasMidiMap(doc)) {
 			Str255 fName;
@@ -123,18 +119,18 @@ static void DrawMidiMapText(Document *doc)
 			Pstrcpy(fName, fsSpec->name);
 			GetIndCString(fmtStr, MIDIMAPINFO_STRS, 4);   		/* "    MIDI Map File: %s" */
 			sprintf(str, fmtStr, PtoCstr(fName));
-			SIDrawLine(str);
+			MMIDrawLine(str);
 			
 			patchNum = GetDocMidiMapPatch(doc);
 			if (patchNum < 0)  {
 				GetIndCString(fmtStr, MIDIMAPINFO_STRS, 6);   	/* "    No MIDI patch for score %s" */
 				sprintf(str, fmtStr, doc->name);
-				SIDrawLine(str);
+				MMIDrawLine(str);
 			}
 			else {
 				GetIndCString(fmtStr, MIDIMAPINFO_STRS, 2);   	/* "    Patch:  %d" */
 				sprintf(str, fmtStr, patchNum);
-				SIDrawLine(str);				
+				MMIDrawLine(str);				
 			}
 			
 			PrintMidiMap(doc);
@@ -142,13 +138,13 @@ static void DrawMidiMapText(Document *doc)
 		else {
 			GetIndCString(fmtStr, MIDIMAPINFO_STRS, 5);   		/* "    No MIDI Map for document %s." */
 			sprintf(str, fmtStr, doc->name);
-			SIDrawLine(str);
+			MMIDrawLine(str);
 		}
 	}
 	else {
 		GetIndCString(fmtStr, SCOREINFO_STRS, 7);   			/* "    Map:" */
 		sprintf(str, fmtStr);
-		SIDrawLine(str);
+		MMIDrawLine(str);
 	}
 
 }
@@ -168,8 +164,8 @@ static void RedrawMidiMapText(Document *doc, Rect *txRect)
 
 void MidiMapInfo()
 	{
-		DialogPtr dialogp; GrafPtr oldPort;
-		short ditem, aShort; Handle aHdl;
+		DialogPtr dialogp;  GrafPtr oldPort;
+		short ditem, aShort;  Handle aHdl;
 		Document *doc=GetDocumentFromWindow(TopDocument);
 		Boolean keepGoing;
 		ModalFilterUPP	filterUPP;
@@ -212,19 +208,15 @@ void MidiMapInfo()
 			switch (ditem) {
 			
 				case INSTALL_DI:
-					if (doc) 
-					{						
+					if (doc) {						
 						NSClientData mmnsData;
 						Str255 mmfilename;
 						
-						if (GetMidiMapFile(mmfilename, &mmnsData)) 
-						{
-							if (ChangedMidiMap(doc,  &mmnsData.nsFSSpec)) 
-							{
+						if (GetMidiMapFile(mmfilename, &mmnsData)) {
+							if (ChangedMidiMap(doc,  &mmnsData.nsFSSpec)) {
 								doc->changed = True;
 								InstallMidiMap(doc, &mmnsData.nsFSSpec);
-								OpenMidiMapFile(doc, mmfilename, &mmnsData);
-								
+								OpenMidiMapFileNSD(doc, mmfilename, &mmnsData);
 								RedrawMidiMapText(doc, &textRect);
 							}
 						}
@@ -252,6 +244,7 @@ void MidiMapInfo()
 		HideWindow(GetDialogWindow(dialogp));
 
 		/* If user OK'd dialog and changed the comment, save the change. FIXME: NOPE! */
+		
 		if (ditem==OK_DI) {
 		}
 		

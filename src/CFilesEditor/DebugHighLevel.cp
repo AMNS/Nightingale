@@ -316,8 +316,8 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 
 
 /* -------------------------------------------------------------- DErrLimit and friend -- */
-/* DErrLimit returns True if Debug should quit because the maximum no. of errors has
-been exceeded. */
+/* DErrLimit returns True if Debug should quit because the maximum no. of errors has been
+exceeded. */
 
 static Boolean alreadyAsked, userSaidQuit;
 
@@ -357,8 +357,8 @@ Boolean DErrLimit()
 
 
 /* --------------------------------------------------------------------------- DoDebug -- */
-/* Ask user what info they want and display/check it.  Returns False normally,
-True if things are so badly screwed up that quitting immediately is desirable. */
+/* Ask user what info they want and display/check it.  Returns False normally, True if
+things are so badly screwed up that quitting immediately is desirable. */
 
 Boolean DoDebug(
 			char *label			/* Identifying string to display */
@@ -415,6 +415,7 @@ Boolean DoDebug(
 		case MIN_THINGS:
 			if (DCheckEverything(doc, what==EVERYTHING, what==MIN_THINGS)) {
 					/* Things are in a disastrous state. Quit before we crash or hang! */
+					
 					LogPrintf(LOG_ERR, "•DoDebug: CAN'T FINISH CHECKING.\n"); 					
 					return True;							
 			}
@@ -522,6 +523,7 @@ Boolean DoDebug(
 				status = DCheckNode(doc, pL, objList, False);
 				if (status<0) {
 					/* Things are in a disastrous state. Quit before we crash or hang! */
+					
 					LogPrintf(LOG_ERR, "•DoDebug: CAN'T FINISH CHECKING.\n"); 					
 					return True;							
 				}

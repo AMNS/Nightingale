@@ -43,8 +43,8 @@ Here is a complete correct entry.
  
 Either 'n' or <space> can be used for natural.
  
-FIXME: It appears that if the MIDI note no. and the note/accidental disagree,
-MIDI note no. 0 and C-natural are used instead: not good! */
+FIXME: It appears that if the MIDI note no. and the note/accidental disagree, MIDI note
+no. 0 and C-natural are used instead: not good! */
  
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -889,7 +889,9 @@ static void InstrMoveRange(
 		case TRANS_RAD:
 			m = TRANS; break;
 		case BOT_RAD:
-			m = BOT; break; }
+		default:
+			m = BOT; break;
+	}
 
 	oct = master.ttb[m].midiNote / TWELVE;
 	NoteErase(octTbl[oct] + noteInfo[m]->v_pos, NOTEHEAD, noteInfo[m]->n.acc,
@@ -918,13 +920,14 @@ static void InstrMoveRange(
 	DrawStaves();
 		
 	/* Draw all */
+	
 	for (m = 0; m < T_TRNS_B; m++) {
 		oct = master.ttb[m].midiNote / TWELVE;	
 		NoteDraw(octTbl[oct] + noteInfo[m]->v_pos, NOTEHEAD, noteInfo[m]->n.acc,
 			(m == TRANS ? True : False) );	/* last param for offsetting transpose note from extrema */
 	}
+
 	DrawNoteNames(False);					/* update name and accidental for current note only */
-	
 }
 
 
@@ -1527,26 +1530,26 @@ Boolean PartMIDIDialog(Document * /*doc*/, PARTINFO *mp, Boolean *allParts)
 		filterUPP = NewModalFilterUPP(TheCMPMFilter);
 		if (filterUPP == NULL) {
 			MissingDialog(OMS_PARTMIDI_DLOG);
-			return(0);
+			return False;
 		}
 		theDialog = GetNewDialog(OMS_PARTMIDI_DLOG, 0L, BRING_TO_FRONT);
 		if (!theDialog) {
 			DisposeModalFilterUPP(filterUPP);
 			MissingDialog(OMS_PARTMIDI_DLOG);
-			return(0);
+			return False;
 		}
 	}
 	else {
 		filterUPP = NewModalFilterUPP(OKButFilter);
 		if (filterUPP == NULL) {
 			MissingDialog(PARTMIDI_DLOG);
-			return(0);
+			return False;
 		}
 		theDialog = GetNewDialog(PARTMIDI_DLOG, 0L, BRING_TO_FRONT);
 		if (!theDialog) {
 			DisposeModalFilterUPP(filterUPP);
 			MissingDialog(PARTMIDI_DLOG);
-			return(0);
+			return False;
 		}
 	}
 
@@ -1747,9 +1750,9 @@ Boolean PartMIDIDialog(Document * /*doc*/, PARTINFO *mp, Boolean *allParts)
 	if (useWhichMIDI==MIDIDR_CM) {
 		if (master.validDeviceChannel && master.changedDeviceChannel) {
 			/* Ask user if they want to save the entered device/channel/patch as default
-			 * for instrument, or... could add a new instrument type (need more flags
-			 * to know when this has happened).  If so, then pack up a new instrument
-			 * string and either insert/append a new instrument or overlay an existing one.
+			   for instrument, or... could add a new instrument type (need more flags
+			   to know when this has happened).  If so, then pack up a new instrument
+			   string and either insert/append a new instrument or overlay an existing one.
 			 */
 		}
 		if (cmVecDevices != NULL) {
@@ -1763,7 +1766,7 @@ Boolean PartMIDIDialog(Document * /*doc*/, PARTINFO *mp, Boolean *allParts)
 	DisposeDialog(theDialog);
 	SetPort(oldPort);
 		
-	return ((itemHit==OK || itemHit==PM_ALLPARTS) ? 1 : 0);
+	return (itemHit==OK || itemHit==PM_ALLPARTS);
 }
 
 

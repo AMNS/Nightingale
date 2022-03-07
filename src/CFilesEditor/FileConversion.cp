@@ -1858,13 +1858,15 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 	for (pL = startL; pL; pL = RightLINK(pL)) {
 #ifdef DEBUG_LOOP
 		/* There's a weird bug in the OS 10.5 Console utility where if messages are
-		   written to the log at too high a rate, some just disappear; to make it worse,
-		   the ones that disappear seem to be random! With 10.6 you get a warning at 500
-		   messages/sec., presumably because Apple decided it was easier than fixing the
-		   bug and good enough.) To sidestep the bug, add a delay each time through.
-		   Note that this makes converting large files much slower, so it should be
-		   #ifdef'd out or removed completely if we're not concerned about getting all
-		   the messages.  */
+		   written to the log at too high a rate, some just disappear. To make it worse,
+		  the ones that disappear seem to be random, and there's no indication there's
+		  a problem! With the 10.6 Console, you at least get a warning at 500 messages
+		  in a second; presumably Apple decided that was good enough, and easier than
+		  fixing the bug.
+		  
+		   To sidestep the bug, we add a delay each time through. Note that this makes
+		   converting large files much slower, so it should be #ifdef'd out or removed
+		   completely if we're not concerned about getting all the messages.  */
 		   
 		if (startL==pL) LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING EACH TIME THRU LOOP TO AID DEBUGGING.  (ConvertObjSubobjs) ******\n");
 		SleepMS(3);

@@ -37,16 +37,12 @@ static Boolean		PrepareClipDoc(void);
 static void			InstallCoreEventHandlers(void);
 
 
-/* ------------------------------------------------------------- Initialize and allies -- */
-/* Do everything that must be done prior to entering main event loop. A great deal of
-this is platform-dependent. */
+/* The following code is intended to be compiled once in a blue moon, when the file
+   format changes, to collect information for Nightingale documentation. That info (as
+   of Feb. 2022, for formats 'N105' and 'N106') is in Nightingale Tech Note #1, the
+   Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt). */	
 
-static void InitToolbox(void)
-{
-	FlushEvents(everyEvent, 0);
-}
-		
-#define DISP_STRUCT_INFO
+#define NoDISP_STRUCT_INFO
 #define ScoreHdrFieldOffsetQQ(field)	(long)&((field))-(long)&(headL)
 #define ScoreHdrFieldOffset(dc, field)	(long)&(dc->field)-(long)&(dc->headL)
 
@@ -58,11 +54,6 @@ static void LogScoreHeaderFormatInfo(void)
 	long noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff, spaceMapOff,
 		voiceTabOff, afterEnd;
 
-	/* The following code is intended to be compiled once in a blue moon, when the file
-	   format changes, to collect information for Nightingale documentation. That info
-	   (as of Jan. 2021, for formats 'N105' and 'N106') is in Nightingale Tech Note #1,
-	   the Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt). */
-	
 	noteInsFeedbackOff = ScoreHdrFieldOffset(tD5, comment[MAX_COMMENT_LEN+1]);
 	fontNameMNOff = ScoreHdrFieldOffset(tD5, fontNameMN[0]);
 	nfontsUsedOff = ScoreHdrFieldOffset(tD5, nfontsUsed);
@@ -126,6 +117,16 @@ static void LogObjAndSubobjInfo(void)
 #endif
 }
 
+
+/* ------------------------------------------------------------- Initialize and allies -- */
+/* Do everything that must be done prior to entering main event loop. A great deal of
+this is platform-dependent. */
+
+static void InitToolbox(void)
+{
+	FlushEvents(everyEvent, 0);
+}
+		
 
 #define NPALETTE_IMAGE_DIR "/Library/Application\ Support"
 

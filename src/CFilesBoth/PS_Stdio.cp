@@ -47,10 +47,9 @@ To show a rectangle 4 in. wide and 3 in. high at the top-left of the page, make 
 
 #define DDFact		pt2d(1)		 /* points-to-DDIST factor */
 
-/*
- *	These are used to remember the type of last font used, so that we can optimize
- *	font changes.
- */
+/* These are used to remember the type of last font used, so that we can optimize font
+changes. */
+
 enum {
 	F_None,
 	F_Music,
@@ -84,7 +83,7 @@ static Boolean fileOpened;			/* True when there is an opened file */
 static Boolean handleOpened;		/* True when there is an opened handle */
 static Handle prec103;				/* The resource to be downloaded once per job */
 static Handle theTextHandle;
-static char *buffer,*bufTop,*bp;	/* For buffered output to file */
+static char *buffer, *bufTop, *bp;	/* For buffered output to file */
 static short thisFont;				/* Latest set font */
 static short musicPtSize;			/* Latest point size of latest music font */
 static short musicSizePercent;		/* Latest percent scaling of music font */
@@ -100,19 +99,19 @@ static DDIST oldBar,				/* For optimizing PostScript versions */
 
 static DDIST pageWidth,				/* Sizes of page in whatever coordinates */
 			 pageHeight,
-			 wStaff,wLedger,		/* Widths of staff lines, ledger lines, */
-			 wBar,wStem,			/*   barlines, note stems */
+			 wStaff, wLedger,		/* Widths of staff lines, ledger lines, */
+			 wBar, wStem,			/*   barlines, note stems */
 			 lineSpace,				/* Distance between adjacent staff lines */
 			 stemFudge;				/* For shortening stems at notehead end */
 
 
 /* =================================================================== Public Routines == */
 
-/* Open file and prepare to output PostScript.  If another file is already open,
-then we close it before opening the new one.
+/* Open file and prepare to output PostScript.  If another file is already open, we
+close it before opening the new one.
 
-* If usingWhat is USING_FILE, PostScript text we create is sent to the given filename
-and directory.
+* If usingWhat is USING_FILE, PostScript text we create is sent to the given filename and
+directory.
 * If usingWhat is USING_PRINTER, the PostScript text is sent to the current printer, and
 the other arguments are ignored.
 * If usingWhat is USING_HANDLE, the PostScript text is stored in the buffer as a handle,
@@ -189,7 +188,7 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
 
 /* Close the currently open PostScript output file and/or printer connection, writing
 whatever tail information needed to wind things down.  If no currently open output file,
-does nothing. */
+do nothing. */
 
 OSErr PS_Close()
 	{
@@ -227,17 +226,14 @@ Handle PS_GetTextHandle()
 	}
 
 
-/*
- *	Write out the PostScript preambles and definitions for every Nightingale
- *	print file.  If we're being called with usingPrinter, then most of the
- *	arguments here are ignored, since the Print Manager is automatically taking
- *	care of landscape, etc.
- */
+/* Write out the PostScript preambles and definitions for every Nightingale print file. If
+we're being called with usingPrinter, then most of the arguments here are ignored, since
+the Print Manager automatically takes care of landscape, etc. */
 
 OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTFLOAT scaleFactor,
 						Boolean landscape, Boolean doEncoding, Rect *bBox, Rect *paper)
 	{
-		short percent,width,height,paperWidth,paperHeight,resID;
+		short percent, width, height, paperWidth, paperHeight, resID;
 		Rect box;  unsigned long dateTime;  Str255 dateTimeStr;
 		static Rect thisImageRect;
 		char fmtStr[256], str[256];
@@ -260,12 +256,12 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 			PS_Print("%%%%Creator: %s %s\r",PROGRAM_NAME,applVerStr);
 			GetDateTime(&dateTime);
 			//IUDateString(dateTime,abbrevDate,dateTimeStr);
-			DateString(dateTime,abbrevDate,dateTimeStr,NULL);
-			PS_Print("%%%%CreationDate: %p",dateTimeStr);
+			DateString(dateTime, abbrevDate, dateTimeStr, NULL);
+			PS_Print("%%%%CreationDate: %p", dateTimeStr);
 			//IUTimeString(dateTime,True,dateTimeStr);
-			TimeString(dateTime,True,dateTimeStr,NULL);
-			PS_Print(" [%p]\r",dateTimeStr);
-			PS_Print("%%%%Pages: %ld\r",(long)nPages);
+			TimeString(dateTime, True, dateTimeStr, NULL);
+			PS_Print(" [%p]\r", dateTimeStr);
+			PS_Print("%%%%Pages: %ld\r", (long)nPages);
 			}
 		
 		paperWidth = scaleFactor * (thisImageRect.right - thisImageRect.left);
@@ -273,58 +269,60 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 		
 		if (landscape) {
 			short tmp;
-			tmp = paperHeight; paperHeight = paperWidth; paperWidth = tmp;
+			tmp = paperHeight;  paperHeight = paperWidth;  paperWidth = tmp;
 			}
 		
 		box = *bBox;
 		width = box.right - box.left;
 		height = box.bottom - box.top;
-		/*
-		 *	bBox is delivered in screen coordinates, which are upside down
-		 *	compared to PostScript's default coordinates, which BoundingBox
-		 *	expects them to be in, so we flip w/r/t the page.
-		 */
+		
+		/* bBox is delivered in screen coordinates, which are upside down compared to
+		   PostScript's default coordinates, which BoundingBox expects them to be in; so
+		   we flip w/r/t the page. */
+		   
 		box.top = paperHeight - bBox->top;
 		box.bottom = box.top - (scaleFactor*height);
 		box.right *= scaleFactor;
 		
 		if (landscape) {
-			short t,l,r,b;
+			short t, l, r, b;
 			l = paperWidth - (height*scaleFactor);		/* Paper width minus image height */
 			r = paperWidth;
 			t = paperHeight;
 			b = paperHeight - (width*scaleFactor);
-			SetRect(&box,l,t,r,b);
+			SetRect(&box, l, t, r, b);
 			}
 
 		if (usingFile) {
-			PS_Print("%%%%BoundingBox: %ld %ld %ld %ld\r",(long)box.left,(long)box.bottom,(long)box.right,(long)box.top);
+			PS_Print("%%%%BoundingBox: %ld %ld %ld %ld\r", (long)box.left, (long)box.bottom,
+						(long)box.right, (long)box.top);
 			PS_Print("%%%%DocumentFonts: (atend)\r");
 			PS_Print("%%%%EndComments\r\r");
 			}
-		/*
-		 *	Read TEXT resources in which we keep our music drawing procedures as
-		 *	well as a Sonata encoding (for homebrew PostScript output). The
-		 *	following is a table of contents of words we can call upon:
-		 *		BK	Bracket
-		 *		BL	Barline
-		 *		BM	Beam, or other thickened line with vertical cutoff
-		 *		BP	Begin Page
-		 *		BR	Brace
-		 *		EP	End Page
-		 *		LHT	Thickened line with horizontal cutoff
-		 *		LL	Ledgerline
-		 *		MC	Move and curveto
-		 *		MF	MusicFont (sets size, quarternote width, etc.)
-		 *		ML	Move and Line
-		 *		MS	Move and Show
-		 *		NF	New Font
-		 *		NMF	New Music Font (changes size only)
-		 *		SD	Notehead with Stem Down: see details below
-		 *		SDI	Invisible notehead with Stem Down: see details below
-		 *		SFL	Staffline
-		 *		SL	Slur (curveto and closepath)
-		 *		SU	Notehead with Stem Up
+			
+		/* Read TEXT resources in which we keep our music drawing procedures as well as
+		   a Sonata encoding (for homebrew PostScript output). Here are the words we can
+		   call upon:
+		   
+			BK	Bracket
+			BL	Barline
+		 	BM	Beam, or other thickened line with vertical cutoff
+		 	BP	Begin Page
+		 	BR	Brace
+		 	EP	End Page
+		 	LHT	Thickened line with horizontal cutoff
+		 	LL	Ledgerline
+		 	MC	Move and curveto
+		 	MF	MusicFont (sets size, quarternote width, etc.)
+		 	ML	Move and Line
+		 	MS	Move and Show
+		 	NF	New Font
+		 	NMF	New Music Font (changes size only)
+		 	SD	Notehead with Stem Down: see details below
+		 	SDI	Invisible notehead with Stem Down: see details below
+		 	SFL	Staffline
+		 	SL	Slur (curveto and closepath)
+		 	SU	Notehead with Stem Up
 		 */
 		 
 		if (usingFile)
@@ -336,9 +334,10 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 		if (PS_Resource(-1,'TEXT',resID=128)) goto PSRErr;			/* Start Preamble (1) */
 
 		//PS_Print("%%••••\r");
-		/* /qw needs stringwidth of a char whose code depends on the music font.
-			Formerly, this was 'q', but MCH_quarterNoteHead is same width as 'q' in
-			Sonata, and MCH_quarterNoteHead is a better choice for other fonts. */
+		/* /qw needs stringwidth of a char whose code depends on the music font. Formerly,
+		   this was 'q', but MCH_quarterNoteHead is same width as 'q' in Sonata, and
+		   MCH_quarterNoteHead is a better choice for other fonts. */
+		   
 		glyph = MapMusChar(doc->musFontInfoIndex, MCH_quarterNoteHead);
 		sprintf(str, "\\%o", glyph);
 		PS_Print("/SQW {/qw (%s)stringwidth pop def} def\r", str);
@@ -350,10 +349,12 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 			provide a homebrew method that draws the braces without relying on the font.
 			(Why was this provided before?) For fonts like Petrucci that don't have the
 			brace chars, we use only the homebrew method.  -JGG */
+			
 		if (PS_Resource(-1,'TEXT',resID=130)) goto PSRErr;			/* Curly brace (1) */
 		if (MusFontHasCurlyBraces(doc->musFontInfoIndex)) {
 		
 			/* This code is here instead of in resources so that we can map brace chars. */
+			
 			glyph = MapMusChar(doc->musFontInfoIndex, MCH_braceup);
 			sprintf(str, "\\%o", glyph);
 			PS_Print("   (%s)CH/cBot XD/cTop XD\r", str);
@@ -381,11 +382,10 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 		//PS_Print("%%••••\r");
 		/* Now directly print stuff that needs information from here */
 		
-		PS_Print("/MFS %ld def\r",(long)musicPtSize);
-		PS_Print("/DCF %ld def\r",(long)DDFact);
+		PS_Print("/MFS %ld def\r", (long)musicPtSize);
+		PS_Print("/DCF %ld def\r", (long)DDFact);
 		ddFact = DDFact;
-		if ((ddFact != 16) || (percent != 100))
-		{
+		if ((ddFact != 16) || (percent != 100)) {
 			temp = 0;
 			temp++;
 		}
@@ -394,31 +394,28 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 		lPercent = dPercent;
 		sdcf = dSdcf;
 		//PS_Print("/SDCF %ld %ld mul def\r", lPercent);
-		PS_Print("/SDCF %ld 100 %ld div mul def\r",(long)DDFact,(long)percent);
+		PS_Print("/SDCF %ld 100 %ld div mul def\r", (long)DDFact, (long)percent);
 		
-		/*
-		 *	Transformation matrix that we will multiply the current transformation
-		 *	matrix by.  After the multiplication, PostScript's user coordinate system
-		 *	should be the same as our paper-relative DDIST upper-left origin system.
-		 */
+		/* Transformation matrix that we will multiply the current transformation matrix
+		   by. After the multiplication, PostScript's user coordinate system should be
+		   the same as our paper-relative DDIST upper-left origin system. */
 		
 		if (usingFile)
 			if (landscape) 
 				PS_Print("/MX [0 -1 SDCF div -1 SDCF div 0 %l %l] def\r",
-								paperWidth,paperHeight);
+								paperWidth, paperHeight);
 			 else
-				PS_Print("/MX [1 SDCF div 0 0 -1 SDCF div 0 %ld] def\r",(long)paperHeight);
+				PS_Print("/MX [1 SDCF div 0 0 -1 SDCF div 0 %ld] def\r", (long)paperHeight);
 		 else {
-		 	/*
-		 	 *	LaserPrep "kindly" makes the simulated QuickDraw origin the first
-		 	 *	imageable point on the page, which is about 30 pts in from the upper
-		 	 *	left corner.  We undo this "favor" here by adding back their translation
-		 	 *	component, since Nightingale gives the user the illusion that all
-		 	 *	parts of a piece of paper are printable on, and since its origin is
-		 	 *	the upper left corner of the sheet.  Actually, Nightingale
-		 	 *	should not allow the user to set the margins (in Master Page) to
-		 	 *	something less than the current imageable area.
-		 	 */
+		 	/* LaserPrep "kindly" makes the simulated QuickDraw origin the first
+		 	imageable point on the page, which is about 30 pts in from the upper left
+		 	corner.  We undo this "favor" here by adding back their translation
+		 	component, since Nightingale gives the user the illusion that all parts of a
+		 	piece of paper are printable on, and since its origin is the upper left
+		 	corner of the sheet.  Actually, Nightingale should not allow the user to set
+		 	the margins (in Master Page) to something less than the current imageable
+		 	area. */
+			
 			PS_Print("/MX [1 SDCF div 0 0 1 SDCF div %ld %ld] def\r",
 								(long)thisImageRect.left,(long)thisImageRect.top);
 			}
@@ -434,20 +431,18 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 			earlier.  But all this is *way* more complicated than you'd expect, so we
 			just store the PS font name in the 'MFEx' resource. You can get this name
 			using the ancient Varityper ToolKit program. */
+			
 		PS_Print("/MF {/%p findfont exch DCF mul dup neg FMX scale makefont setfont} BD\r",
 									musFontInfo[doc->musFontInfoIndex].postscriptFontName);
 
 		PS_Print("\rend         %% NightingaleDict\r\r");
 		//PS_Print("%%••••\r");
 
-		/*
-		 *	Once the final transformation is settled, we'll push it onto the graphics
-		 *	state stack, to be restored and pushed again after every showpage.  This
-		 *	keeps it the same on every page, since showpage resets it.
-		 */
+		/* Once the final transformation is settled, we'll push it onto the graphics
+		   state stack, to be restored and pushed again after every showpage. Since
+		   showpage resets it, this keeps it the same on every page. */
 		
-		if (usingFile)
-			PS_Print("%%%%EndProlog\r");
+		if (usingFile) PS_Print("%%%%EndProlog\r");
 
 		return thisError;
 
@@ -463,8 +458,8 @@ PSRErr:
 OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOAT scaleFactor,
 						Boolean landscape, Boolean doEncoding, Rect *bBox, Rect *paper)
 	{
-		short percent,width,height,paperWidth,paperHeight,resID;
-		Rect box; unsigned long dateTime; Str255 dateTimeStr;
+		short percent, width, height, paperWidth, paperHeight, resID;
+		Rect box;  unsigned long dateTime;  Str255 dateTimeStr;
 		static Rect thisImageRect;
 		char fmtStr[256];
 		char str[256];
@@ -483,13 +478,13 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 			PS_Print("%%%%Title: %p\r",docName);
 			PS_Print("%%%%Creator: %s %s\r",PROGRAM_NAME,applVerStr);
 			GetDateTime(&dateTime);
-			//IUDateString(dateTime,abbrevDate,dateTimeStr);
-			DateString(dateTime,abbrevDate,dateTimeStr,NULL);
-			PS_Print("%%%%CreationDate: %p",dateTimeStr);
-			//IUTimeString(dateTime,True,dateTimeStr);
-			TimeString(dateTime,True,dateTimeStr,NULL);
-			PS_Print(" [%p]\r",dateTimeStr);
-			PS_Print("%%%%Pages: %ld\r",(long)nPages);
+			//IUDateString(dateTime, abbrevDate, dateTimeStr);
+			DateString(dateTime, abbrevDate, dateTimeStr, NULL);
+			PS_Print("%%%%CreationDate: %p", dateTimeStr);
+			//IUTimeString(dateTime, True, dateTimeStr);
+			TimeString(dateTime, True, dateTimeStr, NULL);
+			PS_Print(" [%p]\r", dateTimeStr);
+			PS_Print("%%%%Pages: %ld\r", (long)nPages);
 			}
 		
 		paperWidth = scaleFactor * (thisImageRect.right - thisImageRect.left);
@@ -503,53 +498,54 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 		box = *bBox;
 		width = box.right - box.left;
 		height = box.bottom - box.top;
-		/*
-		 *	bBox is delivered in screen coordinates, which are upside down
-		 *	compared to PostScript's default coordinates, which BoundingBox
-		 *	expects them to be in, so we flip w/r/t the page.
-		 */
+
+		/* bBox is delivered in screen coordinates, which are upside down compared to
+		   PostScript's default coordinates, which BoundingBox expects them to be in; so
+		   we flip w/r/t the page. */
+		   
 		box.top = paperHeight - bBox->top;
 		box.bottom = box.top - (scaleFactor*height);
 		box.right *= scaleFactor;
 		
 		if (landscape) {
-			short t,l,r,b;
+			short t, l, r, b;
 			l = paperWidth - (height*scaleFactor);		/* Paper width minus image height */
 			r = paperWidth;
 			t = paperHeight;
 			b = paperHeight - (width*scaleFactor);
-			SetRect(&box,l,t,r,b);
+			SetRect(&box, l, t, r, b);
 			}
 
 		if (usingFile) {
-			PS_Print("%%%%BoundingBox: %ld %ld %ld %ld\r",(long)box.left,(long)box.bottom,
-						(long)box.right,(long)box.top);
+			PS_Print("%%%%BoundingBox: %ld %ld %ld %ld\r",(long)box.left, (long)box.bottom,
+						(long)box.right, (long)box.top);
 			PS_Print("%%%%DocumentFonts: (atend)\r");
 			PS_Print("%%%%EndComments\r\r");
 			}
-		/*
-		 *	Read TEXT resources in which we keep our music drawing procedures as
-		 *	well as a Sonata encoding (for homebrew PostScript output). The
-		 *	following is a table of contents of words we can call upon:
-		 *		BK	Bracket
-		 *		BL	Barline
-		 *		BM	Beam, or other thickened line with vertical cutoff
-		 *		BP	Begin Page
-		 *		BR	Brace
-		 *		EP	End Page
-		 *		LHT	Thickened line with horizontal cutoff
-		 *		LL	Ledgerline
-		 *		MC	Move and curveto
-		 *		MF	MusicFont (sets size, quarternote width, etc.)
-		 *		ML	Move and Line
-		 *		MS	Move and Show
-		 *		NF	New Font
-		 *		NMF	New Music Font (changes size only)
-		 *		SD	Notehead with Stem Down: see details below
-		 *		SDI	Invisible notehead with Stem Down: see details below
-		 *		SFL	Staffline
-		 *		SL	Slur (curveto and closepath)
-		 *		SU	Notehead with Stem Up
+			
+		/* Read TEXT resources in which we keep our music drawing procedures as well as
+		   a Sonata encoding (for homebrew PostScript output). Here are the words we can
+		   call upon:
+		   
+			BK	Bracket
+		 	BL	Barline
+		 	BM	Beam, or other thickened line with vertical cutoff
+		 	BP	Begin Page
+		 	BR	Brace
+		 	EP	End Page
+		 	LHT	Thickened line with horizontal cutoff
+		 	LL	Ledgerline
+		 	MC	Move and curveto
+		 	MF	MusicFont (sets size, quarternote width, etc.)
+		 	ML	Move and Line
+		 	MS	Move and Show
+		 	NF	New Font
+		 	NMF	New Music Font (changes size only)
+		 	SD	Notehead with Stem Down: see details below
+		 	SDI	Invisible notehead with Stem Down: see details below
+		 	SFL	Staffline
+		 	SL	Slur (curveto and closepath)
+		 	SU	Notehead with Stem Up
 		 */
 		 
 		if (usingFile)
@@ -557,9 +553,10 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 		
 		if (PS_Resource(-1,'TEXT',resID=128)) goto PSRErr;		/* Start Preamble (1) */
 		//PS_Print("%%••••\r");
-		/* /qw needs stringwidth of a char whose code depends on the music font.
-			Formerly, this was 'q', but MCH_quarterNoteHead is same width as 'q' in
-			Sonata, and MCH_quarterNoteHead is a better choice for other fonts. */
+		/* /qw needs stringwidth of a char whose code depends on the music font. Formerly,
+		   this was 'q', but MCH_quarterNoteHead is same width as 'q' in Sonata, and
+		   MCH_quarterNoteHead is a better choice for other fonts. */
+
 		glyph = MapMusChar(doc->musFontInfoIndex, MCH_quarterNoteHead);
 		sprintf(str, "\\%o", glyph);
 		PS_Print("/SQW {/qw (%s)stringwidth pop def} def\r", str);
@@ -571,9 +568,11 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 			provide a homebrew method that draws the braces without relying on the font.
 			(Why was this provided before?) For fonts, like Petrucci, that don't have
 			the brace chars, we use only the homebrew method.  -JGG */
+			
 		if (PS_Resource(-1,'TEXT',resID=130)) goto PSRErr;		/* Curly brace (1) */
 		if (MusFontHasCurlyBraces(doc->musFontInfoIndex)) {
-			/* This code is here, instead of in resources, so that we can map brace chars. */
+			/* This code is here instead of in resources so that we can map brace chars. */
+			
 			glyph = MapMusChar(doc->musFontInfoIndex, MCH_braceup);
 			sprintf(str, "\\%o", glyph);
 			PS_Print("   (%s)CH/cBot XD/cTop XD\r", str);
@@ -599,16 +598,16 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 			if (PS_Resource(-1,'TEXT',resID=133)) goto PSRErr;	/* Encoding */
 
 		//PS_Print("%%••••\r");
+		
 		/* Now directly print stuff that needs information from here */
 		
 		PS_Print("/MFS %ld def\r",(long)musicPtSize);
 		PS_Print("/DCF %ld def\r",(long)DDFact);
 		PS_Print("/SDCF 16 def\r");
-		/*
-		 *	Transformation matrix that we will multiply the current transformation
-		 *	matrix by.  After the multiplication, PostScript's user coordinate system
-		 *	should be the same as our paper-relative DDIST upper-left origin system.
-		 */
+		
+		/* Transformation matrix that we will multiply the current transformation
+		   matrix by. After the multiplication, PostScript's user coordinate system
+		   should be the same as our paper-relative DDIST upper-left origin system. */
 		
 		if (usingFile)
 			if (landscape) 
@@ -617,16 +616,15 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 			 else
 				PS_Print("/MX [1 SDCF div 0 0 -1 SDCF div 0 %ld] def\r",(long)paperHeight);
 		 else {
-		 	/*
-		 	 *	LaserPrep "kindly" makes the simulated QuickDraw origin the first
-		 	 *	imageable point on the page, which is about 30 pts in from the upper
-		 	 *	left corner.  We undo this "favor" here by adding back their translation
-		 	 *	component, since Nightingale gives the user the illusion that all
-		 	 *	parts of a piece of paper are printable on, and since its origin is
-		 	 *	the upper left corner of the sheet.  Actually, Nightingale
-		 	 *	should not allow the user to set the margins (in Master Page) to
-		 	 *	something less than the current imageable area.
-		 	 */
+		 	/* LaserPrep "kindly" makes the simulated QuickDraw origin the first
+		 	imageable point on the page, which is about 30 pts in from the upper left
+		 	corner.  We undo this "favor" here by adding back their translation
+		 	component, since Nightingale gives the user the illusion that all parts of a
+		 	piece of paper are printable on, and since its origin is the upper left
+		 	corner of the sheet.  Actually, Nightingale should not allow the user to set
+		 	the margins (in Master Page) to something less than the current imageable
+		 	area. */
+			
 			PS_Print("/MX [1 SDCF div 0 0 1 SDCF div %ld %ld] def\r",
 								(long)thisImageRect.left,(long)thisImageRect.top);
 			}
@@ -642,16 +640,15 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 			earlier.  But all this is *way* more complicated than you'd expect, so we
 			just store the PS font name in the 'MFEx' resource. You can get this name
 			using the old Varityper ToolKit program. */
+			
 		PS_Print("/MF {/%p findfont exch DCF mul dup neg FMX scale makefont setfont} BD\r",
 											musFontInfo[doc->musFontInfoIndex].postscriptFontName);
 		PS_Print("\rend         %% NightingaleDict\r\r");
 		//PS_Print("%%••••\r");
 
-		/*
-		 *	Once the final transformation is settled, we'll push it onto the graphics
-		 *	state stack, to be restored and pushed again after every showpage.  This
-		 *	keeps it the same on every page, since showpage resets it.
-		 */
+		/* Once the final transformation is settled, we'll push it onto the graphics
+		   state stack, to be restored and pushed again after every showpage. Since
+		   showpage resets it, this keeps it the same on every page. */
 		if (usingFile)
 			PS_Print("%%%%EndProlog\r");
 
@@ -665,31 +662,27 @@ PSRErr:
 	}
 
 
-/*
- *	This routine must be called prior to opening the Print Driver.  It pulls in the
- *	stub PREC 103 resource, and replaces its contents with whatever definitions are
- *	going to be constant over all pages and font changes.  Prior to using this, we
- *	were calling PS_Header to insert the Nightingale dictionary into the PostScript
- *	stream at the start of the job, as well as after every font change, due to the
- *	fact that the PostScript mechanism does a Restore/Save every time a font is
- *	re-encoded, which would throw our dictionary away.  The following code implements
- *	the Apple-recommended method instead.
- *
- *	After calling PS_PreparePrintDict, you should call PS_FinishPrintDict in order to
- *	throw the PREC 103 resource away and save any memory.
- *	We gate all of this with the global prec103, which will be NULL if something goes
- *	wrong in PS_PreparePrintDict(), thereby causing the code to revert to our old
- *	method.
- */
+/* This routine must be called prior to opening the Print Driver.  It pulls in the stub
+PREC 103 resource, and replaces its contents with whatever definitions are going to be
+constant over all pages and font changes.  Prior to using this, we were calling PS_Header
+to insert the Nightingale dictionary into the PostScript stream at the start of the job,
+as well as after every font change, due to the fact that the PostScript mechanism does a
+Restore/Save every time a font is re-encoded, which would throw our dictionary away.  The
+following code implements the Apple-recommended method instead.
+
+After calling PS_PreparePrintDict, you should call PS_FinishPrintDict in order to throw
+the PREC 103 resource away and save any memory. We gate all of this with the global
+prec103, which will be NULL if something goes wrong in PS_PreparePrintDict(), thereby
+causing the code to revert to our old method. */
 
 void PS_PreparePrintDict(Document *doc, Rect *imageRect)
 {
-	Handle text; long size; Rect box;
+	Handle text;  long size;  Rect box;
 	short oldFile = CurResFile();
 	FSSpec fsSpec;
 	
 	UseResFile(appRFRefNum);
-	prec103 = Get1Resource('PREC',103);
+	prec103 = Get1Resource('PREC', 103);
 	UseResFile(oldFile);
 	
 	if (GoodResource(prec103)) {
@@ -699,10 +692,10 @@ void PS_PreparePrintDict(Document *doc, Rect *imageRect)
 		
 		/* Now stuff prec103 with stuff from our resources */
 		
-		SetRect(&box,0,0,0,0);
-		PS_Header(doc,"\p??",1,1.0,False,True,&box,imageRect);
-		SetHandleSize(prec103,size=GetHandleSize(text = PS_GetTextHandle()));
-		BlockMove(*text,*prec103,size);
+		SetRect(&box, 0, 0, 0, 0);
+		PS_Header(doc, "\p??", 1, 1.0, False, True, &box, imageRect);
+		SetHandleSize(prec103, size=GetHandleSize(text = PS_GetTextHandle()));
+		BlockMove(*text, *prec103, size);
 #ifdef FOR_DEBUGGING_ONLY
 		ChangedResource(prec103);
 		WriteResource(prec103);
@@ -949,7 +942,7 @@ static OSErr PS_PrintFontName(const unsigned char *font, short style, Boolean *k
 
 static Byte *PS_NthString(Byte *stringList, short n)
 {
-	short count; Byte *p;
+	short count;  Byte *p;
 	
 	BlockMove(stringList,&count,sizeof(short));		/* In case of odd address */
 	if (n>0 && n<=count) {
@@ -1695,41 +1688,43 @@ OSErr PS_NoteStem(
 			}
 		
 		/* We use PostScript words SD and SDI to draw stem-down noteheads and stems:
-		 *   glyph xHeadOrigin yHeadOrigin x2 y2 xStemEnd yStemEnd SD
-		 *   xHeadOrigin yHeadOrigin x2 y2 xStemEnd yStemEnd SDI
-		 * Ngale always passes xHeadOrigin = x2 = xStemEnd.
-		 * x2 = y2 = -1 (actually probably x2<0) means don't draw stem. ??OK,
-		 * BUT WHAT ARE x2 AND y2?
-		 */
+				glyph xHeadOrigin yHeadOrigin x2 y2 xStemEnd yStemEnd SD
+				xHeadOrigin yHeadOrigin x2 y2 xStemEnd yStemEnd SDI
+		   Ngale always passes xHeadOrigin = x2 = xStemEnd.
+		   x2 = y2 = -1 (actually probably x2<0) means don't draw stem. ??OK, BUT
+		   WHAT ARE x2 AND y2? */
 		
 		if (stemDown) {
-		
 			if (sym) {
 				/* Standard stem-down notehead */
+				
 				if (headVisible) PS_Print("(%P)",str);
 				}
 			 else {
 				/* Chord slash: notehead already drawn above */
 				}
 			/* If stem is extremely short or zero length, don't draw it. */
+			
 			if (drawStem) {
 				yShorten = y+stemShorten;
 				stemLen -= stemShorten;
 				PS_Print("%ld %ld %ld %ld %ld %ld ",
-						(long)x,(long)y,(long)x,(long)yShorten+stemFudge,
-						(long)x,(long)(yShorten+stemLen));
+						(long)x, (long)y, (long)x, (long)yShorten+stemFudge,
+						(long)x, (long)(yShorten+stemLen));
 				}
 			else
-				PS_Print("%ld %ld -1 -1 %ld %ld ", (long)x,(long)y,
-						(long)x,(long)yShorten+stemFudge);
+				PS_Print("%ld %ld -1 -1 %ld %ld ", (long)x, (long)y,
+						(long)x, (long)yShorten+stemFudge);
 			PS_Print((char*)(headVisible ? "SD\r" : "SDI\r"));
 			}
 			
 		 else {										/* Nope, it's stem up */
 		 
 			if (!sym) sym = 'q';					/* Chord slash: notehead already drawn above */
-			PS_MusChar(doc,x,y,sym,headVisible,sizePercent);
+			PS_MusChar(doc, x, y, sym, headVisible, sizePercent);
+			
 			/* If stem is extremely short or zero length, don't draw it. */
+			
 			if (drawStem) {
 				yShorten = y-stemShorten;
 				stemLen += stemShorten;
@@ -1743,10 +1738,8 @@ OSErr PS_NoteStem(
 	}
 
 
-/*
- *	Draw an arpeggio sign of the given height but composed of segments <sizePercent>
- *	of normal size.
- */
+/* Draw an arpeggio sign of the given height but composed of segments <sizePercent> of
+normal size. */
  
 OSErr PS_ArpSign(Document *doc, DDIST x, DDIST y, DDIST height, short sizePercent,
 														Byte glyph, DDIST /*lnSpace*/)

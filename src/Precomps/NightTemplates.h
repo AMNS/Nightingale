@@ -341,8 +341,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* MidiMap.c */
 
-	Boolean	OpenMidiMapFile(Document *doc, Str255 fileName, NSClientDataPtr pNSD);
-	Boolean OpenMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec);
+	Boolean	OpenMidiMapFileNSD(Document *doc, Str255 fileName, NSClientDataPtr pNSD);
+	Boolean OpenMidiMapFileFNFS(Document *doc, Str255 fileName, FSSpec *fsSpec);
 	Boolean OpenMidiMapFile(Document *doc, FSSpec *fsSpec);
 	void InstallMidiMap(Document *doc, Handle fsSpecHdl);
 	void InstallMidiMap(Document *doc, FSSpec *fsSpec);

@@ -356,13 +356,13 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 	count = sizeof(OMSSignature);
 	omsDevHdr = 'devc';
 	errType = FSWrite(refNum, &count, &omsDevHdr);
-	if (errType) return SIZEobj;
+	if (errType) return OMS_Call;
 	count = sizeof(long);
 	omsDevSize = (MAXSTAVES+1) * sizeof(OMSUniqueID);
 	errType = FSWrite(refNum, &count, &omsDevSize);
-	if (errType) return SIZEobj;
+	if (errType) return OMS_Call;
 	errType = FSWrite(refNum, &omsDevSize, &(doc->omsPartDeviceList[0]));
-	if (errType) return SIZEobj;
+	if (errType) return OMS_Call;
 
 	/* Write info for FreeMIDI input device:
 		1) long having the value 'FMS_' (just a marker)
@@ -373,31 +373,36 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 	count = sizeof(long);
 	fmsDevHdr = FreeMIDISelector;
 	errType = FSWrite(refNum, &count, &fmsDevHdr);
-	if (errType) return SIZEobj;
+	if (errType) return FM_Call;
 	count = sizeof(fmsUniqueID);
 	errType = FSWrite(refNum, &count, &doc->fmsInputDevice);
-	if (errType) return SIZEobj;
+	if (errType) return FM_Call;
 	count = sizeof(fmsDestinationMatch);
 	errType = FSWrite(refNum, &count, &doc->fmsInputDestination);
-	if (errType) return SIZEobj;
+	if (errType) return FM_Call;
 	
 	/* Write info for CoreMIDI (file version >= 'N105') */
 	
 	count = sizeof(long);
 	cmHdr = 'cmdi';
 	errType = FSWrite(refNum, &count, &cmHdr);
-	if (errType) return SIZEobj;
+	if (errType) return CM_Call;
 	count = sizeof(long);
 	cmDevSize = (MAXSTAVES+1) * sizeof(MIDIUniqueID);
 	errType = FSWrite(refNum, &count, &cmDevSize);
-	if (errType) return SIZEobj;
+	if (errType) return CM_Call;
 	errType = FSWrite(refNum, &cmDevSize, &(doc->cmPartDeviceList[0]));
-	if (errType) return SIZEobj;	
+if (DETAIL_SHOW) {
+	SleepMS(3);		/* Sidestep bug in OS 10.5 Console! */
+	LogPrintf(LOG_DEBUG, "WriteFile: doc->cmPartDeviceList[1]=%d\n", doc->cmPartDeviceList[1]);
+	LogPrintf(LOG_DEBUG, "WriteFile: doc->cmPartDeviceList[2]=%d\n", doc->cmPartDeviceList[2]);
+}
+	if (errType) return CM_Call;	
 
 	blockSize = 0L;													/* mark end w/ 0x00000000 */
 	count = sizeof(blockSize);
 	errType = FSWrite(refNum, &count, &blockSize);
-	if (errType) return SIZEobj;
+	if (errType) return CM_Call;
 
 	return noErr;
 }

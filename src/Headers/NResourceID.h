@@ -423,8 +423,8 @@ enum {							/* Play/Record menu */
 	PL_MIDIDynPrefs,
 	PL_MIDIModPrefs,
     PL_____________3,
-    PL_PartMIDI,
-	 PL_Transpose
+    PL_InstrMIDI,
+	PL_Transpose
 };
 	
 enum {							/* Master Page menu */

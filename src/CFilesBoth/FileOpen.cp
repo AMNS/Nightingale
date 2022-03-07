@@ -89,7 +89,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	errType = FSpOpenDF(&fsSpec, fsRdWrPerm, &refNum);			/* Open the file */
 	if (errType == fLckdErr || errType == permErr) {
 		doc->readOnly = True;
-		errType = FSpOpenDF (&fsSpec, fsRdPerm, &refNum);		/* Try again - open the file read-only */
+		errType = FSpOpenDF(&fsSpec, fsRdPerm, &refNum);		/* Try again - open the file read-only */
 	}
 	if (errType) { errInfo = OPENcall;  goto Error; }
 	fileIsOpen = True;
@@ -307,10 +307,10 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (!errType && omsDevHdr == 'devc') {
 		omsBufCount = sizeof(long);
 		errType = FSRead(refNum, &omsBufCount, &omsDevSize);
-		if (errType) return errType;
+		if (errType!=noErr) { errInfo = OMS_Call; goto Error; }
 		if (omsDevSize!=(MAXSTAVES+1)*sizeof(OMSUniqueID)) return errType;
 		errType = FSRead(refNum, &omsDevSize, &(doc->omsPartDeviceList[0]));
-		if (errType) return errType;
+		if (errType!=noErr) { errInfo = OMS_Call; goto Error; }
 	}
 	else {
 		for (i = 1; i<=LinkNENTRIES(doc->headL)-1; i++)
@@ -326,48 +326,48 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	   anyway, so the only change worth making is to remove these statements some day.
 	   --DAB, December 2019 */
 	
-	doc->fmsInputDestination.basic.destinationType = 0,
+	doc->fmsInputDestination.basic.destinationType = 0;
 	doc->fmsInputDestination.basic.name[0] = 0;
 	count = sizeof(long);
 	errType = FSRead(refNum, &count, &fmsDevHdr);
-	if (!errType) {
+	if (errType) { errInfo = FM_Call; goto Error; }
+	else {
 		if (fmsDevHdr==FreeMIDISelector) {
 			count = sizeof(fmsUniqueID);
 			errType = FSRead(refNum, &count, &doc->fmsInputDevice);
-			if (errType) return errType;
+			if (errType) { errInfo = FM_Call; goto Error; }
 			count = sizeof(fmsDestinationMatch);
 			errType = FSRead(refNum, &count, &doc->fmsInputDestination);
-			if (errType) return errType;
+			if (errType) { errInfo = FM_Call; goto Error; }
 		}
 	}
 	
-	if (version >= 'N105') {
+	/* Read the CoreMIDI device data. */
+
+	cmBufCount = sizeof(long);
+	errType = FSRead(refNum, &cmBufCount, &cmHdr);
+	if (!errType && cmHdr == 'cmdi') {
 		cmBufCount = sizeof(long);
-		errType = FSRead(refNum, &cmBufCount, &cmHdr);
-		if (!errType && cmHdr == 'cmdi') {
-			cmBufCount = sizeof(long);
-			errType = FSRead(refNum, &cmBufCount, &cmDevSize);
-			if (errType) return errType;
-			if (cmDevSize!=(MAXSTAVES+1)*sizeof(MIDIUniqueID)) return errType;
-			errType = FSRead(refNum, &cmDevSize, &(doc->cmPartDeviceList[0]));
-			if (errType) return errType;
-		}
-	}
-	else {
-		for (i = 1; i<=LinkNENTRIES(doc->headL)-1; i++)
-			doc->cmPartDeviceList[i] = config.cmDfltOutputDev;
+		errType = FSRead(refNum, &cmBufCount, &cmDevSize);
+		if (errType) { errInfo = CM_Call; goto Error; }
+		if (cmDevSize!=(MAXSTAVES+1)*sizeof(MIDIUniqueID)) return errType;
+		errType = FSRead(refNum, &cmDevSize, &(doc->cmPartDeviceList[0]));
+		if (errType) { errInfo = CM_Call; goto Error; }
 	}
 	doc->cmInputDevice = config.cmDfltInputDev;
+if (DETAIL_SHOW) {
+	SleepMS(3);		/* Sidestep bug in OS 10.5 Console! */
+	LogPrintf(LOG_DEBUG, "OpenFile: doc->cmPartDeviceList[1]=%d\n", doc->cmPartDeviceList[1]);
+	LogPrintf(LOG_DEBUG, "OpenFile: doc->cmPartDeviceList[2]=%d\n", doc->cmPartDeviceList[2]);
+}
 
 	errType = FSClose(refNum);
 	if (errType) { errInfo = CLOSEcall; goto Error; }
 	
 	if (!IsDocPrintInfoInstalled(doc)) InstallDocPrintInfo(doc);
-	
 	GetPrintHandle(doc, version, vRefNum, pfsSpec);		/* doc->name must be set before this */
 	
 	GetMidiMap(doc, pfsSpec);
-	
 	pfsSpecMidiMap = GetMidiMapFSSpec(doc);
 	if (pfsSpecMidiMap != NULL) {
 		OpenMidiMapFile(doc, pfsSpecMidiMap);
@@ -375,7 +375,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	}
 
 	FillFontTable(doc);
-
 	InitDocMusicFont(doc);
 
 	SetTimeStamps(doc);									/* Up to first meas. w/unknown durs. */
@@ -393,8 +392,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	DeselAllNoHilite(doc);									/*   deselect it */
 	SetTempFlags(doc, doc, doc->headL, doc->tailL, False);	/* Just in case */
 
-	if (ScreenPagesExceedView(doc))
-		CautionInform(MANYPAGES_ALRT);
+	if (ScreenPagesExceedView(doc)) CautionInform(MANYPAGES_ALRT);
 
 	ArrowCursor();	
 	return 0;

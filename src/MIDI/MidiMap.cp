@@ -41,10 +41,11 @@ static long		gMMLineCount = 0L;
 static char		gMMInBuf[MMLINELEN];
 
 
-/* ------------------------------------------------------------------- OpenMidiMapFile -- */
-/* Top level, public function. Returns True on success, False if error. */
+/* ------------------------------------------------------ OpenMidiMapFile (3 versions) -- */
+/* Top level, public function: three versions with different calling sequences. Returns
+True on success, False if error. */
 
-Boolean OpenMidiMapFile(Document *doc, Str255 fileName, NSClientDataPtr pNSD)
+Boolean OpenMidiMapFileNSD(Document *doc, Str255 fileName, NSClientDataPtr pNSD)
 {
 	Boolean		result;
 	FSSpec		fsSpec;
@@ -54,12 +55,7 @@ Boolean OpenMidiMapFile(Document *doc, Str255 fileName, NSClientDataPtr pNSD)
 	return result;
 }
 
-
-/* ------------------------------------------------------------- OpenMidiMapFile -- */
-/* Top level, public function. Returns True on success, False if error. FIXME: don't
-give multiple functions the same name: that's a C++ feature not in C99!  */
-
-Boolean OpenMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
+Boolean OpenMidiMapFileFNFS(Document *doc, Str255 fileName, FSSpec *fsSpec)
 {
 	Boolean		result;
 
@@ -67,17 +63,13 @@ Boolean OpenMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 	return result;
 }
 
-/* ------------------------------------------------------------- OpenMidiMapFile -- */
-/* Top level, public function. Returns True on success, False if error. FIXME: don't
-give multiple functions the same name: that's a C++ feature not in C99! */
-
 Boolean OpenMidiMapFile(Document *doc, FSSpec *fsSpec)
 {
 	Boolean		result;
 	Str255		fileName;
 
 	Pstrcpy(fileName, fsSpec->name);
-	result = OpenMidiMapFile(doc, fileName, fsSpec);
+	result = OpenMidiMapFileFNFS(doc, fileName, fsSpec);
 	return result;
 }
 
@@ -107,12 +99,11 @@ MidiMapErr:
 	return False;
 }
 
-static Boolean ExtractVal(char	*str,					/* source string */
-								  long	*val)			/* pass back extracted value */
+static Boolean ExtractVal(char	*str,				/* source string */
+							long	*val)			/* pass back extracted value */
 {
-	short ans = sscanf(str, "%ld", val);				/* read numerical value in string as a long */
-	if (ans > 0)
-		return True;
+	short ans = sscanf(str, "%ld", val);			/* read numerical value in string as a long */
+	if (ans > 0) return True;
 	*val = 0L;
 	return False;
 }
@@ -126,7 +117,7 @@ static Boolean ProcessMidiMap(Document *doc, FILE *f)
 	Boolean ok = True;
 	short ans = 0;
 	gMMLineCount = 0;
-	char patch[256],pn[64],nn[64],mn[64];
+	char patch[256], pn[64], nn[64], mn[64];
 	long patchNum;
 	long noteNum, mappedNum;
 	PMMMidiMap pMidiMap;
@@ -388,25 +379,20 @@ Boolean IsPatchMapped(Document *doc, short patchNum)
 
 short GetDocMidiMapPatch(Document *doc) 
 {
-	if (!HasMidiMap(doc)) 
-		return -1;
+	if (!HasMidiMap(doc)) return -1;
 	
 	PMMMidiMap pMidiMap = GetDocMidiMap(doc);
-	if (pMidiMap == NULL) {
-		return -1;
-	}
+	if (pMidiMap == NULL) return -1;
 	
 	return (pMidiMap->midiPatch);
 }
 
 /* ------------------------------------------------------------------ GetMappedNoteNum -- */
-/* Return the mapped noteNum corresponding to noteNum for the document's map.
- */
+/* Return the mapped noteNum corresponding to noteNum for the document's map. */
  
 short GetMappedNoteNum(Document *doc, short noteNum) 
 {
-	if (noteNum < MIN_NOTENUM || noteNum > MAX_NOTENUM)
-		return noteNum;
+	if (noteNum < MIN_NOTENUM || noteNum > MAX_NOTENUM) return noteNum;
 	
 	short mappedNum = 0;
 	PMMMidiMap pMidiMap = GetDocMidiMap(doc);

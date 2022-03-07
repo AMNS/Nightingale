@@ -11012,3 +11012,49 @@ Clean up the code => done (enough, that is).
 It'd be awfully nice to pin down the N106 file format so people will be motivated to start
 using Ngale 6! -- though I don't plan to myself for awhile.
 
+---------------------------------------------------------------------------------------
+
+2 - 6 Mar.
+
+EditInstrMIDI() ends with code beginning "pPart = GetPPARTINFO(partL)" that's been
+commented out since 2008 or earlier; I don't know what it was for; remove it! => done.
+
+The "Ngale consistently forgets MIDI playback settings of certain old scores" bug (Issue
+#66) is more serious than I thought: it can actually occur with new scores, e.g.,
+NoodlingVnDuet.ngl -- created with Ngale 5.8 -- and the converted 'N106' version thereof.
+Ngale 6 complains "Possible bug in program: Can't play the score (error -16961)" and says
+to use Instrument MIDI Settings > Set Device To All Parts; doing that results in
+EditInstrumentMIDI() calling SetCMDeviceForPartn(), which starts with
+doc->cmPartDeviceList[1]=624658606 and [2]=169995720 and ends with
+doc->cmPartDeviceList[1] unchanged and [2]=624658606 -- i.e., it changes [2] to the same
+value as [1]. With 1stMovement_Part3.ngl of my violin concerto, every part starts with
+624658606 and ends with the same value. But it's not at all obvious how to fix it :-( . The
+"correct" value 624658606 is different from run to run of Ngale (though it & the "wrong"
+number seem to always be 9 digits.) 
+
+WriteFile() and OpenFile() both look like they're doing the right thing. Add LogPrintfs to
+them to display doc->cmPartDeviceList[]; use Set Device To All Parts to fix 
+NoodlingVnDuetN106.ngl; Save as NoodlingVnDuetN106z.ngl; Open NoodlingVnDuetN106z.ngl =>
+everything is OK! ??
+
+Starting with NoodlingVnDuetN106x.ngl, which has the problem:
+
+	Notice. Opening file 'NoodlingVnDuetN106x.ngl'...  (DoFileMenu)
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	...
+	debug. OpenFile: doc->cmPartDeviceList[1]=-2011601044
+	debug. OpenFile: doc->cmPartDeviceList[2]=-2011601044
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	info. Staff sizes in points are  1:16 2:16
+	Notice. Opened file 'NoodlingVnDuetN106x.ngl'.  (DoFileMenu)
+	debug. DrawScoreRange: fromL=2 toL=413 outputTo=0
+	info. tempoCount=1. t=0 => toffset=0 playTempoPercent=100 mutedPart=0  (PlaySequence)
+	ERROR. Possible bug in program: Can't play the score (error -16961). With the Instrument MIDI Settings command, Set Device To All Parts.  (PlaySequence)
+	Warning. * StopInform alertID=464
+	debug. EditInstrMIDI: 1.doc->cmPartDeviceList[1]=1026135649
+	debug. EditInstrMIDI: 2.doc->cmPartDeviceList[1]=1026135649
+	debug. EditInstrMIDI: 1.doc->cmPartDeviceList[2]=-2011601044
+	debug. EditInstrMIDI: 2.doc->cmPartDeviceList[2]=1026135649
+
+Very interesting. The values read in are wrong for both parts, but by the time I gave the
+Instrument MIDI Settings command, it'd been corrected for part 1 but not part 2!!

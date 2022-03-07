@@ -19,7 +19,7 @@ static void	MovePalette(WindowPtr whichPalette,Point position);
 
 static Boolean IsSafeToQuit(void);
 static Boolean SetTranspKeyStaves(Document *, Boolean []);
-static void EditPartMIDI(Document *doc);
+static void EditInstrMIDI(Document *doc);
 
 static void	DoAppleMenu(short choice);
 static void	DoTestMenu(short choice);
@@ -1030,11 +1030,12 @@ static void PLTransposedScore(Document *doc)
 }
 
 
-/* Handle the "Part MIDI Settings" dialog. */
+/* Handle the "Instrument MIDI Settings" dialog. */
 
-void EditPartMIDI(Document *doc)
+static void EditInstrMIDI(Document *doc)
 {
-	LINK partL, pMPartL;  PPARTINFO pPart, pMPart;
+	LINK partL, pMPartL;
+	PPARTINFO pPart, pMPart;
 	PARTINFO partInfo;  short firstStaff;
 	short partn;
 	Boolean allParts = False;
@@ -1048,7 +1049,6 @@ void EditPartMIDI(Document *doc)
 		partn = (short)PartL2Partn(doc, partL);
 		device = GetCMDeviceForPartn(doc, partn);
 		if (CMPartMIDIDialog(doc, &partInfo, &device, &allParts)) {
-		
 			pPart = GetPPARTINFO(partL);
 			*pPart = partInfo;
 			pMPartL = Staff2PartL(doc, doc->masterHeadL, firstStaff);
@@ -1058,23 +1058,14 @@ void EditPartMIDI(Document *doc)
 			doc->changed = True;
 			
 			if (allParts) {
-				short partNum;
-				
 				partL = FirstSubLINK(doc->headL);
-				for (partNum=0; partNum<=LinkNENTRIES(doc->headL)-1; partNum++, partL = NextPARTINFOL(partL)) 
-				{
+				for (short partNum=0; partNum<=LinkNENTRIES(doc->headL)-1; partNum++,
+						partL = NextPARTINFOL(partL)) {
 					if (partNum==0) continue;					/* skip dummy partn = 0 */
 										
+				if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "EditInstrMIDI: 1.doc->cmPartDeviceList[%d]=%d\n", partNum, doc->cmPartDeviceList[partNum]);
 					SetCMDeviceForPartn(doc, partNum, device);
-					
-					//pPart = GetPPARTINFO(partL);
-					//pPart->channel = partInfo.channel;
-					
-					//pPart->patchNum = partInfo.patchNum;
-					//pPart->partVelocity = partInfo.partVelocity;
-					
-					// This causes the instrument description to be illegal
-					//pPart->transpose = partInfo.transpose;
+				if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "EditInstrMIDI: 2.doc->cmPartDeviceList[%d]=%d\n", partNum, doc->cmPartDeviceList[partNum]);
 				}
 			}
 		}
@@ -1160,8 +1151,8 @@ void DoPlayRecMenu(short choice)
 			case PL_MIDIModPrefs:
 				if (doc) PLMIDIModPrefs(doc);
 				break;
-			case PL_PartMIDI:
-				if (doc) EditPartMIDI(doc);
+			case PL_InstrMIDI:
+				if (doc) EditInstrMIDI(doc);
 				break;
 			case PL_Transpose:
 				if (doc) PLTransposedScore(doc);
@@ -3004,7 +2995,7 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 		XableItem(playRecMenu, PL_Metronome, haveMIDI);		/* Metro and thru are global options */
 		XableItem(playRecMenu, PL_MIDIDynPrefs, doc!=clipboard);
 		XableItem(playRecMenu, PL_MIDIModPrefs, doc!=clipboard);
-		XableItem(playRecMenu, PL_PartMIDI, doc!=clipboard);
+		XableItem(playRecMenu, PL_InstrMIDI, doc!=clipboard);
 		XableItem(playRecMenu, PL_Transpose, doc!=clipboard);
 		CheckMenuItem(playRecMenu, PL_Transpose, doc->transposed);
 	}
@@ -3025,7 +3016,7 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 		XableItem(playRecMenu, PL_MIDIThru, False);
 		XableItem(playRecMenu, PL_MIDIDynPrefs, False);
 		XableItem(playRecMenu, PL_MIDIModPrefs, False);
-		XableItem(playRecMenu, PL_PartMIDI, False);
+		XableItem(playRecMenu, PL_InstrMIDI, False);
 		XableItem(playRecMenu, PL_Transpose, False);
 		CheckMenuItem(playRecMenu, PL_Transpose, False);
 	}
