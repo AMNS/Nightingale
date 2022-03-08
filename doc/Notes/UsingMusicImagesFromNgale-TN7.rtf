@@ -1,0 +1,105 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\froman\fcharset0 Palatino-Roman;\f2\froman\fcharset0 Palatino-Bold;
+\f3\froman\fcharset0 Palatino-Italic;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww12660\viewh14740\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sa120\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf0 Using Music Images from Nightingale\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f1\b0\fs24 \cf0 Nightingale Technical Note #7\
+Don Byrd, December 1998; rev. March 2022\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\fs22 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sa120\pardirnatural\partightenfactor0
+
+\f2\b\fs24 \cf0 Getting music from Nightingale into Microsoft Word with high graphic quality
+\f1\b0\fs22 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 1. In Nightingale, Save PostScript, in PS form.\
+\
+2. Using Preview, convert the .ps file into a JPG.\
+\
+3. In MS Word, use the Insert Picture (or Insert Photo > Picture from File) command to put the EPSF into a paragraph with single spacing. Don't use Paste!\
+\
+4. To make sure Sonata is downloaded to the printer, you may need to put a character in the music font 
+\f3\i above
+\f1\i0  the EPSF, and not hidden! Also, the character may need to be on the same page as the music (or the first page containing music, if there are several in the document): otherwise a mysterious PostScript error may occur. This is not nearly as odious as it sounds; a single tiny character (dot is a good choice) is enough. But it's a bit tricky because, with Sonata's huge ascender and descender heights, even a very small character can affect line spacing. A dot in, say, 5-point Sonata 5 does the trick without causing any problems other than a \'93flyspeck\'94, and you should be able to make the flyspeck invisible by setting it to a very light color.\
+\
+5. To crop or scale the music, click to select it. Then use the Crop tool in the Format Picture toolbar to drag any of the handles. NB: You may have to click Format Picture even if it's already selected to get the Crop tool to appear!\
+\
+Tip: for small examples, consider using the standard Nightingale templates (ShortExamplesTemplate1 thru ShortExamplesTemplate4).\
+\
+Note: the comment about getting Sonata downloaded to the printer probably applies also to other programs.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sb120\sa120\pardirnatural\partightenfactor0
+
+\f2\b\fs24 \cf0 Modifying images via PostScript editing: adding color
+\f1\b0\fs22 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 Important: Use a text editor (e.g., BBEdit or Apple\'92s TextEdit utility) and not a \'93word processor\'94 like MS Word to do this. Word processors tend to add hidden codes to files that are likely to screw things up.\
+\
+A .ps produced by Nightingale consists of a \'93preamble\'94 defining \'93words\'94 (procedures), followed by invocations of the words that do the drawing. The main ones are\
+\
+	BK	Bracket\
+	BL	Barline\
+	BM	Beam, or other thickened line with vertical cutoff\
+	BR	Brace\
+	LHT	Thickened line with horizontal cutoff\
+	LL	Ledgerline\
+	MC	Move and curveto\
+	MF	MusicFont (sets size, quarternote width, etc.)\
+	SD	Notehead with Stem Down\
+	SFL	Staffline\
+	SL	Slur (curveto and closepath)\
+	SU	Notehead with Stem Up\
+\
+To make some of them print in color\'97say, a darkish red\'97find the line \'93% Create encoding vector for Mac Fonts\'94 in the .ps file produced by Nightingale, and insert before it one or more definitions like these:\
+\
+	/SDc \{\
+	 gsave\
+		.8 0 0 setrgbcolor\
+		SD\
+	 grestore\
+	 \} BD\
+	/SUc \{\
+	 gsave\
+		.8 0 0 setrgbcolor\
+		SU\
+	 grestore\
+	 \} BD\
+	/BMc \{\
+	 gsave\
+		.8 0 0 setrgbcolor\
+		BM\
+	 grestore\
+	 \} BD\
+\
+Then simply change the invocations of the normal words to the ones with \'93c\'94 appended. Caveat: Color versions of some words misbehave in one way or another! We don\'92t yet know why or even all that do; however, \'93SDc\'94 and \'93BMc\'94 seem always to work. You may have to experiment.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sb120\pardirnatural\partightenfactor0
+
+\f2\b\fs24 \cf0 Modifying images via PostScript editing: cropping\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sb160\pardirnatural\partightenfactor0
+
+\f1\b0\fs22 \cf0 It\'92s also possible to crop images, e.g., for short musical examples, directly in the PostScript file. Just edit the "%%BoundingBox" line in the file. It looks like this:\
+	%%BoundingBox: left bottom right top\
+\'85where left, bottom, right, and top are relative to the lower-left corner of the page.\
+For example, for a U.S. letter-size (8.5 x 11 in.) page, it'll normally be\
+	%%BoundingBox: 0 0 612 792\
+To show a rectangle 4 in. wide and 3 in. high at the top-left of the page, make it\
+	%%BoundingBox: 0 576 288 792\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sb120\pardirnatural\partightenfactor0
+
+\f2\b\fs24 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sb120\pardirnatural\partightenfactor0
+
+\f1\b0\fs22 \cf0 \
+}

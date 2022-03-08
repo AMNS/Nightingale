@@ -1,4 +1,4 @@
-NIGHTINGALE TECH NOTES - Don Byrd, rev. early January 2022
+NIGHTINGALE TECH NOTES - Don Byrd, rev. early March 2022
 
 As compared to earlier versions of this list (through early 2016), I've added numbers to
 several of the formerly unnumbered tech notes, and re-organized the full collection into
@@ -15,7 +15,7 @@ USER ORIENTED
 
 4	OK?	Nightingale Files and Troubleshooting Files Nightingale Can't Open (Files+Troubleshooting-TN4.doc)
 6	OK?	To get rid of an extra system at the beginning of a score (GetRidOfExtraSysAtStart-TN6.txt)
-7	OK?	To get music from Nightingale into MS Word (GettingMusicIntoMSWord-TN7.txt)
+7	OK	Using Music Images from Nightingale (UsingMusicImagesFromNgale-TN7.rtf)
 8	OK?	The Nightingale "Debug" Command, Especially for Finding Accidental Problems (DebugAndAccPblms-TN8.txt)
 10	OK?	Cleaning Up MIDI files Imported Into Nightingale (CleaningImpMIDIFiles-TN10.txt)
 12	OK	Installing Nightingale (InstallingNightingale-TN12.pdf)
