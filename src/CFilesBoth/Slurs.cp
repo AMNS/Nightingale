@@ -68,12 +68,10 @@ NB2: Perhaps of interest to the mathematically inclined: every Bezier curve is c
 within the convex hull of its (four, for cubic Beziers) defining points. */
 
 
-/*
- *	Take the offsets stored in aSlur->seg.knot, etc; take the endpoints stored 
- * in aSlur->startPt, endPt; add them to compute results to be returned in 
- * knot, c0, c1, endPt; these points can then be passed directly to BezierTo, etc.
- *	Points returned are in paper-relative DDISTs (not offsets from startPt, etc.)
- */
+/* Take the offsets stored in aSlur->seg.knot, etc; take the endpoints stored in
+aSlur->startPt, endPt; add them to compute results to be returned in knot, c0, c1,
+endPt; these points can then be passed directly to BezierTo, etc. Points returned are
+in paper-relative DDISTs (not offsets from startPt, etc.)  */
  
 void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *endKnot)
 {
@@ -93,9 +91,7 @@ void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *en
 	c1->v = endKnot->v + thisSeg->c1.v; c1->h = endKnot->h + thisSeg->c1.h;
 }
 
-/*
- *	Check to see if two DPoints are within slop of each other.
- */
+/* Check to see if two DPoints are within slop of each other. */
 
 #define SLURDPOINT_SLOP pt2d(2)
 
@@ -109,9 +105,7 @@ static Boolean SameDPoint(DPoint p1, DPoint p2)
 	return (dx<=SLURDPOINT_SLOP && dy<=SLURDPOINT_SLOP);
 }
 	
-/*
- *	Use a wide line to draw a filled box at a point.
- */
+/* Use a wide line to draw a filled box at a point. */
 
 static void DrawDBox(Rect *paper, DPoint ptd, short size)
 {
@@ -129,7 +123,7 @@ static void DrawDBox(Rect *paper, DPoint ptd, short size)
  *	here.  If any other event, we leave here so that main event loop can deal
  *	with it.
  *
- *	This event loop is not considerate of other processes.
+ *	Caution: This event loop is not considerate of other processes.
  */
 
 void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
@@ -416,7 +410,7 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 {
 	DPoint ptd, tmp, *test; 
 	DDIST dist, dist4, dist8, dx, dy;
-	Boolean first=True, up, constrainToAxis, constrainSymmetric, horiz=False,
+	Boolean first=True, up=True, constrainToAxis, constrainSymmetric, horiz=False,
 				stillWithinSlop;
 	Point pt, origPt;
 	short xdiff, ydiff;
@@ -701,7 +695,7 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 		short x,y,s,s1,s2,s3,lastx,lasty,dx,dy;
 		Boolean found = False;
 		static short epsilon = 5;
-		FASTFLOAT segLen;  short segsPerDash,segsThisDash;
+		FASTFLOAT segLen;  short segsPerDash = 1,segsThisDash;
 		Boolean doingDash;
 
 		curx = startPt.h; cury = startPt.v;
@@ -812,7 +806,7 @@ Boolean TrackSlur(Rect *paper, DPoint ptd, DPoint *knot, DPoint *endKnot, DPoint
 	}
 
 
-/* ------------------------------------------------------------- GetSlurNoteLinks -- */
+/* ------------------------------------------------------------------ GetSlurNoteLinks -- */
 /* Given a Slur object and one of its subobjects, and firstSyncL and lastSyncL (from
 the Slur object), return LINKs to the note subobjects that our Slur subobject connects.
 Notice that if the Slur is cross-system, either firstSyncL or lastSyncL will not
@@ -868,7 +862,7 @@ static void GetSlurNoteLinks(
 	*pLastNoteL = lastNoteL;
 }
 
-/* -------------------------------------------------------------- GetSlurContext -- */
+/* -------------------------------------------------------------------- GetSlurContext -- */
 /* Given a Slur object, return arrays of the paper-relative starting and ending
 positions (expressed in points) of the notes delimiting its subobjects. */
 
@@ -985,7 +979,7 @@ void GetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
 		}
 	}
 
-/* --------------------------------------------------------------- HiliteSlurNodes -- */
+/* ------------------------------------------------------------------- HiliteSlurNodes -- */
 
 void HiliteSlurNodes(Document *doc, LINK pL)
 {
@@ -1017,11 +1011,10 @@ void PrintSlurPoints(LINK aSlurL, char */*str*/)
 	aSlur = GetPASLUR(aSlurL);
 }
 
-/* ------------------------------------------------------------ SetSlurCtlPoints -- */
-/*	Given a slur or tie, set its Bezier control points.
-N.B. This routine assumes the slur/ties' startPt and endPt describe the
-positions of the notes they're attached to, which doesn't sound like a
-very good idea--why can't it get the notes' actual positions? */
+/* ------------------------------------------------------------------ SetSlurCtlPoints -- */
+/*	Given a slur or tie, set its Bezier control points. NB: This routine assumes the
+slur/ties' startPt and endPt describe the positions of the notes they're attached to,
+which doesn't sound like a very good idea; why not use the notes' actual positions? */
 
 #define SCALECURVE(z)	(4*(z)/2)		/* Scale default curvature */
 

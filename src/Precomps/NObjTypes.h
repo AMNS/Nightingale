@@ -105,13 +105,14 @@ typedef struct {
 	Byte		headShape;			/* G: Special notehead or rest shape; see list below */
 	Byte		xmovedots;			/* G: X-offset on aug. dot position (quarter-spaces) */
 	LINK		firstMod;			/* LG: Note-related symbols (articulation, fingering, etc.) */
-	Byte		slurredL;			/* G: True if endpoint of slur to left */
-	Byte		slurredR;			/* G: True if endpoint of slur to right */
-	Byte		inTuplet;			/* True if in a tuplet */
-	Byte		inOttava;			/* True if in an octave sign */
-	Byte		small;				/* G: True if a small (cue, cadenza-like, etc.) note */
+	Boolean		slurredL;			/* G: True if endpoint of slur to left */
+	Boolean		slurredR;			/* G: True if endpoint of slur to right */
+	Boolean		inTuplet;			/* True if in a tuplet */
+	Boolean		inOttava;			/* True if in an octave sign */
+	Boolean		small;				/* G: True if a small (cue, cadenza-like, etc.) note */
 	Byte		tempFlag;			/* temporary flag for benefit of functions that need it */
-	long		reservedN;			/* For future use */
+	Byte		artHarmonic;		/* Artificial harmonic: stopped, touched, sounding, normal note (unused as of v. 6.0) */
+	long		reservedN;			/* For future use, e.g., for user ID number (unused as of v. 6.0) */
 } ANOTE, *PANOTE;
 
 typedef struct {
@@ -216,7 +217,7 @@ typedef struct {
 	SignedByte	timeSigType,		/* time signature context */
 				numerator,
 				denominator;
-	unsigned char filler,			/* unused */
+	Byte		filler,				/* unused */
 				showLedgers,		/* True if drawing ledger lines of notes on this staff (the default if showLines>0) */
 				showLines;			/* 0=show 0 staff lines, 1=only middle line (of 5-line staff), 2-14 unused,
 										SHOW_ALL_LINES=show all lines (default) */
@@ -445,6 +446,9 @@ typedef struct {
 	DDIST			yd;				/* Position offset from staff top */
 	DDIST			endxd;			/* Position offset from lastSyncL for hairpins. */
 	DDIST			endyd;			/* Position offset from staff top for hairpins. */
+	Byte			dModCode;		/* Code for modifier (see enum below) */
+	Byte			crossStaff;		/* 0=normal, 1=also affects staff above, 2=also staff below;
+										negative=show curly brace if cross-staff (unused) */
 } ADYNAMIC, *PADYNAMIC;
 
 typedef struct {
@@ -456,6 +460,7 @@ typedef struct {
 	LINK		lastSyncL;			/* Sync hairpin end is attached to or NILINK */
 } DYNAMIC, *PDYNAMIC;
 
+/* Dynamic marking */
 enum {								/* FIXME: NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
 	PPPP_DYNAM=1,
 	PPP_DYNAM,
@@ -486,6 +491,14 @@ enum {								/* FIXME: NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
 	LAST_DYNAM
 };
 
+/* Dynamic modifier */
+
+#ifdef NOTYET
+enum {
+	Values for "mpp", adding "subito" before or after, "piu"/"meno", etc.
+}
+#endif
+
 
 /* ------------------------------------------------------------------ Type 14 = AMODNR -- */
 
@@ -494,7 +507,7 @@ typedef struct {
 	Boolean		selected;			/* True if subobject is selected */
 	Boolean		visible;			/* True if subobject is visible */
 	Boolean		soft;				/* True if subobject is program-generated */
-	unsigned char xstd;				/* FIXME: use "Byte"? Note-relative position (really signed STDIST: see below) */
+	Byte		xstd;				/* Note-relative position (FIXME: should be STDIST: see below) */
 	Byte		modCode;			/* Which note modifier */
 	SignedByte	data;				/* Modifier-dependent */
 	SHORTSTD	ystdpit;			/* Clef-independent dist. below middle C ("pitch") */

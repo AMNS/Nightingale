@@ -11058,3 +11058,36 @@ Starting with NoodlingVnDuetN106x.ngl, which has the problem:
 
 Very interesting. The values read in are wrong for both parts, but by the time I gave the
 Instrument MIDI Settings command, it'd been corrected for part 1 but not part 2!!
+
+Test again: NoodlingVnDuetN106xb.ngl is OK. ?? Well, not that important; put aside.
+
+
+---------------------------------------------------------------------------------------
+
+8 - 12 Mar.
+
+SWITCH TO: Open NoodlingVnDuetN106xb.ngl; select time sig. tool; click near right end of bottom
+system => Ngale crashes without even showing the dialog :-( . Select key sig. tool; click in
+the same place => gives ca. 70 (only in the log except for the first five or six) identical
+error messages:
+
+	ERROR. Possible bug in program: Heap at 14e98856 was locked (lockLevel=1). Unlocking it and proceeding.  (ExpandFreeList)
+
+...something I've been seeing occasionally for a few months (in Ngale 5.8, this error
+message was commented out, so this doesn't mean it's a new bug! Should probably just comment
+it out again);then it inserts the key signature correctly.
+
+Launch Ngale; New score; click in blank staff area w/ time sig. tool => crashes in ShowDialogItem()
+called from TimeSigDialog(). Ah-hah! Resorcerer shows DLOG 510 (time signature dialog) as
+a trashed version of a totally different dialog or alert!! It's already trashed in the Nov.
+7, 2021 version of the resource file. It _should_ be unchanged from Ngale 5.8.x -- and it
+looks fine in the July 15, 2020 .rsrc for Ngale 5.8. Copy that & paste into the current .rsrc
+=> OK now!
+
+-BACK TO: tool palette:
+	- Code is a mess.
+	- Resizing to a larger size never draws the new area.
+	- Sometimes stays in too low a position and ignores clicks :-( .
+	
+Doug McKenna could really help with this!
+	

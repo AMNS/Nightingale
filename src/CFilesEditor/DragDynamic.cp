@@ -11,7 +11,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#define USE_BITMAP	/* use offscreen bitmap when dragging; otherwise use srcXor drawing mode */
+#define USE_BITMAP				/* use offscreen bitmap when dragging; else use srcXor drawing mode */
 #define DRAG_DYNAMIC_SLOP 2		/* in pixels */
 
 static void InitDynamicBounds(Document *, LINK, Point, Rect *);
@@ -31,7 +31,6 @@ void DragDynamic(Document *doc, LINK dynamL)
 	PDYNAMIC	thisDynObj;
 	ADYNAMIC	origDynSubObj;
 	PADYNAMIC	thisDynSubObj;
-	Rect		bounds;
 
 PushLock(OBJheap);
 PushLock(DYNAMheap);
@@ -70,6 +69,7 @@ PushLock(DYNAMheap);
 		GetPaperMouse(&newPt, &doc->currentPaper);
 
 		/* Force the code below to see the mouse as always within boundsRect. */
+		
 		aLong = PinRect(&boundsRect, newPt);
 		newPt.v = HiWord(aLong);	newPt.h = LoWord(aLong);
 
@@ -77,6 +77,7 @@ PushLock(DYNAMheap);
 		if (stillWithinSlop) {
 			/* If mouse is still within slop bounds, don't do anything. Otherwise,
 				decide whether horizontally/vertically constrained. */
+				
 			dhTotal = newPt.h - origPt.h;
 			dvTotal = newPt.v - origPt.v;
 			if (ABS(dhTotal)<DRAG_DYNAMIC_SLOP && ABS(dvTotal)<DRAG_DYNAMIC_SLOP) continue;
@@ -85,6 +86,7 @@ PushLock(DYNAMheap);
 				vert = !horiz;
 			}
 			/* And don't ever come back, you hear! */
+			
 			stillWithinSlop = False;
 		}
 		dh = (horiz? newPt.h - oldPt.h : 0);
@@ -98,40 +100,41 @@ PushLock(DYNAMheap);
 		thisDynObj->xd += p2d(dh);
 		thisDynSubObj->yd += p2d(dv);
 
-		/* We need to make the dynamic temporarily invisible;
-		 * otherwise AutoScroll will leave a trail of text images as we scroll.
-		 * ???NB: also need to turn off ShowInvisibles if it's on!!
-		 */
-		TextMode(srcOr);									/* so staff lines won't cut through notes */
+		/* We need to make the dynamic temporarily invisible; otherwise AutoScroll will
+		   leave a trail of text images as we scroll. FIXME: also need to turn off
+		   ShowInvisibles if it's on!! */
+		   
+		TextMode(srcOr);								/* so staff lines won't cut through notes */
 		thisDynSubObj->visible = False;
 		AutoScroll();
 		thisDynSubObj->visible = dynamVis;
 		TextMode(srcXor);
 
-		DrawDYNAMIC(doc, dynamL, context, True);			/* draw new dynamic */
+		DrawDYNAMIC(doc, dynamL, context, True);		/* draw new dynamic */
 		
 		oldPt = newPt;
 	}
 	TextMode(srcOr);
-	LinkVALID(dynamL) = False;								/* force objRect recomputation */
-	DrawDYNAMIC(doc, dynamL, context, True);				/* draw final black dynamic */
+	LinkVALID(dynamL) = False;							/* force objRect recomputation */
+	DrawDYNAMIC(doc, dynamL, context, True);			/* draw final black dynamic */
 
 	TextMode(oldTxMode);
 
 	/* Inval old and new location */
-	newObjRect = LinkOBJRECT(dynamL);						/* DrawDYNAMIC has updated this */
+	
+	newObjRect = LinkOBJRECT(dynamL);					/* DrawDYNAMIC has updated this */
 	Rect2Window(doc, &newObjRect);
 	if (BlockCompare(thisDynObj, &origDynObj, sizeof(DYNAMIC)) ||
 		 BlockCompare(thisDynSubObj, &origDynSubObj, sizeof(ADYNAMIC))) {
 		doc->changed = True;
-		LinkTWEAKED(dynamL) = True;							/* Flag to show node was edited */
+		LinkTWEAKED(dynamL) = True;						/* Flag to show node was edited */
 		Rect2Window(doc, &oldObjRect);
-		InsetRect(&oldObjRect, -pt2p(5), -pt2p(3));			/* ??wouldn't have to be 4 if objrects far enuf to the right for wide dynamics (fff, ppp) */ 
+		InsetRect(&oldObjRect, -pt2p(5), -pt2p(3));		/* ??wouldn't have to be 4 if objrects far enuf to the right for wide dynamics (fff, ppp) */ 
 		if (!suppressRedraw)
 			EraseAndInval(&oldObjRect);
 	}
 	InsetRect(&newObjRect, -pt2p(5), -pt2p(3));
-	EraseAndInval(&newObjRect);					/* must do this even if no change, to keep hiliting in sync */
+	EraseAndInval(&newObjRect);							/* must do this even if no change, to keep hiliting in sync */
 
 	MEHideCaret(doc);
 	LinkSEL(dynamL) = True;								/* so that dynamic will hilite after we're done dragging */
@@ -145,7 +148,7 @@ PopLock(DYNAMheap);
 }
 
 
-/* ------------------------------------------------------ InitDynamicBounds -- */
+/* ----------------------------------------------------------------- InitDynamicBounds -- */
 /* Set up the rectangle beyond which the user won't be allowed to drag the dynamic. */
 
 #define SYSHT_SLOP 128		/* DDIST */
@@ -180,19 +183,20 @@ static void InitDynamicBounds(Document *doc, LINK dynamL,
 	bounds->right = d2p(sysRight);
 	bounds->bottom = d2p(sysBot + SYSHT_SLOP);
 	
-	/* Constrain further, so that the dynamic will never be farther
-	 * than one measure away from its firstSync.
-	 */
+	/* Constrain further, so that the dynamic will never be farther than one measure
+	   away from its firstSync. */
 
 	/* Find the measure that will be the left boundary */
-	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, False);			/* meas containing 1st sync */
-	prevMeasL = LinkLMEAS(measL);												/* meas before that */
+	
+	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, False);		/* meas containing 1st sync */
+	prevMeasL = LinkLMEAS(measL);											/* meas before that */
 	if (SameSystem(prevMeasL, measL))
 		targetMeasL = prevMeasL;
 	else
 		targetMeasL = measL;
 		
 	/* Allow dragging into reserved area */
+	
 	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, False);	/* 1st meas in system */	
 	if (targetMeasL == measL)														/* targetMeas is 1st in system */
 		bounds->left = d2p(sysLeft);
@@ -200,20 +204,20 @@ static void InitDynamicBounds(Document *doc, LINK dynamL,
 		bounds->left = d2p(LinkXD(targetMeasL) + sysLeft);
 
 	/* Find the measure that will be the right boundary */
-	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, False);			/* meas containing 1st sync */
-	nextMeasL = LinkRMEAS(measL);												/* meas after the one containing 1st sync */
+	
+	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, False);		/* meas containing 1st sync */
+	nextMeasL = LinkRMEAS(measL);											/* meas after the one containing 1st sync */
 	if (SameSystem(nextMeasL, measL))
 		targetMeasL = nextMeasL;
 	else
 		targetMeasL = measL;
-	aMeasP = GetPAMEASURE(FirstSubLINK(targetMeasL));							/* get xd of END of meas */
+	aMeasP = GetPAMEASURE(FirstSubLINK(targetMeasL));						/* get xd of END of meas */
 	measWid = aMeasP->measSizeRect.right;
 	bounds->right = d2p(LinkXD(targetMeasL) + measWid + sysLeft);
 
-	/* Offset boundaries depending on mouse position relative to
-	 *	dynamic. (PinRect in DragDynamic decides whether
-	 *	mousePt, not dynamic, is within bounds.)
-	 */
+	/* Offset boundaries depending on mouse position relative to dynamic. (PinRect in
+	   DragDynamic decides whether mousePt, not dynamic, is within bounds.) */
+	   
 	bounds->left -= mouseFromLeft;
 	bounds->right -= mouseFromRight-1;
 }

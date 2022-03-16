@@ -177,8 +177,13 @@ Boolean ExpandFreeList(HEAP *heap,
 	/* Temporarily unlock the data block, if necessary, and expand it. */
 	
 	if (heap->lockLevel != 0) {
-		MayErrMsg("Heap was locked (lockLevel=%ld). Unlocking it and proceeding.  (ExpandFreeList)",
-					(long)heap->lockLevel);
+#define NoDEBUG_HEAPS
+#ifdef DEBUG_HEAPS
+/* FIXME: It seems a heap is often locked, but I haven't seen any problems result. Decide
+if it's really a problem (and fix it) or not (and remove this code)! */
+		MayErrMsg("Heap at %lx was locked (lockLevel=%ld). Unlocking it and proceeding.  (ExpandFreeList)",
+					heap, (long)heap->lockLevel);
+#endif
 		HUnlock(heap->block);
 	}
 	SetHandleSize(heap->block, newSize * heap->objSize);
@@ -386,48 +391,50 @@ append objList to head's list.  Delivers new head of list, or NILINK if error. T
 assumes that objlist is a well-formed (NILINK-terminated) list. */
 
 LINK InsAfterLink(HEAP *heap, LINK head, LINK after, LINK objlist)
-	{
-		LINK prev, next, link, tail, temp;
+{
+	LINK prev, next, link, tail, temp;
+	
+	if (objlist == NILINK) return(head);
+	
+	/* Search for after in list at head */
+	
+	for (prev=NILINK,link=head; link; prev=link,link=next) {
+		next = NextLink(heap,link);
 		
-		if (objlist == NILINK) return(head);
-		
-		/* Search for after in list at head */
-		
-		for (prev=NILINK,link=head; link; prev=link,link=next) {
-			next = NextLink(heap,link);
+		if (link == after) {
+			if (prev) {								/* <after> was not first */
+				temp = *(LINK *)LinkToPtr(heap,after);
+				*(LINK *)LinkToPtr(heap,after) = objlist;
+			}
+			 else {									/* <after> is head of list */
+				temp = *(LINK *)LinkToPtr(heap,head);
+				*(LINK *)LinkToPtr(heap,head) = objlist;
+			}
 			
-			if (link == after) {
-				if (prev) {								/* <after> was not first */
-					temp = *(LINK *)LinkToPtr(heap,after);
-					*(LINK *)LinkToPtr(heap,after) = objlist;
-					}
-				 else	{								/* <after> is head of list */
-				 	temp = *(LINK *)LinkToPtr(heap,head);
-				 	*(LINK *)LinkToPtr(heap,head) = objlist;
-				 	}
-				
-				/* Find tail of objlist */
-				for (tail=link=objlist; link; tail=link,link=NextLink(heap,link)) ;
-				*(LINK *)LinkToPtr(heap,tail) = temp;	/* tail->next = after->next */
-				
-				return(head);
-				}
-			}
-		
-		/* If after was NILINK, append objlist to end of list at head */
-		
-		if (head!=NILINK && after==NILINK) {
-			/* Find tail of list at head */
-			for (tail=link=head; link; tail=link,link=NextLink(heap,link)) ;
-			*(LINK *)LinkToPtr(heap,tail) = objlist;
-
+			/* Find tail of objlist */
+			
+			for (tail=link=objlist; link; tail=link,link=NextLink(heap,link)) ;
+			*(LINK *)LinkToPtr(heap,tail) = temp;	/* tail->next = after->next */
+			
 			return(head);
-			}
-		
-		/* Otherwise, error condition */
-		
-		return(NILINK);
+		}
 	}
+	
+	/* If after was NILINK, append objlist to end of list at head */
+	
+	if (head!=NILINK && after==NILINK) {
+		/* Find tail of list at head */
+		
+		for (tail=link=head; link; tail=link,link=NextLink(heap,link)) ;
+		*(LINK *)LinkToPtr(heap,tail) = objlist;
+
+		return(head);
+	}
+	
+	/* Otherwise, error condition */
+	
+	return(NILINK);
+}
 
 /* Return True if the given link is in the given heap's free list. Assumes the heap is
 well-formed. */

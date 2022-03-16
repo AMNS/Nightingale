@@ -506,7 +506,7 @@ short DCheckNode(
 
 	else {
 
-/* CHECK self, left, and right links. ------------------------------------------- */
+/* CHECK self, left, and right links. --------------------------------------------- */
 
 		if (DBadLink(doc, OBJtype, pL, False)) {
 				COMPLAIN("•DCheckNode: Object L%u LINK IS GARBAGE.\n", pL);
@@ -538,9 +538,10 @@ short DCheckNode(
 
 		GetObjectLimits(ObjLType(pL), &minEntries, &maxEntries, &objRectOrdered);
 		if (LinkNENTRIES(pL)<minEntries || LinkNENTRIES(pL)>maxEntries)
-			COMPLAIN("•DCheckNode: Object L%u HAS BAD nEntries FOR ITS TYPE.\n", pL);
+			COMPLAIN2("•DCheckNode: Object L%u HAS nEntries=%d, ILLEGAL FOR ITS TYPE.\n",
+				pL, LinkNENTRIES(pL));
 			
-/* CHECK object's absolute horizontal position (rather crudely) and objRect. ---------- */
+/* CHECK object's absolute horizontal position (rather crudely) and objRect. ------------ */
 
 		if (!BeamsetTYPE(pL))									/* Beamset xd is unused */
 			if (LinkXD(pL)<LEFT_HLIM(doc, pL) || LinkXD(pL)>RIGHT_HLIM(doc)) {
@@ -567,8 +568,8 @@ short DCheckNode(
 
 			else if (objRectOrdered) {
 
-/* CHECK the objRect's relative horizontal position. --------------------------------
-We first try find objects in this System to its left and/or right in the object list
+/* CHECK the objRect's relative horizontal position. ------------------------------ */
+/* We first try find objects in this System to its left and/or right in the object list
 that have meaningful objRects. If we find such object(s), we check whether their relative
 positions agree with their relative object-list positions. */
 
@@ -611,7 +612,7 @@ positions agree with their relative object-list positions. */
 									pL);
 		}
 
-/* CHECK everything else. Object type dependent. -------------------------------- */
+/* CHECK everything else. Object type dependent. ---------------------------------- */
 
 		switch (ObjLType(pL)) {
 		
@@ -1828,7 +1829,7 @@ Boolean DCheckVoiceTable(Document *doc,
 
 Boolean DCheckHeirarchy(Document *doc)
 {
-	LINK 		pL, aStaffL, pageL, systemL;
+	LINK 		pL, aStaffL, pageL=NILINK, systemL=NILINK;
 	short		nMissing, i,
 				nsystems, numSheets;
 	Boolean aStaffFound[MAXSTAVES+1],					/* Found the individual staff? */

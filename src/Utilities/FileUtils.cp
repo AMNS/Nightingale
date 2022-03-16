@@ -461,7 +461,7 @@ FILE *NOpenBMPFile(char *filename, long *pixOffset, short *pWidth, short *pByteW
 
 	/* Open the file and read the BMP header.  */
 	
-#if 13
+#ifdef DEBUG_PATHS
 static Boolean firstCall=True; char cwd[PATH_MAX];
 if (firstCall) {
 	if (getcwd(cwd, sizeof(cwd)) != NULL)

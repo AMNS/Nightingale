@@ -64,7 +64,8 @@ the first in the record and thus has the same address as the subobject record it
 These macros depend (like above) on the right link being the 1st, and the left link
 being the 2nd, fields in the object record!  Similarly, the macros to deliver the link
 to the first subobject and to the object xd and yd depend on those values being
-respectively the 3rd, 4th, and 5th fields. */
+respectively the 3rd, 4th, and 5th fields. CAREFUL: the xd and yd fields aren't LINKs
+and their sizeof() may differ from sizeof(LINK)! */
  
 #define RightLINK(link)		( *(LINK *)LinkToPtr(OBJheap,link) )
 #define LeftLINK(link)		( *(LINK *)(sizeof(LINK) + LinkToPtr(OBJheap,link)) )
@@ -79,9 +80,9 @@ Note that this depends on the sizes of fields preceding the type! */
 #define ObjPtrTYPE(p)	( *(char *)((3*sizeof(LINK)+2*sizeof(DDIST)) + p) )
 
 
-/* Get the staff number of (depending on object type) an object or subject, or the
-voice number of an object or subobject. For subobjects, the staffn field is in the
-same place as ->left for objects, but staffn is a SignedByte. */
+/* Get the staff number of (depending on object type) an object or subject, or the voice
+number of an object or subobject. For subobjects, the staffn field is in the same place
+as ->left for objects, but staffn is a SignedByte. */
  
 #define StaffSTAFF(link)	( *(SignedByte *)(sizeof(LINK) + LinkToPtr(STAFFheap,link)) )
 #define NoteSTAFF(link) 	( *(SignedByte *)(sizeof(LINK) + LinkToPtr(NOTEheap,link)) )
@@ -196,10 +197,9 @@ GetObject(heap,link,cast) delivers the actual object data. */
  *				astaff.field = 41;
  */
 
-/*	GetObjectLink(heap,ptr,type) is the reverse of GetObjectPtr() above.  By
-forcing the user to specify the type of object, we can use C's knowledge of
-the object sizes to do the conversion more efficiently.  The pointer argument
-must be valid! */
+/*	GetObjectLink(heap,ptr,type) is the reverse of GetObjectPtr() above.  By forcing the
+user to specify the type of object, we can use C's knowledge of the object sizes to do
+the conversion more efficiently.  The pointer argument must be valid! */
 
 #define GetObjLink(heap,p,cast)	( ((cast *)p) - (cast *)(*(heap)->block) )
 
@@ -459,11 +459,13 @@ installed doc. */
 #define DMainNote(doc,link)		(!DNoteINCHORD(doc,link) || DNoteYD(doc,link)!=DNoteYSTEM(doc,link))
 
 /* -------------------------------------------------------------------------------------- */
+
+#ifdef NOMORE
 /* To facilitate debugging, define a macro version of LinkToPtr and versions of some
-basic macros that call it. This was useful long ago because the THINK C Debugger
-refused to evaluate expressions that call the LinkToPtr function because it didn't
-know there are no possible side effects. I doubt it's useful these days, but we'll
-keep them for now.  --DAB, Feb. 2017  */
+basic macros that call it. This was useful long ago because the THINK C Debugger refused
+to evaluate expressions that call the LinkToPtr function because it didn't know there
+are no possible side effects. I doubt it's useful these days, but we'll keep them for
+now. --DAB, Feb. 2017  */
 
 #define _LinkToPtr(heap,link)	( ((char *)(*(heap)->block)) + ((heap)->objSize*(unsigned long)(link)) )
 
@@ -476,7 +478,7 @@ keep them for now.  --DAB, Feb. 2017  */
 #define _LinkYD(link)			( *(DDIST *)((4*sizeof(LINK)) + _LinkToPtr(OBJheap,link)) )
 
 #define _NoteSTAFF(link) 		( *(SignedByte *)(sizeof(LINK) + _LinkToPtr(NOTEheap,link)) )
-
+#endif
 
 /* -------------------------------------------------------------------------------------- */
 /* Macros for acccessing various other fields of subobjects (mostly) or objects. (About
@@ -678,6 +680,7 @@ are by Steve Hart.) */
 #define NoteBEAMED(link)			( (GetPANOTE(link))->beamed )		
 #define NoteCOURTESYACC(link)		( (GetPANOTE(link))->courtesyAcc )		
 #define NoteDOUBLEDUR(link)			( (GetPANOTE(link))->doubleDur )
+#define NoteARTHARMONIC(link)		( (GetPANOTE(link))->artHarmonic)
 #define NoteRESERVEDN(link)			( (GetPANOTE(link))->reservedN)
 #define NoteFIRSTMOD(link)			( (GetPANOTE(link))->firstMod )	
 #define NoteINCHORD(link)			( (GetPANOTE(link))->inChord )	

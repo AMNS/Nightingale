@@ -323,53 +323,48 @@ static Boolean HasOverlappingGroup(LINK connectL, short firstStf, short lastStf)
 }
 
 static Boolean CheckGroupLevelConnects(Document *doc, LINK firstPartL, LINK lastPartL)
-	{
-		LINK connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
-				
-		if (!HasGroupConnect(connectL)) 
-			return True;
-		
-		short firstStf = PartFirstSTAFF(firstPartL);
-		short lastStf = PartLastSTAFF(lastPartL);
-		
-		if (HasSpanningGroup(connectL, firstStf, lastStf))
-			return False;
-		
-		if (HasContainedGroup(connectL, firstStf, lastStf))
-			return False;
-		
-		if (HasOverlappingGroup(connectL, firstStf, lastStf))
-			return False;
-		
-		return True;
-	}
+{
+	LINK connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
+			
+	if (!HasGroupConnect(connectL)) return True;
+	
+	short firstStf = PartFirstSTAFF(firstPartL);
+	short lastStf = PartLastSTAFF(lastPartL);
+	
+	if (HasSpanningGroup(connectL, firstStf, lastStf)) return False;
+	
+	if (HasContainedGroup(connectL, firstStf, lastStf)) return False;
+	
+	if (HasOverlappingGroup(connectL, firstStf, lastStf)) return False;
+	
+	return True;
+}
 
 static short FixStavesForPart(LINK firstPartL, LINK partL)
-	{
-		PartLastSTAFF(firstPartL) = PartLastSTAFF(partL);
-		short stfDiff = PartFirstSTAFF(partL) - PartFirstSTAFF(firstPartL);
-		return stfDiff;
-	}
+{
+	PartLastSTAFF(firstPartL) = PartLastSTAFF(partL);
+	short stfDiff = PartFirstSTAFF(partL) - PartFirstSTAFF(firstPartL);
+	return stfDiff;
+}
 	
 static void DeletePartInfoList(Document *doc, LINK headL, LINK firstPartL, LINK lastPartL) 
-	{
-		if (firstPartL == lastPartL)
-			return;
-		
-		LINK delPartL = NextPARTINFOL(firstPartL);
-		NextPARTINFOL(firstPartL) = NextPARTINFOL(lastPartL);
-		NextPARTINFOL(lastPartL) = NILINK;
-		
-		short nparts = 0;
-		LINK partL = delPartL;
-		while (partL) 
-		{
-			nparts++; partL = NextPARTINFOL(partL);
-		}
-			
-		HeapFree(doc->Heap+HEADERtype,delPartL);
-		LinkNENTRIES(headL) -= nparts;
+{
+	if (firstPartL == lastPartL) return;
+	
+	LINK delPartL = NextPARTINFOL(firstPartL);
+	NextPARTINFOL(firstPartL) = NextPARTINFOL(lastPartL);
+	NextPARTINFOL(lastPartL) = NILINK;
+	
+	short nparts = 0;
+	LINK partL = delPartL;
+	while (partL) {
+		nparts++;
+		partL = NextPARTINFOL(partL);
 	}
+		
+	HeapFree(doc->Heap+HEADERtype,delPartL);
+	LinkNENTRIES(headL) -= nparts;
+}
 	
 static void DeleteConnectSubObjs(LINK connectL) 
 {
@@ -380,7 +375,7 @@ static void DeleteConnectSubObjs(LINK connectL)
 			nEntries--;
 		
 	if (nEntries == 0) {		
-		MayErrMsg("Combine Parts: attempt to delete all connect subobjects");
+		MayErrMsg("Attempted to delete all connect subobjects.  (Combine Parts)");
 		return;
 	}
 	else  {
@@ -745,17 +740,6 @@ static void MPGetPartList(Document *doc, LINK firstPartL, LINK lastPartL,
 		
 		
 	}
-
-static short NumVoices(Document *doc) 
-{
-	short nv = 0;
-	
-	for (int i = 0; i <= MAXVOICES; i++) {
-		if (doc->voiceTab[i].partn != 0) nv++;
-	}
-	
-	return nv;
-}
 
 static void CopyVoiceTable(VOICEINFO *srcTab, VOICEINFO *dstTab) 
 {

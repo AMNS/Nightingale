@@ -110,7 +110,8 @@ PushLock(NOTEheap);
 	aNote->inOttava = False;
 	aNote->small = False;
 	aNote->tempFlag = False;
-	aNote->reservedN = 0;
+	aNote->artHarmonic = 0;
+	aNote->reservedN = 0L;
 
 	aNote->playTimeDelta = 0;								/* For the moment */
 
@@ -185,6 +186,7 @@ LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn,
 	NoteSEL(aNoteL) = True;
 	
 	/* If there was already a note in this note's voice, it's now a chord. */
+	
 	if (inVoice) FixSyncForChord(doc, syncL, voice, False, 0, 0, &context);
 
 	return aNoteL;
@@ -240,8 +242,8 @@ but at most <maxObjs> objects. If there are more objects than that, return <maxO
 (in which case only the first <maxObjs> go into the buffer), else return the number
 of objects.
 
-The objects always include Syncs, plus optionally Measures, but only Measures that
-don't begin Systems, since MRMerge may put Syncs before Measures. */
+The objects always include Syncs, plus optionally Measures, but only Measures that don't
+begin Systems, since MRMerge may put Syncs before Measures. */
 
 short FillMergeBuffer(
 				LINK startL,
@@ -298,7 +300,7 @@ static void MRFixTieLinks(
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
 		if (SlurTYPE(pL) && SlurTIE(pL) && SlurVOICE(pL)==voice) {
 			if (SlurCrossSYS(pL)) {
-				MayErrMsg("MRFixTieLinks: cross-system Slur %ld", (long)pL);
+				MayErrMsg("Cross-system Slur %ld  (MRFixTieLinks)", (long)pL);
 				continue;
 			}
 			firstSyncL = LVSearch(pL, SYNCtype, voice, GO_RIGHT, False);
@@ -395,17 +397,16 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 	for (i = 0; i<nNewSyncs; i++) {
 		newL = newSyncs[i].link;
 		
-		/*
-		 * Look for a slur and a tuplet in <voice> that begin with newL; if they exist,
-		 *	they must be moved along with newL and must have their fields that refer to
-		 * Syncs updated.
-		 */
+		/* Look for a slur and a tuplet in <voice> that begin with newL; if they exist,
+		   they must be moved along with newL and must have their fields that refer to
+		   Syncs updated. */
+		   
 		slurL = NILINK;
 		pL = LeftLINK(newL);
 		for ( ; pL && J_DTYPE(pL); pL = LeftLINK(pL))
 			if (SlurTYPE(pL) && SlurVOICE(pL)==voice) { slurL = pL; break; }
 		if (slurL && !SlurTIE(slurL)) {
-			MayErrMsg("MRMerge: non-tie slur found at %ld.", (long)slurL);
+			MayErrMsg("Non-tie slur found at %ld.  (MRMerge)", (long)slurL);
 			slurL = NILINK;
 		}
 
@@ -417,13 +418,13 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 		match = ObjTimeInTable(newSyncs[i].time, mergeObjs, nMergeObjs);
 		if (match>=0) {
 			matchL = mergeObjs[match].link;
-			/*
-			 * If we have an exact match in time with a Sync, newL should be merged
-			 * with it. If there's a voice conflict, we should presumably fix chord flags
-			 * and so on, but that's not worth bothering with since calling functions
-			 * should prevent it ever happening anyway, so just avoid disaster in such
-			 * a case by not merging.
-			 */
+			
+			/* If we have an exact match in time with a Sync, newL should be merged
+			   with it. If there's a voice conflict, we should presumably fix chord flags
+			   and so on, but that's not worth bothering with since calling functions
+			   should prevent it ever happening anyway, so just avoid disaster in such
+			   a case by not merging. */
+			   
 			if (mergeObjs[match].time==newSyncs[i].time && SyncTYPE(matchL)
 			&&  !SyncInVoice(matchL, voice)) {
 				copyL = DuplicateObject(SYNCtype, newL, False, doc, doc, False);
@@ -436,11 +437,11 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 				lastL = matchL;
 			}
 			else {
-				/*
-				 * For whatever reason, we can't merge newL into matchL. Instead,
-				 * newL must go after matchL--more specifically, just before the
-				 *	mergeable object after matchL.
-				 */
+
+				/* For whatever reason, we can't merge newL into matchL. Instead,
+				   newL must go after matchL--more specifically, just before the
+				   mergeable object after matchL. */
+
 				insL = (match<nMergeObjs-1? mergeObjs[match+1].link : doc->tailL);
 				insL = FindInsertPt(insL);
 				MoveNode(newL, insL);
@@ -457,6 +458,7 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 		}
 		
 		/* Update newL's time. This could probably be done much more efficiently. */
+		
 		measL = LSSearch(newL, MEASUREtype, ANYONE, GO_LEFT, False);
 		SyncTIME(newL) = newSyncs[i].time-MeasureTIME(measL);
 	}

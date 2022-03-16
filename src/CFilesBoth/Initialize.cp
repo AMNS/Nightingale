@@ -143,8 +143,11 @@ static void InitNPalettes(void)
 	if (getcwd(cwdSave, sizeof(cwdSave))==NULL) LogPrintf(LOG_ERR,
 							"Can't save the current working directory.  (InitNPalettes)\n");
 	errno = 0; chdir(NPALETTE_IMAGE_DIR);
-	if (errno!=0)  LogPrintf(LOG_ERR, "Can't change to palette image directory. errno=%d  (InitNPalettes)\n",
-							errno); SHOWWD;
+	if (errno!=0) {
+		LogPrintf(LOG_ERR, "Can't change to palette image directory. errno=%d  (InitNPalettes)\n",
+					errno);
+		SHOWWD;
+	}
 
 	if (!NInitPaletteWindows()) { BadInit(); ExitToShell(); }
 	if (!InitDynamicPalette()) { BadInit(); ExitToShell(); }

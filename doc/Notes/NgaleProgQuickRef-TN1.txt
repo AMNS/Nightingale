@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10, with premonitions of 6.0)
 Nightingale Technical Note #1
-Don Byrd, rev. late January 2022
+Don Byrd, rev. mid March 2022
 
 A general note:
 
@@ -170,12 +170,12 @@ Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 10		TIMESIGtype		24	12		time signature
 11		BEAMSETtype		26	6		Sync
 12		CONNECTtype		26	12		brace, bracket, line
-13		DYNAMtype		30	12		dynamic (only 1 subobj/object)
+13		DYNAMtype		30	12		dynamic (only 1 subobj per object)
 14		MODNRtype		-	6		note/rest modifier
 
-15		GRAPHICtype		44	6		text, lyric, rehearsal mark, line (only 1 subobj/object)
+15		GRAPHICtype		44	6		text, lyric, rehearsal mark, line (only 1 subobj per object)
 16		OTTAVAtype		40	4		Sync
-17		SLURtype		30	42		slur, tie (if a slur, only 1 subobj/object)
+17		SLURtype		30	42		slur, tie (if slur, only 1 subobj per object)
 18		TUPLETtype		40	4		Sync
 19		GRSYNCtype		24	30		grace note
 
@@ -273,16 +273,20 @@ OBJDATA objTable[] = {
 
 ---------------------------------------------------------------------------------------
 
-Debugging Functions
+Debugging and Debugging Functions
 
-/* Browser displays and handles interaction with a small window that lets the
-user (a Nightingale programmer, presumably) prowl around in an object list.
-tailL may be NILINK; in this case, the "go to tail" button will be inoperative,
-but everything else will work as usual. */
+/* Browser displays and handles interaction with a small window that lets the user
+(a Nightingale programmer, presumably) prowl around in an object list (not necessarily
+the main object list of a score; it could also be the Master Page or Undo obj list).
+
+If headL is anything other than doc->headL, the "Go to" button will be inoperative; if
+tailL is NILINK, the tiny "go to tail" button will be inoperative. In either case,
+everything else will work as usual. */
 
 void Browser(doc, headL, tailL)
 Document *doc;  LINK headL, tailL;
 
+-------------------------------
 
 /* Ask user what info they want and display/check it.  Returns False normally,
 True if things are so badly screwed up that quitting immediately is desirable. */
@@ -291,6 +295,7 @@ Boolean DoDebug(label, showWind)
 char	*label;						/* Identifying string to display */
 Boolean	showWind;					/* Bring info display window to front? */
 
+-------------------------------
 
 /* Dump the specified area as bytes in hexadecimal into the log file. NB: If <nPerLine> is
 unreasonably large, this function can overflow <strBuf>!  */
@@ -303,6 +308,44 @@ void DHexDump(short logLevel,			/* From LOG_DEBUG to LOG_ERR */
 				short nPerLine,			/* Number of items to print in a line */
 				Boolean numberLines		/* Add line numbers? */
 				)
+
+-------------------------------
+
+/* Display in the system log and maybe on stderr the message described by the second and
+ following parameters. The message may contain at most one "\n". There are two cases:
+ (1) It may be terminated by "\n", i.e., it may be a full line or a chunk ending a line.
+ (2) If it's not terminated by "\n", it's a partial line, to be completed on a later call.
+ In case #1, we send the complete line to syslog(); in case #2, just add it to a buffer.
+ FIXME: Instances of "\n" other than at the end of the message aren't handled correctly! */
+
+Boolean LogPrintf(short priLevel, const char *fmt, ...)
+
+Nightingale uses < priLevel> values defined by UNIX. From most to least serious, are:
+	LOG_ALERT:		"ALERT"
+	LOG_CRIT:		"CRITICAL" 
+	LOG_ERR:		"ERROR"
+	LOG_WARNING:	"Warning"
+	LOG_NOTICE:		"Notice"
+	LOG_INFO:		"info"
+	LOG_DEBUG:		"debug"
+LOG_ALERT and LOG_CRIT are for operating-system-level events; Nightingale never uses and
+never should use then.
+
+-------------------------------
+
+/* There's a weird bug in the OS 10.5 Console utility where if messages are
+   written to the log at too high a rate, some just disappear. To make it worse,
+   the ones that disappear seem to be random, and there's no indication there's
+   a problem! With the 10.6 Console, you at least get a warning at 500 messages
+   in a second; presumably Apple decided that was good enough, and easier than
+   fixing the bug.
+   
+   To sidestep the bug in places where it might be a problem, add a delay before each
+   call to LogPrintf, e.g.:
+   
+  		SleepMS(3);
+ 
+   For an example, see ConvertObjSubobjs() in FileConversion.c. */
 
 
 ----------------------------------------------------------------------------------------
