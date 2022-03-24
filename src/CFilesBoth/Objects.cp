@@ -850,16 +850,16 @@ PushLock(NOTEheap);
 
 	aNote->ndots = ndots;
 
-	/* FIXME: On upstemmed notes with flags, xmovedots should really be 2 or 3 larger, but
+	/* FIXME: On upstemmed notes with flags, xMoveDots should really be 2 or 3 larger, but
 	   then it should change whenever such notes are beammed or unbeamed or their stem
 	   direction or duration changes. Leave this for some other time. */
 	   
-	aNote->xmovedots = 3+WIDEHEAD(aNote->subType);
+	aNote->xMoveDots = 3+WIDEHEAD(aNote->subType);
 	
 	if (halfLn%2==0)
-		aNote->ymovedots = GetLineAugDotPos(voiceRole, makeLower);
+		aNote->yMoveDots = GetLineAugDotPos(voiceRole, makeLower);
 	else
-		aNote->ymovedots = 2;
+		aNote->yMoveDots = 2;
 
 	aNote->playTimeDelta = 0;
 	playDur = CalcPlayDur(syncL, aNoteL, lDur, isRest, &context);
@@ -953,8 +953,8 @@ PushLock(GRNOTEheap);
 	aGRNote->offVelocity = config.noteOffVel;
 	aGRNote->subType = lDur;
 	aGRNote->ndots = ndots;
-	aGRNote->xmovedots = 3;
-	aGRNote->ymovedots = (halfLn%2==0 ? 1 : 2);
+	aGRNote->xMoveDots = 3;
+	aGRNote->yMoveDots = (halfLn%2==0 ? 1 : 2);
 
 	aGRNote->playTimeDelta = 0;
 	aGRNote->playDur = SimpleGRLDur(aGRNoteL);
@@ -2085,7 +2085,7 @@ void FixAugDotPos(
 /* ------------------------------------------------------------------- ToggleAugDotPos -- */
 /* If the vertical position of augmentation dots is above or below the note, put them
 next to the notehead. If the dots are next to the notehead, move them above or below,
-depending on the note's voice role. If the dots are invisible (ymovedots=0), do
+depending on the note's voice role. If the dots are invisible (yMoveDots=0), do
 nothing. */
 
 void ToggleAugDotPos(Document *doc, LINK aNoteL, Boolean stemDown)
@@ -2094,9 +2094,9 @@ void ToggleAugDotPos(Document *doc, LINK aNoteL, Boolean stemDown)
 	short voiceRole;
 	
 	aNote = GetPANOTE(aNoteL);					
-	if (aNote->ymovedots==1 || aNote->ymovedots==3)
-			aNote->ymovedots = 2;
-	else if (aNote->ymovedots==2) {
+	if (aNote->yMoveDots==1 || aNote->yMoveDots==3)
+			aNote->yMoveDots = 2;
+	else if (aNote->yMoveDots==2) {
 		voiceRole = doc->voiceTab[NoteVOICE(aNoteL)].voiceRole;
 		NoteYMOVEDOTS(aNoteL) = GetLineAugDotPos(voiceRole, stemDown);
 	}

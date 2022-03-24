@@ -392,10 +392,10 @@ LINK CreateOTTAVA(
 					   aug. dots to correct new positions. */
 					   
 					if (odd(noteOffset[octSignType-1])) {
-						if (aGRNote->ymovedots==1 || aGRNote->ymovedots==3)
-								aGRNote->ymovedots = 2;
-						else if (aGRNote->ymovedots==2)
-								aGRNote->ymovedots = 1;
+						if (aGRNote->yMoveDots==1 || aGRNote->yMoveDots==3)
+								aGRNote->yMoveDots = 2;
+						else if (aGRNote->yMoveDots==2)
+								aGRNote->yMoveDots = 1;
 					}
 					stemLen = QSTEMLEN(!multiVoice, ShortenStem(aGRNoteL, context, stemDown));
 					aGRNote->ystem = CalcYStem(doc, aGRNote->yd,

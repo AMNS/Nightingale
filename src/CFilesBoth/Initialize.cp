@@ -39,8 +39,8 @@ static void			InstallCoreEventHandlers(void);
 
 /* The following code is intended to be compiled once in a blue moon, when the file
    format changes, to collect information for Nightingale documentation. That info (as
-   of Feb. 2022, for formats 'N105' and 'N106') is in Nightingale Tech Note #1, the
-   Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt). */	
+   of March 2022, for formats 'N105' and 'N106') is in Nightingale Tech Note #1, the
+   Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt). */
 
 #define NoDISP_STRUCT_INFO
 #define ScoreHdrFieldOffsetQQ(field)	(long)&((field))-(long)&(headL)
@@ -103,8 +103,8 @@ static void LogObjAndSubobjInfo(void)
 		sizeof(SUPEROBJ));
 
 	LogPrintf(LOG_DEBUG,
-		"SUBOBJ SIZES ('N106'):  (no sub) (no sub) ANOTE=%ld ARPTEND=%ld (no sub) (no sub)\n",
-		sizeof(ANOTE), sizeof(ARPTEND));
+		"SUBOBJ SIZES ('N106'):  PARTINFO=%ld (no sub) ANOTE=%ld ARPTEND=%ld (no sub) (no sub)\n",
+		sizeof(PARTINFO), sizeof(ANOTE), sizeof(ARPTEND));
 	LogPrintf(LOG_DEBUG,
 		"                        ASTAFF=%ld AMEASURE=%ld ACLEF=%ld AKEYSIG=%ld ATIMESIG=%ld ANOTEBEAM=%ld\n",
 		sizeof(ASTAFF), sizeof(AMEASURE), sizeof(ACLEF), sizeof(AKEYSIG), sizeof(ATIMESIG), sizeof(ANOTEBEAM));

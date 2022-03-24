@@ -1,6 +1,6 @@
 NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10, with premonitions of 6.0)
 Nightingale Technical Note #1
-Don Byrd, rev. mid March 2022
+Don Byrd, rev. late March 2022
 
 A general note:
 
@@ -131,7 +131,7 @@ there's one for the Undo command and one for the clipboard. An object list is a
 doubly-linked list of Nightingale objects. Most object types, e.g., HEAD, MEASURE, and
 SYNC, have singly-linked lists of subobjects attached to them; a few, e.g., TAIL and PAGE,
 have no subobjects. For SYNCs, by far the most important and complex objects, the
-subobjects are notes and rests. There’s also one type of subobject, MODNRs (note/rest
+subobjects are notes and rests. There’s also one type of subobject, MODNR (note/rest
 modifiers), that doesn’t have its own object type: instead, a list of MODNRs can be
 attached to a SYNC subobject. Every Nightingale file contains exactly two object lists:
 one for the score proper, and a very short one for the score’s Master Page.
@@ -149,7 +149,8 @@ Files and Troubleshooting Files Nightingale Can’t Open".
 ---------------------------------------------------------------------------------------
 
 Object Types (from NTypes.h). The sizes correspond to Nightingale versions up to and
-including 5.8.x, and file format 'N105'.
+including 5.8.x, and file format 'N105'. (In Nightingale 6 and file format 'N106', almost
+all are larger.)
 
 Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 							Subobject size  (- = type has no subobjs)
@@ -168,15 +169,15 @@ Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 9		KEYSIGtype		24	24		key signature
 
 10		TIMESIGtype		24	12		time signature
-11		BEAMSETtype		26	6		Sync
+11		BEAMSETtype		26	6		includes LINK to Sync
 12		CONNECTtype		26	12		brace, bracket, line
 13		DYNAMtype		30	12		dynamic (only 1 subobj per object)
 14		MODNRtype		-	6		note/rest modifier
 
 15		GRAPHICtype		44	6		text, lyric, rehearsal mark, line (only 1 subobj per object)
-16		OTTAVAtype		40	4		Sync
+16		OTTAVAtype		40	4		includes LINK to Sync
 17		SLURtype		30	42		slur, tie (if slur, only 1 subobj per object)
-18		TUPLETtype		40	4		Sync
+18		TUPLETtype		40	4		includes LINK to Sync
 19		GRSYNCtype		24	30		grace note
 
 20		TEMPOtype		38	-

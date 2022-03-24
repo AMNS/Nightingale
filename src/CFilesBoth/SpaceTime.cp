@@ -279,7 +279,7 @@ STDIST SymWidthRight(
 					else
 			  		nwidth = (STD_LINEHT*2)+2;						/* For 1st dot default pos. */
 
-			  		nwidth += (STD_LINEHT*(aNote->xmovedots-3))/4;	/* Fix for 1st dot actl.pos. */
+			  		nwidth += (STD_LINEHT*(aNote->xMoveDots-3))/4;	/* Fix for 1st dot actl.pos. */
 			  		if (aNote->ndots>1)
 			  			nwidth += STD_LINEHT*(aNote->ndots-1);		/* Fix for additional dots */
 					if (doc->nonstdStfSizes) nwidth = STF_SCALE(nwidth, aNote->staffn);
@@ -289,8 +289,8 @@ STDIST SymWidthRight(
 	  	}
 
 		/* If chord is upstemmed and has notes to the right of the stem, it extends
-		   further to the right than it otherwise would. (FIXME: The adjustments
-		   below should really take into account STF_SCALE.) */
+		   further to the right than it otherwise would. (FIXME: The adjustments below
+		   should really take into account STF_SCALE.) */
 		
 		noteToRight = False;
 		if (anyStaff) {

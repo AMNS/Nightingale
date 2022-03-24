@@ -228,8 +228,8 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PutDlgWord(dlog, P_DUR, aNote->playDur, False);
 			PutDlgWord(dlog, L_DUR, aNote->subType, False);			/* logical duration */
 			PutDlgWord(dlog, NDOTS, aNote->ndots, False);
-			PutDlgWord(dlog, XMOVE_DOTS, aNote->xmovedots, False);
-			PutDlgWord(dlog, YMOVE_DOTS, aNote->ymovedots, False);
+			PutDlgWord(dlog, XMOVE_DOTS, aNote->xMoveDots, False);
+			PutDlgWord(dlog, YMOVE_DOTS, aNote->yMoveDots, False);
 			PutDlgWord(dlog, HEAD_SHAPE, aNote->headShape, False);
 			PutDlgLong(dlog, START_TIME, SyncAbsTime(pL), False);
 			PutDlgWord(dlog, RESPACE_IGNORES, aNote->rspIgnore, False);
@@ -501,10 +501,10 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GRAF_ACCEPT(aNote->ndots);
 	
 			GetDlgWord(dlog, XMOVE_DOTS, &newval);
-			GRAF_ACCEPT(aNote->xmovedots);
+			GRAF_ACCEPT(aNote->xMoveDots);
 	
 			GetDlgWord(dlog, YMOVE_DOTS, &newval);
-			GRAF_ACCEPT(aNote->ymovedots);
+			GRAF_ACCEPT(aNote->yMoveDots);
 	
 			GetDlgWord(dlog, HEAD_SHAPE, &newval);
 			GRAF_ACCEPT(aNote->headShape);

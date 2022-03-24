@@ -11091,3 +11091,23 @@ looks fine in the July 15, 2020 .rsrc for Ngale 5.8. Copy that & paste into the 
 	
 Doug McKenna could really help with this!
 	
+---------------------------------------------------------------------------------------
+
+17 - 23 Mar.
+
+Rename "xmovedots" to "xMoveDots" & "ymovedots" to "yMoveDots". Whooppee.
+
+SWITCH TO: Ngale enforces limits to certain fields that were required by the sizes of the
+fields, but may no longer be appropriate because the fields are larger in 'N106' format!
+Worth considering, for ANOTE:
+
+	Field		Old size	New size	Change max. value
+	-----		--------	--------	-------------------	
+	xmoveAcc	5 bits		8 bits		from 31 to 50(?)
+	xMoveDots 	3 bits		8 bits		from 7 to 20(?)
+	yMoveDots	2 bits		8 bits		is 3; leave as is or increase, e.g., to 5?
+
+Actually, it's not clear there's any remotely likely situation where the current limits
+are too restrictive -- as long as we don't increase the resolution of these fields, which
+should actually be done. But that's nontrivial; for now leave everything as is.
+

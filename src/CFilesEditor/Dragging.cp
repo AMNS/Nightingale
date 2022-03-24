@@ -23,6 +23,7 @@
 static DDIST GetXDDiff(Document *doc, LINK pL, PCONTEXT pContext);
 
 /* Drawing for feedback during symbol dragging */
+
 static void SDDrawClef(Document *doc, LINK pL, LINK subObjL, unsigned char dummyglyph, LINK measureL);
 static void SDDrawKeySig(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawTimeSig(Document *doc, LINK pL, LINK subObjL, LINK measureL);
@@ -157,7 +158,7 @@ static void SDDrawAugDots(Document *doc, LINK aNoteL, DDIST xd, DDIST yd, DDIST 
 	aNote = GetPANOTE(aNoteL);
 	ndots = aNote->ndots;									/* Draw augmentation dots */
 	xd += dhalfLn;
-	yd += (aNote->ymovedots-2)*dhalfLn;
+	yd += (aNote->yMoveDots-2)*dhalfLn;
 // NB: The orig code here doesn't give same result as DrawAugDots anyway!
 	xd += MusCharXOffset(doc->musFontInfoIndex, glyph, dhalfLn*2);
 	yd += MusCharYOffset(doc->musFontInfoIndex, glyph, dhalfLn*2);
@@ -191,17 +192,19 @@ static void SDDrawMBRest(Document *doc, PCONTEXT pContext, LINK theRestL,
 	endBottom = yd-lnSpace;
 	endTop = yd+lnSpace;
 	dTop = yd;
-	/* Set number y-pos., considering that origins of Sonata digits bisect them. */ 
+	
+	/* Set number y-pos., considering that origins of Sonata digits bisect them. */
+	
 	ydNum = dTop-3*lnSpace-dhalfLn;
 
 	/* Assuming the first element is as wide/tall as any following ones... */
+	
 	xdNum += MusCharXOffset(doc->musFontInfoIndex, numStr[1], lnSpace);
 	ydNum += MusCharYOffset(doc->musFontInfoIndex, numStr[1], lnSpace);
 
-	/*
-	 * Draw the thick bar first; then the thin vertical lines at each end of the
-	 * thick bar; and finally the number.
-	 */
+	/* Draw the thick bar first; then the thin vertical lines at each end of the thick
+	   bar; and finally the number. */
+	   
 	D2Rect(&dRestBar, &restBar);
 	PaintRect(&restBar);
 
@@ -217,9 +220,9 @@ static void SDDrawMBRest(Document *doc, PCONTEXT pContext, LINK theRestL,
 
 static void SDDrawRest(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 {
-	short	ndots,ymovedots,glyph;
+	short	ndots, yMoveDots, glyph;
 	CONTEXT	context;
-	DDIST	xd,yd,ydNorm,dTop,lnSpace,restxd,restyd;
+	DDIST	xd, yd, ydNorm, dTop, lnSpace, restxd, restyd;
 	PANOTE	aRest;
 	Rect	mRect;
 	char	l_dur;
@@ -227,7 +230,7 @@ static void SDDrawRest(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	mRect = SDGetMeasRect(doc, pL, measureL);
 	aRest = GetPANOTE(subObjL);
 	ndots = aRest->ndots;
-	ymovedots = aRest->ndots;
+	yMoveDots = aRest->ndots;
 
 	GetContext(doc, pL, aRest->staffn, &context);
 	glyph = GetRestDrawInfo(doc,pL,subObjL,&context,&xd,&yd,&ydNorm,&dTop,&l_dur);
@@ -315,7 +318,7 @@ PushLock(NOTEheap);
 	glyph = MCH_quarterNoteHead;									/* Set default */
 	
 	useTxSize = UseMTextSize(context.fontSize, doc->magnify);
-	if (aNote->small) useTxSize = SMALLSIZE(useTxSize);			/* A bit crude--cf. Ross */
+	if (aNote->small) useTxSize = SMALLSIZE(useTxSize);			/* A bit crude; cf. Ross */
 	sizePercent = (aNote->small? SMALLSIZE(100) : 100);
 	TextSize(useTxSize);
 
@@ -340,6 +343,7 @@ PushLock(NOTEheap);
 
 	/* xhead,yhead is position of notehead; xadjhead,yadjhead is position of notehead 
 		with any offset applied (might be true if music font is not Sonata). */
+		
 	offset = MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 	if (offset) {
 		xhead = d2p(xd);
@@ -364,8 +368,9 @@ PushLock(NOTEheap);
 	else {
 		MoveTo(xadjhead, yadjhead);									/* position to draw head */
 
-		/* HANDLE STEMMED NOTE. If the note is in a chord and is stemless,
-			skip the entire business of drawing the stem and flags. */
+		/* HANDLE STEMMED NOTE. If the note is in a chord and is stemless, skip the
+		   entire business of drawing the stem and flags. */
+		   
 		if (!aNote->inChord || MainNote(subObjL)) {
 			short stemSpace;
 			
@@ -383,17 +388,20 @@ PushLock(NOTEheap);
 			}
 
 			/*	Suppress flags if the note is beamed. */
+			
 			flagCount = (aNote->beamed? 0 : NFLAGS(noteType));
 
 			if (flagCount) {											/* Draw any flags */
 				ypStem = yhead+d2p(dStemLen);
 
 				if (doc->musicFontNum==sonataFontNum) {
-					/* The 8th and 16th note flag characters in Sonata have their origins set so,
-						in theory, they're positioned properly if drawn from the point where the note
-						head was drawn. Unfortunately, the vertical position depends on the stem
-						length, which Adobe incorrectly assumed was always one octave. The "extend
-						flag" characters have their vertical origins set right where they go. */
+					/* The 8th and 16th note flag characters in Sonata have their origins
+					   set so, in theory, they're positioned properly if drawn from the
+					   point where the note head was drawn. Unfortunately, the vertical
+					   position depends on the stem length, which Adobe incorrectly
+					   assumed was always one octave. The "extend flag" characters have
+					   their vertical origins set right where they go. */
+						
 					MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
 					octaveLength = d2p(7*SizePercentSCALE(dhalfLn));
 					if (stemDown)						 				/* Adjust for flag origin */
@@ -414,6 +422,7 @@ PushLock(NOTEheap);
 						MoveTo(xhead, ypStem);							/* Position x at head, y at stem end */
 						
 						/* Scale Factors for FlagLeading are guesswork. */
+						
 						if (stemDown)
 							Move(0, -d2p(13*FlagLeading(lnSpace)/4));
 						else
@@ -431,7 +440,7 @@ PushLock(NOTEheap);
 					}
 				}
 				else {			/* fonts other than Sonata */
-					short glyphWidth; DDIST xoff, yoff;
+					short glyphWidth;  DDIST xoff, yoff;
 
 					if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 						stemSpace = 0;
@@ -460,6 +469,7 @@ PushLock(NOTEheap);
 						short count = flagCount;
 
 						/* Draw extension flag(s) */
+						
 						if (stemDown) {
 							flagGlyph = MapMusChar(doc->musFontInfoIndex, MCH_extendFlagDown);
 							flagLeading = -d2p(DownstemExtFlagLeading(doc->musFontInfoIndex, lnSpace));
@@ -531,10 +541,8 @@ static void SDDrawGRNote(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	DDIST		offset, lnSpace, dStemLen;
 	unsigned char flagGlyph;
 
-	/*
-	 * FIXME: This function repeatedly uses DrawMChar, though it never dims. SDDrawNote
-	 * just uses DrawChar, and it seems like SDDrawGRNote and SDDrawNote should agree!
-	 */
+	/* FIXME: This function repeatedly uses DrawMChar, though it never dims. SDDrawNote
+	   just uses DrawChar, and it seems like SDDrawGRNote and SDDrawNote should agree! */
 	 
 PushLock(OBJheap);
 PushLock(GRNOTEheap);
@@ -559,8 +567,8 @@ PushLock(GRNOTEheap);
 		}
 		headRect = CharRect(MapMusChar(doc->musFontInfoIndex, MCH_halfNoteHead));
 		headWidth = p2d(headRect.right-headRect.left)+1;
-		if (stemDown) xd -= headWidth;
-		else			  xd += headWidth;
+		if (stemDown)	xd -= headWidth;
+		else			xd += headWidth;
 	}
 	lnSpace = LNSPACE(&context);
 	dhalfLn = lnSpace/2;
@@ -596,7 +604,8 @@ PushLock(GRNOTEheap);
 	glyph = MapMusChar(doc->musFontInfoIndex, glyph);
 
 	/* xhead,yhead is position of notehead; xadjhead,yadjhead is position of notehead 
-		with any offset applied (might be true if music font is not Sonata). */
+	   with any offset applied (might be true if music font is not Sonata). */
+	   
 	offset = MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 	if (offset) {
 		xhead = d2p(xd);
@@ -621,8 +630,9 @@ PushLock(GRNOTEheap);
 	else {
 		MoveTo(xadjhead, yadjhead);									/* position to draw head */
 
-		/* HANDLE STEMMED NOTE. If the grace note is in a chord and is stemless,
-			skip the entire business of drawing the stem and flags. */
+		/* HANDLE STEMMED NOTE. If the grace note is in a chord and is stemless, skip the
+		   the entire business of drawing the stem and flags. */
+		   
 		if (!aGRNote->inChord || GRMainNote(subObjL)) {
 			short stemSpace;
 			
@@ -640,17 +650,20 @@ PushLock(GRNOTEheap);
 			}
 
 			/*	Suppress flags if the note is beamed. */
+			
 			flagCount = (aGRNote->beamed? 0 : NFLAGS(aGRNote->subType));
 
 			if (flagCount) {												/* Draw any flags */
 				ypStem = yhead+d2p(dStemLen);
 
 				if (doc->musicFontNum==sonataFontNum) {
-					/* The 8th and 16th note flag characters in Sonata have their origins set so,
-						in theory, they're positioned properly if drawn from the point where the note
-						head was drawn. Unfortunately, the vertical position depends on the stem
-						length, which Adobe incorrectly assumed was always one octave. The "extend
-						flag" characters have their vertical origins set right where they go. */
+					/* The 8th and 16th note flag characters in Sonata have their origins
+					   set so, in theory, they're positioned properly if drawn from the
+					   point where the note head was drawn. Unfortunately, the vertical
+					   position depends on the stem length, which Adobe incorrectly
+					   assumed was always one octave. The "extend flag" characters have
+					   their vertical origins set right where they go. */
+					   
 					MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
 					octaveLength = d2p(7*SizePercentSCALE(dhalfLn));
 					if (stemDown)						 				/* Adjust for flag origin */
@@ -688,7 +701,7 @@ PushLock(GRNOTEheap);
 					}
 				}
 				else {	/* fonts other than Sonata */
-					short glyphWidth; DDIST xoff, yoff;
+					short glyphWidth;  DDIST xoff, yoff;
 
 					if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 						stemSpace = 0;
@@ -982,8 +995,8 @@ static void SDDrawTuplet(Document *doc, LINK pL, LINK measureL)
 	Rect		tupleRect, mRect;
 	unsigned char tupleStr[20];
 
-	/* Set Font Size correctly for different staff sizes and magnifications.
-		FIXME: Not clear why this call is not needed for other types of objects. */
+	/* Set Font Size correctly for different staff sizes and magnifications. FIXME:
+	   Not clear why this call is not needed for other types of objects. */
 
 	SetTextSize(doc);
 
@@ -1029,10 +1042,10 @@ static void SDDrawGRDraw(Document */*doc*/, DDIST xd, DDIST yd, DDIST xd2, DDIST
 	short xp, yp, yTop, xp2, yp2; DDIST lnSpace, thick;
 	
 	lnSpace = LNSPACE(pContext);
-	/*
-	 * We interpret thickening as horizontal only--not good unless the line is
-	 * nearly horizontal, or thickness is small enough that it doesn't matter.
-	 */
+	
+	/* We interpret thickening as horizontal only: not good unless the line is
+	   nearly horizontal, or thickness is small enough that it doesn't matter. */
+	   
 	thick = (long)(lineLW*lnSpace) / 100L;
 	yTop = pContext->paper.top;
 
@@ -1072,7 +1085,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 	yd -= p2d(mRect.top);
 	switch (pGraphic->graphicType) {
 		case GRPICT:
-			MayErrMsg("SDDragGraphic: sorry, GRPICTs are not implemented.");
+			MayErrMsg("GRPICTs are not implemented.  (SDDragGraphic)");
 			break;
 		case GRArpeggio:
 			dHeight = qd2d(pGraphic->info, context.staffHeight, context.staffLines);
@@ -1122,6 +1135,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			break;
 			
 		/* Handle the remaining Graphic subtypes, all of which are some kind of text. */
+		
 		default:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
@@ -1147,9 +1161,10 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 					Byte *q = PCopy(strOffset);
 					len = Pstrlen(q);
 
-					/* Divide the Pascal string q[] into a series of substrings by repeatedly
-					   stuffing the length we want into the byte preceding the current
-					   substring. */
+					/* Divide the Pascal string q[] into a series of substrings by
+					   repeatedly stuffing the length we want into the byte preceding
+					   the current substring. */
+					   
 					j = count = 0;
 					for (i = 1; i <= len; i++) {
 						count++;
@@ -1172,7 +1187,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 					if (pGraphic->graphicType==GRString) expandN = (pGraphic->info2!=0);
 					if (expandN) {
 						if (!ExpandPString(textStr, (StringPtr)PCopy(strOffset), EXPAND_WIDER))
-							LogPrintf(LOG_WARNING, "SDDrawGraphic: ExpandPString failed.\n");
+							LogPrintf(LOG_WARNING, "ExpandPString failed.  (SDDrawGraphic)\n");
 					}
 					else Pstrcpy(textStr, (StringPtr)PCopy(strOffset));
 					DrawString(textStr);
@@ -1190,15 +1205,14 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 {
 	PTEMPO p;
-	short oldFont, oldSize, oldStyle, useTxSize, noteWidth, tempoStrlen;
-	DDIST xd, yd, extraGap, lineSpace, dTop, firstxd, xdNote, xdDot, ydDot;
+	short oldFont, oldSize, oldStyle, useTxSize, tempoStrlen;
+	DDIST xd, yd, extraGap, lineSpace, dTop, firstxd;
 	Str255 tempoStr;
 	char metroStr[256], noteChar;
 	LINK contextL;
 	CONTEXT context; Rect mRect; FontInfo fInfo;
 	StringOffset theStrOffset;
 	Boolean expandN=False, beforeFirst;
-	Byte dotChar = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	beforeFirst = LinkBefFirstMeas(pL);
 	contextL = (beforeFirst ? LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, False) : pL);
@@ -1208,8 +1222,8 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	mRect = SDGetMeasRect(doc, pL, measureL);
 	
 	/* Don't use DragXD(xd) here: already correctly set.
-		If pL is LinkBefFirstMeas(), the dragPorts are system-relative, so include the
-		xd of firstObj even if it is a measure. */
+	   If pL is LinkBefFirstMeas(), the dragPorts are system-relative, so include the
+	   xd of firstObj even if it's a measure. */
 
 	if (LinkBefFirstMeas(pL))
 		firstxd = LinkXD(TempoFIRSTOBJ(pL));
@@ -1223,6 +1237,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	theStrOffset = p->strOffset;
 
 	/* Save the current font and set the font we want. */
+	
 	oldFont = GetPortTxFont();
 	oldSize = GetPortTxSize();
 	oldStyle = GetPortTxFace();
@@ -1231,7 +1246,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	
 	if (expandN) {
 		if (!ExpandPString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-			LogPrintf(LOG_WARNING, "SDDrawTempo: ExpandPString failed.\n");
+			LogPrintf(LOG_WARNING, "ExpandPString failed.  (SDDrawTempo)\n");
 	}
 	else Pstrcpy(tempoStr, (StringPtr)PCopy(theStrOffset));
 
@@ -1261,8 +1276,12 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 		DrawChar(noteChar);
 #ifdef NOTYET
 		/* FIXME: This chunk of code not only fails to draw the dot, it results in the
-		   metronome number not appearing. --DAB */
+		   metronome number not appearing! --DAB */
 		if (p->dotted) {
+			short noteWidth;
+			DDIST xdNote, xdDot, ydDot;
+			Byte dotChar = MapMusChar(doc->musFontInfoIndex, MCH_dot);
+
 			xdNote = xd+p2d(StringWidth(tempoStr))+lineSpace;
 			noteWidth = CharWidth(noteChar);
 			noteWidth += pt2p(2);
@@ -1348,7 +1367,7 @@ PushLock(OBJheap);
 	number = GetOctTypeNum(pL, &bassa);
 
 	/* xdFirst & ydFirst are initialized to zero, and used for re-positioning the
-		ottava when it it dragged (or potentially for Get Info, etc.). */
+	   ottava when it it dragged (or potentially for Get Info, etc.). */
 
 	p = GetPOTTAVA(pL);
 
@@ -1388,8 +1407,8 @@ PushLock(OBJheap);
 		yCutoff = d2p(yCutoffLen);
 		octWidth = octRect.right-octRect.left;
 	
-		/* Start octWidth to right of firstPt. Draw a dotted line to the end
-			of the ottava, and a solid line up or down yCutoff. */
+		/* Start octWidth to right of firstPt. Draw a dotted line to the end of the
+		   ottava, and a solid line up or down yCutoff. */
 	
 		MoveTo(firstx+octWidth+XFUDGE, firsty);
 		QD_DrawDashedLine(firstx+octWidth+XFUDGE, firsty, lastx, firsty);
@@ -1470,10 +1489,9 @@ void SDDrawGRBeamset(Document *doc, LINK pL, LINK measL)
 	beamThick = LNSPACE(pContext)/2;
 	beamThick = GRACESIZE(beamThick);
 
-	/* Simpler than DrawBEAMSET because grace-note beamsets cannot be cross
-		system or cross barlines, and cannot have secondary or fractional beams.
-		We only have to draw one set of beams all the way from the first
-		GRSync to the last. */
+	/* This is simpler than DrawBEAMSET because grace-note beamsets cannot be cross
+	   system or cross barlines, and cannot have secondary or fractional beams. We only
+	   have to draw one set of beams all the way from the first GRSync to the last. */
 
 	firstSyncL = FirstInBeam(pL);
 	lastSyncL = LastInBeam(pL);
@@ -1486,6 +1504,7 @@ void SDDrawGRBeamset(Document *doc, LINK pL, LINK measL)
 	upOrDown = ( (GRNoteYSTEM(aGRNoteL) < GRNoteYD(aGRNoteL)) ? 1 : -1 );
 
 	yBeam = GRNoteXStfYStem(aGRNoteL,stfRange,firstStfTop,lastStfTop,crossStaff);
+	
 	/* FIXME: measLeft PARAM LOOKS WRONG FOR GRBEAMS SPANNING MEASURES. Cf. SDCalcXStem. */
 	xStemL = CalcGRXStem(doc, firstSyncL, voice, upOrDown, pContext->measureLeft, pContext, True);
 	xStemR = CalcGRXStem(doc, lastSyncL, voice, upOrDown, pContext->measureLeft, pContext, False);
@@ -1509,10 +1528,10 @@ void SDDrawGRBeamset(Document *doc, LINK pL, LINK measL)
 }
 
 
-/* Given a Sync, voice number, stem direction, and standard notehead width,
-return the measure-relative x-coordinate of the given end of a beam for the
-note/chord in that Sync and voice. The parameter measLeft is being retained
-in case it turns out to be needed for some coordinate system adjustment. */
+/* Given a Sync, voice number, stem direction, and standard notehead width, return the
+measure-relative x-coordinate of the given end of a beam for the note/chord in that Sync
+and voice. The parameter measLeft is being retained in case it turns out to be needed for
+some coordinate system adjustment. */
 
 #define STEMWIDTH (p2d(1))			/* Stem thickness. */
 
@@ -1521,8 +1540,8 @@ DDIST SDCalcXStem(LINK syncL, short voice, short stemDir,
 					Boolean left			/* True=left end of beam, else right */
 					)
 {
-	DDIST		xd, xdNorm;
-	LINK		aNoteL;
+	DDIST	xd, xdNorm;
+	LINK	aNoteL;
 	
 	measLeft = 0;
 	aNoteL = FirstSubLINK(syncL);
@@ -1532,8 +1551,8 @@ DDIST SDCalcXStem(LINK syncL, short voice, short stemDir,
 			break;
 	}
 	
-	if (stemDir>0) xd += headWidth-(left?  STEMWIDTH : p2d(1));
-	else				xd += (left? 0 : STEMWIDTH-p2d(1));
+	if (stemDir>0)	xd += headWidth-(left?  STEMWIDTH : p2d(1));
+	else			xd += (left? 0 : STEMWIDTH-p2d(1));
 		
 	return xd;
 }
@@ -1545,7 +1564,7 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 {
 	PBEAMSET	p;
 	PANOTEBEAM	pNoteBeam;
-	BEAMSTACKEL	beamStack[MAX_L_DUR],*beamEl;			/* Really only needs to be [max.no. of beams] */
+	BEAMSTACKEL	beamStack[MAX_L_DUR],*beamEl;			/* Really only needs to be [max. no. of beams] */
 	DDIST		yBeam, ydelt, frac_xend,
 				flagYDelta, beamThick, firstBeam, lastBeam, 
 				dTop, dLeft, beamLeft,
@@ -1576,8 +1595,8 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 	staff = BeamSTAFF(pL);
 	voice = BeamVOICE(pL);
 	
-	/* Fill notesInBeam[], an array of the notes in the beamVoice in the bpSyncs,
-		in order to call GetCrossStaff to get the stfRange. */
+	/* Fill notesInBeam[], an array of the notes in the beamVoice in the bpSyncs, in
+	   order to call GetCrossStaff to get the stfRange. */
 
 	p = GetPBEAMSET(pL);
 	crossSys = p->crossSystem;
@@ -1798,8 +1817,8 @@ static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 /* ====================================================================================== */
 
 /* --------------------------------------------------------------------- HandleSymDrag -- */
-/* Should be called by all CheckXXX routines to handle normal dragging. See comments
-on DoSymbolDrag for a description of the torturous route we take to get here. */
+/* Should be called by all CheckXXX routines to handle normal dragging. See comments on
+DoSymbolDrag for a description of the torturous route we take to get here. */
 
 Boolean HandleSymDrag(Document *doc, LINK pL, LINK subObjL, Point pt, unsigned char glyph)
 {
@@ -1811,15 +1830,15 @@ Boolean HandleSymDrag(Document *doc, LINK pL, LINK subObjL, Point pt, unsigned c
 
 
 /* ----------------------------------------------------------------------- SymDragLoop -- */
-/* Routine that is actually responsible for dragging the object. First calls the
-SDDraw routine for the object's type to draw the to-be-dragged object into the
-offscreen bitmap; then enters the loop where the user drags the object; and finally
-updates the object's position and other attributes with the SetFields routine for the
-type of the dragged object.
+/* The routine that is actually responsible for dragging an object. First calls the
+SDDraw routine for the object's type to draw the to-be-dragged object into the offscreen
+bitmap; then enters the loop where the user drags the object; and finally updates the
+object's position and other attributes with the SetFields routine for the type of the
+dragged object.
 
 <glyph> is the char to be drawn only for Clefs and Dynamics FIXME: for no good reason--
-should eliminate this param!. The measure containing the object is used to correct
-the coordinate system if the measure is partially off the screen.
+should eliminate this param!. The measure containing the object is used to correct the
+coordinate system if the measure is partially off the screen.
 
 Returns True if the symbol was actually dragged along either axis, else False. */
 
@@ -1897,6 +1916,7 @@ static Boolean SymDragLoop(
 			if (!isRest) {
 
 				/* Set up the accidental box for vertical note dragging. */
+				
 				noteLeft = d2p(PageRelxd(pL, &context) + NoteXD(subObjL));
 				newAcc = 0;
 				accy = d2p(context.staffTop+context.staffHeight/2);
@@ -1924,6 +1944,7 @@ static Boolean SymDragLoop(
 //						 &accBox, &saveBox, srcCopy, NULL);
 	
 				/* Set up for MIDI feedback. */
+				
 				partn = Staff2Part(doc, staff);
 				useChan = UseMIDIChannel(doc, partn);					/* Set feedback channel no. */
 
@@ -1952,6 +1973,7 @@ static Boolean SymDragLoop(
 			}
 
 			/* Get left and right dragging limits for horizontal drag of note or rest. */
+			
 			GetHDragLims(doc,pL,subObjL,staff,context,&leftLim,&rightLim);
 			break;
 
@@ -1961,6 +1983,7 @@ static Boolean SymDragLoop(
 			GetContext(doc, pL, staff, &context);
 
 			/* Set up the accidental box for vertical note dragging. */
+			
 			noteLeft = d2p(PageRelxd(pL, &context) + GRNoteXD(subObjL));
 			newAcc = 0;
 			accy = d2p(context.staffTop+context.staffHeight/2);
@@ -2109,7 +2132,7 @@ static Boolean SymDragLoop(
 				if (stillWithinSlop) {
 					if (ABS(dx)<2 && ABS(dy)<2) continue;
 					
-					/* User has left slop bounds, find horizontal/vertical for notes & clefs */
+					/* User has left slop bounds; find horizontal/vertical for notes & clefs */
 					
 					switch (ObjLType(pL)) {
 						case SYNCtype:
@@ -2170,8 +2193,8 @@ static Boolean SymDragLoop(
 
 					/* In magnified sizes, dstRect position picks up a small cumulative
 					   error each time thru the loop, resulting in the bitmap being
-					   drawn a little too low. Use d2px, which doesn't add ROUND to
-					   the computation of dy. */
+					   drawn a little too low. Use d2px, which doesn't add ROUND to the
+					   computation of dy. */
 					   
 					if (doc->magnify!=0)	dy = d2px(v);
 					else					dy = d2p(v);
@@ -2193,14 +2216,14 @@ static Boolean SymDragLoop(
 						newAcc = SDSetAccidental(doc, accPort, accBox, saveBox, accy);
 
 						/* If the mouse isn't still down, user has exited the dragging
-							loop with the shift key down; the last part of the action
-							has been to change the accidental. Set the final mouse position
-							to what it was before the shift key was depressed, and exit
-							the loop. Also, need to recalculate halfLn, which is picked
-							up higher in the loop from newPt.v. Otherwise, the user is
-							continuing to drag the note vertically; set newAcc to 0 so as
-							not to pick up the accidental from SDSetAccidental, which is
-							no longer wanted. */
+						   loop with the shift key down; the last part of the action
+						   has been to change the accidental. Set the final mouse position
+						   to what it was before the shift key was depressed, and exit
+						   the loop. Also, need to recalculate halfLn, which is picked
+						   up higher in the loop from newPt.v. Otherwise, the user is
+						   continuing to drag the note vertically; set newAcc to 0 so as
+						   not to pick up the accidental from SDSetAccidental, which is
+						   no longer wanted. */
 
 						if (!StillDown()) {
 							newPt = pt;
@@ -2216,10 +2239,10 @@ static Boolean SymDragLoop(
 				}
 
 				/* Set left and right limits for dragging. Currently: use the xd of the
-					immediately preceding and following objects with valid xd, ignoring
-					subObj offsets of either the objects in the sync being dragged or the
-					right and left objects. Limit the dragging so that the note/rest cannot
-					be dragged past the limit object. */
+				   immediately preceding and following objects with valid xd, ignoring
+				   subObj offsets of either the objects in the sync being dragged or the
+				   right and left objects. Limit the dragging so that the note/rest cannot
+				   be dragged past the limit object. */
 
 				if (horiz) {
 					if (SyncTYPE(pL) || ClefTYPE(pL) ||
@@ -2274,19 +2297,20 @@ static Boolean SymDragLoop(
 		}															/* end of the "WaitMouseUp" loop */
 
 	/* Dragging is finished. If user dragged outside of the measure, use the most
-		recent point inside it. */
+	   recent point inside it. */
 
 	if (!PtInRect(newPt, &bounds)) newPt = pt;
 	
-	/* Go to here if user let mouse up while tracking accidental, so as not to
-		pick up the newPt which is, under these circumstances, where the user
-		dragged the mouse to set the accidental, not to drag the note vertically. */
+	/* Go to here if user let mouse up while tracking accidental, so as not to pick up
+	   the newPt; under these circumstances, that's where the user dragged the mouse to
+	   set the accidental, not to drag the note vertically. */
+	   
 setAccDone:
 
 	if (vQuantize) {
 
 		/* If we're quantizing, we want to use the first and last quantized positions
-			rather than the first last cursor points. */
+		   rather than the first last cursor points. */
 
 		oldHalfLn = CalcPitchLevel(oldPt.v, &context, staffL, staff);
 		oldPt.v = context.staffTop +
@@ -2306,6 +2330,7 @@ setAccDone:
 	}
 
 	/* Symbol was really moved on one or both axes. Update the object list. */
+	
 	switch (ObjLType(pL)) {
 		case CLEFtype:
 			SetClefFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert);
@@ -2413,14 +2438,14 @@ noteDragDone:
 
 
 /* ---------------------------------------------------------------------- DoSymbolDrag -- */
-/* This is the entry point for all dragging routines handling normal dragging.
-If symbol is beforeFirstMeas, handle it as a special case and return. Otherwise,
-set up the three offscreen bitmaps and call CheckObject, which should call the
-appropriate CheckXXX routine with mode SMSymDrag; the CheckXXX routines should in
-turn call HandleSymDrag. <pt> is the mouseDown pt in window-local coordinates.
+/* This is the entry point for all dragging routines handling normal dragging. If symbol
+is beforeFirstMeas, handle it as a special case and return. Otherwise, set up the three
+offscreen bitmaps and call CheckObject, which should call the appropriate CheckXXX
+routine with mode SMSymDrag; the CheckXXX routines should in turn call HandleSymDrag.
+<pt> is the mouseDown pt in window-local coordinates.
 
-Returns True if it found something to drag, regardless of whether the user tried to
-drag it and regardless of whether anything went wrong. */
+Returns True if it found something to drag, regardless of whether the user tried to drag
+it and regardless of whether anything went wrong. */
 
 Boolean DoSymbolDrag(Document *doc, Point pt)
 {
@@ -2438,8 +2463,8 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 	DisableUndo(doc, False);
 	
 	/* If the object is before the first Measure of its System, call DragBeforeFirst.
-	Exception: If object is a Graphic or is attached to a page-relative Graphic, handle
-	in this function and don't call DragBeforeFirst. */
+	   Exception: If object is a Graphic or is attached to a page-relative Graphic,
+	   handle in this function and don't call DragBeforeFirst. */
 	
 	if (LinkBefFirstMeas(pL)) {
 		if (!GraphicTYPE(pL) || !PageTYPE(GraphicFIRSTOBJ(pL))) {

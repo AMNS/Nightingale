@@ -89,8 +89,8 @@ PushLock(NOTEheap);
 	aNote->offVelocity = MIDINote.offVelocity;
 	aNote->subType = lDur;
 	aNote->ndots = ndots;
-	aNote->xmovedots = 3;
-	aNote->ymovedots = (halfLn%2==0 ? 1 : 2);
+	aNote->xMoveDots = 3;
+	aNote->yMoveDots = (halfLn%2==0 ? 1 : 2);
 
 	aNote->inChord = False;
 	aNote->unpitched = False;

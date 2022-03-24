@@ -258,7 +258,7 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 	char	lDur;
 
 	theNote = GetPANOTE(theNoteL);
-	if (theNote->ndots==0 || theNote->ymovedots==0) return 0;	/* If no dots or dots invisible */
+	if (theNote->ndots==0 || theNote->yMoveDots==0) return 0;	/* If no dots or dots invisible */
 
 	/* Ordinarily, the first dot is just to the right of a note on the "normal" side of
 	   the stem. But if note is in a chord that's upstemmed and has notes to the right
@@ -280,7 +280,7 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 		if (WIDEHEAD(theNote->subType)) xdDots += dhalfLn/2;
 	}
 		
-	xdDots += std2d(STD_LINEHT*(theNote->xmovedots-3)/4,
+	xdDots += std2d(STD_LINEHT*(theNote->xMoveDots-3)/4,
 							pContext->staffHeight,
 							pContext->staffLines);
 
@@ -311,11 +311,11 @@ static void DrawAugDots(Document *doc,
 	Byte	glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	theNote = GetPANOTE(theNoteL);
-	if (theNote->ndots==0 || theNote->ymovedots==0) return;	/* If no dots or dots invisible */
+	if (theNote->ndots==0 || theNote->yMoveDots==0) return;	/* If no dots or dots invisible */
 
 	dhalfLn = LNSPACE(pContext)/2;
 	xdDots = xdNorm + AugDotXOffset(theNoteL, pContext, chordNoteToR, doNoteheadGraphs);
-	ydDots = yd+(theNote->ymovedots-2)*dhalfLn;
+	ydDots = yd+(theNote->yMoveDots-2)*dhalfLn;
 	
 	ndots = theNote->ndots;
 	dim = (outputTo==toScreen && !LOOKING_AT(doc, theNote->voice));

@@ -2260,14 +2260,14 @@ Boolean ModifyScore(Document * /*doc*/, long /*fileTime*/)
 	short alteredCount; LINK pL;
 
   /* From SetupNote in Objects.c:
-   * "On upstemmed notes with flags, xmovedots should really 
+   * "On upstemmed notes with flags, xMoveDots should really 
    * be 2 or 3 larger [than normal], but then it should change whenever 
    * such notes are beamed or unbeamed or their stem direction or 
    * duration changes." */
 
   /* TC Oct 7 1999 (modified by DAB, 8 Oct.): quick and dirty hack to fix this problem
    * for Bill Hunt; on opening file, look at all unbeamed dotted notes with subtype >
-   * quarter note and if they have stem up, increase xmovedots by 2; if we find any
+   * quarter note and if they have stem up, increase xMoveDots by 2; if we find any
    * such notes, set doc-changed to True then simply report to user. It'd probably
    * be better to consider stem length and not do this for notes with very long
    * stems, but we don't consider that. */
@@ -2282,7 +2282,7 @@ Boolean ModifyScore(Document * /*doc*/, long /*fileTime*/)
         if((aNote->subType > QTR_L_DUR) && (aNote->ndots))
           if(!aNote->beamed)
             if(MainNote(aNoteL) && (aNote->yd > aNote->ystem)) {
-              aNote->xmovedots = 3 + WIDEHEAD(aNote->subType) + 2;
+              aNote->xMoveDots = 3 + WIDEHEAD(aNote->subType) + 2;
               alteredCount++;
             }
       }

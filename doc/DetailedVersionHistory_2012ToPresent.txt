@@ -3607,11 +3607,23 @@ Fixed bizarre bug: Trying to insert a time signature crashes before even showing
 dialog. Affects .rsrc.
 
 Added an <artHarmonic> field to ANOTE and <dModCode> and <crossStaff> fields to ADYNAMIC.
-NB: This affects files, so older 'N106' format files are almost certainly unreadable with
-this version of Nightingale. Affects MemMacros.h, NObjTypes.h; Objects, MIDIRecUtils.
+NB: This affects file formats, so older 'N106' format files are almost certainly unreadable
+with this version of Nightingale. Affects MemMacros.h, NObjTypes.h; Objects, MIDIRecUtils.
 
 Minor changes. Affects info.plist, MemMacros.h, NObjTypes.h, VersionStrings.h; Beam,
 CombineParts, DebugUtils, DragDynamic, DrawNRGR, FileUtils, Heaps, Initialize,
 MIDIRecUtils, Slurs.
 
 ----------------------------------------------------------------------------------------- B9
+
+17 - 24 Mar.
+
+Rearranged ANOTE fields. NB: This affects file formats, so older 'N106' format files are
+almost certainly unreadable with this version of Nightingale. Affects NObjTypes.h.
+
+Minor changes: rename two ANOTE fields, etc. Affects info.plist, MemMacros.h, NObjTypes.h;
+AccModNRMouse, Browser, Dragging, DrawNRGR, FileConversion, HeapBrowser, InfoDialog,
+Initialize, MIDIRecUtils, Objects, Ottava, SpaceTime.
+
+----------------------------------------------------------------------------------------- B10
+

@@ -1362,8 +1362,8 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	
 	sprintf(s, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
 	DrawTextLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "l_dur=%hd ndots=%hd xmovedots=%hd ymovedots=%hd", q->subType, q->ndots,
-					q->xmovedots, q->ymovedots);
+	sprintf(s, "l_dur=%hd ndots=%hd xMoveDots=%hd yMoveDots=%hd", q->subType, q->ndots,
+					q->xMoveDots, q->yMoveDots);
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
 	DrawTextLine(s);	q = GetPANOTE(qL);
@@ -1439,8 +1439,8 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 	
 	sprintf(s, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-	sprintf(s, "l_dur=%hd ndots=%hd xmovedots=%hd ymovedots=%hd", q->subType, q->ndots,
-					q->xmovedots, q->ymovedots);
+	sprintf(s, "l_dur=%hd ndots=%hd xMoveDots=%hd yMoveDots=%hd", q->subType, q->ndots,
+					q->xMoveDots, q->yMoveDots);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);

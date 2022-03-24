@@ -468,8 +468,8 @@ void HeapBrowseSync(short itemIndex, Boolean isFree)
 	HeapDrawLine(str);	q = GetPANOTE(qL);
 	sprintf(str, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
 	HeapDrawLine(str);	q = GetPANOTE(qL);
-	sprintf(str, "ndots=%hd xmovedots=%hd ymovedots=%hd", q->ndots, q->xmovedots,
-					q->ymovedots);
+	sprintf(str, "ndots=%hd xMoveDots=%hd yMoveDots=%hd", q->ndots, q->xMoveDots,
+					q->yMoveDots);
 	HeapDrawLine(str);	q = GetPANOTE(qL);
 	sprintf(str, "rest=%s", q->rest ? "True" : "False");
 	HeapDrawLine(str);	q = GetPANOTE(qL);
@@ -479,7 +479,7 @@ void HeapBrowseSync(short itemIndex, Boolean isFree)
 	sprintf(str, "xmoveAcc=%hd", q->xmoveAcc);
 	HeapDrawLine(str);	q = GetPANOTE(qL);
 	sprintf(str, "beamed=%s otherStemSide==%s", q->beamed ? "True" : "False",
-															q->otherStemSide ? "True" : "False");
+														q->otherStemSide ? "True" : "False");
 	HeapDrawLine(str);	q = GetPANOTE(qL);
 	sprintf(str, "inTuplet=%s inOttava=%s", q->inTuplet ? "True" : "False",
 														 q->inOttava ? "True" : "False");

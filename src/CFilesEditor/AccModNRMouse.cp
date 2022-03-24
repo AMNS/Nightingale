@@ -95,13 +95,14 @@ static short FindAccModNR(Document *doc, Point pt,
 			}
 		}
 		
-		/* If we've reached this point, the first search found nothing, so we must
-		   start over at the top of the page. */
+		/* If we've reached this point, the first search found nothing, so we must start
+		   over at the top of the page. */
 		   
 		if (startL == pageL) return NOHIT;			/* we've already searched the whole page */
 		endL = startL;
 		startL = pageL;
 	}
+	
 	return NOHIT;
 }
 
@@ -175,8 +176,8 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 #define ADD_SLOP_THRESH 6	/* in pixels */
 #define SLOP_TO_ADD 2		/* in pixels */
 
-/* Returns box surrounding the accidental in paper-rel coordinates. Much of the code is
-borrowed from DrawACC. */
+/* Returns box surrounding the accidental in paper-relative coordinates. Much of the code
+is borrowed from DrawACC. */
 
 static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBBox)
 {
@@ -231,7 +232,8 @@ static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBB
 	accBBox->top -= 3;									/* ...so make it taller */
 	accBBox->bottom += 2;
 	
-	/* add more slop if the rect is very small */
+	/* Add more slop if the rect is very small */
+	
 	wid = accBBox->right - accBBox->left;
 	ht = accBBox->bottom - accBBox->top;
 	InsetRect(accBBox, wid<6? -2 : 0, ht<6? -2 : 0);
@@ -288,11 +290,11 @@ PushLock(NOTEheap);
 			xdNorm-SizePercentSCALE(HeadWidth(LNSPACE(&context))) : xdNorm;
 	accOriginH = d2p(xdNormAdjusted) - d2p(accXOffset);
 	
-	/* <diffH> is the distance between the point where the user clicked and the
-	 * origin of the accidental. Set this from pt rather than from the current
-	 * mouseLoc, because the mouse may have moved between the mouseDown and now
-	 * (i.e., during FindAccidental).
-	 */
+	/* <diffH> is the distance between the point where the user clicked and the origin
+	   of the accidental. Set this from <pt> rather than from the current mouseLoc
+	   because the mouse may have moved between the mouseDown and now (i.e., during
+	   FindAccidental). */
+	   
 	diffH = pt.h - accOriginH;
 	GetPaperMouse(&oldPt, &doc->currentPaper);
 	
@@ -303,10 +305,10 @@ PushLock(NOTEheap);
 		DrawAcc(doc, &context, noteL, xdNorm, noteYD,
 							False, sizePercent, chordNoteToL);		/* erase old accidental */
 		
-		/* This is the reverse of what AccXOffset does. That is, we have the DDIST
-		 * offset <xOffset> from the left edge of the note to the accidental origin.
-		 * We need to map that into one of the 32 values that <xmoveAcc> can have.
-		 */		
+		/* Do the reverse of what GetAccXOffset does. That is, we have the DDIST offset
+		   <xOffset> from the left edge of the note to the accidental origin, and we map
+		   it into one of the 32 values that <xmoveAcc> can have. */
+		   		
 		dAccWidth = std2d(STD_ACCWIDTH, context.staffHeight, context.staffLines);		
 		xOffset = xdNorm - p2d(newPt.h - diffH);
 		if (chordNoteToL)
@@ -320,11 +322,11 @@ PushLock(NOTEheap);
 		else
 			xmoveAcc = (((xOffset - dAccWidth) * 4) / dAccWidth) + DFLT_XMOVEACC;
 		if (aNote->accident==AC_DBLFLAT)
-			xmoveAcc -= 2;										/* ??this isn't quite right */
+			xmoveAcc -= 2;									/* FIXME: this isn't quite right */
 
 		if (xmoveAcc >= 0 && xmoveAcc <= 31)
 			aNote->xmoveAcc = xmoveAcc;
-		else {													/* if outside limits, constrain to limits */
+		else {												/* if outside limits, constrain to limits */
 			if (xmoveAcc < 0)
 				aNote->xmoveAcc = 0;
 			else
@@ -339,11 +341,13 @@ PushLock(NOTEheap);
 		aNote->accident = accCode;
 
 		/* Now translate our newly-acquired offset into DDISTs before drawing. */
+		
 		accXOffset = GetAccXOffset(aNote, sizePercent, &context);
 		DrawAcc(doc, &context, noteL, xdNorm, noteYD,
-							False, sizePercent, chordNoteToL);		/* draw new accidental */
+							False, sizePercent, chordNoteToL);	/* draw new accidental */
 		
-		/* Draw new params in msg box. (Do this after drawing accidental at new pos to reduce flicker.) */
+		/* Draw new params in msg box (after drawing accidental at new pos to reduce flicker). */
+		
 		ShowAccidentalParams(doc, aNote->xmoveAcc);
 		
 		oldPt = newPt;
@@ -351,14 +355,15 @@ PushLock(NOTEheap);
 
 	TextMode(srcOr);
 	DrawAcc(doc, &context, noteL, xdNorm, noteYD,
-							False, sizePercent, chordNoteToL);		/* draw new accidental in normal mode */
+							False, sizePercent, chordNoteToL);	/* draw new accidental in normal mode */
 	TextSize(oldTxSize);
 	TextMode(oldTxMode);
 
-	/* Update modNR in data structure and inval rect if it's changed. */
+	/* Update modNR in object list, and inval rect if it's changed. */
+	
 	if (BlockCompare(aNote, &oldNote, sizeof(ANOTE))) {
 		doc->changed = True;
-		LinkTWEAKED(syncL) = True;									/* Flag to show node was edited */
+		LinkTWEAKED(syncL) = True;								/* Flag to show node was edited */
 		
 		Rect2Window(doc, origAccBBox);
 		InsetRect(origAccBBox, -1, -4);
@@ -392,18 +397,17 @@ static void ShowAccidentalParams(Document *doc, short xmoveAcc)
 {
 	char str[256], fmtStr[256];
 	
-	GetIndCString(fmtStr, DIALOG_STRS, 10);				/* "horizontal offset = %d" */
-	sprintf(str, fmtStr, -xmoveAcc);					/* units are actually STD_ACCWIDTH/4 */
+	GetIndCString(fmtStr, DIALOG_STRS, 10);			/* "horizontal offset = %d" */
+	sprintf(str, fmtStr, -xmoveAcc);				/* units are actually STD_ACCWIDTH/4 */
 	DrawMessageString(doc, str);
 }
 
 
-/* ================================================================ modNR functions == */
+/* =================================================================== modNR functions == */
 
-/* Returns box surrounding the modNR in paper-rel coordinates. */
+/* Returns box surrounding the modNR in paper-relative coordinates. */
 
-static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
-										Rect *bbox)
+static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL, Rect *bbox)
 {
 	DDIST		noteXD, xdMod, ydMod, staffTop, xdNorm, lnSpace;
 	short		code, oldTxSize, useTxSize, sizePercent, xOffset, yOffset,
@@ -494,6 +498,7 @@ static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK mo
 	unsigned char glyph;
 	
 /* ??Do I really need to lock OBJheap? What about the modNR heap? */
+
 PushLock(OBJheap);
 PushLock(NOTEheap);
 
@@ -549,6 +554,7 @@ PushLock(NOTEheap);
 	GetPaperMouse(&oldPt, &doc->currentPaper);
 
 	/* We're ready to go. This loop handles the actual dragging. */
+	
 	if (StillDown()) while (WaitMouseUp()) {
 		GetPaperMouse(&newPt, &doc->currentPaper);
 		if (EqualPt(newPt, oldPt)) continue;
@@ -611,6 +617,7 @@ PushLock(NOTEheap);
 
 		/* Draw new params in msg box. (Do this after drawing modNR at new position to
 		   reduce flicker.) */
+		   
 		ShowModNRParams(doc, aModNR->xstd-XSTD_OFFSET, aModNR->ystdpit);
 		
 		oldPt = newPt;
@@ -623,7 +630,8 @@ PushLock(NOTEheap);
 	TextMode(oldTxMode);
 	TextSize(oldTxSize);
 	
-	/* Update modNR in data structure and inval rect if it's changed. */
+	/* Update modNR in object list, and inval rect if it's changed. */
+	
 	if (BlockCompare(aModNR, &oldModNR, sizeof(AMODNR))) {
 		doc->changed = True;
 		LinkTWEAKED(syncL) = True;								/* Flag to show node was edited */
@@ -642,7 +650,7 @@ PopLock(NOTEheap);
 }
 
 
-/* Draws the (note-rel) x and (staffTop-rel) y values of a modNR into the msg box. */
+/* Draws the (note-relative) x and (staffTop-relative) y values of a modNR into msg box. */
 
 static void ShowModNRParams(Document *doc, SHORTSTD xstd, SHORTSTD ystd)
 {
