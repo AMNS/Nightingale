@@ -800,12 +800,11 @@ static long MIDI2Night(
 
 				theNote.noteNumber -= transpose;
 	
-				/*
-				 *	We need to offset start times of recorded notes so they'll play
-				 * properly after previous notes in the score. In order to do this,
-				 * we set <timeShift> so CreateSync will put the Syncs into the object
-				 * list with appropriate timestamps.
-				 */
+				/* We need to offset start times of recorded notes so they'll play properly
+				   properly after previous notes in the score. In order to do this, we set
+				   <timeShift> so NUICreateSync will put the Syncs into the object list
+				   with appropriate timestamps. */
+				   
 				if (!firstSync) {
 					firstTime = GetLTime(doc, doc->selStartL);
 					if (tLeadInOffset<0L)
@@ -817,13 +816,13 @@ static long MIDI2Night(
 					theNote.startTime-timeShift);
 
 				if (theNote.startTime-prevStartTime<doc->deflamTime)
-					aNoteL = AddNoteToSync(doc, theNote, lSync,
+					aNoteL = NUIAddNoteToSync(doc, theNote, lSync,
 												USESTAFF(doc, theNote.noteNumber),
 												UNKNOWN_L_DUR, 0,
 												USEVOICE(doc, USESTAFF(doc, theNote.noteNumber)),
 												False, timeShift);
 				else {
-					aNoteL = CreateSync(doc, theNote, &lSync,
+					aNoteL = NUICreateSync(doc, theNote, &lSync,
 												USESTAFF(doc, theNote.noteNumber), 
 												UNKNOWN_L_DUR, 0,
 												USEVOICE(doc, USESTAFF(doc, theNote.noteNumber)),
@@ -1257,12 +1256,13 @@ static LINK StepMIDI2Night(
 			if (firstNote) {
 				if (symType==SR_BARLINE) {
 					GetContext(doc, LeftLINK(doc->selStartL), 1, &context);
-					link = CreateMeasure(doc,doc->selStartL,-1,symIndex,context);
+					link = CreateMeasure(doc, doc->selStartL, -1, symIndex, context);
 					if (!link) return NILINK;
 				}
 				else {
-					/* We don't use CreateSync's <timeShift>: caller must FixTimeStamps */
-					aNoteL = CreateSync(doc, theNote, &link,
+					/* We don't use NUICreateSync's <timeShift>: caller must FixTimeStamps */
+					
+					aNoteL = NUICreateSync(doc, theNote, &link,
 												USESTAFF(doc, theNote.noteNumber), lDur,
 												ndots,
 												USEVOICE(doc, USESTAFF(doc, theNote.noteNumber)),
@@ -1271,7 +1271,7 @@ static LINK StepMIDI2Night(
 				}
 			}
 			else {
-				aNoteL = AddNoteToSync(doc, theNote, link,
+				aNoteL = NUIAddNoteToSync(doc, theNote, link,
 											USESTAFF(doc, theNote.noteNumber), lDur,
 											ndots,
 											USEVOICE(doc, USESTAFF(doc, theNote.noteNumber)),

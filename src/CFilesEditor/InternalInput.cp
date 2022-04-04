@@ -3,6 +3,7 @@
 *	PROJ:	Nightingale
 *	DESC:	Routines for creating Nightingale objects via notelist file, AppleScript,
 *			etc., rather than via Nightingale's user interface. Written by John Gibson.
+*			See also NUIxxx() ("non-UI") functions. (Perhaps those should be here?)
 /****************************************************************************************/
 
 /*
@@ -29,11 +30,11 @@ static short GuessVoiceRole(Document *doc, short iVoice, LINK startL, LINK endL)
 /* Creates a tuplet object with the specified number of subobjects and other
 characteristics. Insert it *before* <beforeL>. NOTE: Does *not* set tpSync fields
 in the tuplet. Call FIFixTupletLinks for that after creating all the relevant syncs.
-Assumes that the first sync of the tuplet has just been created.
+Assumes that the first Sync of the tuplet has just been created.
 
-CAUTION: <beforeL> normally should be the first sync of the tuplet, but could be
+CAUTION: <beforeL> normally should be the first Sync of the tuplet, but could be
 doc->tailL if the caller inserts items into the data structure sequentially -- from
-left to right -- and is sure that the next item inserted will be the first sync of
+left to right -- and is sure that the next item inserted will be the first Sync of
 the tuplet.
 
 After calling FIFixTupletLinks, call SetTupletYPos ??AFTER beaming!. (FICreateTUPLET
@@ -149,7 +150,7 @@ Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsO
 
 /* ------------------------------------------------------------- FIInsertWholeMeasRest -- */
 /* Insert a whole-measure rest before <insertBeforeL> on the given staff in the given
-(internal) voice. Does NOT attempt to create a sync with notes on other staves. Returns
+(internal) voice. Does NOT attempt to create a Sync with notes on other staves. Returns
 True if OK, False if error. */
 
 Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
@@ -717,7 +718,7 @@ PopLock(OBJheap);
 
 /* ---------------------------------------------------------------------- FIInsertSync -- */
 /* Insert a Sync containing the given number of subobjects before <insertBeforeL>.
-Returns the link of this sync if OK, NILINK if error. */
+Returns the link of this Sync if OK, NILINK if error. */
 
 LINK FIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 {
@@ -758,11 +759,11 @@ LINK FIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 
 
 /* ------------------------------------------------------------------- FIAddNoteToSync -- */
-/* Add a note to an existing Sync or GRSync. The sync doesn't need to have any
-subobjects when this is called. The caller will have to initialize nearly everything
-about the new note on return, by calling SetupNote or SetupGRNote. All this function
-does is link a new node into the syncs's subobject list.
-Returns the note LINK if everything is OK, NILINK if error. */
+/* Add a note to an existing Sync or GRSync. The Sync doesn't need to have any subobjects
+when this is called. The caller will have to initialize nearly everything about the new
+note on return, by calling SetupNote or SetupGRNote. All this function does is link a new
+node into the syncs's subobject list. Returns the note LINK if everything is OK, NILINK
+if error. */
 
 LINK FIAddNoteToSync(Document */*doc*/, LINK syncL)
 {
@@ -862,8 +863,7 @@ LINK FIInsertSlur(Document *doc,
 	aSlur->endPt.h = aSlur->endPt.v = 0;
 	aSlur->endKnot.h = aSlur->endKnot.v = 0;
 
-	if (setShapeNow)
-		SetAllSlursShape(doc, slurL, True);
+	if (setShapeNow) SetAllSlursShape(doc, slurL, True);
 
 	return slurL;
 }
@@ -1019,8 +1019,8 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 
 
 /* ---------------------------------------------------------------------- AnchorSearch -- */
-/*	Given a Dynamic, Graphic, Ottava, Tempo or Ending, return the closest (in the
-	object list) eligible anchor symbol; if there is none, return NILINK.
+/* Given a Dynamic, Graphic, Ottava, Tempo or Ending, return the closest (in the object
+list) eligible anchor symbol; if there is none, return NILINK.
 	
 	<dependentL> type			eligible anchor types
 	-----------------------------------------------------------
@@ -1134,13 +1134,11 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 
 
 /* --------------------------------------------------------------- FIAnchorAllJDObjs -- */
-/* FIXME: Big problems:
-
-If a symbol should be attached to an anchor in the reserved area, this will fail,
-because during conversion the symbol will have been added to the data structure
-*after* the reserved anchor symbol. (This applies to page-rel graphics also.) Or,
-since we're reformatting after conversion, is this a problem only with the first
-system?? */
+/* FIXME: Big problems: If a symbol should be attached to an anchor in the reserved
+area, this will fail, because during conversion the symbol will have been added to the
+data structure *after* the reserved anchor symbol. (This applies to page-rel graphics
+also.) Or, since we're reformatting after conversion, is this a problem only with the
+first system?? */
 
 Boolean FIAnchorAllJDObjs(Document *doc)
 {
@@ -1154,8 +1152,8 @@ Boolean FIAnchorAllJDObjs(Document *doc)
 						anchorL = AnchorSearch(doc, pL);
 						if (!anchorL) goto broken;
 						GraphicFIRSTOBJ(pL) = anchorL;
-//??Here's where I should move the graphic in the data structure if
-//it's not just before anchorL
+//??Here's where I should move the graphic in the data structure if it's not just
+//before anchorL
 					}
 					break;
 				case TEMPOtype:
@@ -1182,8 +1180,8 @@ broken:
 
 
 /* ------------------------------------------------------------------ FIAutoMultiVoice -- */
-/* For the entire document, guess the roles of all voices on a measure-by-measure
-basis, and apply the appropriate multi-voice rules. */
+/* For the entire document, guess the roles of all voices on a measure-by-measure basis,
+and apply the appropriate multi-voice rules. */
 
 void FIAutoMultiVoice(Document	*doc,
 						Boolean	doSingle)		/* Call DoMultivoiceRules even when a voice is VCROLE_SINGLE */
@@ -1322,15 +1320,17 @@ Boolean FIJustifySystem(Document *doc, LINK systemL)
 	termSysL = EndSystemSearch(doc, systemL);
 	lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, False);
 	
-	/* If the System isn't empty (e.g., the invisible barline isn't the last
-	   barline in the System), then we can justify the measures in it. */
+	/* If the System isn't empty (e.g., the invisible barline isn't the last barline in
+	   the System), then we can justify the measures in it. */
 	
 	if (lastMeasL!=firstMeasL) {
 		justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
 		justProp = (long)(justFact*100L*RESFACTOR);
-		ok = StretchToSysEnd(doc, firstMeasL, lastMeasL, (long)justProp, staffWidth, lastMeasWidth);
+		ok = StretchToSysEnd(doc, firstMeasL, lastMeasL, (long)justProp, staffWidth,
+								lastMeasWidth);
 		
-		/* Respace, using the percentage that JustifySystem placed in first meas of this system. */
+		/* Respace, using the percentage that JustifySystem placed in first meas of this
+		   system. */
 		
 		pMeas = GetPMEASURE(firstMeasL);
 		ok = RespaceBars(doc, firstMeasL, termSysL, RESFACTOR*pMeas->spacePercent, False, False);
@@ -1339,7 +1339,8 @@ Boolean FIJustifySystem(Document *doc, LINK systemL)
 		
 		justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
 		justProp = (long)(justFact*100L*RESFACTOR);
-		ok = StretchToSysEnd(doc, firstMeasL, lastMeasL, (long)justProp, staffWidth, lastMeasWidth);
+		ok = StretchToSysEnd(doc, firstMeasL, lastMeasL, (long)justProp, staffWidth,
+								lastMeasWidth);
 	}
 	return True;
 }
@@ -1423,11 +1424,11 @@ followed by a null.
 NB: The below comment refer to obsolete Mac IDEs and must date back to the very early
 21st century; I don't know if they're still at all relevant!  --DAB, May 2017
 
-CAUTION: The behavior of ReadLine depends upon Metrowerks' implementation of the C
+"CAUTION: The behavior of ReadLine depends upon Metrowerks' implementation of the C
 library function, fgets. I don't know if THINK C works the same way, but it probably
 does.
 
-From Metrowerks CW6 "C Library Reference"...
+"From Metrowerks CW6 "C Library Reference"...
      char *fgets(char *s, int n, FILE *stream);
   The fgets() function reads characters sequentially from stream
   beginning at the current file position, and assembles them into s as a
@@ -1437,10 +1438,10 @@ From Metrowerks CW6 "C Library Reference"...
   end-of-file. Unlike the gets() function, fgets() appends the newline
   character ('\n') to s. It also null terminates the character array.
 
-This description is too vague. If it null terminates the array, after reading n chars,
+"This description is too vague. If it null terminates the array, after reading n chars,
 does the null replace the last of those chars? No. From observation in the MWDebugger,
 I conclude that the final byte of the given buffer <s> is reserved for a terminating
-null. So fgets never reads more than <n> - 1 bytes. */
+null. So fgets never reads more than <n> - 1 bytes." */
 
 Boolean ReadLine1(char inBuf[], short maxChars, FILE *f)
 {
@@ -1500,7 +1501,7 @@ short IIOpenInputFile(FSSpec *fsSpec, short *refNum)
 	
 	errCode = FSpOpenDF (fsSpec, fsRdWrPerm, refNum );		/* Open the file */
 	if (errCode == fLckdErr || errCode == permErr) {
-		errCode = FSpOpenDF (fsSpec, fsRdPerm, refNum );	/* Try again - open the file read-only */
+		errCode = FSpOpenDF (fsSpec, fsRdPerm, refNum );	/* Try again: open the file read-only */
 	}
 	
 	return errCode;
@@ -1544,7 +1545,7 @@ Boolean IIReadLine(char inBuf[], short maxChars, short refNum)
 			return (c != EOF);
 		}
 		else if (c == '\r') {
-			errCode = IIReadChar(refNum, &cc);		/* advance past windows terminator char if necessary */
+			errCode = IIReadChar(refNum, &cc);		/* advance past Windows terminator char if necessary */
 			if (errCode != noError) goto errorReturn;
 			
 			if (cc != '\n' && cc != EOF) {			/* can't unget EOF */

@@ -591,7 +591,7 @@ static Boolean InitMIDISystem()
 }
 
 
-/* ------------------------------------------------------------------------ Palette(s) -- */
+/* ======================================================================== Palette(s) == */
 
 static void DisplayToolPaletteParams(PaletteGlobals *whichPalette)
 {

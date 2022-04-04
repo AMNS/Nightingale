@@ -3621,9 +3621,22 @@ MIDIRecUtils, Slurs.
 Rearranged ANOTE fields. NB: This affects file formats, so older 'N106' format files are
 almost certainly unreadable with this version of Nightingale. Affects NObjTypes.h.
 
-Minor changes: rename two ANOTE fields, etc. Affects info.plist, MemMacros.h, NObjTypes.h;
+Minor changes: renamed two ANOTE fields, etc. Affects info.plist, MemMacros.h, NObjTypes.h;
 AccModNRMouse, Browser, Dragging, DrawNRGR, FileConversion, HeapBrowser, InfoDialog,
 Initialize, MIDIRecUtils, Objects, Ottava, SpaceTime.
 
 ----------------------------------------------------------------------------------------- B10
 
+26 Mar. - 4 Apr.
+
+Rearranged ANOTE fields; define dynamic marking modifier. NB: The former affects file
+formats, so older 'N106' format files are almost certainly unreadable with this version
+of Nightingale. Affects NObjTypes.h.
+
+Added initialzation of ANOTE fields recently added. Affects FileConversion.
+
+Minor changes: added "NUI" prefix to names of CreateSync and AddNoteToSync functions, etc.
+Affects info.plist, MemMacros.h, NightTemplates.h, NObjTypes.h; DrawHighLevel, DrawNRGR,
+InitNightingale, InternalInput, MIDIRecord, MIDIRecUtils, Objects, RTRhythmDur.
+
+----------------------------------------------------------------------------------------- B11

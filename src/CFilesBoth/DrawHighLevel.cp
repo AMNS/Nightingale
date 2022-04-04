@@ -78,12 +78,14 @@ static void DrawMasterSystem(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 				break;
 			case SYSTEMtype:
 				pSystem = GetPSYSTEM(pL);
-				/* Convert systemRect to paper-relative pixels */
-				D2Rect(&pSystem->systemRect, &r);
-				/* Convert to window-relative and check for intersection with update area */
-				OffsetRect(&r, paper->left,paper->top);
 				
-				if (VISIBLE(pL) && SectRect(&r,updateRect,&result) || outputTo!=toScreen) {
+				/* Convert systemRect to window-relative pixels, and check if it
+				   intersects with update area. */
+				   
+				D2Rect(&pSystem->systemRect, &r);
+				OffsetRect(&r, paper->left, paper->top);
+				if ((VISIBLE(pL) && SectRect(&r, updateRect, &result))
+													|| outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
 					if (doc->frameSystems) FrameSysRect(&r, False);	/* For debugging */
 				}
@@ -131,7 +133,8 @@ static void DrawMasterRange(Document *doc, LINK /*fromL*/, LINK /*toL*/, CONTEXT
 	if ((long)SystemRECT(sysL).bottom+(long)sysOffset<=32767L) {
 		OffsetDRect(&SystemRECT(sysL), 0, sysOffset);
 		while (MasterRoomForSystem(doc, sysL)) {
-			DrawMasterSystem(doc, sysL, doc->masterTailL, context, paper, updateRect, ++sysNum);
+			DrawMasterSystem(doc, sysL, doc->masterTailL, context, paper, updateRect,
+								++sysNum);
 			if ((long)SystemRECT(sysL).bottom+(long)sysOffset>32767L) break;
 			OffsetDRect(&SystemRECT(sysL), 0, sysOffset);
 		}
@@ -174,22 +177,23 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				break;
 			case SYSTEMtype:
 				pSystem = GetPSYSTEM(pL);
-				/* Convert systemRect to paper-relative pixels */
-				D2Rect(&pSystem->systemRect, &r);
-				/* Convert to window-relative and check for intersection with update area */
-				OffsetRect(&r, paper->left, paper->top);
 				
-				if (VISIBLE(pL) && SectRect(&r, updateRect, &result)
+				/* Convert systemRect to window-relative pixels, and check if it
+				   intersects with update area. */
+				   
+				D2Rect(&pSystem->systemRect, &r);
+				OffsetRect(&r, paper->left, paper->top);
+				if ((VISIBLE(pL) && SectRect(&r, updateRect, &result))
 													|| outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
 					if (doc->frameSystems) FrameSysRect(&r, True);
 				}
 				else {
 					/* Skip ahead to next system: this one's not visible */
+					
 					pL = pSystem->rSystem;
 					if (pL==NILINK || IsAfter(toL, pL)) pL = toL;
-					/* Rewind for increment part of for loop above */
-					pL = LeftLINK(pL);
+					pL = LeftLINK(pL);					/* Rewind for for loop above */
 				}
 				drawAll = True;
 				break;
@@ -309,21 +313,23 @@ grayPage:
 				break;
 			case SYSTEMtype:
 				pSystem = GetPSYSTEM(pL);
-				/* Convert systemRect to paper-relative pixels */
-				D2Rect(&pSystem->systemRect, &r);
-				/* Convert to window-relative and check for intersection with update area */
-				OffsetRect(&r,paper->left,paper->top);
 				
-				if (VISIBLE(pL) && SectRect(&r,updateRect, &result) || outputTo!=toScreen) {
+				/* Convert systemRect to window-relative pixels, and check if it
+				   intersects with update area. */
+				   
+				D2Rect(&pSystem->systemRect, &r);
+				OffsetRect(&r, paper->left, paper->top);
+				if ((VISIBLE(pL) && SectRect(&r, updateRect, &result))
+													|| outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
 					if (doc->frameSystems) FrameSysRect(&r, False);			/* For debugging */
 				}
 				else {
 					/* Skip ahead to next system: this one's not visible */
+					
 					pL = pSystem->rSystem;
 					if (pL==NILINK || IsAfter(toL, pL)) pL = toL;
-					/* Rewind for increment part of for loop above */
-					pL = LeftLINK(pL);
+					pL = LeftLINK(pL);					/* Rewind for for loop above */
 				}
 				drawAll = True;
 				break;
@@ -374,21 +380,23 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				break;
 			case SYSTEMtype:
 				pSystem = GetPSYSTEM(pL);
-				/* Convert systemRect to paper-relative pixels */
-				D2Rect(&pSystem->systemRect, &r);
-				/* Convert to window-relative and check for intersection with update area */
-				OffsetRect(&r,paper->left,paper->top);
 				
-				if (VISIBLE(pL) && SectRect(&r, updateRect, &result) || outputTo!=toScreen) {
+				/* Convert systemRect to window-relative pixels, and check if it
+				   intersects with update area. */
+				   
+				D2Rect(&pSystem->systemRect, &r);
+				OffsetRect(&r, paper->left, paper->top);
+				if ((VISIBLE(pL) && SectRect(&r, updateRect, &result))
+													|| outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
 					if (doc->frameSystems) FrameSysRect(&r, False);	/* For debugging */
 				}
 				else {
 					/* Skip ahead to next system: this one's not visible */
+					
 					pL = pSystem->rSystem;
 					if (pL==NILINK || IsAfter(toL, pL)) pL = toL;
-					/* Rewind for increment part of for loop above */
-					pL = LeftLINK(pL);
+					pL = LeftLINK(pL);					/* Rewind for for loop above */
 				}
 				drawAll = True;
 				break;
@@ -519,6 +527,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 		switch (ObjLType(pL)) {
 			case PAGEtype:
 				/* See explanation of following code in DrawScoreRange. */
+				
 				measL = SSearch(pL, MEASUREtype, GO_RIGHT);
 				GetAllContexts(doc, context, measL);
 				ContextPage(doc, pL, context);
@@ -526,18 +535,20 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 				break;
 			case SYSTEMtype:
 				pSystem = GetPSYSTEM(pL);
-				/* Convert systemRect to paper-relative pixels */
-				D2Rect(&pSystem->systemRect, &r);
 
-				/* Convert to window-relative and check for intersection with update area */
-				OffsetRect(&r,paper->left,paper->top);
-				
-				if (VISIBLE(pL) && SectRect(&r,updateRect,&result) || outputTo!=toScreen)
+				/* Convert systemRect to window-relative pixels, and check if it
+				   intersects with update area. */
+				   
+				D2Rect(&pSystem->systemRect, &r);
+				OffsetRect(&r, paper->left, paper->top);
+				if ((VISIBLE(pL) && SectRect(&r, updateRect, &result)) || outputTo!=toScreen)
 					ContextSystem(pL, context);
-				else { 												/* Skip ahead to next system: this one's not visible */
+				else {
+					/* Skip ahead to next system: this one's not visible */
+					
 					pL = LinkRSYS(pL);
-					if (pL==NILINK || IsAfter(toL, pL)) pL = toL;	/* Rewind for increment part of for loop above */
-					pL = LeftLINK(pL);
+					if (pL==NILINK || IsAfter(toL, pL)) pL = toL;
+					pL = LeftLINK(pL);					/* Rewind for for loop above */
 				}
 				drawAll = True;
 				break;

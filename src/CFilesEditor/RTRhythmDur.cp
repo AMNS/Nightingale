@@ -1004,8 +1004,8 @@ LINK BuildSyncs(
 			theNote.startTime = 0L;
 			theNote.channel = 1;
 			
-			aNoteL = CreateSync(doc, theNote, &lSync, voice, 	/* staffn = voice */
-									UNKNOWN_L_DUR, 0,			/* placeholders */
+			aNoteL = NUICreateSync(doc, theNote, &lSync, voice, 	/* staffn = voice */
+									UNKNOWN_L_DUR, 0,				/* placeholders */
 									voice, True, 0);
 			if (!firstSync) firstSync = lSync;
 			rawSyncTab[q].link = lSync;
@@ -1039,11 +1039,11 @@ LINK BuildSyncs(
 			theNote.duration = rawNoteAux[iAux].duration;
 			
 			if (lSync)
-				aNoteL = AddNoteToSync(doc, theNote, lSync, voice,		/* staffn = voice */
+				aNoteL = NUIAddNoteToSync(doc, theNote, lSync, voice,	/* staffn = voice */
 										UNKNOWN_L_DUR, 0,				/* placeholders */
 										voice, False, 0);
 			else {
-				aNoteL = CreateSync(doc, theNote, &lSync, voice, 		/* staffn = voice */
+				aNoteL = NUICreateSync(doc, theNote, &lSync, voice, 	/* staffn = voice */
 										UNKNOWN_L_DUR, 0,				/* placeholders */
 										voice, False, 0);
 				if (!firstSync) firstSync = lSync;

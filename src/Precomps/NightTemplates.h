@@ -597,11 +597,12 @@ pascal short	FindToolItem(Point pt);
 
 /* Miscellaneous */
 
-	LINK		AddNoteToSync(Document *, MNOTE, LINK, SignedByte, short, short, SignedByte,
+	LINK		NUIAddNoteToSync(Document *, MNOTE, LINK, SignedByte, short, short, SignedByte,
 						Boolean, long);
 	Boolean		AutoBeam(Document *);
-	Boolean		BuildDocument(Document *doc, unsigned char *fileName, short vRefNum, FSSpec *pfsSpec, long *version, Boolean isNew);
-	LINK		CreateSync(Document *, MNOTE, LINK *, SignedByte, short, short, SignedByte,
+	Boolean		BuildDocument(Document *doc, unsigned char *fileName, short vRefNum,
+					FSSpec *pfsSpec, long *version, Boolean isNew);
+	LINK		NUICreateSync(Document *, MNOTE, LINK *, SignedByte, short, short, SignedByte,
 						Boolean, long);
 	void		DoAboutBox(Boolean first);
 	void		DoAutoBeam(Document *);

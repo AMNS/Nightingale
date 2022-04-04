@@ -69,18 +69,18 @@ LINK CopyModNRList(Document *srcDoc, Document *dstDoc, LINK firstModNRL)
 
 
 /* ------------------------------------------------------------------- DuplicateObject -- */
-/* Given a LINK to an object of a given type, allocate another duplicate object
-from the Object Heap, and duplicate the subobject list as well.  If selectedOnly
-is True, then only duplicate those subobjects that are selected in the original;
-if no subobjects are selected, don't duplicate anything and return NILINK.
-Exception: if the object is of HEADERtype, all subobjects are always duplicated.
-If keepGraphics and object is a Graphic, its string is not duplicated: rather, the
-new object has the same stringOffset as the original. ??NB: If the object is not
-selected and is of a type that sets subsNeeded=False, it's always duplicated,
-regardless of <selectedOnly>! This is probably a bug: these types should be handled
-the way GRAPHICs and TEMPOs are. ??NB2: For an "extended object", it appears that
-<selectedOnly> looks at, not the object's subobjects' selection status, but that of
-the Syncs it refers to! Maybe this should be changed, but it wouldn't be easy.
+/* Given a LINK to an object of a given type, allocate another duplicate object from the
+Object Heap, and duplicate the subobject list as well.  If selectedOnly is True, then
+only duplicate those subobjects that are selected in the original; if no subobjects are
+selected, don't duplicate anything and return NILINK. Exception: if the object is of
+HEADERtype, all subobjects are always duplicated. If keepGraphics and object is a
+Graphic, its string is not duplicated: rather, the new object has the same stringOffset
+as the original. ??NB: If the object is not selected and is of a type that sets
+subsNeeded=False, it's always duplicated, regardless of <selectedOnly>! This is probably
+a bug: these types should be handled the way GRAPHICs and TEMPOs are. ??NB2: For an
+"extended object", it appears that <selectedOnly> looks at, not the object's subobjects'
+selection status, but that of the Syncs it refers to! Maybe this should be changed, but
+it wouldn't be easy.
 
 Returns the LINK to the duplicate object, or NILINK if a problem (probably out of
 memory). */
@@ -88,12 +88,12 @@ memory). */
 LINK DuplicateObject(short type, LINK objL, Boolean selectedOnly, Document *srcDoc,
 							Document *dstDoc, Boolean keepGraphics)
 {
-	HEAP *myHeap,*srcHeap,*dstHeap;
+	HEAP *myHeap, *srcHeap, *dstHeap;
 	short subcount = 0;
-	LINK subL,newSubL;
-	LINK newObjL,tmpL,firstSubObj;
-	GenSubObj *pSub,*pNewSub;
-	PMEVENT pObj,pNewObj;
+	LINK subL, newSubL;
+	LINK newObjL, tmpL, firstSubObj;
+	GenSubObj *pSub, *pNewSub;
+	PMEVENT pObj, pNewObj;
 	Boolean subsNeeded = True;
 	
 #ifdef DODEBUG
@@ -801,12 +801,11 @@ LINK SetupNote(
 	
 PushLock(NOTEheap);
 	GetContext(doc, syncL, staffn, &context);
-
 	voiceRole = doc->voiceTab[voice].voiceRole;
-
 	aNote = GetPANOTE(aNoteL);
+
 	aNote->staffn = staffn;
-	aNote->voice = voice;								/* Must set before calling GetStemInfo */
+	aNote->voice = voice;									/* Must set before calling GetStemInfo */
 	aNote->selected = False;
 	aNote->visible = True;
 	aNote->soft = False;
@@ -818,9 +817,9 @@ PushLock(NOTEheap);
 		yqpit = GetRestMultivoiceRole(&context, voiceRole, makeLower);
 		aNote->yd = qd2d(yqpit, context.staffHeight, context.staffLines);
 		aNote->yqpit = -1;										/* No QDIST pitch */
-		aNote->accident = 0;									/* No accidental */
-		aNote->noteNum = 0;										/* No MIDI note number */
 		aNote->ystem = 0;										/* No stem end pos. */
+		aNote->noteNum = 0;										/* No MIDI note number */
+		aNote->accident = 0;									/* No accidental */
 	}
 	else {
 		yqpit = halfLn2qd(halfLn);
@@ -855,7 +854,6 @@ PushLock(NOTEheap);
 	   direction or duration changes. Leave this for some other time. */
 	   
 	aNote->xMoveDots = 3+WIDEHEAD(aNote->subType);
-	
 	if (halfLn%2==0)
 		aNote->yMoveDots = GetLineAugDotPos(voiceRole, makeLower);
 	else
@@ -887,6 +885,8 @@ PushLock(NOTEheap);
 	aNote->small = False;
 	aNote->tempFlag = False;
 	aNote->artHarmonic = 0;
+	aNote->userID = 0;
+//	for (short k = 0; k<4; k++) aNote->segments[k] = 0;
 	aNote->reservedN = 0L;
 	
 PopLock(NOTEheap);
@@ -917,8 +917,8 @@ LINK SetupGRNote(
 	
 PushLock(GRNOTEheap);
 	GetContext(doc, grSyncL, staffn, &context);
-
 	aGRNote = GetPAGRNOTE(aGRNoteL);
+
 	aGRNote->staffn = staffn;
 	aGRNote->voice = voice;								/* Must set before calling GetGRStemInfo */
 	aGRNote->selected = False;
@@ -933,7 +933,6 @@ PushLock(GRNOTEheap);
 	midCHalfLn = ClefMiddleCHalfLn(context.clefType);			/* Get middle C staff pos. */		
 	aGRNote->yqpit = yqpit-halfLn2qd(midCHalfLn);
 	aGRNote->accident = accident;
-
 	effectiveAcc = InsNoteFixAccs(doc, grSyncL, staffn, 		/* Handle accidental context */
 											halfLn-midCHalfLn, accident);
 											
@@ -952,6 +951,7 @@ PushLock(GRNOTEheap);
 	aGRNote->onVelocity = dynam2velo[context.dynamicType];
 	aGRNote->offVelocity = config.noteOffVel;
 	aGRNote->subType = lDur;
+
 	aGRNote->ndots = ndots;
 	aGRNote->xMoveDots = 3;
 	aGRNote->yMoveDots = (halfLn%2==0 ? 1 : 2);
@@ -959,16 +959,19 @@ PushLock(GRNOTEheap);
 	aGRNote->playTimeDelta = 0;
 	aGRNote->playDur = SimpleGRLDur(aGRNoteL);
 	aGRNote->pTime = 0;											/* Not used for grace notes */
+
 	aGRNote->inChord = False;
 	aGRNote->unpitched = False;
 	aGRNote->beamed = False;
 	aGRNote->otherStemSide = False;
+	aGRNote->rspIgnore = False;	
 	aGRNote->accSoft = False;
+	aGRNote->playAsCue = False;
 	aGRNote->micropitch = 0;
 	aGRNote->xmoveAcc = DFLT_XMOVEACC;
-	aGRNote->headShape = NORMAL_VIS;
 	aGRNote->courtesyAcc = 0;
 	aGRNote->doubleDur = False;
+	aGRNote->headShape = NORMAL_VIS;
 	aGRNote->firstMod = NILINK;
 	aGRNote->tiedR = aGRNote->tiedL = False;
 	aGRNote->slurredR = aGRNote->slurredL = False;
@@ -977,6 +980,8 @@ PushLock(GRNOTEheap);
 	aGRNote->small = False;
 	aGRNote->tempFlag = False;
 	aGRNote->artHarmonic = 0;
+	aGRNote->userID = 0;
+//	for (short k = 0; k<4; k++) aGRNote->segments[k] = 0;
 	aGRNote->reservedN = 0L;
 	
 PopLock(GRNOTEheap);
@@ -1104,13 +1109,12 @@ static void AddKSItem(LINK aKeySigL, Boolean isSharp, short n, short line)
 
 
 /* ----------------------------------------------------------------------- SetupKeySig -- */
-/* Set fields in key signature node in data structure, for conventional key
-signatures only (all we support as of v.3.0). */
+/* Set fields in key signature node in data structure, for conventional key signatures
+only (all we support as of v. 5.9). */
 
 enum {A = 5, B = 4, C = 3, D = 2, E =1, F = 0, G = 6};
 
-void SetupKeySig(LINK aKeySigL,
-						short sharpsOrFlats)			/* >0 = sharps, <0 = flats */
+void SetupKeySig(LINK aKeySigL, short sharpsOrFlats)	/* >0 = sharps, <0 = flats */
 {
 	PAKEYSIG	aKeySig;
 	short		nItems;									/* No. of sharps/flats in key sig. */
@@ -1273,6 +1277,8 @@ void InitDynamic(Document *doc, LINK pL, short staff, short x, DDIST sysLeft,
 	aDynamic->mouthWidth = aDynamic->otherWidth = 0;
 	aDynamic->endxd = 0;
 	aDynamic->endyd = aDynamic->yd;
+	aDynamic->dModCode = 0;
+	aDynamic->crossStaff = 0;
 }
 
 
@@ -1290,21 +1296,21 @@ void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft, short 
  			aDynamic = GetPADYNAMIC(FirstSubLINK(newpL));
 			aDynamic->mouthWidth = config.hairpinMouthWidth;
 						
-			/* Search right from the sync at the right end of the hairpin for the
-				next barline; if it is to the left of the corresponding end of the
-				hairpin, truncate it. */
+			/* Search right from the sync at the right end of the hairpin for the next
+			   barline; if it is to the left of the corresponding end of the hairpin,
+			   truncate it. */
 
  			if (SystemTYPE(lastSyncL))
  				aDynamic->endxd = p2d(endx)-sysLeft;
  			else
 				aDynamic->endxd = p2d(endx)-(SysRelxd(lastSyncL)+sysLeft); /* relative to lastSyncL */
 
-			/* If lastSyncL is the last Sync in its system followed by another
-				system, searching to the right for a measure will find the first
-				measure on the following system. Adding the test <SameSystem(...)>
-				bypasses this problem; it also bypasses the correction:
-				<if (LinkXD(measL)<p2d ...>, which may be needing for some
-				situation too obscure for me to perceive at this moment (12/13/90). */
+			/* If lastSyncL is the last Sync in its system followed by another system,
+			   searching to the right for a measure will find the first measure on the
+			   following system. Adding the test <SameSystem(...)> bypasses this problem,
+			   but it also bypasses the correction: <if (LinkXD(measL)<p2d ...>, which may
+			   be needed for some situation too obscure for me to perceive at this moment
+			   (12/13/90). */
 
 			measL = LSSearch(lastSyncL, MEASUREtype, staff, GO_RIGHT, False);
 			if (measL && !crossSys && SameSystem(measL,lastSyncL))
@@ -1528,11 +1534,10 @@ DDIST GetNCYStem(
 		}
 	}
 
-	/*
-	 * Find the note closest to the end of the stem (i.e., furthest from the
-	 * MainNote) and return the stem endpoint it would have if it were pointed
-	 * in the correct direction but weren't in a chord.
-	 */
+	/* Find the note closest to the end of the stem (i.e., furthest from the MainNote)
+	   and return the stem endpoint it would have if it were pointed in the correct
+	   direction but weren't in a chord. */
+	   
 	farNoteL = (stemUpDown<0? lowNoteL : hiNoteL);
 	stemLen = QSTEMLEN(singleVoice, ShortenStem(farNoteL, *pContext, stemUpDown<0));
 	farStem = CalcYStem(doc, NoteYD(farNoteL), NFLAGS(NoteType(farNoteL)),

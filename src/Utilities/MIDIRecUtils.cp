@@ -2,7 +2,7 @@
 
 Utilities for handling the object list for MIDI recording and importing MIDI files.
 These functions have no user interface implications.
-	SetupMIDINote		CreateSync				AddNoteToSync
+	SetupMIDINote		NUICreateSync			NUIAddNoteToSync
 	MIDI2HalfLn			FillMergeBuffer			ObjTimeInTable
 	MRFixTieLinks		FixTupletLinks			MRMerge
 */				
@@ -44,7 +44,7 @@ static void SetupMIDINote(Document *doc,
 							long /*timeShift*/					/* obsolete and ignored */
 							)
 {
-	register PANOTE aNote;
+	PANOTE		aNote;
 	SHORTQD		yqpit;
 	short      	halfLn, midCHalfLn, qStemLen;
 	SignedByte	acc;
@@ -60,15 +60,16 @@ PushLock(NOTEheap);
 	aNote->soft = False;
 	aNote->xd = 0;
 	aNote->rest = isRest;
+
 	if (isRest) {
 		halfLn = 0;
 		yqpit = halfLn2qd(context.staffLines-1);
 		aNote->yd = qd2d(yqpit, context.staffHeight,
 						context.staffLines);
-		aNote->yqpit = -1;									/* No QDIST pitch */
-		aNote->accident = 0;								/* No accidental */
-		aNote->noteNum = 0;									/* No MIDI note number */
-		aNote->ystem = 0;									/* No stem end pos. */
+		aNote->yqpit = -1;										/* No QDIST pitch */
+		aNote->ystem = 0;										/* No stem end pos. */
+		aNote->noteNum = 0;										/* No MIDI note number */
+		aNote->accident = 0;									/* No accidental */
 	}
 	else {
 		midCHalfLn = ClefMiddleCHalfLn(context.clefType);
@@ -88,9 +89,17 @@ PushLock(NOTEheap);
 	aNote->onVelocity = MIDINote.onVelocity;
 	aNote->offVelocity = MIDINote.offVelocity;
 	aNote->subType = lDur;
+
 	aNote->ndots = ndots;
 	aNote->xMoveDots = 3;
 	aNote->yMoveDots = (halfLn%2==0 ? 1 : 2);
+
+	aNote->playTimeDelta = 0;								/* For the moment */
+	if (lDur>UNKNOWN_L_DUR)									/* Known dur. & not multibar rest? */
+		aNote->playDur = SimplePlayDur(aNoteL);
+	else
+		aNote->playDur = MIDINote.duration;
+	aNote->pTime = 0;										/* Used by Tuplet routines */
 
 	aNote->inChord = False;
 	aNote->unpitched = False;
@@ -98,6 +107,7 @@ PushLock(NOTEheap);
 	aNote->otherStemSide = False;
 	aNote->rspIgnore = False;	
 	aNote->accSoft = True;
+	aNote->playAsCue = False;
 	aNote->micropitch = 0;
 	aNote->xmoveAcc = DFLT_XMOVEACC;
 	aNote->courtesyAcc = 0;
@@ -111,36 +121,29 @@ PushLock(NOTEheap);
 	aNote->small = False;
 	aNote->tempFlag = False;
 	aNote->artHarmonic = 0;
+	aNote->userID = 0;
+//	for (short k = 0; k<4; k++) aNote->segments[k] = 0;
 	aNote->reservedN = 0L;
-
-	aNote->playTimeDelta = 0;								/* For the moment */
-
-	if (lDur>UNKNOWN_L_DUR)									/* Known dur. & not multibar rest? */
-		aNote->playDur = SimplePlayDur(aNoteL);
-	else
-		aNote->playDur = MIDINote.duration;
-
-	aNote->pTime = 0;										/* Used by Tuplet routines */
 		
 PopLock(NOTEheap);
 }
 
 
-/* ------------------------------------------------------------------------ CreateSync -- */
+/* --------------------------------------------------------------------- NUICreateSync -- */
 /* Create a new Sync at the insertion point containing one note. */
 
-LINK CreateSync(register Document *doc,
-						MNOTE MIDINote,
-						LINK *syncL,
-						SignedByte staffn,
-						short lDur, short ndots,
-						SignedByte voice,
-						Boolean isRest,
-						long timeShift						/* startTime offset for timeStamp */
-						)
+LINK NUICreateSync(Document *doc,
+					MNOTE MIDINote,
+					LINK *syncL,
+					SignedByte staffn,
+					short lDur, short ndots,
+					SignedByte voice,
+					Boolean isRest,
+					long timeShift						/* startTime offset for timeStamp */
+					)
 {
-	register LINK	newpL, aNoteL;
-	CONTEXT 		context;
+	LINK	newpL, aNoteL;
+	CONTEXT context;
 			 
 	newpL = InsertNode(doc, doc->selStartL, SYNCtype, 1);
 	if (newpL==NILINK) {
@@ -164,11 +167,11 @@ LINK CreateSync(register Document *doc,
 }
 
 
-/* --------------------------------------------------------------------- AddNoteToSync -- */
+/* ------------------------------------------------------------------ NUIAddNoteToSync -- */
 /* Add a note to the given Sync. */
 
-LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn, short
-					lDur, short ndots, SignedByte voice, Boolean isRest, long timeShift)
+LINK NUIAddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn, short
+						lDur, short ndots, SignedByte voice, Boolean isRest, long timeShift)
 {
 	CONTEXT	context;
 	LINK	aNoteL;

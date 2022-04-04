@@ -11111,3 +11111,17 @@ Actually, it's not clear there's any remotely likely situation where the current
 are too restrictive -- as long as we don't increase the resolution of these fields, which
 should actually be done. But that's nontrivial; for now leave everything as is.
 
+---------------------------------------------------------------------------------------
+
+26 Mar. - 2 Apr.
+
+I'm adding fields to ANOTE (e.g., artHarmonic) and ADYNAMIC (e.g., dModCode) as part of
+the transition to 'N106' format. To reduce future confusion, good to rearrange at least
+ANOTE fields to a more coherent order first, especially since their order is also a file-
+compatibility issue... done.
+
+The new fields need to be initialized, but there are three routines that initialize newly-
+created ANOTEs: SetupNote, SetupGRNote, and SetupMIDINote. OK, but they don't share any
+code, and they should, but is it worth the time? Probably not. Hmmm -- there are also
+routines that initialize newly-created AGRNOTEs, and that _convert_ ANOTEs and AGRNOTEs
+from 'N105' to 'N106' format! ??

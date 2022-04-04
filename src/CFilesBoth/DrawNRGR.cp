@@ -70,6 +70,7 @@ static void DrawSlashes(DDIST xdh, DDIST ydh,
 			PenSize(1, d2p(slashThick)>1? d2p(slashThick) : 1);
 			
 			/* Some circumnavigations to avoid passing negative args to d2p */
+			
 			dxposp = (dxpos >= 0 ? d2p(dxpos) : -d2p(-dxpos));
 			dyposp = (dypos >= 0 ? d2p(dypos) : -d2p(-dypos));
 			xslash = xp+dxposp;
@@ -249,8 +250,8 @@ void DrawModNR(Document *doc,
 
 static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dots for */
 						   PCONTEXT pContext,
-						   Boolean	chordNoteToR,	/* Note in a chord that's upstemmed w/notes to right of stem? */
-						   Boolean doNoteheadGraphs
+						   Boolean chordNoteToR,	/* Note in a chord that's upstemmed w/notes to right of stem? */
+						   Boolean noteheadGraphs
 					 	   )
 {
 	PANOTE	theNote;
@@ -288,7 +289,7 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 	   factor. (At the moment, the graphs are a bit wider than expected, so move them a
 	   bit further.) */
 	
-	if (doNoteheadGraphs) {
+	if (noteheadGraphs) {
 		xdDots = xdDots*NOTEHEAD_GRAPH_WIDTH;
 		// xdDots += 5*NOTEHEAD_GRAPH_WIDTH;
 		xdDots += (9*dhalfLn)/10;

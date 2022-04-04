@@ -65,6 +65,7 @@
 		15C46F7D218C978900D84142 /* InsNewUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15C46F7C218C978900D84142 /* InsNewUtils.cp */; };
 		15C46F7F218C979200D84142 /* SetUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15C46F7E218C979200D84142 /* SetUtils.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
+		15CC521B27F1EB200098DE49 /* Nightingale Help in Resources */ = {isa = PBXBuildFile; fileRef = 15CC521A27F1EB200098DE49 /* Nightingale Help */; };
 		15E0B7AA1E7757E7001C568B /* NotelistOpen.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E0B7A91E7757E7001C568B /* NotelistOpen.cp */; };
 		15E24203256DFA09004AB7A3 /* EndianUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E24202256DFA09004AB7A3 /* EndianUtils.cp */; };
 		15E2F8FC1DC983B3006D56E9 /* NewSlur.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */; };
@@ -172,8 +173,6 @@
 		D03E70E00D5FA5B2005FD177 /* TextDialog.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70990D5FA5B2005FD177 /* TextDialog.cp */; };
 		D03E70E10D5FA5B2005FD177 /* TrackVMove.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E709A0D5FA5B2005FD177 /* TrackVMove.cp */; };
 		D03E70E20D5FA5B2005FD177 /* Transcribe.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E709B0D5FA5B2005FD177 /* Transcribe.cp */; };
-		D06D06F80D72878A0055C107 /* Nightingale 2004 Help in Resources */ = {isa = PBXBuildFile; fileRef = D06D06F70D72878A0055C107 /* Nightingale 2004 Help */; };
-		D06D06F90D7287960055C107 /* Nightingale 2004 Help in CopyFiles */ = {isa = PBXBuildFile; fileRef = D06D06F70D72878A0055C107 /* Nightingale 2004 Help */; };
 		D06D07180D7287ED0055C107 /* APPL.icns in Resources */ = {isa = PBXBuildFile; fileRef = D06D070E0D7287ED0055C107 /* APPL.icns */; };
 		D06D07190D7287ED0055C107 /* EPSF.icns in Resources */ = {isa = PBXBuildFile; fileRef = D06D070F0D7287ED0055C107 /* EPSF.icns */; };
 		D06D071A0D7287ED0055C107 /* Midi.icns in Resources */ = {isa = PBXBuildFile; fileRef = D06D07100D7287ED0055C107 /* Midi.icns */; };
@@ -219,7 +218,6 @@
 			dstPath = "${EXECUTABLE_NAME}.app/Contents/MacOS";
 			dstSubfolderSpec = 16;
 			files = (
-				D06D06F90D7287960055C107 /* Nightingale 2004 Help in CopyFiles */,
 				1544E9B31E645DA400431548 /* Style.h in CopyFiles */,
 				1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */,
 				1573CCCB1F9B779D00C967E6 /* InternalInput.h in CopyFiles */,
@@ -302,6 +300,7 @@
 		15C46F7A218C978100D84142 /* DebugUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugUtils.cp; sourceTree = "<group>"; };
 		15C46F7C218C978900D84142 /* InsNewUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNewUtils.cp; sourceTree = "<group>"; };
 		15C46F7E218C979200D84142 /* SetUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetUtils.cp; sourceTree = "<group>"; };
+		15CC521A27F1EB200098DE49 /* Nightingale Help */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "Nightingale Help"; sourceTree = "<group>"; };
 		15E0B7A91E7757E7001C568B /* NotelistOpen.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistOpen.cp; sourceTree = "<group>"; };
 		15E24202256DFA09004AB7A3 /* EndianUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EndianUtils.cp; sourceTree = "<group>"; };
 		15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewSlur.cp; sourceTree = "<group>"; };
@@ -498,7 +497,6 @@
 		D03E70F00D5FA67E005FD177 /* TEfieldPriv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TEfieldPriv.h; sourceTree = "<group>"; };
 		D03E70F10D5FA67E005FD177 /* TEfieldPub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TEfieldPub.h; sourceTree = "<group>"; };
 		D03E71250D5FA94F005FD177 /* PublicStubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PublicStubs.h; sourceTree = "<group>"; };
-		D06D06F70D72878A0055C107 /* Nightingale 2004 Help */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "Nightingale 2004 Help"; sourceTree = "<group>"; };
 		D06D070E0D7287ED0055C107 /* APPL.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = APPL.icns; path = Resources/APPL.icns; sourceTree = "<group>"; };
 		D06D070F0D7287ED0055C107 /* EPSF.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = EPSF.icns; path = Resources/EPSF.icns; sourceTree = "<group>"; };
 		D06D07100D7287ED0055C107 /* Midi.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Midi.icns; path = Resources/Midi.icns; sourceTree = "<group>"; };
@@ -976,7 +974,7 @@
 		D06D06F60D7287740055C107 /* Manually-handled */ = {
 			isa = PBXGroup;
 			children = (
-				D06D06F70D72878A0055C107 /* Nightingale 2004 Help */,
+				15CC521A27F1EB200098DE49 /* Nightingale Help */,
 			);
 			name = "Manually-handled";
 			sourceTree = "<group>";
@@ -1062,7 +1060,6 @@
 			files = (
 				8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */,
 				D0DDAAFC0D6641D7004B30F7 /* Nightingale.rsrc in Resources */,
-				D06D06F80D72878A0055C107 /* Nightingale 2004 Help in Resources */,
 				D06D07180D7287ED0055C107 /* APPL.icns in Resources */,
 				D06D07190D7287ED0055C107 /* EPSF.icns in Resources */,
 				D06D071A0D7287ED0055C107 /* Midi.icns in Resources */,
@@ -1073,6 +1070,7 @@
 				D06D07200D7287ED0055C107 /* SCOR.icns in Resources */,
 				D06D07210D7287ED0055C107 /* Text.icns in Resources */,
 				15A1A5F427B3186000127A57 /* Info.plist in Resources */,
+				15CC521B27F1EB200098DE49 /* Nightingale Help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
