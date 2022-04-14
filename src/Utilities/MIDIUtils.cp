@@ -81,9 +81,9 @@ LINK NoteNum2Note(LINK syncL, short voice, short noteNum)
 
 /* --------------------------------------------------------------------------- TiedDur -- */
 /* Return total performance duration of <aNoteL> and all following notes tied to
-<aNoteL>. If <selectedOnly>, only includes tied notes until the first unselected
-one. We use the note's <playDur> only for the last note of the series, its NOTATED
-duration for all the others. */
+<aNoteL>. If <selectedOnly>, only includes tied notes until the first unselected one.
+We use the note's <playDur> only for the last note of the series, its NOTATED duration
+for all the others. */
 
 long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 {
@@ -104,6 +104,7 @@ long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 		if (selectedOnly && !NoteSEL(continNoteL)) break;
 
 		/* We know this note will be played, so add in the previous note's notated dur. */
+		
 		prevDur = SyncAbsTime(continL)-SyncAbsTime(syncPrevL);
 		dur += prevDur;
 
@@ -152,18 +153,17 @@ short UseMIDINoteNum(Document *doc, LINK aNoteL, short transpose)
 
 
 /* ------------------------------------------------------------------- GetModNREffects -- */
-/* Given a note, if it has any modifiers, get information about how its
-modifiers should affect playback, and return True. If it has no modifiers,
-just return False. NB: The time factor is unimplemented. */
+/* Given a note, if it has any modifiers, get information about how its modifiers should
+affect playback, and return True. If it has no modifiers, just return False. NB: The
+time factor is unimplemented. */
 
 Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 			short *pTimeFactor)
 {
-	LINK		aModNRL;
-	short		velOffset, durFactor, timeFactor;
+	LINK	aModNRL;
+	short	velOffset, durFactor, timeFactor;
 
-	if (!config.useModNREffects)
-		return False;
+	if (!config.useModNREffects) return False;
 
 	aModNRL = NoteFIRSTMOD(aNoteL);
 	if (!aModNRL) return False;
@@ -173,7 +173,10 @@ Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 
 	for ( ; aModNRL; aModNRL = NextMODNRL(aModNRL)) {
 		Byte code = ModNRMODCODE(aModNRL);
-		if (code>31) continue;					/* Silent failure: arrays sized for 32 items. */
+		if (code>31) {										/* Arrays sized for 32 items. */
+			LogPrintf(LOG_WARNING, "Illegal modifier code %d.  (GetModNREffects)\n", code);
+			continue;
+		}
 		velOffset += modNRVelOffsets[code];
 // FIXME: What if more than one modifier?
 		durFactor = modNRDurFactors[code];
@@ -433,7 +436,7 @@ static Boolean InsertEvent(short note, SignedByte channel, long endTime, Boolean
 	char		fmtStr[256];
 
 	/* If _playMaxDur_ and there's already an event for that note no. on the same channel
-		with a later end time, we have nothing to do. */
+	   with a later end time, we have nothing to do. */
 	// if (playMaxDur && HaveLaterEnding(note, channel, endTime)) return True;
 		
 	/* Find first free slot in list, which may be at lastEvent (end of list) */
@@ -526,9 +529,9 @@ LogPrintf(LOG_DEBUG,
 	}
 }
 
-/*	Checks eventList[] to see if any notes are ready to be turned off; if so,
-frees their slots in the eventList and (if we're not using MIDI Manager) turns
-them off. Returns True if the list is empty. */
+/*	Checks eventList[] to see if any notes are ready to be turned off; if so, frees
+their slots in the eventList and (if we're not using MIDI Manager) turns them off.
+Returns True if the list is empty. */
 
 Boolean CheckEventList(long pageTurnTOffset)
 {
@@ -698,6 +701,7 @@ OSStatus EndNoteNow(short noteNum, SignedByte channel)
 but end at different times, do we hold the note till the last one ends or stop playing
 the note when the first one ends? For many years, Nightingale always did the latter, but
 the former makes more sense in most cases. */
+
 #define MULTNOTES_PLAYMAXDUR True		/* Hold the note till the last instance ends? */ 
 
 Boolean EndNoteLater(
@@ -826,11 +830,10 @@ void MIDIFBNoteOn(
 				break;
 		}
 		
-		/*
-		 * Delay a bit before returning. NB: this causes problems with our little-used
-		 * "chromatic" note input mode by slowing down AltInsTrackPitch. See comments
-		 * in TrackVMove.c.
-		 */
+		/* Delay a bit before returning. NB: this causes problems with our little-used
+		   "chromatic" note input mode by slowing down AltInsTrackPitch. See comments
+		   in TrackVMove.c. */
+		   
 		SleepTicks(2L);
 	}
 }
@@ -853,11 +856,10 @@ void MIDIFBNoteOff(
 				break;
 		}
 		
-		/*
-		 * Delay a bit before returning. NB: this causes problems with our little-used
-		 * "chromatic" note input mode by slowing down AltInsTrackPitch. See comments
-		 * in TrackVMove.c.
-		 */
+		/* Delay a bit before returning. NB: this causes problems with our little-used
+		   "chromatic" note input mode by slowing down AltInsTrackPitch. See comments
+		   in TrackVMove.c. */
+
 		SleepTicks(2L);
 	}
 }
@@ -876,6 +878,7 @@ Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly)
 	if (!LinkSEL(syncL) && selectedOnly) return False;
 	
 	/* Is _any_ real note in the Sync in an unmuted part? */
+	
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		if (NoteREST(aNoteL)) continue;

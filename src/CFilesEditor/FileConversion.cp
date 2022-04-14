@@ -698,7 +698,7 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteSMALL(aNoteRL) = (&a1NoteR)->small;
 	NoteTEMPFLAG(aNoteRL) = (&a1NoteR)->tempFlag;
 	NoteARTHARMONIC(aNoteRL) = 0;
-//	for (short k = 0; k<4; k++) aNote->segments[k] = 0;	??
+	for (short k = 0; k<4; k++) NoteSEGMENT(aNoteRL, k) = 0;
 	NoteUSERID(aNoteRL) = 0;
 	NoteRESERVEDN(aNoteRL) = 0L;
 	
@@ -1075,7 +1075,7 @@ static Boolean Convert1GRNOTE(Document * /* doc */, LINK aGRNoteL)
 	GRNoteSMALL(aGRNoteL) = (&a1GRNote)->small;
 	GRNoteTEMPFLAG(aGRNoteL) = (&a1GRNote)->tempFlag;
 	GRNoteARTHARMONIC(aGRNoteL) = 0;
-//	for (short k = 0; k<4; k++) aGRNote->segments[k] = 0;	??
+	for (short k = 0; k<4; k++) GRNoteSEGMENT(aGRNoteL, k) = 0;
 	GRNoteUSERID(aGRNoteL) = 0;
 	GRNoteRESERVEDN(aGRNoteL) = 0L;
 	

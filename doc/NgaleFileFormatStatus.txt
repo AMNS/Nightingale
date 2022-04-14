@@ -1,0 +1,64 @@
+STATUS OF NEW NIGHTINGALE FILE FORMAT (AND OBJECT LIST) - DAB, rev. early April 2022
+
+The current format is 'N105", so the new one (starting with Ngale 6.0) is 'N106'.
+
+General:
+	- Consolidate fragmented fields, if there are any!
+	+ Get rid of bitfields. They aren't compatible between Intel and PowerPC CPUs, and
+		making files readable by both will be a nightmare unless we get rid of them!
+		Cf. NgaleDevelopmentLog.txt .
+
+TIME SIGNATURE:
+
+	- Add field(s) to support additive meters, e.g., (4+2+3)/8; probably up to 4
+		numerators. Maybe replace "SignedByte numerator" with "SignedByte numerator[4]"?
+
+PARTINFO:
+	- Remove FreeMIDI support fields, or just rename as "unused" or some such
+
+ANOTE:
+	- Increase resolution of xmovedots from quarter-spaces to (probably) eighth-spaces
+		=> change default & range checks
+	- Increase resolution of xmoveAcc from quarter-spaces to (probably) eighth-spaces
+		=> change default & range checks
+	- Add voice role, w/ same values as in VOICEINFO (VCROLE_UPPER, etc., incl.
+		unknown)
+	- Replace HALFNOTE_SHAPE w/ more general "duration multipler" (e.g., to draw 16th
+		notes as 8ths for Chopin F-minor Ballade, m. 175)?
+	+ >=2 more bits each for accidental H offset & aug. dot H offset
+		xmoveAcc: goes from 5 to 8 bits; xmovedots: goes from 3 to 8 bits
+	+ >=2 more bits for microtone (pitch offset, GP (& L?) domains)
+		micropitch: 2 => 8 bits
+	+ Add 4 bytes for future use, initialized to 0
+	+ >=2 bits for artificial harmonics: values = normal note (non-harmonic), touched,
+		stopped, sounding; touched & stopped normally play at velocity 0
+	+ Add 2- or 4-byte field for ID that can be referenced externally
+	+ Add space for >=4 segments of notehead graphs
+
+DYNAMIC:
+	+ Add modifier field(s) (e.g., for "mpp", adding "subito", "piu"/"meno", etc.)
+	+ Add "cross staff" field(s): to say also affects staff below, staff above, or
+		neither; also say "show curly brace if cross-staff"
+
+CLEF:
+	?- Change codes to leave space for more 8ve-transposing clefs, e.g., SOPRANO8B
+		and/or TENOR8B for bass voice? Allow for every half space from bass-8va
+		bassa (conventional double bass) to treble-8va alta: 28(?) values?
+
+Miscellaneous:
+- Rearrange header fields so they're in a sensible order, w/ closely-related things
+	close together (e.g., dIndentFirst and dIndentOther in Score header)
+- Replace short (2 bytes, mostly DDIST) x coords. with long (4 bytes) where more range
+	might be useful. While I'm at it, good to also change them to, say, units of
+	DDIST/10 to increase precision. By far the most important is object xd; see Issue
+	#197.
+- Add >=2 bytes for future expansion to every object and subobject
+- Remove support fields for obsolete MIDI drivers (mostly FreeMIDI & OMS), or just
+	rename as "unused" or some such: in Document; elsewhere? Also remove #defines for
+	them
+- Initialize all unused fields for everything (to 0 unless there's a very good reason
+	to use something else!). Simplest way: FillMem() on whole struct.
+
+Note: The order of CONFIG fields is ridiculous and confusing, but that's a completely
+separate issue from the music file format! It affects only the "Nightingale Prefs"
+file.

@@ -3640,3 +3640,14 @@ Affects info.plist, MemMacros.h, NightTemplates.h, NObjTypes.h; DrawHighLevel, D
 InitNightingale, InternalInput, MIDIRecord, MIDIRecUtils, Objects, RTRhythmDur.
 
 ----------------------------------------------------------------------------------------- B11
+
+7 - 13 Apr.
+
+Fixed bug: Resizing the tool palette to a larger size never draws the new area. Affects
+InitNightingale.
+
+Minor changes: reduced MIDI Modifier Effects velocity offset for (regular) accent, etc.
+Affects .rsrc, info.plist, MemMacros.h, NObjTypes.h; Event, FileConversion,
+InitNightingale, MIDIDialogs, MIDIUtils, Objects, ToolPalette.
+
+----------------------------------------------------------------------------------------- B12

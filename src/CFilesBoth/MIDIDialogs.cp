@@ -17,8 +17,8 @@
 
 
 /* ------------------------------------------------------------------- MIDIPrefsDialog -- */
-/*	Setup MIDI channel assignment, tempo, port, etc. N.B. Does not handle SCCA for
-MIDI Thru! */
+/*	Setup MIDI channel assignment, tempo, port, etc. NB: Does not handle SCCA for MIDI
+Thru! */
 
 
 enum				/* Dialog item numbers */
@@ -69,7 +69,7 @@ static MIDIUniqueID GetCMOutputDeviceID(void);
 static Boolean ValidCMInputIndex(short idx);
 static Boolean ValidCMInputIndex(short idx)
 {
-	return (idx >= 0 && idx <cmVecDevices->size());
+	return (idx>=0 && (unsigned short)idx<cmVecDevices->size());
 }
 
 static MIDIUniqueID GetCMInputDeviceID();
@@ -83,9 +83,10 @@ static MIDIUniqueID GetCMInputDeviceID()
 	return kInvalidMIDIUniqueID;
 }
 
-/* FIXME: GetCMInputDeviceIndex is in C++, but Nightingale is supposed to be (and is
-almost completely) a C99 program! Maybe we have no choice but to use C++ to talk to
-Core MIDI? That seems unlikely. */
+/* FIXME: GetCMInputDeviceIndex is in C++, but Nightingale is supposed to be, and is
+almost completely, C99, not C++! Maybe we have no choice but to use C++ to talk to Core
+MIDI? That seems unlikely. As of April 2022, the construct "MIDIUniqueIDVector::iterator"
+appears a total of three times in Nightingale code. */
 
 static short GetCMInputDeviceIndex(MIDIUniqueID dev);
 static short GetCMInputDeviceIndex(MIDIUniqueID dev)
@@ -102,8 +103,8 @@ static short GetCMInputDeviceIndex(MIDIUniqueID dev)
 	return -1;
 }
 
-static MenuHandle CreateCMInputMenu(Document *doc, DialogPtr dlog, UserPopUp *p, Rect *box);
-static MenuHandle CreateCMInputMenu(Document *doc, DialogPtr dlog, UserPopUp *p, Rect *box)
+static MenuHandle CreateCMInputMenu(Document *doc, DialogPtr dlog, UserPopUp *p, Rect * /* box */);
+static MenuHandle CreateCMInputMenu(Document *doc, DialogPtr dlog, UserPopUp *p, Rect * /* box */)
 {
 	Boolean popupOk = InitPopUp(dlog, p,
 									INPUT_DEVICE_MENU,	/* Dialog item to set p->box from */
@@ -134,12 +135,11 @@ static void DrawDividers(DialogPtr)
 	LineTo(divRect2.right, divRect2.top);
 }
 
-/* This filter outlines the OK button, draws divider lines, and performs standard
-key and command-key filtering. */
+/* This filter outlines the OK button, draws divider lines, and performs standard key
+and command-key filtering. */
 
 static pascal Boolean MIDIFilter(DialogPtr, EventRecord *, short *);
-static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
-											short *item)
+static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvt, short *item)
 {
 	GrafPtr	oldPort;
 	short	type;
@@ -148,7 +148,7 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 	Point	mouseLoc;
 	short	ans = 0;
 
-	switch (theEvent->what) {
+	switch (theEvt->what) {
 		case updateEvt:
 			GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
 			BeginUpdate(GetDialogWindow(theDialog));
@@ -165,7 +165,7 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 			break;
 		case mouseDown:
 			*item = 0;
-			mouseLoc = theEvent->where;
+			mouseLoc = theEvt->where;
 			GlobalToLocal(&mouseLoc);
 			
 			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
@@ -179,16 +179,14 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 				GetDialogItem (theDialog, INPUT_DEVICE_MENU, &type, &hndl, &box);
 				if (PtInRect(mouseLoc, &box))	{
 					ans = DoUserPopUp(&cmInputPopup);
-					if (ans) {
-						*item = INPUT_DEVICE_MENU;
-					}
+					if (ans) *item = INPUT_DEVICE_MENU;
 				}
 			}
 			break;
 
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
+			if (DlgCmdKey(theDialog, theEvt, item, False)) return True;
 			break;
 		default:
 			break;
@@ -210,7 +208,7 @@ void MIDIPrefsDialog(Document *doc)
 	Boolean docDirty = False;
 	char fmtStr[256];
 	short scratch;
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 	
 	ArrowCursor();
 
@@ -254,8 +252,8 @@ void MIDIPrefsDialog(Document *doc)
 		cmInputMenuH = CreateCMInputMenu(doc, dlog, &cmInputPopup, &inputDeviceMenuBox);
 	}
 
-	/* Get the divider lines, defined by some user items, and get them out of the way 
-	   so they don't hide any items underneath. */
+	/* Get the divider lines, defined by some user items, and get them out of the way so
+	   they don't hide any items underneath. */
 	   
 	GetDialogItem(dlog,DIVIDER1_DI,&anInt,&aHdl,&divRect1);
 	GetDialogItem(dlog,DIVIDER2_DI,&anInt,&aHdl,&divRect2);
@@ -264,7 +262,7 @@ void MIDIPrefsDialog(Document *doc)
 	HideDialogItem(dlog,DIVIDER2_DI);
 
 	groupFlats = (doc->recordFlats? FLATS_DI : SHARPS_DI);		/* Set up radio button group */
-	PutDlgChkRadio(dlog, groupFlats, 1);
+	PutDlgChkRadio(dlog, groupFlats, True);
 
 	PutDlgWord(dlog, CHANNEL, doc->channel, False);
 
@@ -272,7 +270,7 @@ void MIDIPrefsDialog(Document *doc)
 	PutDlgChkRadio(dlog, FEEDBACK, doc->noteInsFeedback);
 	
 	groupPartSets = (doc->polyTimbral? PART_SETTINGS : NO_PART_SETTINGS);	/* Set up radio button group */
-	PutDlgChkRadio(dlog, groupPartSets, 1);
+	PutDlgChkRadio(dlog, groupPartSets, True);
 
 	patchHdl = PutDlgChkRadio(dlog, SEND_PATCHES, !doc->dontSendPatches);
 	if (!doc->polyTimbral) HiliteControl((ControlHandle)patchHdl, CTL_INACTIVE);
@@ -305,35 +303,31 @@ void MIDIPrefsDialog(Document *doc)
 					dialogOver = ditem;
 					break;
 				case FEEDBACK:
-	  				PutDlgChkRadio(dlog, FEEDBACK,
-						!GetDlgChkRadio(dlog, FEEDBACK));
+	  				PutDlgChkRadio(dlog, FEEDBACK, !GetDlgChkRadio(dlog, FEEDBACK));
 			  		break;
 				case PART_SETTINGS:
 				case NO_PART_SETTINGS:
 					if (ditem!=groupPartSets) SwitchRadio(dlog, &groupPartSets, ditem);
 					newval = GetDlgChkRadio(dlog, PART_SETTINGS);					
 					HiliteControl((ControlHandle)patchHdl, (newval? CTL_ACTIVE : CTL_INACTIVE));
-					if (!newval) PutDlgChkRadio(dlog, SEND_PATCHES, 0);
+					if (!newval) PutDlgChkRadio(dlog, SEND_PATCHES, False);
 			  		break;
 			  	case SEND_PATCHES:
-	  				PutDlgChkRadio(dlog, SEND_PATCHES,
-						!GetDlgChkRadio(dlog, SEND_PATCHES));
+	  				PutDlgChkRadio(dlog, SEND_PATCHES, !GetDlgChkRadio(dlog, SEND_PATCHES));
 			  		break;
 				case SHARPS_DI:
 				case FLATS_DI:
 					if (ditem!=groupFlats) SwitchRadio(dlog, &groupFlats, ditem);
 					break;
 				case DELREDACC_DI:
-	  				PutDlgChkRadio(dlog, DELREDACC_DI,
-						!GetDlgChkRadio(dlog, DELREDACC_DI));
+	  				PutDlgChkRadio(dlog, DELREDACC_DI, !GetDlgChkRadio(dlog, DELREDACC_DI));
 					break;
 				case TURNPAGES_DI:
-	  				PutDlgChkRadio(dlog, TURNPAGES_DI,
-						!GetDlgChkRadio(dlog, TURNPAGES_DI));
+	  				PutDlgChkRadio(dlog, TURNPAGES_DI, !GetDlgChkRadio(dlog, TURNPAGES_DI));
 					break;				
 				case USE_MODIFIER_EFFECTS_DI:
-	  				PutDlgChkRadio(dlog, USE_MODIFIER_EFFECTS_DI,
-						!GetDlgChkRadio(dlog, USE_MODIFIER_EFFECTS_DI));
+	  				PutDlgChkRadio(dlog, USE_MODIFIER_EFFECTS_DI, !GetDlgChkRadio(dlog,
+									USE_MODIFIER_EFFECTS_DI));
 					break;				
 			  default:
 			  	;
@@ -483,15 +477,15 @@ static Rect deviceMenuBox;
 static fmsUniqueID thruDevice;
 static short thruChannel;
 
-pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, short *itemHit);
-pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, short *itemHit)
+pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvt, short *itemHit);
+pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvt, short *itemHit)
 {		
 	GrafPtr	oldPort;
 	Point 	mouseLoc;
 	
-	switch(theEvent->what) {
+	switch(theEvt->what) {
 		case updateEvt:
-			if ((WindowPtr)theEvent->message==GetDialogWindow(dlog)) {
+			if ((WindowPtr)theEvt->message==GetDialogWindow(dlog)) {
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));				
 				UpdateDialogVisRgn(dlog);
@@ -501,7 +495,7 @@ pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, short *item
 			}
 			break;
 		case mouseDown:
-			mouseLoc = theEvent->where;
+			mouseLoc = theEvt->where;
 			GlobalToLocal(&mouseLoc);
 			if (PtInRect(mouseLoc, &deviceMenuBox)) {
 				*itemHit = POP_Device;
@@ -511,7 +505,7 @@ pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, short *item
 			break;
 		case autoKey:
 		case keyDown:
-			if (DlgCmdKey(dlog, theEvent, itemHit, False))
+			if (DlgCmdKey(dlog, theEvt, itemHit, False))
 				return True;
 			break;
 		case activateEvt:
@@ -579,7 +573,6 @@ Boolean MIDIThruDialog()
 		}
 	}
 
-broken:
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
 	SetPort(oldPort);
@@ -756,7 +749,8 @@ static MIDIUniqueID GetCMOutputDeviceID()
 	return kInvalidMIDIUniqueID;
 }
 
-static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MIDIUniqueID device)
+static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect * /*box*/,
+					MIDIUniqueID device)
 {
 
 	Boolean popupOk = InitPopUp(dlog, p,
@@ -831,8 +825,8 @@ static DialogPtr OpenCMMetroDialog(
 /* This filter outlines the OK Button and performs standard key and command-key
 filtering. */
 
-pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item);
-pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
+pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvt, short *item);
+pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvt, short *item)
 {
 	GrafPtr	oldPort;
 	short	type;
@@ -841,7 +835,7 @@ pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 	Point 	mouseLoc;
 	short	ans;
 
-	switch (theEvent->what) {
+	switch (theEvt->what) {
 		case updateEvt:
 			GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
 			BeginUpdate(GetDialogWindow(theDialog));
@@ -855,7 +849,7 @@ pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 			break;
 			
 		case mouseDown:
-			mouseLoc = theEvent->where;
+			mouseLoc = theEvt->where;
 			GlobalToLocal(&mouseLoc);
 			
 			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
@@ -877,7 +871,7 @@ pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
+			if (DlgCmdKey(theDialog, theEvt, item, False)) return True;
 			break;
 	}
 	return False;
@@ -1041,9 +1035,9 @@ Boolean MIDIDynamDialog(Document */*doc*/, Boolean *apply)
 	if (dlog) {
 		SetPort(GetDialogWindowPort(dlog));
 		
-		PutDlgChkRadio(dlog, APPLY_DI,*apply);
+		PutDlgChkRadio(dlog, APPLY_DI, *apply);
 		for (i = 1; i<DYN_LEVELS; i++)
-			PutDlgWord(dlog,FIRST_VEL_DI+2*i, dynam2velo[i+PPP_DYNAM], False);
+			PutDlgWord(dlog, FIRST_VEL_DI+2*i, dynam2velo[i+PPP_DYNAM], False);
 			
 		/* Do level 0 last so we can leave it hilited. */
 		
@@ -1058,7 +1052,7 @@ Boolean MIDIDynamDialog(Document */*doc*/, Boolean *apply)
 				ModalDialog(filterUPP, &ditem);
 				if (ditem==OK || ditem==Cancel) break;
 				if (ditem==APPLY_DI) 
-					PutDlgChkRadio(dlog,APPLY_DI,!GetDlgChkRadio(dlog,APPLY_DI));
+					PutDlgChkRadio(dlog, APPLY_DI, !GetDlgChkRadio(dlog,APPLY_DI));
 			}
 
 			if (ditem==OK) {
@@ -1239,12 +1233,10 @@ static short group2;
 
 Boolean MutePartDialog(Document *doc)
 {
-	short itemHit, type, partNum;
+	short itemHit, partNum;
 	Boolean okay, keepGoing=True;
 	DialogPtr dlog;  GrafPtr oldPort;
 	ModalFilterUPP filterUPP;
-	Handle hndl;
-	Rect box;
 	LINK partL;
 	PPARTINFO pPart;
 	char partNameStr[256];		/* C string */

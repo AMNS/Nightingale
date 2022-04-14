@@ -133,6 +133,7 @@ Boolean DoEvent()
 				if ((TickCount()-checkMemTime) > MEMCHECK_INTVL) {
 				
 					/* Check avail. memory if enough time has passed since last check. */
+					
 					CheckMemory();
 					checkMemTime = TickCount();
 					}
@@ -166,8 +167,7 @@ static void CheckMemory()
 			thresh = config.minMemory;
 			}
 		 else
-			if (nBytes >= config.lowMemory || thresh <= 0)
-				thresh = config.lowMemory;
+			if (nBytes >= config.lowMemory || thresh <= 0) thresh = config.lowMemory;
 	}
 
 
@@ -308,8 +308,8 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 			wasOurWindow = True;
 			}
 		 else {
-		 	/* DMcK, 4/11/91: Apple DTS says the top bit of CurActivate is used as
-		 	 * a flag for something or other and should be masked off! */
+		 	/* DMcK, 4/11/91: Apple DTS says the top bit of CurActivate is used as a
+			   a flag for something or other and should be masked off! */
 			 
 //			curAct = (WindowPeek)((long)LMGetCurActivate() & 0x7FFFFFFF);
 			curAct = FrontWindow();
@@ -335,9 +335,9 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 				d = GetDialogFromWindow(w);
 				if (d) {
 					if (activ) {
-						DialogSelect(event,&d,&itemHit);
+						DialogSelect(event, &d, &itemHit);
 						}
-					FrameDefault(d,1,activ);
+					FrameDefault(d, 1, activ);
 					}
 				break;
 			default:
@@ -898,25 +898,22 @@ static void DoGrow(WindowPtr w, Point pt, Boolean /*command*/)
 				/* Force caret into off state; otherwise invalid background bits
 				   covered by palette may come into view. */
 
-				if (TopDocument)
-					MEHideCaret(GetDocumentFromWindow(TopDocument));
+				if (TopDocument) MEHideCaret(GetDocumentFromWindow(TopDocument));
 				kind = GetWRefCon(w);
-				if (kind == (long)TOOL_PALETTE) {
-					DoToolGrow(pt);
-				}
+				if (kind == (long)TOOL_PALETTE) DoToolGrow(pt);
 				break;
 			case DOCUMENTKIND:
 				GetWindowPortBounds(w, &oldRect);
 				Document *doc = GetDocumentFromWindow(w);
 				if (doc)  {
 					PrepareMessageDraw(doc, &oldMessageRect, True);
-					oldMessageRect.top--;		/* Include DrawGrowIcon line */
+					oldMessageRect.top--;					/* Include DrawGrowIcon line */
 					SetRect(&limitRect, MESSAGEBOX_WIDTH+70, 80, 20000, 20000);
 					newSize = GrowWindow(w, pt, &limitRect);
 					if (newSize) {
 						EraseAndInval(&oldMessageRect);
-						x = LoWord(newSize); y = HiWord(newSize);
-						SizeWindow(w,x,y,True);
+						x = LoWord(newSize);  y = HiWord(newSize);
+						SizeWindow(w, x, y, True);
 						RecomputeWindow(w);
 						SetZoomState(w);
 						}					

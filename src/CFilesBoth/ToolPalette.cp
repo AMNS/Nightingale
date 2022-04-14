@@ -14,9 +14,7 @@
 
 static short oldItem;
 
-/*
- *	Prototypes for local functions
- */	
+/* Prototypes for local functions */	
 
 static Boolean	IsOnKeyPad(unsigned char);
 static Boolean	IsDurKey(unsigned char, Boolean *);
@@ -300,10 +298,10 @@ portRect.top, portRect.left, portRect.bottom, portRect.right);
 		tmp.top = tmp.bottom - (TOOLS_MARGIN+1);
 		EraseRect(&tmp);
 		
-		MoveTo(frame.right-2, frame.bottom-2); Line(TOOLS_MARGIN, 0);
-		MoveTo(frame.right-2, frame.bottom-2); Line(0, TOOLS_MARGIN);
-		MoveTo(frame.right+1, frame.bottom+1); Line(TOOLS_MARGIN, 0);
-		MoveTo(frame.right+1, frame.bottom+1); Line(0, TOOLS_MARGIN);
+		MoveTo(frame.right-2, frame.bottom-2);  Line(TOOLS_MARGIN, 0);
+		MoveTo(frame.right-2, frame.bottom-2);  Line(0, TOOLS_MARGIN);
+		MoveTo(frame.right+1, frame.bottom+1);  Line(TOOLS_MARGIN, 0);
+		MoveTo(frame.right+1, frame.bottom+1);  Line(0, TOOLS_MARGIN);
 	}
 }
 
@@ -688,8 +686,8 @@ void ChangeToolSize(short across, short down, Boolean doingZoom)
 }
 
 
-/* Compute the smallest grid rectangle that encloses all defined tools.  Undefined
-tools are marked in the grid[] array with a space. */
+/* Compute the smallest grid rectangle that encloses all defined tools.  Undefined tools
+are marked in the grid[] array with a space. */
 
 void GetToolZoomBounds()
 {

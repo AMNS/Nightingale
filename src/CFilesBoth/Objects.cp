@@ -886,7 +886,7 @@ PushLock(NOTEheap);
 	aNote->tempFlag = False;
 	aNote->artHarmonic = 0;
 	aNote->userID = 0;
-//	for (short k = 0; k<4; k++) aNote->segments[k] = 0;
+	for (short k = 0; k<4; k++) aNote->nhSegment[k] = 0;
 	aNote->reservedN = 0L;
 	
 PopLock(NOTEheap);
@@ -981,7 +981,7 @@ PushLock(GRNOTEheap);
 	aGRNote->tempFlag = False;
 	aGRNote->artHarmonic = 0;
 	aGRNote->userID = 0;
-//	for (short k = 0; k<4; k++) aGRNote->segments[k] = 0;
+	for (short k = 0; k<4; k++) aGRNote->nhSegment[k] = 0;
 	aGRNote->reservedN = 0L;
 	
 PopLock(GRNOTEheap);

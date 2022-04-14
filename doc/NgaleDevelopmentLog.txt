@@ -11124,4 +11124,31 @@ The new fields need to be initialized, but there are three routines that initial
 created ANOTEs: SetupNote, SetupGRNote, and SetupMIDINote. OK, but they don't share any
 code, and they should, but is it worth the time? Probably not. Hmmm -- there are also
 routines that initialize newly-created AGRNOTEs, and that _convert_ ANOTEs and AGRNOTEs
-from 'N105' to 'N106' format! ??
+from 'N105' to 'N106' format! Put off thinking about sharing code among routines, but
+add code to initialize/convert ANOTEs and AGRNOTEs... Done.
+
+---------------------------------------------------------------------------------------
+
+7 - 11 Apr.
+
+Oops. Code to initialize/convert the new notehead-graph segment fields is commented out.
+
+	Byte		nhSegment[4];		/* Segments of notehead graph (unused as of v. 6.0) */
+
+Ngale has never had a field array, and I don't want to write separate macros to handle each
+individual field! How about macros to iterate thru the array elements? Ugh. Replace the
+array with a union of an unsigned long and the array, and manipulate the unsigned long?
+Should work fine, but only as long as the array length stays 4. Ah, just write a single
+macro that takes the index as a 2nd parameter! Probably the best solution... done.
+
+BACK TO: the tool palette.
+	- Code is excessively complex.
+	+ Resizing to a larger size never draws the new area.
+	- Sometimes stays in too low a position and ignores clicks :-( .
+
+The code assumes an array of floating-window palettes, sets things up for tearing off
+menus, and supports rearranging the tool palette. Of course all three features make the
+code more complex! We've never implemented either other floating windows or tearing off
+menus; probably should strip both out. AFAIK no one ever cared about rearranging the tool
+palette, but the "default" tool palette uses the rearranging feature, so I can't easily
+remove it.

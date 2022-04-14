@@ -35,6 +35,7 @@ static void		InitPaletteRects(Rect *whichRects, short across, short down, short 
 										short height);
 static Boolean	InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
 
+
 void InitNightingale()
 {
 	InitNightFonts();							/* Do this first to be ready for dialogs */
@@ -746,7 +747,7 @@ Byte bitmapTools[BITMAP_SPACE];
 
 static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 {
-	short defaultToolItem, nRead, width, byWidth, byWidthPadded, height;
+	short defaultToolItem, nRead, bmWidth, byWidth, byWidthPadded, bmHeight;
 	FILE *bmpf;
 	Rect maxToolsRect;
 	long pixOffset, nBytesToRead;
@@ -760,7 +761,8 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	/* Now open the BMP file and read the actual bitmap image. */
 
 	ParamText("\ptool", "\p", "\p", "\p");					/* In case of any of several problems */
-	bmpf = NOpenBMPFile(TOOL_PALETTE_FN, &pixOffset, &width, &byWidth, &byWidthPadded, &height);
+	bmpf = NOpenBMPFile(TOOL_PALETTE_FN, &pixOffset, &bmWidth, &byWidth, &byWidthPadded,
+							&bmHeight);
 	if (!bmpf) {
 		LogPrintf(LOG_ERR, "Bitmap image file '%s' is missing or can't be opened.  (InitToolPalette)\n", TOOL_PALETTE_FN);
 		return (CautionAdvise(BMP_ALRT)!=OK);
@@ -771,9 +773,9 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		if (CautionAdvise(BMP_ALRT)==OK) return False;
 	}
 
-	nBytesToRead = byWidthPadded*height;
-	LogPrintf(LOG_INFO, "byWidth=%d byWidthPadded=%d height=%d nBytesToRead=%d  (InitToolPalette)\n",
-				byWidth, byWidthPadded, height, nBytesToRead);
+	nBytesToRead = byWidthPadded*bmHeight;
+	LogPrintf(LOG_INFO, "byWidth=%d byWidthPadded=%d bmHeight=%d nBytesToRead=%d  (InitToolPalette)\n",
+				byWidth, byWidthPadded, bmHeight, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitToolPalette)\n",
 					nBytesToRead, BITMAP_SPACE);
@@ -785,21 +787,21 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		if (CautionAdvise(BMP_ALRT)==OK) return False;
 	}
 	
-	SetRect(&maxToolsRect, 0, 0, width, height);
-	
-	*windowRect = maxToolsRect;
+	SetRect(&maxToolsRect, 0, 0, bmWidth, bmHeight);
 		
-	/* windowRect now has its top left corner at (0, 0). Use it to set toolRects[], the
-	   bounding boxes for all the cells in the palette. Then resize windowRect for the
-	   area that's initially visible, with a margin of TOOLS_MARGIN on every side. */
+	/* Set toolRects[], the bounding boxes for all the cells in the palette. */
 	
-	toolCellWidth = (windowRect->right + 1) / whichPalette->maxAcross;
-	toolCellHeight = (windowRect->bottom + 1) / whichPalette->maxDown;
+	toolCellWidth = (maxToolsRect.right + 1) / whichPalette->maxAcross;
+	toolCellHeight = (maxToolsRect.bottom + 1) / whichPalette->maxDown;
 	InitPaletteRects(toolRects, whichPalette->maxAcross, whichPalette->maxDown,
 						toolCellWidth, toolCellHeight);
 	
-	windowRect->right -= (whichPalette->maxAcross-whichPalette->firstAcross) * toolCellWidth;
-	windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;
+	/* Set windowRect to maxToolsRect, with its top left corner at (0, 0), then resize it
+	   for the area that's initially visible, with a margin of TOOLS_MARGIN on all sides. */
+
+	*windowRect = maxToolsRect;
+	//windowRect->right -= (whichPalette->maxAcross-whichPalette->firstAcross) * toolCellWidth;
+	//windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;
 	windowRect->right += 2*TOOLS_MARGIN;
 	windowRect->bottom += 2*TOOLS_MARGIN;
 
@@ -821,10 +823,9 @@ LogPrintf(LOG_DEBUG, "InitToolPalette: windowRect tlbr=%d,%d,%d,%d toolCellWidth
 windowRect->top, windowRect->left, windowRect->bottom, windowRect->right, toolCellWidth,
 toolCellHeight);
 
-	/* Put bitmap image into offscreen port so that any rearrangements can be saved. */
+	/* Draw full bitmap image into offscreen port so any rearrangements can be saved. */
 
 	SaveGWorld();
-	
 	GWorldPtr gwPtr = MakeGWorld(windowRect->right, windowRect->bottom, True);
 	SetGWorld(gwPtr, NULL);
 
@@ -832,7 +833,7 @@ toolCellHeight);
 //LogPrintf(LOG_DEBUG, "InitToolPalette: maxToolsRect tlbr=%d,%d,%d,%d\n", maxToolsRect.top,
 //maxToolsRect.left, maxToolsRect.bottom, maxToolsRect.right);
 	short startLoc;
-	for (short kRow = n_min(height, 800); kRow>=0; kRow--) {
+	for (short kRow = n_min(bmHeight, 800); kRow>=0; kRow--) {
 		startLoc = kRow*byWidthPadded;
 		DPrintRow(bitmapTools, startLoc, n_min(byWidth, 20), kRow, False, True);
 		printf("\n");
@@ -841,19 +842,25 @@ toolCellHeight);
 	SetRect(&maxToolsRect, 10, 60, 200, 200);
 	FillRect(&maxToolsRect, NGetQDGlobalsGray());
 	ForeColor(blackColor);
-	SetRect(&maxToolsRect, 0, 0, width, height);
+	SetRect(&maxToolsRect, 0, 0, bmWidth, bmHeight);
 #endif
 
-	DrawBMP(bitmapTools, byWidth, byWidthPadded, height, height, maxToolsRect);
+	DrawBMP(bitmapTools, byWidth, byWidthPadded, bmHeight, bmHeight, maxToolsRect);
 	toolPalPort = gwPtr;
+	
+	/* Finally, restore onscreen port, and set <windowRect> to its proper initial size. */
+	
 	RestoreGWorld();
+	windowRect->right -= (whichPalette->maxAcross-whichPalette->firstAcross) * toolCellWidth;
+	windowRect->bottom -= (whichPalette->maxDown-whichPalette->firstDown) * toolCellHeight;
 	return True;
 }
 
 
-/* Initialize everything about the palettes used in floating windows. ??REWRITE OR REMOVE
-FOLLOWING We've kept vestigal code for a help palette (which seems unlikely ever to be
-used) and for a clavier palette (which really might be useful someday). */
+/* Initialize everything about the palettes used in floating windows. Actually, we have
+only one, the tool palette. For decades, we kept vestigal code for a help palette and
+a clavier palette, but it doesn't look like either will ever be implemented. FIXME:
+clen this up! */
 
 Boolean NInitPaletteWindows()
 {
@@ -880,9 +887,10 @@ Boolean NInitPaletteWindows()
 				wdefID = ToolPaletteWDEF_ID;
 				break;
 			case HELP_PALETTE:
-				wdefID = ToolPaletteWDEF_ID;						// ??REALLY?
-				break;
 			case CLAVIER_PALETTE:
+				break;
+			default:
+				MayErrMsg("Palette %ld isn't implemented. (NInitPaletteWindows)", (long)idx);
 				break;
 		}
 
