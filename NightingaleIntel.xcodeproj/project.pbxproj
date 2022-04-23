@@ -76,6 +76,7 @@
 		15E332F21ED8AFC1007385A1 /* Clipboard.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E332F11ED8AFC1007385A1 /* Clipboard.cp */; };
 		15E4B7751C823507001279A2 /* Ottava.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E4B7741C823507001279A2 /* Ottava.cp */; };
 		15F774391FE20F8A005E7B1E /* MiscUtils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15F774381FE20F8A005E7B1E /* MiscUtils.h */; };
+		15FCCC64280B3AD100D82E22 /* DragAccModNR.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15FCCC63280B3AD100D82E22 /* DragAccModNR.cp */; };
 		15FD35C72012A11C00198184 /* CASoftMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD35C22012A11C00198184 /* CASoftMidi.cpp */; };
 		15FD35C82012A11C00198184 /* CoreMIDIDefs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15FD35C32012A11C00198184 /* CoreMIDIDefs.h */; };
 		15FD35CA2012A11C00198184 /* MidiMap.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD35C52012A11C00198184 /* MidiMap.cp */; };
@@ -122,7 +123,6 @@
 		D03E6F030D5FA2F8005FD177 /* Nodes.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFB0D5FA2F8005FD177 /* Nodes.cp */; };
 		D03E6F040D5FA2F8005FD177 /* NTimeMgr.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFC0D5FA2F8005FD177 /* NTimeMgr.cp */; };
 		D03E6F050D5FA2F8005FD177 /* Objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFD0D5FA2F8005FD177 /* Objects.cp */; };
-		D03E709C0D5FA5B2005FD177 /* AccModNRMouse.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70550D5FA5B2005FD177 /* AccModNRMouse.cp */; };
 		D03E709D0D5FA5B2005FD177 /* BeamBreak.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70560D5FA5B2005FD177 /* BeamBreak.cp */; };
 		D03E709F0D5FA5B2005FD177 /* CheckMerge.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70580D5FA5B2005FD177 /* CheckMerge.cp */; };
 		D03E70A00D5FA5B2005FD177 /* ChooseCharDlog.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70590D5FA5B2005FD177 /* ChooseCharDlog.cp */; };
@@ -308,6 +308,7 @@
 		15E332F11ED8AFC1007385A1 /* Clipboard.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cp; sourceTree = "<group>"; };
 		15E4B7741C823507001279A2 /* Ottava.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Ottava.cp; sourceTree = "<group>"; };
 		15F774381FE20F8A005E7B1E /* MiscUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiscUtils.h; sourceTree = "<group>"; };
+		15FCCC63280B3AD100D82E22 /* DragAccModNR.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragAccModNR.cp; sourceTree = "<group>"; };
 		15FD35C22012A11C00198184 /* CASoftMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CASoftMidi.cpp; sourceTree = "<group>"; };
 		15FD35C32012A11C00198184 /* CoreMIDIDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMIDIDefs.h; sourceTree = "<group>"; };
 		15FD35C52012A11C00198184 /* MidiMap.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MidiMap.cp; sourceTree = "<group>"; };
@@ -438,7 +439,6 @@
 		D03E6EFB0D5FA2F8005FD177 /* Nodes.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nodes.cp; sourceTree = "<group>"; };
 		D03E6EFC0D5FA2F8005FD177 /* NTimeMgr.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NTimeMgr.cp; sourceTree = "<group>"; };
 		D03E6EFD0D5FA2F8005FD177 /* Objects.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Objects.cp; sourceTree = "<group>"; };
-		D03E70550D5FA5B2005FD177 /* AccModNRMouse.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccModNRMouse.cp; sourceTree = "<group>"; };
 		D03E70560D5FA5B2005FD177 /* BeamBreak.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BeamBreak.cp; sourceTree = "<group>"; };
 		D03E70580D5FA5B2005FD177 /* CheckMerge.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckMerge.cp; sourceTree = "<group>"; };
 		D03E70590D5FA5B2005FD177 /* ChooseCharDlog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChooseCharDlog.cp; sourceTree = "<group>"; };
@@ -453,7 +453,7 @@
 		D03E70670D5FA5B2005FD177 /* DragDynamic.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragDynamic.cp; sourceTree = "<group>"; };
 		D03E70690D5FA5B2005FD177 /* DragGraphic.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragGraphic.cp; sourceTree = "<group>"; };
 		D03E706A0D5FA5B2005FD177 /* DragSet.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragSet.cp; sourceTree = "<group>"; };
-		D03E706B0D5FA5B2005FD177 /* DragUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragUtils.cp; sourceTree = "<group>"; };
+		D03E706B0D5FA5B2005FD177 /* DragUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DragUtils.cp; path = ../CFilesEditor/DragUtils.cp; sourceTree = "<group>"; };
 		D03E706C0D5FA5B2005FD177 /* DrawingEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawingEdit.cp; sourceTree = "<group>"; };
 		D03E70700D5FA5B2005FD177 /* Extract.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Extract.cp; sourceTree = "<group>"; };
 		D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExtractHighLevel.cp; sourceTree = "<group>"; };
@@ -868,7 +868,6 @@
 		D03E6F2D0D5FA4F5005FD177 /* CFilesEditor */ = {
 			isa = PBXGroup;
 			children = (
-				D03E70550D5FA5B2005FD177 /* AccModNRMouse.cp */,
 				154C91D21EDBB86F00AAC011 /* AutoBeam.cp */,
 				D03E70560D5FA5B2005FD177 /* BeamBreak.cp */,
 				15602EE61D20BEF300BAEBF6 /* Browser.cp */,
@@ -885,12 +884,12 @@
 				15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */,
 				D03E70640D5FA5B2005FD177 /* DialogsEditor.cp */,
 				15683E8B1F826D0F00355A40 /* Double.cp */,
+				15FCCC63280B3AD100D82E22 /* DragAccModNR.cp */,
 				D03E70660D5FA5B2005FD177 /* DragBeam.cp */,
 				D03E70670D5FA5B2005FD177 /* DragDynamic.cp */,
 				15602EEE1D20BF7400BAEBF6 /* Dragging.cp */,
 				D03E70690D5FA5B2005FD177 /* DragGraphic.cp */,
 				D03E706A0D5FA5B2005FD177 /* DragSet.cp */,
-				D03E706B0D5FA5B2005FD177 /* DragUtils.cp */,
 				D03E706C0D5FA5B2005FD177 /* DrawingEdit.cp */,
 				15904CD5273C065C006BA03D /* DurationEdit.cp */,
 				1554544226DADD3F00FF8EB0 /* DynamicEdit.cp */,
@@ -983,6 +982,7 @@
 				15D7522C252B3A0600591F5A /* Debug2Utils.cp */,
 				15D7522E252B3A1200591F5A /* DebugUtils.cp */,
 				151FF8F4252B37370082C8AF /* DialogUtils.cp */,
+				D03E706B0D5FA5B2005FD177 /* DragUtils.cp */,
 				151FF8F6252B374B0082C8AF /* DrawUtils.cp */,
 				151FF8F8252B375D0082C8AF /* DSUtils.cp */,
 				15B1C923256E93DB00FB560C /* EndianUtils.cp */,
@@ -1116,7 +1116,6 @@
 				D03E6F030D5FA2F8005FD177 /* Nodes.cp in Sources */,
 				D03E6F040D5FA2F8005FD177 /* NTimeMgr.cp in Sources */,
 				D03E6F050D5FA2F8005FD177 /* Objects.cp in Sources */,
-				D03E709C0D5FA5B2005FD177 /* AccModNRMouse.cp in Sources */,
 				D03E709D0D5FA5B2005FD177 /* BeamBreak.cp in Sources */,
 				D03E709F0D5FA5B2005FD177 /* CheckMerge.cp in Sources */,
 				D03E70A00D5FA5B2005FD177 /* ChooseCharDlog.cp in Sources */,
@@ -1242,6 +1241,7 @@
 				15904CD6273C065C006BA03D /* DurationEdit.cp in Sources */,
 				1541BDA2279B0298002830A7 /* TupletEdit.cp in Sources */,
 				153387C227B314D60093B1A4 /* TempoEdit.cp in Sources */,
+				15FCCC64280B3AD100D82E22 /* DragAccModNR.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

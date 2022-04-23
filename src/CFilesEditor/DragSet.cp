@@ -1,7 +1,7 @@
 /*****************************************************************************************
 *	FILE:	DragSet.c
 *	PROJ:	Nightingale
-*	DESC:	"Set" routines for bitmap dragging
+*	DESC:	"Set" routines to update the object list after bitmap dragging
 /******************************************************************************************/
 
 /*
@@ -107,6 +107,7 @@ static void MoveKeySigHoriz(LINK pL, LINK theKeySigL, DDIST xdDiff)
 
 	/* If none of the key sigs in pL is at the same position as pL itself is anymore,
 	   move pL to the closest one. */
+	   
 	aKeySigL = FirstSubLINK(pL);
 	minXD = KeySigXD(aKeySigL);
 	for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL))
@@ -178,9 +179,9 @@ void SetTimeSigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 
 /* ------------------------------------------------------------ SetNoteFields and ally -- */
 
-/* Move the given note/rest and, if it's in a chord, all other notes/rests in the
-chord, by the given distance. After doing so, if none of the notes/rests in the Sync
-is at the same position as the Sync anymore, move the Sync to the closest one. */
+/* Move the given note/rest and, if it's in a chord, all other notes/rests in the chord,
+by the given distance. After doing so, if none of the notes/rests in the Sync is at the
+same position as the Sync anymore, move the Sync to the closest one. */
 
 static void MoveNoteHoriz(LINK, LINK, DDIST);
 static void MoveNoteHoriz(LINK pL, LINK theNoteL, DDIST xdDiff)
@@ -247,8 +248,8 @@ static void FixNoteAugDotPos(
 }
 
 
-/* Return the Ottava object that the given Sync or GRSync belongs to on the given
-staff. If none, return NILINK. */
+/* Return the Ottava object that the given Sync or GRSync belongs to on the given staff.
+If none, return NILINK. */
 
 static LINK FindOttava(LINK pL, short staffn);
 static LINK FindOttava(LINK pL, short staffn)
@@ -258,10 +259,8 @@ static LINK FindOttava(LINK pL, short staffn)
 	octL = LSSearch(pL, OTTAVAtype, staffn, GO_LEFT, False);
 	if (!octL) return NILINK;
 	
-	if (SyncInOTTAVA(pL, octL))
-		return octL;
-	else
-		return NILINK;
+	if (SyncInOTTAVA(pL, octL))	return octL;
+	else						return NILINK;
 }
 
 
@@ -295,26 +294,27 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 
 		/* Quantize vertical movement to half-lines or, for rests, lines. */
 		halfLnDiff = d2halfLn(ydDiff,context.staffHeight,context.staffLines);
-		if (aNote->rest)
-			if (odd(halfLnDiff)) halfLnDiff += 1;
+		if (aNote->rest) if (odd(halfLnDiff)) halfLnDiff += 1;
 		dDiff = halfLn2d(halfLnDiff,context.staffHeight,context.staffLines);
 
 		halfLn = qd2halfLn(aNote->yqpit);
-		if (!aNote->rest)
-			DelNoteFixAccs(doc, pL, staffn, halfLn,			/* Handle acc. context at old pos. */
+		if (!aNote->rest) DelNoteFixAccs(doc, pL, staffn, halfLn,	/* Handle acc. context at old pos. */
 									aNote->accident);
 
 		/* Preserve zero stem length of non-main notes. */
+		
 		if (!main) aNote->ystem += dDiff;
 		aNote->yd += dDiff;
 		
 		/* Update yqpit; this allows ledger lines to be drawn properly. */
+		
 		aNote->yqpit += halfLn2qd(halfLnDiff);
 						
 		dystd = halfLn2std(halfLnDiff);
 		if (config.moveModNRs) MoveModNRs(subObjL, dystd);
 
 		/* Update the new note accidental and, if necessary, propogate it. */
+		
 		aNote = GetPANOTE(subObjL);
 		if (!aNote->rest) {
 			aNote->accident = newAcc;
@@ -322,6 +322,7 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 									aNote->accident);
 
 			/* Update MIDI note number, considering effect of octave signs. */
+			
 			effectiveAcc = EffectiveAcc(doc, pL, subObjL);
 			octL = FindOttava(pL, staffn);
 			octType = (octL? OttavaType(octL) : -1);
@@ -343,8 +344,8 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 		FixNoteAugDotPos(context.clefType, subObjL, voiceRole, stemDown, False);
 
 		/* If this is a note in a chord, fix the entire chord's stems, notehead left/right
-			of stem positions, accidental positions, etc.; else just fix this note's
-			stem. */
+		   of stem positions, accidental positions, etc.; else just fix this note's
+		   stem. */
 
 		aNote = GetPANOTE(subObjL);
 		if (beam && main)
@@ -367,8 +368,9 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 
 	InvalRange(pL, RightLINK(pL));
 
-	/* Fix up stems if notes in beamset are dragged. The only case where this is
-		necessary is if note is dragged horizontally in a slanted beamset. */
+	/* Fix up stems if notes in beamset are dragged. This is necessary only if note is
+	   dragged horizontally in a slanted beamset. */
+		
 	if (!vert) {
 		aNote = GetPANOTE(subObjL);
 		if (aNote->beamed) {
@@ -381,9 +383,9 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 			lastystem = Getystem(BeamVOICE(beamL), LastInBeam(beamL));
 
 			/* If beam is not horizontal, fix up note stems. We need the call to
-				InvalObject to inval a rect containing the beam in case
-				the beam extends outside the system. Need to modify the test
-				<firstystem!=lastystem> in case the beam is cross staff. */
+			   InvalObject to inval a rect containing the beam in case the beam extends
+			   outside the system. Need to modify the test <firstystem!=lastystem> in
+			   case the beam is cross staff. */
 
 			if (firstystem!=lastystem) {
 				InvalObject(doc, beamL, True);
@@ -399,9 +401,8 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 /* ---------------------------------------------------------------- SetGRNoteFields -- */
 
 /* Move the given grace note and, if it's in a chord, all other grace notes in the
-chord, by the given distance. After doing so, if none of the grace notes in the
-GRSync is at the same position as the GRSync anymore, move the GRSync to the
-closest one. */
+chord, by the given distance. After doing so, if none of the grace notes in the GRSync
+is at the same position as the GRSync anymore, move the GRSync to the closest one. */
 
 static void MoveGRNoteHoriz(LINK, LINK, DDIST);
 static void MoveGRNoteHoriz(LINK pL, LINK theGRNoteL, DDIST xdDiff)
@@ -447,8 +448,8 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 						DDIST xdDiff, DDIST ydDiff,
 						short /*xp*/, short /*yp*/,
 						Boolean vert,
-						Boolean /*beam*/,		/* True if dragging a beamset. */
-						short newAcc			/* The new accidental resulting from vertical dragging. */
+						Boolean /*beam*/,	/* True if dragging a beamset. */
+						short newAcc		/* The new accidental resulting from vertical dragging. */
 						)
 {
 	PAGRNOTE	aGRNote;
@@ -466,6 +467,7 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 		aGRNote = GetPAGRNOTE(subObjL);
 
 		/* Quantize vertical movement to half lines. */
+		
 		halfLnDiff = d2halfLn(ydDiff, context.staffHeight, context.staffLines);
 		dDiff = halfLn2d(halfLnDiff, context.staffHeight, context.staffLines);
 
@@ -473,6 +475,7 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 		aGRNote->yd += dDiff;
 		
 		/* Update yqpit; this allows ledger lines to be drawn properly. */
+		
 		aGRNote->yqpit += halfLn2qd(halfLnDiff);
 				
 		/* Re-compute ystem if note is not beamed & inChord. */

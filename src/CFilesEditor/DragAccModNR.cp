@@ -1,4 +1,5 @@
-/* AccModNRMouse.c for Nightingale - handle dragging accidentals and note modifiers */
+/* DragAccModNR.c (formerly AccModNRMouse.c) for Nightingale - handle dragging
+accidentals and note modifiers. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -17,7 +18,7 @@ static void DragAccidental(Document *, Point, LINK, LINK, Rect *);
 static DDIST GetAccXOffset(PANOTE, short, PCONTEXT);
 static void ShowAccidentalParams(Document *doc, short);
 static Boolean GetModNRBbox(Document *, LINK, LINK, LINK, Rect *);
-static void DoModNRDrag(Document *, Point, LINK, LINK, LINK, Rect *);
+static void DragModNR(Document *, Point, LINK, LINK, LINK, Rect *);
 static void ShowModNRParams(Document *doc, SHORTSTD, SHORTSTD);
 
 enum {			/* return values for FindAccModNR */
@@ -61,8 +62,8 @@ static short FindAccModNR(Document *doc, Point pt,
 	}
 	if (!startL) startL = pageL;					/* in case click is outside of any measure rect */
 	
-	for (i=0; i<2; i++) {										/* may have to search twice */
-		for (pL=startL ; pL!=endL; pL=RightLINK(pL)) {			/* find object that was clicked on */
+	for (i=0; i<2; i++) {									/* may have to search twice */
+		for (pL=startL ; pL!=endL; pL=RightLINK(pL)) {		/* find object that was clicked on */
 			if (ObjLType(pL) == SYNCtype) {
 				if (VISIBLE(pL)) {
 					for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
@@ -107,8 +108,9 @@ static short FindAccModNR(Document *doc, Point pt,
 }
 
 
-/* If user double-clicked on a modNR, invokes a dialog to let them change the modifier
-and returns True; otherwise, just returns False. */
+/* If user double-clicked on a modNR, invoke a dialog to let them change the modifier and
+return True; otherwise, just return False. FIXME: This function belongs in a different
+file; therefore so does FindAccModNR(), */
 
 Boolean DoOpenModNR(Document *doc, Point pt)
 {
@@ -145,8 +147,8 @@ Boolean DoOpenModNR(Document *doc, Point pt)
 }
 
 
-/* If user clicked on a modNR or an accidental, calls functions to handle dragging and
-returns True; otherwise, just returns False. */
+/* If user clicked on a modNR or an accidental, call functions to handle dragging and
+returns True; otherwise, just return False. */
 
 Boolean DoAccModNRClick(Document *doc, Point pt)
 {
@@ -158,7 +160,7 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 	
 	if (result==MODNR) {
 		DisableUndo(doc, False);
-		DoModNRDrag(doc, pt, syncL, noteL, modNRL, &bbox);
+		DragModNR(doc, pt, syncL, noteL, modNRL, &bbox);
 		return True;
 	}
 	if (result==ACCIDENTAL) {
@@ -176,7 +178,7 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 #define ADD_SLOP_THRESH 6	/* in pixels */
 #define SLOP_TO_ADD 2		/* in pixels */
 
-/* Returns box surrounding the accidental in paper-relative coordinates. Much of the code
+/* Return box surrounding the accidental in paper-relative coordinates. Much of the code
 is borrowed from DrawACC. */
 
 static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBBox)
@@ -283,27 +285,29 @@ PushLock(NOTEheap);
 
 	ShowAccidentalParams(doc, aNote->xmoveAcc);					/* display this now in case we never drag */
 
-	/* Adjust xdNorm for chordNoteToL notes. Don't change xdNorm, because DrawAcc
-	   already does that for us. */
+	/* Adjust xdNorm for chordNoteToL notes. Don't change xdNorm: DrawAcc already does
+	   that for us. */
 	   
 	xdNormAdjusted = chordNoteToL?
 			xdNorm-SizePercentSCALE(HeadWidth(LNSPACE(&context))) : xdNorm;
 	accOriginH = d2p(xdNormAdjusted) - d2p(accXOffset);
 	
 	/* <diffH> is the distance between the point where the user clicked and the origin
-	   of the accidental. Set this from <pt> rather than from the current mouseLoc
+	   of the accidental. Set it from <pt> rather than from the current mouseLoc
 	   because the mouse may have moved between the mouseDown and now (i.e., during
 	   FindAccidental). */
 	   
 	diffH = pt.h - accOriginH;
 	GetPaperMouse(&oldPt, &doc->currentPaper);
 	
+	/* We're ready to go. This loop handles the actual dragging. */
+	
 	if (StillDown()) while (WaitMouseUp()) {
 		GetPaperMouse(&newPt, &doc->currentPaper);
 		if (EqualPt(newPt, oldPt)) continue;
 		
-		DrawAcc(doc, &context, noteL, xdNorm, noteYD,
-							False, sizePercent, chordNoteToL);		/* erase old accidental */
+		DrawAcc(doc, &context, noteL, xdNorm, noteYD, False,
+							sizePercent, chordNoteToL);		/* erase old accidental */
 		
 		/* Do the reverse of what GetAccXOffset does. That is, we have the DDIST offset
 		   <xOffset> from the left edge of the note to the accidental origin, and we map
@@ -354,8 +358,8 @@ PushLock(NOTEheap);
 	}
 
 	TextMode(srcOr);
-	DrawAcc(doc, &context, noteL, xdNorm, noteYD,
-							False, sizePercent, chordNoteToL);	/* draw new accidental in normal mode */
+	DrawAcc(doc, &context, noteL, xdNorm, noteYD, False,
+							sizePercent, chordNoteToL);		/* draw new accidental in normal mode */
 	TextSize(oldTxSize);
 	TextMode(oldTxMode);
 
@@ -363,7 +367,7 @@ PushLock(NOTEheap);
 	
 	if (BlockCompare(aNote, &oldNote, sizeof(ANOTE))) {
 		doc->changed = True;
-		LinkTWEAKED(syncL) = True;								/* Flag to show node was edited */
+		LinkTWEAKED(syncL) = True;							/* Flag to show node was edited */
 		
 		Rect2Window(doc, origAccBBox);
 		InsetRect(origAccBBox, -1, -4);
@@ -405,7 +409,7 @@ static void ShowAccidentalParams(Document *doc, short xmoveAcc)
 
 /* =================================================================== modNR functions == */
 
-/* Returns box surrounding the modNR in paper-relative coordinates. */
+/* Return box surrounding the modNR in paper-relative coordinates. */
 
 static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL, Rect *bbox)
 {
@@ -463,7 +467,8 @@ static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL, 
 	bbox->top -= 2;								/* ...so make it taller */
 	bbox->bottom += 2;
 		
-	/* add more slop if the rect is very small */
+	/* Add more slop if the rect is very small */
+	
 	wid = bbox->right - bbox->left;
 	ht = bbox->bottom - bbox->top;
 	InsetRect(bbox, (wid<ADD_SLOP_THRESH? -SLOP_TO_ADD : 0),
@@ -482,7 +487,7 @@ enum {
 	V_CONSTRAIN
 };
 
-static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK modNRL,
+static void DragModNR(Document *doc, Point pt, LINK syncL, LINK noteL, LINK modNRL,
 							Rect *origModNRBbox)					/* in paper coords */
 {
 	DDIST	noteXD, xdMod, ydMod, staffTop, xdNorm, xd, yd, xdModOrig, ydModOrig, lnSpace;
@@ -602,8 +607,8 @@ PushLock(NOTEheap);
 		ydMod += (LNSPACE(&context)/8)*yOffset;
 		
 		/* Some symbols (like fermata) have different glyphs depending on whether
-		 * modNR is above or below its note, so update glyph, etc. now.
-		 */
+		   modNR is above or below its note, so update glyph, etc. now. */
+		   
 		GetModNRInfo(code, aNote->subType, aNote->small, (ydMod<=aNote->yd),
 						&glyph, &xOffset, &yOffset, &sizePercent);
 		ydMod = std2d(aModNR->ystdpit, context.staffHeight, context.staffLines);
@@ -650,7 +655,7 @@ PopLock(NOTEheap);
 }
 
 
-/* Draws the (note-relative) x and (staffTop-relative) y values of a modNR into msg box. */
+/* Draw the (note-relative) x and (staffTop-relative) y values of a modNR into msg box. */
 
 static void ShowModNRParams(Document *doc, SHORTSTD xstd, SHORTSTD ystd)
 {

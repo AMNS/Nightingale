@@ -32,7 +32,9 @@ static void SDDrawMBRest(Document *doc,PCONTEXT pContext,LINK theRestL,DDIST xd,
 static void SDDrawRest(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawNote(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawGRNote(Document *doc, LINK pL, LINK subObjL, LINK measureL);
+#ifdef DRAG_DYNAMIC_OLD_WAY
 static void SDDrawDynamic(Document *doc, LINK pL, LINK subObjL, LINK measureL);
+#endif
 static void SDDrawRptEnd(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void MoveAndLineTo(short x1, short y1, short x2, short y2);
 static void SDDrawEnding(Document *doc, LINK pL, LINK subObjL, LINK measureL);
@@ -146,6 +148,7 @@ static void SDDrawTimeSig(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	}
 }
 
+
 /* --------------------------------------------------------- Notes, rests, grace notes -- */
 
 /* Draw augmentation dots for the note or rest <aNoteL>. */
@@ -174,9 +177,9 @@ static void SDDrawMBRest(Document *doc, PCONTEXT pContext, LINK theRestL,
 									DDIST xd, DDIST yd)
 {
 	DDIST dTop, lnSpace, dhalfLn, xdNum, ydNum, endBottom, endTop;
-	DRect dRestBar;  Rect restBar;  short numWidth;
+	DRect dRestBar;  Rect restBar;
 	unsigned char numStr[20];
-	short face;
+	short numWidth, face;
 
 	GetMBRestBar(-NoteType(theRestL), pContext, &dRestBar);
 	OffsetDRect(&dRestBar, xd, yd);
@@ -313,8 +316,8 @@ PushLock(NOTEheap);
 	noteType = aNote->subType;
 	if (noteType>=WHOLE_L_DUR && aNote->doubleDur) noteType--;
 
-	if (noteType==BREVE_L_DUR) breveFudgeHeadY = dhalfLn*BREVEYOFFSET;
-	else								breveFudgeHeadY = (DDIST)0;
+	if (noteType==BREVE_L_DUR)	breveFudgeHeadY = dhalfLn*BREVEYOFFSET;
+	else						breveFudgeHeadY = (DDIST)0;
 	glyph = MCH_quarterNoteHead;									/* Set default */
 	
 	useTxSize = UseMTextSize(context.fontSize, doc->magnify);
@@ -404,29 +407,21 @@ PushLock(NOTEheap);
 						
 					MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
 					octaveLength = d2p(7*SizePercentSCALE(dhalfLn));
-					if (stemDown)						 				/* Adjust for flag origin */
-						Move(0, -octaveLength);
-					else
-						Move(0, octaveLength);
+					if (stemDown)	Move(0, -octaveLength); 			/* Adjust for flag origin */
+					else			Move(0, octaveLength);
 					if (flagCount==1) {									/* Draw one (8th note) flag */
-						if (stemDown)
-							DrawChar(MCH_eighthFlagDown);
-						else
-							DrawChar(MCH_eighthFlagUp);
+						if (stemDown)	DrawChar(MCH_eighthFlagDown);
+						else			DrawChar(MCH_eighthFlagUp);
 					}
 					else if (flagCount>1) {								/* Draw >=2 (16th & other) flags */
-						if (stemDown)
-							DrawChar(MCH_16thFlagDown);
-						else
-							DrawChar(MCH_16thFlagUp);
+						if (stemDown)	DrawChar(MCH_16thFlagDown);
+						else			DrawChar(MCH_16thFlagUp);
 						MoveTo(xhead, ypStem);							/* Position x at head, y at stem end */
 						
 						/* Scale Factors for FlagLeading are guesswork. */
 						
-						if (stemDown)
-							Move(0, -d2p(13*FlagLeading(lnSpace)/4));
-						else
-							Move(0, d2p(7*FlagLeading(lnSpace)/2));
+						if (stemDown)	Move(0, -d2p(13*FlagLeading(lnSpace)/4));
+						else			Move(0, d2p(7*FlagLeading(lnSpace)/2));
 						while (flagCount-- > 2) {
 							if (stemDown) {
 								DrawChar(MCH_extendFlagDown);
@@ -449,20 +444,18 @@ PushLock(NOTEheap);
 
 					if (flagCount==1) {										/* Draw 8th flag. */
 						flagGlyph = MapMusChar(doc->musFontInfoIndex, 
-															(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
+												(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-						if (xoff || yoff)
-							Move(d2p(xoff), d2p(yoff));
+						if (xoff || yoff) Move(d2p(xoff), d2p(yoff));
 						DrawChar(flagGlyph);
 					}
 					else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 						flagGlyph = MapMusChar(doc->musFontInfoIndex, 
-															(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
+												(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-						if (xoff || yoff)
-							Move(d2p(xoff), d2p(yoff));
+						if (xoff || yoff) Move(d2p(xoff), d2p(yoff));
 						DrawChar(flagGlyph);
 					}
 					else {													/* Draw using multiple flag chars */
@@ -480,8 +473,7 @@ PushLock(NOTEheap);
 						}
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-						if (yoff || xoff)
-							Move(d2p(xoff), d2p(yoff));
+						if (yoff || xoff) Move(d2p(xoff), d2p(yoff));
 						glyphWidth = CharWidth(flagGlyph);
 						while (count-- > 1) {
 							DrawChar(flagGlyph);
@@ -489,6 +481,7 @@ PushLock(NOTEheap);
 						}
 
 						/* Draw 8th flag */
+						
 						MoveTo(xhead+stemSpace, ypStem);				/* start again from x,y of stem end */
 						Move(0, flagLeading*(flagCount-2));				/* flag leadings of all but one of prev flags */
 						if (stemDown) {
@@ -501,8 +494,7 @@ PushLock(NOTEheap);
 						}
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-						if (yoff || xoff)
-							Move(d2p(xoff), d2p(yoff));
+						if (yoff || xoff) Move(d2p(xoff), d2p(yoff));
 						Move(0, flagLeading);
 						DrawChar(flagGlyph);
 					}
@@ -523,10 +515,10 @@ PopLock(NOTEheap);
 static void SDDrawGRNote(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 {
 	PAGRNOTE	aGRNote;
-	short		flagCount,staffn,
-				xhead,yhead,headWidth,
+	short		flagCount, staffn,
+				xhead, yhead, headWidth,
 				ypStem, octaveLength,
-				glyph,useTxSize,oldtxSize,
+				glyph, useTxSize, oldtxSize,
 				sizePercent;			/* Percent of "normal" size to draw in (for small grace notes) */
 	CONTEXT		context;
 	DDIST		xd, yd, dTop, dLeft,
@@ -536,7 +528,7 @@ static void SDDrawGRNote(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	Boolean		stemDown;
 	PAGRNOTE	extGRNote;
 	LINK		extGRNoteL;
-	Rect		headRect,mRect;
+	Rect		headRect, mRect;
 	short		flagLeading, xadjhead, yadjhead, appearance, headRelSize, stemShorten;
 	DDIST		offset, lnSpace, dStemLen;
 	unsigned char flagGlyph;
@@ -666,28 +658,21 @@ PushLock(GRNOTEheap);
 					   
 					MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
 					octaveLength = d2p(7*SizePercentSCALE(dhalfLn));
-					if (stemDown)						 				/* Adjust for flag origin */
-						Move(0, -octaveLength);
-					else
-						Move(0, octaveLength);
+					if (stemDown) Move(0, -octaveLength);				/* Adjust for flag origin */
+					else Move(0, octaveLength);
 					if (flagCount==1) {									/* Draw one (8th note) flag */
-						if (stemDown)
-							DrawChar(MCH_eighthFlagDown);
-						else
-							DrawChar(MCH_eighthFlagUp);
+						if (stemDown)	DrawChar(MCH_eighthFlagDown);
+						else			DrawChar(MCH_eighthFlagUp);
 					}
 					else if (flagCount>1) {								/* Draw >=2 (16th & other) flags */
-						if (stemDown)
-							DrawChar(MCH_16thFlagDown);
-						else
-							DrawChar(MCH_16thFlagUp);
+						if (stemDown)	DrawChar(MCH_16thFlagDown);
+						else			DrawChar(MCH_16thFlagUp);
 						MoveTo(xhead, ypStem);							/* Position x at head, y at stem end */
 						
 						/* Scale Factors for FlagLeading are guesswork. */
-						if (stemDown)
-							Move(0, -d2p(13*FlagLeading(lnSpace)/4));
-						else
-							Move(0, d2p(7*FlagLeading(lnSpace)/2));
+						
+						if (stemDown)	Move(0, -d2p(13*FlagLeading(lnSpace)/4));
+						else			Move(0, d2p(7*FlagLeading(lnSpace)/2));
 						while (flagCount-- > 2) {
 							if (stemDown) {
 								DrawChar(MCH_extendFlagDown);
@@ -713,8 +698,7 @@ PushLock(GRNOTEheap);
 															(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-						if (xoff || yoff)
-							Move(d2p(xoff), d2p(yoff));
+						if (xoff || yoff) Move(d2p(xoff), d2p(yoff));
 						DrawChar(flagGlyph);
 					}
 					else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
@@ -722,14 +706,14 @@ PushLock(GRNOTEheap);
 															(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-						if (xoff || yoff)
-							Move(d2p(xoff), d2p(yoff));
+						if (xoff || yoff) Move(d2p(xoff), d2p(yoff));
 						DrawChar(flagGlyph);
 					}
 					else {												/* Draw using multiple flag chars */
 						short count = flagCount;
 
 						/* Draw extension flag(s) */
+						
 						if (stemDown) {
 							flagGlyph = MapMusChar(doc->musFontInfoIndex, MCH_extendFlagDown);
 							flagLeading = -d2p(DownstemExtFlagLeading(doc->musFontInfoIndex, lnSpace));
@@ -740,8 +724,7 @@ PushLock(GRNOTEheap);
 						}
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-						if (yoff || xoff)
-							Move(d2p(xoff), d2p(yoff));
+						if (yoff || xoff) Move(d2p(xoff), d2p(yoff));
 						glyphWidth = CharWidth(flagGlyph);
 						while (count-- > 1) {
 							DrawChar(flagGlyph);
@@ -749,6 +732,7 @@ PushLock(GRNOTEheap);
 						}
 
 						/* Draw 8th flag */
+						
 						MoveTo(xhead+stemSpace, ypStem);				/* start again from x,y of stem end */
 						Move(0, flagLeading*(flagCount-2));				/* flag leadings of all but one of prev flags */
 						if (stemDown) {
@@ -761,8 +745,7 @@ PushLock(GRNOTEheap);
 						}
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-						if (yoff || xoff)
-							Move(d2p(xoff), d2p(yoff));
+						if (yoff || xoff) Move(d2p(xoff), d2p(yoff));
 						Move(0, flagLeading);
 						DrawChar(flagGlyph);
 					}
@@ -780,12 +763,15 @@ PopLock(OBJheap);
 PopLock(GRNOTEheap);
 }
 
+/* ===================================================================== Miscellaneous == */
+
 #ifdef DRAG_DYNAMIC_OLD_WAY
 // SDDrawDynamic IS NOWHERE NEAR FINISHED! It was part of an attempt to handle dragging
 // dynamics the way everything else is, instead of having a bunch of extra code in
 // DragDynamic.c -- code that's a bit buggy (and I don't remember why we did it that way
 // in the first place), but replacing it with this is looking like a major undertaking.
 // Oh well.  --DAB, March 2017
+
 static void SDDrawDynamic(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 {
 	DDIST		xd, yd;
@@ -844,14 +830,14 @@ static void MoveAndLineTo(short x1, short y1, short x2, short y2)
 static void SDDrawEnding(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL)
 {
 	Rect mRect;
-	DDIST dTop,xd,yd,endxd,lnSpace,rise,measXD,xdNum,ydNum;
+	DDIST dTop, xd, yd, endxd, lnSpace, rise, measXD, xdNum, ydNum;
 	PENDING p;
 	char numStr[MAX_ENDING_STRLEN];
-	short xp,yp,endxp, oldFont,oldSize,oldStyle,sysLeft,risePxl,
+	short xp, yp, endxp, oldFont, oldSize, oldStyle, sysLeft, risePxl,
 			endNum, fontSize, strOffset;
 	CONTEXT	context[MAXSTAVES+1];
 	PCONTEXT pContext;
-	LINK firstMeasL,lastMeasL;
+	LINK firstMeasL, lastMeasL;
 	
 	mRect = SDGetMeasRect(doc, pL, measureL);
 
@@ -866,8 +852,8 @@ static void SDDrawEnding(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL
 	lnSpace = LNSPACE(pContext);
 	rise = ENDING_CUTOFFLEN(lnSpace);
 
-	firstMeasL = LSSearch(p->firstObjL,MEASUREtype,ANYONE,GO_LEFT,False);
-	lastMeasL = LSSearch(p->lastObjL,MEASUREtype,ANYONE,GO_LEFT,False);
+	firstMeasL = LSSearch(p->firstObjL, MEASUREtype, ANYONE, GO_LEFT, False);
+	lastMeasL = LSSearch(p->lastObjL, MEASUREtype, ANYONE, GO_LEFT, False);
 	measXD = (firstMeasL==lastMeasL ? 0 : LinkXD(lastMeasL)-LinkXD(firstMeasL));
 
 	dTop = pContext->measureTop;
@@ -895,11 +881,9 @@ static void SDDrawEnding(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL
 	oldStyle = GetPortTxFace();
 	
 	if (p->visible || doc->showInvis) {
-		if (!p->noLCutoff)
-			MoveAndLineTo(xp,yp+risePxl,xp,yp);
-		MoveAndLineTo(xp,yp,endxp,yp);
-		if (!p->noRCutoff)
-			MoveAndLineTo(endxp,yp,endxp,yp+risePxl);
+		if (!p->noLCutoff) MoveAndLineTo(xp, yp+risePxl, xp, yp);
+		MoveAndLineTo(xp, yp, endxp, yp);
+		if (!p->noRCutoff) MoveAndLineTo(endxp, yp, endxp, yp+risePxl);
 
 		if (endNum!=0) {
 			TextFont(textFontNum);
@@ -980,7 +964,7 @@ static void SDDrawPSMeas(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	ypTop = d2p(dTop);
 	ypBot = d2p(dBottom);
 
-	DrawPSMSubType(PSMeasType(subObjL),xp,ypTop,ypBot);
+	DrawPSMSubType(PSMeasType(subObjL), xp, ypTop, ypBot);
 }
 
 
@@ -1043,8 +1027,8 @@ static void SDDrawGRDraw(Document */*doc*/, DDIST xd, DDIST yd, DDIST xd2, DDIST
 	
 	lnSpace = LNSPACE(pContext);
 	
-	/* We interpret thickening as horizontal only: not good unless the line is
-	   nearly horizontal, or thickness is small enough that it doesn't matter. */
+	/* We interpret thickening as horizontal only: that's not good unless the line is
+	   nearly horizontal, or it's thin enough that it doesn't matter. */
 	   
 	thick = (long)(lineLW*lnSpace) / 100L;
 	yTop = pContext->paper.top;
@@ -1085,7 +1069,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 	yd -= p2d(mRect.top);
 	switch (pGraphic->graphicType) {
 		case GRPICT:
-			MayErrMsg("GRPICTs are not implemented.  (SDDragGraphic)");
+			MayErrMsg("GRPICTs are not implemented.  (SDDrawGraphic)");
 			break;
 		case GRArpeggio:
 			dHeight = qd2d(pGraphic->info, context.staffHeight, context.staffLines);
@@ -1112,7 +1096,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			oldStyle = GetPortTxFace();
 			
 			oneChar[0] = 1;
-			oneChar[1] = 0xA1;						// Mac OS Roman keys: shift-option 8
+			oneChar[1] = 0xA1;						/* Mac OS Roman keys: shift-option 8 */
 			TextFont(doc->musicFontNum);
 			TextSize(UseTextSize(fontSize, doc->magnify));
 			MoveTo(d2p(DragXD(xd)), d2p(yd));
@@ -1126,7 +1110,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			oldStyle = GetPortTxFace();
 			
 			oneChar[0] = 1;
-			oneChar[1] = '*';						// Shift 8
+			oneChar[1] = '*';
 			TextFont(doc->musicFontNum);
 			TextSize(UseTextSize(fontSize, doc->magnify));
 			MoveTo(d2p(DragXD(xd)), d2p(yd));
@@ -1221,7 +1205,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	dTop = context.measureTop;
 	mRect = SDGetMeasRect(doc, pL, measureL);
 	
-	/* Don't use DragXD(xd) here: already correctly set.
+	/* Don't use DragXD(xd) here: it's already correctly set.
 	   If pL is LinkBefFirstMeas(), the dragPorts are system-relative, so include the
 	   xd of firstObj even if it's a measure. */
 
@@ -1456,12 +1440,12 @@ typedef struct {
 void SDDrawGRBeamset(Document *doc, LINK pL, LINK measL)
 {
 	PANOTEBEAM pNoteBeam;
-	DDIST yBeam,ydelt,flagYDelta,beamThick,firstBeam,lastBeam, 
-			dTop,dLeft,dRight,xStemL,xStemR,firstStfTop,lastStfTop=0;
-	short nBeams,upOrDown,staff,voice;
+	DDIST yBeam, ydelt, flagYDelta, beamThick, firstBeam, lastBeam, 
+			dTop, dLeft, dRight, xStemL, xStemR, firstStfTop, lastStfTop=0;
+	short nBeams, upOrDown, staff, voice;
 	Boolean crossStaff;
-	CONTEXT context,context1; PCONTEXT pContext;
-	LINK pNoteBeamL,firstSyncL,lastSyncL,aGRNoteL,firstGRNoteL,lastGRNoteL,
+	CONTEXT context, context1; PCONTEXT pContext;
+	LINK pNoteBeamL, firstSyncL, lastSyncL, aGRNoteL, firstGRNoteL, lastGRNoteL,
 			notesInBeam[MAXINBEAM];
 	STFRANGE stfRange; Rect mRect;
 
@@ -1506,6 +1490,7 @@ void SDDrawGRBeamset(Document *doc, LINK pL, LINK measL)
 	yBeam = GRNoteXStfYStem(aGRNoteL,stfRange,firstStfTop,lastStfTop,crossStaff);
 	
 	/* FIXME: measLeft PARAM LOOKS WRONG FOR GRBEAMS SPANNING MEASURES. Cf. SDCalcXStem. */
+	
 	xStemL = CalcGRXStem(doc, firstSyncL, voice, upOrDown, pContext->measureLeft, pContext, True);
 	xStemR = CalcGRXStem(doc, lastSyncL, voice, upOrDown, pContext->measureLeft, pContext, False);
 	
@@ -1629,16 +1614,16 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 	flagYDelta = FlagLeading(LNSPACE(pContext));
 	beamThick = pContext->staffHeight/(2*(pContext->staffLines-1));
 	if (beamThick<p2d(2)) beamThick = p2d(2);
+	
 	/*
-	 * The main part of this routine is an interpreter for three commands
-	 * that may be stored in a NOTEBEAM, namely "start non-fractional beam",
-	 * "do fractional beam", and "end non-fractional beam". They are processed
-	 * in that order. Fractional beams require no additional information, so
-	 * they are drawn as soon as they are encountered. Non-fractional beams,
-	 * i.e., primary and secondary beams, can't be drawn until their ends are
-	 * encountered, so the necessary information from their start NOTEBEAMs is
-	 * kept in the stack <beamStack>.
-	 */
+	   The main part of this routine is an interpreter for three commands that may be
+	   stored in a NOTEBEAM, namely "start non-fractional beam", "do fractional beam",
+	   and "end non-fractional beam". They are processed in that order. Fractional beams
+	   require no additional information, so they are drawn as soon as they are
+	   encountered. Non-fractional beams, i.e., primary and secondary beams, can't be
+	   drawn until their ends are encountered, so the necessary information from their
+	   start NOTEBEAMs is kept in the stack <beamStack>. */
+
 	nestLevel = -1;
 
 	noteBeamL = FirstSubLINK(pL);
@@ -1711,15 +1696,13 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 				firstSyncL = beamStack[nestLevel].startL;
 				firstNoteL = FirstSubLINK(firstSyncL);
 				for ( ; firstNoteL; firstNoteL = NextNOTEL(firstNoteL))
-					if (NoteVOICE(firstNoteL)==voice && MainNote(firstNoteL))
-						break;
+					if (NoteVOICE(firstNoteL)==voice && MainNote(firstNoteL)) break;
 
 				firstBeam = NoteXStfYStem(firstNoteL,stfRange,firstStfTop,lastStfTop,crossStaff);
 
 				lastNoteL = FirstSubLINK(syncL);
 				for ( ; lastNoteL; lastNoteL = NextNOTEL(lastNoteL))
-					if (NoteVOICE(lastNoteL)==voice && MainNote(lastNoteL))
-						break;
+					if (NoteVOICE(lastNoteL)==voice && MainNote(lastNoteL)) break;
 
 				lastBeam = NoteXStfYStem(lastNoteL,stfRange,firstStfTop,lastStfTop,crossStaff);
 
@@ -1735,9 +1718,8 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 				beamLeft = beamStack[nestLevel].dLeft;
 
 				if (crossSys) {
-					if (firstSys)
-							dRight += p2d(5);
-					else	beamLeft -= p2d(5);
+					if (firstSys)	dRight += p2d(5);
+					else			beamLeft -= p2d(5);
 				}
 				else {
 					dRight = tempContext.measureLeft;
@@ -1760,7 +1742,8 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 
 static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 {
-	PSLUR p;  PASLUR aSlur;  LINK aSlurL;
+	PSLUR p;  PASLUR aSlur;
+	LINK aSlurL;
 	Rect paper;  CONTEXT localContext;
 	short j, penThick;								/* vertical pen size in pixels */
 	DDIST xdFirst, ydFirst, xdLast, ydLast,			/* DDIST positions of end notes */
@@ -2008,8 +1991,7 @@ static Boolean SymDragLoop(
 			
 			RestoreGWorld();
 
-//			CopyBits(&w->portBits, &(accPort->portBits),
-//					 &accBox, &saveBox, srcCopy, NULL);
+//			CopyBits(&w->portBits, &(accPort->portBits), &accBox, &saveBox, srcCopy, NULL);
 
 			/* Set up for MIDI feedback. */
 			partn = Staff2Part(doc, staff);
@@ -2096,7 +2078,7 @@ static Boolean SymDragLoop(
 			break;
 			
 		default:
-			MayErrMsg("SymDragLoop: type %d not supported", ObjLType(pL));
+			MayErrMsg("Symbol type %d isn't supported  (SymDragLoop)", ObjLType(pL));
 			return False;
 	}
 	
@@ -2113,8 +2095,10 @@ static Boolean SymDragLoop(
 	horiz = vert = True;
 	vQuantize = False;
 	
-	if (StillDown())
-		while (WaitMouseUp()) {
+	/* We're ready to go. This loop handles the actual dragging. */
+
+LogPrintf(LOG_DEBUG, "SymDragLoop ObjLType=%d <loop\n", ObjLType(pL));
+	if (StillDown()) while (WaitMouseUp()) {
 			GetPaperMouse(&newPt, &doc->currentPaper);
 			if (!EqualPt(pt,newPt)) {
 			
@@ -2127,13 +2111,13 @@ static Boolean SymDragLoop(
 				
 				dx = newPt.h - pt.h; dy = newPt.v - pt.v;
 				
-				/* If we're still within slop bounds, don't do anything */
+				/* If we're still within slop bounds, don't do anything. Otherwise, decide
+				   if drag is horizontal or vertical and, for notes & clefs, save the
+				   old vertical position. */
 				
 				if (stillWithinSlop) {
 					if (ABS(dx)<2 && ABS(dy)<2) continue;
-					
-					/* User has left slop bounds; find horizontal/vertical for notes & clefs */
-					
+										
 					switch (ObjLType(pL)) {
 						case SYNCtype:
 						case GRSYNCtype:
@@ -2179,6 +2163,7 @@ static Boolean SymDragLoop(
 								vert = !horiz;
 							}
 					}
+					
 					/* And don't ever come back, you hear! */
 					
 					stillWithinSlop = False;
@@ -2208,8 +2193,8 @@ static Boolean SymDragLoop(
 					oldHalfLn = halfLn;
 				}
 				
-				/* Vertical dragging of notes and grace notes involves accidentals
-				   and MIDI feedback. */
+				/* Vertical dragging of notes and grace notes involves accidentals and
+				   MIDI feedback. */
 				   
 				if (((SyncTYPE(pL) && !NoteREST(subObjL)) || GRSyncTYPE(pL)) && vert) {
 					if (ShiftKeyDown()) {
@@ -2269,7 +2254,7 @@ static Boolean SymDragLoop(
 					}
 				}
 
-				OffsetRect(&dstRect,(horiz ? dx : 0), (vert ? dy : 0));
+				OffsetRect(&dstRect, (horiz ? dx : 0), (vert ? dy : 0));
 					
 				const BitMap *underPortBits = GetPortBitMapForCopyBits(underBits);
 				const BitMap *offScrPortBits = GetPortBitMapForCopyBits(offScrBits);
@@ -2294,10 +2279,10 @@ static Boolean SymDragLoop(
 				
 				pt = newPt;
 			}
-		}															/* end of the "WaitMouseUp" loop */
+		}														/* end of the "WaitMouseUp" loop */
 
-	/* Dragging is finished. If user dragged outside of the measure, use the most
-	   recent point inside it. */
+	/* Dragging is finished. If user dragged outside of the measure, use the most recent
+	   point inside it. */
 
 	if (!PtInRect(newPt, &bounds)) newPt = pt;
 	
@@ -2306,7 +2291,6 @@ static Boolean SymDragLoop(
 	   set the accidental, not to drag the note vertically. */
 	   
 setAccDone:
-
 	if (vQuantize) {
 
 		/* If we're quantizing, we want to use the first and last quantized positions
@@ -2344,9 +2328,12 @@ setAccDone:
 			SetTimeSigFields(pL, subObjL, xdDiff, xp);
 			break;
 
+		/* FIXME: The if statements in cases SYNCtype and GRSYNCtype below have done
+		   nothing in versions of Nightingale at least as far back as v. 5.7 in March
+		   2017. Either make them do something or remove them! */
+		   
 		case SYNCtype:
 			if (doc->noteInsFeedback && !NoteREST(subObjL) && vert) {
-
 			}
 			SetNoteFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert, False, newAcc);
 			break;
@@ -2444,7 +2431,7 @@ offscreen bitmaps and call CheckObject, which should call the appropriate CheckX
 routine with mode SMSymDrag; the CheckXXX routines should in turn call HandleSymDrag.
 <pt> is the mouseDown pt in window-local coordinates.
 
-Returns True if it found something to drag, regardless of whether the user tried to drag
+Returns True if we find something to drag, regardless of whether the user tried to drag
 it and regardless of whether anything went wrong. */
 
 Boolean DoSymbolDrag(Document *doc, Point pt)
@@ -2455,7 +2442,7 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 	short		pIndex;
 	STFRANGE	stfRange={0,0};
 	
-	/* If there is no object, do nothing. */
+	/* If <pt> isn't in any object, do nothing. */
 
 	pL = FindAndActOnObject(doc, pt, &index, SMFind);
 	if (!pL) return False;
@@ -2471,8 +2458,8 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 			GetMeasRange(doc, pL, &startMeas, &endMeas);
 
 			if (startMeas && !endMeas) {					/* Cf. comments for Graphics */
-				endMeas = EndSystemSearch(doc,startMeas);
-				endMeas = LSSearch(endMeas,MEASUREtype,ANYONE,GO_LEFT,False);
+				endMeas = EndSystemSearch(doc, startMeas);
+				endMeas = LSSearch(endMeas, MEASUREtype, ANYONE, GO_LEFT, False);
 			}
 			drag1stMeas = startMeas;
 			dragLastMeas = endMeas;
@@ -2490,7 +2477,8 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 	switch (ObjLType(pL)) {
 		case MEASUREtype:
 			/* Barlines must be draggable back into the previous measure or forward
-				into the next measure. */
+			   into the next measure. */
+				
 			if (!Setup2MeasPorts(doc, measureL)) {
 				ErrDisposPorts();
 				return True;
@@ -2499,7 +2487,7 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 		case DYNAMtype:
 			if (IsHairpin(pL)) {
 				DragHairpin(doc, pL);
-				return True;						/* FIXME: Skip HandleSymDrag called from CheckObject below. */
+				return True;				/* FIXME: Skip HandleSymDrag called from CheckObject below. */
 			}
 			else {
 #ifdef DRAG_DYNAMIC_OLD_WAY
@@ -2509,7 +2497,7 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 				}
 #else
 				DragDynamic(doc, pL);
-				return True;						/* FIXME: Skip HandleSymDrag called from CheckObject below. */
+				return True;				/* FIXME: Skip HandleSymDrag called from CheckObject below. */
 #endif
 			}
 			break;
@@ -2549,7 +2537,7 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 			else {
 				if (MeasureTYPE(GraphicFIRSTOBJ(pL))) {
 					GetMeasRange(doc, pL, &startMeas, &endMeas);
-					if (startMeas && LinkLMEAS(startMeas))				/* Don't pass NILINK to SameSystem() */
+					if (startMeas && LinkLMEAS(startMeas))		/* Don't pass NILINK to SameSystem() */
 						if (SameSystem(startMeas, LinkLMEAS(startMeas)))
 							startMeas = LinkLMEAS(startMeas);
 				}
@@ -2560,6 +2548,7 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 					has been dragged to the right edge of the page, probably off the 
 					screen. In this case, set up a grafport extending to the right end
 					of the system. */
+					
 				if (startMeas && !endMeas) {
 					endMeas = EndSystemSearch(doc, startMeas);
 					endMeas = LSSearch(endMeas, MEASUREtype, ANYONE, GO_LEFT, False);

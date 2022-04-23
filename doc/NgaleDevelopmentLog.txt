@@ -11144,7 +11144,7 @@ macro that takes the index as a 2nd parameter! Probably the best solution... don
 BACK TO: the tool palette.
 	- Code is excessively complex.
 	+ Resizing to a larger size never draws the new area.
-	- Sometimes stays in too low a position and ignores clicks :-( .
+	- Occasionally stays in too low a position and ignores clicks :-( .
 
 The code assumes an array of floating-window palettes, sets things up for tearing off
 menus, and supports rearranging the tool palette. Of course all three features make the
@@ -11152,3 +11152,31 @@ code more complex! We've never implemented either other floating windows or tear
 menus; probably should strip both out. AFAIK no one ever cared about rearranging the tool
 palette, but the "default" tool palette uses the rearranging feature, so I can't easily
 remove it.
+
+For now, probably leave the "excessively complex" tool palette code as is.
+
+---------------------------------------------------------------------------------------
+
+14 - 22 Apr.
+
+The "tool palette stays too low & ignores clicks" bug occurs if you cancel the initial
+Open File dialog, then either start a new score or open an existing one! It still responds
+to keyboard equivalents. Ah, DoOpenApplication() needs to do
+
+	DoViewMenu(VM_ToolPalette);
+	
+...and it does, but only if there's a front window! Fixed.
+
+SWITCH TO: While dragging accidentals and note modifiers, they leave a trail. When you
+stop dragging and release the mouse, Ngale tries to erase the trail, but often doesn't
+erase all of it. They're handled in DragAccModNR.c. Dragging dynamics has the same
+problem; they're handled in DragDynamic.c. Dragging most other symbol types is handled by
+Dragging.c, and they never (AFAIK) leave a trail.
+
+Files that handle dragging:
+	DragAccModNR
+	DragBeam
+	DragDynamic
+	DragGraphic
+	Dragging
+

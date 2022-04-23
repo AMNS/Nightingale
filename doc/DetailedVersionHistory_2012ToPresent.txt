@@ -1608,7 +1608,7 @@ Renamed the <noteCUE> flag of the aNote struct to <playAsCue>, since -- at least
 the near future -- it affects only MIDI playback. Affects NTypes.h; Browser,
 CoreMIDIUtils, Merge, Objects.
 
-Renamed CoreMidiUtils to CoreMIDIUtils.
+Renamed file CoreMidiUtils to CoreMIDIUtils.
 
 Minor cleanup. Affects vars.h; Copy, CoreMIDIUtils, Error, Merge, Reconstruct.
 
@@ -1806,7 +1806,7 @@ Fixed bug (Issue #142): Transposing/respelling ignores multivoice notation rules
 messes up stem directions. We now decide whether notation is multivoice by some rather
 complex rules. Affects Beam, DSUtils, PitchUtils.
 
-Minor cleanup: renamed InDataStruct to InObjectList, avoid possibly uninitialized
+Minor cleanup: renamed InDataStruct() to InObjectList(), avoid possibly uninitialized
 variables, etc. Affects Beam, Browser, DebugUtils, Delete, MasterPage, Menu, Utility.
 
 ===========================================================================================
@@ -2076,7 +2076,7 @@ About, MiscUtils.
 Before quitting, we now undo Endian changes to MIDI modNR tables, for the benefit of the
 Intel version. Affects Finalize, MiscUtils.
 
-Minor cleanup: renamed DrawToolMenu to DrawToolPalette, etc. Affects NightTemplates.h;
+Minor cleanup: renamed DrawToolMenu() to DrawToolPalette(), etc. Affects NightTemplates.h;
 About, DrawObject, Finalize, Initialize, ToolPalette, UIFUtils, Windows.
 
 -------------------------------------------------------------------------------------------
@@ -3029,7 +3029,7 @@ Minor changes. Affects PaletteGlobals.h; DebugUtils, Finalize, Initialize, MIDID
 Fixed bug: can't open files on Intel machines because the string pool is always bad.
 Affects FileSave.
 
-Renamed Endian to EndianUtils and moved it to the Utilities folder.
+Renamed file Endian to EndianUtils and moved it to the Utilities folder.
 
 Minor changes. Affects Clipboard, StringPool.
 
@@ -3302,7 +3302,7 @@ etc. Affects .rsrc; Defs.h, vars.h; DebugDisplay, InitNightingale, Magnify, MIDI
 
 19 - 20 August
 
-Minor changes: renamed NHexDump to DHexDump & added a parameter, etc. Affects Debug.h;
+Minor changes: renamed NHexDump() to DHexDump() & added a parameter, etc. Affects Debug.h;
 Browser, DebugDisplay, Error, FileConversion, Finalize, HeapFileIO, Heaps, Initialize,
 MIDIFOCmd, PopUpUtils.
 
@@ -3651,3 +3651,16 @@ Affects .rsrc, info.plist, MemMacros.h, NObjTypes.h; Event, FileConversion,
 InitNightingale, MIDIDialogs, MIDIUtils, Objects, ToolPalette.
 
 ----------------------------------------------------------------------------------------- B12
+
+15 - 21 Apr.
+
+Fixed bug: If you cancel the initial Open File dialog, then either start a new score or
+open an existing one, the tool palette stays too low on the screen and ignores clicks.
+Affects Main.
+
+Renamed file AccModNRMouse to DragAccModNR.
+
+Minor changes. Affects info.plist; DragAccModNR, DragDynamic, Dragging, DragGraphic,
+DragSet, Main, Windows.
+
+----------------------------------------------------------------------------------------- B13

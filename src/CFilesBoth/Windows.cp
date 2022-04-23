@@ -25,6 +25,7 @@ void DoCloseWindow(WindowPtr w)
 	if (kind == DOCUMENTKIND) {
 		if (!DoCloseDocument(GetDocumentFromWindow(w))) {
 			/* User canceled, or error */
+			
 			quitting = False;
 			closingAll = False;
 			return;
@@ -32,6 +33,7 @@ void DoCloseWindow(WindowPtr w)
 		
 		if (TopPalette == TopWindow) {
 			/* Find the new TopDocument, and insure it and its controls are hilited properly. */
+			
 			AnalyzeWindows();
 			if (TopDocument)
 				ActivateDocument(GetDocumentFromWindow(TopDocument), True);
@@ -39,6 +41,7 @@ void DoCloseWindow(WindowPtr w)
 	}
 	else {
 		/* w is still defined here */
+		
 		if (TopDocument) {
 		
 			/* Force caret into off state, otherwise any invalid background bits
@@ -64,15 +67,17 @@ void DoCloseWindow(WindowPtr w)
 				case TOOL_PALETTE:
 					pg = *paletteGlobals[TOOL_PALETTE];
 					palettesVisible[TOOL_PALETTE] = False;
-					ChangeToolSize(pg->firstAcross,pg->firstDown,True);
+					ChangeToolSize(pg->firstAcross, pg->firstDown,True);
 					break;
+				default:
+					;
 			}
 	}
 }
 
 
-/* Close all of our "normal" documents that have visible windows; leave special
-documents (e.g., clipboard) alone. Return the number of windows closed. */
+/* Close all of our "normal" documents that have visible windows; leave special documents
+(e.g., clipboard) alone. Return the number of windows closed. */
 
 short DoCloseAllDocWindows()
 {
@@ -80,11 +85,11 @@ short DoCloseAllDocWindows()
 	short kind, nClosed;
 
 	/* Go thru the system window list and close our documents. NB: closing in this order
-	 * can cause a lot of unnecessary screen drawing for pieces of windows that get
-	 * exposed, then immediately closed; it'd be better to use a different order.
-	 * Probably the best strategy is to close all dirty windows from back to front, then
-	 * clean windows from front to back. Cf. AnalyzeWindows and DoCloseWindow.
-	 */
+	   can cause a lot of unnecessary screen drawing for pieces of windows that get
+	   exposed, then immediately closed; it'd be better to use a different order.
+	   Probably the best strategy is to close all dirty windows from back to front, then
+	   clean windows from front to back. Cf. AnalyzeWindows and DoCloseWindow. */
+	   
 	for (nClosed = 0, w = FrontWindow(); w; w = next) {
 		next = GetNextWindow(w);
 		kind = GetWindowKind(w);
@@ -275,9 +280,9 @@ void DrawMessageString(Document *doc, char *msgStr)
 
 
 /* Draw the normal contents of the message box (information like selection page and
-measure numbers, viewing magnification, and voice number and part name being Looked
-At) in the area to the left of the horizontal scroll bar in <doc>, if reallyDraw is
-True; otherwise, just Inval the message box. */
+measure numbers, viewing magnification, and voice number and part name being Looked At)
+in the area to the left of the horizontal scroll bar in <doc>, if reallyDraw is True;
+otherwise, just Inval the message box. */
 
 void DrawMessageBox(Document *doc, Boolean reallyDraw)
 {
@@ -355,8 +360,8 @@ void AnalyzeWindows()
 	short palettesFound;  Boolean inOrder;
 	WindowPtr next;
 			
-	/* Make sure all SendBehind() and NewWindow() calls bring a window to the front
-	   if there are no visible palettes. */
+	/* Make sure all SendBehind() and NewWindow() calls bring a window to the front if
+	   there are no visible palettes. */
 	   
 	TopWindow = TopPalette = TopDocument = NULL;
 	BottomPalette = BRING_TO_FRONT;
@@ -476,7 +481,9 @@ void SendToBack(WindowPtr w)
 	
 	if (IsDocumentKind(w)) {
 		below = w;
+		
 		/* Find the document below TopDocument. Documents are always visible */
+		
 		for (next=GetNextWindow(w); next; next=GetNextWindow(next))
 			if (IsDocumentKind(next)) {
 				below = next;
@@ -485,11 +492,12 @@ void SendToBack(WindowPtr w)
 		if (w != below) {
 			SendBehind(w, NULL);		/* Send the document all the way to the back */
 			if (TopPalette == TopWindow) {
-				/* Ensure w and its controls are unhilited properly */
+				/* Ensure w and its controls are unhilited properly. Find the new
+				   TopDocument and ensure the TopDocument and its controls are hilited
+				   properly. */
+				   
 				ActivateDocument(GetDocumentFromWindow(w), False);
-				/* Find the new TopDocument */
 				AnalyzeWindows();
-				/* Ensure the TopDocument and its controls are hilited properly */
 				ActivateDocument(GetDocumentFromWindow(TopDocument), True);
 			}
 		}
@@ -500,24 +508,27 @@ void SendToBack(WindowPtr w)
 }
 
 
-/* Since SelectWindow() brings any window to the front, we use our own version to
-keep palettes floating above documents. FIXME: if a palette is visible, this version
-erases and redraws all of the new front window (PaintOne does this, I think), even
-if NO window (including the palette) is overlapping any other! */
+/* Since SelectWindow() brings any window to the front, we use our own version to keep
+palettes floating above documents. FIXME: if a palette is visible, this version erases
+and redraws all of the new front window (PaintOne does this, I think), even if NO window
+(including the palette) is overlapping any other! */
 
 void DoSelectWindow(WindowPtr w)
 {
-	//RgnHandle updateRgn; short dx,dy;
+	//RgnHandle updateRgn; short dx, dy;
 	
-	/* No Palettes, bring the document to the front and generate an activate event. */		
+	/* No Palettes, bring the document to the front and generate an activate event. */
+		
 	if (IsDocumentKind(w))
 		SelectWindow(w);
 	else
 		if (IsDocumentKind(TopWindow))
 			/* Bring the palette to the front but don't generate an activate event. */
+			
 			BringToFront(w);
 		else {
 			/* Bring the palette to the front and generate an activate event. */
+			
 			if (IsPaletteKind(TopWindow) && IsPaletteKind(w))
 				BringToFront(w);
 			 else

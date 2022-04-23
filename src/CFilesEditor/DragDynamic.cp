@@ -35,9 +35,9 @@ void DragDynamic(Document *doc, LINK dynamL)
 PushLock(OBJheap);
 PushLock(DYNAMheap);
 
-	/* Deselect dynamic to prevent flashing when user clicks outside of
-	 * dynamic, and to avoid hiliting original dynamic when autoscrolling.
-	 */	
+	/* Deselect dynamic to prevent flashing when user clicks outside of dynamic, and to
+	   avoid hiliting original dynamic when autoscrolling. */
+	   	
 	DeselectNode(dynamL);
 	GetPaperMouse(&oldPt, &doc->currentPaper);
 
@@ -65,6 +65,9 @@ PushLock(DYNAMheap);
 	origPt = newPt = oldPt;
 	stillWithinSlop = True;
 	horiz = vert = True;
+
+	/* We're ready to go. This loop handles the actual dragging. */
+
 	if (StillDown()) while (WaitMouseUp()) {
 		GetPaperMouse(&newPt, &doc->currentPaper);
 
@@ -82,7 +85,7 @@ PushLock(DYNAMheap);
 			dvTotal = newPt.v - origPt.v;
 			if (ABS(dhTotal)<DRAG_DYNAMIC_SLOP && ABS(dvTotal)<DRAG_DYNAMIC_SLOP) continue;
 			if (ShiftKeyDown()) {
-				horiz = ABS(dhTotal) > ABS(dvTotal);		/* interpret 45-degree mvmt as vertical */
+				horiz = ABS(dhTotal) > ABS(dvTotal);	/* interpret 45-degree mvmt as vertical */
 				vert = !horiz;
 			}
 			/* And don't ever come back, you hear! */
@@ -95,7 +98,7 @@ PushLock(DYNAMheap);
 		if (firstTime)							/* ???if we get it to draw in gray above, remove this firstTime business */
 			firstTime = False;
 		else
-			DrawDYNAMIC(doc, dynamL, context, True);		/* erase old dynamic */
+			DrawDYNAMIC(doc, dynamL, context, True);	/* erase old dynamic */
 
 		thisDynObj->xd += p2d(dh);
 		thisDynSubObj->yd += p2d(dv);
@@ -183,8 +186,8 @@ static void InitDynamicBounds(Document *doc, LINK dynamL,
 	bounds->right = d2p(sysRight);
 	bounds->bottom = d2p(sysBot + SYSHT_SLOP);
 	
-	/* Constrain further, so that the dynamic will never be farther than one measure
-	   away from its firstSync. */
+	/* Constrain further, so that the dynamic will never be farther than one measure away
+	   from its firstSync. */
 
 	/* Find the measure that will be the left boundary */
 	
