@@ -106,12 +106,14 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 
 /* -------------------------------------------------------------------- HiliteSyncRect -- */
 /* Given a rectange, r, in paper-relative coordinates, hilite it in the current window. 
-If it's not in view, "scroll" so its page is in the window (though r might still not be in
-the window!) and return True; else return False.
+If it's not in view and <scroll> is True, "turn the page" by scrolling so its page is in
+the window (though r might still not be in the window!) and return True; else return
+False. ??THIS ISN'T RIGHT! ONE REASON: <scroll> is True only for the first Sync played
+on a page. WHAT TO DO?
 
-Note that scrolling while playing screws up timing (simply by introducing a break) unless
-interrupt-driven, but after all, Nightingale is a notation program, not a sequencer: it's
-more important that the music being played is in view.
+Note that we don't adjust timing of notes still to be played for the time spent scrolling
+while playing screws up timing. But Nightingale is a notation editor, not a sequencer,
+so it's more important that the music being played is in view.
 
 NB: The "scrolling" code here can itself change doc->currentPaper. For this and other
 reasons, we expect the appropriate doc->currentPaper as a parameter. */
@@ -135,6 +137,11 @@ static Boolean HiliteSyncRect(
 	/* Code to scroll while playing. See comment on timing above. */
 	
 	if (scroll) {
+LogPrintf(LOG_DEBUG, "HiliteSyncRect: r tlbr=p%d,%d,%d,%d viewRect=p%d,%d,%d,%d\n",
+					r->top, r->left, r->bottom, r->right,
+					doc->viewRect.top, doc->viewRect.left, doc->viewRect.bottom,
+					doc->viewRect.right);
+
 		if (!SectRect(r, &doc->viewRect, &result)) {
 			/* Rect to be hilited is outside of window's view, so scroll paper */
 			
@@ -334,7 +341,6 @@ static void SetPartPatch(short partn, Byte partPatch[], Byte /* partChannel */ [
 static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel);
 static void SendMIDISustainOff(Document *doc, MIDIUniqueID destDevID, char channel);
 static void SendMIDIPan(Document *doc, MIDIUniqueID destDevID, char channel, Byte panSetting);
-static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
 static void SendMIDISustainOff(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
 static void SendMIDIPan(Document *doc, MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tStamp);
 
@@ -551,11 +557,13 @@ static void SendAllMIDIPans(Document *doc, unsigned char *partChannel)
 	}		
 }
 
+#ifdef NOMORE
 static void SendMIDIPatchChange(Document *doc, unsigned char *partPatch, unsigned char
 								  *partChannel) 
 {
 	CMMIDIProgram(doc, partPatch, partChannel);	
 }
+#endif
 
 static Boolean IsMIDIPatchChange(LINK pL) 
 {
@@ -582,11 +590,14 @@ static void SendMIDIPan(Document * /* doc */, MIDIUniqueID destDevID, char chann
 	CMMIDIPan(destDevID, channel, panSetting);	
 }
 
+#ifdef NOMORE
+static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
 static void SendMIDISustainOn(Document * /* doc */, MIDIUniqueID destDevID, char channel,
 							  MIDITimeStamp tStamp) 
 {
 	CMMIDISustainOn(destDevID, channel, tStamp);	
 }
+#endif
 
 static void SendMIDISustainOff(Document * /* doc */, MIDIUniqueID destDevID, char channel,
 							   MIDITimeStamp tStamp) 
@@ -957,9 +968,11 @@ void PlaySequence(
 					do {
 						t = GetMIDITime(pageTurnTOffset);
 						
-						if ((moveSel = UserInterruptAndSel())) goto done;	/* Check for Stop/Select */
-						if ((moveSel = CheckButton())) goto done;			/* Check for Stop/Select */
-						if (UserInterrupt()) goto done;					/* Check for Cancel */
+						/* Check for Stop/Select and cancel */
+						
+						if ((moveSel = UserInterruptAndSel())) goto done;
+						if ((moveSel = CheckButton())) goto done;
+						if (UserInterrupt()) goto done;
 						
 						GetNextEvent(keyDownMask, &theEvt);				/* Not Wait/GetNextEvent so we do as little as possible */
 						theChar = (char)theEvt.message & charCodeMask;
@@ -967,12 +980,14 @@ void PlaySequence(
 							LINK insL = (t-oldStartTime<barTapSlopMS? oldL : objL);
 							AddBarline(insL);
 						}
-						CheckEventList(pageTurnTOffset);				/* Check for, turn off any notes done */
-								
+
+						/* Check for any notes that are done and turn them off */
+						
+						CheckEventList(pageTurnTOffset);								
 						if (useWhichMIDI==MIDIDR_CM)
-							CMCheckEventList(pageTurnTOffset);			/* Check for, turn off any notes done */
+							CMCheckEventList(pageTurnTOffset);
 						else
-							CheckEventList(pageTurnTOffset);			/* Check for, turn off any notes done */
+							CheckEventList(pageTurnTOffset);
 					} while (t<startTime);
 		
 					if (newMeasL) {

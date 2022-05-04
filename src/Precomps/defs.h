@@ -396,7 +396,7 @@ moved there eventually). */
 
 #define DOWNSTEM(yd, staffHeight)	( ((yd) > (staffHeight)/2)? False : True )
 
-/* Quarter-line stem length for single or multiple voices, shorter stem or normal */
+/* Quarter-space stem length for single or multiple voices, shorter stem or normal */
 
 #define QSTEMLEN(singleV, shrt)	((singleV)? config.stemLenNormal :				\
 												((shrt)? config.stemLenOutside : config.stemLen2v) )
@@ -451,6 +451,10 @@ work. */
 
 #define COMPOUND(numer) (numer%3==0 && numer>3)
 
+
+#define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
+#define MORE_DETAIL_SHOW	(DETAIL_SHOW && OptionKeyDown())
+
 /* -------------------------------------------------------------------- Error Checking -- */ 
 		
 /* Is the link garbage (greater than the length of the heap for its type)? */
@@ -466,10 +470,10 @@ work. */
 /* Check timeSigType, numerator, denominator for legality. TSDENOM_BAD must not allow
 values forbidden by MAX_TSDENOM (defined elsewhere)! */
 
-#define TSTYPE_BAD(t)			(	(t)<LOW_TSTYPE || (t)>HIGH_TSTYPE)
-#define TSNUMER_BAD(t)			(	(t)<1 || (t)>MAX_TSNUM )
-#define TSDENOM_BAD(t)			(	(t)!=1 && (t)!=2 && (t)!=4 && (t)!=8		\
-									&&	(t)!=16 && (t)!=32 && (t)!=64 )
+#define TSTYPE_BAD(t)			( (t)<LOW_TSTYPE || (t)>HIGH_TSTYPE )
+#define TSNUMER_BAD(t)			( (t)<1 || (t)>MAX_TSNUM )
+#define TSDENOM_BAD(t)			( (t)!=1 && (t)!=2 && (t)!=4 && (t)!=8 && (t)!=16		\
+									 && (t)!=32 && (t)!=64 )
 #define TSDUR_BAD(tn, td)		(TimeSigDur(N_OVER_D, (tn), (td))>MAX_SAFE_MEASDUR )
 
 /* Crude checks for object and subobject vertical and horizontal positions */
@@ -479,32 +483,35 @@ values forbidden by MAX_TSDENOM (defined elsewhere)! */
 #define RIGHT_HLIM(doc) 	(pt2d((doc)->marginRect.right-(doc)->marginRect.left))
 #define LEFT_HLIM(doc, pL)	(J_DTYPE(pL)? -RIGHT_HLIM(doc) : 0)
 
-#define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
-#define MORE_DETAIL_SHOW	(DETAIL_SHOW && OptionKeyDown())
-
-/* ----------------------------------------------------------------- Conversion Macros -- */
+/* ------------------------------------------- Coordinate & distance conversion macros -- */
+/* FIXME: Some of the words below -- both identifiers and words in comments -- refer to
+_lines_ when they really mean _spaces_, i.e., the distance between staff lines! Of course
+this doesn't impact how Nightingale behaves, but it makes the code harder to read. Not
+easy to fix, though; there are probably a thousand places in the code with this same
+confusion, and, to avoid making it worse during a drawn-out transition, the "halfLn" in
+names of these macros should all be changed (presumably to "halfSp") at the same time. */
 
 /* Convert STDIST to DDIST and vice-versa */
 
 #define std2d(std, stfHt, lines)	( ((long)(std)*(stfHt)) / (8*((lines)-1)) )
 #define d2std(d, stfHt, lines)	(8*(long)(d)*((lines)-1) / (stfHt))
 
-/* Convert staff quarter-line position to DDIST and vice-versa */
+/* Convert staff quarter-space position to DDIST and vice-versa */
 
 #define qd2d(qd, stfHt, lines)	( ((long)(qd)*(stfHt)) / (4*((lines)-1)) )
 #define d2qd(d, stfHt, lines)		(4*(long)(d)*((lines)-1) / (stfHt))
 
-/* Convert staff halfLn position to DDIST and vice-versa */
+/* Convert staff half-space position to DDIST and vice-versa */
 
 #define halfLn2d(halfLn, stfHt, lines) ((halfLn)*(stfHt)/((lines)+(lines)-2))
 #define d2halfLn(dd, stfHt, lines)	((dd)*((lines)+(lines)-2)/(stfHt))
 
-/* Convert staff halfLn position to STDIST and vice-versa */
+/* Convert staff half-space position to STDIST and vice-versa */
 
 #define halfLn2std(halfLn)	((STD_LINEHT/2)*(halfLn))
 #define std2halfLn(std)	((std)/(STD_LINEHT/2))
 
-/* Convert staff halfLn position to quarter-line and vice-versa */
+/* Convert staff half-space position to quarter-line and vice-versa */
 #define halfLn2qd(halfLn)	((STD_LINEHT/4)*(halfLn))
 #define qd2halfLn(qd)			((qd)/(STD_LINEHT/4))
 

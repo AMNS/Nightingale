@@ -25,7 +25,7 @@ as well. */
 
 #define OBJECTHEADER \
 	LINK		right, left;		/* links to left and right objects */					\
-	LINK		firstSubObj;		/* link to first subObject */							\
+	LINK		firstSubObj;		/* link to first subobject */							\
 	DDIST		xd, yd;				/* position of object */								\
 	SignedByte	type;				/* (.+#10) object type */								\
 	Boolean		selected;			/* True if object or any part of it is selected */		\
@@ -41,7 +41,7 @@ as well. */
 	Byte		nEntries;			/* (.+#28) number of subobjects in object */
 	
 #define SUBOBJHEADER \
-	LINK		next;				/* index of next subobj */								\
+	LINK		next;				/* index of next subobject */								\
 	SignedByte	staffn;				/* staff no. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
 	SignedByte	subType;			/* subobject subtype. NB: Signed; see ANOTE. */			\
 	Boolean		selected;			/* True if subobject is selected */						\
@@ -186,7 +186,7 @@ typedef struct {
 				rSystem;
 	LINK		pageL;				/* Link to previous (enclosing) Page */
 	short		systemNum;			/* System number: indexed from 1 */
-	DRect		systemRect;			/* DRect enclosing entire system, rel to Page */
+	DRect		systemRect;			/* DRect bounding box for entire system, rel to Page */
 	Ptr			sysDescPtr;			/* (unused) ptr to data describing left edge of System */
 } SYSTEM, *PSYSTEM;
 
@@ -196,7 +196,7 @@ typedef struct {
 #define SHOW_ALL_LINES	15
 
 typedef struct {
-	LINK		next;				/* index of next subobj */
+	LINK		next;				/* index of next subobject */
 	SignedByte	staffn;				/* staff number */
 	Boolean		selected;			/* True if subobject is selected */
 	Boolean		visible;			/* True if object is visible */
@@ -243,7 +243,7 @@ typedef struct {
 	SignedByte	filler2;
 	short		reservedM,			/* formerly <oldFakeMeas>; keep space for future use */
 				measureNum;			/* internal measure number; first is always 0 */
-	DRect		measSizeRect;		/* enclosing Rect of measure, V rel. to System top & H to meas. xd  */
+	DRect		measSizeRect;		/* bounding box of measure, V rel. to System top & H to meas. xd  */
 	SignedByte	connStaff;			/* staff to connect to (valid if >0 and !connAbove) */
 	SignedByte	clefType;			/* clef context */
 	SignedByte	dynamicType;		/* dynamic marking context */
@@ -264,7 +264,7 @@ typedef struct	{
 	LINK			staffL;			/* link to owning Staff */
 	short			fakeMeas,		/* True=not really a measure (i.e., barline ending system) */
 					spacePercent;	/* Percentage of normal horizontal spacing used */
-	Rect			measureBBox;	/* enclosing Rect of all measure subObjs, in pixels, paper-rel. */
+	Rect			measureBBox;	/* bounding box of all measure subobjs, in pixels, paper-rel. */
 	long			lTimeStamp;		/* P: PDURticks since beginning of score */
 } MEASURE, *PMEASURE;
 
@@ -369,7 +369,7 @@ enum {								/* subtypes: */
 /* ------------------------------------------------------ Type 11 = ANOTEBEAM, BEAMSET -- */
 
 typedef struct {
-	LINK		next;				/* index of next subobj */
+	LINK		next;				/* index of next subobject */
 	LINK		bpSync;				/* link to Sync containing note/chord */
 	SignedByte	startend;			/* No. of beams to start/end (+/-) on note/chord */
 	Byte		fracs;				/* No. of fractional beams on note/chord */ 
@@ -407,7 +407,7 @@ typedef struct {
 /* ------------------------------------------------------- Type 12 = ACONNECT, CONNECT -- */
 
 typedef struct {
-	LINK		next;				/* index of next subobj */
+	LINK		next;				/* index of next subobject */
 	Boolean		selected;			/* True if subobject is selected */
 	Byte 		filler;
 	Byte		connLevel;			/* Code from list below */
@@ -510,7 +510,7 @@ enum {
 /* ------------------------------------------------------------------ Type 14 = AMODNR -- */
 
 typedef struct {
-	LINK		next;				/* index of next subobj */
+	LINK		next;				/* index of next subobject */
 	Boolean		selected;			/* True if subobject is selected */
 	Boolean		visible;			/* True if subobject is visible */
 	Boolean		soft;				/* True if subobject is program-generated */
@@ -642,7 +642,7 @@ enum {								/* GRArpeggio sub-subtypes */
 /* ----------------------------------------------------- Type 16 = ANOTEOTTAVA, OTTAVA -- */
 
 typedef struct {
-	LINK		next;				/* index of next subobj */
+	LINK		next;				/* index of next subobject */
 	LINK		opSync;				/* link to Sync containing note/chord (not rest) */
 } ANOTEOTTAVA, *PANOTEOTTAVA;
 
@@ -686,7 +686,7 @@ typedef struct {
 } SplineSeg;
 
 typedef struct {
-	LINK		next;				/* index of next subobj */
+	LINK		next;				/* index of next subobject */
 	Boolean		selected;			/* True if subobject is selected */
 	Boolean		visible;			/* True if subobject is visible */
 	Boolean		soft;				/* True if subobject is program-generated */
@@ -731,7 +731,7 @@ typedef struct {
 } TupleParam;
 
 typedef struct {
-	LINK			next;			/* index of next subobj */
+	LINK			next;			/* index of next subobject */
 	LINK			tpSync;			/* link to Sync containing note/chord/rest */
 } ANOTETUPLE, *PANOTETUPLE;
 

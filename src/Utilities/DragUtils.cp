@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DragUtils.c
 *	PROJ:	Nightingale
 *	DESC:	Bitmap dragging utilities
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -19,7 +19,7 @@ static void SDInvalObjRects(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, 
 static void SDInvalMeasures(Document *doc, LINK pL);
 static void SDInvalObject(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, short offset);
 
-/* ====================================================== Horizontal note dragging == */
+/* ========================================================== Horizontal note dragging == */
 /* Auxiliary functions for dragging notes horizontally.
 
 /*  Get left and right dragging limits for horizontal drag. Limits are alway positive,
@@ -27,8 +27,8 @@ expressing DDIST offset from the xd of pL, taking measures into account. If the
 object dragged is at the end of the score, rightL will be the tail, and rightLim is
 flagged as not valid by giving it a value of -1. */
 
-void GetHDragLims(Document */*doc*/, LINK pL, LINK subObjL, short /*staff*/, CONTEXT /*context*/,
-						DDIST *leftLim, DDIST *rightLim)
+void GetHDragLims(Document */*doc*/, LINK pL, LINK subObjL, short /*staff*/, CONTEXT
+										/*context*/, DDIST *leftLim, DDIST *rightLim)
 {
 	DDIST leftLimit, rightLimit, needLeft, needRight, measWidth, objXD;
 	LINK leftL, rightL;
@@ -60,10 +60,10 @@ void GetHDragLims(Document */*doc*/, LINK pL, LINK subObjL, short /*staff*/, CON
 }
 
 
-/* ======================================================== Vertical note dragging == */
+/* ============================================================ Vertical note dragging == */
 /* Auxiliary functions for dragging notes vertically.
 
-/*--------------------------------------------------------------- SDInsertLedgers -- */
+/*-------------------------------------------------------------------- SDInsertLedgers -- */
 /*	Draw pseudo-ledger lines for insertion feedback for notes to be inserted at
 the halfline number <halfLine>. */
 
@@ -71,7 +71,8 @@ void SDInsertLedgers(LINK pL, LINK aNoteL, short halfLine, PCONTEXT pContext)
 {
 	DDIST	staffTop, staffHeight, xd;
 	short	l, staffLines, ledgerLeft, ledgerLen, staff;
-	LINK	staffL, aStaffL;  PASTAFF aStaff;
+	LINK	staffL, aStaffL;
+	PASTAFF aStaff;
 
 	PenNormal();
 	xd = LinkXD(pL);							/* DDIST horiz pos of note rel to portRect of SymDrag Ports */
@@ -92,27 +93,25 @@ void SDInsertLedgers(LINK pL, LINK aNoteL, short halfLine, PCONTEXT pContext)
 	ledgerLeft = d2p(xd) - ledgerLen/2;
 	if (halfLine<0)
 		for (l=-2; l>=halfLine; l-=2) {
-			MoveTo(ledgerLeft,
-				d2p(staffTop+halfLn2d(l, staffHeight, staffLines)));
+			MoveTo(ledgerLeft, d2p(staffTop+halfLn2d(l, staffHeight, staffLines)));
 			Line(ledgerLen, 0);
 		}
 	else
 		for (l=2*staffLines; l<=halfLine; l+=2) {
-			MoveTo(ledgerLeft,
-				d2p(staffTop+halfLn2d(l, staffHeight, staffLines)));
+			MoveTo(ledgerLeft, d2p(staffTop+halfLn2d(l, staffHeight, staffLines)));
 			Line(ledgerLen, 0);
 		}
 }
 
 
-/* -------------------------------------------------------------- SDSetAccidental -- */
+/* ------------------------------------------------------------------- SDSetAccidental -- */
 /* Get new accidental for note dragged vertically from within SymDragLoop,
 a la InsTrackPitch. ??I'm not sure this is ever called! --DAB, 2/97 */
 
 short SDSetAccidental(Document *doc, GrafPtr accPort, Rect accBox, Rect saveBox, short accy)
 {
 	Point accPt, oldPt; 
-	short accident, accidentOld=0;
+	short accident=0, accidentOld=0;
 	WindowPtr w=doc->theWindow;
 
 	GetPaperMouse(&oldPt,&doc->currentPaper);
@@ -144,7 +143,7 @@ short SDSetAccidental(Document *doc, GrafPtr accPort, Rect accBox, Rect saveBox,
 }
 
 
-/* --------------------------------------------------------------- SDMIDIFeedback -- */
+/* -------------------------------------------------------------------- SDMIDIFeedback -- */
 /* Give MIDI feedback, presumably called while dragging a note vertically. */
 
 void SDMIDIFeedback(Document *doc, short *noteNum, short useChan, short acc,
@@ -170,10 +169,10 @@ void SDMIDIFeedback(Document *doc, short *noteNum, short useChan, short acc,
 }
 
 
-/* ================================================================ Setting Fields == */
+/* ==================================================================== Setting Fields == */
 /* Auxiliary functions for setting fields after bitmap dragging.
 
-/* ---------------------------------------------------------------------- Getystem -- */
+/* -------------------------------------------------------------------------- Getystem -- */
 /* If <sync> has any notes in <voice>, return the ystem of the main note. */
 
 DDIST Getystem(short voice, LINK sync)
@@ -185,15 +184,14 @@ DDIST Getystem(short voice, LINK sync)
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 		if (NoteVOICE(aNoteL)==voice) {
 			aNote = GetPANOTE(aNoteL);
-			if (MainNote(aNoteL)) 
-				return aNote->ystem;
+			if (MainNote(aNoteL)) return aNote->ystem;
 		}
 	
 	return 0;												/* No note in <voice> */
 }
 
 
-/* -------------------------------------------------------------------- GetGRystem -- */
+/* ------------------------------------------------------------------------ GetGRystem -- */
 /* If <GRsync> has any notes in <voice>, return the ystem of the main note. */
 
 DDIST GetGRystem(short voice, LINK GRsync)
@@ -205,26 +203,25 @@ DDIST GetGRystem(short voice, LINK GRsync)
 	for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
 		if (GRNoteVOICE(aGRNoteL)==voice) {
 			aGRNote = GetPAGRNOTE(aGRNoteL);
-			if (GRMainNote(aGRNoteL)) 
-				return aGRNote->ystem;
+			if (GRMainNote(aGRNoteL)) return aGRNote->ystem;
 		}
 
 	return 0;												/* No note in <voice> */
 }
 
 
-/* -------------------------------------------------------------- SDFixStemLengths -- */
-/* Fix up all stems in a slanted beamset in which a note has been dragged
-horizontally. Cross staff beams must have their note stems fixed up differently. */
+/* ------------------------------------------------------------------ SDFixStemLengths -- */
+/* Fix up all stems in a slanted beamset in which a note has been dragged horizontally.
+Cross staff beams must have their note stems fixed up differently. */
 
-static void FixNoteStems(LINK beamL,LINK qL,LINK firstSyncL,
-					DDIST hDiff,DDIST vDiff,DDIST lastystem,short *h);
-static void FixXStfNoteStems(Document *doc,LINK beamL);
-static void HDragFixNoteStems(Document *doc,LINK beamL,LINK firstSyncL,
-					DDIST hDiff,DDIST vDiff,DDIST lastystem,short xStf);
+static void FixNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff, DDIST vDiff,
+									DDIST lastystem, short *h);
+static void FixXStfNoteStems(Document *doc, LINK beamL);
+static void HDragFixNoteStems(Document *doc, LINK beamL, LINK firstSyncL, DDIST hDiff,
+					DDIST vDiff, DDIST lastystem, short xStf);
 
-static void FixNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff,
-									DDIST vDiff, DDIST lastystem, short *h)
+static void FixNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff, DDIST vDiff,
+									DDIST lastystem, short *h)
 {
 	LINK qSubL;
 	DDIST noteDiff, newStemDiff;
@@ -247,17 +244,18 @@ static void FixNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff,
 				}
 				else if (!NoteREST(qSubL))
 					MayErrMsg("SDFixStemLengths: Unbeamed note in Sync %ld where beamed note expected", (long)qL);
-				if (!NoteREST(qSubL) || NoteBEAMED(qSubL))
-					(*h)++;
+				if (!NoteREST(qSubL) || NoteBEAMED(qSubL)) (*h)++;
 			}
 }
 
 static void FixXStfNoteStems(Document *doc, LINK beamL)
 {
-	short v,nInBeam,staff,stfLines; Boolean upOrDown;
-	DDIST stfHeight,ystem,firstystem,lastystem;
-	LINK startL,endL,bpSync[MAXINBEAM],noteInSync[MAXINBEAM],staffL,aStaffL,baseL;
-	STFRANGE theRange; PASTAFF aStaff;
+	short v, nInBeam, staff, stfLines;
+	Boolean upOrDown;
+	DDIST stfHeight, ystem, firstystem, lastystem;
+	LINK startL, endL, bpSync[MAXINBEAM], noteInSync[MAXINBEAM], staffL, aStaffL, baseL;
+	STFRANGE theRange;
+	PASTAFF aStaff;
 
 	startL = FirstInBeam(beamL);
 	endL = LastInBeam(beamL);
@@ -265,14 +263,16 @@ static void FixXStfNoteStems(Document *doc, LINK beamL)
 	staff = BeamSTAFF(beamL);
 	nInBeam = LinkNENTRIES(beamL);
 
-	/* Fill in the arrays of Sync and note LINKs for the benefit of beam subobjs. */
+	/* Fill in the arrays of Sync and note LINKs for the benefit of beam subobjs and
+	   handle cross-staff conditions. */
+	
 	if (!GetBeamSyncs(doc, startL, RightLINK(endL), v, nInBeam, bpSync, noteInSync, False))
 			return;
-
-	/* Handle cross-staff conditions. */
+	
 	GetCrossStaff(nInBeam, noteInSync, &theRange);
 
 	/* Get the y level of the beam set and set the note stems of the beamset's notes. */
+	
 	staffL = LSSearch(startL, STAFFtype, staff, GO_LEFT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
@@ -285,21 +285,21 @@ static void FixXStfNoteStems(Document *doc, LINK beamL)
 	ystem = CalcBeamYLevel(doc, nInBeam, bpSync, noteInSync, &baseL, stfHeight, stfLines,
 									True, doc->voiceTab[v].voiceRole, &upOrDown);
 									
-	/* ??The following #if added by DAB to fix bug: can't call GetBeamEndYStems bcs
-		baseL is undefined. Just make beam horizontal for now, as when cross-staff
-		beam is created. But this function is now working very hard to accomplish little.
-		What should it do? */
+	/* FIXME: The following #if added by DAB to fix bug: can't call GetBeamEndYStems bcs
+	   baseL is undefined. Just make beam horizontal for now, as when cross-staff beam
+	   is created. But this function is now working very hard to accomplish little. What
+	   should it do? */
+		
 	firstystem = lastystem = ystem;
-
 	FillSlantBeam(doc, beamL, v, nInBeam, bpSync, noteInSync, firstystem,
-									lastystem, theRange, True);
+													lastystem, theRange, True);
 }
 
 
 static void HDragFixNoteStems(Document *doc, LINK beamL, LINK firstSyncL, DDIST hDiff,
 										DDIST vDiff, DDIST lastystem, short xStf)
 {
-	short h; LINK qL;
+	short h;  LINK qL;
 
 	if (xStf) {
 		FixXStfNoteStems(doc,beamL);
@@ -320,8 +320,8 @@ static void HDragFixNoteStems(Document *doc, LINK beamL, LINK firstSyncL, DDIST 
 
 void SDFixStemLengths(Document *doc, LINK beamL)
 {
-	DDIST		hDiff, vDiff, firstystem, lastystem;
-	LINK		firstSyncL, lastSyncL;
+	DDIST hDiff, vDiff, firstystem, lastystem;
+	LINK firstSyncL, lastSyncL;
 	
 	firstSyncL = FirstInBeam(beamL);
 	lastSyncL = LastInBeam(beamL);
@@ -333,9 +333,9 @@ void SDFixStemLengths(Document *doc, LINK beamL)
 	HDragFixNoteStems(doc, beamL, firstSyncL, hDiff, vDiff, lastystem, BeamCrossSTAFF(beamL));
 }
 
-/* ----------------------------------------------------------- SDFixGRStemLengths -- */
-/* Fix up all stems in a slanted beamset in which a grace note has been
-dragged horizontally. */
+/* ---------------------------------------------------------------- SDFixGRStemLengths -- */
+/* Fix up all stems in a slanted beamset in which a grace note has been dragged
+horizontally. */
 
 void SDFixGRStemLengths(LINK beamL)
 {
@@ -385,11 +385,11 @@ void SDFixGRStemLengths(LINK beamL)
 }
 
 
-/* -------------------------------------------------------------- SDGetClosestClef -- */
-/*  Given halfLnDiff vertical movement of a clef from its current position,
-find the closest legal clef position to which this movement corresponds and
-pin the movement to this position. For now, assumes clef is a C clef, since
-we don't allow vertically dragging either the F or the G clef. */
+/* ------------------------------------------------------------------ SDGetClosestClef -- */
+/*  Given halfLnDiff vertical movement of a clef from its current position, find the
+closest legal clef position to which this movement corresponds and pin the movement to
+this position. Assumes clef is a C clef, since we don't allow vertically dragging either
+the F or the G clef. */
 
 DDIST SDGetClosestClef(Document */*doc*/, short halfLnDiff, LINK /*pL*/, LINK subObjL,
 								CONTEXT /*context*/)
@@ -403,28 +403,21 @@ DDIST SDGetClosestClef(Document */*doc*/, short halfLnDiff, LINK /*pL*/, LINK su
 	aClef = GetPACLEF(subObjL);
 	
 	if (config.earlyMusic) {
-		if (newHalfLn>=7)
-			aClef->subType = SOPRANO_CLEF;
-		else if (newHalfLn>=5)
-			aClef->subType = MZSOPRANO_CLEF;
-		else if (newHalfLn>=3)
-			aClef->subType = ALTO_CLEF;
-		else if (newHalfLn>=1)
-			aClef->subType = TENOR_CLEF;
-		else
-			aClef->subType = BARITONE_CLEF;
+		if (newHalfLn>=7)		aClef->subType = SOPRANO_CLEF;
+		else if (newHalfLn>=5)	aClef->subType = MZSOPRANO_CLEF;
+		else if (newHalfLn>=3)	aClef->subType = ALTO_CLEF;
+		else if (newHalfLn>=1)	aClef->subType = TENOR_CLEF;
+		else					aClef->subType = BARITONE_CLEF;
 	}
 	else {
-		if (newHalfLn >=3)
-			aClef->subType = ALTO_CLEF;
-		else
-			aClef->subType = TENOR_CLEF;
+		if (newHalfLn >=3)	aClef->subType = ALTO_CLEF;
+		else				aClef->subType = TENOR_CLEF;
 	}
 	
 	return (DDIST)0;
 }
 
-/* =============================================================== BitMap Dragging == */
+/* =================================================================== BitMap Dragging == */
 /* Utilities related to symbol dragging with offscreen bitmaps. */
 
 static void ClipToPort(Document *, Rect *);
@@ -432,7 +425,7 @@ static GrafPtr GetRectGrafPort(Rect);
 static void CopyBitMaps(Document *, Rect, Rect);
 static GrafPtr SDGetGrafPorts(Rect);
 
-/* ------------------------------------------------------------------- ClipToPort -- */
+/* ------------------------------------------------------------------------ ClipToPort -- */
 /* Clip the rect r to the portRect of doc's window. */
 
 static void ClipToPort(Document *doc, Rect *r)
@@ -441,6 +434,7 @@ static void ClipToPort(Document *doc, Rect *r)
 	Rect oldRect, portRect;
 	
 	/* Offset mRect to window coords, intersect it with w->portRect, then back to paper */
+	
 	OffsetRect(r, doc->currentPaper.left, doc->currentPaper.top);
 
 	oldRect = *r;
@@ -452,14 +446,13 @@ static void ClipToPort(Document *doc, Rect *r)
 }
 
 
-/* ---------------------------------------------------------------- GetRectGrafPort -- */
-/* Get a new grafPort the size of r. */
+/* ------------------------------------------------------------------- GetRectGrafPort -- */
+/* Get a new GrafPort the size of r. */
 
 static GrafPtr GetRectGrafPort(Rect r)
 {
-	GrafPtr ourPort; short rWidth, rHeight;
-
-	/* Allocate GrafPort the size of r */
+	GrafPtr ourPort;  short rWidth, rHeight;
+	
 	rWidth = r.right-r.left;
 	rHeight = r.bottom-r.top;
 #ifdef USE_GWORLDS
@@ -472,7 +465,7 @@ static GrafPtr GetRectGrafPort(Rect r)
 }
 
 
-/* ------------------------------------------------------------------ CopyBitMaps -- */
+/* ----------------------------------------------------------------------- CopyBitMaps -- */
 /* Initialize underBits and offScrBits with doc's window's bits. */
 
 static void CopyBitMaps(Document *doc, Rect srcRect, Rect dstRect)
@@ -504,8 +497,8 @@ static void CopyBitMaps(Document *doc, Rect srcRect, Rect dstRect)
 }
 
 
-/* --------------------------------------------------------------- SDGetGrafPorts -- */
-/* Get the bitmaps for symbol dragging. */
+/* -------------------------------------------------------------------- SDGetGrafPorts -- */
+/* Get the bitmaps we need for symbol dragging. */
 
 static GrafPtr SDGetGrafPorts(Rect r)
 {
@@ -519,7 +512,7 @@ static GrafPtr SDGetGrafPorts(Rect r)
 }
 
 
-/* ------------------------------------------------------------------- GetSysRect -- */
+/* ------------------------------------------------------------------------ GetSysRect -- */
 
 Rect GetSysRect(Document *doc, LINK pL)
 {
@@ -536,7 +529,7 @@ Rect GetSysRect(Document *doc, LINK pL)
 }
 
 
-/* ------------------------------------------------------------------ GetMeasRect -- */
+/* ----------------------------------------------------------------------- GetMeasRect -- */
 /* Return the measureRect of measL, clipped to doc's portRect. */
 
 Rect GetMeasRect(Document *doc, LINK measL)
@@ -551,12 +544,13 @@ Rect GetMeasRect(Document *doc, LINK measL)
 }
 
 
-/* ------------------------------------------------------------------- Get2MeasRect -- */
+/* ---------------------------------------------------------------------- Get2MeasRect -- */
 /* Return the union of the measureRects of meas1, meas2, clipped to doc's portRect. */
 
 Rect Get2MeasRect(Document *doc, LINK meas1, LINK meas2)
 {
-	PMEASURE	pMeasure; Rect mRect, mRect1, mRect2;
+	PMEASURE pMeasure;
+	Rect mRect, mRect1, mRect2;
 	
 	pMeasure = GetPMEASURE(meas1);
 	mRect1 = pMeasure->measureBBox;
@@ -571,7 +565,7 @@ Rect Get2MeasRect(Document *doc, LINK meas1, LINK meas2)
 }
 
 
-/* ---------------------------------------------------------------- GetSDMeasRect -- */
+/* --------------------------------------------------------------------- GetSDMeasRect -- */
 
 Rect SDGetMeasRect(Document *doc, LINK pL, LINK measL)
 {
@@ -646,7 +640,7 @@ Rect SDGetMeasRect(Document *doc, LINK pL, LINK measL)
 }
 
 
-/* --------------------------------------------------------------- NewMeasGrafPort -- */
+/* ------------------------------------------------------------------- NewMeasGrafPort -- */
 
 GrafPtr NewMeasGrafPort(Document *doc, LINK measL)
 {
@@ -665,7 +659,7 @@ GrafPtr NewMeasGrafPort(Document *doc, LINK measL)
 }
 
 
-/* -------------------------------------------------------------- New2MeasGrafPort -- */
+/* ------------------------------------------------------------------ New2MeasGrafPort -- */
 
 GrafPtr New2MeasGrafPort(Document *doc, LINK measL)
 {
@@ -686,7 +680,7 @@ GrafPtr New2MeasGrafPort(Document *doc, LINK measL)
 	return ourPort;
 }
 
-/* -------------------------------------------------------------- NewNMeasGrafPort -- */
+/* ------------------------------------------------------------------ NewNMeasGrafPort -- */
 
 GrafPtr NewNMeasGrafPort(Document *doc, LINK measL, LINK lastMeasL)
 {
@@ -705,7 +699,7 @@ GrafPtr NewNMeasGrafPort(Document *doc, LINK measL, LINK lastMeasL)
 }
 
 
-/* -------------------------------------------------------------- NewBeamGrafPort -- */
+/* ------------------------------------------------------------------- NewBeamGrafPort -- */
 
 GrafPtr NewBeamGrafPort(Document *doc, LINK beamL, Rect *beamRect)
 {
@@ -731,7 +725,7 @@ GrafPtr NewBeamGrafPort(Document *doc, LINK beamL, Rect *beamRect)
 }
 
 
-/* --------------------------------------------------------------- SetupMeasPorts -- */
+/* -------------------------------------------------------------------- SetupMeasPorts -- */
 
 GrafPtr SetupMeasPorts(Document *doc, LINK measL)
 {
@@ -754,7 +748,7 @@ GrafPtr SetupMeasPorts(Document *doc, LINK measL)
 	return offScrBits;
 }
 
-/* -------------------------------------------------------------- Setup2MeasPorts -- */
+/* ------------------------------------------------------------------- Setup2MeasPorts -- */
 
 GrafPtr Setup2MeasPorts(Document *doc, LINK measL)
 {
@@ -779,7 +773,7 @@ GrafPtr Setup2MeasPorts(Document *doc, LINK measL)
 	return offScrBits;
 }
 
-/* -------------------------------------------------------------- SetupNMeasPorts -- */
+/* ------------------------------------------------------------------- SetupNMeasPorts -- */
 
 GrafPtr SetupNMeasPorts(Document *doc, LINK startL, LINK endL)
 {
@@ -802,7 +796,7 @@ GrafPtr SetupNMeasPorts(Document *doc, LINK startL, LINK endL)
 	return offScrBits;
 }
 
-/* ----------------------------------------------------------------- SetupSysPorts -- */
+/* --------------------------------------------------------------------- SetupSysPorts -- */
 
 GrafPtr SetupSysPorts(Document *doc, LINK pL)
 {
@@ -820,7 +814,7 @@ GrafPtr SetupSysPorts(Document *doc, LINK pL)
 	return offScrBits;
 }
 
-/* --------------------------------------------------------------- DragBeforeFirst -- */
+/* ------------------------------------------------------------------- DragBeforeFirst -- */
 
 void DragBeforeFirst(Document *doc, LINK pL, Point pt)
 {
@@ -835,27 +829,30 @@ void DragBeforeFirst(Document *doc, LINK pL, Point pt)
 	}
 
 	/* Drag the object. */
+	
 	GetAllContexts(doc, context, pL);
 	CheckObject(doc, pL, &found, (Ptr)&pt, context, SMSymDrag, &index, stfRange);
 	
 	/* Set the selRange and clean up the ports. */
+	
 	doc->selStartL = pL;
 	doc->selEndL = RightLINK(pL);
 	DisposMeasPorts();
 }
 
 
-/* -------------------------------------------------------------------- PageRelDrag -- */
-/* Use DragGrayRgn to drag any page-relative objects. As of v. 5.7, only GRAPHICs
-can be page-relative. */
+/* ----------------------------------------------------------------------- PageRelDrag -- */
+/* Use DragGrayRgn to drag any page-relative objects. As of v. 5.8, only GRAPHICs can
+be page-relative. */
 
 void PageRelDrag(Document *doc, LINK pL, Point pt)
 {
-	Rect r, limitR, slopR;  RgnHandle graphicRgn;  long newPos;
+	Rect r, limitR, slopR;
+	RgnHandle graphicRgn;  long newPos;
 	
 	r = LinkOBJRECT(pL);
 	OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
-	InsetRect(&r,-1,-1);
+	InsetRect(&r, -1, -1);
 
 	pt.h += doc->currentPaper.left;
 	pt.v += doc->currentPaper.top;
@@ -869,12 +866,12 @@ void PageRelDrag(Document *doc, LINK pL, Point pt)
 	LinkXD(pL) += p2d(LoWord(newPos));
 	LinkYD(pL) += p2d(HiWord(newPos));
 	
-	if (newPos) doc->changed = True;		/* If 0, neither h nor v has changed */
+	if (newPos) doc->changed = True;			/* If 0, neither h nor v has changed */
 	InvalWindow(doc);
 }
 
 
-/* -------------------------------------------------------------- SDSpaceMeasures -- */
+/* ------------------------------------------------------------------- SDSpaceMeasures -- */
 
 void SDSpaceMeasures(Document *doc, LINK pL, long spaceFactor)
 {
@@ -888,9 +885,9 @@ void SDSpaceMeasures(Document *doc, LINK pL, long spaceFactor)
 	}
 }
 
-/* -------------------------------------------------------------- SDInvalObjRects -- */
-/* Erase and inval the old and new objRects of a dragged object, translating
-to the coordinate system of doc->currentPaper. */
+/* ------------------------------------------------------------------- SDInvalObjRects -- */
+/* Erase and inval the old and new objRects of a dragged object, translating to the
+coordinate system of doc->currentPaper. */
 
 static void SDInvalObjRects(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff,
 										short offset)
@@ -906,15 +903,14 @@ static void SDInvalObjRects(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff,
 	EraseAndInval(&r);							/* Erase previous rect */
 }
 
-/* --------------------------------------------------------------- SDInvalMeasures -- */
-/* Erase and inval the range of measures containing a dragged object. If the
-object is before1st, erase the system; else if drag1stMeas and dragLastMeas are
-set, inval that range of measures; else inval the measure in the data structure
-containing the object. */
+/* ------------------------------------------------------------------- SDInvalMeasures -- */
+/* Erase and inval the range of measures containing a dragged object. If the object is
+before the 1st measure, erase the system; else if drag1stMeas and dragLastMeas are set,
+inval that range of measures; else inval the measure containing the object. */
 
 static void SDInvalMeasures(Document *doc, LINK pL)
 {
-	LINK measL,rMeas;
+	LINK measL, rMeas;
 
 	if (LinkBefFirstMeas(pL)) {
 		InvalSystem(pL);
@@ -929,7 +925,7 @@ static void SDInvalMeasures(Document *doc, LINK pL)
 	}
 }
 
-/* ----------------------------------------------------------------- SDInvalObject -- */
+/* --------------------------------------------------------------------- SDInvalObject -- */
 
 static void SDInvalObject(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, short offset)
 {
@@ -937,7 +933,7 @@ static void SDInvalObject(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, sh
 	SDInvalMeasures(doc, pL);
 }
 
-/* --------------------------------------------------------------------- SDCleanUp -- */
+/* ------------------------------------------------------------------------- SDCleanUp -- */
 /* Finish up operations of SymDragLoop. */
 
 void SDCleanUp(
@@ -952,9 +948,9 @@ void SDCleanUp(
 	SetPort(oldPort);
 	DeselAll(doc);
 	
-	/* If dirty, dragging operation has changed the score, so set doc->changed.
-		Otherwise, don't set the flag at all, since other operations may have 
-		affected it. */
+	/* If dirty, dragging operation has changed the score, so set doc->changed. Otherwise
+		don't set the flag, since other operations may have affected it. */
+		
 	doc->selStartL = doc->selEndL = RightLINK(pL);
 
 	if (dirty) {
@@ -1002,7 +998,7 @@ void SDCleanUp(
 }
 
 
-/* --------------------------------------------------------------- DisposMeasPorts -- */
+/* ------------------------------------------------------------------- DisposMeasPorts -- */
 /* Dispose of the ports. */
 
 void DisposMeasPorts()
@@ -1018,7 +1014,7 @@ void DisposMeasPorts()
 #endif
 }
 
-/* ---------------------------------------------------------------- ErrDisposPorts -- */
+/* -------------------------------------------------------------------- ErrDisposPorts -- */
 
 void ErrDisposPorts()
 {

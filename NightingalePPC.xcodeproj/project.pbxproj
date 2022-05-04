@@ -34,6 +34,7 @@
 		15683E8C1F826D0F00355A40 /* Double.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683E8B1F826D0F00355A40 /* Double.cp */; };
 		15683EB21F851B3B00355A40 /* About.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683EB11F851B3B00355A40 /* About.cp */; };
 		15683ED01F851D7200355A40 /* MIDIFOCmd.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683ECF1F851D7200355A40 /* MIDIFOCmd.cp */; };
+		1568D80B281F6DF6007EBF85 /* DragUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1568D80A281F6DF6007EBF85 /* DragUtils.cp */; };
 		156E47FF28098DD200E55D94 /* DragAccModNR.cp in Sources */ = {isa = PBXBuildFile; fileRef = 156E47FE28098DD200E55D94 /* DragAccModNR.cp */; };
 		156EE0A3272D84BF009C83AF /* ModNREdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 156EE0A2272D84BF009C83AF /* ModNREdit.cp */; };
 		1573CCCB1F9B779D00C967E6 /* InternalInput.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1573CCCA1F9B779D00C967E6 /* InternalInput.h */; };
@@ -138,7 +139,6 @@
 		D03E70AE0D5FA5B2005FD177 /* DragDynamic.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70670D5FA5B2005FD177 /* DragDynamic.cp */; };
 		D03E70B00D5FA5B2005FD177 /* DragGraphic.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70690D5FA5B2005FD177 /* DragGraphic.cp */; };
 		D03E70B10D5FA5B2005FD177 /* DragSet.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E706A0D5FA5B2005FD177 /* DragSet.cp */; };
-		D03E70B20D5FA5B2005FD177 /* DragUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E706B0D5FA5B2005FD177 /* DragUtils.cp */; };
 		D03E70B30D5FA5B2005FD177 /* DrawingEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E706C0D5FA5B2005FD177 /* DrawingEdit.cp */; };
 		D03E70B70D5FA5B2005FD177 /* Extract.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70700D5FA5B2005FD177 /* Extract.cp */; };
 		D03E70B80D5FA5B2005FD177 /* ExtractHighLevel.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */; };
@@ -270,6 +270,7 @@
 		15683E8B1F826D0F00355A40 /* Double.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Double.cp; sourceTree = "<group>"; };
 		15683EB11F851B3B00355A40 /* About.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = About.cp; sourceTree = "<group>"; };
 		15683ECF1F851D7200355A40 /* MIDIFOCmd.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIFOCmd.cp; sourceTree = "<group>"; };
+		1568D80A281F6DF6007EBF85 /* DragUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragUtils.cp; sourceTree = "<group>"; };
 		156E47FE28098DD200E55D94 /* DragAccModNR.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragAccModNR.cp; sourceTree = "<group>"; };
 		156EE0A2272D84BF009C83AF /* ModNREdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModNREdit.cp; sourceTree = "<group>"; };
 		1573CCCA1F9B779D00C967E6 /* InternalInput.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = InternalInput.h; sourceTree = "<group>"; };
@@ -455,7 +456,6 @@
 		D03E70670D5FA5B2005FD177 /* DragDynamic.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragDynamic.cp; sourceTree = "<group>"; };
 		D03E70690D5FA5B2005FD177 /* DragGraphic.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragGraphic.cp; sourceTree = "<group>"; };
 		D03E706A0D5FA5B2005FD177 /* DragSet.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragSet.cp; sourceTree = "<group>"; };
-		D03E706B0D5FA5B2005FD177 /* DragUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DragUtils.cp; path = ../CFilesEditor/DragUtils.cp; sourceTree = "<group>"; };
 		D03E706C0D5FA5B2005FD177 /* DrawingEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawingEdit.cp; sourceTree = "<group>"; };
 		D03E70700D5FA5B2005FD177 /* Extract.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Extract.cp; sourceTree = "<group>"; };
 		D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExtractHighLevel.cp; sourceTree = "<group>"; };
@@ -985,7 +985,7 @@
 				15C46F78218C977A00D84142 /* Debug2Utils.cp */,
 				15C46F7A218C978100D84142 /* DebugUtils.cp */,
 				15A13E1E22A564760037F95B /* DialogUtils.cp */,
-				D03E706B0D5FA5B2005FD177 /* DragUtils.cp */,
+				1568D80A281F6DF6007EBF85 /* DragUtils.cp */,
 				15A13E1A22A564050037F95B /* DrawUtils.cp */,
 				15F5512A22F52C8E00B5FC19 /* DSUtils.cp */,
 				15E24202256DFA09004AB7A3 /* EndianUtils.cp */,
@@ -1134,7 +1134,6 @@
 				D03E70AE0D5FA5B2005FD177 /* DragDynamic.cp in Sources */,
 				D03E70B00D5FA5B2005FD177 /* DragGraphic.cp in Sources */,
 				D03E70B10D5FA5B2005FD177 /* DragSet.cp in Sources */,
-				D03E70B20D5FA5B2005FD177 /* DragUtils.cp in Sources */,
 				D03E70B30D5FA5B2005FD177 /* DrawingEdit.cp in Sources */,
 				D03E70B70D5FA5B2005FD177 /* Extract.cp in Sources */,
 				D03E70B80D5FA5B2005FD177 /* ExtractHighLevel.cp in Sources */,
@@ -1246,6 +1245,7 @@
 				15420AE827CAE50000E0D841 /* PopUpUtils.cp in Sources */,
 				1515242E27D003DF0082FFDB /* MidiMap.cp in Sources */,
 				156E47FF28098DD200E55D94 /* DragAccModNR.cp in Sources */,
+				1568D80B281F6DF6007EBF85 /* DragUtils.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

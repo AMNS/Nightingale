@@ -58,27 +58,23 @@ static Boolean SelRangeChkTuplet(short, LINK, LINK);
 /* -------------------------------------------------------------------------------------- */
 /* Utilities for DoTuple. */
 
-/* Dispose Tuplet arrays. pDurArray is allocated by PrepareSelRange;
-qDurArray is allocated by RearrangeNotes; the others by ComputePlayDurs. */
+/* Dispose of Tuplet arrays. pDurArray is allocated by PrepareSelRange; qDurArray is
+allocated by RearrangeNotes; the others by ComputePlayDurs. */
 
 static void DisposeArrays()
 {
-	if (pDurArray)
-		{ DisposePtr((Ptr)pDurArray); pDurArray = NULL; }
-	if (qDurArray)
-		{ DisposePtr((Ptr)qDurArray); qDurArray = NULL; }
-	if (spTimeInfo)
-		{ DisposePtr((Ptr)spTimeInfo); spTimeInfo = NULL; }
-	if (stfTimeDiff)
-		{ DisposePtr((Ptr)stfTimeDiff); stfTimeDiff = NULL; }
+	if (pDurArray) { DisposePtr((Ptr)pDurArray); pDurArray = NULL; }
+	if (qDurArray) { DisposePtr((Ptr)qDurArray); qDurArray = NULL; }
+	if (spTimeInfo) { DisposePtr((Ptr)spTimeInfo); spTimeInfo = NULL; }
+	if (stfTimeDiff) { DisposePtr((Ptr)stfTimeDiff); stfTimeDiff = NULL; }
 }
 
-/* Return True if both numerator and denominator for tuplet to be created in
-voice v are below the allowed maximum of MAX_TUPLENUM = 255. */
+/* Return True if both numerator and denominator for tuplet to be created in voice v
+are below the allowed maximum of MAX_TUPLENUM (normally 255). */
 
 Boolean CheckMaxTupleNum(short v, LINK vStartL, LINK vEndL, TupleParam *tParam)
 {
-	short tupleNum,tupleDenom;
+	short tupleNum, tupleDenom;
 
 	tupleNum = GetTupleNum(vStartL, vEndL, v, True);
 	tupleDenom = GetTupleDenom(tupleNum,tParam);
@@ -108,6 +104,7 @@ short GetTupleNum(LINK startL, LINK endL, short voice, Boolean /*needSelected*/)
 	if (VCountNotes(voice, startL, endL, True) < 2)  return 0;	/* Counts Syncs with notes in voice */
 	
 	/* Get GCD of simple logical duration of candidate notes */
+	
 	for (pL = startL; pL!= endL; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
 			aNoteL = FirstSubLINK(pL);
@@ -126,7 +123,8 @@ short GetTupleNum(LINK startL, LINK endL, short voice, Boolean /*needSelected*/)
 			}
 		}
 					
-	/* Get tupleNum */
+	/* Now find the tuplet numerator */
+	
 	for (pL = startL; pL!= endL; pL = RightLINK(pL))
 		if (ObjLType(pL)==SYNCtype) {
 			aNoteL = FirstSubLINK(pL);
@@ -134,7 +132,7 @@ short GetTupleNum(LINK startL, LINK endL, short voice, Boolean /*needSelected*/)
 				aNote = GetPANOTE(aNoteL);
 				if (aNote->voice==voice) {
 					tupleNum += SimpleLDur(aNoteL)/durUnit;
-					break;						/* Each chord only contributes once to calc of tupletNum. */
+					break;						/* Each chord only contributes once to calc of tupletNum */
 				}
 			}
 		}
@@ -157,7 +155,8 @@ static PTIME *PrepareSelRange(Document *doc, short *nInRange, LINK *baseMeasL)
 	for (pL = startMeas; pL!=endMeas; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) nInMeas++;
 
-	/* numNotes provides one note per voice for all syncs in selection range. */ 
+	/* numNotes provides one note per voice for all syncs in selection range. */
+	
 	numNotes = nInMeas*(MAXVOICES+1);
 
 	/* Allocate pDurArray[numNotes]. First initialize the unused 0'th row of the
@@ -341,6 +340,7 @@ static Boolean ComputePlayDurs(Document *doc, SELRANGE selRange[], short tupleNu
 	}
 
 	/* Sort the pDurArray in order of increasing pTimes. */
+	
 	SortPTimes(nInMeas, MAXVOICES+1);
 
 	if (noteStart) DisposePtr((Ptr)noteStart);
@@ -357,11 +357,11 @@ broken:
 /* -------------------------------------------------------------------- RearrangeNotes -- */
 /* Rearrange notes and Syncs in the object list for creating or removing a tuplet.
 
-This function sets the <playDur> of every note in its range - presumably an entire
-measure - to the default for its logical duration. It would be much better if it
-left <playDur>s of notes not being tupled or untupled alone (see code before call
-to CopyNotes), but it's not obvious to me how it can tell. Probably a flag for this
-would have to be added to qDurArray. */
+This function sets the <playDur> of every note in its range -- presumably an entire
+measure -- to the default for its logical duration. It would be much better if it left
+<playDur>s of notes not being tupled or untupled alone (see code before call to
+CopyNotes), but it's not obvious to me how it can tell. Probably a flag for this would
+have to be added to qDurArray. */
 
 static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNotes,
 								LINK /*baseMeasL*/)
@@ -446,7 +446,8 @@ static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNot
 		subCount = 0;
 		objSel = False;
 
-		/* Get the number of notes in this sync. */
+		/* Get the number of notes in this Sync. */
+		
 		while (qTime->pTime==pTime->pTime) {
 			subCount += qTime->mult;							/* Handle chords */
 			qTime++; i++;
@@ -559,7 +560,8 @@ voice; if there are, return False, otherwise return True. */
 
 static Boolean CheckContinSel(Document *doc)
 {
-	LINK link, measL, endMeasL;  short i, lastNode,v;  Boolean first;
+	LINK link, measL, endMeasL; 
+	short i, lastNode, v;  Boolean first;
 	SPACETIMEINFO *spTimeInfo;
 	long startTime,nextlTime;
 
@@ -608,7 +610,7 @@ static Boolean CheckContinSel(Document *doc)
 
 
 /* --------------------------------------------------------------------------- DoTuple -- */
-/* Tuple the selection. */
+/* Create a tuplet for the selection in each voice that has selected notes/chords. */
 
 void DoTuple(Document *doc, TupleParam *tParam)
 {
@@ -636,7 +638,7 @@ void DoTuple(Document *doc, TupleParam *tParam)
 			
 			if (!CheckMaxTupleNum(v, vStartL, vEndL, tParam)) {
 				GetIndCString(fmtStr, TUPLETERRS_STRS, 1);    	/* "Tuple numerator or denominator for voice %d exceeds maximum of 255." */
-				sprintf(strBuf, fmtStr, v); 
+				sprintf(strBuf, fmtStr, v);
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
 				DisableUndo(doc, True);
@@ -656,11 +658,11 @@ void DoTuple(Document *doc, TupleParam *tParam)
 			nInTuple[v] = VCountNotes(v, vStartL, vEndL, True);
 		}
 		if (nInTuple[v]>MAXINTUPLET) {
-			LogPrintf(LOG_WARNING, "Can't create tuplet for voice %d: it exceeds maximum of %d notes/chords!\n", v, MAXINTUPLET);
-			//GetIndCString(fmtStr, TUPLETERRS_STRS, ??);    	/* "Can't create tuplet for voice %d: it exceeds maximum of %d notes/chords." */
-			//sprintf(strBuf, fmtStr, v, MAXINTUPLET); 
-			//CParamText(strBuf, "", "", "");
-			//StopInform(GENERIC_ALRT);
+			LogPrintf(LOG_WARNING, "Can't create tuplet for voice %d: it exceeds the maximum of %d notes/chords.\n", v, MAXINTUPLET);
+			GetIndCString(fmtStr, TUPLETERRS_STRS, 2);    	/* "Can't create tuplet for voice %d: it exceeds maximum of %d notes/chords." */
+			sprintf(strBuf, fmtStr, v, MAXINTUPLET); 
+			CParamText(strBuf, "", "", "");
+			StopInform(GENERIC_ALRT);
 			DisableUndo(doc, False);
 			return;
 		}
@@ -715,15 +717,15 @@ broken:
 
 /* --------------------------------------------------------------------- GetBracketVis -- */
 /* Should a tuplet bracket be visible? Return False (bracket not visible) if all the
-notes in <voice> from startL to endL are in one and the same beamset, else return
-True. This is the standard conventional-notation convention. Assumes a valid range
-for tupling, e.g., more than one note in the voice in the range. */
+notes in <voice> from startL to endL are in one and the same beamset, else return True.
+This is the standard conventional-notation convention. Assumes a valid range for tupling, 
+.g., more than one note in the voice in the range. */
 
 Boolean GetBracketVis(Document *doc, LINK startL, LINK endL, short voice)
 {
 	LINK startSync, endSync, startBeamL, endBeamL, aNoteL;
 	PANOTE aNote;
-	Boolean beamed = False;		/* To break out of the inner loop. */
+	Boolean beamed = False;				/* To break out of the inner loop. */
 	
 	if (!startL || !endL) return True;
 	
@@ -949,14 +951,14 @@ static void SelectTuplet(Document *doc, short v, Boolean sel)
 	LINK pL;
 	
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
-		if (SyncTYPE(pL))
-			SelectSync(pL,v,sel);
+		if (SyncTYPE(pL)) SelectSync(pL, v, sel);
 }
 
 
 static void DeleteTuplet(Document *doc, LINK tupletL)
 {
-	short v;  LINK pL, firstL, lastL, aNoteL;
+	short v;
+	LINK pL, firstL, lastL, aNoteL;
 	
 	v = TupletVOICE(tupletL);
 	firstL = FirstInTuplet(tupletL);
@@ -965,8 +967,7 @@ static void DeleteTuplet(Document *doc, LINK tupletL)
 	for (pL=firstL; pL!=RightLINK(lastL); pL=RightLINK(pL))
 		if (SyncTYPE(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
-				if (NoteVOICE(aNoteL)==v)
-					NoteINTUPLET(aNoteL) = False;
+				if (NoteVOICE(aNoteL)==v) NoteINTUPLET(aNoteL) = False;
 					
 	DeleteNode(doc, tupletL);
 }
@@ -1037,11 +1038,11 @@ static Boolean RecomputePlayDurs(
 
 	SetPTimes(doc, pDurArray, nInMeas, spTimeInfo, startMeas, endMeas);
 
-	/* Compute tupled pTime values for the pDurArray. Get the start pTime of
-		the first note in the tuplet on the voice, get the difference between the
-		pTime of the given note and that time, shrink that difference by tupleFactor,
-		and add the newly computed difference to the original start time, to get
-		the tupled pTime for that note. */
+	/* Compute tupled pTime values for the pDurArray. Get the start pTime of the first
+	   note in the tuplet on the voice and the difference between the pTime of the
+	   given note and that time. Then shrink that difference by tupleFactor and add
+	   the newly computed difference to the original start time, giving the tupled pTime
+	   for that note. */
 
 	for (v = 1; v<=MAXVOICES; v++)
 		stfTimeDiff[v] = 0L;
@@ -1104,6 +1105,7 @@ static Boolean RecomputePlayDurs(
 	}
 
 	/* Sort the pDurArray in order of increasing pTimes. */
+	
 	SortPTimes(nInMeas, MAXVOICES+1);
 
 	if (noteStart) DisposePtr((Ptr)noteStart);
@@ -1173,7 +1175,7 @@ broken:
 	
 void UnTuple(Document *doc)
 {
-	LINK nextL,pL;
+	LINK nextL, pL;
 
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL)) DeselectNode(pL);
@@ -1181,7 +1183,7 @@ void UnTuple(Document *doc)
 	for (pL = doc->headL; pL!=doc->tailL; pL=nextL) {
 		nextL = RightLINK(pL);
 		if (TupletTYPE(pL) && LinkSPAREFLAG(pL)) {
-			nextL = RemoveTuplet(doc,pL);
+			nextL = RemoveTuplet(doc, pL);
 			if (!nextL) return;
 		}
 	}
@@ -1199,10 +1201,9 @@ static void MarkTuplets(Document *doc)
 
 	GetOptSelEnds(doc, &startL, &endL);
 
-	/* For each voice, traverse note selRange; get tuplet for each intuplet
-		note in the range in the voice; set that tuplet's spareFlag, and move
-		pL along to node after tuplet's lastInTuplet or along to end of range,
-		whichever is earlier.
+	/* For each voice, traverse note selRange; get tuplet for each intuplet note in the
+	   range in the voice; set that tuplet's spareFlag, and move pL along to node after
+	   tuplet's lastInTuplet or along to end of range, whichever is earlier.
 		#1. pL is incremented to RightLINK(pL) after this statement and before
 		testing pL!=vEndL. If we assigned pL to <RightLINK(qL) : vEndL> here, 
 		would increment and be beyond vEndL before testing. */
@@ -1277,8 +1278,8 @@ void DoUntuple(Document *doc)
 
 /* ------------------------------------------------------------------------ UntupleObj -- */
 /* Set tuplet flag False for all notes/rests on <staff> between <firstSync> and 
-<lastSync> inclusive, restore their pDur's to non-tupled values, and delete
-the tuplet <tupleL>. */
+<lastSync> inclusive, restore their pDur's to non-tupled values, and delete the tuplet
+<tupleL>. */
  
 void UntupleObj(Document *doc, LINK tupleL, LINK firstSync, LINK lastSync, short voice)
 {
@@ -1313,13 +1314,13 @@ void UntupleObj(Document *doc, LINK tupleL, LINK firstSync, LINK lastSync, short
 
 /* ----------------------------------------------------------------- DrawTupletBracket -- */
 /* Draw a tuplet bracket with QuickDraw calls. If <pContext> is NULL, the page origin
-is assumed to be at (0,0); this is to allow calling this routine to draw a sample
-tuplet bracket in a dialog. */
+is assumed to be at (0,0); this is to allow calling this routine to draw a sample tuplet
+bracket in a dialog. */
 
 #define NUMMARGIN	3						/* Horiz. margin in pixels. 2 isn't enough */
 
 void DrawTupletBracket(
-			DPoint firstPt, DPoint lastPt,/* Vertical origin of bracket */
+			DPoint firstPt, DPoint lastPt,	/* Vertical origin of bracket */
 			DDIST brackDelta, 				/* Distance to move bracket up from origin  */
 			DDIST yCutoffLen,
 			DDIST xMid,
@@ -1344,7 +1345,7 @@ void DrawTupletBracket(
 	numxFirst = paperLeft+d2p(xMid)-tuplWidth/2-NUMMARGIN;
 	numxLast = paperLeft+d2p(xMid)+tuplWidth/2+NUMMARGIN;
 	
-	/* If bracket so short there's no room for the numbers and a margin, don't draw */
+	/* If bracket is so short there's no room for the numbers and a margin, don't draw */
 	
 	if (numxFirst-firstx<=0) return;
 
@@ -1385,6 +1386,7 @@ void DrawPSTupletBracket(
 	numxdLast = xMid+pt2d(tuplWidth/2+NUMMARGIN);
 	
 	/* If bracket so short there's no room for the numbers and a margin, don't draw */
+	
 	if (numxdFirst-firstPt.h<=0) return;
 
 	firstyd = firstPt.v-brackDelta;
@@ -1449,7 +1451,7 @@ static DDIST NoteXStfYD(LINK, STFRANGE, DDIST, DDIST, Boolean);
 static DDIST NoteXStfYD(LINK aNoteL, STFRANGE stfRange, DDIST firstStfTop, 
 								DDIST lastStfTop, Boolean crossStaff)
 {
-	DDIST yd; PANOTE aNote;
+	DDIST yd;  PANOTE aNote;
 
 	aNote = GetPANOTE(aNoteL);
 	if (crossStaff) {
@@ -1516,15 +1518,15 @@ void GetTupletInfo(
 	SetDPt(pLastPt, lastxd, lastyd);
 
 	/* The tuplet object has fields that allow positioning the bracket and accessory
-		numeral independently. But for the time being, we ignore the accessory numeral
-		position and just center it within the bracket. */
+	   numeral independently. But for the time being, we ignore the accessory numeral
+	   position and just center it within the bracket. */
 
 	*pxd = (firstxd+lastxd)/2;
 	*pyd = (firstyd+lastyd)/2;
 	
-	/* Set up variables for the numerator only. Even if the tuplet is invisible,
-		we'll need tupleRect and dTuplWidth, computed for the numerator only, to
-		get the objRect. */
+	/* Set up variables for the numerator only. Even if the tuplet is invisible, we'll
+	   need tupleRect and dTuplWidth, computed for the numerator only, to get the
+	   objRect. */
 	
 	NumToSonataStr((long)tup->accNum, tupleStr);
 	tupleRect = StrToObjRect(tupleStr);
@@ -1535,11 +1537,13 @@ void GetTupletInfo(
 	if (tup->denomVis || doc->showInvis) {
 
 		/* We're drawing the ':' delimiter and denominator, too. Since Sonata and
-			compatible fonts no ':', leave space and we'll fake it. */
+		   compatible fonts have no ':', leave space and we'll fake it. */
 			
 		tupleLen = tupleStr[0]+1;
-		/* This won't work in all fonts.  E.g., in Petrucci, this is too wide.
-			However, I think PostScript output is ok. */
+		
+		/* This won't work in all fonts.  E.g., in Petrucci, this is too wide. However,
+		   I think PostScript output is OK. */
+		
 		tupleStr[tupleLen] = ' ';
 		tempR = CharRect(MapMusChar(doc->musFontInfoIndex, MCH_dot));	/* About the same size as ':' */
 		*pxColon = tupleRect.right;
@@ -1597,7 +1601,6 @@ void DrawTUPLET(Document *doc, LINK tupL, CONTEXT context[])
 	Boolean		firstBelow, lastBelow;			/* True=bracket below the note at that end */
 	unsigned char tupleStr[20];
 	STFRANGE	stfRange;
-	Point		enlarge = {0,0};
 	short		tupletNumSize, tupletColonSize;
 
 PushLock(OBJheap);
@@ -1710,8 +1713,10 @@ PushLock(OBJheap);
 	}
 
 #ifdef USE_HILITESCORERANGE
-	if (LinkSEL(pL))
+	if (LinkSEL(pL)) {
+		Point enlarge = {0,0};
 		CheckTUPLET(doc, pL, context, (Ptr)NULL, SMHilite, stfRange, enlarge);
+	}
 #endif
 
 PopLock(OBJheap);
@@ -1848,7 +1853,7 @@ Boolean SetBracketsVis(Document *doc, LINK startL, LINK endL)
 	
 	for (pL = startL; pL && pL!=endL; pL = RightLINK(pL))
 		if (TupletTYPE(pL)) {
-			firstL = FirstInTuplet(pL); lastL = LastInTuplet(pL);
+			firstL = FirstInTuplet(pL);  lastL = LastInTuplet(pL);
 			brackVis = GetBracketVis(doc, firstL, lastL, TupletVOICE(pL));
 			pTuplet = GetPTUPLET(pL);
 			if (pTuplet->brackVis!=brackVis) {

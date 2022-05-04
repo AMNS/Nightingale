@@ -413,6 +413,12 @@ void DisplayObject(Document *doc, LINK objL,
 								((PSYSTEM)p)->systemNum);
 			break;
 		case MEASUREtype:
+			/* The "s%%=%d" in the below statement should print something like "s%=100",
+			   and it did in versions of Nightingale of years ago; but the percent sign
+			   is missing in versions at least as far back as 5.6, obviously due to a
+			   compiler or run-time library bug, and several workarounds I tried failed.
+			   --DAB, April 2022 */
+			   
 			LogPrintf(LOG_INFO, " Box tlbr=p%d,%d,%d,%d s%%=%d TS=%ld",
 				((PMEASURE)p)->measureBBox.top, ((PMEASURE)p)->measureBBox.left,
 				((PMEASURE)p)->measureBBox.bottom, ((PMEASURE)p)->measureBBox.right,

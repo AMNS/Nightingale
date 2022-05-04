@@ -11180,3 +11180,21 @@ Files that handle dragging:
 	DragGraphic
 	Dragging
 
+---------------------------------------------------------------------------------------
+
+24 - 30 Apr.
+
+SWITCH TO: Issue #196: During MIDI playback, Ngale should "turn the page" if any of it
+isn't on screen. This is handled by HiliteSyncRect(). It draws the "next" page only if
+virtually none of that page is in view yet; if more than a tiny sliver of the page is
+already on the screen, it doesn't "turn the page". 
+
+Actually, HiliteSyncRect() scrolls if and only if (1) its <scroll> parameter is true, and
+(2) the Sync to be hilited isn't in view; if it does scroll, it always puts the top-left
+corner of the page at the top-left corner of the window. Now, as PlaySequence() currently
+uses it, <scroll> is True iff the Sync to be hilited is NOT the first to be played, but IS
+the first to be played on its page. So it _might_ scroll to show the whole page even of
+most of the page is showing, but only if the second Sync to be played is at the other end
+of the page; otherwise it won't scroll at all: a ridiculous method. Instead, it should
+probably scroll iff the Sync's page's entire width isn't in view, assuming the
+magnification and window size are such that the entire width page _can_ be viewed at once.

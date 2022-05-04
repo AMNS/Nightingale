@@ -3664,3 +3664,11 @@ Minor changes. Affects info.plist; DragAccModNR, DragDynamic, Dragging, DragGrap
 DragSet, Main, Windows.
 
 ----------------------------------------------------------------------------------------- B13
+
+25 Apr. - 4 May
+
+Minor changes: if Create Tuplet fails because there are too many notes/chords, give an
+error message, etc. Affects info.plist, .rsrc, Defs.h, NObjTypes.h; DebugDisplay,
+DragUtils, MIDIPlay, Tuplet.
+
+----------------------------------------------------------------------------------------- B14
