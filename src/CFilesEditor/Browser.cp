@@ -719,7 +719,7 @@ static void ShowVoicePage(Document *doc, short startV)
 {
 	short v;
 	
-	sprintf(s, "The score uses %d voices.", CountVoices(doc));
+	sprintf(s, "The score uses %d voices.", NCountVoices(doc));
 	DrawTextLine(s);
 	
 	if (startV<1) startV = 1;				/* Avoid negative index in loop below */

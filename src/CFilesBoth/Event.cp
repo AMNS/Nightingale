@@ -1030,7 +1030,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			}
 			return NULL;
 		case 'TEXT':
-			if (OpenNotelistFile(theFile->name, theFile)) break;
+			if (FSOpenNotelistFile(theFile->name, theFile)) break;
 			return NULL;
 		case 'Midi':
 			if (ImportMIDIFile(theFile)) break;			

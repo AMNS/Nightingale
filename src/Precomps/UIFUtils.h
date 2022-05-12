@@ -75,7 +75,6 @@ void Staff2UserStr(Document *doc, short staffn, char str[]);
 
 Rect GetQDPortBounds(void);
 Rect GetQDScreenBitsBounds(void);
-Rect *GetQDScreenBitsBounds(Rect *bounds);
 
 Pattern *NGetQDGlobalsDarkGray();
 Pattern *NGetQDGlobalsLightGray();

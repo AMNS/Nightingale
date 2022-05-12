@@ -3672,3 +3672,11 @@ error message, etc. Affects info.plist, .rsrc, Defs.h, NObjTypes.h; DebugDisplay
 DragUtils, MIDIPlay, Tuplet.
 
 ----------------------------------------------------------------------------------------- B14
+
+5 - 11 May
+
+Minor changes: get rid of duplicate function names, etc. Affects info.plist,
+NightTemplates.h, UIFUtils.h; Browser, DebugHighLevel, Event, Menu, MidiMap, MPCommands,
+NotelistOpen, UIFUtils, VoiceTable.
+
+----------------------------------------------------------------------------------------- B15

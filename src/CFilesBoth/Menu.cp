@@ -1973,7 +1973,8 @@ static void VMShowToolPalette()
 	}
 	else {
 		/* Initial position is upper left corner of main screen */
-		GetQDScreenBitsBounds(&docRect);
+		
+		docRect = GetQDScreenBitsBounds();
 		InsetRect(&docRect, 10, GetMBarHeight()+16);
 //LogPrintf(LOG_DEBUG, "VMShowToolPalette: docRect.top=%d GetMBarHeight()=%d\n", docRect.top,
 //GetMBarHeight());														// FIX ISSUE 67

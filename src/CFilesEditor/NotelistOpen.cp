@@ -94,75 +94,7 @@ static long			gCurSyncTime;
 /* ------------------------------------------------------------------ OpenNotelistFile -- */
 /* The top level, public function. Returns True on success, False if there's a problem. */
 
-Boolean OpenNotelistFile(Str255 fileName, NSClientDataPtr pNSD)
-{
-	Str255		newfn;
-	Document	*doc;
-	char		configDisableUndo;
-	Boolean		result;
-	PNL_HEAD	pHead;
-	char		fmtStr[256];
-	FSSpec		fsSpec;
-	
-	gHairpinCount = 0;
-	fsSpec = pNSD->nsFSSpec;
-	result = ParseNotelistFile(fileName, &fsSpec);
-	if (!result) return False;
-	if (gHairpinCount>0) {
-		GetIndCString(fmtStr, NOTELIST_STRS, 3);	/* "Open Notelist can't handle hairpins..." */
-		sprintf(strBuf, fmtStr, gHairpinCount);
-		CParamText(strBuf, "", "", "");
-		CautionInform(GENERIC_ALRT);
-	}
-
-	/* Grab score name from the Notelist header. If that's empty build a filename. */
-	pHead = GetPNL_HEAD(0);
-	if (pHead->scoreName) {
-		result = FetchString(pHead->scoreName, (char *)newfn);
-		if (!result) goto buildit;
-		CtoPstr((StringPtr)newfn);
-	}
-	else
-buildit:
-		BuildConvertedNLFileName(fileName, newfn);
-
-	doc = CreateNLDoc(newfn);
-	if (doc==NULL) {
-		GetIndCString(strBuf, NOTELIST_STRS, 2);
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
-		goto Error;
-	}
-
-	configDisableUndo = config.disableUndo;				/* Save this. */
-	config.disableUndo = True;							/* In case we invoke PrepareUndo. */
-	
-	result = NotelistToNight(doc);
-	
-	config.disableUndo = configDisableUndo;
-
-	ProgressMsg(0, "");									/* Remove progress window. */
-
-	if (!result) {
-		doc->changed = False;
-		DoCloseDocument(doc);
-	}
-	else
-		DisplayNLDoc(doc);
-
-Error:
-	ProgressMsg(0, "");									/* Remove progress window, if it hasn't already been removed. */
-	DisposNotelistMemory();
-	return result;
-}
-
-
-/* ------------------------------------------------------------------ OpenNotelistFile -- */
-/* The top level, public function; FSSpec calling sequence version. As of v. 5.7, this
-version is used iff user drops a notelist file on the Nightingale icon. Returns True
-on success, False if there's a problem. */
-
-Boolean OpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
+Boolean FSOpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
 {
 	Str255		newfn;
 	Document	*doc;
@@ -224,6 +156,12 @@ Error:
 	ProgressMsg(0, "");										/* Remove progress window, if it hasn't already been removed. */
 	DisposNotelistMemory();
 	return result;
+}
+
+Boolean OpenNotelistFile(Str255 fileName, NSClientDataPtr pNSD)
+{
+	FSSpec fsSpec = pNSD->nsFSSpec;
+	return FSOpenNotelistFile(fileName, &fsSpec);
 }
 
 

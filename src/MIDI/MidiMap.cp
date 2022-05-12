@@ -159,22 +159,18 @@ static Boolean ProcessMidiMap(Document *doc, FILE *f)
 /* -------------------------------------------------------------------- InstallMidiMap -- */
 /* Install the fsSpec of the midi map in the document */
 
-void InstallMidiMap(Document *doc, Handle fsSpecHdl)
+static void HInstallMidiMap(Document *doc, Handle fsSpecHdl);
+static void HInstallMidiMap(Document *doc, Handle fsSpecHdl)
 {
 	doc->midiMapFSSpecHdl = fsSpecHdl;	
 }
 
-/* -------------------------------------------------------------------- InstallMidiMap -- */
-/* Install the fsSpec of the midi map in the document. FIXME: don't give multiple
-functions the same name: that's a C++ feature not in C99! */
-
 void InstallMidiMap(Document *doc, FSSpec *fsSpec)
 {
 	Handle fsSpecHdl = NewHandle(sizeof(FSSpec));
-	if (GoodNewHandle(fsSpecHdl)) 
-	{
+	if (GoodNewHandle(fsSpecHdl)) {
 		BlockMove(fsSpec, *fsSpecHdl, sizeof(FSSpec));		
-		InstallMidiMap(doc, fsSpecHdl);
+		HInstallMidiMap(doc, fsSpecHdl);
 	}
 }
 
@@ -278,8 +274,7 @@ Boolean SaveMidiMap(Document *doc)
 }
 	
 /* -------------------------------------------------------------------------GetMidiMap -- */
-/* Get the Midi Map stored in the document's resource fork.
- */
+/* Get the Midi Map stored in the document's resource fork. */
 
 void GetMidiMap(Document *doc, FSSpec *pfsSpec)
 {
@@ -300,11 +295,11 @@ void GetMidiMap(Document *doc, FSSpec *pfsSpec)
 			
 		refnum = CurResFile();
 		doc->midiMapFSSpecHdl = Get1Resource(MMRESTYPE, MMRESID);
-		/*
-		 *	Ordinarily, we'd now call ReportBadResource, which checks if the new Handle
-		 * is NULL as well as checking ResError. But in this case, we don't want to report
-		 * an error if it's NULL--or do we?
-		 */
+		
+		/* Ordinarily, we'd now call ReportBadResource, which checks if the new Handle
+		   is NULL as well as checking ResError. But in this case, we don't want to report
+		   an error if it's NULL--or do we? */
+		   
 		err = ResError();
 		if (err==noErr) {
 			if (doc->midiMapFSSpecHdl) {
@@ -317,7 +312,6 @@ void GetMidiMap(Document *doc, FSSpec *pfsSpec)
 			}
 		}
 		
-		// Close the res file we just opened
 		CloseResFile(refnum);		
 	}
 }

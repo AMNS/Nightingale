@@ -5,7 +5,7 @@
 		OffsetVoiceNums			FillVoiceTable			BuildVoiceTable
 		MapVoiceNums			CompactVoiceNums
 		UpdateVoiceTable		User2IntVoice			Int2UserVoice
-		NewVoiceNum				CountVoices
+		NewVoiceNum				NCountVoices
 /******************************************************************************************/
 
 /*
@@ -392,16 +392,16 @@ short NewVoiceNum(Document *doc, LINK partL)
 }
 
 
-/* ----------------------------------------------------------------------- CountVoices -- */
+/* ---------------------------------------------------------------------- NCountVoices -- */
 /* Return the number of voices in use in the given document. */
 
-short CountVoices(Document *doc) 
+short NCountVoices(Document *doc) 
 {
 	short nv = 0;
 	
 	/* If the voice table is legal, we could stop counting when we find the first empty
-	   slot; but continuing to count all the way to the end is more robust and it
-	   shouldn't hurt. */
+	   slot; but continuing to count all the way to the end is more robust, and it
+	   shouldn't cause any problems. */
 	   
 	for (int i = 0; i <= MAXVOICES; i++) {
 		if (doc->voiceTab[i].partn != 0) nv++;

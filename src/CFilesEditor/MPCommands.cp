@@ -33,8 +33,8 @@ want to delete the part.  If Nightingale should delete the part, return True, el
 return False. */
 
 static Boolean CanDeletePart(
-					Document *doc,
-					short minStf, short maxStf)		/* inclusive range of staves */
+				Document *doc,
+				short minStf, short maxStf)			/* inclusive range of staves */
 {
 	LINK pL, usedL;
 	short staff, usedStaff=-1;
@@ -43,11 +43,10 @@ static Boolean CanDeletePart(
 	Boolean reallyUsed=False;
 	char fmtStr[256], thoughStr[256];
 
-	/*
-	 * Look for anything in the staff range, especially "real" things (i.e., not
-	 * just key sigs. or time sigs.). This is subtler than it looks: e.g., getting
-	 * the first used meas. no. requires swapping the two loops.
-	 */ 
+	/* Look for anything in the staff range, especially "real" things (i.e., not just
+	   context-setting key sigs. or time sigs.). This is subtler than it looks: e.g.,
+	   getting the first used measure no. requires swapping the two loops. */
+	    
 	for (staff = minStf; staff<=maxStf; staff++) {
 		for (pL = doc->headL; pL && !reallyUsed;
 			  pL = LSSearch(RightLINK(pL), ANYTYPE, staff, GO_RIGHT, False)) {
@@ -59,7 +58,7 @@ static Boolean CanDeletePart(
 				case STAFFtype:
 				case MEASUREtype:
 				case CONNECTtype:
-					break;												/* Safe to delete, keep looking */
+					break;									/* Safe to delete, keep looking */
 				case KEYSIGtype:
 					if (!LinkSOFT(pL) && KeySigINMEAS(pL)) { usedStaff = staff; usedL = pL; }
 					break;
@@ -79,6 +78,9 @@ static Boolean CanDeletePart(
 	GetIndCString(thoughStr, MPERRS_STRS, (reallyUsed? 3 : 4));	/* "though it contains only KS/TS" */
 	sprintf(strBuf, fmtStr, usedStaff, measNum, thoughStr);
 	CParamText(strBuf, "", "", "");
+	LogPrintf(LOG_WARNING, "Staff %d is not empty starting at measure %d. link %u type=%d (%s)  (CanDeletePart)\n",
+				usedStaff, measNum, usedL, ObjLType(usedL),
+				NameHeapType(ObjLType(usedL), False));
 	PlaceAlert(DELPART_ANYWAY_ALRT, doc->theWindow, 0, 60);
  	alrtChoice = CautionAdvise(DELPART_ANYWAY_ALRT);
 	return (alrtChoice==DELETE_PART_DI);
@@ -89,10 +91,10 @@ static Boolean CanDeletePart(
 
 static Boolean OnlyOnePart(Document *doc, short minStf, short maxStf)
 {
-	LINK minPartL,maxPartL;
+	LINK minPartL, maxPartL;
 
-	minPartL = Staff2PartL(doc,doc->masterHeadL,minStf);
-	maxPartL = Staff2PartL(doc,doc->masterHeadL,maxStf);
+	minPartL = Staff2PartL(doc, doc->masterHeadL, minStf);
+	maxPartL = Staff2PartL(doc, doc->masterHeadL, maxStf);
 
 	return (minPartL==maxPartL);
 }
@@ -119,8 +121,9 @@ void Map2OrigStaves(Document *doc, short minStf, short maxStf, short *pOrigMinSt
 	for (i = 0; i<doc->nChangeMP; i++)
    	switch (doc->change[i].oper) {
    		case SDAdd:
-				/* Affects original staves starting with the specified NEW staff
-					number, so we must first convert the start staff number! */
+				/* Affects original staves starting with the specified new staff nunmber,
+				   so we must first convert the start staff number! */
+				   
 				newStart = doc->change[i].staff;
 				for (origStart = NOONE, s = 1; s<=doc->nstaves; s++)
 					if (newStaff[s]==newStart) { origStart = s; break; }
@@ -413,11 +416,10 @@ static void MPDeleteSelRange(Document *doc, LINK partL)
 		switch (ObjLType(pL)) {
 
 			case HEADERtype:
-				/* Decrement nEntries by one: delete one part. */
+				/* Delete one part: decrement nEntries by one, and traverse the list
+				   of subobjects to delete any subobjects that belong to it.  */
 
 				LinkNENTRIES(pL)--;
-
-				/* Traverse the subList in order to delete that part. */
 
 				pSubL = FirstSubLINK(pL);
 				while (pSubL) {
@@ -441,7 +443,7 @@ static void MPDeleteSelRange(Document *doc, LINK partL)
 						doc->nstavesMP--;
 					}
 
-				/* Traverse the subList and delete selected subobjects. */
+				/* Traverse the subobject list and delete selected subobjects. */
 
 				pSubL = FirstSubLINK(pL);
 				while (pSubL) {
@@ -584,10 +586,10 @@ static Boolean MPAddChkVars(Document *doc,
 }
 
 
-static enum {
+enum {
 	nPartsITM=4,
 	nStavesITM=7
-} E_AddPartItems;
+};
 
 /* Dialog to get number of parts to add, and the number of staves per part. Returns
 True for OK, False for Cancel. */
@@ -736,9 +738,9 @@ static void InsertPartMP(Document *doc,
 		stfRight = StaffRIGHT(aStaffL);
 	}
 	else {
-		DDIST initStfTop1;
+		DDIST initStaffTop1;
 
-		initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastralMP]/STFHALFSP);
+		initStaffTop1 = (short)(doc->ledgerYSp*drSize[doc->srastralMP]/STFHALFSP);
 		
 		newPos = 0;
 		noParts = True;								/* Means there were originally no parts */
@@ -746,7 +748,7 @@ static void InsertPartMP(Document *doc,
 		stfHeight = (5*stfHeight1/2);
 		stfLeft = 0;
 		stfRight = pt2d(doc->marginRect.right-doc->marginRect.left-doc->dIndentOtherMP);
-		doc->staffTopMP[1] = initStfTop1;
+		doc->staffTopMP[1] = initStaffTop1;
 	}
 
 	/* Allocate a list of staves and insert before <aStaffL>, the staff subobj at the
@@ -929,13 +931,13 @@ short GetPartSelRange(Document *doc, LINK *firstPartL, LINK *lastPartL)
 
 short PartRangeIsSel(Document *doc)
 {
-	LINK staffL,aStaffL,partL,minPartL,maxPartL;
-	short minStf,maxStf;
+	LINK staffL, aStaffL, partL, minPartL, maxPartL;
+	short minStf, maxStf;
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);
 	if (!LinkSEL(staffL)) return False;
 
-	GetSelStaves(staffL,&minStf,&maxStf);
+	GetSelStaves(staffL, &minStf, &maxStf);
 
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
@@ -955,8 +957,8 @@ short PartRangeIsSel(Document *doc)
 }
 
 
-/* Return True if any group exists in the selection range, which in this
-case is the range of selected staff subObjects. Otherwise, return False. */
+/* Return True if any group exists in the selection range, which in this case is the
+range of selected staff subObjects. Otherwise, return False. */
 
 short GroupIsSel(Document *doc)
 {
@@ -1028,12 +1030,12 @@ void GetSelStaves(LINK staffL, short *minStf, short *maxStf)
 
 /* Symbolic Dialog Item Numbers */
 
-static enum {
+enum {
 	BUT1_OK = 1,
 	RAD4_SQBRACKET = 4,
 	RAD5_CURLY = 5,
 	CHK6_EXTEND = 6
-} E_GroupPartsItems;
+};
 
 static void GroupPartsDialog(
 				Boolean *pConnBars,		/* True=extend barlines to connect staves */

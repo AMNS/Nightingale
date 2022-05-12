@@ -11198,3 +11198,25 @@ most of the page is showing, but only if the second Sync to be played is at the 
 of the page; otherwise it won't scroll at all: a ridiculous method. Instead, it should
 probably scroll iff the Sync's page's entire width isn't in view, assuming the
 magnification and window size are such that the entire width page _can_ be viewed at once.
+
+---------------------------------------------------------------------------------------
+
+5 - 11 May
+
+Working on re-installing NightingaleSearch features, I added the C files from 2007(!) --
+pre-Xcode 2.5, when we were using Metrowerks CodeWarrior, I believe -- without changing the
+extensions from .c to .cp. Result: fatal errors from code using the C++ feature of multiple
+functions with the same name distinguished by calling sequence. Not good! Ngale is a C99
+program (Issue #158). So:
+
++ short CountVoices(Document *doc): conflicts with an Apple def., so rename as NCountVoices
+ 
++ Rect GetQDScreenBitsBounds(): leave as is
+  Rect *GetQDScreenBitsBounds(Rect *bounds): remove
+
++ void InstallMidiMap(Document *doc, Handle fsSpecHdl): rename & declare static
+  void InstallMidiMap(Document *doc, FSSpec *fsSpec): MidiMapInfo.c uses
+
++ Boolean OpenNotelistFile(Str255 fileName, NSClientDataPtr pNSD): Menu.c uses
+  Boolean OpenNotelistFile(Str255 fileName, FSSpec *fsSpec): Event.c uses; rename FSOpenNotelistFile
+

@@ -272,25 +272,25 @@ void UpdateMenuBar()
 
 /* ------------------------------------------------------------------------ Rectangles -- */
 
-/* Set ans to be the centered version of r with respect to inside.  We do this by
+/* Set ansR to be the centered version of r with respect to inside.  We do this by
 computing the centers of each rectangle, and offseting the centeree by the distance
-between the two centers.  If inside is NULL, then we assume it to be the main screen. */
+between the two centers. If insideR is NULL, we assume it to be the main screen. */
 
-void CenterRect(Rect *r, Rect *inside, Rect *ans)
+void CenterRect(Rect *r, Rect *insideR, Rect *ansR)
 {
-	short rx,ry,ix,iy;
+	short rx, ry, ix, iy;
+	Rect insR;
 
 	rx = r->left + ((r->right - r->left) / 2);
 	ry = r->top + ((r->bottom - r->top) / 2);
 	
-	if (inside == NULL) //inside = &qd.screenBits.bounds;
-		GetQDScreenBitsBounds(inside);
+	if (insideR == NULL) { insR = GetQDScreenBitsBounds();  *insideR = insR; }
 
-	ix = inside->left + ((inside->right - inside->left) / 2);
-	iy = inside->top + ((inside->bottom - inside->top) / 2);
+	ix = insideR->left + ((insideR->right - insideR->left) / 2);
+	iy = insideR->top + ((insideR->bottom - insideR->top) / 2);
 	
-	*ans = *r;
-	OffsetRect(ans, ix-rx, iy-ry);
+	*ansR = *r;
+	OffsetRect(ansR, ix-rx, iy-ry);
 }
 
 /* Force a rectangle to be entirely enclosed by another (presumably) larger one. If the
@@ -300,13 +300,13 @@ border. */
 
 void PullInsideRect(Rect *r, Rect *inside, short margin)
 {
-	Rect ans,tmp;
+	Rect ansR, tmp;
 	
 	tmp = *inside;
 	InsetRect(&tmp,margin,margin);
 	
-	SectRect(r, &tmp, &ans);
-	if (!EqualRect(r, &ans)) {
+	SectRect(r, &tmp, &ansR);
+	if (!EqualRect(r, &ansR)) {
 		if (r->top < tmp.top) OffsetRect(r, 0, tmp.top-r->top);
 		 else if (r->bottom > tmp.bottom) OffsetRect(r, 0, tmp.bottom-r->bottom);
 			
@@ -1386,19 +1386,6 @@ Rect GetQDScreenBitsBounds()
 	GetQDGlobalsScreenBits(&screenBits);
 	
 	return screenBits.bounds;
-}
-
-Rect *GetQDScreenBitsBounds(Rect *bounds)
-{
-	static Rect screenBitBounds = {0,0,0,0};
-	BitMap screenBits;
-	
-	GetQDGlobalsScreenBits(&screenBits);
-	
-	screenBitBounds = screenBits.bounds;
-	*bounds = screenBitBounds;
-	
-	return &screenBitBounds;
 }
 
 Pattern *NGetQDGlobalsDarkGray()

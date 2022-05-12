@@ -344,7 +344,6 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean	OpenMidiMapFileNSD(Document *doc, Str255 fileName, NSClientDataPtr pNSD);
 	Boolean OpenMidiMapFileFNFS(Document *doc, Str255 fileName, FSSpec *fsSpec);
 	Boolean OpenMidiMapFile(Document *doc, FSSpec *fsSpec);
-	void InstallMidiMap(Document *doc, Handle fsSpecHdl);
 	void InstallMidiMap(Document *doc, FSSpec *fsSpec);
 	void ClearMidiMap(Document *doc);
 	Boolean HasMidiMap(Document *doc);
@@ -379,8 +378,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* NotelistConvert.c */
 
+	Boolean FSOpenNotelistFile(Str255 fileName, FSSpec *fsSpec);
 	Boolean	OpenNotelistFile(Str255 fileName, NSClientDataPtr pNSD);
-	Boolean OpenNotelistFile(Str255 fileName, FSSpec *fsSpec);
 
 /* Part.c */
 
@@ -569,7 +568,7 @@ pascal short	FindToolItem(Point pt);
 	short		User2IntVoice(Document *, short, LINK);
 	Boolean		Int2UserVoice(Document *, short, short *, LINK *);
 	short		NewVoiceNum(Document *, LINK);
-	short		CountVoices(Document *doc);
+	short		NCountVoices(Document *doc);
 	void		GetVoiceTableLine(Document *doc, short vNum, char *str);
 
 /* Windows.c */

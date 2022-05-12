@@ -448,8 +448,8 @@ Boolean DoDebug(
 		case VOICETBL_DI:
 			short v; char str[300];
 
-			LogPrintf(LOG_INFO, "VOICE TABLE: there are %d voices.\n", CountVoices(doc));
-			for (v = 1; v<=CountVoices(doc); v++) {
+			LogPrintf(LOG_INFO, "VOICE TABLE: there are %d voices.\n", NCountVoices(doc));
+			for (v = 1; v<=NCountVoices(doc); v++) {
 				GetVoiceTableLine(doc, v, str);
 				strcat(str, "\n");
 				LogPrintf(LOG_INFO, str);
