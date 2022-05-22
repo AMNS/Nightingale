@@ -3680,3 +3680,13 @@ NightTemplates.h, UIFUtils.h; Browser, DebugHighLevel, Event, Menu, MidiMap, MPC
 NotelistOpen, UIFUtils, VoiceTable.
 
 ----------------------------------------------------------------------------------------- B15
+
+12 - 21 May
+
+Fixed minor bug: the declaration of the ASTAFF_5 struct contains a WHOLE_KSINFO, but it
+should contain a WHOLE_KSINFO_5; as a result, key signatures in old ('N105' format) files
+are likely to get screwed up when they're opened. Affects NObjTypesN105.h.
+
+Minor changes. Affects info.plist, NObjTypes.h; CarbonPrinting, DrawNRGR, FileConversion.
+
+----------------------------------------------------------------------------------------- B16

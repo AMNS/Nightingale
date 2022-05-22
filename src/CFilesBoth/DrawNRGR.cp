@@ -376,7 +376,8 @@ void DrawAcc(Document *doc,
 				)
 {
 	PANOTE theNote;
-	DDIST accXOffset, d8thSp, xdAcc, xdLParen, xdRParen, ydParens, lnSpace;
+	DDIST accXOffset, d8thSp, xdAcc, lnSpace;
+	DDIST xdLParen=0, xdRParen=0, ydParens=0;
 	short xmoveAcc, xp, yp, deltaXR, deltaXL, deltaY, scalePercent=0;
 	Byte accGlyph, lParenGlyph, rParenGlyph;
 
@@ -644,19 +645,14 @@ void PaintRoundRightRect(Rect *paRect, short ovalWidth, short ovalHeight)
 }
 
 
-static void DrawNoteheadGraph(Document *, unsigned char, Byte, Boolean, DDIST, LINK, PCONTEXT);
+static void DrawNoteheadGraph(Document *, Byte, Boolean, DDIST, LINK, PCONTEXT);
 
 /* QuickDraw only */
 /* Draw a little graph as a notehead: intended to be used to visualize changes during
-the note. This version draws a series of colored bars side by side. FIXME: INSTEAD OF
-appearance, WHICH CAN'T BE MORE THAN 8 BITS,
-HOW ABOUT USING A NOTE MODIFIER TO CONTROL WHAT'S DRAWN? I THINK AMODNR HAS A LOT MORE
-THAN 13 BITS AVAILABLE, & IT SHOULD BE EASY TO GET THE INFO IN VIA NOTELIST! E.G.,
-modCode = 60 => draw graph, OR 61:80 => draw graph OF 1:20 SEGMENTS. */
+the note. This version simply draws one or more colored bars side by side. */
 
 static void DrawNoteheadGraph(Document *doc,
-				unsigned char /* glyph */,
-				Byte appearance,
+				Byte /* appearance */,
 				Boolean dim,			/* Should notehead be dimmed? */
 				DDIST dhalfLn,
 				LINK aNoteL,				
@@ -673,7 +669,7 @@ static void DrawNoteheadGraph(Document *doc,
 	Rect	graphRect, segRect;
 	long	resFact;
 	Point	pt;
-	short	segColor[50];
+	short	nhSegment[4];
 
 	aNote = GetPANOTE(aNoteL);
 	resFact = RESFACTOR*(long)doc->spacePercent;
@@ -684,8 +680,7 @@ static void DrawNoteheadGraph(Document *doc,
 	qdLen = (long)(config.pianorollLenFact*qdLen) / 100L;
 	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
 #endif
-	graphLen = d2p(qd2d(qdLen, pContext->staffHeight,
-							pContext->staffLines));
+	graphLen = d2p(qd2d(qdLen, pContext->staffHeight, pContext->staffLines));
 
 	GetPen(&pt);
 //		LineTo(pt.h+12, pt.v+12);
@@ -699,119 +694,47 @@ static void DrawNoteheadGraph(Document *doc,
 		xorg+graphLen, yorg+d2p(dhalfLn));
 	rDiam = UseMagnifiedSize(4, doc->magnify);
 	
-	/* Code below in this function should all be considered provisional and subject to
-	   change for customization or whatever reason. */
-	   
-#if 1
-	nSegs = 1;
-	switch (appearance) {
-		case 1:
-			segColor[1] = blueColor;
-			break;
-		case 2:
-			segColor[1] = yellowColor;
-			break;
-		case 3:
-			nSegs = 2;
-			segColor[1] = magentaColor;
-			segColor[2] = blueColor;
-			break;
-		case 4:
-			segColor[1] = magentaColor;
-		case 5:
-			nSegs = 3;
-			segColor[1] = magentaColor;
-			segColor[2] = yellowColor;
-			segColor[3] = blueColor;
-			break;
-
-		default:
-			;
+	for (short k=0; k<4; k++) nhSegment[k] = blackColor;
+	nSegs = 0;
+	for (short k=0; k<4; k++) {
+		if (nhSegment[k]<=0) break;
+		nhSegment[k] = NoteSEGMENT(aNoteL, k);
+		nSegs++;
 	}
 
+	/* ??Code below in this function is unfinished; it needs to pay attention to the
+	   whole nhSegment[] array, and handle values/colors sensibly! */
+	   
 	switch (nSegs) {
 		case 1:
-			ForeColor(segColor[1]);
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
+			ForeColor(nhSegment[1]);
+			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
 			break;
 		case 2:
-			ForeColor(segColor[1]);
+			ForeColor(nhSegment[1]);
 			segRect = graphRect;
 			segRect.right = segRect.left+graphLen/2;
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundLeftRect(&segRect, rDiam, rDiam);
 
-			ForeColor(segColor[2]);
+			ForeColor(nhSegment[2]);
 			segRect = graphRect;
 			segRect.left = segRect.right-graphLen/2;
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRightRect(&segRect, rDiam, rDiam);
-			break;
-		case 3:
-			ForeColor(segColor[1]);
-			segRect = graphRect;
-			segRect.right = segRect.left+graphLen/3;
-			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundLeftRect(&segRect, rDiam, rDiam);
-
-			ForeColor(segColor[2]);
-			segRect = graphRect;
-			segRect.left += graphLen/3;
-			segRect.right -= graphLen/3;
-			if (dim)	FillRect(&segRect, NGetQDGlobalsGray());
-			else		PaintRect(&segRect);
-
-			ForeColor(segColor[3]);
-			segRect = graphRect;
-			segRect.left = segRect.right-graphLen/3;
 			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRightRect(&segRect, rDiam, rDiam);
 			break;
-		
 		default:
 			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam);		
 	}
-	ForeColor(Voice2Color(doc, aNote->voice));
+	ForeColor(Voice2Color(doc, NoteVOICE(aNoteL)));
 
 #if 0
 	SetRect(&graphRect, xorg, yorg-14*d2p(dhalfLn),
 		xorg+1.5*graphLen, yorg-11*d2p(dhalfLn));				// ?? VERY TEMP! TEST PaintRoundLeftRect !!!!
-	if ((appearance & 0x1)==0) PaintRoundLeftRect(&graphRect, 2*rDiam, 2*rDiam);
+	if ((nhSegment[0] & 0x1)==0) PaintRoundLeftRect(&graphRect, 2*rDiam, 2*rDiam);
 	else PaintRoundRightRect(&graphRect, 2*rDiam, 2*rDiam);
-#endif
-
-#else
-	switch (appearance) {
-		case 1:
-			ForeColor(blueColor);
-			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			break;
-		case 2:
-			ForeColor(yellowColor);
-			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			break;
-		case 3:
-			segRect = graphRect;
-			segRect.right = segRect.left+graphLen/2;
-			ForeColor(magentaColor);
-			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&segRect, rDiam, rDiam); 
-			segRect = graphRect;
-			segRect.left = segRect.right-graphLen/2;
-			ForeColor(blueColor);
-			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&segRect, rDiam, rDiam); 
-			break;
-		default:
-			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			;
-	}
-	ForeColor(Voice2Color(doc, aNote->voice));
 #endif
 }
 
@@ -985,29 +908,34 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 		else
 		{
 			MoveTo(xadjhead, yadjhead);								/* position to draw head */
+
+			/* HANDLE UNKNOWN CMN DURATION/WHOLE/BREVE */
+
 			if (noteType<=WHOLE_L_DUR)
-	/* HANDLE UNKNOWN CMN DURATION/WHOLE/BREVE */
 				DrawNotehead(doc, glyph, appearance, dim, dhalfLn);
+
+			/* HANDLE STEMMED NOTE. If the note is in a chord and is stemless, skip entire
+			   business of drawing the stem and flags. */
+
 			else {
-	/* HANDLE STEMMED NOTE. If the note is in a chord and is stemless, skip the entire
-	   business of drawing the stem and flags. */
 				if (MainNote(aNoteL)) {
 					short stemSpace;
 
 					stemDown = (dStemLen>0);
-					/*
-					 *	In order for stems to line up with any beamsets that have already been
-					 *	drawn, we have to make sure that the order of computation is the same
-					 *	here as when we drew the beams, since we are not depending on any explicit
-					 *	data to enforce registration.  FIXME: CUT NEXT In particular, the conversion
-					 *	from DDISTs to pixels should be done *after* adding the stemspace to the
-					 *	note's left edge position, rather than before, so that we don't get
-					 *	double round-off errors.  This seems to fix the ancient plague of
-					 *	misregistration problems between note stems and their beams at different
-					 *	magnifications.  The only way to ensure that this plague won't reoccur
-					 *	is to keep the position computations for beams and note stems
-					 *	exactly the same (so the same round-off errors occur). Cf. CalcXStem.
-					 */
+					
+					/* In order for stems to line up with any beamsets that have already
+					   been drawn, we have to make sure that the order of computation is
+					   the same here as when we drew the beams, since we are not depending
+					   on any explicit data to enforce registration.  FIXME: CUT NEXT In
+					   particular, the conversion from DDISTs to pixels should be done
+					   *after* adding the stemspace to the note's left edge position,
+					   rather than before, so that we don't get double round-off errors. 
+					   This seems to fix the ancient plague of misregistration problems
+					   between note stems and their beams at different magnifications. The
+					   only way to ensure that this plague won't reoccur is to keep the
+					   position computations for beams and note stems exactly the same (so
+					   the same round-off errors occur). Cf. CalcXStem. */
+
 					if (stemDown)
 						stemSpace = 0;
 					else {
@@ -1022,11 +950,13 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 						ypStem = yhead+d2p(dStemLen);
 
 						if (doc->musicFontNum==sonataFontNum) {
-							/* The 8th and 16th note flag characters in Sonata have their origins set so,
-								in theory, they're positioned properly if drawn from the point where the note
-								head was drawn. Unfortunately, the vertical position depends on the stem
-								length, which Sonata's designers assumed was always one octave. The "extend
-								flag" characters have their vertical origins set right where they go. */
+							/* The 8th and 16th note flag characters in Sonata have their
+							   origins set so, in theory, they're positioned properly if
+							   drawn from the point where the note head was drawn.
+							   Unfortunately, the vertical position depends on the stem
+							   length, which Sonata's designers assumed was always one
+							   octave. The "extend flag" characters have their vertical
+							   origins set right where they go. */
 								
 							MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
 							octaveLength = d2p(7*SizePercentSCALE(dhalfLn));
@@ -1048,11 +978,11 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 								while (flagCount-- > 2) {
 									if (stemDown) {
 										DrawMChar(doc, MCH_extendFlagDown, NORMAL_VIS, dim);
-										Move(0, -d2p(FlagLeading(lnSpace))); /* FIXME: HUH? */
+										Move(0, -d2p(FlagLeading(lnSpace)));	/* FIXME: HUH? */
 									}
 									else {
 										DrawMChar(doc, MCH_extendFlagUp, NORMAL_VIS, dim);
-										Move(0, d2p(FlagLeading(lnSpace))); /* FIXME: HUH? */
+										Move(0, d2p(FlagLeading(lnSpace)));		/* FIXME: HUH? */
 									}
 								}
 							}
@@ -1127,14 +1057,18 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 						}
 					}
 				}
-				MoveTo(xadjhead, yadjhead);									/* position to draw head */
+
+				/* At long last, position to draw notehead and draw it, then any modifiers
+				   and any augmentation dots. */
+				
+				MoveTo(xadjhead, yadjhead);
 				if (doNoteheadGraphs)
-					DrawNoteheadGraph(doc, glyph, appearance, dim, dhalfLn, aNoteL, pContext);	/* Finally, draw notehead */
+					DrawNoteheadGraph(doc, appearance, dim, dhalfLn, aNoteL, pContext);
 				else
-					DrawNotehead(doc, glyph, appearance, dim, dhalfLn);		/* Finally, draw notehead */
+					DrawNotehead(doc, glyph, appearance, dim, dhalfLn);
 			}
 
-			DrawModNR(doc, aNoteL, xd, pContext);							/* Draw all modifiers */
+			DrawModNR(doc, aNoteL, xd, pContext);
 			DrawAugDots(doc, aNoteL, xdNorm, yd, pContext, chordNoteToR);
 		}
 	
@@ -1144,10 +1078,10 @@ EndQDrawing:
 		if (*recalc) {
 			
 			GetNoteheadRect(glyph, appearance, dhalfLn, &rSub);
-			/*
-			 *	"Proper" size rects for noteheads can be both hard to click on and hard
-			 *	to see hilited, so we just enlarge them a bit.
-			 */
+			
+			/* "Proper" size rects for noteheads can be both hard to click on and hard
+			   to see hilited, so we just enlarge them a bit. */
+			
 			InsetRect(&rSub, -1, -1);
 			OffsetRect(&rSub, xhead-pContext->paper.left, yhead-pContext->paper.top);
 			if (*drawn)
@@ -1192,9 +1126,8 @@ EndQDrawing:
 			xoff = MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 			yoff = MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 
-			/*
-			 *	UNKNOWN DURATION, WHOLE NOTE, OR BREVE
-			 */
+			/* UNKNOWN DURATION, WHOLE NOTE, OR BREVE */
+			
 			if (noteType==UNKNOWN_L_DUR)
 				PS_NoteStem(doc, xd+xoff, yd+yoff, xd+xoff, glyph, (DDIST)0, (DDIST)0, False,
 								appearance!=NO_VIS, headSizePct);
@@ -1203,11 +1136,9 @@ EndQDrawing:
 							appearance!=NO_VIS, headSizePct);
 			
 			else {
-			
-				/*
-				 *	STEMMED NOTE. If the note is in a chord and is stemless, skip
-				 *	entire business of drawing the stem and flags.
-				 */
+				/* STEMMED NOTE. If the note is in a chord and is stemless, skip
+				   entire business of drawing the stem and flags. */
+				   
 				if (MainNote(aNoteL)) {
 					stemDown = (dStemLen>0);
 					xdAdj = (headRelSize==100? 0 : NHEAD_XD_GLYPH_ADJ(stemDown, headRelSize));
@@ -1215,13 +1146,14 @@ EndQDrawing:
 										aNote->beamed, appearance!=NO_VIS, headSizePct);
 					if (flagCount) {
 						if (doc->musicFontNum==sonataFontNum) {
-							/*
-							 *	The 8th and 16th note flag characters in Sonata have their origins set so,
-							 *	in theory, they're positioned properly if drawn from the point where the note
-							 *	head was drawn. Unfortunately, the vertical position depends on the stem
-							 *	length, which Adobe incorrectly assumed was always one octave. The "extend
-							 *	flag" characters have their vertical origins set right where they go.
-							 */
+							/* The 8th and 16th note flag characters in Sonata have their
+							   origins set so, in theory, they're positioned properly if
+							   drawn from the point where the note head was drawn.
+							   Unfortunately, the vertical position depends on the stem
+							   length, which Sonata's designers assumed was always one
+							   octave. The "extend flag" characters have their vertical
+							   origins set right where they go. */
+
 							octaveLength = 7*SizePercentSCALE(dhalfLn);
 							ypStem = yd + dStemLen + (stemDown ? -octaveLength : octaveLength);
 			
@@ -1325,9 +1257,8 @@ EndQDrawing:
 										appearance!=NO_VIS, headSizePct);
 				}
 			}
-		/*
-		 *	Note drawn: now add modifiers and augmentation dots, if any
-		 */
+			
+			/* Note drawn: now add modifiers and augmentation dots, if any */
 			DrawModNR(doc, aNoteL, xd, pContext);								/* Draw all modifiers */
 			DrawAugDots(doc, aNoteL, xdNorm, yd, pContext, chordNoteToR);
 		}
@@ -1370,6 +1301,7 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 	endBottom = yd-lnSpace;
 	endTop = yd+lnSpace;
 	dTop = pContext->measureTop;
+	
 	/* Set number y-pos., considering that origins of Sonata digits bisect them. */
 	
 	ydNum = dTop-lnSpace-dhalfLn;
@@ -1379,10 +1311,9 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 	xdNum += MusCharXOffset(doc->musFontInfoIndex, numStr[1], lnSpace);
 	ydNum += MusCharYOffset(doc->musFontInfoIndex, numStr[1], lnSpace);
 
-	/*
-	 * In each imaging model, we draw first the thick bar; then the thin vertical
-	 * lines at each end of the thick bar; and finally the number.
-	 */
+	/* In each imaging model, we draw first the thick bar; then the thin vertical
+	   lines at each end of the thick bar; and finally the number. */
+	   
 	switch (outputTo) {
 		case toScreen:
 		case toBitmapPrint:
@@ -1714,8 +1645,9 @@ static void DrawGRAcc(Document *doc,
 						)
 {
 	PAGRNOTE theGRNote;
-	DDIST accXOffset, d8thSp, xdAcc, xdLParen, xdRParen, ydParens, lnSpace;
-	short xmoveAcc, xp, yp, delta, scalePercent;
+	DDIST accXOffset, d8thSp, xdAcc, lnSpace;
+	DDIST xdLParen=0, xdRParen=0, ydParens=0;
+	short xmoveAcc, xp, yp, delta, scalePercent=0;
 	Byte accGlyph, lParenGlyph, rParenGlyph;
 
 	theGRNote = GetPAGRNOTE(theGRNoteL);
@@ -1973,7 +1905,8 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 			fudgeHeadY = GetYHeadFudge(useTxSize);						/* Get fine Y-offset for notehead */
 		
 		/* xhead,yhead is position of notehead; xadjhead,yadjhead is position of notehead 
-			with any offset applied (might be true if music font is not Sonata). */
+		   with any offset applied (might be true if music font is not Sonata). */
+			
 		offset = MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 		if (offset) {
 			xhead = pContext->paper.left + d2p(xd);
@@ -2031,19 +1964,22 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 		else
 		{
 			MoveTo(xadjhead, yadjhead);									/* position to draw head */
+
+			/* HANDLE UNKNOWN CMN DURATION or WHOLE/BREVE: Show notehead alone. */
+		
 			if (aGRNote->subType==UNKNOWN_L_DUR)
-		/* HANDLE UNKNOWN CMN DURATION: Show a solid notehead alone. */
 				DrawMChar(doc, glyph, appearance, dim);
 			else if (aGRNote->subType<=WHOLE_L_DUR)
-		/* HANDLE WHOLE/BREVE */
 				DrawMChar(doc, glyph, appearance, dim);
+				
+			/* HANDLE STEMMED NOTE. If the grace note is in a chord and is stemless, skip
+			   entire business of drawing the stem and flags. */
+		   
 			else {
-		/* HANDLE STEMMED NOTE. If the grace note is in a chord and is stemless, skip the
-		 *	entire business of drawing the stem and flags.
-		 */
 				if (GRMainNote(aGRNoteL)) {
 					short stemSpace;
 
+					stemDown = (aGRNote->ystem > aGRNote->yd);
 					if (stemDown)
 						stemSpace = 0;
 					else {

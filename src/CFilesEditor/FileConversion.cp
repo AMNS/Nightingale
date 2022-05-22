@@ -697,8 +697,11 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteINOTTAVA(aNoteRL) = (&a1NoteR)->inOttava;
 	NoteSMALL(aNoteRL) = (&a1NoteR)->small;
 	NoteTEMPFLAG(aNoteRL) = (&a1NoteR)->tempFlag;
+	
+	/* The following fields are nonexistent or unused in 'N105' format. */
+	
 	NoteARTHARMONIC(aNoteRL) = 0;
-	for (short k = 0; k<4; k++) NoteSEGMENT(aNoteRL, k) = 0;
+	for (short k = 0; k<4; k++) NoteSEGMENT(aNoteRL, k) = 0; 
 	NoteUSERID(aNoteRL) = 0;
 	NoteRESERVEDN(aNoteRL) = 0L;
 	
@@ -1074,6 +1077,9 @@ static Boolean Convert1GRNOTE(Document * /* doc */, LINK aGRNoteL)
 	GRNoteINOTTAVA(aGRNoteL) = (&a1GRNote)->inOttava;
 	GRNoteSMALL(aGRNoteL) = (&a1GRNote)->small;
 	GRNoteTEMPFLAG(aGRNoteL) = (&a1GRNote)->tempFlag;
+
+	/* The following fields are nonexistent or unused in 'N105' format. */
+	
 	GRNoteARTHARMONIC(aGRNoteL) = 0;
 	for (short k = 0; k<4; k++) GRNoteSEGMENT(aGRNoteL, k) = 0;
 	GRNoteUSERID(aGRNoteL) = 0;

@@ -1,8 +1,7 @@
 /*
 	File:		CarbonPrinting.c for Nightingale
-	
-	Contains:	Routines needed to perform printing. This example uses sheets and provides
-				for save as PDF. Based on Apple's MyCarbonPrinting.c.
+	Contains:	Routines needed for printing. This example uses sheets and provides for
+				save as PDF. Based on Apple's MyCarbonPrinting.c.
 */
 
 #include "Nightingale_Prefix.pch"
@@ -67,7 +66,6 @@ static OSStatus DocCreatePrintSessionProcs(PMSheetDoneUPP *pageSetupDoneUPP,
 		
 		gMyPrintDialogDoneProc = NewPMSheetDoneUPP(NPrintDialogDoneProc);
 		if (gMyPrintDialogDoneProc == NULL) err = memFullErr;
-			
 		*printDialogDoneUPP = gMyPrintDialogDoneProc;
 	}
 	
@@ -238,7 +236,6 @@ void DoPageSetup(Document *doc)
 	Boolean accepted = False;
 	
 	OSStatus status = DocSetupPageFormat(doc);
-	
 	if (status==noErr) {
 		PMSessionUseSheets(doc->docPrintInfo.docPrintSession,  w,
 							doc->docPrintInfo.docPageSetupDoneUPP);
@@ -246,7 +243,6 @@ void DoPageSetup(Document *doc)
 											doc->docPrintInfo.docPageFormat,
 											&accepted);
 	}
-	
 	if (status!=noErr) {
 		DocReleasePrintSession(doc);
 		CFStringRef cfFormatStr = CFSTR("Page Setup Dialog error. Error number: %d.");
@@ -383,7 +379,6 @@ static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPa
 
 
 /* -------------------------------------------------------------------------------------- */
-
 /* Check that systems in a range of pages are all justified. If SysJustFact() is
 significantly different from 1.0, tell user and give them a chance to cancel. Return
 False if user says stop or there's an error, True otherwise (all justified, or user
@@ -881,7 +876,7 @@ Description:
 	Flattens a PageFormat object so it can be saved with the document.
 	Assumes caller passes a validated PageFormat object.
 		
------------------------------------------------------------------------------- */
+----------------------------------------------------------------------------------------- */
 
 OSStatus FlattenAndSavePageFormat(Document *doc)
 {
@@ -901,7 +896,7 @@ OSStatus FlattenAndSavePageFormat(Document *doc)
 }
 
 
-/*------------------------------------------------------------------------------
+/*--------------------------------------------------------------------------------------
 Function:	LoadAndUnflattenPageFormat
 Parameters:
 	pageFormat	- PageFormat object read from document file
@@ -911,7 +906,7 @@ Description:
 	The function is not called in this sample code but your application
 	will need to retrieve PageFormat data saved with documents.
 		
------------------------------------------------------------------------------- */
+----------------------------------------------------------------------------------------- */
 
 OSStatus LoadAndUnflattenPageFormat(Document *doc)
 {
@@ -1070,10 +1065,8 @@ Boolean DoPostScript(Document *doc)
 		theErr = PS_Open(doc, outname, vref, USING_FILE, EPSFile? 'EPSF':'TEXT', &rfSpec);
 		if (theErr == noErr) {
 			paperRect = doc->origPaperRect;
-			
 			PS_Header(doc, outname, (EPSFile? 1:doc->numSheets), 1.0, False, True,
 						&paperRect, &paperRect);
-			
 			if (EPSFile) {
 				firstSheet = sheetNum;					/* Do current sheet only */
 				topSheet = firstSheet + 1;
@@ -1137,7 +1130,7 @@ Boolean DoPostScript(Document *doc)
 				if (rfNum == -1) {
 					DisposeHandle((Handle)picHdl);
 					GetIndCString(fmtStr, PRINTERRS_STRS, 4);    /* "DoPrintScore: can't create or open resource file %s (Error %d)" */
-					sprintf(strBuf, fmtStr, PtoCstr(outname),ResError()); 
+					sprintf(strBuf, fmtStr, PtoCstr(outname), ResError()); 
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
 					}

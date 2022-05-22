@@ -11220,3 +11220,11 @@ program (Issue #158). So:
 + Boolean OpenNotelistFile(Str255 fileName, NSClientDataPtr pNSD): Menu.c uses
   Boolean OpenNotelistFile(Str255 fileName, FSSpec *fsSpec): Event.c uses; rename FSOpenNotelistFile
 
+---------------------------------------------------------------------------------------
+
+12 - 15 May
+
+Doug McKenna points out inconsistencies in declarations in NObjTypesN105.h. ASTAFF_5
+contains WHOLE_KSINFO, but it obviously should be WHOLE_KSINFO_5. Why hasn't that caused
+problems in converting files? Probably just dumb luck. Anyway, fixed.
+

@@ -169,7 +169,7 @@ typedef struct {
 	DDIST		spaceBelow;			/* Vert space occupied by stf; stored in case stf made invis */
 	SignedByte	clefType;			/* clef context */
 	SignedByte	dynamicType;		/* dynamic marking context */
-	WHOLE_KSINFO					/* key signature context */
+	WHOLE_KSINFO_5					/* key signature context */
 	SignedByte	timeSigType,		/* time signature context */
 				numerator,
 				denominator;
@@ -632,7 +632,7 @@ typedef struct {
 	DDIST		measureLeft;		/* 			page relative left */
 	SignedByte	clefType;			/* MISC:	current clef type */
 	SignedByte	dynamicType;		/* 			dynamic marking */
-	WHOLE_KSINFO					/*			key signature */
+	WHOLE_KSINFO_5					/*			key signature */
 	SignedByte	timeSigType,		/* 			current time signature */
 				numerator,
 				denominator;

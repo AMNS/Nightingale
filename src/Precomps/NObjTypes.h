@@ -578,8 +578,8 @@ typedef struct {
 	Byte		fontSize;			/* if relSize, small..large code, else point size (GRChar,GRString only) */
 	short		fontStyle;			/* (GRChar,GRString only) */
 	short		info2;				/* sub-subtype (GRArpeggio), 2nd y (GRDraw), _expanded_ (GRString) */
-	LINK		firstObj;			/* link to object left end is relative to, or NULL */
-	LINK		lastObj;			/* link to object right end is relative to, or NULL */
+	LINK		firstObj;			/* link to obj left end is relative to or NULL */
+	LINK		lastObj;			/* link to obj right end is relative to or NULL; ignored for most <graphicType>s */
 } GRAPHIC, *PGRAPHIC;
 
 #define ARPINFO(info2)	((unsigned short)(info2) >>13) 
