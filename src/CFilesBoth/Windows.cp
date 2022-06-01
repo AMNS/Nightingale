@@ -104,14 +104,16 @@ short DoCloseAllDocWindows()
 				nClosed++;
 			else {
 				/* User canceled, or error */
+				
 				return nClosed;
 			}
 			
 			if (TopPalette==TopWindow) {
-				/* Find the new TopDocument, and insure it and its controls are hilited properly. */
+				/* Find the new TopDocument, and insure it and its controls are hilited
+				   properly. */
+				   
 				AnalyzeWindows();
-				if (TopDocument)
-					ActivateDocument(GetDocumentFromWindow(w), True);
+				if (TopDocument) ActivateDocument(GetDocumentFromWindow(w), True);
 			}
 		}
 	}
@@ -145,7 +147,8 @@ void SetZoomState(WindowPtr /*w*/)
 void DoZoom(WindowPtr w, short part)
 {
 	PaletteGlobals *pg;
-	GrafPtr oldPort; short across,down,kind;
+	GrafPtr oldPort;
+	short across, down, kind;
 	
 	GetPort(&oldPort); SetPort(GetWindowPort(w));
 	Document *doc;
@@ -156,12 +159,12 @@ void DoZoom(WindowPtr w, short part)
 			Rect portRect;
 			
 			if (doc) {
-				GetWindowPortBounds(w,&portRect);
+				GetWindowPortBounds(w, &portRect);
 				ClipRect(&portRect);
 				EraseRect(&portRect);
 				ZoomWindow(w, part, False);
 				RecomputeWindow(w);
-				InvalWindowRect(w,&portRect);
+				InvalWindowRect(w, &portRect);
 				ClipRect(&doc->viewRect);
 			}
 			break;
@@ -169,11 +172,10 @@ void DoZoom(WindowPtr w, short part)
 			kind = GetWRefCon(w);
 			switch(kind) {
 				case TOOL_PALETTE:
-					/*
-					 *	Zoom the tools palette to the smallest size that shows
-					 *	all tool cells, unless the Option key is down, in which
-					 *	case, zoom it to its largest size.
-					 */
+					/* Zoom the tools palette to the smallest size that shows all tool
+					   cells, unless the Option key is down; in that case, zoom it to
+					   its largest size. */
+					   
 					pg = *paletteGlobals[kind];
 					if (OptionKeyDown())
 						{ across = pg->maxAcross; down = pg->maxDown; }
@@ -181,10 +183,12 @@ void DoZoom(WindowPtr w, short part)
 						{ across = pg->zoomAcross; down = pg->zoomDown; }
 					if (pg->across==across && pg->down==down)
 						/* Zoom in or back to old values */
-						ChangeToolSize(pg->oldAcross,pg->oldDown,True);
+						
+						ChangeToolSize(pg->oldAcross, pg->oldDown, True);
 					 else
-						/* Zoom it to the macs */
-						ChangeToolSize(across,down,True);
+						/* Zoom it to the max */
+						
+						ChangeToolSize(across, down, True);
 					break;
 				}
 			break;
@@ -197,7 +201,6 @@ void DoZoom(WindowPtr w, short part)
 /* -------------------------------------------------------- DrawMessageBox and friends -- */
 
 static void sprintfMagnify(Document *doc, char str[]);
-
 static void sprintfMagnify(Document *doc, char str[])
 {
 	if (doc->magnify!=0)
@@ -213,11 +216,11 @@ are drawn at an appropriate point; change the clipping to the message box; and c
 the font to the message box font (saving the old font in some local globals for
 FinishMessageDraw to restore).
 
-This routine lets us isolate the definition of the bounds of the messageRect in
-one place.
+This routine lets us isolate the definition of the bounds of the messageRect in one
+place.
 
-If you've precomputed the string to display, and it's only one string, then you
-should use DrawMessageString to do everything in one call. */
+If you've precomputed the string to display, and it's only one string, then you should
+use DrawMessageString to do everything in one call. */
 
 static short msgOldFont, msgOldFace, msgOldSize;
 
@@ -225,10 +228,9 @@ void PrepareMessageDraw(Document *doc, Rect *messageRect, Boolean boundsOnly)
 {
 	WindowPtr w = doc->theWindow;
 
-	/*
-	 *	First get the message rectangle bounds.  The top of the message rectangle
-	 * is just below the DrawGrowIcon line at the bottom of the window.
-	 */
+	/* First get the message rectangle bounds. The top of the message rectangle is just
+	   below the DrawGrowIcon line at the bottom of the window. */
+	   
 	Rect portRect;
 	
 	GetWindowPortBounds(w,&portRect);
@@ -239,9 +241,9 @@ void PrepareMessageDraw(Document *doc, Rect *messageRect, Boolean boundsOnly)
 
 	if (boundsOnly) return;
 	
-	/* Going to draw a message in box: prepare for temporary font/clip change */
+	/* We're going to draw a message in box: prepare for temporary font/clip change */
 	
-	msgOldSize = GetWindowTxSize(w);	/* This is not a stack, so these routines don't nest */
+	msgOldSize = GetWindowTxSize(w);	/* This is not a stack, so these routines don't nest! */
 	msgOldFont = GetWindowTxFont(w);
 	msgOldFace = GetWindowTxFace(w);
 	
@@ -296,8 +298,8 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 	char		fmtStr[256];
 	
 	if (!reallyDraw) {
-		GetPort(&oldPort); SetPort(GetWindowPort(w));
-		PrepareMessageDraw(doc, &messageRect,True);					/* Get messageRect only */
+		GetPort(&oldPort);  SetPort(GetWindowPort(w));
+		PrepareMessageDraw(doc, &messageRect,True);				/* Get messageRect only */
 		InvalWindowRect(w, &messageRect);
 		SetPort(oldPort);
 		return;
@@ -306,21 +308,21 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 	strBuf2[0] = '\0';							/* strBuf is always used but this buffer isn't */
 
 	if (doc->masterView) {
-		GetIndCString(fmtStr, MESSAGEBOX_STRS, 1);   				/* "Master Page" */
+		GetIndCString(fmtStr, MESSAGEBOX_STRS, 1);   			/* "Master Page" */
 		sprintf(strBuf, fmtStr);
 		sprintfMagnify(doc, &strBuf[strlen(strBuf)]);
-		GetIndCString(fmtStr, MESSAGEBOX_STRS, 2);   				/* "    CMD-; TO EXIT" */
+		GetIndCString(fmtStr, MESSAGEBOX_STRS, 2);   			/* "    CMD-; TO EXIT" */
 		sprintf(&strBuf[strlen(strBuf)], fmtStr);
 	}
 	else {
 		Sel2MeasPage(doc, &measNum, &pageNum);				
 		if (doc->showFormat) {
-			GetIndCString(fmtStr, MESSAGEBOX_STRS, 3);				/* "Work on Format  page %d" */
+			GetIndCString(fmtStr, MESSAGEBOX_STRS, 3);			/* "Work on Format  page %d" */
 			sprintf(strBuf, fmtStr, pageNum);
 			sprintfMagnify(doc, &strBuf[strlen(strBuf)]);
 		}
 		else {
-			GetIndCString(fmtStr, MESSAGEBOX_STRS, 4);				/* "page %d m.%d" */
+			GetIndCString(fmtStr, MESSAGEBOX_STRS, 4);			/* "page %d m.%d" */
 			sprintf(strBuf, fmtStr, pageNum, measNum);
 			partL = GetSelPart(doc);
 			pPart = GetPPARTINFO(partL);
@@ -341,7 +343,7 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 
 	PrepareMessageDraw(doc, &messageRect, False);
 	DrawCString(strBuf);
-	TextFace(bold); DrawCString(strBuf2);
+	TextFace(bold);  DrawCString(strBuf2);
 	FinishMessageDraw(doc);
 }
 
@@ -350,10 +352,10 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 
 /* Analyze the current window list in order to set the four globals that tell us about 
 it. The globals are TopWindow, TopPalette, BottomPallete, and TopDocument, which all
-point to visible windows, or NULL. If the TopDocument is above any visible palette,
-we adjust the order of the windows. If a visible non-application window is between any
-palettes and the TopDocument, adjust the order also. This function can replace most
-uses of FrontWindow() in the rest of the program. */
+point to visible windows, or NULL. If the TopDocument is above any visible palette, we
+adjust the order of the windows. If a visible non-application window is between any
+palettes and the TopDocument, adjust the order also. This function can replace most uses
+of FrontWindow() in the rest of the program. */
 	
 void AnalyzeWindows()
 {
@@ -385,6 +387,7 @@ void AnalyzeWindows()
 			 else
 				if (TopDocument!=NULL || TopPalette!=NULL)
 					/* Some other (?) window is visible between the palettes and TopDocument. */
+					
 					inOrder = False;
 		}
 		
@@ -406,7 +409,6 @@ void HiliteUserWindows()
 	WindowPtr *wp, next;
 	
 	if (TopPalette) {
-	
 		hilite = (TopWindow == TopPalette);
 		
 		wp = palettes;
@@ -417,7 +419,9 @@ void HiliteUserWindows()
 			
 		if (TopDocument) {
 			HiliteWindow(TopDocument, hilite);
+			
 			/* Unhilite the remaining document windows */
+			
 			for (next=GetNextWindow(TopDocument); next; next=GetNextWindow(next))
 				if (GetWindowKind(next) == DOCUMENTKIND) {
 					ActivateDocument(GetDocumentFromWindow(next), False);
@@ -436,7 +440,7 @@ Boolean ActiveWindow(WindowPtr w)
 	
 	if (w) {
 		kind = GetWindowKind(TopWindow);
-		if (kind<OURKIND || kind>=TOPKIND) return(False);			/* Not us */
+		if (kind<OURKIND || kind>=TOPKIND) return(False);				/* Not us */
 		if (w==TopDocument || (GetWindowKind(w)==PALETTEKIND && w==TopPalette))
 			return(True);
 	}
@@ -601,10 +605,10 @@ void InvalWindow(Document *doc)
 	SetPort(ourPort);
 	MEHideCaret(doc);
 	
-	/* DrawDocument fills in the background and erases each sheet being updated
-	   first, so there's no need to erase first. This reduces flash significantly. */
+	/* DrawDocument fills in the background and erases each sheet being updated first,
+	   so there's no need to erase first. This reduces flash significantly. */
 	
-	InvalWindowRect(doc->theWindow,&doc->viewRect);
+	InvalWindowRect(doc->theWindow, &doc->viewRect);
 	SetPort(oldPort);
 }
 

@@ -338,10 +338,9 @@ static void SetPartPatch(short partn, Byte partPatch[], Byte /* partChannel */ [
 
 #define PAN_CENTER 64						/* Pan to both sides equally */
 
-static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel);
-static void SendMIDISustainOff(Document *doc, MIDIUniqueID destDevID, char channel);
 static void SendMIDIPan(Document *doc, MIDIUniqueID destDevID, char channel, Byte panSetting);
-static void SendMIDISustainOff(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
+static void SendMIDISustainOn(MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
+static void SendMIDISustainOff(MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
 static void SendMIDIPan(Document *doc, MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tStamp);
 
 static Boolean cmSustainOn[MAXSTAVES + 1];
@@ -486,7 +485,7 @@ static void ResetMIDISustain(Document *doc, unsigned char *partChannel)
 			short partn = Staff2Part(doc, j);
 			MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 			short channel = CMGetUseChannel(partChannel, partn);
-			SendMIDISustainOff(doc, partDevID, channel, tStamp);										
+			SendMIDISustainOff(partDevID, channel, tStamp);										
 		}
 	}
 	
@@ -529,7 +528,7 @@ static void SendAllMIDISustains(Document *doc, unsigned char *partChannel, Boole
 				short partn = Staff2Part(doc, j);
 				MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 				short channel = CMGetUseChannel(partChannel, partn);
-				SendMIDISustainOn(doc, partDevID, channel);							
+				SendMIDISustainOn(partDevID, channel, 0);							
 			}
 		}
 	}
@@ -539,7 +538,7 @@ static void SendAllMIDISustains(Document *doc, unsigned char *partChannel, Boole
 				short partn = Staff2Part(doc, j);
 				MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 				short channel = CMGetUseChannel(partChannel, partn);
-				SendMIDISustainOff(doc, partDevID, channel);							
+				SendMIDISustainOff(partDevID, channel, 0);							
 			}
 		}		
 	}
@@ -575,32 +574,17 @@ static Boolean IsMIDIPatchChange(LINK pL)
 	return False;
 }
 
-static void SendMIDISustainOn(Document * /* doc */, MIDIUniqueID destDevID, char channel) 
-{
-	CMMIDISustainOn(destDevID, channel);	
-}
-
-static void SendMIDISustainOff(Document * /* doc */, MIDIUniqueID destDevID, char channel) 
-{
-	CMMIDISustainOff(destDevID, channel);	
-}
-
 static void SendMIDIPan(Document * /* doc */, MIDIUniqueID destDevID, char channel, Byte panSetting) 
 {
 	CMMIDIPan(destDevID, channel, panSetting);	
 }
 
-#ifdef NOMORE
-static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
-static void SendMIDISustainOn(Document * /* doc */, MIDIUniqueID destDevID, char channel,
-							  MIDITimeStamp tStamp) 
+static void SendMIDISustainOn(MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 
 {
 	CMMIDISustainOn(destDevID, channel, tStamp);	
 }
-#endif
 
-static void SendMIDISustainOff(Document * /* doc */, MIDIUniqueID destDevID, char channel,
-							   MIDITimeStamp tStamp) 
+static void SendMIDISustainOff(MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 
 {
 	CMMIDISustainOff(destDevID, channel, tStamp);	
 }

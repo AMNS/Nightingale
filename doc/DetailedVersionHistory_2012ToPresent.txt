@@ -3690,3 +3690,15 @@ are likely to get screwed up when they're opened. Affects NObjTypesN105.h.
 Minor changes. Affects info.plist, NObjTypes.h; CarbonPrinting, DrawNRGR, FileConversion.
 
 ----------------------------------------------------------------------------------------- B16
+
+27 - 31 May
+
+Don't add info for the obsolete MIDI drivers -- OMS and FreeMIDI -- to files we write.
+NB: This affects file formats, though only slightly, so older 'N106' format files may be
+unreadable with this version of Nightingale. Affects FileOpen, FileSave.
+
+Minor changes: improve source-code compatibility with NightingaleSearch, get rid of
+duplicate function names, etc. Affects info.plist, Nightingale_Prefix.pch,
+CarbonTemplates.h; CoreMIDIUtils, FileOpen, FileSave, Menu, MIDIPlay, Windows.
+
+----------------------------------------------------------------------------------------- B17

@@ -342,7 +342,7 @@
 		D03E69850D5F60B9005FD177 /* VersionStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VersionStrings.h; sourceTree = "<group>"; };
 		D03E69B10D5F62E6005FD177 /* MIDICompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDICompat.h; sourceTree = "<group>"; };
 		D03E69FA0D5F65DC005FD177 /* OpcodeNightingaleDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpcodeNightingaleDefs.h; sourceTree = "<group>"; };
-		D03E6A370D5F6680005FD177 /* Nightingale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nightingale.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D03E6A370D5F6680005FD177 /* Nightingale.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Nightingale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D03E6A670D5F69BE005FD177 /* NightTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NightTemplates.h; sourceTree = "<group>"; };
 		D03E6A690D5F69E8005FD177 /* MIDIRecUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDIRecUtils.h; sourceTree = "<group>"; };
 		D03E6B030D5F6E55005FD177 /* NavServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavServices.h; sourceTree = "<group>"; };
@@ -400,7 +400,7 @@
 		D03E6D530D5F9311005FD177 /* CarbonPrinting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CarbonPrinting.h; sourceTree = "<group>"; };
 		D03E6D590D5F9349005FD177 /* CarbonPrinting.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CarbonPrinting.cp; sourceTree = "<group>"; };
 		D03E6D6E0D5F942F005FD177 /* MidiMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MidiMap.h; sourceTree = "<group>"; };
-		D03E6D700D5F9457005FD177 /* Menu.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Menu.cp; sourceTree = "<group>"; };
+		D03E6D700D5F9457005FD177 /* Menu.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu.cp; sourceTree = "<group>"; };
 		D03E6DA40D5F95C8005FD177 /* Event.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Event.cp; sourceTree = "<group>"; };
 		D03E6DAF0D5F9644005FD177 /* Context.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Context.cp; sourceTree = "<group>"; };
 		D03E6DB00D5F9644005FD177 /* Copy.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Copy.cp; sourceTree = "<group>"; };

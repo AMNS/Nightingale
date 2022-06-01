@@ -56,8 +56,6 @@ OSStatus CMMIDISustainOn(MIDIUniqueID destDevID, char channel, MIDITimeStamp tst
 OSStatus CMMIDISustainOff(MIDIUniqueID destDevID, char channel, MIDITimeStamp tstamp);
 OSStatus CMMIDIPan(MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tstamp);
 OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal);
-OSStatus CMMIDISustainOn(MIDIUniqueID destDevID, char channel);
-OSStatus CMMIDISustainOff(MIDIUniqueID destDevID, char channel);
 OSStatus CMMIDIPan(MIDIUniqueID destDevID, char channel, Byte panSetting);
 
 MIDIUniqueID GetCMDeviceForPartn(Document *doc, short partn);

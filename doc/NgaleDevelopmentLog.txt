@@ -11203,7 +11203,7 @@ magnification and window size are such that the entire width page _can_ be viewe
 
 5 - 11 May
 
-Working on re-installing NightingaleSearch features, I added the C files from 2007(!) --
+SWITCH TO: Working on re-installing NightingaleSearch features, I added the C files from 2007(!) --
 pre-Xcode 2.5, when we were using Metrowerks CodeWarrior, I believe -- without changing the
 extensions from .c to .cp. Result: fatal errors from code using the C++ feature of multiple
 functions with the same name distinguished by calling sequence. Not good! Ngale is a C99
@@ -11224,7 +11224,43 @@ program (Issue #158). So:
 
 12 - 15 May
 
-Doug McKenna points out inconsistencies in declarations in NObjTypesN105.h. ASTAFF_5
+SWITCH TO: Doug McKenna points out inconsistencies in declarations in NObjTypesN105.h. ASTAFF_5
 contains WHOLE_KSINFO, but it obviously should be WHOLE_KSINFO_5. Why hasn't that caused
 problems in converting files? Probably just dumb luck. Anyway, fixed.
 
+---------------------------------------------------------------------------------------
+
+27 - 30 May
+
+Do minor cleanup in Menu.cp and Windows.cp.
+
+BACK TO: Working on re-installing NightingaleSearch features. Differences from the "standard"
+current Ngale 6 (build B17): Info.plist, Nightingale_Prefix.pch; Menu.cp.
+
+Try compiling it... Oops. Among other things, we still have fatal errors from code using
+multiple functions with the same name distinguished by calling sequence (Issue #158). Changing
+the file suffix from .c to .cp makes those go away, but they're all from code supporting the
+obsolete MIDI drivers, so much preferable to get rid of 'em! We have other fatal errors, too,
+though. For example:
+
+	    cd /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH
+    /Xcode2.5/usr/bin/gcc-4.0 -x c -arch ppc -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -Os -Wmissing-prototypes -Wreturn-type -Wformat -Wmissing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wuninitialized -Wunknown-pragmas -Wshadow -Wsign-compare -fmessage-length=0 -mtune=G4 -fvisibility=hidden -Wno-deprecated-declarations -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/NightingalePPC.build/Release/Nightingale.build/Nightingale.hmap -mdynamic-no-pic -F/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/Release -I/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/Release/include -I/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/NightingalePPC.build/Release/Nightingale.build/DerivedSources -isysroot /Xcode2.5/SDKs/MacOSX10.4u.sdk -c /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/src/FilesSearch/SearchScoreDlog.c -o /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/NightingalePPC.build/Release/Nightingale.build/Objects-normal/ppc/SearchScoreDlog.o
+	In file included from /*/NightingaleDABVer_6p0SEARCH/Nightingale_Prefix.pch:126,
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:5:18: error: vector: No such file or directory
+				 from /*/NightingaleDABVer_6p0SEARCH/src/FilesSearch/SearchScoreDlog.c:4:
+	In file included from /*/NightingaleDABVer_6p0SEARCH/Nightingale_Prefix.pch:126,
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:6: error: parse error before 'namespace'
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:6: warning: data definition has no type or storage class
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:58: error: conflicting types for 'CMMIDIController'
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:54: error: previous declaration of 'CMMIDIController' was here
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:59: error: conflicting types for 'CMMIDISustainOn'
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:55: error: previous declaration of 'CMMIDISustainOn' was here
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:60: error: conflicting types for 'CMMIDISustainOff'
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:56: error: previous declaration of 'CMMIDISustainOff' was here
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:61: error: conflicting types for 'CMMIDIPan'
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:57: error: previous declaration of 'CMMIDIPan' was here
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:88: error: parse error before 'vector'
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:89: error: parse error before 'vector'
+		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:90: error: parse error before '<' token
+	Build failed (9 errors, 29 warnings)
+	

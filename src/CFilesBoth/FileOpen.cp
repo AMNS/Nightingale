@@ -299,6 +299,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 
 	ModifyScore(doc, fileTime);					/* Do any hacking needed: ordinarily none */
 
+#ifdef NOMORE
 	/* Read the document's OMS device numbers for each part. if "devc" signature block not
 	   found at end of file, pack the document's omsPartDeviceList with default values. */
 	
@@ -341,6 +342,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 			if (errType) { errInfo = FM_Call; goto Error; }
 		}
 	}
+#endif
 	
 	/* Read the CoreMIDI device data. */
 
@@ -355,11 +357,9 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		if (errType) { errInfo = CM_Call; goto Error; }
 	}
 	doc->cmInputDevice = config.cmDfltInputDev;
-if (DETAIL_SHOW) {
-	SleepMS(3);		/* Sidestep bug in OS 10.5 Console! */
-	LogPrintf(LOG_DEBUG, "OpenFile: doc->cmPartDeviceList[1]=%d\n", doc->cmPartDeviceList[1]);
-	LogPrintf(LOG_DEBUG, "OpenFile: doc->cmPartDeviceList[2]=%d\n", doc->cmPartDeviceList[2]);
-}
+	SleepMS(3);			/* Avoid bug in OS 10.5/10.6 Console! See comment in ConvertObjSubobjs() */
+	LogPrintf(LOG_INFO, "cmInputDevice=%d cmPartDeviceList[]=%d,%d  (OpenFile)\n",
+				doc->cmInputDevice, doc->cmPartDeviceList[1], doc->cmPartDeviceList[2]);
 
 	errType = FSClose(refNum);
 	if (errType) { errInfo = CLOSEcall; goto Error; }

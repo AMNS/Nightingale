@@ -49,7 +49,7 @@ in the Nightingale project. */
 #include "NObjTypesN105.h"
 
 // MAS -- copied from NResourceID.h
-#define TEST_SEARCH_NG
+#define NoTEST_SEARCH_NG
 
 /* Other Nightingale headers */
 

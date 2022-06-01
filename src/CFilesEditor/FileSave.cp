@@ -242,7 +242,8 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 /* To avoid disasterous problems, mostly overwriting a valid file with a bad one, do
 any validity checks we want on the doc about to be saved. Originally written to call
 DCheckNEntries(), to check nEntries fields in object list, because of "Mackey's Disease",
-which made it impossible to open some saved files. */
+which made it impossible to open some saved files; but as of v. 6.0, we haven't done
+any checks for years. */
 
 static Boolean SFChkScoreOK(Document */*doc*/)
 {
@@ -286,15 +287,15 @@ static short WriteFile(Document *doc, short refNum)
 	if (DETAIL_SHOW) DisplayScoreHdr(0, doc);
 
 	count = sizeof(tempDoc);
-LogPrintf(LOG_DEBUG, "WriteFile1: count=%ld ->origin=%d,%d ->littleEndian=%u ->firstMNNumber=%d\n",
-			count, doc->origin.v, doc->origin.h, (short)(doc->littleEndian), doc->firstMNNumber);
+//LogPrintf(LOG_DEBUG, "WriteFile1: count=%ld ->origin=%d,%d ->littleEndian=%u ->firstMNNumber=%d\n",
+//			count, doc->origin.v, doc->origin.h, (short)(doc->littleEndian), doc->firstMNNumber);
 	BlockMove(doc, &tempDoc, count);
 
 	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing file headers for CPU's Endian property...  (WriteFile)\n");	
 	EndianFixDocumentHdr(&tempDoc);
 	EndianFixScoreHdr(&tempDoc);
-LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=%d\n",
-			tempDoc.origin.v, tempDoc.origin.h, (short)(tempDoc.littleEndian), tempDoc.firstMNNumber);
+//LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=%d\n",
+//			tempDoc.origin.v, tempDoc.origin.h, (short)(tempDoc.littleEndian), tempDoc.firstMNNumber);
 
 	count = sizeof(DOCUMENTHDR);
 	errType = FSWrite(refNum, &count, &tempDoc.origin);
@@ -351,6 +352,7 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 	errType = WriteHeaps(doc, refNum);
 	if (errType) return errType;
 
+#ifdef NOMORE
 	/* Write info for OMS. FIXME: OMS is obsolete and this code should be removed! */
 
 	count = sizeof(OMSSignature);
@@ -370,7 +372,7 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 		3) fmsDestinationMatch union giving info about input device
 	   FIXME: FreeMIDI is obsolete and this code should be removed! */
 			
-	count = sizeof(long);
+	count = sizeof(long);	
 	fmsDevHdr = FreeMIDISelector;
 	errType = FSWrite(refNum, &count, &fmsDevHdr);
 	if (errType) return FM_Call;
@@ -380,6 +382,7 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 	count = sizeof(fmsDestinationMatch);
 	errType = FSWrite(refNum, &count, &doc->fmsInputDestination);
 	if (errType) return FM_Call;
+#endif
 	
 	/* Write info for CoreMIDI (file version >= 'N105') */
 	
@@ -392,11 +395,10 @@ LogPrintf(LOG_DEBUG, "WriteFile3: .origin=%d,%d .littleEndian=%u .firstMNNumber=
 	errType = FSWrite(refNum, &count, &cmDevSize);
 	if (errType) return CM_Call;
 	errType = FSWrite(refNum, &cmDevSize, &(doc->cmPartDeviceList[0]));
-if (DETAIL_SHOW) {
-	SleepMS(3);		/* Sidestep bug in OS 10.5 Console! */
-	LogPrintf(LOG_DEBUG, "WriteFile: doc->cmPartDeviceList[1]=%d\n", doc->cmPartDeviceList[1]);
-	LogPrintf(LOG_DEBUG, "WriteFile: doc->cmPartDeviceList[2]=%d\n", doc->cmPartDeviceList[2]);
-}
+	SleepMS(3);			/* Avoid bug in OS 10.5/10.6 Console! See comment in ConvertObjSubobjs() */
+	LogPrintf(LOG_INFO, "cmPartDeviceList[]=%d,%d  (WriteFile)\n", doc->cmPartDeviceList[1],
+				doc->cmPartDeviceList[2]);
+
 	if (errType) return CM_Call;	
 
 	blockSize = 0L;													/* mark end w/ 0x00000000 */
@@ -547,7 +549,7 @@ short SaveFile(
 
 TryAgain:
 	WaitCursor();
-	saveType = GetSaveType(doc,saveAs);
+	saveType = GetSaveType(doc, saveAs);
 
 	if (saveType==SF_Cancel) return NRV_CANCEL;					/* User cancelled or FSErr */
 
@@ -560,6 +562,7 @@ TryAgain:
 			{ errInfo = MAKEFSSPECcall; goto Error; }
 		
 		/* Without the following, if TEMP_FILENAME exists, Safe Save gives an error. */
+		
 		errType = FSpDelete(&tempFSSpec);						/* Delete any old temp file */
 		if (errType && errType!=fnfErr)							/* Ignore "file not found" */
 			{ errInfo = DELETEcall; goto Error; }
@@ -580,10 +583,10 @@ TryAgain:
 		if (errType && errType!=fnfErr)							/* Ignore "file not found" */
 			{ errInfo = DELETEcall; goto Error; }
 			
-		errType = FSpCreate (&fsSpec, creatorType, documentType, scriptCode);
+		errType = FSpCreate(&fsSpec, creatorType, documentType, scriptCode);
 		if (errType) { errInfo = CREATEcall; goto Error; }
 		
-		errType = FSpOpenDF (&fsSpec, fsRdWrPerm, &refNum );	/* Open the file */
+		errType = FSpOpenDF(&fsSpec, fsRdWrPerm, &refNum );		/* Open the file */
 		if (errType) { errInfo = OPENcall; goto Error; }
 	}
 	else if (saveType==SF_SaveAs) {
@@ -599,13 +602,12 @@ TryAgain:
 	}
 
 	/* At this point, the file we want to write (either the temporary file or the
-	   "real" one) is open and <refNum> is set for it. */
+	   "real" one) is open and <refNum> is set for it. Write it! */
 		
 	doc->docNew = False;
 	doc->vrefnum = vRefNum;
 	doc->fsSpec	= fsSpec;
 	fileIsOpen = True;
-
 	errType = WriteFile(doc, refNum);
 	if (errType) { errInfo = WRITEcall; goto Error; };
 
@@ -613,7 +615,7 @@ TryAgain:
 		/* Close the temporary file; rename as backup or simply delete file at filename
 		   on vRefNum (the old version of the file); and rename the temporary file to
 		   filename and vRefNum. Note that, from the user's standpoint, this replaces
-		   the file's creation date with the current date: unfortunate.
+		   the file's creation date with the current date: that's probably unfortunate.
 		   
 		   FIXME: Inside Mac VI, 25-9ff, points out that System 7 introduced FSpExchangeFiles
 		   and PBExchangeFiles, which simplify a safe save by altering the catalog entries

@@ -982,39 +982,12 @@ OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, By
 	return err;
 }
 
-OSStatus CMMIDISustainOn(MIDIUniqueID destDevID, char channel) 
-{
-	OSStatus err = CMMIDISustainOn(destDevID, channel, 0);
-	return err;
-}
-
-OSStatus CMMIDISustainOff(MIDIUniqueID destDevID, char channel) 
-{
-	OSStatus err = CMMIDISustainOff(destDevID, channel, 0);
-	return err;
-}
-
 OSStatus CMMIDIPan(MIDIUniqueID destDevID, char channel, Byte panSetting) 
 {
 	OSStatus err = CMMIDIPan(destDevID, channel, panSetting, 0);
 	return err;
 }
 
-
-/* ---------------------------------------------------------------- CreateOMSInputMenu -- */
-
-#ifdef NOMORE
-OMSDeviceMenuH CreateOMSInputMenu(Rect *menuBox)
-{
-	if (!gSignedIntoOMS) return NULL;
-	return NewOMSDeviceMenu(
-					NULL,
-					odmFrameBox,
-					menuBox,
-					omsIncludeInputs + omsIncludeReal,
-					NULL);
-}
-#endif
 
 /* ---------------------------------------------------------------- GetCMDeviceForPart -- */
 

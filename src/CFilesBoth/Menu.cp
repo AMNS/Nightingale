@@ -452,8 +452,10 @@ void DoEditMenu(short choice)
 				break;
 #ifdef TEST_SEARCH_NG
 			case EM_SearchMelody:
+				EMSearchMelody(doc, False);
 				break;
 			case EM_SearchAgain:
+				EMSearchMelody(doc, True);
 				break;
 #endif
 			case EM_AddTimeSigs:
@@ -2226,12 +2228,12 @@ static void FixFileMenu(Document *doc, short nSel)
 		XableItem(fileMenu,FM_Preferences,doc!=NULL && doc!=clipboard);
 		XableItem(fileMenu,FM_ScoreInfo,doc!=NULL);
 		
-		//disable all Nightingale Search Menu items until it's re-implemented
-		XableItem(editMenu, EM_SearchMelody,False);        
-		XableItem(editMenu, EM_SearchAgain,False);        
-		XableItem(fileMenu, FM_SearchInFiles,False);        
+		//XableItem(editMenu, EM_SearchMelody, False);        
+		//XableItem(editMenu, EM_SearchAgain, False);        
+#ifndef TEST_SEARCH_NG
+		XableItem(fileMenu, FM_SearchInFiles, False);        
 		XableItem(viewMenu, VM_ShowSearchPattern, False);
-		
+#endif
 	}
 
 
@@ -2406,7 +2408,9 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 
 			XableItem(editMenu, EM_Set, doc!=clipboard && IsSetEnabled(doc));
 			
+#ifdef TEST_SEARCH_NG
 			XableItem(editMenu, EM_SearchMelody, searchPatDoc!=NULL);
+#endif
 		}
 	}
 
