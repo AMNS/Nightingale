@@ -1127,7 +1127,6 @@ old format, so converting them is just a matter of copying the fields to their n
 locations. */
   
 static void ConvertObjHeader(Document *doc, LINK objL);
-
 static void ConvertObjHeader(Document * /* doc */, LINK objL)
 {
 	typedef struct {
@@ -1143,7 +1142,7 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 	/* The first six fields of the header are in the same location in 'N105' and 'N106'
 	   format, so no need to do anything with them. Copy the others. */
 	   
-	LinkSEL(objL) = tmpObjHeader_5.selected;				
+	LinkSEL(objL) = tmpObjHeader_5.selected;
 	LinkVIS(objL) = tmpObjHeader_5.visible;
 	LinkSOFT(objL) = tmpObjHeader_5.soft;
 	LinkVALID(objL) = tmpObjHeader_5.valid;
@@ -1182,9 +1181,9 @@ static Boolean ConvertHEADER(Document * /* doc */, LINK headL)
 {
 	if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertHEADER: headL=L%u\n", headL);
 
-	/* The HEADER itself has nothing but the OBJECTHEADER, so there's nothing to
-	   here for that. And, as of March 2020, its subobjects, PARTINFOs, are identical
-	   in N105 and N106 formats, though that could change. */
+	/* The HEADER itself has nothing but the OBJECTHEADER, so there's nothing to do here
+	   for that. And its subobjects, PARTINFOs, are identical in N105 and N106 formats,
+	   so there's nothing to do here for them. */
 	   
 	return True;
 }

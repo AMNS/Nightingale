@@ -96,10 +96,9 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 		fileSize += subObjLength[i]*objCount[i];
 	}
 	
-	fileSize += 2*sizeof(long);						/* version & file time */	
+	fileSize += 2*sizeof(long);						/* version & file time */
 
 	fileSize += sizeof(DOCUMENTHDR);
-	
 	fileSize += sizeof(SCOREHEADER);
 	
 	fileSize += sizeof((short)LASTtype);
@@ -261,8 +260,6 @@ static short WriteFile(Document *doc, short refNum)
 	long			count, blockSize, strHdlSizeFile, strHdlSizeInternal;
 	unsigned long	fileTime;
 	Handle			stringHdl;
-	OMSSignature	omsDevHdr;
-	long			omsDevSize, fmsDevHdr;
 	long			cmDevSize, cmHdr;	
 	unsigned long	version;							/* File version code read/written */
 	Document		tempDoc;
@@ -352,38 +349,6 @@ static short WriteFile(Document *doc, short refNum)
 	errType = WriteHeaps(doc, refNum);
 	if (errType) return errType;
 
-#ifdef NOMORE
-	/* Write info for OMS. FIXME: OMS is obsolete and this code should be removed! */
-
-	count = sizeof(OMSSignature);
-	omsDevHdr = 'devc';
-	errType = FSWrite(refNum, &count, &omsDevHdr);
-	if (errType) return OMS_Call;
-	count = sizeof(long);
-	omsDevSize = (MAXSTAVES+1) * sizeof(OMSUniqueID);
-	errType = FSWrite(refNum, &count, &omsDevSize);
-	if (errType) return OMS_Call;
-	errType = FSWrite(refNum, &omsDevSize, &(doc->omsPartDeviceList[0]));
-	if (errType) return OMS_Call;
-
-	/* Write info for FreeMIDI input device:
-		1) long having the value 'FMS_' (just a marker)
-		2) fmsUniqueID (unsigned short) giving input device ID
-		3) fmsDestinationMatch union giving info about input device
-	   FIXME: FreeMIDI is obsolete and this code should be removed! */
-			
-	count = sizeof(long);	
-	fmsDevHdr = FreeMIDISelector;
-	errType = FSWrite(refNum, &count, &fmsDevHdr);
-	if (errType) return FM_Call;
-	count = sizeof(fmsUniqueID);
-	errType = FSWrite(refNum, &count, &doc->fmsInputDevice);
-	if (errType) return FM_Call;
-	count = sizeof(fmsDestinationMatch);
-	errType = FSWrite(refNum, &count, &doc->fmsInputDestination);
-	if (errType) return FM_Call;
-#endif
-	
 	/* Write info for CoreMIDI (file version >= 'N105') */
 	
 	count = sizeof(long);
@@ -428,6 +393,7 @@ static Boolean GetOutputFile(Document *doc)
 			result = FSpGetFInfo (&fsSpec, &fInfo);
 		
 		/* This check and error message also appear in DoSaveAs. */
+		
 		if (result == noErr && fInfo.fdType != documentType) {
 			GetIndCString(strBuf, FILEIO_STRS, 11);    /* "You can replace only files created by Nightingale." */
 			CParamText(strBuf, "", "", "");
@@ -453,9 +419,9 @@ static Boolean GetOutputFile(Document *doc)
 
 
 /* -------------------------------------------------------------------------- SaveFile -- */
-/*	Routine that actually saves the specifed file.  If there's an error, gives an
-error message and returns <errType>; else returns 0 if successful, NRV_CANCEL if
-operation is cancelled. */
+/*	Routine that actually saves the specifed file.  If there's an error, gives an error
+message and returns <errType>; else returns 0 if successful, NRV_CANCEL if operation is
+cancelled. */
 
 #define TEMP_FILENAME "\p**NightTemp**"
 

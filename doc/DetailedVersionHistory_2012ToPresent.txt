@@ -3697,8 +3697,17 @@ Don't add info for the obsolete MIDI drivers -- OMS and FreeMIDI -- to files we 
 NB: This affects file formats, though only slightly, so older 'N106' format files may be
 unreadable with this version of Nightingale. Affects FileOpen, FileSave.
 
-Minor changes: improve source-code compatibility with NightingaleSearch, get rid of
+Minor changes: improved source-code compatibility with NightingaleSearch, got rid of
 duplicate function names, etc. Affects info.plist, Nightingale_Prefix.pch,
 CarbonTemplates.h; CoreMIDIUtils, FileOpen, FileSave, Menu, MIDIPlay, Windows.
 
 ----------------------------------------------------------------------------------------- B17
+
+2 -8 June
+
+Minor changes: disabled commands relevant to content (melodic) searching, etc. Affects
+info.plist, Nightingale_Prefix.pch, CarbonTemplates.h, NResourceID.h; CoreMIDIUtils,
+FileConversion, FileOpen, FileSave, Menu, MIDIPlay.
+
+----------------------------------------------------------------------------------------- B18
+

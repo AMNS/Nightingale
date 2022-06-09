@@ -1,4 +1,4 @@
-/* CoreMIDIUtils.c */
+/* CarbonTemplates.h for Nightingale */
 
 //#include <vector.h> //
 // MAS: vector.h is now just vector. Use std namespace to avoid having to rename all uses of vector to std::vector
@@ -51,12 +51,11 @@ void CoreMidiSetSelectedInputDevice(MIDIUniqueID inputDevice, short inputChannel
 void CoreMidiSetSelectedMidiThruDevice(MIDIUniqueID thruDevice, short thruChannel);
 OSStatus OpenCoreMidiInput(MIDIUniqueID inputDevice);
 
-OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal, MIDITimeStamp tstamp);
+OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal,
+							MIDITimeStamp tstamp);
 OSStatus CMMIDISustainOn(MIDIUniqueID destDevID, char channel, MIDITimeStamp tstamp);
 OSStatus CMMIDISustainOff(MIDIUniqueID destDevID, char channel, MIDITimeStamp tstamp);
 OSStatus CMMIDIPan(MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tstamp);
-OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal);
-OSStatus CMMIDIPan(MIDIUniqueID destDevID, char channel, Byte panSetting);
 
 MIDIUniqueID GetCMDeviceForPartn(Document *doc, short partn);
 MIDIUniqueID GetCMDeviceForPartL(Document *doc, LINK partL);
@@ -80,8 +79,8 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 							MIDIUniqueID partDevice[]);
 							
 void GetCMNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
-								Byte partChannel[], SignedByte partVelo[], short partIORefNum[],
-								short *pUseNoteNum, short *pUseChan, short *pUseVelo, short *puseIORefNum);
+						Byte partChannel[], SignedByte partVelo[], short partIORefNum[],
+						short *pUseNoteNum, short *pUseChan, short *pUseVelo, short *puseIORefNum);
 
 long FillCMSourcePopup(MenuHandle menu, vector<MIDIUniqueID> *vecDevices);
 long FillCMDestinationPopup(MenuHandle menu, vector<MIDIUniqueID> *vecDevices);

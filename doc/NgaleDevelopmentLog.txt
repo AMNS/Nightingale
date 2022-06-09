@@ -11230,7 +11230,7 @@ problems in converting files? Probably just dumb luck. Anyway, fixed.
 
 ---------------------------------------------------------------------------------------
 
-27 - 30 May
+27 - 31 May
 
 Do minor cleanup in Menu.cp and Windows.cp.
 
@@ -11241,7 +11241,7 @@ Try compiling it... Oops. Among other things, we still have fatal errors from co
 multiple functions with the same name distinguished by calling sequence (Issue #158). Changing
 the file suffix from .c to .cp makes those go away, but they're all from code supporting the
 obsolete MIDI drivers, so much preferable to get rid of 'em! We have other fatal errors, too,
-though. For example:
+though. From build results:
 
 	    cd /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH
     /Xcode2.5/usr/bin/gcc-4.0 -x c -arch ppc -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -Os -Wmissing-prototypes -Wreturn-type -Wformat -Wmissing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wuninitialized -Wunknown-pragmas -Wshadow -Wsign-compare -fmessage-length=0 -mtune=G4 -fvisibility=hidden -Wno-deprecated-declarations -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/NightingalePPC.build/Release/Nightingale.build/Nightingale.hmap -mdynamic-no-pic -F/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/Release -I/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/Release/include -I/Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/NightingalePPC.build/Release/Nightingale.build/DerivedSources -isysroot /Xcode2.5/SDKs/MacOSX10.4u.sdk -c /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/src/FilesSearch/SearchScoreDlog.c -o /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/build/NightingalePPC.build/Release/Nightingale.build/Objects-normal/ppc/SearchScoreDlog.o
@@ -11252,15 +11252,63 @@ though. For example:
 		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:6: error: parse error before 'namespace'
 		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:6: warning: data definition has no type or storage class
 		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:58: error: conflicting types for 'CMMIDIController'
-		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:54: error: previous declaration of 'CMMIDIController' was here
 		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:59: error: conflicting types for 'CMMIDISustainOn'
-		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:55: error: previous declaration of 'CMMIDISustainOn' was here
 		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:60: error: conflicting types for 'CMMIDISustainOff'
-		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:56: error: previous declaration of 'CMMIDISustainOff' was here
 		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:61: error: conflicting types for 'CMMIDIPan'
-		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:57: error: previous declaration of 'CMMIDIPan' was here
 		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:88: error: parse error before 'vector'
 		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:89: error: parse error before 'vector'
 		/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:90: error: parse error before '<' token
-	Build failed (9 errors, 29 warnings)
-	
+
+The other errors all seem to be from using C++ features (the "using" and "namespace"
+keywords and std::vector class) in code claiming to be straight C (via its .c extension).
+
+---------------------------------------------------------------------------------------
+
+2 - 7 June
+
+From build results for recompile of all of NgaleSearch:
+
+	In file included from /Users/donbyrd/Documents/NgaleDev/NightingaleDABVer_6p0SEARCH/Nightingale_Prefix.pch:123,
+	/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:6: error: parse error before 'namespace'
+	/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:6: warning: data definition has no type or storage class
+	/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:58: error: conflicting types for 'CMMIDIController'
+	/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:59: error: conflicting types for 'CMMIDIPan'
+	/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:86: error: parse error before 'vector'
+	/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:87: error: parse error before 'vector'
+	/*/NightingaleDABVer_6p0SEARCH/src/Precomps/CarbonTemplates.h:88: error: parse error before '<' token
+	...
+	Build failed (32 errors, 562 warnings)
+
+We still have two functions with the same name distinguished by calling sequence (Issue
+#158)... fixed; we now get "Build failed (28 errors, 562 warnings)". The remaining errors
+are all the "using C++ features in code claiming to be straight C" ones; if I change their
+extensions, it should definitely compile and the non-search features should run, but does
+it? And what about the search commands? Oops; I forgot the other errors! It's now 22 errors,
+521 warnings. Most errors are in SearchScore.cp, just because it doesn't know about the TYPE_*
+things #defined in SearchScore.h. #include that => 4 errors, 510 warnings. The remaining errors
+are in ResultList.cp:
+
+	/*/NightingaleDABVer_6p0SEARCH/src/FilesSearch/ResultList.cp:9:21: error: Dialogs.h: No such file or directory
+	/*/NightingaleDABVer_6p0SEARCH/src/FilesSearch/ResultList.cp:10:19: error: Lists.h: No such file or directory
+	/*/NightingaleDABVer_6p0SEARCH/src/FilesSearch/ResultList.cp:11:19: error: Sound.h: No such file or directory
+	/*/NightingaleDABVer_6p0SEARCH/src/FilesSearch/ResultList.cp: In function 'Boolean SelectMatch(Document*, LINK*, LINK*, short int, Boolean)':
+	/*/NightingaleDABVer_6p0SEARCH/src/FilesSearch/ResultList.cp:230: error: 'InDataStruct' was not declared in this scope
+
+From the call
+
+	if (!InDataStruct(doc, matchedObjA[n], MAIN_DSTR))
+
+..we know it's
+
+	Boolean InDataStruct(Document *doc, LINK objL, whichObjList)
+
+and it should be trivial to write, but what happened to the implementation? Ah, in current
+(2022, as opposed to 2007!) Ngale code, we have InObjectList() with the same calling
+sequence, defined in DSUtils.cp. CHange the call in ResultList.cp => down to 3 errors. But
+why do I need Dialogs.h, Lists.h, and Sound.h? Comment them out => no compilation errors!,
+and the only link error is DoOpenResultListDocument() is undefined! And that's because all
+of ResultListDocument.cp is commented out. Change that & remove the same offending #includes
+in it => it links and runs!! ...but the enable/disable status of search-related menu commands
+is a mess (easy to fix), and adding notes to the Search Pattern score crashes (may not be
+at all easy). Now what??
+

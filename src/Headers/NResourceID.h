@@ -284,11 +284,9 @@ enum {							/* Edit menu */
 	EM_Set,
 	EM_GetInfo,
 	EM_ModifierInfo,
-#ifdef TEST_SEARCH_NG
 	EM_____________6,
 	EM_SearchMelody,
 	EM_SearchAgain,
-#endif
 	EM_____________7,
 	EM_AddTimeSigs,
 	EM_LastItem = EM_AddTimeSigs,

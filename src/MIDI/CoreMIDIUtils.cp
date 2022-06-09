@@ -923,7 +923,7 @@ OSStatus OpenCoreMidiInput(MIDIUniqueID /* inputDevice */)
 }
 
 // ----------------------------------------------------------------------------------------
-// MIDI Controllers
+// MIDI Controllers. In these functions, tStamp = 0 indicates do it NOW.
 
 OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal,
 							MIDITimeStamp tStamp)
@@ -966,28 +966,6 @@ OSStatus CMMIDIPan(MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITi
 	OSStatus err = CMMIDIController(destDevID, channel, ctrlNum, ctrlVal, tStamp);
 	return err;
 }
-
-OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal)
-{
-	Byte controller[] = { MCTLCHANGE, 0, 0 };
-	MIDITimeStamp tStamp = 0;					/* Indicates perform NOW. */
-
-	controller[0] = MCTLCHANGE;
-	controller[0] |= channel;
-	controller[1] = ctrlNum;
-	controller[2] = ctrlVal;
-	
-	OSStatus err = CMWritePacket(destDevID, tStamp, 3, controller);
-
-	return err;
-}
-
-OSStatus CMMIDIPan(MIDIUniqueID destDevID, char channel, Byte panSetting) 
-{
-	OSStatus err = CMMIDIPan(destDevID, channel, panSetting, 0);
-	return err;
-}
-
 
 /* ---------------------------------------------------------------- GetCMDeviceForPart -- */
 

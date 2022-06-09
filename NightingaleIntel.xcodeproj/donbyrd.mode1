@@ -308,7 +308,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>DrawUtils.cp</string>
+								<string>DragAccModNR.cp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -316,11 +316,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>DrawUtils.cp</string>
+										<string>DragAccModNR.cp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>15F59C9C28476F65003AA65B</string>
+										<string>1532D38828514A87000B3DFB</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -455,7 +455,6 @@
 											<string>1541BDA3279B029A002830A7</string>
 											<string>153212C427A46C0900747DF3</string>
 											<string>153212C527A46C0900747DF3</string>
-											<string>153212C627A46C0900747DF3</string>
 											<string>15E49B7E27E17F3E009CF0AD</string>
 											<string>15716E8127ECB5A700A948B2</string>
 											<string>1555802827F4A83C003988FE</string>
@@ -463,9 +462,8 @@
 											<string>155FBF3A27FB08A800DC697A</string>
 											<string>155513FA28076DCD00B178FC</string>
 											<string>15FCCC69280B3B5500D82E22</string>
-											<string>15C6B2D9280E2D5D00DD0A42</string>
 											<string>152FCADA283AAFBA00F531B9</string>
-											<string>155C9605282331B200CBC2C7</string>
+											<string>15C6B2DB280E2D5D00DD0A42</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -555,13 +553,11 @@
 											<string>1541BDA6279B029A002830A7</string>
 											<string>153212CA27A46C0900747DF3</string>
 											<string>153212CB27A46C0900747DF3</string>
-											<string>153212CC27A46C0900747DF3</string>
 											<string>15716E8327ECB5A700A948B2</string>
 											<string>15A360BE27F93AB1002EBE07</string>
 											<string>155FBF3C27FB08A800DC697A</string>
 											<string>155513FC28076DCD00B178FC</string>
 											<string>15FCCC6B280B3B5500D82E22</string>
-											<string>15C6B2DB280E2D5D00DD0A42</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -619,9 +615,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>15F59C9128476CA3003AA65B</string>
+				<string>1532D37D28514915000B3DFB</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>15F59C9228476CA3003AA65B</string>
+				<string>1532D37E28514915000B3DFB</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -839,7 +835,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>15F59C9328476CA3003AA65B</string>
+				<string>1532D38528514938000B3DFB</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -1201,9 +1197,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>15F59C9428476CA3003AA65B</string>
+				<string>1532D37F28514915000B3DFB</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>15F59C9528476CA3003AA65B</string>
+				<string>1532D38028514915000B3DFB</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

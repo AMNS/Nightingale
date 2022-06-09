@@ -371,6 +371,11 @@ Boolean DoFileMenu(short choice)
 			case FM_Preferences:
 				if (doc) FMPreferences(doc);
 				break;
+#ifdef TEST_SEARCHFILES_NG
+			case FM_SearchInFiles:
+				FMSearchFilesMelody();
+				break;
+#endif
 			case FM_Quit:
 				if (!IsSafeToQuit()) break;
 				if (!SaveToolPalette(True)) break;
@@ -968,7 +973,9 @@ void DoViewMenu(short choice)
 				VMShowToolPalette();
 				break;
 			case VM_ShowSearchPattern:
-				//Do nothing; Nightingale Search has been temporarily removed
+#ifdef TEST_SEARCH_NG
+				ShowSearchDocument();
+#endif
 				break;
 			default:
 				VMActivate(choice);
@@ -2225,14 +2232,12 @@ static void FixFileMenu(Document *doc, short nSel)
 		XableItem(fileMenu,FM_PageSetup,doc!=NULL && doc!=clipboard);
 		XableItem(fileMenu,FM_Print,doc!=NULL && doc!=clipboard && !doc->showFormat);
 
-		XableItem(fileMenu,FM_Preferences,doc!=NULL && doc!=clipboard);
 		XableItem(fileMenu,FM_ScoreInfo,doc!=NULL);
-		
-		//XableItem(editMenu, EM_SearchMelody, False);        
-		//XableItem(editMenu, EM_SearchAgain, False);        
-#ifndef TEST_SEARCH_NG
+		XableItem(fileMenu,FM_Preferences,doc!=NULL && doc!=clipboard);
+#ifdef TEST_SEARCHFILES_NG
+		XableItem(fileMenu, FM_SearchInFiles, ??);        
+#else
 		XableItem(fileMenu, FM_SearchInFiles, False);        
-		XableItem(viewMenu, VM_ShowSearchPattern, False);
 #endif
 	}
 
@@ -2297,7 +2302,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 		   normal view (not Master Page or Work on Format). */
 		
 		if (doc==NULL || (!doc->masterView && !doc->showFormat)) {
-			XableItem(editMenu,EM_Undo,False || 
+			XableItem(editMenu, EM_Undo, False || 
 				(doc!=NULL && doc->undo.lastCommand!=U_NoOp && doc->undo.canUndo));
 			if (doc) {
 				GetUndoString(doc, undoMenuItem);
@@ -2375,8 +2380,8 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 				}
 			}
 
-			XableItem(editMenu,EM_ClearSystem,enableClearSys);
-			XableItem(editMenu,EM_CopySystem,doc!=NULL && doc!=clipboard);
+			XableItem(editMenu, EM_ClearSystem, enableClearSys);
+			XableItem(editMenu, EM_CopySystem, doc!=NULL && doc!=clipboard);
 			
 			enableClearPage = False;
 			
@@ -2399,6 +2404,8 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 			XableItem(editMenu, EM_ExtendSel,
 				(doc!=NULL && doc!=clipboard && nSel>0));
 
+			XableItem(editMenu, EM_Set, doc!=clipboard && IsSetEnabled(doc));
+
 			XableItem(editMenu, EM_GetInfo, doc!=NULL && nSel==1);
 
 			if (doc==NULL || nSel!=1)
@@ -2406,10 +2413,12 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 			else
 				XableItem(editMenu, EM_ModifierInfo, SyncTYPE(doc->selStartL));
 
-			XableItem(editMenu, EM_Set, doc!=clipboard && IsSetEnabled(doc));
-			
 #ifdef TEST_SEARCH_NG
-			XableItem(editMenu, EM_SearchMelody, searchPatDoc!=NULL);
+		XableItem(editMenu, EM_SearchMelody, searchPatDoc!=NULL);
+		XableItem(editMenu, EM_SearchAgain, searchPatDoc!=NULL);        
+#else
+		XableItem(editMenu, EM_SearchMelody, False);        
+		XableItem(editMenu, EM_SearchAgain, False);        
 #endif
 		}
 	}
@@ -2960,8 +2969,12 @@ static void FixViewMenu(Document *doc)
 	XableItem(viewMenu,VM_PianoRoll,doc!=NULL && !doc->masterView);
 	
 	XableItem(viewMenu, VM_ShowClipboard, doc!=NULL && doc!=clipboard);
-	
 	XableItem(viewMenu, VM_ToolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
+#ifdef TEST_SEARCH_NG
+	XableItem(viewMenu, VM_ShowSearchPattern, doc!=searchPatDoc);
+#else
+	XableItem(viewMenu, VM_ShowSearchPattern, False);
+#endif
 
 	CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
 	CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);

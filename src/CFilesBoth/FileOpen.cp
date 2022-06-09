@@ -67,13 +67,10 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 {
 	short		errType, refNum, strPoolErrCode;
 	short 		errInfo=0,				/* Type of object being read or other info on error */
-				nErr, firstErr, lastType, i;
+				nErr, firstErr, lastType;
 	long		count, stringPoolSize,
 				fileTime, fPos;
 	Boolean		fileIsOpen;
-	OMSSignature omsDevHdr;
-	long		fmsDevHdr;
-	long		omsBufCount, omsDevSize;
 	FInfo		fInfo;
 	FSSpec 		fsSpec;
 	long		cmHdr, cmBufCount, cmDevSize;
@@ -299,51 +296,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 
 	ModifyScore(doc, fileTime);					/* Do any hacking needed: ordinarily none */
 
-#ifdef NOMORE
-	/* Read the document's OMS device numbers for each part. if "devc" signature block not
-	   found at end of file, pack the document's omsPartDeviceList with default values. */
-	
-	omsBufCount = sizeof(OMSSignature);
-	errType = FSRead(refNum, &omsBufCount, &omsDevHdr);
-	if (!errType && omsDevHdr == 'devc') {
-		omsBufCount = sizeof(long);
-		errType = FSRead(refNum, &omsBufCount, &omsDevSize);
-		if (errType!=noErr) { errInfo = OMS_Call; goto Error; }
-		if (omsDevSize!=(MAXSTAVES+1)*sizeof(OMSUniqueID)) return errType;
-		errType = FSRead(refNum, &omsDevSize, &(doc->omsPartDeviceList[0]));
-		if (errType!=noErr) { errInfo = OMS_Call; goto Error; }
-	}
-	else {
-		for (i = 1; i<=LinkNENTRIES(doc->headL)-1; i++)
-			doc->omsPartDeviceList[i] = config.defaultOutputDevice;
-		doc->omsInputDevice = config.defaultInputDevice;
-	}
-
-	/* Read the FreeMIDI input device data. */
-	
-	doc->fmsInputDevice = noUniqueID;
-	
-	/* We're probably not supposed to play with these fields, but FreeMIDI is obsolete
-	   anyway, so the only change worth making is to remove these statements some day.
-	   --DAB, December 2019 */
-	
-	doc->fmsInputDestination.basic.destinationType = 0;
-	doc->fmsInputDestination.basic.name[0] = 0;
-	count = sizeof(long);
-	errType = FSRead(refNum, &count, &fmsDevHdr);
-	if (errType) { errInfo = FM_Call; goto Error; }
-	else {
-		if (fmsDevHdr==FreeMIDISelector) {
-			count = sizeof(fmsUniqueID);
-			errType = FSRead(refNum, &count, &doc->fmsInputDevice);
-			if (errType) { errInfo = FM_Call; goto Error; }
-			count = sizeof(fmsDestinationMatch);
-			errType = FSRead(refNum, &count, &doc->fmsInputDestination);
-			if (errType) { errInfo = FM_Call; goto Error; }
-		}
-	}
-#endif
-	
 	/* Read the CoreMIDI device data. */
 
 	cmBufCount = sizeof(long);

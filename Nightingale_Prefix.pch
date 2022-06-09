@@ -9,10 +9,8 @@ in the Nightingale project. */
 
 #include "MIDICompat.h"
 
-/*
- * Nightingale.precomp.c
- * This is the source for <Nightingale.precomp.h>, Nightingale's Precompiled Header.
- */
+/* Nightingale.precomp.c
+This is the source for <Nightingale.precomp.h>, Nightingale's Precompiled Header. */
 
 
 /* Standard ANSI/ISO C headers we want available everywhere */
@@ -48,7 +46,6 @@ in the Nightingale project. */
 #include "NDocAndCnfgTypesN105.h"
 #include "NObjTypesN105.h"
 
-// MAS -- copied from NResourceID.h
 #define NoTEST_SEARCH_NG
 
 /* Other Nightingale headers */

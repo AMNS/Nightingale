@@ -576,7 +576,7 @@ static Boolean IsMIDIPatchChange(LINK pL)
 
 static void SendMIDIPan(Document * /* doc */, MIDIUniqueID destDevID, char channel, Byte panSetting) 
 {
-	CMMIDIPan(destDevID, channel, panSetting);	
+	CMMIDIPan(destDevID, channel, panSetting, 0);	
 }
 
 static void SendMIDISustainOn(MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 
