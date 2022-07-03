@@ -133,21 +133,21 @@ void FixCursor()
 	
 	/* If no Documents, use arrow */
 	
-	if (TopDocument==NULL) { FixCursorLogPrint("2. TopDocument is null\n"); ArrowCursor(); return; }
+	if (TopDocument==NULL) { FixCursorLogPrint("2. TopDocument is null\n");  ArrowCursor();  return; }
 
 	/* If mouse is over any kind of window other than a Document, use arrow */
 	
 	FindWindow(globalpt, (WindowPtr *)&wp);
 	
-	if (wp==NULL) { FixCursorLogPrint("3-1. FoundWindow is null\n"); ArrowCursor(); return; }
-	if (GetWindowKind(wp)==PALETTEKIND) { FixCursorLogPrint("3-2. FoundWindow is a palette\n"); return; }	
+	if (wp==NULL) { FixCursorLogPrint("3-1. FoundWindow is null\n");  ArrowCursor();  return; }
+	if (GetWindowKind(wp)==PALETTEKIND) { FixCursorLogPrint("3-2. FoundWindow is a palette\n");  return; }	
 	if (GetWindowKind(wp)!=DOCUMENTKIND) {
-		FixCursorLogPrint("3-3. FoundWindow not our Document\n"); ArrowCursor(); return;
-		}
+		FixCursorLogPrint("3-3. FoundWindow not our Document\n"); ArrowCursor();  return;
+	}
 	
 	doc = GetDocumentFromWindow(wp);
 	
-	if (doc==NULL) { ArrowCursor(); FixCursorLogPrint("4. FixCursor: doc is null\n"); return; }
+	if (doc==NULL) { ArrowCursor(); FixCursorLogPrint("4. FixCursor: doc is null\n");  return; }
 	sprintf(message, "4.1 found document %s\n", doc->name);
 	FixCursorLogPrint(message);
 	
@@ -157,7 +157,7 @@ void FixCursor()
 	
 	/* If Document showing Master Page or Work on Format, use arrow */
 	
-	if (doc->masterView || doc->showFormat) { FixCursorLogPrint("6. MasterPage or ShowFormat\n"); ArrowCursor(); return; }
+	if (doc->masterView || doc->showFormat) { FixCursorLogPrint("6. MasterPage or ShowFormat\n");  ArrowCursor();  return; }
 	
 	/* Mouse is over the viewRect of a Document that is showing the "normal" (not Master
 	   Page or Work on Format) view. Now we have to think harder. */
@@ -212,7 +212,7 @@ void FixCursor()
 		dxOld = dx; xOld = x;
 	}
 	
-	/* If option key is down and shift key is NOT down, use "general drag" cursor, no
+	/* If option key is down and shift key is NOT down, use "general drag" cursor no
 	   matter what. The shift key test is unfortunately necessary so we can use
 	   shift-option-E (for example) as the keyboard equivalent for eighth grace note
 	   without confusing users by having the wrong cursor as long they actually have the
@@ -1020,13 +1020,13 @@ void StopInform(short alertID)
 
 #define MESSAGE_DI 1
 
-/* If which!=0, put up a small window (actually a dialog) containing the specified
-message, and pause for a brief time (HILITE_TICKS ticks). If which=0, remove the
+/* If which!=0, put up a small window (actually a dialog) containing the message with
+that number, and pause for a brief time (HILITE_TICKS ticks). If which=0, remove the
 window. If which!=0 and there's already a ProgressMsg window up, remove it before
 putting up the new one. */
 
 Boolean ProgressMsg(short which,
-						char *moreInfo)				/* C string */
+					char *moreInfo)				/* C string */
 {
 	static short lastWhich=-999;
 	static DialogPtr dialogp=NULL;  GrafPtr oldPort;
@@ -1057,13 +1057,16 @@ Boolean ProgressMsg(short which,
 		UpdateDialogVisRgn(dialogp);
 		SleepTicks(HILITE_TICKS);								/* So it's not erased TOO quickly */
 	}
-
 	else if (which==0) {
 		if (dialogp) {
 			HideWindow(GetDialogWindow(dialogp));
 			DisposeDialog(dialogp);								/* Free heap space */
 			dialogp = NULL;
 		}
+	}
+	else {
+		MayErrMsg("ProgressMsg: Progress message %ld doesn't exist.", which);
+		return False;
 	}
 
 	SetPort(oldPort);

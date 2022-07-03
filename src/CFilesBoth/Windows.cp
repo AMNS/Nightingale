@@ -95,7 +95,7 @@ short DoCloseAllDocWindows()
 		kind = GetWindowKind(w);
 		
 		if (kind == DOCUMENTKIND) {
-#ifdef TEST_SEARCH_NG
+#ifdef SEARCH_CONTENT
 				if (w==clipboard->theWindow || w==searchPatDoc->theWindow) continue;
 #else
 				if (w==clipboard->theWindow) continue;

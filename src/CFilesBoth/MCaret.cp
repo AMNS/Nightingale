@@ -27,13 +27,14 @@ are restored.  Since only one caret should be visible at a time (presumably in t
 frontmost Document), we can store the background bits in one global place, which we
 can initialise regardless of whether there are any documents open yet." Aside from its
 general complexity, this "CopyBits" method crashed mysteriously on IIci's and fx's.
-Also, it's not clear that it looks better than the usual way. So to hell with it. */
+True, as of this writing (2022), those machines have been obsolete for decades. But
+it's also not clear that it looks better than the usual way. So to hell with it. */
 
 #define CARET_WIDTH 	1							/* In pixels; normally 1 */
 
 /* MAX_CARET_HEIGHT must be enough for (ascent+descent) in MEMoveCaret in the greatest
 possible magnification on the largest possible staff. Currently (ascent+descent) =
-2*staff height, and the largest possible staff is rastral 0, whose size is defined by
+2*staff height; the largest possible staff is rastral 0, whose size is defined by
 config.rastral0size, and currently can be up to 72 points. */
 
 #define MAX_CARET_HEIGHT	UseMagnifiedSize(2*72, MAX_MAGNIFY)	/* Maximum caret ht, in pixels */
@@ -49,178 +50,165 @@ be restored whenever the caret turns OFF.  Delivers False if out of memory or ot
 error.  The offscreen port is large enough to hold the largest (tallest) caret. */
 
 Boolean MEInitCaretSystem()
-	{
-		return True;
-	}
+{
+	return True;
+}
 
-/*
- *	Activate or deactivate (according to 'active') the given Document's caret.
- *	When deactivating, turn caret OFF if it was ON.
- */
+/* Activate or deactivate (according to 'active') the given Document's caret. When
+deactivating, turn caret OFF if it was ON. */
 
 void MEActivateCaret(Document *doc, Boolean active)
-	{
-		if ((doc->caretActive!=0) ^ (active!=0)) {
-			if (!active) METurnCaret(doc,active);
-			doc->caretActive = active;
-			}
+{
+	if ((doc->caretActive!=0) ^ (active!=0)) {
+		if (!active) METurnCaret(doc,active);
+		doc->caretActive = active;
 	}
+}
 
-/*
- *	Redraw the caret whereever it should appear, but only if it is active
- *	and in its ON blink state.  The current port is assumed to be set to
- *	the document.
- */
+/* Redraw the caret whereever it should appear, but only if it is active and in its ON
+blink state. The current port is assumed to be set to the document. */
 
 void MEUpdateCaret(Document *doc)
-	{
-		if (doc->caretOn) {			/* Always False if caret inactive */
-			InvertRect(&doc->caret);
-			}
+{
+	if (doc->caretOn) {			/* Always False if caret inactive */
+		InvertRect(&doc->caret);
 	}
+}
 
-/*
- *	Turn caret OFF if it is ON, but don't deactivate it, so it may become
- *	visible as soon as the next call to MEIdleCaret (presumably in the event
- *	loop).  This is for temporarily hiding the caret during screen activity
- *	resulting from any user commands, e.g., alerts that might cover half of
- *	the caret, leaving us with a caret that's half on and half off.
- */
+/* Turn caret OFF if it is ON, but don't deactivate it, so it may become visible as soon
+as the next call to MEIdleCaret (presumably in the event loop). This is for temporarily
+hiding the caret during screen activity resulting from any user commands, e.g., alerts
+that might cover half of the caret, leaving us with a caret that's half on and half off. */
 
 void MEHideCaret(Document *doc)
-	{
-		if (doc==NULL) return;
-		
-		METurnCaret(doc,False);
-		doc->nextBlink = TickCount();
-	}
+{
+	if (doc==NULL) return;
+	
+	METurnCaret(doc, False);
+	doc->nextBlink = TickCount();
+}
 
-/*
- *	Set a given document's active caret to either ON or OFF.
- */
+/* Set the given document's active caret to either ON or OFF. */
 
 static void METurnCaret(Document *doc, Boolean on)
-	{
-		GrafPtr oldPort;
+{
+	GrafPtr oldPort;
+	
+	if (!doc->caretActive) return;
+	
+	if ((doc->caretOn!=0) ^ (on!=0)) {
 		
-		if (!doc->caretActive) return;
+		GetPort(&oldPort);  SetPort(GetWindowPort(doc->theWindow));
 		
-		if ((doc->caretOn!=0) ^ (on!=0)) {
-			
-			GetPort(&oldPort); SetPort(GetWindowPort(doc->theWindow));
-			
-			InvertRect(&doc->caret);
-			doc->caretOn = on;
-			
-			SetPort(oldPort);
-			}
+		InvertRect(&doc->caret);
+		doc->caretOn = on;
 		
-		doc->nextBlink = TickCount() + GetCaretTime();
+		SetPort(oldPort);
 	}
+	
+	doc->nextBlink = TickCount() + GetCaretTime();
+}
 
 
-/* Change a document's caret from its current state to the opposite if enough
-time has passed since the last change and if there's no current selection.
-Like TEIdle, should be called frequently from the event loop. */
+/* Change a document's caret from its current state to the opposite if enough time has
+passed since the last change and if there's no current selection. Like TEIdle, should
+be called frequently from the event loop. */
 
 void MEIdleCaret(Document *doc)
-	{
-		if (doc->selStartL == doc->selEndL)
-			if (TickCount() >= doc->nextBlink) METurnCaret(doc,!doc->caretOn);
-	}
+{
+	if (doc->selStartL == doc->selEndL)
+		if (TickCount() >= (unsigned)doc->nextBlink) METurnCaret(doc,!doc->caretOn);
+}
 
 
 /* Given a Document that currently has an insertion point, compute the new caret
-position that represents that object (selStartL) and update the caret to place
-it there. If the Document does not have an insertion point, e.g., the selection
-range is not empty, this will NOT fix it!
+position that represents that object (selStartL) and update the caret to place it
+there. If the Document does not have an insertion point, e.g., the selection range
+is not empty, this will not fix it!
 
-Note that FixEmptySelection tries to avoid putting the caret in the middle of
-a symbol; we don't do that here but maybe we should. */
+Note that FixEmptySelection tries to avoid putting the caret in the middle of a symbol;
+we don't do that here but maybe we should. */
 
 void MEAdjustCaret(Document *doc, Boolean moveNow)
-	{
-	   CONTEXT context;
-	   DDIST xObj;
-	   short selx, xoffset;
-	   LINK pL;
-	 
-		if (doc->masterView || doc->showFormat)
-			return;
+{
+   CONTEXT context;
+   DDIST xObj;
+   short selx, xoffset;
+   LINK pL;
+ 
+	if (doc->masterView || doc->showFormat)
+		return;
 
-		if (doc->selStaff<1 || doc->selStaff>doc->nstaves) {
-			MayErrMsg("MEAdjustCaret: selStaff=%ld is illegal.", (long)doc->selStaff);
-			return;
-			}
-
-		switch(ObjLType(doc->selStartL)) {
-			/*
-			 * In most cases, put the caret just before the object at the insertion pt.
-			 */
-			case SYNCtype:
-			case GRSYNCtype:
-			case CLEFtype:
-			case DYNAMtype:
-			case KEYSIGtype:
-			case TIMESIGtype:
-			case GRAPHICtype:
-			case TEMPOtype:
-			case SPACERtype:
-			case RPTENDtype:
-			case ENDINGtype:
-			case PSMEAStype:
-			case MEASUREtype:
-				GetContext(doc, doc->selStartL, doc->selStaff, &context);
-				xObj = PageRelxd(doc->selStartL, &context);
-		      break;
-		      
-			case PAGEtype:
-			case SYSTEMtype:
-			case TAILtype:
-		   	/*
-		   	 *	For these types, putting the caret before the object at the insertion
-		   	 * point won't work. For Systems and Pages, that would be the beginning of
-		   	 * the next System; for the tail of the object list, its position is usually
-		   	 * unknown (though we could call UpdateTailxd here but it doesn't work that
-		   	 * well as of v.995). Instead, try to position the caret after the preceding
-		   	 * object. For now, put it a fixed distance after the left edge of that obj:
-		   	 * this will usually be OK but may be too far right and past the end of the
-		   	 *	staff, or too far left and overlapping the obj if it's very wide. Sigh.
-		   	 */
-				GetContext(doc, LeftLINK(doc->selStartL), doc->selStaff, &context);
-				xObj = PageRelxd(LeftLINK(doc->selStartL), &context);
-				xObj += 3*LNSPACE(&context);
-		      break;
-		      
-		  	case BEAMSETtype:
-		  	case SLURtype:
-		  	case TUPLETtype:
-		  	case OTTAVAtype:
-				pL = FirstValidxd(RightLINK(doc->selStartL), False);
-				GetContext(doc, pL, doc->selStaff, &context);
-				xObj = PageRelxd(pL, &context);
-		      break;
-		      
-			default:
-				MayErrMsg("MEAdjustCaret: can't handle type %ld",
-							(long)(ObjLType(doc->selStartL)));
-				return;		/* Don't call MEMoveCaret() below */
-	  		}
-
-		/*
-		 * Compute an offset to put the caret a few points to the left of the position
-		 *	we just found.
-		 */
-		xoffset = d2p(LNSPACE(&context));
-		
-		selx = d2p(xObj)-xoffset;
-		MEMoveCaret(doc, doc->selStartL, selx, moveNow);
+	if (doc->selStaff<1 || doc->selStaff>doc->nstaves) {
+		MayErrMsg("MEAdjustCaret: selStaff=%ld is illegal.", (long)doc->selStaff);
+		return;
 	}
 
+	switch(ObjLType(doc->selStartL)) {
+		/* In most cases, put the caret just before the object at the insertion pt. */
+		
+		case SYNCtype:
+		case GRSYNCtype:
+		case CLEFtype:
+		case DYNAMtype:
+		case KEYSIGtype:
+		case TIMESIGtype:
+		case GRAPHICtype:
+		case TEMPOtype:
+		case SPACERtype:
+		case RPTENDtype:
+		case ENDINGtype:
+		case PSMEAStype:
+		case MEASUREtype:
+			GetContext(doc, doc->selStartL, doc->selStaff, &context);
+			xObj = PageRelxd(doc->selStartL, &context);
+		  break;
+		  
+		case PAGEtype:
+		case SYSTEMtype:
+		case TAILtype:
 
-/* Assuming the given point <selPt> in window-relative pixels is a new insertion
-point, find an object representing that position in the data structure. Use the
-staff <selPt.v> is on or closest to. */
+		/* For these types, putting the caret before the object at the insertion
+		point won't work. For Systems and Pages, that would be the beginning of
+		the next System; for the tail of the object list, its position is usually
+		unknown (though we could call UpdateTailxd here but it didn't work that
+		well as of v.995). Instead, try to position the caret after the preceding
+		object. For now, put it a fixed distance after the left edge of that obj:
+		this will usually be OK but may be too far right and past the end of the
+		staff, or too far left and overlapping the obj if it's very wide. Sigh. */
+
+			GetContext(doc, LeftLINK(doc->selStartL), doc->selStaff, &context);
+			xObj = PageRelxd(LeftLINK(doc->selStartL), &context);
+			xObj += 3*LNSPACE(&context);
+		  break;
+		  
+		case BEAMSETtype:
+		case SLURtype:
+		case TUPLETtype:
+		case OTTAVAtype:
+			pL = FirstValidxd(RightLINK(doc->selStartL), False);
+			GetContext(doc, pL, doc->selStaff, &context);
+			xObj = PageRelxd(pL, &context);
+		  break;
+		  
+		default:
+			MayErrMsg("MEAdjustCaret: can't handle type %ld", (long)(ObjLType(doc->selStartL)));
+			return;		/* Don't call MEMoveCaret() below */
+		}
+
+	/* Compute an offset to put the caret a few points to the left of the position we
+	   just found. */
+	   
+	xoffset = d2p(LNSPACE(&context));
+	
+	selx = d2p(xObj)-xoffset;
+	MEMoveCaret(doc, doc->selStartL, selx, moveNow);
+}
+
+
+/* Assuming the given point <selPt> in window-relative pixels is a new insertion point,
+find an object representing that position in the data structure. Use the staff <selPt.v>
+is on or closest to. */
 
 LINK Point2InsPt(Document *doc, Point selPt)
 {
@@ -237,8 +225,7 @@ LINK Point2InsPt(Document *doc, Point selPt)
 }
 
 
-/*
- *	Move the given document's caret to a new point whose x-coord. in window-relative
+/* Move the given document's caret to a new point whose x-coord. in window-relative
  * pixels is <selPt.h> and whose y-coord. is the staff <selPt.v> is on or closest to.
  *	If moveNow is True, draw the caret in its new position immediately; otherwise, it
  *	will presumably be drawn at MEIdle time. Delivers the link to an object representing
@@ -258,14 +245,14 @@ LINK Point2InsPt(Document *doc, Point selPt)
  */
 
 LINK MESetCaret(Document *doc, Point selPt, Boolean moveNow)
-	{
-		LINK pL;
-		
-		pL = Point2InsPt(doc, selPt);
-		MEMoveCaret(doc, pL, selPt.h, moveNow);
-		
-		return pL;
-	}
+{
+	LINK pL;
+	
+	pL = Point2InsPt(doc, selPt);
+	MEMoveCaret(doc, pL, selPt.h, moveNow);
+	
+	return pL;
+}
 
 
 /* Move the given document's caret to a new point whose x-coord. in window-relative
@@ -274,21 +261,21 @@ is True, draw the caret in its new position immediately; otherwise, it will
 presumably be drawn at MEIdle time. */
 
 static void MEMoveCaret(Document *doc, LINK pL, short selx, Boolean moveNow)
-	{
-		short	yd, ascent, descent;
-		CONTEXT	context;
+{
+	short	yd, ascent, descent;
+	CONTEXT	context;
+	
+	MEHideCaret(doc);
 		
-		MEHideCaret(doc);
-		 	
-		GetContext(doc, pL, doc->selStaff, &context);
-		yd = context.staffTop;
+	GetContext(doc, pL, doc->selStaff, &context);
+	yd = context.staffTop;
 
-		/* If you increase ascent or descent, you may need to increase MAX_CARET_HEIGHT. */
-		
-		ascent = .5*context.staffHeight;
-		descent = 1.5*context.staffHeight;
-		SetRect(&doc->caret,selx,d2p(yd-ascent), selx+CARET_WIDTH, d2p(yd+descent));
-		/* doc->caret is kept in window coordinates */
-		OffsetRect(&doc->caret,context.paper.left,context.paper.top);
-		if (moveNow) METurnCaret(doc,True);
-	}
+	/* If you increase ascent or descent, you may need to increase MAX_CARET_HEIGHT. */
+	
+	ascent = .5*context.staffHeight;
+	descent = 1.5*context.staffHeight;
+	SetRect(&doc->caret,selx,d2p(yd-ascent), selx+CARET_WIDTH, d2p(yd+descent));
+	/* doc->caret is kept in window coordinates */
+	OffsetRect(&doc->caret,context.paper.left,context.paper.top);
+	if (moveNow) METurnCaret(doc,True);
+}

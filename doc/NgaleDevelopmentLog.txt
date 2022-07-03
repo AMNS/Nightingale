@@ -11312,3 +11312,24 @@ in it => it links and runs!! ...but the enable/disable status of search-related 
 is a mess (easy to fix), and adding notes to the Search Pattern score crashes (may not be
 at all easy). Now what??
 
+---------------------------------------------------------------------------------------
+
+22 - 29 June
+
+Well, I'm not sure what I did, but now NgaleSearch doesn't link because ShowSearchDocument()
+isn't defined! It and a couple of other search-related functions were in Documents.cp in
+2008; copy from there and paste into the current Documents.cp => it links and runs. Copy &
+paste a few notes into the Search Pattern => it works!!
+
+The Search for Notes/Rests and Search Again commands currently have keyboard shortcuts of
+command-J and command-K, but those don't work because they're already in use for other
+commands. Let's change them to option-command-J and -K:
+
+	With Resorcerer, change MDEF for MENU 3 (Edit) from 19999 to 0.
+	With Rezilla, change shortcuts for Search for Notes/Rests and Search Again from command-J
+		& -K to option-command-J & -K.
+	With Resorcerer, change MDEF for MENU 3 back to 19999. NB: Must type 19999, not Copy and
+		Paste!
+
+...Done.
+

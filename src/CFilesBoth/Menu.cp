@@ -455,7 +455,7 @@ void DoEditMenu(short choice)
 			case EM_ModifierInfo:
 				ModNRInfoDialog(doc);
 				break;
-#ifdef TEST_SEARCH_NG
+#ifdef SEARCH_CONTENT
 			case EM_SearchMelody:
 				EMSearchMelody(doc, False);
 				break;
@@ -973,7 +973,7 @@ void DoViewMenu(short choice)
 				VMShowToolPalette();
 				break;
 			case VM_ShowSearchPattern:
-#ifdef TEST_SEARCH_NG
+#ifdef SEARCH_CONTENT
 				ShowSearchDocument();
 #endif
 				break;
@@ -2413,7 +2413,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 			else
 				XableItem(editMenu, EM_ModifierInfo, SyncTYPE(doc->selStartL));
 
-#ifdef TEST_SEARCH_NG
+#ifdef SEARCH_CONTENT
 		XableItem(editMenu, EM_SearchMelody, searchPatDoc!=NULL);
 		XableItem(editMenu, EM_SearchAgain, searchPatDoc!=NULL);        
 #else
@@ -2609,16 +2609,14 @@ static void FixNotesMenu(Document *doc, Boolean /*continSel*/)
 		XableItem(notesMenu, NM_SetDuration, noteSel);
 
 		XableItem(notesMenu,NM_CompactV, (doc!=NULL && doc!=clipboard
-													&& ObjTypeSel(doc, SYNCtype, 0)!=NILINK));
+												&& ObjTypeSel(doc, SYNCtype, 0)!=NILINK));
 
 		XableItem(notesMenu,NM_InsertByPos,doc!=NULL && doc!=clipboard);
 		CheckMenuItem(notesMenu,NM_InsertByPos,doc!=NULL && doc->insertMode);
 		
 		XableItem(notesMenu, NM_ClarifyRhythm, noteSel);
-		if (!noteSel)
-			DisableMenuItem(notesMenu, NM_SetMBRest);
-		else
-			XableItem(notesMenu, NM_SetMBRest, (MBRestSel(doc)!=NILINK));
+		if (!noteSel)	DisableMenuItem(notesMenu, NM_SetMBRest);
+		else			XableItem(notesMenu, NM_SetMBRest, (MBRestSel(doc)!=NILINK));
 
 		XableItem(notesMenu, NM_TransposeKey, beforeFirst);
 		XableItem(notesMenu, NM_Transpose, noteSel || GRnoteSel || chordSymSel);
@@ -2869,10 +2867,8 @@ knowOttavad:
 		DisableMenuItem(groupsMenu, GM_Ottava);
 }
 
-/*
- *	Enable or disable all items in the Groups menu; disable entire menu if there is no
- *	score, if it's the clipboard, or if we're looking at the Master Page.
- */
+/* Enable or disable all items in the Groups menu; disable entire menu if there is no
+score, if it's the clipboard, or if we're looking at the Master Page. */
 
 static void FixGroupsMenu(Document *doc, Boolean continSel)
 {
@@ -2941,48 +2937,46 @@ void AddWindowList()
 	}
 }
 
-/* Fix all items in the View menu and add a list of open Documents (windows); disable
-the entire menu if there's nothing to view. */
+/* Fix all items in the View menu and add a list of open Documents (windows). Even if
+there's not a regular score Document open, let the user show or hide the clipboard, etc. */
 
 static void FixViewMenu(Document *doc)
 {
-//		Boolean disableWholeMenu;
-	
 	AddWindowList();
 	UpdateMenu(viewMenu, doc!=NULL);
 	
-	/* FIXME: If doc is NULL, we should return at this point--continuing is dangerous! */
+	/* Be careful not to assume doc exists. */
 	
-	XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));
-	XableItem(viewMenu,VM_GotoSel,ENABLE_GOTO(doc));
+	XableItem(viewMenu, VM_GoTo, ENABLE_GOTO(doc));
+	XableItem(viewMenu, VM_GotoSel, ENABLE_GOTO(doc));
 
-	XableItem(viewMenu,VM_Reduce,ENABLE_REDUCE(doc));
-	XableItem(viewMenu,VM_Enlarge,ENABLE_ENLARGE(doc));
+	XableItem(viewMenu, VM_Reduce, ENABLE_REDUCE(doc));
+	XableItem(viewMenu, VM_Enlarge, ENABLE_ENLARGE(doc));
 	
-	XableItem(viewMenu,VM_LookAtV,doc!=NULL && !doc->masterView && !doc->showFormat);
-	XableItem(viewMenu,VM_LookAtAllV,doc!=NULL && !doc->masterView && !doc->showFormat);
-	XableItem(viewMenu,VM_ShowDurProb,doc!=NULL && !doc->masterView);
-	XableItem(viewMenu,VM_ShowSyncL,doc!=NULL && !doc->masterView);
-	XableItem(viewMenu,VM_ShowInvis,doc!=NULL && doc!=clipboard && !doc->masterView);
-	XableItem(viewMenu,VM_ShowSystems,doc!=NULL && doc!=clipboard);
+	XableItem(viewMenu, VM_LookAtV, doc!=NULL && !doc->masterView && !doc->showFormat);
+	XableItem(viewMenu, VM_LookAtAllV, doc!=NULL && !doc->masterView && !doc->showFormat);
+	XableItem(viewMenu, VM_ShowDurProb, doc!=NULL && !doc->masterView);
+	XableItem(viewMenu, VM_ShowSyncL, doc!=NULL && !doc->masterView);
+	XableItem(viewMenu, VM_ShowInvis, doc!=NULL && doc!=clipboard && !doc->masterView);
+	XableItem(viewMenu, VM_ShowSystems, doc!=NULL && doc!=clipboard);
 
-	XableItem(viewMenu,VM_PianoRoll,doc!=NULL && !doc->masterView);
+	XableItem(viewMenu, VM_PianoRoll, doc!=NULL && !doc->masterView);
 	
 	XableItem(viewMenu, VM_ShowClipboard, doc!=NULL && doc!=clipboard);
 	XableItem(viewMenu, VM_ToolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
-#ifdef TEST_SEARCH_NG
+#ifdef SEARCH_CONTENT
 	XableItem(viewMenu, VM_ShowSearchPattern, doc!=searchPatDoc);
 #else
 	XableItem(viewMenu, VM_ShowSearchPattern, False);
 #endif
 
-	CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
+	CheckMenuItem(viewMenu, VM_GoTo, doc!=NULL && doc->overview);
 	CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);
-	CheckMenuItem(viewMenu,VM_ShowDurProb,doc!=NULL && doc->showDurProb);
-	CheckMenuItem(viewMenu,VM_ShowSyncL,doc!=NULL && doc->showSyncs);
-	CheckMenuItem(viewMenu,VM_ShowInvis,doc!=NULL && doc->showInvis);
+	CheckMenuItem(viewMenu, VM_ShowDurProb, doc!=NULL && doc->showDurProb);
+	CheckMenuItem(viewMenu, VM_ShowSyncL, doc!=NULL && doc->showSyncs);
+	CheckMenuItem(viewMenu, VM_ShowInvis, doc!=NULL && doc->showInvis);
 	CheckMenuItem(viewMenu, VM_ShowSystems, doc!=NULL && doc->frameSystems);
-	CheckMenuItem(viewMenu,VM_PianoRoll,doc!=NULL && doc->pianoroll);
+	CheckMenuItem(viewMenu, VM_PianoRoll, doc!=NULL && doc->pianoroll);
 }
 
 /* Fix all items in Play/Record menu; disable entire menu if there's no score or we're

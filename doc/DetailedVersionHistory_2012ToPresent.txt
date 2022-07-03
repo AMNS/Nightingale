@@ -3711,3 +3711,10 @@ FileConversion, FileOpen, FileSave, Menu, MIDIPlay.
 
 ----------------------------------------------------------------------------------------- B18
 
+12 June - 3 July
+
+Minor changes: replace "qtrs of a point" with "quarters of a point" (in Info dialogs),
+"TEST_SEARCH_NG" with "SEARCH_CONTENT" (in source code), etc. Affects info.plist, .rsrc,
+Nightingale_Prefix.pch; MCaret, Menu, UIFUtils, Windows.
+
+----------------------------------------------------------------------------------------- B19
