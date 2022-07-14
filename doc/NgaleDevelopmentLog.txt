@@ -11333,3 +11333,80 @@ commands. Let's change them to option-command-J and -K:
 
 ...Done.
 
+---------------------------------------------------------------------------------------
+
+4 - 14 July
+
+NightingaleDABVer_6p0SEARCH changes from regular Ngale 6:
+	Documents.cp: ca. 150 lines added in one place
+	FilesSearch, containing 5 .cp's and 3 .h's
+	Info.plist: 2 lines changed in 2 places ("19" => "19-S")
+	Menu.cp: ca. 50 lines added in two places
+	Nightingale_Prefix.pch: 1 line changed ("NoSEARCH_CONTENT" => "SEARCH_CONTENT")
+
+Test the Search for Notes/Rests and Search Again commands a bit more => the pitch &
+duration matching options I tried all seem to work! But "Find All" crashes at the
+beginning of PrepareResultList(), on this line:
+
+	INT16 delta = count - l->nCells;
+
+... because l is NULL. For the moment, just add some error checking and calls to
+AlwaysErrMsg() => done. Maybe also disable Find All unless a secret key combo is down
+or some such? Then I'd feel okay integrating this into standard Ngale 6!! Well, it'd
+be nice to leave out the psuedo-database code; that feature never worked very well
+anyway. Look for # lines involving SEARCH_DBFORMAT_MEF...
+
+Search for Notes/Rests "Find All" calls DoIRSearchScore(doc, {11 parameters});
+else it calls							DoSearchScore(doc, False, {11 parameters}).
+Search Again calls 						DoSearchScore(doc, True, {11 parameters}).
+The 11 parameters are identical in all three cases.
+
+And what's the relationship between SearchScore.cp and SearchScoreNative.cp? In fact,
+where are all the public and semi-public functions for searching?
+
+PUBLIC FUNCTIONS
+	SearchScoreDlog:
+		SearchDialog(Boolean findInFiles, Boolean *findAll, Boolean *pUsePitch...
+	
+	SearchScoreNative:
+		DoSearchScore(Document *doc, Boolean again, Boolean usePitch, Boolean useDuration...
+		DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration...
+		DoIRSearchFiles(FSSpec *pTheFile, Boolean usePitch, Boolean useDuration...
+	
+	??WHERE?: 	(but only #ifdef SEARCH_DBFORMAT_MEF!)
+		DoIRSearchFiles(Str255 filename, short vRefNum, Boolean usePitch... (UNUSED)
+	
+	Documents:
+		void ShowSearchDocument(void);
+	
+	ResultList:
+	void DoDialogEvent(EventRecord *theEvent); (UNUSED)
+
+SEMI-PUBLIC FUNCTIONS
+	SearchScore:
+		N_SearchPatternLen(Boolean *pHaveRest);
+		N_SearchScore2Pattern(Boolean includeRests, SEARCHPAT *pSearchPat...
+		WarnHaveChord(void)
+		CalcRelEstimate(ERRINFO errInfo, INT16 pitchTolerance, FASTFLOAT pitchWeight...
+		SearchGetHitSet(...
+		SearchIsLegal(Boolean usePitch, Boolean useDuration)
+		FormatReportString(SEARCHPARAMS sParm, SEARCHPAT searchPat, char *findLabel, char *str)
+		ListMatches(MATCHINFO matchInfoA[],
+
+If SEARCH_DBFORMAT_MEF is #defined, we assume we're searching an MEF database (something
+that never worked well); if not, we assume we're searching regular Ngale files. Search
+Again and Search for Notes/Rests search the score in the front window, even via the Find
+All button. But Find All still crashes; let's not worry about that for the near future.
+
+Where's the code for searching all Ngale files in a folder? Looks like SearchScoreNative.
+
+Now to integrate the search functions into "regular" Ngale 6. Plan: add everything in the
+FilesSearch folder except ResultList.cp and ResultListDocument.cp to the project; disable
+Find All, and remove calls to functions it uses => done. Test => it works! -- except in
+the "Save changes to XXX" message, the filename XXX is garbled, with both the NgaleSearch
+and the regular Ngale project. Weird. This message is from DocumentSaved(). Test again =>
+no problem with either project. So I dunno, but probably not worth worrying about.
+
+Oops. If the search pattern contains chords, Ngale calls WarnHaveChord to ask the user what
+to do; it tries to put up DLOG 816 -- but it doesn't exist, and I can't find it in any
+version of NgaleSearch! Should probably fix this one way or another ??

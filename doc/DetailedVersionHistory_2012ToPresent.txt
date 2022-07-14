@@ -3718,3 +3718,15 @@ Minor changes: replace "qtrs of a point" with "quarters of a point" (in Info dia
 Nightingale_Prefix.pch; MCaret, Menu, UIFUtils, Windows.
 
 ----------------------------------------------------------------------------------------- B19
+
+5 - 14 July
+
+Implement content-based searching, though only one match at a time, from OMRAS code of
+(mostly) 2007. Adds SearchScore.h, SearchScorePrivate.h; SearchScore, SearchScoreDlog,
+SearchScoreNative. Affects Nightingale_Prefix.pch; Documents, Menu.
+
+Minor changes to "Search for Notes/Rests" dialog, etc. Affects info.plist, .rsrc;
+Documents, Windows.
+
+----------------------------------------------------------------------------------------- B20
+

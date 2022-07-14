@@ -46,7 +46,7 @@ This is the source for <Nightingale.precomp.h>, Nightingale's Precompiled Header
 #include "NDocAndCnfgTypesN105.h"
 #include "NObjTypesN105.h"
 
-#define NoSEARCH_CONTENT
+#define SEARCH_CONTENT
 
 /* Other Nightingale headers */
 

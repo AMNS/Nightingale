@@ -14,7 +14,7 @@ box, Message box, etc. */
 
 void DoCloseWindow(WindowPtr w)
 {
-	short kind; PaletteGlobals *pg;
+	short kind;  PaletteGlobals *pg;
 	
 	kind = GetWindowKind(w);
 	if (kind < 0) {
@@ -30,7 +30,6 @@ void DoCloseWindow(WindowPtr w)
 			closingAll = False;
 			return;
 		}
-		
 		if (TopPalette == TopWindow) {
 			/* Find the new TopDocument, and insure it and its controls are hilited properly. */
 			
@@ -40,26 +39,25 @@ void DoCloseWindow(WindowPtr w)
 		}
 	}
 	else {
-		/* w is still defined here */
-		
 		if (TopDocument) {
 		
 			/* Force caret into off state, otherwise any invalid background bits
 			   covered by palette may about to become into view. */
 			   
 			MEHideCaret(GetDocumentFromWindow(TopDocument));
+			
 			/* Don't generate any events that might cause the TopDocument to be unhilited. */
+			
 			ShowHide(w, False);
 		}
 		
 		else
-		 
 			/* Ensure an activate event is generated in case the next visible window
 			   does not belong to the application. */
 			   
 			HideWindow(w);
 	
-		/* Reset tool palette size back to default, after it's been hidden (closed).
+		/* Reset tool palette size back to default after it's been hidden (closed).
 		   For all palettes, unload the palette-specific code segment. */
 		   
 		if (kind == PALETTEKIND)
@@ -67,7 +65,7 @@ void DoCloseWindow(WindowPtr w)
 				case TOOL_PALETTE:
 					pg = *paletteGlobals[TOOL_PALETTE];
 					palettesVisible[TOOL_PALETTE] = False;
-					ChangeToolSize(pg->firstAcross, pg->firstDown,True);
+					ChangeToolSize(pg->firstAcross, pg->firstDown, True);
 					break;
 				default:
 					;

@@ -207,6 +207,123 @@ void ShowClipDocument()
 }
 
 
+#ifdef SEARCH_CONTENT
+
+static Boolean InitSearchDoc();		
+static Boolean DoOpenSearchPatDocument(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec, Document **pDoc);
+
+/* If fileName is non-NULL, open document file of that name in the given directory; if
+fileName is NULL, then open an Untitled new document instead.  In either case, open a
+window for the document, and return True if successful, False if not. If the named doc
+is already open, just bring its window to the front and return True. */
+
+static Boolean DoOpenSearchPatDocument(unsigned char *fileName, short vRefNum,
+							Boolean readOnly, FSSpec *pfsSpec, Document **pDoc)
+	{
+		WindowPtr w;  Document *doc;
+		long fileVersion;
+		
+		/* If searchPatDoc exists then just bring it to front; else open file. */
+		
+		if (searchPatDoc) {
+			if (IsWindowVisible(searchPatDoc->theWindow))	SelectWindow((WindowPtr)searchPatDoc);
+			 else											ShowDocument(searchPatDoc);
+			 return(True);
+		}
+		
+		*pDoc = NULL;		
+				
+		doc = FirstFreeDocument();
+		if (doc == NULL) { TooManyDocs();  *pDoc = NULL;  return(False); }
+
+		w = GetNewWindow(docWindowID, NULL, BottomPalette);
+		if (w) {
+			doc->theWindow = w;
+			SetWindowKind(w, DOCUMENTKIND);
+			// ((WindowPeek)w)->spareFlag = True;
+			ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
+			doc->inUse = True;
+			doc->readOnly = readOnly;
+			if (fileName) {
+				doc->docNew = False;
+				Pstrcpy(doc->name,fileName);
+				doc->vrefnum = vRefNum;
+				doc->fsSpec = *pfsSpec;
+				}
+			 else {
+				doc->docNew = True;
+				Pstrcpy(doc->name,"\pSearch Pattern");
+				doc->vrefnum = 0;
+				}
+				
+			if (!BuildDocument(doc,fileName,vRefNum,pfsSpec,&fileVersion,fileName==NULL)) {
+				DoCloseDocument(doc);
+				w = NULL;
+				}
+			 else {
+				PositionWindow(w, doc);
+				SetOrigin(doc->origin.h, doc->origin.v);
+				RecomputeView(doc);
+				SetControlValue(doc->hScroll, doc->origin.h);
+				SetControlValue(doc->vScroll, doc->origin.v);
+				if (fileVersion != THIS_FILE_VERSION) {
+					/* Append " (converted)" to its name and mark the document changed */
+					
+					unsigned char str[64];
+					GetIndString(str, MiscStringsID, 5);
+					PStrCat(doc->name, str);
+					doc->changed = doc->docNew = !readOnly;
+					doc->converted = True;
+					}
+				else
+					doc->converted = False;
+				SetWTitle(w, doc->name);
+				ShowDocument(doc);
+				
+				/* ERROR: new documents are not updated in Panther 10.3. This is a workaround */
+				
+				if (doc->docNew) {
+					Rect portRect;
+					GetWindowPortBounds(doc->theWindow, &portRect);
+					DoUpdate(doc->theWindow);
+					}
+				}
+				
+				if (w != NULL) *pDoc = doc;
+			}
+			
+		InitSearchDoc();
+		return(w != NULL);
+	}
+
+static Boolean InitSearchDoc()
+	{
+		LINK partL;  PPARTINFO pPart;
+
+		/* Reset fields for which Search Score needs non-standard values. */
+		
+		searchPatDoc->canCutCopy = False;
+		searchPatDoc->lookVoice = 1;					/* the only voice that matters! */
+		searchPatDoc->firstNames = NONAMES;
+		searchPatDoc->dIndentFirst = pt2d(1);
+
+		partL = FirstSubLINK(searchPatDoc->headL);
+		partL = NextPARTINFOL(partL);
+		pPart = GetPPARTINFO(partL);
+		strcpy(pPart->name, "SEARCH");
+		strcpy(pPart->shortName, "SEARCH");
+
+		return True;
+	}
+
+void ShowSearchPatDocument()
+{
+	DoOpenSearchPatDocument(NULL, 0, False, NULL, &searchPatDoc);
+}
+
+#endif /* SEARCH_CONTENT */
+
+
 /* Find a size and position for the given window that, as much as possible, avoids
 conflict with either the tool palette or other Document windows. */
 
@@ -401,9 +518,7 @@ Boolean DoCloseDocument(Document *doc)
 	
 	if (doc)
 		if (IsDocumentKind(doc->theWindow))
-			if (doc == clipboard)
-				HideWindow(doc->theWindow);
-			 else if (doc == searchPatDoc)
+			if (doc == clipboard || doc == searchPatDoc)
 				HideWindow(doc->theWindow);
 			 else
 				if ( (keepGoing = DocumentSaved(doc)) ) {
@@ -490,7 +605,7 @@ Boolean DocumentSaved(Document *doc)
 		ArrowCursor();
 		ParamText(doc->name, "\p", "\p", "\p");
 		PlaceAlert(saveChangesID, doc->theWindow, 0, 30);
-		itemHit = CautionAlert(saveChangesID, NULL);
+		itemHit = CautionAlert(saveChangesID, NULL);		/* Save changes to “^0”? */
 		if (itemHit == Cancel) keepGoing = False;
 		if (itemHit == OK) {
 			WaitCursor();

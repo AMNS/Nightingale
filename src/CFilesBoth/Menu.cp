@@ -14,6 +14,9 @@
 #include "CarbonPrinting.h"
 #include "CarbonTemplates.h" // MAS
 #include "MidiMap.h"
+#ifdef SEARCH_CONTENT
+	#include "SearchScore.h"
+#endif
 
 static void	MovePalette(WindowPtr whichPalette,Point position);
 
@@ -225,6 +228,57 @@ static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD)
 	Pstrcpy(macfName, fsSpec.name);
 	return True;
 }
+
+
+#ifdef SEARCH_CONTENT
+
+static Boolean usePitch = True;
+static Boolean useDuration = True;
+static FASTFLOAT pitchWeight = 0.75;
+static INT16 pitchSearchType = TYPE_PITCHMIDI_REL;
+static INT16 durSearchType = TYPE_DURATION_REL;
+static Boolean includeRests = True;
+static INT16 maxTranspose = 127;
+static INT16 pitchTolerance = 0;
+static Boolean keepContour = True;
+static INT16 chordNotes = TYPE_CHORD_OUTER;
+static Boolean matchTiedDur = True;
+
+static void EMSearchMelody(Document *doc, Boolean again);
+static void EMSearchMelody(Document *doc, Boolean again)
+{
+
+	Document *theDoc = (Document *)TopDocument;
+	Boolean findAll;
+
+	if (theDoc==searchPatDoc) {
+		CParamText("The Search Pattern is the front window: you can't search it for itself!",
+						"", "", "");											// ??I18N BUG
+		StopInform(GENERIC_ALRT);
+		return;
+	}
+	
+	if (again) {
+		(void)DoSearchScore(doc, True, usePitch, useDuration, pitchSearchType,
+							durSearchType, includeRests, maxTranspose, pitchTolerance,
+							pitchWeight, keepContour, chordNotes, matchTiedDur);
+		return;
+	}
+
+	if (SearchDialog(False, &findAll, &usePitch, &useDuration, &pitchSearchType,
+						&durSearchType, &includeRests, &maxTranspose, &pitchTolerance,
+						&keepContour, &chordNotes, &matchTiedDur)) {
+		if (findAll)
+			(void)DoIRSearchScore(doc, usePitch, useDuration, pitchSearchType,
+								durSearchType, includeRests, maxTranspose, pitchTolerance,
+								pitchWeight, keepContour, chordNotes, matchTiedDur);
+		else
+			(void)DoSearchScore(doc, False, usePitch, useDuration, pitchSearchType,
+								durSearchType, includeRests, maxTranspose, pitchTolerance,
+								pitchWeight, keepContour, chordNotes, matchTiedDur);
+	}
+}
+#endif
 
 
 /*	Handle a choice from the File Menu.  Return False if it's time to quit. */
@@ -974,7 +1028,7 @@ void DoViewMenu(short choice)
 				break;
 			case VM_ShowSearchPattern:
 #ifdef SEARCH_CONTENT
-				ShowSearchDocument();
+				ShowSearchPatDocument();
 #endif
 				break;
 			default:

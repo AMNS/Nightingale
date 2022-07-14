@@ -14,6 +14,8 @@
 		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
 		15420AE827CAE50000E0D841 /* PopUpUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15420AE727CAE50000E0D841 /* PopUpUtils.cp */; };
 		15424A7027AD77A900B13744 /* TempoEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15424A6F27AD77A900B13744 /* TempoEdit.cp */; };
+		15434CC2287C96BE00BEBE21 /* SearchScore.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15434CC1287C96BE00BEBE21 /* SearchScore.cp */; };
+		15434CC4287C96CC00BEBE21 /* SearchScore.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15434CC3287C96CC00BEBE21 /* SearchScore.h */; };
 		1544E9B31E645DA400431548 /* Style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B21E645DA400431548 /* Style.h */; };
 		1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B41E645DEF00431548 /* Defs.h */; };
 		1546E7922063F00F000AFC57 /* Endian.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1546E7912063F00F000AFC57 /* Endian.h */; };
@@ -68,6 +70,9 @@
 		15C46F7F218C979200D84142 /* SetUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15C46F7E218C979200D84142 /* SetUtils.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
 		15CC521B27F1EB200098DE49 /* Nightingale Help in Resources */ = {isa = PBXBuildFile; fileRef = 15CC521A27F1EB200098DE49 /* Nightingale Help */; };
+		15D234B8287CAA5E00A7C12F /* SearchScoreDlog.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15D234B7287CAA5E00A7C12F /* SearchScoreDlog.cp */; };
+		15D234BA287CAA6E00A7C12F /* SearchScorePrivate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15D234B9287CAA6E00A7C12F /* SearchScorePrivate.h */; };
+		15D234BC287CAA8100A7C12F /* SearchScoreNative.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15D234BB287CAA8100A7C12F /* SearchScoreNative.cp */; };
 		15E0B7AA1E7757E7001C568B /* NotelistOpen.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E0B7A91E7757E7001C568B /* NotelistOpen.cp */; };
 		15E24203256DFA09004AB7A3 /* EndianUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E24202256DFA09004AB7A3 /* EndianUtils.cp */; };
 		15E2F8FC1DC983B3006D56E9 /* NewSlur.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */; };
@@ -237,6 +242,8 @@
 				157D429C265BD2A600E7FDBF /* BMP.h in CopyFiles */,
 				15EB587326DAB5DC000B92D3 /* DynamicEdit.h in CopyFiles */,
 				15F925BD27A1AC340011BDA1 /* DurationEdit.h in CopyFiles */,
+				15434CC4287C96CC00BEBE21 /* SearchScore.h in CopyFiles */,
+				15D234BA287CAA6E00A7C12F /* SearchScorePrivate.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +258,8 @@
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
 		15420AE727CAE50000E0D841 /* PopUpUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PopUpUtils.cp; sourceTree = "<group>"; };
 		15424A6F27AD77A900B13744 /* TempoEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TempoEdit.cp; sourceTree = "<group>"; };
+		15434CC1287C96BE00BEBE21 /* SearchScore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SearchScore.cp; path = src/FilesSearch/SearchScore.cp; sourceTree = "<group>"; };
+		15434CC3287C96CC00BEBE21 /* SearchScore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SearchScore.h; path = src/FilesSearch/SearchScore.h; sourceTree = "<group>"; };
 		1544E9B21E645DA400431548 /* Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Style.h; sourceTree = "<group>"; };
 		1544E9B41E645DEF00431548 /* Defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defs.h; sourceTree = "<group>"; };
 		1546E7912063F00F000AFC57 /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
@@ -303,6 +312,9 @@
 		15C46F7C218C978900D84142 /* InsNewUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNewUtils.cp; sourceTree = "<group>"; };
 		15C46F7E218C979200D84142 /* SetUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetUtils.cp; sourceTree = "<group>"; };
 		15CC521A27F1EB200098DE49 /* Nightingale Help */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "Nightingale Help"; sourceTree = "<group>"; };
+		15D234B7287CAA5E00A7C12F /* SearchScoreDlog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SearchScoreDlog.cp; path = src/FilesSearch/SearchScoreDlog.cp; sourceTree = "<group>"; };
+		15D234B9287CAA6E00A7C12F /* SearchScorePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SearchScorePrivate.h; path = src/FilesSearch/SearchScorePrivate.h; sourceTree = "<group>"; };
+		15D234BB287CAA8100A7C12F /* SearchScoreNative.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SearchScoreNative.cp; path = src/FilesSearch/SearchScoreNative.cp; sourceTree = "<group>"; };
 		15E0B7A91E7757E7001C568B /* NotelistOpen.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistOpen.cp; sourceTree = "<group>"; };
 		15E24202256DFA09004AB7A3 /* EndianUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EndianUtils.cp; sourceTree = "<group>"; };
 		15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewSlur.cp; sourceTree = "<group>"; };
@@ -342,7 +354,7 @@
 		D03E69850D5F60B9005FD177 /* VersionStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VersionStrings.h; sourceTree = "<group>"; };
 		D03E69B10D5F62E6005FD177 /* MIDICompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDICompat.h; sourceTree = "<group>"; };
 		D03E69FA0D5F65DC005FD177 /* OpcodeNightingaleDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpcodeNightingaleDefs.h; sourceTree = "<group>"; };
-		D03E6A370D5F6680005FD177 /* Nightingale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nightingale.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D03E6A370D5F6680005FD177 /* Nightingale.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Nightingale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D03E6A670D5F69BE005FD177 /* NightTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NightTemplates.h; sourceTree = "<group>"; };
 		D03E6A690D5F69E8005FD177 /* MIDIRecUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDIRecUtils.h; sourceTree = "<group>"; };
 		D03E6B030D5F6E55005FD177 /* NavServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavServices.h; sourceTree = "<group>"; };
@@ -553,6 +565,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		15434CBB287C969300BEBE21 /* FilesSearch */ = {
+			isa = PBXGroup;
+			children = (
+				15434CC1287C96BE00BEBE21 /* SearchScore.cp */,
+				15434CC3287C96CC00BEBE21 /* SearchScore.h */,
+				15D234B7287CAA5E00A7C12F /* SearchScoreDlog.cp */,
+				15D234BB287CAA8100A7C12F /* SearchScoreNative.cp */,
+				15D234B9287CAA6E00A7C12F /* SearchScorePrivate.h */,
+			);
+			name = FilesSearch;
+			sourceTree = "<group>";
+		};
 		15FD35C12012A11C00198184 /* MIDI */ = {
 			isa = PBXGroup;
 			children = (
@@ -592,6 +616,7 @@
 			isa = PBXGroup;
 			children = (
 				32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */,
+				15434CBB287C969300BEBE21 /* FilesSearch */,
 				D03E6AFF0D5F6E3D005FD177 /* CarbonNavServices */,
 				D03E6D4F0D5F92F2005FD177 /* CarbonPrinting */,
 				D03E70EC0D5FA655005FD177 /* CarbonTEField */,
@@ -1246,6 +1271,9 @@
 				1515242E27D003DF0082FFDB /* MidiMap.cp in Sources */,
 				156E47FF28098DD200E55D94 /* DragAccModNR.cp in Sources */,
 				1568D80B281F6DF6007EBF85 /* DragUtils.cp in Sources */,
+				15434CC2287C96BE00BEBE21 /* SearchScore.cp in Sources */,
+				15D234B8287CAA5E00A7C12F /* SearchScoreDlog.cp in Sources */,
+				15D234BC287CAA8100A7C12F /* SearchScoreNative.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -63,6 +63,11 @@
 		15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BCF5991E9D27D30069F7EB /* Undo.cp */; };
 		15C22B1D2732EFDD00CBBC76 /* ModNREdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15C22B1C2732EFDD00CBBC76 /* ModNREdit.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
+		15C8E807288058A2005B750C /* SearchScorePrivate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15C8E806288058A2005B750C /* SearchScorePrivate.h */; };
+		15C8E80D288058B1005B750C /* SearchScore.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15C8E80C288058B1005B750C /* SearchScore.h */; };
+		15C8E80F288058BB005B750C /* SearchScore.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15C8E80E288058BB005B750C /* SearchScore.cp */; };
+		15C8E811288058CB005B750C /* SearchScoreNative.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15C8E810288058CB005B750C /* SearchScoreNative.cp */; };
+		15C8E813288058D3005B750C /* SearchScoreDlog.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15C8E812288058D3005B750C /* SearchScoreDlog.cp */; };
 		15CC0992206403DA007075DF /* Endian.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15CC0991206403DA007075DF /* Endian.h */; };
 		15D7521B252B396300591F5A /* FileUtils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15D7521A252B396300591F5A /* FileUtils.h */; };
 		15D7521D252B398B00591F5A /* NBasicTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15D7521C252B398B00591F5A /* NBasicTypes.h */; };
@@ -234,6 +239,8 @@
 				156FF788265C01E700708310 /* BMP.h in CopyFiles */,
 				1554544126DADD1D00FF8EB0 /* DynamicEdit.h in CopyFiles */,
 				153212AE27A4543200747DF3 /* DurationEdit.h in CopyFiles */,
+				15C8E807288058A2005B750C /* SearchScorePrivate.h in CopyFiles */,
+				15C8E80D288058B1005B750C /* SearchScore.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,6 +302,11 @@
 		15B639401ECDA9E00029EDD7 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
 		15BCF5991E9D27D30069F7EB /* Undo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Undo.cp; sourceTree = "<group>"; };
 		15C22B1C2732EFDD00CBBC76 /* ModNREdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModNREdit.cp; sourceTree = "<group>"; };
+		15C8E806288058A2005B750C /* SearchScorePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SearchScorePrivate.h; path = src/FilesSearch/SearchScorePrivate.h; sourceTree = "<group>"; };
+		15C8E80C288058B1005B750C /* SearchScore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SearchScore.h; path = src/FilesSearch/SearchScore.h; sourceTree = "<group>"; };
+		15C8E80E288058BB005B750C /* SearchScore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SearchScore.cp; path = src/FilesSearch/SearchScore.cp; sourceTree = "<group>"; };
+		15C8E810288058CB005B750C /* SearchScoreNative.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SearchScoreNative.cp; path = src/FilesSearch/SearchScoreNative.cp; sourceTree = "<group>"; };
+		15C8E812288058D3005B750C /* SearchScoreDlog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SearchScoreDlog.cp; path = src/FilesSearch/SearchScoreDlog.cp; sourceTree = "<group>"; };
 		15CC0991206403DA007075DF /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
 		15D7521A252B396300591F5A /* FileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileUtils.h; sourceTree = "<group>"; };
 		15D7521C252B398B00591F5A /* NBasicTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBasicTypes.h; sourceTree = "<group>"; };
@@ -550,6 +562,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		158B5CF52880548000D7247F /* FilesSearch */ = {
+			isa = PBXGroup;
+			children = (
+				15C8E80E288058BB005B750C /* SearchScore.cp */,
+				15C8E80C288058B1005B750C /* SearchScore.h */,
+				15C8E812288058D3005B750C /* SearchScoreDlog.cp */,
+				15C8E810288058CB005B750C /* SearchScoreNative.cp */,
+				15C8E806288058A2005B750C /* SearchScorePrivate.h */,
+			);
+			name = FilesSearch;
+			sourceTree = "<group>";
+		};
 		15FD35C12012A11C00198184 /* MIDI */ = {
 			isa = PBXGroup;
 			children = (
@@ -588,6 +612,7 @@
 		20286C2AFDCF999611CA2CEA /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				158B5CF52880548000D7247F /* FilesSearch */,
 				32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */,
 				D03E6AFF0D5F6E3D005FD177 /* CarbonNavServices */,
 				D03E6D4F0D5F92F2005FD177 /* CarbonPrinting */,
@@ -1242,6 +1267,9 @@
 				153387C227B314D60093B1A4 /* TempoEdit.cp in Sources */,
 				15FCCC64280B3AD100D82E22 /* DragAccModNR.cp in Sources */,
 				15FE2EC8281F6DC6002E163E /* DragUtils.cp in Sources */,
+				15C8E80F288058BB005B750C /* SearchScore.cp in Sources */,
+				15C8E811288058CB005B750C /* SearchScoreNative.cp in Sources */,
+				15C8E813288058D3005B750C /* SearchScoreDlog.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
