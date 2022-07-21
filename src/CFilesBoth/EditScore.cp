@@ -14,12 +14,12 @@
 
 /* Handle mouse clicks in a currently active score. <pt> must be in paper-relative
 coordinates with respect to the current sheet, and the window local coordinates must
-have already been set to reflect the current sheet as well. Always returns True.
-This should be called by DoDocContent. */
+have already been set to reflect the current sheet as well. Always returns True. This
+should be called by DoDocContent. */
 
 Boolean DoEditScore(Document *doc, Point pt, short modifiers, short dblClick)
 	{
-		Boolean shiftFlag,optionFlag,cmdFlag,capsLockFlag;
+		Boolean shiftFlag, optionFlag, cmdFlag, capsLockFlag;
 
 		shiftFlag = (modifiers & shiftKey)!=0;
 		optionFlag = (modifiers & optionKey)!=0;
@@ -35,12 +35,10 @@ Boolean DoEditScore(Document *doc, Point pt, short modifiers, short dblClick)
 			
 			case ClickSelect:
 				if (optionFlag || currentCursor==genlDragCursor) {
-					if (dblClick) { DoOpenSymbol(doc, pt); break; }
+					if (dblClick) { DoOpenSymbol(doc, pt);  break; }
 
 					DeselAll(doc);
-					
 					if (DoSymbolDrag(doc, pt)) break;
-					
 					DoAccModNRClick(doc, pt); break;
 				}
 				
@@ -50,7 +48,8 @@ Boolean DoEditScore(Document *doc, Point pt, short modifiers, short dblClick)
 						if (pL==NILINK)						/* maybe user dbl-clicked on modifier */
 							DoOpenModNR(doc, pt);
 					}
-					else		  DoSelect(doc, pt, shiftFlag, cmdFlag, capsLockFlag, SMSelect);
+					else
+						DoSelect(doc, pt, shiftFlag, cmdFlag, capsLockFlag, SMSelect);
 					break;
 				}
 				
@@ -86,7 +85,7 @@ void DoClickErase(Document *doc, Point pt)
 					if (PtInRect(pt, &pMeasure->measureBBox)) {
 						tempR=pMeasure->measureBBox;
 						OffsetRect(&tempR, doc->currentPaper.left, doc->currentPaper.top);
-						EraseAndInval(&tempR);			/* force a screen update on it */
+						EraseAndInval(&tempR);				/* force a screen update on it */
 					}
 				pL = LinkRMEAS(pL);
 				if (!pL) pL = doc->tailL;
@@ -118,7 +117,7 @@ void DoClickFrame(Document *doc, Point pt)
 void DoClickInsert(Document *doc, Point pt)
 	{
 		short index, subtype;
-		DDIST xd; CONTEXT context;
+		DDIST xd;  CONTEXT context;
 		
 		DeselAll(doc);
 
@@ -203,11 +202,10 @@ void DoClickInsert(Document *doc, Point pt)
 				break;
 			}
 
-		/*
-		 * The thing just inserted may end up far away from where the user clicked,
-		 * and if they now zoom in, it's very likely they want to look at the new
-		 * symbol, not the spot where they clicked. Reset the zoom origin accordingly.
-		 */			
+		/* The thing just inserted may end up far away from where the user clicked, and
+		   if they now zoom in, it's very likely they want to look at the new symbol,
+		   not the spot where they clicked. Reset the zoom origin accordingly. */
+		   			
 		GetContext(doc, doc->selStartL, 1, &context);
 		xd = PageRelxd(doc->selStartL, &context);
 		doc->scaleCenter.h = context.paper.left+d2p(xd);

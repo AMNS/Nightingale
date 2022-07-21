@@ -639,15 +639,14 @@ sParm.chordNotes, syncL, voice, aNoteL, lowNoteL, hiNoteL, targetPos, (matchHere
 										*pPrevNoteNum, searchPat, targetPos, pErrInfo);
 	
 		/* All tests are complete: handle the result. */
-		if (!matchHere)
-			voiceStatus = VOICE_PRESENT;
+		
+		if (!matchHere) voiceStatus = VOICE_PRESENT;
 	
 		if (matchHere) {
-			matchedObjA[targetPos] = syncL;								/* Save matched-note info */
+			matchedObjA[targetPos] = syncL;						/* Save matched-note info */
 			matchedSubobjA[targetPos] = aNoteL;
 			targetPos++;
-			if (targetPos==1)
-				mayMatchStartL = syncL;										/* 1st note: initialize */
+			if (targetPos==1) mayMatchStartL = syncL;			/* 1st note: initialize */
 			
 			if (!DB_NoteREST(aNoteL))
 				*pPrevNoteNum = NoteNUM(aNoteL);
@@ -659,6 +658,7 @@ sParm.chordNotes, syncL, voice, aNoteL, lowNoteL, hiNoteL, targetPos, (matchHere
 			*pPrevNoteL = aNoteL;
 			
 			/* Skip remaining notes in the Sync	in this voice, so chords don't confuse us. */
+			
 			voiceStatus = VOICE_MATCHED;
 		}
 	}
@@ -757,16 +757,16 @@ static INT16 RestartSearchTargetPos(
 	totalErrorInfo.durationErr = 0;
 
 	/* Start looking. If we're doing relative pitch and the failed match started with a
-	 * chord, this outer loop iterates thru all remaining notes in its chord. Otherwise,
-	 * this outer loop goes thru only a single iteration.
-	 */
+	   chord, this outer loop iterates thru all remaining notes in its chord. Otherwise,
+	   this outer loop goes thru only a single iteration. */
+	   
 	for (k = 0; k<startNoteCount; k++) {
 		targetPos = 0;
 		mayMatchStartL = DB_NILINK;
 		if (startNoteL[k]!=DB_NILINK) {
-			/* We're doing relative pitch: check next note of chord that failed the match before.
-			 * Since this is now the start of a match, it should always succeed.
-			 */
+			/* We're doing relative pitch: check next note of chord that failed the match
+			   before. Since this is now the start of a match, it should always succeed. */
+			   
 			voiceStatus = SyncMatch(sParm, searchPat, voice, failedMatchStartL, startNoteL[k],
 								newObjA, newSubobjA, &mayMatchStartL, &prevSyncL, &prevNoteL,
 								&prevNoteNum, &targetPos, &oneErrorInfo);
@@ -777,10 +777,10 @@ static INT16 RestartSearchTargetPos(
 
 			if (targetPos>=searchPat.patLen) {
 				MayErrMsg("RestartSearchTargetPos: matched entire pattern, at %ld.",
-								(long)failedMatchStartL);									/* should never happen */
+								(long)failedMatchStartL);		/* should never happen */
 				goto Cleanup;
 			}
-			if (voiceStatus!=VOICE_MATCHED) continue;									/* should never happen */
+			if (voiceStatus!=VOICE_MATCHED) continue;			/* should never happen */
 		}
 		
 		/* To be useful, a new candidate match must match thru <failL>, not just up to it. */
@@ -799,10 +799,11 @@ static INT16 RestartSearchTargetPos(
 			if (targetPos>=searchPat.patLen)
 				goto Cleanup;														/* Matched entire pattern: unusual but possible */
 			if (voiceStatus==VOICE_PRESENT) {
-				/* The voice had notes in the Sync but didn't match, so--if we've started a
-				 * match--restart the search in the simplest, most conservative way. How to do
-				 * that depends on whether there are any notes left in failed-match chord.
-				 */
+				/* The voice had notes in the Sync but didn't match, so--if we've started
+				   a match--restart the search in the simplest, most conservative way.
+				   How to do that depends on whether there are any notes left in failed-
+				   match chord. */
+				   
 				if (targetPos>0) {
 					if (k<startNoteCount-1)
 						goto NextChordNote;		/* So next iteration will start with next note in failed-match chord */
@@ -814,7 +815,8 @@ static INT16 RestartSearchTargetPos(
 			}
 		}
 		
-		/* We've gotten all the way thru <failL> and everything matched: success. */
+		/* We've gotten all the way thru <failL> and everything matched: success! */
+		
 		break;
 		
 NextChordNote:
@@ -960,16 +962,18 @@ DB_LINK SearchGetHitSet(
 			if (!DB_VOICE_MAYBE_USED(doc, v)) continue;
 		
 			/* If we're Looking At a Voice, ignore all other voices. */
+			
 			if (doc->lookVoice>=0 && v!=doc->lookVoice) continue;
 			
 			/* If we've already found a match in this voice, ignore this voice. */
+			
 			if (foundVoiceA[v]) continue;
 			
 			/* If we've already found a match in any voice, don't start new matches in
-			 * any voice. NB: I think this could result in losing matches for 1-note
-			 * queries, but such queries probably shouldn't be allowed anyway (and, as
-			 * of this writing, aren't; see the calling functions).
-			 */
+			   any voice. NB: I think this could result in losing matches for 1-note
+			   queries, but such queries probably shouldn't be allowed anyway (and, as
+			   of this writing, aren't; see the calling functions). */
+			   
 			if (fullMatchStartL!=DB_NILINK && targetPos[v]==0) continue;
 			
 			voiceStatus[v] = SyncMatch(sParm, searchPat, v, pL, DB_FindFirstNote(pL, v), matchedObjA[v],
@@ -985,9 +989,9 @@ DB_LINK SearchGetHitSet(
 				DebugShowSSInfo(searchPat.patLen, pL, v, voiceStatus, targetPos, totalErrorInfo);
 			if (targetPos[v]>=searchPat.patLen) {
 				/* We've matched the whole pattern in this voice. If it's the first full
-				 * match in any voice, save its starting point and disallow any matches
-				 * starting later in other voices.
-				 */
+				   match in any voice, save its starting point and disallow any matches
+				   starting later in other voices. */
+				   
 #ifdef DEBUG_MIDLEVEL
 				DebugPrintf(" SearchGetHitSet: startL=%d pL=%d. matched full pattern in voice=%d.\n", startL, pL, v);
 #endif
@@ -1003,23 +1007,24 @@ DB_LINK SearchGetHitSet(
 		}
 
 		/* We've looked at all voices. If we haven't found a match in any voice yet,
-		 * then for any voice that had notes in the Sync but didn't match, restart the
-		 * search. Restarting from the correct place is not at all easy: see comments in
-		 * RestartSearchTargetPos.
-		 */
+		   then for any voice that had notes in the Sync but didn't match, restart the
+		   search. Restarting from the correct place is not at all easy: see comments in
+		   RestartSearchTargetPos. */
+		   
 		for (v = 1; v<=MAXVOICES; v++)
 			if (voiceStatus[v]==VOICE_PRESENT && fullMatchStartL==DB_NILINK) {
 				short n;
 				
 				/* If we're Looking At a Voice, ignore notes in all other voices. */
+				
 				if (doc->lookVoice>=0 && v!=doc->lookVoice) continue;
 		
 				targetPos[v] = RestartSearchTargetPos(sParm, searchPat, mayMatchStartL[v],
-																	matchedSubobjA[v][0], pL, v,
-																	&newMayMatchStartL,
-																	&newPrevSyncL, &newPrevNoteL,
-																	&newPrevNoteNum,
-																	newObjA, newSubobjA, &totalErrorInfo[v]);
+														matchedSubobjA[v][0], pL, v,
+														&newMayMatchStartL,
+														&newPrevSyncL, &newPrevNoteL,
+														&newPrevNoteNum,
+														newObjA, newSubobjA, &totalErrorInfo[v]);
 				if (CapsLockKeyDown() && ShiftKeyDown())
 					DebugPrintf("  SS>RestartSTP(v=%d,L%ld) newMayStart=L%ld: Pos=%d totalPitchError=%d\n",
 						v, (long)mayMatchStartL[v], (long)newMayMatchStartL, targetPos[v],

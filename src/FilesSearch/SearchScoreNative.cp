@@ -410,8 +410,7 @@ Boolean DoSearchScore(Document *doc, Boolean again, Boolean usePitch, Boolean us
 		CautionInform(GENERIC_ALRT);
 	}
 
-	if (haveChord)
-		WarnHaveChord();
+	if (haveChord) WarnHaveChord();
 
 	/* Fill SEARCHPARAMS block and start the search. If it's _not_ a search "again", just
 	   start at the insertion point. If it _is_ a search "again", start with the voice
@@ -645,8 +644,7 @@ Boolean DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration,
 	DB_LINK *matchedObjFA = NULL, *matchedSubobjFA = NULL;
 	long matchArraySize;
 
-	if (!SearchIsLegal(usePitch, useDuration))
-		goto Cleanup;
+	if (!SearchIsLegal(usePitch, useDuration)) goto Cleanup;
 
 	if (!N_SearchScore2Pattern(includeRests, &searchPat, matchTiedDur, &haveChord)) {
 		sprintf(str, "The search pattern is too long: notes after the first %d will be ignored.",
@@ -655,8 +653,7 @@ Boolean DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration,
 		CautionInform(GENERIC_ALRT);
 	}
 
-	if (haveChord)
-		WarnHaveChord();
+	if (haveChord) WarnHaveChord();
 
 	sParm.usePitch = usePitch;
 	sParm.useDuration = useDuration;
@@ -1026,8 +1023,7 @@ Boolean DoIRSearchFiles(FSSpec *pTheFile, Boolean usePitch, Boolean useDuration,
 		CautionInform(GENERIC_ALRT);
 	}
 
-	if (haveChord)
-		WarnHaveChord();
+	if (haveChord) WarnHaveChord();
 
 #if 2
 	// ??UGLY KLUDGE To avoid mysterious crashes/hangs on most machines, urge user to

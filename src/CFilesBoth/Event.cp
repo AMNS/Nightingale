@@ -520,7 +520,7 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 			case DOCUMENTKIND:
 				doc = GetDocumentFromWindow(w);
 				if (doc) {
-					//switch( code = FindControl(pt, w,&control) ) {
+					//switch( code = FindControl(pt, w, &control) ) {
 					control = FindControlUnderMouse(pt, w, &code);
 					switch (code) {
 						case kControlUpButtonPart:
@@ -568,8 +568,7 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 								}
 							break;
 						default:
-							if (doc!=clipboard)
-								DoDocContent(w, pt, modifiers, when);
+							if (doc!=clipboard) DoDocContent(w, pt, modifiers, when);
 							break;
 						}
 					}
@@ -619,18 +618,19 @@ void AutoScroll()
 
 
 /* Handle a mouse down event in Document content area, i.e., in a Document window but
-not in a control.  pt is expected in local coords. In documents, entertain selection
-rectangle with automatic scrolling if user drags mouse out of view. */
+not in a control.  pt is expected in local coords. In documents, handle selection
+rectangle, with automatic scrolling if user drags mouse out of view. */
 
 static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 	{
-		Rect paper; Document *doc = GetDocumentFromWindow(w);
+		Rect paper;
+		Document *doc = GetDocumentFromWindow(w);
 		short ans,doubleClick;
 		Boolean didSomething;
 		
 		if (doc==NULL) return;
 		
-		if (PtInRect(pt,&doc->viewRect))
+		if (PtInRect(pt, &doc->viewRect))
 			if (FindSheet(doc, pt, &ans)) {
 				GetSheetRect(doc, ans, &paper);
 				doc->currentSheet = ans;
@@ -641,8 +641,8 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 
 					doc->scaleCenter = pt;		/* Save window coord for SheetMagnify */
 					
-					/* Transform to paper relative coords: in pixels relative to
-						upper left corner of page (e.g. by subtracting (-24000, -24000)) */
+					/* Transform to paper relative coords: in pixels relative to upper
+					   left corner of page (e.g. by subtracting (-24000, -24000)) */
 						
 					pt.h -= paper.left;
 					pt.v -= paper.top;
@@ -653,7 +653,6 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 					}
 					else if (doc->showFormat) {
 						didSomething = DoEditFormat(doc, pt, modifiers, doubleClick);
-
 						if (didSomething)
 							/* doc->formatChanged True; */
 							;

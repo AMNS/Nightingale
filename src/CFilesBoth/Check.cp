@@ -53,8 +53,8 @@
 	e.g., SMDeselect can clear flags but shouldn't HiliteRect if it's not <valid>. */
 
 
-/* Offset the Rect along the given axis only if it's not set to "infinite" (wide
-open); if it is, leave it alone. */
+/* Offset the Rect along the given axis only if it's not set to "infinite" (wide open);
+if it is, leave it alone. */
 
 static void COffsetRect(Rect *, short, short);
 static void COffsetRect(Rect *r, short h, short v)
@@ -89,7 +89,7 @@ short CheckPAGE(Document *doc, LINK pL, CONTEXT context[],
 	if (VISIBLE(pL)) {
 		pContext = &context[1];
 		r = pContext->paper;
-		OffsetRect(&r,-pContext->paper.left,-pContext->paper.top);
+		OffsetRect(&r, -pContext->paper.left, -pContext->paper.top);
 
 		switch (mode) {
 			case SMClick:
@@ -127,8 +127,7 @@ short CheckPAGE(Document *doc, LINK pL, CONTEXT context[],
 				/* No Symbol dragging for PAGEs */
 				break;
 			case SMFind:
-				if (PtInRect(*(Point *)ptr, &r))
-					result = 0;
+				if (PtInRect(*(Point *)ptr, &r)) result = 0;
 				break;
 			case SMHilite:
 				if (LinkSEL(pL)) {
@@ -187,8 +186,9 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 				if (doc->masterView) {
 					sysOffset = r.bottom-r.top + d2p(doc->yBetweenSysMP);
 
-					/* Translate the bBox of all the staff subObjRects
-						down by 1 system. */
+					/* Translate the bBoxes of all the staff subObjRects down by one
+					   system. */
+					   
 					OffsetRect(&sysRect, 0, sysOffset);
 
 					sysObjRect = LinkOBJRECT(pL);
@@ -242,6 +242,7 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 				{
 #ifdef CHECK_FRAMESYSTEMS
 					/* Convert to window-relative and frame rect for debugging */
+					
 					OffsetRect(&r,pContext->paper.left,pContext->paper.top);
 					FrameRect(&r);
 #endif
@@ -281,7 +282,7 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 	PCONTEXT pContext;
 	Rect rSub, wSub, aRect;
 	short i, result, staffn;
-	DDIST	dTop, dLeft, dBottom, dRight;
+	DDIST dTop, dLeft, dBottom, dRight;
 	Boolean objSel=False;
 	LINK partL;
 
@@ -318,8 +319,8 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 							first staff subObj then call DragGrayRgn to track the user dragging
 							the staff subObj up and down; or if we are in showFormat, and
 							in any staff subObj. */
+							
 						if (doc->masterView || doc->showFormat) {
-
 							if (DragGrayStaffRect(doc, pL, aStaffL, staffn, ptr, rSub, wSub, context)) {
 								result = 0;
 								if (doc->showFormat) {
@@ -395,8 +396,7 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 						/* No Symbol dragging for STAFFs */
 						break;
 					case SMFind:
-						if (PtInRect(*(Point *)ptr, &rSub))
-							result = i;
+						if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 						break;
 					case SMHilite:
 						if (StaffSEL(aStaffL)) {
@@ -576,8 +576,7 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 					/* No Symbol dragging for CONNECTs */
 					break;
 				case SMFind:
-					if (PtInRect(*(Point *)ptr, &r))
-						result = i;
+					if (PtInRect(*(Point *)ptr, &r)) result = i;
 					break;
 				case SMHilite:
 					break;
@@ -696,9 +695,7 @@ PushLock(CLEFheap);
 			}
 			break;
 		case SMFind:
-			if (PtInRect(*(Point *)ptr, &rSub)) {
-				result = i;
-			}
+			if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 			break;
 		case SMHilite:
 			if (aClef->selected) {
@@ -710,8 +707,7 @@ PushLock(CLEFheap);
 			HiliteRect(&wSub);
 			break;
 		}
-		if (aClef->selected)
-			objSelected = True;
+		if (aClef->selected) objSelected = True;
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
 	TextSize(oldtxSize);
@@ -868,8 +864,7 @@ PushLock(DYNAMheap);
 			}
 			break;
 		case SMFind:
-			if (PtInRect(*(Point *)ptr, &rSub))
-				result = i;
+			if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 			break;
 		case SMHilite:
 			if (aDynamic->selected) {
@@ -881,8 +876,7 @@ PushLock(DYNAMheap);
 			HiliteRect(&wSub);
 			break;
 		}
-		if (aDynamic->selected)
-			objSelected = True;
+		if (aDynamic->selected) objSelected = True;
 	}
 
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
@@ -995,8 +989,7 @@ PushLock(RPTENDheap);
 					}
 					break;
 				case SMFind:
-					if (PtInRect(*(Point *)ptr, &rSub))
-						result = i;
+					if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 					break;
 				case SMHilite:
 					if (aRpt->selected)
@@ -1131,6 +1124,7 @@ PushLock(GRAPHICheap);
 							   the relevant heaps are locked); but then Undoing often
 							   fails, apparently because we're not saving and restoring
 							   the string pool. Sigh. */
+							   
 							PrepareUndo(doc, pL, U_EditText, 51);			/* "Undo Edit Text" */
 							p = GetPGRAPHIC(pL);
 #else
@@ -1292,8 +1286,7 @@ PushLock(GRAPHICheap);
 				}
 				break;
 			case SMFind:
-				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL)))
-					result = 0;
+				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL))) result = 0;
 				break;
 			case SMHilite:
 				if (LinkSEL(pL)) {
@@ -1464,8 +1457,7 @@ PushLock(OBJheap);
 				}
 				break;
 			case SMFind:
-				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL)))
-					result = 0;
+				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL))) result = 0;
 				break;
 			case SMHilite:
 				if (LinkSEL(pL)) {
@@ -1569,8 +1561,7 @@ short CheckSPACER(Document *doc, LINK pL, CONTEXT context[],
 
 				break;
 			case SMFind:
-				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL)))
-					result = 0;
+				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL))) result = 0;
 				break;
 			case SMHilite:
 				if (LinkSEL(pL)) {
@@ -1695,8 +1686,7 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 				}
 				break;
 			case SMFind:
-				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL)))
-					result = 0;
+				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL))) result = 0;
 				break;
 			case SMHilite:
 				if (LinkSEL(pL)) {
@@ -1912,8 +1902,7 @@ PushLock(KEYSIGheap);
 			}
 			break;
 		case SMFind:
-			if (PtInRect(*(Point *)ptr, &rSub))
-				result = i;
+			if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 			break;
 		case SMHilite:
 			if (aKeySig->selected) {
@@ -1925,8 +1914,7 @@ PushLock(KEYSIGheap);
 			HiliteRect(&wSub);
 			break;
 		}
-		if (aKeySig->selected)
-			objSelected = True;
+		if (aKeySig->selected) objSelected = True;
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
 	
@@ -1997,12 +1985,12 @@ PushLock(NOTEheap);
 			xd = dLeft + aNote->xd;							/* absolute position of subobject */
 			yd = dTop + aNote->yd;
 
-			if (aNote->rest)									/* "note" is really a rest */
+			if (aNote->rest)								/* "note" is really a rest */
 				if (aNote->subType<=WHOLEMR_L_DUR)
 					glyph = MCH_rests[WHOLE_L_DUR-1];
 				else
 					glyph = MCH_rests[aNote->subType-1];
-			else {												/* "note" is really a note */
+			else {											/* "note" is really a note */
 				if (aNote->subType==UNKNOWN_L_DUR)
 					glyph = MCH_quarterNoteHead;
 				else if (aNote->subType<=WHOLE_L_DUR)
@@ -2099,7 +2087,7 @@ PushLock(NOTEheap);
 					InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
 					if (DETAIL_SHOW)
 						if (SUSPICIOUS_WREL_RECT(wSub))
-							LogPrintf(LOG_DEBUG, " %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
+							LogPrintf(LOG_DEBUG, " SUSPICIOUS_WREL_RECT L%u:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
 								enlargeSpecial.h, enlargeSpecial.v);
 					HiliteRect(&wSub);
 				}
@@ -2108,7 +2096,7 @@ PushLock(NOTEheap);
 				aRect = rSub;
 				InsetRect(&aRect, -(1+enlarge.h), -enlarge.v);
 				if (PtInRect(*(Point *)ptr, &aRect)) {
-					if (!EqualRect(&selOldRect,&aRect)) {
+					if (!EqualRect(&selOldRect, &aRect)) {
 						aNote->selected = !aNote->selected;
 						InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
 						HiliteRect(&wSub);
@@ -2129,18 +2117,16 @@ PushLock(NOTEheap);
 				}
 				break;
 			case SMFind:
-				if (PtInRect(*(Point *)ptr, &rSub))
-					result = i;
+				if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 				break;
 			case SMFindNote:
 
-				/* CheckSYNC w/ SMFindNote is called by InsertSlur to find the note
-				   which will have a new slur; the second parameter is different to 
-				   correct for the optical illusion of click on a small noteHead. */
+				/* CheckSYNC with SMFindNote should be called by InsertSlur to find the
+				   note which will have a new slur; the second parameter is different to 
+				   correct for the optical illusion of click on a small notehead. */
 
 				InsetRect(&rSub, -(1+enlarge.h), -3*enlarge.v);
-				if (PtInRect(*(Point *)ptr, &rSub))
-					result = i;
+				if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 				break;
 			case SMHilite:
 				if (aNote->selected) {
@@ -2153,8 +2139,7 @@ PushLock(NOTEheap);
 				HiliteRect(&wSub);
 				break;
 			}
-			if (aNote->selected)
-				objSelected = True;
+			if (aNote->selected) objSelected = True;
 		}
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
@@ -2307,8 +2292,7 @@ PushLock(GRNOTEheap);
 				}
 				break;
 			case SMFind:
-				if (PtInRect(*(Point *)ptr, &rSub))
-					result = i;
+				if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 				break;
 			case SMFindNote:
 				InsetRect(&rSub, -1, -3);
@@ -2325,8 +2309,7 @@ PushLock(GRNOTEheap);
 				HiliteRect(&wSub);
 				break;
 			}
-			if (aGRNote->selected)
-				objSelected = True;
+			if (aGRNote->selected) objSelected = True;
 		}
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
@@ -2522,8 +2505,7 @@ PushLock(TIMESIGheap);
 			}
 			break;
 		case SMFind:
-			if (PtInRect(*(Point *)ptr, &rSub))
-				result = i;
+			if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 			break;
 		case SMHilite:
 			if (aTimeSig->selected) {
@@ -2535,8 +2517,7 @@ PushLock(TIMESIGheap);
 			HiliteRect(&wSub);
 			break;
 		}
-		if (aTimeSig->selected)
-			objSelected = True;
+		if (aTimeSig->selected) objSelected = True;
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
 	
@@ -2763,8 +2744,7 @@ PushLock(MEASUREheap);
 				}
 				break;
 			case SMFind:
-				if (PtInRect(*(Point *)ptr, &rSub))
-					result = i;
+				if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 				break;
 			case SMHilite:
 				if (aMeasure->selected)
@@ -2779,8 +2759,7 @@ PushLock(MEASUREheap);
 			default:
 				break;
 		}
-		if (aMeasure->selected)
-			objSelected = True;
+		if (aMeasure->selected) objSelected = True;
 	}
 
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
@@ -2951,8 +2930,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 				}
 				break;
 			case SMFind:
-				if (PtInRect(*(Point *)ptr, &rSub))
-					result = i;
+				if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 				break;
 			case SMHilite:
 				if (aPSMeas->selected)
@@ -3067,8 +3045,7 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMFind:
-		if (PtInRect(*(Point *)ptr, &rSub))
-			result = 1;
+		if (PtInRect(*(Point *)ptr, &rSub)) result = 1;
 		break;
 	case SMHilite:
 		if (LinkSEL(pL))
@@ -3198,8 +3175,7 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMFind:
-		if (PtInRect(*(Point *)ptr, &rSub))
-			result = 1;
+		if (PtInRect(*(Point *)ptr, &rSub)) result = 1;
 		break;
 	case SMHilite:
 		if (LinkSEL(pL)) {
@@ -3296,8 +3272,7 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMFind:
-		if (PtInRect(*(Point *)ptr, &rSub))
-			result = 1;
+		if (PtInRect(*(Point *)ptr, &rSub)) result = 1;
 		break;
 	case SMHilite:
 		if (LinkSEL(pL)) {
@@ -3416,12 +3391,10 @@ PushLock(OBJheap);
 			}
 			break;
 		case SMFind:
-			if (PtInRect(*(Point *)ptr, &rSub))
-				result = i;
+			if (PtInRect(*(Point *)ptr, &rSub)) result = i;
 			break;
 		case SMHilite:
-			if (aSlur->selected)
-				HiliteRect(&wSub);
+			if (aSlur->selected) HiliteRect(&wSub);
 			break;
 		case SMFlash:
 			HiliteRect(&wSub);

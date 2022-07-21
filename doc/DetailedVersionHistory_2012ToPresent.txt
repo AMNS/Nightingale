@@ -3730,3 +3730,13 @@ Documents, Windows.
 
 ----------------------------------------------------------------------------------------- B20
 
+15 - 21 July
+
+Fixed bug: Trying to search with a search pattern that contains chords makes Nightingale
+crash because a dialog to warn about the situation is missing. Affects .rsrc: add DLOG
+816.
+
+Minor changes. Affects info.plist; Check, EditScore, Event, SearchScore, SearchScoreNative,
+SelUtils.
+
+----------------------------------------------------------------------------------------- B21

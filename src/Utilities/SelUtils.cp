@@ -569,7 +569,8 @@ Boolean HomogenizeSel(
 				short alertID 		/* 0=don't need permission */
 				)
 {
-	LINK pL, aNoteL;  Boolean homoSel;
+	LINK pL, aNoteL;
+	Boolean homoSel=True;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
@@ -670,7 +671,7 @@ extent. */
 
 /* For any page, wipe selections on more than one system will involve inverting up to
 three rects, which need to be available to DrawTheSweepRects() below as well as as here.
- For single-system sweeps, though (all we allow now), we only use topRect. */
+For single-system sweeps, though (all we allow now), we only use topRect. */
 
 static Rect topRect;
 
@@ -690,7 +691,7 @@ static Point TrackStaffRect(
 	
 	GetPort(&oldPort);
 	
-	SetPort(docPort=GetDocWindowPort( doc));
+	SetPort(docPort=GetDocWindowPort(doc));
 	LockPortBits(docPort);
 	theSelectionType = SWEEPING_RECTS;
 	
@@ -701,11 +702,9 @@ static Point TrackStaffRect(
 	OffsetRect(&paperOrig, -paperOrig.left, -paperOrig.top);
 	while (Button()) {
 		GetPaperMouse(&pt,paper);
-		if (ABS(pt.h-startPt.h)>=2) {
-			cancelThis = False;
-		}
+		if (ABS(pt.h-startPt.h)>=2) cancelThis = False;
 		ans = PinRect(&paperOrig, pt);
-		pt.h = LoWord(ans); pt.v = HiWord(ans);
+		pt.h = LoWord(ans);  pt.v = HiWord(ans);
 
 		stf = GetStaff(doc, pt);									/* Staff boundary above pt */
 		startStf = topStartStf;										/* Staff boundary above startPt */
@@ -756,10 +755,10 @@ static void ChangeInvRect(Rect *pr1, Rect *pr2)
 	vBound[2] = r2.top;		vBound[3] = r2.bottom;
 	ShellSort(vBound, 4);
 
-	/* Look at each box in a grid whose gridpoints are at each boundary of either
-	   r1 or r2, so that each box is either filled by both, filled by one, or is
-	   empty. If it's filled by both, we know it's already hilited; if by neither,
-	   we know it's already unhilited. If it's filled by just one, invert it. */
+	/* Look at each box in a grid whose gridpoints are at each boundary of either r1 or
+	   r2, so that each box is either filled by both, filled by one, or is empty. If it's
+	   filled by both, we know it's already hilited; if by neither, we know it's already
+	   unhilited. If it's filled by just one, invert it. */
 	
  	for (v = 1; v<4; v++)
  		for (h = 1; h<4; h++) {
@@ -786,18 +785,18 @@ void DrawTheSweepRects()
 
 
 /* ----------------------------------------------------------------- FixEmptySelection -- */
-/* If the selection is empty, set doc->selStaff to the staff <pt.v> is on or
-closest to, and set selStartL and selEndL to create an insertion point near <pt>;
-also move the caret there, but avoid putting it right in the middle of a symbol.
-If the selection isn't empty, do nothing. */  
+/* If the selection is empty, set doc->selStaff to the staff <pt.v> is on or closest to,
+and set selStartL and selEndL to create an insertion point near <pt>; also move the caret
+there, but avoid putting it right in the middle of a symbol. If the selection isn't empty,
+do nothing. */  
 
 void FixEmptySelection(Document *doc, Point	pt)
 {
 	LINK maySectL, selL;  short staffn;
 	Rect r;
 
-	/* If selection range is empty, process mouse click to set an insertion point
-	which doesn't conflict graphically with any symbol of most types. */
+	/* If selection range is empty, process mouse click to set an insertion point that
+	   doesn't conflict graphically with any symbol of most types. */
 
 	if (doc->selStartL==doc->selEndL) {
 		staffn = FindStaffSetSys(doc, pt);
@@ -846,6 +845,7 @@ static void GetStaffLimits(Document *doc, Point pt, STAFFINFO stfInfo[],
 	if (staff==NOONE) MayErrMsg("GetStaffLimits: couldn't find staff");
 
 	/* Find the staff and system objects enclosing <pt>. */
+	
 	systemL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, False, False);
 	staffL = LSSearch(systemL, STAFFtype, ANYONE, False, False);
 
@@ -870,6 +870,7 @@ static void GetStaffLimits(Document *doc, Point pt, STAFFINFO stfInfo[],
 		stfInfo[s].visible = context[s].staffVisible;
 		
 	/* Put a fake staff at the bottom in case nothing above is found. */
+	
 	stfInfo[doc->nstaves+1].top = sysRect.bottom;
 	stfInfo[doc->nstaves+1].visible = True;
 }
@@ -883,7 +884,7 @@ horizontally more than a couple pixels. */
 
 Boolean SelectStaffRect(Document *doc, Point pt)
 {
-	LINK		pL,firstMeasL,sysL,pageL,lastL,lastPageL;
+	LINK		pL, firstMeasL, sysL, pageL, lastL, lastPageL;
 	Point		endPt;
 	Rect		selRect, aRect;
 	short		index, topStf, bottomStf;
@@ -897,7 +898,7 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 	pL = sysL = LSSearch(pageL, SYSTEMtype, doc->currentSystem, GO_RIGHT, False);
 	firstMeasL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	lastL = LastObjInSys(doc,RightLINK(sysL));
-	GetAllContexts(doc,context,firstMeasL);
+	GetAllContexts(doc,context, firstMeasL);
 	
 	endPt = TrackStaffRect(doc, pt, &topStf, &bottomStf, &doc->currentPaper);	/* Give user feedback while selecting */
 	
@@ -905,8 +906,8 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 		return False;
 	}
 	
-	/* User dragged off the current page; set an insertion point at the end
-	   of the system in the direction of the mouse drag, and return True. */
+	/* User dragged off the current page; set an insertion point at the end of the system
+	   in the direction of the mouse drag, and return True. */
 
 	lastPageL = GetCurrentPage(doc);
 	if (lastPageL!=pageL) {
@@ -919,8 +920,8 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 		return True;
 	}
 
-	/* Set vertical bounds to "infinity", since what wiping selects is determined
-	   by logical position (staff and system), not graphic position. */
+	/* Set vertical bounds to "infinity", since what wiping selects is determined by
+	   logical position (staff and system), not graphic position. */
 	   
 	SetRect(&selRect, pt.h, -32767, endPt.h, 32767);											
 	UnemptyRect(&selRect);
@@ -938,8 +939,7 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 				CheckObject(doc, pL, &found, (Ptr)&selRect, context, SMStaffDrag, &index, stfRange);
 				if (found) {
 					LinkSEL(pL) = True;						/* update selection */
-					if (!doc->selStartL)
-						doc->selStartL = pL;
+					if (!doc->selStartL) doc->selStartL = pL;
 					doc->selEndL = RightLINK(pL);
 				}
 	  		}

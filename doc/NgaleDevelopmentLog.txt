@@ -11361,8 +11361,11 @@ else it calls							DoSearchScore(doc, False, {11 parameters}).
 Search Again calls 						DoSearchScore(doc, True, {11 parameters}).
 The 11 parameters are identical in all three cases.
 
-And what's the relationship between SearchScore.cp and SearchScoreNative.cp? In fact,
-where are all the public and semi-public functions for searching?
+And what's the relationship between SearchScore.cp and SearchScoreNative.cp? I think
+the former is higher-level; its routines call routines in the latter for searching
+regular Ngale scores, as opposed to the psuedo-database.
+
+Where are all the public and semi-public functions for searching?
 
 PUBLIC FUNCTIONS
 	SearchScoreDlog:
@@ -11409,4 +11412,42 @@ no problem with either project. So I dunno, but probably not worth worrying abou
 
 Oops. If the search pattern contains chords, Ngale calls WarnHaveChord to ask the user what
 to do; it tries to put up DLOG 816 -- but it doesn't exist, and I can't find it in any
-version of NgaleSearch! Should probably fix this one way or another ??
+version of NgaleSearch! Should probably fix this one way or another.
+
+---------------------------------------------------------------------------------------
+
+15 - 20 July
+
+I added DLOG 816, giving the warning "The search pattern contains one or more chords.
+Nightingale will match only one note in each chord." But is that really accurate? It
+looks like it.
+
+Problem 1: When Search Again (and maybe Search for Notes/Rests) find a match, it tends to
+scroll in a very unhelpful way! But it may need to scroll to get the new match in view.
+What should it do?
+
+Problem 2: It's very hard to see the notes of a match, partly because of Ngale's subtle
+hilighting, partly because of the unhelpful scrolling. How about calling attention to
+the new selection by flashing it? SearchGetHitSet() tries to find a match and returns its
+starting LINK if it succeeds. Looks like it's called for Find All by IRSearchScore() and
+for the one-at-a-time searches by SearchScore(); the latter is what we want. It calls
+SelectSubobjA(), which... just does an InvalWindow, as it should. That's nowhere near where
+we need the info that we want to flash the new selection #&$@#*&&^(!* . Maybe flash the new
+sel's bounding box before the InvalWindow? Use the logic of the call to HiliteSyncRect()
+in PlaySequence()?
+
+Looks like selection hiliting of notes/rests is done in CheckSYNC(): case SMSelect for
+the Select All command, otherwise case SMHilite ?? No, SMStaffDrag is used for selecting
+via dragging the arrow cursor, and possibly others!
+
+How about this:
+	- rename aNote's <rspIgnore> field to e.g., <selectAlt>
+	- in CheckSYNC(), if <selectAlt>, enlarge hiliting (and unhiliting) in _all_ cases.
+		(All cases might be wrong, but it should be close, anyway.)
+	- SelectSubobjA() sets the note/rest <selectAlt> flags
+	- any subsquent action that affects the selection clears all <selectAlt> flags
+		immediately, i.e., before the screen is updated
+
+
+
+
