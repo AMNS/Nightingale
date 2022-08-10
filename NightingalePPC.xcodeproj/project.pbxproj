@@ -47,6 +47,7 @@
 		157A13BC24E96DA500EC4849 /* MiscUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157A13BB24E96DA500EC4849 /* MiscUtils.cp */; };
 		157D429C265BD2A600E7FDBF /* BMP.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 157D429B265BD2A600E7FDBF /* BMP.h */; };
 		15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */; };
+		159F54FB289D40F10058D794 /* Check.cp in Sources */ = {isa = PBXBuildFile; fileRef = 159F54FA289D40F10058D794 /* Check.cp */; };
 		15A13E1522A5638F0037F95B /* SelUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1422A5638F0037F95B /* SelUtils.cp */; };
 		15A13E1B22A564050037F95B /* DrawUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1A22A564050037F95B /* DrawUtils.cp */; };
 		15A13E1D22A5642B0037F95B /* CheckUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15A13E1C22A5642B0037F95B /* CheckUtils.cp */; };
@@ -101,7 +102,6 @@
 		D03E6DC80D5F9720005FD177 /* Documents.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC20D5F9720005FD177 /* Documents.cp */; };
 		D03E6DC90D5F9720005FD177 /* Slurs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC30D5F9720005FD177 /* Slurs.cp */; };
 		D03E6DFD0D5F986D005FD177 /* Beam.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD70D5F986D005FD177 /* Beam.cp */; };
-		D03E6DFE0D5F986D005FD177 /* Check.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD80D5F986D005FD177 /* Check.cp */; };
 		D03E6E000D5F986D005FD177 /* ChordSym.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDA0D5F986D005FD177 /* ChordSym.cp */; };
 		D03E6E030D5F986D005FD177 /* DialogsBoth.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDD0D5F986D005FD177 /* DialogsBoth.cp */; };
 		D03E6E050D5F986D005FD177 /* DrawDocument.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDF0D5F986D005FD177 /* DrawDocument.cp */; };
@@ -290,6 +290,7 @@
 		157A13BB24E96DA500EC4849 /* MiscUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MiscUtils.cp; sourceTree = "<group>"; };
 		157D429B265BD2A600E7FDBF /* BMP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMP.h; sourceTree = "<group>"; };
 		15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedTimeSigs.cp; sourceTree = "<group>"; };
+		159F54FA289D40F10058D794 /* Check.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Check.cp; sourceTree = "<group>"; };
 		15A13E1422A5638F0037F95B /* SelUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelUtils.cp; sourceTree = "<group>"; };
 		15A13E1A22A564050037F95B /* DrawUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawUtils.cp; sourceTree = "<group>"; };
 		15A13E1C22A5642B0037F95B /* CheckUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckUtils.cp; sourceTree = "<group>"; };
@@ -420,7 +421,6 @@
 		D03E6DC20D5F9720005FD177 /* Documents.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Documents.cp; sourceTree = "<group>"; };
 		D03E6DC30D5F9720005FD177 /* Slurs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Slurs.cp; sourceTree = "<group>"; };
 		D03E6DD70D5F986D005FD177 /* Beam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Beam.cp; sourceTree = "<group>"; };
-		D03E6DD80D5F986D005FD177 /* Check.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Check.cp; sourceTree = "<group>"; };
 		D03E6DDA0D5F986D005FD177 /* ChordSym.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChordSym.cp; sourceTree = "<group>"; };
 		D03E6DDD0D5F986D005FD177 /* DialogsBoth.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogsBoth.cp; sourceTree = "<group>"; };
 		D03E6DDF0D5F986D005FD177 /* DrawDocument.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawDocument.cp; sourceTree = "<group>"; };
@@ -788,7 +788,7 @@
 			children = (
 				15683EB11F851B3B00355A40 /* About.cp */,
 				D03E6DD70D5F986D005FD177 /* Beam.cp */,
-				D03E6DD80D5F986D005FD177 /* Check.cp */,
+				159F54FA289D40F10058D794 /* Check.cp */,
 				D03E6DDA0D5F986D005FD177 /* ChordSym.cp */,
 				15E332F11ED8AFC1007385A1 /* Clipboard.cp */,
 				D03E6DAF0D5F9644005FD177 /* Context.cp */,
@@ -1116,7 +1116,6 @@
 				D03E6DC80D5F9720005FD177 /* Documents.cp in Sources */,
 				D03E6DC90D5F9720005FD177 /* Slurs.cp in Sources */,
 				D03E6DFD0D5F986D005FD177 /* Beam.cp in Sources */,
-				D03E6DFE0D5F986D005FD177 /* Check.cp in Sources */,
 				D03E6E000D5F986D005FD177 /* ChordSym.cp in Sources */,
 				D03E6E030D5F986D005FD177 /* DialogsBoth.cp in Sources */,
 				D03E6E050D5F986D005FD177 /* DrawDocument.cp in Sources */,
@@ -1274,6 +1273,7 @@
 				15434CC2287C96BE00BEBE21 /* SearchScore.cp in Sources */,
 				15D234B8287CAA5E00A7C12F /* SearchScoreDlog.cp in Sources */,
 				15D234BC287CAA8100A7C12F /* SearchScoreNative.cp in Sources */,
+				159F54FB289D40F10058D794 /* Check.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

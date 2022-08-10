@@ -368,11 +368,11 @@ also draw enclosing parentheses. */
 
 void DrawAcc(Document *doc,
 				PCONTEXT pContext,
-				LINK theNoteL,				/* Subobject (note) to draw accidental for */
-				DDIST xdNorm, DDIST yd,		/* Notehead position, excluding effect of <otherStemSide> */
-				Boolean dim,				/* Ignored if outputTo==toPostScript */
+				LINK theNoteL,			/* Subobject (note) to draw accidental for */
+				DDIST xdNorm, DDIST yd,	/* Notehead position, excluding effect of <otherStemSide> */
+				Boolean dim,			/* Ignored if outputTo==toPostScript */
 				short sizePercent,
-				Boolean chordNoteToL		/* Note in a chord that's downstemmed w/notes to left of stem? */
+				Boolean chordNoteToL	/* Note in a chord that's downstemmed w/ notes to left of stem? */
 				)
 {
 	PANOTE theNote;
@@ -422,7 +422,8 @@ void DrawAcc(Document *doc,
 		xdRParen = xdAcc + ((DDIST)(((long)scalePercent*xoffset)/100L));
 		dAccWidth = std2d(STD_ACCWIDTH, pContext->staffHeight, pContext->staffLines);
 		
-		/* Paren is narrower than an accidental; move it to right to compensate */
+		/* A paren is narrower than an accidental; move it to right to compensate */
+		
 		xdRParen += dAccWidth-(COURTESYACC_PARENWID(dAccWidth));
 //LogPrintf(LOG_DEBUG, "DrawAcc: xdAcc=%d xoffset=%d xdRParen=%d\n", xdAcc, xoffset, xdRParen);
 
@@ -480,15 +481,11 @@ void DrawAcc(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- GetNoteheadInfo -- */
-/* Given a notehead's <appearance> and <subType>, return the music font <glyph> as
-function value, plus <sizePct> and <stemShorten>. Note that if <sizePct> is very far
-from 100, the calling routine may have to adjust horizontal positions of upstems. */
+/* ---------------------------------------------------------- GetNoteheadInfo and ally -- */
+/* Return the symbol drawn for the given note's head. */
 
-unsigned char GetNoteheadInfo(short appearance, short subType,
-							short *sizePct,				/* percentage of normal size */
-							short *stemShorten			/* in eighth-spaces */
-							)
+static unsigned char NoteGlyph(short appearance, short subType);
+static unsigned char NoteGlyph(short appearance, short subType)
 {
 	unsigned char glyph;
 	
@@ -511,6 +508,22 @@ unsigned char GetNoteheadInfo(short appearance, short subType,
 			glyph = MCH_quarterNoteHead;
 	}
 	
+	return glyph;
+}
+
+/* Given the <appearance> and <subType> of a note or grace note, return the music font 
+<glyph> as function value, plus <sizePct> and <stemShorten>. Note that if <sizePct> is
+very far from 100, the calling routine should probably adjust horizontal positions of
+upstems. */
+
+unsigned char GetNoteheadInfo(short appearance, short subType,
+							short *sizePct,				/* percentage of normal size */
+							short *stemShorten			/* in eighth-spaces */
+							)
+{
+	unsigned char glyph;
+	
+	glyph = NoteGlyph(appearance, subType);
 	*sizePct = 100;
 	
 	/* FIXME: Changing sizePct fixes the head size, but makes a mess of upstems on
@@ -583,9 +596,10 @@ static void DrawNotehead(Document *doc,
 	
 	if (appearance==SLASH_SHAPE) {
 		if (dim) PenPat(NGetQDGlobalsGray());
+		
 		/* The "slash notehead" is like a steeply-sloped beam, so steep we have to
-		   increase the vertical thickness so it doesn't look too thin. FIXME:
-		   Actually, it should have horizontal instead of vertical cutoffs! */
+		   increase the vertical thickness so it doesn't look too thin. FIXME: Actually,
+		   it should have horizontal instead of vertical cutoffs! */
 		   
 		thick = 3*dhalfLn/2;
 		PenSize(1, d2p(thick));

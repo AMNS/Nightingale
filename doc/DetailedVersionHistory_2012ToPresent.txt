@@ -3740,3 +3740,10 @@ Minor changes. Affects info.plist; Check, EditScore, Event, SearchScore, SearchS
 SelUtils.
 
 ----------------------------------------------------------------------------------------- B21
+
+22 July - 10 Aug.
+
+Minor changes. Affects info.plist, CheckUtils.h, Utility.h; Check, CheckUtils, DrawNRGR,
+TextDialog, Utility.
+
+----------------------------------------------------------------------------------------- B22

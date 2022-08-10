@@ -34,13 +34,11 @@ Rect SetStaffRect(LINK aStaffL, PCONTEXT pContext)
 }
 
 
-/*
- * Space above 1st staffTop, space below last staffBottom, and lnSpace are three
- * DDIST quantities converted to points or pixels in computation of the staffTop
- * of the limitRect for dragging the system in masterPage and showFormat. Of these,
- * only space above staffTop is an absolute quantity. Therefore, space above
- * staffTop is converted to points, and the rest to pixels.
- */
+/* Space above 1st staffTop, space below last staffBottom, and lnSpace are three DDIST
+quantities converted to points or pixels in computation of the staffTop of the
+limitRect for dragging the system in masterPage and showFormat. Of these, only space
+above staffTop is an absolute quantity. Therefore, space above staffTop is converted
+to points, and the rest to pixels. */
 
 short AboveStfDist(LINK staffL)
 {
@@ -77,19 +75,19 @@ short BelowStfDist(Document */*doc*/, LINK sysL, LINK staffL)
 	return 0;
 }
 
-/* Compute the top of the limit rect passed to DragGrayRgn for dragging systems.
-sysL is the system being dragged. sysRect is the Rect which is made into a gray
-region to be dragged.
-vDiff is the offset of position of mouseLoc relative to top of grayRgn. */
+/* Compute the top of the limit rect passed to DragGrayRgn for dragging systems. sysL
+is the system being dragged; sysRect is the Rect which is made into a gray region to
+be dragged. vDiff is the offset of position of mouseLoc relative to top of grayRgn. */
 
 static short ComputeLimitRTop(Document *doc, LINK sysL,
 										Rect /*sysRect*/,				/* unused */
 										Rect r, short vDiff,
 										PCONTEXT pContext)
 {
-	short limitTop,sysOffset; LINK staffL;
+	short limitTop, sysOffset;  LINK staffL;
 
 	/* Handle case for Master Page. */
+	
 	if (doc->masterView) {
 		limitTop = doc->marginRect.top+doc->currentPaper.top+vDiff;
 
@@ -98,27 +96,26 @@ static short ComputeLimitRTop(Document *doc, LINK sysL,
 
 		staffL = SSearch(sysL, STAFFtype, GO_RIGHT);
 	
-		/* Subtract the distance top staff is below systemRect.top */
+		/* Subtract the distance top staff is below systemRect.top, and the distance
+		   bottom staff is above systemRect.bottom; then add minimum gap between systems
+		   of 2 spaces. */
+		   
 		limitTop -= AboveStfDist(staffL);
-
-		/* Subtract the distance bottom staff is above systemRect.bottom */
 		limitTop -= BelowStfDist(doc, sysL, staffL);
-
-		/* Add minimum gap between systems of 2 lineSpaces */
 		limitTop += d2pt(2*LNSPACE(pContext));
-
 		return limitTop;
 	}
 
 	/* Handle case for first system of page for showFormat. */
+	
 	if (FirstSysInPage(sysL)) {
 		limitTop = doc->marginRect.top+doc->currentPaper.top+vDiff;
 
 		staffL = SSearch(sysL, STAFFtype, GO_RIGHT);
 	
 		/* Subtract the distance top staff is below systemRect */
+		
 		limitTop -= AboveStfDist(staffL);
-
 		limitTop += d2p(LNSPACE(pContext));
 		return limitTop;
 	}
@@ -132,6 +129,7 @@ static short ComputeLimitRTop(Document *doc, LINK sysL,
 	staffL = SSearch(sysL, STAFFtype, GO_RIGHT);
 
 	/* Subtract the distance top staff is below systemRect */
+	
 	limitTop -= AboveStfDist(staffL);
 
 	/* Subtract distance bottom stf of previous system is above previous system's
@@ -155,7 +153,8 @@ an empty Rect. */
 
 Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
 {
-	LINK staffL, aStaffL;  Rect sysRect, aRect, emptyR = {0,0,0,0};
+	LINK staffL, aStaffL;
+	Rect sysRect, aRect, emptyR = {0,0,0,0};
 	short numStaves;  Boolean rectSet = False;
 
 	numStaves = NumVisStaves(sysL);
@@ -169,10 +168,8 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 		if (StaffVIS(aStaffL)) {
 			aRect = SetStaffRect(aStaffL, pContext);
-			if (rectSet)
-				UnionRect(&aRect, &sysRect, &sysRect);
-			else
-				{ sysRect = aRect; rectSet = True; }
+			if (rectSet) UnionRect(&aRect, &sysRect, &sysRect);
+			else { sysRect = aRect; rectSet = True; }
 		}
 	}
 		
@@ -184,18 +181,15 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
 }
 
 
-/*
- * Routine to drag a grayRgn corresponding to the system sysL, when in showFormat
- * or masterPage. ptr is a ptr to the location of the mouseDown, sysL is the system
- * being dragged, sysObjRect is the LinkOBJRECT of sysL, which is in window-relative
- * coordinates, sysRect is the Rect to be converted into the grayRgn for the drag,
- * and r is the systemRect of sysL in paper-relative pixels.
- * The region being dragged, contained in sysRect, is the bounding box of the union
- * of all the staves in the system.
- * Routine creates a grayRgn, offsets down to the location of the second system if
- * user is in masterPage, drags the region, and then updates the location of the
- * system in question.
- */
+/* Routine to drag a grayRgn corresponding to the system sysL, when in Show Format
+or Master Page. ptr is a ptr to the location of the mouseDown; sysL is the system
+being dragged; sysObjRect is the LinkOBJRECT of sysL, which is in window-relative
+coordinates; sysRect is the Rect to be converted into the grayRgn for the drag; and
+r is the systemRect of sysL in paper-relative pixels. The region being dragged,
+contained in sysRect, is the bounding box of the union of all the staves in the system.
+
+We create a grayRgn; offset it down to the location of the second system if in Master
+Page; drag the region; and then update the location of the system in question. */
 
 Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr, Rect sysObjRect,
 									Rect sysRect, Rect r, PCONTEXT pContext)
@@ -207,7 +201,6 @@ Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr, Rect sysObjRect,
 
 	dragPt = *(Point *)ptr;
 	if (PtInRect(dragPt, &sysObjRect)) {
-
 		vDiff = dragPt.v - sysObjRect.top;
 
 		sysRgn = NewRgn();
@@ -251,14 +244,12 @@ Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr, Rect sysObjRect,
 /* ====================================================================================== */
 /* Utilities for CheckSTAFF */
 
-/*
- * Select all subobjects of staff object pL in the part containing the staff <staffn>.
- * Returns the LINK to the part containing <staffn>.
- */
+/* Select all subobjects of staff object pL in the part containing the staff <staffn>.
+Returns the LINK to the part containing <staffn>. */
 
 LINK SelectStaff(Document *doc, LINK pL, short staffn)
 {
-	short firstStaff,lastStaff;
+	short firstStaff, lastStaff;
 	LINK partL, aStfL;
 
 	firstStaff = lastStaff = NOONE;
@@ -281,26 +272,26 @@ LINK SelectStaff(Document *doc, LINK pL, short staffn)
 	return partL;
 }
 
-/*
- * Set the limit rect for the call to DragGrayRgn issued by DragGrayStaffRect.
- * If there is only 1 staff in the system, a system drag is implemented, and
- * the limit rect is the marginRect of the document.
- *	If the staff is the first staff, dragging is bounded by the systemRect on
- *	the top and the top of the following staff.
- * If the staff is in between other staves, dragging is bounded on the top and
- * bottom by the staves immediately above and below.
- * If the staff is the last staff, dragging is bounded on the top by the previous
- * staff and on the bottom by the marginRect.bottom.
- */
+/* Set the limit Rect for dragging a staff up or down, as is done by DragGrayStaffRect.
 
-void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt,
-							Rect wSub, Rect *limitR, CONTEXT context[])
+* If there's only one staff in the system, a system drag is implemented, and the limit
+Rect is the marginRect of the document.
+* If the staff is the first staff, dragging is bounded by the systemRect on the top
+and the top of the following staff.
+* If the staff is in between other staves, dragging is bounded on the top and bottom
+by the staves immediately above and below.
+* If the staff is the last staff, dragging is bounded on the top by the previous staff
+and on the bottom by marginRect.bottom. */
+
+void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt, Rect wSub,
+												Rect *limitR, CONTEXT context[])
 {
 	PCONTEXT pContext;  LINK sysL;  DRect sysRect;
 	short firstVis, prevStaffn, nextStaffn;
 	DDIST stfHeight, lnSpace;
 	
 	/* Set limit Rect for system drag */
+	
 	if (LinkNENTRIES(pL)==1) {
 		*limitR = doc->marginRect;
 		OffsetRect(limitR, doc->currentPaper.left, doc->currentPaper.top);
@@ -351,20 +342,19 @@ void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt,
 	}
 }
 
-/*
- * Set up a gray region rectangle to provide feedback for dragging a staff in either
- * masterPage or showFormat; drag the staff, update its position, and return True;
- * if the mousePt (*(Point *)ptr) was not in any staff, return False.
- *
- * rSub is the convex hull of the staffLines in paper-relative coordinates; wSub
- * is rSub converted to window coordinates.
- */
+/* Set up a gray region rectangle to provide feedback for dragging a staff in either
+Master Page or Show Format; drag the staff, update its position, and return True. If
+the mousePt (*(Point *)ptr) was not in any staff, return False.
+
+rSub is the bounding box of the staffLines in paper-relative coordinates; wSub is rSub
+converted to window coordinates. */
 
 Boolean DragGrayStaffRect(Document *doc, LINK pL, LINK aStaffL, short staffn, Ptr ptr,
 										Rect rSub, Rect wSub, CONTEXT context[])
 {
 	PCONTEXT pContext;  RgnHandle stfRgn;  Point dragPt;
-	Rect limitR, slopR;  long newPos;  CursHandle upDownCursor;
+	Rect limitR, slopR;
+	long newPos;  CursHandle upDownCursor;
 
 	pContext = &context[staffn];
 	if (PtInRect(*(Point *)ptr, &rSub)) {
@@ -372,11 +362,12 @@ Boolean DragGrayStaffRect(Document *doc, LINK pL, LINK aStaffL, short staffn, Pt
 		RectRgn(stfRgn, &wSub);
 		dragPt = *(Point *)ptr; dragPt.v += pContext->paper.top;
 
-		/* Set the limit Rect and slop Rect for dragging. The dragging is limited
-			to one staffLine below the staff above, or one staffLine above the staff
-			below; if it is the last staff, there is no lower limit, since dragging
-			the last staff downwards expands the systemRect and gives that staff
-			all the room it needs. */
+		/* Set the limit Rect and slop Rect for dragging. The dragging is limited to
+		   one staffLine below the staff above, or one staffLine above the staff below.
+		   If it's the last staff, there is no lower limit, since dragging the last
+		   staff downwards expands the systemRect and gives that staff all the room it
+		   needs. */
+		   
 		limitR = wSub;
 		InsetRect(&limitR, -4, 0);
 		slopR = doc->currentPaper;
@@ -404,15 +395,14 @@ Boolean DragGrayStaffRect(Document *doc, LINK pL, LINK aStaffL, short staffn, Pt
 	return False;
 }
 
-/*
- * Toggle the selection hiliting of staff subObjs in pL; if doDeselect is True,
- * deselect pL.
- */
+/* Toggle the selection hiliting of staff subObjs in pL; if doDeselect is True,
+deselect pL. */
 
 void HiliteStaves(Document *doc, LINK pL, CONTEXT context[], short doDeselect)
 {
 	LINK aStaffL;  short staffn;  PCONTEXT pContext;
-	DDIST dTop,dLeft,dBottom,dRight;  Rect rSub,wSub;
+	DDIST dTop, dLeft, dBottom, dRight;
+	Rect rSub, wSub;
 
 	if (VISIBLE(pL)) {
 		aStaffL = FirstSubLINK(pL);
@@ -429,7 +419,6 @@ void HiliteStaves(Document *doc, LINK pL, CONTEXT context[], short doDeselect)
 	
 				wSub = rSub;
 				OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
-			
 				HiliteRect(&wSub);
 			}
 	}
@@ -438,14 +427,12 @@ void HiliteStaves(Document *doc, LINK pL, CONTEXT context[], short doDeselect)
 		DeselectNode(pL);
 }
 
-/*
- * Toggle the selection hiliting of all staves in pL; if doDeselect is True,
- * deselect them.
- */
+/* Toggle the selection hiliting of all staves in pL; if doDeselect is True, deselect
+them. */
 
 void HiliteAllStaves(Document *doc, short doDeselect)
 {
-	LINK staffL; CONTEXT context[MAXSTAVES+1];
+	LINK staffL;  CONTEXT context[MAXSTAVES+1];
 	
 	staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, False);
 	
@@ -455,38 +442,9 @@ void HiliteAllStaves(Document *doc, short doDeselect)
 	}
 }
 
-/* ====================================================================================== */
-/* Utilities for CheckGRAPHIC */
-
-
-/* ---------------------------------------------------------------------- GraphicWidth -- */
-/* Compute and return the StringWidth (in pixels) of the given Graphic in the
-current view. */
-
-short GraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
-{
-	short		font, fontSize, fontStyle;
-	PGRAPHIC	p;
-	Str255		string;
-	DDIST		lineSpace;
-	
-	Pstrcpy((StringPtr)string, (StringPtr)PCopy(FirstGraphicSTRING(pL))) ;
-
-	p = GetPGRAPHIC(pL);
-	font = doc->fontTable[p->fontInd].fontID;
-	fontStyle = p->fontStyle;
-
-	lineSpace = LNSPACE(pContext);
-	fontSize = GetTextSize(p->relFSize, p->fontSize, lineSpace);
-	fontSize = UseTextSize(fontSize, doc->magnify);
-
-	return NStringWidth(doc, string, font, fontSize, fontStyle);
-}
-
 
 /* ====================================================================================== */
 /* Utilities for CheckKEYSIG */
-
 
 /* ------------------------------------------------------------------------ SetSubRect -- */
 
@@ -507,11 +465,9 @@ Rect SetSubRect(DDIST xd, DDIST dTop, short width, PCONTEXT pContext)
 /* ====================================================================================== */
 /* FindAndActOnObject and utilities */
 
-
 /* --------------------------------------------------------------------- ContextObject -- */
-/* During traversal of data structure, update the context array by calling the
- * appropriate Context routine at any structural object encountered.
- */
+/* While traversing the object list, update the context array by calling the appropriate
+Context routine at any structural object encountered. */
 
 void ContextObject(Document *doc, LINK pL, CONTEXT context[])
 {
@@ -543,7 +499,7 @@ possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag
 LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT context[],
 						short mode, short *pIndex, STFRANGE stfRange)
 {
-	Rect r;  Point enlarge = {0,0};  Point enlargeNR;
+	Rect r;  Point noEnlarge = {0,0};  Point enlargeNR;
 	
 	SetPt(&enlargeNR, config.enlargeNRHiliteH, config.enlargeNRHiliteV);
 
@@ -560,61 +516,61 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 			if (mode==SMDeselect) DeselectSTAFF(pL);
 			break;
 		case CLEFtype:
-			if ((*pIndex = CheckCLEF(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckCLEF(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case DYNAMtype:
-			if ((*pIndex = CheckDYNAMIC(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckDYNAMIC(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case RPTENDtype:
-			if ((*pIndex = CheckRPTEND(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckRPTEND(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case ENDINGtype:
-			if ((*pIndex = CheckENDING(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckENDING(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case KEYSIGtype:
-			if ((*pIndex = CheckKEYSIG(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckKEYSIG(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case TIMESIGtype:
-			if ((*pIndex = CheckTIMESIG(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckTIMESIG(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case MEASUREtype:
-			if ((*pIndex = CheckMEASURE(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckMEASURE(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case PSMEAStype:
-			if ((*pIndex = CheckPSMEAS(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckPSMEAS(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case SYNCtype:
-			if ((*pIndex = CheckSYNC(doc, pL, context, ptr, mode, stfRange, enlarge, enlargeNR))!=NOMATCH) {
+			if ((*pIndex = CheckSYNC(doc, pL, context, ptr, mode, stfRange, noEnlarge, enlargeNR))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case GRSYNCtype:
-			if ((*pIndex = CheckGRSYNC(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckGRSYNC(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
@@ -632,31 +588,31 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 			}
 			break;
 		case TUPLETtype:
-			if ((*pIndex = CheckTUPLET(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckTUPLET(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case GRAPHICtype:
-			if ((*pIndex = CheckGRAPHIC(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckGRAPHIC(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case TEMPOtype:
-			if ((*pIndex = CheckTEMPO(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckTEMPO(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case SPACERtype:
-			if ((*pIndex = CheckSPACER(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckSPACER(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case OTTAVAtype:
-			if ((*pIndex = CheckOTTAVA(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex = CheckOTTAVA(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
@@ -742,7 +698,7 @@ LINK FindAndActOnObject(Document *doc, Point pt, short *pIndex, short checkMode)
 	LINK		pL, firstMeas, endL;
 	CONTEXT		context[MAXSTAVES+1];
 	STFRANGE	stfRange = {0,0};
-	Point		enlarge = {0,0};
+	Point		noEnlarge = {0,0};
 	Point		enlargeNR;
 
 	SetPt(&enlargeNR, config.enlargeNRHiliteH, config.enlargeNRHiliteV);
@@ -783,55 +739,55 @@ LINK FindAndActOnObject(Document *doc, Point pt, short *pIndex, short checkMode)
 					case CONNECTtype:
 						break;
 					case CLEFtype:
-						if ((*pIndex = CheckCLEF(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckCLEF(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case KEYSIGtype:
-						if ((*pIndex = CheckKEYSIG(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckKEYSIG(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case TIMESIGtype:
-						if ((*pIndex = CheckTIMESIG(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckTIMESIG(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case MEASUREtype:
-						if ((*pIndex = CheckMEASURE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckMEASURE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case PSMEAStype:
-						if ((*pIndex = CheckPSMEAS(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckPSMEAS(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case SYNCtype:
-						if ((*pIndex = CheckSYNC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge, enlargeNR))!=NOMATCH)
+						if ((*pIndex = CheckSYNC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge, enlargeNR))!=NOMATCH)
 							return pL;
 						break;
 					case GRSYNCtype:
-						if ((*pIndex = CheckGRSYNC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckGRSYNC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case GRAPHICtype:
-						if ((*pIndex = CheckGRAPHIC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckGRAPHIC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case TEMPOtype:
-						if ((*pIndex = CheckTEMPO(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckTEMPO(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case SPACERtype:
-						if ((*pIndex = CheckSPACER(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckSPACER(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case DYNAMtype:
-						if ((*pIndex = CheckDYNAMIC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckDYNAMIC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case RPTENDtype:
-						if ((*pIndex = CheckRPTEND(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckRPTEND(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case ENDINGtype:
-						if ((*pIndex = CheckENDING(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckENDING(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;
 					case BEAMSETtype: 
@@ -839,11 +795,11 @@ LINK FindAndActOnObject(Document *doc, Point pt, short *pIndex, short checkMode)
 							return pL;
 						break;					
 					case TUPLETtype: 
-						if ((*pIndex = CheckTUPLET(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckTUPLET(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;					
 					case OTTAVAtype: 
-						if ((*pIndex = CheckOTTAVA(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+						if ((*pIndex = CheckOTTAVA(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 							return pL;
 						break;	
 					case SLURtype: 
@@ -868,7 +824,7 @@ the firstObj of a GRAPHIC, etc. */
 
 LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
-	LINK		pL,qL,firstMeas,endL,sL;
+	LINK		pL, qL, firstMeas, endL, sL;
 	CONTEXT		context[MAXSTAVES+1];
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
@@ -877,15 +833,16 @@ LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 	if (pL) return pL;
 	
 	/* Desperately seeking places for GRAPHICs */
+	
 	if (checkMode==SMFind) {
 		pL=GetCurrentPage(doc);
 		endL = LinkRPAGE(pL);
 		firstMeas = LSSearch(pL, MEASUREtype, ANYONE, False, False);
 		GetAllContexts(doc,context,firstMeas);
 		if (CheckPAGE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge)!=NOMATCH) {
-			for (qL=pL; qL!=endL; qL=RightLINK(qL))					/* find object that was clicked in */
+			for (qL=pL; qL!=endL; qL=RightLINK(qL))				/* find object that was clicked in */
 				if (SystemTYPE(qL)) {
-					enlarge.v = 4;									/* avoid filtering out extreme positions */
+					enlarge.v = 4;								/* avoid filtering out extreme positions */
 					if (CheckSYSTEM(doc, qL, context, (Ptr)&pt, checkMode, stfRange, enlarge)!=NOMATCH) {
 						sL = SSearch(qL,MEASUREtype,GO_RIGHT);
 						for ( ; sL && MeasSYSL(sL)==qL; sL = LinkRMEAS(sL)) {
@@ -913,30 +870,30 @@ possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag
 LINK CheckMasterObject (Document *doc, LINK pL, Boolean *found, Ptr ptr,
 							CONTEXT context[], short mode, short *pIndex, STFRANGE stfRange)
 {
-	Point enlarge = {0,0};
+	Point noEnlarge = {0,0};
 
 	*found = False;
 	switch (ObjLType(pL)) {
 		case PAGEtype:
-			if ((*pIndex=CheckPAGE(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex=CheckPAGE(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case SYSTEMtype:
-			if ((*pIndex=CheckSYSTEM(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex=CheckSYSTEM(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case STAFFtype:
-			if ((*pIndex=CheckSTAFF(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex=CheckSTAFF(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
 			break;
 		case CONNECTtype:
-			if ((*pIndex=CheckCONNECT(doc, pL, context, ptr, mode, stfRange, enlarge))!=NOMATCH) {
+			if ((*pIndex=CheckCONNECT(doc, pL, context, ptr, mode, stfRange, noEnlarge))!=NOMATCH) {
 				*found = True;
 				return pL;
 			}
@@ -954,7 +911,7 @@ Boolean MasterObjectTest(
 						Rect */*paper*/,				/* unused */
 						Point pt, LINK pL)
 {
-	Rect tempRect; LINK sysL;
+	Rect tempRect;  LINK sysL;
 	
 	switch (ObjLType(pL)) {
 		case PAGEtype:
@@ -990,7 +947,7 @@ LINK FindAndActOnMasterObj(Document *doc, Point pt, short *pIndex, short checkMo
 	LINK		pL, endL;
 	CONTEXT		context[MAXSTAVES+1];
 	STFRANGE	stfRange = {0,0};
-	Point		enlarge = {0,0};
+	Point		noEnlarge = {0,0};
 
 	pL = doc->masterTailL;
 	endL = GetMasterPage(doc); 
@@ -1011,19 +968,19 @@ LINK FindAndActOnMasterObj(Document *doc, Point pt, short *pIndex, short checkMo
 		if ( /* MasterObjectTest(&context->paper,pt,pL) */ 1 ) {
 			switch (ObjLType(pL)) {
 				case PAGEtype:
-					if ((*pIndex=CheckPAGE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					if ((*pIndex=CheckPAGE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 						return pL;
 					break;
 				case SYSTEMtype:
-					if ((*pIndex=CheckSYSTEM(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					if ((*pIndex=CheckSYSTEM(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 						return pL;
 					break;
 				case STAFFtype:
-					if ((*pIndex=CheckSTAFF(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					if ((*pIndex=CheckSTAFF(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 						return pL;
 					break;
 				case CONNECTtype:
-					if ((*pIndex=CheckCONNECT(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					if ((*pIndex=CheckCONNECT(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 						return pL;
 					break;
 			}
@@ -1068,23 +1025,21 @@ Boolean FormatObjectTest(
 
 
 /* ------------------------------------------------------------- FindAndActOnFormatObj -- */
-/* In the showFormat mode, find the object and subobjectsubobject containing the mousedown
-<pt>.
+/* In the showFormat mode, find the object and subobject containing the mousedown <pt>.
 
-Traverse the main data structure from tailL to headL, in order to correctly handle
-the spatial nesting of the objRects of connects, staves, systems and pages.
-That is, PAGEs enclose SYSTEMs, and SYSTEMs enclose STAFFs, so if we traverse from
-headL to tailL, STAFFs will be masked by SYSTEMs and SYSTEMs by PAGEs, with the
-net result that PAGEs mask everything. But a traversal from tailL to headL will
-correctly find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their
-enclosing PAGEs. */
+Traverse the main data structure from tailL to headL, in order to correctly handle the
+spatial nesting of the objRects of connects, staves, systems and pages. That is, PAGEs
+enclose SYSTEMs and SYSTEMs enclose STAFFs, so if we traverse from headL to tailL,
+STAFFs will be masked by SYSTEMs and SYSTEMs by PAGEs, with the net result that PAGEs
+mask everything. But a traversal from tailL to headL will correctly find STAFFs before
+their enclosing SYSTEMs, and SYSTEMs before their enclosing PAGEs. */
 
 LINK FindAndActOnFormatObj(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK		pL, endL;
 	CONTEXT		context[MAXSTAVES+1];
 	STFRANGE	stfRange = {0,0};
-	Point		enlarge = {0,0};
+	Point		noEnlarge = {0,0};
 
 	endL = GetCurrentPage(doc); 
 	pL = (LinkRPAGE(endL) ? LinkRPAGE(endL) : doc->tailL);
@@ -1106,19 +1061,19 @@ LINK FindAndActOnFormatObj(Document *doc, Point pt, short *pIndex, short checkMo
 		if ( /* FormatObjectTest(&context->paper,pt,pL) */ True ) {
 			switch (ObjLType(pL)) {
 				case PAGEtype:
-					if ((*pIndex=CheckPAGE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					if ((*pIndex=CheckPAGE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 						return pL;
 					break;
 				case SYSTEMtype:
-					if ((*pIndex=CheckSYSTEM(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					if ((*pIndex=CheckSYSTEM(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 						return pL;
 					break;
 				case STAFFtype:
-					if ((*pIndex=CheckSTAFF(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					if ((*pIndex=CheckSTAFF(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 						return pL;
 					break;
 				case CONNECTtype:
-					if ((*pIndex=CheckCONNECT(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					if ((*pIndex=CheckCONNECT(doc, pL, context, (Ptr)&pt, checkMode, stfRange, noEnlarge))!=NOMATCH)
 						return pL;
 					break;
 			}

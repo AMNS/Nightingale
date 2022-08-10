@@ -12,7 +12,6 @@ Boolean DragGrayStaffRect(Document *, LINK, LINK, short, Ptr, Rect, Rect, CONTEX
 void HiliteStaves(Document *, LINK, CONTEXT [], short);
 void HiliteAllStaves(Document *, short);
 
-short GraphicWidth(Document *, LINK, PCONTEXT);
 Rect SetSubRect(DDIST, DDIST, short, PCONTEXT);
 
 void ContextObject(Document *, LINK, CONTEXT []);

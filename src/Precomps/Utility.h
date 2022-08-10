@@ -24,8 +24,9 @@ char Objtype2Char(SignedByte);
 Rect StrToObjRect(unsigned char *string);
 short NStringWidth(Document *, const unsigned char *, short, short, short);
 short NPtStringWidth(Document *, const unsigned char *, short, short, short);
-void GetNPtStringBBox(Document *, unsigned char *, short, short, short, Boolean, Rect *);
 short NPtGraphicWidth(Document *, LINK, PCONTEXT);
+short NGraphicWidth(Document *, LINK, PCONTEXT);
+void GetNPtStringBBox(Document *, unsigned char *, short, short, short, Boolean, Rect *);
 
 short MaxPartNameWidth(Document *, short);
 double PartNameMargin(Document *, short);

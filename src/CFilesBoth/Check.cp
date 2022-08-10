@@ -1103,12 +1103,10 @@ PushLock(GRAPHICheap);
 												&fontStyle, &enclosure, &lyric, &expanded,
 												newFont, string, pContext);
 						if (change) {
-							short newFontIndex;
-							/*
-							 * Get the new font's index, adding it to the table if necessary.
-							 * But if the table overflows, give up.
-							 */
-							newFontIndex = FontName2Index(doc, newFont);
+							/* Get the new font's index, adding it to the font table if
+							   necessary. But if the table overflows, give up. */
+							   
+							short newFontIndex = FontName2Index(doc, newFont);
 							if (newFontIndex<0) {
 								GetIndCString(strBuf, MISCERRS_STRS, 27);    /* "The font won't be changed" */
 								CParamText(strBuf, "", "", "");
@@ -1150,7 +1148,10 @@ PushLock(GRAPHICheap);
 							DrawGRAPHIC(doc, pL, contextA, False);
 							r = LinkOBJRECT(pL);
 							EraseAndInval(&r);
-#elif 0
+#elif 1
+							// FIXME: This helps if the string has gotten taller, but not
+							// if it's gotten longer! See NgaleDevelopmentLog.txt for
+							// Aug. 2022 and Issue #74.
 							InvalObject(doc, pL, True);					/* In case it's gotten larger */
 #endif
 						}
@@ -1218,7 +1219,7 @@ PushLock(GRAPHICheap);
 					else
 						GraphicSTRING(aGraphicL) = offset;
 					
-					newWidth = GraphicWidth(doc, pL, pContext);
+					newWidth = NGraphicWidth(doc, pL, pContext);
 					LinkOBJRECT(pL).right = LinkOBJRECT(pL).left + newWidth;
 				}
 
@@ -1926,20 +1927,42 @@ PopLock(KEYSIGheap);
 }
 
 
-#define SUSPICIOUS_WREL_RECT(r)             \
-	(  r.left<-24000 || r.left>-22000        \
-	|| r.top<-24000 || r.top>-22000          \
-	|| r.right<-24000 || r.right>-22000      \
+#define SUSPICIOUS_WREL_RECT(r)				\
+	(  r.left<-24000 || r.left>-22000		\
+	|| r.top<-24000 || r.top>-22000			\
+	|| r.right<-24000 || r.right>-22000		\
 	|| r.bottom<-24000 || r.bottom>-22000 )
 
 /* ------------------------------------------------------------------------- CheckSYNC -- */
 /* SYNC object selecter/highliter.  Does different things depending on the value of
-<mode> (see the list above), plus:
-	=SMThread      Determines whether *(Point *)ptr is inside any subobject(s),
-	               selecting & highliting if so.
-	=SMFindNote		Used by InsertSlur to find the note that will have a new
-					slur. 
+<mode>. See the list above, plus:
+	=SMThread	Determines whether *(Point *)ptr is inside any subobject(s), selecting
+				and highliting if so.
+	=SMFindNote	Used by InsertSlur to find the note that will have a new slur. 
 */
+
+/* Return the symbol drawn for the given note/rest, ignoring its <appearance> field.
+This is intended for use in detecting clicks, hilighting, etc., and the special shapes
+have no significant effect for that purpose. */
+
+static short NRGlyph(LINK aNoteL);
+static short NRGlyph(LINK aNoteL)
+{
+	short glyph;  PANOTE aNote;
+
+	aNote = GetPANOTE(aNoteL);
+	if (aNote->rest)											/* "note" is really a rest */
+		if (aNote->subType<=WHOLEMR_L_DUR)	glyph = MCH_rests[WHOLE_L_DUR-1];
+		else								glyph = MCH_rests[aNote->subType-1];
+	else {
+		if (aNote->subType==UNKNOWN_L_DUR)		glyph = MCH_quarterNoteHead;
+		else if (aNote->subType<=WHOLE_L_DUR)	glyph = (unsigned char)MCH_notes[aNote->subType-1];
+		else if (aNote->subType==HALF_L_DUR)	glyph = MCH_halfNoteHead;
+		else									glyph = MCH_quarterNoteHead;
+	}
+	
+	return glyph;
+}
 
 short CheckSYNC(Document *doc, LINK pL, CONTEXT context[],
 					Ptr ptr,
@@ -1985,21 +2008,7 @@ PushLock(NOTEheap);
 			xd = dLeft + aNote->xd;							/* absolute position of subobject */
 			yd = dTop + aNote->yd;
 
-			if (aNote->rest)								/* "note" is really a rest */
-				if (aNote->subType<=WHOLEMR_L_DUR)
-					glyph = MCH_rests[WHOLE_L_DUR-1];
-				else
-					glyph = MCH_rests[aNote->subType-1];
-			else {											/* "note" is really a note */
-				if (aNote->subType==UNKNOWN_L_DUR)
-					glyph = MCH_quarterNoteHead;
-				else if (aNote->subType<=WHOLE_L_DUR)
-					glyph = (unsigned char)MCH_notes[aNote->subType-1];
-				else if (aNote->subType==HALF_L_DUR)
-					glyph = MCH_halfNoteHead;
-				else
-					glyph = MCH_quarterNoteHead;
-			}
+			glyph = NRGlyph(aNoteL);
 			glyph = MapMusChar(doc->musFontInfoIndex, glyph);
 			lnSpace = LNSPACE(pContext);
 			xd += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
@@ -2023,13 +2032,12 @@ PushLock(NOTEheap);
 						break;
 					}
 
-				if (upOrDown) 									/* stem up */
-					OffsetRect(&rSub, width, 0);
-				else											/* stem down */
-					OffsetRect(&rSub, -width, 0);
+				if (upOrDown)	OffsetRect(&rSub, width, 0);		/* stem up */
+				else			OffsetRect(&rSub, -width, 0);		/* stem down */
+					
 			}
 			wSub = rSub;
-			OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+			OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 
 			switch (mode) {
 			case SMClick:
@@ -2199,11 +2207,11 @@ PushLock(GRNOTEheap);
 			yd = dTop + aGRNote->yd;
 
 			if (aGRNote->subType <= WHOLE_L_DUR)
-				glyph=(unsigned char)MCH_notes[aGRNote->subType-1];
+				glyph = (unsigned char)MCH_notes[aGRNote->subType-1];
 			else if (aGRNote->subType==HALF_L_DUR)
-				glyph=MCH_halfNoteHead;
+				glyph = MCH_halfNoteHead;
 			else
-				glyph=MCH_quarterNoteHead;
+				glyph = MCH_quarterNoteHead;
 			rSub = charRectCache.charRect[glyph];
 
 			OffsetRect(&rSub, d2p(xd), d2p(yd));
@@ -2215,10 +2223,8 @@ PushLock(GRNOTEheap);
 						break;
 					}
 
-				if (upOrDown) 									/* stem up */
-					OffsetRect(&rSub, width, 0);
-				else											/* stem down */
-					OffsetRect(&rSub, -width, 0);
+				if (upOrDown)	OffsetRect(&rSub, width, 0);		/* stem up */
+				else			OffsetRect(&rSub, -width, 0);		/* stem down */
 			}
 			wSub = rSub;
 			OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
@@ -2589,28 +2595,27 @@ PushLock(MEASUREheap);
 	for (i = 0; aMeasureL; i++, aMeasureL=NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
 		groupTopStf = groupBottomStf = aMeasure->staffn;
-		measureStf = NextLimVisStaffn(doc,pL,True,aMeasure->staffn);
+		measureStf = NextLimVisStaffn(doc, pL, True, aMeasure->staffn);
 		pContext = &context[measureStf];
 		dTop = pContext->staffTop;
 		dLeft = pContext->staffLeft;
 		xd = dLeft+LinkXD(pL);
-		/*		
-		 * Measure subobjects are unusual in that they may be grouped as indicated by
-		 * connAbove and connStaff, and groups can only be selected as a whole. If this
-		 * measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
-		 * to include the entire group; if it's a lower one of a group, they will then
-		 * already be set correctly. Notice that this code assumes that when a lower
-		 * subobject of a group is encountered, we've already set rSub from the top one
-		 * of the group; this is safe as long as we insert subobjects for all staves at
-		 * once and in order (FIXME: they really may _not_ be in order!) and don't
-		 * allow deleting anything but the entire object.
-		 */ 
+
+		/* Measure subobjects are unusual in that they may be grouped as indicated by
+		   connAbove and connStaff, and groups can only be selected as a whole. If this
+		   measure is the top one of a group, set rSub and groupTopStf/groupBottomStf to
+		   include the entire group; if it's a lower one of a group, they will then
+		   already be set correctly. Notice that this code assumes that when a lower
+		   subobject of a group is encountered, we've already set rSub from the top one
+		   of the group; this is safe as long as we insert subobjects for all staves at
+		   once and in order (FIXME: they really may _not_ be in order!) and don't allow
+		   deleting anything but the entire object. */
+
 		if (!aMeasure->connAbove) {
 			groupTopStf = measureStf;
 			if (aMeasure->connStaff!=0) {
-				connStaff = NextLimVisStaffn(doc,pL,False,aMeasure->connStaff);
-				dBottom = context[connStaff].staffTop
-								+context[connStaff].staffHeight;
+				connStaff = NextLimVisStaffn(doc, pL, False, aMeasure->connStaff);
+				dBottom = context[connStaff].staffTop+context[connStaff].staffHeight;
 				switch (aMeasure->subType) {
 					case BAR_SINGLE:
 						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
@@ -2628,6 +2633,7 @@ PushLock(MEASUREheap);
 					case BAR_RPT_R:
 					case BAR_RPT_LR:
 				/* FIXME: NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
+				
 						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
 									d2p(xd)+halfWidth+2, d2p(dBottom));
 						break;
@@ -2811,21 +2817,21 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 			dTop = pContext->staffTop;
 			dLeft = pContext->measureLeft;
 			xd = dLeft+LinkXD(pL);
-/*		
- * PSMeasure subobjects are unusual in that they may be grouped as indicated by
- *	connAbove and connStaff, and groups can only be selected as a whole. If this
- *	measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
- * to include the entire group; if it's a lower one of a group, they will then
- *	already be set correctly. Notice that this code assumes that when a lower
- *	subobject of a group is encountered, we've already set rSub from the top one
- *	of the group; this is safe as long as we insert subobjects for all staves at
- * once and in order, and don't allow deleting anything but the entire object.
- *  FIXME: staff subobjects may _not_ be in order!
- */ 
+
+			/* PSMeasure subobjects are unusual in that they may be grouped as indicated
+			   by connAbove and connStaff, and groups can only be selected as a whole. If
+			   this measure is the top one of a group, set rSub and groupTopStf /
+			   groupBottomStf to include the entire group; if it's a lower one of a group,
+			   they will then already be set correctly. Notice that this code assumes that
+			   when a lower subobject of a group is encountered, we've already set rSub
+			   from the top one of the group; this is safe as long as we insert subobjects
+			   for all staves at once and in order, and don't allow deleting anything but
+			   the entire object. FIXME: staff subobjects may _not_ be in order! */
+			
 			if (!aPSMeas->connAbove) {
 				groupTopStf = measureStf;
 				if (aPSMeas->connStaff!=0) {
-					connStaff = NextLimVisStaffn(doc,pL,False,aPSMeas->connStaff);
+					connStaff = NextLimVisStaffn(doc, pL, False, aPSMeas->connStaff);
 					dBottom = context[connStaff].staffTop+context[connStaff].staffHeight;
 					switch (aPSMeas->subType) {
 						case PSM_DOTTED:

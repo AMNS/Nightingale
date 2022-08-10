@@ -320,7 +320,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>15915B7F288986CA001D5913</string>
+										<string>1583A32928A42784009F01F4</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -468,7 +468,7 @@
 											<string>15C8E81928805BFF005B750C</string>
 											<string>15C8E81A28805BFF005B750C</string>
 											<string>15C8E81B28805BFF005B750C</string>
-											<string>15915B7E288986CA001D5913</string>
+											<string>15E23CED28A41145006FA36B</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -626,9 +626,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>15915B752889846F001D5913</string>
+				<string>1583A32228A411B3009F01F4</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>15915B762889846F001D5913</string>
+				<string>1583A32328A411B3009F01F4</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -790,7 +790,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CD0528F0623707200166675</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>EndianUtils.cp</string>
+								<string></string>
 								<key>StatusBarVisibility</key>
 								<true/>
 							</dict>
@@ -807,8 +807,6 @@
 							<string>200pt</string>
 						</dict>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -848,7 +846,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>15915B7C2889849D001D5913</string>
+				<string>1583A32428A411B3009F01F4</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -859,7 +857,7 @@
 			<key>WindowToolGUID</key>
 			<string>15F6E0CD16DFC116001A5B50</string>
 			<key>WindowToolIsVisible</key>
-			<true/>
+			<false/>
 		</dict>
 		<dict>
 			<key>FirstTimeWindowDisplayed</key>
@@ -1210,9 +1208,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>15915B772889846F001D5913</string>
+				<string>1583A32528A411B3009F01F4</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>15915B782889846F001D5913</string>
+				<string>1583A32628A411B3009F01F4</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

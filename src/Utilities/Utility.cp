@@ -17,8 +17,8 @@ belong in MiscUtils.c.
 		ApplHeapCheck			Char2Dur				Dur2Char
 		GetSymTableIndex		SymType					Objtype2Char
 		StrToObjRect			GetNFontInfo			NStringWidth
-		NPtStringWidth			NPtGraphicWidth			GetNPtStringBBox
-		MaxPartNameWidth		PartNameMargin
+		NPtStringWidth			NPtGraphicWidth			NGraphicWidth
+		GetNPtStringBBox		MaxPartNameWidth		PartNameMargin
 		SetFont
 		AllocContext			AllocSpTimeInfo			NewGrafPort
 		DisposGrafPort			SamePoint
@@ -68,12 +68,11 @@ DDIST CalcYStem(
 {
 	DDIST	midline, dLen, ystem;
 
-	/*
-	 * There are two reasons why we may have to make the stem longer than requested:
-	 * (1) to accomodate flags, and (2), if the stem is pointing towards the center of
-	 * the staff, to extend it to the center of the staff.
-	 */
+	/* There are two reasons why we may have to make the stem longer than requested:
+	   (1) to accomodate flags, and (2), if the stem is pointing towards the center of
+	   the staff, to extend it to the center of the staff. */
 // FIXME: use flag leading info, instead of just assuming leading == 1 space
+
 	if (MusFontHas16thFlag(doc->musFontInfoIndex)) {
 		if (nFlags>2) qtrSp += 4*(nFlags-2);			/* Every flag after 1st 2 adds a space */
 	}
@@ -152,8 +151,8 @@ Boolean ShortenStem(LINK aNoteL, CONTEXT context, Boolean stemDown)
 
 
 /* Given a note and a context, return (in <qStemLen>) its normal stem length and (as
-function value) whether it should be stem down. Considers voice role but assumes the
-note is not in a chord. */
+function value) whether it should be stem down. Considers voice role but assumes the note
+is not in a chord. */
 
 Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context, 
 						short *qStemLen)
@@ -400,9 +399,14 @@ Rect StrToObjRect(unsigned char *string)
 }
 
 
-/* ---------------------------------------------------------------------- NStringWidth -- */
-/* Compute and return the StringWidth (in pixels) of the given Pascal string in the
-given font, size and style. */
+/* ------------------------------------------------------ NStringWidth, NPtStringWidth -- */
+/* The following utilities compute the approximate amount of horizontal space a text
+string occupies. Apple Tech Note #26: Fond of FONDs (May 1992) discusses finding the width
+of a piece of text, and makes it clear that in the general case it's far more difficult
+than a reasonable person would expect, especially with bitmapped fonts.*/
+
+/* Compute and return the approximate StringWidth (in pixels) of the given Pascal string
+in the given font, size and style. */
 
 short NStringWidth(Document */*doc*/, const Str255 string, short font, short size,
 					short style)
@@ -427,19 +431,13 @@ short NStringWidth(Document */*doc*/, const Str255 string, short font, short siz
 }
 
 
-/* -------------------------------------------------------------------- NPtStringWidth -- */
-/* Compute and return the StringWidth (in points, not pixels) of the given Pascal
-string in the given font, size and style. By far the easiest way to get the width
-of a string on the Mac is from QuickDraw, for the screen, but it's limited to screen
-resolution. To get greater accuracy, we set magnification as high as possible before
-calling NStringWidth, then restore its previous value. Note that since we're
-returning a value in integer points, the caller doesn't get maximum accuracy, but
-1-point accuracy is enough for Nightingale.
-
-But nothing is really guaranteed. Apple Tech Note #26: Fond of FONDs (May 1992)
-discusses finding the width of a piece of text, and makes it clear that (in the
-general case) it's far more difficult than a reasonable person would expect,
-especially with bitmapped fonts. */
+/* Compute and return the StringWidth (in points, not pixels) of the given Pascal string
+in the given font, size and style. By far the easiest way to get the width of a string
+on the Mac is from QuickDraw, for the screen, but it's limited to screen resolution. To
+get greater accuracy, we set magnification as high as possible before calling
+NStringWidth, then restore its previous value. Note that since we're returning a value
+in integer points, the caller doesn't get maximum accuracy, but 1-point accuracy is
+good enough for Nightingale. */
 
 short NPtStringWidth(
 			Document *doc,
@@ -465,8 +463,8 @@ short NPtStringWidth(
 }
 
 
-/* ------------------------------------------------------------------- NPtGraphicWidth -- */
-/* Compute and return the StringWidth (in points) of the given Graphic. */	
+/* ---------------------------------------------------- NGraphicWidth, NPtGraphicWidth -- */
+/* Compute and return the approximate StringWidth (in points) of the given Graphic. */	
 
 short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 {
@@ -485,6 +483,30 @@ short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 	fontSize = GetTextSize(p->relFSize, p->fontSize, lineSpace);
 
 	return NPtStringWidth(doc, string, fontID, fontSize, fontStyle);
+}
+
+
+/* Compute and return the approximate StringWidth (in pixels) of the given Graphic in the
+current view. */
+
+short NGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
+{
+	short		font, fontSize, fontStyle;
+	PGRAPHIC	p;
+	Str255		string;
+	DDIST		lineSpace;
+	
+	Pstrcpy((StringPtr)string, (StringPtr)PCopy(FirstGraphicSTRING(pL))) ;
+
+	p = GetPGRAPHIC(pL);
+	font = doc->fontTable[p->fontInd].fontID;
+	fontStyle = p->fontStyle;
+
+	lineSpace = LNSPACE(pContext);
+	fontSize = GetTextSize(p->relFSize, p->fontSize, lineSpace);
+	fontSize = UseTextSize(fontSize, doc->magnify);
+
+	return NStringWidth(doc, string, font, fontSize, fontStyle);
 }
 
 
@@ -1118,8 +1140,22 @@ short RelIndexToSize(short index, DDIST lineSpace)
 		return theRelSize;
 	}
 
+#ifdef NOTYET
+/* Deliver the index 1-9 of the Tiny...Jumbo...StaffHeight menu item, or 0 if the given
+size isn't any of the predefined sizes. */
+ 
+short SizeToRelIndex(short size)
+{
+	short index;
+	
+	for (index=GRTiny; index<=GRLastSize; index++)
+		if (size == TDRelIndexToSize(index)) return(index);
+	return(0);
+}
+#endif
 
-/* -------------------------------------------------------------------- GetTextSize -- */
+
+/* ----------------------------------------------------------------------- GetTextSize -- */
 /* Given the relative/absolute size flag, nominal (Nightingale internal) size, and
 space between staff lines, return the point size to use. */
 
@@ -1590,10 +1626,10 @@ static short VoiceTotalDur(short voice, LINK voiceStartL, LINK voiceEndL)
 	return totalDur;
 }
 
-/* Get values with which to initialize Fancy Tuplet Dialog from the current
-selection. First check all voices to see that tupleNum (the prospective accessory
-numeral) can be the same for all, and if not, return False. Otherwise, fill in all
-fields of the TupleParam and return True. */
+/* Get values with which to initialize Fancy Tuplet Dialog from the current selection.
+First check all voices to see that tupleNum (the prospective accessory numeral) can be
+the same for all, and if not, return False. Otherwise, fill in all fields of the TupleParam
+and return True. */
 
 #define DIFF_TUPLETS	\
 	GetIndCString(strBuf, DIALOGERRS_STRS, 20);		/* "Fancy Tuplet can't handle different tuplets..." */	\

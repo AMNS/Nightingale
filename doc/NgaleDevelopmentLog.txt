@@ -11448,6 +11448,67 @@ How about this:
 	- any subsquent action that affects the selection clears all <selectAlt> flags
 		immediately, i.e., before the screen is updated
 
+---------------------------------------------------------------------------------------
 
+22 July - 10 August
 
+Try just making hiliting of selected notes larger than normal for selection via
+SelectSubobjA. ??
+
+SWITCH TO: Issue #74: Inadequate redrawing. New; create a piece of text anywhere (as long
+as it's attached to a system rather than the page); double-click it and make it longer or
+change to a larger font; OK => only the portion of the new string that fits in the old
+string's bounding box is drawn.
+
+CheckGRAPHIC() contains two attempts to fix this:
+
+//LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 2/EraseAndInval pL=%u strlen=%d\n", pL, Pstrlen(string));
+#if 0
+	DrawGRAPHIC(doc, pL, contextA, False);
+	r = LinkOBJRECT(pL);
+	EraseAndInval(&r);
+#elif 0
+	InvalObject(doc, pL, True); /* In case it's gotten larger */
+#endif
+
+...but both are commented out, presumably because they didn't work or caused some problem;
+but what!? Ngale 5.7 didn't have any of that code; 5.8 of 25 Apr. 2018 has all of it. Ah,
+see discussion above on 25 - 26 Nov. 2017. Sigh. But that says the InvalObject() produced
+no change; in a quick test just now, it worked!
+
+Test more with HeadShapeDemo.ngl: Increase font size => it redraws enough; but keep font
+size but lengthen string => nope. Why? Increase font size _and_ lengthen string => it
+redraws enough to show the enlarged original string but not the additional chars.!
+
+Another problem: Double-clicking a piece of text erases it before bringing the dialog up.
+This is generally less than helpful, especially since if you cancel, the text is never
+redrawn! But what's erasing it? CheckGRAPHIC() case SMDblClick does "while (Button())"
+before calling TextDialog(); the text isn't erased till I release the mouse button, so it's
+TextDialog.
+
+In TextDialog, the call to
+
+	ShowWindow(GetDialogWindow(dlog));
+	
+draws an empty dialog window and doesn't erase the text.
+
+		ShowWindow(GetDialogWindow(dlog));
+	SleepTicks(120);
+							------------ see empty dialog window frame; text unchanged
+		while (keepGoing) {
+			ModalDialog(filterUPP, &itemHit);
+	SysBeep(1);
+	SleepTicks(120);
+							------------ the 1st time, dialog window partly filled in;
+											text is already gone
+
+So the first call to ModalDialog() is the culprit! Presumably it's the filter callback,
+TextDFilter(). The event is an activateEvt; in that case, TextDFilter does literally
+nothing but call GetDialogWindow(). In most of our filter procs, an activate does
+
+			if (w==GetDialogWindow(dlog)) SetPort(GetDialogWindowPort(dlog));
+
+In some, it does nothing at all. I have no idea what it _should_ do for text editing,
+but try changing it to the above line => no effect. Removing the call to GetDialogWindow
+also does nothing. Sigh.
 
