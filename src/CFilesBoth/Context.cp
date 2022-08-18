@@ -469,20 +469,20 @@ void ClefFixBeamContext(Document *doc, LINK startL, LINK doneL, short staffn)
 #endif
 
 	/* The beamset object always precedes its first Sync, so we may have to re-beam
-	 *	before the beginning of the range. If we do not already have a first beam link,
-	 *	get one on this staff, test to see if its Syncs or grace Syncs extend into the
-	 *	range, and set firstBeamL accordingly: use <startL> if the beam is not in the
-	 *	range, <firstBeamL> if it is.
-	 */
+	   before the beginning of the range. If we do not already have a first beam link,
+	   get one on this staff, test to see if its Syncs or grace Syncs extend into the
+	   range, and set firstBeamL accordingly: use <startL> if the beam is not in the
+	   range, <firstBeamL> if it is. */
+	   
 	if (!firstBeamL)
 		firstBeamL = LSSearch(startL, BEAMSETtype, staffn, GO_LEFT, False);	/* 1st beam that might be affected */
 	
 	if (firstBeamL) {
-		if (IsAfter(LastInBeam(firstBeamL), startL))						/* Is it really affected? */
-			firstBeamL = startL;											/* No */
+		if (IsAfter(LastInBeam(firstBeamL), startL))			/* Is it really affected? */
+			firstBeamL = startL;								/* No */
 	}
 	else
-		 firstBeamL = startL;												/* No beams before range on staff */
+		 firstBeamL = startL;									/* No beams before range on staff */
 
 	/* Now remove and recreate all beamsets in the (possibly extended) range. Rebeam
 	   can recreate the beamset object to the right of its original position in the
@@ -520,6 +520,7 @@ static void ToggleAugDotPosInRange(Document *doc, LINK startL, LINK endL, short 
 	for (pL = startL; pL!=endL; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
 			// ??NEED TO HANDLE EACH VOICE IN <pL> ON THE STAFF SEPARATELY!
+			
 			voice = SyncVoiceOnStaff(pL, staffn);
 			if (voice==NOONE) continue;
 			mainNoteL = FindMainNote(pL, voice);
@@ -542,7 +543,8 @@ static void ToggleAugDotPosInRange(Document *doc, LINK startL, LINK endL, short 
 STAFFs and MEASUREs for the given staff, (2) note y-positions, (3) note stem directions
 and chord layouts including stem directions, and (4) beam positions to match the new
 note positions. If a clef change is found on the staff before doneL, we stop there.
-MAY inval some or all of the range (via Rebeam) ??and InvalContent: should change this.
+MAY inval some or all of the range (via Rebeam) ??and InvalRangeContent: FIXME: should
+change this.
 
 Updates aug. dot vertical positions if the clef changes to/from on of the normal treble,
 bass, and C (in any position) clefs to/from any of the octave-displaced clefs or
@@ -653,30 +655,30 @@ Cleanup:
 	if (odd(yHere-yPrev))
 		ToggleAugDotPosInRange(doc, startL, doneL, staffn);
 	
-	InvalContent(startL, doneL);
+	InvalRangeContent(startL, doneL);
 	ClefFixBeamContext(doc, startL, doneL, staffn);
 }
 
 
 /* ---------------------------------------------------------------- FixContextForClef --- */
 /* From (and including) <startL> until the next clef for the staff, update (1) the
-clef in context fields of following STAFFs and MEASUREs for the given staff, (2)
-notes' y-positions, (3) note stem directions and chord layouts including stem
-directions, and (4) beam positions to match the new note positions. Returns the
-first LINK after the range affected or, if nothing is affected, NILINK. */
+clef in context fields of following STAFFs and MEASUREs for the given staff, (2) notes'
+y-positions, (3) note stem directions and chord layouts including stem directions, and
+(4) beam positions to match the new note positions. Returns the first LINK after the
+range affected or, if nothing is affected, NILINK. */
 
 LINK FixContextForClef(
 				Document *doc, LINK startL, short staffn,
 				SignedByte oldClef, SignedByte newClef)		/* Previously-effective and new clefTypes */
 {
-	LINK			doneL;
+	LINK		doneL;
 	CONTEXT		context;
 	SearchParam	pbSearch;
 
 	/* If nothing following or no clef change, quit.
-	 * If startL itself is a clef, no change propagates past it, so we're done.
-	 * ??YES, BUT ONLY IF IT'S A CLEF ON OUR STAFF! CF. FixContextForKeySig.
-	 */
+	   If startL itself is a clef, no change propagates past it, so we're done.
+	   ??YES, BUT ONLY IF IT'S A CLEF ON OUR STAFF! CF. FixContextForKeySig. */
+	   
 	if (!startL || startL==doc->tailL || oldClef==newClef) return NILINK;							
 
 	if (ClefTYPE(startL)) return NILINK;
@@ -687,6 +689,7 @@ LINK FixContextForClef(
 	pbSearch.needInMeasure = True;
 
 	/* Clef change propagates until the next inMeasure clef. */
+	
 	doneL = L_Search(RightLINK(startL), CLEFtype, False, &pbSearch);
 	if (!doneL) doneL = doc->tailL;
 	
@@ -698,9 +701,9 @@ LINK FixContextForClef(
 
 
 /* ----------------------------------------------------------------- EFixContForKeySig -- */
-/* In the range [startL,doneL), update the key signature in context fields of
-following STAFFs and MEASUREs for the given staff. If we find another key sig-
-nature on the staff before doneL, we stop at that point. */
+/* In the range [startL,doneL), update the key signature in context fields of following
+STAFFs and MEASUREs for the given staff. If we find another key signature on the staff
+before doneL, we stop at that point. */
 
 void EFixContForKeySig(LINK startL, LINK doneL,
 						short staffn,							/* Desired staff no. */
@@ -748,12 +751,12 @@ void EFixContForKeySig(LINK startL, LINK doneL,
 
 
 /* --------------------------------------------------------------- FixContextForKeySig -- */
-/* Until the next key signature for the staff, update the key sig. in context
-fields of following STAFFs and MEASUREs for the given staff. Returns the first
-LINK after the range affected or, if nothing is affected, NILINK. */
+/* Until the next key signature for the staff, update the key sig. in context fields of
+following STAFFs and MEASUREs for the given staff. Returns the first LINK after the range
+affected or, if nothing is affected, NILINK. */
 
 LINK FixContextForKeySig(Document *doc, LINK startL,
-						short staffn,								/* Desired staff no. */
+						short staffn,						/* Desired staff no. */
 						KSINFO oldKSInfo, KSINFO newKSInfo	/* Previously-effective and new key sig. info */
 						)
 {
@@ -761,12 +764,12 @@ LINK FixContextForKeySig(Document *doc, LINK startL,
 	SearchParam	pbSearch;
 
 	if (!startL || startL==doc->tailL)
-			return NILINK;											/* If nothing following, quit */
+			return NILINK;										/* If nothing following, quit */
 	if (KeySigTYPE(startL))
 		if (KeySigOnStaff(startL, staffn))
 			return NILINK;
 	if (KeySigEqual((PKSINFO)(&oldKSInfo), (PKSINFO)(&newKSInfo)))
-			return NILINK; 											/* If no key sig. change, quit */
+			return NILINK; 										/* If no key sig. change, quit */
 
 	InitSearchParam(&pbSearch);
 	pbSearch.id = staffn;														
@@ -774,6 +777,7 @@ LINK FixContextForKeySig(Document *doc, LINK startL,
 	pbSearch.needInMeasure = True;
 
 	/* keySig change propagates until the next inMeasure keySig. */
+	
 	doneL = L_Search(RightLINK(startL), KEYSIGtype, False, &pbSearch);
 	if (!doneL) doneL = doc->tailL;
 
@@ -798,7 +802,7 @@ void EFixContForTimeSig(LINK startL, LINK doneL,
 						TSINFO newTSInfo		/* New time signature */
 						)
 {
-	LINK			pL, aNoteL, aStaffL, aMeasureL, aTimeSigL;
+	LINK		pL, aNoteL, aStaffL, aMeasureL, aTimeSigL;
 
 	for (pL = startL; pL!=doneL; pL=RightLINK(pL)) {
 		switch (ObjLType(pL)) {
@@ -1163,6 +1167,7 @@ LINK EFixAccsForKeySig(Document *doc, LINK startL, LINK doneL,
 	
 	while (IsAfter(barFirstL, barLastL)) {					
 		/* Initialize accTable for each bar, since (ugh) FixAllAccidentals destroys it! */
+		
 		CopyTables(oldKSTab, accTable);
 	
 		FixAllAccidentals(barFirstL, barLastL, staffn, False);

@@ -1369,7 +1369,8 @@ System. */
 
 static void InvalRespBars(LINK startInvalL, LINK endSysL)
 {
-	InvalRange(startInvalL, endSysL);
+//LogPrintf(LOG_DEBUG, "InvalRespBars: startInvalL=%u endSysL=%u\n", startInvalL, endSysL);
+	InvalRangeContent(startInvalL, endSysL);
 	InvalMeasures(startInvalL, endSysL, ANYONE);					/* Force redrawing */
 }
 

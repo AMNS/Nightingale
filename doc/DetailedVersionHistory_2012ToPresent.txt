@@ -3747,3 +3747,14 @@ Minor changes. Affects info.plist, CheckUtils.h, Utility.h; Check, CheckUtils, D
 TextDialog, Utility.
 
 ----------------------------------------------------------------------------------------- B22
+
+12 - 17 Aug.
+
+Fixed bug (Issue #199): Respacing several systems at once results in only the first being
+redrawn. Affects SpaceHighLevel.
+
+Minor changes: rename InvalContent() to InvalRangeContent, etc. Affects info.plist,
+DSUtils.h; Context, Double, InsNewUtils, Inval, Menu, SpaceHighLevel.
+
+----------------------------------------------------------------------------------------- B23
+

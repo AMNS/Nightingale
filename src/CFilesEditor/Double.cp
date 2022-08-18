@@ -20,19 +20,18 @@ static void FixChordsForClef(Document *, LINK, short, CONTEXT, CONTEXT);
 static short DupAndSetStaff(Document *, short [], LINK, short, short, short);
 static Boolean StfHasSmthgAcross(Document *, LINK, short, char []);
 static Boolean RangeHasUnmatchedSlurs(Document *, LINK, LINK, short);
-static LINK LSContextDynamicSearch(LINK, short, Boolean, Boolean);
 static void DblFixContext(Document *, short);
 static Boolean IsDoubleOK(Document *, short, short);
 
 /* ================================================================ DoubleDialog, etc. == */
 
-static enum
+enum
 {
 	ORIGPART_DI=5,
 	ORIGSTAFFN_DI=7,
 	PART_POPUP_DI=9,
 	STAFFN_DI=11
-} E_DoubleItems;
+};
 
 static UserPopUp popupPart;
 
@@ -849,8 +848,10 @@ Boolean RangeHasUnmatchedSlurs(Document */*doc*/, LINK startL, LINK endL, short 
 }
 
 
-/* Look for a Dynamic, ignoring hairpins. Not used as of v. 5.8b5. */
+#ifdef NOMORE
+/* Look for a Dynamic, ignoring hairpins. Not used as of v. 5.8. */
 
+static LINK LSContextDynamicSearch(LINK, short, Boolean, Boolean);
 static LINK LSContextDynamicSearch(
 				LINK startL,			/* Place to start looking */
 				short staff,			/* target staff number */
@@ -873,6 +874,7 @@ Search:
 	
 	return NILINK;
 }
+#endif
 
 
 /* Update Dynamic context on <dstStf> baseed on Dynamics in the selection range
@@ -1075,18 +1077,19 @@ short Double(Document *doc)
 	if (didSomething) {
 		doc->changed = True;
 		DblFixContext(doc, dstStf);
-		/*
-		 * We may have newly-created beams and so on preceding the selection range. The
-		 * easiest way to fix it (though not the most efficient) is via OptimizeSelection.
-		 */
+		
+		/* We may have newly-created beams and so on preceding the selection range.
+		   The easiest way to fix it (though not the most efficient) is via
+		   OptimizeSelection. */
+		   
 		doc->selStartL = doc->headL;
 		OptimizeSelection(doc);
-		/*
-		 *	...but we now need to select everything in the range on <dstStf> and nothing
-		 * else, and do final cleanup on the new stuff. We leave the selection this way
-		 * unless we're Looking at a Voice. In that case the new stuff isn't in the
-		 * Looked-at voice, so we just leave an insertion point on <dstStf>.
-		 */
+		
+		/* ...but we now need to select everything in the range on <dstStf> and nothing
+		   else, and do final cleanup on the new stuff. We leave the selection this way
+		   unless we're Looking at a Voice. In that case the new stuff isn't in the
+		   Looked-at voice, so we just leave an insertion point on <dstStf>. */
+		   
 		selStartL = doc->selStartL;
 		selEndL = doc->selEndL;
 		DeselAllNoHilite(doc);
@@ -1095,7 +1098,7 @@ short Double(Document *doc)
 		doc->selEndL = selEndL;		
 
 		DelRedundantAccs(doc, dstStf, DELSOFT_REDUNDANTACCS_DI);
-		InvalContent(doc->selStartL, doc->selEndL);
+		InvalRangeContent(doc->selStartL, doc->selEndL);
 		InvalSelRange(doc);
 		if (doc->lookVoice>=0) {
 			DeselAllNoHilite(doc);

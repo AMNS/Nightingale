@@ -11480,9 +11480,9 @@ Test more with HeadShapeDemo.ngl: Increase font size => it redraws enough; but k
 size but lengthen string => nope. Why? Increase font size _and_ lengthen string => it
 redraws enough to show the enlarged original string but not the additional chars.!
 
-Another problem: Double-clicking a piece of text erases it before bringing the dialog up.
-This is generally less than helpful, especially since if you cancel, the text is never
-redrawn! But what's erasing it? CheckGRAPHIC() case SMDblClick does "while (Button())"
+A related problem: Double-clicking a piece of text erases it before bringing the dialog up
+(Issue #200). This is generally less than helpful, especially since if you cancel, the text
+is never redrawn! But what's erasing it? CheckGRAPHIC() case SMDblClick does "while (Button())"
 before calling TextDialog(); the text isn't erased till I release the mouse button, so it's
 TextDialog.
 
@@ -11511,4 +11511,24 @@ nothing but call GetDialogWindow(). In most of our filter procs, an activate doe
 In some, it does nothing at all. I have no idea what it _should_ do for text editing,
 but try changing it to the above line => no effect. Removing the call to GetDialogWindow
 also does nothing. Sigh.
+
+---------------------------------------------------------------------------------------
+
+12 - 17 August
+
+Another related problem (Issue #199): Respace several systems at once => only the first
+is redrawn. This situation is handled by InvalRespBars(), which consists of two statements:
+
+	InvalRange(startInvalL, endSysL);
+	InvalMeasures(startInvalL, endSysL, ANYONE);					/* Force redrawing */
+
+Well, a comment on InvalRange() says "This should be used with care: for example, if
+InvalRange is followed by InvalSystems of systems in the range, the InvalSystems won't do
+much! In such cases, use InvalContent." That makes sense, since InvalRange empties the
+objRects of all objects in the specified range, and it seems it'd apply to InvalMeasures
+too. Replace the InvalRange with InvalContent() => it works!!
+
+One reason for this and, surely, other redrawing issues is the InvalXXX routines are poorly
+named and poorly organized. As a small step in that direction, rename InvalContent to
+InvalRangeContent... done.
 

@@ -8,7 +8,7 @@ void InvalSysRange(LINK, LINK);
 void InvalSelRange(Document *);
 void InvalRange(LINK, LINK);
 void EraseAndInvalRange(Document *, LINK, LINK);
-void InvalContent(LINK, LINK);
+void InvalRangeContent(LINK, LINK);
 void InvalObject(Document *doc, LINK pL, short doErase);
 
 void FixMeasNums(LINK, short);

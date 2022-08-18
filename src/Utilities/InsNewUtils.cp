@@ -211,7 +211,7 @@ static Boolean EnlargeResAreas(Document *doc, LINK startL, LINK endL, DDIST shif
 	pL = MoveInMeasure(startL, endSysL, shift);
 	MoveAllMeasures(pL, endSysL, shift);
 			
-	InvalContent(startL, endSysL);						/* Force updating all objRects */
+	InvalRangeContent(startL, endSysL);					/* Force updating all objRects */
 	return True;
 }
 	
@@ -254,8 +254,8 @@ void FixInitialKSxds(
 	
 	needWidth = GetKeySigWidth(doc,firstKeySigL,staffn);
 
-	/* We cannot use xd of any Graphic or other J_D symbol inserted between keySig
-	   and timeSig. */
+	/* We cannot use xd of any Graphic or other J_D symbol inserted between keySig and
+	   timeSig. */
 
 	rightL = FirstValidxd(RightLINK(firstKeySigL), GO_RIGHT);
 	haveWidth = SysRelxd(rightL)-SysRelxd(firstKeySigL);
@@ -276,28 +276,28 @@ NB: If the position of the new Measure is not yet known, using an arbitrary valu
 Measure, since they're relative to the Measure's position. It's safer to pass a
 negative value for <xd> (see below). */
 
-LINK CreateMeasure(register Document *doc,
-						LINK insertL,
-						DDIST xd,				/* <0=use prev. measure's+(DDIST)1 */
-						short sym,
-						CONTEXT context
-						)
+LINK CreateMeasure(Document *doc,
+					LINK insertL,
+					DDIST xd,				/* <0=use prev. measure's+(DDIST)1 */
+					short sym,
+					CONTEXT context
+					)
 {
-	short			newRight;
-	register PMEASURE pMeasure;
-	PMEASURE		prevMeas, nextMeasure;
-	LINK			tmpL, endMeasL,
-					measureL, prevMeasL, nextMeasureL;
-	LINK			aMeasureL, aprevMeasL, nextSync, prevSync;
-	DDIST			prevMeasWidth;
-	long			offsetDur;
-	LINK			result=NILINK;
+	short		newRight;
+	PMEASURE	pMeasure;
+	PMEASURE	prevMeas, nextMeasure;
+	LINK		tmpL, endMeasL,
+				measureL, prevMeasL, nextMeasureL;
+	LINK		aMeasureL, aprevMeasL, nextSync, prevSync;
+	DDIST		prevMeasWidth;
+	long		offsetDur;
+	LINK		result=NILINK;
 
 PushLock(OBJheap);
 PushLock(MEASUREheap);
 	prevMeasL = LSSearch(LeftLINK(insertL), MEASUREtype, ANYONE,
 													GO_LEFT, False);
-	if (!prevMeasL) goto Cleanup;										/* Should never happen */
+	if (!prevMeasL) goto Cleanup;									/* Should never happen */
 	
 	nextMeasureL = LSSearch(insertL, MEASUREtype, ANYONE, GO_RIGHT, False);
 

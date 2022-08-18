@@ -8,7 +8,7 @@
 
 		InvalMeasure			InvalMeasures			InvalSystem
 		InvalSystems			InvalSysRange			InvalSelRange
-		InvalRange				EraseAndInvalRange		InvalContent
+		InvalRange				EraseAndInvalRange		InvalRangeContent
 		InvalObject
 /******************************************************************************************/
 
@@ -23,7 +23,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static void AccumRect(Rect *, Rect *);
 
 /* -----------------------------------------------------------------------InvalMeasure -- */
 /*	Erase and Inval the entire System the specified object is in. Assumes the object
@@ -38,6 +37,8 @@ void InvalMeasure(LINK pL, short /* theStaff */)
 
 /* ------------------------------------------------------------------------- AccumRect -- */
 
+#ifdef NOTYET
+static void AccumRect(Rect *, Rect *);
 static void AccumRect(Rect *r, Rect *tempR)
 {
 	Rect nilRect;
@@ -46,13 +47,13 @@ static void AccumRect(Rect *r, Rect *tempR)
 	if (EqualRect(tempR, &nilRect))	*tempR = *r;
 	else							UnionRect(r, tempR, tempR);
 }
-
+#endif
 
 /* --------------------------------------------------------------------- InvalMeasures -- */
 /*	Erase and Inval all Measures at least from the one the first specified object is
 in (or, if it's not in a Measure, the next Measure) through and including the one the
 second specified object is in. Actually, since computers now are hundreds (if not
-thousands!) of times faster than when this routine was written (in the 1980's or
+thousands!) of times faster than when this routine was written in the 1980's or
 1990's), we just Inval every system involved in its entirety. NB: As of v. 5.8.x, we
 require all barlines to align on every staff; as long as that's True, <theStaff> is
 irrelevant.
@@ -70,17 +71,17 @@ void InvalMeasures(LINK fromL, LINK toL,
 
 
 /* ------------------------------------------------------------------------InvalSystem -- */
-/*	Erase and Inval the System the specified object is in. NB: Destroys the global
+/*	Erase and Inval the entire System the specified object is in. NB: Destroys the global
 array contextA. */
 
 void InvalSystem(LINK pL)
 {
-	LINK			systemL, pageL;
-	Rect			r;
-	GrafPtr			oldPort;
-	register Document *doc=GetDocumentFromWindow(TopDocument);
-	short			oldSheet;
-	Rect			oldPaper;
+	LINK		systemL, pageL;
+	Rect		r;
+	GrafPtr		oldPort;
+	Document	*doc=GetDocumentFromWindow(TopDocument);
+	short		oldSheet;
+	Rect		oldPaper;
 	
 	if (doc==NULL) return;
 	
@@ -147,11 +148,12 @@ void InvalSelRange(Document *doc)
 
 
 /* ------------------------------------------------------------------------ InvalRange -- */
-/*	Clear the valid flags and empty the objRects of all objects in the specified
-range. This should be used with care: for example, if InvalRange is followed by
-InvalSystems of systems in the range, the InvalSystems won't do much. In such cases,
-use InvalContent. ??NOT JUST objRects: set information about the screen bounding boxes
-of everything to empty.  */
+/*	Clear the valid flags and empty the objRects of all objects in the specified range.
+IMPORTANT: This should be used with care. For example, if InvalRange is followed by
+InvalSystems of Systems (or routines that call InvalSystems)in the range, as a result
+of the Systems having empty objRects, the InvalSystems won't accomplish much! In such
+cases, use InvalRangeContent. ??NOT JUST objRects: set information about the screen
+bounding boxes of everything to empty.  */
 
 void InvalRange(LINK fromL, LINK toL)
 {
@@ -197,11 +199,15 @@ void EraseAndInvalRange(Document *doc, LINK fromL, LINK toL)
 	}
 }
 
-/* ---------------------------------------------------------------------- InvalContent -- */
-/* Clear the valid flags and empty the objRects of all objects in the specified range
-that are not of type J_STRUC. */
+/* ----------------------------------------------------------------- InvalRangeContent -- */
+/* Clear the valid flags and empty the objRects of all "content" objects in the specified
+range, i.e., all that are not of type J_STRUC. In all versions of Nightingale through at
+least 6.0, objects of type J_STRUC are PAGEs, SYSTEMs, and STAFFs.
 
-void InvalContent(LINK fromL, LINK toL)
+In contrast, InvalRange acts on _all_ objects in its range. See comments on InvalRange
+for the implications. */
+
+void InvalRangeContent(LINK fromL, LINK toL)
 {
 	LINK	pL;
 	Rect	emptyRect;
