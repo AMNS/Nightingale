@@ -237,10 +237,10 @@ static void FixNoteAugDotPos(
 	Boolean lineNote, midCIsInSpace;
 
 	midCHalfSp = ClefMiddleCHalfLn(clefType);						/* Get middle C staff pos. */		
-	midCIsInSpace = odd(midCHalfSp);
+	midCIsInSpace = ODD(midCHalfSp);
 
 	halfSp = qd2halfLn(NoteYQPIT(aNoteL));							/* Half-lines below middle C */
-	lineNote = (midCIsInSpace? odd(halfSp) : !odd(halfSp));
+	lineNote = (midCIsInSpace? ODD(halfSp) : !ODD(halfSp));
 	if (lineNote)														/* Note on line */
 		NoteYMOVEDOTS(aNoteL) = GetLineAugDotPos(voiceRole, stemDown);
 	else if (!lineNotesOnly)											/* Note in space */
@@ -293,8 +293,9 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 		aNote = GetPANOTE(subObjL);
 
 		/* Quantize vertical movement to half-lines or, for rests, lines. */
+		
 		halfLnDiff = d2halfLn(ydDiff,context.staffHeight,context.staffLines);
-		if (aNote->rest) if (odd(halfLnDiff)) halfLnDiff += 1;
+		if (aNote->rest) if (ODD(halfLnDiff)) halfLnDiff += 1;
 		dDiff = halfLn2d(halfLnDiff,context.staffHeight,context.staffLines);
 
 		halfLn = qd2halfLn(aNote->yqpit);

@@ -1975,10 +1975,10 @@ static void PrintNotelistDS(void)
 /* ----------------------------------------------------------------------- StoreString -- */
 /*	Store the C-string <str> into our string pool handle, gHStringPool. If <str> contains
 an even number of bytes, not including its terminating null, add one extra null byte
-at the end. (This is to avoid odd address accesses on 68000 Macs.)
+at the end. (This was to avoid odd address accesses on 68000 Macs decades ago!)
 Returns the offset of the start of the string within gHStringPool. Returns NILINK in
 case of one of the following errors:
-	1) <str> contains more than MAX_CHARS bytes,	including terminating null,
+	1) <str> contains more than MAX_CHARS bytes (including terminating null),
 	2) we can't expand gHStringPool, or
 	3) accommodating <str> would make offset larger than MAX_OFFSET. 
 Note that gHStringPool begins with two bytes not used by any string, so a string will
@@ -1993,7 +1993,7 @@ static NLINK StoreString(char str[])
 	
 	len = strlen(str);								/* <len> doesn't include terminating null */
 	if (len>MAX_CHARS-1L) return NILINK;
-	bytesToAdd = odd(len)? len+1 : len+2;
+	bytesToAdd = ODD(len)? len+1 : len+2;
 
 	hSize = GetHandleSize(gHStringPool);
 	if (hSize>MAX_OFFSET) return NILINK;
@@ -2009,7 +2009,7 @@ static NLINK StoreString(char str[])
 	p += offset;
 	BlockMove(str, p, (Size)len);
 	p[len] = 0;
-	if (!odd(len)) p[len+1] = 0;
+	if (!ODD(len)) p[len+1] = 0;
 	HUnlock(gHStringPool);
 
 	return offset;
@@ -2031,7 +2031,7 @@ Boolean FetchString(NLINK	offset,		/* offset of requested string from start of g
 	Size	size;
 
 	size = GetHandleSize(gHStringPool);
-	if (offset<FIRST_OFFSET || offset>size-1 || odd(offset)) return False;
+	if (offset<FIRST_OFFSET || offset>size-1 || ODD(offset)) return False;
 	
 	HLock(gHStringPool);
 	p = (char *)*gHStringPool;

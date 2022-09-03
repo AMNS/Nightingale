@@ -55,8 +55,8 @@ Boolean GetPaperMouse(Point *pt, Rect *paper)
 	Boolean ans;
 	
 	GetMouse(pt);					/* In window-relative coords */
-	ans = PtInRect(*pt,paper);	/* Test for inclusion */
-	pt->h -= paper->left;		/* Transform to paper-relative coords */
+	ans = PtInRect(*pt, paper);		/* Test for inclusion */
+	pt->h -= paper->left;			/* Transform to paper-relative coords */
 	pt->v -= paper->top;
 	
 	return(ans);
@@ -94,6 +94,7 @@ void GetInsRect(Document *doc, LINK startL, Rect *tRectp)
 	LINK	pSystemL;
 
 	/* Get current view in paper-relative coords for current sheet */
+	
 	docRect = doc->viewRect;
 	OffsetRect(&docRect,-doc->currentPaper.left,-doc->currentPaper.top);
 	
@@ -1252,6 +1253,7 @@ short GetPitchLim(Document *doc, LINK staffL,
 half-lines, relative to the staff top line, negative values going up. */
 
 /* Describe usable height of (most) cursors we want to track. */
+
 #define ABOVE_HOTSPOT 2	/* Pixels above hotspot that can intersect staff line */
 #define BELOW_HOTSPOT 1	/* Pixels below hotspot that can intersect staff line */
 
@@ -1299,7 +1301,7 @@ short CalcPitchLevel(
 		/* To simplify things, offset values so everything is positive and a coord.
 		 * of 0 corresponds to a line, not a space.
 		 */ 
-		if (odd(hiPitchLim)) hiPitchLim -= 1;
+		if (ODD(hiPitchLim)) hiPitchLim -= 1;
 		headHotY = relHotY-hiPitchLim*lineSp/2;
 		headTop = headHotY-ABOVE_HOTSPOT;
 		headBottom = headHotY+BELOW_HOTSPOT;

@@ -190,9 +190,8 @@ static Boolean WriteTSEvent(short numerator, short denominator, short clocksPerB
 	Byte	buffer[7];
 	
 	logDenom = 0;
-	while (!odd(denominator)) {
+	while (!ODD(denominator))
 		logDenom++; denominator /= 2;
-	}
 
 	thirtySeconds = 8;	/* notated 32nds per MIDI quarter-note: 8 is standard */
 	
@@ -640,7 +639,7 @@ static Boolean WriteTSig(
 
 	tempDenom = denom;
 	clocksPerBeat = 24*4;							/* 24 is standard/qtr, and 4 qtrs/whole */
-	while (!odd(tempDenom)) {
+	while (!ODD(tempDenom)) {
 		clocksPerBeat /= 2; tempDenom /= 2;
 	}
 	if (COMPOUND(numer)) clocksPerBeat *= 3;

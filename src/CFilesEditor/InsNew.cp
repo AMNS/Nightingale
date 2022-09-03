@@ -1310,7 +1310,7 @@ short ModNRPitchLev(Document *doc,
 		}
 		if (canBeInStaff) {							/* allow mod placement in staff */
 			if (yqpit>stfTopQtrLn) {				/* note/stem is in the staff */
-				if (useStemEnd && odd(yqpit))		/* If yqpit is really stem end, it might not fall on a halfLn */
+				if (useStemEnd && ODD(yqpit))		/* If yqpit is really stem end, it might not fall on a halfLn */
 					yqpit++;
 				modQPit = yqpit - 4;
 				if (!(yqpit % 4))					/* note/stem is on a staff line */
@@ -1338,7 +1338,7 @@ short ModNRPitchLev(Document *doc,
 		}
 		if (canBeInStaff) {							/* allow mod placement in staff */
 			if (yqpit<stfBotQtrLn) {				/* note/stem is in the staff */
-				if (useStemEnd && odd(yqpit))		/* If yqpit is really stem end, it might not fall on a halfLn */
+				if (useStemEnd && ODD(yqpit))		/* If yqpit is really stem end, it might not fall on a halfLn */
 					yqpit--;
 				modQPit = yqpit + 4;
 				if (!(yqpit % 4))					/* note/stem is on a staff line */
@@ -1360,17 +1360,16 @@ short ModNRPitchLev(Document *doc,
 		modQPit += yOffsetBelow;					/* offset from staccato position */
 	}
 
-	/* Try to avoid a collision with an existing modifier.  This is very crude, and it
-		only bothers with the first existing modifier. */
+	/* Try to avoid a collision with an existing modifier. This is very crude, and it
+	   only bothers with the first existing modifier. */
+		
 	if (hasMod) {
 		LINK aModNRL = NoteFIRSTMOD(mainNoteL);
 		short existModQPit = std2qd(ModNRYSTDPIT(aModNRL));
 		short posDiff = abs(existModQPit - modQPit);
 		if (posDiff < 4) {
-			if (putModAbove)
-				modQPit -= (4 - posDiff);
-			else
-				modQPit += (4 - posDiff);
+			if (putModAbove)	modQPit -= (4 - posDiff);
+			else				modQPit += (4 - posDiff);
 		}
 	}
 

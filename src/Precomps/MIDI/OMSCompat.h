@@ -23,10 +23,12 @@ typedef Handle OMSDeviceMenuH;
 
 typedef Point OMSPoint;
 
+#ifndef OMSAPI
 #ifdef __cplusplus
 	#define OMSAPI(rettype)	extern "C" pascal rettype
 #else
 	#define OMSAPI(rettype)	pascal rettype
+#endif
 #endif
 
 OMSAPI(OMSBool) TestOMSDeviceMenu(OMSDeviceMenuH menu, OMSPoint pt);

@@ -21,9 +21,9 @@ It's not clear to me why this happens. */
 #define SICN_ID			128
 #define SICN_WID		16				/* number of horiz. and vert. bits in any sicn */
 
-	/* Returns 1 if entire menu is enabled */
+/* Returns 1 if entire menu is enabled */
+	
 #define MENU_ENABLED(menuH) IsMenuItemEnabled(menuH, 0)
-#define ODD(a)				((a) & 1)							/* True if a is odd */
 
 static void InitGlobals(MenuHandle);
 static void DrawMenu(MenuHandle, Rect *, MenuTrackingData*, CGContextRef);
@@ -250,6 +250,7 @@ static void DrawMenu(MenuHandle theMenu, Rect *menuRect, MenuTrackingData *track
 	
 	if (gScrollStatus == NOSCROLL) {
 		/* draw menu chars into menuRect */
+		
 		for (i=1; i<=gNumItems; i++) {
 			GetItemRect(i, menuRect, &theRect);
 //LogPrintf(LOG_DEBUG, "DrawMenu: NOSCROLL i=%d theRect tlbr=%d,%d,%d,%d\n", i, theRect.top,
@@ -299,7 +300,9 @@ static void DrawItem(short item, Rect *itemRect, MenuHandle theMenu, Boolean lea
 	if (gHasColorQD) {
 		GetColors(theMenu, item);
 		SaveCurColors();
+		
 		/* Only the whole menu can be disabled, since we don't use the menu's enableFlags */
+		
 		if (MENU_ENABLED(theMenu))
 			SetColors(&gItemNameColor, &gMenuBgColor, leaveBlack);
 		else
@@ -465,6 +468,7 @@ static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt,
 			if (InScrollRect(hitPt, menuRect)) {			/* scroll */
 				
 				/* set scrolling speed and direction */
+				
 				if (gScrollStatus & SCROLLUP) {
 					gScrollTicks = (hitPt.v < menuRect->top + FAST_SCROLL_PIXELS) ?
 														FAST_SCROLL_TICKS : SLOW_SCROLL_TICKS;
@@ -818,6 +822,7 @@ static void SizeMenu(MenuHandle theMenu, Point hitPt)
 	ReleaseResource(resH);
 
 	/* Get max. width and height of popup char font and determine number of rows and columns. */
+	
 	if (numItems < numColumns) numItems = numColumns;
 	numRows = numItems / numColumns;
 	if (numItems % numColumns) numRows++;
@@ -863,6 +868,7 @@ static void GetItemRect(short item, Rect *menuRect, Rect *itemRect)
 		SetRect(itemRect, 0, 0, 0, 0);
 	
 	/* adjust rect if scrolling in effect */
+	
 	if (gScrollStatus != NOSCROLL) {
 		if (gScrollStatus & SCROLLUP) {
 			dh = 0;
@@ -921,7 +927,7 @@ static void PopUpMenu(MenuHandle theMenu, Rect *menuRect, short v, short h, shor
 	InitGlobals(theMenu);										/* This hasn't been called yet! */
 
 	/* Get main screen dimensions. FIXME: Is this guaranteed to be the screen with the popup?
-		I doubt it. Should I get screen rect from GetGrayRgn? */
+	   I doubt it. Should I get screen rect from GetGrayRgn? */
 		
 	//scr = screenBits.bounds; ??
 	scr = GetQDScreenBitsBounds();
@@ -1102,9 +1108,9 @@ void SetColors(RGBColor *foreColor, RGBColor *bgColor, Boolean inverse)
 }
 
 
-/* Save the current fore/back colors and the device's pixel depth, if running on
- * a color machine.
- */
+/* Save the current fore/back colors and the device's pixel depth, if running on a
+color machine. */
+
 void SaveCurColors()
 {
 	register GDHandle	gdH;
@@ -1124,6 +1130,7 @@ void SaveCurColors()
 
 
 /* Restore the current fore/back colors on both b&w and color machines. */
+
 void RestoreColors(void)
 {
 	if (gHasColorQD) {
@@ -1148,6 +1155,7 @@ static void SetGrayPat()
 	register PatHandle grayPat;
 	
 	/* get the grey pattern from the System file */
+	
 	grayPat = (PatHandle) GetResource('PAT ', SYS_GRAY);
 	PenPat(*grayPat);
 	ReleaseResource((Handle)grayPat);

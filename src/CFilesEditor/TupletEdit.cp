@@ -279,7 +279,7 @@ Boolean TupletDialog(
 	   
 	for (logDenom=0, i=1; i<accDenom; i*=2) logDenom++;
 	tempNum = accNum;
-	for (evenNum=0; !odd(tempNum); tempNum /= 2) evenNum++;
+	for (evenNum=0; !ODD(tempNum); tempNum /= 2) evenNum++;
 	maxChange = n_min(logDenom-1, evenNum);
 	minDlogVal = durUnitCode-maxChange;
 	

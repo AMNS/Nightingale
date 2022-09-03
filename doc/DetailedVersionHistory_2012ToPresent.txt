@@ -3758,3 +3758,12 @@ DSUtils.h; Context, Double, InsNewUtils, Inval, Menu, SpaceHighLevel.
 
 ----------------------------------------------------------------------------------------- B23
 
+18 Aug. - 2 Sept.
+
+Minor changes: rename <odd> macro to <ODD>, etc. Affects info.plist, Check.h, Defs.h,
+NBasicTypes.h, NDocAndCnfgTypes.h, OMSCompat.h; CarbonStubs, Check, Context, Dragging,
+DragSet, DrawObject, GraphicMDEF, InsNew, InsUtils, Magnify, MergeUtils, MIDIFSave,
+NotelistParse, Objects, Ottava, PitchUtils, PopUpUtils, SearchScoreNative, Select,
+SpaceTime, TupletEdit.
+
+----------------------------------------------------------------------------------------- B24

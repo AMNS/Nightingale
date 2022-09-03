@@ -1,22 +1,22 @@
 /* Check.h for Nightingale - header file for Check.c */
 
-enum {				/* various Select Modes (used by CheckCLEF, etc) */
-	SMClick,
-	SMDrag,
-	SMStaffDrag,
-	SMSelect,
-	SMDeselect,
-	SMThread,
-	SMSymDrag,
-	SMFind,
-	SMFindNote,
-	SMDblClick,
-	SMHilite,
-	SMFlash,
-	SMSelNoHilite,
-	SMDeselNoHilite,
-	SMSelectRange
-};
+/* Select modes (used by CheckXXX functions) */
+
+#define SMClick			0
+#define SMDrag			1
+#define SMStaffDrag		2
+#define SMSelect		3
+#define SMDeselect		4
+#define SMThread		5
+#define SMSymDrag		6
+#define SMFind			7
+#define SMFindNote		8
+#define SMDblClick		9
+#define SMHilite		10
+#define SMFlash			11
+#define SMSelNoHilite	12
+#define SMDeselNoHilite	13
+#define SMSelectRange	14
 
 short CheckPAGE(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckSYSTEM(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);

@@ -171,6 +171,7 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 		pContext = &context[1];
 
 		/* Convert systemRect to paper-relative pixels */
+		
 		D2Rect(&p->systemRect, &r);
 		GetSheetRect(doc, SheetNUM(pageL), &paperRect);
 		OffsetRect(&r, paperRect.left, paperRect.top);
@@ -178,6 +179,7 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 		switch (mode) {
 			case SMClick:
 				/* Get the bBox of all the staff subObjRects in the system */
+				
 				sysRect = ComputeSysRect(pL, paperRect, pContext);
 				mousePt = *(Point *)ptr;
 				mousePt.v += pContext->paper.top;
@@ -190,17 +192,14 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 					   system. */
 					   
 					OffsetRect(&sysRect, 0, sysOffset);
-
 					sysObjRect = LinkOBJRECT(pL);
 					OffsetRect(&sysObjRect, 0, sysOffset);
-
 					if (PtInRect(mousePt, &sysRect))
 						if (DragGraySysRect(doc, pL, ptr, sysObjRect, sysRect, r, pContext))
 							result = 0;
 				}
 				else if (doc->showFormat) {
 					sysObjRect = LinkOBJRECT(pL);
-					
 					if (EditSysRect(doc,*(Point *)ptr,pL)) {
 						FixMeasRectYs(doc, NILINK, False, False, False);
 						doc->locFmtChanged = doc->changed = True;
@@ -311,7 +310,7 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 				SetRect(&rSub, d2p(dLeft), d2p(dTop), d2p(dRight), d2p(dBottom));
 	
 				wSub = rSub;
-				OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+				OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 				
 				switch (mode) {
 					case SMClick:
@@ -471,7 +470,7 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 			OffsetRect(&rSub, d2p(xd), 0);
 
 			SetRect(&wSub,d2p(dLeft),d2p(dTop),d2p(dRight),d2p(dBottom));
-			OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+			OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 		
 			switch (mode) {
 				case SMClick:
@@ -779,7 +778,7 @@ PushLock(DYNAMheap);
 			OffsetRect(&rSub, d2p(xd), d2p(yd));
 		}
 		wSub = rSub;
-		OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+		OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 		
 		switch (mode) {
 		case SMClick:
@@ -934,7 +933,7 @@ PushLock(RPTENDheap);
 					rSub.bottom = d2p(pContext->staffTop+pContext->staffHeight);
 			}
 
-			wSub = rSub; OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+			wSub = rSub; OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 			switch (mode) {
 				case SMClick:
 					if (PtInRect(*(Point *)ptr, &rSub)) {
@@ -1845,7 +1844,7 @@ PushLock(KEYSIGheap);
 
 		rSub = SetSubRect(xd, dTop, width, pContext);
 		wSub = rSub;
-		OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+		OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 		
 		switch (mode) {
 		case SMClick:
@@ -2039,6 +2038,7 @@ PushLock(NOTEheap);
 			wSub = rSub;
 			OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 
+//LogPrintf(LOG_DEBUG, "CheckSYNC: mode=%d\n", mode);
 			switch (mode) {
 			case SMClick:
 				aRect = rSub;
@@ -2095,7 +2095,8 @@ PushLock(NOTEheap);
 					InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
 					if (DETAIL_SHOW)
 						if (SUSPICIOUS_WREL_RECT(wSub))
-							LogPrintf(LOG_DEBUG, " SUSPICIOUS_WREL_RECT L%u:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
+							LogPrintf(LOG_DEBUG, " SUSPICIOUS_WREL_RECT L%u:N/R %d,%d,%d,%d   %d,%d\n",
+								pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
 								enlargeSpecial.h, enlargeSpecial.v);
 					HiliteRect(&wSub);
 				}
@@ -2140,6 +2141,15 @@ PushLock(NOTEheap);
 				if (aNote->selected) {
 					InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
 					HiliteRect(&wSub);
+//LogPrintf(LOG_DEBUG, "CheckSYNC in SMHilite: wSub tlbr=%d,%d,%d,%d\n", wSub.top,
+//wSub.left, wSub.bottom, wSub.right);
+#ifdef USELESS
+					/* Flash selection rectangle to draw attention to it */
+					
+					SleepTicks(60); HiliteRect(&wSub);
+					SleepTicks(60); HiliteRect(&wSub);
+LogPrintf(LOG_DEBUG, "CheckSYNC after SMHilite\n");
+#endif
 				}
 				break;
 			case SMFlash:
@@ -2227,7 +2237,7 @@ PushLock(GRNOTEheap);
 				else			OffsetRect(&rSub, -width, 0);		/* stem down */
 			}
 			wSub = rSub;
-			OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+			OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 
 			switch (mode) {
 			case SMClick:
@@ -2453,7 +2463,7 @@ PushLock(TIMESIGheap);
 		}
 		SetRect(&rSub, xp, yp, xp+width, yp+d2p(pContext->staffHeight));
 		wSub = rSub;
-		OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+		OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 
 		switch (mode) {
 		case SMClick:
@@ -2733,7 +2743,8 @@ PushLock(MEASUREheap);
 					if (DETAIL_SHOW)
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							if (!aMeasure->connAbove)
-								LogPrintf(LOG_DEBUG, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+								LogPrintf(LOG_DEBUG, " SUSPICIOUS_WREL_RECT L%u:Meas %d,%d,%d,%d\n",
+											pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 				}
 				break;
@@ -2876,7 +2887,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 			}
 		}
 		wSub = rSub;
-		OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+		OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 		switch (mode) {
 			case SMClick:
 				if (PtInRect(*(Point *)ptr, &rSub)) {
@@ -2922,11 +2933,9 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 				}
 				break;
 			case SMSymDrag:
-
-				/* Given a measure with n subobjects, HandleSymDrag will be called
-					n times, resulting in the measure being translated n times as
-					far as the user actually dragged it. => use measDrag to insure
-					only one call to HandleSymDrag. */
+				/* Given a measure with n subobjects, we'll get here n times. To keep
+				   the measure from being moved n times as far as the user actually
+				   dragged it, use measDrag to insure only one call to HandleSymDrag. */
 
 				if (PtInRect(*(Point *)ptr, &rSub) && measDrag) {
 					HandleSymDrag(doc, pL, aPSMeasL, *(Point *)ptr, dummy);
@@ -2988,8 +2997,7 @@ PushLock(OBJheap);
 	rSub = LinkOBJRECT(pL);
 	pContext = &context[p->staffn];
 	wSub = rSub;
-	OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
-			
+	OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 
 	switch (mode) {
 	case SMClick:
@@ -3039,7 +3047,8 @@ PushLock(OBJheap);
 			LinkSEL(pL) = False;
 			if (DETAIL_SHOW)
 				if (SUSPICIOUS_WREL_RECT(wSub))
-					LogPrintf(LOG_DEBUG, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+					LogPrintf(LOG_DEBUG, "  SUSPICIOUS_WREL_RECT L%u:Beamset %d,%d,%d,%d\n",
+								pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 			HiliteRect(&wSub);
 		}
 		break;
@@ -3099,7 +3108,7 @@ PushLock(OBJheap);
 	rSub = LinkOBJRECT(pL);
 	pContext = &context[p->staffn];
 	wSub = rSub;
-	OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+	OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 
 	switch (mode) {
 	case SMClick:
@@ -3220,7 +3229,7 @@ PushLock(OBJheap);
 	rSub = LinkOBJRECT(pL);
 	pContext = &context[OttavaSTAFF(pL)];
 	wSub = rSub;
-	OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+	OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 
 	switch (mode) {
 	case SMClick:
@@ -3331,7 +3340,7 @@ PushLock(OBJheap);
 		aSlur = GetPASLUR(aSlurL);
 		rSub = aSlur->bounds;
 		wSub = rSub;
-		OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+		OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 		switch (mode) {
 		case SMClick:
 			if (PtInRect(*(Point *)ptr, &rSub)) {
@@ -3344,7 +3353,7 @@ PushLock(OBJheap);
 			if (PtInRect(*(Point *)ptr, &rSub)) {
 				PrepareUndo(doc, pL, U_EditSlur, 11);			/* "Undo Edit Slur" */
 				HiliteSlurNodes(doc, pL);
-				SelectSlur(&pContext->paper,aSlurL);
+				SelectSlur(&pContext->paper, aSlurL);
 				DoSlurEdit(doc, pL, aSlurL, i);
 				result = 1;
 			}
@@ -3382,7 +3391,8 @@ PushLock(OBJheap);
 				aSlur->selected = False;
 				if (DETAIL_SHOW)
 					if (SUSPICIOUS_WREL_RECT(wSub))
-						LogPrintf(LOG_DEBUG, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+						LogPrintf(LOG_DEBUG, " SUSPICIOUS_WREL_RECT L%u:Slur %d,%d,%d,%d\n",
+									pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 				HiliteRect(&wSub);
 			}
 			break;

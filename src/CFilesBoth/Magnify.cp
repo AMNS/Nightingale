@@ -51,13 +51,13 @@ short D2PFunc(DDIST d)
 {
 	short nPixels, nPixBase, nPixPlus;
 	
-	if (odd(magMagnify)) {
+	if (ODD(magMagnify)) {
 		/* We need extra protection against roundoff because, after truncating, we're
 		   going to increase our value by 50%. Tricky. */
 		   
 		nPixBase = (d+magRound) >> magShift;
 		nPixPlus = (d+magRound+DIVBY2(magRound)) >> magShift;
-		nPixels = nPixBase+DIVBY2(nPixBase);			/* ... nPixBase+(nPixBase/2) */
+		nPixels = nPixBase+DIVBY2(nPixBase);				/* ... nPixBase+(nPixBase/2) */
 		if (nPixPlus>nPixBase) nPixels++;
 	}
 	else
@@ -71,8 +71,7 @@ short D2PXFunc(DDIST d)
 	short nPixels;
 	
 	nPixels = d >> magShift;
-	if (odd(magMagnify))
-		nPixels += DIVBY2(nPixels);						/* ... += nPixels/2 */
+	if (ODD(magMagnify)) nPixels += DIVBY2(nPixels);		/* ... += nPixels/2 */
 
 	return nPixels;
 }
@@ -81,8 +80,9 @@ DDIST P2DFunc(short p)
 {
 	short dShifted, dby3Shifted;
 	
-	if (odd(magMagnify)) {
+	if (ODD(magMagnify)) {
 		/* To avoid overflow, shift left by magShift-1, then add in the extra. */
+		
 		dShifted = p << (magShift-1);
 		dby3Shifted = dShifted/3;							/* Slow but there's no way around it */
 		return dShifted+dby3Shifted;
@@ -107,11 +107,11 @@ short UseMagnifiedSize(
 	powerOf2 = DIVBY2(magnify);
 	if (magnify<0) {
 		magSize = size>>(-powerOf2);
-		if (odd(magnify)) magSize -= DIVBY4(magSize);		/* ... -= magSize/4 */
+		if (ODD(magnify)) magSize -= DIVBY4(magSize);		/* ... -= magSize/4 */
 	}
 	else {
 		magSize = size<<powerOf2;
-		if (odd(magnify)) magSize += DIVBY2(magSize);		/* ... += magSize/2 */
+		if (ODD(magnify)) magSize += DIVBY2(magSize);		/* ... += magSize/2 */
 	}
 	
 	return magSize;
@@ -131,7 +131,7 @@ short UseRelMagnifiedSize(
 	magChange = MAX_MAGNIFY-magnify;
 	powerOf2 = magChange/2;
 	magSize = maxMagSize>>powerOf2;
-	if (odd(magChange)) magSize -= magSize/3;
+	if (ODD(magChange)) magSize -= magSize/3;
 	
 	return magSize;
 }
@@ -173,13 +173,12 @@ short UseMTextSize(
 	prevFontSize = fontSize;		
 	prevMagnify = magnify;
 	
-	/*
-	 * If magnification is integral, don't worry about the silly names. Doing so
-	 * actually causes a problem for Sonata-18 at 200 percent: Sonata-36 is
-	 * "really" 40 point in some ways, but 36 or even 37(!) in others, so getting
-	 * fancy doesn't work.
-	 */ 
-	if (!odd(magnify)) {
+	/* If magnification is integral, don't worry about the silly names. Doing so
+	   actually causes a problem for Sonata-18 at 200 percent: Sonata-36 is really 40
+	   point in some ways, but 36 or even 37(!) in others, so getting fancy doesn't
+	   work. */
+	    
+	if (!ODD(magnify)) {
 		size = UseTextSize(fontSize, magnify);
 		
 		return size;

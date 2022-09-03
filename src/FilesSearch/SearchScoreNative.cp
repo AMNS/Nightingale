@@ -1,4 +1,4 @@
-/* SearchScoreNative.c for the OMRAS version of Nightingale */
+/* SearchScoreNative.c for Nightingale, from the OMRAS version */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -150,7 +150,8 @@ static void SelectTiedNotes(LINK syncL, LINK aNoteL)
 all be Syncs: objects of other types are ignored. Deselect everything, then select
 notes/rests in the given arrays and voice, plus--if appropriate--any following notes
 tied to them. Finally, update selection range and <setStaff> accordingly, and Inval
-the window. NB: operates on Nightingale object list, not DB_ stuff. */
+the window. NB: operates on a normal Nightingale object list, not OMRAS-vintage "DB_"
+data structures. */
 
 void SelectSubobjA(
 			Document *doc,
@@ -236,7 +237,7 @@ This is intended for use in passage-level retrieval; it's particularly useful if
 Return True if the string is section identification. */
 
 #define SECTION_ID_NSTYLE FONT_R9	/* Graphic <info> value (FONT_R1 to FONT_R9, or -1 = any) */
-#define MAX_ID_LEN 30					/* Max. length to display, in chars. */
+#define MAX_ID_LEN 30				/* Max. length to display, in chars. */
 
 Boolean GetScoreLocIDString(Document *doc, LINK locL, char matchLocString[256])
 {
@@ -498,7 +499,7 @@ Cleanup:
 
 /* Find the Document described by the parameters in <documentTable> and return its index.
 If it's not found, return -1. Similar to AlreadyInUse(), except that returns a pointer.
-??This belongs in Documents.c, and AlreadyInUse should call it. */
+FIXME: This belongs in Documents.c, and AlreadyInUse should call it. */
 
 static INT16 FindDocInTable(INT16 vrefnum,	unsigned char name[256]);
 static INT16 FindDocInTable(
@@ -587,7 +588,7 @@ static INT16 IRSearchScore(Document *doc,
 	
 			Pstrcpy(doc->name, (StringPtr)scoreName);
 			PToCString((StringPtr)scoreName);
-			GoodStrncpy(matchInfoA[nFound].scoreName, scoreName, 31);
+			GoodStrncpy(matchInfoA[nFound].scoreName, scoreName, FILENAME_MAXLEN);
 		
 			matchInfoA[nFound].measNum = GetMeasNum(doc, foundL);
 			matchInfoA[nFound].foundVoice = v;
@@ -606,7 +607,7 @@ static INT16 IRSearchScore(Document *doc,
 			else
 				sprintf(vInfoStr, "%d", v);
 	
-			GoodStrncpy(matchInfoA[nFound].vInfoStr, vInfoStr, 31);
+			GoodStrncpy(matchInfoA[nFound].vInfoStr, vInfoStr, FILENAME_MAXLEN);
 			matchInfoA[nFound].totalError.pitchErr = totalErrorInfoA[v].pitchErr;
 			matchInfoA[nFound].totalError.durationErr = totalErrorInfoA[v].durationErr;
 

@@ -338,6 +338,7 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 	multiVoice = IsSyncMultiVoice(pL, staffn);
 
 	/* Loop through the notes and set their yds and ystems. */
+	
 	aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
@@ -351,7 +352,7 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 											stemDown,
 											context.staffHeight, context.staffLines,
 											qStemLen, False);
-			if (odd(noteOffset[OttavaType(octL)-1]))
+			if (ODD(noteOffset[OttavaType(octL)-1]))
 				ToggleAugDotPos(doc, aNoteL, stemDown);
 
 			dystd = -halfLn2std(noteOffset[OttavaType(octL)-1]);
@@ -360,6 +361,7 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 	}
 
 	/* Loop through the notes again and fix up the ystems of the non-extreme notes. */
+	
 	aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);

@@ -318,7 +318,7 @@ typedef struct {
 					showSyncs,			/* Show (with InvertSymbolHilite) lines on every Sync? */	\
 					frameSystems,		/* Frame systemRects (for debugging)? */				\
 					fillerEM;			/* unused */											\
-	unsigned char	colorVoices;		/* 0=normal, 1=show non-dflt voices in color, 2=show all but voice 1 in color */ \
+	Byte			colorVoices;		/* 0=normal, 1=show non-dflt voices in color, 2=show all but voice 1 in color */ \
 	Boolean			showInvis,			/* Display invisible objects? */						\
 					showDurProb,		/* Show measures with duration/time sig. problems? */	\
 					recordFlats;		/* True if black-key notes recorded should use flats */ \

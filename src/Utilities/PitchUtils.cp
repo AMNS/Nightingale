@@ -1557,7 +1557,7 @@ void ArrangeNCAccs(CHORDNOTE chordNote[], short noteCount, Boolean stemDown)
 		}
 	}
 	maxStep = midAcc = accCount/2;
-	if (!odd(accCount) && !stemDown) midAcc -= 1;
+	if (!ODD(accCount) && !stemDown) midAcc -= 1;
 		
 	for (accSoFar = 0, i = 0; i<noteCount; i++) {
 		aNote = GetPANOTE(chordNote[i].noteL);
@@ -1650,7 +1650,7 @@ void ArrangeGRNCAccs(CHORDNOTE chordNote[], short noteCount, Boolean stemDown)
 		}
 	}
 	maxStep = midAcc = accCount/2;
-	if (!odd(accCount) && !stemDown) midAcc -= 1;
+	if (!ODD(accCount) && !stemDown) midAcc -= 1;
 		
 	for (accSoFar = 0, i = 0; i<noteCount; i++) {
 		aGRNote = GetPAGRNOTE(chordNote[i].noteL);

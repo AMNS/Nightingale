@@ -17,7 +17,7 @@ compatibility. */
 
 /* -------------------------------- Data-structure Things ------------------------------- */
 
-/* We assume already-included headers (on the Macintosh, Types.h) say:
+/* We assume already-included headers (on the Macintosh, MacTypes.h) say:
 	typedef unsigned char Byte;
 	typedef signed char SignedByte;
 */

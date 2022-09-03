@@ -2041,18 +2041,18 @@ void FixGRSyncForNoChord(Document *doc,
 
 /* ---------------------------------------------------------------------- FixAugDotPos -- */
 /* Set the augmentation dot position for notes in the given Sync and voice to a
-reasonable standard value, regardless of whether the notes actually have dots or
-not. Does not handle grace Syncs, which (as of v. 5.7) can never have dots.
+reasonable standard value, regardless of whether the notes actually have dots or not.
+Does not handle grace Syncs, which (as of v. 5.8) can never have dots.
 
-Augmentation dots for a "line" note should never be next to the note: normally
-they should in the space above, but for stem-down voices in two-voice notation,
-they should be in the space below (according to most authorities--including Don
-Byrd--though not all). Dots for a "space" note should nearly always be next to
-the note. Therefore, there should rarely be a need to set the position for space
-notes, and this function makes setting them optional.
+Augmentation dots for a "line" note should never be next to the note: normally they
+should in the space above, but for stem-down voices in two-voice notation, they should
+be in the space below (according to most authorities--including Don Byrd--though not all).
+Dots for a "space" note should nearly always be next to the note. Therefore, there should
+rarely be a need to set the position for space notes, and this function makes setting them
+optional.
 
-Cf. FixAugDots: perhaps they should be combined somehow. Also cf. FixNoteAugDotPos:
-?? This is a mess. */
+Cf. FixAugDots: perhaps they should be combined somehow. Also FIXME: cf. FixNoteAugDotPos:
+This is a mess. */
 
 void FixAugDotPos(
 			Document *doc,
@@ -2071,13 +2071,13 @@ void FixAugDotPos(
 	
 	GetContext(doc, syncL, NoteSTAFF(mainNoteL), &context);
 	midCHalfSp = ClefMiddleCHalfLn(context.clefType);			/* Get middle C staff pos. */		
-	midCIsInSpace = odd(midCHalfSp);
+	midCIsInSpace = ODD(midCHalfSp);
 
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 		if (NoteVOICE(aNoteL)==voice) {
 			halfSp = qd2halfLn(NoteYQPIT(aNoteL));				/* Half-lines below middle C */
-			lineNote = (midCIsInSpace? odd(halfSp) : !odd(halfSp));
+			lineNote = (midCIsInSpace? ODD(halfSp) : !ODD(halfSp));
 
 			if (lineNote)										/* Note on line */
 				NoteYMOVEDOTS(aNoteL) = GetLineAugDotPos(voiceRole, stemDown);

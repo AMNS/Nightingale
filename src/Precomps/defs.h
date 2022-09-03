@@ -331,7 +331,7 @@ moved there eventually). */
 /* Arithmetic, etc. */
 
 #define ABS(a) ( (a)<0 ? -(a) : (a) )							/* absolute value function */
-#define odd(a) ((a) & 1)										/* True if a is odd */
+#define ODD(a) ((a) & 1)										/* True if a is odd */
 
 // CER: 02.19.2003 changed min, max to n_min, n_max
 #define n_min(a,b)		( (a)<(b) ? (a) : (b) )					/* minimum functions */

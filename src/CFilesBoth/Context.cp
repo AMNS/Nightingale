@@ -647,13 +647,10 @@ void EFixContForClef(
 		}
 
 Cleanup:
-	/*
-	 * At this point, <doneL> may have been updated; in any case, it reflects the
-	 * range actually affected by the clef change.
-	 */
+	/* At this point, <doneL> may have been updated; in any case, it reflects the range
+	   actually affected by the clef change. */
 
-	if (odd(yHere-yPrev))
-		ToggleAugDotPosInRange(doc, startL, doneL, staffn);
+	if (ODD(yHere-yPrev)) ToggleAugDotPosInRange(doc, startL, doneL, staffn);
 	
 	InvalRangeContent(startL, doneL);
 	ClefFixBeamContext(doc, startL, doneL, staffn);

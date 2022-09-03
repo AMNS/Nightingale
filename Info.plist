@@ -114,7 +114,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLongVersionString</key>
-	<string>Nightingale version 6.0 beta-Build 23</string>
+	<string>Nightingale version 6.0 beta-Build 24</string>
 	<key>CFBundleName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundlePackageType</key>
@@ -124,7 +124,7 @@
 	<key>CFBundleSignature</key>
 	<string>BYRD</string>
 	<key>CFBundleVersion</key>
-	<string>6.0 beta-B23</string>
+	<string>6.0 beta-B24</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 </dict>

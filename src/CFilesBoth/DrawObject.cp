@@ -78,7 +78,7 @@ static void DrawHeaderFooter(Document *doc,
 	fontInd = FontName2Index(doc, doc->fontNamePG);
 	fontID = doc->fontTable[fontInd].fontID;
 
-	if (doc->alternatePGN && !odd(pageNum)) {
+	if (doc->alternatePGN && !ODD(pageNum)) {
 		GetHeaderFooterStrings(doc, rhStr, chStr, lhStr, pageNum, True, True);
 		GetHeaderFooterStrings(doc, rfStr, cfStr, lfStr, pageNum, True, False);
 	}
@@ -199,8 +199,8 @@ static void DrawPageNum(Document *doc,
 	lnSpace = LNSPACE(&context[1]);
 	fontSize = GetTextSize(doc->relFSizePG, doc->fontSizePG, lnSpace);
 
-	if (doc->topPGN) ypt = doc->headerFooterMargins.top;
-	else				  ypt = doc->origPaperRect.bottom-doc->headerFooterMargins.bottom;
+	if (doc->topPGN)	ypt = doc->headerFooterMargins.top;
+	else				ypt = doc->origPaperRect.bottom-doc->headerFooterMargins.bottom;
 
 	/* Adjust position to get approx. correct margin, since this is text baseline */
 	
@@ -211,7 +211,7 @@ static void DrawPageNum(Document *doc,
 		/* Handle alternating sides of the page, if requested */
 		
 		hPosPgn = doc->hPosPGN;
-		if (doc->alternatePGN && odd(p->sheetNum))
+		if (doc->alternatePGN && ODD(p->sheetNum))
 			hPosPgn = (LEFT_SIDE+RIGHT_SIDE-hPosPgn);
 		if (hPosPgn==LEFT_SIDE) xpt = doc->headerFooterMargins.left;
 		else					xpt = doc->origPaperRect.right-doc->headerFooterMargins.right;

@@ -1048,12 +1048,10 @@ short GetDurUnit(short totalDur, short accNum, short /*accDenom*/)		/* <accDenom
 	
 	temp = totalDur/PDURUNIT;
 	lDur = PDURUNIT;
-	while (!odd(temp))
-		{ temp /= 2; lDur *= 2; }
+	while (!ODD(temp)) { temp /= 2; lDur *= 2; }
 	
 	multiple = totalDur/lDur;
-	while (accNum>multiple)
-		{ multiple *= 2; lDur /= 2; }
+	while (accNum>multiple) { multiple *= 2; lDur /= 2; }
 	if (accNum!=multiple) return 0;
 
 	return lDur;
@@ -1065,12 +1063,14 @@ identify the unit in the example tuplet as 16ths regardless of how it's written.
 
 short GetMaxDurUnit(LINK tupletL)
 {
-	LINK aNoteTupleL, aNoteL; PANOTETUPLE aNoteTuple; Boolean firstNote;
+	LINK aNoteTupleL, aNoteL;
+	PANOTETUPLE aNoteTuple;  Boolean firstNote;
 	short durUnit;
 	
 	firstNote = True;
 	
 	/* Get GCD of simple logical durations of notes */
+	
 	aNoteTupleL = FirstSubLINK(tupletL);
 	for ( ; aNoteTupleL; aNoteTupleL = NextNOTETUPLEL(aNoteTupleL)) {
 		aNoteTuple = GetPANOTETUPLE(aNoteTupleL);

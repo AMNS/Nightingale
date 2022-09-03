@@ -117,7 +117,7 @@ Boolean InitGPopUp(
     }
 
 	fontNameLen = fontName[0] + 1;
-	if (odd(fontNameLen)) fontNameLen++;
+	if (ODD(fontNameLen)) fontNameLen++;
 	itemChars = fontName + fontNameLen;
 
 	for (i=0; i<p->numItems; i++)

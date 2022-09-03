@@ -11445,7 +11445,7 @@ How about this:
 	- in CheckSYNC(), if <selectAlt>, enlarge hiliting (and unhiliting) in _all_ cases.
 		(All cases might be wrong, but it should be close, anyway.)
 	- SelectSubobjA() sets the note/rest <selectAlt> flags
-	- any subsquent action that affects the selection clears all <selectAlt> flags
+	- any subsequent action that affects the selection clears all <selectAlt> flags
 		immediately, i.e., before the screen is updated
 
 ---------------------------------------------------------------------------------------
@@ -11514,7 +11514,7 @@ also does nothing. Sigh.
 
 ---------------------------------------------------------------------------------------
 
-12 - 17 August
+12 - 18 August
 
 Another related problem (Issue #199): Respace several systems at once => only the first
 is redrawn. This situation is handled by InvalRespBars(), which consists of two statements:
@@ -11531,4 +11531,66 @@ too. Replace the InvalRange with InvalContent() => it works!!
 One reason for this and, surely, other redrawing issues is the InvalXXX routines are poorly
 named and poorly organized. As a small step in that direction, rename InvalContent to
 InvalRangeContent... done.
+
+---------------------------------------------------------------------------------------
+
+21 - 28 August
+
+BACK TO: "It's very hard to see the notes of a match, partly because of Ngale's subtle
+hilighting, partly because of the unhelpful scrolling." See 15-20 July. Calling attention
+to the new selection by flashing it (as proposed there) doesn't work, and I have no idea
+why. Would the "enlarge hiliting" method suggested there be acceptable?
+
+Modes of calls to CheckSYNC when selection is changed:
+* By clicking:
+	if nothing currently selected & click was in a note/rest, 0=SMClick.
+	if note/rest currently selected, 4=SMDeselect; then, if click was in a note/rest, 0=SMClick.
+* By dragging: if note/rest currently selected, 4=SMDeselect; then 2=SMStaffDrag.
+* By SelectSubobjA(): if note/rest currently selected, 4=SMDeselect; then 10=SMHilite.
+	Is CheckSYNC called with mode SMHilite in any other situation?
+	
+CheckSYNC is called with mode SMHilite only in DrawHighLevel.cp/HiliteScoreRange(). (There's a
+call in DrawNRGR.cp/DrawSYNC, but only #ifdef USE_HILITESCORERANGE, and that's not #define'd.)
+HiliteScoreRange is called by DrawRange(), which is called whenever (part of) the score is
+drawn. So having it flash the selection could be distracting, but the "enlarged hiliting"
+should be OK.
+
+	- rename aNote's <rspIgnore> field to e.g., <selectEmph>
+	- in CheckSYNC(), if <selectEmph>, enlarge hiliting (and unhiliting) in _all_ cases.
+		(All cases might be wrong, but it should be close, anyway.)
+	- SelectSubobjA() sets the note/rest <selectEmph> flags
+	- any subsequent action that affects the selection clears all <selectEmph> flags
+		immediately, i.e., before the screen is updated. Where is the selection changed?
+		Clicking in the score content area (if not showing Master Page or Work on Format,
+		etc.) calls DoSelect, which calls DeselAll, which calls DeselRange. That calls
+		CheckObject with mode SMDeselect, so that's where <selectEmph> should be cleared.
+
+Sigh. I'm not sure it's worth doing this after all! It's not usually very hard to see the
+newly-selected notes after searching -- and you can Play Selection to have them emphasized.
+
+---------------------------------------------------------------------------------------
+
+29 August - 2 Sept.
+
+SWITCH TO: Compiling each of four files causes a warning "'OMSAPI' redefined". We don't care
+about the OMS API anyway, but I think we need to keep the definition for CarbonStubs.cp.
+
+	In file included from ~~/src/CFilesCarbon/CarbonStubs.h:1,
+					 from ~~/src/CFilesBoth/InstrDialog.cp:52:
+	~~/src/Precomps/MIDI/OMSCompat.h:27:1: warning: "OMSAPI" redefined
+	In file included from ~~/Nightingale_Prefix.pch:29,
+					 from ~~/src/CFilesBoth/InstrDialog.cp:49:
+	~~/src/Precomps/MIDI/OMSCompat.h:27:1: warning: this is the location of the previous definition
+
+Solution: add #ifndef OMSAPI to the declaration of OMSAPI in OMSCompat.h => all those
+warnings are gone.
+
+We have an odd() macro, used in one file, and an ODD() macro, used in many, that are
+identical; change all to ODD => done.
+
+Now, how about implementing notehead graphs? The _pianoroll_ mode is related. So for UI, a simple 
+way is to overload the "Pianoroll" menu command the way "Color Voices" is: ugly, but acceptable
+because pianoroll is very rarely used! So change the Document <pianoroll> field from Boolean
+to Byte. Should also get replace the magic numbers 1 and 2 in the "Color Voices" code with
+#defines, and add similar #defines for pianoroll. ??
 

@@ -355,7 +355,7 @@ LINK CreateOTTAVA(
 					else
 						NoteYSTEM(aNoteL) = NoteYD(aNoteL);
 					
-					if (odd(noteOffset[octSignType-1]))
+					if (ODD(noteOffset[octSignType-1]))
 						ToggleAugDotPos(doc, aNoteL, stemDown);	/* FIXME: stemDown wrong for single notes! */
 
 					dystd = halfLn2std(noteOffset[octSignType-1]);
@@ -391,7 +391,7 @@ LINK CreateOTTAVA(
 					/* If octave sign affects line/space status of notes, move visible
 					   aug. dots to correct new positions. */
 					   
-					if (odd(noteOffset[octSignType-1])) {
+					if (ODD(noteOffset[octSignType-1])) {
 						if (aGRNote->yMoveDots==1 || aGRNote->yMoveDots==3)
 								aGRNote->yMoveDots = 2;
 						else if (aGRNote->yMoveDots==2)
@@ -716,7 +716,7 @@ static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short 
 											stemDown, 
 											context.staffHeight, context.staffLines,
 											qStemLen, False);
-			if (odd(noteOffset[OttavaType(octL)-1])) ToggleAugDotPos(doc, aNoteL, stemDown);
+			if (ODD(noteOffset[OttavaType(octL)-1])) ToggleAugDotPos(doc, aNoteL, stemDown);
 			dystd = -halfLn2std(noteOffset[OttavaType(octL)-1]);
 			if (config.moveModNRs) MoveModNRs(aNoteL, dystd);
 		}

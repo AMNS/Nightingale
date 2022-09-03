@@ -2173,7 +2173,7 @@ LogPrintf(LOG_DEBUG, "SymDragLoop ObjLType=%d <loop\n", ObjLType(pL));
 					halfLn = CalcPitchLevel(newPt.v, &context, staffL, staff);
 					if (halfLn == oldHalfLn) continue;
 					halfLnDiff = halfLn - oldHalfLn;
-					if (odd(halfLnDiff) && (isClef || isRest)) continue;
+					if (ODD(halfLnDiff) && (isClef || isRest)) continue;
 					v = halfLn2d(halfLnDiff, context.staffHeight, context.staffLines);
 
 					/* In magnified sizes, dstRect position picks up a small cumulative
