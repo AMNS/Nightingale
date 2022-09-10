@@ -2311,18 +2311,18 @@ void GetGraphicFontInfo(
 
 
 /* ----------------------------------------------------------------------- Voice2Color -- */
-/* Return an appropriate color for drawing the given internal voice number. If
-doc->colorVoices=0 or there's an error, use black. Otherwise, cycle among a number
-of colors. (Nightingale doesn't use Color QuickDraw, so this version uses the original
-QuickDraw colors, and only a few colors with enough contrast to be readable in low
-resolution are available.) Specifically:
+/* Return the appropriate color for drawing the given internal voice number. If
+doc->colorVoices=COLORVOICES_NONE or there's an error, use black. Otherwise, cycle
+among a number of colors. (Nightingale doesn't use Color QuickDraw, so this version
+uses the original QuickDraw colors, and only a few colors with enough contrast to be
+readable in low resolution are available.) Specifically:
 	doc->colorVoices=1 means show the default voice for every staff of a multi-staff
 		part in black and start coloring voices beyond that;
 	=2 means show every voice other than voice 1 in color.
 
-Thus, in a 2-staff part, if doc->colorVoices=1, voices 1 and 2 -- the default voices for
-the two staves -- will be shown in black, all other voices in color. If colorVoices=2,
-only voice 1 will be in black. */
+Thus, in a 2-staff part, if doc->colorVoices=COLORVOICES_NONDEFLT, voices 1 and 2 --
+the default voices for the two staves -- will be shown in black, all other voices in
+color. If colorVoices=COLORVOICES_ALL, only voice 1 will be in black. */
 
 #define COLOR_CYCLE_LEN 4
 
@@ -2333,15 +2333,13 @@ short Voice2Color(Document *doc, short iVoice)
 	short userVoice;
 	short colorIndex, nPartStaves, extraVoice;
 	
-	if (doc->colorVoices==0 || iVoice<0)
-		return blackColor;
+	if (doc->colorVoices==COLORVOICES_NONE || iVoice<0) return blackColor;
 
-	/*
-	 * There should never be a problem converting internal voice number to user voice
-	 * number, but if there is, don't worry about it, just use black.
-	 */
+	/* There should never be a problem converting internal voice number to user voice
+	   number, but if there is, don't worry about it, just use black. */
+	   
 	if (Int2UserVoice(doc, iVoice, &userVoice, &aPartL)) {
-		if (doc->colorVoices==2)
+		if (doc->colorVoices==COLORVOICES_ALL)
 			extraVoice = userVoice-1;
 		else {
 			nPartStaves = PartLastSTAFF(aPartL)-PartFirstSTAFF(aPartL)+1;
@@ -2366,12 +2364,12 @@ static Boolean doingCheckZoom = True;
 
 Boolean CheckZoom(Document *doc)
 {
-	EventRecord event; Boolean gotZoom = False;
-	short part; WindowPtr w;
+	EventRecord event;  Boolean gotZoom = False;
+	short part;  WindowPtr w;
 	
 	if (doingCheckZoom)
-		if (EventAvail(mDownMask,&event)) {
-			part = FindWindow(event.where,&w);
+		if (EventAvail(mDownMask, &event)) {
+			part = FindWindow(event.where, &w);
 			if (w==doc->theWindow && (part==inZoomIn || part==inZoomOut))
 				gotZoom = True;
 		}

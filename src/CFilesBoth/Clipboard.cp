@@ -1060,7 +1060,7 @@ void SetupClipDoc(Document *doc, Boolean updContext)
 	clipboard->selStaff = doc->selStaff;
 	clipboard->numberMeas = doc->numberMeas;
 	clipboard->lookVoice = doc->lookVoice;
-	clipboard->pianoroll = doc->pianoroll;
+	clipboard->graphMode = doc->graphMode;
 	clipboard->showSyncs = doc->showSyncs;
 	clipboard->frameSystems = doc->frameSystems;
 	clipboard->colorVoices = doc->colorVoices;

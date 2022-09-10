@@ -234,7 +234,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				if (VISIBLE(pL) && drawAll) DrawGRSYNC(doc, pL, context);
 				break;
 			case BEAMSETtype:
-				if (VISIBLE(pL) && !doc->pianoroll)
+				if (VISIBLE(pL) && doc->graphMode!=GRAPHMODE_PIANOROLL)
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result)) {
 						if (BeamGRACE(pL))	DrawGRBEAMSET(doc, pL, context);
@@ -242,13 +242,13 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 					}
 				break;
 			case TUPLETtype:
-				if (VISIBLE(pL) && !doc->pianoroll)
+				if (VISIBLE(pL) && doc->graphMode!=GRAPHMODE_PIANOROLL)
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTUPLET(doc, pL, context);
 				break;
 			case OTTAVAtype:
-				if (VISIBLE(pL) && !doc->pianoroll)
+				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawOTTAVA(doc, pL, context);
@@ -437,7 +437,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				if (VISIBLE(pL) && drawAll) DrawGRSYNC(doc, pL, context);
 				break;
 			case BEAMSETtype:
-				if (VISIBLE(pL) && !doc->pianoroll)
+				if (VISIBLE(pL) && doc->graphMode!=GRAPHMODE_PIANOROLL)
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result)) {
 						if (BeamGRACE(pL))	DrawGRBEAMSET(doc, pL, context);
@@ -445,13 +445,13 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 					}
 				break;
 			case TUPLETtype:
-				if (VISIBLE(pL) && !doc->pianoroll)
+				if (VISIBLE(pL) && doc->graphMode!=GRAPHMODE_PIANOROLL)
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTUPLET(doc, pL, context);
 				break;
 			case OTTAVAtype:
-				if (VISIBLE(pL) && !doc->pianoroll)
+				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
 								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawOTTAVA(doc, pL, context);
@@ -603,7 +603,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 						CheckGRSYNC(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
 			case BEAMSETtype:
-				if (VISIBLE(pL) && !doc->pianoroll)
+				if (VISIBLE(pL) && doc->graphMode!=GRAPHMODE_PIANOROLL)
 					if (drawAll || !LinkVALID(pL) ||
 							SectRect(&LinkOBJRECT(pL),&paperUpdate,&result)) {
 						if (BeamGRACE(pL) && LinkSEL(pL))
@@ -613,14 +613,14 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 					}
 				break;
 			case TUPLETtype:
-				if (VISIBLE(pL) && !doc->pianoroll)
+				if (VISIBLE(pL) && doc->graphMode!=GRAPHMODE_PIANOROLL)
 					if (drawAll || !LinkVALID(pL) ||
 							SectRect(&LinkOBJRECT(pL),&paperUpdate,&result))
 						if (LinkSEL(pL))
 							CheckTUPLET(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
 			case OTTAVAtype:
-				if (VISIBLE(pL) && !doc->pianoroll)
+				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL) ||
 							SectRect(&LinkOBJRECT(pL),&paperUpdate,&result))
 						if (LinkSEL(pL))

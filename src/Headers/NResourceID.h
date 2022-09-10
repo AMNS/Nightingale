@@ -391,7 +391,7 @@ enum {							/* View menu */
 	VM_ShowInvis,
 	VM_ShowSystems,
 	VM_ColorVoices,
-	VM_PianoRoll,
+	VM_GraphMode,
 	VM_____________3,
 	VM_RedrawScr,
 	VM_____________4,

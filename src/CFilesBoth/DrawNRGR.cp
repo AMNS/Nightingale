@@ -309,12 +309,14 @@ static void DrawAugDots(Document *doc,
 	DDIST 	xdDots, ydDots, dhalfLn;
 	short	ndots, xpDots, yp;
 	Boolean	dim;							/* Should it be dimmed bcs in a voice not being looked at? */
+	Boolean doNoteheadGraphs;
 	Byte	glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	theNote = GetPANOTE(theNoteL);
 	if (theNote->ndots==0 || theNote->yMoveDots==0) return;	/* If no dots or dots invisible */
 
 	dhalfLn = LNSPACE(pContext)/2;
+	doNoteheadGraphs = (doc->graphMode==GRAPHMODE_NHGRAPHS);
 	xdDots = xdNorm + AugDotXOffset(theNoteL, pContext, chordNoteToR, doNoteheadGraphs);
 	ydDots = yd+(theNote->yMoveDots-2)*dhalfLn;
 	
@@ -576,14 +578,13 @@ static void DrawNCLedgers(
 		/* Not a chord. Just draw any ledger lines the single note needs. */
 
 		yqpit =  (NoteYD(aNoteL)<0? hiyqpit : lowyqpit);
-//LogPrintf(LOG_DEBUG, "DrawNCLedgers: hiyqpit=%d lowyqpit=%d yqpit=%d\n", hiyqpit, lowyqpit, yqpit);
 		DrawNoteLedgers(xd, yqpit, 0, stemDown, dTop, pContext, ledgerSizePct);
 	}
 }
 
 
 /* ---------------------------------------------------------------------- DrawNotehead -- */
-/* QuickDraw only */
+/* QuickDraw only! */
 
 static void DrawNotehead(Document *doc,
 					unsigned char glyph,
@@ -659,12 +660,13 @@ void PaintRoundRightRect(Rect *paRect, short ovalWidth, short ovalHeight)
 }
 
 
-static void DrawNoteheadGraph(Document *, Byte, Boolean, DDIST, LINK, PCONTEXT);
-
-/* QuickDraw only */
+/* QuickDraw only! */
 /* Draw a little graph as a notehead: intended to be used to visualize changes during
 the note. This version simply draws one or more colored bars side by side. */
 
+#define NHGRAPH_COLORS 6	/* Number of colors available for notehead graphs */
+
+static void DrawNoteheadGraph(Document *, Byte, Boolean, DDIST, LINK, PCONTEXT);
 static void DrawNoteheadGraph(Document *doc,
 				Byte /* appearance */,
 				Boolean dim,			/* Should notehead be dimmed? */
@@ -679,16 +681,21 @@ static void DrawNoteheadGraph(Document *doc,
 			rDiam,						/* rounded corner diameter */
 			xorg, yorg,
 			yTop, yBottom;
-	QDIST	qdLen;
+	QDIST	qdLenStd, qdLen;
 	Rect	graphRect, segRect;
 	long	resFact;
 	Point	pt;
 	short	nhSegment[4];
+	short segColors[NHGRAPH_COLORS] =
+		{ redColor, greenColor, blueColor, cyanColor, magentaColor, yellowColor };
 
 	aNote = GetPANOTE(aNoteL);
 	resFact = RESFACTOR*(long)doc->spacePercent;
 #if 1
-	qdLen = NOTEHEAD_GRAPH_WIDTH*4;
+	qdLenStd = NOTEHEAD_GRAPH_WIDTH;
+	qdLen = (long)(config.pianorollLenFact*qdLenStd) / 100L;
+	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
+//LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: qdLenStd=%d qdLen=%d\n", qdLenStd, qdLen);
 #else
 	qdLen = IdealSpace(doc, aNote->playDur, resFact);
 	qdLen = (long)(config.pianorollLenFact*qdLen) / 100L;
@@ -697,11 +704,8 @@ static void DrawNoteheadGraph(Document *doc,
 	graphLen = d2p(qd2d(qdLen, pContext->staffHeight, pContext->staffLines));
 
 	GetPen(&pt);
-//		LineTo(pt.h+12, pt.v+12);
 	xorg = pt.h;
 	yorg = pt.v;
-//		SetRect(&graphRect, xorg, yorg-20, xorg+80, yorg+10);  // ??TESTING
-//		PaintRoundRect(&graphRect, 4, 4);
 	yTop = yorg-d2p(dhalfLn);
 	yBottom = yorg+d2p(dhalfLn);
 	SetRect(&graphRect, xorg, yorg-d2p(dhalfLn),
@@ -711,35 +715,37 @@ static void DrawNoteheadGraph(Document *doc,
 	for (short k=0; k<4; k++) nhSegment[k] = blackColor;
 	nSegs = 0;
 	for (short k=0; k<4; k++) {
-		if (nhSegment[k]<=0) break;
 		nhSegment[k] = NoteSEGMENT(aNoteL, k);
+nhSegment[k] = rand() % NHGRAPH_COLORS;						// ????? TEST !!!!!!!!!!!!!
+		if (nhSegment[k]<=0) break;
 		nSegs++;
 	}
-
+LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nSegs=%d, nhSegment[]=%d, %d, %d, %d\n", aNoteL,
+nSegs, nhSegment[0], nhSegment[1], nhSegment[2], nhSegment[3]);
 	/* ??Code below in this function is unfinished; it needs to pay attention to the
 	   whole nhSegment[] array, and handle values/colors sensibly! */
 	   
 	switch (nSegs) {
 		case 1:
-			ForeColor(nhSegment[1]);
+			ForeColor(segColors[nhSegment[1]]);
 			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
 			break;
 		case 2:
-			ForeColor(nhSegment[1]);
+			ForeColor(segColors[nhSegment[1]]);
 			segRect = graphRect;
 			segRect.right = segRect.left+graphLen/2;
 			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundLeftRect(&segRect, rDiam, rDiam);
 
-			ForeColor(nhSegment[2]);
+			ForeColor(segColors[nhSegment[2]]);
 			segRect = graphRect;
 			segRect.left = segRect.right-graphLen/2;
 			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRightRect(&segRect, rDiam, rDiam);
 			break;
 		default:
-			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsBlack());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam);		
 	}
 	ForeColor(Voice2Color(doc, NoteVOICE(aNoteL)));
@@ -750,6 +756,40 @@ static void DrawNoteheadGraph(Document *doc,
 	if ((nhSegment[0] & 0x1)==0) PaintRoundLeftRect(&graphRect, 2*rDiam, 2*rDiam);
 	else PaintRoundRightRect(&graphRect, 2*rDiam, 2*rDiam);
 #endif
+}
+
+
+/* QuickDraw only! */
+/* Draw a note in pianoroll style: the head, stem, and augmentation dots are replaced
+by a (generally long) bar. Coordinates are in pixels. */
+
+void DrawNotePianoroll(Document *doc, LINK aNoteL, PCONTEXT pContext, short xhead,
+						short yhead, Boolean dim);
+void DrawNotePianoroll(Document *doc, LINK aNoteL, PCONTEXT pContext, short xhead,
+						short yhead, Boolean dim)
+{
+	short	spatialLen,
+			rDiam;				/* rounded corner diameter */
+	long	resFact;
+	QDIST	qdLen, qdLenStd;
+	DDIST	dhalfSp;			/* Distance between staff half-lines */
+	Rect	spatialRect;
+			
+	dhalfSp = LNSPACE(pContext)/2;
+	MoveTo(xhead, yhead);									/* position to draw head */
+	resFact = RESFACTOR*(long)doc->spacePercent;
+	qdLenStd = IdealSpace(doc, NotePLAYDUR(aNoteL), resFact);
+	qdLen = (long)(config.pianorollLenFact*qdLenStd) / 100L;
+//LogPrintf(LOG_DEBUG, "DrawNote: qdLenStd=%d pianorollLenFact=%d qdLen=%d\n", qdLenStd,
+//config.pianorollLenFact, qdLen);
+	qdLen = n_max(qdLen, 4);								/* Insure at least one space long */
+	spatialLen = d2p(qd2d(qdLen, pContext->staffHeight, pContext->staffLines));
+
+	SetRect(&spatialRect, xhead, yhead-d2p(dhalfSp), xhead+spatialLen, yhead+d2p(dhalfSp));
+	rDiam = UseMagnifiedSize(4, doc->magnify);
+	if (dim)	FillRoundRect(&spatialRect, rDiam, rDiam, NGetQDGlobalsGray());
+	else		PaintRoundRect(&spatialRect, rDiam, rDiam); 
+
 }
 
 /* -------------------------------------------------------------------------- DrawNote -- */
@@ -769,8 +809,6 @@ void DrawNote(Document *doc,
 				xhead, yhead,		/* pixel coordinates */
 				appearance,
 				octaveLength,
-				spatialLen,
-				rDiam,				/* rounded corner diameter for pianoroll */
 				useTxSize,
 				oldTxSize,			/* To restore port after small or magnified notes drawn */
 				sizePercent,		/* Percent of "normal" size to draw in (for small notes) */
@@ -792,13 +830,10 @@ void DrawNote(Document *doc,
 				fudgeHeadY,			/* Correction for roundoff in Sonata screen font head shape */
 				breveFudgeHeadY,	/* Correction for error in Sonata breve origin (screen & PS) */
 				offset, lnSpace;
-	QDIST		qdLen;
 	Boolean		stemDown,			/* Does note have a down-turned stem? */
 				dim,				/* Should it be dimmed bcs in a voice not being looked at? */
 				chordNoteToR, chordNoteToL;
-	Rect		spatialRect,
-				rSub;				/* bounding box for subobject */
-	long		resFact;
+	Rect		rSub;				/* bounding box for subobject */
 
 PushLock(OBJheap);
 PushLock(NOTEheap);
@@ -848,21 +883,21 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 	case toScreen:
 	case toBitmapPrint:
 	case toPICT:
-		/*
-		 *	In every case but one, we need to fine-tune note Y-positions to compensate
-		 *	for minor inconsistencies in the screen fonts. The exception is "Best Quality
-		 *	Print" on the ImageWriter; here, we SHOULD still need fine-tuning, though
-		 *	for twice the normal font size, since the ImageWriter driver automatically
-		 *	uses twice the font size and spaces the dots half the normal distance apart.
-		 *	However, for unknown reasons, best results are obtained with NO correction.
-		 */ 
+		/* We need to fine-tune note Y-positions to compensate for minor inconsistencies
+		in the screen fonts. An exception, almost certainly irrelevant now, is "Best
+		Quality Print" on a bitmap printer; here, we SHOULD still need fine-tuning,
+		though for twice the normal font size, since the ImageWriter driver
+		automatically uses twice the font size and spaces the dots half the normal
+		distance apart. However, for unknown reasons, best results are obtained with no
+		correction. */
+		 
 		if (outputTo==toBitmapPrint && bestQualityPrint)
 			fudgeHeadY = 0;											/* No fine Y-offset for notehead */
 		else
 			fudgeHeadY = GetYHeadFudge(useTxSize);					/* Get fine Y-offset for notehead */
 		
-		/* xhead,yhead is position of notehead; xadjhead,yadjhead is position of notehead 
-		   with any offset applied (might be true if music font is not Sonata). */
+		/* xhead,yhead is the position of notehead; xadjhead,yadjhead is its position 
+		   with any offset (relative to the position for the Sonata font) applied. */
 		   
 		offset = MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 		if (offset) {
@@ -904,23 +939,9 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 		if (MainNote(aNoteL) || !NoteINCHORD(aNoteL))
 			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct);
 				 
-		if (doc->pianoroll)	{										/* Handle pianoRoll notation */
-			MoveTo(xhead, yhead);									/* position to draw head */
-			resFact = RESFACTOR*(long)doc->spacePercent;
-			qdLen = IdealSpace(doc, aNote->playDur, resFact);
-			qdLen = (long)(config.pianorollLenFact*qdLen) / 100L;
-			qdLen = n_max(qdLen, 4);								/* Insure at least one space long */
-			spatialLen = d2p(qd2d(qdLen, pContext->staffHeight,
-									pContext->staffLines));
-
-			SetRect(&spatialRect, xhead, yhead-d2p(dhalfLn),
-				xhead+spatialLen, yhead+d2p(dhalfLn));
-			rDiam = UseMagnifiedSize(4, doc->magnify);
-			if (dim) FillRoundRect(&spatialRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&spatialRect, rDiam, rDiam); 
-		}
-		else
-		{
+		if (doc->graphMode==GRAPHMODE_PIANOROLL)
+			DrawNotePianoroll(doc, aNoteL, pContext, xhead, yhead, dim);
+		else {
 			MoveTo(xadjhead, yadjhead);								/* position to draw head */
 
 			/* HANDLE UNKNOWN CMN DURATION/WHOLE/BREVE */
@@ -1076,7 +1097,7 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 				   and any augmentation dots. */
 				
 				MoveTo(xadjhead, yadjhead);
-				if (doNoteheadGraphs)
+				if (doc->graphMode==GRAPHMODE_NHGRAPHS)
 					DrawNoteheadGraph(doc, appearance, dim, dhalfLn, aNoteL, pContext);
 				else
 					DrawNotehead(doc, glyph, appearance, dim, dhalfLn);
@@ -1126,7 +1147,7 @@ EndQDrawing:
 	
 	/* Now draw the note head, stem, and flags */
 		
-		if (doc->pianoroll)
+		if (doc->graphMode==GRAPHMODE_PIANOROLL)
 	/* HANDLE SPATIAL (PIANOROLL) NOTATION */
 		{
 			;						/* FIXME: TO BE IMPLEMENTED */
@@ -1403,7 +1424,7 @@ void DrawRest(Document *doc,
 	Boolean		stemDown,
 				dim;			/* Should it be dimmed bcs in a voice not being looked at? */
 
-	if (doc->pianoroll) return;			/* FIXME: REALLY DO NOTHING, E.G., WITH OBJRECT? */
+	if (doc->graphMode==GRAPHMODE_PIANOROLL) return;	/* FIXME: REALLY DO NOTHING, E.G., WITH OBJRECT? */
 
 PushLock(OBJheap);
 PushLock(NOTEheap);
@@ -1960,9 +1981,9 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 		if (GRMainNote(aGRNoteL))
 			DrawGRNCLedgers(pL, pContext, aGRNoteL, xd, dTop, ledgerSizePct);
 			
-		if (doc->pianoroll)
+		if (doc->graphMode==GRAPHMODE_PIANOROLL) {
 		/* HANDLE SPATIAL (PIANOROLL) NOTATION */
-		{
+
 			MoveTo(xhead,yhead);										/* position to draw head */
 			resFact = RESFACTOR*(long)doc->spacePercent;
 			qdLen = IdealSpace(doc, aGRNote->playDur, resFact);
@@ -1975,8 +1996,7 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 			if (dim) FillRoundRect(&spatialRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&spatialRect, rDiam, rDiam); 
 		}
-		else
-		{
+		else {
 			MoveTo(xadjhead, yadjhead);									/* position to draw head */
 
 			/* HANDLE UNKNOWN CMN DURATION or WHOLE/BREVE: Show notehead alone. */
@@ -2163,7 +2183,7 @@ EndQDrawing:
 	
 	/* Now draw the grace note head, stem, and flags */
 		
-		if (doc->pianoroll)
+		if (doc->graphMode==GRAPHMODE_PIANOROLL)
 	/* HANDLE SPATIAL (PIANOROLL) NOTATION */
 		{
 			;						/* FIXME: TO BE IMPLEMENTED */

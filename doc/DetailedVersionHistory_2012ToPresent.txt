@@ -3767,3 +3767,17 @@ NotelistParse, Objects, Ottava, PitchUtils, PopUpUtils, SearchScoreNative, Selec
 SpaceTime, TupletEdit.
 
 ----------------------------------------------------------------------------------------- B24
+
+3 - 9 Sept.
+
+Change the default pianoroll note-length factor from 0.75 to 0.55. Affects .rsrc.
+
+Implement "notehead graphs" as a third "mode" (in addition to normal and pianoroll).
+Affects .rsrc, Defs.h, NDocAndCnfgTypes.h, NResourceID.h, vars.h; Clipboard, Documents,
+DrawHighLevel, DrawNRGR, Extract, FileConversion, InitNightingale, Menu, SpaceTime.
+
+Minor changes. Affects info.plist, Defs.h, NDocAndCnfgTypes.h, Style.h;  DrawNRGR,
+DrawUtils, Menu.
+
+----------------------------------------------------------------------------------------- B25
+

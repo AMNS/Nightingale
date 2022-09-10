@@ -94,6 +94,19 @@ enum {								/* Note/rest/grace note codes: */
 	NOTES_BOTH						/*   All */
 };
 
+enum {								/* "Color Voices" codes */
+	COLORVOICES_NONE=0,
+	COLORVOICES_NONDEFLT,
+	COLORVOICES_ALL
+};
+
+enum {								/* Options for graph modes vs. pure CWMN */
+	GRAPHMODE_NORMAL=0,
+	GRAPHMODE_PIANOROLL,
+	GRAPHMODE_NHGRAPHS
+};
+
+
 enum {								/* MIDI Driver: */
 	MIDIDR_CM,						/*   Core MIDI */
 	MIDIDR_NONE						/*   No MIDI driver */

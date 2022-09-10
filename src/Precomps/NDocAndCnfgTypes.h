@@ -313,12 +313,12 @@ typedef struct {
 																								\
 	Boolean			autoRespace,		/* Respace on symbol insert, or leave things alone? */	\
 					insertMode,			/* Graphic insertion logic (else temporal)? */			\
-					beamRests,			/* In beam handling, treat rests like notes? */			\
-					pianoroll,			/* Display everything in pianoroll, not CMN, form? */	\
-					showSyncs,			/* Show (with InvertSymbolHilite) lines on every Sync? */	\
+					beamRests;			/* In beam handling, treat rests like notes? */			\
+	Byte			graphMode;			/* Display with notehead graphs or in pianoroll form? */	\
+	Boolean			showSyncs,			/* Show (with InvertSymbolHilite) lines on every Sync? */	\
 					frameSystems,		/* Frame systemRects (for debugging)? */				\
 					fillerEM;			/* unused */											\
-	Byte			colorVoices;		/* 0=normal, 1=show non-dflt voices in color, 2=show all but voice 1 in color */ \
+	Byte			colorVoices;		/* See enum in Defs.h for values */						\
 	Boolean			showInvis,			/* Display invisible objects? */						\
 					showDurProb,		/* Show measures with duration/time sig. problems? */	\
 					recordFlats;		/* True if black-key notes recorded should use flats */ \

@@ -62,7 +62,7 @@ static void	VMShowDurProblems(void);
 static void	VMShowSyncs(void);
 static void	VMShowInvisibles(void);
 static void	VMColorVoices(void);
-static void	VMPianoRoll(void);
+static void	VMGraphMode(void);
 static void	VMShowToolPalette(void);
 static void	VMActivate(short);
 
@@ -1017,8 +1017,8 @@ void DoViewMenu(short choice)
 			case VM_RedrawScr:
 				RefreshScreen();
 				break;
-			case VM_PianoRoll:
-				VMPianoRoll();
+			case VM_GraphMode:
+				VMGraphMode();
 				break;
 			case VM_ShowClipboard:
 				ShowClipDocument();
@@ -1976,40 +1976,41 @@ static void VMShowInvisibles()
 }
 
 
-/*
- *	Toggle coloring of voices: non-default voices in color or everything in black.
- */
+/*	Set coloring of voices: all voices in color, non-default voices in color, or
+everything in black. The UI is kludgly, and it makes setting COLORVOICES_NONDEFLT
+difficult -- but that mode is rarely used. */
 
 static void VMColorVoices()
 {
 	Document *doc=GetDocumentFromWindow(TopDocument);
 
-	/*
-	 * Toggle with care: I'm not sure ISO C guarantees the "!" operator with multibit
-	 *	fields like <colorVoices>.
-	 */
 	if (doc) {
-		if (doc->colorVoices==0)
-			doc->colorVoices = ((ShiftKeyDown() && OptionKeyDown())? 1 : 2);
+		if (doc->colorVoices==COLORVOICES_NONE)
+			doc->colorVoices = ((ShiftKeyDown() && OptionKeyDown())?
+									COLORVOICES_NONDEFLT : COLORVOICES_ALL);
 		else
-			doc->colorVoices = 0;
+			doc->colorVoices = COLORVOICES_NONE;
 		CheckMenuItem(viewMenu, VM_ColorVoices, doc->colorVoices);
 		InvalWindow(doc);
 	}
 }
 
 
-/*
- * Toggle showing score in pianoroll or normal form.
- */
+/* Set "graph mode": show score in "normal" pure CWMN; CWMN but with noteheads replaced
+by tiny graphs; or pianoroll. The UI is kludgly, and it makes setting GRAPHMODE_PIANOROLL
+difficult -- but that mode is rarely used. */
  
-static void VMPianoRoll()
+static void VMGraphMode()
 {
 	Document *doc=GetDocumentFromWindow(TopDocument);
 
 	if (doc) {
-		doc->pianoroll = !doc->pianoroll;
-		CheckMenuItem(viewMenu, VM_PianoRoll, doc->pianoroll);
+		if (doc->graphMode==GRAPHMODE_NORMAL)
+			doc->graphMode = ((ShiftKeyDown() && OptionKeyDown())?
+									GRAPHMODE_PIANOROLL : GRAPHMODE_NHGRAPHS);
+		else
+			doc->graphMode = GRAPHMODE_NORMAL;
+		CheckMenuItem(viewMenu, VM_GraphMode, doc->graphMode);
 		InvalWindow(doc);
 	}
 }
@@ -3015,7 +3016,7 @@ static void FixViewMenu(Document *doc)
 	XableItem(viewMenu, VM_ShowInvis, doc!=NULL && doc!=clipboard && !doc->masterView);
 	XableItem(viewMenu, VM_ShowSystems, doc!=NULL && doc!=clipboard);
 
-	XableItem(viewMenu, VM_PianoRoll, doc!=NULL && !doc->masterView);
+	XableItem(viewMenu, VM_GraphMode, doc!=NULL && !doc->masterView);
 	
 	XableItem(viewMenu, VM_ShowClipboard, doc!=NULL && doc!=clipboard);
 	XableItem(viewMenu, VM_ToolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
@@ -3026,12 +3027,12 @@ static void FixViewMenu(Document *doc)
 #endif
 
 	CheckMenuItem(viewMenu, VM_GoTo, doc!=NULL && doc->overview);
-	CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);
+	CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=COLORVOICES_NONE);
 	CheckMenuItem(viewMenu, VM_ShowDurProb, doc!=NULL && doc->showDurProb);
 	CheckMenuItem(viewMenu, VM_ShowSyncL, doc!=NULL && doc->showSyncs);
 	CheckMenuItem(viewMenu, VM_ShowInvis, doc!=NULL && doc->showInvis);
 	CheckMenuItem(viewMenu, VM_ShowSystems, doc!=NULL && doc->frameSystems);
-	CheckMenuItem(viewMenu, VM_PianoRoll, doc!=NULL && doc->pianoroll);
+	CheckMenuItem(viewMenu, VM_GraphMode, doc!=NULL && doc->graphMode);
 }
 
 /* Fix all items in Play/Record menu; disable entire menu if there's no score or we're

@@ -181,7 +181,6 @@ static Boolean InitNightGlobals()
 	clickMode = ClickSelect;
 	lastCopy = COPYTYPE_CONTENT;
 
-	doNoteheadGraphs = False;							/* Normal noteheads, not tiny graphs */
 	playTempoPercent = 100;								/* Play using the tempi as marked */
 	unisonsOK = True;									/* Don't complain about perfect unisons */
 

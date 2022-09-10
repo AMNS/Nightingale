@@ -258,7 +258,7 @@ STDIST SymWidthRight(
 				
 			  	else if (NoteNDOTS(aNoteL)==0 || toHead) {
 					aNote = GetPANOTE(aNoteL);
-					if (doNoteheadGraphs)
+					if (doc->graphMode==GRAPHMODE_NHGRAPHS)
 			  			nwidth = NOTEHEAD_GRAPH_WIDTH*(STD_LINEHT*4)/3;
 					else
 			  			nwidth = (STD_LINEHT*4)/3;
@@ -274,7 +274,7 @@ STDIST SymWidthRight(
 				}
 			  	else {												/* Include aug. dots. */
 					aNote = GetPANOTE(aNoteL);
-					if (doNoteheadGraphs)
+					if (doc->graphMode==GRAPHMODE_NHGRAPHS)
 			  			nwidth = NOTEHEAD_GRAPH_WIDTH*(STD_LINEHT*2)+2;	/* For 1st dot default pos. */
 					else
 			  		nwidth = (STD_LINEHT*2)+2;						/* For 1st dot default pos. */

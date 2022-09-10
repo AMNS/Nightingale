@@ -11588,9 +11588,59 @@ warnings are gone.
 We have an odd() macro, used in one file, and an ODD() macro, used in many, that are
 identical; change all to ODD => done.
 
-Now, how about implementing notehead graphs? The _pianoroll_ mode is related. So for UI, a simple 
-way is to overload the "Pianoroll" menu command the way "Color Voices" is: ugly, but acceptable
-because pianoroll is very rarely used! So change the Document <pianoroll> field from Boolean
-to Byte. Should also get replace the magic numbers 1 and 2 in the "Color Voices" code with
-#defines, and add similar #defines for pianoroll. ??
+Now, how about implementing notehead graphs? The _pianoroll_ mode is related, as is the
+Color Voices feature; clean them up first.
 
+---------------------------------------------------------------------------------------
+
+3 - 9 Sept.
+
+Replace magic numbers for <colorVoices> values with symbolic names:
+
+enum {
+	COLORVOICES_NONE=0,
+	COLORVOICES_NONDEFLT,
+	COLORVOICES_ALL
+};
+
+Change code to use the names => #$*)(#@#! No matter what I do, Ngale draws the screen as if
+doc->colorVoices is 1; _but_ here's what debug prints show:
+
+	Notice. Opened file 'Bach_StAnne_69.ngl'.  (DoFileMenu)
+	debug. FVM: doc->colorVoices=0 COLORVOICES_NONE=0 doc->colorVoices!=COLORVOICES_NONE=0
+	--- last message repeated 10 times ---
+	debug. VMColorVoices: doc->colorVoices=0 COLORVOICES_NONE=0
+	debug. FVM: doc->colorVoices=2 COLORVOICES_NONE=0 doc->colorVoices!=COLORVOICES_NONE=1
+	debug. FVM: doc->colorVoices=0 COLORVOICES_NONE=0 doc->colorVoices!=COLORVOICES_NONE=0
+
+What about this makes any sense?? Oops. The Voice2Color() utility now begins
+
+	if (doc->colorVoices=COLORVOICES_NONE || iVoice<0) return blackColor;
+
+Note the single "=" after doc->colorVoices! Oh well... Fixed.
+
+Back to pianoroll notation. It isn't very useful; one reason is the bars tend to overlap.
+The default for config.pianorollLenFact, 75, is too high. 55 seems about right, though
+some bars are still long enough to produce overlap, while others are too short! But it's
+not worth spending any more time on it. Where in the CNFG resource is pianorollLenFact?
+Looks like it's ca. 52 bytes from the end. Ah, don't have to know: Resorcerer has its
+template :-) . Change it in Nightingale.rsrc... done.
+
+Now, how about implementing notehead graphs? For UI, a simple way is to overload the
+"Pianoroll" menu command the way "Color Voices" is: ugly, but acceptable because pianoroll
+has rarely been used, and it's likely to stay that way! So add symbolic values:
+
+enum {								/* Options for graph modes vs. pure CWMN */
+	GRAPHMODE_NORMAL=0,
+	GRAPHMODE_PIANOROLL,
+	GRAPHMODE_NHGRAPHS
+};
+
+...and:
+
++ change the Document <pianoroll> field from Boolean to Byte, and rename <graphMode>;
++ add #defines for <graphMode> values similar to those for Color Voices;
++ rewrite VM_PianoRoll() ala VMColorVoices(), and rename VMGraphMode;
++ rename the Document <pianoroll> field <graphMode>;
++ change the menu command and the name in NResource.h;
++ remove mentions of <doNoteheadGraphs>.

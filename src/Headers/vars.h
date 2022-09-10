@@ -126,7 +126,7 @@ GLOBAL Boolean		recordingNow;			/* True = MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
 GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
 
-GLOBAL Boolean		doNoteheadGraphs;		/* Display noteheads as tiny graphs? */
+GLOBAL Boolean		notDoNoteheadGraphs;	/* Display noteheads as tiny graphs? FIXME: OBSOLETE! REMOVE! */
 GLOBAL Boolean		thinLines;				/* On PostScript output, linewidth(s) set dangerously thin */
 
 GLOBAL CharRectCache charRectCache;

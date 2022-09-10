@@ -247,7 +247,7 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->autoRespace = docN105->autoRespace;
 	doc->insertMode = docN105->insertMode;
 	doc->beamRests = docN105->beamRests;
-	doc->pianoroll = docN105->pianoroll;
+	doc->graphMode = docN105->pianoroll;
 	doc->showSyncs = docN105->showSyncs;
 	doc->frameSystems = docN105->frameSystems;
 	doc->fillerEM = docN105->fillerEM;

@@ -818,10 +818,10 @@ Boolean InitDocFields(Document *doc)
 	doc->locFmtChanged = False;
 	doc->hasCaret = False;							/* Tell DoUpdate to initialize caret */
 	doc->autoRespace = True;
-	doc->pianoroll = False;
+	doc->graphMode = False;
 	doc->showSyncs = False;
 	doc->frameSystems = False;
-	doc->colorVoices = 2;							/* Show all voices but no. 1 in color */
+	doc->colorVoices = COLORVOICES_ALL;				/* Show all voices but no. 1 in color */
 	doc->showInvis = False;
 	doc->showDurProb = True;
 	doc->showWaitCurs = True;

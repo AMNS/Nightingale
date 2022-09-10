@@ -652,7 +652,7 @@ static void InitDocFields(register Document *score, register Document *part)
 	part->autoRespace = score->autoRespace;
 	part->insertMode = score->insertMode;
 	part->beamRests = score->beamRests;
-	part->pianoroll = score->pianoroll;
+	part->graphMode = score->graphMode;
 	part->showSyncs = score->showSyncs;
 	part->frameSystems = score->frameSystems;
 	part->colorVoices = score->colorVoices;
