@@ -331,7 +331,7 @@ PushLock(NOTEheap);
 		Byte accGlyph = MapMusChar(doc->musFontInfoIndex, SonataAcc[aNote->accident]);
 		DDIST xoff = MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace);
 		DDIST yoff = MusCharYOffset(doc->musFontInfoIndex, accGlyph, lnSpace);
-		accXOffset = SizePercentSCALE(AccXOffset(aNote->xmoveAcc, &context));
+		accXOffset = SizePercentSCALE(AccXDOffset(aNote->xmoveAcc, &context));
 		MoveTo(d2p((xd+xoff)-accXOffset), d2p(yd+yoff));
 		DrawChar(accGlyph);
 	}
@@ -582,7 +582,7 @@ PushLock(GRNOTEheap);
 		Byte accGlyph = MapMusChar(doc->musFontInfoIndex, SonataAcc[aGRNote->accident]);
 		DDIST xoff = MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace);
 		DDIST yoff = MusCharYOffset(doc->musFontInfoIndex, accGlyph, lnSpace);
-		accXOffset = SizePercentSCALE(AccXOffset(aGRNote->xmoveAcc, &context));
+		accXOffset = SizePercentSCALE(AccXDOffset(aGRNote->xmoveAcc, &context));
 		MoveTo(d2p((xd+xoff)-accXOffset), d2p(yd+yoff));
 		DrawChar(accGlyph);
 	}

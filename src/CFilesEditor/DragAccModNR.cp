@@ -389,7 +389,7 @@ DDIST GetAccXOffset(PANOTE aNote, short sizePercent, PCONTEXT pContext)
 	short	xmoveAcc;
 	
 	xmoveAcc = (aNote->accident==AC_DBLFLAT? aNote->xmoveAcc+2 : aNote->xmoveAcc);
-	accXOffset = SizePercentSCALE(AccXOffset(xmoveAcc, pContext));
+	accXOffset = SizePercentSCALE(AccXDOffset(xmoveAcc, pContext));
 	
 	return accXOffset;
 }

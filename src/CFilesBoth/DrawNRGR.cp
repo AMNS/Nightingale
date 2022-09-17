@@ -246,57 +246,7 @@ void DrawModNR(Document *doc,
 
 
 /* ----------------------------------------------------------------------- DrawAugDots -- */
-/* Draw all the augmentation dots for the given note or rest. */
-
-static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dots for */
-						   PCONTEXT pContext,
-						   Boolean chordNoteToR,	/* Note in a chord that's upstemmed w/notes to right of stem? */
-						   Boolean noteheadGraphs
-					 	   )
-{
-	PANOTE	theNote;
-	DDIST 	xdStart, xdDots, dhalfLn;
-	char	lDur;
-
-	theNote = GetPANOTE(theNoteL);
-	if (theNote->ndots==0 || theNote->yMoveDots==0) return 0;	/* If no dots or dots invisible */
-
-	/* Ordinarily, the first dot is just to the right of a note on the "normal" side of
-	   the stem. But if note is in a chord that's upstemmed and has notes to the right
-	   of the stem, its dots must be moved to the right. */
-	   
-	xdStart = 0;
-	if (chordNoteToR) xdStart += HeadWidth(LNSPACE(pContext));
-
-	dhalfLn = LNSPACE(pContext)/2;
-	xdDots = xdStart+dhalfLn;
-	
-	if (theNote->rest) {
-		if (theNote->subType==WHOLEMR_L_DUR) lDur = WHOLE_L_DUR;
-		else									   	 lDur = theNote->subType;
-		if (IS_WIDEREST(lDur)) xdDots += (theNote->small? dhalfLn/2 : dhalfLn);
-	}
-	else {
-		if (!theNote->small) xdDots += dhalfLn/2;
-		if (WIDEHEAD(theNote->subType)) xdDots += dhalfLn/2;
-	}
-		
-	xdDots += std2d(STD_LINEHT*(theNote->xMoveDots-3)/4,
-							pContext->staffHeight,
-							pContext->staffLines);
-
-	/* If we're drawing notehead graphs, move aug. dots to the right by the appropriate
-	   factor. (At the moment, the graphs are a bit wider than expected, so move them a
-	   bit further.) */
-	
-	if (noteheadGraphs) {
-		xdDots = xdDots*NOTEHEAD_GRAPH_WIDTH;
-		// xdDots += 5*NOTEHEAD_GRAPH_WIDTH;
-		xdDots += (9*dhalfLn)/10;
-	}
-
-	return xdDots;
-}
+/* Draw all the augmentation dots for the given note or rest, if there are any. */
 
 static void DrawAugDots(Document *doc,
 					LINK theNoteL,			/* Subobject (note/rest) to draw dots for */
@@ -317,7 +267,7 @@ static void DrawAugDots(Document *doc,
 
 	dhalfLn = LNSPACE(pContext)/2;
 	doNoteheadGraphs = (doc->graphMode==GRAPHMODE_NHGRAPHS);
-	xdDots = xdNorm + AugDotXOffset(theNoteL, pContext, chordNoteToR, doNoteheadGraphs);
+	xdDots = xdNorm + AugDotXDOffset(theNoteL, pContext, chordNoteToR, doNoteheadGraphs);
 	ydDots = yd+(theNote->yMoveDots-2)*dhalfLn;
 	
 	ndots = theNote->ndots;
@@ -348,19 +298,6 @@ static void DrawAugDots(Document *doc,
 			}
 			break;
 	}
-}
-
-
-/* ------------------------------------------------------------------------ AccXOffset -- */
-
-DDIST AccXOffset(short xmoveAcc, PCONTEXT pContext)
-{
-	DDIST dAccWidth, xOffset;
-
-	dAccWidth = std2d(STD_ACCWIDTH, pContext->staffHeight, pContext->staffLines);
-	xOffset = dAccWidth;										/* Set offset to default */
-	xOffset += (dAccWidth*(xmoveAcc-DFLT_XMOVEACC))/4;			/* Fine-tune it */
-	return xOffset;
 }
 
 
@@ -401,7 +338,7 @@ void DrawAcc(Document *doc,
 	   other accidentals; just move it left a bit. */
 	 
 	xmoveAcc = (theNote->accident==AC_DBLFLAT? theNote->xmoveAcc+2 : theNote->xmoveAcc);
-	accXOffset = SizePercentSCALE(AccXOffset(xmoveAcc, pContext));
+	accXOffset = SizePercentSCALE(AccXDOffset(xmoveAcc, pContext));
  	xdAcc = xdNorm-accXOffset;
 
  	/* If it's a courtesy accidental, position the (left edge of) right paren from
@@ -630,39 +567,10 @@ static void GetNoteheadRect(unsigned char glyph, Byte appearance, DDIST dhalfLn,
 }
 
 
-static void PaintRoundLeftRect(Rect *paRect, short ovalWidth, short ovalHeight);
-void PaintRoundLeftRect(Rect *paRect, short ovalWidth, short ovalHeight)
-{
-	Rect	leftEndRect, otherRect;
-
-	leftEndRect = *paRect;
-	leftEndRect.right = leftEndRect.left+ovalWidth;
-	otherRect = *paRect;
-	otherRect.left = leftEndRect.left+ovalWidth/2;
-	
-	PaintRoundRect(&leftEndRect, ovalWidth, ovalHeight);
-	PaintRect(&otherRect);
-}
-
-
-static void PaintRoundRightRect(Rect *paRect, short ovalWidth, short ovalHeight);
-void PaintRoundRightRect(Rect *paRect, short ovalWidth, short ovalHeight)
-{
-	Rect		rightEndRect, otherRect;
-
-	rightEndRect = *paRect;
-	rightEndRect.left = rightEndRect.right-ovalWidth;
-	otherRect = *paRect;
-	otherRect.right = rightEndRect.right-ovalWidth/2;
-	
-	PaintRoundRect(&rightEndRect, ovalWidth, ovalHeight);
-	PaintRect(&otherRect);
-}
-
-
 /* QuickDraw only! */
 /* Draw a little graph as a notehead: intended to be used to visualize changes during
-the note. This version simply draws one or more colored bars side by side. */
+the note. This version simply draws one or more colored bars side by side, then
+sets the note's voice's standard color. */
 
 #define NHGRAPH_COLORS 6	/* Number of colors available for notehead graphs */
 
@@ -675,32 +583,21 @@ static void DrawNoteheadGraph(Document *doc,
 				PCONTEXT pContext		/* Current context[] entry */
 				)
 {
-	PANOTE	aNote;
 	short	graphLen,
-			nSegs,
+			nSegs, stripeWidth,
 			rDiam,						/* rounded corner diameter */
 			xorg, yorg,
 			yTop, yBottom;
-	QDIST	qdLenStd, qdLen;
+	QDIST	qdLen;
 	Rect	graphRect, segRect;
-	long	resFact;
 	Point	pt;
 	short	nhSegment[4];
 	short segColors[NHGRAPH_COLORS] =
 		{ redColor, greenColor, blueColor, cyanColor, magentaColor, yellowColor };
 
-	aNote = GetPANOTE(aNoteL);
-	resFact = RESFACTOR*(long)doc->spacePercent;
-#if 1
-	qdLenStd = NOTEHEAD_GRAPH_WIDTH;
-	qdLen = (long)(config.pianorollLenFact*qdLenStd) / 100L;
+	qdLen = NOTEHEAD_GRAPH_WIDTH;
 	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
 //LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: qdLenStd=%d qdLen=%d\n", qdLenStd, qdLen);
-#else
-	qdLen = IdealSpace(doc, aNote->playDur, resFact);
-	qdLen = (long)(config.pianorollLenFact*qdLen) / 100L;
-	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
-#endif
 	graphLen = d2p(qd2d(qdLen, pContext->staffHeight, pContext->staffLines));
 
 	GetPen(&pt);
@@ -708,54 +605,42 @@ static void DrawNoteheadGraph(Document *doc,
 	yorg = pt.v;
 	yTop = yorg-d2p(dhalfLn);
 	yBottom = yorg+d2p(dhalfLn);
-	SetRect(&graphRect, xorg, yorg-d2p(dhalfLn),
-		xorg+graphLen, yorg+d2p(dhalfLn));
-	rDiam = UseMagnifiedSize(4, doc->magnify);
+	SetRect(&graphRect, xorg, yorg-d2p(dhalfLn), xorg+graphLen, yorg+d2p(dhalfLn));
+	rDiam = UseMagnifiedSize(2, doc->magnify);
 	
-	for (short k=0; k<4; k++) nhSegment[k] = blackColor;
+#if 99
+	for (short k=0; k<4; k++) 
+		NoteSEGMENT(aNoteL, k) = rand() % NHGRAPH_COLORS;		// ??????? TEST !!!!!!!!!!!!!
+		//NoteSEGMENT(aNoteL, k) = k;		// ??????? TEST !!!!!!!!!!!!!
+#endif
+LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nhSegment[]=%d, %d, %d, %d\n", aNoteL,
+NoteSEGMENT(aNoteL, 0), NoteSEGMENT(aNoteL, 1), NoteSEGMENT(aNoteL, 2), NoteSEGMENT(aNoteL, 3));
+
+	/* Copy the info on segments from <aNoteL>. If there's none (the 1st segment value
+	   is 0), assume a single black segment. */
+	   
 	nSegs = 0;
 	for (short k=0; k<4; k++) {
 		nhSegment[k] = NoteSEGMENT(aNoteL, k);
-nhSegment[k] = rand() % NHGRAPH_COLORS;						// ????? TEST !!!!!!!!!!!!!
 		if (nhSegment[k]<=0) break;
 		nSegs++;
 	}
+	if (nSegs==0) { nSegs = 1;  nhSegment[0] = -1; }
 LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nSegs=%d, nhSegment[]=%d, %d, %d, %d\n", aNoteL,
 nSegs, nhSegment[0], nhSegment[1], nhSegment[2], nhSegment[3]);
-	/* ??Code below in this function is unfinished; it needs to pay attention to the
-	   whole nhSegment[] array, and handle values/colors sensibly! */
-	   
-	switch (nSegs) {
-		case 1:
-			ForeColor(segColors[nhSegment[1]]);
-			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			break;
-		case 2:
-			ForeColor(segColors[nhSegment[1]]);
-			segRect = graphRect;
-			segRect.right = segRect.left+graphLen/2;
-			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundLeftRect(&segRect, rDiam, rDiam);
 
-			ForeColor(segColors[nhSegment[2]]);
-			segRect = graphRect;
-			segRect.left = segRect.right-graphLen/2;
-			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRightRect(&segRect, rDiam, rDiam);
-			break;
-		default:
-			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsBlack());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam);		
+	stripeWidth = graphLen/nSegs;
+	segRect = graphRect;
+	segRect.right = segRect.left+stripeWidth;
+	for (short j = 0; j<nSegs; j++) {
+		if (nhSegment[j]<0)	ForeColor(blackColor);
+		else				ForeColor(segColors[nhSegment[j]]);
+		if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
+		else		PaintRoundRect(&segRect, rDiam, rDiam); 		
+		segRect.left += stripeWidth;
+		segRect.right += stripeWidth;
 	}
 	ForeColor(Voice2Color(doc, NoteVOICE(aNoteL)));
-
-#if 0
-	SetRect(&graphRect, xorg, yorg-14*d2p(dhalfLn),
-		xorg+1.5*graphLen, yorg-11*d2p(dhalfLn));				// ?? VERY TEMP! TEST PaintRoundLeftRect !!!!
-	if ((nhSegment[0] & 0x1)==0) PaintRoundLeftRect(&graphRect, 2*rDiam, 2*rDiam);
-	else PaintRoundRightRect(&graphRect, 2*rDiam, 2*rDiam);
-#endif
 }
 
 
@@ -946,8 +831,12 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 
 			/* HANDLE UNKNOWN CMN DURATION/WHOLE/BREVE */
 
-			if (noteType<=WHOLE_L_DUR)
-				DrawNotehead(doc, glyph, appearance, dim, dhalfLn);
+			if (noteType<=WHOLE_L_DUR) {
+				if (doc->graphMode==GRAPHMODE_NHGRAPHS)
+					DrawNoteheadGraph(doc, appearance, dim, dhalfLn, aNoteL, pContext);
+				else
+					DrawNotehead(doc, glyph, appearance, dim, dhalfLn);
+			}
 
 			/* HANDLE STEMMED NOTE. If the note is in a chord and is stemless, skip entire
 			   business of drawing the stem and flags. */
@@ -1699,7 +1588,7 @@ static void DrawGRAcc(Document *doc,
 	 */
 	xmoveAcc = (theGRNote->accident==AC_DBLFLAT?
 						theGRNote->xmoveAcc+1 : theGRNote->xmoveAcc);
-	accXOffset = SizePercentSCALE(AccXOffset(xmoveAcc, pContext));
+	accXOffset = SizePercentSCALE(AccXDOffset(xmoveAcc, pContext));
 
  	/* If it's a courtesy accidental, position the parentheses and move the accidental.	*/
 

@@ -1386,6 +1386,79 @@ DDIST GRNoteXLoc(
 	return xd;
 }
 
+
+
+/* -------------------------------------------------------- AccXDOffset, AugDotXDOffset-- */
+
+/* Get horizontal offsets for accidentals and for augmentation dots. FIXME: Drawing
+functions in a couple of files use these; spacing functions should but don't. But these
+functions and the drawing ones work in DDISTs, while the spacing functions work in
+STDISTs, which is definitely preferable!  --DAB, Sept. 2022 */
+
+DDIST AccXDOffset(short xmoveAcc, PCONTEXT pContext)
+{
+	DDIST dAccWidth, xdOffset;
+
+	dAccWidth = std2d(STD_ACCWIDTH, pContext->staffHeight, pContext->staffLines);
+	xdOffset = dAccWidth;										/* Set offset to default */
+	xdOffset += (dAccWidth*(xmoveAcc-DFLT_XMOVEACC))/4;			/* Fine-tune it */
+	return xdOffset;
+}
+
+
+DDIST AugDotXDOffset(LINK theNoteL,				/* Subobject (note/rest) to draw dots for */
+						PCONTEXT pContext,
+						Boolean chordNoteToR,	/* Note in an upstemmed chord w/ notes to right of stem? */
+						Boolean noteheadGraphs
+					 	)
+{
+	PANOTE	theNote;
+	DDIST 	xdStart, xdDots, dhalfSp;
+	char	lDur;
+
+	theNote = GetPANOTE(theNoteL);
+	if (theNote->ndots==0 || theNote->yMoveDots==0) return 0;	/* If no dots or dots invisible */
+
+	/* Ordinarily, the first dot is just to the right of a note on the "normal" side of
+	   the stem. But if note is in a chord that's upstemmed and has notes to the right
+	   of the stem, its dots must be moved to the right. */
+	   
+	xdStart = 0;
+	if (chordNoteToR) xdStart += HeadWidth(LNSPACE(pContext));
+
+	dhalfSp = LNSPACE(pContext)/2;
+	xdDots = xdStart+dhalfSp;
+	
+	if (theNote->rest) {
+		if (theNote->subType==WHOLEMR_L_DUR)	lDur = WHOLE_L_DUR;
+		else									lDur = theNote->subType;
+		if (IS_WIDEREST(lDur)) xdDots += (theNote->small? dhalfSp/2 : dhalfSp);
+	}
+	else {
+		if (!theNote->small) xdDots += dhalfSp/2;
+		if (WIDEHEAD(theNote->subType)) xdDots += dhalfSp/2;
+	}
+		
+	xdDots += std2d(STD_LINEHT*(theNote->xMoveDots-3)/4,
+							pContext->staffHeight,
+							pContext->staffLines);
+
+	/* If we're drawing notehead graphs, move aug. dots to the right by the appropriate
+	   factor. */
+	
+	if (noteheadGraphs) {
+		DDIST dGraphWidth = qd2d(NOTEHEAD_GRAPH_WIDTH, pContext->staffHeight,
+								pContext->staffLines);
+		float graphWidthFact = (float)dGraphWidth/(float)HeadWidth(LNSPACE(pContext));
+		xdDots = ((float)xdDots)*graphWidthFact;
+LogPrintf(LOG_DEBUG, "2. HeadWidth()=%d dGraphWidth=%d graphWidthFact=%f xdDots=%d\n", HeadWidth(LNSPACE(pContext)),
+dGraphWidth, graphWidthFact, xdDots);
+	}
+
+	return xdDots;
+}
+
+
 /* ------------------------------------------------------------------- GetNCLedgerInfo -- */
 /* Return info needed to draw ledger lines both above and below the staff for the note
 or for the chord in the given note's voice in the given Sync: the clef-adjusted distance

@@ -3753,14 +3753,14 @@ TextDialog, Utility.
 Fixed bug (Issue #199): Respacing several systems at once results in only the first being
 redrawn. Affects SpaceHighLevel.
 
-Minor changes: rename InvalContent() to InvalRangeContent, etc. Affects info.plist,
+Minor changes: renamed InvalContent() to InvalRangeContent, etc. Affects info.plist,
 DSUtils.h; Context, Double, InsNewUtils, Inval, Menu, SpaceHighLevel.
 
 ----------------------------------------------------------------------------------------- B23
 
 18 Aug. - 2 Sept.
 
-Minor changes: rename <odd> macro to <ODD>, etc. Affects info.plist, Check.h, Defs.h,
+Minor changes: renamed <odd> macro to <ODD>, etc. Affects info.plist, Check.h, Defs.h,
 NBasicTypes.h, NDocAndCnfgTypes.h, OMSCompat.h; CarbonStubs, Check, Context, Dragging,
 DragSet, DrawObject, GraphicMDEF, InsNew, InsUtils, Magnify, MergeUtils, MIDIFSave,
 NotelistParse, Objects, Ottava, PitchUtils, PopUpUtils, SearchScoreNative, Select,
@@ -3770,14 +3770,24 @@ SpaceTime, TupletEdit.
 
 3 - 9 Sept.
 
-Change the default pianoroll note-length factor from 0.75 to 0.55. Affects .rsrc.
+Changed the default pianoroll note-length factor from 0.75 to 0.55. Affects .rsrc.
 
-Implement "notehead graphs" as a third "mode" (in addition to normal and pianoroll).
-Affects .rsrc, Defs.h, NDocAndCnfgTypes.h, NResourceID.h, vars.h; Clipboard, Documents,
-DrawHighLevel, DrawNRGR, Extract, FileConversion, InitNightingale, Menu, SpaceTime.
+Started implementing "notehead graphs" as a third "mode" (in addition to normal and
+pianoroll). Affects .rsrc, Defs.h, NDocAndCnfgTypes.h, NResourceID.h, vars.h; Clipboard,
+Documents, DrawHighLevel, DrawNRGR, Extract, FileConversion, InitNightingale, Menu,
+SpaceTime.
 
 Minor changes. Affects info.plist, Defs.h, NDocAndCnfgTypes.h, Style.h;  DrawNRGR,
 DrawUtils, Menu.
 
 ----------------------------------------------------------------------------------------- B25
+
+11 - 17 Sept.
+
+Continued implementing notehead graphs. Affects NObjTypes.h, Style.h; DrawNRGR, SpaceTime.
+
+Minor changes. Affects info.plist, Draw.h, DrawUtils.h, SpaceTime.h; Browser,
+DragAccModNR, Dragging, DrawNRGR, DrawUtils, SpaceTime.
+
+----------------------------------------------------------------------------------------- B26
 

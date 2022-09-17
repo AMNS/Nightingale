@@ -33,9 +33,13 @@ Boolean GetModNRInfo(short, short, Boolean, Boolean, unsigned char *, short *, s
 								short *);
 DDIST NoteXLoc(LINK, LINK, DDIST, DDIST, DDIST *);
 DDIST GRNoteXLoc(LINK, LINK, DDIST, DDIST, DDIST *);
+
+DDIST AccXDOffset(short, PCONTEXT);
+DDIST AugDotXDOffset(LINK, PCONTEXT, Boolean, Boolean);
+
+void GetNCLedgerInfo(LINK, LINK, PCONTEXT, QDIST *, QDIST *, QDIST *, QDIST *);
 void NCHasLedgers(LINK syncL, LINK aNoteL, PCONTEXT	pContext, Boolean *hasLedgersAbove,
 					Boolean *hasLedgersBelow);
-void GetNCLedgerInfo(LINK, LINK, PCONTEXT, QDIST *, QDIST *, QDIST *, QDIST *);
 void DrawNoteLedgers(DDIST, QDIST, QDIST, Boolean, DDIST, PCONTEXT, short);
 void InsertLedgers(DDIST, short, PCONTEXT);
 void GetMBRestBar(short, PCONTEXT, DRect *);

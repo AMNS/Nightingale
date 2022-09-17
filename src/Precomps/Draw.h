@@ -54,7 +54,6 @@ unsigned char GetNoteheadInfo(short, short, short *, short *);
 
 void Draw1ModNR(Document *, DDIST, DDIST, short, unsigned char, CONTEXT *, short, Boolean);
 void DrawModNR(Document *, LINK, DDIST, CONTEXT *);
-DDIST AccXOffset(short, PCONTEXT);
 void DrawAcc(Document *, PCONTEXT, LINK, DDIST, DDIST, Boolean, short, Boolean);
 void DrawNote(Document *, LINK, PCONTEXT, LINK, Boolean *, Boolean *);
 void DrawRest(Document *, LINK, PCONTEXT, LINK, Boolean *, Boolean *);

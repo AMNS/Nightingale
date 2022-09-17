@@ -70,13 +70,13 @@ Boolean FillRelStaffSizes(Document *doc)
 
 
 /* ------------------------------------------------------- SymWidthLeft, SymWidthRight -- */
-/* Return the horizontal space <pL> really occupies, i.e., the minimum required
-to avoid overwriting, for the given staff only or for all staves. SymWidthLeft
-returns width to left of symbol origin, SymWidthRight to right of symbol origin.
+/* Return the horizontal space <pL> really occupies, i.e., the minimum required to
+avoid overwriting, for the given staff only or for all staves. SymWidthLeft returns
+width to left of symbol origin, SymWidthRight to right of symbol origin.
 
-We accomodate different size staves by using doc->srastral as the "reference size"
-and scaling distances on other-size staves as we go; so we always return a value
-in STDIST units for the reference size, even if <staff> is a different size. */
+We accomodate different size staves by using doc->srastral as the "reference size" and
+scaling distances on other-size staves as we go; so we always return a value in STDIST
+units for the reference size, even if <staff> is a different size. */
 
 #define STF_SCALE(val, s)	(doc->staffSize[s]*(long)(val)/(long)drSize[doc->srastral])
 
@@ -101,13 +101,15 @@ STDIST SymWidthLeft(
 					ignoreChord[measNode][1], ignoreChord[measNode][2], ignoreChord[measNode][3]);
 
 			noteToLeft = False;
+			
 			/* ??PROBLEM: We pass the staff no. to ChordNoteToLeft(), but it expects
-				voice no.! I tried to fix this, but the result waas a crash _every_
-				time Respacing was done. And giving it staff no. instead of voice no.
-				seems to work rather well! I dunno. */
+			   voice no.! I tried to fix this, but the result waas a crash _every_ time
+			   Respacing was done. And giving it staff no. instead of voice no. seems to
+			   work rather well! I dunno. --DAB */
+				
 			if (anyStaff) {
 				for (s = 1; s<=doc->nstaves; s++)
-					if (!ChordNoteToLeft(pL, s)) { noteToLeft = True; break; }
+					if (!ChordNoteToLeft(pL, s)) { noteToLeft = True;  break; }
 			}
 			else
 				if (ChordNoteToLeft(pL, staff)) noteToLeft = True;
@@ -125,19 +127,19 @@ STDIST SymWidthLeft(
 				}
 			}
 	  		if (maxxmoveAcc>=0) {
-				/*
-				 *	Ordinarily, the accidental position is relative to a note on the "normal"
-				 *	side of the stem. But if note is in a chord that's downstemmed and has
-				 *	notes to the left of the stem, its accidental is moved to the left. (The
-				 *	following adjustments should really take into account STF_SCALE, but we
-				 *	can't just do it for the staff <xmoveAcc> is on because another staff
-				 *	might be the one with <noteToLeft>. Someday. )
-				 */
+				/* Ordinarily, the accidental position is relative to a note on the normal
+				   side of the stem. But if note is in a chord that's downstemmed and has
+				   notes to the left of the stem, its accidental is moved to the left.
+				   (FIXME: The adjustments should really take into account STF_SCALE, but
+				   we can't just do it for the staff <xmoveAcc> is on because another
+				   staff might be the one with <noteToLeft>.) */
+				
 				if (noteToLeft) maxxmoveAcc += 4;
 
 	  			totWidth = STD_ACCWIDTH;
 	  			
 	  			/* Add a little for roundoff error. */
+				
 	  			totWidth += STD_LINEHT/8;
 	  			
 	  			totWidth += (STD_ACCWIDTH*(maxxmoveAcc-DFLT_XMOVEACC))/4;
@@ -163,13 +165,12 @@ STDIST SymWidthLeft(
 			}
 	  		if (maxxmoveAcc>=0) {
 #ifdef NOTYET
-				/*
-				 * Ordinarily, the accidental position is relative to a note on the "normal"
-				 * side of the stem. But if grace note is in a chord that's downstemmed and
-				 * has notes to the left of the stem, its accidental is moved to the left.
-				 * FIXME: ChordNoteToLeft DOESN'T KNOW ABOUT GRACE NOTES. ALSO, noteToLeft
-				 * SHOULD BE CONSIDERED REGARDESS OF ACCS.--CF. case SYNCtype ABOVE.
-				 */
+				/* Ordinarily, the accidental position is relative to a note on the "normal"
+				   side of the stem. But if grace note is in a chord that's downstemmed and
+				   has notes to the left of the stem, its accidental is moved to the left.
+				   FIXME: ChordNoteToLeft DOESN'T KNOW ABOUT GRACE NOTES. ALSO, noteToLeft
+				   SHOULD BE CONSIDERED REGARDESS OF ACCS.--CF. case SYNCtype ABOVE. */
+				   
 				if (ChordNoteToLeft(pL, aGRNote->staffn)) maxxmoveAcc += 4;
 #endif
 
@@ -181,13 +182,12 @@ STDIST SymWidthLeft(
 		  		return 0;
 		
 		case MEASUREtype:
-			/*
-			 * Though Measures (barlines) must have subobjects on all staves, they can be
-			 * be hidden on some, so perhaps we should look at all staves and take the
-			 * staff sizes of the visible ones into account, but I doubt it's worth it--
-			 * anyway, consistency among Measures is desirable. The same thing applies
-			 * to Pseudomeasures.
-			 */ 
+			/* Though Measures (barlines) must have subobjects on all staves, they can be
+			   be hidden on some, so perhaps we should look at all staves and take the
+			   staff sizes of the visible ones into account, but I doubt it's worth it--
+			   anyway, consistency among Measures is desirable. The same thing applies
+			   to Pseudomeasures. */
+			    
 			aMeasL = FirstSubLINK(pL);
 			aMeas = GetPAMEASURE(aMeasL);
 			if (aMeas->subType==BAR_RPT_R || aMeas->subType==BAR_RPT_LR)
@@ -254,30 +254,35 @@ STDIST SymWidthRight(
 				/* If the note/rest has any dots and we're considering stuff after the
 				   notehead, the dots determine its width; otherwise, if it's stem
 				   up and has flags, the flags determine its width. (Grace notes are
-				   the same except that they can't have dots.) */
+				   the same except that they can't have dots.) NB: in notehead-graph,
+				   mode, the "notehead" is much wider than normal. (In pianoroll mode,
+				   there aren't any dots.) */
 				
 			  	else if (NoteNDOTS(aNoteL)==0 || toHead) {
 					aNote = GetPANOTE(aNoteL);
 					if (doc->graphMode==GRAPHMODE_NHGRAPHS)
-			  			nwidth = NOTEHEAD_GRAPH_WIDTH*(STD_LINEHT*4)/3;
-					else
+			  			nwidth = (STD_LINEHT*NOTEHEAD_GRAPH_WIDTH)/3;
+					else {
 			  			nwidth = (STD_LINEHT*4)/3;
-					if (!aNote->rest && !aNote->beamed				/* Is it a note, unbeamed, of */						
-					&&  NFLAGS(aNote->subType)>0					/*   flag-needing duration, */  
-					&&  aNote->yd>aNote->ystem						/*   stem up, */
-					&&  !toHead)									/* and we're considering flags? */
+						if (!aNote->rest && !aNote->beamed				/* Is it a note, unbeamed, of */						
+						&&  NFLAGS(aNote->subType)>0					/*   flag-needing duration, */  
+						&&  aNote->yd>aNote->ystem						/*   stem up, */
+						&&  !toHead)									/* and we're considering flags? */
 					
 					/* In line below, STD_LINEHT is too little, STD_LINEHT*4/3 too much. */
 					
-						nwidth += (STD_LINEHT*7)/6; 				/* Yes, allow space for flags */
+							nwidth += (STD_LINEHT*7)/6; 				/* Yes, allow space for flags */
+					}
 					if (doc->nonstdStfSizes) nwidth = STF_SCALE(nwidth, aNote->staffn);
+//LogPrintf(LOG_DEBUG, "aNoteL=%u STD_LINEHT=%d NOTEHEAD_GRAPH_WIDTH=%d nwidth=%d\n", aNoteL,
+//STD_LINEHT, NOTEHEAD_GRAPH_WIDTH, nwidth);
 				}
 			  	else {												/* Include aug. dots. */
 					aNote = GetPANOTE(aNoteL);
 					if (doc->graphMode==GRAPHMODE_NHGRAPHS)
-			  			nwidth = NOTEHEAD_GRAPH_WIDTH*(STD_LINEHT*2)+2;	/* For 1st dot default pos. */
+			  			nwidth = (STD_LINEHT*NOTEHEAD_GRAPH_WIDTH)/3+2;	/* For 1st dot default pos. */
 					else
-			  		nwidth = (STD_LINEHT*2)+2;						/* For 1st dot default pos. */
+						nwidth = (STD_LINEHT*2)+2;						/* For 1st dot default pos. */
 
 			  		nwidth += (STD_LINEHT*(aNote->xMoveDots-3))/4;	/* Fix for 1st dot actl.pos. */
 			  		if (aNote->ndots>1)
@@ -453,8 +458,8 @@ STDIST SymWidthRight(
 given object needs. For most types of objects, it simply uses the graphic width; for
 Syncs, it uses the maximum of the Sync's ideal space (based on duration) and its graphic
 width; if it's a Measure, it uses the maximum of the standard spacing after barlines
-and the graphic width. N.B. This is only a guess, though usually a good one: the
-only way to determine the correct spacing is the way Respace1Bar does. */
+and the graphic width. N.B. This is only a guess, though usually a good one: the only
+way to determine the correct spacing is the way Respace1Bar does. */
 
 STDIST SymLikelyWidthRight(
 				Document *doc,
@@ -774,10 +779,10 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 {
 	LINK	beforeL;
 	LINK	pSubL;
-	long	maxLen,tempLen;
+	long	maxLen, tempLen;
 	short	noteStaff;
 	CONTEXT	context;
-	STDIST	symWidth,space;
+	STDIST	symWidth, space;
 	
 	if (!(PageTYPE(pL) || SystemTYPE(pL) || TailTYPE(pL)))
 		MayErrMsg("CalcSpaceNeeded: link L%ld type %ld is wrong", (long)pL,
@@ -888,7 +893,7 @@ no such equivalent, return False. */
 
 Boolean LDur2Code(short lDur, short errMax, short maxDots, char *pNewDur, char *pNewDots)
 {
-	register short i, j, remainder;
+	short i, j, remainder;
 	
 	for (i = MAX_L_DUR; i>UNKNOWN_L_DUR; i--) {
 		if (l2p_durs[i]==lDur) {
@@ -933,8 +938,8 @@ PDUR ticks. */
 
 long Code2LDur(char durCode, char nDots)
 {
-	register short	j;
-	register long	noteDur;
+	short	j;
+	long	noteDur;
 
 	noteDur = (long)l2p_durs[durCode]; 				/* Get basic duration */
 	for (j = 1; j<=nDots; j++)
@@ -949,7 +954,7 @@ tuplet membership and whole-measure rests. */
 
 long SimpleLDur(LINK aNoteL)
 {
-	register PANOTE aNote;
+	PANOTE aNote;
 
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->subType==UNKNOWN_L_DUR || aNote->subType<=WHOLEMR_L_DUR) {
@@ -967,7 +972,7 @@ long SimpleLDur(LINK aNoteL)
 
 long SimpleGRLDur(LINK aGRNoteL)
 {
-	register PAGRNOTE	aGRNote;
+	PAGRNOTE	aGRNote;
 
 	aGRNote = GetPAGRNOTE(aGRNoteL);
 	if (aGRNote->subType==UNKNOWN_L_DUR) {
@@ -1246,14 +1251,14 @@ static void GetSpaceInfo(
 				SPACETIMEINFO spaceTimeInfo[] 	/* Assumes startTime,link,isSync already filled in */
 				)
 {
-	long		timeHere, earliestEnd,
-				earliestDur,
-				nextStartTime,
-				vLTimes[MAXVOICES+1],				/* Logical times for voices */
-				vLDur[MAXVOICES+1];					/* Logical note durations for voices */
-	register short k;
-	short		v, earlyVoice;
-	LINK		syncL, aNoteL;
+	long	timeHere, earliestEnd,
+			earliestDur,
+			nextStartTime,
+			vLTimes[MAXVOICES+1],				/* Logical times for voices */
+			vLDur[MAXVOICES+1];					/* Logical note durations for voices */
+	short	k;
+	short	v, earlyVoice;
+	LINK	syncL, aNoteL;
 	
 	for (v = 0; v<=MAXVOICES; v++)
 		vLTimes[v] = -1L;
@@ -1291,11 +1296,11 @@ static void GetSpaceInfo(
 			nextStartTime = spaceTimeInfo[k+1].startTime;
 			earliestEnd = 9999999L;
 			for (v = 0; v<=MAXVOICES; v++) {
-				if (vLTimes[v]>timeHere						/* Continue into current sync? */
-				&& vLTimes[v]>=nextStartTime				/* Continues until next sync or measure end? */
-				&& (   vLTimes[v]<earliestEnd				/* Ends earlier than previous earliest, or... */
-					|| (vLTimes[v]==earliestEnd				/* ...ends no later than it and... */
-						&& vLDur[v]<earliestDur				/* ...has shorter duration? */					
+				if (vLTimes[v]>timeHere					/* Continue into current sync? */
+				&& vLTimes[v]>=nextStartTime			/* Continues until next sync or measure end? */
+				&& (   vLTimes[v]<earliestEnd			/* Ends earlier than previous earliest, or... */
+					|| (vLTimes[v]==earliestEnd			/* ...ends no later than it and... */
+						&& vLDur[v]<earliestDur			/* ...has shorter duration? */					
 						)
 					)
 				) {
@@ -1331,7 +1336,7 @@ static void FixStaffTime(
 				long	vLTimes[MAXVOICES+1] 		/* Logical times for voices */
 				)
 {
-	register short i;
+	short i;
 	
 	for (i = 0; i<=MAXVOICES; i++)
 		if (vStaves[i]==staff) stLTimes[i] = n_max(stLTimes[i], vLTimes[i]);
@@ -1352,7 +1357,7 @@ static void FixVoiceTimes(
 				long	vLTimes[MAXVOICES+1] 		/* Logical times for voices */
 				)
 {
-	register short i;
+	short i;
 	
 	for (i = 0; i<=MAXVOICES; i++)
 		if (vStaves[i]==staff) vLTimes[i] = n_max(vLTimes[i], timeHere);
@@ -1421,14 +1426,14 @@ short GetSpTimeInfo(
 			Boolean			getSpacing 			/* True=return spacing info as well as time info */
 			)
 {
-	register long	timeHere;
+	long		timeHere;
 	long		stLTimes[MAXSTAVES+1],			/* Logical times for staves */
 				vLTimes[MAXVOICES+1];			/* Logical times for voices */
 	short		vStaves[MAXVOICES+1];			/* Staff each voice is currently on */
 	short		last, s, v;
 	PANOTE		aNote;
 	PAGRNOTE	aGRNote;
-	register LINK	pL, aNoteL, aGRNoteL;
+	LINK		pL, aNoteL, aGRNoteL;
 	LINK		aClefL, aKeySigL, aTimeSigL;
 	char		jType;
 	Boolean		voiceInSync[MAXVOICES+1];
@@ -1456,6 +1461,7 @@ short GetSpTimeInfo(
 				   staff that's furthest along of all participating. Then synchronize all
 				   participating voices by setting their <vLTimes> to the ending times
 				   of their notes in this Sync. */
+				   
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
@@ -1483,6 +1489,7 @@ short GetSpTimeInfo(
 				   it can give bad results in cases where consecutive Syncs have no voices
 				   in common but we could still trace both back to the beginning of the
 				   Measure. */
+				   
 				for (v = 0; v<=MAXVOICES; v++)							/* Make non-participating */
 					if (!voiceInSync[v])								/*   voices catch up */
 						if (vLTimes[v]<=timeHere)
@@ -1490,10 +1497,9 @@ short GetSpTimeInfo(
 				break;
 				
 			case GRSYNCtype:
-				/*
-				 * Handle grace Syncs just like regular ones except that ending times
-				 * of participating voices are all equal to the Sync's start time.
-				 */
+				/* Handle grace Syncs just like regular ones except that ending times
+				   of participating voices are all equal to the Sync's start time. */
+				   
 				aGRNoteL = FirstSubLINK(pL);
 				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 					aGRNote = GetPAGRNOTE(aGRNoteL);

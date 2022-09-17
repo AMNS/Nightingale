@@ -11644,3 +11644,11 @@ enum {								/* Options for graph modes vs. pure CWMN */
 + rename the Document <pianoroll> field <graphMode>;
 + change the menu command and the name in NResource.h;
 + remove mentions of <doNoteheadGraphs>.
+
+---------------------------------------------------------------------------------------
+
+10 - 16 Sept.
+
+Rewrite DrawNoteheadGraph() to draw "stripes" in correct width for all note segments...
+done.
+

@@ -113,7 +113,7 @@ typedef struct {
 	Byte		tempFlag;			/* temporary flag for benefit of functions that need it */
 	Byte		artHarmonic;		/* Artificial harmonic: stopped, touched, sounding, normal note (unused as of v. 6.0) */
 	unsigned short	userID;			/* User ID number (unused as of v. 6.0) */
-	Byte		nhSegment[4];		/* Segments of notehead graph (unused as of v. 6.0) */
+	Byte		nhSegment[4];		/* Segments of notehead graph */
 	long		reservedN;			/* For future use (unused as of v. 6.0) */
 } ANOTE, *PANOTE;
 

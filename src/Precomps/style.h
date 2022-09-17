@@ -62,7 +62,7 @@ with stems away from the staff are shortened. */
 
 #define REST_STEMLET_LEN 4					/* For "stemlets" on beamed rests (quarter-spaces) */
 
-#define NOTEHEAD_GRAPH_WIDTH 16				/* Nominal width of tiny graphs drawn for noteheads
+#define NOTEHEAD_GRAPH_WIDTH 8				/* Nominal width of tiny graphs drawn for noteheads
 											   for <GRAPHMODE_NHGRAPHS> (quarter-spaces) */
 
 #define FlagLeading(lnSp)	(3*(lnSp)*4/16)	/* Vertical distance between flags */

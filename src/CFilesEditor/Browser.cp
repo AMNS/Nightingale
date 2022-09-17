@@ -1377,7 +1377,8 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
 
 	DrawTextLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "rspIgnore=%hd", q->rspIgnore);
+	sprintf(s, "nhSegment=%hd,%hd,%hd,%hd", q->nhSegment[0], q->nhSegment[1],
+			q->nhSegment[2], q->nhSegment[3]);
 
 	DrawTextLine(s);
 	
