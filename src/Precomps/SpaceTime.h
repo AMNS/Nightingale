@@ -2,9 +2,6 @@
 
 Boolean FillRelStaffSizes(Document *);
 
-DDIST AccXOffset(short, PCONTEXT);
-DDIST AugDotXOffset(LINK, PCONTEXT, Boolean, Boolean);
-
 STDIST SymWidthLeft(Document *, LINK, short, short);
 STDIST SymWidthRight(Document *, LINK, short, Boolean);
 STDIST SymLikelyWidthRight(Document *, LINK, long);

@@ -34,6 +34,8 @@
 		1554544326DADD3F00FF8EB0 /* DynamicEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1554544226DADD3F00FF8EB0 /* DynamicEdit.cp */; };
 		1555802327F4A81F003988FE /* Nightingale Help in Resources */ = {isa = PBXBuildFile; fileRef = 1555802227F4A81F003988FE /* Nightingale Help */; };
 		1556A2F61D3FA4E700A0B147 /* InsNew.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1556A2F51D3FA4E700A0B147 /* InsNew.cp */; };
+		155AC0E128DF54710083ECDB /* ResultList.cp in Sources */ = {isa = PBXBuildFile; fileRef = 155AC0E028DF54710083ECDB /* ResultList.cp */; };
+		155AC0E328DF547C0083ECDB /* ResultListDocument.cp in Sources */ = {isa = PBXBuildFile; fileRef = 155AC0E228DF547C0083ECDB /* ResultListDocument.cp */; };
 		155F2FE22012E88600E6A344 /* CoreMIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 155F2FE12012E88600E6A344 /* CoreMIDIUtils.cp */; };
 		15602EE71D20BEF300BAEBF6 /* Browser.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EE61D20BEF300BAEBF6 /* Browser.cp */; };
 		15602EEF1D20BF7400BAEBF6 /* Dragging.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EEE1D20BF7400BAEBF6 /* Dragging.cp */; };
@@ -274,6 +276,8 @@
 		1554544226DADD3F00FF8EB0 /* DynamicEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicEdit.cp; sourceTree = "<group>"; };
 		1555802227F4A81F003988FE /* Nightingale Help */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "Nightingale Help"; sourceTree = "<group>"; };
 		1556A2F51D3FA4E700A0B147 /* InsNew.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNew.cp; sourceTree = "<group>"; };
+		155AC0E028DF54710083ECDB /* ResultList.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ResultList.cp; path = src/FilesSearch/ResultList.cp; sourceTree = "<group>"; };
+		155AC0E228DF547C0083ECDB /* ResultListDocument.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ResultListDocument.cp; path = src/FilesSearch/ResultListDocument.cp; sourceTree = "<group>"; };
 		155F2FE12012E88600E6A344 /* CoreMIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMIDIUtils.cp; sourceTree = "<group>"; };
 		15602EE61D20BEF300BAEBF6 /* Browser.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Browser.cp; sourceTree = "<group>"; };
 		15602EEE1D20BF7400BAEBF6 /* Dragging.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dragging.cp; sourceTree = "<group>"; };
@@ -565,6 +569,8 @@
 		158B5CF52880548000D7247F /* FilesSearch */ = {
 			isa = PBXGroup;
 			children = (
+				155AC0E028DF54710083ECDB /* ResultList.cp */,
+				155AC0E228DF547C0083ECDB /* ResultListDocument.cp */,
 				15C8E80E288058BB005B750C /* SearchScore.cp */,
 				15C8E80C288058B1005B750C /* SearchScore.h */,
 				15C8E812288058D3005B750C /* SearchScoreDlog.cp */,
@@ -1270,6 +1276,8 @@
 				15C8E80F288058BB005B750C /* SearchScore.cp in Sources */,
 				15C8E811288058CB005B750C /* SearchScoreNative.cp in Sources */,
 				15C8E813288058D3005B750C /* SearchScoreDlog.cp in Sources */,
+				155AC0E128DF54710083ECDB /* ResultList.cp in Sources */,
+				155AC0E328DF547C0083ECDB /* ResultListDocument.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

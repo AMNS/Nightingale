@@ -572,7 +572,7 @@ static void GetNoteheadRect(unsigned char glyph, Byte appearance, DDIST dhalfLn,
 the note. This version simply draws one or more colored bars side by side, then
 sets the note's voice's standard color. */
 
-#define NHGRAPH_COLORS 6	/* Number of colors available for notehead graphs */
+#define NHGRAPH_COLORS 7	/* Number of colors available for notehead graphs */
 
 static void DrawNoteheadGraph(Document *, Byte, Boolean, DDIST, LINK, PCONTEXT);
 static void DrawNoteheadGraph(Document *doc,
@@ -593,7 +593,7 @@ static void DrawNoteheadGraph(Document *doc,
 	Point	pt;
 	short	nhSegment[4];
 	short segColors[NHGRAPH_COLORS] =
-		{ redColor, greenColor, blueColor, cyanColor, magentaColor, yellowColor };
+		{ 0, redColor, greenColor, blueColor, cyanColor, magentaColor, yellowColor };
 
 	qdLen = NOTEHEAD_GRAPH_WIDTH;
 	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
@@ -613,8 +613,8 @@ static void DrawNoteheadGraph(Document *doc,
 		NoteSEGMENT(aNoteL, k) = rand() % NHGRAPH_COLORS;		// ??????? TEST !!!!!!!!!!!!!
 		//NoteSEGMENT(aNoteL, k) = k;		// ??????? TEST !!!!!!!!!!!!!
 #endif
-LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nhSegment[]=%d, %d, %d, %d\n", aNoteL,
-NoteSEGMENT(aNoteL, 0), NoteSEGMENT(aNoteL, 1), NoteSEGMENT(aNoteL, 2), NoteSEGMENT(aNoteL, 3));
+//LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nhSegment[]=%d, %d, %d, %d\n", aNoteL,
+//NoteSEGMENT(aNoteL, 0), NoteSEGMENT(aNoteL, 1), NoteSEGMENT(aNoteL, 2), NoteSEGMENT(aNoteL, 3));
 
 	/* Copy the info on segments from <aNoteL>. If there's none (the 1st segment value
 	   is 0), assume a single black segment. */
@@ -626,7 +626,7 @@ NoteSEGMENT(aNoteL, 0), NoteSEGMENT(aNoteL, 1), NoteSEGMENT(aNoteL, 2), NoteSEGM
 		nSegs++;
 	}
 	if (nSegs==0) { nSegs = 1;  nhSegment[0] = -1; }
-LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nSegs=%d, nhSegment[]=%d, %d, %d, %d\n", aNoteL,
+if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nSegs=%d, nhSegment[]=%d, %d, %d, %d\n", aNoteL,
 nSegs, nhSegment[0], nhSegment[1], nhSegment[2], nhSegment[3]);
 
 	stripeWidth = graphLen/nSegs;

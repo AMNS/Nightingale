@@ -204,7 +204,6 @@ void GetNString(LINK graphicL, char theStr[])
 
 /* -------------------------------------------------------------------------------------- */
 
-
 #define PREFIX_REQUIRED False
 #define SECTION_ID_STR1 "\\l"	/* Prefix string for section ID strings (empty for none) */
 #define SECTION_ID_STR2 ""		/* Prefix string for section ID strings (empty for none) */
@@ -212,8 +211,8 @@ void GetNString(LINK graphicL, char theStr[])
 /* If the given string begins with a section ID code (perhaps empty), return the number of
 leading chars in the code (perhaps 0); else return -1. */
 
-INT16 HasSectionIDPrefix(char theStr[256]);
-INT16 HasSectionIDPrefix(char theStr[256])
+INT16 SectionIDPrefix(char theStr[256]);
+INT16 SectionIDPrefix(char theStr[256])
 {
 	INT16 str1len = strlen(SECTION_ID_STR1);
 	INT16 str2len = strlen(SECTION_ID_STR2);
@@ -230,7 +229,7 @@ INT16 HasSectionIDPrefix(char theStr[256])
 /* Return a C string identifying the score or, preferably, section of the score
 containing the given object. The section is identified by the last previous passage-
 label string: with Nightingale-native data structures, a GRString (not GRLyric!)
-Graphic in style SECTION_ID_NSTYLE starting with a code recognized by HasSectionIDPrefix().
+Graphic in style SECTION_ID_NSTYLE starting with a code recognized by SectionIDPrefix().
 This is intended for use in passage-level retrieval; it's particularly useful if the
 "passages" are actually separate short pieces (e.g., folk songs or incipits).
 
@@ -248,7 +247,8 @@ Boolean GetScoreLocIDString(Document *doc, LINK locL, char matchLocString[256])
 
 	/* The default is the score's filename. */
 
-	Pstrcpy(doc->name, (StringPtr)locName);
+LogPrintf(LOG_DEBUG, "GetScoreLocIDString: doc=%x doc->name='%s'\n", doc,  doc->name); 
+	Pstrcpy((StringPtr)locName, doc->name);
 	PToCString((StringPtr)locName);
 	haveSectionName = False;
 
@@ -265,7 +265,7 @@ Boolean GetScoreLocIDString(Document *doc, LINK locL, char matchLocString[256])
 		
 		if (StringMaybeSectionID(stringL)) {
 			(void)GetNString(stringL, theStr);
-			matchLen = HasSectionIDPrefix(theStr);
+			matchLen = SectionIDPrefix(theStr);
 			if (matchLen>=0) {
 				/* This GRString passes our closest scrutiny, so accept it. */
 				
@@ -353,7 +353,7 @@ DB_LINK SearchScore(
 	}
 
 	if (matchVoice==0) {
-		/* All matches were in unacceptable voices; try again to the right. */
+		/* No match was in an acceptable voices; try again to the right. */
 		
 		foundL = SearchGetHitSet(doc, RightLINK(startL), searchPat, sParm, foundVoiceA,
 									totalErrorInfo, matchedObjA, matchedSubobjA);
@@ -586,10 +586,12 @@ static INT16 IRSearchScore(Document *doc,
 			}
 			matchInfoA[nFound].foundL = foundL;
 	
-			Pstrcpy(doc->name, (StringPtr)scoreName);
+			Pstrcpy((StringPtr)scoreName, doc->name);
 			PToCString((StringPtr)scoreName);
 			GoodStrncpy(matchInfoA[nFound].scoreName, scoreName, FILENAME_MAXLEN);
-		
+LogPrintf(LOG_DEBUG, "IRSearchScore: nFound=%d matchInfoA[].docNum=%d doc=%x scoreName='%s'\n",
+nFound, matchInfoA[nFound].docNum, doc, scoreName); 
+	
 			matchInfoA[nFound].measNum = GetMeasNum(doc, foundL);
 			matchInfoA[nFound].foundVoice = v;
 	
@@ -669,7 +671,7 @@ Boolean DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration,
 	sParm.matchTiedDur = matchTiedDur;
 	
 	FormatReportString(sParm, searchPat, "FIND ALL", str);				// ??I18N BUG
-	LogPrintf(LOG_NOTICE, "%s:\n", str);
+	LogPrintf(LOG_INFO, "%s:\n", str);
 	startTicks = TickCount();
 
 	matchArraySize = (MAX_HITS+1)*MAX_PATLEN;
@@ -685,18 +687,22 @@ Boolean DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration,
 									(DB_LINK (*)[MAX_PATLEN])matchedSubobjFA,
 									0);
 
+LogPrintf(LOG_DEBUG, "DoIRSearchScore: doc=%x doc->name='%s' nFound=%d\n", doc,
+doc->name, nFound);
 	elapsedTicks = TickCount()-startTicks;
 
 	for (n = 0; n<nFound; n++) {
 		INT16 relEst;
-				
+		
 		relEst = CalcRelEstimate(matchInfoA[n].totalError, pitchTolerance, pitchWeight,
 					searchPat.patLen);
 		matchInfoA[n].relEst = relEst;
 	}
 
-	ListMatches(matchInfoA, (DB_LINK (*)[MAX_PATLEN])matchedObjFA, (DB_LINK (*)[MAX_PATLEN])matchedSubobjFA,
+	ListMatches(matchInfoA, (DB_LINK (*)[MAX_PATLEN])matchedObjFA,
+					(DB_LINK (*)[MAX_PATLEN])matchedSubobjFA,
 					searchPat.patLen, nFound, elapsedTicks, sParm, True);
+	LogPrintf(LOG_INFO, "Found %d matches.  (DoIRSearchScore)\n", nFound);
 
 Cleanup:
 	if (matchedObjFA) DisposePtr((char *)matchedObjFA);
@@ -733,8 +739,7 @@ static OSErr ConvertFSpToInfo(FSSpec *fs, CInfoPBRec *info, short *isFolder)
 	if (err == noErr) {
 		*isFolder = (info->dirInfo.ioFlAttrib & ioDirMask)!=0;
 		if (*isFolder)
-			if (info->dirInfo.ioDrDirID == 2/*fsRtDir*/)
-				*isFolder = 2;
+			if (info->dirInfo.ioDrDirID == 2 /*fsRtDir*/) *isFolder = 2;
 	}
 	
 	return(err);
@@ -1104,7 +1109,8 @@ Boolean DoIRSearchFiles(FSSpec *pTheFile, Boolean usePitch, Boolean useDuration,
 		matchInfoA[n].relEst = relEst;
 	}
 
-	ListMatches(matchInfoA, (DB_LINK (*)[MAX_PATLEN])matchedObjFA, (DB_LINK (*)[MAX_PATLEN])matchedSubobjFA,
+	ListMatches(matchInfoA, (DB_LINK (*)[MAX_PATLEN])matchedObjFA,
+					(DB_LINK (*)[MAX_PATLEN])matchedSubobjFA,
 					searchPat.patLen, nFound, elapsedTicks, sParm, True);
 
 	okay = True;

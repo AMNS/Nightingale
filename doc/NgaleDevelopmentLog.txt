@@ -11652,3 +11652,30 @@ enum {								/* Options for graph modes vs. pure CWMN */
 Rewrite DrawNoteheadGraph() to draw "stripes" in correct width for all note segments...
 done.
 
+Stripe color 0 is never used because 0 marks the end of the "list" of stripe colors.
+Fix that... done.
+
+---------------------------------------------------------------------------------------
+
+17 - 23 Sept.
+
+"Find All" _doesn't_ always crash; in fact, it seems never to crash, it just doesn't do
+anything! Why?
+
+It eventually calls ListMatches(). With a bit of work, that does indeed list them in the
+log. But it doesn't display the nonmodal dialog where you can click on a match and jump
+to it in the score! Why?
+
+It never even tries! In fact, where is the code for the nonmodal dialog?? Ah, two files
+from the old NgaleSearch, ResultList.c & ResultListDocument.c. Add 'em, compile & test
+=> "ERROR. BUG IN PROGRAM: DoResultListDoc: there's no gResUserList.". Yep, gResUserList
+is null. It's set in only one place, BuildDocList(), which is never called. BuildDocList
+is called only from the trivial BuildResListDocument() which is called only from
+DoOpenResultListDocument(), which is never called. DoOpenResultListDocument is called only
+from DoResultListDoc -- which checks for gResUserList & gives the fatal error before
+it does anything! #$(*#$=! Call DoOpenResultListDocument before checking gResUserList =>
+much better! Now I get a window titled "Result List" that indeed lists matches, apparently
+correctly except for part names; Ngale says "ERROR. Possible bug in program: DrawMessageBox:
+Int2UserVoice(0) failed." The name displayed for at least part 1 is "SEARCH", etc. Clicking
+on a match does nothing. Find All a 2nd time crashes.
+

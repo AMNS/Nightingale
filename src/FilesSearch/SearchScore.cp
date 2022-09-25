@@ -322,8 +322,8 @@ static Boolean NRMatch(
 				}
 				intervalWanted = searchPat.noteNum[targetPos]-searchPat.prevNoteNum[targetPos];
 				intervalHere = DB_NoteNUM(theNoteL)-prevNoteNum;
-if (ControlKeyDown()) DebugPrintf("NRMatch: targetPos=%d, intervalWanted=%d, intervalHere=%d\n",
-targetPos, intervalWanted, intervalHere);
+				if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "NRMatch: targetPos=%d, intervalWanted=%d, intervalHere=%d\n",
+												targetPos, intervalWanted, intervalHere);
 				if (abs(nnDiff)>maxTranspose) { matchHere = False;  break; }
 				
 				/* If we're going up instead of down, or down instead of staying the same,
@@ -344,8 +344,8 @@ targetPos, intervalWanted, intervalHere);
 	}
 
 MatchDur:
-if (ControlKeyDown()) DebugPrintf("NRMatch: NoteREST=%d; prevNoteNum=%d nnDiff=%d pitchError=%d\n",
-DB_NoteREST(theNoteL), prevNoteNum, nnDiff, pitchError);
+	if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "NRMatch: NoteREST=%d; prevNoteNum=%d nnDiff=%d pitchError=%d\n",
+							DB_NoteREST(theNoteL), prevNoteNum, nnDiff, pitchError);
 	if (useDuration) {
 		INT16 durHere, durPrev, durTargetHere, durTargetPrev;
 		FASTFLOAT ratioWanted, ratioHere;
@@ -381,8 +381,8 @@ DB_NoteREST(theNoteL), prevNoteNum, nnDiff, pitchError);
 				durTargetPrev = searchPat.lDur[targetPos-1];
 				ratioWanted = (FASTFLOAT)durTargetHere/(FASTFLOAT)durTargetPrev;
 				ratioHere = (FASTFLOAT)durHere/(FASTFLOAT)durPrev;
-if (ControlKeyDown()) DebugPrintf("NRMatch: durHere=%d durPrev=%d targetPos=%d durTargetHere=%d durTargetPrev=%d\n",
-durHere, durPrev, targetPos, durTargetHere, durTargetPrev);
+				if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "NRMatch: durHere=%d durPrev=%d targetPos=%d durTargetHere=%d durTargetPrev=%d\n",
+										durHere, durPrev, targetPos, durTargetHere, durTargetPrev);
 
 				if (durSearchType==TYPE_DURATION_CONTOUR) {
 					matchHere = (  (ratioWanted>1.0 && ratioHere>1.0)
@@ -528,14 +528,14 @@ static void UpdateProgressReport(void)
 		nPRUpdatesSoFar++;
 		if (!ShowingProgressReport()) return;
 		
-		if (nPRUpdatesSoFar==1) DebugPrintf("{");
-		DebugPrintf("%c", (nPRUpdatesSoFar/10)*10==nPRUpdatesSoFar? '*' : '.');
+		if (nPRUpdatesSoFar==1) LogPrintf(LOG_DEBUG, "{");
+		LogPrintf(LOG_DEBUG, "%c", (nPRUpdatesSoFar/10)*10==nPRUpdatesSoFar? '*' : '.');
 	}
 }
 
 static void EndProgressReport(void)
 {
-	if (ShowingProgressReport()) DebugPrintf("}");
+	if (ShowingProgressReport()) LogPrintf(LOG_DEBUG, "}");
 }
 
 
@@ -592,30 +592,29 @@ static INT16 SyncMatch(
 	aNoteL = startNoteL;
 	for ( ; aNoteL; aNoteL = DB_NextNOTEL(syncL, aNoteL)) {
 #ifdef DEBUG_LOWLEVEL
-		DebugPrintf("  Trying  aNoteL=%d Rest()=%d NoteNUM()=%d *pPrevNoteNum=%d\n",
+		LogPrintf(LOG_DEBUG, "  Trying  aNoteL=%d Rest()=%d NoteNUM()=%d *pPrevNoteNum=%d\n",
 		aNoteL, DB_NoteREST(aNoteL), NoteNUM(aNoteL), *pPrevNoteNum);
 #endif
 		if (!sParm.includeRests && DB_NoteREST(aNoteL)) continue;
-		/*
-		 * If this note doesn't match the next item in the pattern for our voice,
-		 * reset. Then, if it does match the next item of the pattern, if it's the
-		 * first note/rest of the pattern, initialize; if it's the end of the
-		 * pattern, we're done--though if this function is used as intended, we'll
-		 * always reach <failL> and stop before then.
-		 */
+		
+		/* If this note doesn't match the next item in the pattern for our voice, reset.
+		   Then, if it does match the next item of the pattern, if it's the first
+		   note/rest of the pattern, initialize; if it's the end of the pattern, we're
+		   done -- though if this function is used as intended, we'll always reach
+		   <failL> and stop before then. */
+		   
 		if (DB_NoteVOICE(syncL, aNoteL)!=voice) continue;
 		
-		/*
-		 * If we've already matched a note in this Sync and voice, skip remaining notes
-		 * in the Sync and voice, so chords don't confuse us.
-		 */
+		/* If we've already matched a note in this Sync and voice, skip remaining notes
+		   in the Sync and voice, so chords don't confuse us. */
+		   
 		if (voiceStatus==VOICE_MATCHED) continue;
 	
 		if (sParm.matchTiedDur && DB_NoteTIEDL(aNoteL)) continue;
 
 		/* Check the note's position in its chord, if needed. If it passes that test,
-		 * check everything else about it.
-		 */
+		   check everything else about it. */
+		   
 		matchHere = True;
 
 		if (sParm.chordNotes==TYPE_CHORD_TOP) {
@@ -628,7 +627,7 @@ static INT16 SyncMatch(
 		}
 
 #if 0000
-DebugPrintf(".chordNotes=%d syncL=%ld voice=%d aNoteL=%ld lowNoteL=%ld hiNoteL=%ld targetPos=%d %s\n",
+LogPrintf(LOG_DEBUG, ".chordNotes=%d syncL=%ld voice=%d aNoteL=%ld lowNoteL=%ld hiNoteL=%ld targetPos=%d %s\n",
 sParm.chordNotes, syncL, voice, aNoteL, lowNoteL, hiNoteL, targetPos, (matchHere? "Match" : " "));
 #endif
 		if (matchHere)
@@ -651,7 +650,7 @@ sParm.chordNotes, syncL, voice, aNoteL, lowNoteL, hiNoteL, targetPos, (matchHere
 			if (!DB_NoteREST(aNoteL))
 				*pPrevNoteNum = NoteNUM(aNoteL);
 #ifdef DEBUG_LOWLEVEL
-			DebugPrintf("  Matched aNoteL=%d Rest()=%d NoteNUM()=%d *pPrevNoteNum=%d.\n",
+			LogPrintf(LOG_DEBUG, "  Matched aNoteL=%d Rest()=%d NoteNUM()=%d *pPrevNoteNum=%d.\n",
 				aNoteL, DB_NoteREST(aNoteL), NoteNUM(aNoteL), *pPrevNoteNum);
 #endif
 			*pPrevSyncL = syncL;
@@ -706,14 +705,14 @@ static INT16 RestartSearchTargetPos(
 	ERRINFO oneErrorInfo, totalErrorInfo;
 	
 #ifdef DEBUG_MIDLEVEL
-	DebugPrintf(" RestartSearchTargetPos: look for match. failedMatchStartL=%d voice=%d\n",
+	LogPrintf(LOG_DEBUG, " RestartSearchTargetPos: look for match. failedMatchStartL=%d voice=%d\n",
 	failedMatchStartL, voice);
 #endif
 	if (failedMatchStartL==DB_NILINK
 	||  !DB_IsAfter(failedMatchStartL, failL)) {
 		/* Either there was no previous partial match or the range from start to fail
-		 * LINKs is empty: we can't restart.
-		 */
+		   LINKs is empty: we can't restart. */
+		   
 		*pMayMatchStartL = DB_NILINK;
 		*pNewPrevSyncL = DB_NILINK;
 		*pNewPrevNoteL = DB_NILINK;
@@ -868,10 +867,10 @@ static void DebugShowSSInfo(INT16 searchPatLen, LINK pL, INT16 voice, INT16 voic
 	if (voiceStatus[voice]==VOICE_NOTPRESENT) statusChar = 'n';
 	if (voiceStatus[voice]==VOICE_PRESENT) statusChar = 'p';
 	if (voiceStatus[voice]==VOICE_MATCHED) statusChar = 'M';
-	DebugPrintf("  SS>SyncMatch(v=%d,L%ld) status=%c: Pos=%d totalPitchError=%d",
+	LogPrintf(LOG_DEBUG, "  SS>SyncMatch(v=%d,L%ld) status=%c: Pos=%d totalPitchError=%d",
 			voice, (long)pL, statusChar, targetPos[voice], totalErrorInfo[voice].pitchErr);
-	if (targetPos[voice]>=searchPatLen) DebugPrintf(" MATCH\n");
-	else                                DebugPrintf("\n");
+	if (targetPos[voice]>=searchPatLen) LogPrintf(LOG_DEBUG, " MATCH\n");
+	else                                LogPrintf(LOG_DEBUG, "\n");
 }
 
 
@@ -910,7 +909,7 @@ DB_LINK SearchGetHitSet(
 	long nObjsToSearch;
 
 #ifdef DEBUG_MIDLEVEL
-	DebugPrintf("SearchGetHitSet: look for matches. startL=%d\n", startL);
+	LogPrintf(LOG_DEBUG, "SearchGetHitSet: look for matches. startL=%d\n", startL);
 #endif
 
 	for (v = 1; v<=MAXVOICES; v++) {
@@ -993,7 +992,7 @@ DB_LINK SearchGetHitSet(
 				   starting later in other voices. */
 				   
 #ifdef DEBUG_MIDLEVEL
-				DebugPrintf(" SearchGetHitSet: startL=%d pL=%d. matched full pattern in voice=%d.\n", startL, pL, v);
+				LogPrintf(LOG_DEBUG, " SearchGetHitSet: startL=%d pL=%d. matched full pattern in voice=%d.\n", startL, pL, v);
 #endif
 				foundVoiceA[v] = True;
 				if (fullMatchStartL==DB_NILINK) {
@@ -1026,7 +1025,7 @@ DB_LINK SearchGetHitSet(
 														&newPrevNoteNum,
 														newObjA, newSubobjA, &totalErrorInfo[v]);
 				if (CapsLockKeyDown() && ShiftKeyDown())
-					DebugPrintf("  SS>RestartSTP(v=%d,L%ld) newMayStart=L%ld: Pos=%d totalPitchError=%d\n",
+					LogPrintf(LOG_DEBUG, "  SS>RestartSTP(v=%d,L%ld) newMayStart=L%ld: Pos=%d totalPitchError=%d\n",
 						v, (long)mayMatchStartL[v], (long)newMayMatchStartL, targetPos[v],
 						totalErrorInfo[v].pitchErr);
 				for (n = 0; n<targetPos[v]; n++) {
@@ -1038,7 +1037,7 @@ DB_LINK SearchGetHitSet(
 				prevNoteL[v] = newPrevNoteL;
 				prevNoteNum[v] = newPrevNoteNum;
 				if (targetPos[v]>=searchPat.patLen) {
-						DebugPrintf("RestartSTP FOUND IT!\n");
+						LogPrintf(LOG_DEBUG, "RestartSTP FOUND IT!\n");
 						fullMatchStartL = mayMatchStartL[v];				/* Matched entire pattern */
 				}
 		}
@@ -1083,7 +1082,7 @@ void DebugShowObjAndSubobj(char *label, DB_LINK matchedObjFA[][MAX_PATLEN],
 							DB_LINK matchedSubobjFA[][MAX_PATLEN], INT16 patLen,
 							INT16 nFound);
 void DebugShowObjAndSubobj(
-			char *label,						/* Identifying string to display */
+			char *label,							/* Identifying string to display */
 			DB_LINK matchedObjFA[][MAX_PATLEN],		/* Array of hit details, by voice */
 			DB_LINK matchedSubobjFA[][MAX_PATLEN],	/* Array of hit details, by voice */
 			INT16 patLen,
@@ -1093,15 +1092,15 @@ void DebugShowObjAndSubobj(
 	short n, m;
 
 	for (n = 0; n<5 & n<nFound; n++) {
-		DebugPrintf("%s: matchedObjFA[%d]=", label, n);
+		LogPrintf(LOG_DEBUG, "%s: matchedObjFA[%d]=", label, n);
 		for (m = 0; m<patLen; m++)
-			DebugPrintf("%d ", matchedObjFA[n][m]);
-		DebugPrintf("\n");
+			LogPrintf(LOG_DEBUG, "%d ", matchedObjFA[n][m]);
+		LogPrintf(LOG_DEBUG, "\n");
 
-		DebugPrintf("%s: matchedSubobjFA[%d]=", label, n);
+		LogPrintf(LOG_DEBUG, "%s: matchedSubobjFA[%d]=", label, n);
 		for (m = 0; m<patLen; m++)
-			DebugPrintf("%d ", matchedSubobjFA[n][m]);
-		DebugPrintf("\n");
+			LogPrintf(LOG_DEBUG, "%d ", matchedSubobjFA[n][m]);
+		LogPrintf(LOG_DEBUG, "\n");
 	}
 }
 
@@ -1231,32 +1230,37 @@ void ListMatches(MATCHINFO matchInfoA[],
 	char strTime[256];
 	Boolean sortByRelEst;
 
+LogPrintf(LOG_INFO, "ListMatches: nFound=%d\n", nFound);
 	elapsedMillisecs = TICKS2MS(elapsedTicks);
 	FormatTime(elapsedMillisecs, strTime);
 
 	if (nFound==0) {
 		CParamText("The pattern was not found.", "", "", "");	// ??I18N BUG
 		NoteInform(GENERIC_ALRT);
-		DebugPrintf("Time %s sec. Not found.\n", strTime);
+		LogPrintf(LOG_INFO, "Time %s sec. Not found.\n", strTime);
 		return;
 	}
 		
-	/* At this point, the matches are in the order in which they were found.
-	 * Optionally sort them by relevance estimate before displaying them. NB:
-	 * we want a stable sort, i.e., one that preserves the order of matches with
-	 * equal error; speed isn't important, since we'll rarely if ever be sorting
-	 * more than a few hundred items.
-	 */
+#ifndef SEARCH_DBFORMAT_MEF
+	if (!InitResultList(MAX_HITS, patLen)) return;
+#endif
+	
+	/* At this point, the matches are in the order in which they were found. Optionally
+	   sort them by relevance estimate before displaying them. NB: we want a stable
+	   sort, i.e., one that preserves the order of matches with equal error; speed
+	   isn't important, since we'll rarely if ever be sorting more than a few hundred
+	   items. */
+	   
 	sortByRelEst = (sParm.usePitch && sParm.pitchTolerance!=0 && !(ShiftKeyDown() && CmdKeyDown()));
 	if (sortByRelEst)
 		SortMatches(matchInfoA, matchedObjFA, matchedSubobjFA, patLen, nFound);
 
 	sprintf(label, "Time %s sec. %d matches", strTime, nFound);
-	sprintf(&label[strlen(label)], " (in order %s):", (sortByRelEst? "of accuracy" : "found"));
-	DebugPrintf("%s\n", label);
+	sprintf(&label[strlen(label)], ", in order %s:  (ListMatches)", (sortByRelEst? "of accuracy" : "found"));
+	LogPrintf(LOG_INFO, "%s\n", label);
 
-	//DebugShowObjAndSubobj("ListMatches", (DB_LINK (*)[MAX_PATLEN])matchedObjFA,
-	//						(DB_LINK (*)[MAX_PATLEN])matchedSubobjFA, patLen, nFound);
+	if (DETAIL_SHOW) DebugShowObjAndSubobj("ListMatches", (DB_LINK (*)[MAX_PATLEN])matchedObjFA,
+							(DB_LINK (*)[MAX_PATLEN])matchedSubobjFA, patLen, nFound);
 
 	for (n = 0; n<nFound; n++) {
 		Boolean showPitchErr, showDurErr;
@@ -1273,29 +1277,39 @@ void ListMatches(MATCHINFO matchInfoA[],
 			sprintf(&str[strlen(str)], "m.%d, %s",
 					matchInfoA[n].measNum, matchInfoA[n].vInfoStr);		// ??I18N BUG
 
-		if (CapsLockKeyDown())
+		if (DETAIL_SHOW)
 			sprintf(&str[strlen(str)], " (L%ld V%d)",
 					(long)matchInfoA[n].foundL, matchInfoA[n].foundVoice);		// ??I18N BUG
 
 		showPitchErr = (sParm.usePitch && sParm.pitchTolerance!=0);
 		showDurErr = (sParm.useDuration && sParm.durSearchType==TYPE_DURATION_CONTOUR);
 		if (showPitchErr || showDurErr) {
-
 			if (showPitchErr && showDurErr)
-				sprintf(&str[strlen(str)], ", err=p%dd%d (%d%%)",
+				sprintf(&str[strlen(str)], ". err=p%dd%d (%d%%)",
 							matchInfoA[n].totalError.pitchErr,
 							matchInfoA[n].totalError.durationErr, matchInfoA[n].relEst);
 			else if (showPitchErr)
-				sprintf(&str[strlen(str)], ", err=p%d (%d%%)",
+				sprintf(&str[strlen(str)], ". err=p%d (%d%%)",
 							matchInfoA[n].totalError.pitchErr,
 							matchInfoA[n].relEst);
 			else if (showDurErr)
-				sprintf(&str[strlen(str)], ", err=d%d (%d%%)",
+				sprintf(&str[strlen(str)], ". err=d%d (%d%%)",
 							matchInfoA[n].totalError.durationErr,
 							matchInfoA[n].relEst);
 
 		}
 
-		DebugPrintf("%s\n", str);
+		LogPrintf(LOG_INFO, "%s\n", str);
+
+#ifndef SEARCH_DBFORMAT_MEF
+		if (!AddToResultList(str, matchInfoA[n], matchedObjFA[n], matchedSubobjFA[n])) {
+			AlwaysErrMsg("ListMatches: AddToResultList failed.");
+			break;
+		}
+#endif
 	}
+
+#ifndef SEARCH_DBFORMAT_MEF
+	DoResultListDoc(label);
+#endif
 }

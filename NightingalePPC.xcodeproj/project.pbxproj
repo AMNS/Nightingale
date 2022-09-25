@@ -12,6 +12,8 @@
 		150C7EC2218BA44A00AEE9A2 /* MIDIRecUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 150C7EC1218BA44A00AEE9A2 /* MIDIRecUtils.cp */; };
 		1515242E27D003DF0082FFDB /* MidiMap.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1515242D27D003DF0082FFDB /* MidiMap.cp */; };
 		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
+		153171F328D9DCD200F5DAD8 /* ResultList.cp in Sources */ = {isa = PBXBuildFile; fileRef = 153171F228D9DCD200F5DAD8 /* ResultList.cp */; };
+		153171F528D9DCDD00F5DAD8 /* ResultListDocument.cp in Sources */ = {isa = PBXBuildFile; fileRef = 153171F428D9DCDD00F5DAD8 /* ResultListDocument.cp */; };
 		15420AE827CAE50000E0D841 /* PopUpUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15420AE727CAE50000E0D841 /* PopUpUtils.cp */; };
 		15424A7027AD77A900B13744 /* TempoEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15424A6F27AD77A900B13744 /* TempoEdit.cp */; };
 		15434CC2287C96BE00BEBE21 /* SearchScore.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15434CC1287C96BE00BEBE21 /* SearchScore.cp */; };
@@ -256,6 +258,8 @@
 		150C7EC1218BA44A00AEE9A2 /* MIDIRecUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIRecUtils.cp; sourceTree = "<group>"; };
 		1515242D27D003DF0082FFDB /* MidiMap.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MidiMap.cp; sourceTree = "<group>"; };
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
+		153171F228D9DCD200F5DAD8 /* ResultList.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ResultList.cp; path = src/FilesSearch/ResultList.cp; sourceTree = "<group>"; };
+		153171F428D9DCDD00F5DAD8 /* ResultListDocument.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ResultListDocument.cp; path = src/FilesSearch/ResultListDocument.cp; sourceTree = "<group>"; };
 		15420AE727CAE50000E0D841 /* PopUpUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PopUpUtils.cp; sourceTree = "<group>"; };
 		15424A6F27AD77A900B13744 /* TempoEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TempoEdit.cp; sourceTree = "<group>"; };
 		15434CC1287C96BE00BEBE21 /* SearchScore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SearchScore.cp; path = src/FilesSearch/SearchScore.cp; sourceTree = "<group>"; };
@@ -568,6 +572,8 @@
 		15434CBB287C969300BEBE21 /* FilesSearch */ = {
 			isa = PBXGroup;
 			children = (
+				153171F228D9DCD200F5DAD8 /* ResultList.cp */,
+				153171F428D9DCDD00F5DAD8 /* ResultListDocument.cp */,
 				15434CC1287C96BE00BEBE21 /* SearchScore.cp */,
 				15434CC3287C96CC00BEBE21 /* SearchScore.h */,
 				15D234B7287CAA5E00A7C12F /* SearchScoreDlog.cp */,
@@ -1274,6 +1280,8 @@
 				15D234B8287CAA5E00A7C12F /* SearchScoreDlog.cp in Sources */,
 				15D234BC287CAA8100A7C12F /* SearchScoreNative.cp in Sources */,
 				159F54FB289D40F10058D794 /* Check.cp in Sources */,
+				153171F328D9DCD200F5DAD8 /* ResultList.cp in Sources */,
+				153171F528D9DCDD00F5DAD8 /* ResultListDocument.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

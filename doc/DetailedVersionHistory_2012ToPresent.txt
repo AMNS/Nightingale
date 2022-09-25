@@ -3791,3 +3791,14 @@ DragAccModNR, Dragging, DrawNRGR, DrawUtils, SpaceTime.
 
 ----------------------------------------------------------------------------------------- B26
 
+17 - 25 Sept.
+
+Fixed bug: not all notehead graph colors are displayed correctly. Affects DrawNRGR.
+
+Worked on bug: Find All doesn't work. Affects ResultList (new file), ResultListDocument
+(new file), SearchScore.
+
+Minor changes. Affects info.plist, SpaceTime.h; DrawNRGR, SearchScore, SearchScoreNative.
+
+----------------------------------------------------------------------------------------- B27
+
