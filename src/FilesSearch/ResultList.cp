@@ -952,7 +952,7 @@ Boolean DoResultListDoc(char /* label */ [])
 	Boolean ok;
 	UserList *l;
 	
-	ok = DoOpenResultListDocument(&resListDoc);
+	ok = DoOpenResListDocument(&resListDoc);
 	if (!gResUserList) {
 		AlwaysErrMsg("DoResultListDoc: there's no gResUserList.");
 		return False;

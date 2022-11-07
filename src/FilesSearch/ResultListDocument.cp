@@ -104,11 +104,11 @@ static void ShowResultListDocument()
 		ShowDocument(gResListDocument);		
 	}
 
-Boolean DoOpenResultListDocument(Document **pDoc)
+Boolean DoOpenResListDocument(Document **pDoc)
 	{
 		WindowPtr w;  Document *doc;
 
-LogPrintf(LOG_DEBUG, "DoOpenResultListDocument1: gResListDocument=%x\n", gResListDocument);
+LogPrintf(LOG_DEBUG, "DoOpenResListDocument1: gResListDocument=%x\n", gResListDocument);
 		*pDoc = NULL;
 		
 		/* If an existing document and already open, then just bring it to front */
@@ -141,7 +141,7 @@ LogPrintf(LOG_DEBUG, "DoOpenResultListDocument1: gResListDocument=%x\n", gResLis
 		BuildEmptyDoc(gResListDocument);
 
 		SetPort(GetWindowPort(w));
-LogPrintf(LOG_DEBUG, "DoOpenResultListDocument2: gResListDocument=%x\n", gResListDocument);
+LogPrintf(LOG_DEBUG, "DoOpenResListDocument2: gResListDocument=%x\n", gResListDocument);
 		BuildResListDocument(gResListDocument);
 		ShowResultListDocument();
 		*pDoc = gResListDocument;

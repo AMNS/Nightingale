@@ -567,6 +567,7 @@ static INT16 IRSearchScore(Document *doc,
 		/* Found instance(s) of the pattern: save them. Then prepare to look for another
 		   instance, starting with the Sync after the one these instances started with. */
 		   
+LogPrintf(LOG_DEBUG, "IRSearchScore: doc=%x searchPatDoc=%x\n", doc, searchPatDoc);
 		for (v = 1; v<=MAXVOICES; v++) {
 			if (!foundVoiceA[v]) continue;
 			if (nFound>=MAX_HITS) {
@@ -589,8 +590,8 @@ static INT16 IRSearchScore(Document *doc,
 			Pstrcpy((StringPtr)scoreName, doc->name);
 			PToCString((StringPtr)scoreName);
 			GoodStrncpy(matchInfoA[nFound].scoreName, scoreName, FILENAME_MAXLEN);
-LogPrintf(LOG_DEBUG, "IRSearchScore: nFound=%d matchInfoA[].docNum=%d doc=%x scoreName='%s'\n",
-nFound, matchInfoA[nFound].docNum, doc, scoreName); 
+LogPrintf(LOG_DEBUG, "IRSearchScore: v=%d nFound=%d matchInfoA[].docNum=%d doc=%x scoreName='%s'\n",
+v, nFound, matchInfoA[nFound].docNum, doc, scoreName); 
 	
 			matchInfoA[nFound].measNum = GetMeasNum(doc, foundL);
 			matchInfoA[nFound].foundVoice = v;
@@ -605,6 +606,8 @@ nFound, matchInfoA[nFound].docNum, doc, scoreName);
 				pPart = GetPPARTINFO(partL);
 				sprintf(&vInfoStr[strlen(vInfoStr)], (strlen(pPart->name)>14?
 														pPart->shortName : pPart->name));
+LogPrintf(LOG_DEBUG, "IRSearchScore: v=%d userVoice=%d pPart->shortName='%s', ->name='%s', vInfoStr='%s'\n",
+v, userVoice,  pPart->shortName, pPart->name, vInfoStr);
 			}
 			else
 				sprintf(vInfoStr, "%d", v);

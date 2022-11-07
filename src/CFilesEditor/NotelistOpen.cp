@@ -70,8 +70,8 @@ static Boolean IsFirstTimesig(NLINK tsL);
 static char DynamicGlyph(LINK dynamicL);
 
 /* Functions that call the Macintosh Toolbox */
-static void BuildConvertedNLFileName(Str255 fn, Str255 newfn);
 
+static void BuildConvertedNLFileName(Str255 fn, Str255 newfn);
 
 /* Globals declared in NotelistParse.c */
 
@@ -118,6 +118,7 @@ Boolean FSOpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
 	}
 	
 	/* Grab score name from the Notelist header. If that's empty build a filename. */
+	
 	pHead = GetPNL_HEAD(0);
 	if (pHead->scoreName) {
 		result = FetchString(pHead->scoreName, (char *)newfn);
@@ -262,10 +263,10 @@ static Boolean NotelistToNight(Document *doc)
 	ProgressMsg(CONVERTNOTELIST_PMSTR, " 2...");	/* "Converting Notelist file: step 2..." */
 
 	/* Fix up LINKs of all Tuplets in the score. Note that FIFixTupletLinks also resets
-	 * play durations of notes in tuplets: this is not good, since we've already set
-	 * them from the notelist, but it should be easy to get rid of when someone has
-	 * a bit of time.
-	 */
+	   play durations of notes in tuplets: this is not good, since we've already set
+	   them from the notelist, but it should be easy to get rid of when someone has a
+	   bit of time. */
+	   
 	for (v = 1; v<=MAXVOICES; v++)
 		FIFixTupletLinks(doc, doc->headL, doc->tailL, v);
 
@@ -275,17 +276,20 @@ static Boolean NotelistToNight(Document *doc)
 	FixPlayDurs(doc, doc->headL, doc->tailL);
 
 /* If requested, delete all redundant accidentals. */
+
 	if (gDelAccs) {
 		SelAllNoHilite(doc);
 		DelRedundantAccs(doc, ANYONE, DELALL_REDUNDANTACCS_DI);
 	}
 
 	/* Create slurs/ties before reformatting, so that we can get cross-sys & cross-pg slurs/ties. */
+	
 	CreateAllTies(doc);
 	FICreateAllSlurs(doc);
 	FIFixAllNoteSlurTieFlags(doc);
 	
 	/* Combine adjacent keysigs on different staves into the same object. */
+	
 	if (gNumNLStaves>1)
 		ok = FICombineKeySigs(doc, doc->headL, doc->tailL);
 	
@@ -295,6 +299,7 @@ static Boolean NotelistToNight(Document *doc)
 	doc->autoRespace = True;
 
 	/* If there aren't any short notes, save some paper. Cf. MFRespAndRfmt(). */
+	
 	shortestDurCode = GetShortestDurCode(ANYONE, firstMeasL, doc->tailL);
 	spacePercent = 100L;
 	if (shortestDurCode==EIGHTH_L_DUR) spacePercent = 85L;
@@ -313,13 +318,15 @@ static Boolean NotelistToNight(Document *doc)
 	FIAutoMultiVoice(doc, False);
 
 	/* Set tuplet accessory nums to a reasonable vertical position. Do *after* beaming! */
+	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		if (TupletTYPE(pL))
 			SetTupletYPos(doc, pL);
 
 	FIJustifyAll(doc);												/* Justify every system. */
 	
-	/* Reshape slurs and ties to default; respace/reformat will have deformed many of them. */
+	/* Reshape slurs and ties to default; respace/reformat probably deformed many of them. */
+	
 	FIReshapeSlursTies(doc);
 
 	FIAnchorAllJDObjs(doc);
@@ -385,6 +392,7 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 	}
 
 	/* Get the staff-relative halfline that SetupNote expects. */
+	
 	if (!isRest) {
 		GetContext(doc, curSyncL, pNR->staff, &context);
 		midCHalfLn = ClefMiddleCHalfLn(context.clefType);
@@ -488,6 +496,7 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	}
 
 	/* Get the staff-relative halfline that SetupNote expects. */
+	
 	GetContext(doc, curGRSyncL, pNR->staff, &context);
 	midCHalfLn = ClefMiddleCHalfLn(context.clefType);
 	result = NLMIDI2HalfLn(pNR->noteNum, pNR->eAcc, midCHalfLn, &halfLn);
@@ -498,8 +507,8 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 		return False;
 	}
 
-	SetupGRNote(doc, curGRSyncL, aGRNoteL, pNR->staff, halfLn, 
-				pNR->durCode, pNR->nDots, iVoice, pNR->eAcc, 0);
+	SetupGRNote(doc, curGRSyncL, aGRNoteL, pNR->staff, halfLn, pNR->durCode,
+				pNR->nDots, iVoice, pNR->eAcc, 0);
 
 	aGRNote = GetPAGRNOTE(aGRNoteL);
 	aGRNote->accident = pNR->acc;
@@ -521,10 +530,9 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 
 
 /* ----------------------------------------------------------------------- ConvertMods -- */
-/* Convert all the modifiers attached to the given note. Until we have a reasonable
-auto-placement algorithm (begun in ModNRPitchLev), do something hopelessly crude.
-NB: Don't confuse modifiers in the Notelist temporary data structure with those in
-the Nightingale object list! Return True if ok, False if error. */
+/* Convert all the modifiers attached to the given note. NB: Don't confuse modifiers in
+the Notelist temporary data structure with those in the Nightingale object list! Return
+True if OK, False if error. */
 
 static Boolean ConvertMods(Document *doc, NLINK firstModID, LINK syncL, LINK aNoteL)
 {
@@ -542,8 +550,6 @@ static Boolean ConvertMods(Document *doc, NLINK firstModID, LINK syncL, LINK aNo
 		}
 		aModL = AutoNewModNR(doc, aNLMod.code, aNLMod.data, syncL, aNoteL);
 		if (!aModL) return False;
-		pMod = GetPAMODNR(aModL);
-		pMod->ystdpit = 0;		/* ystdpit is clef-independent dist below mid-C in 8th-spaces */
 	}
 	
 	return True;

@@ -20,7 +20,7 @@
 static Rect bRect, paperRect;
 static DRect systemRect;
 static short linenum, showBPage;
-static char s[300];				/* A bit more than 256 to protect against 255-char. Graphics, etc. */
+static char lStr[300];			/* A bit more than 256 to protect against 255-char. Graphics, etc. */
 static char dynStr[40];			/* for dynamics only */
 static char clefStr[40];		/* for clefs only */
 static char objList[16];
@@ -590,28 +590,28 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	TextSize(9);
 
 	ps = NameObjType(pL);
-	sprintf(s, "%s%s [type %d]", objList, ps, ObjLType(pL));
+	sprintf(lStr, "%s%s [type %d]", objList, ps, ObjLType(pL));
 	if (doc->selStartL==pL)
-		strcat(s, "  (selStartL)");
+		strcat(lStr, "  (selStartL)");
 	else if (doc->selEndL==pL)
-		strcat(s, "  (selEndL)");
-	DrawTextLine(s);
+		strcat(lStr, "  (selEndL)");
+	DrawTextLine(lStr);
 
-	sprintf(s, "here (left,right)=%u (%u,%u)", pL, LeftLINK(pL), RightLINK(pL));
-	DrawTextLine(s);
+	sprintf(lStr, "here (left,right)=%u (%u,%u)", pL, LeftLINK(pL), RightLINK(pL));
+	DrawTextLine(lStr);
 	p = GetPMEVENT(pL);
-	sprintf(s, "@%lx xd,yd=%d,%d", (long unsigned int)p, p->xd, p->yd);
-	DrawTextLine(s);
-	strcpy(s, "flags=");
-	if (LinkSEL(pL))		strcat(s, "SELECTED ");
-	if (LinkVIS(pL))		strcat(s, "VISIBLE ");
-	if (LinkSOFT(pL))		strcat(s, "SOFT ");
-	if (LinkVALID(pL))		strcat(s, "VALID ");
-	if (LinkTWEAKED(pL))	strcat(s, "TWEAKED ");
-	if (LinkSPAREFLAG(pL))	strcat(s, "SPARE ");
-	DrawTextLine(s);
+	sprintf(lStr, "@%lx xd,yd=%d,%d", (long unsigned int)p, p->xd, p->yd);
+	DrawTextLine(lStr);
+	strcpy(lStr, "flags=");
+	if (LinkSEL(pL))		strcat(lStr, "SELECTED ");
+	if (LinkVIS(pL))		strcat(lStr, "VISIBLE ");
+	if (LinkSOFT(pL))		strcat(lStr, "SOFT ");
+	if (LinkVALID(pL))		strcat(lStr, "VALID ");
+	if (LinkTWEAKED(pL))	strcat(lStr, "TWEAKED ");
+	if (LinkSPAREFLAG(pL))	strcat(lStr, "SPARE ");
+	DrawTextLine(lStr);
 	r = LinkOBJRECT(pL);
-	sprintf(s, "objRect/t l b r=%d %d %d %d", r.top, r.left, r.bottom, r.right);
+	sprintf(lStr, "objRect/t l b r=%d %d %d %d", r.top, r.left, r.bottom, r.right);
 
 	/* Search back for this object's measure, system, and page (poor man's GetContext) */
 	
@@ -633,9 +633,9 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	if (pageL)
 		if (GetSheetRect(doc,SheetNUM(pageL),&paperRect)!=INARRAY_INRANGE) pageL = NILINK;
 		
-	DrawTextLine(s);
-	sprintf(s, "nEntries=%d 1stSubObj=%u", LinkNENTRIES(pL), FirstSubLINK(pL));
-	DrawTextLine(s);
+	DrawTextLine(lStr);
+	sprintf(lStr, "nEntries=%d 1stSubObj=%u", LinkNENTRIES(pL), FirstSubLINK(pL));
+	DrawTextLine(lStr);
 	DrawTextLine("----------------------------");
 	
 	subL = NILINK;
@@ -719,14 +719,14 @@ static void ShowVoicePage(Document *doc, short startV)
 {
 	short v;
 	
-	sprintf(s, "The score uses %d voices.", NCountVoices(doc));
-	DrawTextLine(s);
+	sprintf(lStr, "The score uses %d voices.", NCountVoices(doc));
+	DrawTextLine(lStr);
 	
 	if (startV<1) startV = 1;				/* Avoid negative index in loop below */
 	
 	for (v = startV; v<startV+VOICEPAGESIZE && v<=MAXVOICES; v++) {
-		GetVoiceTableLine(doc, v, s);
-		DrawTextLine(s);
+		GetVoiceTableLine(doc, v, lStr);
+		DrawTextLine(lStr);
 	}
 }
 
@@ -762,23 +762,23 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 	}
 		
 	else {
-		sprintf(s, "numSheets=%d currSheet=%d 1stSheet=%d", doc->numSheets,
+		sprintf(lStr, "numSheets=%d currSheet=%d 1stSheet=%d", doc->numSheets,
 					doc->currentSheet, doc->firstSheet);
-		DrawTextLine(s);
-		sprintf(s, "1stPgNum=%d; nsys=%d currSys=%d nstf=%d", doc->firstPageNumber,
+		DrawTextLine(lStr);
+		sprintf(lStr, "1stPgNum=%d; nsys=%d currSys=%d nstf=%d", doc->firstPageNumber,
 					doc->nsystems, doc->currentSystem, doc->nstaves);
-		DrawTextLine(s);
-		sprintf(s, "s/altsrastral=%d,%d transp=%d lastGlFont=%d", doc->srastral, 
+		DrawTextLine(lStr);
+		sprintf(lStr, "s/altsrastral=%d,%d transp=%d lastGlFont=%d", doc->srastral, 
 					doc->altsrastral, doc->transposed, doc->lastGlobalFont);
-		DrawTextLine(s);
+		DrawTextLine(lStr);
 
 		hOffset = doc->headerStrOffset;
 		pStr = PCopy(hOffset);
 		if (pStr[0]!=0) {
 			Pstrcpy((StringPtr)string, (StringPtr)pStr);
 			PToCString((StringPtr)string);
-			sprintf(s, "page header='%s'", string);
-			DrawTextLine(s);
+			sprintf(lStr, "page header='%s'", string);
+			DrawTextLine(lStr);
 		}
 
 		fOffset = doc->footerStrOffset;
@@ -786,84 +786,84 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 		if (pStr[0]!=0) {
 			Pstrcpy((StringPtr)string, (StringPtr)pStr);
 			PToCString((StringPtr)string);
-			sprintf(s, "page footer='%s'", string);
-			DrawTextLine(s);
+			sprintf(lStr, "page footer='%s'", string);
+			DrawTextLine(lStr);
 		}
 
-		sprintf(s, "paperRect/t l b r=p%d,%d,%d,%d",
+		sprintf(lStr, "paperRect/t l b r=p%d,%d,%d,%d",
 			doc->paperRect.top, doc->paperRect.left,
 			doc->paperRect.bottom, doc->paperRect.right);
-		DrawTextLine(s);
-		sprintf(s, "marginRect=pt%d,%d,%d,%d",
+		DrawTextLine(lStr);
+		sprintf(lStr, "marginRect=pt%d,%d,%d,%d",
 			doc->marginRect.top, doc->marginRect.left,
 			doc->marginRect.bottom, doc->marginRect.right);
-		DrawTextLine(s);
-		sprintf(s, "origPaperRect=pt%d,%d,%d,%d",
+		DrawTextLine(lStr);
+		sprintf(lStr, "origPaperRect=pt%d,%d,%d,%d",
 			doc->origPaperRect.top, doc->origPaperRect.left,
 			doc->origPaperRect.bottom, doc->origPaperRect.right);
-		DrawTextLine(s);
-		sprintf(s, "origin=%d,%d sheetOrigin=%d,%d",
+		DrawTextLine(lStr);
+		sprintf(lStr, "origin=%d,%d sheetOrigin=%d,%d",
 			doc->origin.v, doc->origin.h,
 			doc->sheetOrigin.v, doc->sheetOrigin.h);
-		DrawTextLine(s);
-		sprintf(s, "currPaper=%d,%d,%d,%d",
+		DrawTextLine(lStr);
+		sprintf(lStr, "currPaper=%d,%d,%d,%d",
 			doc->currentPaper.top, doc->currentPaper.left,
 			doc->currentPaper.bottom, doc->currentPaper.right);
-		DrawTextLine(s);
-		sprintf(s, "viewRect=%d,%d,%d,%d",
+		DrawTextLine(lStr);
+		sprintf(lStr, "viewRect=%d,%d,%d,%d",
 			doc->viewRect.top, doc->viewRect.left,
 			doc->viewRect.bottom, doc->viewRect.right);
-		DrawTextLine(s);
-		sprintf(s, "ledgerYSp=%d nFontRecs=%d spPercent=%d",
+		DrawTextLine(lStr);
+		sprintf(lStr, "ledgerYSp=%d nFontRecs=%d spPercent=%d",
 					doc->ledgerYSp, doc->nFontRecords, doc->spacePercent);
-		DrawTextLine(s);
-		sprintf(s, "indentFirst=%d yBtwnSys=%d spTab=%d mag=%d",
+		DrawTextLine(lStr);
+		sprintf(lStr, "indentFirst=%d yBtwnSys=%d spTab=%d mag=%d",
 						doc->dIndentFirst, doc->yBetweenSys, doc->spaceTable,doc->magnify);
-		DrawTextLine(s);
-		sprintf(s, "comment='%s'", doc->comment);
-		DrawTextLine(s);
-		sprintf(s, "strPool=%lx size=%ld nfontsUsed=%d:", (long unsigned int)doc->stringPool,
+		DrawTextLine(lStr);
+		sprintf(lStr, "comment='%s'", doc->comment);
+		DrawTextLine(lStr);
+		sprintf(lStr, "strPool=%lx size=%ld nfontsUsed=%d:", (long unsigned int)doc->stringPool,
 						GetHandleSize((Handle)doc->stringPool), doc->nfontsUsed);
-		DrawTextLine(s);
+		DrawTextLine(lStr);
 		
 		/* Show at most the first 10 fonts used because of dialog space limitations. */
 	
 		for (i = 0; i<doc->nfontsUsed && i<=10; i++) {
 			Pstrcpy((StringPtr)string, (StringPtr)(doc->fontTable[i].fontName));
 			PToCString((StringPtr)string);
-			sprintf(s, "  (%d) name='%s' ID=%d", i, string, doc->fontTable[i].fontID);
-			DrawTextLine(s);
+			sprintf(lStr, "  (%d) name='%s' ID=%d", i, string, doc->fontTable[i].fontID);
+			DrawTextLine(lStr);
 		}
-		sprintf(s, "fmsInputDevice=%d", doc->fmsInputDevice);
-		DrawTextLine(s);
-		sprintf(s, "(matchType=%d name=%#s)", doc->fmsInputDestination.basic.destinationType,
+		sprintf(lStr, "fmsInputDevice=%d", doc->fmsInputDevice);
+		DrawTextLine(lStr);
+		sprintf(lStr, "(matchType=%d name=%#s)", doc->fmsInputDestination.basic.destinationType,
 					doc->fmsInputDestination.basic.name);
-		DrawTextLine(s);
+		DrawTextLine(lStr);
 		
-		sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-		DrawTextLine(s);
+		sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+		DrawTextLine(lStr);
 	
 		if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 		for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPARTINFOL(qL)) ;
 	
 		q = GetPPARTINFO(qL);
-		sprintf(s, "link=%u @%lx next=%u", qL, (long unsigned int)q, q->next);
-		DrawTextLine(s);	q = GetPPARTINFO(qL);
-		sprintf(s, "firststf=%d laststf=%d velo=%d transp=%d",
+		sprintf(lStr, "link=%u @%lx next=%u", qL, (long unsigned int)q, q->next);
+		DrawTextLine(lStr);	q = GetPPARTINFO(qL);
+		sprintf(lStr, "firststf=%d laststf=%d velo=%d transp=%d",
 			q->firstStaff, q->lastStaff,
 			q->partVelocity, q->transpose);
-		DrawTextLine(s);	q = GetPPARTINFO(qL);
-		sprintf(s, "patch=%d chan=%d name='%s'",
+		DrawTextLine(lStr);	q = GetPPARTINFO(qL);
+		sprintf(lStr, "patch=%d chan=%d name='%s'",
 			q->patchNum, q->channel, q->name);
-		DrawTextLine(s);
-		sprintf(s, "fmsOutputDevice=%d",
+		DrawTextLine(lStr);
+		sprintf(lStr, "fmsOutputDevice=%d",
 			q->fmsOutputDevice);
-		DrawTextLine(s);
-		sprintf(s, "(matchType=%d name=%#s)",
+		DrawTextLine(lStr);
+		sprintf(lStr, "(matchType=%d name=%#s)",
 			q->fmsOutputDestination.basic.destinationType,
 			q->fmsOutputDestination.basic.name);
-		DrawTextLine(s);
+		DrawTextLine(lStr);
 	}
 	
 	SetRect(pObjRect, 0, 0, 0, 0);
@@ -876,11 +876,11 @@ void BrowsePage(LINK pL, Rect *pObjRect)
 {
 	PPAGE p;
 	p = GetPPAGE(pL);
-	sprintf(s, "l/r Page=%d/%d", p->lPage, p->rPage);
-	DrawTextLine(s);
+	sprintf(lStr, "l/r Page=%d/%d", p->lPage, p->rPage);
+	DrawTextLine(lStr);
 	p = GetPPAGE(pL);
-	sprintf(s, "sheetNum=%d", p->sheetNum);
-	DrawTextLine(s);
+	sprintf(lStr, "sheetNum=%d", p->sheetNum);
+	DrawTextLine(lStr);
 	
 	*pObjRect = paperRect;
 }
@@ -893,23 +893,23 @@ void BrowseSystem(LINK pL, Rect *pObjRect)
 	PSYSTEM p;
 	
 	p = GetPSYSTEM(pL);
-	sprintf(s, "l/r System=%d/%d", p->lSystem, p->rSystem);
-	DrawTextLine(s);
+	sprintf(lStr, "l/r System=%d/%d", p->lSystem, p->rSystem);
+	DrawTextLine(lStr);
 	p = GetPSYSTEM(pL);
-	sprintf(s, "systemNum=%d", p->systemNum);
-	DrawTextLine(s);
+	sprintf(lStr, "systemNum=%d", p->systemNum);
+	DrawTextLine(lStr);
 	p = GetPSYSTEM(pL);
-	sprintf(s, "pageL=%d", p->pageL);
-	DrawTextLine(s);
+	sprintf(lStr, "pageL=%d", p->pageL);
+	DrawTextLine(lStr);
 	p = GetPSYSTEM(pL);
 	D2Rect(&p->systemRect, pObjRect);
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
-	sprintf(s, "systemRect/t l b r=d%d %d %d %d",
+	sprintf(lStr, "systemRect/t l b r=d%d %d %d %d",
 			p->systemRect.top,
 			p->systemRect.left,
 			p->systemRect.bottom,
 			p->systemRect.right);
-	DrawTextLine(s);
+	DrawTextLine(lStr);
 }
 
 
@@ -924,62 +924,62 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 	char ksStr[256];
 
 	p = GetPSTAFF(pL);
-	sprintf(s, "l/r Staff=%d/%d", p->lStaff, p->rStaff);
-	DrawTextLine(s);
+	sprintf(lStr, "l/r Staff=%d/%d", p->lStaff, p->rStaff);
+	DrawTextLine(lStr);
 	p = GetPSTAFF(pL);
-	sprintf(s, "systemL=%d", p->systemL);
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	sprintf(lStr, "systemL=%d", p->systemL);
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;		/* since Master Page can have 0 staves */
 
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextSTAFFL(qL))
 		;
 	q = GetPASTAFF(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
-	DrawTextLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "vis=%s sel=%s", q->visible ? "True" : "False",
+	sprintf(lStr, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	sprintf(lStr, "vis=%s sel=%s", q->visible ? "True" : "False",
 									q->selected ? "True" : "False");
-	DrawTextLine(s); q = GetPASTAFF(qL);
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
 	
 	stfRect.left = q->staffLeft;  stfRect.right = systemRect.right-systemRect.left;
 	stfRect.top = q->staffTop;  stfRect.bottom = q->staffTop+q->staffHeight;
 	DRect2ScreenRect(stfRect, systemRect, paperRect, pObjRect);
 
-	sprintf(s, "staff top/left/right=%d %d %d",
+	sprintf(lStr, "staff top/left/right=%d %d %d",
 				q->staffTop, q->staffLeft, q->staffRight);
-	DrawTextLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "staffHeight/Lines=%d %d", q->staffHeight, q->staffLines);
-	DrawTextLine(s); q = GetPASTAFF(qL);
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	sprintf(lStr, "staffHeight/Lines=%d %d", q->staffHeight, q->staffLines);
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
 	if (q->showLines==SHOW_ALL_LINES)
-		sprintf(s, "showLines=all showLedgers=%s", q->showLedgers? "yes" : "no");
+		sprintf(lStr, "showLines=all showLedgers=%s", q->showLedgers? "yes" : "no");
 	else
-		sprintf(s, "showLines=%d showLedgers=%s",
+		sprintf(lStr, "showLines=%d showLedgers=%s",
 				q->showLines, q->showLedgers? "yes" : "no");
-	DrawTextLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "fontSize=%d spaceBelow=%d", q->fontSize, q->spaceBelow);
-	DrawTextLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "ledger/noteHead/fracBeam=%d %d %d",
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	sprintf(lStr, "fontSize=%d spaceBelow=%d", q->fontSize, q->spaceBelow);
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	sprintf(lStr, "ledger/noteHead/fracBeam=%d %d %d",
 				q->ledgerWidth,
 				q->noteHeadWidth,
 				q->fracBeamWidth);
-	DrawTextLine(s); q = GetPASTAFF(qL);
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
 	ClefToString(q->clefType, clefStr);	
-	sprintf(s, "clefType=%d (%s)", q->clefType, clefStr);
-	DrawTextLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "nKSItems=%hd", q->nKSItems);
-	DrawTextLine(s); q = GetPASTAFF(qL);
+	sprintf(lStr, "clefType=%d (%s)", q->clefType, clefStr);
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	sprintf(lStr, "nKSItems=%hd", q->nKSItems);
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
 	KeySigSprintf((PKSINFO)(KeySigKSITEM(qL)), ksStr);
 	DrawTextLine(ksStr);
-	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd",
+	sprintf(lStr, "timeSigType,n/d=%hd,%hd/%hd",
 				q->timeSigType,
 				q->numerator,
 				q->denominator);
-	DrawTextLine(s); q = GetPASTAFF(qL);
+	DrawTextLine(lStr); q = GetPASTAFF(qL);
 	DynamicToString(q->dynamicType, dynStr);	
-	sprintf(s, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
-	DrawTextLine(s);
+	sprintf(lStr, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
+	DrawTextLine(lStr);
 }
 
 
@@ -996,20 +996,20 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 	
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextCONNECTL(qL)) 
 		;
 	q = GetPACONNECT(qL);
-	sprintf(s, "link=%u @%lx next=%u", qL, (long unsigned int)q, q->next);
-	DrawTextLine(s);	q = GetPACONNECT(qL);
-	strcpy(s, "flags=");
+	sprintf(lStr, "link=%u @%lx next=%u", qL, (long unsigned int)q, q->next);
+	DrawTextLine(lStr);	q = GetPACONNECT(qL);
+	strcpy(lStr, "flags=");
 	if (q->selected)
-		strcat(s, "SELECTED ");
-	DrawTextLine(s); 	q = GetPACONNECT(qL);
+		strcat(lStr, "SELECTED ");
+	DrawTextLine(lStr); 	q = GetPACONNECT(qL);
 	switch (q->connLevel) {
 		case SystemLevel:
 			DrawTextLine("connLevel=SystemLevel");
@@ -1024,7 +1024,7 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 			DrawTextLine("connLevel=Unknown");
 			break;
 	}
-	DrawTextLine(s); 	q = GetPACONNECT(qL);
+	DrawTextLine(lStr); 	q = GetPACONNECT(qL);
 	switch (q->connectType) {
 		case CONNECTLINE:
 			DrawTextLine("connectType=CONNECTLINE");
@@ -1040,12 +1040,12 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 			break;
 	}
 	
-	sprintf(s, "staffAbove=%hd staffBelow=%hd", q->staffAbove, q->staffBelow);
-	DrawTextLine(s); 	q = GetPACONNECT(qL);
-	sprintf(s, "firstPart=%d lastPart=%d", q->firstPart,q->lastPart);
-	DrawTextLine(s); 	q = GetPACONNECT(qL);
-	sprintf(s, "xd=%d", q->xd);
-	DrawTextLine(s);
+	sprintf(lStr, "staffAbove=%hd staffBelow=%hd", q->staffAbove, q->staffBelow);
+	DrawTextLine(lStr); 	q = GetPACONNECT(qL);
+	sprintf(lStr, "firstPart=%d lastPart=%d", q->firstPart,q->lastPart);
+	DrawTextLine(lStr); 	q = GetPACONNECT(qL);
+	sprintf(lStr, "xd=%d", q->xd);
+	DrawTextLine(lStr);
 	
 	subL = qL;
 }
@@ -1064,33 +1064,33 @@ void BrowseClef(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	if (p->inMeasure) sprintf(s, "In Measure ");
-	else					sprintf(s, "Not in Measure ");
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	if (p->inMeasure) sprintf(lStr, "In Measure ");
+	else					sprintf(lStr, "Not in Measure ");
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 	
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextCLEFL(qL)) 
 		;
 	q = GetPACLEF(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
-	DrawTextLine(s); 	q = GetPACLEF(qL);
-	strcpy(s, "flags=");
+	sprintf(lStr, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
+	DrawTextLine(lStr); 	q = GetPACLEF(qL);
+	strcpy(lStr, "flags=");
 	if (q->selected)
-		strcat(s, "SELECTED ");
+		strcat(lStr, "SELECTED ");
 	if (q->visible)
-		strcat(s, "VISIBLE ");
+		strcat(lStr, "VISIBLE ");
 	if (q->soft)
-		strcat(s, "SOFT ");
-	DrawTextLine(s);  	q = GetPACLEF(qL);
-	sprintf(s, "xd=%d yd=%d", q->xd, q->yd);
-	DrawTextLine(s); 	q = GetPACLEF(qL);
+		strcat(lStr, "SOFT ");
+	DrawTextLine(lStr);  	q = GetPACLEF(qL);
+	sprintf(lStr, "xd=%d yd=%d", q->xd, q->yd);
+	DrawTextLine(lStr); 	q = GetPACLEF(qL);
 	ClefToString(q->subType, clefStr);	
-	sprintf(s, "clefType=%d (%s) small=%d", q->subType, clefStr, q->small);
+	sprintf(lStr, "clefType=%d (%s) small=%d", q->subType, clefStr, q->small);
 
-	DrawTextLine(s);
+	DrawTextLine(lStr);
 	
 	subL = qL;
 }
@@ -1110,31 +1110,31 @@ void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	if (p->inMeasure) sprintf(s, "In Measure ");
-	else					sprintf(s, "Not in Measure ");
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	if (p->inMeasure) sprintf(lStr, "In Measure ");
+	else					sprintf(lStr, "Not in Measure ");
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextKEYSIGL(qL)) 
 		;
 	q = GetPAKEYSIG(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
-	DrawTextLine(s);	q = GetPAKEYSIG(qL);
-	strcpy(s, "flags=");
+	sprintf(lStr, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
+	DrawTextLine(lStr);	q = GetPAKEYSIG(qL);
+	strcpy(lStr, "flags=");
 	if (q->selected)
-		strcat(s, "SELECTED ");
+		strcat(lStr, "SELECTED ");
 	if (q->visible)
-		strcat(s, "VISIBLE ");
+		strcat(lStr, "VISIBLE ");
 	if (q->soft)
-		strcat(s, "SOFT ");
-	DrawTextLine(s); 	q = GetPAKEYSIG(qL);
-	sprintf(s, "xd=%d", q->xd);
-	DrawTextLine(s);	q = GetPAKEYSIG(qL);
-	sprintf(s, "nKSItems=%hd subType(nNats)=%d", q->nKSItems, q->subType);
-	DrawTextLine(s);
+		strcat(lStr, "SOFT ");
+	DrawTextLine(lStr); 	q = GetPAKEYSIG(qL);
+	sprintf(lStr, "xd=%d", q->xd);
+	DrawTextLine(lStr);	q = GetPAKEYSIG(qL);
+	sprintf(lStr, "nKSItems=%hd subType(nNats)=%d", q->nKSItems, q->subType);
+	DrawTextLine(lStr);
 	KeySigSprintf((PKSINFO)(KeySigKSITEM(qL)), ksStr);
 	DrawTextLine(ksStr);
 	
@@ -1155,34 +1155,34 @@ void BrowseTimeSig(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	if (p->inMeasure) sprintf(s, "In Measure ");
-	else					sprintf(s, "Not in Measure ");
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	if (p->inMeasure) sprintf(lStr, "In Measure ");
+	else					sprintf(lStr, "Not in Measure ");
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextTIMESIGL(qL)) 
 		;
 	q = GetPATIMESIG(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
-	DrawTextLine(s);	q = GetPATIMESIG(qL);
-	strcpy(s, "flags=");
+	sprintf(lStr, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
+	DrawTextLine(lStr);	q = GetPATIMESIG(qL);
+	strcpy(lStr, "flags=");
 	if (q->selected)
-		strcat(s, "SELECTED ");
+		strcat(lStr, "SELECTED ");
 	if (q->visible)
-		strcat(s, "VISIBLE ");
+		strcat(lStr, "VISIBLE ");
 	if (q->soft)
-		strcat(s, "SOFT ");
-	DrawTextLine(s);	q = GetPATIMESIG(qL);
-	sprintf(s, "xd=%d yd=%d", q->xd, q->yd);
-	DrawTextLine(s);	q = GetPATIMESIG(qL);
-	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd",
+		strcat(lStr, "SOFT ");
+	DrawTextLine(lStr);	q = GetPATIMESIG(qL);
+	sprintf(lStr, "xd=%d yd=%d", q->xd, q->yd);
+	DrawTextLine(lStr);	q = GetPATIMESIG(qL);
+	sprintf(lStr, "timeSigType,n/d=%hd,%hd/%hd",
 				q->subType,
 				q->numerator,
 				q->denominator);
-	DrawTextLine(s);
+	DrawTextLine(lStr);
 	
 	subL = qL;
 }
@@ -1199,21 +1199,21 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	Rect bbox;  DRect measSizeRect;
 
 	p = GetPMEASURE(pL);
-	sprintf(s, "l/r Measure=%d,%d", p->lMeasure, p->rMeasure);
-	DrawTextLine(s);	p = GetPMEASURE(pL);
-	sprintf(s, "systemL=%d staffL=%d", p->systemL, p->staffL);
-	DrawTextLine(s);	p = GetPMEASURE(pL);
-	sprintf(s, "fake=%s spPercent=%d", (p->fakeMeas ? "True" : "False"), p->spacePercent);
-	DrawTextLine(s);	p = GetPMEASURE(pL);
+	sprintf(lStr, "l/r Measure=%d,%d", p->lMeasure, p->rMeasure);
+	DrawTextLine(lStr);	p = GetPMEASURE(pL);
+	sprintf(lStr, "systemL=%d staffL=%d", p->systemL, p->staffL);
+	DrawTextLine(lStr);	p = GetPMEASURE(pL);
+	sprintf(lStr, "fake=%s spPercent=%d", (p->fakeMeas ? "True" : "False"), p->spacePercent);
+	DrawTextLine(lStr);	p = GetPMEASURE(pL);
 	bbox = p->measureBBox;
-	sprintf(s, "measureBBox=%d %d %d %d",
+	sprintf(lStr, "measureBBox=%d %d %d %d",
 			p->measureBBox.top, p->measureBBox.left,
 			p->measureBBox.bottom, p->measureBBox.right);
-	DrawTextLine(s);
-	sprintf(s, "lTimeStamp=%ld", p->lTimeStamp);
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	DrawTextLine(lStr);
+	sprintf(lStr, "lTimeStamp=%ld", p->lTimeStamp);
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 	xd = p->xd;
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
@@ -1221,43 +1221,43 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextMEASUREL(qL)) 
 		;
 	q = GetPAMEASURE(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
-	DrawTextLine(s);	q = GetPAMEASURE(qL);
-	strcpy(s, "flags=");
-	if (q->selected) strcat(s, "SELECTED ");
-	if (q->visible) strcat(s, "VISIBLE ");
-	if (q->soft) strcat(s, "SOFT ");
-	if (q->measureVisible) strcat(s, "MEASUREVIS ");
-	DrawTextLine(s);	q = GetPAMEASURE(qL);
+	sprintf(lStr, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
+	DrawTextLine(lStr);	q = GetPAMEASURE(qL);
+	strcpy(lStr, "flags=");
+	if (q->selected) strcat(lStr, "SELECTED ");
+	if (q->visible) strcat(lStr, "VISIBLE ");
+	if (q->soft) strcat(lStr, "SOFT ");
+	if (q->measureVisible) strcat(lStr, "MEASUREVIS ");
+	DrawTextLine(lStr);	q = GetPAMEASURE(qL);
 	measSizeRect = q->measSizeRect;
-	sprintf(s, "measSizeRect=%d %d %d %d ",
+	sprintf(lStr, "measSizeRect=%d %d %d %d ",
 			q->measSizeRect.top, q->measSizeRect.left,
 			q->measSizeRect.bottom, q->measSizeRect.right);
-	DrawTextLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "measureNum=%hd xMNSOff=%hd yMNSOff=%hd", q->measureNum,
+	DrawTextLine(lStr);	q = GetPAMEASURE(qL);
+	sprintf(lStr, "measureNum=%hd xMNSOff=%hd yMNSOff=%hd", q->measureNum,
 				q->xMNStdOffset, q->yMNStdOffset);
-	DrawTextLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "barlineType=%hd connStaff=%hd", q->subType, q->connStaff);
-	if (q->connAbove) strcat(s, " CONNABOVE");
-	DrawTextLine(s);	q = GetPAMEASURE(qL);
+	DrawTextLine(lStr);	q = GetPAMEASURE(qL);
+	sprintf(lStr, "barlineType=%hd connStaff=%hd", q->subType, q->connStaff);
+	if (q->connAbove) strcat(lStr, " CONNABOVE");
+	DrawTextLine(lStr);	q = GetPAMEASURE(qL);
 	ClefToString(q->clefType, clefStr);	
-	sprintf(s, "clefType=%d (%s)", q->clefType, clefStr);
-	DrawTextLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "nKSItems=%hd", q->nKSItems);
+	sprintf(lStr, "clefType=%d (%s)", q->clefType, clefStr);
+	DrawTextLine(lStr);	q = GetPAMEASURE(qL);
+	sprintf(lStr, "nKSItems=%hd", q->nKSItems);
 //LogPrintf(LOG_DEBUG, "BrowseMeasure1: link=%u nKSItems=%hd &q=%d &q->KSItem=%d\n", qL, q->nKSItems,
 //&q, &q->KSItem);
-	DrawTextLine(s);	q = GetPAMEASURE(qL); 
-	KeySigSprintf((PKSINFO)(MeasKSITEM(qL)), s);
-	//KeySigSprintf((PKSINFO)(&q->KSItem), s);
-	DrawTextLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd",
+	DrawTextLine(lStr);	q = GetPAMEASURE(qL); 
+	KeySigSprintf((PKSINFO)(MeasKSITEM(qL)), lStr);
+	//KeySigSprintf((PKSINFO)(&q->KSItem), lStr);
+	DrawTextLine(lStr);	q = GetPAMEASURE(qL);
+	sprintf(lStr, "timeSigType,n/d=%hd,%hd/%hd",
 			q->timeSigType,
 			q->numerator,
 			q->denominator);
-	DrawTextLine(s);	q = GetPAMEASURE(qL);
+	DrawTextLine(lStr);	q = GetPAMEASURE(qL);
 	DynamicToString(q->dynamicType, dynStr);	
-	sprintf(s, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
-	DrawTextLine(s);
+	sprintf(lStr, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
+	DrawTextLine(lStr);
 	
 	/* measSizeRect really just gives the width and height of the Measure; its top and
 	   left should always be 0. So we convert is horizontal coords. to System-relative,
@@ -1283,24 +1283,24 @@ void BrowsePseudoMeas(LINK pL, short index, Rect * /* pObjRect */)
 	
 	p = GetPPSMEAS(pL);
 	xd = p->xd;
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPSMEASL(qL)) 
 		;
 	q = GetPAPSMEAS(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
-	DrawTextLine(s);	q = GetPAPSMEAS(qL);
-	strcpy(s, "flags=");
-	if (q->selected) strcat(s, "SELECTED ");
-	if (q->visible) strcat(s, "VISIBLE ");
-	if (q->soft) strcat(s, "SOFT ");
-	DrawTextLine(s);	q = GetPAPSMEAS(qL);
-	sprintf(s, "barlineType=%hd connStaff=%hd", q->subType, q->connStaff);
-	if (q->connAbove) strcat(s, " CONNABOVE");
-	DrawTextLine(s);
+	sprintf(lStr, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
+	DrawTextLine(lStr);	q = GetPAPSMEAS(qL);
+	strcpy(lStr, "flags=");
+	if (q->selected) strcat(lStr, "SELECTED ");
+	if (q->visible) strcat(lStr, "VISIBLE ");
+	if (q->soft) strcat(lStr, "SOFT ");
+	DrawTextLine(lStr);	q = GetPAPSMEAS(qL);
+	sprintf(lStr, "barlineType=%hd connStaff=%hd", q->subType, q->connStaff);
+	if (q->connAbove) strcat(lStr, " CONNABOVE");
+	DrawTextLine(lStr);
 }
 
 
@@ -1317,70 +1317,70 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "timeStamp=%u (onset time=%ld)", SyncTIME(pL), SyncAbsTime(pL));
+	sprintf(lStr, "timeStamp=%u (onset time=%ld)", SyncTIME(pL), SyncAbsTime(pL));
 	
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEL(qL)) 
 		;
 	q = GetPANOTE(qL);
-	sprintf(s, "link=%u @%lx stf=%d iv=%hd next=%u", qL, (long unsigned int)q, q->staffn,
+	sprintf(lStr, "link=%u @%lx stf=%d iv=%hd next=%u", qL, (long unsigned int)q, q->staffn,
 				  q->voice, q->next);
-	DrawTextLine(s);	q = GetPANOTE(qL);
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
 	
-	strcpy(s, "flags=");
-	if (q->selected)		strcat(s, "SELECTED ");
-	if (q->visible)			strcat(s, "VISIBLE ");
-	if (q->soft)			strcat(s, "SOFT ");
-	if (q->inChord)			strcat(s, "INCHORD");
-	DrawTextLine(s);	q = GetPANOTE(qL);
+	strcpy(lStr, "flags=");
+	if (q->selected)		strcat(lStr, "SELECTED ");
+	if (q->visible)			strcat(lStr, "VISIBLE ");
+	if (q->soft)			strcat(lStr, "SOFT ");
+	if (q->inChord)			strcat(lStr, "INCHORD");
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
 	
-	strcpy(s, "flags=");
-	if (q->rest)			strcat(s, "REST ");
-	if (q->beamed)			strcat(s, "BEAMED ");
-	if (q->otherStemSide)	strcat(s, "OTHERSTEMSIDE");
-	DrawTextLine(s);	q = GetPANOTE(qL);
+	strcpy(lStr, "flags=");
+	if (q->rest)			strcat(lStr, "REST ");
+	if (q->beamed)			strcat(lStr, "BEAMED ");
+	if (q->otherStemSide)	strcat(lStr, "OTHERSTEMSIDE");
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
 	
-	strcpy(s, "flags=");
-	if (q->tiedL)			strcat(s, "TIEDL ");
-	if (q->tiedR)			strcat(s, "TIEDR ");
-	if (q->slurredL)		strcat(s, "SLURREDL ");
-	if (q->slurredR)		strcat(s, "SLURREDR");
-	DrawTextLine(s);	q = GetPANOTE(qL);
+	strcpy(lStr, "flags=");
+	if (q->tiedL)			strcat(lStr, "TIEDL ");
+	if (q->tiedR)			strcat(lStr, "TIEDR ");
+	if (q->slurredL)		strcat(lStr, "SLURREDL ");
+	if (q->slurredR)		strcat(lStr, "SLURREDR");
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
 
-	strcpy(s, "flags=");
-	if (q->inTuplet)		strcat(s, "INTUPLET ");
-	if (q->inOttava)		strcat(s, "INOTTAVA ");
-	if (q->playAsCue)		strcat(s, "PLAY-AS-CUE ");
-	if (q->small)			strcat(s, "SMALL ");
-	if (q->tempFlag)		strcat(s, "TEMPFLAG");
-	DrawTextLine(s);	q = GetPANOTE(qL);
+	strcpy(lStr, "flags=");
+	if (q->inTuplet)		strcat(lStr, "INTUPLET ");
+	if (q->inOttava)		strcat(lStr, "INOTTAVA ");
+	if (q->playAsCue)		strcat(lStr, "PLAY-AS-CUE ");
+	if (q->small)			strcat(lStr, "SMALL ");
+	if (q->tempFlag)		strcat(lStr, "TEMPFLAG");
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
 	
-	sprintf(s, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
-	DrawTextLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "l_dur=%hd ndots=%hd xMoveDots=%hd yMoveDots=%hd", q->subType, q->ndots,
+	sprintf(lStr, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
+	sprintf(lStr, "l_dur=%hd ndots=%hd xMoveDots=%hd yMoveDots=%hd", q->subType, q->ndots,
 					q->xMoveDots, q->yMoveDots);
-	DrawTextLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
-	DrawTextLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
+	sprintf(lStr, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
+	sprintf(lStr, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
 														q->accSoft ? "True" : "False",
 														q->xmoveAcc);
-	DrawTextLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
+	sprintf(lStr, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
 														q->noteNum);
-	DrawTextLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
+	sprintf(lStr, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
 
-	DrawTextLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "nhSegment=%hd,%hd,%hd,%hd", q->nhSegment[0], q->nhSegment[1],
+	DrawTextLine(lStr);	q = GetPANOTE(qL);
+	sprintf(lStr, "nhSegment=%hd,%hd,%hd,%hd", q->nhSegment[0], q->nhSegment[1],
 			q->nhSegment[2], q->nhSegment[3]);
 
-	DrawTextLine(s);
+	DrawTextLine(lStr);
 	
 	subL = qL;
 }
@@ -1399,61 +1399,60 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextGRNOTEL(qL)) 
 		;
 	q = GetPAGRNOTE(qL);
-	sprintf(s, "link=%u @%lx stf=%d iv=%hd next=%u", qL, (long unsigned int)q, q->staffn,
+	sprintf(lStr, "link=%u @%lx stf=%d iv=%hd next=%u", qL, (long unsigned int)q, q->staffn,
 				q->voice, q->next);
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
+	
+	strcpy(lStr, "flags=");
+	if (q->selected)		strcat(lStr, "SELECTED ");
+	if (q->visible)			strcat(lStr, "VISIBLE ");
+	if (q->soft)			strcat(lStr, "SOFT ");
+	if (q->inChord)			strcat(lStr, "INCHORD");
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
+	
+	strcpy(lStr, "flags=");
+	if (q->rest)			strcat(lStr, "REST ");
+	if (q->beamed)			strcat(lStr, "BEAMED ");
+	if (q->otherStemSide)	strcat(lStr, "OTHERSTEMSIDE");
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
+	
+	strcpy(lStr, "flags=");
+	if (q->tiedL)			strcat(lStr, "TIEDL ");
+	if (q->tiedR)			strcat(lStr, "TIEDR ");
+	if (q->slurredL)		strcat(lStr, "SLURREDL ");
+	if (q->slurredR)		strcat(lStr, "SLURREDR");
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
 
+	strcpy(lStr, "flags=");
+	if (q->inTuplet)		strcat(lStr, "INTUPLET ");
+	if (q->inOttava)		strcat(lStr, "INOTTAVA ");
+	if (q->small)			strcat(lStr, "SMALL");
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
 	
-	strcpy(s, "flags=");
-	if (q->selected)		strcat(s, "SELECTED ");
-	if (q->visible)			strcat(s, "VISIBLE ");
-	if (q->soft)			strcat(s, "SOFT ");
-	if (q->inChord)			strcat(s, "INCHORD");
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-	
-	strcpy(s, "flags=");
-	if (q->rest)			strcat(s, "REST ");
-	if (q->beamed)			strcat(s, "BEAMED ");
-	if (q->otherStemSide)	strcat(s, "OTHERSTEMSIDE");
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-	
-	strcpy(s, "flags=");
-	if (q->tiedL)			strcat(s, "TIEDL ");
-	if (q->tiedR)			strcat(s, "TIEDR ");
-	if (q->slurredL)		strcat(s, "SLURREDL ");
-	if (q->slurredR)		strcat(s, "SLURREDR");
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-
-	strcpy(s, "flags=");
-	if (q->inTuplet)		strcat(s, "INTUPLET ");
-	if (q->inOttava)		strcat(s, "INOTTAVA ");
-	if (q->small)			strcat(s, "SMALL");
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-	
-	sprintf(s, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-	sprintf(s, "l_dur=%hd ndots=%hd xMoveDots=%hd yMoveDots=%hd", q->subType, q->ndots,
+	sprintf(lStr, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
+	sprintf(lStr, "l_dur=%hd ndots=%hd xMoveDots=%hd yMoveDots=%hd", q->subType, q->ndots,
 					q->xMoveDots, q->yMoveDots);
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-	sprintf(s, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
+	sprintf(lStr, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
+	sprintf(lStr, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
 														q->accSoft ? "True" : "False",
 														q->xmoveAcc);
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-	sprintf(s, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
+	sprintf(lStr, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
 														q->noteNum);
-	DrawTextLine(s);	q = GetPAGRNOTE(qL);
-	sprintf(s, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
-	DrawTextLine(s);
+	DrawTextLine(lStr);	q = GetPAGRNOTE(qL);
+	sprintf(lStr, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
+	DrawTextLine(lStr);
 }
 
 
@@ -1470,30 +1469,30 @@ void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "link=%u stf=%d voice=%d", pL, p->staffn, p->voice);
-	DrawTextLine(s);
-	sprintf(s, "thin=%d beamRests=%d feather=%d grace=%d", p->thin, p->beamRests,
+	sprintf(lStr, "link=%u stf=%d voice=%d", pL, p->staffn, p->voice);
+	DrawTextLine(lStr);
+	sprintf(lStr, "thin=%d beamRests=%d feather=%d grace=%d", p->thin, p->beamRests,
 					p->feather, p->grace);
-	DrawTextLine(s);
-	sprintf(s, "firstSystem=%d crossStf=%d crossSys=%d",
+	DrawTextLine(lStr);
+	sprintf(lStr, "firstSystem=%d crossStf=%d crossSys=%d",
 					p->firstSystem, p->crossStaff, p->crossSystem);
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEBEAML(qL)) 
 		;
 	q = GetPANOTEBEAM(qL);
-	sprintf(s, "link=%u @%lx bpSync=%d next=%u", qL, (long unsigned int)q, q->bpSync, q->next);
-	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "startend=%d", q->startend);
-	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "fracs=%d", q->fracs);
-	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "True" : "False");
-	DrawTextLine(s);
+	sprintf(lStr, "link=%u @%lx bpSync=%d next=%u", qL, (long unsigned int)q, q->bpSync, q->next);
+	DrawTextLine(lStr);	q = GetPANOTEBEAM(qL);
+	sprintf(lStr, "startend=%d", q->startend);
+	DrawTextLine(lStr);	q = GetPANOTEBEAM(qL);
+	sprintf(lStr, "fracs=%d", q->fracs);
+	DrawTextLine(lStr);	q = GetPANOTEBEAM(qL);
+	sprintf(lStr, "fracGoLeft=%s", q->fracGoLeft ? "True" : "False");
+	DrawTextLine(lStr);
 }
 
 
@@ -1510,29 +1509,29 @@ void BrowseTuplet(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "staff=%d voice=%d num=%d denom=%d", p->staffn, p->voice,
+	sprintf(lStr, "staff=%d voice=%d num=%d denom=%d", p->staffn, p->voice,
 		p->accNum, p->accDenom);
-	DrawTextLine(s);	p = GetPTUPLET(pL);
-	sprintf(s, "numVis=%d denomVis=%d brackVis=%d", p->numVis, p->denomVis,
+	DrawTextLine(lStr);	p = GetPTUPLET(pL);
+	sprintf(lStr, "numVis=%d denomVis=%d brackVis=%d", p->numVis, p->denomVis,
 		p->brackVis);
-	DrawTextLine(s);	p = GetPTUPLET(pL);
-	sprintf(s, "acnxd=%d acnyd=%d", p->acnxd, p->acnyd);
-	DrawTextLine(s);	p = GetPTUPLET(pL);
-	sprintf(s, "xd1st=%d yd1st=%d xdLast=%d ydLast=%d", p->xdFirst, p->ydFirst,
+	DrawTextLine(lStr);	p = GetPTUPLET(pL);
+	sprintf(lStr, "acnxd=%d acnyd=%d", p->acnxd, p->acnyd);
+	DrawTextLine(lStr);	p = GetPTUPLET(pL);
+	sprintf(lStr, "xd1st=%d yd1st=%d xdLast=%d ydLast=%d", p->xdFirst, p->ydFirst,
 				p->xdLast, p->ydLast);
-	DrawTextLine(s);	p = GetPTUPLET(pL);
-	sprintf(s, "link=%u stf=%d", pL, p->staffn);
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	DrawTextLine(lStr);	p = GetPTUPLET(pL);
+	sprintf(lStr, "link=%u stf=%d", pL, p->staffn);
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTETUPLEL(qL)) 
 		;
 	q = GetPANOTETUPLE(qL);
-	sprintf(s, "link=%u @%lx tpSync=%d next=%u", qL, (long unsigned int)q, q->tpSync, q->next);
-	DrawTextLine(s);	q = GetPANOTETUPLE(qL);
+	sprintf(lStr, "link=%u @%lx tpSync=%d next=%u", qL, (long unsigned int)q, q->tpSync, q->next);
+	DrawTextLine(lStr);	q = GetPANOTETUPLE(qL);
 }
 
 
@@ -1549,27 +1548,27 @@ void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "staff=%d", p->staffn);
-	DrawTextLine(s);	p = GetPOTTAVA(pL);
-	sprintf(s, "nxd=%d nyd=%d", p->nxd, p->nyd);
-	DrawTextLine(s);	p = GetPOTTAVA(pL);
-	sprintf(s, "xd1st=%d yd1st=%d xdLast=%d ydLast=%d", p->xdFirst, p->ydFirst,
+	sprintf(lStr, "staff=%d", p->staffn);
+	DrawTextLine(lStr);	p = GetPOTTAVA(pL);
+	sprintf(lStr, "nxd=%d nyd=%d", p->nxd, p->nyd);
+	DrawTextLine(lStr);	p = GetPOTTAVA(pL);
+	sprintf(lStr, "xd1st=%d yd1st=%d xdLast=%d ydLast=%d", p->xdFirst, p->ydFirst,
 				p->xdLast, p->ydLast);
-	DrawTextLine(s);	p = GetPOTTAVA(pL);
-	sprintf(s, "octSignType=%d noCutoff=%d", p->octSignType, p->noCutoff);
-	DrawTextLine(s);
-	sprintf(s, "numberVis=%d brackVis=%d", p->numberVis, p->brackVis);
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	DrawTextLine(lStr);	p = GetPOTTAVA(pL);
+	sprintf(lStr, "octSignType=%d noCutoff=%d", p->octSignType, p->noCutoff);
+	DrawTextLine(lStr);
+	sprintf(lStr, "numberVis=%d brackVis=%d", p->numberVis, p->brackVis);
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEOTTAVAL(qL)) 
 		;
 	q = GetPANOTEOTTAVA(qL);
-	sprintf(s, "link=%u @%lx opSync=%d next=%u", qL, (long unsigned int)q, q->opSync, q->next);
-	DrawTextLine(s);
+	sprintf(lStr, "link=%u @%lx opSync=%d next=%u", qL, (long unsigned int)q, q->opSync, q->next);
+	DrawTextLine(lStr);
 }
 
 /* --------------------------------------------------------------------- BrowseDynamic -- */
@@ -1586,37 +1585,37 @@ void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	DrawTextLine("");
-	sprintf(s, "firstSyncL=%d lastSyncL=%d",
+	sprintf(lStr, "firstSyncL=%d lastSyncL=%d",
 					DynamFIRSTSYNC(pL), DynamLASTSYNC(pL));
-	DrawTextLine(s);
+	DrawTextLine(lStr);
 
 	DynamicToString(DynamType(pL), dynStr);	
-	sprintf(s, "dynamicType=%d (%s) IsHairpin=%d", DynamType(pL), dynStr, IsHairpin(pL));
-	DrawTextLine(s);
+	sprintf(lStr, "dynamicType=%d (%s) IsHairpin=%d", DynamType(pL), dynStr, IsHairpin(pL));
+	DrawTextLine(lStr);
 	p = GetPDYNAMIC(pL);
-	sprintf(s, "crossSys=%d ", p->crossSys);
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	sprintf(lStr, "crossSys=%d ", p->crossSys);
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextDYNAMICL(qL)) 
 		;
 	q = GetPADYNAMIC(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
-	DrawTextLine(s);	q = GetPADYNAMIC(qL);
-	strcpy(s, "flags=");
-	if (q->selected) strcat(s, "SELECTED ");
-	if (q->visible) strcat(s, "VISIBLE ");
-	if (q->soft) strcat(s, "SOFT ");
-	DrawTextLine(s);	q = GetPADYNAMIC(qL);
-	sprintf(s, "mouthWidth=%d otherWidth=%d", q->mouthWidth, q->otherWidth);
-	DrawTextLine(s);	q = GetPADYNAMIC(qL);
-	sprintf(s, "small=%d", q->small);
-	DrawTextLine(s);	q = GetPADYNAMIC(qL);
-	sprintf(s, "xd,yd=%d,%d endxd,endyd=%d,%d", q->xd, q->yd, q->endxd, q->endyd);
-	DrawTextLine(s);
+	sprintf(lStr, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
+	DrawTextLine(lStr);	q = GetPADYNAMIC(qL);
+	strcpy(lStr, "flags=");
+	if (q->selected) strcat(lStr, "SELECTED ");
+	if (q->visible) strcat(lStr, "VISIBLE ");
+	if (q->soft) strcat(lStr, "SOFT ");
+	DrawTextLine(lStr);	q = GetPADYNAMIC(qL);
+	sprintf(lStr, "mouthWidth=%d otherWidth=%d", q->mouthWidth, q->otherWidth);
+	DrawTextLine(lStr);	q = GetPADYNAMIC(qL);
+	sprintf(lStr, "small=%d", q->small);
+	DrawTextLine(lStr);	q = GetPADYNAMIC(qL);
+	sprintf(lStr, "xd,yd=%d,%d endxd,endyd=%d,%d", q->xd, q->yd, q->endxd, q->endyd);
+	DrawTextLine(lStr);
 	
 	subL = qL;
 }
@@ -1635,29 +1634,29 @@ void BrowseRptEnd(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "rptEndType=%hd", p->subType);
-	DrawTextLine(s);	p = GetPRPTEND(pL);
-	sprintf(s, "firstObj=%u startRpt=%u endRpt=%u", p->firstObj, p->startRpt, p->endRpt);
-	DrawTextLine(s);
-	sprintf(s, "count=%d", p->count);
-	DrawTextLine(s);
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	sprintf(lStr, "rptEndType=%hd", p->subType);
+	DrawTextLine(lStr);	p = GetPRPTEND(pL);
+	sprintf(lStr, "firstObj=%u startRpt=%u endRpt=%u", p->firstObj, p->startRpt, p->endRpt);
+	DrawTextLine(lStr);
+	sprintf(lStr, "count=%d", p->count);
+	DrawTextLine(lStr);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++, qL=NextRPTENDL(qL)) 
 		;
 	q = GetPARPTEND(qL);
-	sprintf(s, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
-	DrawTextLine(s);	q = GetPARPTEND(qL);
-	strcpy(s, "flags=");
-	if (q->selected) strcat(s, "SELECTED ");
-	if (q->visible) strcat(s, "VISIBLE ");
-	if (q->soft) strcat(s, "SOFT ");
-	DrawTextLine(s);	q = GetPARPTEND(qL);
-	sprintf(s, "rptEndType=%hd", q->subType);
-	DrawTextLine(s);
+	sprintf(lStr, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
+	DrawTextLine(lStr);	q = GetPARPTEND(qL);
+	strcpy(lStr, "flags=");
+	if (q->selected) strcat(lStr, "SELECTED ");
+	if (q->visible) strcat(lStr, "VISIBLE ");
+	if (q->soft) strcat(lStr, "SOFT ");
+	DrawTextLine(lStr);	q = GetPARPTEND(qL);
+	sprintf(lStr, "rptEndType=%hd", q->subType);
+	DrawTextLine(lStr);
 }
 
 
@@ -1671,17 +1670,17 @@ void BrowseEnding(LINK pL, short /*index*/, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "stf=%d", p->staffn);
-	DrawTextLine(s);
+	sprintf(lStr, "stf=%d", p->staffn);
+	DrawTextLine(lStr);
 
-	sprintf(s, "firstObjL=%u lastObjL=%u", p->firstObjL, p->lastObjL);
-	DrawTextLine(s);
+	sprintf(lStr, "firstObjL=%u lastObjL=%u", p->firstObjL, p->lastObjL);
+	DrawTextLine(lStr);
 
-	sprintf(s, "endNum=%d noL=%d noR=%d", p->endNum, p->noLCutoff, p->noRCutoff);
-	DrawTextLine(s);
+	sprintf(lStr, "endNum=%d noL=%d noR=%d", p->endNum, p->noLCutoff, p->noRCutoff);
+	DrawTextLine(lStr);
 
-	sprintf(s, "xd=%d yd=%d endxd=%d", p->xd, p->yd, p->endxd);
-	DrawTextLine(s);
+	sprintf(lStr, "xd=%d yd=%d endxd=%d", p->xd, p->yd, p->endxd);
+	DrawTextLine(lStr);
 }
 
 
@@ -1714,22 +1713,22 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
-	DrawTextLine (s);
+	sprintf(lStr, "stf=%d voice=%d", p->staffn, p->voice);
+	DrawTextLine(lStr);
 	strcpy(strBuf, NameGraphicType(pL, False));
-	sprintf(s, "graphicType=%s", strBuf);
-	DrawTextLine (s);
+	sprintf(lStr, "graphicType=%s", strBuf);
+	DrawTextLine(lStr);
 
 	p = GetPGRAPHIC(pL);
 	aGraphicL = FirstSubLINK(pL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
-	sprintf(s, "aGraphic->next=%u", aGraphic->next);
-	DrawTextLine (s);	p = GetPGRAPHIC(pL);
+	sprintf(lStr, "aGraphic->next=%u", aGraphic->next);
+	DrawTextLine(lStr);	p = GetPGRAPHIC(pL);
 
-	sprintf(s, "firstObj=%u lastObj=%u", p->firstObj, p->lastObj);
-	DrawTextLine(s);	p = GetPGRAPHIC(pL);
-	sprintf(s, "info=%d info2=%d", p->info, p->info2);
-	DrawTextLine(s);	p = GetPGRAPHIC(pL);
+	sprintf(lStr, "firstObj=%u lastObj=%u", p->firstObj, p->lastObj);
+	DrawTextLine(lStr);	p = GetPGRAPHIC(pL);
+	sprintf(lStr, "info=%d info2=%d", p->info, p->info2);
+	DrawTextLine(lStr);	p = GetPGRAPHIC(pL);
 	switch (p->graphicType) {
 		case GRString:
 		case GRLyric:
@@ -1739,37 +1738,37 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 		case GRMIDIPatch:
 		case GRSusPedalDown:
 		case GRSusPedalUp:		
-			sprintf(s, "fontInd=%d fontStyle=%d encl=%d", p->fontInd, p->fontStyle,
+			sprintf(lStr, "fontInd=%d fontStyle=%d encl=%d", p->fontInd, p->fontStyle,
 													p->enclosure);
-			DrawTextLine(s);	p = GetPGRAPHIC(pL);
-			sprintf(s, "fontSize=%d %s", p->fontSize,
+			DrawTextLine(lStr);	p = GetPGRAPHIC(pL);
+			sprintf(lStr, "fontSize=%d %s", p->fontSize,
 												  p->relFSize? "staff-rel." : "points");
-			DrawTextLine (s);	aGraphic = GetPAGRAPHIC(aGraphicL);
+			DrawTextLine(lStr);	aGraphic = GetPAGRAPHIC(aGraphicL);
 
-			sprintf(s, "aGraphic->strOffset=%ld ", aGraphic->strOffset);
+			sprintf(lStr, "aGraphic->strOffset=%ld ", aGraphic->strOffset);
 			if (PCopy(aGraphic->strOffset)==NULL) {
-				DrawTextLine(s);
-				sprintf(s, "** PCopy(aGraphic->strOffset) is NULL **");
-				DrawTextLine(s);			
+				DrawTextLine(lStr);
+				sprintf(lStr, "** PCopy(aGraphic->strOffset) is NULL **");
+				DrawTextLine(lStr);			
 			}
 			else {
 				Pstrcpy((unsigned char *)s2, PCopy(aGraphic->strOffset));
-				sprintf(&s[strlen(s)], "char count=%d", (unsigned char)s2[0]);
-				DrawTextLine(s);			
+				sprintf(&lStr[strlen(lStr)], "char count=%d", (unsigned char)s2[0]);
+				DrawTextLine(lStr);			
 				if (p->graphicType==GRChordSym)
 					ChordSym2Print((unsigned char *)s2);
-				sprintf(s, "str='%s'", PToCString((unsigned char *)s2));
-				DrawTextLine(s);
+				sprintf(lStr, "str='%s'", PToCString((unsigned char *)s2));
+				DrawTextLine(lStr);
 			}
 
 			break;
 		case GRArpeggio:
-			sprintf(s, "arpInfo=%d", ARPINFO(p->info2));
-			DrawTextLine(s);
+			sprintf(lStr, "arpInfo=%d", ARPINFO(p->info2));
+			DrawTextLine(lStr);
 			break;
 		case GRDraw:
-			sprintf(s, "thick=%d%%", p->gu.thickness);
-			DrawTextLine(s);
+			sprintf(lStr, "thick=%d%%", p->gu.thickness);
+			DrawTextLine(lStr);
 			break;
 		default:
 			;
@@ -1788,8 +1787,8 @@ void BrowseTempo(LINK pL, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 
-	sprintf(s, "stf=%d", p->staffn);
-	DrawTextLine(s); p = GetPTEMPO(pL);
+	sprintf(lStr, "stf=%d", p->staffn);
+	DrawTextLine(lStr); p = GetPTEMPO(pL);
 
 	switch (p->subType) {
 		case BREVE_L_DUR:
@@ -1815,41 +1814,41 @@ void BrowseTempo(LINK pL, Rect *pObjRect)
 		default:
 			strcpy(t, "ILLEGAL DURATION"); break;		
 	}
-	sprintf(s, "subType=%d (%s) dotted=%d", p->subType, t, p->dotted);
-	DrawTextLine(s); p = GetPTEMPO(pL);
+	sprintf(lStr, "subType=%d (%s) dotted=%d", p->subType, t, p->dotted);
+	DrawTextLine(lStr); p = GetPTEMPO(pL);
 
-	sprintf(s, "noMM=%d hideMM=%d expanded=%d", p->noMM, p->hideMM, p->expanded);
-	DrawTextLine(s); p = GetPTEMPO(pL);
+	sprintf(lStr, "noMM=%d hideMM=%d expanded=%d", p->noMM, p->hideMM, p->expanded);
+	DrawTextLine(lStr); p = GetPTEMPO(pL);
 
-	sprintf(s, "firstObjL=%u tempoMM=%d", p->firstObjL, p->tempoMM);
-	DrawTextLine(s); p = GetPTEMPO(pL);
+	sprintf(lStr, "firstObjL=%u tempoMM=%d", p->firstObjL, p->tempoMM);
+	DrawTextLine(lStr); p = GetPTEMPO(pL);
 
-	sprintf(s, "p->strOffset=%ld ", p->strOffset);
+	sprintf(lStr, "p->strOffset=%ld ", p->strOffset);
 	if (PCopy(p->strOffset)==NULL) {
-		DrawTextLine(s);			
-		sprintf(s, "** PCopy(p->strOffset) is NULL **");
-		DrawTextLine(s);
+		DrawTextLine(lStr);			
+		sprintf(lStr, "** PCopy(p->strOffset) is NULL **");
+		DrawTextLine(lStr);
 	}
 	else {
 		Pstrcpy((unsigned char *)t, PCopy(p->strOffset));
-		sprintf(&s[strlen(s)], "char count=%d", (unsigned char)t[0]);
-		DrawTextLine(s);			
-		sprintf(s, "str='%s'", PToCString((unsigned char *)t));
-		DrawTextLine(s);
+		sprintf(&lStr[strlen(lStr)], "char count=%d", (unsigned char)t[0]);
+		DrawTextLine(lStr);			
+		sprintf(lStr, "str='%s'", PToCString((unsigned char *)t));
+		DrawTextLine(lStr);
 	}
 
-	sprintf(s, "p->metroStrOffset=%ld ", p->metroStrOffset);
+	sprintf(lStr, "p->metroStrOffset=%ld ", p->metroStrOffset);
 	if (PCopy(p->metroStrOffset)==NULL) {
-		DrawTextLine(s);			
-		sprintf(s, "** PCopy(p->metroStrOffset) is NULL **");
-		DrawTextLine(s);			
+		DrawTextLine(lStr);			
+		sprintf(lStr, "** PCopy(p->metroStrOffset) is NULL **");
+		DrawTextLine(lStr);			
 	}
 	else {
 		Pstrcpy((unsigned char *)t, PCopy(p->metroStrOffset));
-		sprintf(&s[strlen(s)], "char count=%d", (unsigned char)t[0]);
-		DrawTextLine(s);
-		sprintf(s, "str='%s'", PToCString((unsigned char *)t));
-		DrawTextLine(s);
+		sprintf(&lStr[strlen(lStr)], "char count=%d", (unsigned char)t[0]);
+		DrawTextLine(lStr);
+		sprintf(lStr, "str='%s'", PToCString((unsigned char *)t));
+		DrawTextLine(lStr);
 	}
 }
 
@@ -1863,10 +1862,10 @@ void BrowseSpace(LINK pL, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	p = GetPSPACER(pL);
-	sprintf(s, "stf=%d spWidth=%d", p->staffn, p->spWidth);
-	DrawTextLine(s); p = GetPSPACER(pL);
-	sprintf(s, "bottomStf=%d", p->bottomStaff);
-	DrawTextLine(s);
+	sprintf(lStr, "stf=%d spWidth=%d", p->staffn, p->spWidth);
+	DrawTextLine(lStr); p = GetPSPACER(pL);
+	sprintf(lStr, "bottomStf=%d", p->bottomStaff);
+	DrawTextLine(lStr);
 }
 
 /* ------------------------------------------------------------------------ BrowseSlur -- */
@@ -1882,25 +1881,25 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 	*pObjRect = p->objRect;
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
-	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
-	DrawTextLine(s);	p = GetPSLUR(pL);
-	sprintf(s, "tie=%s", p->tie ? "True" : "False");
-	DrawTextLine(s);	p = GetPSLUR(pL);
-	sprintf(s, "crossStf=%d crossStfBack=%d crossSys=%d",
+	sprintf(lStr, "stf=%d voice=%d", p->staffn, p->voice);
+	DrawTextLine(lStr);	p = GetPSLUR(pL);
+	sprintf(lStr, "tie=%s", p->tie ? "True" : "False");
+	DrawTextLine(lStr);	p = GetPSLUR(pL);
+	sprintf(lStr, "crossStf=%d crossStfBack=%d crossSys=%d",
 		p->crossStaff,p->crossStfBack,p->crossSystem);
-	DrawTextLine(s);	p = GetPSLUR(pL);
+	DrawTextLine(lStr);	p = GetPSLUR(pL);
 
-	sprintf(s, "firstSync=%d", SlurFIRSTSYNC(pL));
+	sprintf(lStr, "firstSync=%d", SlurFIRSTSYNC(pL));
 	if (!SyncTYPE(SlurFIRSTSYNC(pL)))
-		sprintf(&s[strlen(s)], "(%s)", (MeasureTYPE(SlurFIRSTSYNC(pL))? "MEAS" : "TYPE?"));
-	sprintf(&s[strlen(s)], " lastSync=%d", SlurLASTSYNC(pL));
+		sprintf(&lStr[strlen(lStr)], "(%s)", (MeasureTYPE(SlurFIRSTSYNC(pL))? "MEAS" : "TYPE?"));
+	sprintf(&lStr[strlen(lStr)], " lastSync=%d", SlurLASTSYNC(pL));
 	if (!SyncTYPE(SlurLASTSYNC(pL)))
-		sprintf(&s[strlen(s)],  "(%s)", (SystemTYPE(SlurLASTSYNC(pL))? "SYS" : "TYPE?"));
+		sprintf(&lStr[strlen(lStr)],  "(%s)", (SystemTYPE(SlurLASTSYNC(pL))? "SYS" : "TYPE?"));
 
-	DrawTextLine(s);
+	DrawTextLine(lStr);
 	
-	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
-	DrawTextLine(s);
+	sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
+	DrawTextLine(lStr);
 	
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
@@ -1908,25 +1907,25 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 		;
 	aSlur = GetPASLUR(aSlurL);
 
-	strcpy(s, "flags=");
-	if (aSlur->selected) strcat(s, "SELECTED ");
-	if (aSlur->visible)	strcat(s, "VISIBLE ");
-	if (aSlur->soft)		strcat(s, "SOFT ");
-	if (aSlur->dashed)	strcat(s, "DASHED ");
-	DrawTextLine(s); 	aSlur = GetPASLUR(aSlurL);
-	sprintf(s, "firstInd=%d lastInd=%d", aSlur->firstInd, aSlur->lastInd);
-	DrawTextLine(s); 	aSlur = GetPASLUR(aSlurL);
-	sprintf(s, "knot=%d,%d", aSlur->seg.knot.h, aSlur->seg.knot.v);
-	DrawTextLine(s);	aSlur = GetPASLUR(aSlurL);
-	sprintf(s, "c0=%d,%d", aSlur->seg.c0.h, aSlur->seg.c0.v);
-	DrawTextLine(s);	aSlur = GetPASLUR(aSlurL);
-	sprintf(s, "c1=%d,%d", aSlur->seg.c1.h, aSlur->seg.c1.v);
-	DrawTextLine(s);	aSlur = GetPASLUR(aSlurL);
-	sprintf(s, "endKnot=%d,%d", aSlur->endKnot.h, aSlur->endKnot.v);
-	DrawTextLine(s);
-	sprintf(s, "startPt=%d,%d endPt=%d,%d", aSlur->startPt.h, aSlur->startPt.v,
+	strcpy(lStr, "flags=");
+	if (aSlur->selected) strcat(lStr, "SELECTED ");
+	if (aSlur->visible)	strcat(lStr, "VISIBLE ");
+	if (aSlur->soft)		strcat(lStr, "SOFT ");
+	if (aSlur->dashed)	strcat(lStr, "DASHED ");
+	DrawTextLine(lStr); 	aSlur = GetPASLUR(aSlurL);
+	sprintf(lStr, "firstInd=%d lastInd=%d", aSlur->firstInd, aSlur->lastInd);
+	DrawTextLine(lStr); 	aSlur = GetPASLUR(aSlurL);
+	sprintf(lStr, "knot=%d,%d", aSlur->seg.knot.h, aSlur->seg.knot.v);
+	DrawTextLine(lStr);	aSlur = GetPASLUR(aSlurL);
+	sprintf(lStr, "c0=%d,%d", aSlur->seg.c0.h, aSlur->seg.c0.v);
+	DrawTextLine(lStr);	aSlur = GetPASLUR(aSlurL);
+	sprintf(lStr, "c1=%d,%d", aSlur->seg.c1.h, aSlur->seg.c1.v);
+	DrawTextLine(lStr);	aSlur = GetPASLUR(aSlurL);
+	sprintf(lStr, "endKnot=%d,%d", aSlur->endKnot.h, aSlur->endKnot.v);
+	DrawTextLine(lStr);
+	sprintf(lStr, "startPt=%d,%d endPt=%d,%d", aSlur->startPt.h, aSlur->startPt.v,
 				aSlur->endPt.h, aSlur->endPt.v);
-	DrawTextLine(s);
+	DrawTextLine(lStr);
 	
 	subL = aSlurL;
 }
@@ -1981,55 +1980,55 @@ void ShowContext(Document *doc)
 	EraseRect(&bRect);
 	linenum = 1;
 
-	sprintf(s, "doc->selStaff=%hd", doc->selStaff);
-	DrawTextLine(s);
-	sprintf(s, "doc->selStartL=%hd ->selEndL=%hd", doc->selStartL, doc->selEndL);
-	DrawTextLine(s);
-	sprintf(s, " ");
-	DrawTextLine(s);
-	sprintf(s, "Context at link %hd for staff %hd:", pL, theStaff);
-	DrawTextLine(s);
-	sprintf(s, " ");
-	DrawTextLine(s);
-	strcpy(s, "flags=");
-	if (context.visible) strcat(s, "VISIBLE ");
-	if (context.staffVisible) strcat(s, "STAFFVIS ");
-	if (context.measureVisible) strcat(s, "MEASUREVIS  ");
-	DrawTextLine(s);
-	strcpy(s, "flags=");
-	if (context.inMeasure) strcat(s, "IN MEASURE ");
-	else strcat(s, "NOT IN MEASURE ");
-	DrawTextLine(s);
-	sprintf(s, "systemTop,Left,Bottom=%d,%d,%d", context.systemTop, context.systemLeft,
+	sprintf(lStr, "doc->selStaff=%hd", doc->selStaff);
+	DrawTextLine(lStr);
+	sprintf(lStr, "doc->selStartL=%hd ->selEndL=%hd", doc->selStartL, doc->selEndL);
+	DrawTextLine(lStr);
+	sprintf(lStr, " ");
+	DrawTextLine(lStr);
+	sprintf(lStr, "Context at link %hd for staff %hd:", pL, theStaff);
+	DrawTextLine(lStr);
+	sprintf(lStr, " ");
+	DrawTextLine(lStr);
+	strcpy(lStr, "flags=");
+	if (context.visible) strcat(lStr, "VISIBLE ");
+	if (context.staffVisible) strcat(lStr, "STAFFVIS ");
+	if (context.measureVisible) strcat(lStr, "MEASUREVIS  ");
+	DrawTextLine(lStr);
+	strcpy(lStr, "flags=");
+	if (context.inMeasure) strcat(lStr, "IN MEASURE ");
+	else strcat(lStr, "NOT IN MEASURE ");
+	DrawTextLine(lStr);
+	sprintf(lStr, "systemTop,Left,Bottom=%d,%d,%d", context.systemTop, context.systemLeft,
 		context.systemBottom);
-	DrawTextLine(s);
-	sprintf(s, "staffTop,Left,Right=%d,%d,%d", context.staffTop, context.staffLeft,
+	DrawTextLine(lStr);
+	sprintf(lStr, "staffTop,Left,Right=%d,%d,%d", context.staffTop, context.staffLeft,
 		context.staffRight);
-	DrawTextLine(s);
-	sprintf(s, "staffHeight,HalfHeight=%d,%d", context.staffHeight, context.staffHalfHeight);
-	DrawTextLine(s);
+	DrawTextLine(lStr);
+	sprintf(lStr, "staffHeight,HalfHeight=%d,%d", context.staffHeight, context.staffHalfHeight);
+	DrawTextLine(lStr);
 	if (context.showLines==SHOW_ALL_LINES)
-		sprintf(s, "staffLines=%hd showLines=all", context.staffLines);
+		sprintf(lStr, "staffLines=%hd showLines=all", context.staffLines);
 	else
-		sprintf(s, "staffLines=%hd showLines=%hd", context.staffLines, context.showLines);
-	DrawTextLine(s);
-	sprintf(s, "showLedgers=%s fontSize=%d", context.showLedgers? "yes" : "no",
+		sprintf(lStr, "staffLines=%hd showLines=%hd", context.staffLines, context.showLines);
+	DrawTextLine(lStr);
+	sprintf(lStr, "showLedgers=%s fontSize=%d", context.showLedgers? "yes" : "no",
 				context.fontSize);
-	DrawTextLine(s);
-	sprintf(s, "measureTop,Left=%d,%d", context.measureTop, context.measureLeft);
-	DrawTextLine(s);
+	DrawTextLine(lStr);
+	sprintf(lStr, "measureTop,Left=%d,%d", context.measureTop, context.measureLeft);
+	DrawTextLine(lStr);
 	ClefToString(context.clefType, clefStr);	
-	sprintf(s, "clefType=%hd (%s)", context.clefType, clefStr);
-	DrawTextLine(s);
-	sprintf(s, "nKSItems=%hd", context.nKSItems);
-	DrawTextLine(s);
-	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd", context.timeSigType, context.numerator,
+	sprintf(lStr, "clefType=%hd (%s)", context.clefType, clefStr);
+	DrawTextLine(lStr);
+	sprintf(lStr, "nKSItems=%hd", context.nKSItems);
+	DrawTextLine(lStr);
+	sprintf(lStr, "timeSigType,n/d=%hd,%hd/%hd", context.timeSigType, context.numerator,
 		context.denominator);
-	DrawTextLine(s);
+	DrawTextLine(lStr);
 
 	DynamicToString(context.dynamicType, dynStr);	
-	sprintf(s, "dynamicType=%hd (%s)", context.dynamicType, dynStr);
-	DrawTextLine(s);
+	sprintf(lStr, "dynamicType=%hd (%s)", context.dynamicType, dynStr);
+	DrawTextLine(lStr);
 	
 	/* Though they're not part of the CONTEXT object, the current tempo is really part
 	   of the context in the normal sense, and the last previous Graphic may well be
@@ -2042,8 +2041,8 @@ void ShowContext(Document *doc)
 	}
 	else {
 		pTempo  = GetPTEMPO(tempoL);
-		sprintf(s, "Last prev. Tempo link=%u tempoMM=%d", tempoL, pTempo->tempoMM);
-		DrawTextLine(s);
+		sprintf(lStr, "Last prev. Tempo link=%u tempoMM=%d", tempoL, pTempo->tempoMM);
+		DrawTextLine(lStr);
 	}
 
 	graphicL = LSSearch(pL, GRAPHICtype, doc->selStaff, GO_LEFT, False);
@@ -2051,8 +2050,8 @@ void ShowContext(Document *doc)
 		DrawTextLine("No GRAPHIC obj on staff before this.");
 	}
 	else {
-		sprintf(s, "Last prev. Graphic link=%u", graphicL);
-		DrawTextLine(s);
+		sprintf(lStr, "Last prev. Graphic link=%u", graphicL);
+		DrawTextLine(lStr);
 		switch (GraphicSubType(graphicL)) {
 			case GRString:
 			case GRLyric:
@@ -2064,20 +2063,20 @@ void ShowContext(Document *doc)
 				aGraphicL = FirstSubLINK(graphicL);
 				aGraphic = GetPAGRAPHIC(aGraphicL);
 			
-				//sprintf(s, "aGraphic->strOffset=%ld ", aGraphic->strOffset);
+				//sprintf(lStr, "aGraphic->strOffset=%ld ", aGraphic->strOffset);
 				if (PCopy(aGraphic->strOffset)==NULL) {
-					DrawTextLine(s);
-					sprintf(s, "** PCopy(aGraphic->strOffset) is NULL **");
-					DrawTextLine(s);			
+					DrawTextLine(lStr);
+					sprintf(lStr, "** PCopy(aGraphic->strOffset) is NULL **");
+					DrawTextLine(lStr);			
 				}
 				else {
 					Pstrcpy((unsigned char *)s2, PCopy(aGraphic->strOffset));
-					//sprintf(&s[strlen(s)], "char count=%d", (unsigned char)s2[0]);
-					//DrawTextLine(s);			
+					//sprintf(&s[strlen(lStr)], "char count=%d", (unsigned char)s2[0]);
+					//DrawTextLine(lStr);			
 					if (GraphicSubType(graphicL)==GRChordSym)
 						ChordSym2Print((unsigned char *)s2);
-					sprintf(s, "str='%s'", PToCString((unsigned char *)s2));
-					DrawTextLine(s);
+					sprintf(lStr, "str='%s'", PToCString((unsigned char *)s2));
+					DrawTextLine(lStr);
 				}
 
 			default:

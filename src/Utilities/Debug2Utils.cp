@@ -89,7 +89,7 @@ Boolean DCheckPlayDurs(
 tempo and/or M.M. strings are identical. This is on the assumption that the reason for
 multiple Tempos at the same point is just to make the tempo and/or M.M. appear at more
 than one vertical point, presumably in a score with many staves. In any case, as of v.
-5.7, Nightingale doesn't support independent tempi on different staves, so different
+5.8, Nightingale doesn't support independent tempi on different staves, so different
 M.M.s really are a problem. NB: A Tempo object may have no tempo component (indicated
 by an empty tempo string), or no M.M. component (indicated by its _noMM_ flags). Check
 the tempo string only if both objects being compared at a given time have a tempo
@@ -109,6 +109,7 @@ Boolean DCheckTempi(Document *doc)
 		if (DErrLimit()) break;
 		
 		/* If we found a Sync, we're no longer "at the same point in the score". */
+		
 		if (SyncTYPE(pL)) havePrevTempo = havePrevMetro = False;
 		
 		if (TempoTYPE(pL)) {
@@ -117,6 +118,7 @@ Boolean DCheckTempi(Document *doc)
 				Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)tempoStr);
 				/* If this Tempo object has a tempo string, is it the expected string? */
+				
 				if (strlen(tempoStr)>0 && strcmp(prevTempoStr, tempoStr)!=0)
 					COMPLAIN4("DCheckTempi: Tempo marks L%u ('%s') and L%u in measure %d are inconsistent.\n",
 								prevTempoL, prevTempoStr, pL, GetMeasNum(doc, pL));
@@ -127,6 +129,7 @@ Boolean DCheckTempi(Document *doc)
 				Pstrcpy((StringPtr)metroStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)metroStr);
 				/* If this Tempo object has an M.M., is it the expected M.M. string? */
+				
 				if (!TempoNOMM(pL) && strcmp(prevMetroStr, metroStr)!=0)
 					COMPLAIN4("DCheckTempi: M.M.s of Tempo objects L%u ('%s') and L%u in measure %d are inconsistent.\n",
 								prevTempoL, prevMetroStr, pL, GetMeasNum(doc, pL));
@@ -172,18 +175,16 @@ Boolean DCheckRedundantKS(Document *doc)
 
 		switch (ObjLType(pL)) {
 			case KEYSIGtype:
-				/*
-				 * The score's initial keysig is meaningful even though it's not inMeasure.
-				 * All other non-inMeasure key sigs. are just repeating the context.
-				 */
+				/* The score's initial keysig is meaningful even though it's not inMeasure.
+				   All other non-inMeasure key sigs. are just repeating the context. */
+				   
 				if (!firstKS && !KeySigINMEAS(pL)) break;
 				firstKS = False;
 				nRedundant = 0;
 				for (aKSL = FirstSubLINK(pL); aKSL; aKSL = NextKEYSIGL(aKSL)) {
 					aKeySig = GetPAKEYSIG(aKSL);
 					s = aKeySig->staffn;
-					if (lastKSNAcc[s]==0 && aKeySig->nKSItems==0)
-						nRedundant++;
+					if (lastKSNAcc[s]==0 && aKeySig->nKSItems==0) nRedundant++;
 				}
 				if (nRedundant>0)
 					COMPLAIN2("*DCheckRedundantKS: Keysig L%u repeats cancel on %d staves.\n",
@@ -204,8 +205,8 @@ Boolean DCheckRedundantKS(Document *doc)
 }
 
 /* --------------------------------------------------------------------- DCheckExtraTS -- */
-/* Check for extra time signatures, "extra" in the sense that there's already been
-a time signature on the same staff in the same measure. */
+/* Check for extra time signatures, "extra" in the sense that there's already been a
+time signature on the same staff in the same measure. */
 
 Boolean DCheckExtraTS(Document *doc)
 {
@@ -272,9 +273,10 @@ Boolean DCheckCautionaryTS(Document *doc)
 				for (aTSL = FirstSubLINK(pL); aTSL; aTSL = NextTIMESIGL(aTSL)) {
 					stf = TimeSigSTAFF(aTSL);
 					if (inNewSys[stf]) {
-					/* We have a time signature at the beginning of a system. See if
-						there's an equivalent cautionary timesig on this staff at the
-						end of the previous system. */
+					/* We have a time signature at the beginning of a system. Look for
+						an equivalent cautionary timesig on this staff at the end of the
+						previous system. */
+						
 						if (!haveEndSysTS[stf]) {
 							COMPLAIN3("DCheckCautionaryTS: Timesig at start of system in measure %d, staff %d (L%u) not anticipated.\n",
 										GetMeasNum(doc, pL), stf, pL);
@@ -289,7 +291,8 @@ Boolean DCheckCautionaryTS(Document *doc)
 				}
 				break;
 			case MEASUREtype:
-				/* If this is the 1st (invisible barline) Measure of the system, ignore it */
+				/* If this is the 1st Measure (invisible barline) of the system, ignore it. */
+				
 				prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, 1, GO_LEFT, False);
 				if (prevMeasL==NILINK || !SameSystem(prevMeasL, pL)) break;
 				for (s = 1; s<=doc->nstaves; s++)
@@ -440,7 +443,8 @@ it'll draw attention to nearby grace notes. */
 Boolean DCheckNoteNums(Document *doc)
 {
 	Boolean bad=False, haveAccs;
-	short staff, clefType, octType[MAXSTAVES+1], useOctType, nnDiff;
+	short staff, octType[MAXSTAVES+1], useOctType, nnDiff;
+	short clefType=TREBLE_CLEF;
 	LINK pL, aNoteL, aClefL;
 	SignedByte accidTable[MAX_STAFFPOS];
 

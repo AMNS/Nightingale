@@ -463,16 +463,16 @@ void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 
 /* ---------------------------------------------------------------------- Sel2MeasPage -- */
 /* Get the measure number and page number of the start of the selection in the given
-doc. */
+document. Return True if all is well, False if not (probably due to a bug). */
 
-void Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
+Boolean Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 {
 	LINK measL, aMeasureL;  PAMEASURE aMeasure;
 	
 	*pMeasNum = 0;
 	*pPageNum = doc->firstPageNumber;
 
-	if (doc->selStartL==doc->headL) return;
+	if (doc->selStartL==doc->headL) return False;
 
 	/* If the first selected object is a Measure, it's the one we want. Otherwise,
 	   search for the first Measure to the left, unless there's a non-empty selection
@@ -487,7 +487,7 @@ void Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 		measL = LSSearch(RightLINK(doc->selStartL), MEASUREtype, ANYONE, GO_RIGHT, False);
 	else
 		measL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE, GO_LEFT, False);
-	if (!measL) return;
+	if (!measL) return False;
 
 	if (BeforeFirstMeas(doc->selStartL)) measL = LinkRMEAS(measL);
 
@@ -495,6 +495,8 @@ void Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 	aMeasure = GetPAMEASURE(aMeasureL);
 	*pMeasNum = aMeasure->measureNum+doc->firstMNNumber;
 	*pPageNum = SheetNUM(MeasPAGE(measL)) + doc->firstPageNumber;
+	
+	return True;
 }
 
 
@@ -504,9 +506,9 @@ score. */
 
 void GetSelMIDIRange(Document *doc, short *pLow, short *pHi)
 {
-	LINK		pL, aNoteL;
+	LINK	pL, aNoteL;
 	PANOTE	aNote;
-	short		low, hi;
+	short	low, hi;
 	
 	low = MAX_NOTENUM;
 	hi = 0;
@@ -1081,9 +1083,9 @@ void GetUserRect(Document *doc, Point pt, Point other, short xoff, short yoff, R
 	PenState pn;
 	unsigned long now;
 	
-	SetRect(&r,pt.h,pt.v,other.h+xoff,other.v+yoff);
+	SetRect(&r, pt.h, pt.v, other.h+xoff, other.v+yoff);
 	lastr = r; last = other;
-	GetWindowPortBounds(doc->theWindow,&portRect);
+	GetWindowPortBounds(doc->theWindow, &portRect);
 	limit = portRect;
 	GetPenState(&pn);
 	PenPat(NGetQDGlobalsGray()); PenMode(patXor);
@@ -1095,28 +1097,26 @@ void GetUserRect(Document *doc, Point pt, Point other, short xoff, short yoff, R
 			other.h += xoff; other.v += yoff;
 
 			if (other.h!=last.h || other.v!=last.v) {
-				if (other.h < pt.h)
-					if (other.v < pt.v) {
+				if (other.h < pt.h) {
+					if (other.v < pt.v)
 						SetRect(&r,other.h,other.v,pt.h,pt.v);
-						}
-					 else {
+					 else
 						SetRect(&r,other.h,pt.v,pt.h,other.v);
-						}
-				 else
-					if (other.v < pt.v) {
+				}
+				else {
+					if (other.v < pt.v)
 						SetRect(&r,pt.h,other.v,other.h,pt.v);
-						}
-					 else {
+					else
 						SetRect(&r,pt.h,pt.v,other.h,other.v);
-						}
+				}
 						
 				OffsetRect(&r,doc->currentPaper.left,doc->currentPaper.top);
 				
 				/* Wait until a tick, which is synchronised with the start of a vertical
 				   raster scan. There is undoubtedly a better way to do this, but this
-				   is quick (and dirty) and reduces flicker some. */
+				   is quick and reduces flicker some. */
 				   
-				now = TickCount(); while (now == TickCount());
+				now = TickCount();  while (now == TickCount());
 				FrameRect(&lastr);
 				FrameRect(&r);
 				lastr = r;
@@ -1130,8 +1130,8 @@ void GetUserRect(Document *doc, Point pt, Point other, short xoff, short yoff, R
 }
 
 
-/* Set tempFlags of notes and rests, but NOT grace notes, from their selection
-status, for the entire score. */
+/* Set tempFlags of notes and rests, but NOT grace notes, from their selection status,
+for the entire score. */
 
 void NotesSel2TempFlags(Document *doc)
 {

@@ -247,7 +247,6 @@ static Boolean matchTiedDur = True;
 static void EMSearchMelody(Document *doc, Boolean again);
 static void EMSearchMelody(Document *doc, Boolean again)
 {
-
 	Document *theDoc = (Document *)TopDocument;
 	Boolean findAll;
 
@@ -280,7 +279,7 @@ static void EMSearchMelody(Document *doc, Boolean again)
 }
 #endif
 
-
+/* -------------------------------------------------------------------------------------- */
 /*	Handle a choice from the File Menu.  Return False if it's time to quit. */
 
 Boolean DoFileMenu(short choice)
@@ -385,7 +384,12 @@ Boolean DoFileMenu(short choice)
 				Str255 filename;
 				
 				if (GetNotelistFile(filename, &nsData))
-					OpenNotelistFile(filename, &nsData);
+					if (OpenNotelistFile(filename, &nsData)) {
+						PToCString(filename);
+						LogPrintf(LOG_NOTICE, "Opened notelist file '%s'.  (DoFileMenu)\n",
+									filename);
+						CToPString((char *)filename);
+					}
 				break;
 #ifdef USE_NL2XML
 			case FM_Notelist2XML:
@@ -418,6 +422,7 @@ Boolean DoFileMenu(short choice)
 			case FM_ScoreInfo:
 				/* For users of public versions that don't have the Test menu, provide
 				   a way to access our debugging and emergency-repair facilities. */
+				   
 				if (OptionKeyDown() && CmdKeyDown())
 					InstallDebugMenuItems(ControlKeyDown());
 				else ScoreInfo();
@@ -620,6 +625,7 @@ static void ResetAllMeasNumPos(Document *doc)
 	InvalWindow(doc);
 }
 
+/* -------------------------------------------------------------------------------------- */
 /*	Handle a choice from the Test Menu. */
 
 static void DoTestMenu(short choice)
@@ -1146,6 +1152,7 @@ static void EditInstrMIDI(Document *doc)
 	}
 }
 
+/* -------------------------------------------------------------------------------------- */
 /* Handle a choice from the Play/Record Menu */
 
 void DoPlayRecMenu(short choice)
@@ -1269,6 +1276,7 @@ void MPCombineParts(Document *doc)
 }
 #endif
 
+/* -------------------------------------------------------------------------------------- */
 /* Handle a choice from the MasterPage Menu */
 
 static void DoMasterPgMenu(short choice)
@@ -1357,7 +1365,7 @@ static void DoMagnifyMenu(short choice)
 }
 
 
-/* --------------------------------------------------------------------- Miscellaneous -- */
+/* ===================================================================== Miscellaneous == */
 
 static void MovePalette(WindowPtr whichPalette, Point position)
 {
@@ -1388,7 +1396,7 @@ static void MovePalette(WindowPtr whichPalette, Point position)
 			ShowWindow(whichPalette);
 		}
 	 else {
-		/* The TopWindow is an application window or it is equal to NULL */
+		/* The TopWindow is an application window or is NULL */
 		BringToFront(whichPalette);
 		if (TopWindow==NULL)
 			/* Make the palette visible and generate an activate event. */
@@ -1419,7 +1427,7 @@ static void FMPreferences(Document *doc)
 if the previous system ends with a barline, add the same time signature after the
 barline on all staves. NB: We assume that every time-signature change is the same on
 all staves! Nightingale requires all barlines to extend across all staves -- i.e.,
-Measure objects must have subobjects on every Staff); that makes our assumption safer,
+Measure objects must have subobjects on every Staff). That makes our assumption safer,
 but not really safe; it'd be better to check here.  */
 
 static void EMAddCautionaryTimeSigs(Document *doc)
@@ -1509,9 +1517,7 @@ static void SMTextStyle(Document *doc)
 }
 
 
-/*
- *	Get measure-numbering parameters for <doc> from user.
- */
+/* Get measure-numbering parameters for <doc> from user. */
 	
 static void SMMeasNum(Document *doc)
 {
@@ -1647,7 +1653,7 @@ to their main notes) or rests (fermata only). (JGG, 4/21/01) */
 	
 static void NMAddModifiers(Document *doc)
 {
-	LINK		pL, aNoteL, mainNoteL, aModNRL;
+	LINK		objL, aNoteL, mainNoteL, aModNRL;
 	short		voice;
 	char		data = 0;
 	static Byte	modCode = MOD_STACCATO;
@@ -1655,18 +1661,19 @@ static void NMAddModifiers(Document *doc)
 	if (ModNRDialog(ADDMOD_DLOG, &modCode)) {
 		WaitCursor();
 		PrepareUndo(doc, doc->selStartL, U_AddMods, 49);    		/* "Add Modifiers" */
-		for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
-			if (SyncTYPE(pL))
-				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
+		for (objL=doc->selStartL; objL!=doc->selEndL; objL=RightLINK(objL))
+			if (SyncTYPE(objL))
+				for (aNoteL=FirstSubLINK(objL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 					if (NoteSEL(aNoteL)) {
-						if (NoteREST(aNoteL) && modCode!=MOD_FERMATA)
-							continue;
+						if (NoteREST(aNoteL) && modCode!=MOD_FERMATA) continue;
+							
 						/* If part of a chord and not the main note, and the main
 							note is selected, skip it. */
+							
 						voice = NoteVOICE(aNoteL);
-						mainNoteL = FindMainNote(pL, voice);
+						mainNoteL = FindMainNote(objL, voice);
 						if (aNoteL!=mainNoteL && NoteSEL(mainNoteL)) continue;
-						aModNRL = AutoNewModNR(doc, modCode, data, pL, aNoteL);
+						aModNRL = AutoNewModNR(doc, modCode, data, objL, aNoteL);
 						if (aModNRL==NILINK) {
 							MayErrMsg("NMAddModifiers: AutoNewModNR failed.");
 							goto stop;
@@ -1684,15 +1691,15 @@ stop:
 	
 static void NMStripModifiers(Document *doc)
 {
-	LINK pL, aNoteL; PANOTE aNote;
+	LINK objL, aNoteL;  PANOTE aNote;
 	
 	PrepareUndo(doc, doc->selStartL, U_StripMods, 21);    	/* "Remove Modifiers" */
-	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
-		if (SyncTYPE(pL))
-			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
+	for (objL=doc->selStartL; objL!=doc->selEndL; objL=RightLINK(objL))
+		if (SyncTYPE(objL))
+			for (aNoteL=FirstSubLINK(objL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				if (aNote->selected && aNote->firstMod) {
-					DelModsForSync(pL, aNoteL);
+					DelModsForSync(objL, aNoteL);
 					aNote->firstMod = NILINK;
 					doc->changed = True;
 				}
@@ -1847,6 +1854,7 @@ static void NMFillEmptyMeas(Document *doc)
 		if (startL && endL) {
 			/* We have to change the selection range temporarily so PrepareUndo() knows
 				what to do. */
+				
 			LINK saveSelStartL, saveSelEndL;
 			saveSelStartL = doc->selStartL; saveSelEndL = doc->selEndL;
 			doc->selStartL = startL; doc->selEndL = endL;
@@ -1869,12 +1877,10 @@ static void NMFillEmptyMeas(Document *doc)
 }
 
 
-/*
- * Get voice to look at from dialog, initialized with voice and part of first selected
- * object or, if nothing is selected, default voice and part of the insertion point's
- * staff. In either case, add the user-specified voice to the voice mapping table and
- * set document's <lookVoice> to it.
- */
+/* Get voice to look at from dialog, initialized with voice and part of first selected
+object or, if nothing is selected, default voice and part of the insertion point's
+staff. In either case, add the user-specified voice to the voice mapping table and
+set document's <lookVoice> to it. */
  
 static void VMLookAt()
 {
@@ -1912,9 +1918,7 @@ static void VMLookAt()
 }
 
 	
-/*
- *	Look at all voices by setting document's <lookVoice> to -1.
- */
+/* Look at all voices by setting document's <lookVoice> to -1. */
 
 static void VMLookAtAll()
 {
@@ -1928,9 +1932,7 @@ static void VMLookAtAll()
 }
 
 
-/*
- *	Toggle showing/hiding measure duration problems.
- */
+/* Toggle showing/hiding measure duration problems. */
 
 static void VMShowDurProblems()
 {
@@ -1944,9 +1946,7 @@ static void VMShowDurProblems()
 }
 
 
-/*
- *	Toggle showing/hiding Sync lines.
- */
+/* Toggle showing/hiding Sync lines. */
 
 static void VMShowSyncs()
 {
@@ -1960,9 +1960,7 @@ static void VMShowSyncs()
 }
 
 	
-/*
- *	Toggle showing/hiding invisible symbols.
- */
+/* Toggle showing/hiding invisible symbols. */
 
 static void VMShowInvisibles()
 {
@@ -2055,7 +2053,7 @@ static void VMShowToolPalette()
 
 static void VMActivate(short choice)
 {
-	short itemNum; Document *doc;
+	short itemNum;  Document *doc;
 
 	/* The items at the end of the View menu (after the dividing line after VM_LastItem)
 	   correspond to Documents in documentTable. Search for the Document we want,
@@ -2072,7 +2070,8 @@ static void VMActivate(short choice)
 static Boolean OKToRecord(Document *);
 static Boolean OKToRecord(Document *doc)
 {
-	short anInt; LINK lookPartL, selPartL; char str[256];
+	short anInt;  LINK lookPartL, selPartL;
+	char str[256];
 	
 	if (HasSmthgAcross(doc, doc->selStartL, str)) {
 		CParamText(str, "", "", "");
@@ -2143,11 +2142,8 @@ static void PLStepRecord(Document *doc, Boolean merge)
 	}
 }
 
-/*
- *	When activating a document, ensure that the correct menu is installed for the
- *	current mode of viewing that document: Play/Record menu, Master Page menu, or
- *	Show Format menu.
- */
+/* When activating a document, ensure that the correct menu is installed for the current
+mode of viewing that document: Play/Record, Master Page, or Show Format menu. */
 
 void InstallDocMenus(Document *doc)
 {
@@ -2157,10 +2153,9 @@ void InstallDocMenus(Document *doc)
 	 else if ((curMh = GetMenuHandle(masterPgID))) DeleteMenu(masterPgID);
 	 else if ((curMh = GetMenuHandle(formatID))) DeleteMenu(formatID);
 
-	/*
-	 *	GetMenuHandle may give NULL for the new menu (if that menu was never installed?
-	 *	I dunno), so instead pass one of our stored menu handles to InsertMenu.
-	 */
+	/* GetMenuHandle may give NULL for the new menu (if that menu was never installed?
+	   I dunno), so instead pass one of our stored menu handles to InsertMenu. */
+	 
 	if (doc->masterView)		{ mid = masterPgID; mh = masterPgMenu; }
 	else if (doc->showFormat)	{ mid = formatID; mh = formatMenu; }
 	else						{ mid = playRecID; mh = playRecMenu; }
@@ -2170,6 +2165,7 @@ void InstallDocMenus(Document *doc)
 
 	if (curMh) {
 		/* Flash to call user's attention to the fact that there's a new menu. */
+		
 		HiliteMenu(mid);
 		SleepTicks(1);
 		HiliteMenu(0);
@@ -2202,10 +2198,8 @@ static void InstallDebugMenuItems(Boolean installAll)
 
 /* ============================================================ MENU-UPDATING ROUTINES == */
 
-/*
- * Force all menus to reflect internal state. This should be called when we're about to
- * let user peruse them.
- */
+/* Force all menus to reflect internal state. This should be called when we're about to
+let user peruse them. */
 
 void FixMenus()
 	{

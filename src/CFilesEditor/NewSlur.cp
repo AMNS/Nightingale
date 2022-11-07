@@ -543,7 +543,7 @@ static Boolean WantTies(
 	short itemHit;
 	Boolean value;
 	static short assumeSlurTie=0, oldChoice=0;
-	register DialogPtr dlog;  GrafPtr oldPort;
+	DialogPtr dlog;  GrafPtr oldPort;
 	Boolean keepGoing=True;
 	static Boolean firstCall=True;
 
@@ -580,7 +580,7 @@ static Boolean WantTies(
 		PutDlgChkRadio(dlog, TIES_DI, (group1==TIES_DI));
 		PutDlgChkRadio(dlog, SLUR_DI, (group1==SLUR_DI));
 	
-		PlaceWindow(GetDialogWindow(dlog), (WindowPtr)NULL,0,80);
+		PlaceWindow(GetDialogWindow(dlog), (WindowPtr)NULL, 0, 80);
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 	
@@ -711,8 +711,8 @@ static char NewSlurOrTie(
 				short staff,		/* on one end of the slur/tie */
 				short voice)
 {
-	register LINK aNoteL;
-	register PANOTE aNote;
+	LINK aNoteL;
+	PANOTE aNote;
 	short status;
 	
 	/* Check for nested and overlapping slurs. Note that we must check before any
@@ -817,7 +817,7 @@ static LINK AddNewSlur(Document *doc, LINK insertL, short staff, short voice)
 static void ClearSlurIndices(LINK newL)
 {
 	LINK aSlurL;
-	register PASLUR aSlur;
+	PASLUR aSlur;
 
 	aSlurL = FirstSubLINK(newL);
 	for ( ; aSlurL; aSlurL=NextSLURL(aSlurL)) {
@@ -837,7 +837,7 @@ static char SetSlurIndices(LINK newL)
 {
 	short firsti=0, lasti=0;
 	LINK aSlurL;
-	register PASLUR aSlur;
+	PASLUR aSlur;
 	
  	if (!itsATie) {
  		ClearSlurIndices(newL);  return NF_OK;
@@ -953,8 +953,8 @@ For now, at least, they're always computed in a standard way, regardless of auto
 
 static void NewSlurSetCtlPts(Document *doc, short staff, short voice, CONTEXT context)
 {
-	register LINK aSlurL;
-	register PASLUR aSlur;
+	LINK aSlurL;
+	PASLUR aSlur;
 	Boolean curveUp, curveUps[MAXCHORD];
 	
 	if (subCount==1) {
@@ -991,8 +991,8 @@ static void CrossSysSetCtlPts(
 					CONTEXT context
 					)
 {
-	register LINK aSlurL;
-	register PASLUR aSlur;
+	LINK aSlurL;
+	PASLUR aSlur;
 	Boolean curveUp, curveUps[MAXCHORD];
 	
 	if (subCount==1) {
@@ -1030,7 +1030,7 @@ static void NewSlurCleanup(
 					Boolean	user 		/* True=assume call results from user directly creating slur */
 					)
 {
-	register PASLUR aSlur;
+	PASLUR aSlur;
 	LINK   aSlurL;
 	
 	aSlurL = FirstSubLINK(newL);
@@ -1209,19 +1209,22 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 	firstMeas = LSSearch(doc->headL, MEASUREtype, ANYONE, False, False);
 	GetContext(doc, doc->selStartL, staff, &context);
 
-	/* Sets firstSyncL, firstNoteL, checks if firstSync has a note on <staff> &
+	/* Set firstSyncL, firstNoteL, checks if firstSync has a note on <staff> &
 		<voice>. */
+		
 	returnCode = HandleFirstSync(doc, staff, voice);
 	if (BAD_CODE(returnCode)) goto Disable;
 
-	/* Tracks the slur, returns the second anchor point in <newPt> (window coords). */
+	/* Track the slur, returns the second anchor point in <newPt> (window coords). */
+	
 	globPt = NewTrackSlur(doc, &context.paper, pt, &newPaper);
 	newPt = globPt;
 	newPt.h -= newPaper.left;								/* Convert back to paper-relative coords */
 	newPt.v -= newPaper.top;
 	
 	/* If mouse moved horizontally only a very short distance, make slur/ties go to
-		the next note/chord to the right in voice <voice>. */
+	   the next note/chord to the right in voice <voice>. */
+	   
 	if (ABS(newPt.h-pt.h)<SLOP) {
 		slurToNext = True;
 		if (!SlurToNext(doc, &staff, voice)) {
@@ -1230,51 +1233,55 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 		}
 	}
 	else {
-		if (!EqualRect(&context.paper,&newPaper)) {
+		if (!EqualRect(&context.paper, &newPaper)) {
 			/* Cross-page slur: need to change context to new pageRect */
-			if (FindSheet(doc,globPt,&ans)) {
-				GetSheetRect(doc,ans,&paper);
+			
+			if (FindSheet(doc, globPt, &ans)) {
+				GetSheetRect(doc, ans, &paper);
 				doc->currentSheet = ans;
 				doc->currentPaper = paper;
 				FindStaffSetSys(doc, globPt);					/* Set currentSystem */
 				}
 			}
 		
-		/* Gets the staff containing <newPt>, checks if <newPt>'s staff and system
-			are same as that of first anchor point. Sets crossStaff True if staves
-			are different; sets crossSystem True if systems are different. */
+		/* Get the staff containing <newPt>; check if <newPt>'s staff and system
+			are same as that of first anchor point. Set crossStaff True if staves
+			are different; set crossSystem True if systems are different. */
 
 		CheckCrossness(doc, staff, newPt);
 	
-		/* Gets valid lastSyncL. */
+		/* Get valid lastSyncL. */
+		
 		returnCode = HandleLastSync(doc, staff, voice, newPt);
 		if (BAD_CODE(returnCode)) goto Disable;
 		
-		/* If slur drawn right to left, swaps anchor and control points. */
+		/* If slur drawn right to left, swap anchor and control points. */
+		
 		SwapEndpoints(doc, &staff);
 	}
 	
-	/* Determines if tie or slur to be inserted, checks associated error conditions,
-		fills in firstIndA/lastIndA, etc. */
+	/* Determine if tie or slur to be inserted, check associated error conditions,
+	   fill in firstIndA/lastIndA, etc. Add the object to the object list. */
+		
 	returnCode = NewSlurOrTie(staff, voice);
 	if (BAD_CODE(returnCode)) goto Disable;
-	
-	/* Inserts cross system slurs, and returns. */
+		
 	if (crossSystem) {
 		NewCrossSystemSlur(doc, staff, voice, context);
 		goto Disable;
 	}
-	
-	/* Inserts slur into data structure. */
+		
 	slurL = AddNewSlur(doc, LeftLINK(doc->selStartL), staff, voice);
 	if (!slurL) goto Disable;
 	
-	/* Sets indices of slur subobjects for ties between chords. */
+	/* Set indices of slur subobjects for ties between chords. */
+	
 	returnCode = SetSlurIndices(slurL);
 	if (BAD_CODE(returnCode)) goto Disable;
 
 	/* Get arrays of startPts, endPts for ties between chords, set ctl & anchor
-		points for slur subobjects, and clean up. */
+	   points for slur subobjects, and clean up. */
+		
 	GetSlurContext(doc, slurL, startPt, endPt);
 	NewSlurSetCtlPts(doc, staff, voice, context);
 	NewSlurCleanup(doc, staff, slurL, True);
@@ -1287,10 +1294,10 @@ Disable:
 
 
 /* -------------------------------------------------------------------- BuildTieArrays -- */
-/* For ties, fills firstIndA and lastIndA with indices to the tied notes within
-their respective chords in the given Syncs (first note=0). If there's no chord, only
-a single note, in that Sync, it just sets firstIndA[0] or lastIndA[0] to 0. In any
-case, it also sets the relevant notes' tiedL/tiedR flags.
+/* For ties, fills firstIndA and lastIndA with indices to the tied notes within their
+respective chords in the given Syncs (first note=0). If there's no chord, only a single
+note, in that Sync, it just sets firstIndA[0] or lastIndA[0] to 0. In any case, it also
+sets the relevant notes' tiedL/tiedR flags.
 
 Will have problems if either chord (or only the last?) contains duplicate noteNums. */
 
@@ -1300,7 +1307,7 @@ static short BuildTieArrays(LINK firstL, LINK lastL, short voice,
 	short subCount;
 	char firstInd, lastInd;
 	PANOTE firstNote, lastNote;
-	register LINK firstNoteL, lastNoteL;
+	LINK firstNoteL, lastNoteL;
 
 	subCount = 0;
 	firstInd = -1;

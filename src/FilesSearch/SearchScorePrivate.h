@@ -338,7 +338,7 @@ Boolean BuildResListDocument(register Document *doc);
 Boolean DoCloseResListDocument(register Document *doc);
 void ActivateResListDocument(register Document *doc, INT16 activ);
 void ShowResListDocument(Document *doc);
-Boolean DoOpenResultListDocument(Document **pDoc);
+Boolean DoOpenResListDocument(Document **pDoc);
 
 /* Defined who knows where? */
 

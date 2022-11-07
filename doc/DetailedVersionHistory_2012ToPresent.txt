@@ -3802,3 +3802,11 @@ Minor changes. Affects info.plist, SpaceTime.h; DrawNRGR, SearchScore, SearchSco
 
 ----------------------------------------------------------------------------------------- B27
 
+26 Sept. - 7 Nov.
+
+Fixed bug: Open Notelist puts all modifiers on the top staff line. Affects NotelistOpen.
+
+Minor changes. Affects info.plist, SearchScorePrivate.h, SelUtils.h; Browser,
+CarbonPrinting, Debug2Utils, InsNew, Menu, NewSlur, NotelistOpen, NotelistParse,
+ResultList, ResultListDocument, SelUtils, Windows.
+

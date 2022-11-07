@@ -11657,7 +11657,7 @@ Fix that... done.
 
 ---------------------------------------------------------------------------------------
 
-17 - 23 Sept.
+17 - 28 Sept.
 
 "Find All" _doesn't_ always crash; in fact, it seems never to crash, it just doesn't do
 anything! Why?
@@ -11674,8 +11674,65 @@ is called only from the trivial BuildResListDocument() which is called only from
 DoOpenResultListDocument(), which is never called. DoOpenResultListDocument is called only
 from DoResultListDoc -- which checks for gResUserList & gives the fatal error before
 it does anything! #$(*#$=! Call DoOpenResultListDocument before checking gResUserList =>
-much better! Now I get a window titled "Result List" that indeed lists matches, apparently
-correctly except for part names; Ngale says "ERROR. Possible bug in program: DrawMessageBox:
-Int2UserVoice(0) failed." The name displayed for at least part 1 is "SEARCH", etc. Clicking
-on a match does nothing. Find All a 2nd time crashes.
+much better; it actually seems to mostly work!
 
+Now I get a window titled "Result List" that indeed lists matches, apparently
+correctly except for part names; Ngale says "Possible bug in program: DrawMessageBox:
+Int2UserVoice(0) failed." The name displayed for at least part 1 is "SEARCH", etc. Clicking
+on a match does nothing. Find All a 2nd time usually crashes. The message box says smthg
+like "page 0 m.0  VOICE 7984 OF [blank]".
+For 5NoteScaleN6.ngl, Find All w/ pattern of two of its 1st 4 notes shows
+
+	1: 5NoteScaleN6.ngl: m.1, voice 1 of SEARCH (L10 V1)
+	2: 5NoteScaleN6.ngl: m.1, voice 1 of SEARCH (L11 V1)
+	3: 5NoteScaleN6.ngl: m.1, voice 1 of SEARCH (L12 V1)
+
+W/ BachStAnne, the name displayed for part 1 is usually "SEARCH", but sometimes correct!?;
+for part 2, it's "Pedal" (correct). Ngale often crashes; if not, clicking on a match does
+nothing, and Find All a 2nd time might list 1 match and usually crashes.
+
+How does Ngale end up giving "SEARCH" as the name for part 1? It's displayed correctly on
+the score! When ListMatches() is called, matchInfoA[n].vInfoStr is bad. It's set in
+IRSearchScore(). The _only_ place that string appears in Ngale code is in InitSearchDoc(),
+and it's not in any of the resources.
+
+	Sep 27 19:13:12 unknown00112431479a Ngale[25856]:
+	Notice. Opened file '5NoteScaleN6.ngl'.  (DoFileMenu)
+	Notice. Music font is 'Briard' (font no. 1980).  (InitDocMusicFont)
+	info. Respacing from L10 to L2...  (RespaceBars)
+	info. FIND ALL: Pitch(R,maxTr=127,tol=0/contour,W75), Dur(R), Rests-Ties-outerN. 2 notes/rests:
+	debug. IRSearchScore: doc=14f3246c searchPatDoc=14f338d8
+	debug. IRSearchScore: v=1 nFound=0 matchInfoA[].docNum=1 doc=14f3246c scoreName='5NoteScaleN6.ngl'
+	debug. GetScoreLocIDString: doc=14f3246c doc->name='^P5NoteScaleN6.ngl'
+	debug. IRSearchScore: v=1 userVoice=1 pPart->shortName='SEARCH', ->name='SEARCH', vInfoStr='voice 1 of SEARCH'
+	debug. IRSearchScore: doc=14f3246c searchPatDoc=14f338d8
+	debug. IRSearchScore: v=1 nFound=1 matchInfoA[].docNum=1 doc=14f3246c scoreName='5NoteScaleN6.ngl'
+	debug. GetScoreLocIDString: doc=14f3246c doc->name='^P5NoteScaleN6.ngl'
+	debug. IRSearchScore: v=1 userVoice=1 pPart->shortName='SEARCH', ->name='SEARCH', vInfoStr='voice 1 of SEARCH'
+	debug. IRSearchScore: doc=14f3246c searchPatDoc=14f338d8
+	debug. IRSearchScore: v=1 nFound=2 matchInfoA[].docNum=1 doc=14f3246c scoreName='5NoteScaleN6.ngl'
+	debug. GetScoreLocIDString: doc=14f3246c doc->name='^P5NoteScaleN6.ngl'
+	debug. IRSearchScore: v=1 userVoice=1 pPart->shortName='SEARCH', ->name='SEARCH', vInfoStr='voice 1 of SEARCH'
+
+Improve error checking in DrawMessageBox => it now precedes the "Int2UserVoice(0) failed"
+with "Possible bug in program: DrawMessageBox: can't get measure & page from selection." ??
+
+---------------------------------------------------------------------------------------
+
+18 Oct. - 1 Nov.
+
+SWITCH TO: Compiling NewSlur.cp gives 34 warnings, most about a "shadowed global declaration";
+it may be easy to fix those... !! Two of them are for <subcount> and <mustBeTie>; but I
+don't see a global declaration for either! ...Ah-hah! Sure, they're global _in that file_,
+not in a header. Can I just remove the global declarations? Nope; they're all needed. Oh
+well; ignore for now.
+
+The options for the Color Voices and Graph Mode commands are really undiscoverable. They
+need dialogs with radio buttons and a "Don't show this again" check box, like:
+
+* when you insert a double bar, Ngale asks "Should this double bar or repeat bar be a barline?".
+(DLOG 808, handled in SymbolIsBarline(): 76 lines)
+
+* when you insert a slur/tie, Ngale asks which one you want. (DLOG 804, handled in WantTies(): 74 lines)
+
+SymbolIsBarline and WantTies are almost identical and just what I need. Start with the code for ??

@@ -328,15 +328,15 @@ static Boolean PostProcessNotelist(void)
 /* Parse a line giving data for a normal note, grace note, or rest, e.g.:
 
 N t=0 v=1 npt=1 stf=1 dur=4 dots=0 nn=72 acc=0 eAcc=3 pDur=456 vel=75 ...... appear=1
+N t=0 v=1 npt=1 stf=1 dur=4 dots=0 nn=76 acc=0 eAcc=3 pDur=456 vel=75 ...... appear=2 mods=10,16
 R t=480 v=1 npt=1 stf=1 dur=4 dots=0 ...... appear=1
 R t=960 v=1 npt=1 stf=1 dur=4 dots=0 ...... appear=1 mods=10
 G t=-1 v=1 npt=1 stf=1 dur=5 dots=0 nn=76 acc=0 eAcc=3 pDur=240 vel=75 . appear=1
-N t=1440 v=1 npt=1 stf=1 dur=4 dots=0 nn=76 acc=0 eAcc=3 pDur=456 vel=75 ...... appear=1 mods=10,16
 
 This is a bit tricky because these lines contain a variable number of fields.
 
 If a note, rest or grace note owns any note modifiers, they are listed in a "mods" field
-at the end of the line. (NB: As of v. 3.1, Nightingale doesn't support modifiers attached
+at the end of the line. (NB: As of v. 5.8, Nightingale doesn't support modifiers attached
 to grace notes.) The mods field gives a list of modCodes separated by commas, with
 optional data value trailing each modCode and separated from it by a colon. E.g.:
 			mods=11				[just 1 modifier having modCode=11]
@@ -346,7 +346,7 @@ optional data value trailing each modCode and separated from it by a colon. E.g.
 Also, rests omit the fields labelled "nn", "acc", "eAcc", "pDur" and "vel" above.
 
 Finally, notes and rests have six flags, while grace notes have just one, as of
-Nightingale 3.5b10. (See comments at ExtractNoteFlags for the meaning of these.) */
+Nightingale 5.8. (See comments at ExtractNoteFlags for the meaning of these.) */
 
 static Boolean ParseNRGR()
 {

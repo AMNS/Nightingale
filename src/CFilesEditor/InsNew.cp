@@ -3,12 +3,12 @@
 *	PROJ:   Nightingale
 *	DESC:   Lower-level routines to add music symbols. These functions actually
 *	modify the object list.
-		ClefBeforeBar			KeySigBeforeBar		TimeSigBeforeBar     
+		ClefBeforeBar			KeySigBeforeBar			TimeSigBeforeBar     
 		AddDot					AddNote					AddGRNote
 		NewArpSign				GetLineOffsets			NewLine
 		NewGraphic				NewMeasure
 		NewPseudoMeas			NewClef					NewKeySig
-		NewTimeSig				NewMODNR				AutoNewModNR
+		NewTimeSig				ModNRPitchLev			NewMODNR				AutoNewModNR
 		NewDynamic				
 		NewRptEnd				NewEnding				NewTempo
 		XLoadInsertSeg
@@ -1238,11 +1238,11 @@ static MODINFO modInfoTable[] = {
 static short modInfoLen = (sizeof(modInfoTable) / sizeof(MODINFO));		/* Length of modInfoTable */ 
 
 
-/* Given a note/rest/chord to which a specified note modifier is to be added,
-return a reasonable vertical position for the modifier, expressed as a "pitch
-level" in quarter-lines. If the note/rest is in a chord, assumes the modifier
-belongs to the chord as a whole, not to the individual note/rest, and so computes
-the modifier position based on the location of the main note.  -JGG, 4/23/01 */
+/* Given a note/rest/chord to which a specified note modifier is to be added, return a
+reasonable vertical position for the modifier, expressed as a "pitch level" in
+quarter-lines. If the note/rest is in a chord, assumes the modifier belongs to the chord
+as a whole, not to the individual note/rest, so computes the modifier position based on
+the main note.  -JGG, 4/23/01 */
 
 short ModNRPitchLev(Document *doc,
 						Byte modCode,			/* subtype field from symTable */
@@ -1264,6 +1264,7 @@ short ModNRPitchLev(Document *doc,
 	midCHalfLn = ClefMiddleCHalfLn(context.clefType);			/* Get middle C staff pos. */		
 
 	/* First compute these as half-lines, then convert to qtr-lines. */
+	
 	stfTopQtrLn = 0;
 	stfBotQtrLn = (context.staffLines * 2) - 2;
 	if (context.showLines==0 || context.showLines==1) {	/* and assuming context.staffLines==5 */
@@ -1287,6 +1288,7 @@ short ModNRPitchLev(Document *doc,
 	alwaysBelow = False;
 
 	/* NB: <alwaysAbove> and <alwaysBelow> can both be False, but only one can be True. */
+	
 	if (doc->voiceTab[voice].voiceRole==VCROLE_UPPER) alwaysAbove = True;
 	else if (doc->voiceTab[voice].voiceRole==VCROLE_LOWER) alwaysBelow = True;
 
@@ -1294,12 +1296,15 @@ short ModNRPitchLev(Document *doc,
 	else if (alwaysBelow)	putModAbove = False;
 	else					putModAbove = stemDown;
 
-	yqpit = NoteYQPIT(mainNoteL) + halfLn2qd(midCHalfLn);				/* main notehead: qtr-lines below stftop */
-	yqstem = d2qd(NoteYSTEM(mainNoteL), context.staffHeight, context.staffLines);	/* and its stem end in qtr-lines below stftop */
+	/* For main note, get notehead and stem end in qtr-lines below stftop */
+	
+	yqpit = NoteYQPIT(mainNoteL) + halfLn2qd(midCHalfLn);
+	yqstem = d2qd(NoteYSTEM(mainNoteL), context.staffHeight, context.staffLines);
 
 	hasMod = (NoteFIRSTMOD(mainNoteL)!=NILINK);
 
-//say("yqpit=%d, yqpit%%4=%d, yqstem=%d, alwaysAbove=%d, alwaysBelow=%d, hasMod=%d\n",yqpit,yqpit%4,yqstem,alwaysAbove,alwaysBelow,hasMod);
+LogPrintf(LOG_DEBUG, "ModNRPitchLev: yqpit=%d, yqpit mod4=%d, yqstem=%d, alwaysAbove=%d, alwaysBelow=%d, hasMod=%d\n",
+yqpit,yqpit%4,yqstem,alwaysAbove,alwaysBelow,hasMod);
 
 	useStemEnd = False;
 
@@ -1367,7 +1372,7 @@ short ModNRPitchLev(Document *doc,
 		LINK aModNRL = NoteFIRSTMOD(mainNoteL);
 		short existModQPit = std2qd(ModNRYSTDPIT(aModNRL));
 		short posDiff = abs(existModQPit - modQPit);
-		if (posDiff < 4) {
+		if (posDiff<4) {
 			if (putModAbove)	modQPit -= (4 - posDiff);
 			else				modQPit += (4 - posDiff);
 		}
@@ -1432,9 +1437,9 @@ void NewMODNR(Document *doc,
 }
 
 /* ---------------------------------------------------------------------- AutoNewModNR -- */
-/* Add the specified modifier to the given note. Return the LINK of the new
-modifier, or NILINK if error. (Based on NewMODNR(). FIXME: The two should be
-merged, at least in part.) */
+/* Add the specified modifier to the given note. Return the LINK of the new modifier,
+or NILINK if error. (Based on NewMODNR(). FIXME: The two should be merged, at least in
+part.) */
 
 LINK AutoNewModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNoteL)
 {
@@ -1444,6 +1449,7 @@ LINK AutoNewModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNote
 	PAMODNR	aModNR;
 
 	/* Get vertical position of new modifier. Must do this before allocating new one! */
+	
 	qPitchLev = ModNRPitchLev(doc, modCode, syncL, aNoteL);
 
 	/* Insert the new note modifier into the note's linked modifier list. If the

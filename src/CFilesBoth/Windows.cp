@@ -273,7 +273,7 @@ void DrawMessageString(Document *doc, char *msgStr)
 {
 	Rect messageRect;
 	
-	PrepareMessageDraw(doc,&messageRect,False);
+	PrepareMessageDraw(doc, &messageRect, False);
 	DrawCString(msgStr);
 	FinishMessageDraw(doc);
 }
@@ -297,7 +297,7 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 	
 	if (!reallyDraw) {
 		GetPort(&oldPort);  SetPort(GetWindowPort(w));
-		PrepareMessageDraw(doc, &messageRect,True);				/* Get messageRect only */
+		PrepareMessageDraw(doc, &messageRect, True);				/* Get messageRect only */
 		InvalWindowRect(w, &messageRect);
 		SetPort(oldPort);
 		return;
@@ -313,7 +313,10 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 		sprintf(&strBuf[strlen(strBuf)], fmtStr);
 	}
 	else {
-		Sel2MeasPage(doc, &measNum, &pageNum);				
+		if (!Sel2MeasPage(doc, &measNum, &pageNum)) {
+			MayErrMsg("DrawMessageBox: can't get measure & page from selection.");
+			measNum = pageNum = 0;
+		}
 		if (doc->showFormat) {
 			GetIndCString(fmtStr, MESSAGEBOX_STRS, 3);			/* "Work on Format  page %d" */
 			sprintf(strBuf, fmtStr, pageNum);

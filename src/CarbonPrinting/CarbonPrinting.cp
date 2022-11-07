@@ -1017,16 +1017,18 @@ Boolean DoPostScript(Document *doc)
 		ScriptCode		scriptCode = smRoman;
 		OSErr			theErr;
 		
-		Sel2MeasPage(doc, &anInt, &pageNum);
+		if (!Sel2MeasPage(doc, &anInt, &pageNum)) {
+			AlwaysErrMsg("DoPostScript: can't get measure & page from selection.");
+			return False;
+		}
 		newType = PSTypeDialog(type, pageNum);
 		sheetNum = pageNum-doc->firstPageNumber;
 		if (!newType) return False;
 		type = newType;
+		LogPrintf(LOG_INFO, "Preparing to create PostScript file.  (DoPostScript)\n");
 		
 		EPSFile = (type==1);
 		UpdateAllWindows();
-
-		LogPrintf(LOG_INFO, "Preparing to create PostScript file.\n");
 
 		/* Create a default EPS filename by looking up the suffix string and appending
 		   it to the current name.  If the current name is so long that there would not

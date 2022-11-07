@@ -8,7 +8,7 @@ Boolean	IsSelPart(LINK, LINK []);
 short	CountSelParts(LINK []);
 LINK	GetSelPart(Document *);
 short	GetVoiceFromSel(Document *);
-void	Sel2MeasPage(Document *, short *, short *);
+Boolean	Sel2MeasPage(Document *, short *, short *);
 
 void	GetSelMIDIRange(Document *, short *, short *);
 LINK	FindSelAcc(Document *, short);
