@@ -96,7 +96,7 @@ short		gHairpinCount;				/* number of hairpins found (and ignored) */
 short		gNotelistVersion;			/* notelist format version number (>=0) */
 
 /* Codes for tempo marks. We want to restrict notelist files to ASCII characters, so
-some of these are different from the internal codes: cf. TempoGlyph(). */
+some of these are different from Nightingale internal codes: cf. TempoGlyph(). */
 
 char		gTempoCode[] = { '\0', 'b', 'w', 'h', 'q', 'e', 's', 'r', 'x', 'y' };
 
@@ -106,7 +106,7 @@ char		gTempoCode[] = { '\0', 'b', 'w', 'h', 'q', 'e', 's', 'r', 'x', 'y' };
 // ????But a graphic string can contain 255 in the string portion alone!!
 // And what about really long (word-wrapped) comments?
 
-static char		gInBuf[LINELEN];		/* Carefully read the comments above ReadLine before changing the buffer size. */
+static char		gInBuf[LINELEN];	/* Carefully read the comments above IIReadLine before changing the buffer size. */
 static long		gLineCount;
 
 /* -------------------------------------------------------------------------------------- */
@@ -115,7 +115,7 @@ static long		gLineCount;
 /* The following codes refer to consecutive error messages that are in the middle of the
 string list: this can make adding or changing messages tricky! Cf. ReportParseFailure(). */
 
-static enum {
+enum {
 	NLERR_MISCELLANEOUS=1,	/* "Miscellaneous error" */
 	NLERR_TOOFEWFIELDS,		/* "Less than the minimum number of fields for the opcode" */
 	NLERR_INTERNAL,			/* "Internal error in Notelist parsing" */
@@ -140,7 +140,7 @@ static enum {
 	NLERR_BADNUMACC,		/* "KS (no. of accidentals) is illegal" */
 	NLERR_BADKSACC,			/* "Key signature accidental code is illegal" */
 	NLERR_BADDISPL			/* "displ (time signature appearance) is illegal" */
-} E_NLErrs;
+};
 
 
 /* -------------------------------------------------------------------------------------- */
@@ -352,7 +352,7 @@ static Boolean ParseNRGR()
 {
 	char		objTypeCode, timeStr[32], voiceStr[32], partStr[32], staffStr[32], durStr[32],
 				dotsStr[32], noteNumStr[32], accStr[32], eAccStr[32], pDurStr[32], velStr[32],
-				flagsStr[32], appearStr[64], modStr[64];
+				flagsStr[32], appearStr[64], modStr[64], segmentStr[64];
 	short		ans, err;
 	long		along;
 	PNL_NRGR	pNRGR;
@@ -362,7 +362,8 @@ static Boolean ParseNRGR()
 	ans = sscanf(gInBuf, "%c", &objTypeCode);
 	if (ans<1) { err = NLERR_INTERNAL; goto broken; }
 
-	/* in case our record omits these fields... */
+	/* Initialize strings to empty in case our record omits these fields. */
+	
 	noteNumStr[0] = accStr[0] = eAccStr[0] = pDurStr[0] = velStr[0] = modStr[0] = 0;
 
 	switch (objTypeCode) {
@@ -370,7 +371,8 @@ static Boolean ParseNRGR()
 		case GRACE_CHAR:
 			ans = sscanf(gInBuf, "%*c%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 							timeStr, voiceStr, partStr, staffStr, durStr, dotsStr, noteNumStr,
-							accStr, eAccStr, pDurStr, velStr, flagsStr, appearStr, modStr);
+							accStr, eAccStr, pDurStr, velStr, flagsStr, appearStr, modStr,
+							segmentStr);
 			if (ans<13) { err = NLERR_TOOFEWFIELDS; goto broken; }
 			break;
 		case REST_CHAR:
@@ -547,14 +549,14 @@ static Boolean ParseTuplet()
 	pTuplet->nInTuple = 0;									/* Filled in later by AnalyzeNLTuplet */
 	
 	/* The appear= field comprises 3 digits with no intervening spaces. Each digit
-		is either 1 or 0, representing an on or off setting for three properties:
-		numVis, denomVis and brackVis (in that order). For example,
+	   is either 1 or 0, representing an on or off setting for three properties:
+	   numVis, denomVis and brackVis (in that order). For example,
 			"111" means numVis, denomVis, brackVis
 			"100" means numVis, !denomVis, !brackVis
 			"001" means !numVis, !denomVis, brackVis
-		and so on. Note that if denomVis is True, numVis must also be True.
-		(Nightingale's user interface for this is the Fancy Tuplet dialog.)
-	*/
+	   and so on. Note that if denomVis is True, numVis must also be True.
+	   (Nightingale's user interface for this is the Fancy Tuplet dialog.) */
+	   
 	err = NLERR_BADAPPEAR;
 	p = strchr(appearStr, '=');
 	if (!p) goto broken;
@@ -1189,12 +1191,11 @@ static Boolean ExtractVal(char *str,			/* source string */
 	if (p) {
 		p++;							/* advance pointer to character following '=' */
 		ans = sscanf(p, "%ld", val);	/* read numerical value in string as a long */
-										//???Should I use atol instead? Remember NCust OMSdeviceID problem!
-		if (ans > 0)
-			return True;
+		if (ans > 0) return True;
 	}
 	
 	/* no '=' found in str, or sscanf error */
+	
 	*val = 0L;
 	return False;
 }

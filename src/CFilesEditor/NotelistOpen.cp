@@ -262,15 +262,15 @@ static Boolean NotelistToNight(Document *doc)
 
 	ProgressMsg(CONVERTNOTELIST_PMSTR, " 2...");	/* "Converting Notelist file: step 2..." */
 
-	/* Fix up LINKs of all Tuplets in the score. Note that FIFixTupletLinks also resets
+	/* Fix up LINKs of all Tuplets in the score. Note that IIFixTupletLinks also resets
 	   play durations of notes in tuplets: this is not good, since we've already set
 	   them from the notelist, but it should be easy to get rid of when someone has a
 	   bit of time. */
 	   
 	for (v = 1; v<=MAXVOICES; v++)
-		FIFixTupletLinks(doc, doc->headL, doc->tailL, v);
+		IIFixTupletLinks(doc, doc->headL, doc->tailL, v);
 
-	FIAnchorAllJDObjs(doc);
+	IIAnchorAllJDObjs(doc);
 	
 	FixTimeStamps(doc, doc->headL, NILINK);
 	FixPlayDurs(doc, doc->headL, doc->tailL);
@@ -285,13 +285,13 @@ static Boolean NotelistToNight(Document *doc)
 	/* Create slurs/ties before reformatting, so that we can get cross-sys & cross-pg slurs/ties. */
 	
 	CreateAllTies(doc);
-	FICreateAllSlurs(doc);
-	FIFixAllNoteSlurTieFlags(doc);
+	IICreateAllSlurs(doc);
+	IIFixAllNoteSlurTieFlags(doc);
 	
 	/* Combine adjacent keysigs on different staves into the same object. */
 	
 	if (gNumNLStaves>1)
-		ok = FICombineKeySigs(doc, doc->headL, doc->tailL);
+		ok = IICombineKeySigs(doc, doc->headL, doc->tailL);
 	
 	/* Respace entire score, trying to avoid both overcrowding and wasted spoce. */
 	SelAllNoHilite(doc);
@@ -304,7 +304,7 @@ static Boolean NotelistToNight(Document *doc)
 	spacePercent = 100L;
 	if (shortestDurCode==EIGHTH_L_DUR) spacePercent = 85L;
 	else if (shortestDurCode<EIGHTH_L_DUR && shortestDurCode!=UNKNOWN_L_DUR) spacePercent = 70L;
-	LogPrintf(LOG_NOTICE, "shortestDurCode=%d spacePercent=%ld\n", shortestDurCode, spacePercent);
+	LogPrintf(LOG_INFO, "shortestDurCode=%d spacePercent=%ld\n", shortestDurCode, spacePercent);
 	doc->spacePercent = spacePercent;
 	ok = RespaceBars(doc, firstMeasL, doc->tailL, RESFACTOR*spacePercent, False, doReformat=True);
 
@@ -315,7 +315,7 @@ static Boolean NotelistToNight(Document *doc)
 	ok = AutoBeam(doc);
 #endif
 
-	FIAutoMultiVoice(doc, False);
+	IIAutoMultiVoice(doc, False);
 
 	/* Set tuplet accessory nums to a reasonable vertical position. Do *after* beaming! */
 	
@@ -323,13 +323,13 @@ static Boolean NotelistToNight(Document *doc)
 		if (TupletTYPE(pL))
 			SetTupletYPos(doc, pL);
 
-	FIJustifyAll(doc);												/* Justify every system. */
+	IIJustifyAll(doc);												/* Justify every system. */
 	
 	/* Reshape slurs and ties to default; respace/reformat probably deformed many of them. */
 	
-	FIReshapeSlursTies(doc);
+	IIReshapeSlursTies(doc);
 
-	FIAnchorAllJDObjs(doc);
+	IIAnchorAllJDObjs(doc);
 	SetDefaultCoords(doc);
 
 	DeselRangeNoHilite(doc, doc->headL, doc->tailL);
@@ -368,11 +368,11 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 		PostProcessNotelist.)
 	*/
 	if (pNR->lStartTime==gCurSyncTime) {
-		aNoteL = FIAddNoteToSync(doc, curSyncL);
+		aNoteL = IIAddNoteToSync(doc, curSyncL);
 		if (aNoteL==NILINK) return False;					/* probably out of memory */
 	}
 	else if (pNR->lStartTime>gCurSyncTime) {
-		syncL = FIInsertSync(doc, doc->tailL, 1);
+		syncL = IIInsertSync(doc, doc->tailL, 1);
 		if (syncL==NILINK) return False;
 		aNoteL = FirstSubLINK(syncL);
 		curSyncL = syncL;
@@ -478,11 +478,11 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	if (curGRSyncL && !pNR->inChord) curGRSyncL = NILINK;
 
 	if (curGRSyncL) {
-		aGRNoteL = FIAddNoteToSync(doc, curGRSyncL);
+		aGRNoteL = IIAddNoteToSync(doc, curGRSyncL);
 		if (aGRNoteL==NILINK) return False;
 	}
 	else {
-		syncL = FIInsertGRSync(doc, doc->tailL, 1);
+		syncL = IIInsertGRSync(doc, doc->tailL, 1);
 		if (syncL==NILINK) return False;
 		aGRNoteL = FirstSubLINK(syncL);
 		curGRSyncL = syncL;
@@ -616,7 +616,7 @@ static Boolean ConvertTuplet(Document *doc, NLINK pL)
 	iVoice = User2IntVoice(doc, (short)pT->uVoice, partL);
 	if (iVoice==0) goto broken;
 
-	tupletL = FICreateTUPLET(doc, iVoice, pT->staff, doc->tailL, pT->nInTuple,
+	tupletL = IICreateTUPLET(doc, iVoice, pT->staff, doc->tailL, pT->nInTuple,
 								pT->num, pT->denom, pT->numVis, pT->denomVis, pT->brackVis);
 	if (tupletL==NILINK) goto broken;
 
@@ -636,7 +636,7 @@ static Boolean ConvertBarline(Document *doc, NLINK pL)
 	
 	pBar = GetPNL_BARLINE(pL);
 	
-	measL = FIInsertBarline(doc, doc->tailL, pBar->appear);
+	measL = IIInsertBarline(doc, doc->tailL, pBar->appear);
 	if (measL==NILINK) goto broken;
 
 	return True;
@@ -667,7 +667,7 @@ static Boolean ConvertClef(Document *doc, NLINK pL)
 			if (ClefSTAFF(aClefL)==pC->staff && ClefType(aClefL)==pC->type)
 				return True;
 
-	clefL = FIInsertClef(doc, pC->staff, doc->tailL, pC->type, small=True);
+	clefL = IIInsertClef(doc, pC->staff, doc->tailL, pC->type, small=True);
 	if (clefL==NILINK) goto broken;
 
 	return True;
@@ -693,7 +693,7 @@ static Boolean ConvertKeysig(Document *doc, NLINK pL)
 
 	sharpsOrFlats = NLtoNightKeysig(pL);
 
-	keySigL = FIInsertKeySig(doc, pKS->staff, doc->tailL, sharpsOrFlats);
+	keySigL = IIInsertKeySig(doc, pKS->staff, doc->tailL, sharpsOrFlats);
 	if (keySigL==NILINK) goto broken;
 
 	return True;
@@ -717,7 +717,7 @@ static Boolean ConvertTimesig(Document *doc, NLINK pL)
 	pTS = GetPNL_TIMESIG(pL);
 	if (pTS->staff==NOONE) return True;			/* don't convert it; it's already handled by another record */
 	
-	timeSigL = FIInsertTimeSig(doc, pTS->staff, doc->tailL, pTS->appear, pTS->num, pTS->denom);
+	timeSigL = IIInsertTimeSig(doc, pTS->staff, doc->tailL, pTS->appear, pTS->num, pTS->denom);
 	if (timeSigL==NILINK) goto broken;
 
 	return True;
@@ -752,7 +752,7 @@ static Boolean ConvertTempo(Document *doc, NLINK pL)
 	else
 		metroStr[0] = '\0';
 
-	tempoL = FIInsertTempo(doc, pT->staff, doc->tailL, NILINK, pT->durCode,
+	tempoL = IIInsertTempo(doc, pT->staff, doc->tailL, NILINK, pT->durCode,
 								pT->dotted, pT->hideMM, tempoStr, metroStr);
 	if (tempoL==NILINK) goto broken;
 	
@@ -803,7 +803,7 @@ static Boolean ConvertGraphic(Document *doc, NLINK pL)
 		anchorL = NILINK;							/* filled in later */
 	}
 	
-	graphicL = FIInsertGRString(doc, pG->staff, iVoice, insertBeforeL, 
+	graphicL = IIInsertGRString(doc, pG->staff, iVoice, insertBeforeL, 
 									anchorL, isLyric, textStyle, NULL, str);
 	if (graphicL==NILINK) goto broken;
 
@@ -837,7 +837,7 @@ static Boolean ConvertDynamic(Document *doc, NLINK pL)
 		case FF_DYNAM:
 		case FFF_DYNAM:
 		case SF_DYNAM:
-			dynamicL = FIInsertDynamic(doc, pD->staff, doc->tailL, NILINK, pD->type);
+			dynamicL = IIInsertDynamic(doc, pD->staff, doc->tailL, NILINK, pD->type);
 			if (dynamicL==NILINK) goto broken;
 			break;
 		case PPPP_DYNAM:
@@ -853,7 +853,7 @@ static Boolean ConvertDynamic(Document *doc, NLINK pL)
 		case FP_DYNAM:
 		case SFP_DYNAM:
 			strcpy(str, dynamStrs[pD->type-1]);
-			dynamicL = FIInsertGRString(doc, pD->staff, NOONE, doc->tailL, NILINK,
+			dynamicL = IIInsertGRString(doc, pD->staff, NOONE, doc->tailL, NILINK,
 													False, TSRegular2STYLE, NULL, str);
 			if (dynamicL==NILINK) goto broken;
 // FIXME: ****Now problem is that voice should NOT be NOONE!

@@ -449,8 +449,8 @@ static Boolean TranscribeMFDialog(
 		if (lDurCode==durPalCode[k]) { choiceIdx = k;  break; }
 	}
 
-LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d lDurCode=%d choiceIdx=%d\n",
-qAllLDur, lDurCode, choiceIdx);
+//LogPrintf(LOG_DEBUG, "TranscribeMFDialog: qAllLDur=%d lDurCode=%d choiceIdx=%d\n",
+//qAllLDur, lDurCode, choiceIdx);
 
 	PutDlgChkRadio(dlog, AUTOBEAM_DI, *autoBeam);
 	PutDlgChkRadio(dlog, TRIPLETS_DI, *triplets);
@@ -800,7 +800,7 @@ static Boolean CheckAndConsult(
 	
 	/* Tell user what we found and ask them what to do now. */
 	
-	LogPrintf(LOG_INFO, "lastEvent=%ld  (CheckAndConsult)\n", *pLastEvent);
+	LogPrintf(LOG_NOTICE, "Last event time=%ld  (CheckAndConsult)\n", *pLastEvent);
 	return TranscribeMFDialog(trackInfo, nTrackNotes, nTooLong, chanUsed, qTrLDur,
 								qTrTriplets, lastTrEvent, nNotes, nGoodTrs, qAllLDur,
 								pQuantCode, pAutoBeam, pTriplets, pClefChanges, pMaxMeasures);
@@ -884,7 +884,7 @@ static Boolean OpenMIDIFile()
 			}
 
 			if (trackInfo[t].okay) {
-				LogPrintf(LOG_INFO, "OpenMIDIFile: Calling MF2MIDNight for track %d...\n", t);
+				if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Calling MF2MIDNight for track %d...  (OpenMIDIFile)\n", t);
 				len = MF2MIDNight(&pChunk);
 				if (DETAIL_SHOW) {
 					LogPrintf(LOG_INFO, "OpenMIDIFile: MTrk(%d) MIDNightLen=%d:\n", t, len);

@@ -305,7 +305,7 @@ typedef struct {
 					spaceTable,			/* ID of 'SPTB' resource having spacing table to use */ \
 					htight,				/* Percent tightness */									\
 					fillerInt,			/* unused */											\
-					lookVoice,			/* Voice to look at, or -1 for all voices */			\
+					lookVoice,			/* Voice to look at, or ANYONE for all voices */		\
 					fillerHP,			/* (unused) */											\
 					fillerLP,			/* (unused) */											\
 					ledgerYSp,			/* Extra space above/below staff for max. ledger lines (half-spaces) */ \

@@ -463,7 +463,8 @@ void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 
 /* ---------------------------------------------------------------------- Sel2MeasPage -- */
 /* Get the measure number and page number of the start of the selection in the given
-document. Return True if all is well, False if not (probably due to a bug). */
+document. Return True if all is well, False if not (possibly due to a bug, but Select
+All can also cause it). */
 
 Boolean Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 {

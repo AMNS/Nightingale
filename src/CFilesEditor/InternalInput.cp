@@ -26,21 +26,21 @@ static LINK AnchorSearch(Document *doc, LINK dependentL);
 static short GuessVoiceRole(Document *doc, short iVoice, LINK startL, LINK endL);
 
 
-/* -------------------------------------------------------------------- FICreateTUPLET -- */
+/* -------------------------------------------------------------------- IICreateTUPLET -- */
 /* Creates a tuplet object with the specified number of subobjects and other
 characteristics. Insert it *before* <beforeL>. NOTE: Does *not* set tpSync fields
-in the tuplet. Call FIFixTupletLinks for that after creating all the relevant syncs.
+in the tuplet. Call IIFixTupletLinks for that after creating all the relevant syncs.
 Assumes that the first Sync of the tuplet has just been created.
 
-CAUTION: <beforeL> normally should be the first Sync of the tuplet, but could be
+CAUTION: <beforeL> normally should be the first Sync of the tuplet, but it could be
 doc->tailL if the caller inserts items into the data structure sequentially -- from
 left to right -- and is sure that the next item inserted will be the first Sync of
 the tuplet.
 
-After calling FIFixTupletLinks, call SetTupletYPos ??AFTER beaming!. (FICreateTUPLET
+After calling IIFixTupletLinks, call SetTupletYPos ??AFTER beaming!. (IICreateTUPLET
 was adapted from CreateTUPLET in Tuplet.c.) */
 
-LINK FICreateTUPLET(Document	*doc,
+LINK IICreateTUPLET(Document	*doc,
 					  short		voice,
 					  short		staffn,
 					  LINK		beforeL,
@@ -54,7 +54,7 @@ LINK FICreateTUPLET(Document	*doc,
 	LINK	tupletL;
 
 	if (nInTuple<2) {
-		MayErrMsg("FICreateTUPLET: can't make tuplet with only %ld notes.", (long)nInTuple);
+		MayErrMsg("IICreateTUPLET: can't make tuplet with only %ld note(s).", (long)nInTuple);
 		return NILINK;
 	}
 
@@ -71,16 +71,16 @@ LINK FICreateTUPLET(Document	*doc,
 }
 
 
-/* ------------------------------------------------------------------ FIFixTupletLinks -- */
+/* ------------------------------------------------------------------ IIFixTupletLinks -- */
 /* In the range [startL,endL), fix the tpSyncs of every Tuplet to agree with the order
 of objects in the data structure, i.e., set the first tpSync to the next Sync in its
 voice, the next tpSync to the next Sync after that, etc. In addition:
    1) set the inTuplet flag of every note in each of these syncs to True, and
    2) set the performance durations of these notes to their logical duration modified
       by config.legatoPct.
-(FIFixTupletLinks was adapted from FixTupletLinks in MIDIRecUtils.c.) */
+(IIFixTupletLinks was adapted from FixTupletLinks in MIDIRecUtils.c.) */
 
-void FIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice)
+void IIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice)
 {
 	short		i, nInTuplet;
 	long		lDur;
@@ -109,14 +109,14 @@ void FIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice)
 }
 
 
-/* ------------------------------------------------------------------- FIReplaceKeySig -- */
+/* ------------------------------------------------------------------- IIReplaceKeySig -- */
 /* Replace key signature on the given staff with one specified by <sharpsOrFlats>.
-CAUTION: In contrast to ReplaceKeySig, FIReplaceKeySig works with keysigs that are
+CAUTION: In contrast to ReplaceKeySig, IIReplaceKeySig works with keysigs that are
 not in the reserved area; that is, it works with keysigs that are inMeasure. Assumes
 that there are no notes following this keysig on this staff, so there's no need to fix
 up following accidentals. (Adapted from ReplaceKeySig in InsNew.c.) */
 
-Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsOrFlats)
+Boolean IIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsOrFlats)
 {
 	PAKEYSIG	aKeySig;
 	KSINFO		oldKSInfo, newKSInfo;
@@ -148,12 +148,12 @@ Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsO
 }
 
 
-/* ------------------------------------------------------------- FIInsertWholeMeasRest -- */
+/* ------------------------------------------------------------- IIInsertWholeMeasRest -- */
 /* Insert a whole-measure rest before <insertBeforeL> on the given staff in the given
 (internal) voice. Does NOT attempt to create a Sync with notes on other staves. Returns
 True if OK, False if error. */
 
-Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
+Boolean IIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 										short iVoice, Boolean visible)
 {
 	LINK	syncL, aNoteL;
@@ -177,11 +177,11 @@ Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 }
 
 
-/* ------------------------------------------------------------------- FIInsertBarline -- */
+/* ------------------------------------------------------------------- IIInsertBarline -- */
 /* Insert a barline of type <barlineType> before <insertBeforeL> on all staves. Returns
 the link of this barline if OK, NILINK if error. */
 
-LINK FIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType)
+LINK IIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType)
 {
 	short	sym;
 	LINK	measL;
@@ -215,16 +215,16 @@ Boolean SetMeasureSubType(LINK measL, short subType)
 }
 
 
-/* ---------------------------------------------------------------------- FIInsertClef -- */
+/* ---------------------------------------------------------------------- IIInsertClef -- */
 /* Insert a clef of the given type and size before <insertBeforeL> on the given staff.
 Caller should then call FixContextForClef to propagate the effects of the clef change
 to any following objects.
 NB: Do not use this function to change a clef in the reserved area. (For that purpose,
-insert a clef change at the end of the previous system.) FIInsertClef only creates
+insert a clef change at the end of the previous system.) IIInsertClef only creates
 clefs that are inMeasure.
 Returns the link of this clef if OK, NILINK if error. */
 
-LINK FIInsertClef(Document *doc, short staffn, LINK insertBeforeL, short clefType,
+LINK IIInsertClef(Document *doc, short staffn, LINK insertBeforeL, short clefType,
 					Boolean small)
 {
 	LINK	clefL, aClefL;
@@ -246,11 +246,11 @@ LINK FIInsertClef(Document *doc, short staffn, LINK insertBeforeL, short clefTyp
 }
 
 
-/* ------------------------------------------------------------------- FIInsertTimeSig -- */
+/* ------------------------------------------------------------------- IIInsertTimeSig -- */
 /*	Caller may need to call FixContextForTimeSig and/or FixTimeStamps after calling
 this function. */
 	
-LINK FIInsertTimeSig(Document *doc,
+LINK IIInsertTimeSig(Document *doc,
 						short staff,					/* or ANYONE for all staves */
 						LINK insertBeforeL,
 						short type,
@@ -286,11 +286,11 @@ LINK FIInsertTimeSig(Document *doc,
 }
 
 
-/* -------------------------------------------------------------------- FIInsertKeySig -- */
+/* -------------------------------------------------------------------- IIInsertKeySig -- */
 /* Caller may need to call FixContextForKeySig and/or FixAccsForKeySig after calling
 this function. */
 	
-LINK FIInsertKeySig(Document *doc,
+LINK IIInsertKeySig(Document *doc,
 					  short staff,					/* or ANYONE for all staves */
 					  LINK insertBeforeL,
 					  short sharpsOrFlats)			/* <0: flats; >0: sharps, 0: cancel prev ks */
@@ -332,8 +332,8 @@ LINK FIInsertKeySig(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ FICombine1KeySig -- */
-/* Helper function for FICombineKeySigs */
+/* ------------------------------------------------------------------ IICombine1KeySig -- */
+/* Helper function for IICombineKeySigs */
 
 static Boolean IICombineInto1KeySig(Document *doc,
 									LINK firstL,
@@ -370,7 +370,7 @@ static Boolean IICombineInto1KeySig(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ FICombineKeySigs -- */
+/* ------------------------------------------------------------------ IICombineKeySigs -- */
 /*	Within the range (startL, endL], combine adjacent keysigs objects into a single
 object having multiple subobjects. The series of keysigs so combined must satisfy
 these conditions:
@@ -383,7 +383,7 @@ Return True if OK, False if out of memory (after alerting user).
 CAVEAT: Currently this function ignores any Graphics attached to keysigs. If it deletes
 a keysig with an attached Graphic, the Graphic is orphaned. */
 
-Boolean FICombineKeySigs(Document *doc,
+Boolean IICombineKeySigs(Document *doc,
 						 LINK startL,
 						 LINK endL)
 {
@@ -435,7 +435,7 @@ Boolean FICombineKeySigs(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- FIInsertDynamic -- */
+/* ------------------------------------------------------------------- IIInsertDynamic -- */
 /*	Insert a (non-hairpin) dynamic of the given type before <insertBeforeL> on the
  given staff. Set the dynamic's firstSyncL to <anchorL>, which can be NILINK if the
  caller prefers to set this later. Caller next should call FixContextForDynamic to
@@ -443,7 +443,7 @@ Boolean FICombineKeySigs(Document *doc,
  set coordinates, because we just set them to 0 here. Returns the link of this dynamic
  if OK, NILINK if error. */
 	
-LINK FIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK anchorL,
+LINK IIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK anchorL,
 						short dynamicType)
 {
 	LINK		dynamicL;
@@ -570,7 +570,7 @@ static short IIGetFontIndex(Document *doc, unsigned char *fontName)
 }
 
 
-/* ------------------------------------------------------------------ FIInsertGRString -- */
+/* ------------------------------------------------------------------ IIInsertGRString -- */
 /*	Insert a graphic of type GRString, or GRLyric if <isLyric>, before <insertBeforeL>.
 Set the graphic's firstObj to <anchorL>, which can be NILINK if the caller prefers
 to set this later. The caller has the option of specifying one of the five
@@ -580,7 +580,7 @@ approach, pass NULL for <pStyleRec>; if choosing the second, pass TSNoSTYLE for
 <textStyle>. (NB: <isLyric> overrides pStyleRec->lyric.) Returns the link of this
 Graphic if OK, NILINK if error. */
 
-LINK FIInsertGRString(Document *doc,
+LINK IIInsertGRString(Document *doc,
 						 short staffn,
 						 short iVoice,				/* internal voice number */
 						 LINK insertBeforeL,
@@ -606,7 +606,7 @@ PushLock(OBJheap);
 	
 	if (textStyle==TSNoSTYLE) {
 		if (pStyleRec==NULL) {
-			MayErrMsg("FIInsertGRString: missing text style data. Using style 1.");
+			MayErrMsg("IIInsertGRString: missing text style data. Using style 1.");
 			textStyle = TSRegular1STYLE;
 			goto getStyle;
 		}
@@ -622,7 +622,7 @@ PushLock(OBJheap);
 getStyle:
 		result = GetTextStyleRec(doc, textStyle, &styleRec);
 		if (!result) {
-			MayErrMsg("FIInsertGRString: bad textStyle. Using style 1 instead.");
+			MayErrMsg("IIInsertGRString: bad textStyle. Using style 1 instead.");
 			textStyle = TSRegular1STYLE;
 			GetTextStyleRec(doc, textStyle, &styleRec);
 		}
@@ -644,7 +644,7 @@ PopLock(OBJheap);
 		return NILINK;
 	}
 	else if (strOffset>GetHandleSize((Handle)doc->stringPool)) {
-		MayErrMsg("FIInsertGRString: PStore error. string=%ld", strOffset);
+		MayErrMsg("IIInsertGRString: PStore error. string=%ld", strOffset);
 		return NILINK;
 	}
 	aGraphicL = FirstSubLINK(graphicL);
@@ -654,13 +654,13 @@ PopLock(OBJheap);
 }
 
 
-/* --------------------------------------------------------------------- FIInsertTempo -- */
+/* --------------------------------------------------------------------- IIInsertTempo -- */
 /*	Insert a tempo mark before <insertBeforeL> on the given staff. Set the tempo's
-firstSyncL to <anchorL>, which can be NILINK if the caller prefers to set this
-later. Caller must set coordinates, because we just set them to 0 here. Returns
-the link of this tempo mark if OK, NILINK if error. */
+firstSyncL to <anchorL>, which can be NILINK if the caller prefers to set this later.
+Caller must set coordinates, because we just set them to 0 here. Returns the link of
+this tempo mark if OK, NILINK if error. */
 
-LINK FIInsertTempo(Document	*doc,
+LINK IIInsertTempo(Document	*doc,
 					 short		staffn,
 					 LINK		insertBeforeL,
 					 LINK		anchorL,
@@ -703,7 +703,7 @@ PushLock(OBJheap);
 	}
 	else if (pTempo->strOffset>GetHandleSize((Handle)doc->stringPool)
 		  || pTempo->metroStrOffset>GetHandleSize((Handle)doc->stringPool)) {
-		MayErrMsg("FIInsertTempo: PStore error. strOffset=%ld metroStrOffset=%ld",
+		MayErrMsg("IIInsertTempo: PStore error. strOffset=%ld metroStrOffset=%ld",
 					pTempo->strOffset, pTempo->metroStrOffset);
 		tempoL = NILINK;
 	}
@@ -716,11 +716,11 @@ PopLock(OBJheap);
 }
 
 
-/* ---------------------------------------------------------------------- FIInsertSync -- */
+/* ---------------------------------------------------------------------- IIInsertSync -- */
 /* Insert a Sync containing the given number of subobjects before <insertBeforeL>.
 Returns the link of this Sync if OK, NILINK if error. */
 
-LINK FIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects)
+LINK IIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 {
 	LINK	syncL;
 	
@@ -737,11 +737,11 @@ LINK FIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 }
 
 
-/* -------------------------------------------------------------------- FIInsertGRSync -- */
+/* -------------------------------------------------------------------- IIInsertGRSync -- */
 /* Insert a GRSync containing the given number of subobjects before <insertBeforeL>.
 Returns the link of this GRSync if OK, NILINK if error. */
 
-LINK FIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects)
+LINK IIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 {
 	LINK	GRSyncL;
 	
@@ -758,14 +758,14 @@ LINK FIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 }
 
 
-/* ------------------------------------------------------------------- FIAddNoteToSync -- */
+/* ------------------------------------------------------------------- IIAddNoteToSync -- */
 /* Add a note to an existing Sync or GRSync. The Sync doesn't need to have any subobjects
 when this is called. The caller will have to initialize nearly everything about the new
 note on return, by calling SetupNote or SetupGRNote. All this function does is link a new
 node into the syncs's subobject list. Returns the note LINK if everything is OK, NILINK
 if error. */
 
-LINK FIAddNoteToSync(Document */*doc*/, LINK syncL)
+LINK IIAddNoteToSync(Document */*doc*/, LINK syncL)
 {
 	LINK	aNoteL;
 	
@@ -777,19 +777,19 @@ LINK FIAddNoteToSync(Document */*doc*/, LINK syncL)
 }
 
 
-/* ---------------------------------------------------------------------- FIInsertSlur -- */
+/* ---------------------------------------------------------------------- IIInsertSlur -- */
 /* Insert a slur just before <firstSyncL>, and init it appropriately. Both
 <firstSyncL> and <lastSyncL> must be Syncs (not GRSyncs!) in the same system;
 <firstNoteL> and <lastNoteL> must be in the same voice. If <setShapeNow>, set the
 control points of the slur to a  default shape; otherwise leave the shape alone. (In
 the latter case, the caller probably wants to reshape all slurs at once later on,
-using FIReshapeSlursTies.) We give up and return NILINK if:
+using IIReshapeSlursTies.) We give up and return NILINK if:
 	<firstSyncL> and <lastSyncL> are not both Syncs,
 	<firstSyncL> and <lastSyncL> are in different systems,
 	<firstNoteL> and <lastNoteL> are in different voices, or
 	there isn't enough memory to create a new slur. */
 
-LINK FIInsertSlur(Document *doc,
+LINK IIInsertSlur(Document *doc,
 					LINK firstSyncL,
 					LINK firstNoteL,
 					LINK lastSyncL,
@@ -869,17 +869,17 @@ LINK FIInsertSlur(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ FICreateAllSlurs -- */
+/* ------------------------------------------------------------------ IICreateAllSlurs -- */
 /*	Examines the slurredL and slurredR flags of all notes in the score and creates
-slurs accordingly. Does not set slur shapes; the caller should call FIReshapeSlursTies
+slurs accordingly. Does not set slur shapes; the caller should call IIReshapeSlursTies
 later. It will refuse to create a cross-system slur. It does not alert the user to
 this (or any other) kind of error, but returns the number of errors encountered. If
 there are errors, the caller should clean up the slurredL and slurredR flags by
-calling FIFixAllNoteSlurFlags. CAVEAT: It will create a nested slur if the slurredL
+calling IIFixAllNoteSlurFlags. CAVEAT: It will create a nested slur if the slurredL
 and slurredR flags are set that way, even though Nightingale doesn't allow nested
 slurs. */
 
-short FICreateAllSlurs(Document *doc)
+short IICreateAllSlurs(Document *doc)
 {
 	LINK	pL, qL, prevL, slurL, aNoteL, bNoteL;
 	PANOTE	bNote;
@@ -900,7 +900,7 @@ short FICreateAllSlurs(Document *doc)
 							for ( ; bNoteL; bNoteL = NextNOTEL(bNoteL)) {
 								bNote = GetPANOTE(bNoteL);
 								if (bNote->voice==voice && bNote->slurredL) {
-									slurL = FIInsertSlur(doc, pL, aNoteL, qL, bNoteL, False);
+									slurL = IIInsertSlur(doc, pL, aNoteL, qL, bNoteL, False);
 									if (!slurL) errCnt++;		/* probably cross-system */
 									found = True;
 								}
@@ -919,10 +919,10 @@ short FICreateAllSlurs(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- FIReshapeSlursTies -- */
+/* ---------------------------------------------------------------- IIReshapeSlursTies -- */
 /* Set all slurs and ties in the entire score to default shape. */
 
-void FIReshapeSlursTies(Document *doc)
+void IIReshapeSlursTies(Document *doc)
 {
 	LINK	pL;
 	
@@ -932,13 +932,13 @@ void FIReshapeSlursTies(Document *doc)
 }
 
 
-/* ---------------------------------------------------------- FIFixAllNoteSlurTieFlags -- */
+/* ---------------------------------------------------------- IIFixAllNoteSlurTieFlags -- */
 /* For every note in the score that claims to be TIEDL, TIEDR, SLURREDL or SLURREDR,
 see if there really is a tie that starts or ends on that note. If there isn't, clear
 the appropriate flag (tiedL or tiedR), so that the data structure will be consistent.
 (Adapted from DCheckSyncSlurs.) */
 
-void FIFixAllNoteSlurTieFlags(Document *doc)
+void IIFixAllNoteSlurTieFlags(Document *doc)
 {
 	SearchParam pbSearch;
 	LINK		pL, aNoteL, prevSyncL, tieL, slurL, searchL;
@@ -1133,14 +1133,14 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 }
 
 
-/* --------------------------------------------------------------- FIAnchorAllJDObjs -- */
+/* --------------------------------------------------------------- IIAnchorAllJDObjs -- */
 /* FIXME: Big problems: If a symbol should be attached to an anchor in the reserved
 area, this will fail, because during conversion the symbol will have been added to the
 data structure *after* the reserved anchor symbol. (This applies to page-rel graphics
 also.) Or, since we're reformatting after conversion, is this a problem only with the
 first system?? */
 
-Boolean FIAnchorAllJDObjs(Document *doc)
+Boolean IIAnchorAllJDObjs(Document *doc)
 {
 	LINK	pL, anchorL;
 	
@@ -1174,16 +1174,16 @@ Boolean FIAnchorAllJDObjs(Document *doc)
 	return True;
 	
 broken:
-	MayErrMsg("FIAnchorAllJDObjs: can't find an anchor for dependent symbol at %d.", pL);
+	MayErrMsg("IIAnchorAllJDObjs: can't find an anchor for dependent symbol at %d.", pL);
 	return False;
 }
 
 
-/* ------------------------------------------------------------------ FIAutoMultiVoice -- */
+/* ------------------------------------------------------------------ IIAutoMultiVoice -- */
 /* For the entire document, guess the roles of all voices on a measure-by-measure basis,
 and apply the appropriate multi-voice rules. */
 
-void FIAutoMultiVoice(Document	*doc,
+void IIAutoMultiVoice(Document	*doc,
 						Boolean	doSingle)		/* Call DoMultivoiceRules even when a voice is VCROLE_SINGLE */
 {
 	short	voiceRole, v;
@@ -1204,7 +1204,7 @@ void FIAutoMultiVoice(Document	*doc,
 				}
 			}
 	}
-	doc->lookVoice = -1;							/* look at all voices */
+	doc->lookVoice = ANYONE;							/* look at all voices */
 }
 
 
@@ -1296,7 +1296,7 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 }
 
 
-/* ------------------------------------------------------------------- FIJustifySystem -- */
+/* ------------------------------------------------------------------- IIJustifySystem -- */
 /* Justify one system using a "smart" justification algorithm:
 	1) justify normally,
 	2) repace using the new space percentage (stored in first measure of system),
@@ -1305,7 +1305,7 @@ This produces better looking spacing than the normal justify command, especially
 there isn't much content on a system. NB: Does not complain if the space percentage
 exceeds the limit. Returns True if OK, False if error. */
 
-Boolean FIJustifySystem(Document *doc, LINK systemL)
+Boolean IIJustifySystem(Document *doc, LINK systemL)
 {
 	long		justProp;
 	DDIST		lastMeasWidth, staffWidth;
@@ -1346,18 +1346,18 @@ Boolean FIJustifySystem(Document *doc, LINK systemL)
 }
 
 
-/* ---------------------------------------------------------------------- FIJustifyAll -- */
+/* ---------------------------------------------------------------------- IIJustifyAll -- */
 /* Justify the entire score using the "smart" justification algorithm described in
-FIJustifySystem. Returns True if OK, False if error. */
+IIJustifySystem. Returns True if OK, False if error. */
 
-Boolean FIJustifyAll(Document *doc)
+Boolean IIJustifyAll(Document *doc)
 {
 	LINK	sysL, startSysL;
 	Boolean	ok = False;
 	
 	startSysL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	for (sysL = startSysL; sysL; sysL = LinkRSYS(sysL)) {
-		ok = FIJustifySystem(doc, sysL);
+		ok = IIJustifySystem(doc, sysL);
 		if (!ok) break;
 	}
 	return ok;
@@ -1403,7 +1403,7 @@ short CloseInputFile(FILE *f)
 }
 
 
-/* -------------------------------------------------------------------------- ReadLine -- */
+/* -------------------------------------------------------------- ReadLine, IIReadLine -- */
 /* Read a line of text from the given stream <f> and place it in the given buffer
 <inBuf>. Read chars until we find a newline (or return). Replace the newline char with
 a null. If no newline appears after reading <maxChars> - 1 chars, store a null into the
@@ -1443,6 +1443,7 @@ does the null replace the last of those chars? No. From observation in the MWDeb
 I conclude that the final byte of the given buffer <s> is reserved for a terminating
 null. So fgets never reads more than <n> - 1 bytes." */
 
+#ifdef NOMORE
 Boolean ReadLine1(char inBuf[], short maxChars, FILE *f)
 {
 	char	*ptr;
@@ -1457,6 +1458,7 @@ Boolean ReadLine1(char inBuf[], short maxChars, FILE *f)
 	else
 		return False;
 }
+#endif
 
 /* Linebreak chars/sequences:
 	\n		OS X

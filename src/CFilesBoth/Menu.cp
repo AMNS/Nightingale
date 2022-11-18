@@ -366,6 +366,10 @@ Boolean DoFileMenu(short choice)
 				returnCode = GetInputName(str, False, tmpStr, &vrefnum, &nscd);
 				if (returnCode) {
 					fsSpec = nscd.nsFSSpec;
+					Pstrcpy((unsigned char *)tmpCStr, tmpStr);
+					PToCString((unsigned char *)tmpCStr);
+					LogPrintf(LOG_NOTICE, "Importing MIDI file '%s'...  (DoFileMenu)\n",
+						tmpCStr);
 					ImportMIDIFile(&fsSpec);
 				}
 				break;
@@ -1801,7 +1805,8 @@ static void NMSetDuration(Document *doc)
 }
 
 	
-/* Choose whether notes should be inserted graphically or temporally. */
+/* Choose whether notes should be inserted graphically (by horizontal position) or
+temporally (based on elapsed time in the measure for the voice). */
 
 static void NMInsertByPos(Document *doc)
 {
@@ -1877,6 +1882,8 @@ static void NMFillEmptyMeas(Document *doc)
 }
 
 
+/* --------------------------------------------------------------- View menu helpers -- */
+
 /* Get voice to look at from dialog, initialized with voice and part of first selected
 object or, if nothing is selected, default voice and part of the insertion point's
 staff. In either case, add the user-specified voice to the voice mapping table and
@@ -1918,14 +1925,14 @@ static void VMLookAt()
 }
 
 	
-/* Look at all voices by setting document's <lookVoice> to -1. */
+/* Look at all voices. */
 
 static void VMLookAtAll()
 {
 	Document *doc=GetDocumentFromWindow(TopDocument);
 
 	if (doc) {
-		doc->lookVoice = -1;							/* Negative no. means all voices */
+		doc->lookVoice = ANYONE;
 		InvalWindow(doc);
 		EraseAndInvalMessageBox(doc);
 		}
@@ -1994,18 +2001,111 @@ static void VMColorVoices()
 }
 
 
-/* Set "graph mode": show score in "normal" pure CWMN; CWMN but with noteheads replaced
-by tiny graphs; or pianoroll. The UI is kludgly, and it makes setting GRAPHMODE_PIANOROLL
-difficult -- but that mode is rarely used. */
+/* Set "graph mode": show score in "normal" pure CWMN, CWMN but with noteheads replaced
+by tiny graphs, or pianoroll. */
  
+#define ASSUME_NHGRAPHS	0
+
+
+enum {
+	BUT1_OK=1,
+	NHGRAPH_DI=3,
+	PIANOROLL_DI,
+	ASSUME_DI=6
+};
+
+/* Ask user whether they want notehead graphs or pianoroll. Returns True for notehead
+graphs, False for pianoroll. */
+
+static short group1;
+
+static Boolean ChooseNHGraphMode();
+static Boolean ChooseNHGraphMode()
+{
+	short itemHit;
+	Boolean value;
+	static short assumeNHGraphPR=0, oldChoice=0;
+	DialogPtr dlog;  GrafPtr oldPort;
+	Boolean keepGoing=True;
+	static Boolean firstCall=True;
+
+	if (firstCall) {
+		if (ASSUME_NHGRAPHS==1)			assumeNHGraphPR = NHGRAPH_DI;
+		else if (ASSUME_NHGRAPHS==2)	assumeNHGraphPR = PIANOROLL_DI;
+		else							assumeNHGraphPR = 0;
+		firstCall = False;
+	}
+	
+	if (assumeNHGraphPR)
+		value = (assumeNHGraphPR==NHGRAPH_DI);
+	else {
+	
+		/* Build dialog window and install its item values */
+		
+		ModalFilterUPP	filterUPP = NewModalFilterUPP(OKButFilter);
+		if (filterUPP==NULL) {
+			MissingDialog(GRAPHMODE_DLOG);
+			return False;
+		}
+		GetPort(&oldPort);
+		dlog = GetNewDialog(GRAPHMODE_DLOG, NULL, BRING_TO_FRONT);
+		if (dlog==NULL) {
+			DisposeModalFilterUPP(filterUPP);
+			MissingDialog(GRAPHMODE_DLOG);
+			return False;
+		}
+		SetPort(GetDialogWindowPort(dlog));
+	
+		/* Fill in dialog's values here */
+	
+		group1 = (oldChoice? oldChoice : NHGRAPH_DI);
+		PutDlgChkRadio(dlog, NHGRAPH_DI, (group1==NHGRAPH_DI));
+		PutDlgChkRadio(dlog, PIANOROLL_DI, (group1==PIANOROLL_DI));
+	
+		PlaceWindow(GetDialogWindow(dlog), (WindowPtr)NULL, 0, 80);
+		ShowWindow(GetDialogWindow(dlog));
+		ArrowCursor();
+	
+		/* Entertain filtered user events until dialog is dismissed */
+		
+		while (keepGoing) {
+			ModalDialog(filterUPP, &itemHit);
+			switch(itemHit) {
+				case BUT1_OK:
+					keepGoing = False;
+					value = (group1==NHGRAPH_DI);
+					if (GetDlgChkRadio(dlog, ASSUME_DI)) assumeNHGraphPR = group1;
+					oldChoice = group1;
+					break;
+				case NHGRAPH_DI:
+				case PIANOROLL_DI:
+					if (itemHit!=group1) SwitchRadio(dlog, &group1, itemHit);
+					break;
+				case ASSUME_DI:
+					PutDlgChkRadio(dlog, ASSUME_DI, !GetDlgChkRadio(dlog, ASSUME_DI));
+					break;
+				default:
+					;
+			}
+		}
+		
+		DisposeModalFilterUPP(filterUPP);
+		DisposeDialog(dlog);
+		SetPort(oldPort);
+	}
+	
+	return value;
+}
+
 static void VMGraphMode()
 {
 	Document *doc=GetDocumentFromWindow(TopDocument);
 
 	if (doc) {
-		if (doc->graphMode==GRAPHMODE_NORMAL)
-			doc->graphMode = ((ShiftKeyDown() && OptionKeyDown())?
-									GRAPHMODE_PIANOROLL : GRAPHMODE_NHGRAPHS);
+		if (doc->graphMode==GRAPHMODE_NORMAL) {
+			doc->graphMode = (ChooseNHGraphMode()?
+									GRAPHMODE_NHGRAPHS : GRAPHMODE_PIANOROLL);
+		}
 		else
 			doc->graphMode = GRAPHMODE_NORMAL;
 		CheckMenuItem(viewMenu, VM_GraphMode, doc->graphMode);
@@ -2066,6 +2166,8 @@ static void VMActivate(short choice)
 		}
 }
 
+
+/* --------------------------------------------------------------------- Other helpers -- */
 
 static Boolean OKToRecord(Document *);
 static Boolean OKToRecord(Document *doc)
@@ -2815,10 +2917,9 @@ knowTupled:
 		return;
 	}
 	
-	/*
-	 *	No tupleted notes are selected, so nothing to unbeam. Is there anything to
-	 * tuple? First, no tupleting is allowed for selections across measure boundaries.
-	 */
+	/* No tupleted notes are selected, so nothing to unbeam. Is there anything to
+	   tuple? First, no tupleting is allowed for selections across measure boundaries. */
+	   
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (MeasureTYPE(pL)) {
 			DisableMenuItem(groupsMenu, GM_Tuplet);
@@ -2826,9 +2927,7 @@ knowTupled:
 			return;
 		}
 		
-	/*
-	 *	For all voices, if there is a tuplable range (tupleNum>=2), enable the menu items.
-	 */
+	/* For all voices, if there is a tuplable range (tupleNum>=2), enable the menu items. */
 	tupleNum = 0;
 	if (!beforeFirst)
 		for (voice=1; voice<=MAXVOICES; voice++) {

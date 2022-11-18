@@ -166,7 +166,7 @@ Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 		if (errCode!=noError) return False;
 	}
 
-	LogPrintf(LOG_NOTICE, "ReadMFHeader: MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)\n",
+	LogPrintf(LOG_NOTICE, "MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)  (ReadMFHeader)\n",
 					len, *pFormat, *pnTracks, *pTimeBase, qtrNTicks);
 	return True;
 }

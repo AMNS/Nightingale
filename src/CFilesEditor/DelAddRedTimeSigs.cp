@@ -50,13 +50,13 @@ static void FixMeasureRect(Document *doc, LINK measL)
 	endOfSystem = LastMeasInSys(measL);
 	systemL = LSSearch(measL, SYSTEMtype, ANYONE, GO_LEFT, False);
 
-	/* If measL is the last Measure of the system or the score, get the width
-		of its system, and set the measureRect.right of measL to that minus measL's
-		xd, i.e., reset the measureRect of measL based on the system width and
-		measL's xd. */
+	/* If measL is the last Measure of the system or the score, get the width of its
+	   system, and set the measureRect.right of measL to that minus measL's xd, i.e.,
+	   reset the measureRect of measL based on the system width and measL's xd. */
 
 	if (!LinkRMEAS(measL) || endOfSystem) {
 		/* As in Score.c:MakeMeasure. This is almost certainly the right idea. */
+		
 		measWidth = GetNormalStaffLength(doc, measL) - LinkXD(measL);
 		aMeasureL = FirstSubLINK(measL);
 		for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
@@ -67,8 +67,8 @@ static void FixMeasureRect(Document *doc, LINK measL)
 		return;
 	}
 
-	/* measL is not the last Measure of the system or the score: set its 
-		measSizeRect.right to the xd of its rMeasure minus its own xd. */
+	/* measL is not the last Measure of the system or the score: set its  measSizeRect.right
+	   to the xd of its rMeasure minus its own xd. */
 
 	aMeasureL = FirstSubLINK(measL);
 	for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
@@ -83,9 +83,10 @@ static void FixMeasureRect(Document *doc, LINK measL)
 	else
 		measL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, False);
 
-	LinkVALID(measL) = False;								/* So Draw updates measureBBox */
+	LinkVALID(measL) = False;							/* So Draw updates measureBBox */
 
 	/* As in Score.c:MakeMeasure(). This is almost certainly the right idea. */
+	
 	measWidth = GetNormalStaffLength(doc, measL) - LinkXD(measL);
 	aMeasureL = FirstSubLINK(measL);
 	for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
@@ -99,7 +100,7 @@ static void FixObjMeasureRect(Document *doc, LINK pL)
 	LINK measL;
 	
 	measL = SSearch(pL, MEASUREtype, GO_LEFT);
-	if (!measL) return;									/* <pL> must be before the 1st Measure */
+	if (!measL) return;								/* <pL> must be before the 1st Measure */
 	FixMeasureRect(doc, measL);
 }
 
@@ -178,21 +179,22 @@ Boolean DelRedTimeSigs(
 			case TIMESIGtype:
 					/* If the time signature isn't identical on all staves, things are
 					   more complex than we want to bother with: warn user and give up. */
+					   
 					if (WarnTimeSigsInconsistency(doc, pL)) {
 						okay = False;
 						goto Finish;
 					}
 					aTimeSigL = FirstSubLINK(pL);
 					if (prevTSL) {
-						/*
-						 * Found another time sig. in the same Measure with no intervening
-						 * Syncs. If this time sig. is the same as the previous one, we need
-						 * to delete either and remove the space it occupied. (Of course, we
-						 * don't have to update context because it's redundant.) We remove the
-						 * previous one instead of this one because, when there are two time
-						 * signatures in a row, the second will always have the correct amount
-						 * of space for a time signature there; the first may not.
-						 */
+						/* Found another time sig. in the same Measure with no intervening
+						   Syncs. If this time sig. is the same as the previous one, we
+						   need to delete either and remove the space it occupied. (Of
+						   course, we don't have to update context because it's redundant.)
+						   We remove the previous one instead of this one because, when
+						   there are two time signatures in a row, the second will always
+						   have the correct amount of space for a time signature there;
+						   the first may not. */
+						   
 						aTimeSig = GetPATIMESIG(aTimeSigL);
 						if (aTimeSig->numerator==prevNumerator
 						&& aTimeSig->denominator==prevDenominator) {
@@ -249,6 +251,7 @@ short AddCautionaryTimeSigs(Document *doc)
 	   that we can't just look for a time signature that's not <inMeas>, i.e., before
 	   the first Measure of a System, since time sig. changes are _within_ the first
 	   Measure. */
+	   
 	numAdded = 0;
 	systemNum = 0;
 	beforeFirstNRGR = True;
@@ -268,12 +271,14 @@ short AddCautionaryTimeSigs(Document *doc)
 				if (systemNum>1 && beforeFirstNRGR) {				
 					/* If the time signature isn't identical on all staves, things are
 					   more complex than we want to bother with: warn user and give up. */
+					   
 					if (WarnTimeSigsInconsistency(doc, pL)) return numAdded;
 					
 					/* Consider adding the same timesig at the end of the previous System.
-						If the previous System ended with a Measure, it must be the object
-						just before the current System or -- if that object is a Page --
-						the object just before that. */
+					   If the previous System ended with a Measure, it must be the object
+					   just before the current System or -- if that object is a Page --
+					   the object just before that. */
+						
 					endPrevSysL = LeftLINK(systemL);
 					if (PageTYPE(endPrevSysL)) endPrevSysL = LeftLINK(endPrevSysL);
 					if (MeasureTYPE(endPrevSysL)) {
@@ -284,8 +289,10 @@ short AddCautionaryTimeSigs(Document *doc)
 						type = TimeSigType(aTimeSigL);
 						numer = TimeSigNUMER(aTimeSigL);
 						denom = TimeSigDENOM(aTimeSigL);
+						
 						/* Insert the cautionary time signature on all staves. */
-						timeSigL = FIInsertTimeSig(doc, ANYONE, RightLINK(endPrevSysL),
+						
+						timeSigL = IIInsertTimeSig(doc, ANYONE, RightLINK(endPrevSysL),
 													type, numer, denom);
 						if (timeSigL==NILINK) {
 							AlwaysErrMsg("AddCautionaryTimeSigs: can't add time signature.");

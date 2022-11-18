@@ -314,7 +314,8 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 	}
 	else {
 		if (!Sel2MeasPage(doc, &measNum, &pageNum)) {
-			MayErrMsg("DrawMessageBox: can't get measure & page from selection.");
+			/* Possibly a bug, but more likely a result of Select All. */
+			
 			measNum = pageNum = 0;
 		}
 		if (doc->showFormat) {

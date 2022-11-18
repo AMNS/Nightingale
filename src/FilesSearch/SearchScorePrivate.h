@@ -43,7 +43,7 @@ typedef struct {
 	char		name[256];				/* Filename (C string) (unused) */
 	MEF_LINK 	headL,					/* links to header and tail objects */
 				tailL;
-	short		lookVoice;				/* Voice to look at, or -1 for all voices */
+	short		lookVoice;				/* Voice to look at, or ANYONE for all voices */
 } MEF_Document;
 
 #define DB_Document								MEF_Document

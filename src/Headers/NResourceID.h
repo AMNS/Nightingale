@@ -161,10 +161,11 @@
 #define DTRANSPOSE_DLOG 792				/* Diatonic transpose */
 #define TRANSKEY_DLOG 794				/* Transpose Key */
 #define SYSOVERFLOW_DLOG 800
-#define SLURTIE_DLOG 804
+#define SLURTIE_DLOG 804				/* Should symbol be a slur or a tie? */
 #define SCREENOVERFLOW_DLOG 806
 #define DBLBAR_IS_BARLINE_DLOG 808		/* Should a new double bar or repeat bar be a barline? */
 #define PSTYPE_DLOG 810
+#define GRAPHMODE_DLOG 812				/* Graphic mode notehead graphs or pianoroll? */
 #define PASTE_DELREDACCS_DLOG 814
 #define TREMSLASHES_DLOG 820
 #define ENDING_DLOG 825

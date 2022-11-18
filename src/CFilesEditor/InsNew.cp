@@ -1303,8 +1303,8 @@ short ModNRPitchLev(Document *doc,
 
 	hasMod = (NoteFIRSTMOD(mainNoteL)!=NILINK);
 
-LogPrintf(LOG_DEBUG, "ModNRPitchLev: yqpit=%d, yqpit mod4=%d, yqstem=%d, alwaysAbove=%d, alwaysBelow=%d, hasMod=%d\n",
-yqpit,yqpit%4,yqstem,alwaysAbove,alwaysBelow,hasMod);
+//LogPrintf(LOG_DEBUG, "ModNRPitchLev: yqpit=%d, yqpit mod4=%d, yqstem=%d, alwaysAbove=%d, alwaysBelow=%d, hasMod=%d\n",
+//yqpit,yqpit%4,yqstem,alwaysAbove,alwaysBelow,hasMod);
 
 	useStemEnd = False;
 

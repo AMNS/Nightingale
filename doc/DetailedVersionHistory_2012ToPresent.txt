@@ -3810,3 +3810,13 @@ Minor changes. Affects info.plist, SearchScorePrivate.h, SelUtils.h; Browser,
 CarbonPrinting, Debug2Utils, InsNew, Menu, NewSlur, NotelistOpen, NotelistParse,
 ResultList, ResultListDocument, SelUtils, Windows.
 
+----------------------------------------------------------------------------------------- B28
+
+8 - 17 Nov.
+
+Minor changes: rename internal-input functions for clarity, change -1 for voice no. to
+ANYONE, etc. Affects info.plist, .rsrc, Defs.h, FileConversion.h, InternalInput.h,
+NDocAndCnfgTypes.h, NResourceID.h, SearchScorePrivate.h; DelAddRedTimeSigs, InsNew,
+InternalInput, Menu, MIDIFOpen, MIDIFOCmd, NotelistOpen, NotelistParse, SelUtils, Windows.
+
+----------------------------------------------------------------------------------------- B29

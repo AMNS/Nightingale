@@ -11719,7 +11719,7 @@ with "Possible bug in program: DrawMessageBox: can't get measure & page from sel
 
 ---------------------------------------------------------------------------------------
 
-18 Oct. - 1 Nov.
+18 Oct. - 7 Nov.
 
 SWITCH TO: Compiling NewSlur.cp gives 34 warnings, most about a "shadowed global declaration";
 it may be easy to fix those... !! Two of them are for <subcount> and <mustBeTie>; but I
@@ -11731,8 +11731,30 @@ The options for the Color Voices and Graph Mode commands are really undiscoverab
 need dialogs with radio buttons and a "Don't show this again" check box, like:
 
 * when you insert a double bar, Ngale asks "Should this double bar or repeat bar be a barline?".
-(DLOG 808, handled in SymbolIsBarline(): 76 lines)
+(DLOG 808, handled in SymbolIsBarline())
 
-* when you insert a slur/tie, Ngale asks which one you want. (DLOG 804, handled in WantTies(): 74 lines)
+* when you insert a slur/tie, Ngale asks which one you want. (DLOG 804, handled in WantTies())
 
-SymbolIsBarline and WantTies are almost identical and just what I need. Start with the code for ??
+For now, just do the Graph Mode command. SymbolIsBarline and WantTies are almost identical and
+just what I need. Start with the code for one... done.
+
+---------------------------------------------------------------------------------------
+
+8 - 16 Nov.
+
+SWITCH TO: David A. reports Robert Osborne has problems in other apps opening some but not
+all Ngale MIDI files. E.g., Scat 3.mid opens; Anciently in Cities mid doesn't.
+
+	Nov 16 08:23:59 unknown00112431479a Ngale[29221]:
+	Notice. Importing MIDI file 'Scat 3.mid'...  (DoFileMenu)
+	Notice. MThd len=6 format=1 nTracks=4 timeBase=480 (qtrNTicks=480)  (ReadMFHeader)
+	Notice. Last event time=100657  (CheckAndConsult)
+	
+	Nov 16 08:24:23 unknown00112431479a Ngale[29221]:
+	Notice. Importing MIDI file 'Anciently in Cities mid'...  (DoFileMenu)
+	Notice. MThd len=6 format=1 nTracks=4 timeBase=480 (qtrNTicks=480)  (ReadMFHeader)
+	Notice. Last event time=97969  (CheckAndConsult)
+
+Ngale opens both with no trouble, & the "MThd" (headers) are identical. ??
+
+Ah-hah! "Anciently in Cities mid", not ".mid": no extension! Is that the problem

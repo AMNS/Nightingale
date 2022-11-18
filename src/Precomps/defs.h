@@ -272,7 +272,7 @@ enum {
 #define ANYTYPE -1
 #define ANYSUBTYPE -1
 
-#define ANYONE -1						/* passed to search routines if we just don't care */
+#define ANYONE -1						/* if we don't care about the voice no., staff no., etc. */
 #define NOONE -2						/* returned by FindStaffSetSys, GetStaffFromSel, etc. */
 
 #define NOMATCH -1
