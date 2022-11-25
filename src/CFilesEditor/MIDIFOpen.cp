@@ -225,7 +225,10 @@ Word ReadTrack(Byte **ppChunk)
 	char fmtStr[256];
 	
 	SkipChunksUntil('MTrk');
-	if (errCode!=noError) return 0;
+	if (errCode!=noError) {
+		LogPrintf(LOG_ERR, "Can't read MIDI file track: can't find 'MTrk' chunk. errCode=%d  (ReadTrack)\n", errCode);
+		return 0;
+	}
 	len = getl(infile);
 	if (len>MAX_TRACK_SIZE) {
 		GetIndCString(fmtStr, MIDIFILE_STRS, 22);    /* "The MIDI file has a track of %ld bytes; the largest track Nightingale can handle is only %ld." */
@@ -234,7 +237,10 @@ Word ReadTrack(Byte **ppChunk)
 		StopInform(READMIDI_ALRT);
 		return 0;
 	}
-	if (errCode!=noError) return 0;
+	if (errCode!=noError) {
+		LogPrintf(LOG_ERR, "Can't read MIDI file track: getl failed. errCode=%d  (ReadTrack)\n", errCode);
+		return 0;
+	}
 	pChunk = (Byte *)NewPtr(len);
 	if (!GoodNewPtr((Ptr)pChunk)) {
 		OutOfMemory(len);
@@ -243,8 +249,11 @@ Word ReadTrack(Byte **ppChunk)
 	actualLen = len;
 	if ((errCode = FSRead(infile, &actualLen, pChunk)) == 0)
 		if (actualLen<len) errCode = eofErr;
-	if (errCode) return 0;
-	
+	if (errCode || actualLen<=0) {
+		LogPrintf(LOG_ERR, "Can't read MIDI file track: problem with length. errCode=%d len=%ld actualLen=%ld  (ReadTrack)\n",
+					errCode, len, actualLen);
+		return 0;
+	}
 	*ppChunk = pChunk;
 	return (Word)actualLen;
 }

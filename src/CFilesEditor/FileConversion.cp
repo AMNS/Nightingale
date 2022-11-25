@@ -79,7 +79,7 @@ void ConvertScoreHeader(Document *doc, DocumentN105 *docN105)
 	doc->altsrastral = docN105->altsrastral;
 	doc->tempo = docN105->tempo;
 	doc->channel = docN105->channel;
-	doc->velocity = docN105->velocity;
+	doc->velOffset = docN105->velocity;
 	doc->headerStrOffset = docN105->headerStrOffset;
 	doc->footerStrOffset = docN105->footerStrOffset;
 	doc->topPGN = docN105->topPGN;

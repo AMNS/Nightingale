@@ -963,7 +963,7 @@ Boolean	ImportMIDIFile(FSSpec *fsSpec)
 	
 	filename = fsSpec->name;
 
-	OpenMIDIFile();
+	if (!OpenMIDIFile()) goto Done;
 	FSClose(infile);
 	okay = True;
 

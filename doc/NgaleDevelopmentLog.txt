@@ -11757,4 +11757,54 @@ all Ngale MIDI files. E.g., Scat 3.mid opens; Anciently in Cities mid doesn't.
 
 Ngale opens both with no trouble, & the "MThd" (headers) are identical. ??
 
-Ah-hah! "Anciently in Cities mid", not ".mid": no extension! Is that the problem
+Ah-hah! "Anciently in Cities mid", not ".mid": no extension! Is that the problem?
+
+---------------------------------------------------------------------------------------
+
+19 - 24 Nov.
+
+Yep, that's it; he can now open the file! But now he finds the voice part plays back very
+softly even though it's marked fff. Open Anciently in Cities.mid in Ngale => sure enough,
+1st note on staff 1 (marked fff in original score) has velocity 36; notes in 1st chord
+on staff 2 (no dynamic) have velocity 76 -- and notes in 1st chord on staff 3 (no
+dynamic) have velocity 26!! Huh? The default dynamic is mf, w/ velocity 75, not 76, so
+all three staves are wrong :-( . This is all with Ngale 6.0 B30; how about 5.8.10? Same
+thing. How about the 1st notes in the original Ngale file, "Anciently in Cities false dyn#0"?
+
+Staff	Marking	Orig. vel.	Imported MIDI file vel.
+-----	-------	----------	-----------------------
+1		fff		120			36
+2		(none)	75			76
+3		pp		25			26
+
+Bizarre! Ah, in WriteMFNotes():
+
+	useVelo = doc->velocity+NoteONVELOCITY(aNoteL);
+
+...and doc->velocity = 1; that probably explains staves 2 & 3! But what about staff 1?
+
+Uh oh. Ngale 6 is exporting MIDI files it can't import, e.g., Anciently in Cities_P1_BadTrack.mid
+$%^*@#@I!)*&(# . Can Ngale 5.8 import it? No, but it doesn't say why; it just doesn't open.
+Improve error reporting in Ngale 6; it now says:
+
+	Nov 22 14:57:57 unknown00112431479a Ngale[47644]:
+	Notice. Importing MIDI file 'Anciently in Cities_P1_BadTrack.mid'...  (DoFileMenu)
+	Notice. MThd len=6 format=1 nTracks=4 timeBase=480 (qtrNTicks=480)  (ReadMFHeader)
+	ERROR. Can't read MIDI file track: problem with length. errCode=0 len=0 actualLen=0  (ReadTrack)
+
+Reduce it to just the 1st system, Export MIDI File => now it hangs! The last thing in the log
+is "WriteTiming: trkLastEndTime=5754".
+
+Add more diagnostic info => now Exporting the 1st system works consistently! Also Exporting the
+full page 1! Also Exporting all of "Anciently in Cities false dyn#0"!! I don't understand -- but
+I have no idea why it was hanging, so nothing I can do as long as finishes writing the MIDI file.
+How about the mysterious velocity 36 for fff on staff 1? That doesn't happen anymore either!
+Notes on that staff in these new MIDI files always have the correct velocity (>120). Delete the
+fff from the score, Export again => Notes on that staff in the MIDI files have the correct velocity
+for the default dynamic, mf!! So how is Ngale 5.8 different? 5.8.10 isn't; it also writes a MIDI
+file with the correct velocity; so does 5.8.9!!! Looks like I've been chasing a ghost.
+
+SWITCH TO: Add similar diagnostic info to Ngale 5.8.x, just in case. Let's do a 5.8.11. Retrieve
+the codebase from the GitHub ?? branch => ugh. The .rsrc is empty (since I hadn't yet realized
+that git doesn't know about resource forks, and FileSave.cp is entirely missing!! ??
+

@@ -370,11 +370,15 @@ Boolean DoFileMenu(short choice)
 					PToCString((unsigned char *)tmpCStr);
 					LogPrintf(LOG_NOTICE, "Importing MIDI file '%s'...  (DoFileMenu)\n",
 						tmpCStr);
-					ImportMIDIFile(&fsSpec);
+					if (ImportMIDIFile(&fsSpec)) LogPrintf(LOG_NOTICE, "Imported MIDI file '%s'.  (DoFileMenu)\n",
+						tmpCStr);
 				}
 				break;
 			case FM_Export:
-				if (doc) SaveMIDIFile(doc);
+				if (doc) {
+					if (SaveMIDIFile(doc))
+						LogPrintf(LOG_NOTICE, "MIDI file exported.  (DoFileMenu)\n");
+				}
 				break;
 			case FM_Extract:
 				if (doc) DoExtract(doc);
@@ -387,13 +391,16 @@ Boolean DoFileMenu(short choice)
 				NSClientData nsData;
 				Str255 filename;
 				
-				if (GetNotelistFile(filename, &nsData))
+				if (GetNotelistFile(filename, &nsData)) {
+					Pstrcpy((unsigned char *)tmpCStr, filename);
+					PToCString((unsigned char *)tmpCStr);
+					LogPrintf(LOG_NOTICE, "Opening notelist file '%s'...  (DoFileMenu)\n",
+						tmpCStr);
 					if (OpenNotelistFile(filename, &nsData)) {
-						PToCString(filename);
 						LogPrintf(LOG_NOTICE, "Opened notelist file '%s'.  (DoFileMenu)\n",
-									filename);
-						CToPString((char *)filename);
+									tmpCStr);
 					}
+				}
 				break;
 #ifdef USE_NL2XML
 			case FM_Notelist2XML:

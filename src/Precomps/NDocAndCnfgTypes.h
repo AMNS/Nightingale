@@ -140,7 +140,7 @@ typedef struct {
 				altsrastral,		/* (not yet used but ready) Alternate staff size rastral no. */	\
 				tempo,				/* (unused?) playback speed in beats per minute */			\
 				channel,			/* Basic MIDI channel number */								\
-				velocity;			/* global playback velocity offset */						\
+				velOffset;			/* global MIDI playback velocity offset */					\
 	STRINGOFFSET headerStrOffset;	/* index returned by String Manager */						\
 	STRINGOFFSET footerStrOffset;	/* index returned by String Manager */						\
 	char		topPGN;				/* True=page numbers at top of page, else bottom */			\

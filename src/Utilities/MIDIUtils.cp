@@ -647,7 +647,7 @@ void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 	*pUseNoteNum = UseMIDINoteNum(doc, aNoteL, partTransp[partn]);
 	*pUseChan = partChannel[partn];
 	aNote = GetPANOTE(aNoteL);
-	*pUseVelo = doc->velocity+aNote->onVelocity;
+	*pUseVelo = doc->velOffset+aNote->onVelocity;
 	if (doc->polyTimbral) *pUseVelo += partVelo[partn];
 	
 	if (*pUseVelo<1) *pUseVelo = 1;

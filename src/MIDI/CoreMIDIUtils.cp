@@ -1144,7 +1144,7 @@ void CMGetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 	*pUseNoteNum = UseMIDINoteNum(doc, aNoteL, partTransp[partn]);
 	*pUseChan = partChannel[partn] - CM_CHANNEL_BASE;
 	aNote = GetPANOTE(aNoteL);
-	*pUseVelo = (NotePLAYASCUE(aNoteL)? CUENOTE_VELOCITY : doc->velocity+aNote->onVelocity);
+	*pUseVelo = (NotePLAYASCUE(aNoteL)? CUENOTE_VELOCITY : doc->velOffset+aNote->onVelocity);
 	if (doc->polyTimbral) *pUseVelo += partVelo[partn];
 	
 	if (*pUseVelo<1) *pUseVelo = 1;
@@ -1218,7 +1218,7 @@ void GetCMNotePlayInfo(
 	*pUseNoteNum = UseMIDINoteNum(doc, aNoteL, partTransp[partn]);
 	*pUseChan = partChannel[partn];
 	aNote = GetPANOTE(aNoteL);
-	*pUseVelo = doc->velocity+aNote->onVelocity;
+	*pUseVelo = doc->velOffset+aNote->onVelocity;
 	if (doc->polyTimbral) *pUseVelo += partVelo[partn];
 	
 	if (*pUseVelo<1) *pUseVelo = 1;

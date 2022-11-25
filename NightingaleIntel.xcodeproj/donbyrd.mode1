@@ -219,6 +219,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -302,8 +304,6 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -321,7 +321,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>159BAAC229267D43005867DB</string>
+										<string>1561FA4B293109F500DFF029</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -469,7 +469,7 @@
 											<string>155AC0E728DF57B50083ECDB</string>
 											<string>155AC0E828DF57B50083ECDB</string>
 											<string>159BAABC29267D1C005867DB</string>
-											<string>159BAABD29267D1C005867DB</string>
+											<string>1561FA4A293109F500DFF029</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -570,7 +570,6 @@
 											<string>155AC0EB28DF57B50083ECDB</string>
 											<string>155AC0EC28DF57B50083ECDB</string>
 											<string>15F57FC3291971DB00323FE0</string>
-											<string>159BAABE29267D1C005867DB</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -628,9 +627,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>159BAAB629267BB8005867DB</string>
+				<string>1561FA4C293109F500DFF029</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>159BAAB729267BB8005867DB</string>
+				<string>1561FA4D293109F500DFF029</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -792,7 +791,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CD0528F0623707200166675</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>DragUtils.cp</string>
+								<string>SearchScore.cp</string>
 								<key>StatusBarVisibility</key>
 								<true/>
 							</dict>
@@ -850,7 +849,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>159BAAC029267D1C005867DB</string>
+				<string>1561FA4E293109F500DFF029</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -1212,9 +1211,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>159BAAB829267BB8005867DB</string>
+				<string>1561FA4F293109F500DFF029</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>159BAAB929267BB8005867DB</string>
+				<string>1561FA50293109F500DFF029</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>

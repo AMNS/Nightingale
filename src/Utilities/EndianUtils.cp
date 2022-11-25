@@ -186,7 +186,7 @@ void EndianFixScoreHdr(Document *doc)
 	FIX_END(doc->altsrastral);
 	FIX_END(doc->tempo);
 	FIX_END(doc->channel);
-	FIX_END(doc->velocity);
+	FIX_END(doc->velOffset);
 	FIX_ULONG_END(doc->headerStrOffset);
 	FIX_ULONG_END(doc->footerStrOffset);
 	FIX_END(doc->dIndentOther);

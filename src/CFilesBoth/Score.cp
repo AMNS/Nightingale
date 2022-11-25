@@ -233,7 +233,7 @@ Boolean NewDocScore(Document *doc)
 		doc->cmPartDeviceList[i] = gAuMidiControllerID;
 
 	doc->channel = config.defaultChannel;
-	doc->velocity = 1;
+	doc->velOffset = 0;
 	doc->changed = doc->saved = False;
 	doc->named = doc->used = False;
 	doc->hasCaret = False;

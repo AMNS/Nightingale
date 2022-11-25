@@ -626,7 +626,7 @@ pascal short	FindToolItem(Point pt);
 	void		RecomputeView(Document *doc);
 	void		SaveEPSF(void);
 	long 		LastEndTime(Document *doc, LINK fromL, LINK toL);
-	void		SaveMIDIFile(Document *);
+	Boolean		SaveMIDIFile(Document *);
 	void		SaveNotelist(Document *, short, Boolean);
 pascal void		ScrollDocument(ControlHandle control, short part);
 	void		SetBackground(Document *doc);

@@ -3820,3 +3820,11 @@ NDocAndCnfgTypes.h, NResourceID.h, SearchScorePrivate.h; DelAddRedTimeSigs, InsN
 InternalInput, Menu, MIDIFOpen, MIDIFOCmd, NotelistOpen, NotelistParse, SelUtils, Windows.
 
 ----------------------------------------------------------------------------------------- B29
+
+19 - 25 Nov.
+
+Minor changes: rename Document <velocity> to <velOffset>, improve error reporting for
+Import and Export MIDI File, etc. Affects info.plist, NDocAndCnfgTypes.h, NightTemplates.h;
+Clipboard, CoreMIDIUtils, EndianUtils, Error, Extract, FileConversion, FileUtils, Menu,
+MIDIDialogs, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIUtils, NotelistParse, Score.
+

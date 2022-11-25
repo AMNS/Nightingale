@@ -364,7 +364,7 @@ void DisplayScoreHdr(short id, Document *doc)
 		
 	LogPrintf(LOG_INFO, "  (10)tempo=%d", doc->tempo);
 	LogPrintf(LOG_INFO, "  (11)channel=%d", doc->channel);
-	LogPrintf(LOG_INFO, "  (12)velocity=%d", doc->velocity);
+	LogPrintf(LOG_INFO, "  (12)velOffset=%d", doc->velOffset);
 	LogPrintf(LOG_INFO, "  (13)headerStrOffset=%d", doc->headerStrOffset);
 	LogPrintf(LOG_INFO, "  (14)footerStrOffset=%d\n", doc->footerStrOffset);
 	
@@ -413,7 +413,7 @@ short CheckScoreHdr(Document *doc, short *pFirstErr)
 	if (doc->altsrastral<1 || doc->altsrastral>MAXRASTRAL) ERR(9);
 	if (doc->tempo<MIN_BPM || doc->tempo>MAX_BPM) ERR(10);
 	if (doc->channel<1 || doc->channel>MAXCHANNEL) ERR(11);
-	if (doc->velocity<-127 || doc->velocity>127) ERR(12);
+	if (doc->velOffset<-127 || doc->velOffset>127) ERR(12);
 
 	/* We can't check if headerStrOffset and footerStrOffset are too large: we don't
 	   know the size of the stringPool yet. */

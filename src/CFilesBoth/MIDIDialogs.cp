@@ -266,7 +266,7 @@ void MIDIPrefsDialog(Document *doc)
 
 	PutDlgWord(dlog, CHANNEL, doc->channel, False);
 
-	PutDlgWord(dlog, MASTERVELOCITY_DI, doc->velocity, False);
+	PutDlgWord(dlog, MASTERVELOCITY_DI, doc->velOffset, False);
 	PutDlgChkRadio(dlog, FEEDBACK, doc->noteInsFeedback);
 	
 	groupPartSets = (doc->polyTimbral? PART_SETTINGS : NO_PART_SETTINGS);	/* Set up radio button group */
@@ -433,7 +433,7 @@ void MIDIPrefsDialog(Document *doc)
 	}
 
 	GetDlgWord(dlog, MASTERVELOCITY_DI, &newval);
-	GEN_ACCEPT(doc->velocity);
+	GEN_ACCEPT(doc->velOffset);
 	
 	GetDlgWord(dlog, DEFLAM_TIME_DI, &newval);
 	GEN_ACCEPT(doc->deflamTime);

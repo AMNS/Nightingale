@@ -16,7 +16,9 @@
 
 /* ======================================================= Some generic error routines == */
 
-enum {					/* Indices of error strings in Error Strings STR# resource */
+/* Indices of error strings in the Error Strings STR# resource */
+
+enum {
 		useMsg,			/* Signal to take string from second argument */
 		cannotPrint,
 		notOurDocument,
@@ -88,6 +90,9 @@ the size of the string. */
 
 static short DoGeneralAlert(StringPtr str)
 {
+	char tmpCStr[256];
+	Pstrcpy((unsigned char *)tmpCStr, str); PToCString((unsigned char *)tmpCStr);
+	LogPrintf(LOG_WARNING, "%s  (DoGeneralAlert)\n", tmpCStr);
 	ParamText(str, "\p", "\p", "\p");
 	PlaceAlert(errorMsgID, NULL, 0, 40);
 	return (StopAlert(errorMsgID, NULL));
@@ -98,7 +103,7 @@ three-character string of the form  double-<  n  double->  in str, and substitut
 for it. (NB: The double-< and -> are really guillemets.) str is expected to be 256
 bytes in length. All strings are Pascal. This routine can be called repeatedly to
 substitute different strings into the given str. It currently works only for n = 0
-to 9. */
+to 9! */
 
 #define OPEN_GUILLEMET 0xC7			/* Codepoint in the ancient Mac Roman encoding */
 #define CLOSE_GUILLEMET 0xC8		/* Codepoint in the ancient Mac Roman encoding */
@@ -113,8 +118,8 @@ void InstallArg(StringPtr str, StringPtr msg, short n)
 	msgLen = *msg;
 	n += '0';
 	
-	/* Scan backwards from last character for close-guillemet, the start of the
-	   argument insertion point. */
+	/* Scan backwards from last character for close-guillemet, the start of the argument
+	   insertion point. */
 	
 //DHexDump(LOG_DEBUG, "InstallArg", str, strLen+1, 4, 16);
 	dst = str+strLen;
@@ -157,7 +162,7 @@ void InstallArg(StringPtr str, StringPtr msg, short n)
 
 /* These are specific error routines, whose names indicate their purpose. (Eventually, all
 these routines could be consolidated into a few small generic routines, and we could
-redefine their names as macros, if we wanted to avoid so many functions.) */
+redefine their names as macros, e.g., to avoid so many functions.) */
 
 void CannotPrint()							{ ErrorMsg(cannotPrint); }
 
@@ -276,10 +281,10 @@ Boolean ReportIOError(short errCode, short dlog)
 
 
 /* -------------------------------------------------------------------- ReportResError -- */
-/* Check for a Resource Manager error and alert user to it, if there is one. Return
-True if there's an error, False if not. NB: Calling this after, e.g., GetResource
-is not good enough: even if the GetResource failed, ResError() can return noErr!
-(Cf. Inside Macintosh, I-119.) To check validity of newly-allocated resources, use
+/* Check for a Resource Manager error and alert user to it, if there is one. Return True
+if there's an error, False if not. NB: Calling this after, e.g., GetResource is not good
+enough: even if the GetResource failed, ResError() can return noErr! (See the original
+Inside Macintosh, I-119.) To check validity of newly-allocated resources, use
 ReportBadResource. */
 
 Boolean ReportResError()
@@ -304,13 +309,14 @@ Boolean ReportResError()
 
 
 /* ----------------------------------------------------------------- ReportBadResource -- */
-/* Check for validity of the given resource, presumably just allocated, and alert
-user if there is a problem. Return True if there's an error, False if not. */
+/* Check for validity of the given resource, presumably just allocated, and alert user
+if there's a problem. Return True if there's an error, False if not. */
 
 Boolean ReportBadResource(Handle resH)
 {
 	if (!GoodResource(resH)) {
-		/* There's a problem. If ReportResError doesn't find it, say so ourselves. */ 
+		/* There's a problem. If ReportResError doesn't find it, say so ourselves. */
+		
 		if (!ReportResError()) {
 			/* It's nice to keep error messages in resources, but too dangerous here! */
 		
@@ -327,8 +333,8 @@ Boolean ReportBadResource(Handle resH)
 
 /* --------------------------------------------------------------------- MissingDialog -- */
 /* Alert user when a dialog resource cannot be found. For now, just beep and put a
-complied-in message in the log. We could also give a compiled-in error message, but
-it's probably too dangerous to try to get one from a resource in this situation. */
+complied-in message in the log. We could also give a compiled-in error message, but it's
+probably too dangerous to try to get one from a resource in this situation. */
 
 void MissingDialog(short dlogID)
 {

@@ -617,10 +617,11 @@ static void InitDocFields(register Document *score, register Document *part)
 	/* If score staff size is small, the size in the part probably should be larger,
 	   but changing it involves much more than just changing one header field, and it's
 	   easy for the user to change. */
+	   
 	part->srastral = score->srastral;
 	part->tempo = score->tempo;
 	part->channel = score->channel;
-	part->velocity = score->velocity;
+	part->velOffset = score->velOffset;
 	part->firstNames = score->firstNames;
 	part->dIndentOther = 0.0;
 	part->otherNames = NONAMES;

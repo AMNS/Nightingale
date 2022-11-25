@@ -193,7 +193,7 @@ Err:
 static Boolean PreProcessNotelist(short refNum)
 {
 	char	firstChar;
-	short	ans;
+	short	nRead;
 	Boolean	ok;
 		
 	gNotelistVersion = NotelistVersion(refNum);
@@ -204,8 +204,8 @@ static Boolean PreProcessNotelist(short refNum)
 	while (IIReadLine(gInBuf, LINELEN, refNum)) {
 		gLineCount++;
 
-		ans = sscanf(gInBuf, "%c", &firstChar);
-		if (ans<1) continue;							/* probably got a blank line */
+		nRead = sscanf(gInBuf, "%c", &firstChar);
+		if (nRead<1) continue;							/* probably got a blank line */
 
 		switch (firstChar) {
 			case NOTE_CHAR:
@@ -239,7 +239,7 @@ static Boolean PreProcessNotelist(short refNum)
 
 static Boolean ProcessNotelist(short refNum)
 {
-	short	ans;
+	short	nRead;
 	char	firstChar, secondChar;
 	Boolean	ok = True;
 	char	fmtStr[256], str[256];
@@ -251,8 +251,8 @@ static Boolean ProcessNotelist(short refNum)
 	while (IIReadLine(gInBuf, LINELEN, refNum)) {
 		gLineCount++;
 
-		ans = sscanf(gInBuf, "%c", &firstChar);
-		if (ans<1) continue;									/* probably got a blank line */
+		nRead = sscanf(gInBuf, "%c", &firstChar);
+		if (nRead<1) continue;									/* probably got a blank line */
 		
 		switch (firstChar) {
 			case NOTE_CHAR:
@@ -353,33 +353,36 @@ static Boolean ParseNRGR()
 	char		objTypeCode, timeStr[32], voiceStr[32], partStr[32], staffStr[32], durStr[32],
 				dotsStr[32], noteNumStr[32], accStr[32], eAccStr[32], pDurStr[32], velStr[32],
 				flagsStr[32], appearStr[64], modStr[64], segmentStr[64];
-	short		ans, err;
+	short		nRead, err;
 	long		along;
 	PNL_NRGR	pNRGR;
 
 	if (gNextEmptyNode>gNumNLItems) { err = NLERR_INTERNAL; goto broken; }
 	
-	ans = sscanf(gInBuf, "%c", &objTypeCode);
-	if (ans<1) { err = NLERR_INTERNAL; goto broken; }
+	nRead = sscanf(gInBuf, "%c", &objTypeCode);
+	if (nRead<1) { err = NLERR_INTERNAL; goto broken; }
 
 	/* Initialize strings to empty in case our record omits these fields. */
 	
-	noteNumStr[0] = accStr[0] = eAccStr[0] = pDurStr[0] = velStr[0] = modStr[0] = 0;
+	noteNumStr[0] = accStr[0] = eAccStr[0] = pDurStr[0] = velStr[0] = modStr[0] =
+		segmentStr[0] = 0;
 
 	switch (objTypeCode) {
 		case NOTE_CHAR:
 		case GRACE_CHAR:
-			ans = sscanf(gInBuf, "%*c%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+			nRead = sscanf(gInBuf, "%*c%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 							timeStr, voiceStr, partStr, staffStr, durStr, dotsStr, noteNumStr,
 							accStr, eAccStr, pDurStr, velStr, flagsStr, appearStr, modStr,
 							segmentStr);
-			if (ans<13) { err = NLERR_TOOFEWFIELDS; goto broken; }
+if (nRead>13) LogPrintf(LOG_DEBUG, "ParseNRGR: nRead=%d modStr='%s' segmentStr='%s'\n",
+							nRead, modStr, segmentStr);
+			if (nRead<13) { err = NLERR_TOOFEWFIELDS; goto broken; }
 			break;
 		case REST_CHAR:
-			ans = sscanf(gInBuf, "%*c%s%s%s%s%s%s%s%s%s",
+			nRead = sscanf(gInBuf, "%*c%s%s%s%s%s%s%s%s%s",
 							timeStr, voiceStr, partStr, staffStr, durStr, dotsStr,
 							flagsStr, appearStr, modStr);
-			if (ans<8) { err = NLERR_TOOFEWFIELDS; goto broken; }
+			if (nRead<8) { err = NLERR_TOOFEWFIELDS; goto broken; }
 			break;
 		default:
 			err = NLERR_INTERNAL;
@@ -510,14 +513,14 @@ broken:
 static Boolean ParseTuplet()
 {
 	char		voiceStr[32], partStr[32], numStr[32], denomStr[32], appearStr[32], *p;
-	short		ans, err;
+	short		nRead, err;
 	long		along;
 	PNL_TUPLET	pTuplet;
 
 	if (gNextEmptyNode>gNumNLItems) { err = NLERR_INTERNAL; goto broken; }
 
-	ans = sscanf(gInBuf, "%*c%s%s%s%s%s", voiceStr, partStr, numStr, denomStr, appearStr);
-	if (ans<5) { err = NLERR_TOOFEWFIELDS; goto broken; }
+	nRead = sscanf(gInBuf, "%*c%s%s%s%s%s", voiceStr, partStr, numStr, denomStr, appearStr);
+	if (nRead<5) { err = NLERR_TOOFEWFIELDS; goto broken; }
 	
 	pTuplet = GetPNL_TUPLET(gNextEmptyNode);
 
@@ -585,7 +588,7 @@ broken:
 static Boolean ParseBarline()
 {
 	char			timeStr[32], typeStr[32];
-	short			ans, err;
+	short			nRead, err;
 	long			along;
 	PNL_BARLINE	pBarline;
 
@@ -593,8 +596,8 @@ static Boolean ParseBarline()
 
 	typeStr[0] = '\0';						/* might be missing */
 	
-	ans = sscanf(gInBuf, "%*c%s%s", timeStr, typeStr);
-	if (ans<1) { err = NLERR_TOOFEWFIELDS; goto broken; }
+	nRead = sscanf(gInBuf, "%*c%s%s", timeStr, typeStr);
+	if (nRead<1) { err = NLERR_TOOFEWFIELDS; goto broken; }
 	
 	pBarline = GetPNL_BARLINE(gNextEmptyNode);
 
@@ -633,14 +636,14 @@ broken:
 static Boolean ParseClef()
 {
 	char		staffStr[32], typeStr[32];
-	short		ans, err;
+	short		nRead, err;
 	long		along;
 	PNL_CLEF	pClef;
 
 	if (gNextEmptyNode>gNumNLItems) { err = NLERR_INTERNAL; goto broken; }
 
-	ans = sscanf(gInBuf, "%*c%s%s", staffStr, typeStr);
-	if (ans<2) { err = NLERR_TOOFEWFIELDS; goto broken; }
+	nRead = sscanf(gInBuf, "%*c%s%s", staffStr, typeStr);
+	if (nRead<2) { err = NLERR_TOOFEWFIELDS; goto broken; }
 	
 	pClef = GetPNL_CLEF(gNextEmptyNode);
 
@@ -675,14 +678,14 @@ broken:
 static Boolean ParseKeySig()
 {
 	char		staffStr[32], numAccStr[32], acc;
-	short		ans, err;
+	short		nRead, err;
 	long		along;
 	PNL_KEYSIG	pKS;
 
 	if (gNextEmptyNode>gNumNLItems) { err = NLERR_INTERNAL; goto broken; }
 
-	ans = sscanf(gInBuf, "%*c%s%s %c", staffStr, numAccStr, &acc);
-	if (ans<3) { err = NLERR_TOOFEWFIELDS; goto broken; }
+	nRead = sscanf(gInBuf, "%*c%s%s %c", staffStr, numAccStr, &acc);
+	if (nRead<3) { err = NLERR_TOOFEWFIELDS; goto broken; }
 	
 	pKS = GetPNL_KEYSIG(gNextEmptyNode);
 
@@ -724,7 +727,7 @@ broken:
 static Boolean ParseTimeSig()
 {
 	char		staffStr[32], numStr[32], denomStr[32], appearStr[32];
-	short		ans, err;
+	short		nRead, err;
 	long		along;
 	PNL_TIMESIG	pTS;
 
@@ -732,8 +735,8 @@ static Boolean ParseTimeSig()
 
 	appearStr[0] = 0;										/* might be omitted */
 	
-	ans = sscanf(gInBuf, "%*c%s%s%s%s", staffStr, numStr, denomStr, appearStr);
-	if (ans<3) { err = NLERR_TOOFEWFIELDS; goto broken; }
+	nRead = sscanf(gInBuf, "%*c%s%s%s%s", staffStr, numStr, denomStr, appearStr);
+	if (nRead<3) { err = NLERR_TOOFEWFIELDS; goto broken; }
 	
 	pTS = GetPNL_TIMESIG(gNextEmptyNode);
 
@@ -783,15 +786,15 @@ static Boolean ParseTempoMark()
 {
 	char			staffStr[32];
 	unsigned char	*p, *q, str[MAX_TEMPO_CHARS];
-	short			ans, err;
+	short			nRead, err;
 	long			along;
 	NLINK			offset;
 	PNL_TEMPO		pTempo;
 
 	if (gNextEmptyNode>gNumNLItems) { err = NLERR_INTERNAL; goto broken; }
 
-	ans = sscanf(gInBuf, "%*c%s", staffStr);
-	if (ans<1) { err = NLERR_TOOFEWFIELDS; goto broken; }
+	nRead = sscanf(gInBuf, "%*c%s", staffStr);
+	if (nRead<1) { err = NLERR_TOOFEWFIELDS; goto broken; }
 	
 	pTempo = GetPNL_TEMPO(gNextEmptyNode);
 
@@ -899,7 +902,7 @@ static Boolean ParseTextGraphic()
 {
 	char		voiceStr[32], partStr[32], staffStr[64], type, styleCode, *p, *q;
 	char		str[MAX_CHARS];
-	short		ans, err;
+	short		nRead, err;
 	long		along;
 	NLINK		offset;
 	PNL_GRAPHIC	pGraphic;
@@ -908,12 +911,12 @@ static Boolean ParseTextGraphic()
 
 	styleCode = '0';
 	if (gNotelistVersion>=2) {
-		ans = sscanf(gInBuf, "%*c%s%s%s %c%c", voiceStr, partStr, staffStr, &type, &styleCode);
-		if (ans<5) { err = NLERR_TOOFEWFIELDS; goto broken; }
+		nRead = sscanf(gInBuf, "%*c%s%s%s %c%c", voiceStr, partStr, staffStr, &type, &styleCode);
+		if (nRead<5) { err = NLERR_TOOFEWFIELDS; goto broken; }
 	}
 	else {
-		ans = sscanf(gInBuf, "%*c%s%s%s %c", voiceStr, partStr, staffStr, &type);
-		if (ans<4) { err = NLERR_TOOFEWFIELDS; goto broken; }
+		nRead = sscanf(gInBuf, "%*c%s%s%s %c", voiceStr, partStr, staffStr, &type);
+		if (nRead<4) { err = NLERR_TOOFEWFIELDS; goto broken; }
 	}
 	
 	pGraphic = GetPNL_GRAPHIC(gNextEmptyNode);
@@ -989,14 +992,14 @@ broken:
 static Boolean ParseDynamic()
 {
 	char		staffStr[32], typeStr[32];
-	short		ans, err;
+	short		nRead, err;
 	long		along;
 	PNL_DYNAMIC	pDynamic;
 
 	if (gNextEmptyNode>gNumNLItems) { err = NLERR_INTERNAL; goto broken; }
 
-	ans = sscanf(gInBuf, "%*c%s%s", staffStr, typeStr);
-	if (ans<2) { err = NLERR_TOOFEWFIELDS; goto broken; }
+	nRead = sscanf(gInBuf, "%*c%s%s", staffStr, typeStr);
+	if (nRead<2) { err = NLERR_TOOFEWFIELDS; goto broken; }
 	
 	pDynamic = GetPNL_DYNAMIC(gNextEmptyNode);
 
@@ -1039,15 +1042,15 @@ static char *ParseField(char *p, Boolean *pOkay);
 static char *ParseField(char *p, Boolean *pOkay)
 {
 	char str[256];
-	short ans, number;
+	short nRead, number;
 
 	*pOkay = True;
 	
 	/* Point to first non-whitespace char. If there's nothing following, do nothing. */
 	for (p++; *p; p++)
 		if (!isspace((int)*p)) break;
-	ans = sscanf(p, "%s", str);
-	if (ans<1) return NULL;
+	nRead = sscanf(p, "%s", str);
+	if (nRead<1) return NULL;
 	
 	if (strcmp(str, "delaccs")==0) {
 		gDelAccs = True;
@@ -1058,7 +1061,7 @@ static char *ParseField(char *p, Boolean *pOkay)
 		p = strchr(p, '=');										/* Skip to the next '=' in input */
 		if (!p) return (char *)0;
 		p++;
-		ans = sscanf(p, "%s", str);
+		nRead = sscanf(p, "%s", str);
 		p += strlen(str);
 		number = (char)strtol(str, (char **)NULL, 10);
 		gFirstMNNumber = 	number;
@@ -1083,7 +1086,7 @@ In the future there may be other kinds of structured comment. */
 static Boolean ParseStructComment()
 {
 	char		str[64], *p, *q, nstaves;
-	short		ans, i, err;
+	short		nRead, i, err;
 	NLINK		offset;
 	PNL_HEAD	pHead;
 	Boolean		okay;
@@ -1134,8 +1137,8 @@ static Boolean ParseStructComment()
 	p = strchr(p, '=');											/* Skip to the next '=' in input */
 	if (!p) goto broken;
 	for (p++, i=1; i<=MAXSTAVES; i++, p++) {
-		ans = sscanf(p, "%s", str);
-		if (ans<1) goto broken;
+		nRead = sscanf(p, "%s", str);
+		if (nRead<1) goto broken;
 		nstaves = (char)strtol(str, (char **)NULL, 10);
 		if (nstaves<=0) {
 			/* Found the terminator for the part/staff info: skip over it. */
@@ -1185,13 +1188,13 @@ static Boolean ExtractVal(char *str,			/* source string */
 							long *val)			/* pass back extracted value */
 {
 	char	*p;
-	short	ans;
+	short	nRead;
 	
 	p = strchr(str, '=');				/* p will point to '=' */
 	if (p) {
 		p++;							/* advance pointer to character following '=' */
-		ans = sscanf(p, "%ld", val);	/* read numerical value in string as a long */
-		if (ans > 0) return True;
+		nRead = sscanf(p, "%ld", val);	/* read numerical value in string as a long */
+		if (nRead > 0) return True;
 	}
 	
 	/* no '=' found in str, or sscanf error */

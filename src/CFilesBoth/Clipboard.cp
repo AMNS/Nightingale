@@ -1052,7 +1052,7 @@ void SetupClipDoc(Document *doc, Boolean updContext)
 
 	clipboard->tempo = doc->tempo;
 	clipboard->channel = doc->channel;
-	clipboard->velocity = doc->velocity;
+	clipboard->velOffset = doc->velOffset;
 	clipboard->noteInsFeedback = doc->noteInsFeedback;
 	clipboard->transposed = doc->transposed;
 	clipboard->polyTimbral = doc->polyTimbral;
