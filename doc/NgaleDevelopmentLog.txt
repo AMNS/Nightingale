@@ -517,7 +517,7 @@ Got it! In WIND resource 2000, just change right bound from 620 to 690.)
  
 -------------------------------------------------------------------------------
 
-1-2 Nov. 2014; 11 Aug.- 15 Sept. 2015
+1-2 Nov. *** 2014 *** ;  11 Aug.- 15 Sept. *** 2015 ***
 
 Tempo changes in exported MIDI files are often ignored -- e.g., 6End1stMvmt.ngl of my
 violin concerto has 13 tempo marks. The first 6 or so seem to be there; the others,
@@ -600,7 +600,7 @@ conversion)
 
 -------------------------------------------------------------------------------
 
-23 Mar. 2015
+23 Mar. *** 2015 ***
 
 Get rid of the nonsensical statement about duration problems Score Info always gives
 following its correct statement about duration problems.
@@ -1157,7 +1157,7 @@ file. Sigh.
 
 -------------------------------------------------------------------------------
 
-2 - 3 Jan. 2016
+2 - 3 Jan. *** 2016 ***
 
 Change name of the Preferences file from "Nightingale Devel Prefs" to "Nightingale AMNF
 Prefs" (see entry for 16-17 Dec.) => gives the "Creating a new one" progress message,
@@ -1667,7 +1667,7 @@ into in May (Issue #58).
 
 -------------------------------------------------------------------------------
 
-1 Jan. 2017
+1 Jan. *** 2017 ***
 
 The "standard" notation for artificial harmonics -- as recommended in _Behind Bars_, and
 as seen in the Schoenberg Violin Concerto -- involves showing the sounding pitch with a
@@ -2486,14 +2486,14 @@ calling GetGraphicDBox for chord symbols, _and_ add a comment to explain => done
 
 -------------------------------------------------------------------------------
 
-22 - 25 Jan. 2018
+22 - 25 Jan. *** 2018 ***
 
 I've been thinking for a long time that Carbon-based applications can't work past OS
 10.6, but that's dumb: It's obvious now (from statements by Michel Salim and many
-others) they work fine all the way thru OS 10.12; it's just PowerPC apps, like all
-versions of Nightingale to date, that croak at 10.7! Xcode 2.5 & 3.2 both claim to be
-able to compile to i386 code, and on both, the SDK I'm using is "MacOSX10.4u.sdk" -- "u"
-presumably meaning "Universal". So:
+others) they work fine all the way thru at least OS 10.12; it's just PowerPC apps, like
+all versions of Nightingale to date, that croak at 10.7! Xcode 2.5 & 3.2 both claim to
+be able to compile to i386 code, and on both, the SDK I'm using is "MacOSX10.4u.sdk" --
+"u" presumably meaning "Universal". So:
 
 In the Ngale project in Xcode 2.5 (on my G5), for Configuration "Release", select both
 PPC and i386; clean and build => Nope, result is still PPC only. Select only i386 =>
@@ -3182,7 +3182,7 @@ Any others? There shouldn't be, and I don't think there are!
 
 -------------------------------------------------------------------------------
 
-15-18 March 2019
+15-18 March *** 2019 ***
 
 Bugs in 5.9:
 
@@ -4112,7 +4112,7 @@ The greatest ratio is 1.462 (for type 11 objects). Let's round up to 1.5. ??
 
 -------------------------------------------------------------------------------
 
-28 Dec. - 15 Jan. 2020
+28 Dec. - 15 Jan. *** 2020 ***
 
 But wait! What we're reading in is objects of either N105 or N106 length, yes, but the
 length we want to expand to is the 5.9.x SUPEROBJECT size regardless!!
@@ -8612,7 +8612,7 @@ in the object header of L2 (+16, 17, 26, & 27) are all unused fields. ??
 
 ---------------------------------------------------------------------------------------
 
-1 - 5 Jan. 2021
+1 - 5 Jan. *** 2021 ***
 
 The unused fields in the object header are spareFlag, ohdrFiller1, relSize, and
 ohdrFiller1. Well, InitObject() sets all to 0 (or False), and those bytes _are_ all
@@ -10834,14 +10834,14 @@ Lower priority:
 
 ---------------------------------------------------------------------------------------
 
-1 - 5 Jan. ** 2022 **
+1 - 5 Jan. *** 2022 ***
 
 Fix bug: in the Set Duration palette, clicking on a blank cell isn't ignored, nor is
 getting to a blank cell via arrow keys => OK now.
 
 ---------------------------------------------------------------------------------------
 
-9 - 15 Jan. ** 2022 **
+9 - 15 Jan. 2022
 
 Implement arrow keys auto-repeating in Set Duration, Add/Set Modifiers, & Import MIDI File
 dialogs & double-click dynamic window => all OK.
@@ -11797,14 +11797,144 @@ is "WriteTiming: trkLastEndTime=5754".
 
 Add more diagnostic info => now Exporting the 1st system works consistently! Also Exporting the
 full page 1! Also Exporting all of "Anciently in Cities false dyn#0"!! I don't understand -- but
-I have no idea why it was hanging, so nothing I can do as long as finishes writing the MIDI file.
-How about the mysterious velocity 36 for fff on staff 1? That doesn't happen anymore either!
+I have no idea why it was hanging, so nothing I can do as long as it finishes writing the MIDI
+file. How about the mysterious velocity 36 for fff on staff 1? That doesn't happen anymore either!
 Notes on that staff in these new MIDI files always have the correct velocity (>120). Delete the
-fff from the score, Export again => Notes on that staff in the MIDI files have the correct velocity
-for the default dynamic, mf!! So how is Ngale 5.8 different? 5.8.10 isn't; it also writes a MIDI
-file with the correct velocity; so does 5.8.9!!! Looks like I've been chasing a ghost.
+fff from the score, Export again => Notes on that staff in the MIDI files have the correct
+velocity for the default dynamic, mf!! So how is Ngale 5.8 different? 5.8.10 isn't; it also
+writes a MIDI file with the correct velocity; so does 5.8.9!!! Looks like I've been chasing a
+ghost, sigh.
 
-SWITCH TO: Add similar diagnostic info to Ngale 5.8.x, just in case. Let's do a 5.8.11. Retrieve
-the codebase from the GitHub ?? branch => ugh. The .rsrc is empty (since I hadn't yet realized
-that git doesn't know about resource forks, and FileSave.cp is entirely missing!! ??
+SWITCH TO: Let's do a 5.8.11! Add similar diagnostic info to Ngale 5.8.x, just in case. Retrieve
+the codebase from the GitHub "develop5p8 branch" (last commit 28 Oct. 2019) =>
+Nightingale-develop5p8_24Nov2022; but ugh! The .rsrc is empty (since I hadn't yet realized that
+git doesn't know about resource forks), and FileSave.cp simply isn't there!! Ugh.
+
+---------------------------------------------------------------------------------------
+
+25 Nov. - 15 Dec.
+
+The last commit to the GitHub repository 5.8 branch was 28 Oct. 2019: well after 5.8.9
+(executable dated 9 Jan. 2019) but before 5.8.10 (executable dated Nov. 14 2020). But the
+info.plist says 5.8.10. So it's a "transitional" codebase, not quite 5.8.10! Oh well.
+Added .rsrc and FileSave.cp to Ngale 5.8.x, though they may not be quite the Ngale 5.8.10
+versions; what about 5.8.10 changes from the files that are in the repository?
+
+SWITCH TO: Enhance the diagnostic info for Export MIDI File in Ngale 6... Ugh! It's hanging again
+when exporting Anciently in Cities_1system.ngl -- most of the time, but rarely if ever if I invoke
+DETAIL_SHOW! ^&#(%#%#%!)*$#  To be continued.
+
+BACK TO: Ngale 5.8. DetailedVersionHistory_2012ToPresent.txt says, for 2019:
+
+	18 August - 27 Oct.	 *IN 5.8 & 5.9
+	
+	Fixed bug (issue #169): courtesy accidentals are too obtrusive. Affects .rsrc: reduce
+	courtesyAccLXD & courtesyAccPSize slightly; DrawNRGR.
+
+However, issue #169 is still open, and the courtesyAccLXD & courtesyAccPSize & related fields in
+the .rsrc are unchanged from the Nov. 2018 .rsrc to now! Huh? Ah, but they changed slightly in
+between, then changed back! CNFG fields fr accs in parens:
+																Nov. 2018	Jul. 2020	now	
+																---------	---------	---
+	courtesyAccLXD:		left paren. H offset (8th-spaces)			6			6		6
+	courtesyAccRXD:		right paren. H offset (8th-spaces)			8			7		8
+	courtesyAccYD:		paren. V offset (8th-spaces)				8			8		8
+	courtesyAccPSize:	PostScript paren. size (% of normal)		100			90		100
+
+In DrawNRGR.cp, DrawAcc() from the version of 29 May 2018 (pre-fix) to 12 Sep. 2019 (post-fix)
+replaces variable <delta> with deltaXR, deltaXL, deltaY, but the old version uses <delta> three
+times, so the new one does exactly the same thing. (From 12 Sep. to 28 Oct., no changes except 
+comments, so the fix was complete by 12 Sep.)
+
+Pre-fix:
+		xdRParen = xdAcc + ((DDIST)(((long)scalePercent*xoffset)/100L));
+		xdAcc = xdRParen-delta*d8thSp;
+		xdAcc += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
+
+Post-fix adds one line:
+
+		xdRParen = xdAcc + ((DDIST)(((long)scalePercent*xoffset)/100L));
+**		xdRParen += dAccWidth-(COURTESYACC_PARENWID(dAccWidth));
+		xdAcc = xdRParen-deltaXR*d8thSp;
+		xdAcc += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
+
+So the fix not only uses a smaller right paren. H offset; it also moves the right paren to
+the right! Does that make sense? Ah. See extensive comments on issue #169 above (for 18 Aug.
+- 8 Sept. 2019)! Extensive, but not extensive enough. What did I really decide? Why is issue
+#169 still open?
+
+As before, test w/ score of my violin concerto, 2nd movement, page 9 => w/ Ngale 5.8.9, the
+parens/courtesy acc. for flute is OK; for trumpet, too far to left. W/ 5.8.10 and 6.0 b30,
+the one for flute is a bit too far to right; for trumpet, OK. So it's not completely clear,
+but the 5.8.10/6.0 spacing is probably better overall, and less obtrusive! This just isn't
+worth spending any more time on.
+
+BACK TO: Ngale 5.8 (in general). Declare the NIGHTSCOREHEADER comment[] field, which we
+always use as a C string, as a C string (instead of Pascal) :-) . Instead of unsigned char[],
+make it:
+
+	char		comment[MAX_COMMENT_LEN+1]; /* User comment on score (C string) */
+
+Instances of "doc->comment" in 5.8 with casts to remove:
+
+		MIDIFOCmd.cp: 		strcpy((char *)doc->comment, COMMENT_MIDIFILE);
+		NotelistOpen.cp: 	strcpy((char *)doc->comment, COMMENT_NOTELIST);
+		ScoreInfo.cp: 		strcpy(commentOrig, (char *)doc->comment);
+		ScoreInfo.cp: 				strcpy((char *)doc->comment, (char *)commentNew);
+
+Done. Any other changes from 5.8.9 to 5.8.10 I might have missed are probably just to comments;
+anyway, not worth spending time on.
+
+At last, add Ngale 6 enhancements to diagnostic info for Export MIDI File to 5.8... done.
+Open AllObjTypes.ngl; Export MIDI File => hangs 3 out of 4 times, with this log:
+
+	Dec  3 16:14:55 unknown00112431479a Ngale[16198]:
+	info. Opened file 'AllObjTypes.ngl'.
+	debug. DrawToolPalette: MemBitCount(palPortBits, 1000)=924 portRect tlbr=0,0,399,271
+	Notice. trkLastEndTime=6624  (WriteTimingTrack)
+	debug.   WriteTimingTrack: pL=1 
+	debug.   WriteTimingTrack: pL=2 
+	debug.   WriteTimingTrack: pL=3 
+	debug.   WriteTimingTrack: pL=4 
+	debug.   WriteTimingTrack: pL=5 
+	debug.   WriteTimingTrack: pL=6 
+	debug.   WriteTimingTrack: pL=7 
+	debug.   WriteTimingTrack: pL=8 
+	debug.   WriteTimingTrack: TEMPO pL=8 
+	info.   WriteTimingTrack: TEMPO pL=8 tempoTime=0 timeScale=60480
+	debug.   WriteTimingTrack: pL=9 
+	debug.   WriteTimingTrack: TIMESIG pL=9 aTSL=1 measureTime=0  
+	Dec  3 16:15:36 unknown00112431479a /usr/sbin/spindump[16206]: process 16198 is being monitored
+	Dec  3 16:15:37 unknown00112431479a /usr/sbin/spindump[16206]: process 16198 is being force quit
+
+Looks like it's hanging in WriteTSig. Add LogPrintf's to WriteTimingTrack and WriteTSig =>
+
+	Dec  3 16:45:17 unknown00112431479a Ngale[16419]:
+	debug.   WriteTimingTrack 1: TIMESIG pL=9 aTSL=L1 measureTime=0 -
+	debug.   WriteTSig 1: aTSL=L1 numer=5 denom=4
+	debug.   WriteTSig 2: aTSL=L1 numer=5 denom=4
+
+Yes. But why? Ugh: an incredibly dumb mistake in WriteTSEvent():
+
+	while (!odd(tempDenom))
+		clocksPerBeat /= 2; tempDenom /= 2;
+
+NB the missing {} ! I seem to have introduced this bug in 5.8.x in the last week or so :-( .
+Fixed in 5.8.11, and it now finishes writing the MIDI file for AllObjTypes.ngl with no apparent
+problems; but it still can't open the file it writes :-( . How about 6.0.x? WriteTSEvent() in
+6.0 doesn't have the bug, _and_ the MIDI file it writes opens & looks fine.
+
+Oops, it was on 3 Dec. that 5.8.11 couldn't open a MIDI file it wrote of AllObjTypes.ngl;  but,
+on 6 Dec. ff, after minor changes, it writes files it _can_ open! Test w/ a few more smallish
+files => all OK. (Except playing back Clarke-PurcellTrumpetTune.mid, staff 2 is inaudible, and
+I have no idea why: every note on both staves has the expected velocity (76), and staff 2 doesn't
+seem to be muted!? Launch 6.0 & Import Clarke-PurcellTrumpetTune.mid => all OK; re-launch 5.8.11
+& Import it => all OK. Not worth bothering with this.)
+
+Anyway, for me, 5.8.11 seems to have no serious problems -- note velocity or other -- with MIDI
+files, either Exporting or Importing. Send it off to David & see what happens for him!
+
+15 Dec.: It works fine; no problems with note velocity. I'm not surprised to find we've been
+chasing a ghost :-( . Well, his computer has a bunch of old versions of Ngale on it; who knows
+what version he might have been running when he made those MIDI files?
 

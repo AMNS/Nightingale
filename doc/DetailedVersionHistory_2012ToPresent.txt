@@ -3814,7 +3814,7 @@ ResultList, ResultListDocument, SelUtils, Windows.
 
 8 - 17 Nov.
 
-Minor changes: rename internal-input functions for clarity, change -1 for voice no. to
+Minor changes: renamed internal-input functions for clarity, changed -1 for voice no. to
 ANYONE, etc. Affects info.plist, .rsrc, Defs.h, FileConversion.h, InternalInput.h,
 NDocAndCnfgTypes.h, NResourceID.h, SearchScorePrivate.h; DelAddRedTimeSigs, InsNew,
 InternalInput, Menu, MIDIFOpen, MIDIFOCmd, NotelistOpen, NotelistParse, SelUtils, Windows.
@@ -3823,8 +3823,18 @@ InternalInput, Menu, MIDIFOpen, MIDIFOCmd, NotelistOpen, NotelistParse, SelUtils
 
 19 - 25 Nov.
 
-Minor changes: rename Document <velocity> to <velOffset>, improve error reporting for
+Minor changes: renamed Document <velocity> to <velOffset>, improved error reporting for
 Import and Export MIDI File, etc. Affects info.plist, NDocAndCnfgTypes.h, NightTemplates.h;
 Clipboard, CoreMIDIUtils, EndianUtils, Error, Extract, FileConversion, FileUtils, Menu,
 MIDIDialogs, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIUtils, NotelistParse, Score.
 
+----------------------------------------------------------------------------------------- B30
+
+26 Nov. - 16 Dec.
+
+Fixed bug (this must have been introduced relatively recently): Save MIDI File can hang.
+Affects MIDIFSave.
+
+Minor changes. Affects info.plist; MIDIFOCmd, MIDIFOpen, MIDIFSave, NavServices.
+
+----------------------------------------------------------------------------------------- B31

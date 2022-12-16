@@ -270,15 +270,14 @@ static pascal void NSNavOpenEventProc(const NavEventCallbackMessage callbackSele
 				UInt16 firstItem = 0;	
 				OSStatus theErr = noErr;
 				
-				/* Add the rest of the custom controls via the DITL resource list: */
+				/* Add the rest of the custom controls via the DITL resource list. */
 				
 				gDitlList = GetResource('DITL',CONTROL_LIST_ID);
 				if ((gDitlList != NULL) && (ResError() == noErr)) {
-					if ((theErr = NavCustomControl(callbackParms->context,kNavCtlAddControlList,gDitlList)) == noErr)
-					{
+					if ((theErr = NavCustomControl(callbackParms->context,kNavCtlAddControlList,gDitlList)) == noErr) {
 						// ask NavServices for our first control ID
 						// debugging only
-						theErr = NavCustomControl(callbackParms->context,kNavCtlGetFirstControlID,&firstItem);	
+						theErr = NavCustomControl(callbackParms->context,kNavCtlGetFirstControlID,&firstItem);
 					}
 				}
 			}			
@@ -560,7 +559,8 @@ static void NSGetSaveFile(NavReplyRecord *pReply, NavCallBackUserData callbackUD
 				 	NSClientDataPtr pNSD = (NSClientDataPtr)callbackUD;
 				 	FSSpec childFSSpec;
 				 	
-				 	err = FSMakeFSSpec(fsSpec.vRefNum,fsCatInfo.nodeID,(StringPtr)saveFileName,&childFSSpec);
+				 	err = FSMakeFSSpec(fsSpec.vRefNum,fsCatInfo.nodeID,
+										(StringPtr)saveFileName, &childFSSpec);
 					if (err == noErr || err == fnfErr) {
 					 	strcpy(pNSD->nsFileName,saveFileName);
 					 	pNSD->nsFSSpec = childFSSpec;
@@ -607,33 +607,30 @@ OSStatus BeginSave( NavDialogRef inDialog, NavReplyRecord* outReply, FSRef* outF
 		CFStringGetCharacters( outReply->saveFileName, CFRangeMake( 0, len ), &name[0] );
 		
 		status = FSMakeFSRefUnicode( &dirRef, len, &name[0], GetApplicationTextEncoding(), outFileRef );
-		if (status == fnfErr )
-		{
-                        // file is not there yet - create it and return FSRef
+
+		/* If file is not there yet, create it and return FSRef; else just make sure
+		   there's no error. */
+
+		if (status == fnfErr ) {
 			status = FSCreateFileUnicode( &dirRef, len, &name[0], 0, NULL, outFileRef, NULL );
 		}
-		else
-		{
-                        // looks like file is there. Just make sure there is no error
+		else {
 			nrequire( status, DisposeDesc );
 		}
 	}
-	else if ( dirDesc.descriptorType == typeFSS )
-	{
-                FSSpec	theSpec;
+	else if ( dirDesc.descriptorType == typeFSS ) {
+        FSSpec	theSpec;
 		status = AEGetDescData( &dirDesc, &theSpec, sizeof( FSSpec ));
 		nrequire( status, DisposeDesc );
 
 		if ( CFStringGetPascalString( outReply->saveFileName, &(theSpec.name[0]), 
-					sizeof( StrFileName ), GetApplicationTextEncoding()))
-		{
+					sizeof( StrFileName ), GetApplicationTextEncoding())) {
          status = FSpMakeFSRef(&theSpec, outFileRef);
 			nrequire( status, DisposeDesc );
 			status = FSpCreate( &theSpec, 0, 0, smSystemScript );
 			nrequire( status, DisposeDesc );
 		}
-		else
-		{
+		else {
 			status = bdNamErr;
 			nrequire( status, DisposeDesc );
 		}
@@ -643,8 +640,7 @@ DisposeDesc:
 	AEDisposeDesc( &dirDesc );
 
 DisposeReply:
-	if ( status != noErr )
-	{
+	if ( status != noErr ) {
 		NavDisposeReply( outReply );
 	}
 
@@ -681,9 +677,9 @@ OSStatus CompleteSave( NavReplyRecord* inReply, FSRef* inFileRef, Boolean inDidW
 //
 static void TerminateDialog(NavDialogRef /* inDialog */)
 {
-	// MAS: this is apparently unnecessary
-	// in Leopard, NavCustomControl never returns, so presumably
-	// the dialog has been closed already
+	// MAS: this is apparently unnecessary. In Leopard, NavCustomControl never returns,
+	// so presumably the dialog has been closed already.
+	   
 //	NavCustomControl(inDialog, kNavCtlTerminate, NULL);
 	return;
 }

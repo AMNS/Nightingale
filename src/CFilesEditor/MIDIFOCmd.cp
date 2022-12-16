@@ -637,12 +637,11 @@ static Boolean MFHeaderOK(Byte midiFileFormat, Word nTracks, Word timeBase)
 
 /* ------------------------------------------------------------------- GetMIDIFileInfo -- */
 
-static Boolean GetMIDIFileInfo(TRACKINFO [], short *, long *, short [], short [],
+static Boolean GetMIDIFileInfo(TRACKINFO [], long *, short [], short [],
 							Boolean [][MAXCHANNEL], short [], Boolean [], long [], short *,
 							short *, short *);
 static Boolean GetMIDIFileInfo(
 				TRACKINFO trackInfo[],
-				short */*pQuantCode*/,			/* FIXME: Unused--should be removed! */
 				long *pLastEvent,				/* Output, in MIDI file (not Nightingale!) ticks */
 				short nTrackNotes[],			/* Output, trk-by-trk no. of notes */
 				short nTooLong[],				/* Output, trk-by-trk no. of notes over max. dur. */
@@ -794,8 +793,8 @@ static Boolean CheckAndConsult(
 	long lastTrEvent[MAXTRACKS+1];
 	short nNotes, qAllLDur, nGoodTrs;
 	
-	if (!GetMIDIFileInfo(trackInfo, pQuantCode, pLastEvent, nTrackNotes, nTooLong, chanUsed,
-							qTrLDur, qTrTriplets, lastTrEvent, &nNotes, &nGoodTrs, &qAllLDur))
+	if (!GetMIDIFileInfo(trackInfo, pLastEvent, nTrackNotes, nTooLong, chanUsed, qTrLDur,
+							qTrTriplets, lastTrEvent, &nNotes, &nGoodTrs, &qAllLDur))
 			return False;
 	
 	/* Tell user what we found and ask them what to do now. */
@@ -877,18 +876,18 @@ static Boolean OpenMIDIFile()
 					if (trackInfo[td].pChunk) DisposePtr((Ptr)trackInfo[td].pChunk);
 				return False;
 			}
-			if (DETAIL_SHOW) {
-				LogPrintf(LOG_INFO, "MTrk(%d) lenMF=%d:\n", t, lenMF);
-				DHexDump(LOG_INFO, "OpenMIDIFile", pChunkMF, (lenMF>50L? 50L : lenMF), 5,
+			if (MORE_DETAIL_SHOW) {
+				LogPrintf(LOG_DEBUG, "MTrk(%d) lenMF=%d:\n", t, lenMF);
+				DHexDump(LOG_DEBUG, "OpenMIDIFile", pChunkMF, (lenMF>50L? 50L : lenMF), 5,
 							20, False);
 			}
 
 			if (trackInfo[t].okay) {
-				if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Calling MF2MIDNight for track %d...  (OpenMIDIFile)\n", t);
+				if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Calling MF2MIDNight for track %d...  (OpenMIDIFile)\n", t);
 				len = MF2MIDNight(&pChunk);
-				if (DETAIL_SHOW) {
-					LogPrintf(LOG_INFO, "OpenMIDIFile: MTrk(%d) MIDNightLen=%d:\n", t, len);
-					DHexDump(LOG_INFO, "OpenMIDIFile", pChunk, (len>50L? 50L : len), 5, 20,
+				if (MORE_DETAIL_SHOW) {
+					LogPrintf(LOG_DEBUG, "OpenMIDIFile: MTrk(%d) MIDNightLen=%d:\n", t, len);
+					DHexDump(LOG_DEBUG, "OpenMIDIFile", pChunk, (len>50L? 50L : len), 5, 20,
 								False);
 				}
 				if (len==0) {
@@ -933,7 +932,9 @@ static Boolean OpenMIDIFile()
 			SelAllNoHilite(doc);
 			if (autoBeam && durQuantum>1) {
 				AutoBeam(doc);
+				
 				/*  Set bracket visibility to the conventional default. */
+				
 				SetBracketsVis(doc, doc->headL, doc->tailL);
 			}
 			DeselAllNoHilite(doc);
