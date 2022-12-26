@@ -1566,12 +1566,11 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 
 static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize) 
 {
-	LogPrintf(LOG_INFO, "PrintDocSyncTab: for %s, tabSize=%ld\n", tabname, tabSize);
+	LogPrintf(LOG_DEBUG, "PrintDocSyncTab: for %s, tabSize=%d:\n", tabname, tabSize);
 	
-	for (int j = 0; j<tabSize; j++) 
-	{
+	for (int j = 0; j<tabSize; j++) {
 		LINKTIMEINFO info = docSyncTab[j];
-		if (DBG) LogPrintf(LOG_DEBUG, "j = %ld link = %ld time=%ld mult=%ld\n", j, info.link,
+		LogPrintf(LOG_DEBUG, "  j=%ld link=%ld time=%ld mult=%ld\n", j, info.link,
 					info.time, info.mult);
 	}
 }
@@ -1581,8 +1580,7 @@ static void PrintDocSyncDurs(Document *doc)
 	LINK pL;
 	long dur;
 	
-	for (pL = doc->headL; pL != doc->tailL; pL = RightLINK(pL)) 
-	{
+	for (pL = doc->headL; pL != doc->tailL; pL = RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
 			dur = SyncSimpleLDur(pL);
 		
@@ -1597,8 +1595,7 @@ of a previous tempo change. */
 
 static Boolean CompactTempoTab() 
 {
-	if (tempoTabLen <= 1)
-		return True;
+	if (tempoTabLen <= 1) return True;
 	
 	TEMPOINFO *tempoInfoTabOrig = tempoInfoTab;	
 	
@@ -1616,8 +1613,7 @@ static Boolean CompactTempoTab()
 	tempoInfoTab[0].tStamp = tempoInfoTabOrig[0].tStamp;
 	tempoInfoTab[0].microsecPQ = tempoInfoTabOrig[0].microsecPQ;
 
-	for (int i = 1; i<tempoTabLenOrig; i++) 
-	{
+	for (int i = 1; i<tempoTabLenOrig; i++) {
 		TEMPOINFO tempoInfo = tempoInfoTabOrig[i];
 		if (tempoInfo.tStamp > prevTStamp + TEMPO_WINDOW) {
 		
@@ -1659,7 +1655,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			
 			short beatdur = DFLT_BEATDUR;
 			long tempoValue = tscale / beatdur;
-			if (DBG) LogPrintf(LOG_DEBUG, "AddTempoChanges: adding Tempo %ld (time=%ld) at link %d\n",
+			if (DBG) LogPrintf(LOG_DEBUG, "AddTempoChanges: adding Tempo %ld (time=%ld) at L%u\n",
 				tempoValue, tempoInfo.tStamp, relObj);
 			
 			short dur = QTR_L_DUR;
@@ -1685,7 +1681,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 
 static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short tabSize)
 {
-	PrintDocSyncTab("DocSyncTab", docSyncTab, tabSize);
+	if (DBG) PrintDocSyncTab("DocSyncTab", docSyncTab, tabSize);
 	
 	for (int i = 0; i<ctrlTabLen; i++) 
 	{
@@ -1762,8 +1758,8 @@ static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, short rawT
 {
 //	short rawTabSize = 16;
 	
-	PrintDocSyncTab("RawSyncTab", rawSyncTab, rawTabSize);
-	PrintDocSyncDurs(doc);
+	if (DBG) PrintDocSyncTab("RawSyncTab", rawSyncTab, rawTabSize);
+	if (DBG) PrintDocSyncDurs(doc);
 	
  	short tabSize;
 	LINKTIMEINFO *docSyncTab = DocSyncTab(doc, &tabSize, rawSyncTab, rawTabSize);
@@ -1930,11 +1926,15 @@ static short Track2RTStructs(
 			the same time as the previous note in this track, put it in a chord with that
 			note. Any further "deflamming" must wait until we know quantized times, and
 			we can't do that till we decide tuplets. */
+			
 		switch (command) {
 			case MNOTEON:
 				if (p->data[2]==0) break;								/* Really a Note Off; should never get here */
-				if (isTempoMap)
-					{ MayErrMsg("Track2RTStructs: can't handle a note in the tempo map track."); continue; }
+				if (isTempoMap) {
+					MayErrMsg("Track2RTStructs: can't handle a note in the tempo map track (start time %ld).",
+									p->tStamp);
+					continue;
+				}
 				pn = (MFNote *)p;
 				if (MakeMNote(pn, channel, &theNote)) {
 					noteEndTime = theNote.startTime+theNote.duration;
@@ -2073,8 +2073,9 @@ static short Track2Night(
 	Boolean		isTempoMap, isLastTrack, okay=False;
 	char		fmtStr[256];
 
-	isTempoMap = (track==1);						/* an OK assumption for format 1 MIDI files */
+	if (DBG) LogPrintf(LOG_DEBUG, "Track2Night: track %d\n", track);
 	isLastTrack = (track==mfNTracks);
+	isTempoMap = (track==1);						/* an OK assumption for format 1 MIDI files */
 	if (isTempoMap) InitTrack2Night(doc, &mergeTabSize, &oneTrackTabSize);
 	//if (isTempoMap && DBG) LogPrintf(LOG_DEBUG, "Track2Night: mergeTabSize=%ld oneTrackTabSize=%ld\n",
 	//mergeTabSize, oneTrackTabSize);
@@ -2100,16 +2101,15 @@ static short Track2Night(
 	voice = track-1;
 	newFirstSync = NILINK;
 
-	/*
-	 * - If this IS the tempo map track, create all Measures and time signatures for
-	 *	the entire score, including extra Measures at the end to fill the score out to
-	 *	<scoreEndTime> time. (Since our empty score already contained one Measure, we'll
-	 *	then have one too many: we need the space between the first two Measures to
-	 *	hold the stuff for each track. Of course, the extra Measure must be deleted when
-	 *	we've done the last track; we leave that to the calling function because we can't
-	 *	tell when that is.)
-	 * - If this IS NOT the tempo map track, convert any new notes/rests and merge them in.
-	 */
+	/* - If this IS the tempo map track, create all Measures and time signatures for
+	     the entire score, including extra Measures at the end to fill the score out to
+	     <scoreEndTime> time. (Since our empty score already contained one Measure, we'll
+	     then have one too many: we need the space between the first two Measures to
+	     hold the stuff for each track. Of course, the extra Measure must be deleted when
+	     we've done the last track; we leave that to the calling function because we can't
+	     tell when that is.)
+	   - If this ISN'T the tempo map track, convert any new notes/rests and merge them in. */
+	   
 	if (isTempoMap) {		
 		measDur = TimeSigDur(0, measInfoTab[measTabLen-1].numerator,
 										measInfoTab[measTabLen-1].denominator);
@@ -2123,12 +2123,12 @@ static short Track2Night(
 							config.tryTupLevels, config.leastSquares, timeOffset);
 	}
 	else if (status==OP_COMPLETE) {
-		/*
-		 *	It's not the tempo track, and we have one or more notes. Convert and merge
-		 *	them. Damned if I can think of a good way to decide what <maxNewSyncs> should
-		 * be. But it certainly should fit in 16 bits, i.e., be 65535 or less, since the
-		 *	total number of notes/rests in a score has to!
-		 */
+	
+		/* It's not the tempo track, and we have one or more notes. Convert and merge
+		   them. Damned if I can think of a good way to decide what <maxNewSyncs> should
+		   be. But it certainly should fit in 16 bits, i.e., be 65535 or less, since the
+		   total number of notes/rests in a score has to! */
+		   
 		maxNewSyncs = n_min(5L*nRawSyncs+MF_MAXPIECES, 65535L);
 		newSyncTab = (LINKTIMEINFO *)NewPtr(maxNewSyncs*sizeof(LINKTIMEINFO));
 		if (!GoodNewPtr((Ptr)newSyncTab))
@@ -2164,8 +2164,10 @@ static short Track2Night(
 			{ NoMoreMemory(); goto Done; }
 
 		nMergeObjs = FillMergeBuffer(firstL, mergeObjs, mergeTabSize, False);
-		/* ??The following check is currently pointless: if mergeTabSize isn't
-			enough, FillMergeBuffer just stops without saying so! */ 
+		
+		/* FIXME: The following check is currently pointless: if mergeTabSize isn't
+			enough, FillMergeBuffer just stops without saying so! */
+			
 		if (nMergeObjs>mergeTabSize) {
 			GetIndCString(fmtStr, MIDIFILE_STRS, 31);    /* "Can't handle MIDI files with more than %d Syncs." */
 			sprintf(strBuf, fmtStr, mergeTabSize); 
@@ -2178,7 +2180,7 @@ static short Track2Night(
 			{ MayErrMsg("MRMerge failed."); goto Done; }
 
 		if (quantum>1) {
-			if (!PreflightMem(40))
+			if (!PreflightMem(400))
 				{ NoMoreMemory(); goto Done; }
 			if (!FillNonemptyMeas(doc, NILINK, NILINK, voice, quantum)) goto Done;
 		}

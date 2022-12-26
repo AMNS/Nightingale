@@ -10,13 +10,7 @@ Nightingale's Notelist format to its native format. Written by John Gibson. */
  * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
-#define DOAUTOBEAM					1
-#ifdef PUBLIC_VERSION
-	#define PRINTNOTELIST			0
-#else
-	#define PRINTNOTELIST			1
-#endif
-#define CNTLKEYFORPRINTNOTELIST		1
+#define DOAUTOBEAM_NL				1
 
 
 /* --------------------------------------------------------------------------------- */

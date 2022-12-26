@@ -310,7 +310,7 @@ static Boolean NotelistToNight(Document *doc)
 
 	ProgressMsg(CONTINUENOTELIST_PMSTR, "");
 
-#if DOAUTOBEAM
+#if DOAUTOBEAM_NL
 	SelAllNoHilite(doc);
 	ok = AutoBeam(doc);
 #endif

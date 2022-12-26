@@ -1438,16 +1438,16 @@ void DPrintLTIs(char *label, LINKTIMEINFO itemTab[], short nItems)
 #ifndef PUBLIC_VERSION
 	short i;
 	
-	LogPrintf(LOG_INFO, "DPrintLTIs '%s' nItems=%d:\n", label, nItems);
+	LogPrintf(LOG_DEBUG, "DPrintLTIs '%s' nItems=%d:\n", label, nItems);
 	
 	for (i = 0; i<nItems && i<(CapsLockKeyDown()? SHRT_MAX : PR_LIMIT); i++) {
-		LogPrintf(LOG_INFO, "  [%d] link=%u time=%ld mult=%u %s",
+		LogPrintf(LOG_DEBUG, "  [%d] link=%u time=%ld mult=%u %s",
 						i, itemTab[i].link, itemTab[i].time, itemTab[i].mult,
 						(itemTab[i].added? "added" : "")); 
 		if (itemTab[i].tupleNum)
-			LogPrintf(LOG_INFO, " tupleNum=%d Time=%u Dur=%d", itemTab[i].tupleNum,
+			LogPrintf(LOG_DEBUG, " tupleNum=%d Time=%u Dur=%d", itemTab[i].tupleNum,
 						itemTab[i].tupleTime, itemTab[i].tupleDur);
-		LogPrintf(LOG_INFO, "\n");
+		LogPrintf(LOG_DEBUG, "\n");
 	}
 #endif
 }
@@ -1501,7 +1501,7 @@ LINK TranscribeVoice(
 	LINK firstSync; short q;
 	
 	if (quantum>1) {
-if (DETAIL_SHOW) DPrintLTIs("<ClarAllToMeas",rawSyncTab,nRawSyncs);
+if (MORE_DETAIL_SHOW) DPrintLTIs("<ClarAllToMeas", rawSyncTab, nRawSyncs);
 		if (!ClarAllToMeas(doc,rawSyncTab,maxRawSyncs,&nRawSyncs,quantum,measInfoTab,nMeasTab))
 			{ *errCode = 1; return NILINK; }
 			
@@ -1509,23 +1509,23 @@ if (DETAIL_SHOW) DPrintLTIs("<ClarAllToMeas",rawSyncTab,nRawSyncs);
 										measInfoTab,nMeasTab))
 			{ *errCode = 2; return NILINK; }
 								
-if (DETAIL_SHOW) DPrintLTIs("<ChooseChords",rawSyncTab,nRawSyncs);
+if (MORE_DETAIL_SHOW) DPrintLTIs("<ChooseChords", rawSyncTab, nRawSyncs);
 		if (!ChooseChords(doc,voice,rawSyncTab,maxRawSyncs,&nRawSyncs,rawNoteAux,quantum))
 			{ *errCode = 3; return NILINK; }
 	
 	
-if (DETAIL_SHOW) DPrintLTIs("<ClarAllToTuplets",rawSyncTab,nRawSyncs);
+if (MORE_DETAIL_SHOW) DPrintLTIs("<ClarAllToTuplets", rawSyncTab, nRawSyncs);
 		if (!ClarAllToTuplets(doc,voice,rawSyncTab,maxRawSyncs,&nRawSyncs,quantum))
 			{ *errCode = 4; return NILINK; }
 	
-if (DETAIL_SHOW) DPrintLTIs("<QuantizeAndClip",rawSyncTab,nRawSyncs);
+if (MORE_DETAIL_SHOW) DPrintLTIs("<QuantizeAndClip", rawSyncTab, nRawSyncs);
 		QuantizeAndClip(doc,voice,rawSyncTab,&nRawSyncs,quantum);
 		
 		RemoveZeroDurItems(rawSyncTab,&nRawSyncs);
 		RemoveOneItemTuplets(rawSyncTab,nRawSyncs);
 	}
 	
-if (DETAIL_SHOW) DPrintLTIs("<BuildSyncs",rawSyncTab,nRawSyncs);
+if (MORE_DETAIL_SHOW) DPrintLTIs("<BuildSyncs", rawSyncTab, nRawSyncs);
 	firstSync =	BuildSyncs(doc,voice,rawSyncTab,nRawSyncs,rawNoteAux,nAux,measL);
 	if (!firstSync)
 			{ *errCode = 5; return NILINK; }
@@ -1538,7 +1538,7 @@ if (DETAIL_SHOW) DPrintLTIs("<BuildSyncs",rawSyncTab,nRawSyncs);
 										newSyncTab,maxNewSyncs,pnNewSyncs))
 			{ *errCode = 7; return NILINK; }
 
-if (DETAIL_SHOW) DPrintLTIs("<AddTuplets",newSyncTab,*pnNewSyncs);
+if (MORE_DETAIL_SHOW) DPrintLTIs("<AddTuplets", newSyncTab, *pnNewSyncs);
 		if (!AddTuplets(doc,voice,newSyncTab,*pnNewSyncs))
 			{ *errCode = 8; return NILINK; }
 	}

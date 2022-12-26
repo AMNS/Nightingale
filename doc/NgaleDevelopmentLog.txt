@@ -2,8 +2,8 @@ DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 and after
 
 (Most of the files in my Ngale Carbon code base have last modification dates of April or
 May 2012; a few files are 2 June 2012, and it looks like that's the last source code I
-share with David G. This document describes all changes to my own code base since then,
-the earliest of which are dated 4 March 2013. It also describes initial work on the
+share with David Gottlieb. This document describes all changes to my own code base since
+then, the earliest of which are dated 4 March 2013. It also describes initial work on the
 "new" Cocoa Ngale -- I think.)
 
 * CoreMidiUtils.cp: make DebugPrintf output more readable.
@@ -31,7 +31,7 @@ the earliest of which are dated 4 March 2013. It also describes initial work on 
 ===================================================================================
 
 * Have Xcode 3.2 running on my MacBook (OS 10.6.x); Xcode 2.5 on my G5 (OS 10.5.x).
-	What version was used for recent release versions? David says Xcode 2.5!
+	What version was used for recent release versions? David G. says Xcode 2.5!
 
 With a 2008 copy of code I had lying around:
 
@@ -62,8 +62,8 @@ Redo: Build (w/o clean) => tries to compile 15 files; fails with 1703 warnings, 
 To get started, I just want to get thru compilation quickly; maybe set compiler options
 to be less picky? But _how_ do I set them? I don't see any such thing in Xcode! ??
 Another idea: get a version of the code that's known to compile -- hey, maybe even the
-latest from David or Charlie! -- and compiler settings for it. Obviously the way to go,
-but see what I can do in the meantime w/ code I have.
+latest from David or Charlie Rose! -- and compiler settings for it. Obviously the way to
+go, but see what I can do in the meantime w/ code I have.
 
 -----------------------------------------------------------------------------
 
@@ -3657,7 +3657,7 @@ OK, whew.
 
 Work on issue #180, flow-in text crashes.
 
-More from David A.:
+More from David Alpher:
 
 (1) When you OK the flow-in text dialog, the cursor should change to an upside-down “T” (more or
 less), and the box at the bottom left of the window should display the first syllable in
@@ -11938,3 +11938,74 @@ files, either Exporting or Importing. Send it off to David & see what happens fo
 chasing a ghost :-( . Well, his computer has a bunch of old versions of Ngale on it; who knows
 what version he might have been running when he made those MIDI files?
 
+---------------------------------------------------------------------------------------
+
+17 - 25 Dec.
+
+David reports Importing a MIDI file (with Ngale 5.8.11) said:
+
+"The operation failed, perhaps because Nightingale has run out of memory (RAM).
+You can increase Nightingale’s memory allocation with the Finder’s Get Info command."
+
+That's STR# 228, no. 12. Ngale also told him "PROGRAM ERROR: Heap Alloc: object size is 0. Heap=20".
+
+Of course the Finder's Get Info command hasn't allowed setting memory for decades, since
+OS 10.0! STR# 228, no. 13 in 5.8.11 has the same nonsensical statement about the Finder.
+STR# 228, no. 12 in Ngale 6.x is:
+
+"The operation failed, perhaps because Nightingale has run out of memory (RAM). This is
+probably due to a bug in Nightingale; contact AMNF for help."
+
+...and #13 has the same change. Make the same changes in 5.8.x => done.
+
+Arrrgh! Lots of problems now with MIDI files for David's Psalm 128-1, 2, 5, 6;
+Psalm 24- 1-6, 9,10; Psalm 117; and Hashkivenu 4 (now in folder MIDIFileWoes_Set2). From
+email to him of 19 Dec.:
+
+	...The only one of the imported MIDI files I looked at closely is Psalm 128-1, 2, 5, 6.
+	For it:
+
+	(1) Ngale thinks there are notes in the T and B parts that don't fit an 8th-note grid.
+	(2) Ngale gives the "HeapAlloc" error message repeatedly for track 5 (the B part).
+
+	Nonetheless, it opens the file and displays a score. It’s OK in most ways. However:
+
+	(3) Score Info says the original Ngale file contains 366 note attacks, but the Import
+		MIDI options window (for quantization, etc.) says it contains 364, and Score Info
+		after import agrees. So 2 disappeared in 1st stage of import.
+	(4) the tempo slows to qtr = 58 in m. 15; in the MIDI file, the change is on the last
+		beat of m. 10!
+	(5) The Tenor and Bass lines parts a measure late, and they're a measure behind
+		throughout.
+
+	I looked at the other three briefly, and I think Ngale had some parts starting a
+	measure or three late in all.
+
+I overlooked (1b) "Warning. rawSyncTab size 90 disagrees with docSyncTab size of 138".
+
+All of this done via Ngale 5.8.10 or .11. This is bizarre. MIDI files exported by Ngale
+haven't been used much, but Version History for Ngale 5.5 says "Fix bug (Issue #24) in
+MIDI file export where tempo changes after the first few are often ignored." That was with
+my violin concerto; I'm sure I would have noticed if any of the tempo changes were nowhere
+near where they were supposed to be! So was that bug introduced after 5.5? And could I have
+not noticed parts being a measure behind for the entire score? I doubt it!
+
+Does Ngale 6.0 behave the same way as 5.8 with these MIDI files? Yes. Weird.
+
+Does a much more complex MIDI file that used to be OK have these problems? Try
+1stMovement_Part3.mid of July 1 Aug.(?) 2017 w/ Ngale 6.0 =>
+
+	(3) for the original score, Ngale says 2648 note attacks, and Import MIDI options
+		window agrees, but Score Info after import says 2598 note attacks. So 50
+		disappeared, but in the _2nd_ stage of import!
+	(4) has six tempo marks in first two measures! Should be one in m. 1; the next in m. 5.
+	(1, 2, 5): no problem.
+
+That would have been created w/ Ngale 5.8b2 or thereabouts. How about David's MIDI files w/
+such an Ngale? I don't have 5.8b2, but open Psalm 128-1, 2, 5, 6.mid w/ 5.7 => issues #1,
+1b, 2, 3, 4, 5. -- also "rawSyncTab size 90 disagrees with docSyncTab size of 138" ?!
+Looks like Export MIDI File in Ngale 5.8 & 6.0 is the problem!
+
+With Ngale 6.0 B31+, (1) open Psalm 24- 1-6, 9,10; export MIDI file as
+Psalm 24- 1-6, 9,10N6p0.mid; import that => no problems! (2) open Psalm 128-1, 2, 5, 6;
+export MF as Psalm 128-1, 2, 5, 6_N6p0.mid; import that => no problems!! I dunno.

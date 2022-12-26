@@ -35,7 +35,7 @@ short CloseInputFile(FILE *f);
 Boolean ReadLine(char inBuf[], short maxChars, FILE *f);
 Boolean SaveTextToFile(Ptr pText, Str255 suggestedFileName, short promptStrID);
 
-short IIOpenInputFile(FSSpec *fsSpec, short *refNum);
+short IIOpenInputFile(FSSpec *fsSpec, short *refNum, Boolean readOnly);
 Boolean IIReadLine(char inBuf[], short maxChars, short refNum);
 short IICloseInputFile(short refNum);
 short IIRewind(short refNum);

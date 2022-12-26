@@ -310,11 +310,11 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			ch = (unsigned char)evt->message;
 			field = GetDialogKeyboardFocusItem(dlog);
-			/*
-			 * The Dialog Manager considers only EditText fields as candidates for being
-			 *	activated by the tab key, so handle tabbing from field to field ourselves
-			 *	so user can direct keystrokes to the pop-up as well as the EditText fields.
-			 */
+			
+			/* The Dialog Manager considers only EditText fields as candidates for being
+			   activated by the tab key, so handle tabbing from field to field ourselves
+			   so user can direct keystrokes to the pop-up as well as the EditText fields. */
+			   
 			if (ch=='\t') {
 				field = field==MAXMEAS_DI? MFDUMMY_DI : MAXMEAS_DI;
 				//popUpHilited = (field==MAXMEAS_DI)? False : True;
@@ -325,8 +325,7 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			}
 			else {
 				if (field==MFDUMMY_DI) {
-#if 11
-#else
+#ifdef NOMORE
 					ans = DurPopupKey(curPop, popKeys0dot, ch);
 					*itemHit = ans? MFSET_DUR_DI : 0;
 					HiliteGPopUp(curPop, True);
@@ -956,7 +955,7 @@ static Boolean OpenMIDIFile()
 Boolean	ImportMIDIFile(FSSpec *fsSpec)
 {
 	Boolean okay = False;
-	errCode =  FSpOpenDF (fsSpec, fsRdWrPerm, &infile);
+	errCode = FSpOpenDF(fsSpec, fsRdPerm, &infile);		/* Read-only is what we want */
 	if (errCode!=noError) goto Done;
 
 	errCode = GetEOF(infile,&eofpos);

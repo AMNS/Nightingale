@@ -836,7 +836,7 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 		}
 		sprintf(lStr, "fmsInputDevice=%d", doc->fmsInputDevice);
 		DrawTextLine(lStr);
-		sprintf(lStr, "(matchType=%d name=%#s)", doc->fmsInputDestination.basic.destinationType,
+		sprintf(lStr, "(matchType=%d name=%s)", doc->fmsInputDestination.basic.destinationType,
 					doc->fmsInputDestination.basic.name);
 		DrawTextLine(lStr);
 		
@@ -860,7 +860,7 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 		sprintf(lStr, "fmsOutputDevice=%d",
 			q->fmsOutputDevice);
 		DrawTextLine(lStr);
-		sprintf(lStr, "(matchType=%d name=%#s)",
+		sprintf(lStr, "(matchType=%d name=%s)",
 			q->fmsOutputDestination.basic.destinationType,
 			q->fmsOutputDestination.basic.name);
 		DrawTextLine(lStr);
@@ -1377,8 +1377,8 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(lStr, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
 
 	DrawTextLine(lStr);	q = GetPANOTE(qL);
-	sprintf(lStr, "nhSegment=%hd,%hd,%hd,%hd", q->nhSegment[0], q->nhSegment[1],
-			q->nhSegment[2], q->nhSegment[3]);
+	sprintf(lStr, "nhSegment=%hd,%hd,%hd,%hd,%hd,%hd", q->nhSegment[0], q->nhSegment[1],
+			q->nhSegment[2], q->nhSegment[3], q->nhSegment[4], q->nhSegment[5]);
 
 	DrawTextLine(lStr);
 	

@@ -64,7 +64,6 @@ static void ReportParseFailure(char *functionName, short errCode);
 
 /* Functions that call the Macintosh Toolbox */
 static short NotelistVersion(short refNum);
-static void PrintNotelistDS(void);
 static NLINK StoreString(char str[]);
 static NLINK StoreModifier(PNL_MOD pMod);
 static Boolean AllocNotelistMemory(void);
@@ -151,15 +150,21 @@ enum {
 
 Boolean ParseNotelistFile(Str255 /*fileName*/, FSSpec *fsSpec)
 {
-	Boolean		ok, printNotelist = True;
-	short		refNum;
+	Boolean	ok, printNotelist = True;
+	short	refNum;
 
-	short errCode = IIOpenInputFile(fsSpec,&refNum);
-	if (errCode != noErr) return False;
+	short errCode = IIOpenInputFile(fsSpec, &refNum, True);
+	if (errCode != noErr) {
+		char tmpCStr[256];
+		LogPrintf(LOG_WARNING, "Can't open the notelist file. errCode=%d  (ParseNotelistFile)\n",
+					errCode);
+		sprintf(tmpCStr, "Can't open the notelist file. errCode=%d.", errCode);
+		CParamText(tmpCStr, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return False;
+	}
 	
-#if CNTLKEYFORPRINTNOTELIST
 	if (!DETAIL_SHOW) printNotelist = False;
-#endif
 
 	WaitCursor();
 	if (!printNotelist)
@@ -177,7 +182,7 @@ Boolean ParseNotelistFile(Str255 /*fileName*/, FSSpec *fsSpec)
 
 	ok = PostProcessNotelist();
 
-#if PRINTNOTELIST
+#ifdef NOTYET
 	if (printNotelist) PrintNotelistDS();
 #endif
 
@@ -1832,10 +1837,10 @@ Err:
 	printf(gInBuf);
 	printf("error stage %d", errStage);
 	
-	/* There's something wrong with the Notelist header structured comment. Say so,
-	 * but if user gives the "secret code", go ahead and open it anyway, assuming a
-	 * recent version.
-	 */
+	/* There's something wrong with the Notelist header structured comment. Say so, but
+	   if user gives the "secret code", go ahead and open it anyway, assuming a recent
+	   version. */
+	   
 	GetIndCString(fmtStr, NOTELIST_STRS, index);
 	GoodStrncpy(errString, gInBuf, 30);
 	sprintf(strBuf, fmtStr, errString);
@@ -1848,7 +1853,8 @@ Err:
 
 /* ------------------------------------------------------------------- PrintNotelistDS -- */
 
-#if PRINTNOTELIST
+#ifdef NOTYET
+static void PrintNotelistDS(void);
 static void PrintNotelistDS(void)
 {
 	long		time, len;
@@ -1973,7 +1979,7 @@ static void PrintNotelistDS(void)
 	} while (p<z);
 	HUnlock(gHStringPool);
 }
-#endif /* #if PRINTNOTELIST */
+#endif
 
 
 /* ----------------------------------------------------------------------- StoreString -- */

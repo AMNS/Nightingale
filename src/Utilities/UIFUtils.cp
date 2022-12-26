@@ -42,7 +42,7 @@
 /* --------------------------------------------------------------------------- Cursors -- */
 
 static void FixCursorLogPrint(char *str);
-static void FixCursorLogPrint(char *str) 
+static void FixCursorLogPrint(char * /* str */) 
 {
 #ifdef DEBUG_CURSOR
 	LogPrintf(LOG_DEBUG, str);
@@ -97,7 +97,7 @@ void FixCursor()
 	/* <currentCursor> is a global that Nightingale uses elsewhere to keep track of
 	   the cursor. <newCursor> is a temporary variable used solely to set the cursor
 	   here. They'll always be the same except when a modifier key is down that forces
-	   a specific cursor temporarily -- at the moment, only the <genlDragCursor>. */
+	   a specific cursor temporarily: at the moment, only the <genlDragCursor>. */
 	   
 	GetMouse(&mousept);
 	globalpt = mousept;
@@ -230,11 +230,9 @@ void FixCursor()
 
 /* ----------------------------------------------------------------------------- Menus -- */
 
-/* Enable or disable a menu item. FIXME: <enable> should be Boolean. In fact, in the vast
-majority of the well-over-100 calls to it, it already is, and changing the declaration
-here shouldn't cause any problems. Why not change it?  --DAB, March 2020 */
+/* Enable or disable a menu item. */
 
-void XableItem(MenuHandle menu, short item, short enable)
+void XableItem(MenuHandle menu, short item, Boolean enable)
 {
 	if (enable) EnableMenuItem(menu,item);
 	 else		DisableMenuItem(menu,item);
@@ -1131,7 +1129,7 @@ const char *NameHeapType(
 		case SLURtype:		ps = (friendly? "slur and tie" : "SLUR"); break;
 		case GRSYNCtype:	ps = (friendly? "grace note" : "GRSYNC"); break;
 		case TEMPOtype:		ps = (friendly? "tempo/MM" : "TEMPO"); break;
-		case SPACERtype:		ps = (friendly? "spacer" : "SPACER"); break;
+		case SPACERtype:	ps = (friendly? "spacer" : "SPACER"); break;
 		case OBJtype:		ps = "OBJECT"; break;
 		default:			ps = "**UNKNOWN**";
 	}

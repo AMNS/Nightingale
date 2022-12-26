@@ -250,7 +250,7 @@ LINK HeapAlloc(HEAP *heap, unsigned short nObjs)
 		return(NILINK);
 	}
 	if (heap->objSize == 0) {
-		MayErrMsg("Object size is 0.  heap=%ld  (HeapAlloc)", heap-Heap);
+		MayErrMsg("Object size is zero.  heap=%ld  (HeapAlloc)", heap-Heap);
 		return(NILINK);
 	}
 	

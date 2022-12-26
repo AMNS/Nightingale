@@ -1,10 +1,10 @@
-/****************************************************************************************
+/******************************************************************************************
 *	FILE:	InternalInput.c (formerly called FileInput.c)
 *	PROJ:	Nightingale
 *	DESC:	Routines for creating Nightingale objects via notelist file, AppleScript,
 *			etc., rather than via Nightingale's user interface. Written by John Gibson.
 *			See also NUIxxx() ("non-UI") functions. (Perhaps those should be here?)
-/****************************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -128,8 +128,7 @@ Boolean IIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsO
 	aKeySigL = FirstSubLINK(keySigL);
 	for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL)) {
 		if (KeySigSTAFF(aKeySigL)==staffn) {
-			if (sharpsOrFlats)
-				KeySigVIS(aKeySigL) = True;
+			if (sharpsOrFlats) KeySigVIS(aKeySigL) = True;
 
 			aKeySig = GetPAKEYSIG(aKeySigL);
 			KEYSIG_COPY((PKSINFO)aKeySig->KSItem, &oldKSInfo);	/* Copy old keysig. info */
@@ -189,8 +188,7 @@ LINK IIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType)
 	
 	NewObjInit(doc, MEASUREtype, &sym, singleBarInChar, ANYONE, &context);
 	measL = CreateMeasure(doc, insertBeforeL, -1, sym, context);
-	if (barlineType!=BAR_SINGLE)
-		SetMeasureSubType(measL, barlineType);
+	if (barlineType!=BAR_SINGLE) SetMeasureSubType(measL, barlineType);
 
 	return measL;
 }
@@ -1497,13 +1495,18 @@ Boolean ReadLine(char inBuf[], short maxChars, FILE *f)
 }
 
 
-short IIOpenInputFile(FSSpec *fsSpec, short *refNum)
+/* --------------------------------------------------------------------- Miscellaneous -- */
+
+short IIOpenInputFile(FSSpec *fsSpec, short *refNum, Boolean readOnly)
 {
 	short errCode;
 	
-	errCode = FSpOpenDF (fsSpec, fsRdWrPerm, refNum );		/* Open the file */
-	if (errCode == fLckdErr || errCode == permErr) {
-		errCode = FSpOpenDF (fsSpec, fsRdPerm, refNum );	/* Try again: open the file read-only */
+	if (readOnly)
+		errCode = FSpOpenDF(fsSpec, fsRdPerm, refNum);			/* Open the file */
+	else {
+		errCode = FSpOpenDF(fsSpec, fsRdWrPerm, refNum);		/* Open the file */
+		if (errCode == fLckdErr || errCode == permErr)
+			errCode = FSpOpenDF(fsSpec, fsRdPerm, refNum);		/* Try again: open the file read-only */
 	}
 	
 	return errCode;

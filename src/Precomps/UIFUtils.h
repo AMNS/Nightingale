@@ -7,7 +7,7 @@
 void		WaitCursor(void);
 void		ArrowCursor(void);
 void		FixCursor(void);
-void		XableItem(MenuHandle menu, short item, short enable);
+void		XableItem(MenuHandle menu, short item, Boolean enable);
 void		UpdateMenu(MenuHandle menu, Boolean enable);
 void		UpdateMenuBar(void);
 
