@@ -43,7 +43,7 @@ static Boolean	EndNote(short, short, long);
 
 static Boolean WriteChunkStart(DoubleWord chunkType, DoubleWord len)
 {
-	long byteCount; DoubleWord data[2];
+	long byteCount;  DoubleWord data[2];
 	
 	GetFPos(fRefNum, &lenPosition);
 	lenPosition += sizeof(DoubleWord);
@@ -370,12 +370,8 @@ static Byte GetSustainCtrlVal(Boolean susOn)
 {
 	Byte ctrlVal;
 	
-	if (susOn) {
-		ctrlVal = 127;
-	}
-	else {
-		ctrlVal = 0;
-	}
+	if (susOn)	ctrlVal = 127;
+	else		ctrlVal = 0;
 	return ctrlVal;
 }
 
@@ -455,6 +451,7 @@ static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn
 
 // TODO: from MIDIPlay.c
 
+#ifdef NOMORE
 static Boolean ValidPanSetting(Byte panSetting) 
 {
 	SignedByte sbpanSetting = (SignedByte)panSetting;
@@ -462,7 +459,6 @@ static Boolean ValidPanSetting(Byte panSetting)
 	return sbpanSetting >= 0;
 }
 
-#ifdef NOMORE
 static void WriteAllMIDIPans(Document *doc, Byte *partChannel, long startTime) 
 {	
 	Byte ctrlNum = MPAN;
@@ -681,7 +677,7 @@ static Boolean WriteTimingTrack(
 	measureTime = 0L;
 	prevTempoTime = -1L;
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
-if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteTimingTrack: pL=%u \n", pL);
+		if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteTimingTrack: pL=%u\n", pL);
 		switch (ObjLType(pL)) {
 			case MEASUREtype:
 				measureTime = MeasureTIME(pL);
@@ -846,7 +842,7 @@ static short WriteMFNotes(
 	Boolean		sustainOffPosted = False;
 	Boolean		panPosted = False;
 		
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteMFNotes: staff=%d trkLastEndTime=%d\n", \
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "staff=%d trkLastEndTime=%d  (WriteMFNotes)\n", \
 								staffn, trkLastEndTime);
 
 	anyStaff = (staffn==ANYONE);
@@ -963,7 +959,7 @@ static short WriteMFNotes(
 						if (USEPARTVELO) useVelo += partVelo[partn];
 						if (useVelo<1) useVelo = 1;
 						if (useVelo>MAX_VELOCITY) useVelo = MAX_VELOCITY;
-if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteMFNotes: pL=%u aNoteL=%u velOffset=%d ONVELOCITY=%d useVelo=%d\n",
+if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, " pL=%u aNoteL=%u velOffset=%d ONVELOCITY=%d useVelo=%d  (WriteMFNotes)\n",
 pL, aNoteL, doc->velOffset, NoteONVELOCITY(aNoteL), useVelo);
 						
 						playDur = TiedDur(doc, pL, aNoteL, False);
@@ -1219,7 +1215,7 @@ static short CountZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStar
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					if (NoteREST(aNoteL)) continue;
 					
-					/* If a zero on-velocity note is a chord slash, it's not really
+					/* If a zero on-velocity note is a chord slash, it's not very
 					   interesting; else count it. */
 					   
 					if (NoteONVELOCITY(aNoteL)==0 && NoteAPPEAR(aNoteL)!=SLASH_SHAPE) {

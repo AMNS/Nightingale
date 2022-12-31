@@ -654,10 +654,12 @@ static Boolean GetMIDIFileInfo(
 				)
 {
 	Byte midiFileFormat;
-	long fPos;
+	long fPos, qTrLPoint;
 	short nNotes, qAllLDur, nGoodTrs, t, i, nChanUsed;
 	short tsCount, nTSBad;
 	char fmtStr[256];
+
+	LogPrintf(LOG_INFO, "Getting info on and checking the MIDI file...  (GetMIDIFileInfo)\n"); 
 
 	/* Read and check the MIDI file header. */
 	
@@ -682,15 +684,20 @@ static Boolean GetMIDIFileInfo(
 
 		trackInfo[t].okay = True;
 		if (GetTrackInfo(&nTrackNotes[t], &nTooLong[t], chanUsed[t], &qTrLDur[t],
-								&qTrTriplets[t], &lastTrEvent[t])) {
+							&qTrLPoint, &qTrTriplets[t], &lastTrEvent[t])) {
 
-			/* A comment from the late 1990's or so: Timing tracks with an end time of zero
-			   seem to be somewhat common: cf. Peter Stone. Peter's seem to cause no
-			   problems, but one produced by Nightingale, I'm not sure how, and starting
-			   with a very long note, has the very long note truncated to almost nothing.
-			   So it's not clear whether to warn about them, but we will. */
+			if (DETAIL_SHOW) {
+				if (nTrackNotes[t]<=0)	LogPrintf(LOG_DEBUG, "Track %d contains no notes.  (GetMIDIFileInfo)\n",
+													t);
+				else					LogPrintf(LOG_DEBUG, "Track %d finest attack grid point: qTrLDur=%d at time %ld  (GetMIDIFileInfo)\n",
+													t, qTrLDur[t], qTrLPoint);
+			}
+
+			/* Timing tracks with an end time of zero in otherwise valid MIDI files used
+			   to be somewhat common: cf. Peter Stone in the 1990s. So the below check
+			   might produce unwarranted complaints. */
 			   
-			if (t!=1 && lastTrEvent[t]==0) {
+			if (t!=1 && lastTrEvent[t]==0) {	
 				GetIndCString(fmtStr, MIDIFILE_STRS, 38);    /* "Track %d has an ending time of zero: this MIDI file may be damaged." */
 				sprintf(strBuf, fmtStr, t); 
 				CParamText(strBuf, "", "", "");

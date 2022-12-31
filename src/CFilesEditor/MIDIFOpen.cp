@@ -52,7 +52,7 @@ static void InitMFEventQue(DoubleWord, Byte);
 static void SaveMFEventQue(DoubleWord *, Byte *);
 static DoubleWord GetDeltaTime(Byte [], DoubleWord *);
 static short GetNextMFEvent(DoubleWord *, Byte [], Boolean *);
-static Boolean FindNoteOff(DoubleWord, Boolean, Byte [], Boolean *);
+static Boolean GetNoteOff(DoubleWord, Boolean, Byte [], long *pDuration);
 
 /* -------------------------------------------------------------------------------------- */
 
@@ -69,9 +69,7 @@ Byte statusByteMF=0;				/* MIDI file track status in case of running status */
 
 #define DBG DETAIL_SHOW
 
-#define TEMPO_WINDOW 65
-
-//#define PUBLIC_VERSION_1
+#define TEMPO_WINDOW 65				/* in units given by <timeBase> in file header */
 
 /* ----------------------------------------------------------------- Utility functions -- */
 
@@ -489,18 +487,18 @@ Boolean MayBeNoteOff(short locOff)
 }
 
 
-/* ----------------------------------------------------------------------- FindNoteOff -- */
-/* Find the Note Off for the Note On whose first data byte, i.e., the byte holding the
+/* ------------------------------------------------------------------------ GetNoteOff -- */
+/* Get the Note Off for the Note On whose first data byte, i.e., the byte holding the
 note number, is pChunkMF[loc]; optionally mark it so it won't be found again so, if there
 are multiple notes with the same note number simultaneously in the track, one Note Off
 will be needed for each one. This option would be useful only for very strange MIDI
 files: see comments on InsertNoteOffLoc. */
 
-static Boolean FindNoteOff(
+static Boolean GetNoteOff(
 			DoubleWord loc,
 			Boolean oneEndsOne,		/* True=one Note Off ends only one current note w/its note no. */
 			Byte noteOffData[],		/* Byte 0=off velocity, 1+2=duration */
-			Boolean *tooLong		/* Output: is the note longer than the longest we can handle? */
+			long *pDuration			/* Output: is the note longer than the longest we can handle? */
 			)
 {
 	Byte noteNumber, command;
@@ -510,17 +508,12 @@ static Boolean FindNoteOff(
 	Byte eventData[255];
 	Boolean okay=False, runStatus;
 	
-	*tooLong = False;
 	noteNumber = pChunkMF[loc];
 	
 	SaveMFEventQue(&oldLoc, &oldStatus);
 	InitMFEventQue(loc+2, MNOTEON);									/* May be unnecessary */
 	while (GetNextMFEvent(&deltaTime, eventData, &runStatus)==OP_COMPLETE) {
 		duration += deltaTime;
-		if (duration>65535L) {
-			*tooLong = True;
-			duration = 65535L;
-		}
 
 		command = MCOMMAND(eventData[0]);
 		if ( command==MNOTEOFF
@@ -533,13 +526,13 @@ static Boolean FindNoteOff(
 				/*	Optionally mark this Note Off so it won't be found again. */
 
 				if (oneEndsOne) InsertNoteOffLoc(loc, locMF-2);
-
 				okay = True;
 				break;
 			}
 		}
 	}
 	
+	*pDuration = duration;
 	InitMFEventQue(oldLoc, oldStatus);
 	return okay;
 }
@@ -550,8 +543,8 @@ However, if triplets are allowed and the duration can be represented as one, ins
 return the negative duration code. If there is no corresponding duration code,
 return UNKNOWN_L_DUR. */
 
-short Time2LDurQuantum(long, Boolean);
-short Time2LDurQuantum(long time, Boolean allowTrips)
+static short Time2LDurQuantum(long, Boolean);
+static short Time2LDurQuantum(long time, Boolean allowTrips)
 {
 	short qLDur, divisor, qLTry, tripPDurUnit;
 
@@ -569,6 +562,7 @@ short Time2LDurQuantum(long time, Boolean allowTrips)
 	}
 		
 	/* If triplets are allowed, try triplet durations, starting with the shortest. */
+	
 	tripPDurUnit = (2*PDURUNIT)/3;
 	if (allowTrips && (time % tripPDurUnit==0)) {
 		divisor = tripPDurUnit; qLTry = MAX_L_DUR;
@@ -581,7 +575,7 @@ short Time2LDurQuantum(long time, Boolean allowTrips)
 	return -qLDur;
 	}
 
-	/* Couldn't find a match, so... */
+	/* We couldn't find a match, so... */
 	
 	return UNKNOWN_L_DUR;
 }
@@ -602,16 +596,18 @@ Boolean GetTrackInfo(
 				short *nTooLong,
 				Boolean chanUsed[MAXCHANNEL],
 				short *quantumLDur,	/* code for coarsest grid that fits all attacks, or UNKNOWN_L_DUR=none */
+				long *quantumLPt,	/* time where attack requiring finest grid first occurs */
 				Boolean *trip,		/* need triplets to fit all attacks? */
 				long *lastEvent		/* in ticks */
 				)
 {
-	DoubleWord tickTime, deltaTime;
+	DoubleWord tickTime, deltaTime, qLPoint;
 	Byte eventData[255], dummy[3];
 	Byte command;
+	long duration;
 	short qLDur, qLDHere, i, opStatus;
 	short totCount=0;
-	Boolean runStatus, tooLong, okay=False, trips=False;
+	Boolean runStatus, okay=False, trips=False;
 
 	for (i = 0; i<MAXCHANNEL; i++)
 		chanUsed[i] = False;
@@ -630,15 +626,17 @@ Boolean GetTrackInfo(
 		
 		switch (command) {
 			case MNOTEON:
-				if (FindNoteOff(locMF-2, False, dummy, &tooLong)) {
+				if (GetNoteOff(locMF-2, False, dummy, &duration)) {
 					chanUsed[MCHANNEL(eventData[0])] = True;
 					totCount++;
-					if (tooLong) (*nTooLong)++;
+					if (duration>65535L) (*nTooLong)++;
 					if  (qLDur!=UNKNOWN_L_DUR) {
 						qLDHere = Time2LDurQuantum(tickTime, True);
 						if (qLDHere<0) trips = True;
-						if (qLDHere==UNKNOWN_L_DUR)	qLDur = UNKNOWN_L_DUR;
-						else						qLDur = n_max(qLDur, qLDHere);
+						if (qLDHere==UNKNOWN_L_DUR || qLDHere>qLDur) {
+							qLDur = qLDHere;
+							qLPoint = tickTime;
+						}
 					}
 					break;
 				}
@@ -657,6 +655,7 @@ Boolean GetTrackInfo(
 
 Done:
 	*quantumLDur = qLDur;
+	*quantumLPt = qLPoint;
 	*noteCount = totCount;
 	*trip = trips;
 	*lastEvent = tickTime;
@@ -759,7 +758,8 @@ Word MF2MIDNight(
 	Byte *pChunk;
 	Byte eventData[255];
 	Byte command;
-	Boolean runStatus, tooLong;
+	long duration;
+	Boolean runStatus;
 	char fmtStr[256];
 
 	/* Allow 75% plus a bit more extra space: that seems always to be enough, but it's
@@ -802,7 +802,7 @@ Word MF2MIDNight(
 				BlockMove(&tickTime, pChunk+outLoc, sizeof(long));
 				outLoc += sizeof(long);
 	
-				if (FindNoteOff(locMF-2, False, &eventData[3], &tooLong)) {	/* Get off vel. and dur. */
+				if (GetNoteOff(locMF-2, False, &eventData[3], &duration)) {	/* Get off vel. and dur. */
 					BlockMove(eventData, pChunk+outLoc, MN_NOTELEN);
 					
 					/* Round up to an even (word) address for the benefit of 68000s.
@@ -1001,13 +1001,13 @@ static LINK MFNewMeasure(Document *doc, LINK pL)
 }
 
 
-/* Set the timestamp of every Measure in the score to reflect the notated duration
-of the previous Measure, paying no attention to the contents of the Measures.
-Optionally restart timestamps from 0 at a specified point. */
+/* Set the timestamp of every Measure in the score to reflect the notated duration of
+the previous Measure, paying no attention to the contents of the Measures. Optionally
+restart timestamps from 0 at a specified point. */
 
 static void FixTStampsForTimeSigs(
 					Document *doc,
-					LINK resetL)		/* Reset timestamps to 0 at 1st Measure at or after this, or NILINK */
+					LINK resetL)		/* Reset timestamps to 0 at 1st Meas. at or after this, or NILINK */
 {
 	long measDur;
 	LINK measL, nextMeasL, resetML;
@@ -1062,8 +1062,8 @@ static Boolean MFAddMeasures(Document *doc, short maxMeasures, long *pStopTime)
 
 		firstMeas = False;
 		
-		/* If this is the first time signature, add one extra Measure, since the
-		   second Measure object is removed at the end of Track2Night. */
+		/* If this is the first time signature, add one extra Measure object, since the
+		   second Measure is removed at the end of Track2Night. */
 			
 		count = measInfoTab[i].count;
 		if (i==0) count++;
@@ -1859,18 +1859,18 @@ static void InitTrack2Night(Document *doc, long *pMergeTabSize, long *pOneTrackT
 }
 
 
-#define DEBUG_REST if (DBG)	LogPrintf(LOG_DEBUG, " track=%d time=%ld REST fillTime=%ld mult=%d\n",	\
+#define DEBUG_REST if (DBG)	LogPrintf(LOG_DEBUG, " track=%d time=%ld rest fillTime=%ld mult=%d\n",	\
 							track, theNote.startTime, fillTime, mult)
 
 #define DEBUG_NOTE if (DBG)	LogPrintf(LOG_DEBUG, "%ctrack=%d time=%ld noteNum=%d dur=%ld mult=%d\n", \
 							(chordWithLast? '+' : ' '), track,										 \
 							theNote.startTime, theNote.noteNumber, theNote.duration, mult)
 
-#define DEBUG_META if (DBG)	LogPrintf(LOG_DEBUG, " track=%d time=%ld METAEVENT type=0x%x%s\n",	\
+#define DEBUG_META if (DBG)	LogPrintf(LOG_DEBUG, " track=%d time=%ld Metaevent type=0x%x%s\n",	\
 							track, (long)(MFTicks2NTicks(p->tStamp)), p->data[1],				\
 							(p->data[1]==0x51? " (TEMPO)" : "") );
 
-#define DEBUG_PGM  if (DBG)	LogPrintf(LOG_DEBUG, " track=%d time=%ld PGMCHANGE type=0x%x\n",	\
+#define DEBUG_PGM  if (DBG)	LogPrintf(LOG_DEBUG, " track=%d time=%ld PgmChange type=0x%x\n",	\
 							track, (long)(MFTicks2NTicks(p->tStamp)), p->data[1]);
 
 #define DEBUG_UNK  if (DBG)	LogPrintf(LOG_DEBUG, " track=%d time=%ld (UNKNOWN) type=0x%x\n",	\
@@ -2137,14 +2137,13 @@ static short Track2Night(
 		measL = SSearch(doc->headL, MEASUREtype, GO_RIGHT);
 		firstL = RightLINK(measL);
 
-		/*
-		 *	If quantization is called for, quantize and rhythmically clarify the notes and
-		 *	chords we just generated; in any case, build Syncs and get information for
-		 *	merging into <newSyncTab> ??REWRITE.
-		 */
+		/* If quantization is called for, quantize and rhythmically clarify the notes and
+		   chords we just generated; in any case, build Syncs and get information for
+		   merging into <newSyncTab> ??REWRITE. */
+		   
 		if (DBG && voice==1) {
 			DPrintMeasTab("X", measInfoTab, measTabLen);
-			LogPrintf(LOG_INFO, "quantum=%d tripBias=%d timeOff=%d\n",
+			LogPrintf(LOG_INFO, "quantum=%d tripBias=%d timeOff=%d  (Track2Night)\n",
 								quantum, tripletBias, timeOffset);
 		}
 		

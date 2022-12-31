@@ -912,13 +912,17 @@ Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
 void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 {
 	Byte command;
-	char strDisp[256];
+	char strDisp[256], strMeta[64];
 	
+	strcpy(strMeta, "");
 	command = MCOMMAND(statusByte);
 	switch (command) {
 		case MNOTEON:
+			if (!MORE_DETAIL_SHOW) return;
+			KludgeOS10p5Delay4Log(False);			/* Avoid bug in OS 10.5/10.6 Console */
 			strcpy(strDisp, "NoteOn"); break;
 		case MNOTEOFF:
+			if (!MORE_DETAIL_SHOW) return;
 			strcpy(strDisp, "NoteOff"); break;
 		case MPOLYPRES:
 			strcpy(strDisp, "PolyPressure"); break;
@@ -938,12 +942,24 @@ void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 			   
 			strcpy(strDisp, "SysEx"); break;
 		case METAEVENT:									/* No. of data bytes is in the command */
-			strcpy(strDisp, "Metaevent"); break;
+			strcpy(strDisp, "Metaevent");
+			switch (eventData1) {
+				case ME_SEQTRACKNAME: strcpy(strMeta, "SEQ/TRACK NAME"); break;
+				case ME_EOT: strcpy(strMeta, "END-OF-TRACK"); break;
+				case ME_TEMPO: strcpy(strMeta, "TEMPO"); break;
+				case ME_TIMESIG: strcpy(strMeta, "TIMESIG"); break;
+				case ME_KEYSIG: strcpy(strMeta, "KEYSIG"); break;
+				default: strcpy(strMeta, ""); break;
+			}
+			break;
 		default:
 			strcpy(strDisp, "(unknown)"); break;
 	}
-	LogPrintf(LOG_INFO, "deltaT=%ld %s data=%u (0x%x)  (DisplayMIDIEvent)\n", deltaT, strDisp,
+	LogPrintf(LOG_DEBUG, "deltaT=%ld %s data=%u=0x%x", deltaT, strDisp,
 				eventData1, eventData1);
+	if (strlen(strMeta)>0) LogPrintf(LOG_INFO, ":%s", strMeta);
+	//if (command==METAEVENT && eventData1==ME_TEMPO) LogPrintf(LOG_INFO, ", TEMPO");
+	LogPrintf(LOG_DEBUG, "  (DisplayMIDIEvent)\n");
 }
 
 

@@ -309,7 +309,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		if (errType) { errInfo = CM_Call; goto Error; }
 	}
 	doc->cmInputDevice = config.cmDfltInputDev;
-	SleepMS(3);			/* Avoid bug in OS 10.5/10.6 Console! See comment in ConvertObjSubobjs() */
+	KludgeOS10p5Delay4Log(False);					/* Avoid bug in OS 10.5/10.6 Console */
 	LogPrintf(LOG_INFO, "cmInputDevice=%d cmPartDeviceList[]=%d,%d  (OpenFile)\n",
 				doc->cmInputDevice, doc->cmPartDeviceList[1], doc->cmPartDeviceList[2]);
 

@@ -915,15 +915,8 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 		}
 		
 #ifdef DEBUG_LOOP
-		/* Without the call to SleepMS(), some of the output from the following LogPrintf
-		   is likely to be lost (at least with OS 10.5 and 10.6)! See the comment on this
-		   issue in ConvertObjSubobjs(). */
-		   
-		if (firstCall && n==1) {
-			LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING EACH TIME THRU LOOP TO AID DEBUGGING.  (MoveObjSubobjs) ******\n");
-			firstCall = False;
-		}
-		SleepMS(3);
+		KludgeOS10p5Delay4Log(firstCall && n==1);				/* Avoid bug in OS 10.5/10.6 Console */
+		firstCall = False;
 		LogPrintf(LOG_DEBUG, "MoveObjSubobjs: n=%d curType=%d src=%lx dst=%lxlen=%d newLen=%d\n",
 					n, curType, src, dst, len, newLen);
 #endif

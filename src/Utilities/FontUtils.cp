@@ -34,11 +34,7 @@ void DisplayAvailableFonts(void)
 		Pstrcpy((unsigned char *)fontFNameC, fontFamilyName);
 		LogPrintf(LOG_DEBUG, "DisplayAvailableFonts: fondID=%d fontFamilyName='%s'\n",
 						fontFamily, PToCString((unsigned char *)fontFNameC));
-						
-		/* Sidestep weird bug/limitation of OS 10.5 and 10.6 Console utility. See
-		   comments in ConvertObjSubobjs(). */
-	   
-		SleepMS(3);
+		KludgeOS10p5Delay4Log(False);					/* Avoid bug in OS 10.5/10.6 Console */
 	}
 }
 

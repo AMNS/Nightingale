@@ -309,7 +309,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 /* MIDI File-handling files */
 
 	Boolean	GetTimingTrackInfo(short *, short *, short *, long *);
-	Boolean	GetTrackInfo(short *, short *, Boolean [], short *, Boolean *, long *);
+	Boolean	GetTrackInfo(short *, short *, Boolean [], short *, long *, Boolean *, long *);
 	Boolean	MFRespAndRfmt(Document *, short);
 	Word	MF2MIDNight(Byte **);
 	short	MIDNight2Night(Document *, TRACKINFO [], short, short, Boolean, Boolean, Boolean,

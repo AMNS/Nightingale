@@ -208,7 +208,7 @@ if it's really a problem (and fix it) or not (and remove this code)! */
 		*(LINK *)p = i+1;
 
 		if (DETAIL_SHOW && DEBUG_CLOBBER && i-(heap->nObjs)<3) {
-			SleepMS(3);
+			KludgeOS10p5Delay4Log(False);				/* Avoid bug in OS 10.5/10.6 Console */
 			DHexDump(LOG_DEBUG, "    ExpandFreeList2", (unsigned char *)p, heap->objSize+4, 4, 16, False);
 		}
 

@@ -601,8 +601,10 @@ enum {								/* graphicType values: */
 	GRLastType=GRSusPedalUp
 };
 
-/* Our internal codes for sustain on/off. FIXME: Should these be here or in a header file
- (MIDIGeneral.h)? (Are these really MIDI specific, or do they apply to notation too?) */
+/* Our internal codes for sustain on/off. NB: As of v. 6.0, these are redundant. They're
+stored in the Pedal Down and Pedal Up GRAPHICs; but those are automatically interpreted
+as Sustain On and Sustain Off. But the concept of sustaining is more general, and we might
+care some day, so it may be worth keeping them around. */
 
 #define MIDISustainOn	127
 #define MIDISustainOff	0

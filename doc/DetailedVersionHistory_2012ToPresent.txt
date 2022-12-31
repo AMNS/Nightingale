@@ -3853,3 +3853,13 @@ Nightingale! Affects NObjTypes.h; Browser, Objects.
 Minor changes. Affects info.plist, Notelist.h, UIFUtils.h; Browser, Heaps, InternalInput,
 MIDIFOCmd, MIDIFOpen, NotelistOpen, NotelistParse, RTRhythmDur, UIFUtils.
 
+----------------------------------------------------------------------------------------- B32
+
+26 - 31 Dec.
+
+Minor changes: enhanced diagnostic info reporting for Import MIDI File, replaced calls to
+SleepMS(3) with calls to new function KludgeOS10p5Delay4Log(), etc. Affects info.plist,
+NightTemplates.h, NObjTypes.h, Utility.h; Browser, FileConversion, FileOpen, FileSave,
+FontUtils, HeapFileIO, Heaps, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIUtils, Utility.
+
+----------------------------------------------------------------------------------------- B33

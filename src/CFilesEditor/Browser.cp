@@ -834,16 +834,11 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 			sprintf(lStr, "  (%d) name='%s' ID=%d", i, string, doc->fontTable[i].fontID);
 			DrawTextLine(lStr);
 		}
-		sprintf(lStr, "fmsInputDevice=%d", doc->fmsInputDevice);
-		DrawTextLine(lStr);
-		sprintf(lStr, "(matchType=%d name=%s)", doc->fmsInputDestination.basic.destinationType,
-					doc->fmsInputDestination.basic.name);
-		DrawTextLine(lStr);
 		
 		sprintf(lStr, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 		DrawTextLine(lStr);
 	
-		if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
+		if (index+1>LinkNENTRIES(pL)) return;					/* should never happen */
 
 		for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPARTINFOL(qL)) ;
 	
@@ -856,13 +851,6 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 		DrawTextLine(lStr);	q = GetPPARTINFO(qL);
 		sprintf(lStr, "patch=%d chan=%d name='%s'",
 			q->patchNum, q->channel, q->name);
-		DrawTextLine(lStr);
-		sprintf(lStr, "fmsOutputDevice=%d",
-			q->fmsOutputDevice);
-		DrawTextLine(lStr);
-		sprintf(lStr, "(matchType=%d name=%s)",
-			q->fmsOutputDestination.basic.destinationType,
-			q->fmsOutputDestination.basic.name);
 		DrawTextLine(lStr);
 	}
 	

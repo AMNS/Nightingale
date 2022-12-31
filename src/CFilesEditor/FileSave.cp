@@ -360,7 +360,7 @@ static short WriteFile(Document *doc, short refNum)
 	errType = FSWrite(refNum, &count, &cmDevSize);
 	if (errType) return CM_Call;
 	errType = FSWrite(refNum, &cmDevSize, &(doc->cmPartDeviceList[0]));
-	SleepMS(3);			/* Avoid bug in OS 10.5/10.6 Console! See comment in ConvertObjSubobjs() */
+	KludgeOS10p5Delay4Log(False);					/* Avoid bug in OS 10.5/10.6 Console */
 	LogPrintf(LOG_INFO, "cmPartDeviceList[]=%d,%d  (WriteFile)\n", doc->cmPartDeviceList[1],
 				doc->cmPartDeviceList[2]);
 
