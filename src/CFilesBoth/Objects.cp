@@ -593,12 +593,12 @@ LINK DuplicNC(Document *doc, LINK syncL, short voice)
 
 /* ------------------------------------------------------------- InitObject, SetObject -- */
 
-void InitObject(LINK link, LINK left, LINK right, DDIST xd, DDIST yd, Boolean selected,
+void InitObject(LINK objL, LINK left, LINK right, DDIST xd, DDIST yd, Boolean selected,
 					Boolean visible, Boolean soft)
 {
 	PMEVENT p;
 	
-	p = GetPMEVENT(link);
+	p = GetPMEVENT(objL);
 	p->left = left;
 	p->right = right;
 	p->tweaked = False;
@@ -606,16 +606,16 @@ void InitObject(LINK link, LINK left, LINK right, DDIST xd, DDIST yd, Boolean se
 	p->spareFlag = False;
 	p->ohdrFiller1 = 0;
 	p->ohdrFiller2 = 0;
-	SetObject(link, xd, yd, selected, visible, soft);
+	SetObject(objL, xd, yd, selected, visible, soft);
 }
 
 
-void SetObject(LINK link, DDIST xd, DDIST yd, Boolean selected, Boolean visible,
+void SetObject(LINK objL, DDIST xd, DDIST yd, Boolean selected, Boolean visible,
 				Boolean soft)
 {
 	PMEVENT p;
 	
-	p = GetPMEVENT(link);
+	p = GetPMEVENT(objL);
 	p->xd = xd;
 	p->yd = yd;
 	p->selected = selected;
@@ -829,7 +829,7 @@ PushLock(NOTEheap);
 		aNote->yqpit = yqpit-halfLn2qd(midCHalfLn);
 		aNote->accident = accident;
 		effectiveAcc = InsNoteFixAccs(doc, syncL, staffn, 		/* Handle accidental context */
-												halfLn-midCHalfLn, accident);
+											halfLn-midCHalfLn, accident);
 												
 		/* Set MIDI note number; if it's within an octave sign, include the offset. */
 		
@@ -1123,36 +1123,22 @@ void SetupKeySig(LINK aKeySigL, short sharpsOrFlats)	/* >0 = sharps, <0 = flats 
 	aKeySig->nKSItems = nItems = ABS(sharpsOrFlats);
 
 	if (sharpsOrFlats>0) {
-		if (nItems > 0)
-			AddKSItem(aKeySigL, True, 0, F);					/* sharp on F */
-		if (nItems > 1)
-			AddKSItem(aKeySigL, True, 1, C);					/* sharp on C */
-		if (nItems > 2)
-			AddKSItem(aKeySigL, True, 2, G);					/* sharp on G */
-		if (nItems > 3)
-			AddKSItem(aKeySigL, True, 3, D);					/* sharp on D */
-		if (nItems > 4)
-			AddKSItem(aKeySigL, True, 4, A);					/* sharp on A */
-		if (nItems > 5)
-			AddKSItem(aKeySigL, True, 5, E);					/* sharp on E */
-		if (nItems > 6)
-			AddKSItem(aKeySigL, True, 6, B);					/* sharp on B */
+		if (nItems > 0) AddKSItem(aKeySigL, True, 0, F);			/* sharp on F */
+		if (nItems > 1) AddKSItem(aKeySigL, True, 1, C);			/* sharp on C */
+		if (nItems > 2) AddKSItem(aKeySigL, True, 2, G);			/* sharp on G */
+		if (nItems > 3) AddKSItem(aKeySigL, True, 3, D);			/* sharp on D */
+		if (nItems > 4) AddKSItem(aKeySigL, True, 4, A);			/* sharp on A */
+		if (nItems > 5) AddKSItem(aKeySigL, True, 5, E);			/* sharp on E */
+		if (nItems > 6) AddKSItem(aKeySigL, True, 6, B);			/* sharp on B */
 	}
 	else if (sharpsOrFlats<0) {
-		if (nItems > 0)
-			AddKSItem(aKeySigL, False, 0, B);					/* flat on B */
-		if (nItems > 1)
-			AddKSItem(aKeySigL, False, 1, E);					/* flat on E */
-		if (nItems > 2)
-			AddKSItem(aKeySigL, False, 2, A);					/* flat on A */
-		if (nItems > 3)
-			AddKSItem(aKeySigL, False, 3, D);					/* flat on D */
-		if (nItems > 4)
-			AddKSItem(aKeySigL, False, 4, G);					/* flat on G */
-		if (nItems > 5)
-			AddKSItem(aKeySigL, False, 5, C);					/* flat on C */
-		if (nItems > 6)
-			AddKSItem(aKeySigL, False, 6, F);					/* flat on F */
+		if (nItems > 0) AddKSItem(aKeySigL, False, 0, B);			/* flat on B */
+		if (nItems > 1) AddKSItem(aKeySigL, False, 1, E);			/* flat on E */
+		if (nItems > 2) AddKSItem(aKeySigL, False, 2, A);			/* flat on A */
+		if (nItems > 3) AddKSItem(aKeySigL, False, 3, D);			/* flat on D */
+		if (nItems > 4) AddKSItem(aKeySigL, False, 4, G);			/* flat on G */
+		if (nItems > 5) AddKSItem(aKeySigL, False, 5, C);			/* flat on C */
+		if (nItems > 6) AddKSItem(aKeySigL, False, 6, F);			/* flat on F */
 	}
 }
 
@@ -1199,6 +1185,7 @@ void InitMeasure(LINK aMeasureL, short staff, short left, short top, short right
 	aMeasure->subType = BAR_SINGLE;
 	aMeasure->nKSItems = 0;									/* Must be filled in later */
 	aMeasure->filler1 = aMeasure->filler2 = 0;
+	aMeasure->reservedM = 0;
 	aMeasure->xMNStdOffset = aMeasure->yMNStdOffset = 0;
 }
 

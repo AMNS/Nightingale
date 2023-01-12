@@ -52,7 +52,7 @@ static void InitMFEventQue(DoubleWord, Byte);
 static void SaveMFEventQue(DoubleWord *, Byte *);
 static DoubleWord GetDeltaTime(Byte [], DoubleWord *);
 static short GetNextMFEvent(DoubleWord *, Byte [], Boolean *);
-static Boolean GetNoteOff(DoubleWord, Boolean, Byte [], long *pDuration);
+static Boolean GetNoteOff(DoubleWord, Boolean, Byte [], long *);
 
 /* -------------------------------------------------------------------------------------- */
 
@@ -634,6 +634,8 @@ Boolean GetTrackInfo(
 						qLDHere = Time2LDurQuantum(tickTime, True);
 						if (qLDHere<0) trips = True;
 						if (qLDHere==UNKNOWN_L_DUR || qLDHere>qLDur) {
+							if (DBG) LogPrintf(LOG_DEBUG, "GetTrackInfo: at time=%ld, qLDur=%d, qLDHere=%d\n",
+												tickTime, qLDur, qLDHere);
 							qLDur = qLDHere;
 							qLPoint = tickTime;
 						}
@@ -930,7 +932,7 @@ static short Track2Night(Document *, TRACKINFO [], short, short, short, short, l
 
 static short tsNum, tsDenom, sharpsOrFlats;
 static short measTabLen;
-static long measDur, timeSigTime;
+static long measureDur, timeSigTime;
 static MEASINFO *measInfoTab;
 static short tempoTabLen;
 static TEMPOINFO *tempoInfoTab;
@@ -1190,14 +1192,14 @@ static Boolean DoMetaEvent(
 					   easy to make sense of; we also warn here, when they open it, and
 					   round the no. of measures. */
 						
-					measCount = (timeNow-timeSigTime)/measDur;
-					if ((timeNow-timeSigTime)%measDur!=0) {
+					measCount = (timeNow-timeSigTime)/measureDur;
+					if ((timeNow-timeSigTime)%measureDur!=0) {
 						sprintf(str1, "%d", measNum+measCount);
 						sprintf(str2, "%ld", timeNow);
 						CParamText(str1, str2, "", "");
 						CautionInform(tripletBias>-100?
 										OPENMF_TIMESIG_ALRT1 : OPENMF_TIMESIG_ALRT2);
-						measCount = (timeNow-timeSigTime+measDur/2)/measDur;
+						measCount = (timeNow-timeSigTime+measureDur/2)/measureDur;
 					}
 					measInfoTab[measTabLen-1].count = measCount;
 					measTabLen++;
@@ -1207,7 +1209,7 @@ static Boolean DoMetaEvent(
 				
 				tsNum = p->data[3];
 				tsDenom = newDenom;
-				measDur = TimeSigDur(N_OVER_D, tsNum, tsDenom);
+				measureDur = TimeSigDur(N_OVER_D, tsNum, tsDenom);
 				
 				/* Assume this time sig., rather than the previous one, applies to
 					the current measure: this should certainly be valid normally. */
@@ -1446,7 +1448,7 @@ static Boolean AddClefChanges(Document *doc)
 	return True;
 }
 
-/* ----------------------------------------------------- Functions for AddTempoChanges -- */
+/* ===================================================== Functions for AddTempoChanges == */
 
 //long LastEndTime(Document *doc, LINK fromL, LINK toL);
 
@@ -1454,6 +1456,7 @@ static Boolean AddClefChanges(Document *doc)
 /* ---------------------------------------------------------------------SyncSimpleLDur -- */
 /*	Compute the maximum simple logical duration of all notes/rests in the given Sync. */
 
+static long SyncSimpleLDur(LINK syncL);
 static long SyncSimpleLDur(LINK syncL)
 {
 	long dur, newDur;
@@ -1467,7 +1470,8 @@ static long SyncSimpleLDur(LINK syncL)
 	return dur;
 }
 
-static short CountSyncs(Document *doc) 
+static short CountAllSyncs(Document *doc);
+static short CountAllSyncs(Document *doc)
 {
 	short nSyncs = 0;
 	
@@ -1478,9 +1482,11 @@ static short CountSyncs(Document *doc)
 }
 
 
-static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *rawSyncTab, short rawTabSize) 
+static LINKTIMEINFO *BuildDocSyncTab(Document *, short *, LINKTIMEINFO *, short);
+static LINKTIMEINFO *BuildDocSyncTab(Document *doc, short *tabSize,
+						LINKTIMEINFO *rawSyncTab, short rawTabSize)
 {
-	short nSyncs = CountSyncs(doc);
+	short nSyncs = CountAllSyncs(doc);
 	long tLen = nSyncs * sizeof(LINKTIMEINFO);
 	LINKTIMEINFO *docSyncTab = (LINKTIMEINFO *)NewPtr(tLen);
 	if (!GoodNewPtr((Ptr)docSyncTab)) {
@@ -1521,7 +1527,8 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *raw
 }
 
 
-static LINK GetTempoRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo) 
+static LINK GetTempoRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo);
+static LINK GetTempoRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo)
 {
 	long timeStamp = tempoInfo.tStamp;
 	
@@ -1539,7 +1546,8 @@ static LINK GetTempoRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO te
 }
 
 
-static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrlInfo) 
+static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrlInfo);
+static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrlInfo)
 {
 	long timeStamp = ctrlInfo.tStamp;
 	
@@ -1551,8 +1559,7 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 		if (info.time == timeStamp) {			// Should always be the case
 			return info.link;
 		}
-		if (info.time > timeStamp) 				// Timestamps not equal, first sync after the tempo
-		{				
+		if (info.time > timeStamp) { 				// Timestamps not equal, first sync after the tempo
 			//if (j>0) {									
 				info = docSyncTab[j];
 			//}
@@ -1564,7 +1571,8 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 }
 
 
-static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize) 
+static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize);
+static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize)
 {
 	LogPrintf(LOG_DEBUG, "PrintDocSyncTab: for %s, tabSize=%d:\n", tabname, tabSize);
 	
@@ -1575,7 +1583,8 @@ static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSi
 	}
 }
 
-static void PrintDocSyncDurs(Document *doc) 
+static void PrintDocSyncDurs(Document *doc);
+static void PrintDocSyncDurs(Document *doc)
 {
 	LINK pL;
 	long dur;
@@ -1593,7 +1602,8 @@ static void PrintDocSyncDurs(Document *doc)
 /* Compact <tempoInfoTab> by discarding any tempo change that occurs within TEMPO_WINDOW
 of a previous tempo change. */
 
-static Boolean CompactTempoTab() 
+static Boolean CompactTempoTab();
+static Boolean CompactTempoTab()
 {
 	if (tempoTabLen <= 1) return True;
 	
@@ -1625,8 +1635,7 @@ static Boolean CompactTempoTab()
 		}
 	}
 	
-	if (tempoInfoTabOrig != NULL)
-		DisposePtr((Ptr)tempoInfoTabOrig);
+	if (tempoInfoTabOrig != NULL) DisposePtr((Ptr)tempoInfoTabOrig);
 	
 	return True;	
 }
@@ -1754,6 +1763,7 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short 
 	return True;
 }
 
+static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, short rawTabSize);
 static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, short rawTabSize)
 {
 //	short rawTabSize = 16;
@@ -1762,7 +1772,7 @@ static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, short rawT
 	if (DBG) PrintDocSyncDurs(doc);
 	
  	short tabSize;
-	LINKTIMEINFO *docSyncTab = DocSyncTab(doc, &tabSize, rawSyncTab, rawTabSize);
+	LINKTIMEINFO *docSyncTab = BuildDocSyncTab(doc, &tabSize, rawSyncTab, rawTabSize);
 	if (docSyncTab == NULL) return False;
 	
 	if (!AddTempoChanges(doc, docSyncTab, tabSize))
@@ -1810,7 +1820,7 @@ static void InitTrack2Night(Document *doc, long *pMergeTabSize, long *pOneTrackT
 	 */
 	tsNum = 4;
 	tsDenom = 4;
-	measDur = TimeSigDur(N_OVER_D, tsNum, tsDenom);
+	measureDur = TimeSigDur(N_OVER_D, tsNum, tsDenom);
 	measInfoTab[0].count = 1;
 	measInfoTab[0].numerator = tsNum;
 	measInfoTab[0].denominator = tsDenom;
@@ -2108,13 +2118,13 @@ static short Track2Night(
 	     hold the stuff for each track. Of course, the extra Measure must be deleted when
 	     we've done the last track; we leave that to the calling function because we can't
 	     tell when that is.)
-	   - If this ISN'T the tempo map track, convert any new notes/rests and merge them in. */
+	   - If this is NOT the tempo map track, convert any new notes/rests and merge them in. */
 	   
-	if (isTempoMap) {		
-		measDur = TimeSigDur(0, measInfoTab[measTabLen-1].numerator,
+	if (isTempoMap) {
+		measureDur = TimeSigDur(0, measInfoTab[measTabLen-1].numerator,
 										measInfoTab[measTabLen-1].denominator);
-		count = (scoreEndTime-timeSigTime)/measDur;
-		if (count*measDur<scoreEndTime-timeSigTime) count++;		/* Always round up */
+		count = (scoreEndTime-timeSigTime)/measureDur;
+		if (count*measureDur<scoreEndTime-timeSigTime) count++;		/* Always round up */
 		measInfoTab[measTabLen-1].count = count;
 		if (!MFAddMeasures(doc, maxMeasures, &cStopTime)) goto Done;
 		cStopTime = NTicks2MFTicks(cStopTime);
@@ -2125,14 +2135,13 @@ static short Track2Night(
 	else if (status==OP_COMPLETE) {
 	
 		/* It's not the tempo track, and we have one or more notes. Convert and merge
-		   them. Damned if I can think of a good way to decide what <maxNewSyncs> should
+		   them. Darned if I can think of a good way to decide what <maxNewSyncs> should
 		   be. But it certainly should fit in 16 bits, i.e., be 65535 or less, since the
 		   total number of notes/rests in a score has to! */
 		   
 		maxNewSyncs = n_min(5L*nRawSyncs+MF_MAXPIECES, 65535L);
 		newSyncTab = (LINKTIMEINFO *)NewPtr(maxNewSyncs*sizeof(LINKTIMEINFO));
-		if (!GoodNewPtr((Ptr)newSyncTab))
-			{ NoMoreMemory(); goto Done; }
+		if (!GoodNewPtr((Ptr)newSyncTab)) { NoMoreMemory(); goto Done; }
 			
 		measL = SSearch(doc->headL, MEASUREtype, GO_RIGHT);
 		firstL = RightLINK(measL);

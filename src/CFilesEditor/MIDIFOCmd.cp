@@ -686,12 +686,11 @@ static Boolean GetMIDIFileInfo(
 		if (GetTrackInfo(&nTrackNotes[t], &nTooLong[t], chanUsed[t], &qTrLDur[t],
 							&qTrLPoint, &qTrTriplets[t], &lastTrEvent[t])) {
 
-			if (DETAIL_SHOW) {
-				if (nTrackNotes[t]<=0)	LogPrintf(LOG_DEBUG, "Track %d contains no notes.  (GetMIDIFileInfo)\n",
-													t);
-				else					LogPrintf(LOG_DEBUG, "Track %d finest attack grid point: qTrLDur=%d at time %ld  (GetMIDIFileInfo)\n",
-													t, qTrLDur[t], qTrLPoint);
-			}
+			if (nTrackNotes[t]<=0)
+					LogPrintf(LOG_INFO, "Track %d contains no notes.  (GetMIDIFileInfo)\n",
+												t);
+			else	LogPrintf(LOG_INFO, "Track %d finest attack grid point: qTrLDur=%d at time %ld  (GetMIDIFileInfo)\n",
+												t, qTrLDur[t], qTrLPoint);
 
 			/* Timing tracks with an end time of zero in otherwise valid MIDI files used
 			   to be somewhat common: cf. Peter Stone in the 1990s. So the below check

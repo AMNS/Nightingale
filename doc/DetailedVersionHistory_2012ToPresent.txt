@@ -3863,3 +3863,8 @@ NightTemplates.h, NObjTypes.h, Utility.h; Browser, FileConversion, FileOpen, Fil
 FontUtils, HeapFileIO, Heaps, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIUtils, Utility.
 
 ----------------------------------------------------------------------------------------- B33
+
+2 - 12 Jan.  *** 2023 ***
+
+Minor changes: enhanced diagnostic info reporting for Import MIDI File and Export MIDI
+File, etc. Affects info.plist; MIDIFOCmd, MIDIFOpen, MIDIFSave, NotelistOpen, Objects.

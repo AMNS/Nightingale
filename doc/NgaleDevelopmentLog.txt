@@ -12023,15 +12023,30 @@ With Ngale 5.8.11, open open Psalm 128-1, 2, 5, 6; export MF as Psalm 128-1, 2, 
 apparently the problems happen to David consistently, even w/ 5.8.11, so need to set him
 up to give me as much information as possible.
 
-But the 5.8 branch in GitHub is WAY behind -- not good. After the disastrous result of my
-attempt to update it in summer 2019, which Patrick Etienne bailed me out of, how can I
-update it without screwing up the develop branch? Strategy A (with thanks to Will Cowan):
-On MacBook, create a new local repository from GitHub -- call it "Nightingale5p8GitRepo"
--- and set it (i.e., its HEAD?) to the develop5p8 branch. Then copy the 5.8 codebase from
-the G5 to that repository, commit from it, and push to the develop5p8 branch. That
-_should_ have no effect on the existing local repository (NightingaleGitRepo). But if it
-does, revert at least the develop branch in GitHub, and go to Plan B: create a new
-repository in GitHub, preferably (Plan B1) from the code in the existing develop5p8
-branch; then update it and commit and push to it. If that's still somehow a problem, just
-create a new local repository with the current 5.8 code and create a new GitHub repository
-from that.
+SWITCH TO: But the 5.8 branch in GitHub is WAY behind -- not good. After the disastrous
+result of my attempt to update it in summer 2019, which Patrick Etienne bailed me out of,
+how can I update it without screwing up the develop branch? Strategy A (with thanks to
+Will Cowan): On MacBook, create a new local repository from GitHub -- call it
+"Nightingale5p8GitRepo" -- and set it (i.e., its HEAD?) to the develop5p8 branch. Then
+copy the 5.8 codebase from the G5 to that repository, commit from it, and push to the
+develop5p8 branch. That _should_ have no effect on the existing local repository
+(NightingaleGitRepo). But if it does, revert at least the develop branch in GitHub, and go
+to Plan B: create a new repository in GitHub, preferably (Plan B1) from the code in the
+existing develop5p8 branch; then update it and commit and push to it. If that's still
+somehow a problem, just create a new local repository with the current 5.8 code and create
+a new GitHub repository from that.
+
+---------------------------------------------------------------------------------------
+
+2 - 8 Jan. *** 2023 ***
+
+BACK TO: David A.'s MIDI file problems. With Ngale 6.0 B32 as with B31, running on my G5,
+open Psalm 128-1, 2, 5, 6; export MF as Psalm 128-1, 2, 5, 6_N6p0.mid; import that => no
+problems at all. Do the same things with Ngale 5.8.10 on my G5 => no problems at all. This
+really makes clear his problems are that Export MIDI File with 5.8.10 running on his MacBook
+writes badly screwed-up MIDI files -- while the same Ngale running on my G5 exporting (what
+he says are) the same Ngale files works fine! Why does it behave so differently?? My only
+guess is uninitialized variables. But I can't afford the time to follow that up. Given that,
+all I can do is give him a 5.8.11 that can record better diagnostic info in case it happens
+again... done.
+

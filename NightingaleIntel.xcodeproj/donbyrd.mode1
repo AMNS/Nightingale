@@ -321,7 +321,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>156D7B5D29607D4600E8F6CB</string>
+										<string>151EFF222970946100B74322</string>
 										<key>history</key>
 										<array>
 											<string>158BC4B51C060E4000184E6A</string>
@@ -470,7 +470,7 @@
 											<string>155AC0E828DF57B50083ECDB</string>
 											<string>15F0E0D6294CC09700E990F9</string>
 											<string>152DAC4B29592E84002BBAB7</string>
-											<string>152DAC4E29592E84002BBAB7</string>
+											<string>156D7B5D29607D4600E8F6CB</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -628,9 +628,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>156D7B5E29607D4600E8F6CB</string>
+				<string>151EFF232970946100B74322</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>156D7B5F29607D4600E8F6CB</string>
+				<string>151EFF242970946100B74322</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -809,8 +809,6 @@
 							<string>200pt</string>
 						</dict>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -850,7 +848,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>15F6E0CD16DFC116001A5B50</string>
-				<string>156D7B5A29607D2800E8F6CB</string>
+				<string>151EFF252970946100B74322</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -1212,9 +1210,9 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C0AD2B3069F1EA900FABCE6</string>
-				<string>156D7B5B29607D2800E8F6CB</string>
+				<string>151EFF262970946100B74322</string>
 				<string>1CD0528B0623707200166675</string>
-				<string>156D7B5C29607D2800E8F6CB</string>
+				<string>151EFF272970946100B74322</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.run</string>
