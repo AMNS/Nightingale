@@ -3868,3 +3868,22 @@ FontUtils, HeapFileIO, Heaps, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIUtils, Utilit
 
 Minor changes: enhanced diagnostic info reporting for Import MIDI File and Export MIDI
 File, etc. Affects info.plist; MIDIFOCmd, MIDIFOpen, MIDIFSave, NotelistOpen, Objects.
+
+----------------------------------------------------------------------------------------- B34
+
+14 - 24 Jan.
+
+Work to make notehead graphs actually useful. Affects NotelistParse.
+
+In GRAPHMODE_NHGRAPHS, we now erase the center of the stripes constituting the notehead
+if it's a half note or longer, so half notes can be distinguished from quarters and whole
+notes and breves are more readable. Affects DrawNRGR.
+
+Fixed bug (Issue #203): If you add a part to a score that has a key signature at the
+beginning, the new staff/staves don't get a key signature even if you change the key
+signature on all staves to something other than no sharps or flats. Affects Check.
+
+Minor changes. Affects info.plist, NightTemplates.h; Check, DrawNRGR, DrawUtils,
+Initialize, NotelistOpen, NotelistParse.
+
+----------------------------------------------------------------------------------------- B35

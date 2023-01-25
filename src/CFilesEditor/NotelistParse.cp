@@ -259,6 +259,8 @@ static Boolean ProcessNotelist(short refNum)
 		nRead = sscanf(gInBuf, "%c", &firstChar);
 		if (nRead<1) continue;									/* probably got a blank line */
 		
+		if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Line %d: %s  (ProcessNotelist)\n",
+									gLineCount, gInBuf);
 		switch (firstChar) {
 			case NOTE_CHAR:
 			case GRACE_CHAR:
@@ -334,6 +336,7 @@ static Boolean PostProcessNotelist(void)
 
 N t=0 v=1 npt=1 stf=1 dur=4 dots=0 nn=72 acc=0 eAcc=3 pDur=456 vel=75 ...... appear=1
 N t=0 v=1 npt=1 stf=1 dur=4 dots=0 nn=76 acc=0 eAcc=3 pDur=456 vel=75 ...... appear=2 mods=10,16
+N t=0 v=1 npt=1 stf=1 dur=4 dots=0 nn=76 acc=0 eAcc=3 pDur=456 vel=75 ...... appear=2 mods=-1 segs=5,3,2,3
 R t=480 v=1 npt=1 stf=1 dur=4 dots=0 ...... appear=1
 R t=960 v=1 npt=1 stf=1 dur=4 dots=0 ...... appear=1 mods=10
 G t=-1 v=1 npt=1 stf=1 dur=5 dots=0 nn=76 acc=0 eAcc=3 pDur=240 vel=75 . appear=1
@@ -362,32 +365,32 @@ static Boolean ParseNRGR()
 	long		along;
 	PNL_NRGR	pNRGR;
 
-	if (gNextEmptyNode>gNumNLItems) { err = NLERR_INTERNAL; goto broken; }
+	if (gNextEmptyNode>gNumNLItems) { err = NLERR_INTERNAL;  goto broken; }
 	
 	nRead = sscanf(gInBuf, "%c", &objTypeCode);
-	if (nRead<1) { err = NLERR_INTERNAL; goto broken; }
+	if (nRead<1) { err = NLERR_INTERNAL;  goto broken; }
 
 	/* Initialize strings to empty in case our record omits these fields. */
 	
 	noteNumStr[0] = accStr[0] = eAccStr[0] = pDurStr[0] = velStr[0] = modStr[0] =
-		segmentStr[0] = 0;
+		segmentStr[0] = '\0';
 
 	switch (objTypeCode) {
 		case NOTE_CHAR:
 		case GRACE_CHAR:
-			nRead = sscanf(gInBuf, "%*c%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+			nRead = sscanf(gInBuf, "%*c%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 							timeStr, voiceStr, partStr, staffStr, durStr, dotsStr, noteNumStr,
 							accStr, eAccStr, pDurStr, velStr, flagsStr, appearStr, modStr,
 							segmentStr);
-if (nRead>13) LogPrintf(LOG_DEBUG, "ParseNRGR: nRead=%d modStr='%s' segmentStr='%s'\n",
-							nRead, modStr, segmentStr);
-			if (nRead<13) { err = NLERR_TOOFEWFIELDS; goto broken; }
+//LogPrintf(LOG_DEBUG, "ParseNRGR: nRead=%d modStr='%s' segmentStr='%s'\n",
+//							nRead, modStr, segmentStr);
+			if (nRead<13) { err = NLERR_TOOFEWFIELDS;  goto broken; }
 			break;
 		case REST_CHAR:
 			nRead = sscanf(gInBuf, "%*c%s%s%s%s%s%s%s%s%s",
 							timeStr, voiceStr, partStr, staffStr, durStr, dotsStr,
 							flagsStr, appearStr, modStr);
-			if (nRead<8) { err = NLERR_TOOFEWFIELDS; goto broken; }
+			if (nRead<8) { err = NLERR_TOOFEWFIELDS;  goto broken; }
 			break;
 		default:
 			err = NLERR_INTERNAL;
@@ -1313,6 +1316,7 @@ illegal:
 	mods=2				[one modifier]
 	mods=3,10,12		[multiple modifiers]
 	mods=2:127,12		[two modifiers, one with non-zero data field]
+	mods=-1				[codes can't be negative, so no modifiers]
 
 Stores each modifier parsed into gHModList, filling in the <next> field of these
 modifiers to form a chain. Stores the index of the first of these in the <firstMod>
@@ -1333,9 +1337,13 @@ static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 	
 	pNRGR->firstMod = NILINK;
 	
+	/* Move to character following '='. if it's '-', there are no mods. */
+	
 	p = strchr(modStr, '=');						/* p will point to '=' */
 	if (!p) goto broken;
-	p++;											/* advance pointer to character following '=' */
+	p++;
+//LogPrintf(LOG_DEBUG, "ExtractNoteMods: *p=%c\n", *p);
+	if (*p=='-') return True;						
 	
 	p = strtok(p, ",");
 	do {

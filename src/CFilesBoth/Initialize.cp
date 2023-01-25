@@ -327,7 +327,8 @@ static short rfVRefNum;
 static long rfVolDirID;
 static OSType prefsFileType = 'NSET';
 
-Boolean CreatePrefsFile(FSSpec *rfSpec)
+static Boolean CreatePrefsFile(FSSpec *rfSpec);
+static Boolean CreatePrefsFile(FSSpec *rfSpec)
 {
 	Handle			resH;
 	OSType			theErr;
@@ -480,7 +481,8 @@ Boolean OpenPrefsFile(void)
 //	GetVol(volName,&oldVol);
 //	SetVol(volName,thisMac.sysVRefNum);		/* fromSysEnvirons */
 
-	theErr = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder, &vRefNum, &dirID);
+	theErr = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder,
+						&vRefNum, &dirID);
 	
 	HGetVol(volName, &oldVRefNum, &oldDirID);
 	HSetVol(volName, vRefNum, dirID);				/* Need to specify a location for setup file */

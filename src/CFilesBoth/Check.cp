@@ -1734,10 +1734,8 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 	oldSharpsOrFlats = XGetSharpsOrFlats(&oldKSInfo);
 
 	sharps = flats = 0;
-	if (oldSharpsOrFlats>=0)
-		sharps = oldSharpsOrFlats;
-	else
-		flats = -oldSharpsOrFlats;
+	if (oldSharpsOrFlats>=0)	sharps = oldSharpsOrFlats;
+	else						flats = -oldSharpsOrFlats;
 
 	change = KeySigDialog(&sharps, &flats, &onAllStaves, False);
 	if (change) {
@@ -1763,16 +1761,15 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 					UpdateBFKSStaff(pL, aKeySig->staffn, newKSInfo);
 				FixContextForKeySig(doc, RightLINK(pL), aKeySig->staffn,
 											oldKSInfo, newKSInfo);
+				KeySigVIS(aKeySigL) = (newSharpsOrFlats!=0);
 				qL = FixAccsForKeySig(doc, pL, aKeySig->staffn, oldKSInfo, newKSInfo);
-				if (qL)
-					if (IsAfter(endL, qL)) endL = qL;
+				if (qL && IsAfter(endL, qL)) endL = qL;
 			}
 		}
 		else {
 			SetupKeySig(aKeySigL, newSharpsOrFlats);
 			KeySigCopy((PKSINFO)aKeySig->KSItem, &newKSInfo);
-			if (beforeFirstMeas)
-				UpdateBFKSStaff(pL, aKeySig->staffn, newKSInfo);
+			if (beforeFirstMeas) UpdateBFKSStaff(pL, aKeySig->staffn, newKSInfo);
 			FixContextForKeySig(doc, RightLINK(pL), aKeySig->staffn,
 											oldKSInfo, newKSInfo);
 			endL = FixAccsForKeySig(doc, pL, aKeySig->staffn, oldKSInfo, newKSInfo);

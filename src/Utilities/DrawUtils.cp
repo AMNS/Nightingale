@@ -70,17 +70,17 @@ not all what you'd expect or like. */
 /* Draw the given character with several blanks of padding. An ancient (as of 2021)
 comment: "This is to alleviate a long-standing bug in the Font Manager(?) of many Macs
 that results in characters being truncated on the right (see comments in DrawMChar):
-it doesn't completely avoid the problem." */
+it doesn't completely avoid the problem." FIXME: It's unlikely this is still an issue! */
 
 void DrawPaddedChar(unsigned char ch)
 {
-	Point pt; char sch[10];
+	Point pt;  char sch[10];
 
 	GetPen(&pt);
 	pt.h += CharWidth(ch);
 	
-	/* Fill string with a dummy char. and padding, then replace the dummy char. Use
-	   4 blanks padding, though that's still not enough in all cases. */
+	/* Fill string with a dummy char. and padding, then replace the dummy char. Use four
+	   blanks padding, though that's still not enough in all cases. */
 	
 	strcpy(sch, "X    ");
 	sch[0] = ch;
@@ -91,20 +91,15 @@ void DrawPaddedChar(unsigned char ch)
 
 
 /* ------------------------------------------------------------------------ DrawMChar -- */
-/* Draw a QuickDraw character, optionally dimmed, in the current font. NB: this
-routine uses an off-screen bitmap that's set up for the largest music character
-we'll ever draw in the largest staff size at the maximum magnification. That's fine
-for music characters, but if this is used for drawing arbitrary text (even in the
-music font!), it's possible--though pretty unlikely under ordinary circumstances--
-that the bitmap's size will be exceeded; if it is, we'll draw garbage for the
-portion of the character that extends beyond the bitmap and might even crash.
-Programmers Beware.
+/* Draw a QuickDraw character, optionally dimmed, in the current font. NB: this routine
+uses an off-screen bitmap that's set up for the largest music character we'll ever draw
+in the largest staff size at the maximum magnification. That's fine for music
+characters, but if this is used for drawing arbitrary text (even in the music font!),
+it's possible--though pretty unlikely under ordinary circumstances-- that the bitmap's
+size will be exceeded; if it is, we'll draw garbage for the portion of the character
+that extends beyond the bitmap and might even crash. Programmers Beware.
 
 Cf. our DrawPatString; perhaps this and that should somehow share code. */
-
-#define TOP_OFFSET 10
-#define BOTTOM_OFFSET 10
-#define RIGHT_OFFSET 20
 
 extern short gMCharTop;
 extern short gMCharLeft;
@@ -426,9 +421,8 @@ void GetClefDrawInfo(
 	
 	*yd = dTop + LinkYD(pL) + aClef->yd + ydR;
 	
-	/*
-	 *	For clefs with a little "8" above or below, find the position of the "8".
-	 */
+	/* For clefs with a little "8" above or below, find the position of the "8". */
+	
 	LCGet8Pos(aClef->subType, dLnHeight, &xdOctDelta, &ydOctDelta);
 
 	if (xdOctDelta==(DDIST)NRV_CANCEL)
@@ -441,8 +435,8 @@ void GetClefDrawInfo(
 }
 
 
-/* Returns bounding box of a hairpin of the specified geometry. Meant to be called
-from DrawHairpin and CheckDYNAMIC.  JGG, 3/13/01 */
+/* Returns bounding box of a hairpin of the specified geometry. Meant to be called from
+DrawHairpin and CheckDYNAMIC.  JGG, 3/13/01 */
 
 void GetHairpinBBox(
 		DDIST xd, DDIST endxd,		/* page-relative */
@@ -466,7 +460,7 @@ void GetHairpinBBox(
 }
 
 
-/* Returns glyph, xd and yd to the calling function. If QuickDraw, set port's txSize. */
+/* Return glyph, xd, and yd to the calling function. If QuickDraw, set port's txSize. */
 
 void GetDynamicDrawInfo(
 			Document *doc,
@@ -525,6 +519,7 @@ void GetDynamicDrawInfo(
 	}
 	
 /* FIXME: Is this really necessary? See DrawDYNAMIC. */
+
 	if (outputTo!=toPostScript)
 		TextSize(UseMTextSize(pContext->fontSize, doc->magnify));
 }
@@ -1451,8 +1446,8 @@ DDIST AugDotXDOffset(LINK theNoteL,				/* Subobject (note/rest) to draw dots for
 								pContext->staffLines);
 		float graphWidthFact = (float)dGraphWidth/(float)HeadWidth(LNSPACE(pContext));
 		xdDots = ((float)xdDots)*graphWidthFact;
-LogPrintf(LOG_DEBUG, "2. HeadWidth()=%d dGraphWidth=%d graphWidthFact=%f xdDots=%d\n", HeadWidth(LNSPACE(pContext)),
-dGraphWidth, graphWidthFact, xdDots);
+		if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "AugDotXDOffset: HeadWidth()=%d dGraphWidth=%d graphWidthFact=%f xdDots=%d\n",
+				HeadWidth(LNSPACE(pContext)), dGraphWidth, graphWidthFact, xdDots);
 	}
 
 	return xdDots;

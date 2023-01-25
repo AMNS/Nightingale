@@ -12050,3 +12050,9 @@ guess is uninitialized variables. But I can't afford the time to follow that up.
 all I can do is give him a 5.8.11 that can record better diagnostic info in case it happens
 again... done.
 
+---------------------------------------------------------------------------------------
+
+14 - 16 Jan.
+
+Notehead graphs are never hollow, so half notes can't be distinguished from quarters. Fix
+that by erasing the middle of the graph... Done.

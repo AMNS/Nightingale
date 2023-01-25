@@ -243,7 +243,6 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* Initialize.c */
 
-	Boolean		CreatePrefsFile(void);
 	Boolean		InitGlobals(void);
 	void		Initialize(void);
 	Boolean		OpenPrefsFile(void);

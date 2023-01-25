@@ -122,7 +122,7 @@ Boolean FSOpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
 		CautionInform(GENERIC_ALRT);
 	}
 	
-	/* Grab score name from the Notelist header. If that's empty build a filename. */
+	/* Grab score name from the Notelist header. If that's empty, build a filename. */
 	
 	pHead = GetPNL_HEAD(0);
 	if (pHead->scoreName) {
@@ -189,7 +189,7 @@ static short GetShortestDurCode(short voice, LINK startL, LINK endL)
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				if (voice==ANYONE || NoteVOICE(aNoteL)==voice) {
 					maxDurCode = n_max(maxDurCode, NoteType(aNoteL));
-					break;						/* Assumes all notes in chord have same duration. */
+					break;					/* Assumes all notes in chord have same duration. */
 				}
 			}
 		}
@@ -385,7 +385,7 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 		gCurSyncTime = pNR->lStartTime;
 	}
 	else {
-		MayErrMsg("ConvertNoteRest: Note/rest at %u has starttime (%ld) before current time (%ld).",
+		MayErrMsg("Note/rest L%u has starttime (%ld) before current time (%ld).  (ConvertNoteRest)",
 					pL, pNR->lStartTime, gCurSyncTime);
 		return False;
 	}
@@ -393,7 +393,8 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 	partL = FindPartInfo(doc, pNR->part);
 	iVoice = User2IntVoice(doc, (short)pNR->uVoice, partL);
 	if (iVoice==0) {
-		MayErrMsg("ConvertNoteRest: can't get internal voice number (time=%ld)", pNR->lStartTime);
+		MayErrMsg("Can't get internal voice number (time=%ld).  (ConvertNoteRest)",
+					pNR->lStartTime);
 		return False;
 	}
 
@@ -404,7 +405,7 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 		midCHalfLn = ClefMiddleCHalfLn(context.clefType);
 		result = NLMIDI2HalfLn(pNR->noteNum, pNR->eAcc, midCHalfLn, &halfLn);
 		if (!result) {
-			sprintf(strBuf, "Can't understand pitch of note (time=%ld). Maybe an inconsistent accidental.",
+			sprintf(strBuf, "Can't understand pitch of note (time=%ld). Maybe an inconsistent accidental.  (ConvertNoteRest)",
 						pNR->lStartTime);
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
@@ -442,7 +443,7 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("ConvertNoteRest failed (pL=%u)", pL);
+	MayErrMsg("Can't convert the note/rest (pL=%u).  (ConvertNoteRest)", pL);
 	return False;
 }
 
@@ -453,15 +454,15 @@ CAUTION: At this time we do not support:
 	grace note rests,
 	ties, slurs or note modifiers attached to grace notes.
 
-Calling ConvertGrace with NILINK for <pL> tells it to initialize a static variable.
-Do this once before converting a score.
+Calling ConvertGrace with NILINK for <pL> tells it to initialize a static variable. Do
+this once before converting a score.
 
-NB: There is a flaw in the current Notelist spec affecting rare cases where the
-notelist contains two consecutive grace chords and either or both contain three or
-more (grace) notes. In this case, all of their constituent notes will have their
-inChord flags set; but there'll be no foolproof way to tell _which_ GRSync the middle
-notes belong to. Until this is fixed (probably by making lStartTime meaningful), we
-can't do a very smart job of syncing. But this really is a rare case. */
+NB: There is a flaw in the current Notelist spec affecting rare cases where the notelist
+contains two consecutive grace chords and either or both contain three or more (grace)
+notes. In this case, all of their constituent notes will have their inChord flags set;
+but there'll be no foolproof way to tell _which_ GRSync the middle notes belong to.
+Until this is fixed (probably by making lStartTime meaningful), we can't do a very smart
+job of syncing. But this really is a rare case. */
 
 static Boolean ConvertGrace(Document *doc, NLINK pL)
 {
@@ -497,7 +498,7 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	partL = FindPartInfo(doc, pNR->part);
 	iVoice = User2IntVoice(doc, (short)pNR->uVoice, partL);
 	if (iVoice==0) {
-		MayErrMsg("ConvertGrace: can't get internal voice number (pL=%u)", pL);
+		MayErrMsg("Can't get internal voice number (pL=%u).  (ConvertGrace)", pL);
 		return False;
 	}
 
@@ -507,7 +508,8 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	midCHalfLn = ClefMiddleCHalfLn(context.clefType);
 	result = NLMIDI2HalfLn(pNR->noteNum, pNR->eAcc, midCHalfLn, &halfLn);
 	if (!result) {
-		sprintf(strBuf, "Can't understand pitch of grace note (pL=%u). Maybe an inconsistent accidental", pL);
+		sprintf(strBuf, "Can't understand pitch of grace note (pL=%u). Maybe an inconsistent accidental  (ConvertGrace)",
+					pL);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return False;
@@ -564,9 +566,9 @@ static Boolean ConvertMods(Document *doc, NLINK firstModID, LINK syncL, LINK aNo
 /* --------------------------------------------------------------------- NLMIDI2HalfLn -- */
 /* Given a MIDI note number <noteNum>, an effective accidental <eAcc> code, and the
 half-line  position of middle C <midCHalfLn>, fill in the note's half-line number in
-<pHalfLn> (where top line of staff = 0). Return True if ok, False if error.
-Because we're too lazy really to study the issue, we use a brute-force table lookup
-algorithm. (Adapted from MIDI2HalfLn in MIDIRecUtils.c.) */
+<pHalfLn> (where top line of staff = 0). Return True if ok, False if error. Because
+we're too lazy really to study the issue, we use a brute-force table lookup algorithm.
+(Adapted from MIDI2HalfLn in MIDIRecUtils.c.) */
 
 #define _X	-99		/* marker for useless array slot */
 
@@ -660,11 +662,10 @@ static Boolean ConvertClef(Document *doc, NLINK pL)
 	
 	pC = GetPNL_CLEF(pL);
 
-	/* If the staff this clef belongs on already has a clef of that
-		type in effect, don't add this one. (We do this because Ngale's
-		Save Notelist command saves every clef it finds, including all
-		clefs in reserved area.)
-	*/
+	/* If the staff this clef belongs on already has a clef of that type in effect,
+	   don't add this one. (We do this because Ngale's Save Notelist command saves every
+	   clef it finds, including all clefs in reserved area.) */
+	   
 	clefL = LSSearch(doc->tailL, CLEFtype, pC->staff, GO_LEFT, False);
 	if (clefL)
 		for (aClefL = FirstSubLINK(clefL); aClefL; aClefL = NextCLEFL(aClefL))
@@ -689,8 +690,9 @@ static Boolean ConvertKeysig(Document *doc, NLINK pL)
 	PNL_KEYSIG	pKS;
 	LINK		keySigL;
 	
-	/* We've already converted the first key sig. in the score, during SetupNLScore.
-		If <pL> belongs to that key sig., skip it. */
+	/* We've already converted the first key sig. in the score, during SetupNLScore. If
+	   <pL> belongs to that key sig., skip it. */
+	   
 	if (IsFirstKeysig(pL)) return True;
 
 	pKS = GetPNL_KEYSIG(pL);
@@ -714,8 +716,9 @@ static Boolean ConvertTimesig(Document *doc, NLINK pL)
 	PNL_TIMESIG	pTS;
 	LINK		timeSigL;
 	
-	/* We've already converted the first time sig. in the score, during SetupNLScore.
-		If <pL> belongs to that time sig., skip it. */
+	/* We've already converted the first time sig. in the score, during SetupNLScore. If
+	   <pL> belongs to that time sig., skip it. */
+	   
 	if (IsFirstTimesig(pL)) return True;
 
 	pTS = GetPNL_TIMESIG(pL);
@@ -910,7 +913,7 @@ static Boolean SetDefaultCoords(Document *doc)
 			case GRAPHICtype:
 				staffn = GraphicSTAFF(pL);
 				firstL = GraphicFIRSTOBJ(pL);
-				if (PageTYPE(firstL)) {								/* crudely tile page-rel graphics */
+				if (PageTYPE(firstL)) {							/* crudely tile page-rel graphics */
 					if (lastPgRelGrXD==0) xd = DFLT_PGRELGR_XD;
 					else xd = lastPgRelGrXD + PGRELGR_XOFFSET;
 					LinkXD(pL) = lastPgRelGrXD = xd;
@@ -923,22 +926,22 @@ static Boolean SetDefaultCoords(Document *doc)
 					pGraphic = GetPGRAPHIC(pL);
 					textStyle = Internal2UIStyle(pGraphic->info);
 					switch (textStyle) {
-						case TSRegular2STYLE:						/* for dynamics faked with graphics (see ConvertDynamic) */
+						case TSRegular2STYLE:					/* for dynamics faked with graphics (see ConvertDynamic) */
 							height = DFLT_DYNAMIC_HEIGHT;
 							CenterTextGraphic(doc, pL);
 							break;
 						case TSRegular4STYLE:
 							height = DFLT_LYRIC_HEIGHT;
-							CenterTextGraphic(doc, pL);				/* NB: This assumes lyrics are attached to notes. */
+							CenterTextGraphic(doc, pL);			/* NB: This assumes lyrics are attached to notes. */
 							break;
 						case TSRegular1STYLE:
-						case TSRegular3STYLE:						/* shouldn't find 3, 5 or thisItemOnly */
+						case TSRegular3STYLE:					/* shouldn't find 3, 5 or thisItemOnly ??WHY?*/
 						case TSRegular5STYLE:
 						case TSThisItemOnlySTYLE:
 							height = DFLT_TEXT_HEIGHT;
 							break;
 						default:
-							MayErrMsg("SetDefaultCoords: nonsense textStyle.");
+							MayErrMsg("Nonsense textStyle %ld.  (SetDefaultCoords: n)", textStyle);
 							height = DFLT_TEXT_HEIGHT;
 					}
 					yd = qd2d(height, staffHeight[staffn], staffLines[staffn]);
@@ -1020,9 +1023,10 @@ static Boolean SetupNLScore(Document *doc)
 	doc->firstMNNumber = gFirstMNNumber;
 	
 	/* We now have a default score with one part of two staves. Set it up according to
-	   the Notelist file structure, and then remove the default part. NB: Calling AddPart
-	   with staffn>=63 (62??) blows up; Addpart doesn't seem to handle this at all well.
-	   ??Partial solution: delete default part after adding the first part in the loop. */
+	   the Notelist file structure, and then remove the default part. FIXME: Calling
+	   AddPart with staffn>=63 (62??) blows up; Addpart doesn't seem to handle this at all
+	   well. Partial solution: delete the default part after adding the first part in the
+	   loop. */
 	   
 	for (part=1, staffn=1; part<=MAXSTAVES; part++, staffn+=nStaves) {
 		nStaves = gPartStaves[part];
@@ -1113,7 +1117,7 @@ static Boolean SetupNLScore(Document *doc)
 
 	/* Make sure the staves of a large system don't go off the bottom of the page. */
 	
-	//(void)FitStavesOnPaper(doc);	??I have no idea why this is commented out :-( . --DAB, March 2017
+	//(void)FitStavesOnPaper(doc);	FIXME: I have no idea why this is commented out :-( . --DAB, March 2017
 
 	return True;
 }
@@ -1132,7 +1136,7 @@ static Document *CreateNLDoc(unsigned char *fileName)
 
 	newDoc = FirstFreeDocument();
 	if (newDoc==NULL) {
-		TooManyDocs(); return NULL;
+		TooManyDocs();  return NULL;
 	}
 	
 	w = GetNewWindow(docWindowID, NULL, BottomPalette);
@@ -1225,8 +1229,8 @@ static Boolean BuildNLDoc(
 	doc->selStartL = doc->selEndL = doc->tailL;				/* Empty selection  */
 	
 	/* Set part name showing and corresponding system indents. We'd like to use
-	   PartNameMargin() to get the appropriate indents, but not enough of the data
-	   structure is set up, so do something cruder. */
+	   PartNameMargin() to get the appropriate indents, but not enough of the Object
+	   list is set up, so do something cruder. */
 	   
 	doc->firstNames = NONAMES/*FULLNAMES*/;					/* 1st system: full part names */
 	doc->dIndentFirst = qd2d(config.indentFirst, drSize[doc->srastral], STFLINES);
@@ -1272,9 +1276,9 @@ static void DisplayNLDoc(Document *newDoc)
 
 	/* Replace the Master Page: delete the old Master Page data structure here and
 	   replace it with a new structure to reflect the part-staff structure of the
-	   scanned score. */
+	   notelist. */
 
-	// Score2MasterPage(newDoc); ??Why is this commented out?!
+	// Score2MasterPage(newDoc); FIXME: ??Why is this commented out?!
 	newDoc->docNew = newDoc->changed = True;		/* Has to be set after BuildDocument */
 	newDoc->readOnly = False;
 	
@@ -1304,7 +1308,7 @@ static void DisplayNLDoc(Document *newDoc)
 
 	PositionWindow(w, newDoc);
 	SetOrigin(newDoc->origin.h, newDoc->origin.v);
-//	GetAllSheets(newDoc);											??What was this for?
+//	GetAllSheets(newDoc);									FIXME: ??What was this for?
 	RecomputeView(newDoc);
 	SetControlValue(newDoc->hScroll, newDoc->origin.h);
 	SetControlValue(newDoc->vScroll, newDoc->origin.v);
@@ -1399,7 +1403,7 @@ char DynamicGlyph(LINK dynamicL)
 		case SF_DYNAM:
 			glyph = MCH_sf;	break;
 		default:
-			MayErrMsg("DynamicGlyph: Dynamic L%ld has illegal dynamic code %ld.",
+			MayErrMsg("Dynamic L%ld has illegal dynamic code %ld.  (DynamicGlyph)",
 						(long)dynamicL, (long)DynamType(dynamicL));
 	}
 	return glyph;
