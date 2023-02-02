@@ -247,7 +247,7 @@ Boolean GetScoreLocIDString(Document *doc, LINK locL, char matchLocString[256])
 
 	/* The default is the score's filename. */
 
-LogPrintf(LOG_DEBUG, "GetScoreLocIDString: doc=%x doc->name='%s'\n", doc,  doc->name); 
+	if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "(GetScoreLocIDString: doc=%x doc->name='%s') ", doc,  doc->name); 
 	Pstrcpy((StringPtr)locName, doc->name);
 	PToCString((StringPtr)locName);
 	haveSectionName = False;
@@ -453,13 +453,13 @@ Boolean DoSearchScore(Document *doc, Boolean again, Boolean usePitch, Boolean us
 		GoToSel(doc);
 
 	if (DETAIL_SHOW) {
-		FormatReportString(sParm, searchPat, "Find Next", str);
+		FormatReportString(sParm, searchPat, "Next", str);
 		LogPrintf(LOG_DEBUG, "%s", str);
 		LogPrintf(LOG_DEBUG, ", L%d V%d: ", startL, startVoice);
 		if (foundL==DB_NILINK)
 			sprintf(strBuf, "not found.");
 		else {
-			Boolean haveSectionName; char matchLocString[256];
+			Boolean haveSectionName;  char matchLocString[256];
 			Boolean showPitchErr, showDurErr;
 
 			haveSectionName = GetScoreLocIDString(doc, foundL, matchLocString);
@@ -489,7 +489,7 @@ Boolean DoSearchScore(Document *doc, Boolean again, Boolean usePitch, Boolean us
 			}
 		}
 
-		LogPrintf(LOG_DEBUG, "%s\n", strBuf);
+		LogPrintf(LOG_DEBUG, "%s  (DoSearchScore)\n", strBuf);
 	}
 
 Cleanup:
@@ -645,7 +645,7 @@ Boolean DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration,
 	INT16 nFound=0, n;
 	SEARCHPAT searchPat;
 	SEARCHPARAMS sParm;
-	char str[256];
+	char str[256], cDocName[256];
 	long startTicks, elapsedTicks;
 	DB_LINK *matchedObjFA = NULL, *matchedSubobjFA = NULL;
 	long matchArraySize;
@@ -653,7 +653,7 @@ Boolean DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration,
 	if (!SearchIsLegal(usePitch, useDuration)) goto Cleanup;
 
 	if (!N_SearchScore2Pattern(includeRests, &searchPat, matchTiedDur, &haveChord)) {
-		sprintf(str, "The search pattern is too long: notes after the first %d will be ignored.",
+		sprintf(str, "The search pattern is too long: notes after the first %d will be ignored.  (DoIRSearchScore)",
 					MAX_PATLEN);																// ??I18N BUG
 		CParamText(str, "", "", "");
 		CautionInform(GENERIC_ALRT);
@@ -673,7 +673,7 @@ Boolean DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration,
 	sParm.chordNotes = chordNotes;
 	sParm.matchTiedDur = matchTiedDur;
 	
-	FormatReportString(sParm, searchPat, "FIND ALL", str);				// ??I18N BUG
+	FormatReportString(sParm, searchPat, "ALL", str);	// ??I18N BUG
 	LogPrintf(LOG_INFO, "%s:\n", str);
 	startTicks = TickCount();
 
@@ -690,8 +690,18 @@ Boolean DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration,
 									(DB_LINK (*)[MAX_PATLEN])matchedSubobjFA,
 									0);
 
-LogPrintf(LOG_DEBUG, "DoIRSearchScore: doc=%x doc->name='%s' nFound=%d\n", doc,
-doc->name, nFound);
+	if (nFound<=0) {
+		LogPrintf(LOG_INFO, "No matches found.  (DoIRSearchScore)\n", nFound);
+		goto Cleanup;
+	}
+	
+	LogPrintf(LOG_INFO, "Found %d matches.  (DoIRSearchScore)\n", nFound);
+	if (DETAIL_SHOW) {
+		Pstrcpy((StringPtr)cDocName, doc->name);
+		PToCString((StringPtr)cDocName);
+		LogPrintf(LOG_DEBUG, "doc=%x name='%s' nFound=%d  (DoIRSearchScore)\n", doc,
+					cDocName, nFound);
+	}
 	elapsedTicks = TickCount()-startTicks;
 
 	for (n = 0; n<nFound; n++) {
@@ -705,7 +715,6 @@ doc->name, nFound);
 	ListMatches(matchInfoA, (DB_LINK (*)[MAX_PATLEN])matchedObjFA,
 					(DB_LINK (*)[MAX_PATLEN])matchedSubobjFA,
 					searchPat.patLen, nFound, elapsedTicks, sParm, True);
-	LogPrintf(LOG_INFO, "Found %d matches.  (DoIRSearchScore)\n", nFound);
 
 Cleanup:
 	if (matchedObjFA) DisposePtr((char *)matchedObjFA);

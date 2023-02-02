@@ -59,15 +59,15 @@ INT16 N_SearchPatternLen(Boolean *pHaveRest)
 
 
 /* ------------------------------------------------------------- Simple/TiedLDur, etc. -- */
-/* Return total logical duration of <aNoteL> and all following notes tied to
-<aNoteL>. If <selectedOnly>, only includes tied notes until the first unselected
-one. We use the note's notated duration for all the notes. */
+/* Return total logical duration of <aNoteL> and all following notes tied to <aNoteL>.
+If <selectedOnly>, only includes tied notes until the first unselected one. We use the
+note's notated duration for all the notes. */
 
 static INT16 N_TiedLDur(LINK, LINK);
 static INT16 N_TiedLDur(LINK syncL, LINK aNoteL)
 {
-	LINK		syncPrevL, aNotePrevL, continL, continNoteL;
-	INT16		voice, dur, prevDur;
+	LINK syncPrevL, aNotePrevL, continL, continNoteL;
+	INT16 voice, dur, prevDur;
 	
 	voice = NoteVOICE(aNoteL);
 	
@@ -81,6 +81,7 @@ static INT16 N_TiedLDur(LINK syncL, LINK aNoteL)
 		if (continNoteL==NILINK) break;						/* Should never happen */
 
 		/* We know this note will be played, so add in the previous note's notated dur. */
+		
 		prevDur = SyncAbsTime(continL)-SyncAbsTime(syncPrevL);
 		dur += prevDur;
 
@@ -133,7 +134,7 @@ if there's a problem (pattern too long to handle), else True. */
 Boolean N_SearchScore2Pattern(Boolean includeRests, SEARCHPAT *pSearchPat,
 												Boolean matchTiedDur, Boolean *pHaveChord)
 {
-	INT16 index; LINK pL, aNoteL, dummyNoteL;
+	INT16 index;  LINK pL, aNoteL, dummyNoteL;
 	INT16 prevNoteNum;
 	Document *saveDoc;
 	Boolean okay=True;
@@ -151,8 +152,9 @@ Boolean N_SearchScore2Pattern(Boolean includeRests, SEARCHPAT *pSearchPat,
 		if (NoteVOICE(aNoteL)!=SEARCH_VOICE) continue;
 		if (matchTiedDur && NoteTIEDL(aNoteL)) continue;
 		
-		/* We've eliminated all cases we're not interested in: add this note/rest if
-		   we have room for it. */
+		/* We've eliminated all cases we're not interested in: add this note/rest if we
+		   have room for it. */
+		   
 		if (NoteINCHORD(aNoteL)) *pHaveChord = True;
 		index++;
 		if (index>=MAX_PATLEN) {
@@ -190,15 +192,15 @@ Cleanup:
 
 
 /* ------------------------------------------------------ DB_Simple/TiedLDur, etc. -- */
-/* Return total logical duration of <aNoteL> and all following notes tied to
-<aNoteL>. If <selectedOnly>, only includes tied notes until the first unselected
-one. We use the note's notated duration for all the notes. */
+/* Return total logical duration of <aNoteL> and all following notes tied to <aNoteL>.
+If <selectedOnly>, only includes tied notes until the first unselected one. We use the
+note's notated duration for all the notes. */
 
 static INT16 DB_TiedLDur(DB_LINK, DB_LINK);
 static INT16 DB_TiedLDur(DB_LINK syncL, DB_LINK aNoteL)
 {
-	DB_LINK		syncPrevL, aNotePrevL, continL, continNoteL;
-	INT16			voice, dur, prevDur;
+	DB_LINK syncPrevL, aNotePrevL, continL, continNoteL;
+	INT16 voice, dur, prevDur;
 	
 	voice = DB_NoteVOICE(syncL, aNoteL);
 	
@@ -219,6 +221,7 @@ static INT16 DB_TiedLDur(DB_LINK syncL, DB_LINK aNoteL)
 		syncPrevL = continL;
 		aNotePrevL = continNoteL;
 	}
+
 	dur += DB_SimpleLDur(aNotePrevL);						/* Bad if unknown duration or a multibar rest! */
 	return dur;
 }
@@ -241,9 +244,9 @@ long DB_TiedLDurOrCode(DB_LINK syncL, DB_LINK aNoteL)
 
 
 /* ====================================================================================== */
-/* Functions from here on assume the query is already in our pattern form; they deal
-with "object lists" for scores being searched in an implementation-independent way
-(by using the DB_ functions and macros to access the "object list"). */
+/* Functions from here on assume the query is already in our pattern form. They deal
+with "object lists" for scores being searched in an implementation-independent way, by
+using the DB_ functions and macros to access the "object list". */
 
 /* NUMSIGN(n) = 1, 0, -1 if n is positive, zero, or negative, respectively. */
 
@@ -257,7 +260,8 @@ commands ever consume is in this function when it's called from DoIRSearchFiles(
 static Boolean NRMatch(Boolean usePitch, Boolean useDuration, INT16 pitchSearchType, INT16 durSearchType,
 						INT16 maxTranspose, INT16 pitchTolerance, Boolean pitchKeepContour,
 						Boolean matchTiedDur, DB_LINK syncL, DB_LINK theNoteL, DB_LINK prevSyncL,
-						DB_LINK prevNoteL, INT16 prevNoteNum, SEARCHPAT searchPat, INT16 targetPos, ERRINFO *pErrorInfo);
+						DB_LINK prevNoteL, INT16 prevNoteNum, SEARCHPAT searchPat, INT16 targetPos,
+						ERRINFO *pErrorInfo);
 static Boolean NRMatch(
 						Boolean usePitch, Boolean useDuration,
 						INT16 pitchSearchType,
@@ -281,8 +285,8 @@ static Boolean NRMatch(
 	INT16 intervalWanted, intervalHere, nnDiff;
 	INT16 pitchError, durationError;
 	
-	/* Notes match only notes; rests--even if they're included--match only rests.
-	   Also, note continuations (i.e., tied to the left) match only continuations. */
+	/* Notes match only notes; rests match only rests. Also, note continuations (i.e.,
+	   notes tied to the left) match only continuations. */
 	   
 	if (DB_NoteREST(theNoteL)!=searchPat.noteRest[targetPos]) return False;
 	if (DB_NoteTIEDL(theNoteL)!=searchPat.tiedL[targetPos]) return False;
@@ -431,7 +435,7 @@ enum {
 We actually use a dialog instead of an alert to facilitate handling a "don't warn
 again" button. */
 
-static ModalFilterUPP	filterUPP;
+static ModalFilterUPP filterUPP;
 
 void WarnHaveChord(void)
 {
@@ -458,7 +462,7 @@ void WarnHaveChord(void)
 	}
 	SetPort(GetDialogWindowPort(dlog));
 
-	PlaceWindow(GetDialogWindow(dlog),NULL,0,70);
+	PlaceWindow(GetDialogWindow(dlog), NULL, 0, 70);
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 
@@ -573,14 +577,14 @@ static INT16 SyncMatch(
 			DB_LINK matchedObjA[],
 			DB_LINK matchedSubobjA[],
 			DB_LINK *pMayMatchStartL,				/* Input AND output! For new candidate match, starting DB_LINK */
-			DB_LINK *pPrevSyncL,						/* Input AND output! */
-			DB_LINK *pPrevNoteL,						/* Input AND output! */
-			INT16 *pPrevNoteNum,						/* Input AND output! */
+			DB_LINK *pPrevSyncL,					/* Input AND output! */
+			DB_LINK *pPrevNoteL,					/* Input AND output! */
+			INT16 *pPrevNoteNum,					/* Input AND output! */
 			INT16 *pTargetPos,						/* Pos. in pattern to match. Input AND output! */
-			ERRINFO *pErrInfo							/* Output */
+			ERRINFO *pErrInfo						/* Output */
 		)
 {
-	INT16 targetPos; DB_LINK aNoteL, mayMatchStartL;
+	INT16 targetPos;  DB_LINK aNoteL, mayMatchStartL;
 	DB_LINK lowNoteL, hiNoteL;
 	INT16 voiceStatus;
 	Boolean matchHere;
@@ -743,6 +747,7 @@ static INT16 RestartSearchTargetPos(
 		startSyncNoteL =  DB_ChordNextNR(failedMatchStartL, failedMatchStartNoteL);
 		if (startSyncNoteL!=DB_NILINK) {
 			/* Put remaining notes in its chord into an array to use for following loop indices. */
+			
 			k = 0;
 			for ( ; startSyncNoteL; startSyncNoteL = DB_ChordNextNR(failedMatchStartL, startSyncNoteL)) {
 		 		startNoteL[k] = startSyncNoteL;
@@ -807,7 +812,7 @@ static INT16 RestartSearchTargetPos(
 					if (k<startNoteCount-1)
 						goto NextChordNote;		/* So next iteration will start with next note in failed-match chord */
 					else
-						pL = mayMatchStartL;		/* So next iteration will start with next DB_LINK */
+						pL = mayMatchStartL;	/* So next iteration will start with next DB_LINK */
 					targetPos = 0;
 					mayMatchStartL = DB_NILINK;
 				}
@@ -833,11 +838,11 @@ Cleanup:
 }
 
 
-/* Calculate relevance estimate for a match described by <errInfo>, given the
-pitch tolerance and the length of the pattern. */
+/* Calculate relevance estimate for a match described by <errInfo>, given the pitch
+tolerance and the length of the pattern. */
 
 INT16 CalcRelEstimate(ERRINFO errInfo, INT16 pitchTolerance, FASTFLOAT pitchWeight,
-										INT16 patLen)
+							INT16 patLen)
 {
 	short maxPError, maxDError;
 	FASTFLOAT relPAccuracy, relDAccuracy, relAccuracy;
@@ -924,6 +929,7 @@ DB_LINK SearchGetHitSet(
 	fullMatchStartL = DB_NILINK;
 		
 	/* Prepare to show a crude progress indicator. */
+	
 	for (nObjsToSearch = 0, pL = startL; pL!=doc->tailL; pL = DB_RightLINK(pL))
 		nObjsToSearch++;
 	InitProgressReport(nObjsToSearch);
@@ -941,9 +947,9 @@ DB_LINK SearchGetHitSet(
 	for (pL = startL; pL!=doc->tailL; pL = DB_RightLINK(pL)) {
 		UpdateProgressReport();
 		
-		/* If we have a match in at least one voice and no voice has a match in
-		 * progress, we're done.
-		 */
+		/* If we have a match in at least one voice and no voice has a match in progress,
+		   we're done. */
+		   
 		if (fullMatchStartL!=DB_NILINK) {
 			for (done = True, v = 1; v<=MAXVOICES; v++)
 				if (targetPos[v]>0 && targetPos[v]<searchPat.patLen) {
@@ -1024,7 +1030,7 @@ DB_LINK SearchGetHitSet(
 														&newPrevSyncL, &newPrevNoteL,
 														&newPrevNoteNum,
 														newObjA, newSubobjA, &totalErrorInfo[v]);
-				if (CapsLockKeyDown() && ShiftKeyDown())
+				if (MORE_DETAIL_SHOW)
 					LogPrintf(LOG_DEBUG, "  SS>RestartSTP(v=%d,L%ld) newMayStart=L%ld: Pos=%d totalPitchError=%d\n",
 						v, (long)mayMatchStartL[v], (long)newMayMatchStartL, targetPos[v],
 						totalErrorInfo[v].pitchErr);
@@ -1037,7 +1043,7 @@ DB_LINK SearchGetHitSet(
 				prevNoteL[v] = newPrevNoteL;
 				prevNoteNum[v] = newPrevNoteNum;
 				if (targetPos[v]>=searchPat.patLen) {
-						LogPrintf(LOG_DEBUG, "RestartSTP FOUND IT!\n");
+						if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "RestartSTP FOUND IT!\n");
 						fullMatchStartL = mayMatchStartL[v];				/* Matched entire pattern */
 				}
 		}
@@ -1148,10 +1154,10 @@ void FormatReportString(SEARCHPARAMS sParm, SEARCHPAT searchPat, char *findLabel
 }
 
 
-/* Given an interval of time, return string equivalent in seconds and centiseconds
-(NOT milliseconds) without using a floating-point format. Useful when full ANSI C
-formatting capabilities may not be available (e.g., as of this writing, with the
-standard Symantec C Nightingale project). */
+/* Given an interval of time, return string equivalent in seconds and centiseconds (not
+milliseconds) without using a floating-point format. (Useful mostly when full ANSI C
+formatting capabilities weren't available: that was the case with the standard Symantec C
+Nightingale project when this was written, but it's unlikely it ever will be again.) */
 
 static void FormatTime(long timeMilliSecs, char *str);
 static void FormatTime(
@@ -1185,7 +1191,8 @@ static void SortMatches(MATCHINFO matchInfoA[],
 					INT16 nsize)
 {
 	INT16 i, j, k;
-	MATCHINFO temp; DB_LINK tempObj[MAX_PATLEN], tempSubobj[MAX_PATLEN];
+	MATCHINFO temp;
+	DB_LINK tempObj[MAX_PATLEN], tempSubobj[MAX_PATLEN];
 	
 	if (matchedObjFA==NILINK) return;
 	
@@ -1230,14 +1237,13 @@ void ListMatches(MATCHINFO matchInfoA[],
 	char strTime[256];
 	Boolean sortByRelEst;
 
-LogPrintf(LOG_INFO, "ListMatches: nFound=%d\n", nFound);
 	elapsedMillisecs = TICKS2MS(elapsedTicks);
 	FormatTime(elapsedMillisecs, strTime);
 
 	if (nFound==0) {
 		CParamText("The pattern was not found.", "", "", "");	// ??I18N BUG
 		NoteInform(GENERIC_ALRT);
-		LogPrintf(LOG_INFO, "Time %s sec. Not found.\n", strTime);
+		LogPrintf(LOG_INFO, "Time %s sec. The pattern was not found. (ListMatches)\n", strTime);
 		return;
 	}
 		

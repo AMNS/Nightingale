@@ -12056,3 +12056,27 @@ again... done.
 
 Notehead graphs are never hollow, so half notes can't be distinguished from quarters. Fix
 that by erasing the middle of the graph... Done.
+
+---------------------------------------------------------------------------------------
+
+17 Jan. - 2 Feb.
+
+!! My two largest 'N105' format test files are Bach-BWV540FMToccata.ngl (528K) and
+Bach_StAnne_69.ngl (208K). The former is about 2.5 times the size of the latter, yet it
+takes 25 times as long to open: over 2 minutes vs. 5 seconds! Presumably the vast majority
+of that time is the format conversion. Other relatively-large N105 files open in just 2 or
+3 seconds, so BWV 540 is the outlier. Why?? Well, put off looking into this.
+
+BACK TO: Find All crashes (July 2022) -- or sometimes hangs -- while drawing the result
+list window, after this error message:
+
+	ERROR. Possible bug in program: DrawMessageBox: Int2UserVoice(0) failed.
+
+Nonetheless it draws the result list correctly! Why? Ah: It shouldn't be drawing a message
+box at all; this is our special nonmodal window, not a score! Change a few things => it
+works: clicking on a line in the result list scrolls the window to show it (though not very
+well) and selects the matched notes!! Test w/ first five notes of BachStAnne and default
+options => finds the correct five matches. With a pitch tolerance of 2... not so good; it
+crashes. Traceback shows it's in system routine LAddRow, in the 1st call from our 
+PrepareResultListDoc called from DoResultListDoc called from ListMatches.
+

@@ -289,7 +289,7 @@ typedef struct {
 
 #define resListDocWindowID	2001
 
-SS_GLOBAL Document *gResListDocument;
+SS_GLOBAL Document *gResultListDoc;
 
 
 /* Prototypes for "semi-public" routines: should be called only by Search Score routines */
@@ -327,20 +327,20 @@ Boolean AddToResultList(char str[], MATCHINFO matchInfo, DB_LINK matchedObjA[MAX
 Boolean DoResultList(char label[]);
 
 Boolean BuildDocList(Document *doc, short fontSize);
-Boolean HandleResListUpdate(void);
-Boolean HandleResListActivate(Boolean activ);
-Boolean HandleResListMouseDown(Point where, int modifiers);
+Boolean HandleResultListUpdate(void);
+Boolean HandleResultListActivate(Boolean activ);
+Boolean HandleResultListMouseDown(Point where, int modifiers);
 Boolean DoResultListDoc(char label[]);
 
 /* Defined in ResultListDocument.c */
 
-Boolean BuildResListDocument(register Document *doc);
-Boolean DoCloseResListDocument(register Document *doc);
-void ActivateResListDocument(register Document *doc, INT16 activ);
+Boolean BuildResListDocument(Document *doc);
+Boolean DoCloseResListDocument(Document *doc);
+void ActivateResListDocument(Document *doc, INT16 activ);
 void ShowResListDocument(Document *doc);
 Boolean DoOpenResListDocument(Document **pDoc);
 
-/* Defined who knows where? */
+/* Defined who knows where? FIXME: Find out where, for heaven's sake! */
 
 void DB_GetNString(DB_LINK graphicL, Boolean isFilename, char theStr[]);
 DB_LINK DB_StringSearch(DB_LINK startL, Boolean goLeft);

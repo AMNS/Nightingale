@@ -25,7 +25,8 @@
 
 /* Constants */
 
-/* Default qtr-space position relative to staff top of text, lyrics, tempo marks and dynamics. */
+/* Default quarter-space position relative to staff top of text, lyrics, tempo marks and
+dynamics. */
 
 #define DFLT_TEMPO_HEIGHT		-24
 #define DFLT_LYRIC_HEIGHT		28
@@ -267,10 +268,10 @@ static Boolean NotelistToNight(Document *doc)
 
 	ProgressMsg(CONVERTNOTELIST_PMSTR, " 2...");	/* "Converting Notelist file: step 2..." */
 
-	/* Fix up LINKs of all Tuplets in the score. Note that IIFixTupletLinks also resets
-	   play durations of notes in tuplets: this is not good, since we've already set
-	   them from the notelist, but it should be easy to get rid of when someone has a
-	   bit of time. */
+	/* Fix up LINKs of all Tuplets in the score. FIXME: Note that IIFixTupletLinks also
+	   resets play durations of notes in tuplets: this is not good, since we've already
+	   set them from the notelist, but it should be easy to get rid of when someone has
+	   a bit of time. */
 	   
 	for (v = 1; v<=MAXVOICES; v++)
 		IIFixTupletLinks(doc, doc->headL, doc->tailL, v);
@@ -663,8 +664,9 @@ static Boolean ConvertClef(Document *doc, NLINK pL)
 	pC = GetPNL_CLEF(pL);
 
 	/* If the staff this clef belongs on already has a clef of that type in effect,
-	   don't add this one. (We do this because Ngale's Save Notelist command saves every
-	   clef it finds, including all clefs in reserved area.) */
+	   don't add this one. (Aside from eliminating redundant clefs, we do this because
+	   Nthe Save Notelist command saves every clef it finds, including all clefs in the
+	   reserved area.) */
 	   
 	clefL = LSSearch(doc->tailL, CLEFtype, pC->staff, GO_LEFT, False);
 	if (clefL)
@@ -941,7 +943,7 @@ static Boolean SetDefaultCoords(Document *doc)
 							height = DFLT_TEXT_HEIGHT;
 							break;
 						default:
-							MayErrMsg("Nonsense textStyle %ld.  (SetDefaultCoords: n)", textStyle);
+							MayErrMsg("Nonsense textStyle %ld.  (SetDefaultCoords)", textStyle);
 							height = DFLT_TEXT_HEIGHT;
 					}
 					yd = qd2d(height, staffHeight[staffn], staffLines[staffn]);

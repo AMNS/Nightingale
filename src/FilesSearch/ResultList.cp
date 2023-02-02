@@ -53,7 +53,7 @@ static pascal void DrawButtonBorder(DialogPtr, short);
 static pascal void DrawList(DialogPtr, short);
 
 static Boolean HandleListEvent(EventRecord *theEvt);
-static pascal Boolean ResListFilter(DialogPtr, EventRecord *, short *);
+static pascal Boolean ResultListFilter(DialogPtr, EventRecord *, short *);
 static void ProcessModalEvents(void);
 static void CloseToolPalette(void);
 
@@ -403,13 +403,14 @@ static void PrepareResultList(UserList *l)
 	INT16 count = GetListLength();
 	INT16 delta = count - l->nCells;
 	
-	if (delta > 0)	LAddRow(delta, l->nCells,l->hndl);
-	else			LDelRow(count, delta,l->hndl);
+LogPrintf(LOG_DEBUG, "DoResultListDoc: count=%d delta=%d\n", count, delta); 
+	if (delta > 0)	LAddRow(delta, l->nCells, l->hndl);
+	else			LDelRow(count, delta, l->hndl);
 	
 	SetListLength(l);
 	
 	for (INT16 i = 0; i<l->nCells; i++) {
-		l->cell.h = 0; l->cell.v = i;
+		l->cell.h = 0;  l->cell.v = i;
 		LClrCell(l->cell, l->hndl);
 	}
 }
@@ -696,7 +697,7 @@ static Boolean HandleListEvent(EventRecord *theEvt)
 	return False;
 }
 
-static pascal Boolean ResListFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
+static pascal Boolean ResultListFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
 	//register short	ch, ans;
@@ -768,7 +769,7 @@ static void ProcessModalEvents()
 	GetPort(&origPort);
 	SetPort(GetWindowPort(frontWindow));	
 	
-	filterUPP = NewModalFilterUPP(ResListFilter);
+	filterUPP = NewModalFilterUPP(ResultListFilter);
 	if (filterUPP == NULL) { return; }
 	
 	while (!done) {
@@ -793,7 +794,7 @@ Boolean BuildDocList(Document *doc, short fontSize)
 	WindowPtr w = doc->theWindow;
 	UserList *l = &theList;
 		
-LogPrintf(LOG_DEBUG, "BuildDocList: l=%x\n", l);
+LogPrintf(LOG_DEBUG, "BuildDocList: l=%x doc->lookVoice=%d\n", l, doc->lookVoice);
 	csize = fontSize+4;
 	
 	/* Content area (plus scroll bar) of list corresponds to user item box */
@@ -834,7 +835,7 @@ LogPrintf(LOG_DEBUG, "BuildDocList: l=%x\n", l);
 	return True;
 }
 
-Boolean HandleResListUpdate()
+Boolean HandleResultListUpdate()
 {
 	GrafPtr	oldPort;
 	Rect bounds = theList.bounds;
@@ -842,7 +843,7 @@ Boolean HandleResListUpdate()
 	InsetRect(&bounds, -1, -1);
 	FrameRect(&bounds);
 	
-	WindowPtr w = gResListDocument->theWindow;
+	WindowPtr w = gResultListDoc->theWindow;
 	GetPort(&oldPort);
 	SetPort(GetWindowPort(w));
 	
@@ -855,9 +856,9 @@ Boolean HandleResListUpdate()
 	return True;
 }
 
-Boolean HandleResListActivate(Boolean activ)
+Boolean HandleResultListActivate(Boolean activ)
 {
-	WindowPtr w = gResListDocument->theWindow;
+	WindowPtr w = gResultListDoc->theWindow;
 	
 	SetPort(GetWindowPort(w));
 	if (w != NULL && theList.hndl != NULL) {
@@ -905,10 +906,10 @@ static void InvalWindowPort(WindowPtr w)
 	InvalWindowRect(w, &box);
 }
 
-Boolean HandleResListMouseDown(Point where, int modifiers) 
+Boolean HandleResultListMouseDown(Point where, int modifiers) 
 {
 #if 0
-	WindowPtr w = gResListDocument->theWindow;
+	WindowPtr w = gResultListDoc->theWindow;
 	InvalWindowPort(w);
 	FillUpdateRgn(w);
 #endif
@@ -929,7 +930,7 @@ Boolean HandleResListMouseDown(Point where, int modifiers)
 				}
 			}
 			
-			AlwaysErrMsg("HandleResListMouseDown: Something is wrong.");
+			AlwaysErrMsg("HandleResultListMouseDown: Something is wrong.");
 		}
 		
 		return True;
@@ -938,7 +939,7 @@ Boolean HandleResListMouseDown(Point where, int modifiers)
 	return False;
 }
 
-Boolean HandleResListDragWindow() 
+Boolean HandleResultListDragWindow() 
 {
 	return True;
 }
@@ -966,7 +967,7 @@ Boolean DoResultListDoc(char /* label */ [])
 	l->cell.v = 0;
 	LSetSelect(True,l->cell,l->hndl);
 	EraseRect(&l->content);
-	WindowPtr w = gResListDocument->theWindow;
+	WindowPtr w = gResultListDoc->theWindow;
 	InvalWindowRect(w,&l->bounds);
 	LSetDrawingMode(True,l->hndl);
 #endif

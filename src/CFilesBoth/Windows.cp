@@ -589,7 +589,7 @@ void UpdatePalette(WindowPtr whichPalette)
 			break;
 		case HELP_PALETTE:
 		case CLAVIER_PALETTE:
-			SysBeep(60);
+			AlwaysErrMsg("The clavier palette isn't implemented.  (UpdatePalette)");
 			break;
 	}
 	notInMenu = False;

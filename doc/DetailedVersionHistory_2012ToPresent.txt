@@ -3883,7 +3883,19 @@ Fixed bug (Issue #203): If you add a part to a score that has a key signature at
 beginning, the new staff/staves don't get a key signature even if you change the key
 signature on all staves to something other than no sharps or flats. Affects Check.
 
-Minor changes. Affects info.plist, NightTemplates.h; Check, DrawNRGR, DrawUtils,
+Minor changes. Affects info.plist, NightTemplates; Check, DrawNRGR, DrawUtils,
 Initialize, NotelistOpen, NotelistParse.
 
 ----------------------------------------------------------------------------------------- B35
+
+24 Jan. - 1 Feb.
+
+Alleviated bug (Issue #187): While drawing the result list window, Find All (in the
+Search dialog) always gives an error message, then crashes or hangs. Now it usually
+works properly, but still crashes sometimes. Affects SearchScorePrivate.h; Event,
+ResultListDocument.
+
+Minor changes. Affects info.plist, ApplicData.h, SearchScorePrivate.h; Event, NotelistOpen,
+ResultList, ResultListDocument, SearchScore, SearchScoreNative, Windows.
+
+----------------------------------------------------------------------------------------- B36

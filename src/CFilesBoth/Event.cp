@@ -16,6 +16,7 @@
 #include "Nightingale.appl.h"
 
 #include "CarbonPrinting.h"
+#include "SearchScorePrivate.h"
 
 #define mouseMovedEvt			0xFA
 #define suspResumeEvt			0x01
@@ -225,20 +226,24 @@ void DoUpdate(WindowPtr w)
 			case DOCUMENTKIND:
 				doc=GetDocumentFromWindow(w);
 				if (doc!=NULL) {
-					doView = True;
-					
-					/* Get bounding box of region to redraw in local coords */
-					
-					RgnHandle visRgn = NewRgn();
-					GetPortVisibleRegion(GetWindowPort(w), visRgn);
-					GetRegionBounds(visRgn, &bBox);
-					DisposeRgn(visRgn);
-					InstallDoc(doc);
-					DrawDocumentControls(doc);
-					DrawMessageBox(doc, True);
-					if (doView) DrawDocumentView(doc, &bBox);
-					topDoc = GetDocumentFromWindow(TopDocument);
-					if (topDoc!=NULL) InstallDoc(topDoc);
+					if (doc == gResultListDoc)
+						HandleResultListUpdate();
+					else {
+						doView = True;
+						
+						/* Get bounding box of region to redraw in local coords */
+						
+						RgnHandle visRgn = NewRgn();
+						GetPortVisibleRegion(GetWindowPort(w), visRgn);
+						GetRegionBounds(visRgn, &bBox);
+						DisposeRgn(visRgn);
+						InstallDoc(doc);
+						DrawDocumentControls(doc);
+						DrawMessageBox(doc, True);
+						if (doView) DrawDocumentView(doc, &bBox);
+						topDoc = GetDocumentFromWindow(TopDocument);
+						if (topDoc!=NULL) InstallDoc(topDoc);
+					}
 				}
 				break;
 			case PALETTEKIND:
@@ -326,7 +331,10 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 			case DOCUMENTKIND:
 				doc = GetDocumentFromWindow(w);
 				if (doc) {
-					ActivateDocument(doc,activ);
+					if (doc == gResultListDoc)
+						ActivateResListDocument(doc, activ);
+					else				
+						ActivateDocument(doc, activ);
 				}
 				break;
 			case PALETTEKIND:
@@ -520,68 +528,74 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 			case DOCUMENTKIND:
 				doc = GetDocumentFromWindow(w);
 				if (doc) {
-					//switch( code = FindControl(pt, w, &control) ) {
-					control = FindControlUnderMouse(pt, w, &code);
-					switch (code) {
-						case kControlUpButtonPart:
-						case kControlPageUpPart:
-						case kControlDownButtonPart:
-						case kControlPageDownPart:
-							contrlHilite = GetControlHilite(control);
-							if (contrlHilite != 255) {
-								MEHideCaret(doc);
-								GetWindowPortBounds(w, &portRect);
-								ClipRect(&portRect);
-								TrackControl(control, pt, actionUPP);
-								ClipRect(&portRect);
-								DrawControls(w);
-								ClipRect(&doc->viewRect);
-								}
-							break;
-						case kControlIndicatorPart:
-							contrlHilite = GetControlHilite(control);
-							if (contrlHilite != 255) {
-								oldVal = GetControlValue(control);
-								GetWindowPortBounds(w, &portRect);
-								ClipRect(&portRect);
-								TrackControl(control, pt, NULL);
-								val = GetControlValue(control);
-								ClipRect(&doc->viewRect);
-								change = val-oldVal;
-								if (change) {
-									if (change & 7)
-										/* Keep change a multiple of 8 */
-										if (change > 0) change += (8 - (change & 7));
-										 else			change -= (change & 7);
-										 
-									/* Reset it, because QuickScroll expects old value,
-									   but don't let user see you set it back. */
-									   
-									SetControlValue(control,oldVal);
-									MEHideCaret(doc);
-									
-									/* OK, now go ahead */
-									
-									if (control==doc->vScroll)	QuickScroll(doc, 0, change, True, True);
-									 else						QuickScroll(doc, change, 0, True,True);
-									}
-								}
-							break;
-						default:
-							if (doc!=clipboard) DoDocContent(w, pt, modifiers, when);
-							break;
-						}
+					if (doc == gResultListDoc) {
+						HandleResultListMouseDown(pt, modifiers);
 					}
+					else {
+						//switch( code = FindControl(pt, w, &control) ) {
+						control = FindControlUnderMouse(pt, w, &code);
+						switch (code) {
+							case kControlUpButtonPart:
+							case kControlPageUpPart:
+							case kControlDownButtonPart:
+							case kControlPageDownPart:
+								contrlHilite = GetControlHilite(control);
+								if (contrlHilite != 255) {
+									MEHideCaret(doc);
+									GetWindowPortBounds(w, &portRect);
+									ClipRect(&portRect);
+									TrackControl(control, pt, actionUPP);
+									ClipRect(&portRect);
+									DrawControls(w);
+									ClipRect(&doc->viewRect);
+									}
+								break;
+							case kControlIndicatorPart:
+								contrlHilite = GetControlHilite(control);
+								if (contrlHilite != 255) {
+									oldVal = GetControlValue(control);
+									GetWindowPortBounds(w, &portRect);
+									ClipRect(&portRect);
+									TrackControl(control, pt, NULL);
+									val = GetControlValue(control);
+									ClipRect(&doc->viewRect);
+									change = val-oldVal;
+									if (change) {
+										if (change & 7)
+											/* Keep change a multiple of 8 */
+											if (change > 0) change += (8 - (change & 7));
+											 else			change -= (change & 7);
+											 
+										/* Reset it, because QuickScroll expects old value,
+										   but don't let user see you set it back. */
+										   
+										SetControlValue(control,oldVal);
+										MEHideCaret(doc);
+										
+										/* OK, now go ahead */
+										
+										if (control==doc->vScroll)	QuickScroll(doc, 0, change, True, True);
+										 else						QuickScroll(doc, change, 0, True,True);
+										}
+									}
+								break;
+							default:
+								if (doc!=clipboard) DoDocContent(w, pt, modifiers, when);
+								break;
+							}
+						}
 				break;
 			case PALETTEKIND:
 				notInMenu = True;
 				index = GetWRefCon(w);
 				if (index == TOOL_PALETTE) DoToolContent(pt, modifiers);
-				if (index == CLAVIER_PALETTE) SysBeep(60);
+				if (index == CLAVIER_PALETTE)
+					AlwaysErrMsg("The clavier palette isn't implemented.  (DoContent)");
 				notInMenu = False;
 				break;
 					
 			}
+		}
 		
 		SetPort(oldPort);
 	}
@@ -685,7 +699,8 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 
 
 /* Move the selected symbol -- or, for some object types, symbols -- of certain types a
- teeny bit. Returns True if it did anything. */
+teeny bit. Notes and rests can be nudged only horizontally. Return True iff we did
+anything. */
 
 #define NUDGE_DIST	p2d(1)		/* Distance to move: 1 pixel */
 
@@ -764,6 +779,7 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 					return moved;
 				
 				/* Move in any direction selected subobjects (one slur or one or more ties) only. */
+				
 				case SLURtype:
 					aSlurL = FirstSubLINK(pL);
 					for ( ; aSlurL; aSlurL = NextSLURL(aSlurL)) {
@@ -820,13 +836,17 @@ static Boolean DoKeyDown(EventRecord *evt)
 		if (evt->modifiers & cmdKey) {
 			if (ch>=kLeftArrowCharCode && ch<=kDownArrowCharCode) {
 				if (!doc) return True;
+				
+				/* If exactly one symbol is selected, the arrow keys (with the command
+				   key) "nudge" it in the appropriate direction. */
+				   
 				CountSelection(doc, &nInRange, &nSelFlag);
 				if (nSelFlag!=1) return True;
 				if (Nudge(doc, ch)) {
 					doc->changed = True;
 					InvalSelRange(doc);
 				}
-				else SysBeep(1);
+				else SysBeep(1);					/* Symbol couldn't be nudged */
 				return True;
 			}
 			//cmdCode = MenuKey((char)(evt->message & charCodeMask));
