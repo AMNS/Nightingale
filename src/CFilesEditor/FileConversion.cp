@@ -1842,7 +1842,9 @@ calling this, in OpenFile(); (2) to objects or subobjects, before calling it, in
 ReadHeaps(). */
 
 #if SUBOBJ_DETAIL_SHOW || OBJ_DETAIL_SHOW
-#define DEBUG_LOOP
+#define DEBUG_LOOP 2
+#else
+#define DEBUG_LOOP 0
 #endif
 
 // FIXME: REMOVE GetPSUPEROBJECT() & CHANGE ALL TO GetPSUPEROBJ()!
@@ -1854,36 +1856,40 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 	HEAP *objHeap;
 	LINK pL, startL, prevL;
 	unsigned char *pSObj;
+	short debugLevel, objCount;
 
 	if (version!='N105') {
 		AlwaysErrMsg("Can't convert file of any version but 'N105'.  (ConvertObjSubobjs)");
 		return False;
 	}
 	
-	InitDebugConvert();
-	
-	objHeap = doc->Heap + OBJtype;
-
-	fflush(stdout);
-
+	debugLevel = (DETAIL_SHOW? 1 : 0);
+	if (DEBUG_LOOP) debugLevel = 2;
+	objHeap = doc->Heap + OBJtype;	
 	startL = (doMasterList?  doc->masterHeadL :  doc->headL);
+
+	InitDebugConvert();
+	fflush(stdout);
+	objCount = 0;
 	prevL = startL-1;
 	for (pL = startL; pL; pL = RightLINK(pL)) {
-#ifdef DEBUG_LOOP
-		/* Sidestep the OS 10.5 Console utility disappearing-message bug by adding a
-		   delay each time through. Note that this makes converting large files much
-		   slower, so it should be #ifdef'd out or removed completely if we're not
-		   concerned about getting all the messages. */
-		   
-		KludgeOS10p5Delay4Log(startL==pL);
-		
-		LogPrintf(LOG_DEBUG, " ******************** ConvertObject: pL=%u prevL=%u\n", pL, prevL);
-#endif
+		objCount++;
+		if (debugLevel) {
+			/* Sidestep the OS 10.5 Console utility disappearing-message bug by adding a
+			   delay each time through. Note that this makes converting large files much
+			   slower, so it should be #ifdef'd out or removed completely if we're not
+			   concerned about getting all the messages. */
+			   
+			KludgeOS10p5Delay4Log(objCount==1);
+			
+			if (debugLevel>1 || objCount%20==0) LogPrintf(LOG_DEBUG,
+					" **************** ConvertObjSubobjs: pL=%u prevL=%u\n", pL, prevL);
+		}
 
-		/* If this function is called in the process of opening a file, consecutive objects
-		   must have sequential links; check that. */
+		/* If this function is called in the process of opening a file, the only situation
+		   where it should be, consecutive objects must have sequential links; check that. */
 		 
-		if (pL!=prevL+1) MayErrMsg("PROGRAM ERROR: ConvertObjSubobjs: pL=%ld BUT prevL=%ld INSTEAD OF %ld!",
+		if (pL!=prevL+1) MayErrMsg("PROGRAM ERROR: pL=%ld BUT prevL=%ld INSTEAD OF %ld!  (ConvertObjSubobjs)",
 									(long)pL, (long)prevL, (long)prevL-1);
 		prevL = pL;
 
@@ -1906,7 +1912,7 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 				/* TAIL objects have no subobjs & no fields but header, so there's nothing
 				   to do except to stop: we're at the end of this object list. */
 				   
-				if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertObject: pL=%u is TAIL.\n",
+				if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertObjSubobjs: pL=%u is TAIL.\n",
 										pL);
 				break;
 			case SYNCtype:
@@ -1973,7 +1979,7 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 				ConvertPSMEAS(doc, pL);
 				continue;
 			default:
-				MayErrMsg("PROGRAM ERROR: OBJECT L%ld TYPE %ld IS ILLEGAL.  (ConvertObject)",
+				MayErrMsg("PROGRAM ERROR: OBJECT L%ld TYPE %ld IS ILLEGAL.  (ConvertObjSubobjs)",
 							(long)pL, (long)ObjLType(pL));
 		}
 

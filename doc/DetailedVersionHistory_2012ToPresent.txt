@@ -3899,3 +3899,15 @@ Minor changes. Affects info.plist, ApplicData.h, SearchScorePrivate.h; Event, No
 ResultList, ResultListDocument, SearchScore, SearchScoreNative, Windows.
 
 ----------------------------------------------------------------------------------------- B36
+
+4 - 14 Feb.
+
+Fixed bug (Issue #194): if Open Notelist finds an "M" (tempo/metronome mark) line
+containing "*=noMM" (an explicit "no metronome mark"), Nightingale gives an error message
+and doesn't open it. Affects NotelistParse.
+
+Minor changes: improve error reporting for Open Notelist, etc. Affects info.plist, .rsrc,
+InternalInput.h, Notelist.h; DebugUtils, FileConversion, InternalInput, NotelistOpen,
+NotelistParse, NotelistSave, ScoreInfo.
+
+------------------------------------------------------------------------------------ Build 37

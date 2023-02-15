@@ -665,6 +665,7 @@ LINK IIInsertTempo(Document	*doc,
 					 char		durCode,
 					 Boolean	dotted,
 					 Boolean	hideMM,
+					 Boolean	noMM,
 					 char		tempoStr[],			/* <tempoStr> and <metroStr> are C strings */
 					 char		metroStr[])
 {
@@ -684,9 +685,9 @@ PushLock(OBJheap);
 	pTempo->staffn = staffn;
 	pTempo->subType = durCode;
 	pTempo->dotted = dotted;
-	pTempo->noMM = False;
 	pTempo->filler = 0;
 	pTempo->hideMM = hideMM;
+	pTempo->noMM = noMM;
 	pTempo->firstObjL = anchorL;
 	
 	CToPString(tempoStr);

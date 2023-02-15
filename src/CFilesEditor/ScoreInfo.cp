@@ -81,15 +81,19 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad)
 
 				measDurActual = GetMeasDur(doc, barTermL, ANYONE);
 				if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT) {
-					/* If the "measure" contains an n-measure multibar rest, the only
-						problem case is if there's another Sync in the measure. */
+					/* If the "measure" contains an n-measure multibar rest, there can't
+						be another Sync in the measure. */
+						
 					syncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, False);
 					aNoteL = FirstSubLINK(syncL);
 					if (NoteREST(aNoteL) && NoteType(aNoteL)<WHOLEMR_L_DUR) {
+						short thisMeas;
+						
 						nextSyncL = LSSearch(RightLINK(syncL), SYNCtype, ANYONE, GO_RIGHT, False);
 						if (!nextSyncL || IsAfter(barTermL, nextSyncL)) continue;
-						LogPrintf(LOG_WARNING, "SICheckMeasDur: problem with multibar rest. syncL=%u barTermL=%u nextSyncL=%u\n",
-									syncL, barTermL, nextSyncL);
+						thisMeas = GetMeasNum(doc, syncL);
+						LogPrintf(LOG_WARNING, "Inconsistency with multibar rest in voice %d of Sync L%u in measure %d.  (SICheckMeasDur)\n",
+									NoteVOICE(aNoteL), syncL, thisMeas);
 					}
 					nBad++;
 					if (nBad==1) *pFirstBad = GetMeasNum(doc, pL);

@@ -117,7 +117,7 @@ Boolean FSOpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
 	result = ParseNotelistFile(fileName, fsSpec);
 	if (!result) return False;
 	if (gHairpinCount>0) {
-		GetIndCString(fmtStr, NOTELIST_STRS, 3);	/* "Open Notelist can't handle hairpins..." */
+		GetIndCString(fmtStr, NOTELIST_STRS, NLERR_HAIRPINS);
 		sprintf(strBuf, fmtStr, gHairpinCount);
 		CParamText(strBuf, "", "", "");
 		CautionInform(GENERIC_ALRT);
@@ -137,7 +137,7 @@ Boolean FSOpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
 	
 	doc = CreateNLDoc(newfn);
 	if (doc==NULL) {
-		GetIndCString(strBuf, NOTELIST_STRS, 2);
+		GetIndCString(strBuf, NOTELIST_STRS, NLERR_MAYBE_NOMEM);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		goto Error;
@@ -258,7 +258,7 @@ static Boolean NotelistToNight(Document *doc)
 		   to abort. */
 		
 		if (!result) {
-			GetIndCString(fmtStr, NOTELIST_STRS, 30);	/* "Open Notelist can't convert item..." */
+			GetIndCString(fmtStr, NOTELIST_STRS, NLERR_CANT_CONVERT);
 			sprintf(strBuf, fmtStr, gCurSyncTime, pG->part, pG->uVoice, pG->staff);
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
@@ -429,7 +429,7 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 	aNote->slurredL = pNR->slurredL;
 	aNote->headShape = pNR->appear;
 	if (!isRest) {
-		aNote->onVelocity = pNR->vel;
+		aNote->onVelocity = pNR->onVel;
 		aNote->playDur = pNR->pDur;
 	}
 
@@ -527,7 +527,7 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	aGRNote->slurredR = False;
 	aGRNote->slurredL = False;
 	aGRNote->headShape = pNR->appear;
-	aGRNote->onVelocity = pNR->vel;
+	aGRNote->onVelocity = pNR->onVel;
 	aGRNote->playDur = pNR->pDur;
 
 	if (pNR->inChord && syncL==NILINK)					/* NB: syncL==0 if we're adding to Sync */
@@ -762,7 +762,7 @@ static Boolean ConvertTempo(Document *doc, NLINK pL)
 		metroStr[0] = '\0';
 
 	tempoL = IIInsertTempo(doc, pT->staff, doc->tailL, NILINK, pT->durCode,
-								pT->dotted, pT->hideMM, tempoStr, metroStr);
+								pT->dotted, pT->hideMM, pT->noMM, tempoStr, metroStr);
 	if (tempoL==NILINK) goto broken;
 	
 	return True;

@@ -16,7 +16,7 @@ LINK IIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK ancho
 LINK IIInsertGRString(Document *doc, short staffn, short iVoice, LINK insertBeforeL, LINK anchorL,
 								Boolean isLyric, short textStyle, PTEXTSTYLE pStyleRec, char string[]);
 LINK IIInsertTempo(Document *doc, short staffn, LINK insertBeforeL, LINK anchorL, char durCode,
-							Boolean dotted, Boolean hideMM, char tempoStr[], char metroStr[]);
+							Boolean dotted, Boolean hideMM, Boolean noMM, char tempoStr[], char metroStr[]);
 LINK IIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects);
 LINK IIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects);
 LINK IIAddNoteToSync(Document *doc, LINK syncL);

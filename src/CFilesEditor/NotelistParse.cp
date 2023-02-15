@@ -56,7 +56,7 @@ static Boolean CheckNLNoteRests(void);
 static Boolean CheckNLTuplets(void);
 static Boolean CheckNLBarlines(void);
 static Boolean CheckNLTimeSigs(void);
-static Boolean AnalyzeNLTuplet(NLINK	tupletL);
+static Boolean AnalyzeNLTuplet(NLINK tupletL);
 static long NLSimpleLDur(NLINK pL);
 static long CalcNLNoteLDur(NLINK noteL);
 
@@ -107,40 +107,6 @@ char		gTempoCode[] = { '\0', 'b', 'w', 'h', 'q', 'e', 's', 'r', 'x', 'y' };
 
 static char		gInBuf[LINELEN];	/* Carefully read the comments above IIReadLine before changing the buffer size. */
 static long		gLineCount;
-
-/* -------------------------------------------------------------------------------------- */
-/* Other definitions */
-
-/* The following codes refer to consecutive error messages that are in the middle of the
-string list: this can make adding or changing messages tricky! Cf. ReportParseFailure(). */
-
-enum {
-	NLERR_MISCELLANEOUS=1,	/* "Miscellaneous error" */
-	NLERR_TOOFEWFIELDS,		/* "Less than the minimum number of fields for the opcode" */
-	NLERR_INTERNAL,			/* "Internal error in Notelist parsing" */
-	NLERR_BADTIME,			/* "t (time) is illegal" */
-	NLERR_BADVOICE,			/* "v (voice no.) is illegal" */
-	NLERR_BADPART,			/* "npt (part no.) is illegal" */
-	NLERR_BADSTAFF,			/* "stf (staff no.) is illegal" */
-	NLERR_BADDURCODE,		/* "dur (duration code) is illegal" */
-	NLERR_BADDOTS,			/* "dots (no. of aug. dots) is illegal" */
-	NLERR_BADNOTENUM,		/* (10) "nn (note number) is illegal" */
-	NLERR_BADACC,			/* "acc (accidental code) is illegal" */
-	NLERR_BADEACC,			/* "eAcc (effective accidental code) is illegal" */
-	NLERR_BADPDUR,			/* "pDur (play duration) is illegal" */
-	NLERR_BADVELOCITY,		/* "vel (MIDI velocity) is illegal" */
-	NLERR_BADNOTEFLAGS,		/* "Note flags are illegal" */
-	NLERR_BADAPPEAR,		/* "appear (appearance code) is illegal" */
-	NLERR_BADMODS,			/* "Note modifiers on grace notes or illegal" */
-	NLERR_BADNUMDENOM,		/* "num or denom (numerator or denominator) is illegal" */
-	NLERR_BADTUPLETVIS,		/* "Numerator/denominator visibility combination is illegal" */
-	NLERR_BADTYPE,			/* (20) "type is illegal" */
-	NLERR_BADDTYPE,			/* "dType is illegal" */
-	NLERR_BADNUMACC,		/* "KS (no. of accidentals) is illegal" */
-	NLERR_BADKSACC,			/* "Key signature accidental code is illegal" */
-	NLERR_BADDISPL			/* "displ (time signature appearance) is illegal" */
-};
-
 
 /* -------------------------------------------------------------------------------------- */
 /* High level functions (ParseNotelistFile, PreProcessNotelist, ProcessNotelist,
@@ -205,6 +171,7 @@ static Boolean PreProcessNotelist(short refNum)
 	if (gNotelistVersion<0) return False;
 	
 	/* Count the objects we're interested in. */
+	
 	gNumNLItems = 0;
 	while (IIReadLine(gInBuf, LINELEN, refNum)) {
 		gLineCount++;
@@ -229,6 +196,8 @@ static Boolean PreProcessNotelist(short refNum)
 		}
 	}
 	
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "gNumNLItems=%d sizeof(NL_NODE)=%ld  (PreProcessNotelist)\n",
+						gNumNLItems, (long)sizeof(NL_NODE));		
 	ok = AllocNotelistMemory();
 	if (!ok) return False;
 	
@@ -247,7 +216,6 @@ static Boolean ProcessNotelist(short refNum)
 	short	nRead;
 	char	firstChar, secondChar;
 	Boolean	ok = True;
-	char	fmtStr[256], str[256];
 	
 	gLineCount = 0L;
 	gNextEmptyNode = 0;
@@ -284,17 +252,14 @@ static Boolean ProcessNotelist(short refNum)
 				break;
 			
 			case BEAM_CHAR:
-				GetIndCString(fmtStr, NOTELIST_STRS, 39);		/* "'%c' is an illegal first character ("opcode"). This may be..." */
-				sprintf(str, fmtStr, gLineCount, firstChar);
-				CParamText(str, "", "", ""); 
-				ok = (CautionAdvise(NOTELISTCODE_ALRT)!=Cancel);
+				ReportParseFailure("ProcessNotelist", NLERR_ILLEGAL_OPCODE_B);
+				ok = (CautionAdvise(NOTELISTCODE_ALRT)!=Cancel);	// ?WHY NOT GIVE UP INSTEAD?
 				break;
 			
 			default:
-				GetIndCString(fmtStr, NOTELIST_STRS, 29);		/* "'%c' is an illegal first character ("opcode")." */
-				sprintf(str, fmtStr, gLineCount, firstChar);
-				CParamText(str, "", "", ""); 
-				ok = (CautionAdvise(NOTELISTCODE_ALRT)!=Cancel);
+				ReportParseFailure("ProcessNotelist", NLERR_ILLEGAL_OPCODE);
+				return False;
+				break;
 		}
 		if (!ok) return False;								/* This may be too drastic in some cases. */
 	}
@@ -341,20 +306,20 @@ R t=480 v=1 npt=1 stf=1 dur=4 dots=0 ...... appear=1
 R t=960 v=1 npt=1 stf=1 dur=4 dots=0 ...... appear=1 mods=10
 G t=-1 v=1 npt=1 stf=1 dur=5 dots=0 nn=76 acc=0 eAcc=3 pDur=240 vel=75 . appear=1
 
-This is a bit tricky because these lines contain a variable number of fields.
-
 If a note, rest or grace note owns any note modifiers, they are listed in a "mods" field
-at the end of the line. (NB: As of v. 5.8, Nightingale doesn't support modifiers attached
-to grace notes.) The mods field gives a list of modCodes separated by commas, with
-optional data value trailing each modCode and separated from it by a colon. E.g.:
+at the end of the line (except for notehead segments). (NB: As of v. 5.8, Nightingale
+doesn't support modifiers attached to grace notes.) The mods field gives a list of
+modCodes separated by commas, with optional data value trailing each modCode and
+separated from it by a colon. E.g.:
 			mods=11				[just 1 modifier having modCode=11]
 			mods=0,2,3			[3 modifiers]
 			mods=3:50,2			[2 modifiers, the first having a data value of 50]
+NB: If a line lists segments but no modifiers, the segments must be preceded by "mods=-1".
 
-Also, rests omit the fields labelled "nn", "acc", "eAcc", "pDur" and "vel" above.
+Rests omit the fields labelled "nn", "acc", "eAcc", "pDur" and "vel" above.
 
-Finally, notes and rests have six flags, while grace notes have just one, as of
-Nightingale 5.8. (See comments at ExtractNoteFlags for the meaning of these.) */
+Finally, notes and rests have six flags, while as of v. 5.8, grace notes have just one.
+(See comments at ExtractNoteFlags for the meaning of these.) */
 
 static Boolean ParseNRGR()
 {
@@ -459,9 +424,11 @@ static Boolean ParseNRGR()
 		pNRGR->acc = 0;
 		pNRGR->eAcc = 0;
 		pNRGR->pDur = 0;
-		pNRGR->vel = 0;
+		pNRGR->onVel = 0;
 	}
 	else {
+		/* It's not a rest, so handle note- and grace-note specific fields. */
+		
 		err = NLERR_BADNOTENUM;
 		if (!ExtractVal(noteNumStr, &along)) goto broken;
 		if (along<0L || along>127L) goto broken;
@@ -479,14 +446,16 @@ static Boolean ParseNRGR()
 
 		err = NLERR_BADPDUR;
 		if (!ExtractVal(pDurStr, &along)) goto broken;
+		
 		/* <pDur> can be 0: this means "default" (see NotelistToNight()) */
+		
 		if (pNRGR->objType!=GRACE_TYPE && (along<0L || along>32000L)) goto broken;	/* see InfoDialog.c */
 		pNRGR->pDur = along;
 
 		err = NLERR_BADVELOCITY;
 		if (!ExtractVal(velStr, &along)) goto broken;
 		if (along<0L || along>127L) goto broken;
-		pNRGR->vel = along;
+		pNRGR->onVel = along;
 	}
 
 	err = NLERR_BADNOTEFLAGS;
@@ -497,12 +466,30 @@ static Boolean ParseNRGR()
 	if (along<(long)NO_VIS || along>(long)NOTHING_VIS) goto broken;
 	pNRGR->appear = along;
 	
+	/* The remaining fields are optional. */
+	
 	if (*modStr) {
 		err = NLERR_BADMODS;
-		if (pNRGR->objType==GRACE_TYPE) goto broken;			/* Ngale doesn't support these yet */
+		if (pNRGR->objType==GRACE_TYPE) goto broken;			/* Ngale doesn't support these */
 		if (!ExtractNoteMods(modStr, pNRGR)) goto broken;
 	}
 	else pNRGR->firstMod = 0;
+
+	if (*modStr) {
+		err = NLERR_BADMODS;
+		if (pNRGR->objType==GRACE_TYPE) goto broken;			/* Ngale doesn't support these */
+		if (!ExtractNoteMods(modStr, pNRGR)) goto broken;
+	}
+	else pNRGR->firstMod = 0;
+
+#ifdef NOTYET
+	if (*segmentStr) {
+		err = NLERR_BADSEGS;
+		if (pNRGR->objType==GRACE_TYPE) goto broken;			/* Ngale doesn't support these */
+		if (!ExtractNoteSegs(segmentStr, pNRGR)) goto broken;
+	}
+	else pNRGR->segs = 0;
+#endif
 
 	gNextEmptyNode++;
 	return True;
@@ -713,9 +700,9 @@ static Boolean ParseKeySig()
 	pKS->numAcc = along;
 
 	switch (acc) {
-		case '#':	pKS->sharp = True;	break;
-		case 'b':	pKS->sharp = False;	break;
-		default:		err = NLERR_BADACC;	goto broken;
+		case '#':	pKS->sharp = True;  break;
+		case 'b':	pKS->sharp = False;  break;
+		default:	err = NLERR_BADACC;  goto broken;
 	}
 	
 	gNextEmptyNode++;
@@ -786,8 +773,9 @@ broken:
 
 
 /* -------------------------------------------------------------------- ParseTempoMark -- */
-/* Parse a line like this:
-		M stf=1 'Allegro' q.=126-132
+/* Parse a line describing a tempo/metronome mark, e.g.:
+		M stf=1 'Allegro molto' q.=126-132
+		M stf=1 'Allegro molto' *=noMM
 */
 
 static Boolean ParseTempoMark()
@@ -810,18 +798,20 @@ static Boolean ParseTempoMark()
 	pTempo->objType = TEMPO_TYPE;
 	pTempo->uVoice = NOONE;
 	pTempo->part = NOONE;
+	pTempo->noMM = True;
 
 	err = NLERR_BADSTAFF;
 	if (!ExtractVal(staffStr, &along)) goto broken;
 	if (along<1L || along>(long)MAXSTAVES) goto broken;
 	pTempo->staff = along;
 
-	/* Extract tempo string, which is enclosed in single-quotes and can contain whitespace.
+	/* Extract tempo string; it's enclosed in single quotes and can contain whitespace.
 	   First copy it into a temporary buffer (str); then store into gHStringPool. NB:
-	   If there is no string, it will be encoded as two single-quotes (''). */
+	   If there is no string, it should be encoded as just two single quotes (''). */
 		
 	err = NLERR_MISCELLANEOUS;
 	p = (unsigned char *)strchr(gInBuf, '\'');
+//LogPrintf(LOG_DEBUG, "ParseTempoMark: p=%lx\n", p);
 	if (!p) goto broken;
 	p++;
 	if (*p!='\'') {
@@ -831,9 +821,9 @@ static Boolean ParseTempoMark()
 		*q = 0;
 
 		offset = StoreString((char *)str);
-		if (offset)
-			pTempo->string = offset;
-		else goto broken;
+//LogPrintf(LOG_DEBUG, "ParseTempoMark: offset=%lx\n", offset);
+		if (offset)	pTempo->string = offset;
+		else		goto broken;
 	}
 	else {
 		str[0] = 0;
@@ -844,55 +834,64 @@ static Boolean ParseTempoMark()
 	   tempo mark has its metronome value hidden (hideMM), then we'll reach the null
 	   that terminates gInBuf before hitting a non-whitespace char. */
 	   
+	/* Set up a default metronome mark in case the line doesn't have one. */
+	
+	Str255	metroStr;
+
+	NumToString(config.defaultTempoMM, metroStr);
+	PtoCstr(metroStr);
+	offset = StoreString((char *)metroStr);
+	if (offset)	pTempo->metroStr = offset;
+	else		goto broken;
+	
+	pTempo->durCode = QTR_L_DUR;
+	pTempo->dotted = False;
+	pTempo->hideMM = True;
+
 	for (p++; *p; p++)
 		if (!isspace((int)*p)) break;
 	
+	if (*p) {
 	/* Analyze the metronome (beats per minute) string. Extract <durCode> and <dotted>;
 	   store <metroStr> into gHStringPool. The <metroStr> gives the tempo Ngale uses
-	   for playback. It can comprises arbitrary text, including whitespace, but must
-	   contain a valid tempo value. We don't worry about that here. If there _is_ no
-	   metronome string, we assign a default, since Ngale requires one.	*/
+	   for playback. It can comprises arbitrary text, including whitespace, but -- unless
+	   it begins with an asterisk -- must contain a valid tempo value. We don't worry
+	   about that here. */
 	   
-	if (*p) {
 		short	i;
 		pTempo->durCode = 0;
+	
+		/* If dur. code is asterisk, maybe we should set the "noMM" flag, but it's not
+		   important; just treat it as if there's no M.M. at all. */
+		   
+		if (*p=='*') goto finish;			
+		
 		for (i = 1; i<=9; i++)
 			if (*p==gTempoCode[i]) pTempo->durCode = i;
-		if (pTempo->durCode==0) goto broken;
+LogPrintf(LOG_DEBUG, "ParseTempoMark: pTempo->durCode=%d\n", pTempo->durCode);
+		if (pTempo->durCode==0) { err = NLERR_MM_BADDUR;  goto broken; }
 		if (*++p=='.') {
 			pTempo->dotted = True;
 			p++;
 		}
 		else
 			pTempo->dotted = False;
-		if (*p=='=') p++;
-		else goto broken;
+		if (*p=='=')	p++;
+		else			goto broken;
 		
 		if (strlen((char *)p)>MAX_TEMPO_CHARS) goto broken;
 		offset = StoreString((char *)p);
-		if (offset)
-			pTempo->metroStr = offset;
-		else goto broken;
+		if (offset)	pTempo->metroStr = offset;
+		else		goto broken;
 
 		pTempo->hideMM = False;
-	}
-	else {											/* Assign a default tempo and hide it. */
-		Str255	metroStr;
-
-		NumToString(config.defaultTempoMM, metroStr);
-		PtoCstr(metroStr);
-		offset = StoreString((char *)metroStr);
-		if (offset)
-			pTempo->metroStr = offset;
-		else goto broken;
-		
-		pTempo->durCode = QTR_L_DUR;
-		pTempo->dotted = False;
-		pTempo->hideMM = True;
+		pTempo->noMM = False;
 	}
 	
+finish:
 	gNextEmptyNode++;
 	return True;
+	
 broken:
 	ReportParseFailure("ParseTempoMark", err);
 	return False;
@@ -1318,10 +1317,10 @@ illegal:
 	mods=2:127,12		[two modifiers, one with non-zero data field]
 	mods=-1				[codes can't be negative, so no modifiers]
 
-Stores each modifier parsed into gHModList, filling in the <next> field of these
-modifiers to form a chain. Stores the index of the first of these in the <firstMod>
-field of the given note (NRGR). If error, return False without giving a message (but
-see comments below), else return True. */
+Stores each modifier parsed into gHModList, filling in the <next> field of these modifiers
+to form a linked list. Stores the index of the first of these in the <firstMod> field of
+the given note (NRGR). If error, return False without giving a message (but see comments
+below), else return True. */
 
 #define MAX_MODNRS 50		/* Max. modifiers per note/rest we can handle */
 
@@ -1332,7 +1331,7 @@ static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 	NLINK	offset = NILINK;
 	NL_MOD	tmpMod;
 	
-	if (strncmp(modStr, "mods=", (size_t)5))		/* it's not a mod string */
+	if (strncmp(modStr, "mods=", (size_t)5))		/* Is it really a mod string? */
 		return False;
 	
 	pNRGR->firstMod = NILINK;
@@ -1450,14 +1449,14 @@ static Boolean CheckNLNoteRests(void)
 		if (lDur==0L) {
 			/* ??This and following messages refer to "notes" but apparently apply to rests too. */
 			
-			GetIndCString(fmtStr, NOTELIST_STRS, 32);	/* "Note at time %ld has bad lDur." */
+			GetIndCString(fmtStr, NOTELIST_STRS, 32);	/* "Note at time %ld has bad lDur." ??WRONG MSG! */
 			sprintf(str, fmtStr, pNR1->lStartTime);
 			CParamText(str, "", "", ""); 
 			CautionInform(GENERIC_ALRT);
 			return False;
 		}
 		if (lDur==-1L) {
-			GetIndCString(fmtStr, NOTELIST_STRS, 33);	/* "Note at time %ld claims to be in a tuplet..." */
+			GetIndCString(fmtStr, NOTELIST_STRS, NLERR_NOTE_NOTINTUPLET);
 			sprintf(str, fmtStr, pNR1->lStartTime);
 			CParamText(str, "", "", ""); 
 			CautionInform(GENERIC_ALRT);
@@ -1528,7 +1527,7 @@ static Boolean CheckNLBarlines(void)
 		if (!bar2L) break;
 		pBar2 = GetPNL_BARLINE(bar2L);
 		if (pBar1->lStartTime>pBar2->lStartTime) {
-			GetIndCString(fmtStr, NOTELIST_STRS, 31);		/* "Consecutive barline times..." */
+			GetIndCString(fmtStr, NOTELIST_STRS, 32);		/* "Consecutive barline times..." */
 			sprintf(str, fmtStr, pBar1->lStartTime, pBar2->lStartTime);
 			CParamText(str, "", "", ""); 
 			CautionInform(GENERIC_ALRT);
@@ -1750,18 +1749,21 @@ static long CalcNLNoteLDur(NLINK noteL)
 
 /* ---------------------------------------------------------------- ReportParseFailure -- */
 
-#define STRNUM_OFFSET 4
+#define STRNUM_OFFSET 0
 
 static void ReportParseFailure(
-				char */*functionName*/,				/* C string, for debugging only */
-				short errCode)						/* NLERR_XXX code */
+				char *functionName,				/* C string, for debugging only */
+				short errCode)					/* NLERR_XXX code */
 {
 	char fmtStr[256], str1[256], str2[256];
 	
-	GetIndCString(fmtStr, NOTELIST_STRS, 4);				/* "Problem in line number..." */
+	GetIndCString(fmtStr, NOTELIST_STRS, NLERR_PBLM_LINENO);			/* "Problem in line number..." */
 	sprintf(str1, fmtStr, gLineCount, gInBuf);
 	GetIndCString(str2, NOTELIST_STRS, errCode+STRNUM_OFFSET);
-	CParamText(str1, str2, "", ""); 
+	CParamText(str1, str2, "", "");
+//LogPrintf(LOG_DEBUG, "ReportParseFailure: functionName=%lx '%s'\n", functionName, functionName);
+	LogPrintf(LOG_WARNING, "Nightingale can't parse the notelist file at line %d. errCode=%d  (%s)\n",
+				gLineCount, errCode, functionName);
 	StopInform(OPENNOTELIST_ALRT);
 }
 
@@ -1788,7 +1790,7 @@ static short NotelistVersion(short refNum)
 	char	dummybuf[COMMENT_LINELEN];
 	char	fmtStr[256], errString[256];
 	short	index = 1;						/* index of error string in NOTELIST_STRS 'STR#' */ 
-	short	errCode,errStage=0;
+	short	errCode, errStage=0;
 	char	headerVerString[256];
 
 	/* Skip over any whitespace at beginning of file. */
@@ -1802,7 +1804,7 @@ static short NotelistVersion(short refNum)
 			if (c==COMMENT_CHAR) {				/* found structured comment */
 				long fPos;
 				GetFPos(refNum,&fPos);
-				printf("readComment: fpos %ld", fPos);
+				if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "readComment: fpos %ld  (NotelistVersion)\n", fPos);
 				
 				errCode = IIUngetChar(refNum);		
 				if (errCode != noErr)  { errStage = 3; goto Err; }
@@ -1810,7 +1812,7 @@ static short NotelistVersion(short refNum)
 				if (errCode != noErr)  { errStage = 4; goto Err; }
 				
 				GetFPos(refNum,&fPos);
-				printf("readComment after IIUngetChar: fpos %ld", fPos);
+				if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "readComment after IIUngetChar: fpos %ld  (NotelistVersion)\n", fPos);
 				
 				break;
 			}
@@ -1842,8 +1844,8 @@ static short NotelistVersion(short refNum)
 		return 2;
 
 Err:
-	printf(gInBuf);
-	printf("error stage %d", errStage);
+	LogPrintf(LOG_ERR, gInBuf);
+	LogPrintf(LOG_ERR, "Error stage %d  (NotelistVersion)\n", errStage);
 	
 	/* There's something wrong with the Notelist header structured comment. Say so, but
 	   if user gives the "secret code", go ahead and open it anyway, assuming a recent
@@ -2114,13 +2116,13 @@ Boolean FetchModifier(NLINK modL, PNL_MOD pMod)
 
 
 /* --------------------------------------------------------------- AllocNotelistMemory -- */
-/* Allocate memory for the intermediate Notelist data structure.
-Returns True if ok, False if error (after giving NoMoreMemory alert).
-NB: In the case of an error here, a function higher in the calling chain should dispose
-of whatever memory was allocated before the error by calling DisposNotelistMemory.
-CRUCIAL: We use NewPtrClear rather than NewPtr to insure that all fields will be set
-to zero. We allocate minimal blocks for gHModList and gHStringPool, since we don't know
-how big they'll have to be at this point. We expand them later as needed. */
+/* Allocate memory for the intermediate Notelist data structure. Returns True if all OK,
+False if error (after giving an alert). NB: In the case of an error here, a function
+higher in the calling chain should dispose of whatever memory was allocated before the
+error by calling DisposNotelistMemory. CRUCIAL: We use NewPtrClear rather than NewPtr to
+insure that all fields will be set to zero! We allocate minimal blocks for gHModList and
+gHStringPool, since we don't know how big they'll have to be at this point, and expand
+them later as needed. */
 
 static Boolean AllocNotelistMemory(void)
 {

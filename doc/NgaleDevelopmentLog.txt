@@ -12061,11 +12061,12 @@ that by erasing the middle of the graph... Done.
 
 17 Jan. - 2 Feb.
 
-!! My two largest 'N105' format test files are Bach-BWV540FMToccata.ngl (528K) and
-Bach_StAnne_69.ngl (208K). The former is about 2.5 times the size of the latter, yet it
-takes 25 times as long to open: over 2 minutes vs. 5 seconds! Presumably the vast majority
-of that time is the format conversion. Other relatively-large N105 files open in just 2 or
-3 seconds, so BWV 540 is the outlier. Why?? Well, put off looking into this.
+!! My two largest 'N105' format test files are Bach-BWV540FMToccata.ngl (528K, 5061
+objects) and Bach_StAnne_69.ngl (208K, 2412 objects). The former is about 2.5 times the
+size of the latter, yet it takes 25 times as long to open: 1 min. 19 sec. to over 2 min.
+(in two tests) vs. 5 seconds (in each of two tests)! Presumably the vast majority of that
+time for BWV 540 is the format conversion. Other relatively-large N105 files open in just
+2 or 3 seconds, so BWV 540 is the outlier. Why?? Well, put off looking into this.
 
 BACK TO: Find All crashes (July 2022) -- or sometimes hangs -- while drawing the result
 list window, after this error message:
@@ -12080,3 +12081,25 @@ options => finds the correct five matches. With a pitch tolerance of 2... not so
 crashes. Traceback shows it's in system routine LAddRow, in the 1st call from our 
 PrepareResultListDoc called from DoResultListDoc called from ListMatches.
 
+---------------------------------------------------------------------------------------
+
+4 - 10 Feb.
+
+Take a quick look at why opening Bach-BWV540FMToccata.ngl is so slow. Have
+ConvertObjSubobjs() write a log message every 20 objs. W/ Bach_StAnne_69.ngl, about 11 to
+17 msgs/sec. W/ Bach-BWV540FMToccata.ngl, only 1 to 8, most often no more than 3! Yep. But
+why? Toccata gradually gets slower -- but it also starts off much more slowly than StAnne.
+?? Oh well; put off understanding this again!
+
+BACK TO: Notehead graphs. How do segments get set in the first place? The best bet is
+from notelists. Add an optional <segs> field to "N" lines, e.g.:
+
+	N t=0 v=1 npt=1 stf=1 dur=4 dots=0 nn=76 acc=0 eAcc=3 pDur=456 vel=75 ...... appear=2 mods=-1 segs=5,3
+
+Uh-oh. Here's the old bug in parsing M (Tempo/metronome mark) lines. 2Notes+MM.nl opens w/
+no problems; 2Notes+MM+Asterisk.nl gives an error message. The only difference is
+
+	2Notes+MM.nl:			M stf=1 'accelerando'
+	2Notes+MM+Asterisk.nl:	M stf=1 'accelerando' *=noMM
+
+The error message sucks; improve that => done.

@@ -36,13 +36,12 @@ enum {								/* used in NLOBJHEADER's objType field */
 
 typedef unsigned short NLINK;
 
-#define NLOBJHEADER					/* 8 bytes: */												\
-	long		lStartTime;			/* positive 32-bit integer */								\
-	char		objType;			/* see enum above */										\
-	char		uVoice;				/* part-relative ("user") voice: 1-31, or -2 (NOONE) */		\
-	char		part;				/* 1-64, or -2 (NOONE) */									\
+#define NLOBJHEADER					/* 8 bytes: */											\
+	long		lStartTime;			/* positive 32-bit integer */							\
+	char		objType;			/* see enum above */									\
+	char		uVoice;				/* part-relative ("user") voice: 1-31, or -2 (NOONE) */	\
+	char		part;				/* 1-64, or -2 (NOONE) */								\
 	char		staff;				/* 1-64, or -2 (NOONE) */
-
 
 typedef struct {
 	NLOBJHEADER
@@ -53,63 +52,60 @@ typedef struct {
 typedef struct {
 	NLOBJHEADER
 	NLINK		scoreName;			/* index into Notelist string pool, or NILINK */
-										/* NB: Finder allows 31 + pascal length byte for filenames. */
+									/* NB: Finder allows 31 + pascal length byte for filenames. */
 	char		data[];				/* (additional bytes in union used by NL_NRGR) */
 } NL_HEAD, *PNL_HEAD;
 
 
-/* The NL_NRGR struct represents either a normal Note, a Rest or a GRace note,
-	depending on the value of <objType> (either NR_TYPE or GRACE_TYPE) and the
-	<isRest> field. (Note that Ngale does not currently support grace rests.)
+/* The NL_NRGR struct represents either a normal Note, a Rest or a GRace note, depending
+on the value of <objType> (either NR_TYPE or GRACE_TYPE) and the <isRest> field.
 
 	Note the differences in interpretation of grace note and normal note fields:
-	- <durCode> has narrower range for grace notes (qtr-32nd)
-	- <pDur> unimplemented for grace notes in Ngale
-	- grace notes cannot (yet) be tied, slurred or tupleted
-	- grace notes cannot (yet) have note modifiers
+	- <durCode> for grace notes ha a range of only quarter thru 32nd
+	- <pDur> is unimplemented for grace notes in Ngale
+	- grace notes cannot be tied, slurred or tupleted
+	- grace notes cannot have note modifiers
 	
-	Note the differences in interpretation of rest and note fields:
-	- rests have neither <acc> nor <eAcc> fields in the Notelist
+	Note also the differences in interpretation of rest and note fields:
+	- rests have neither <acc> nor <eAcc> fields
 	- rests have no <pDur> field
 	- rests have no MIDI note number field
 	- rests have no MIDI velocity field
-	- rests can have negative durCodes (representing whole- and multi-meas rests),
+	- rests can have negative durCodes (representing whole and multi-measure rests),
 		but they cannot be of unknown duration (durCode=0)
 	- rests never have their mainNote flag set
 */
 
 typedef struct {
 	NLOBJHEADER
-	unsigned short	isRest:1;		/* note is really a rest */
-	unsigned short	inChord:1;		/* note is in a chord */
-	unsigned short	mainNote:1;		/* main note (carrying the stem) in a chord */
-	unsigned short	inTuplet:1;		/* note/rest is a member of a tuplet group (irrelevant for grace notes) */
-	unsigned short	tiedL:1;		/* tied to the preceding note */
-	unsigned short	tiedR:1;		/* tied to the following note */
-	unsigned short	slurredL:1;		/* slurred to the preceding note */
-	unsigned short	slurredR:1;		/* slurred to the following note */
-	unsigned short	filler1:2;
-	unsigned short	acc:3;			/* code of displayed accidental: 0-5 */
-	unsigned short	eAcc:3;			/* code of effective accidental: 0-5 */
-
-	unsigned char	filler2:1;
-	unsigned char	appear:4;		/* appearance code: 0-10 (see NObjTypes.h) */
-	unsigned char	nDots:3;		/* number of augmentation dots: 0-5 */
+	unsigned short	isRest;			/* "note" is really a rest */
 	char			durCode;		/* code for logical duration: 0-9 (-127 - 9 for rests!) */
-
+	unsigned char	nDots;			/* number of augmentation dots: 0-5 */
 	char			noteNum;		/* MIDI note number: 0-127 */
-	char			vel;			/* MIDI note on velocity: 0-127 */
-	short			pDur;			/* physical duration (480 units/quarter): 1-32000 */
+	unsigned short	acc;			/* code of displayed accidental: 0-5 */
+	unsigned short	eAcc;			/* code of effective accidental: 0-5 */
+ 	short			pDur;			/* physical duration (480 units/quarter): 1-32000 */
+	char			onVel;			/* MIDI note on velocity: 0-127 */
+	unsigned short	inChord;		/* note is in a chord */
+	unsigned short	mainNote;		/* main note (carrying the stem) in a chord */
+	unsigned short	tiedL;			/* tied to the preceding note */
+	unsigned short	tiedR;			/* tied to the following note */
+	unsigned short	filler1;
+	unsigned short	slurredL;		/* slurred to the preceding note */
+	unsigned short	slurredR;		/* slurred to the following note */
+	unsigned short	inTuplet;		/* note/rest is a member of a tuplet group (irrelevant for grace notes) */
+	unsigned char	filler2;
+	unsigned char	appear;			/* appearance code: 0-10 (see NObjTypes.h) */
 	NLINK			firstMod;		/* index into gHModList of 1st note mod, or 0 if no mods */
-} NL_NRGR, *PNL_NRGR;				/* 8 + 10 = 18 bytes */
+	Byte			nhSeg[6];
+} NL_NRGR, *PNL_NRGR;
 
 
 /* Note the interpretation of NLOBJHEADER fields for tuplets:
 	- <lStartTime> is not assigned by Notelist.
-	- <staff> is not specified in the Notelist: a tuplet applies to a
-	  part-relative voice, so Notelist encodes only <uVoice> and <part>.
-	  However, since FICreateTUPLET requires a staff number, we fill
-	  in the tuplet's staff in AnalyzeNLTuplet. */
+	- <staff> is not specified in the Notelist: a tuplet applies to a part-relative
+	  voice, so Notelist encodes only <uVoice> and <part>. However, since FICreateTUPLET
+	  requires a staff number, we fill in the tuplet's staff in AnalyzeNLTuplet. */
 	  
 typedef struct {
 	NLOBJHEADER
@@ -124,8 +120,8 @@ typedef struct {
 
 
 /* Note the interpretation of NLOBJHEADER fields for barlines:
-	- <uVoice>, <staff> and <part> are irrelevant (currently): a barline.
-	  is understood to span the entire system. */
+	- <uVoice>, <staff> and <part> are irrelevant (currently): a barline is assumed to
+	  span the entire system. */
 	  
 typedef struct {
 	NLOBJHEADER
@@ -174,7 +170,7 @@ typedef struct {
 } NL_TIMESIG, *PNL_TIMESIG;
 
 
-/* Note the interpretation of NLOBJHEADER fields for tempo marks:
+/* Note the interpretation of NLOBJHEADER fields for tempo/metronome marks:
 	- <lStartTime> is not assigned by Notelist.
 	- <uVoice> and <part> are irrelevant; use <staff> only. */
 	
@@ -184,6 +180,7 @@ typedef struct {
 	NLINK	metroStr;				/* bpm string: index into Notelist string pool, or NILINK */
 	Boolean	dotted;					/* is metronome note-value dotted? */
 	Boolean	hideMM;					/* not encoded in Notelist; set in ParseTempoMark */
+	Boolean	noMM;					/* not encoded in Notelist; set in ParseTempoMark */
 	char	durCode;				/* for metronome note-value */
 	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_TEMPO, *PNL_TEMPO;
@@ -279,6 +276,57 @@ typedef struct {
 #define GetPNL_DYNAMIC(link)	(PNL_DYNAMIC)	&gNodeList[link]
 
 #define GetNL_TYPE(link)		(GetPNL_GENERIC(link))->objType
+
+
+/* -------------------------------------------------------------------------------------- */
+/* Other definitions */
+
+/* The following codes refer to consecutive error messages that are in the middle of the
+string list: this can make adding or changing messages tricky! Cf. ReportParseFailure().
+FIXME: ADD NAMES for the first few and the last n! */
+
+enum {
+	NLERR_1STLINE_NG=1,		/* Not a valid notelist: 1st line not correct" */
+	NLERR_MAYBE_NOMEM,		/* "May be insufficient memory" */
+	NLERR_HAIRPINS,			/* "Can't handle hairpins: ignored..." */
+	NLERR_PBLM_LINENO,		/* "Problem in line number..." */
+	NLERR_MISCELLANEOUS,	/* "Miscellaneous error" */
+	NLERR_TOOFEWFIELDS,		/* "Less than the minimum number of fields for the opcode" */
+	NLERR_INTERNAL,			/* "Internal error in Notelist parsing" */
+	NLERR_BADTIME,			/* "t (time) is illegal" */
+	NLERR_BADVOICE,			/* "v (voice no.) is illegal" */
+	NLERR_BADPART,			/* (10) "npt (part no.) is illegal" */
+	NLERR_BADSTAFF,			/* "stf (staff no.) is illegal" */
+	NLERR_BADDURCODE,		/* "dur (duration code) is illegal" */
+	NLERR_BADDOTS,			/* "dots (no. of aug. dots) is illegal" */
+	NLERR_BADNOTENUM,		/* "nn (note number) is illegal" */
+	NLERR_BADACC,			/* "acc (accidental code) is illegal" */
+	NLERR_BADEACC,			/* "eAcc (effective accidental code) is illegal" */
+	NLERR_BADPDUR,			/* "pDur (play duration) is illegal" */
+	NLERR_BADVELOCITY,		/* "vel (MIDI velocity) is illegal" */
+	NLERR_BADNOTEFLAGS,		/* "Note flags are illegal" */
+	NLERR_BADAPPEAR,		/* (20) "appear (appearance code) is illegal" */
+	NLERR_BADMODS,			/* "Note modifiers on grace notes or illegal" */
+	NLERR_BADSEGS,			/* "Notehead segments on grace notes or illegal" */
+	NLERR_BADNUMDENOM,		/* "num or denom (numerator or denominator) is illegal" */
+	NLERR_BADTUPLETVIS,		/* "Numerator/denominator visibility combination is illegal" */
+	NLERR_BADTYPE,			/* "type is illegal" */
+	NLERR_BADDTYPE,			/* "dType is illegal" */
+	NLERR_BADNUMACC,		/* "KS (no. of accidentals) is illegal" */
+	NLERR_BADKSACC,			/* "Key signature accidental code is illegal" */
+	NLERR_BADDISPL,			/* "displ (time signature appearance) is illegal" */
+	NLERR_ILLEGAL_OPCODE,	/* (30) "illegal first character (opcode)..." */
+	NLERR_CANT_CONVERT,		/* "Open Notelist can't convert item..." */
+	NLERR_BARLINE_TIMES,	/* "Consecutive barline times are inconsistent" */
+	NLERR_NOTE_NOTINTUPLET,	/* "Note claims to be in a tuplet, but..." */
+	NLERR_NOTE_BARLINE,		/* "Note extends over barline" */
+	NLERR_NOTES_OVERLAP,	/* "Consecutive notes in same voice overlap" FIXME: NEVER CHECKED */
+	NLERR_TUPLET_1NOTE,		/* "Tuplet has only one note" */
+	NLERR_TUPLET_DURATION,	/* "Tuplet total duration doesn't make sense." */
+	NLERR_ENTIRENL_NOSAVE,	/* "Entire notelist wasn't saved" */
+	NLERR_ILLEGAL_OPCODE_B,	/* "illegal first character (opcode); may be a Beam" */
+	NLERR_MM_BADDUR			/* (40) "Metronome mark duration code is illegal." */
+};
 
 
 /* --------------------------------------------------------------------------------- */

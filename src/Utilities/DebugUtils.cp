@@ -686,14 +686,17 @@ positions agree with their relative object-list positions. */
 											v, pL);
 				}
 				
-				/* Check multibar rests: if any voice has one, all must be the same. */
+				/* Check multibar rests: if any voice has one, all voices in this Sync
+				   must have the same thing. FIXME: SICheckMeasDur() for the Score Info
+				   command implements a completely different consistency check on multibar
+				   rests; that check should be done here too. */
 				
 				for (lDurCode = 0, v = 0; v<=MAXVOICES; v++)
 					if (vNotes[v]>0) {
 						if (lDurCode==0)
 							lDurCode = vlDur[v];
 						else {
-							if ((lDurCode<-1 || vlDur[v]<-1)
+							if ((lDurCode<WHOLEMR_L_DUR || vlDur[v]<WHOLEMR_L_DUR)
 							&&   lDurCode!=vlDur[v])
 								COMPLAIN3("DCheckNode: VOICE %d IN SYNC L%u (MEASURE %d) HAS MULTIBAR REST INCONSISTENCY.\n",
 												v, pL, GetMeasNum(doc, pL));

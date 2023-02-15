@@ -1,7 +1,7 @@
 /* NotelistSave.c for Nightingale - write Notelist file */
 
 /* Besides doing something useful, this file is intended as a model for user-written
-functions. Hence, (1) the overly-generic name, and (2) the exceptionally detailed
+functions. Hence, (1) the overly-generic names, and (2) the exceptionally detailed
 detailed comments that refer to what "you" might do.
 
 NB: The compiled-in English words are not an internationalization problem, since the
@@ -78,14 +78,14 @@ OSErr WriteLine()
 }
 
 /* ----------------------------------------------------------------------- ProcessNRGR -- */
-/* Process a note, rest, or grace note. This version of ProcessNRGR simply writes
-out the more important (for purposes of a Musicologist's Database or a composer's
-synthesis program) fields. Returns True normally, False if there's a problem.
+/* Process a note, rest, or grace note. This version of ProcessNRGR simply writes out
+the more important (for purposes of a Musicologist's Database or a composer's synthesis
+program) fields. Returns True normally, False if there's a problem.
 
-If the <MainNote> macro returns False, the given note is a "subordinate" note of
-a chord, i.e., is not the note that has the stem or (for whole-note chords, etc.)
-that would have the stem if there was one. It always returns True for notes that
-aren't in chords and for rests, which Nightingale doesn't allow in chords. */
+If the <MainNote> macro returns False, the given note is a "subordinate" note of a
+chord, i.e., is not the note that has the stem or (for whole-note chords, etc.) that
+would have the stem if there was one. It always returns True for notes that aren't in
+chords and for rests, which Nightingale doesn't allow in chords. */
 
 #define MAX_MODNRS 50		/* Max. modifiers per note/rest we can handle */
 
@@ -136,11 +136,11 @@ static Boolean ProcessNRGR(
 				(aNote->inTuplet? 'T' : '.') );
 
 		aNote = GetPANOTE(aNoteL);
-		/*
-		 * To reduce the size of the Notelist file, we used to skip writing headShape if
-		 * it was NORMAL_VIS. But that makes the file harder to parse, so we now write it
-		 * in all cases.
-		 */
+		
+		/* To reduce the size of the Notelist file, we used to skip writing headShape if
+		   it was NORMAL_VIS. But that makes the file harder to parse, so we now write it
+		   in all cases. */
+		   
 		sprintf(&strBuf[strlen(strBuf)], " appear=%d", aNote->headShape);
 
 		aModNRL = aNote->firstMod;
@@ -189,10 +189,10 @@ static Boolean ProcessNRGR(
 /* -------------------------------------------------------------------- ProcessMeasure -- */
 /* Process a Measure object and subobject. This version also writes out information
 about the appearance of the given subobject, which may not apply to the other
-subobjects, i.e., barlines on other staves; but this is pretty minor, and barlines
-on different staves aren't independent in any other way. Hence this does not write
-out the staff number, and it should be called only once for a given Measure object!
-Returns True normally, False if there's a problem. */
+subobjects, i.e., barlines on other staves; but this is pretty minor, and barlines on
+different staves aren't independent in any other way. Hence this does not write out the
+staff number, and it should be called only once for a given Measure object! Returns True
+normally, False if there's a problem. */
 
 static Boolean ProcessMeasure(Document *doc, LINK measL, LINK aMeasL, short useSubType)
 {
@@ -260,9 +260,9 @@ static Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
 
 /* -------------------------------------------------------------------- ProcessTimeSig -- */
 /* Process a TimeSig subobject. This version skips it if it's at the very end of a
-system, since in that case it's presumably just a cautionary TimeSig anticipating
-the change at the beginning of the next system; otherwise it simply writes it out.
-Returns True normally, False if there's a problem. */
+system, since in that case it's presumably just a cautionary TimeSig anticipating the
+change at the beginning of the next system; otherwise it simply writes it out. Returns
+True normally, False if there's a problem. */
 
 static Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
 {
@@ -282,14 +282,14 @@ static Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
 
 
 /* -------------------------------------------------------------------- ProcessDynamic -- */
-/* Process a Dynamic object. This version simply writes it out.
-Returns True normally, False if there's a problem. */
+/* Process a Dynamic object. This version simply writes it out. Returns True normally,
+False if there's a problem. */
 
 static Boolean ProcessDynamic(Document */*doc*/, LINK dynamL)
 {
 	LINK aDynamicL;  PADYNAMIC aDynamic;
 	
-	/* Dynamics are unique: they have exactly one subobject. */
+	/* Dynamics are unique in that they always have exactly one subobject. */
 	
 	aDynamicL = FirstSubLINK(dynamL);
 	aDynamic = GetPADYNAMIC(aDynamicL);
@@ -301,8 +301,8 @@ static Boolean ProcessDynamic(Document */*doc*/, LINK dynamL)
 
 
 /* -------------------------------------------------------------------- ProcessGraphic -- */
-/* Process a Graphic object. This version simply writes out GRStrings and GRLyrics,
-and ignores the other subtypes. Returns True normally, False if there's a problem. */
+/* Process a Graphic object. This version simply writes out GRStrings and GRLyrics, and
+ignores the other subtypes. Returns True normally, False if there's a problem. */
 
 static Boolean ProcessGraphic(Document *doc, LINK graphicL)
 {
@@ -369,14 +369,17 @@ static Boolean ProcessTempo(Document *doc, LINK tempoL)
 	
 PushLock(OBJheap);
  	p = GetPTEMPO(tempoL);
-	/* Avoid writing out the Tempo if there's no text string and MM is hidden. */
+	
+	/* Don't write out the Tempo if there's no text string and MM is hidden. */
+	
 	if (!p->strOffset && p->hideMM && !doc->showInvis) {
 		PopLock(OBJheap);
 		return True;
 	}
 
-	/* The tempo mark string may contain embedded newline chars.; replace them with
-		a delimiter char. to keep everything on one line. */ 
+	/* The tempo mark string may contain embedded newline chars.; replace them with a
+	   delimiter char. to keep everything on one line. */
+		
 	Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(p->strOffset));
 	PtoCstr((StringPtr)tempoStr);
 	for (unsigned short k=1; k<=strlen(tempoStr); k++)
@@ -384,6 +387,8 @@ PushLock(OBJheap);
 	sprintf(strBuf, "%c stf=%d '%s'", METRONOME_CHAR, TempoSTAFF(tempoL),
 				 tempoStr);
 
+	/* If there's a metronome mark, write it out; else write an indication there's not. */
+	 
 	noteChar = gTempoCode[p->subType];
 	if (p->noMM)
 		sprintf(&strBuf[strlen(strBuf)], " *=noMM");
@@ -399,8 +404,8 @@ PopLock(OBJheap);
 
 
 /* --------------------------------------------------------------------- ProcessTuplet -- */
-/* Process a Tuplet object. This version simply writes it out.
-Returns True normally, False if there's a problem. */
+/* Process a Tuplet object. This version simply writes it out. Returns True normally,
+False if there's a problem. */
 
 static Boolean ProcessTuplet(Document *doc, LINK tupletL)
 {
@@ -424,8 +429,8 @@ PopLock(OBJheap);
 
 
 /* -------------------------------------------------------------------- ProcessBeamset -- */
-/* Process a Beamset object. This version simply writes it out.
-Returns True normally, False if there's a problem. */
+/* Process a Beamset object. This version simply writes it out. Returns True normally,
+False if there's a problem. */
 
 static Boolean ProcessBeamset(Document *doc, LINK beamL)
 {
@@ -475,8 +480,8 @@ static Boolean WriteScoreHeader(Document *doc, LINK startL)
 	sprintf(&strBuf[strlen(strBuf)], "0");
 	
 	/* Get the starting measure no. This is never before the first Measure of the score,
-	 * even if the first selected object is before it.
-	 */
+	   even if the first selected object is before it. */
+	   
 	prevMeasL = SSearch(startL, MEASUREtype, GO_LEFT);
 	if (prevMeasL==NILINK) startL = SSearch(startL, MEASUREtype, GO_RIGHT);
 	startMeas = GetMeasNum(doc, startL);
@@ -513,14 +518,15 @@ static unsigned short ProcessScore(
 	useSubType = -1;
 
 	/* If there are no Syncs after a Measure object in its System, and the next Measure
-	exists and is in another System, they're really pieces of the same measure (and their
-	<measureNum>s reflect that). In such a case, in terms of order in the notelist, the
-	second one is the one we want; but the first has the barline type we want. This
-	requires handling with care. */
+	   exists and is in another System, they're really pieces of the same measure (and
+	   their <measureNum>s reflect that). In such a case, in terms of order in the
+	   notelist, the second one is the one we want; but the first has the barline type
+	   we want. This requires handling with care. */
 
 	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
 		if (useNextMeasure && ObjLType(pL)==MEASUREtype) {
 			/* Write this Measure whether it's selected or not. */
+			
 			aMeasL = FirstSubLINK(pL);
 			if (!ProcessMeasure(doc, pL, aMeasL, useSubType)) goto Error;
 			count++;
@@ -552,11 +558,11 @@ static unsigned short ProcessScore(
 								}
 					break;
 				case MEASUREtype:
-					/* If there are no Syncs after this Measure object in its System, and the
-						next Measure exists and is in another System, they're really pieces of
-						the same measure -- and in terms of order, the next one is the one we
-						want! In that case, ignore this Measure and set the <useNextMeasure>
-						flag. */
+					/* If there are no Syncs after this Measure object in its System, and
+					   the next Measure exists and is in another System, they're really
+					   pieces of the same measure -- and in terms of order, the next one
+					   is the one we want! In that case, ignore this Measure and set the
+					   <useNextMeasure> flag. */
 						
 					nextSyncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, False);
 					measIsEmpty = (nextSyncL==NILINK || !SameSystem(pL, nextSyncL));
@@ -568,10 +574,10 @@ static unsigned short ProcessScore(
 					}
 					
 					/* Since Nightingale doesn't allow independent barlines on different
-						staves, we just report there's a barline for the whole score.
-						However, we pass the first selected subobject (to the user, a
-						barline on one or more staves) to ProcessMeasure so it can describe
-						its appearance: it's very likely the same for all staves. */
+					   staves, we just report there's a barline for the whole score.
+					   However, we pass the first selected subobject (to the user, a
+					   barline on one or more staves) to ProcessMeasure so it can describe
+					   its appearance: it's very likely the same for all staves. */
 
 					aMeasL = FirstSubLINK(pL);
 					for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL))
@@ -628,7 +634,9 @@ static unsigned short ProcessScore(
 					break;
 				case BEAMSETtype:
 					if (skeleton) break;
+					
 					/* Since Open Notelist can't yet handle Beamsets, make writing them optional. */
+					
 					if (config.notelistWriteBeams==0) break;
 					if (!ProcessBeamset(doc, pL)) goto Error;
 					count++;
@@ -638,11 +646,10 @@ static unsigned short ProcessScore(
 			}
 		}
 	
-		/*
-		 * If we've just handled a Keysig, we're past the first Keysig of the score.
-		 * Reset <firstKeySig> so that, of the Keysigs that are not in a Measure, no
-		 * others are ever output in the Notelist. Likewise for Clefs.
-		 */
+		/* If we've just handled a Keysig, we're past the first Keysig of the score.
+		   Reset <firstKeySig> so that, of the Keysigs that are not in a Measure, no
+		   others are ever output in the Notelist. Likewise for Clefs. */
+		   
 		if (ObjLType(pL)==CLEFtype) firstClef = False;
 		if (ObjLType(pL)==KEYSIGtype) firstKeySig = False;
 	}
@@ -658,7 +665,7 @@ Error:
 
 
 /* For special purposes, e.g., comparing versions of the same score, SKELETON allows
-leaving non-"structural" objects (as of v. 5.8b4, Measures, Timesigs, and Tempos) out of
+leaving non-"structural" objects (as of v. 5.8, Measures, Timesigs, and Tempos) out of
 the notelist. */
 
 #define SKELETON False	/* Omit non-structural objects? */
@@ -680,12 +687,11 @@ void SaveNotelist(
 	NSClientData nsData;
 	OSStatus anErr=noErr;
 	
-	/*
-	 *	Create a default notelist filename by looking up the suffix string and appending
-	 *	it to the current name.  If the current name is so long that there would not
-	 *	be room to append the suffix, we truncate the file name before appending the
-	 *	suffix so that we don't run the risk of overwriting the original score file.
-	 */
+	/* Create a default notelist filename by looking up the suffix string and appending
+	   it to the current name.  If the current name is so long that there would not be
+	   be room to append the suffix, we truncate the file name before appending the
+	   suffix so that we don't run the risk of overwriting the original score file. */
+	   
 	sufIndex = 11;
 	GetIndString(filename, MiscStringsID, sufIndex);				/* Get suffix length */
 	suffixLen = *(StringPtr)filename;
