@@ -21,7 +21,7 @@ static OSErr fRefNum;						/* ID of currently open file */
 static OSErr errCode;						/* Latest report from the front */
 
 static Byte midiFileFormat;
-static Word nTracks, timeBase;
+static Word mfNTracks, mfTimeBase;
 			
 static MIDIEvent	eventList[MAXMFEVENTLIST];
 static short		lastEvent;
@@ -35,11 +35,11 @@ static Boolean	WriteChunkStart(DoubleWord, DoubleWord);
 static Boolean	WriteVarLen(DoubleWord);
 static Boolean	WriteDeltaTime(DoubleWord);
 
-static void		StartNote(short, short, short, long);
-static Boolean	EndNote(short, short, long);
+static void		StartMFNote(short, short, short, long);
+static Boolean	EndMFNote(short, short, long);
 
 
-/* -------------------------------------------------------------- WriteChunkStart -- */
+/* ------------------------------------------------------------------- WriteChunkStart -- */
 
 static Boolean WriteChunkStart(DoubleWord chunkType, DoubleWord len)
 {
@@ -57,7 +57,7 @@ static Boolean WriteChunkStart(DoubleWord chunkType, DoubleWord len)
 }
 
 
-/* ------------------------------------------------------------------ WriteVarLen -- */
+/* ----------------------------------------------------------------------- WriteVarLen -- */
 /* Write <value> out as a MIDI file "variable-length number" and return True.
 
 Legal variable-length numbers are non-negative and <=2^28-1. If <value> is illegal,
@@ -90,7 +90,7 @@ static Boolean WriteVarLen(DoubleWord value)
 }
 
 
-/* --------------------------------------------------------------- WriteDeltaTime -- */
+/* -------------------------------------------------------------------- WriteDeltaTime -- */
 /* Write the delta time corresponding to the given absolute time. */
 
 static Boolean WriteDeltaTime(DoubleWord absTime)
@@ -106,7 +106,7 @@ static Boolean WriteDeltaTime(DoubleWord absTime)
 }
 
 
-/* ----------------------------------------------------------- WriteHeader, etc. -- */
+/* ----------------------------------------------------------------- WriteHeader, etc. -- */
 
 static Boolean WriteHeader(Byte, Word, Word);
 static Boolean WriteTrackEnd(void);
@@ -151,6 +151,7 @@ static Boolean WriteTrackEnd()
 	Byte buffer[3];
 	
 	/* Write meta byte and two bytes for end-of-track */
+	
 	buffer[0] = METAEVENT;
 	buffer[1] = ME_EOT;
 	buffer[2] = (Byte)0;
@@ -168,6 +169,7 @@ static Boolean WriteTempoEvent(
 	Byte	buffer[6];
 	
 	/* Write meta byte, 2 bytes identifying tempo event, etc.: total of 6 bytes */
+	
 	buffer[0] = METAEVENT;
 	buffer[1] = ME_TEMPO;
 	buffer[2] = (Byte)3;
@@ -187,14 +189,14 @@ static Boolean WriteTSEvent(short numerator, short denominator, short clocksPerB
 	Byte	logDenom, thirtySeconds;
 	Byte	buffer[7];
 	
+LogPrintf(LOG_DEBUG, "  WriteTSEvent: denominator=%d\n", denominator);
 	logDenom = 0;
-	while (!odd(denominator)) {
-		logDenom++; denominator /= 2;
-	}
+	while (!odd(denominator)) { logDenom++; denominator /= 2; }
 
 	thirtySeconds = 8;	/* notated 32nds per MIDI quarter-note: 8 is standard */
 	
 	/* Write meta byte, 2 bytes identifying time sig event, etc.: total of 7 bytes */
+	
 	buffer[0] = METAEVENT;
 	buffer[1] = ME_TIMESIG;
 	buffer[2] = (Byte)4;
@@ -204,7 +206,9 @@ static Boolean WriteTSEvent(short numerator, short denominator, short clocksPerB
 	buffer[6] = thirtySeconds;
 
 	byteCount = 7L;	
+//LogPrintf(LOG_DEBUG, "  WriteTSEvent <FSWrite: fRefNum=%d\n", fRefNum);
 	errCode = FSWrite(fRefNum, &byteCount, buffer); 
+//LogPrintf(LOG_DEBUG, "  WriteTSEvent >FSWrite: fRefNum=%d\n", fRefNum);
 	trackLength += byteCount;
 	return (errCode==noError);
 }	
@@ -218,6 +222,7 @@ static Boolean WriteTextEvent(Byte mEventType,
 	short			i;
 	
 	/* Write meta byte, 2 bytes identifying text event subtype, text as Pascal string */
+	
 	buffer[0] = METAEVENT;
 	buffer[1] = mEventType;
 	buffer[2] = strlen(text);
@@ -253,6 +258,7 @@ static Boolean FillInTrackLength()
 	GetFPos(fRefNum, &savePosition);
 
 	/* Position file pointer at track length (previously filled with dummy value) */
+	
 	errCode = SetFPos(fRefNum, fsFromStart, lenPosition);
 	if (errCode!=noErr) return False;
 	byteCount = sizeof(trackLength);
@@ -260,6 +266,7 @@ static Boolean FillInTrackLength()
 	if (errCode!=noErr) return False;
 
 	/* Move back to where we just were so as not to truncate anything */
+	
 	errCode = SetFPos(fRefNum, fsFromStart, savePosition);
 	return (errCode==noError);
 }	
@@ -295,9 +302,9 @@ static Boolean WriteNoteOff(Byte channel, Byte noteNum)
 }
 
 
-/* --------------------------------------------------------- Posting controllers -- */
+/* --------------------------------------------------------------- Posting controllers -- */
 
-static Boolean MFSPostMIDISustain(Document *doc, LINK pL, short staffn, Boolean susOn) 
+static Boolean MFSPostMIDISustain(Document * /*doc*/, LINK pL, short staffn, Boolean susOn) 
 {
 	Boolean posted = False;
 						
@@ -315,7 +322,7 @@ static Boolean MFSPostMIDISustain(Document *doc, LINK pL, short staffn, Boolean 
 	return posted;
 }
 
-static Boolean MFSPostMIDIPan(Document *doc, LINK pL, short staffn)
+static Boolean MFSPostMIDIPan(Document * /*doc*/, LINK pL, short staffn)
 {
 	Boolean posted = False;
 	
@@ -366,12 +373,8 @@ static Byte GetSustainCtrlVal(Boolean susOn)
 {
 	Byte ctrlVal;
 	
-	if (susOn) {
-		ctrlVal = 127;
-	}
-	else {
-		ctrlVal = 0;
-	}
+	if (susOn)	ctrlVal = 127;
+	else		ctrlVal = 0;
 	return ctrlVal;
 }
 
@@ -380,7 +383,7 @@ static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn
 	Byte ctrlNum = MSUSTAIN;
 	Byte ctrlVal = GetSustainCtrlVal(susOn);
 	
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
 								ctrlNum, ctrlVal, startTime);
 	if (susOn) {
 		for (int j = 1; j<=MAXSTAVES; j++) {
@@ -389,7 +392,7 @@ static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn
 				short channel = partChannel[partn];
 				WriteDeltaTime(startTime);
 				if (!WriteControlChange(channel, ctrlNum, ctrlVal)) {
-					MayErrMsg("Unable to write Sustain On to MIDI file.");
+					MayErrMsg("Unable to write Sustain On to MIDI file.  (WriteAllMIDISustains)");
 					return;
 				}
 			}
@@ -402,7 +405,7 @@ static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn
 				short channel = partChannel[partn];
 				WriteDeltaTime(startTime);
 				if (!WriteControlChange(channel, ctrlNum, ctrlVal)) {
-					MayErrMsg("Unable to write Sustain Off to MIDI file.");
+					MayErrMsg("Unable to write Sustain Off to MIDI file.  (WriteAllMIDISustains)");
 					return;
 				}
 			}
@@ -410,7 +413,8 @@ static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn
 	}
 }
 
-static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime, LINK pL, short stf) 
+static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn,
+								long startTime, LINK pL, short stf) 
 {
 	LINK graphicL = LSSearch(pL, GRAPHICtype, stf, GO_LEFT, False);
 	
@@ -420,14 +424,14 @@ static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, l
 			Byte ctrlNum = MSUSTAIN;
 			Byte ctrlVal = GetSustainCtrlVal(susOn);
 			
-			if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
+			if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
 										ctrlNum, ctrlVal, startTime);
 			
 			short partn = Staff2Part(doc,stf);
 			short channel = partChannel[partn];
 			WriteDeltaTime(startTime);
 			if (!WriteControlChange(channel, ctrlNum, ctrlVal)) {
-				MayErrMsg("Unable to write Sustains to MIDI file.");
+				MayErrMsg("Unable to write Sustains to MIDI file.  (WriteMIDISustains)");
 				return;
 			}
 		}
@@ -436,7 +440,8 @@ static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, l
 	}
 }
 
-static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime, LINK pL, short stf) 
+static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn,
+									long startTime, LINK pL, short stf) 
 {	
 	LINK aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
@@ -466,7 +471,7 @@ static void WriteAllMIDIPans(Document *doc, Byte *partChannel, long startTime)
 			WriteDeltaTime(startTime);
 //			WriteDeltaTime(0);
 			if (!WriteControlChange(channel, ctrlNum, ctrlVal)) {
-				MayErrMsg("Unable to write all pans to MIDI file.");
+				MayErrMsg("Unable to write all pans to MIDI file.  (WriteAllMIDIPans)");
 				return;
 			}
 		}
@@ -496,7 +501,7 @@ static void WriteMIDIPans(Document *doc, Byte *partChannel, long startTime, LINK
 			Byte ctrlNum = MPAN;
 			Byte ctrlVal = GraphicINFO(graphicL);
 			
-			LogPrintf(LOG_INFO, "  WriteMIDIPans: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
+			LogPrintf(LOG_INFO, "  ctrlNum=%ld ctrlVal=%ld time=%ld  (WriteMIDIPans)\n",
 						ctrlNum, ctrlVal, startTime);
 			
 			short partn = Staff2Part(doc,stf);
@@ -518,7 +523,7 @@ static void WriteAllMIDIPans(Document *doc, Byte *partChannel, long startTime, L
 	}
 }
 
-/* --------------------------------------------------------- Event List functions -- */
+/* -------------------------------------------------------------- Event List functions -- */
 
 static Boolean	MFInsertEvent(char, char, long);
 static void		MFCheckEventList(long);
@@ -573,7 +578,7 @@ static void MFCheckEventList(long time)
 			if (pEvent->endTime<=time) {						/* note is done */
 					WriteDeltaTime(time);
 					if (!WriteNoteOff(pEvent->channel, pEvent->note)) {
-						MayErrMsg("Unable to write Note Off to MIDI file.");
+						MayErrMsg("Unable to write Note Off to MIDI file.  (MFCheckEventList)");
 						return;
 					}
 				pEvent->note = 0;								/* slot available now */
@@ -582,9 +587,9 @@ static void MFCheckEventList(long time)
 }
 
 
-/* ----------------------------------------------------------- StartNote, EndNote -- */
+/* ------------------------------------------------------------ StartMFNote, EndMFNote -- */
 
-static void StartNote(
+static void StartMFNote(
 			short	noteNum,
 			short	channel,			/* 1 to MAXCHANNEL */
 			short	velocity,
@@ -600,7 +605,7 @@ static void StartNote(
 	}
 }
 
-static Boolean EndNote(
+static Boolean EndMFNote(
 			short	noteNum,
 			short	channel,			/* 1 to MAXCHANNEL */
 			long	endTime
@@ -610,10 +615,10 @@ static Boolean EndNote(
 }
 
 
-/* ------------------------------------------------------ WriteTrack and helpers -- */
+/* ------------------------------------------------------------ WriteTrack and helpers -- */
 
 static Boolean WriteTSig(LINK, LINK, long);
-static Boolean WriteTiming(Document *, long);
+static Boolean WriteTimingTrack(Document *, long);
 static Boolean WriteTrackName(Document *, short);
 static Boolean WriteTrackPatch(Document *doc, short staffn);
 static short WriteMFNotes(Document *, short, LINK, LINK, long);
@@ -629,6 +634,11 @@ static Boolean WriteTSig(
 
 	numer = TimeSigNUMER(aTSL);
 	denom = TimeSigDENOM(aTSL);
+	if (denom<=0) {
+		MayErrMsg("Time signature L%ld denom %ld is illegal.  (WriteTSig)", (long)aTSL,
+					(long)denom);
+		return False;
+	}
 
 	tempDenom = denom;
 	clocksPerBeat = 24*4;							/* 24 is standard/qtr, and 4 qtrs/whole */
@@ -639,7 +649,7 @@ static Boolean WriteTSig(
 
 	WriteDeltaTime(absTime);
 	if (!WriteTSEvent(numer, denom, clocksPerBeat)) {
-		MayErrMsg("Unable to write a time signature event to the MIDI file.");
+		MayErrMsg("Unable to write time signature L%ld.  (WriteTSig)", (long)denom);
 		return False;
 	}
 
@@ -649,7 +659,7 @@ static Boolean WriteTSig(
 
 /* Write out all timing information, presumably for the timing track. */
 
-static Boolean WriteTiming(
+static Boolean WriteTimingTrack(
 					Document *doc,
 					long trkLastEndTime		/* The latest ending time for any track */
 					)
@@ -662,10 +672,11 @@ static Boolean WriteTiming(
 			tempoTime, prevTempoTime;
 	short 	measNum;
 
-	LogPrintf(LOG_NOTICE, "WriteTiming: trkLastEndTime=%d\n", trkLastEndTime);
+	LogPrintf(LOG_INFO, "trkLastEndTime=%ld  (WriteTimingTrack)\n", trkLastEndTime);
 	measureTime = 0L;
 	prevTempoTime = -1L;
-	for (pL = doc->headL; pL; pL = RightLINK(pL))
+	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
+		if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteTimingTrack: pL=%u\n", pL);
 		switch (ObjLType(pL)) {
 			case MEASUREtype:
 				measureTime = MeasureTIME(pL);
@@ -673,25 +684,32 @@ static Boolean WriteTiming(
 			case TEMPOtype:
 				if (TempoNOMM(pL)) break;			/* Ignore Tempo objects with no M.M. */
 				
-				/* Calculate its effective time and write initial tempo or tempo change. NB:
-					if there are no notes following -- very unlikely, but possible -- this
-					is likely to do something bad! */
+if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteTimingTrack: TEMPO pL=%u \n", pL);
+				/* Calculate its effective time and write initial tempo or tempo change.
+				   If there are no notes following -- very unlikely, but possible --
+				   give up. We could probably continue, but it's not worth the trouble.  */
+					
 				syncL = SSearch(pL, SYNCtype, GO_RIGHT);
-				syncMeasL = SSearch(syncL, MEASUREtype, GO_LEFT);
+				if (syncL) syncMeasL = SSearch(syncL, MEASUREtype, GO_LEFT);
+				if (!syncL || !syncMeasL) {
+					MayErrMsg("No Sync found after TEMPO L%ld.  (WriteTimingTrack).", (long)pL);
+					return False;
+				}
 				tempoTime = MeasureTIME(syncMeasL)+SyncTIME(syncL);
 				if (tempoTime==prevTempoTime) {
 					measNum = GetMeasNum(doc, pL);
-					LogPrintf(LOG_WARNING, "WARNING: Tempo change in measure %d at same time as a previous tempo change.\n",
-						measNum);
+					LogPrintf(LOG_WARNING, "Tempo change L%u in measure %d at same time as a previous tempo change.  (WriteTimingTrack)\n",
+						pL, measNum);
 					}
+//LogPrintf(LOG_DEBUG, "  WriteTimingTrack2: TEMPO pL=%u \n", pL);
 				WriteDeltaTime(tempoTime);
 				timeScale = GetTempoMM(doc, pL);
 				microbeats = TSCALE2MICROBEATS(timeScale);
 				if (!WriteTempoEvent((long)microbeats*DFLT_BEATDUR)) {
-					MayErrMsg("Unable to write a tempo event to the MIDI file.");
+					MayErrMsg("Unable to write a tempo event to the MIDI file.  (WriteTimingTrack)");
 					return False;
 				}
-				if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n",
+				if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteTimingTrack: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n",
 									pL, tempoTime, timeScale);
 				prevTempoTime = tempoTime;
 				break;
@@ -704,20 +722,23 @@ static Boolean WriteTiming(
 					an identical cautionary one at the end of the last system. */
 					
 				aTSL = TimeSigOnStaff(pL, 1);
-//LogPrintf(LOG_DEBUG, "  WriteTiming: TIMESIG pL=%d aTSL=%d measureTime=%ld %c\n", pL, aTSL,
-//measureTime, (measureTime!=prevTSTime? ' ' : 'S'));
+//LogPrintf(LOG_DEBUG, "  WriteTimingTrack 1: TIMESIG pL=%u aTSL=L%u measureTime=%ld %c\n", pL, aTSL,
+//measureTime, (measureTime!=prevTSTime? ' -' : 'S'));
 				if (aTSL && measureTime!=prevTSTime) {
 					WriteTSig(pL, aTSL, measureTime);	/* Assume time sig. is at beginning of measure! */
+//LogPrintf(LOG_DEBUG, "  WriteTimingTrack 2: TIMESIG pL=%u aTSL=L%u measureTime=%ld %c\n", pL, aTSL,
+//measureTime, (measureTime!=prevTSTime? '-' : 'S'));
 					prevTSTime = measureTime;
 				}
 				break;
 			default:
 				;
+		}
 	}
 	
 	WriteDeltaTime(trkLastEndTime);
 	if (!WriteTrackEnd()) {
-		MayErrMsg("Unable to write MIDI file timing track.");
+		MayErrMsg("Unable to complete writing MIDI file timing track.  (WriteTimingTrack)");
 		return False;
 	}
 	
@@ -730,13 +751,13 @@ static Boolean WriteTrackName(Document *doc, short staffn)
 	LINK aPartL; char str[256];
 
 	aPartL = Staff2PartL(doc, doc->headL, staffn);
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteTrackName: staff=%d name='%s'\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteTrackName: staff=%d name='%s'\n",
 								staffn, PartNAME(aPartL));
 
 	strcpy(str, PartNAME(aPartL));
 	WriteDeltaTime(0L);
 	if (!WriteTextEvent(ME_SEQTRACKNAME, str)) {
-		MayErrMsg("Unable to write track name to MIDI file.");
+		MayErrMsg("Unable to write track name to MIDI file.  (WriteTrackName)");
 		return False;
 	}
 	
@@ -767,18 +788,16 @@ static Boolean WriteTrackPatch(Document *doc, short staffn)
 	short partn = Staff2Part(doc, staffn);
 	short patch = partPatch[partn];
 	short channel = partChannel[partn];
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteTrackPatch: staff=%d patch=%d channel=%d\n",
-								staffn, patch, channel);
 	
 	WriteDeltaTime(0L);
-
 	buffer[0] = MPGMCHANGE+channel-CM_CHANNEL_BASE;
 	buffer[1] = patch;
 	byteCount = 2L;	
 	errCode = FSWrite(fRefNum, &byteCount, buffer); 
 	trackLength += byteCount;
-	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteTrackPatch: staffn=%d buffer[]=%d %d errCode=%d\n",
-								staffn, buffer[0], buffer[1], errCode);
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG,
+			"  WriteTrackPatch: staff=%d patch=%d channel=%d buffer[]=%d %d errCode=%d\n",
+								staffn, patch, channel, buffer[0], buffer[1], errCode);
 	return (errCode==noError);
 }	
 
@@ -793,7 +812,7 @@ On velocity.
 
 NB: if the measures/notes have inconsistent timestamps (as detected by DCheckNode),
 this writes nonsense Note Ons -- I have no idea why -- resulting in tracks that our own
-Import MIDI File says are "damaged or incomplete". */
+Import MIDI File says are "damaged or incomplete"! */
 
 static short WriteMFNotes(
 					Document	*doc,
@@ -822,7 +841,7 @@ static short WriteMFNotes(
 	Boolean		sustainOffPosted = False;
 	Boolean		panPosted = False;
 		
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteMFNotes: staff=%d trkLastEndTime=%d\n", \
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "staff=%d trkLastEndTime=%d  (WriteMFNotes)\n", \
 								staffn, trkLastEndTime);
 
 	anyStaff = (staffn==ANYONE);
@@ -850,9 +869,9 @@ static short WriteMFNotes(
 	nZeroVel = 0;
  
 	/* The stored play time of the first Sync we're going to write might be any non-
-	 * negative value, but we want written times to start at 0, so we pick up the first
-	 * the Sync's play time and use it as an offset on all play times.
-	 */
+	   negative value, but we want written times to start at 0, so we pick up the first
+	   the Sync's play time and use it as an offset on all play times. */
+	   
 	toffset = -1L;												/* Init. time offset to unknown */
 	for (pL = fromL; pL!=toL; pL = RightLINK(pL)) {
 		switch (ObjLType(pL)) {
@@ -862,7 +881,7 @@ static short WriteMFNotes(
 			case SYNCtype:
 			  	if (!AnyNoteToPlay(doc, pL, False)) continue;
 		  		if (SyncTIME(pL)>MAX_SAFE_MEASDUR)
-		  			MayErrMsg("WriteMFNotes: pL=%ld has timeStamp=%ld", (long)pL,
+		  			MayErrMsg("pL=%ld has suspicious timeStamp %ld  (WriteMFNotes)", (long)pL,
 		  							(long)SyncTIME(pL));
 #ifdef TDEBUG
 				if (toffset<0L) LogPrintf(LOG_DEBUG, "  toffset=%ld => %ld\n", toffset, MeasureTIME(measL)+SyncTIME(pL));
@@ -872,13 +891,12 @@ static short WriteMFNotes(
 		  		if (toffset<0L) toffset = startTime;
 				startTime -= toffset;
 	
-				/*
-				 * Move time forward 'til it's time to "play" (write) pL. While doing so,
-				 * check for notes ending before OR AT pL's time and take care of them.
-				 * We have to write notes ending at a given time before those beginning
-				 * at the same time because otherwise--if there's a new note of the same
-				 * note number--we'll end up making a note start, then end instantly.
-				 */
+				/* Move time forward 'til it's time to "play" (write) pL. While doing so,
+				   check for notes ending before _or at_ pL's time and take care of them.
+				   We have to write notes ending at a given time before those beginning
+				   at the same time because otherwise--if there's a new note of the same
+				   note number--we'll end up making a note start, then end instantly. */
+				   
 				for ( ; t<=startTime; t++) {
 					if (UserInterrupt()) goto Done;		/* Check for Cancel */
 					MFCheckEventList(t);				/* Check for and turn off any notes that are done */
@@ -912,15 +930,17 @@ static short WriteMFNotes(
 				WriteAllMIDISustains(doc, partChannel, False, startTime, pL, staffn);
 				WriteAllMIDIPans(doc, partChannel, startTime, pL, staffn);
 				
-	/* Write all the notes in <<pL> we're supposed to, adding them to <eventList[]> as well */
+				/* Write all the notes in <<pL> we're supposed to, adding them to
+				   <eventList[]> as well. */
 	
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					if (anyStaff || NoteSTAFF(aNoteL)==staffn) {
 						if (!NoteToBePlayed(doc, aNoteL, False)) continue;
 						
-						/* If note has zero on velocity, skip writing it. If such a
-						   note is a chord slash, it's not interesting, else count it. */
+						/* Notes with zero onVelocity are anomalous. Skip writing them
+						   but count them, except for mere chord slashes. */
+						   
 						if (NoteONVELOCITY(aNoteL)==0) {
 							if (NoteAPPEAR(aNoteL)!=SLASH_SHAPE) nZeroVel++;
 							continue;
@@ -929,15 +949,18 @@ static short WriteMFNotes(
 						partn = Staff2Part(doc, NoteSTAFF(aNoteL));
 						
 						/* Get note's MIDI note number, including transposition; velocity,
-						   limited to legal range; channel number; and duration, includ-
-						   ing any tied notes to right. */
+						   limited to legal range; channel number; and duration, including
+						   any tied notes to right. */
+						   
 						useNoteNum = UseMIDINoteNum(doc, aNoteL, partTransp[partn]);
 						useChan = partChannel[partn];
 						useVelo = doc->velocity+NoteONVELOCITY(aNoteL);
 						if (USEPARTVELO) useVelo += partVelo[partn];
-	
 						if (useVelo<1) useVelo = 1;
 						if (useVelo>MAX_VELOCITY) useVelo = MAX_VELOCITY;
+						if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, " pL=%u aNoteL=%u time=%ld velocity=%d onVelo=%d useVelo=%d  (WriteMFNotes)\n",
+												pL, aNoteL, plStartTime, doc->velocity,
+												NoteONVELOCITY(aNoteL), useVelo);
 						
 						playDur = TiedDur(doc, pL, aNoteL, False);
 						plEndTime = plStartTime+playDur;						
@@ -945,9 +968,9 @@ static short WriteMFNotes(
 						/* If it's a real note (not rest or continuation), send it out */
 						
 						if (useNoteNum>=0) {
-							StartNote(useNoteNum, useChan, useVelo, startTime);
+							StartMFNote(useNoteNum, useChan, useVelo, startTime);
 							endTime = plEndTime-toffset;
-							if (!EndNote(useNoteNum, useChan, endTime))
+							if (!EndMFNote(useNoteNum, useChan, endTime))
 								goto Done;
 						}
 					}
@@ -1003,7 +1026,10 @@ static short WriteMFNotes(
 
 Done:	
 	WriteDeltaTime(t);
-	WriteTrackEnd();
+	if (!WriteTrackEnd()) {
+		MayErrMsg("Unable to complete writing MIDI file track.  (WriteMFNotes)");
+		return False;
+	}
 	
 	return nZeroVel;
 }
@@ -1028,8 +1054,11 @@ static Boolean WriteTrack(
 
 	WriteChunkStart('MTrk', 0L);					/* Dummy tracklength: fill in later */
 
-	if (trackn==1)
-		WriteTiming(doc, trkLastEndTime);
+	if (trackn==1) {
+		if (WriteTimingTrack(doc, trkLastEndTime))
+			LogPrintf(LOG_NOTICE, "Wrote timing track. trkLastEndTime=%d\n",
+				trkLastEndTime);		
+	}
 	else {
 		staffn = trackn-1;
 		WriteTrackName(doc, staffn);
@@ -1042,7 +1071,7 @@ static Boolean WriteTrack(
 		LogPrintf(LOG_NOTICE, "Wrote track for staff %d ('%s') patch=%d, channel=%d, trkLastEndTime=%d",
 			staffn, PartNAME(aPartL), partPatch, channel, trkLastEndTime);
 		if (nZeroVel>0) LogPrintf(LOG_NOTICE, ", %d zero-vel. note(s).", nZeroVel);
-		LogPrintf(LOG_NOTICE, "\n");
+		LogPrintf(LOG_NOTICE, "  (WriteTrack)\n");
 	}
 
 	FillInTrackLength();
@@ -1065,10 +1094,10 @@ long LastEndTime(Document *doc, LINK fromL, LINK toL)
 
 	measL = SSearch(fromL, MEASUREtype, GO_LEFT);				/* starting measure */
 
-	/* The stored play time of the first Sync we're going to write might be any
-	 *	positive value but we want written times to start at 0, so we'll pick up
-	 *	the first Sync's play time and use it as an offset on all play times.
-	 */
+	/* The stored play time of the first Sync we're going to write might be any positive
+	   value but we want written times to start at 0, so we'll pick up the first Sync's
+	   play time and use it as an offset on all play times. */
+	   
 	toffset = -1L;												/* Init. time offset to unknown */
 	for (pL = fromL; pL!=toL; pL = RightLINK(pL)) {
 		switch (ObjLType(pL)) {
@@ -1117,22 +1146,26 @@ static Boolean WriteMIDIFile(Document *doc)
 	short t, nZeroVel;
 	long trkLastEndTime;							/* The latest ending time for any track */
 
-	/* Write the MIDI file header, then the tracks, one for timing info plus one
-		for each staff of the score. */
+	/* Write the MIDI file header, then the tracks, one for timing info plus one for
+	   each staff of the score. */
 	
 	midiFileFormat = 1;
-	nTracks = doc->nstaves+1;
+	mfNTracks = doc->nstaves+1;
 	qtrNTicks = Code2LDur(QTR_L_DUR, 0);
-	timeBase = qtrNTicks;
+	mfTimeBase = qtrNTicks;
 
-	if (!WriteHeader(midiFileFormat, nTracks, timeBase)) {
-		MayErrMsg("Unable to write MIDI file header.");
+	if (WriteHeader(midiFileFormat, mfNTracks, mfTimeBase)) {
+		LogPrintf(LOG_NOTICE, "Wrote MIDI file header ('MThd'). format=%d nTracks=%d timeBase=%d  (WriteMIDIFile)\n",
+					midiFileFormat, mfNTracks, mfTimeBase);
+	}
+	else {
+		MayErrMsg("Unable to write MIDI file header.  (WriteMIDIFile)");
 		return False;
 	}
 	
 	trkLastEndTime = LastEndTime(doc, doc->headL, doc->tailL);
 	
-	for (t = 1; t<=nTracks; t++)		
+	for (t = 1; t<=mfNTracks; t++)		
 		if (!WriteTrack(doc, t, trkLastEndTime, &nZeroVel)) return False;
 	
 	return True;
@@ -1191,10 +1224,10 @@ static short CountZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStar
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					if (NoteREST(aNoteL)) continue;
-					/*
-					 * If a zero on-velocity note is a chord slash, it's not really
-					 * interesting; else count it.
-					 */
+					
+					/* If a zero on-velocity note is a chord slash, it's not very
+					   interesting; else count it. */
+					   
 					if (NoteONVELOCITY(aNoteL)==0 && NoteAPPEAR(aNoteL)!=SLASH_SHAPE) {
 						nZeroVel++;
 						if (measNum<startMeasNum) startMeasNum = measNum;
@@ -1217,7 +1250,7 @@ static short CountZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStar
 
 #define MF_SUFINDEX 13
 
-void SaveMIDIFile(Document *doc)
+Boolean SaveMIDIFile(Document *doc)
 {
 	short	firstProblemMeas, len, vRefNum, suffixLen, ch;
 	short	totalZeroVel, startStaff, endStaff, startMeasNum, endMeasNum;
@@ -1240,7 +1273,7 @@ void SaveMIDIFile(Document *doc)
 			GetIndCString(strBuf, MIDIFILE_STRS, 43);		/* "The only part is muted, so no notes..." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			return;
+			return False;
 		}
 		else {
 			GetIndCString(strBuf, MIDIFILE_STRS, 42);		/* "A part is muted; its notes..." */
@@ -1261,12 +1294,11 @@ void SaveMIDIFile(Document *doc)
 		CautionInform(GENERIC_ALRT);
 	}
 
-	/*
-	 *	Create a default MIDI filename by looking up the suffix string and appending
-	 *	it to the current name.  If the current name is so long that there would not
-	 *	be room to append the suffix, we truncate the file name before appending the
-	 *	suffix so that we don't run the risk of overwriting the original score file.
-	 */
+	/* Create a default MIDI filename by looking up the suffix string and appending
+	   it to the current name.  If the current name is so long that there would not
+	   be room to append the suffix, we truncate the file name before appending the
+	   suffix so that we don't run the risk of overwriting the original score file. */
+	   
 	GetIndString(filename, MiscStringsID, MF_SUFINDEX);		/* Get suffix length */
 	suffixLen = *filename;
 
@@ -1286,30 +1318,32 @@ void SaveMIDIFile(Document *doc)
 	*filename = (len + suffixLen);							/* And ensure new string knows new length */
 	
 	/* Ask user where to put this MIDI file */
+	
 	NSClientData	nscd;
 	Boolean			keepGoing;
 	FSSpec 			fsSpec;
 	ScriptCode		scriptCode = smRoman;
 	
 	keepGoing = GetOutputName(MiscStringsID, 3, filename, &vRefNum, &nscd);
-	if (!keepGoing) return;
+	if (!keepGoing) return False;
 	
 	fsSpec = nscd.nsFSSpec;
 			
 	errCode = FSpDelete(&fsSpec);										/* Delete existing file */
 	if (errCode!=noErr && errCode!=fnfErr)								/* Ignore "file not found" */
-		{ ReportIOError(errCode, SAVEMF_ALRT); return; }
+		{ ReportIOError(errCode, SAVEMF_ALRT); return False; }
 		
 	errCode = FSpCreate(&fsSpec, creatorType, 'Midi', scriptCode);
-	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
+	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return False; }
 		
 	errCode = FSpOpenDF(&fsSpec, fsRdWrPerm, &fRefNum);					/* Open the new file */
-	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
+	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return False; }
 
 	WaitCursor();
 	
-	WriteMIDIFile(doc);
+	if (!WriteMIDIFile(doc)) return False;
 	
 	ArrowCursor();
 	errCode = FSClose(fRefNum);
+	return True;
 }

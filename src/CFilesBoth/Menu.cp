@@ -235,7 +235,7 @@ Boolean DoFileMenu(short choice)
 	{
 		Boolean keepGoing = True, doSymbol;  short vrefnum, returnCode;
 		register Document *doc=GetDocumentFromWindow(TopDocument);
-		char str[256];
+		char str[256], tmpCStr[256];
 		NSClientData nscd;  FSSpec fsSpec;
 		
 		switch (choice) {
@@ -297,19 +297,25 @@ Boolean DoFileMenu(short choice)
 				if (doc) DoRevertDocument(doc);
 				break;
 			case FM_Import:
-			
 				UseStandardType('Midi');
 				ClearStandardTypes();
-				
 				GetIndCString(str, MIDIFILE_STRS, 1);				/* "What MIDI file do you want to Import?" */
 				returnCode = GetInputName(str, False, tmpStr, &vrefnum, &nscd);
 				if (returnCode) {
 					fsSpec = nscd.nsFSSpec;
-					ImportMIDIFile(&fsSpec);
+					Pstrcpy((unsigned char *)tmpCStr, tmpStr);
+					PToCString((unsigned char *)tmpCStr);
+					LogPrintf(LOG_NOTICE, "Importing MIDI file '%s'...  (DoFileMenu)\n",
+						tmpCStr);
+					if (ImportMIDIFile(&fsSpec)) LogPrintf(LOG_NOTICE, "Imported MIDI file '%s'.  (DoFileMenu)\n",
+						tmpCStr);
 				}
 				break;
 			case FM_Export:
-				if (doc) SaveMIDIFile(doc);
+				if (doc) {
+					if (SaveMIDIFile(doc))
+						LogPrintf(LOG_NOTICE, "MIDI file exported.  (DoFileMenu)\n");
+				}
 				break;
 			case FM_Extract:
 				if (doc) DoExtract(doc);

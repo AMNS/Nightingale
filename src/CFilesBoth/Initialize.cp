@@ -127,17 +127,20 @@ void Initialize()
 	if (growZoneUPP)
 		SetGrowZone(growZoneUPP);			/* Install simple grow zone function */
 	
+//LogPrintf(LOG_DEBUG, "Initialize: 1\n", err);
 	if (!NInitFloatingWindows())
 		{ BadInit(); ExitToShell(); }
 	
 	InitCursor();
 	WaitCursor();
+//LogPrintf(LOG_DEBUG, "Initialize: 2\n", err);
 
 	/* Do Application-specific initialization */
 	
 	if (!InitGlobals())
 		{ BadInit(); ExitToShell(); }
 	Init_Help();
+//LogPrintf(LOG_DEBUG, "Initialize: 3\n", err);
 	
 	/* See if we have enough memory that the user should be able to do SOMETHING
 	   useful, and enough to get back to the main event loop, where we do our
@@ -1304,6 +1307,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		short curResFile;  short defaultToolItem;
 		
 		/* Allocate a grid of characters from the 'PLCH' resource. */
+		
 		defaultToolItem = GetToolGrid(whichPalette);
 		if (!defaultToolItem) { BadInit(); ExitToShell(); }
 		
@@ -1350,7 +1354,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		whichPalette->findItemProc = (short (*)())FindToolItem;
 		whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
 		
-LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
+//LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
 
 		/* Put picture into offscreen port so that any rearrangements can be saved */
 

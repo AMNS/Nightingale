@@ -233,8 +233,8 @@ static pascal void NSNavOpenEventProc(const NavEventCallbackMessage callbackSele
 				
 				short neededWidth =  callbackParms->customRect.left + CUSTOM_WIDTH;
 				short neededHeight = callbackParms->customRect.top + CUSTOM_HEIGHT;
-LogPrintf(LOG_DEBUG, "NSNavOpenEventProc 1: customRect.top=%d neededHeight=%d\n",
-callbackParms->customRect.top, neededHeight);
+//LogPrintf(LOG_DEBUG, "NSNavOpenEventProc 1: customRect.top=%d neededHeight=%d\n",
+//callbackParms->customRect.top, neededHeight);
 				            
 				/* If this is 1st round of negotiations, tell NavServices the dimensions we want */
 				
@@ -257,8 +257,8 @@ callbackParms->customRect.top, neededHeight);
 				
 				gLastTryWidth = callbackParms->customRect.right;
 				gLastTryHeight = callbackParms->customRect.bottom;
-LogPrintf(LOG_DEBUG, "NSNavOpenEventProc 2: customRect.top=%d neededHeight=%d\n",
-callbackParms->customRect.top, neededHeight);
+//LogPrintf(LOG_DEBUG, "NSNavOpenEventProc 2: customRect.top=%d neededHeight=%d\n",
+//callbackParms->customRect.top, neededHeight);
 			}
 			break;
 

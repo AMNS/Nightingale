@@ -20,7 +20,7 @@ long eofpos;
 /* The format of Standard MIDI Files was originally described in a document of that
 name available from the International MIDI Association. As of this writing (March 2017),
 it appears that the "official" descripion is only in a 1996 document plus four
-supplements of 1998 thru 2001 available from the MIDI Association, but only after
+supplements of 1998 thru 2001 available from the MIDI Association, and only after
 registering with them. Much easier to get the unoficial (and not-quite-up-to-date) 1999
 "Standard MIDI-File Format Spec. 1.1, updated", found in various places on the Web.
 
@@ -34,7 +34,7 @@ interface-level routines. */
 
 static short errCode;
 
-Word nTracks, timeBase;
+Word mfNTracks, mfTimeBase;
 long qtrNTicks;					/* Ticks per quarter in Nightingale (not in the MIDI file!) */
 			
 /* Prototypes for local functions */
@@ -52,7 +52,7 @@ static void InitMFEventQue(DoubleWord, Byte);
 static void SaveMFEventQue(DoubleWord *, Byte *);
 static DoubleWord GetDeltaTime(Byte [], DoubleWord *);
 static short GetNextMFEvent(DoubleWord *, Byte [], Boolean *);
-static Boolean FindNoteOff(DoubleWord, Boolean, Byte [], Boolean *);
+static Boolean GetNoteOff(DoubleWord, Boolean, Byte [], Boolean *);
 
 /* -------------------------------------------------------------------------------------- */
 
@@ -69,9 +69,7 @@ Byte statusByteMF=0;				/* MIDI file track status in case of running status */
 
 #define DBG DETAIL_SHOW
 
-#define TEMPO_WINDOW 65
-
-//#define PUBLIC_VERSION_1
+#define TEMPO_WINDOW 65				/* in units given by <timeBase> in file header */
 
 /* ----------------------------------------------------------------- Utility functions -- */
 
@@ -166,7 +164,7 @@ Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 		if (errCode!=noError) return False;
 	}
 
-	LogPrintf(LOG_NOTICE, "ReadMFHeader: MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)\n",
+	LogPrintf(LOG_NOTICE, "MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)  (ReadMFHeader)\n",
 					len, *pFormat, *pnTracks, *pTimeBase, qtrNTicks);
 	return True;
 }
@@ -174,11 +172,10 @@ Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 
 /* ------------------------------------------------------------------------- GetVarLen -- */
 /* Get the value of a MIDI file "variable-length number" whose first byte is at
-chunk[*pLoc], and increment *pLoc to point to the first byte after the number.
-According to the Standard MIDI File spec, a variable-length number must fit in four
-bytes: it's unsigned, and since there are 7 significant bits per byte, it must be
-less than 2**28. If the number occupies more than four bytes, we return an illegal
-value (0xFFFFFFFF). */
+chunk[*pLoc], and increment *pLoc to point to the first byte after the number. According
+to the Standard MIDI File spec, a variable-length number must fit in four bytes: it's
+unsigned, and since there are 7 significant bits per byte, it must be less than 2**28.
+If the number occupies more than four bytes, we return an illegal value (0xFFFFFFFF). */
 
 static DoubleWord GetVarLen(Byte chunk[], DoubleWord *pLoc)
 {
@@ -187,7 +184,9 @@ static DoubleWord GetVarLen(Byte chunk[], DoubleWord *pLoc)
 	Byte addend;
 	
 	value = 0L;
+	
 	/* Accumulate significant bits and watch the top bit for the end-of-number flag. */
+	
 	for (i = 1; i<=4; i++, (*pLoc)++) {
 		addend = chunk[*pLoc] & 0x7F;
 		value = (value<<7)+addend;
@@ -197,9 +196,8 @@ static DoubleWord GetVarLen(Byte chunk[], DoubleWord *pLoc)
 		}
 	}
 	
-	/*
-	 * Something is wrong: the number seems to occupy more than four bytes.
-	 */
+	/* Something is wrong: the number seems to occupy more than four bytes. */
+	
 	return 0xFFFFFFFF;
 }
 
@@ -225,16 +223,24 @@ Word ReadTrack(Byte **ppChunk)
 	char fmtStr[256];
 	
 	SkipChunksUntil('MTrk');
-	if (errCode!=noError) return 0;
+	if (errCode!=noError) {
+		LogPrintf(LOG_ERR, "Can't read MIDI file track: can't find 'MTrk' chunk. errCode=%d  (ReadTrack)\n",
+					errCode);
+		return 0;
+	}
 	len = getl(infile);
 	if (len>MAX_TRACK_SIZE) {
-		GetIndCString(fmtStr, MIDIFILE_STRS, 22);    /* "The MIDI file has a track of %ld bytes; the largest track Nightingale can handle is only %ld." */
+		GetIndCString(fmtStr, MIDIFILE_STRS, 22);    /* "The MIDI file has a track of %ld bytes; the largest..." */
 		sprintf(strBuf, fmtStr, len, MAX_TRACK_SIZE); 
 		CParamText(strBuf, "", "", "");
 		StopInform(READMIDI_ALRT);
 		return 0;
 	}
-	if (errCode!=noError) return 0;
+	if (errCode!=noError) {
+		LogPrintf(LOG_ERR, "Can't read MIDI file track: getl failed. errCode=%d  (ReadTrack)\n",
+					errCode);
+		return 0;
+	}
 	pChunk = (Byte *)NewPtr(len);
 	if (!GoodNewPtr((Ptr)pChunk)) {
 		OutOfMemory(len);
@@ -243,8 +249,11 @@ Word ReadTrack(Byte **ppChunk)
 	actualLen = len;
 	if ((errCode = FSRead(infile, &actualLen, pChunk)) == 0)
 		if (actualLen<len) errCode = eofErr;
-	if (errCode) return 0;
-	
+	if (errCode || actualLen<=0) {
+		LogPrintf(LOG_ERR, "Can't read MIDI file track: problem with length. errCode=%d len=%ld actualLen=%ld  (ReadTrack)\n",
+					errCode, len, actualLen);
+		return 0;
+	}
 	*ppChunk = pChunk;
 	return (Word)actualLen;
 }
@@ -279,7 +288,7 @@ static DoubleWord GetDeltaTime(Byte chunk[], DoubleWord *pLoc)
 Another:
 	varLenValue = GetVarLen(chunk, pLoc);
 	if (varLenValue==0xFFFFFFFF) {
-		/* ??Should also give the track no. in this message. */
+		/* FIX ME: Should also give the track no. in this message. */
 		GetIndCString(fmtStr, MIDIFILE_STRS, 40);    	/* "Illegal variable-length number at..." */
 		sprintf(strBuf, fmtStr, (long)locMF); 
 		CParamText(strBuf, "", "", "");
@@ -343,11 +352,10 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 			opStatus = OP_COMPLETE;
 			break;
 		case MSYSEX:
-			/* 
-			 *	This handles only the original one-chunk form of SysEx message. See
-			 *	midifile.c in Tim Thompson's mftext for some elegant code for
-			 *	collecting arbitrary chunks of SysEx.
-			 */
+			/* This handles only the original one-chunk form of SysEx message. See
+			   midifile.c in Tim Thompson's mftext for some elegant code for collecting
+			   arbitrary chunks of SysEx. */
+			   
 			n = 1;
 			while (pChunkMF[locMF]!=MEOX)
 				eventData[n++] = pChunkMF[locMF++];
@@ -359,11 +367,13 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 			eventData[2] = pChunkMF[locMF];
 			for (i = 1; i<=pChunkMF[locMF]; i++)
 				eventData[i+2] = pChunkMF[locMF+i];
-			/* JGG &DAB: Combining the next two operations with:
+				
+			/* JGG & DAB: Combining the next two operations with:
 				locMF += pChunkMF[locMF++];
 			...	doesn't work right on the CodeWarrior PowerPC compiler (ca. 2000?).
-			Not that we care about CodeWarrior or PowerPCs anymore, but it might be
-			a problem with other compilers too. */
+			   Not that we care about CodeWarrior anymore, but it might be a problem
+			   with other compilers too. */
+			   
 			locMF += pChunkMF[locMF];
 			locMF++;
 			opStatus = OP_COMPLETE;
@@ -463,8 +473,8 @@ void InitNoteOffList()
 	noteOffLim = 0;
 }
 
-/* If the given location could not possibly be the first data byte of a valid Note
-Off because it's in the usedNoteOff list, return False, else return True. */
+/* If the given location could not possibly be the first data byte of a valid Note Off
+because it's in the usedNoteOff list, return False, else return True. */
 
 Boolean MayBeNoteOff(short locOff)
 {
@@ -477,14 +487,14 @@ Boolean MayBeNoteOff(short locOff)
 }
 
 
-/* ----------------------------------------------------------------------- FindNoteOff -- */
-/* Find the Note Off for the Note On whose first data byte, i.e., the byte holding
-the note number, is pChunkMF[loc]; optionally mark it so it won't be found again
-so, if there are multiple notes with the same note number simultaneously in the
-track, one Note Off will be needed for each one. This option would be useful only
-for very strange MIDI files: see comments on InsertNoteOffLoc. */
+/* ------------------------------------------------------------------------ GetNoteOff -- */
+/* Get the Note Off for the Note On whose first data byte, i.e., the byte holding the
+note number, is pChunkMF[loc]; optionally mark it so it won't be found again so, if there
+are multiple notes with the same note number simultaneously in the track, one Note Off
+will be needed for each one. This option would be useful only for very strange MIDI
+files: see comments on InsertNoteOffLoc. */
 
-static Boolean FindNoteOff(
+static Boolean GetNoteOff(
 			DoubleWord loc,
 			Boolean oneEndsOne,		/* True=one Note Off ends only one current note w/its note no. */
 			Byte noteOffData[],		/* Byte 0=off velocity, 1+2=duration */
@@ -538,8 +548,8 @@ However, if triplets are allowed and the duration can be represented as one, ins
 return the negative duration code. If there is no corresponding duration code,
 return UNKNOWN_L_DUR. */
 
-short Time2LDurQuantum(long, Boolean);
-short Time2LDurQuantum(long time, Boolean allowTrips)
+static short Time2LDurQuantum(long, Boolean);
+static short Time2LDurQuantum(long time, Boolean allowTrips)
 {
 	short qLDur, divisor, qLTry, tripPDurUnit;
 
@@ -557,6 +567,7 @@ short Time2LDurQuantum(long time, Boolean allowTrips)
 	}
 		
 	/* If triplets are allowed, try triplet durations, starting with the shortest. */
+	
 	tripPDurUnit = (2*PDURUNIT)/3;
 	if (allowTrips && (time % tripPDurUnit==0)) {
 		divisor = tripPDurUnit; qLTry = MAX_L_DUR;
@@ -569,7 +580,7 @@ short Time2LDurQuantum(long time, Boolean allowTrips)
 	return -qLDur;
 	}
 
-	/* Couldn't find a match, so... */
+	/* We couldn't find a match, so... */
 	
 	return UNKNOWN_L_DUR;
 }
@@ -590,11 +601,12 @@ Boolean GetTrackInfo(
 				short *nTooLong,
 				Boolean chanUsed[MAXCHANNEL],
 				short *quantumLDur,	/* code for coarsest grid that fits all attacks, or UNKNOWN_L_DUR=none */
+				long *quantumLPt,	/* time where attack requiring finest grid first occurs */
 				Boolean *trip,		/* need triplets to fit all attacks? */
 				long *lastEvent		/* in ticks */
 				)
 {
-	DoubleWord tickTime, deltaTime;
+	DoubleWord tickTime, deltaTime, qLPoint;
 	Byte eventData[255], dummy[3];
 	Byte command;
 	short qLDur, qLDHere, i, opStatus;
@@ -618,15 +630,17 @@ Boolean GetTrackInfo(
 		
 		switch (command) {
 			case MNOTEON:
-				if (FindNoteOff(locMF-2, False, dummy, &tooLong)) {
+				if (GetNoteOff(locMF-2, False, dummy, &tooLong)) {
 					chanUsed[MCHANNEL(eventData[0])] = True;
 					totCount++;
 					if (tooLong) (*nTooLong)++;
 					if  (qLDur!=UNKNOWN_L_DUR) {
 						qLDHere = Time2LDurQuantum(tickTime, True);
 						if (qLDHere<0) trips = True;
-						if (qLDHere==UNKNOWN_L_DUR) qLDur = UNKNOWN_L_DUR;
-						else								 qLDur = n_max(qLDur, qLDHere);
+						if (qLDHere==UNKNOWN_L_DUR || qLDHere>qLDur) {
+							qLDur = qLDHere;
+							qLPoint = tickTime;
+						}
 					}
 					break;
 				}
@@ -645,6 +659,7 @@ Boolean GetTrackInfo(
 
 Done:
 	*quantumLDur = qLDur;
+	*quantumLPt = qLPoint;
 	*noteCount = totCount;
 	*trip = trips;
 	*lastEvent = tickTime;
@@ -658,8 +673,8 @@ but not necessarily the timing track:
 	- the number of illegal time signatures;
 	- a value that gives the shortest time signature denominator;
 	- the time of the last event in the track (normally the End-of-Track event).
-Return False if we have trouble parsing the track (in which case values returned
-are as of the point where we had trouble), else True. */
+Return False if we have trouble parsing the track (in which case values returned are
+as of the point where we had trouble), else True. */
 
 Boolean GetTimingTrackInfo(
 				short *tsCount,
@@ -753,10 +768,9 @@ Word MF2MIDNight(
 	Boolean runStatus, tooLong;
 	char fmtStr[256];
 
-	/*
-	 * Allow 75% plus a bit more extra space: that seems always to be enough, but it's
-	 * not guaranteed to be!
-	 */
+	/* Allow 75% plus a bit more extra space: that seems always to be enough, but it's
+	   not guaranteed to be! */
+	   
 	lenMN = 175L*lenMF/100L+10L;
 	if (lenMN>MAX_TRACK_SIZE) {
 		GetIndCString(fmtStr, MIDIFILE_STRS, 24);    /* "Importing a track of the MIDI file requires %ld bytes; the largest Nightingale can handle is only %ld." */
@@ -794,9 +808,14 @@ Word MF2MIDNight(
 				BlockMove(&tickTime, pChunk+outLoc, sizeof(long));
 				outLoc += sizeof(long);
 	
-				if (FindNoteOff(locMF-2, False, &eventData[3], &tooLong)) {	/* Get off vel. and dur. */
+				if (GetNoteOff(locMF-2, False, &eventData[3], &tooLong)) {	/* Get off vel. and dur. */
 					BlockMove(eventData, pChunk+outLoc, MN_NOTELEN);
-					/* Round up to an even (word) address for the benefit of 68000s. */
+					
+					/* Round up to an even (word) address for the benefit of 68000s.
+					   We don't care about 68000s anymore, but it might possibly matter
+					   with a machine we do care about, and it doesn't hurt.  --DAB, Dec.
+					   2022 */
+					   
 					outLoc += ROUND_UP_EVEN(MN_NOTELEN);
 				}
 				else
@@ -899,7 +918,6 @@ static Boolean MakeMNote(MFNote *, Byte, MNOTE *);
 static LINK MFNewMeasure(Document *, LINK);
 static void FixTStampsForTimeSigs(Document *, LINK);
 static Boolean MFAddMeasures(Document *, short, long *);
-static void DeleteAllMeasures(Document *, LINK, LINK);
 static Boolean DoMetaEvent(Document *, short, MFEvent *, short);
 
 static void InitTrack2Night(Document *, long *, long *);
@@ -908,6 +926,7 @@ static short Track2RTStructs(Document *,TRACKINFO [],short,Boolean,long,long,sho
 static short Track2Night(Document *, TRACKINFO [], short, short, short, short, long);
 
 /* Set basic sizes for merge table and one-track table. Cf. comments on InitTrack2Night. */
+
 #define MERGE_TAB_SIZE 4000			/* Max. Syncs and Measures in table for merging into */
 #define ONETRACK_TAB_SIZE 4000		/* Max. Syncs and max. notes for a single track */
 
@@ -926,8 +945,8 @@ static CTRLINFO *ctrlInfoTab;
 
 /* --------------------------------------------------------------------- Miscellaneous -- */
 
-/* Given a LINK to a part and a full name for the part's instrument, fill in the
-part's full name and make a guess at its short name. */
+/* Given a LINK to a part and a full name for the part's instrument, fill in the part's
+full name and make a guess at its short name. */
 
 #define SHORT_LEN 4		/* No. of chars. of full name to use in short name */
 
@@ -946,10 +965,10 @@ static void NamePart(LINK partL, char *fullName)
 
 
 /* Convert time from MIDI file's ticks to Nightingale's and vice-versa. Be sure to
-initialize qtrNTicks & timeBase before using! */
+initialize qtrNTicks and mfTimeBase before using! */
 
-#define MFTicks2NTicks(t)	(qtrNTicks==timeBase? (t) : (qtrNTicks*(long)(t))/timeBase )
-#define NTicks2MFTicks(t)	(qtrNTicks==timeBase? (t) : (timeBase*(long)(t))/qtrNTicks )
+#define MFTicks2NTicks(t)	(qtrNTicks==mfTimeBase? (t) : (qtrNTicks*(long)(t))/mfTimeBase )
+#define NTicks2MFTicks(t)	(qtrNTicks==mfTimeBase? (t) : (mfTimeBase*(long)(t))/qtrNTicks )
 
 /* Convert info in an MFNote (MIDNight note) into the form needed for a Nightingale note. */
 
@@ -964,10 +983,10 @@ static Boolean MakeMNote(MFNote *pn, Byte channel, MNOTE *pMNote)
 	pMNote->duration = MFTicks2NTicks(pn->dur);
 	
 	pMNote->offVelocity = pn->offVelocity;
-	/*
-	 * If off velocity is 0, the "Note Off" in the MIDI file was probably a zero-velocity
-	 * Note On. In that case, the off velocity is unspecified, so use default.
-	 */	
+	
+	/* If off velocity is 0, the "Note Off" in the MIDI file was probably a zero-velocity
+	   Note On. In that case, the off velocity is unspecified, so use default. */
+	   	
 	if (pMNote->offVelocity==0) pMNote->offVelocity = config.noteOffVel;
 
 	return True;
@@ -988,15 +1007,17 @@ static LINK MFNewMeasure(Document *doc, LINK pL)
 }
 
 
-/* Set the timestamp of every Measure in the score to reflect the notated duration
-of the previous Measure, paying no attention to the contents of the Measures.
-Optionally restart timestamps from 0 at a specified point. */
+/* Set the timestamp of every Measure in the score to reflect the notated duration of
+the previous Measure, paying no attention to the contents of the Measures. Optionally
+restart timestamps from 0 at a specified point. */
 
 static void FixTStampsForTimeSigs(
 					Document *doc,
-					LINK resetL)		/* Reset timestamps to 0 at 1st Measure at or after this, or NILINK */
+					LINK resetL)		/* Reset timestamps to 0 at 1st Meas. at or after this, or NILINK */
 {
-	long measDur; LINK measL, nextMeasL, resetML; CONTEXT context;
+	long measDur;
+	LINK measL, nextMeasL, resetML;
+	CONTEXT context;
 	
 	resetML = (resetL? SSearch(resetL, MEASUREtype, GO_RIGHT) : NILINK);
 	
@@ -1009,6 +1030,7 @@ static void FixTStampsForTimeSigs(
 				MeasureTIME(nextMeasL) = 0L;
 			else if (!MeasISFAKE(measL)) {
 				/* Time sig. for this Meas. may appear AFTER it, so GetContext at next Meas. */ 
+				
 				GetContext(doc, nextMeasL, 1, &context);
 				measDur = TimeSigDur(N_OVER_D, context.numerator, context.denominator);
 				MeasureTIME(nextMeasL) = MeasureTIME(measL)+measDur;
@@ -1026,7 +1048,9 @@ to give them the durations indicated by the time signatures. */
 
 static Boolean MFAddMeasures(Document *doc, short maxMeasures, long *pStopTime)
 {
-	long measTime=0L, measDur; short i, count, m, measNum=0; LINK measL, lastMeasL;
+	long measTime=0L, measDur;
+	short i, count, m, measNum=0;
+	LINK measL, lastMeasL;
 	Boolean firstMeas=True;
 	char fmtStr[256];
 	
@@ -1044,8 +1068,8 @@ static Boolean MFAddMeasures(Document *doc, short maxMeasures, long *pStopTime)
 
 		firstMeas = False;
 		
-		/* If this is the first time signature, add one extra Measure, since the
-			second Measure object is removed at the end of Track2Night. */
+		/* If this is the first time signature, add one extra Measure object, since the
+		   second Measure is removed at the end of Track2Night. */
 			
 		count = measInfoTab[i].count;
 		if (i==0) count++;
@@ -1074,7 +1098,7 @@ Done:
 	return True;
 }
 
-
+#ifdef NOMORE
 static void DeleteAllMeasures(Document *doc, LINK startL, LINK endL)
 {
 	LINK pL, nextL;
@@ -1084,6 +1108,7 @@ static void DeleteAllMeasures(Document *doc, LINK startL, LINK endL)
 		if (MeasureTYPE(pL)) DeleteMeasure(doc, pL);
 	}
 }
+#endif
 
 static unsigned long GetTempoMicrosecsPQ(MFEvent *p) 
 {
@@ -1487,12 +1512,12 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *raw
 				currTime += dur;				
 			}
 			docSyncTab[i++] = info;
-			
 		}
 	}
 	
 	if (*tabSize != rawTabSize) {
-		LogPrintf(LOG_NOTICE, "ERROR: rawSyncTab size %ld disagrees with docSyncTab size of %ld\n", rawTabSize, *tabSize);
+		LogPrintf(LOG_WARNING, "rawSyncTab size %ld disagrees with docSyncTab size of %ld\n",
+					rawTabSize, *tabSize);
 	}
 //	if (*tabSize > rawTabSize) {
 //		*tabSize = rawTabSize;
@@ -1506,8 +1531,7 @@ static LINK GetTempoRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO te
 {
 	long timeStamp = tempoInfo.tStamp;
 	
-	for (int j = 0; j<tabSize; j++) 
-	{
+	for (int j = 0; j<tabSize; j++) {
 		LINKTIMEINFO info = docSyncTab[j];
 		if (info.time == timeStamp) {			// Should always be the case
 			return info.link;
@@ -1527,15 +1551,13 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 	
 	LogPrintf(LOG_NOTICE, "track=%ld num=%ld val=%ld time=%ld\n", ctrlInfo.track, ctrlInfo.ctrlNum, ctrlInfo.ctrlVal, timeStamp);
 	
-	for (int j = 0; j<tabSize; j++) 
-	{
+	for (int j = 0; j<tabSize; j++) {
 		LINKTIMEINFO info = docSyncTab[j];
 		
 		if (info.time == timeStamp) {			// Should always be the case
 			return info.link;
 		}
-		if (info.time > timeStamp) 				// Timestamps not equal, first sync after the tempo
-		{				
+		if (info.time > timeStamp) { 				// Timestamps not equal, first sync after the tempo
 			//if (j>0) {									
 				info = docSyncTab[j];
 			//}
@@ -1549,12 +1571,11 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 
 static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize) 
 {
-	LogPrintf(LOG_INFO, "PrintDocSyncTab: for %s, tabSize=%ld\n", tabname, tabSize);
+	LogPrintf(LOG_DEBUG, "PrintDocSyncTab: for %s, tabSize=%d:\n", tabname, tabSize);
 	
-	for (int j = 0; j<tabSize; j++) 
-	{
+	for (int j = 0; j<tabSize; j++) {
 		LINKTIMEINFO info = docSyncTab[j];
-		if (DBG) LogPrintf(LOG_DEBUG, "j = %ld link = %ld time=%ld mult=%ld\n", j, info.link,
+		LogPrintf(LOG_DEBUG, "  j=%ld link=%ld time=%ld mult=%ld\n", j, info.link,
 					info.time, info.mult);
 	}
 }
@@ -1564,8 +1585,7 @@ static void PrintDocSyncDurs(Document *doc)
 	LINK pL;
 	long dur;
 	
-	for (pL = doc->headL; pL != doc->tailL; pL = RightLINK(pL)) 
-	{
+	for (pL = doc->headL; pL != doc->tailL; pL = RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
 			dur = SyncSimpleLDur(pL);
 		
@@ -1580,8 +1600,7 @@ of a previous tempo change. */
 
 static Boolean CompactTempoTab() 
 {
-	if (tempoTabLen <= 1)
-		return True;
+	if (tempoTabLen <= 1) return True;
 	
 	TEMPOINFO *tempoInfoTabOrig = tempoInfoTab;	
 	
@@ -1599,8 +1618,7 @@ static Boolean CompactTempoTab()
 	tempoInfoTab[0].tStamp = tempoInfoTabOrig[0].tStamp;
 	tempoInfoTab[0].microsecPQ = tempoInfoTabOrig[0].microsecPQ;
 
-	for (int i = 1; i<tempoTabLenOrig; i++) 
-	{
+	for (int i = 1; i<tempoTabLenOrig; i++) {
 		TEMPOINFO tempoInfo = tempoInfoTabOrig[i];
 		if (tempoInfo.tStamp > prevTStamp + TEMPO_WINDOW) {
 		
@@ -1642,7 +1660,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			
 			short beatdur = DFLT_BEATDUR;
 			long tempoValue = tscale / beatdur;
-			if (DBG) LogPrintf(LOG_DEBUG, "AddTempoChanges: adding Tempo %ld (time=%ld) at link %d\n",
+			if (DBG) LogPrintf(LOG_DEBUG, "AddTempoChanges: adding Tempo %ld (time=%ld) at L%u\n",
 				tempoValue, tempoInfo.tStamp, relObj);
 			
 			short dur = QTR_L_DUR;
@@ -1668,7 +1686,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 
 static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short tabSize)
 {
-	PrintDocSyncTab("DocSyncTab", docSyncTab, tabSize);
+	if (DBG) PrintDocSyncTab("DocSyncTab", docSyncTab, tabSize);
 	
 	for (int i = 0; i<ctrlTabLen; i++) 
 	{
@@ -1745,8 +1763,8 @@ static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, short rawT
 {
 //	short rawTabSize = 16;
 	
-	PrintDocSyncTab("RawSyncTab", rawSyncTab, rawTabSize);
-	PrintDocSyncDurs(doc);
+	if (DBG) PrintDocSyncTab("RawSyncTab", rawSyncTab, rawTabSize);
+	if (DBG) PrintDocSyncDurs(doc);
 	
  	short tabSize;
 	LINKTIMEINFO *docSyncTab = DocSyncTab(doc, &tabSize, rawSyncTab, rawTabSize);
@@ -1913,11 +1931,15 @@ static short Track2RTStructs(
 			the same time as the previous note in this track, put it in a chord with that
 			note. Any further "deflamming" must wait until we know quantized times, and
 			we can't do that till we decide tuplets. */
+			
 		switch (command) {
 			case MNOTEON:
 				if (p->data[2]==0) break;								/* Really a Note Off; should never get here */
-				if (isTempoMap)
-					{ MayErrMsg("Track2RTStructs: can't handle a note in the tempo map track."); continue; }
+				if (isTempoMap) {
+					MayErrMsg("Track2RTStructs: can't handle a note in the tempo map track (start time %ld).",
+									p->tStamp);
+					continue;
+				}
 				pn = (MFNote *)p;
 				if (MakeMNote(pn, channel, &theNote)) {
 					noteEndTime = theNote.startTime+theNote.duration;
@@ -2056,8 +2078,9 @@ static short Track2Night(
 	Boolean		isTempoMap, isLastTrack, okay=False;
 	char		fmtStr[256];
 
+	if (DBG) LogPrintf(LOG_DEBUG, "Track2Night: track %d\n", track);
+	isLastTrack = (track==mfNTracks);
 	isTempoMap = (track==1);						/* an OK assumption for format 1 MIDI files */
-	isLastTrack = (track==nTracks);
 	if (isTempoMap) InitTrack2Night(doc, &mergeTabSize, &oneTrackTabSize);
 	if (isTempoMap)
 		LogPrintf(LOG_DEBUG, "Track2Night: mergeTabSize=%ld oneTrackTabSize=%ld\n", mergeTabSize, oneTrackTabSize);
@@ -2083,16 +2106,15 @@ static short Track2Night(
 	voice = track-1;
 	newFirstSync = NILINK;
 
-	/*
-	 * - If this IS the tempo map track, create all Measures and time signatures for
-	 *	the entire score, including extra Measures at the end to fill the score out to
-	 *	<scoreEndTime> time. (Since our empty score already contained one Measure, we'll
-	 *	then have one too many: we need the space between the first two Measures to
-	 *	hold the stuff for each track. Of course, the extra Measure must be deleted when
-	 *	we've done the last track; we leave that to the calling function because we can't
-	 *	tell when that is.)
-	 * - If this IS NOT the tempo map track, convert any new notes/rests and merge them in.
-	 */
+	/* - If this IS the tempo map track, create all Measures and time signatures for
+	     the entire score, including extra Measures at the end to fill the score out to
+	     <scoreEndTime> time. (Since our empty score already contained one Measure, we'll
+	     then have one too many: we need the space between the first two Measures to
+	     hold the stuff for each track. Of course, the extra Measure must be deleted when
+	     we've done the last track; we leave that to the calling function because we can't
+	     tell when that is.)
+	   - If this ISN'T the tempo map track, convert any new notes/rests and merge them in. */
+	   
 	if (isTempoMap) {		
 		measDur = TimeSigDur(0, measInfoTab[measTabLen-1].numerator,
 										measInfoTab[measTabLen-1].denominator);
@@ -2101,17 +2123,17 @@ static short Track2Night(
 		measInfoTab[measTabLen-1].count = count;
 		if (!MFAddMeasures(doc, maxMeasures, &cStopTime)) goto Done;
 		cStopTime = NTicks2MFTicks(cStopTime);
-		LogPrintf(LOG_DEBUG, "cStart/StopTime=%ld/%ld quantum=%d tripBias=%d tryLev=%d leastSq=%d timeOff=%d\n",
+		if (DBG) LogPrintf(LOG_DEBUG, "cStart/StopTime=%ld/%ld quantum=%d tripBias=%d tryLev=%d leastSq=%d timeOff=%d\n",
 							cStartTime, cStopTime, quantum, tripletBias,
 							config.tryTupLevels, config.leastSquares, timeOffset);
 	}
 	else if (status==OP_COMPLETE) {
-		/*
-		 *	It's not the tempo track, and we have one or more notes. Convert and merge
-		 *	them. Damned if I can think of a good way to decide what <maxNewSyncs> should
-		 * be. But it certainly should fit in 16 bits, i.e., be 65535 or less, since the
-		 *	total number of notes/rests in a score has to!
-		 */
+	
+		/* It's not the tempo track, and we have one or more notes. Convert and merge
+		   them. Damned if I can think of a good way to decide what <maxNewSyncs> should
+		   be. But it certainly should fit in 16 bits, i.e., be 65535 or less, since the
+		   total number of notes/rests in a score has to! */
+		   
 		maxNewSyncs = n_min(5L*nRawSyncs+MF_MAXPIECES, 65535L);
 		newSyncTab = (LINKTIMEINFO *)NewPtr(maxNewSyncs*sizeof(LINKTIMEINFO));
 		if (!GoodNewPtr((Ptr)newSyncTab))
@@ -2120,14 +2142,13 @@ static short Track2Night(
 		measL = SSearch(doc->headL, MEASUREtype, GO_RIGHT);
 		firstL = RightLINK(measL);
 
-		/*
-		 *	If quantization is called for, quantize and rhythmically clarify the notes and
-		 *	chords we just generated; in any case, build Syncs and get information for
-		 *	merging into <newSyncTab> ??REWRITE.
-		 */
+		/* If quantization is called for, quantize and rhythmically clarify the notes and
+		   chords we just generated; in any case, build Syncs and get information for
+		   merging into <newSyncTab> ??REWRITE. */
+		   
 		if (DBG && voice==1) {
 			DPrintMeasTab("X", measInfoTab, measTabLen);
-			LogPrintf(LOG_INFO, "quantum=%d tripBias=%d timeOff=%d\n",
+			LogPrintf(LOG_INFO, "quantum=%d tripBias=%d timeOff=%d  (Track2Night)\n",
 								quantum, tripletBias, timeOffset);
 		}
 		
@@ -2147,8 +2168,10 @@ static short Track2Night(
 			{ NoMoreMemory(); goto Done; }
 
 		nMergeObjs = FillMergeBuffer(firstL, mergeObjs, mergeTabSize, False);
-		/* ??The following check is currently pointless: if mergeTabSize isn't
+		
+		/* FIXME: The following check is currently pointless: if mergeTabSize isn't
 			enough, FillMergeBuffer just stops without saying so! */ 
+			
 		if (nMergeObjs>mergeTabSize) {
 			GetIndCString(fmtStr, MIDIFILE_STRS, 31);    /* "Can't handle MIDI files with more than %d Syncs." */
 			sprintf(strBuf, fmtStr, mergeTabSize); 
@@ -2161,7 +2184,7 @@ static short Track2Night(
 			{ MayErrMsg("MRMerge failed."); goto Done; }
 
 		if (quantum>1) {
-			if (!PreflightMem(40))
+			if (!PreflightMem(400))
 				{ NoMoreMemory(); goto Done; }
 			if (!FillNonemptyMeas(doc, NILINK, NILINK, voice, quantum)) goto Done;
 		}
@@ -2232,7 +2255,7 @@ short MIDNight2Night(
 
 	/* Convert one track at a time. */
 	
-	for (t = 1; t<=nTracks; t++) {
+	for (t = 1; t<=mfNTracks; t++) {
 		if (trackInfo[t].okay) {
 			if (t==1)
 				ProgressMsg(TIMINGTRACK_PMSTR, "...");
@@ -2246,7 +2269,7 @@ short MIDNight2Night(
 			if (status==FAILURE) break;
 			if (status==OP_COMPLETE) gotNotes = True;
 		}
-		if (t<nTracks && CheckAbort()) {							/* Check for user cancelling */
+		if (t<mfNTracks && CheckAbort()) {							/* Check for user cancelling */
 			ProgressMsg(SKIPTRACKS_PMSTR, "");
 			SleepTicks(120L);										/* So user has time to read the msg */
 			break;
@@ -2273,7 +2296,7 @@ short MIDNight2Night(
 		if (measL) DeleteMeasure(doc, measL);
 		UpdateMeasNums(doc, NILINK);
 
-		for (t = 2; t<=nTracks; t++)
+		for (t = 2; t<=mfNTracks; t++)
 			AvoidUnisonsInRange(doc, doc->headL, doc->tailL, t-1);
 
 		doc->selStartL = doc->headL;

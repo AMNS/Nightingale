@@ -52,6 +52,8 @@ static void ErrorMsg(short index)
 	
 	if (index > 0)	GetIndString(str,ErrorStringsID,index);
 	else			*str = 0;
+	CToPString((char *)str);
+//LogPrintf(LOG_DEBUG, "ErrorMsg: index=%d str='%s'\n", index, str);
 	(void)DoGeneralAlert(str);
 }
 
@@ -94,6 +96,7 @@ static void ErrorNumber(short index, long num)
 
 static short DoGeneralAlert(StringPtr str)
 {
+	if (Pstrlen(str)==0) LogPrintf(LOG_ERR, "Empty alert string!  (DoGeneralAlert)\n");
 	ParamText(str,"\p","\p","\p");
 	PlaceAlert(errorMsgID,NULL,0,40);
 	return (StopAlert(errorMsgID,NULL));

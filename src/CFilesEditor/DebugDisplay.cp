@@ -3,7 +3,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2020 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* File DebugDisplay.c - printing functions for Debug:
@@ -39,16 +39,16 @@ void DKSPrintf(PKSINFO KSInfo)
 /* Show information about the given object (node), and optionally its subobjects. If
 <abnormal>, ignore <doc>. */
 
-void DisplayNode(Document *doc, LINK pL,
+void DisplayNode(Document *doc, LINK objL,
 				short kount,					/* Label to print for node */
 				Boolean show_links,				/* Show node addr., links, size? */
 				Boolean show_subs,				/* Show subobjects? */
 				Boolean abnormal				/* Somewhere besides doc's main object list? */
 				)
 {
-	register PMEVENT	p;
+	PMEVENT			p;
 	PPARTINFO		pPartInfo;
-	register PANOTE aNote;
+	PANOTE			aNote;
 	PASTAFF			aStaff;
 	PAMEASURE		aMeasure;
 	PAPSMEAS		aPseudoMeas;
@@ -61,7 +61,7 @@ void DisplayNode(Document *doc, LINK pL,
 	PACONNECT		aConnect;
 	PASLUR			aSlur;
 	PANOTEOTTAVA	aNoteOct;
-	register LINK	aNoteL;
+	LINK			aNoteL;
 	LINK			aStaffL, aMeasureL, aPseudoMeasL, aClefL, aKeySigL, aNoteBeamL,
 					aNoteTupleL, aTimeSigL, aDynamicL, aConnectL, aSlurL, 
 					aNoteOctL, partL;
@@ -70,19 +70,19 @@ void DisplayNode(Document *doc, LINK pL,
 
 #ifdef DDB
 	PushLock(OBJheap);
-	p = GetPMEVENT(pL);
+	p = GetPMEVENT(objL);
 	selFlag = ' ';
 	if (!abnormal) {
-		if (pL==doc->selStartL && pL==doc->selEndL) selFlag = '&';
-		else if (pL==doc->selStartL)				selFlag = '{';
-		else if (pL==doc->selEndL)				 	selFlag = '}';
+		if (objL==doc->selStartL && objL==doc->selEndL) selFlag = '&';
+		else if (objL==doc->selStartL)					selFlag = '{';
+		else if (objL==doc->selEndL)				 	selFlag = '}';
 	}	
 
 	LogPrintf(LOG_INFO, "%c%d", selFlag, kount);
 	if (show_links)
-		LogPrintf(LOG_INFO, " L%2d", pL);
+		LogPrintf(LOG_INFO, " L%2d", objL);
 
-	ps = NameObjType(pL);
+	ps = NameObjType(objL);
 	LogPrintf(LOG_INFO, " xd=%d yd=%d %s %c%c%c%c%c%c oRect.l=p%d",
 					p->xd, p->yd, ps,
 					(p->selected? 'S' : '.'),
@@ -93,7 +93,9 @@ void DisplayNode(Document *doc, LINK pL,
 					(p->spareFlag? 'S' : '.'),
 					p->objRect.left );
 
-	switch (ObjLType(pL)) {
+	/* Display object-specific info on objects. */
+
+	switch (ObjLType(objL)) {
 		case HEADERtype:
 			if (!abnormal)
 				LogPrintf(LOG_INFO, " sr=%d mrRect=p%d,%d,%d,%d nst=%d nsys=%d",
@@ -104,8 +106,8 @@ void DisplayNode(Document *doc, LINK pL,
 					doc->nsystems);
 			break;
 		case SYNCtype:
-			if (!abnormal) LogPrintf(LOG_INFO, " TS=%u LT=%ld", SyncTIME(pL),
-												GetLTime(doc, pL));
+			if (!abnormal) LogPrintf(LOG_INFO, " TS=%u LT=%ld", SyncTIME(objL),
+												GetLTime(doc, objL));
 			break;
 		case RPTENDtype:
 			LogPrintf(LOG_INFO, " lRpt=%d rRpt=%d fObj=%d subTp=%hd",
@@ -192,10 +194,10 @@ void DisplayNode(Document *doc, LINK pL,
 	else				     LogPrintf(LOG_INFO, "\n");
 
 	if (show_subs)
-		switch (ObjLType(pL))
+		switch (ObjLType(objL))
 	{
 		case HEADERtype:
-			for (partL = FirstSubLINK(pL); partL; partL = NextPARTINFOL(partL)) {
+			for (partL = FirstSubLINK(objL); partL; partL = NextPARTINFOL(partL)) {
 				pPartInfo = GetPPARTINFO(partL);
 				LogPrintf(LOG_INFO, "     partL=%d next=%d firstst=%d lastst=%d velo=%d transp=%d name=%s\n",
 					partL, NextPARTINFOL(partL),
@@ -207,20 +209,19 @@ void DisplayNode(Document *doc, LINK pL,
 			}
 			break;
 		case SYNCtype:
-			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
+			for (aNoteL=FirstSubLINK(objL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				LogPrintf(LOG_INFO, "     ");
-/* Be careful with addresses provided by the following--they can change suddenly! */
+				
+				/* Be careful with addresses provided by the following; they can change suddenly! */
+
 				if (OptionKeyDown())
 					LogPrintf(LOG_INFO, "@%lx:", aNote);
 					LogPrintf(LOG_INFO, 
-						"st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c\n",
-						aNote->staffn, aNote->voice,
-						aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
-						aNote->subType,
-						aNote->ndots,
-						aNote->accident,
-						aNote->onVelocity,
+						"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c\n",
+						aNote->staffn, aNote->voice, aNote->xd, aNote->yd,
+						aNote->ystem, aNote->yqpit, aNote->subType, aNote->ndots,
+						aNote->accident, aNote->onVelocity,
 						(aNote->selected? 'S' : '.') ,
 						(aNote->visible? 'V' : '.') ,
 						(aNote->soft? 'S' : '.') ,
@@ -235,16 +236,13 @@ void DisplayNode(Document *doc, LINK pL,
 			}
 			break;
 		case GRSYNCtype:
-			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextGRNOTEL(aNoteL)) {
+			for (aNoteL=FirstSubLINK(objL); aNoteL; aNoteL=NextGRNOTEL(aNoteL)) {
 				aNote = GetPAGRNOTE(aNoteL);
 				LogPrintf(LOG_INFO, 
-					"     st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c %c%c%c\n",
-					aNote->staffn, aNote->voice,
-					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
-					aNote->subType,
-					aNote->ndots,
-					aNote->accident,
-					aNote->onVelocity,
+					"     stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c\n",
+					aNote->staffn, aNote->voice, aNote->xd, aNote->yd,
+					aNote->ystem, aNote->yqpit, aNote->subType, aNote->ndots,
+					aNote->accident, aNote->onVelocity,
 					(aNote->selected? 'S' : '.') ,
 					(aNote->visible? 'V' : '.') ,
 					(aNote->soft? 'S' : '.') ,
@@ -255,26 +253,24 @@ void DisplayNode(Document *doc, LINK pL,
 			}
 			break;
 		case STAFFtype:
-			for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
+			for (aStaffL=FirstSubLINK(objL); aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 				aStaff = GetPASTAFF(aStaffL);
-				LogPrintf(LOG_INFO, "     st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+				LogPrintf(LOG_INFO, "     stf=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
 					aStaff->staffn, aStaff->staffTop,
 					aStaff->staffLeft, aStaff->staffHeight,
 					aStaff->staffRight, aStaff->staffLines,
 					aStaff->fontSize,
 					(aStaff->selected? 'S' : '.') ,
 					(aStaff->visible? 'V' : '.'),
-					aStaff->timeSigType,
-					aStaff->numerator,
-					aStaff->denominator );
+					aStaff->timeSigType, aStaff->numerator, aStaff->denominator);
 			}
 			break;
 		case MEASUREtype:
-			for (aMeasureL=FirstSubLINK(pL); aMeasureL; 
+			for (aMeasureL=FirstSubLINK(objL); aMeasureL; 
 					aMeasureL=NextMEASUREL(aMeasureL)) {
 				aMeasure = GetPAMEASURE(aMeasureL);
 				LogPrintf(LOG_INFO, 
-					"     st=%d m#=%d barTp=%d cnst=%d clf=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
+					"     stf=%d m#=%d barTp=%d conStf=%d clef=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
 					aMeasure->staffn, aMeasure->measureNum,
 					aMeasure->subType,
 					aMeasure->connStaff, aMeasure->clefType,
@@ -286,26 +282,22 @@ void DisplayNode(Document *doc, LINK pL,
 					(aMeasure->measureVisible? 'M' : '.'),
 					(aMeasure->connAbove? 'C' : '.'),
 					aMeasure->nKSItems,
-					aMeasure->timeSigType,
-					aMeasure->numerator,
-					aMeasure->denominator );
+					aMeasure->timeSigType, aMeasure->numerator, aMeasure->denominator );
 			}
 			break;
 		case PSMEAStype:
-			for (aPseudoMeasL=FirstSubLINK(pL); aPseudoMeasL; 
+			for (aPseudoMeasL=FirstSubLINK(objL); aPseudoMeasL; 
 					aPseudoMeasL=NextPSMEASL(aPseudoMeasL)) {
 				aPseudoMeas = GetPAPSMEAS(aPseudoMeasL);
 				LogPrintf(LOG_INFO, 
-					"     st=%d subTp=%d cnst=%d\n",
-					aPseudoMeas->staffn,
-					aPseudoMeas->subType,
-					aPseudoMeas->connStaff );
+					"     stf=%d subTp=%d conStf=%d\n",
+					aPseudoMeas->staffn, aPseudoMeas->subType, aPseudoMeas->connStaff );
 			}
 			break;
 		case CLEFtype:
-			for (aClefL=FirstSubLINK(pL); aClefL; aClefL=NextCLEFL(aClefL)) {
+			for (aClefL=FirstSubLINK(objL); aClefL; aClefL=NextCLEFL(aClefL)) {
 				aClef = GetPACLEF(aClefL);
-				LogPrintf(LOG_INFO, "     st=%d xd=%d clef=%d %c%c%c\n",
+				LogPrintf(LOG_INFO, "     stf=%d xd=%d clef=%d %c%c%c\n",
 					aClef->staffn, aClef->xd, aClef->subType,
 					(aClef->selected? 'S' : '.'),
 					(aClef->visible? 'V' : '.'),
@@ -313,11 +305,10 @@ void DisplayNode(Document *doc, LINK pL,
 			}
 			break;
 		case KEYSIGtype:
-			for (aKeySigL=FirstSubLINK(pL); aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL)) {
+			for (aKeySigL=FirstSubLINK(objL); aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL)) {
 				aKeySig = GetPAKEYSIG(aKeySigL);
-				LogPrintf(LOG_INFO, "     st=%d xd=%d %c%c%c nKSItems=%d",
-					aKeySig->staffn, 
-					aKeySig->xd,
+				LogPrintf(LOG_INFO, "     stf=%d xd=%d %c%c%c nKSItems=%d",
+					aKeySig->staffn, aKeySig->xd,
 					(aKeySig->selected? 'S' : '.'),
 					(aKeySig->visible? 'V' : '.'),
 					(aKeySig->soft? 'S' : '.'),
@@ -328,37 +319,35 @@ void DisplayNode(Document *doc, LINK pL,
 			}
 			break;
 		case TIMESIGtype:
-			for (aTimeSigL=FirstSubLINK(pL); aTimeSigL; aTimeSigL=NextTIMESIGL(aTimeSigL)) {
+			for (aTimeSigL=FirstSubLINK(objL); aTimeSigL; aTimeSigL=NextTIMESIGL(aTimeSigL)) {
 				aTimeSig = GetPATIMESIG(aTimeSigL);
-				LogPrintf(LOG_INFO, "     st=%d xd=%d type=%d,%d/%d %c%c%c\n",
-					aTimeSig->staffn, 
-					aTimeSig->xd, aTimeSig->subType,
-					aTimeSig->numerator, aTimeSig->denominator,
+				LogPrintf(LOG_INFO, "     stf=%d xd=%d type=%d,%d/%d %c%c%c\n",
+					aTimeSig->staffn, aTimeSig->xd,
+					aTimeSig->subType, aTimeSig->numerator, aTimeSig->denominator,
 					(aTimeSig->selected? 'S' : '.'),
 					(aTimeSig->visible? 'V' : '.'),
 					(aTimeSig->soft? 'S' : '.') );
 			}
 			break;
 		case BEAMSETtype:
-			for (aNoteBeamL=FirstSubLINK(pL); aNoteBeamL; 
+			for (aNoteBeamL=FirstSubLINK(objL); aNoteBeamL; 
 					aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
 				aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
 				if (show_links) LogPrintf(LOG_INFO, "     bpSync=%d ", aNoteBeam->bpSync);
 				else				 LogPrintf(LOG_INFO, "     ");
-				LogPrintf(LOG_INFO, "startend=%d fracs=%d %c\n",
-					aNoteBeam->startend, aNoteBeam->fracs,
-					(aNoteBeam->fracGoLeft? 'L' : 'R') );
+				LogPrintf(LOG_INFO, "startend=%d fracs=%d %c\n", aNoteBeam->startend,
+					aNoteBeam->fracs, (aNoteBeam->fracGoLeft? 'L' : 'R') );
 			}
 			break;
 		case TUPLETtype:
-			for (aNoteTupleL=FirstSubLINK(pL); aNoteTupleL; 
+			for (aNoteTupleL=FirstSubLINK(objL); aNoteTupleL; 
 					aNoteTupleL=NextNOTETUPLEL(aNoteTupleL)) {
 				aNoteTuple = GetPANOTETUPLE(aNoteTupleL);
 				if (show_links) LogPrintf(LOG_INFO, "     tpSync=%d\n", aNoteTuple->tpSync);
 			}
 			break;
 		case OTTAVAtype:
-			for (aNoteOctL=FirstSubLINK(pL); aNoteOctL; 
+			for (aNoteOctL=FirstSubLINK(objL); aNoteOctL; 
 					aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 				aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 				if (show_links) LogPrintf(LOG_INFO, "     opSync=%d\n", aNoteOct->opSync);
@@ -366,12 +355,12 @@ void DisplayNode(Document *doc, LINK pL,
 			break;
 		case GRAPHICtype: {
 				LINK aGraphicL; PAGRAPHIC aGraphic;	PGRAPHIC pGraphic;
- 				pGraphic = GetPGRAPHIC(pL);
+ 				pGraphic = GetPGRAPHIC(objL);
 				if (pGraphic->graphicType==GRString
 				||  pGraphic->graphicType==GRLyric
 				||  pGraphic->graphicType==GRRehearsal
 				||  pGraphic->graphicType==GRChordSym) {
-					aGraphicL = FirstSubLINK(pL);
+					aGraphicL = FirstSubLINK(objL);
 					aGraphic = GetPAGRAPHIC(aGraphicL);
 					LogPrintf(LOG_INFO, "     '%p'", PCopy(aGraphic->strOffset));
 					LogPrintf(LOG_INFO, "\n");				/* Protect newline from garbage strings */
@@ -379,7 +368,7 @@ void DisplayNode(Document *doc, LINK pL,
 			}
 			break;
 		case CONNECTtype:
-			for (aConnectL=FirstSubLINK(pL); aConnectL; 
+			for (aConnectL=FirstSubLINK(objL); aConnectL; 
 					aConnectL=NextCONNECTL(aConnectL)) {
 				aConnect = GetPACONNECT(aConnectL);
 				LogPrintf(LOG_INFO, "     xd=%d lev=%d type=%d stfA=%d stfB=%d %c\n",
@@ -390,12 +379,11 @@ void DisplayNode(Document *doc, LINK pL,
 			}
 			break;
 		case DYNAMtype:
-			for (aDynamicL=FirstSubLINK(pL); aDynamicL; 
+			for (aDynamicL=FirstSubLINK(objL); aDynamicL; 
 					aDynamicL=NextDYNAMICL(aDynamicL)) {
 				aDynamic = GetPADYNAMIC(aDynamicL);
-				LogPrintf(LOG_INFO, "     st=%d xd=%d yd=%d endxd=%d %c%c%c\n",
-					aDynamic->staffn, aDynamic->xd, aDynamic->yd,
-					aDynamic->endxd,
+				LogPrintf(LOG_INFO, "     stf=%d xd=%d yd=%d endxd=%d %c%c%c\n",
+					aDynamic->staffn, aDynamic->xd, aDynamic->yd, aDynamic->endxd,
 					(aDynamic->selected? 'S' : '.'),
 					(aDynamic->visible? 'V' : '.'),
 					(aDynamic->soft? 'S' : '.') );
@@ -403,7 +391,7 @@ void DisplayNode(Document *doc, LINK pL,
 			}
 			break;
 		case SLURtype:
-			for (aSlurL=FirstSubLINK(pL); aSlurL; aSlurL=NextSLURL(aSlurL)) {
+			for (aSlurL=FirstSubLINK(objL); aSlurL; aSlurL=NextSLURL(aSlurL)) {
 				aSlur = GetPASLUR(aSlurL);
 				LogPrintf(LOG_INFO, "     1stInd=%d lastInd=%d ctl pts=(%P %P %P %P) %c%c%c\n",
 					aSlur->firstInd, aSlur->lastInd,
@@ -429,7 +417,9 @@ void MemUsageStats(Document *doc)
 {
 	long heapSize=0L, objHeapMemSize=0L, objHeapFileSize=0L, heapHdrSize=0L,
 			subTotal, mTotal, fTotal;
-	const char *ps; LINK pL; register HEAP *theHeap;
+	const char *ps;
+	LINK pL;
+	HEAP *theHeap;
 	unsigned short objCount[LASTtype], h;
 
 	/* Get the total number of objects of each type and the number of note modifiers
@@ -446,10 +436,9 @@ void MemUsageStats(Document *doc)
  		if (!OptionKeyDown())
  			LogPrintf(LOG_INFO, "  %s Heap: %u in use (%d bytes each)\n", ps, objCount[h],
  							subObjLength[h]);
-		/*
-		 * In memory, blocks of all types are of a constant size, but in files,
-		 * OBJECTs take only as much space as that type of object needs.
-		 */
+							
+		/* In memory, blocks of all types are of a constant size, but in files, OBJECTs
+		   take only as much space as that type of object needs. */
  	}
  	
  	heapHdrSize = (2+(LASTtype-1-FIRSTtype))*(sizeof(short)+sizeof(HEAP));
@@ -485,7 +474,7 @@ void MemUsageStats(Document *doc)
 
 /* ------------------------------------------------------------------ DisplayIndexNode -- */
 
-void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLinep)
+void DisplayIndexNode(Document *doc, LINK pL, short kount, short *inLinep)
 {
 	PMEVENT		p;
 	char		selFlag;
@@ -524,36 +513,78 @@ void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLin
 
 
 /* -------------------------------------------------------------------------- DHexDump -- */
-/* Dump the specified area as bytes in hexadecimal into the log file. As of v. 5.8p8,
-this function is unused. */
+/* Dump the specified area as bytes in hexadecimal into the log file. Similar to the
+Unix command-line utility hexdump: in particular, HexDump() with nPerGroup = nPerLine is
+a lot like <hexdump -n nBytes>. */
 
-void DHexDump(unsigned char *pBuffer,
-				long limit,
+void DHexDump(short logLevel,			/* From LOG_DEBUG to LOG_ERR */
+				char *label,
+				Byte *pBuffer,
+				long nBytes,
 				short nPerGroup,		/* Number of items to print in a group */
-				short nPerLine			/* Number of items to print in a line */
+				short nPerLine,			/* Number of items to print in a line */
+				Boolean numberLines		/* Add line numbers? */
 				)
 {
-	long l;
+	long pos;
+	unsigned short n, lineNum;
+	char blankLabel[256], blankLabelC[256], labelC[256], lineNumStr[10];
+	Boolean firstTime=True;
 	
-	/* We'd like to just print one item at a time, but that's very slow, or at least
-	   it was when this function was written in the 1990's. So we assemble and print a
-	   whole line at a time. */
+	if (strlen(label)>255 || nPerLine>255) {
+		MayErrMsg("Illegal call to DHexDump: label or nPerLine is too large.\n");
+		return;
+	}
+	strcpy(labelC, label);
+	
+	for (n = 0; n<strlen(labelC); n++) blankLabel[n] = ' ';
+	blankLabel[strlen(labelC)] = 0;
+	if (numberLines) strcat(labelC, "  0");
+	
+	/* Assemble lines and display complete lines. */
 	
 	strBuf[0] = 0;
-	for (l = 0; l<limit; l++) {
-		sprintf(&strBuf[strlen(strBuf)], "%x", pBuffer[l]); 
-		if ((l+1)%(long)nPerLine==0L) {
+	lineNum = 0;
+	for (pos = 0; pos<nBytes; pos++) {
+		sprintf(&strBuf[strlen(strBuf)], "%02x", pBuffer[pos]); 
+		if ((pos+1)%(long)nPerLine==0L) {
+#if 1
 			sprintf(&strBuf[strlen(strBuf)], "\n");
-			LogPrintf(LOG_INFO, "%s", strBuf);
+
+			strcpy(blankLabelC, blankLabel);
+			if (!firstTime && numberLines) {
+				lineNum++;
+				sprintf(lineNumStr, "%3d", lineNum);
+				strcat(blankLabelC, lineNumStr);
+			}
+			else if (numberLines)
+				strcat(blankLabelC, "   ");
+			printf("%s: %s", (firstTime? labelC : blankLabelC), strBuf);
+			LogPrintf(logLevel, "%s: %s", (firstTime? labelC : blankLabelC), strBuf);
+#else
+			LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
+#endif
 			strBuf[0] = 0;
+			firstTime = False;
 		}
-		else if ((l+1)%(long)nPerGroup==0L)	sprintf(&strBuf[strlen(strBuf)], "    ");
-		else								sprintf(&strBuf[strlen(strBuf)], " ");
+		else if ((pos+1)%(long)nPerGroup==0L)	sprintf(&strBuf[strlen(strBuf)], "   ");
+		else									sprintf(&strBuf[strlen(strBuf)], " ");
 	}
 	
-	if (l%(long)nPerLine!=0L) {
+	/* Display anything left over. */
+
+	if (pos%(long)nPerLine!=0L) {
 		sprintf(&strBuf[strlen(strBuf)], "\n");
-		LogPrintf(LOG_INFO, "%s", strBuf);
-		
+#if 1
+		if (!firstTime && numberLines) {
+			lineNum++;
+			sprintf(lineNumStr, "%3d", lineNum);
+			strcpy(blankLabelC, blankLabel);
+			strcat(blankLabelC, lineNumStr);
+		}
+		LogPrintf(logLevel, "%s: %s", (firstTime? labelC : blankLabelC), strBuf);
+#else
+		LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
+#endif
 	}
 }

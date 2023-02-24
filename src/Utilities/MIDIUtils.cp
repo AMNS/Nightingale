@@ -81,9 +81,9 @@ LINK NoteNum2Note(LINK syncL, short voice, short noteNum)
 
 /* --------------------------------------------------------------------------- TiedDur -- */
 /* Return total performance duration of <aNoteL> and all following notes tied to
-<aNoteL>. If <selectedOnly>, only includes tied notes until the first unselected
-one. We use the note's <playDur> only for the last note of the series, its NOTATED
-duration for all the others. */
+<aNoteL>. If <selectedOnly>, only includes tied notes until the first unselected one.
+We use the note's <playDur> only for the last note of the series, its NOTATED duration
+for all the others. */
 
 long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 {
@@ -104,6 +104,7 @@ long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 		if (selectedOnly && !NoteSEL(continNoteL)) break;
 
 		/* We know this note will be played, so add in the previous note's notated dur. */
+		
 		prevDur = SyncAbsTime(continL)-SyncAbsTime(syncPrevL);
 		dur += prevDur;
 
@@ -152,9 +153,9 @@ short UseMIDINoteNum(Document *doc, LINK aNoteL, short transpose)
 
 
 /* ------------------------------------------------------------------- GetModNREffects -- */
-/* Given a note, if it has any modifiers, get information about how its
-modifiers should affect playback, and return True. If it has no modifiers,
-just return False. NB: The time factor is unimplemented. */
+/* Given a note, if it has any modifiers, get information about how its modifiers should
+affect playback, and return True. If it has no modifiers, just return False. NB: The
+time factor is unimplemented. */
 
 Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 			short *pTimeFactor)
@@ -162,8 +163,7 @@ Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 	LINK		aModNRL;
 	short		velOffset, durFactor, timeFactor;
 
-	if (!config.useModNREffects)
-		return False;
+	if (!config.useModNREffects) return False;
 
 	aModNRL = NoteFIRSTMOD(aNoteL);
 	if (!aModNRL) return False;
@@ -173,7 +173,10 @@ Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 
 	for ( ; aModNRL; aModNRL = NextMODNRL(aModNRL)) {
 		Byte code = ModNRMODCODE(aModNRL);
-		if (code>31) continue;					/* Silent failure: arrays sized for 32 items. */
+		if (code>31) {										/* Arrays sized for 32 items. */
+			LogPrintf(LOG_WARNING, "Illegal modifier code %d.  (GetModNREffects)\n", code);
+			continue;
+		}
 		velOffset += modNRVelOffsets[code];
 // FIXME: What if more than one modifier?
 		durFactor = modNRDurFactors[code];
@@ -330,7 +333,7 @@ short MakeTConvertTable(
 
 	if (DETAIL_SHOW) {
 		for (short i = 0; i<tempoCount; i++)
-			LogPrintf(LOG_DEBUG, "tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
+			LogPrintf(LOG_DEBUG, "MakeTConvertTable: tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
 				i, tConvertTab[i].microbeats, tConvertTab[i].pDurTime, tConvertTab[i].realTime);
 	}
 
@@ -485,16 +488,17 @@ static Boolean CMInsertEvent(short note, SignedByte channel, long endTime, Boole
 
 	/* If _playMaxDur_ and there's already an event for that note no. on the same channel
 		with a later end time, we have nothing to do. */
+	   
 		if (playMaxDur && CMHaveLaterEnding(note, channel, endTime)) {
 //LogPrintf(LOG_DEBUG, "CMInsertEvent: HaveLaterEnding for note=%d\n", note);
 			return True;
 		}
 
-//LogPrintf(LOG_DEBUG, "CMInsertEvent note=%d\n", note);
+//LogPrintf(LOG_DEBUG, "CMInsertEvent: note=%d\n", note);
 
 	/* If _playMaxDur_ and there's already an event for that note no. on the same channel
 		with an earlier end time, replace it with this event. Otherwise, just find the
-		first free slot in list, which may be at lastEvent (end of list) */
+	   first free slot in list, which may be at lastEvent (end of list). */
 	
 	for (i = 0, pEvent = cmEventList; i<lastEvent; i++, pEvent++) {
 #if PMDDEBUG
@@ -525,9 +529,9 @@ LogPrintf(LOG_DEBUG,
 	}
 }
 
-/*	Checks eventList[] to see if any notes are ready to be turned off; if so,
-frees their slots in the eventList and (if we're not using MIDI Manager) turns
-them off. Returns True if the list is empty. */
+/*	Checks eventList[] to see if any notes are ready to be turned off; if so, frees
+their slots in the eventList and (if we're not using MIDI Manager) turns them off.
+Returns True if the list is empty. */
 
 Boolean CheckEventList(long pageTurnTOffset)
 {
@@ -565,7 +569,7 @@ Boolean CMCheckEventList(long pageTurnTOffset)
 	empty = True;
 	for (i=0, pEvent = cmEventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
-//LogPrintf(LOG_DEBUG, "CMCheckEventList pEvent-note=%d\n", pEvent->note);
+//LogPrintf(LOG_DEBUG, "CMCheckEventList: pEvent-note=%d\n", pEvent->note);
 			empty = False;
 			if (pEvent->endTime<=t) {							/* note is done, t = now */
 				CMEndNoteNow(pEvent->cmIORefNum, pEvent->note, pEvent->channel);
@@ -697,6 +701,7 @@ OSStatus EndNoteNow(short noteNum, SignedByte channel)
 but end at different times, do we hold the note till the last one ends or stop playing
 the note when the first one ends? For many years, Nightingale always did the latter, but
 the former makes more sense in most cases. */
+
 #define MULTNOTES_PLAYMAXDUR True		/* Hold the note till the last instance ends? */ 
 
 Boolean EndNoteLater(
@@ -774,8 +779,8 @@ Boolean MIDIConnected()
 /* =========================================================== MIDI Feedback Functions == */
 
 /* --------------------------------------------------------------- MIDIFBOn, MIDIFBOff -- */
-/*	If feedback is enabled, turn on MIDI apparatus. Exception: if the port is busy,
-do nothing. */
+/* If feedback is enabled, turn on MIDI apparatus. Exception: if the port is busy, do
+nothing. */
 
 void MIDIFBOn(Document *doc)
 {
@@ -790,8 +795,8 @@ void MIDIFBOn(Document *doc)
 	}
 }
 
-/*	If feedback is enabled, turn off MIDI apparatus. Exception: if the port is busy,
-do nothing. */
+/* If feedback is enabled, turn off MIDI apparatus. Exception: if the port is busy, do
+nothing. */
 
 void MIDIFBOff(Document *doc)
 {
@@ -825,11 +830,10 @@ void MIDIFBNoteOn(
 				break;
 		}
 		
-		/*
-		 * Delay a bit before returning. NB: this causes problems with our little-used
-		 * "chromatic" note input mode by slowing down AltInsTrackPitch. See comments
-		 * in TrackVMove.c.
-		 */
+		/* Delay a bit before returning. NB: this causes problems with our little-used
+		   "chromatic" note input mode by slowing down AltInsTrackPitch. See comments
+		   in TrackVMove.c. */
+		   
 		SleepTicks(2L);
 	}
 }
@@ -852,11 +856,10 @@ void MIDIFBNoteOff(
 				break;
 		}
 		
-		/*
-		 * Delay a bit before returning. NB: this causes problems with our little-used
-		 * "chromatic" note input mode by slowing down AltInsTrackPitch. See comments
-		 * in TrackVMove.c.
-		 */
+		/* Delay a bit before returning. NB: this causes problems with our little-used
+		   "chromatic" note input mode by slowing down AltInsTrackPitch. See comments
+		   in TrackVMove.c. */
+
 		SleepTicks(2L);
 	}
 }
@@ -875,6 +878,7 @@ Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly)
 	if (!LinkSEL(syncL) && selectedOnly) return False;
 	
 	/* Is _any_ real note in the Sync in an unmuted part? */
+	
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		if (NoteREST(aNoteL)) continue;
@@ -905,16 +909,39 @@ Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
 
 /* ------------------------------------------------------------------ DisplayMIDIEvent -- */
 
+/* There's a weird bug in the Console utility in OS 10.5 where if messages are written
+to the log at too high a rate, some just disappear. To make it worse, the ones that
+disappear seem to be random, and there's no indication there's a problem! With the 10.6
+Console, random messages still disappear, but you at least get a warning after 500
+messages in a second; presumably Apple decided that was good enough, and easier than
+fixing the bug.
+
+To sidestep the bug, call this function to add a delay between messages. Note that this
+can make some operations -- e.g., converting large files -- much slower, so it should be
+#ifdef'd out or removed completely if we're not concerned about getting all the
+messages.  */
+   
+static void KludgeOS10p5Delay4Log(Boolean giveWarning);
+static void KludgeOS10p5Delay4Log(Boolean giveWarning)
+{
+	if (giveWarning) LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING TO AID DEBUGGING.  (KludgeOS10p5Delay4Log) ******\n");
+	SleepMS(3);
+}
+
 void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 {
 	Byte command;
-	char strDisp[256];
+	char strDisp[256], strMeta[64];
 	
+	strcpy(strMeta, "");
 	command = MCOMMAND(statusByte);
 	switch (command) {
 		case MNOTEON:
+			if (!MORE_DETAIL_SHOW) return;
+			KludgeOS10p5Delay4Log(False);			/* Avoid bug in OS 10.5/10.6 Console */
 			strcpy(strDisp, "NoteOn"); break;
 		case MNOTEOFF:
+			if (!MORE_DETAIL_SHOW) return;
 			strcpy(strDisp, "NoteOff"); break;
 		case MPOLYPRES:
 			strcpy(strDisp, "PolyPressure"); break;
@@ -930,16 +957,28 @@ void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 		case MSYSEX:
 			/* This handles only the original one-chunk form of SysEx message. For some
 			   elegant code for collecting arbitrary chunks of SysEx, see midifile.c in
-			   Tim Thompson's old program mftext. */
+			   Tim Thompson's ancient program mftext. */
 			   
 			strcpy(strDisp, "SysEx"); break;
 		case METAEVENT:									/* No. of data bytes is in the command */
-			strcpy(strDisp, "Metaevent"); break;
+			strcpy(strDisp, "Metaevent");
+			switch (eventData1) {
+				case ME_SEQTRACKNAME: strcpy(strMeta, "SEQ/TRACK NAME"); break;
+				case ME_EOT: strcpy(strMeta, "END-OF-TRACK"); break;
+				case ME_TEMPO: strcpy(strMeta, "TEMPO"); break;
+				case ME_TIMESIG: strcpy(strMeta, "TIMESIG"); break;
+				case ME_KEYSIG: strcpy(strMeta, "KEYSIG"); break;
+				default: strcpy(strMeta, ""); break;
+			}
+			break;
 		default:
 			strcpy(strDisp, "(unknown)"); break;
 	}
-	LogPrintf(LOG_INFO, "DisplayMIDIEvent: deltaT=%ld %s data=%u (0x%x)\n", deltaT, strDisp,
+	LogPrintf(LOG_DEBUG, "deltaT=%ld %s data=%u=0x%x", deltaT, strDisp,
 				eventData1, eventData1);
+	if (strlen(strMeta)>0) LogPrintf(LOG_INFO, ":%s", strMeta);
+	//if (command==METAEVENT && eventData1==ME_TEMPO) LogPrintf(LOG_INFO, ", TEMPO");
+	LogPrintf(LOG_DEBUG, "  (DisplayMIDIEvent)\n");
 }
 
 

@@ -274,7 +274,7 @@ typedef struct {
 																								\
 	short		nstaves,			/* number of staves in a system */							\
 				nsystems;			/* number of systems in score */							\
-	unsigned char comment[MAX_COMMENT_LEN+1]; /* User comment on score */						\
+	char		comment[MAX_COMMENT_LEN+1]; /* User comment on score (C string) */				\
 	char		feedback:1;			/* True if we want feedback on note insert */				\
 	char		dontSendPatches:1; /* 0 = when playing, send patch changes for channels */		\
 	char		saved:1;			/* True if score has been saved */							\

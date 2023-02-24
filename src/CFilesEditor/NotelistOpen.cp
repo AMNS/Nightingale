@@ -1281,7 +1281,7 @@ static Boolean BuildNLDoc(
 	doc->currentSheet = 0;
 	doc->origin = doc->sheetOrigin;								/* Ignore position recorded in file */
 
-	strcpy((char *)doc->comment, COMMENT_NOTELIST);
+	strcpy(doc->comment, COMMENT_NOTELIST);
 
 	if (!InitDocUndo(doc))
 		return False;

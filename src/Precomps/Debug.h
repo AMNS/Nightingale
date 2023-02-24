@@ -42,7 +42,8 @@ void DKSPrintf(PKSINFO);
 void DisplayNode(Document *, LINK, short, Boolean, Boolean, Boolean);
 void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, short, short *);
-void DHexDump(unsigned char *, long, short, short);
+void DHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
+				short nPerGroup, short nPerLine, Boolean numberLines);
 
 /* If we're running inside Xcode, #define'ing _DebugPrintf_ as simply _printf_ is OK:
 	then DebugPrintf output will appear in the Run Log window. But if we're not in
