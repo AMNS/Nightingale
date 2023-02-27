@@ -259,7 +259,6 @@ static Boolean ProcessNotelist(short refNum)
 			default:
 				ReportParseFailure("ProcessNotelist", NLERR_ILLEGAL_OPCODE);
 				return False;
-				break;
 		}
 		if (!ok) return False;								/* This may be too drastic in some cases. */
 	}
@@ -811,7 +810,6 @@ static Boolean ParseTempoMark()
 		
 	err = NLERR_MISCELLANEOUS;
 	p = (unsigned char *)strchr(gInBuf, '\'');
-//LogPrintf(LOG_DEBUG, "ParseTempoMark: p=%lx\n", p);
 	if (!p) goto broken;
 	p++;
 	if (*p!='\'') {
@@ -868,7 +866,7 @@ static Boolean ParseTempoMark()
 		
 		for (i = 1; i<=9; i++)
 			if (*p==gTempoCode[i]) pTempo->durCode = i;
-LogPrintf(LOG_DEBUG, "ParseTempoMark: pTempo->durCode=%d\n", pTempo->durCode);
+//LogPrintf(LOG_DEBUG, "ParseTempoMark: pTempo->durCode=%d\n", pTempo->durCode);
 		if (pTempo->durCode==0) { err = NLERR_MM_BADDUR;  goto broken; }
 		if (*++p=='.') {
 			pTempo->dotted = True;
@@ -1054,6 +1052,7 @@ static char *ParseField(char *p, Boolean *pOkay)
 	*pOkay = True;
 	
 	/* Point to first non-whitespace char. If there's nothing following, do nothing. */
+	
 	for (p++; *p; p++)
 		if (!isspace((int)*p)) break;
 	nRead = sscanf(p, "%s", str);
@@ -1065,7 +1064,7 @@ static char *ParseField(char *p, Boolean *pOkay)
 		return p;
 	}
 	else if (strncmp(str, "startmeas=", strlen("startmeas="))==0) {
-		p = strchr(p, '=');										/* Skip to the next '=' in input */
+		p = strchr(p, '=');								/* Skip to the next '=' in input */
 		if (!p) return (char *)0;
 		p++;
 		nRead = sscanf(p, "%s", str);
@@ -1114,6 +1113,7 @@ static Boolean ParseStructComment()
 	pHead->staff = NOONE;
 
 	/* Set defaults for values set by optional fields at the end of the line. */
+	
 	gFirstMNNumber = 	1;
 	gDelAccs = False;
 
@@ -1131,9 +1131,8 @@ static Boolean ParseStructComment()
 	*q = 0;
 
 	offset = StoreString(str);
-	if (offset)
-		pHead->scoreName = offset;
-	else goto broken;
+	if (offset)	pHead->scoreName = offset;
+	else		goto broken;
 
 	/* Construct a 1-based array giving the arrangement of parts and staves. Indices
 	   represent part numbers; values represent the number of staves in a part. */
@@ -1752,7 +1751,7 @@ static long CalcNLNoteLDur(NLINK noteL)
 #define STRNUM_OFFSET 0
 
 static void ReportParseFailure(
-				char *functionName,				/* C string, for debugging only */
+				char *functionName,				/* C string */
 				short errCode)					/* NLERR_XXX code */
 {
 	char fmtStr[256], str1[256], str2[256];
@@ -1803,7 +1802,7 @@ static short NotelistVersion(short refNum)
 			if (errCode != noErr)  { errStage = 2; goto Err; }
 			if (c==COMMENT_CHAR) {				/* found structured comment */
 				long fPos;
-				GetFPos(refNum,&fPos);
+				GetFPos(refNum, &fPos);
 				if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "readComment: fpos %ld  (NotelistVersion)\n", fPos);
 				
 				errCode = IIUngetChar(refNum);		
@@ -1811,7 +1810,7 @@ static short NotelistVersion(short refNum)
 				errCode = IIUngetChar(refNum);		
 				if (errCode != noErr)  { errStage = 4; goto Err; }
 				
-				GetFPos(refNum,&fPos);
+				GetFPos(refNum, &fPos);
 				if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "readComment after IIUngetChar: fpos %ld  (NotelistVersion)\n", fPos);
 				
 				break;

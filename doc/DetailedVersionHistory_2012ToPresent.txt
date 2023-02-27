@@ -3911,3 +3911,13 @@ InternalInput.h, Notelist.h; DebugUtils, FileConversion, InternalInput, Notelist
 NotelistParse, NotelistSave, ScoreInfo.
 
 ------------------------------------------------------------------------------------ Build 37
+
+16 - 26 Feb.
+
+Get Info for notes now displays and sets the first four notehead segments, and Graph
+Mode now uses existing segment values to draw instead of setting random new values.
+Affects .rsrc, Defs.h; DrawNRGR, InfoDialog.
+
+Minor changes. Affects info.plist; NotelistParse.
+
+------------------------------------------------------------------------------------ Build 38

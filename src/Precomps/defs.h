@@ -296,9 +296,6 @@ enum {
 #define STFLINES 5						/* Number of lines in standard staff */
 #define STFHALFSP (STFLINES+STFLINES-2)	/* Height of standard staff, in half-spaces */
 
-#define ENLARGE_NR_SELH 1				/* Enlarge note selection rect. (horiz. pixels) */
-#define ENLARGE_NR_SELV 0				/* Enlarge note selection rect. (vert. pixels) */
-
 /* NB: If (MAXSPACE*RESFACTOR) exceeds SHRT_MAX, the justification routines may have
 have serious problems.  See especially RespaceBars and JustAddSpace. */
  
@@ -308,6 +305,11 @@ have serious problems.  See especially RespaceBars and JustAddSpace. */
 
 #define MARGWIDTH(doc)	pt2d(doc->marginRect.right-doc->marginRect.left)
 #define MARGLEFT(doc)	pt2d(doc->marginRect.left)
+
+#define NHGRAPH_COLORS 7				/* Number of colors available for notehead graphs */
+
+#define ENLARGE_NR_SELH 1				/* Enlarge note selection rect. (horiz. pixels) */
+#define ENLARGE_NR_SELV 0				/* Enlarge note selection rect. (vert. pixels) */
 
 #define HILITE_TICKS	12				/* Minimum hiliting time to show user structural relationships */ 
 
@@ -346,10 +348,10 @@ moved there eventually). */
 #define ABS(a) ( (a)<0 ? -(a) : (a) )							/* absolute value function */
 #define ODD(a) ((a) & 1)										/* True if a is odd */
 
-// CER: 02.19.2003 changed min, max to n_min, n_max
-#define n_min(a,b)		( (a)<(b) ? (a) : (b) )					/* minimum functions */
+// CER: 02.19.2003 changed min, max to n_min, n_max ??FIXME: CHANGE 'EM TO (N?)MIN, MAX
+#define n_min(a, b)		( (a)<(b) ? (a) : (b) )					/* minimum macros */
 #define MIN3(a, b, c)	( n_min(n_min((a), (b)), (c)) )
-#define n_max(a,b)		( (a)>(b) ? (a) : (b) )					/* maximum functions */
+#define n_max(a, b)		( (a)>(b) ? (a) : (b) )					/* maximum macros */
 #define MAX3(a, b, c)	( n_max(n_max((a), (b)), (c)) )
 #define CLAMP(low, val, high)	( (val)<(low)?(low):((val)>(high)?(high):(val)) )
 

@@ -569,10 +569,8 @@ static void GetNoteheadRect(unsigned char glyph, Byte appearance, DDIST dhalfSp,
 
 /* QuickDraw only! */
 /* Draw a little graph as a notehead: intended to be used to visualize changes during
-the note. This version simply draws one or more colored bars side by side, then
-sets the note's voice's standard color. */
-
-#define NHGRAPH_COLORS 7	/* Number of colors available for notehead graphs */
+the note, for example fluctuations in pitch or loudness. This version simply draws one
+or more colored bars side by side, then sets the note's voice's standard color. */
 
 static void DrawNoteheadGraph(Document *, short, Boolean, DDIST, LINK, PCONTEXT);
 static void DrawNoteheadGraph(Document *doc,
@@ -607,10 +605,12 @@ static void DrawNoteheadGraph(Document *doc,
 	yBottom = yorg+d2p(dhalfSp);
 	SetRect(&graphRect, xorg, yorg-d2p(dhalfSp), xorg+graphLen, yorg+d2p(dhalfSp));
 	
-#if 99
-	for (short k=0; k<4; k++) 
-		NoteSEGMENT(aNoteL, k) = rand() % NHGRAPH_COLORS;		// ??????? TEST !!!!!!!!!!!!!
-		//NoteSEGMENT(aNoteL, k) = k;		// ??????? TEST !!!!!!!!!!!!!
+#ifdef TEST_DRAWSEGS
+	if (OptionKeyDown() && CmdKeyDown()) {
+		for (short k=0; k<4; k++) 
+			NoteSEGMENT(aNoteL, k) = rand() % NHGRAPH_COLORS;		// ??????? TEST !!!!!!!!!!!!!
+			//NoteSEGMENT(aNoteL, k) = k;			// ??????? TEST !!!!!!!!!!!!!
+	}
 #endif
 //LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nhSegment[]=%d, %d, %d, %d\n", aNoteL,
 //NoteSEGMENT(aNoteL, 0), NoteSEGMENT(aNoteL, 1), NoteSEGMENT(aNoteL, 2), NoteSEGMENT(aNoteL, 3));

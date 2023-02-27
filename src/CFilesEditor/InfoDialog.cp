@@ -150,7 +150,10 @@ enum										/* Dialog item numbers */
 	UPDATE,
 	UNITLABEL_SYNC,
 	START_TIME=55,
-	RESPACE_IGNORES=57								/* Hidden & unused for now */
+	SEGMENT0=57,
+	SEGMENT1,
+	SEGMENT2,
+	SEGMENT3
 };
 
 #define MAX_HORIZ_POS 1999
@@ -161,8 +164,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
 	short		dialogOver;
-	short		ditem, aShort;
-	short		newval, newval2, max_dots, minl_dur, userVoice;
+	short		ditem, aShort, userVoice, newval;
 	Handle		twHdl, ulHdl;
 	Rect		tRect;
 	PANOTE		aNote;
@@ -232,7 +234,6 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PutDlgWord(dlog, YMOVE_DOTS, aNote->yMoveDots, False);
 			PutDlgWord(dlog, HEAD_SHAPE, aNote->headShape, False);
 			PutDlgLong(dlog, START_TIME, SyncAbsTime(pL), False);
-			PutDlgWord(dlog, RESPACE_IGNORES, aNote->rspIgnore, False);
 			
 			hasStem = (aNote->ystem!=aNote->yd);
 			isRest = aNote->rest;
@@ -254,6 +255,10 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				PutDlgWord(dlog, NOTENUM, aNote->noteNum, False);
 				PutDlgWord(dlog, ON_VELOCITY, aNote->onVelocity, False);
 				PutDlgWord(dlog, OFF_VELOCITY, aNote->offVelocity, False);
+				PutDlgWord(dlog, SEGMENT0, aNote->nhSegment[0], False);
+				PutDlgWord(dlog, SEGMENT1, aNote->nhSegment[1], False);
+				PutDlgWord(dlog, SEGMENT2, aNote->nhSegment[2], False);
+				PutDlgWord(dlog, SEGMENT3, aNote->nhSegment[3], False);
 				PutDlgWord(dlog, SMALLNR, aNote->small, False);		/* whether small note/rest */
 			}
 			break;
@@ -328,6 +333,8 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			return;
 		}
 		else {
+			short newval2, newvalA[4], newvalMin, newvalMax, max_dots, minl_dur;
+
 			GetDlgWord(dlog, OBJ_HORIZ, &newval);
 			if (I2DD(newval)<0 || I2DD(newval)>RIGHT_HLIM(doc)) {
 				GetIndCString(fmtStr, INFOERRS_STRS, 7);		/* "Horizontal position must be..." */
@@ -467,6 +474,19 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				GetIndCString(strBuf, INFOERRS_STRS, 25);		/* "MIDI Off velocity must be..." */
 				INFO_ERROR(strBuf);
 			}
+
+			GetDlgWord(dlog, SEGMENT0, &newvalA[0]);
+			GetDlgWord(dlog, SEGMENT1, &newvalA[1]);
+			GetDlgWord(dlog, SEGMENT2, &newvalA[2]);
+			GetDlgWord(dlog, SEGMENT3, &newvalA[3]);
+			newvalMin = 999;  newvalMax = -999;
+			for (short j = 0; j<4; j++) newvalMin = n_min(newvalMin, newvalA[j]);
+			for (short j = 0; j<4; j++) newvalMax = n_max(newvalMax, newvalA[j]);			
+			if (newvalMin<0 || newvalMax>NHGRAPH_COLORS) {
+				GetIndCString(fmtStr, INFOERRS_STRS, 49);		/* Notehead segments must be..." */
+				sprintf(strBuf, fmtStr, NHGRAPH_COLORS);
+				INFO_ERROR(strBuf);
+			}
 		}
 	}
 	
@@ -538,8 +558,14 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				GetDlgWord(dlog, OFF_VELOCITY, &newval);
 				GEN_ACCEPT(aNote->offVelocity);
 
-				GetDlgWord(dlog, RESPACE_IGNORES, &newval);
-				GEN_ACCEPT(aNote->rspIgnore);
+				GetDlgWord(dlog, SEGMENT0, &newval);
+				GRAF_ACCEPT(aNote->nhSegment[0]);
+				GetDlgWord(dlog, SEGMENT1, &newval);
+				GRAF_ACCEPT(aNote->nhSegment[1]);
+				GetDlgWord(dlog, SEGMENT2, &newval);
+				GRAF_ACCEPT(aNote->nhSegment[2]);
+				GetDlgWord(dlog, SEGMENT3, &newval);
+				GRAF_ACCEPT(aNote->nhSegment[3]);
 			}
 	
 		  	break;

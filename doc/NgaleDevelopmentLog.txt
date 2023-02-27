@@ -3686,9 +3686,9 @@ Try to flow in "Is operation in a torn off window or not" =>
 
 Time to get code under control again!
 
-Commit everything... !? Changes to 41 files!? I don't understand, but oh well. Commit & push to
-both develop & develop5p8 => looks OK; but I haven't actually made the 5.8 changes of the last few
-months to 5.9 and compiled! Do that; changes to
+Commit everything... !? Changes to 41 files!? I don't understand, but oh well. Commit & push
+to both develop & develop5p8 => looks OK; but I haven't actually made the 5.8 changes of the
+last few months to 5.9 and compiled! Do that; changes to
 
 	NDocAndConfig??.h, Style.h
 	DrawNRGR, FlowInText, Initialize
@@ -12083,7 +12083,7 @@ PrepareResultListDoc called from DoResultListDoc called from ListMatches.
 
 ---------------------------------------------------------------------------------------
 
-4 - 10 Feb.
+4 - 14 Feb.
 
 Take a quick look at why opening Bach-BWV540FMToccata.ngl is so slow. Have
 ConvertObjSubobjs() write a log message every 20 objs. W/ Bach_StAnne_69.ngl, about 11 to
@@ -12103,3 +12103,93 @@ no problems; 2Notes+MM+Asterisk.nl gives an error message. The only difference i
 	2Notes+MM+Asterisk.nl:	M stf=1 'accelerando' *=noMM
 
 The error message sucks; improve that => done.
+
+---------------------------------------------------------------------------------------
+
+18 - 24 Feb.
+
+SWITCH TO: Bring the 5p8 BRANCH IN GITHUB up to date. In NgaleDev on my MBAir, comparing
+NightingaleDABVer_5p8/src ("New") to Nightingale+5p8GitRepo/src ("Old"):
+	in both (157 items), Only in new (52 items), Only in old (27 items)
+
+But is New really new? Maybe, but it's not the current version on the G5. Copy that to
+MBAir, replacing NightingaleDABVer_5p8/src; compare NightingaleDABVer_5p8/src ("New") to
+Nightingale+5p8GitRepo/src ("Old"):
+	in both (157 items), Only in new (51 items), Only in old (27 items)
+	
+...the only difference is one fewer "only in new". 
+
+"M" = Moved to a different folder
+
+Only in new includes:
+	R!	AccModNRMouse.cp
+	M	DragUtils.cp
+	R!	DurationPopUp.cp
+	R!	DynamicPopUp.cp
+	R	Endian.cp
+	M	InternalInput.cp
+	R!	ModNRPopUp.cp
+	?!	ModNRPopUp.h
+
+Only in old:
+	?!	BMP.h
+	R!	DragAccModNR.cp
+	M	DragUtils.cp
+	R!	DurationEdit.cp
+	R!	DynamicEdit.cp
+	R	EndianUtils.h
+	?!	FileConversion.cp
+	M	InternalInput.cp
+	R!	ModNREdit.cp
+
+It looks like "Nightingale+5p8GitRepo" really isn't 5.8 but an early 6.0, maybe from when
+I was calling it 5.9. Much more important, the develop5p8 branch in GitHub looks OK!
+
+So forget the supposed 5.8 repository copies on MBAir. Get a clean new copy to use with
+GitHub:
+	git clone [url] --branch develop5p8 --single-branch
+
+According to GitHub, the last commit to develop5p8 was 41 changed files on 28 Oct. 2019.
+This is _almost_consistent with the comment above:
+
+	"28-29 Oct.
+	
+	Time to get code under control again!
+	
+	Commit everything... !? Changes to 41 files!? I don't understand, but oh well. Commit
+	& push to both develop & develop5p8 => looks OK; but I haven't actually made the 5.8
+	changes of the last few months to 5.9 and compiled! Do that..."
+
+The mention of 29 Oct. is confusing, but I doubt it's important.
+
+What's changed in 5.8 since then? According to the dates on the codebase on the G5 in
+~/Documents/NgaleDev/NightingaleDABVer_5p8/ :
+
+	CarbonNavServices:
+		NavServices
+	CFilesBoth:
+		Error
+		Initialize
+		Menu
+	CFilesEditor:
+		DebugDisplay
+		MIDIFOCmd
+		MIDIFOpen
+		MIDIFSave
+		NotelistOpen
+		ScoreInfo
+	Precomps:
+		Debug.h
+		defs.h
+		NightTemplates.h
+		NMiscTypes.h
+	Utilities:
+		MIDIUtils
+
+15 code files + .rsrc = 16. Put the 5.8 codebase from the repository into
+Nightingale5p8GitRepo; update those 16 files and commit all, Using Git from the command
+line => done, and ready to push to the GitHub repository develop5p8 branch! 
+...But I can't log in to GitHub,either via command line or Sourcetree -- it
+doesn't like or accept my password $%(*))_^%$@&* . And maybe my attempt in
+Sourcetree screwed things up for the 6.0 branch!?
+
