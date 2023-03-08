@@ -12106,7 +12106,7 @@ The error message sucks; improve that => done.
 
 ---------------------------------------------------------------------------------------
 
-18 - 24 Feb.
+18 - 26 Feb.
 
 SWITCH TO: Bring the 5p8 BRANCH IN GITHUB up to date. In NgaleDev on my MBAir, comparing
 NightingaleDABVer_5p8/src ("New") to Nightingale+5p8GitRepo/src ("Old"):
@@ -12145,7 +12145,7 @@ Only in old:
 It looks like "Nightingale+5p8GitRepo" really isn't 5.8 but an early 6.0, maybe from when
 I was calling it 5.9. Much more important, the develop5p8 branch in GitHub looks OK!
 
-So forget the supposed 5.8 repository copies on MBAir. Get a clean new copy to use with
+So forget the supposed 5.8 repository copies on MBAir! Get a clean new copy to use with
 GitHub:
 	git clone [url] --branch develop5p8 --single-branch
 
@@ -12188,8 +12188,40 @@ What's changed in 5.8 since then? According to the dates on the codebase on the 
 
 15 code files + .rsrc = 16. Put the 5.8 codebase from the repository into
 Nightingale5p8GitRepo; update those 16 files and commit all, Using Git from the command
-line => done, and ready to push to the GitHub repository develop5p8 branch! 
-...But I can't log in to GitHub,either via command line or Sourcetree -- it
-doesn't like or accept my password $%(*))_^%$@&* . And maybe my attempt in
-Sourcetree screwed things up for the 6.0 branch!?
+line => done, and ready to push to the GitHub repository develop5p8 branch! ...But I
+can't log in to GitHub, either via command line or Sourcetree -- it doesn't like or
+accept my password $%(*))_^%$@&* . Ah: GitHub says support for password authentication
+was removed in Aug. 2021!; instead I'm supposed to use a "personal access token". Try
+that => no, that doesn't work. After I enter my username, Terminal shows an icon of a
+key and apparently ignores my trying to paste in the personal access token. Maybe it
+allows typing at that point but not pasting, but that doesn't make sense personal access
+token is a very long string of characters. ?? Well, Sourcetree knows how to talk to
+GitHub, so set up a Sourcetree local repository for Ngale 5.8; push it => no!! And maybe
+my attempt screwed things up for the 6.0 branch!? ^T(&%*$*)*  Better try pushing to
+develop to see if it's still OK, but I'd like to have something non-trivial committed to
+push, so...
+
+BACK TO: Notehead graphs. Just make Get Info for notes display and set the first four
+notehead segments, and make Graph Mode use existing segment values to draw instead of
+setting random new values. Commit via the Sourcetree Nightingale (6.0) local repository &
+push to the develop branch => all OK.
+
+BACK TO: Bring the 5p8 BRANCH IN GITHUB up to date. Nope; the Sourcetree Ngale 6.0 local
+repository can still authenticate to GitHub's satisfaction. Whew!
+
+---------------------------------------------------------------------------------------
+
+2 - 6 Mar.
+
+Pushing from the Sourcetree Nightingale5p8GitRepo local repository has an authentication
+problem with GitHub, even though the Sourcetree Nightingale local repository is fine;
+logging in to GitHub via command line also has an authentication problem. What to do??
+GitHub says yet another way is Git Credential Manager.
+
+Being able to use Sourcetree would be nice in general, so pursue that first?
+
+SWITCH TO: MayErrMsg() should reset the alarm count if the message changes! Do
+that => done -- but not easy to test! What messages can I easily provoke? Ah, the "Can't
+play the score (error -16961)" message, using e.g. RhythmicDuet.ng, and modify About.c
+so it thinks it can't get the credits resource; test => it works.
 

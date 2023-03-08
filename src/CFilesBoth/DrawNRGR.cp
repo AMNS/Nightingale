@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017-2023 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -589,9 +589,9 @@ static void DrawNoteheadGraph(Document *doc,
 	QDIST	qdLen;
 	Rect	graphRect, segRect;
 	Point	pt;
-	short	nhSegment[4];
-	short segColors[NHGRAPH_COLORS] =
-		{ 0, redColor, greenColor, blueColor, cyanColor, magentaColor, yellowColor };
+	short	nhSegment[6];
+	short segColors[NHGRAPH_COLORS+1] =
+		{ 0, redColor, greenColor, blueColor, cyanColor, magentaColor, yellowColor, whiteColor };
 
 	qdLen = NOTEHEAD_GRAPH_WIDTH;
 	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
@@ -605,11 +605,12 @@ static void DrawNoteheadGraph(Document *doc,
 	yBottom = yorg+d2p(dhalfSp);
 	SetRect(&graphRect, xorg, yorg-d2p(dhalfSp), xorg+graphLen, yorg+d2p(dhalfSp));
 	
+#define TEST_DRAWSEGS
 #ifdef TEST_DRAWSEGS
 	if (OptionKeyDown() && CmdKeyDown()) {
-		for (short k=0; k<4; k++) 
-			NoteSEGMENT(aNoteL, k) = rand() % NHGRAPH_COLORS;		// ??????? TEST !!!!!!!!!!!!!
-			//NoteSEGMENT(aNoteL, k) = k;			// ??????? TEST !!!!!!!!!!!!!
+		for (short k=0; k<6; k++) 
+			if (k<4)	NoteSEGMENT(aNoteL, k) = rand() % NHGRAPH_COLORS;		// ??????? TEST !!!!!!!!!!!!!
+			else		NoteSEGMENT(aNoteL, k) = 0;
 	}
 #endif
 //LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nhSegment[]=%d, %d, %d, %d\n", aNoteL,
@@ -619,7 +620,7 @@ static void DrawNoteheadGraph(Document *doc,
 	   is 0), assume a single black segment. */
 	   
 	nSegs = 0;
-	for (short k=0; k<4; k++) {
+	for (short k=0; k<6; k++) {
 		nhSegment[k] = NoteSEGMENT(aNoteL, k);
 		if (nhSegment[k]<=0) break;
 		nSegs++;
@@ -698,6 +699,12 @@ void DrawNotePianoroll(Document *doc, LINK aNoteL, PCONTEXT pContext, short xhea
 }
 
 /* -------------------------------------------------------------------------- DrawNote -- */
+
+#define ENLARGE_N_OBJH 1			/* Enlarge note object rect. (horiz. pixels) */
+#define ENLARGE_N_OBJV 0			/* Enlarge note object rect. (vert. pixels) */
+
+#define ENLARGE_NGRAPH_OBJH 19		/* Enlarge notehead graph object rect. (horiz. pixels) */
+#define ENLARGE_NGRAPH_OBJV 0		/* Enlarge notehead graph object rect. (vert. pixels) */
 
 void DrawNote(Document *doc,
 				LINK	pL,				/* Sync note belongs to */
@@ -1026,7 +1033,7 @@ EndQDrawing:
 			/* "Proper" size rects for noteheads can be both hard to click on and hard
 			   to see hilited, so we just enlarge them a bit. */
 			
-			InsetRect(&rSub, -1, -1);
+			InsetRect(&rSub, -ENLARGE_N_OBJH, -ENLARGE_N_OBJV);
 			OffsetRect(&rSub, xhead-pContext->paper.left, yhead-pContext->paper.top);
 			if (*drawn)
 				UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));
@@ -2287,4 +2294,3 @@ void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 #endif
 	if (doc->showSyncs) ShowNGRSync(doc, pL, context);
 }
-

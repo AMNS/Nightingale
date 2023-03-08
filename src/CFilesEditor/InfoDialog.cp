@@ -153,7 +153,9 @@ enum										/* Dialog item numbers */
 	SEGMENT0=57,
 	SEGMENT1,
 	SEGMENT2,
-	SEGMENT3
+	SEGMENT3,
+	SEGMENT4,
+	SEGMENT5
 };
 
 #define MAX_HORIZ_POS 1999
@@ -259,6 +261,8 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				PutDlgWord(dlog, SEGMENT1, aNote->nhSegment[1], False);
 				PutDlgWord(dlog, SEGMENT2, aNote->nhSegment[2], False);
 				PutDlgWord(dlog, SEGMENT3, aNote->nhSegment[3], False);
+				PutDlgWord(dlog, SEGMENT4, aNote->nhSegment[4], False);
+				PutDlgWord(dlog, SEGMENT5, aNote->nhSegment[5], False);
 				PutDlgWord(dlog, SMALLNR, aNote->small, False);		/* whether small note/rest */
 			}
 			break;
@@ -333,7 +337,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			return;
 		}
 		else {
-			short newval2, newvalA[4], newvalMin, newvalMax, max_dots, minl_dur;
+			short newval2, newvalA[6], newvalMin, newvalMax, max_dots, minl_dur;
 
 			GetDlgWord(dlog, OBJ_HORIZ, &newval);
 			if (I2DD(newval)<0 || I2DD(newval)>RIGHT_HLIM(doc)) {
@@ -475,13 +479,28 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				INFO_ERROR(strBuf);
 			}
 
+			/* The first notehead segment can't have the highest value allowed, since
+			   (with the standard segment-drawing function) that's invisible and, if it's
+			   the only nonzero segment, that'd make the whole note head invisible. This
+			   is not ideal even with the standard segment-drawing function, but it's
+			   simple and good enough for now (v. 6.0), and experience is needed before
+			   we know what would be better. */
+			   
 			GetDlgWord(dlog, SEGMENT0, &newvalA[0]);
 			GetDlgWord(dlog, SEGMENT1, &newvalA[1]);
 			GetDlgWord(dlog, SEGMENT2, &newvalA[2]);
 			GetDlgWord(dlog, SEGMENT3, &newvalA[3]);
+			GetDlgWord(dlog, SEGMENT4, &newvalA[4]);
+			GetDlgWord(dlog, SEGMENT5, &newvalA[5]);
+			
+			if (newvalA[0]==NHGRAPH_COLORS) {
+				GetIndCString(fmtStr, INFOERRS_STRS, 50);		/* The first notehead segment must be..." */
+				sprintf(strBuf, fmtStr, NHGRAPH_COLORS);
+				INFO_ERROR(strBuf);
+			}
 			newvalMin = 999;  newvalMax = -999;
-			for (short j = 0; j<4; j++) newvalMin = n_min(newvalMin, newvalA[j]);
-			for (short j = 0; j<4; j++) newvalMax = n_max(newvalMax, newvalA[j]);			
+			for (short j = 0; j<6; j++) newvalMin = n_min(newvalMin, newvalA[j]);
+			for (short j = 0; j<6; j++) newvalMax = n_max(newvalMax, newvalA[j]);			
 			if (newvalMin<0 || newvalMax>NHGRAPH_COLORS) {
 				GetIndCString(fmtStr, INFOERRS_STRS, 49);		/* Notehead segments must be..." */
 				sprintf(strBuf, fmtStr, NHGRAPH_COLORS);
@@ -566,6 +585,10 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				GRAF_ACCEPT(aNote->nhSegment[2]);
 				GetDlgWord(dlog, SEGMENT3, &newval);
 				GRAF_ACCEPT(aNote->nhSegment[3]);
+				GetDlgWord(dlog, SEGMENT4, &newval);
+				GRAF_ACCEPT(aNote->nhSegment[4]);
+				GetDlgWord(dlog, SEGMENT5, &newval);
+				GRAF_ACCEPT(aNote->nhSegment[5]);
 			}
 	
 		  	break;

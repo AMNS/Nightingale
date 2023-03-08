@@ -701,7 +701,7 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	/* The following fields are nonexistent or unused in 'N105' format. */
 	
 	NoteARTHARMONIC(aNoteRL) = 0;
-	for (short k = 0; k<4; k++) NoteSEGMENT(aNoteRL, k) = 0; 
+	for (short k = 0; k<6; k++) NoteSEGMENT(aNoteRL, k) = 0; 
 	NoteUSERID(aNoteRL) = 0;
 	NoteRESERVEDN(aNoteRL) = 0L;
 	

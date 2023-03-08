@@ -117,6 +117,7 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoSTRING(pL);
 				Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)tempoStr);
+				
 				/* If this Tempo object has a tempo string, is it the expected string? */
 				
 				if (strlen(tempoStr)>0 && strcmp(prevTempoStr, tempoStr)!=0)
@@ -128,6 +129,7 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoMETROSTR(pL);
 				Pstrcpy((StringPtr)metroStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)metroStr);
+				
 				/* If this Tempo object has an M.M., is it the expected M.M. string? */
 				
 				if (!TempoNOMM(pL) && strcmp(prevMetroStr, metroStr)!=0)
@@ -274,8 +276,8 @@ Boolean DCheckCautionaryTS(Document *doc)
 					stf = TimeSigSTAFF(aTSL);
 					if (inNewSys[stf]) {
 					/* We have a time signature at the beginning of a system. Look for
-						an equivalent cautionary timesig on this staff at the end of the
-						previous system. */
+					   an equivalent cautionary timesig on this staff at the end of the
+					   previous system. */
 						
 						if (!haveEndSysTS[stf]) {
 							COMPLAIN3("DCheckCautionaryTS: Timesig at start of system in measure %d, staff %d (L%u) not anticipated.\n",
@@ -316,13 +318,12 @@ Boolean DCheckCautionaryTS(Document *doc)
 
 
 /* --------------------------------------------------------------------- DCheckMeasDur -- */
-/* Check the actual duration of notes in every measure, considered as a whole,
-against its time signature on every staff. Also check the actual duration against
-the time signature on each individual staff. NB: I think this function makes more
-assumptions about the consistency of the data structure than the other "DCheck"
-functions, so it may be more dangerous to use when things are shaky. NB2: It's
-quite stupid. It probably would be better to check only "rhythmically understood
-measures" in which: 
+/* Check the actual duration of notes in every measure, considered as a whole, against
+its time signature on every staff. Also check the actual duration against the time
+signature on each individual staff. NB: I think this function makes more assumptions
+about the consistency of the data structure than the other "DCheck" functions, so it may
+be more dangerous to use when things are shaky. NB2: It's quite stupid. It probably
+would be better to check only "rhythmically understood measures" in which:
 	-There are no unknown duration notes
 	-All time signatures denote the same total time
 	-No time signature appears after the first Sync
@@ -360,6 +361,7 @@ Boolean DCheckMeasDur(Document *doc)
 			}
 
 			/* Check measure duration on individual staves. */
+			
 			aMeasL = FirstSubLINK(pL);
 			for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
 				staffn = MeasureSTAFF(aMeasL);			
@@ -377,29 +379,41 @@ Boolean DCheckMeasDur(Document *doc)
 
 
 /* --------------------------------------------------------------------- DCheckUnisons -- */
-/* Check chords for unisons. They're not necessarily a problem, though Nightingale's
-user interface doesn't handle them well, e.g., showing their selection status. */
+/* Check chords for unisons. They're not necessarily a problem, though (as of v. 6.0.x)
+Nightingale doesn't keep them from being drawn on top of each other, and its user
+interface doesn't handle them well, e.g., showing their selection status. */
 
-Boolean DCheckUnisons(Document *doc)
+Boolean DCheckUnisons(Document *doc,
+						Boolean maxCheck	/* False=skip less important checks */
+						)
 {
-	LINK pL;  Boolean bad;  short voice;
-	
-	if (unisonsOK) return False;		/* If they're not a problem now, skip checking! */
-	
+	LINK pL;  Boolean bad;
+	short voice, unisonCount;
+		
 	bad = False;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
 		
 		if (SyncTYPE(pL))
-			for (voice = 1; voice<=MAXVOICES; voice++)
-				if (VOICE_MAYBE_USED(doc, voice))
-					if (ChordHasUnison(pL, voice))
-						COMPLAIN3("DCheckUnisons: In measure %d, chord (L%u) in voice %d contains a unison.\n",
+			for (voice = 1; voice<=MAXVOICES; voice++) {
+				if (VOICE_MAYBE_USED(doc, voice)) {
+					unisonCount = ChordHasUnison(pL, voice);
+					if (unisonCount>0) bad = True;
+					if (unisonCount>=2) {
+						COMPLAIN3("DCheckUnisons: In measure %d, chord (L%u) in voice %d contains multiple unisons.\n",
 										GetMeasNum(doc, pL), pL, voice);
+					}
+					else if (unisonCount==1) {
+						if (!unisonsOK || maxCheck)
+							COMPLAIN3("DCheckUnisons: In measure %d, chord (L%u) in voice %d contains a unison.\n",
+										GetMeasNum(doc, pL), pL, voice);				
+					}
+				}
+			}
 	}
 	
-	return False;
+	return bad;
 }
 
 
@@ -413,7 +427,7 @@ short DBadNoteNum(
 			SignedByte /*accTable*/[],
 			LINK syncL, LINK theNoteL)
 {
-	short halfLn;							/* Relative to the top of the staff */
+	short halfLn;									/* Relative to the top of the staff */
 	SHORTQD yqpit;
 	short midCHalfLn, effectiveAcc, noteNum;
 	LINK firstSyncL, firstNoteL;

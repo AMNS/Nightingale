@@ -193,15 +193,19 @@ void OutOfMemory(long nBytes)				{ ErrorNumber(exhaustedMemory,nBytes); }
 
 /* ----------------------------------------------------------- MayErrMsg, AlwaysErrMsg -- */
 
-#define MAYERRMSG_HOWMANY 5			/* No. of times for MayErrMsg to actually give the alarm */
+#define MAYERRMSG_HOWMANY 3			/* No. of times for MayErrMsg to actually give the alarm */
 
 char	tempStr[256];
+
+/* MayErrMsg _will_ alert the user MAYERRMSG_HOWMANY times for a given message. If the
+message changes, it'll alert the user to the new message the same number of times. It
+writes the message to the log file regardless. */
 
 void MayErrMsg(char *fmt, ...)
 {
 	va_list ap;
 	long arg1, arg2, arg3, arg4, arg5, arg6;
-	
+	static char prevStr[255];
 	static short alertCount = MAYERRMSG_HOWMANY;
 
 	va_start(ap,fmt);
@@ -216,12 +220,17 @@ void MayErrMsg(char *fmt, ...)
 	sprintf(tempStr, "Possible bug in program: "); 
 	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
 	LogPrintf(LOG_ERR, "%s\n", tempStr);
-
+	
+	/* If this is a new message, reset the number of times to alert the user. */
+	
+	if (strcmp(tempStr, prevStr)!=0) alertCount = MAYERRMSG_HOWMANY;
 	if (--alertCount>=0 || ShiftKeyDown()) {
 		SysBeep(20);
 		CParamText(tempStr, "", "", "");
 		StopInform(GENERIC_ALRT);
 	}
+	
+	strcpy(prevStr, tempStr);
 
 	if (CmdKeyDown() && ShiftKeyDown() && OptionKeyDown()) DebugStr("\pBREAK IN MayErrMsg");
 }

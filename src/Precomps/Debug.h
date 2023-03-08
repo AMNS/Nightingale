@@ -32,7 +32,7 @@ Boolean DCheckRedundantKS(Document *);
 Boolean DCheckExtraTS(Document *);
 Boolean DCheckCautionaryTS(Document *doc);
 Boolean DCheckMeasDur(Document *);
-Boolean DCheckUnisons(Document *);
+Boolean DCheckUnisons(Document *, Boolean);
 Boolean DCheck1NEntries(Document *, LINK);
 Boolean DCheckNEntries(Document *);
 Boolean DCheck1SubobjLinks(Document *, LINK);

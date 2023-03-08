@@ -101,7 +101,7 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 #endif
 
 	if (objL==NILINK) {
-		MayErrMsg("DuplicateObject: objL=NILINK.");
+		AlwaysErrMsg("DuplicateObject: objL=NILINK. type=%ld", (long)type);
 		return NILINK;
 	}
 		
@@ -112,7 +112,7 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			LINK aPartL;
 			
 			aPartL = DFirstSubLINK(srcDoc,objL);
-			for ( ; aPartL; aPartL = DNextPARTINFOL(srcDoc,aPartL))
+			for ( ; aPartL; aPartL = DNextPARTINFOL(srcDoc, aPartL))
 				subcount++;
 			break;
 		}
@@ -127,8 +127,8 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			PASTAFF aStaff;
 			
 			aStaffL = DFirstSubLINK(srcDoc,objL);
-			for ( ; aStaffL; aStaffL = DNextSTAFFL(srcDoc,aStaffL)) {
-				aStaff = DGetPASTAFF(srcDoc,aStaffL);
+			for ( ; aStaffL; aStaffL = DNextSTAFFL(srcDoc, aStaffL)) {
+				aStaff = DGetPASTAFF(srcDoc, aStaffL);
 				if (aStaff->selected || !selectedOnly) subcount++;
 			}
 			break;
@@ -138,8 +138,8 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			PACONNECT aConnect;
 			
 			aConnectL = DFirstSubLINK(srcDoc,objL);
-			for ( ; aConnectL; aConnectL = DNextCONNECTL(srcDoc,aConnectL)) {
-				aConnect = DGetPACONNECT(srcDoc,aConnectL);
+			for ( ; aConnectL; aConnectL = DNextCONNECTL(srcDoc, aConnectL)) {
+				aConnect = DGetPACONNECT(srcDoc, aConnectL);
 				if (aConnect->selected || !selectedOnly) subcount++;
 			}
 			break;
@@ -154,8 +154,8 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 		case DYNAMtype:
 		case RPTENDtype:
 			myHeap = srcDoc->Heap+type;
-			for (subL=DFirstSubLINK(srcDoc,objL); subL; subL=NextLink(myHeap,subL)) {
-				pSub = (GenSubObj *)LinkToPtr(myHeap,subL);
+			for (subL=DFirstSubLINK(srcDoc, objL); subL; subL=NextLink(myHeap, subL)) {
+				pSub = (GenSubObj *)LinkToPtr(myHeap, subL);
 				if (pSub->selected || !selectedOnly) subcount++;
 				}
 			break;
@@ -163,8 +163,8 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			LINK aSlurL;
 			
 			aSlurL = DFirstSubLINK(srcDoc,objL);
-			for ( ; aSlurL; aSlurL = DNextSLURL(srcDoc,aSlurL))
-				if (DSlurSEL(srcDoc,aSlurL) || !selectedOnly) subcount++;
+			for ( ; aSlurL; aSlurL = DNextSLURL(srcDoc, aSlurL))
+				if (DSlurSEL(srcDoc, aSlurL) || !selectedOnly) subcount++;
 			break;
 		}
 		case BEAMSETtype: {
@@ -172,22 +172,22 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			PANOTEBEAM aNoteBeam;
 			
 			aNoteBeamL = DFirstSubLINK(srcDoc,objL);
-			for ( ; aNoteBeamL; aNoteBeamL=DNextNOTEBEAML(srcDoc,aNoteBeamL)) {
-				aNoteBeam = DGetPANOTEBEAM(srcDoc,aNoteBeamL);
+			for ( ; aNoteBeamL; aNoteBeamL=DNextNOTEBEAML(srcDoc, aNoteBeamL)) {
+				aNoteBeam = DGetPANOTEBEAM(srcDoc, aNoteBeamL);
 				bpSyncL = aNoteBeam->bpSync;
-				if (DGraceBEAM(srcDoc,objL)) {
-					aGRNoteL = DFirstSubLINK(srcDoc,bpSyncL);
-					for ( ; aGRNoteL; aGRNoteL = DNextGRNOTEL(srcDoc,aGRNoteL))
-						if (DGRNoteVOICE(srcDoc,aGRNoteL)==DBeamVOICE(srcDoc,objL)) {
-							if (DGRNoteSEL(srcDoc,aGRNoteL) || !selectedOnly) 
+				if (DGraceBEAM(srcDoc, objL)) {
+					aGRNoteL = DFirstSubLINK(srcDoc, bpSyncL);
+					for ( ; aGRNoteL; aGRNoteL = DNextGRNOTEL(srcDoc, aGRNoteL))
+						if (DGRNoteVOICE(srcDoc, aGRNoteL)==DBeamVOICE(srcDoc, objL)) {
+							if (DGRNoteSEL(srcDoc, aGRNoteL) || !selectedOnly) 
 								{ subcount++; break; }
 						}
 				}
 				else {
-					aNoteL = DFirstSubLINK(srcDoc,bpSyncL);
-					for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc,aNoteL))
-						if (DNoteVOICE(srcDoc,aNoteL)==DBeamVOICE(srcDoc,objL)) {
-							if (DNoteSEL(srcDoc,aNoteL) || !selectedOnly) 
+					aNoteL = DFirstSubLINK(srcDoc, bpSyncL);
+					for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc, aNoteL))
+						if (DNoteVOICE(srcDoc, aNoteL)==DBeamVOICE(srcDoc, objL)) {
+							if (DNoteSEL(srcDoc, aNoteL) || !selectedOnly) 
 								{ subcount++; break; }
 						}
 				}
@@ -195,11 +195,11 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			break;
 		}
 		case GRAPHICtype:
-			if (DLinkSEL(srcDoc,objL) || !selectedOnly)
+			if (DLinkSEL(srcDoc, objL) || !selectedOnly)
 				subcount++;
 			break;
 		case TEMPOtype:
-			if (DLinkSEL(srcDoc,objL) || !selectedOnly)
+			if (DLinkSEL(srcDoc, objL) || !selectedOnly)
 				subcount++;
 			break;
 		case SPACERtype:
@@ -210,14 +210,14 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			LINK aNoteOctL, opSyncL, aNoteL;
 			PANOTEOTTAVA aNoteOct;
 			
-			aNoteOctL = DFirstSubLINK(srcDoc,objL);
-			for ( ; aNoteOctL; aNoteOctL=DNextNOTEOTTAVAL(srcDoc,aNoteOctL)) {
-				aNoteOct = DGetPANOTEOTTAVA(srcDoc,aNoteOctL);
+			aNoteOctL = DFirstSubLINK(srcDoc, objL);
+			for ( ; aNoteOctL; aNoteOctL=DNextNOTEOTTAVAL(srcDoc, aNoteOctL)) {
+				aNoteOct = DGetPANOTEOTTAVA(srcDoc, aNoteOctL);
 				opSyncL = aNoteOct->opSync;
-				aNoteL = DFirstSubLINK(srcDoc,opSyncL);
-				for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc,aNoteL))
-					if (DNoteSTAFF(srcDoc,aNoteL)==DOttavaSTAFF(srcDoc,objL)) {
-						if (DNoteSEL(srcDoc,aNoteL) || !selectedOnly) 
+				aNoteL = DFirstSubLINK(srcDoc, opSyncL);
+				for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc, aNoteL))
+					if (DNoteSTAFF(srcDoc, aNoteL)==DOttavaSTAFF(srcDoc, objL)) {
+						if (DNoteSEL(srcDoc, aNoteL) || !selectedOnly) 
 							{ subcount++; break; }
 					}
 			}
@@ -227,14 +227,14 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			LINK aNoteTupleL, tpSyncL, aNoteL;
 			PANOTETUPLE aNoteTuple;
 			
-			aNoteTupleL = DFirstSubLINK(srcDoc,objL);
-			for ( ; aNoteTupleL; aNoteTupleL=DNextNOTETUPLEL(srcDoc,aNoteTupleL)) {
-				aNoteTuple = DGetPANOTETUPLE(srcDoc,aNoteTupleL);
+			aNoteTupleL = DFirstSubLINK(srcDoc, objL);
+			for ( ; aNoteTupleL; aNoteTupleL=DNextNOTETUPLEL(srcDoc, aNoteTupleL)) {
+				aNoteTuple = DGetPANOTETUPLE(srcDoc, aNoteTupleL);
 				tpSyncL = aNoteTuple->tpSync;
-				aNoteL = DFirstSubLINK(srcDoc,tpSyncL);
-				for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc,aNoteL))
-					if (DNoteVOICE(srcDoc,aNoteL)==DTupletVOICE(srcDoc,objL)) {
-						if (DNoteSEL(srcDoc,aNoteL) || !selectedOnly)
+				aNoteL = DFirstSubLINK(srcDoc, tpSyncL);
+				for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc, aNoteL))
+					if (DNoteVOICE(srcDoc, aNoteL)==DTupletVOICE(srcDoc, objL)) {
+						if (DNoteSEL(srcDoc, aNoteL) || !selectedOnly)
 							{ subcount++; break; }
 					}
 			}
@@ -242,7 +242,7 @@ LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 		}
 		default:
 			if (TYPE_BAD(objL)) {
-				MayErrMsg("DuplicateObject: object at %ld has illegal type %ld",
+				MayErrMsg("DuplicateObject: object L%ld has illegal type %ld",
 							(long)objL, (long)ObjLType(objL));
 				return NILINK;
 			}
@@ -258,6 +258,7 @@ LogPrintf(LOG_DEBUG, "\tsubsNeeded=%d\n", subsNeeded);
 	if (subcount<=0 && subsNeeded) return NILINK;
 
 	/* Allocate new object with list of (empty) subobjects */
+	
 	if (DObjLType(srcDoc,objL) == TEMPOtype)
 		newObjL = NewNode(dstDoc, type, 0);
 	else
@@ -265,7 +266,7 @@ LogPrintf(LOG_DEBUG, "\tsubsNeeded=%d\n", subsNeeded);
 
 	if (newObjL == NILINK) return NILINK;
 	
-	/* Copy obj's information into newObj's information */
+	/* Copy object's information into newObj's information */
 	
 	pObj    = (PMEVENT)LinkToPtr(srcDoc->Heap+OBJtype,objL);
 	pNewObj = (PMEVENT)LinkToPtr(dstDoc->Heap+OBJtype,newObjL);
@@ -640,12 +641,12 @@ LINK GrowObject(Document *doc,
 
 	/* Grow the node generically. */
 	
-	if (!ExpandNode(pL,&subListL,numEntries)) return NILINK;
+	if (!ExpandNode(pL, &subListL, numEntries)) return NILINK;
 	
 	switch (ObjLType(pL)) {
 		case HEADERtype:
 			if (pL != doc->headL)
-				MayErrMsg("GrowObject: obj at %ld of HEADERtype is not headL", (long)pL);
+				AlwaysErrMsg("GrowObject: obj L%ld of HEADERtype is not headL", (long)pL);
 			doc->headL = pL;
 			break;
 	
@@ -934,13 +935,13 @@ PushLock(GRNOTEheap);
 	aGRNote->yqpit = yqpit-halfLn2qd(midCHalfLn);
 	aGRNote->accident = accident;
 	effectiveAcc = InsNoteFixAccs(doc, grSyncL, staffn, 		/* Handle accidental context */
-											halfLn-midCHalfLn, accident);
+									halfLn-midCHalfLn, accident);
 											
 	/* Set MIDI note number; if it's within an octave sign, include the offset. */
 	
 	if (octType>0)
 		aGRNote->noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1],
-												effectiveAcc);
+										effectiveAcc);
 	else
 		aGRNote->noteNum = Pitch2MIDI(midCHalfLn-halfLn, effectiveAcc);
 	aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(lDur),
@@ -1194,7 +1195,7 @@ void InitMeasure(LINK aMeasureL, short staff, short left, short top, short right
 /*	Initialize a generic PSMeasure subobject. */
 
 void InitPSMeasure(LINK aPSMeasL, short staff, Boolean barlineVisible,
-							Boolean connAbove, short connStaff, char subType)
+					Boolean connAbove, short connStaff, char subType)
 {
 	PAPSMEAS aPSMeas;
 
@@ -1227,8 +1228,7 @@ void InitRptEnd(LINK pL, short /*staff*/, char rptEndType, LINK measL)
 	
 	aRptL = FirstSubLINK(pL);
 	aMeasL = FirstSubLINK(measL);
-	for ( ; aMeasL; aMeasL=NextMEASUREL(aMeasL),
-						 aRptL = NextRPTENDL(aRptL)) {
+	for ( ; aMeasL; aMeasL=NextMEASUREL(aMeasL), aRptL = NextRPTENDL(aRptL)) {
 		aRpt = GetPARPTEND(aRptL);
 		aMeasure = GetPAMEASURE(aMeasL);
 		aRpt->subType = 0;									/* Unused: obj has type */
@@ -1249,16 +1249,16 @@ void InitDynamic(Document *doc, LINK pL, short staff, short x, DDIST sysLeft,
 {
 	PADYNAMIC aDynamic;
 
-	LinkXD(pL) = p2d(x)-(SysRelxd(doc->selStartL)+sysLeft); 		/* relative to doc->selStartL */
+	LinkXD(pL) = p2d(x)-(SysRelxd(doc->selStartL)+sysLeft); 	/* relative to doc->selStartL */
 
 	aDynamic = GetPADYNAMIC(FirstSubLINK(pL));
 	aDynamic->staffn = staff;
-	aDynamic->subType = 0;											/* Unused: obj has type */
+	aDynamic->subType = 0;										/* Unused: obj has type */
 	aDynamic->small = 0;
 	aDynamic->xd = 0;
 	aDynamic->yd = halfLn2d(pitchLev, pContext->staffHeight,
 									pContext->staffLines);
-	aDynamic->selected = True;										/* Select the subobj */
+	aDynamic->selected = True;									/* Select the subobj */
 	aDynamic->visible = True;
 	aDynamic->soft = False;
 	aDynamic->mouthWidth = aDynamic->otherWidth = 0;
@@ -1290,7 +1290,7 @@ void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft, short 
  			if (SystemTYPE(lastSyncL))
  				aDynamic->endxd = p2d(endx)-sysLeft;
  			else
-				aDynamic->endxd = p2d(endx)-(SysRelxd(lastSyncL)+sysLeft); /* relative to lastSyncL */
+				aDynamic->endxd = p2d(endx)-(SysRelxd(lastSyncL)+sysLeft); /* rel. to lastSyncL */
 
 			/* If lastSyncL is the last Sync in its system followed by another system,
 			   searching to the right for a measure will find the first measure on the
@@ -1360,37 +1360,46 @@ void SetMeasVisible(LINK measL, Boolean visible)
 
 
 /* -------------------------------------------------------------------- ChordHasUnison -- */
-/* If the specified chord contains any unisons, return True, else False. We check
-by looking for notes with the same vertical position, so both perfect and augmented
-unisons are detected. */
+/* If the specified chord contains no unisons, return 0; if it does but no more than two
+notes at a given vertical position, return 1, else return 2. More than two is far more
+serious because in that case there's no way to avoid having two noteheads on top of each
+other. We check by looking for notes with the same vertical position, so both perfect and
+augmented unisons are detected. */
 
-Boolean ChordHasUnison(LINK syncL, short voice)
+short ChordHasUnison(LINK syncL, short voice)
 {
-	short		noteCount, i;
+	short		noteCount, unisonCount;
 	CHORDNOTE	chordNote[MAXCHORD];
 	QDIST		prevyqpit;
 	PANOTE		aNote;
-	/*
-	 *	Get sorted notes and go thru them by y-position. For our purpose, it makes
-	 * no difference whether the chord is stem up or down, so choose arbitrarily.
-	 */
+	
+	/* Get sorted notes and go thru them by y-position. For our purpose, it makes
+	   no difference whether the chord is stem up or down, so choose arbitrarily. */
+	   
 	noteCount = GSortChordNotes(syncL, voice, True, chordNote);
 	
 	prevyqpit = 9999;
-	for (i = 0; i<noteCount; i++) {
+	unisonCount = 0;
+	for (short i = 0; i<noteCount; i++) {
 		aNote = GetPANOTE(chordNote[i].noteL);
-		if (ABS(aNote->yqpit-prevyqpit)==0) return True;
-		prevyqpit = aNote->yqpit;
+		if (ABS(aNote->yqpit-prevyqpit)==0) {
+			unisonCount++;
+		}
+		else {
+			if (unisonCount>0) return unisonCount; 
+			prevyqpit = aNote->yqpit;
+			unisonCount = 0;
+		}
 	}
 	
-	return False;
+	return unisonCount;
 }
 
 
 /* ------------------------------------------------------------------ ChordNoteToRight -- */
 /* Return True if the given Sync and voice has a chord that is stem up but has at least
-one note to right of the stem. Works even if stem won't be drawn, probably because
-all notes are whole notes. */
+one note to right of the stem. Works even if stem won't be drawn, probably because all
+notes are whole notes. */
 
 Boolean ChordNoteToRight(LINK syncL, short voice)
 {
@@ -1803,7 +1812,7 @@ static DDIST GetGRCYStem(
 			if (GRNoteVOICE(aGRNoteL)==voice) {
 				if (GRNoteYD(aGRNoteL)>maxy) {
 					maxy = GRNoteYD(aGRNoteL);
-					lowGRNoteL = aGRNoteL;					/* yd's increase going downward */
+					lowGRNoteL = aGRNoteL;				/* yd's increase going downward */
 				}
 				if (GRNoteYD(aGRNoteL)<miny) {
 					miny = GRNoteYD(aGRNoteL);
@@ -1812,11 +1821,10 @@ static DDIST GetGRCYStem(
 			}
 		}
 
-		/*
-		 * Find the grace note closest to the end of the stem (i.e., furthest from the
-		 * GRMainNote) and return the stem endpoint it would have if it were pointed
-		 * in the correct direction but weren't in a chord.
-		 */
+		/* Find the grace note closest to the end of the stem (i.e., furthest from the
+		   GRMainNote) and return the stem endpoint it would have if it were pointed
+		   in the correct direction but weren't in a chord. */
+		   
 		farGRNoteL = (stemUpDown<0? lowGRNoteL : hiGRNoteL);
 		farStem = CalcYStem(doc, GRNoteYD(farGRNoteL), NFLAGS(GRNoteType(farGRNoteL)),
 									stemUpDown<0, pContext->staffHeight,

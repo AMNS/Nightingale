@@ -308,8 +308,8 @@ have serious problems.  See especially RespaceBars and JustAddSpace. */
 
 #define NHGRAPH_COLORS 7				/* Number of colors available for notehead graphs */
 
-#define ENLARGE_NR_SELH 1				/* Enlarge note selection rect. (horiz. pixels) */
-#define ENLARGE_NR_SELV 0				/* Enlarge note selection rect. (vert. pixels) */
+#define ENLARGE_NR_SELH 1				/* Enlarge note/rest selection rect. (horiz. pixels) */
+#define ENLARGE_NR_SELV 0				/* Enlarge note/rest selection rect. (vert. pixels) */
 
 #define HILITE_TICKS	12				/* Minimum hiliting time to show user structural relationships */ 
 
@@ -325,7 +325,8 @@ have serious problems.  See especially RespaceBars and JustAddSpace. */
 /* Some MIDI parameters. Others are in the CNFG resource (and most of these should be
 moved there eventually). */
 
-/* When Importing MIDI files... */
+/* For Importing MIDI files */
+
 #define MIDI_BASS_TOP (MIDI_MIDDLE_C+4)			/* If avg. noteNum>this, change from bass to treble */
 #define MIDI_TREBLE_BOTTOM (MIDI_MIDDLE_C-3)	/* If avg. noteNum<this, change from treble to bass */
 

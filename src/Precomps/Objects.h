@@ -39,7 +39,7 @@ void InitGraphic(LINK, short, short, short, short, Boolean, short, short, short)
 
 void SetMeasVisible(LINK, Boolean);
 
-Boolean ChordHasUnison(LINK, short);
+short ChordHasUnison(LINK, short);
 Boolean ChordNoteToRight(LINK, short);
 Boolean ChordNoteToLeft(LINK, short);
 

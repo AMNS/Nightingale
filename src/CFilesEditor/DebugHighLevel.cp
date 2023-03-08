@@ -106,7 +106,7 @@ Boolean DCheckEverything(Document *doc,
 	if (maxCheck) {
 		(void)DCheckMeasDur(doc);			if (DErrLimit() || UserInterrupt()) return False;
 	}
-	(void)DCheckUnisons(doc);				if (DErrLimit() || UserInterrupt()) return False;
+	(void)DCheckUnisons(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return False;
 	(void)DCheckNoteNums(doc);				if (DErrLimit() || UserInterrupt()) return False;
 
 	if (DCheckSel(doc, &nInRange, &nSel)) return True;
