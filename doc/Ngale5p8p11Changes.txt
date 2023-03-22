@@ -1,0 +1,53 @@
+NIGHTINGALE 5.8.11 CHANGES (Nov. 2022 to early Jan. 2023)
+
+NB: These changes are relative to the code in the develop5p8 branch of the GitHub
+repository as of 8 Jan. 2023. That codebase should have been 5.8.10, but it's not!;
+it appears to be somewhere between 5.8.9 and 5.8.10. Caveat.
+
+-----------------------------------------------------------------------------------------
+
+8 Dec.
+
+Improved error checking/reporting for importing and exporting MIDI files. Affects
+NightTemplates.h; Error, MIDIFOCmd, MIDIFOpen, MIDIFSave.
+
+Minor cleanup to support debugging, to declare the score header field <comment> as a C
+string (since that's the way it's used), etc.: improvements to DHexDump() (code from 6.0),
+etc. Affects Debug.h, NMiscTypes.h; DebugDisplay, Initialize, Menu, MIDIDFOCmd, MIDIFOpen,
+MIDIFSave, NavServices, ScoreInfo.
+
+-----------------------------------------------------------------------------------------
+
+17 - 22 Dec.
+
+Fixed bug: If Import MIDI File is cancelled, trying to import the same MIDI file again
+produces a message saying it's already open. Affects MIDIFOCmd.
+
+Minor cleanup. Affects Error, MIDIFOCmd, MIDIFOpen.
+
+Improved ancient (pre-OS X!) "out of memory" error messages. Affects .rsrc.
+
+-----------------------------------------------------------------------------------------
+
+26 Dec. - 8 Jan.  *** 2023 ***
+
+Minor changes: enhanced diagnostic info reporting for Import MIDI File, etc. Affects
+NightTemplates.h; MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIUtils.
+
+=========================================================================================
+
+CFilesEditor:
+	DebugDisplay.cp: DHexDump
+	MIDIFOCmd.cp: error checking/reporting
+	MIDIFOpen.cp: error checking/reporting
+	MIDIFSave.cp: error checking/reporting
+	NotelistOpen.cp: (no changes; I don't know why I thought there were)
+	ScoreInfo.cp: minor
+Precomps:
+	Debug.h
+	NightTemplates.h
+	NMiscTypes.h
+CFilesBoth:
+	Error.cp: error checking/reporting
+	Initialize.cp: debug
+	Menu.cp: status reporting
