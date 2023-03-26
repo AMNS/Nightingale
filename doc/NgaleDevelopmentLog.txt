@@ -12210,17 +12210,16 @@ BACK TO: Bring the 5p8 BRANCH IN GITHUB up to date. The Sourcetree Ngale 6.0 loc
 repository can still authenticate to GitHub's satisfaction. So trying to set up a
 Sourcetree local repository for Ngale 5.8 didn't mess it up, whew!
 
-
----------------------------------------------------------------------------------------
-
-2 - 17 Mar.
-
 Pushing from the Sourcetree Nightingale5p8GitRepo local repository has an authentication
 problem with GitHub, even though the Sourcetree Nightingale local repository is fine;
 logging in to GitHub via command line also has an authentication problem. What to do??
 GitHub says yet another way is Git Credential Manager.
 
 Being able to use Sourcetree would be nice in general, so pursue that first?
+
+---------------------------------------------------------------------------------------
+
+2 - 17 Mar.
 
 SWITCH TO: MayErrMsg() should reset the alarm count if the message changes! Do
 that => done -- but not easy to test! What messages can I easily provoke? Ah, the "Can't
@@ -12245,6 +12244,20 @@ Work more on Notelist input of notehead graph segments; test (HindemithBnSonata.
 It works! But of the eight QuickDraw colors, I'm allowing only seven for segments. I'm
 excluding black, but it could be useful to have black for "normal" segments. Change that...
 done.
+
+BACK TO: Github/Ngale 5.8 "can't push to remote repository" problem.
+
+Geoff C.: Use "git remote -v" from the command line. For the 6p0 repository:
+
+	Dons-2017-Air:NightingaleGitRepo donbyrd$ git remote -v
+	origin	ssh://git@github.com/AMNS/Nightingale (fetch)
+	origin	ssh://git@github.com/AMNS/Nightingale (push)
+
+While for the 5p8 localrepository:
+
+(added on 21 May) Oops @#*&)_!*()&  I didn't save the terminal output :-( . But I'm sure it
+was very similar (if not identical) to the above, except with https instead of ssh. Geoff's
+prescription: use _git ??_ to change the protocol to ssh => success! A big relief.
 
 SWITCH TO: The 'N105'-format score HindemithBnSonata.ngl has two beamed grace notes. Open it
 w/ current Ngale => the beam & 2nd grace notes are drawn; the 1st isn't. Why? Its objRect is
@@ -12287,5 +12300,77 @@ LogPrintf() to ConvertObjHeader, open UnbeamedGraceNotes.ngl =>
 So no, ConvertObjHeader is doing the right thing. That means converting an object must be
 clobbering a previously-converted object's objRect -- but from the cases I've seen, the
 object whose conversion is doing the clobbering can be either a Sync or a GRSync. Weird!
+Anyway, I'd best commit & push now and fix that later!
 
-doing the problem 
+Commit => OK; push (from Sourcetree) => appears to do nothing, not even an error message
+)*&^)(^(%&*(*  So, while my unsuccessful attempts to push 5.8 didn't hurt pushing 6.0, it
+appears my successful attempt did! Okay, let's try via the command line.
+
+	Dons-2017-Air:NightingaleGitRepo donbyrd$ git status
+	On branch develop
+	Your branch is up to date with 'origin/develop'.
+	
+	Changes to be committed:
+	  (use "git reset HEAD <file>..." to unstage)
+	
+		modified:   Info.plist
+		modified:   NightingaleIntel.app.zip
+		modified:   NightingaleIntel.xcodeproj/donbyrd.mode1
+		modified:   NightingalePPC.app.zip
+		modified:   NightingalePPC.xcodeproj/donbyrd.mode1
+		modified:   Resources/Nightingale.rsrc.zip
+		modified:   doc/DetailedVersionHistory_2012ToPresent.txt
+		modified:   doc/NgaleDevelopmentLog.txt
+		modified:   src/CFilesBoth/DrawNRGR.cp
+		modified:   src/CFilesEditor/Browser.cp
+		modified:   src/CFilesEditor/DebugDisplay.cp
+		modified:   src/CFilesEditor/FileConversion.cp
+		modified:   src/CFilesEditor/NotelistOpen.cp
+		modified:   src/CFilesEditor/NotelistParse.cp
+		modified:   src/Headers/Notelist.h
+		modified:   src/Precomps/Debug.h
+		modified:   src/Precomps/defs.h
+		modified:   src/Utilities/DebugUtils.cp
+		modified:   src/Utilities/InsUtils.cp
+
+	Dons-2017-Air:NightingaleGitRepo donbyrd$ git remote -v
+	origin	ssh://git@github.com/AMNS/Nightingale (fetch)
+	origin	ssh://git@github.com/AMNS/Nightingale (push)
+	
+All of that is as it should be.
+
+	Dons-2017-Air:NightingaleGitRepo donbyrd$ git push
+	Enter passphrase for key '/Users/donbyrd/.ssh/id_rsa': 
+	Everything up-to-date
+	Dons-2017-Air:NightingaleGitRepo donbyrd$ git status
+	On branch develop
+	Your branch is up to date with 'origin/develop'.
+	
+	Changes to be committed:
+	  (use "git reset HEAD <file>..." to unstage)
+	
+		modified:   Info.plist
+		...
+		modified:   src/Utilities/InsUtils.cp
+
+So that also did nothing and didn't say why. Sigh.
+
+^(%&(%&$%&*  What did I do to (apparently) cause this? It looks I pushed 5.8 successfully
+on 12 Mar., late evening, or possibly 13 Mar., early morning -- but GitHub says 24 February,
+9:07 AM?! Ah, that's probably when I did the commit, not the push. (Also, while my commit
+comment said it updated 15 files, it actually updated 16.) Geoff,what should I do? He sez to
+run "in a directory that works 'git remote -v' and use the result of that command to fix the
+broken one with 'git remote set-rul origin [working-git-url]'". But:
+
+	Dons-2017-Air:Nightingale5p8GitRepo donbyrd$ git remote -v
+	origin	ssh://git@github.com/AMNS/Nightingale (fetch)
+	origin	ssh://git@github.com/AMNS/Nightingale (push)
+	Dons-2017-Air:Nightingale5p8GitRepo donbyrd$ date
+	Tue Mar 21 11:30:55 EDT 2023
+
+I.e., remote info for the 5.8 repo (which I can push -- I think!) is exactly the same as
+remote info for the 6.0 repo (which I can't push)! Which makes sense because I fixed the
+former problem pushing 5.8 by setting it to be the same as 6.0. Well, _can_ I really still
+push 5.8? Add Ngale5p8p11Changes.txt to (local) repository, commit, push => OK. So the
+situation is reversed from late February! R%&((#@$@
+
