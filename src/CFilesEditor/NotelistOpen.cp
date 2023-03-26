@@ -11,7 +11,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2016-23 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 
@@ -28,7 +28,7 @@
 /* Default quarter-space position relative to staff top of text, lyrics, tempo marks and
 dynamics. */
 
-#define DFLT_TEMPO_HEIGHT		-24
+#define DFLT_TEMPO_HEIGHT		-22
 #define DFLT_LYRIC_HEIGHT		28
 #define DFLT_TEXT_HEIGHT		-10
 #define DFLT_DYNAMIC_HEIGHT		32
@@ -250,7 +250,7 @@ static Boolean NotelistToNight(Document *doc)
 				result = ConvertDynamic(doc, itemNL);
 				break;
 			default:
-				MayErrMsg("NotelistToNight: bad objType: %d.", pG->objType);
+				MayErrMsg("Bad objType %d in intermediate form.  (NotelistToNight)", pG->objType);
 		}
 		
 		/* If there's a problem, give up. This may be overkill: we should be able to
@@ -417,8 +417,8 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 		halfLn = 0;						/* unused in SetupNote for rests */
 	}
 
-	SetupNote(doc, curSyncL, aNoteL, pNR->staff, halfLn, 
-				pNR->durCode, pNR->nDots, iVoice, isRest, pNR->eAcc, 0);
+	SetupNote(doc, curSyncL, aNoteL, pNR->staff, halfLn, pNR->durCode, pNR->nDots,
+													iVoice, isRest, pNR->eAcc, 0);
 
 	aNote = GetPANOTE(aNoteL);
 	aNote->accident = pNR->acc;
@@ -442,9 +442,11 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 		if (!result) goto broken;
 	}
 
+	if (!isRest) for (short k = 0; k<6; k++) aNote->nhSegment[k] = pNR->nhSeg[k];
+
 	return True;
 broken:
-	MayErrMsg("Can't convert the note/rest (pL=%u).  (ConvertNoteRest)", pL);
+	MayErrMsg("Can't convert the note/rest from intermediate form (pL=%u).  (ConvertNoteRest)", pL);
 	return False;
 }
 
@@ -553,7 +555,8 @@ static Boolean ConvertMods(Document *doc, NLINK firstModID, LINK syncL, LINK aNo
 	for (thisModID = firstModID; thisModID; thisModID = aNLMod.next) {
 		result = FetchModifier(thisModID, &aNLMod);
 		if (!result) {
-			MayErrMsg("ConvertMods: couldn't retrieve modifier (modID = %d).", thisModID);
+			MayErrMsg("Can't retrieve modifier from intermediate form (modID = %d).  (ConvertMods)",
+						thisModID);
 			return False;
 		}
 		aModL = AutoNewModNR(doc, aNLMod.code, aNLMod.data, syncL, aNoteL);
@@ -629,7 +632,7 @@ static Boolean ConvertTuplet(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("ConvertTuplet: couldn't make tuplet (pL=%u).", pL);
+	MayErrMsg("Can't make tuplet from intermediate form (pL=%u).  (ConvertTuplet)", pL);
 	return False;
 }
 
@@ -648,7 +651,7 @@ static Boolean ConvertBarline(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("ConvertBarline: couldn't make barline (pL=%u).", pL);
+	MayErrMsg("Can't make barline from intermediate form (pL=%u).  (ConvertBarline)", pL);
 	return False;
 }
 
@@ -679,7 +682,7 @@ static Boolean ConvertClef(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("ConvertClef failed (pL=%u)", pL);
+	MayErrMsg("Can't convert the clef from intermediate form (pL=%u).  (ConvertClef)", pL);
 	return False;
 }
 
@@ -706,7 +709,7 @@ static Boolean ConvertKeysig(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("ConvertKeysig failed (pL=%u)", pL);
+	MayErrMsg("Can't convert the key signature from intermediate form (pL=%u).  (ConvertKeysig)", pL);
 	return False;
 }
 
@@ -731,7 +734,7 @@ static Boolean ConvertTimesig(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("ConvertTimesig failed (pL=%u)", pL);
+	MayErrMsg("Can't convert the time signature from intermediate form (pL=%u).  (ConvertTimesig)", pL);
 	return False;
 }
 
@@ -767,7 +770,8 @@ static Boolean ConvertTempo(Document *doc, NLINK pL)
 	
 	return True;
 broken:
-	MayErrMsg("ConvertTempo failed (pL=%u)", pL);
+	MayErrMsg("Can't convert the tempo/metronome mark from intermediate form (pL=%u).  (ConvertTempo)",
+				pL);
 	return False;
 }
 
@@ -819,7 +823,7 @@ static Boolean ConvertGraphic(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("ConvertGraphic failed (pL=%u)", pL);
+	MayErrMsg("Can't convert the Graphic from intermediate form (pL=%u).  (ConvertGraphic)", pL);
 	return False;
 }
 
@@ -874,7 +878,7 @@ static Boolean ConvertDynamic(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("ConvertDynamic failed (pL=%u)", pL);
+	MayErrMsg("Can't convert the dynamic from intermediate form (pL=%u).  (ConvertDynamic)", pL);
 	return False;
 }
 
@@ -882,7 +886,7 @@ broken:
 /* ------------------------------------------------------------------ SetDefaultCoords -- */
 /* Move every Graphic, Tempo mark and Dynamic to a reasonable default position. Since
 the Notelist format does not encode graphic information for these items, we do something
-crude and arbitrary here. It'd be good to make this less crude, e.g.,: If staff has any
+crude and arbitrary here. It'd be good to make this less crude, e.g., if staff has any
 lyrics, put dynamics above staff instead of below. */
 
 static Boolean SetDefaultCoords(Document *doc)
@@ -943,7 +947,7 @@ static Boolean SetDefaultCoords(Document *doc)
 							height = DFLT_TEXT_HEIGHT;
 							break;
 						default:
-							MayErrMsg("Nonsense textStyle %ld.  (SetDefaultCoords)", textStyle);
+							MayErrMsg("Nonsense textStyle %ld.  (SetDefaultCoords)", (long)textStyle);
 							height = DFLT_TEXT_HEIGHT;
 					}
 					yd = qd2d(height, staffHeight[staffn], staffLines[staffn]);
@@ -979,8 +983,9 @@ static Boolean SetDefaultCoords(Document *doc)
 		}
 	
 	return True;
+	
 broken:
-	MayErrMsg("Could not set default coordinates for text, dynamics and tempo marks.  (SetDefaultCoords)");
+	MayErrMsg("Can't set default coordinates for text, dynamics and tempo marks.  (SetDefaultCoords)");
 	return False;
 }
 

@@ -306,7 +306,7 @@ have serious problems.  See especially RespaceBars and JustAddSpace. */
 #define MARGWIDTH(doc)	pt2d(doc->marginRect.right-doc->marginRect.left)
 #define MARGLEFT(doc)	pt2d(doc->marginRect.left)
 
-#define NHGRAPH_COLORS 7				/* Number of colors available for notehead graphs */
+#define NHGRAPH_COLORS 8				/* Number of colors available for notehead graphs */
 
 #define ENLARGE_NR_SELH 1				/* Enlarge note/rest selection rect. (horiz. pixels) */
 #define ENLARGE_NR_SELV 0				/* Enlarge note/rest selection rect. (vert. pixels) */
@@ -473,7 +473,7 @@ work. */
 
 /* -------------------------------------------------------------------- Error Checking -- */ 
 		
-/* Is the link garbage (greater than the length of the heap for its type)? */
+/* Is the link garbage because it's greater than the length of the heap for its type? */
 
 #define GARBAGEL(type, pL)		((pL)>=(Heap+(type))->nObjs)
 
@@ -498,6 +498,15 @@ values forbidden by MAX_TSDENOM (defined elsewhere)! */
 #define BELOW_VLIM(doc) 	(pt2d((doc)->marginRect.bottom))
 #define RIGHT_HLIM(doc) 	(pt2d((doc)->marginRect.right-(doc)->marginRect.left))
 #define LEFT_HLIM(doc, pL)	(J_DTYPE(pL)? -RIGHT_HLIM(doc) : 0)
+
+/* Check whether a Rect is (1) a 1st-quadrant rectangle that's invalid due to negative
+height or  width, or (2) a rectangle of area zero because its width or height is zero. */
+
+#define GARBAGE_Q1RECT(r)	( (r).left>(r).right || (r).top>(r).bottom				\
+									|| (r).left<0 || (r).right<0					\
+									|| (r).top<0 || (r).bottom<0 )
+#define ZERODIM_RECT(r)		( (r).left==(r).right || (r).top==(r).bottom )
+
 
 /* ------------------------------------------- Coordinate & distance conversion macros -- */
 /* FIXME: Some of the words below -- both identifiers and words in comments -- refer to

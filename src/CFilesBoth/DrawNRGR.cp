@@ -591,7 +591,7 @@ static void DrawNoteheadGraph(Document *doc,
 	Point	pt;
 	short	nhSegment[6];
 	short segColors[NHGRAPH_COLORS+1] =
-		{ 0, redColor, greenColor, blueColor, cyanColor, magentaColor, yellowColor, whiteColor };
+		{ 0, redColor, greenColor, blueColor, cyanColor, magentaColor, yellowColor, blackColor, whiteColor };
 
 	qdLen = NOTEHEAD_GRAPH_WIDTH;
 	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
@@ -1033,7 +1033,13 @@ EndQDrawing:
 			/* "Proper" size rects for noteheads can be both hard to click on and hard
 			   to see hilited, so we just enlarge them a bit. */
 			
+#ifdef NOTYET
+			if (doc->graphMode==GRAPHMODE_PIANOROLL)
+					InsetRect(&rSub, -ENLARGE_NGRAPH_OBJH, -ENLARGE_NGRAPH_OBJV);
+			else	InsetRect(&rSub, -ENLARGE_N_OBJH, -ENLARGE_N_OBJV);
+#else
 			InsetRect(&rSub, -ENLARGE_N_OBJH, -ENLARGE_N_OBJV);
+#endif
 			OffsetRect(&rSub, xhead-pContext->paper.left, yhead-pContext->paper.top);
 			if (*drawn)
 				UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));

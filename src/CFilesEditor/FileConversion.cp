@@ -451,25 +451,25 @@ Error:
 
 /* -------------------------------- Convert the content of objects, including headers -- */
 
-/* First, some functions to help debug the very complex and messy conversion process. */
+/* First, some code to help debug the very complex and messy conversion process. */
 
-#include "DebugUtils.h"		/* for DCheck1NEntries() */
+#include "DebugUtils.h"
 
-#define BAD_BEAMLINK_TABSIZE 100
-static short debugBadBeamsetCount;
-static LINK badBeamLink[BAD_BEAMLINK_TABSIZE];
+#define BAD_OBJ_TABSIZE 100
+static short debugBadObjCount;
+static LINK badObjLink[BAD_OBJ_TABSIZE];
 
 static void InitDebugConvert();
 static void DebugConvertObj(Document *doc, LINK objL);
-static void DebugConvCheckBeamsets(Document *doc, LINK objL, char *label);
+static void DebugConvCheckObj(Document *doc, LINK objL, char *label);
 
 static void InitDebugConvert()
 {
-	debugBadBeamsetCount = 0;
+	debugBadObjCount = 0;
 }
 
-/* Do whatever to help track down bug(s) involving object <pL>. Depending on what the bug
-is, it may be better to call this after converting the object rather than before. */
+/* Do whatever to help track down bug(s) involving generic object <pL>. Depending on what
+the bug is, it may be better to call this after converting the object rather than before. */
 
 static void DebugConvertObj(Document *doc, LINK objL)
 {	
@@ -495,33 +495,88 @@ static void DebugConvertObj(Document *doc, LINK objL)
 #endif
 }
 
-static void DebugConvCheckBeamsets(Document *doc, LINK objL, char *label)
+
+/* Do whatever to help track down type-specific bug(s) involving object <objL> in
+context by checking all objects with smaller links: if called during the file-conversion
+process, that means all previously converted objects. Intended for bugs where converting
+one object clobbers a previous one. */
+
+static Boolean DCheckObjN105Rect(LINK objL);
+static Boolean DCheckObjN105Rect(LINK objL)
+{
+	PKEYSIG pKeySig;
+	
+	PMEVENT p = GetPMEVENT(objL);
+	if (GARBAGE_Q1RECT(p->objRect)) {
+		/* It's OK for initial keysigs to be unselectable. */
+		
+		pKeySig = GetPKEYSIG(objL);						/* FIXME: OR USE KeySigINMEAS? */
+		if (!(KeySigTYPE(objL) && !pKeySig->inMeasure))
+			LogPrintf(LOG_WARNING, "Object L%u HAS A GARBAGE (UNSELECTABLE) objRect.  (DCheckObjN105Rect)\n",
+				objL);
+	}
+	
+	/* Valid initial objects, e.g., "deleted", can have zero-width objRects. */
+	
+	else if (!ClefTYPE(objL) && !KeySigTYPE(objL) && !TimeSigTYPE(objL)
+				&& ZERODIM_RECT(p->objRect)) {
+		LogPrintf(LOG_WARNING, "Object L%u HAS A ZERO-WIDTH AND/OR HEIGHT objRect.  (DCheckObjN105Rect)\n",
+					objL);
+	}
+}
+
+
+
+typedef struct {
+	OBJECTHEADER_5 
+} OBJHDR_5;
+OBJHDR_5 tmpObjHeader_5;
+
+static void DebugConvCheckObj(Document *doc, LINK objL, char *label)
 {
 	LINK lastSyncL;
 	Boolean isARepeat;
 	
-	if (debugBadBeamsetCount>=BAD_BEAMLINK_TABSIZE) return;
+	if (debugBadObjCount>=BAD_OBJ_TABSIZE) return;
 	
-	for (LINK qL=1; qL<objL; qL++)
-		if (BeamsetTYPE(qL)) {
-			/* Report problems with a given Beamset only once! */
+	for (LINK qL=1; qL<objL; qL++) {
+		/* Report problems with a given object only once! */
+		
+		isARepeat = False;
+		for (short i=0; i<debugBadObjCount; i++)
+			if (badObjLink[i]==qL) { isARepeat = True; break; }
+		if (isARepeat) continue;
+		
+		switch (ObjLType(qL)) {
+			case BEAMSETtype:
+				//if (DCheckBeamset(doc, qL, False, True, &lastSyncL) || rand()/RAND_MAX<0.2) {	// ??TEST!
+				if (DCheckBeamset(doc, qL, False, True, &lastSyncL)) {
+					LogPrintf(LOG_DEBUG, "****** (%s): Problem no. %d found with Beamset L%u, at objL=%Lu. (DebugConvCheckObj)\n",
+								label, debugBadObjCount, qL, objL);
+					badObjLink[debugBadObjCount++] = qL;
+					
+					/* Maybe start the Debugger. Sadly, this seems to do nothing, at least
+					   inside Xcode 2.5 under macOS 10.5. */
+					
+					if (DETAIL_SHOW && OptionKeyDown()) Debugger();
+				}
+				break;
+			case SYNCtype:
+			case GRSYNCtype:
+				if (DCheckObjN105Rect(qL)) {
+					Rect r = LinkOBJRECT(qL);		// ??SHOULDN'T THIS BE FOR N105 FMT?
+					LogPrintf(LOG_DEBUG, "****** (%s): Problem no. %d found with objRect for L%u, at objL=%Lu. (DebugConvCheckObj)\n",
+								label, debugBadObjCount, qL, objL);
+					LogPrintf(LOG_DEBUG, "             objRect/t l b r=p%d %d %d %d\n",
+								r.top, r.left, r.bottom, r.right);
+					badObjLink[debugBadObjCount++] = qL;
+				break;
+			default:
+				;
 			
-			isARepeat = False;
-			for (short i=0; i<debugBadBeamsetCount; i++)
-				if (badBeamLink[i]==qL) isARepeat = True;
-			if (isARepeat) continue;
-
-			if (DCheckBeamset(doc, qL, False, True, &lastSyncL)) {
-				LogPrintf(LOG_DEBUG, "****** (%s): DCheckBeamset found a problem with qL=L%u, at objL=%Lu. (%d: %d, %d)\n",
-							label, qL, objL, debugBadBeamsetCount, badBeamLink[0], badBeamLink[1]);
-				badBeamLink[debugBadBeamsetCount++] = qL;
-				
-				/* Maybe start the Debugger. Sadly, this seems to do nothing, at least
-				   inside Xcode 2.5 under macOS 10.5. */
-				
-				if (DETAIL_SHOW && OptionKeyDown()) Debugger();
 			}
 		}
+	}
 }
 
 
@@ -575,7 +630,7 @@ static void ConvertStaffLines(LINK startL)
 #endif
 
 
-/* ---------------------------- Convert content of subobjects, including their headers -- */
+/* ---------------------------- Convert content of SUBobjects, including their headers -- */
 
 static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS);
 static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS)
@@ -585,8 +640,7 @@ static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS)
 	
 		/* Copy the fields individually. Using struct assignment here fails to
 		   compile, saying "no match for 'operator=' in 'dstKS->KSINFO::KSItem, blah
-		   blah etc.', while struct assignment compiles and works in KeySigCopy()!
-		   The difference is the structs are identical there; here they're not. */
+		   blah etc.'. Why? The structs aren't identical. */
 		   
 		dstKS->KSItem[i].letcode = srcKS->KSItem[i].letcode;
 		dstKS->KSItem[i].sharp = srcKS->KSItem[i].sharp;
@@ -1129,15 +1183,10 @@ locations. */
 static void ConvertObjHeader(Document *doc, LINK objL);
 static void ConvertObjHeader(Document * /* doc */, LINK objL)
 {
-	typedef struct {
-		OBJECTHEADER_5 
-	} OBJHEADER;
-	OBJHEADER tmpObjHeader_5;
-	
 	/* Copy the entire object header from the object list to a temporary space to
 	   avoid clobbering anything before it's copied. */
 	
-	BlockMove(&tmpSuperObj, &tmpObjHeader_5, sizeof(OBJHEADER));
+	BlockMove(&tmpSuperObj, &tmpObjHeader_5, sizeof(OBJHDR_5));
 	
 	/* The first six fields of the header are in the same location in 'N105' and 'N106'
 	   format, so no need to do anything with them. Copy the others. */
@@ -1150,6 +1199,12 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 	LinkSPAREFLAG(objL) = tmpObjHeader_5.spareFlag;
 	LinkOBJRECT(objL) = tmpObjHeader_5.objRect;
 	LinkNENTRIES(objL) = tmpObjHeader_5.nEntries;
+#if DEBUG_EMPTY_OBJRECT
+if (ObjLType(objL)==SYNCtype || ObjLType(objL)==GRSYNCtype)
+LogPrintf(LOG_DEBUG, "  ConvertObjHeader: objL=L%u objRect=p%d,%d,%d,%d\n",
+objL, LinkOBJRECT(objL).top, LinkOBJRECT(objL).left,
+LinkOBJRECT(objL).bottom, LinkOBJRECT(objL).right);
+#endif
 }
 
 
@@ -1630,14 +1685,14 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 	
 	BlockMove(&tmpSuperObj, &aSlur, sizeof(SLUR_5));
 	
-	DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1");
+	DebugConvCheckObj(doc, slurL, "ConvertSLUR1");
 
 	SlurSTAFF(slurL) = (&aSlur)->staffn;		/* EXTOBJHEADER */
 
 	SlurVOICE(slurL) = (&aSlur)->voice;
-//DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.2");
+//DebugConvCheckObj(doc, slurL, "ConvertSLUR1.2");
 	SlurPHILLER(slurL) = 0;
-//DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR1.3");
+//DebugConvCheckObj(doc, slurL, "ConvertSLUR1.3");
 	SlurCrossSTAFF(slurL) = (&aSlur)->crossStaff;
 	SlurCrossSTFBACK(slurL) = (&aSlur)->crossStfBack;			
 	SlurCrossSYS(slurL) = (&aSlur)->crossSystem;
@@ -1648,7 +1703,7 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 	SlurFIRSTSYNC(slurL) = (&aSlur)->firstSyncL;
 	SlurLASTSYNC(slurL) = (&aSlur)->lastSyncL;
 
-	DebugConvCheckBeamsets(doc, slurL, "ConvertSLUR2");
+	DebugConvCheckObj(doc, slurL, "ConvertSLUR2");
 
 	if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertSLUR: slurL=L%u staff=%d voice=%d tie=%d\n", slurL,
 				SlurSTAFF(slurL), SlurVOICE(slurL), SlurTIE(slurL)); 
@@ -1854,7 +1909,7 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 			Boolean doMasterList)
 {
 	HEAP *objHeap;
-	LINK pL, startL, prevL;
+	LINK objL, startL, prevL;
 	unsigned char *pSObj;
 	short debugLevel, objCount;
 
@@ -1872,7 +1927,7 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 	fflush(stdout);
 	objCount = 0;
 	prevL = startL-1;
-	for (pL = startL; pL; pL = RightLINK(pL)) {
+	for (objL = startL; objL; objL = RightLINK(objL)) {
 		objCount++;
 		if (debugLevel) {
 			/* Sidestep the OS 10.5 Console utility disappearing-message bug by adding a
@@ -1883,111 +1938,112 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 			KludgeOS10p5Delay4Log(objCount==1);
 			
 			if (debugLevel>1 || objCount%20==0) LogPrintf(LOG_DEBUG,
-					" **************** ConvertObjSubobjs: pL=%u prevL=%u\n", pL, prevL);
+					"**************** ConvertObjSubobjs: objL=%u prevL=%u type='%s'\n",
+					objL, prevL, NameObjType(objL));
 		}
 
 		/* If this function is called in the process of opening a file, the only situation
 		   where it should be, consecutive objects must have sequential links; check that. */
 		 
-		if (pL!=prevL+1) MayErrMsg("PROGRAM ERROR: pL=%ld BUT prevL=%ld INSTEAD OF %ld!  (ConvertObjSubobjs)",
-									(long)pL, (long)prevL, (long)prevL-1);
-		prevL = pL;
+		if (objL!=prevL+1) MayErrMsg("PROGRAM ERROR: objL=%ld BUT prevL=%ld INSTEAD OF %ld!  (ConvertObjSubobjs)",
+									(long)objL, (long)prevL, (long)prevL-1);
+		prevL = objL;
 
 		/* Copy the object to a separate SUPEROBJECT so we can move fields all over the
 		   place without having to worry about clobbering anything. */
 		   
-		pSObj = (unsigned char *)GetPSUPEROBJECT(pL);
+		pSObj = (unsigned char *)GetPSUPEROBJECT(objL);
 		BlockMove(pSObj, &tmpSuperObj, sizeof(SUPEROBJECT));
 
 		/* Convert the object header now so type-specific functions don't have to. */
 		
-		ConvertObjHeader(doc, pL);
-		DebugConvCheckBeamsets(doc, pL, "ConvertObjSubobjs");
+		ConvertObjHeader(doc, objL);
+		DebugConvCheckObj(doc, objL, "ConvertObjSubobjs");
 		
-		switch (ObjLType(pL)) {
+		switch (ObjLType(objL)) {
 			case HEADERtype:
-				ConvertHEADER(doc, pL);
+				ConvertHEADER(doc, objL);
 				continue;
 			case TAILtype:
 				/* TAIL objects have no subobjs & no fields but header, so there's nothing
 				   to do except to stop: we're at the end of this object list. */
 				   
-				if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertObjSubobjs: pL=%u is TAIL.\n",
-										pL);
+				if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertObjSubobjs: objL=%u is TAIL.\n",
+										objL);
 				break;
 			case SYNCtype:
-				ConvertSYNC(doc, pL);
+				ConvertSYNC(doc, objL);
 				continue;
 			case RPTENDtype:
-				ConvertRPTEND(doc, pL);
+				ConvertRPTEND(doc, objL);
 				continue;
 			case PAGEtype:
-				ConvertPAGE(doc, pL);
+				ConvertPAGE(doc, objL);
 				continue;
 			case SYSTEMtype:
-				ConvertSYSTEM(doc, pL);
+				ConvertSYSTEM(doc, objL);
 				continue;
 			case STAFFtype:
-				ConvertSTAFF(doc, pL);
+				ConvertSTAFF(doc, objL);
 				continue;
 			case MEASUREtype:
-				ConvertMEASURE(doc, pL);
+				ConvertMEASURE(doc, objL);
 				continue;
 			case CLEFtype:
-				ConvertCLEF(doc, pL);
+				ConvertCLEF(doc, objL);
 				continue;
 			case KEYSIGtype:
-				ConvertKEYSIG(doc, pL);
+				ConvertKEYSIG(doc, objL);
 				continue;
 			case TIMESIGtype:
-				ConvertTIMESIG(doc, pL);
+				ConvertTIMESIG(doc, objL);
 				continue;
 			case BEAMSETtype:
-				ConvertBEAMSET(doc, pL);
+				ConvertBEAMSET(doc, objL);
 				continue;
 			case CONNECTtype:
-				ConvertCONNECT(doc, pL);
+				ConvertCONNECT(doc, objL);
 				continue;
 			case DYNAMtype:
-				ConvertDYNAMIC(doc, pL);
+				ConvertDYNAMIC(doc, objL);
 				continue;
 			case GRAPHICtype:
-				ConvertGRAPHIC(doc, pL);
+				ConvertGRAPHIC(doc, objL);
 				continue;
 			case OTTAVAtype:
-				ConvertOTTAVA(doc, pL);
+				ConvertOTTAVA(doc, objL);
 				continue;
 			case SLURtype:
-				ConvertSLUR(doc, pL);
+				ConvertSLUR(doc, objL);
 				continue;
 			case TUPLETtype:
-				ConvertTUPLET(doc, pL);
+				ConvertTUPLET(doc, objL);
 				continue;
 			case GRSYNCtype:
-				ConvertGRSYNC(doc, pL);
+				ConvertGRSYNC(doc, objL);
 				continue;
 			case TEMPOtype:
-				ConvertTEMPO(doc, pL);
+				ConvertTEMPO(doc, objL);
 				continue;
 			case SPACERtype:
-				ConvertSPACER(doc, pL);
+				ConvertSPACER(doc, objL);
 				continue;
 			case ENDINGtype:
-				ConvertENDING(doc, pL);
+				ConvertENDING(doc, objL);
 				continue;
 			case PSMEAStype:
-				ConvertPSMEAS(doc, pL);
+				ConvertPSMEAS(doc, objL);
 				continue;
 			default:
 				MayErrMsg("PROGRAM ERROR: OBJECT L%ld TYPE %ld IS ILLEGAL.  (ConvertObjSubobjs)",
-							(long)pL, (long)ObjLType(pL));
+							(long)objL, (long)ObjLType(objL));
 		}
 
-		DebugConvertObj(doc, pL);
+		DebugConvertObj(doc, objL);
 	}
 
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
-	   but (as of v.997), they sometimes were, probably because not exporting changes to
+	   but long ago (v.997), they sometimes were, probably because not exporting changes to
 	   Master Page was implemented by reconstructing it from the 1st system of the score.
 	   That was fixed in about .998a10, so it should certainly be safe to remove this
 	   call! But the thought makes me nervous, and making them visible here really

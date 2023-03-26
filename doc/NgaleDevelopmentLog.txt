@@ -12206,12 +12206,14 @@ notehead segments, and make Graph Mode use existing segment values to draw inste
 setting random new values. Commit via the Sourcetree Nightingale (6.0) local repository &
 push to the develop branch => all OK.
 
-BACK TO: Bring the 5p8 BRANCH IN GITHUB up to date. Nope; the Sourcetree Ngale 6.0 local
-repository can still authenticate to GitHub's satisfaction. Whew!
+BACK TO: Bring the 5p8 BRANCH IN GITHUB up to date. The Sourcetree Ngale 6.0 local
+repository can still authenticate to GitHub's satisfaction. So trying to set up a
+Sourcetree local repository for Ngale 5.8 didn't mess it up, whew!
+
 
 ---------------------------------------------------------------------------------------
 
-2 - 6 Mar.
+2 - 17 Mar.
 
 Pushing from the Sourcetree Nightingale5p8GitRepo local repository has an authentication
 problem with GitHub, even though the Sourcetree Nightingale local repository is fine;
@@ -12225,3 +12227,65 @@ that => done -- but not easy to test! What messages can I easily provoke? Ah, th
 play the score (error -16961)" message, using e.g. RhythmicDuet.ng, and modify About.c
 so it thinks it can't get the credits resource; test => it works.
 
+BACK TO: Notehead graphs. Make Get Info handle all six segments => done. Next: finish
+Open Notelist input of notehead graph segments; maybe add something to the notelist
+header to make it display in notehead-graph mode?
+
+Work more on Notelist input of notehead graph segments; test (HindemithBnSonata.nl):
+
+	N t=0 v=1 npt=1 stf=1 dur=4 dots=1 nn=58 acc=2 eAcc=2 pDur=684 vel=75 ....<. appear=1 mods=-1 segs=1,2,3
+	N t=720 v=1 npt=1 stf=1 dur=4 dots=1 nn=65 acc=0 eAcc=3 pDur=684 vel=75 ...>.. appear=1 mods=-1 segs=1,2,3,4,5,6
+	/ t=1440 type=1 number=2
+	N t=1440 v=1 npt=1 stf=1 dur=4 dots=0 nn=60 acc=0 eAcc=3 pDur=456 vel=75 ...... appear=1 mods=-1 segs=3,4
+	N t=1920 v=1 npt=1 stf=1 dur=5 dots=0 nn=60 acc=0 eAcc=3 pDur=228 vel=75 ...... appear=1
+	G t=-1 v=1 npt=1 stf=1 dur=6 dots=0 nn=61 acc=2 eAcc=2 pDur=120 vel=0 . appear=1
+	N t=2160 v=1 npt=1 stf=1 dur=5 dots=0 nn=60 acc=0 eAcc=3 pDur=228 vel=75 ....<. appear=1
+	etc. etc.
+
+It works! But of the eight QuickDraw colors, I'm allowing only seven for segments. I'm
+excluding black, but it could be useful to have black for "normal" segments. Change that...
+done.
+
+SWITCH TO: The 'N105'-format score HindemithBnSonata.ngl has two beamed grace notes. Open it
+w/ current Ngale => the beam & 2nd grace notes are drawn; the 1st isn't. Why? Its objRect is
+(0,0,0,0)! Why? Open it w/ Ngale 5.8.11 => it's drawn and its objRect is (123,609,131,619).
+Construct a simpler 'N105'-format file, BeamedGraceNotes.ngl; open it w/ current Ngale => the 
+the beam & both grace notes are drawn, but the following (regular) note isn't and _it_ has an
+objRect of (0,0,0,0)! Try UnbeamedGraceNotes.ngl => the note after the grace notes still has
+an objRect of (0,0,0,0)! Try OneGraceNote.ngl => no problem. Huh???
+
+The objRect is read from the file, then copied as the content of the file is converted by
+ConvertObjHeader(). Is it correct in the file? Surely it is, since Ngale 5.8 opens it w/ no
+problems, but check with NGDumper:
+
+  Object at LINK #13      SYNC
+  Header (offset 0x1498):
+    (left, right) LINKs: (#12, #14)
+    Item list LINK: #2
+    (xd,yd) = (448,0)
+    Object type: 2=SYNC
+    selected:false  visible:true  soft:false
+    valid:true  tweaked:false  spareFlag:false
+    Bounds: QDRect(top: 142, left: 210, bottom: 148, right: 218)
+
+"Bounds" = objRect, and the above is correct. So is ConvertObjHeader screwing it up? Add
+LogPrintf() to ConvertObjHeader, open UnbeamedGraceNotes.ngl =>
+
+	debug. **************** ConvertObjSubobjs: objL=10 prevL=9 type='SYNC'
+	debug.   ConvertObjHeader: objL=L10 objRect=p145,177,151,185
+	debug. ConvertSYNC: syncL=L10 timeStamp=0
+	debug. **************** ConvertObjSubobjs: objL=11 prevL=10 type='GRSYNC'
+	debug.   ConvertObjHeader: objL=L11 objRect=p137,193,141,199
+	debug. ConvertGRSYNC: grSyncL=L11
+	debug. **************** ConvertObjSubobjs: objL=12 prevL=11 type='GRSYNC'
+	debug.   ConvertObjHeader: objL=L12 objRect=p140,202,144,208
+	debug. ConvertGRSYNC: grSyncL=L12
+	debug. **************** ConvertObjSubobjs: objL=13 prevL=12 type='SYNC'
+	debug.   ConvertObjHeader: objL=L13 objRect=p142,210,148,218
+	debug. ConvertSYNC: syncL=L13 timeStamp=480
+
+So no, ConvertObjHeader is doing the right thing. That means converting an object must be
+clobbering a previously-converted object's objRect -- but from the cases I've seen, the
+object whose conversion is doing the clobbering can be either a Sync or a GRSync. Weird!
+
+doing the problem 

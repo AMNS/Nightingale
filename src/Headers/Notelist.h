@@ -231,8 +231,8 @@ typedef union {
 
 typedef struct {
 	NLINK	next;					/* link to next mod attached to owning note, or zero if none */
-	char	code;					/* note-modifier code: 1-MOD_LONG_INVMORDENT (see NObjTypes.h) */
-	char	data;					/* [currently unused]: -127 - 128 */
+	char	code;					/* note-modifier code: 1 to MOD_LONG_INVMORDENT (see NObjTypes.h) */
+	char	data;					/* [currently unused]: -127 to 128 */
 } NL_MOD, *PNL_MOD, **HNL_MOD;
 
 

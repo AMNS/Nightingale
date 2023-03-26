@@ -106,7 +106,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Nightingale version 6.0, Copyright © 2022 by AMNF.  All rights reserved.</string>
+	<string>Nightingale version 6.0, Copyright © 2023 by AMNF.  All rights reserved.</string>
 	<key>CFBundleIconFile</key>
 	<string>APPL.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -114,7 +114,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLongVersionString</key>
-	<string>Nightingale version 6.0 Build 39</string>
+	<string>Nightingale version 6.0 Build 40</string>
 	<key>CFBundleName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundlePackageType</key>
@@ -124,7 +124,7 @@
 	<key>CFBundleSignature</key>
 	<string>BYRD</string>
 	<key>CFBundleVersion</key>
-	<string>6.0.39</string>
+	<string>6.0.40</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 </dict>

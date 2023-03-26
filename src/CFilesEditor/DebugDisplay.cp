@@ -372,7 +372,7 @@ void DisplayObject(Document *doc, LINK objL,
 		LogPrintf(LOG_INFO, " L%u", objL);
 
 	ps = NameObjType(objL);
-	LogPrintf(LOG_INFO, " xd=%d yd=%d %s %c%c%c%c%c%c oRect.l=p%d",
+	LogPrintf(LOG_INFO, " xd=%d yd=%d %s %c%c%c%c%c%c objRect.l=p%d",
 					p->xd, p->yd, ps,
 					(p->selected? 'S' : '.'),
 					(p->visible? 'V' : '.'),

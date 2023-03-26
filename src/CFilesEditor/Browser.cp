@@ -611,7 +611,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	if (LinkSPAREFLAG(pL))	strcat(lStr, "SPARE ");
 	DrawTextLine(lStr);
 	r = LinkOBJRECT(pL);
-	sprintf(lStr, "objRect/t l b r=%d %d %d %d", r.top, r.left, r.bottom, r.right);
+	sprintf(lStr, "objRect/t l b r=p%d %d %d %d", r.top, r.left, r.bottom, r.right);
 
 	/* Search back for this object's measure, system, and page (poor man's GetContext) */
 	

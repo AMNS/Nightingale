@@ -52,20 +52,10 @@ Boolean QDP(char *fmtStr)
 
 #define FP(pL)	( abnormal ? 1000000L+(pL) : (pL) )
 
-/* Check whether a Rect is a valid 1st-quadrant rectangle with non-negative height
-and width. NB: a comment here used to say "Nightingale uses rectangles of zero width for
-empty key signatures." As far as I can see, that's not True anymore, so checking for
-positive height is probably pointless.  --DAB, April 2015 */
-
-#define GARBAGE_Q1RECT(r)	(  (r).left>(r).right || (r).top>(r).bottom				\
-									|| (r).left<0 || (r).right<0					\
-									|| (r).top<0 || (r).bottom<0)
-#define ZERODIM_RECT(r)		(  (r).left==(r).right || (r).top==(r).bottom	)
-
 
 /* ------------------------------------------------------------------------- DBadLink --- */
 /* Given a type and a LINK, check whether the LINK is bad and return True if so, False
-if it's OK. Checks whether the LINK is larger than the heap currently allows, and if
+if it's OK. Check whether the LINK is larger than the heap currently allows, and if
 LINK is on the freelist: in either case, it's not valid. */
 
 Boolean DBadLink(
@@ -178,8 +168,8 @@ Boolean DCheckHeadTail(
 
 /* ------------------------------------------------------------------- DCheckSyncSlurs -- */
 /* Given a note, if it claims to be slurred or tied, check for a slur object for its
-voice that refers to it. If it's tied, also look for a match for its note number in
-the "other" Sync. */
+voice that refers to it. If it's tied, also look for a match for its note number in the
+"other" Sync. */
 
 Boolean DCheckSyncSlurs(Document *doc, LINK syncL, LINK aNoteL)
 {
@@ -563,7 +553,7 @@ short DCheckNode(
 			
 			else if (!ClefTYPE(pL) && !KeySigTYPE(pL) && !TimeSigTYPE(pL)
 						&& ZERODIM_RECT(p->objRect)) {
-				COMPLAIN("DCheckNode: Object L%u HAS A ZERO-WIDTH/HEIGHT objRect.\n", pL);
+				COMPLAIN("DCheckNode: Object L%u HAS A ZERO-WIDTH AND/OR HEIGHT objRect.\n", pL);
 			}
 
 			else if (objRectOrdered) {
@@ -589,11 +579,11 @@ positions agree with their relative object-list positions. */
 					apLeft = GetPMEVENT(apLeftL);
 					if (LinkVALID(apLeftL) && lRectOrdered
 					&&  p->objRect.left < apLeft->objRect.left)
-						COMPLAIN("DCheckNode: Object L%u: objrect.left relative to previous is suspicious.\n", pL);
+						COMPLAIN("DCheckNode: Object L%u: objRect.left relative to previous is suspicious.\n", pL);
 					apRight = GetPMEVENT(apRightL);
 					if (LinkVALID(apRightL) && rRectOrdered
 					&&  p->objRect.left > apRight->objRect.left)
-						COMPLAIN("DCheckNode: Object L%u: objrect.left relative to next is suspicious.\n", pL);
+						COMPLAIN("DCheckNode: Object L%u: objRect.left relative to next is suspicious.\n", pL);
 				}
 			}
 		}

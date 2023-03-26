@@ -3931,9 +3931,20 @@ message. Affects Error.
 Get Info for notes now displays and sets all six notehead segments; a value of 7 means
 color is white, i.e., invisible. Affects .rsrc; DrawNRGR, FileConversion, InfoDialog.
 
-Minor changes. Made Debug Check report unisons if user requested "Check all possible"
+Minor changes: made Debug Check report unisons if user requested "Check all possible"
 or if there are multiple unisons, etc. Affects info.plist, Debug.h, Defs.h, Objects.h;
 DebugHighLevel, Debug2Utils, DrawNRGR, Objects.
 
 ------------------------------------------------------------------------------------ Build 39
 
+9 - 20 Mar.
+
+Notehead segments in notelists are now imported correctly. Affects NotelistOpen,
+NotelistParse.
+
+Added black to the colors available for notehead segments. Affects Defs.h; DrawNRGR.
+
+Minor changes: to Master Page "Add Parts" command, etc. Affects info.plist, .rsrc,
+Debug.h, Defs.h, Notelist.h; Browser, DebugDisplay, DebugUtils, FileConversion, InsUtils.
+
+------------------------------------------------------------------------------------ Build 40

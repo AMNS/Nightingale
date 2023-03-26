@@ -46,9 +46,9 @@ static DDIST GetTopStfLim(Document *, LINK, LINK, PCONTEXT);
 static DDIST GetBotStfLim(Document *, LINK, LINK, PCONTEXT);
 
 /* --------------------------------------------------------------------- GetPaperMouse -- */
-/* Deliver mouse position in paper-relative coordinates, and deliver True or
-False, according to whether it's inside paper or not.  Paper is a rectangle
-in window-relative coordinates. */
+/* Deliver mouse position in paper-relative coordinates, and deliver True or False,
+according to whether it's inside paper or not.  Paper is a rectangle in window-relative
+coordinates. */
 
 Boolean GetPaperMouse(Point *pt, Rect *paper)
 {
@@ -75,8 +75,8 @@ short ForceInMeasure(Document *doc, short x)
 	sysLeft = GetSysLeft(doc);
 	sysL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, False);
 	firstMeasL = LSSearch(sysL, MEASUREtype, 1, GO_RIGHT, False);
-	if (p2d(x)<LinkXD(firstMeasL)+sysLeft)
-		x = d2p(LinkXD(firstMeasL)+sysLeft)+1;
+	if (p2d(x)<LinkXD(firstMeasL)+sysLeft) x = d2p(LinkXD(firstMeasL)+sysLeft)+1;
+
 	return x;
 }
 
@@ -101,8 +101,8 @@ void GetInsRect(Document *doc, LINK startL, Rect *tRectp)
 	pSystemL = LSSearch(LeftLINK(startL), SYSTEMtype, ANYONE, True, False);
 	pSystem = GetPSYSTEM(pSystemL);
 	D2Rect(&pSystem->systemRect, &sysRect);
-	InsetRect(&sysRect, 0, -8);									/* Allow some vertical slop */
-	SectRect(&docRect, &sysRect, tRectp);						/* Find insertion area */
+	InsetRect(&sysRect, 0, -8);								/* Allow some vertical slop */
+	SectRect(&docRect, &sysRect, tRectp);					/* Find insertion area */
 }
 
 
@@ -111,7 +111,7 @@ void GetInsRect(Document *doc, LINK startL, Rect *tRectp)
 /* Draw the hairpin during the dragging loop. */
 
 static void IDrawHairpin(Point downPt,			/* Original mouseDown */
-							Point pt,			/* new pt. */
+							Point pt,			/* new point */
 							Boolean left,		/* True if hairpin left. */
 							PCONTEXT pContext
 							)
@@ -119,18 +119,18 @@ static void IDrawHairpin(Point downPt,			/* Original mouseDown */
    short   rise;
         
    rise = d2p(qd2d(config.hairpinMouthWidth,
-            pContext->staffHeight, pContext->staffLines)>>1);
+pContext->staffHeight, pContext->staffLines)>>1);
 
    if (left) {
-      MoveTo(downPt.h,downPt.v+rise);
+      MoveTo(downPt.h, downPt.v+rise);
       LineTo(pt.h, pt.v);
-      MoveTo(downPt.h,downPt.v-rise);
+      MoveTo(downPt.h, downPt.v-rise);
       LineTo(pt.h, pt.v);
    }
    else {
-      MoveTo(downPt.h,downPt.v);
+      MoveTo(downPt.h, downPt.v);
       LineTo(pt.h, pt.v+rise);
-      MoveTo(downPt.h,downPt.v);
+      MoveTo(downPt.h, downPt.v);
       LineTo(pt.h, pt.v-rise);
    }
 }
@@ -165,11 +165,13 @@ Boolean TrackHairpin(Document *doc, LINK pL, Point pt, Point *endPt, Boolean lef
 			if (newPt.h!=pt.h /* && PtInRect(newPt, &tRect) */) {
 
 				/* Erase old hairpin, if there is one */
+				
 				if (firstLoop)	firstLoop = False;
 				else			IDrawHairpin(oldPt, pt, left, &context);
 				pt = newPt;
 				/* Draw new hairpin; constrain to horizontal movement. Save endv for
-					crossSystem hairpins. */
+				   crossSystem hairpins. */
+				   
 				endv = pt.v;
 				pt.v = oldPt.v; 
 				IDrawHairpin(oldPt, pt, left, &context);
@@ -185,8 +187,8 @@ Boolean TrackHairpin(Document *doc, LINK pL, Point pt, Point *endPt, Boolean lef
 	else return True;
 }
 
-/* Determine if the hairpin or ending is crossStaff and/or crossSystem and return
-the first and last systems. */
+/* Determine if the hairpin or ending is crossStaff and/or crossSystem and return the
+first and last systems. */
 
 static Boolean GetCrossStatus(Document *doc, Point pt, Point newPt,
 									short *firstStf, short *lastStf)
@@ -205,11 +207,12 @@ the object list. */
 Boolean TrackAndAddHairpin(Document *doc, LINK insSyncL, Point pt, short clickStaff,
 										short sym, short subtype, PCONTEXT pContext)
 {
-	Boolean isDIM,crossSys;  short pitchLev,firstStf,lastStf;
+	Boolean isDim, crossSys;
+	short pitchLev, firstStf,lastStf;
 	LINK lastSyncL;  Point newPt;
 
-	isDIM = (subtype==DIM_DYNAM);
-	if (TrackHairpin(doc, insSyncL, pt, &newPt, isDIM, clickStaff)) {
+	isDim = (subtype==DIM_DYNAM);
+	if (TrackHairpin(doc, insSyncL, pt, &newPt, isDim, clickStaff)) {
 		Pt2Paper(doc, &newPt);
 		crossSys = GetCrossStatus(doc, pt, newPt, &firstStf, &lastStf);
 
@@ -232,16 +235,16 @@ Boolean TrackAndAddHairpin(Document *doc, LINK insSyncL, Point pt, short clickSt
 		}
 		InvertSymbolHilite(doc, lastSyncL, clickStaff, True);			/* Hilite on */
 		SleepTicks(HILITE_TICKS);
-		/*
-		 * Determine if the hairpin was drawn backwards or forwards and, if backwards,
-		 * swap the endpoints. Also, if it was drawn backwards, change <sym> from crescendo
-		 *	to diminuendo or vice versa; set the insertion pt at doc->selStartL to be
-		 *	either firstSyncL or lastSyncL, and pass firstSyncL or lastSyncL to NewDynamic
-		 *	as the lastSyncL accordingly; and call NewDynamic with parameter <crossSys>,
-		 *	which NewDynamic will handle to create one or two pieces of the hairpin.
-		 *
-		 * NB: This and InsertHairpin badly need rewriting.
-		 */
+		
+		/* Determine if the hairpin was drawn backwards or forwards and, if backwards,
+		   swap the endpoints. Also, if it was drawn backwards, change <sym> from crescendo
+		   to diminuendo or vice versa; set the insertion pt at doc->selStartL to be
+		   either firstSyncL or lastSyncL, and pass firstSyncL or lastSyncL to NewDynamic
+		   as the lastSyncL accordingly; and call NewDynamic with parameter <crossSys>,
+		   which NewDynamic will handle to create one or two pieces of the hairpin.
+		
+		   FIXME: This and InsertHairpin badly need rewriting. */
+		   
 		if ((!crossSys && newPt.h > pt.h) || (crossSys && newPt.v > pt.v)) {
 			if (IsAfter(lastSyncL, insSyncL)) lastSyncL = insSyncL;
 
@@ -258,7 +261,7 @@ Boolean TrackAndAddHairpin(Document *doc, LINK insSyncL, Point pt, short clickSt
 		else {
 			if (IsAfter(insSyncL, lastSyncL)) lastSyncL = insSyncL;
 
-			sym = (isDIM ? sym+1 : sym-1);
+			sym = (isDim ? sym+1 : sym-1);
 			doc->selStartL = doc->selEndL = lastSyncL;
 			lastSyncL = insSyncL;
 			NewDynamic(doc, newPt.h, pt.h, symtable[sym].symcode,	/* !crossSys & dragged backwards: */
@@ -601,22 +604,21 @@ LINK FindSync(Document *doc, Point pt,
 					short clickStaff
 					)
 {
-	register LINK addToSyncL;			/* Sync to which to add note/rest */
-	LINK			lSyncL, rSyncL,		/* Links to left & right Syncs */
-					aNoteL, lNoteL, rNoteL;
-	Rect			noteRect;
-	short			lDist, rDist,		/* Pixel distance from ins. pt to rSync, lSync */	
-					noteWidth,			/* 2*amount by which to shift lDist,rDist */
-					lSyncPos,
-					oneWayLimit,		/* Note position tolerance if only one side is possible */
-					limit;				/* Note position tolerance if left & right both possible */
-	Point			ptHLeft;			/* The point to left of <pt> by 1/2 notewidth */ 
+	LINK	addToSyncL;			/* Sync to which to add note/rest */
+	LINK	lSyncL, rSyncL,		/* Links to left & right Syncs */
+			aNoteL, lNoteL, rNoteL;
+	Rect	noteRect;
+	short	lDist, rDist,		/* Pixel distance from ins. pt to rSync, lSync */	
+			noteWidth,			/* 2*amount by which to shift lDist,rDist */
+			lSyncPos,
+			oneWayLimit,		/* Note position tolerance if only one side is possible */
+			limit;				/* Note position tolerance if left & right both possible */
+	Point	ptHLeft;			/* The point to left of <pt> by 1/2 notewidth */ 
 
-	/*
-	 *	Compute distances from horizontal position where user clicked to the
-	 *	centers of the nearest Syncs to left and right (if there are any), and
-	 *	look for notes in those Syncs on the desired staff.
-	 */
+	/* Compute distances from horizontal position where user clicked to the
+	   centers of the nearest Syncs to left and right (if there are any), and
+	   look for notes in those Syncs on the desired staff. */
+	   
 	noteRect = CharRect(MCH_halfNoteHead);
 	noteWidth = noteRect.right-noteRect.left+1;
 	ptHLeft = pt;
@@ -1039,14 +1041,14 @@ LINK FindSymRight(Document *doc, Point pt,
 						Boolean useJD		/* If True, find JD symbols, else ignore them */
 						)
 {
-	register LINK	pL,resultL,endL;
+	LINK	pL, resultL, endL;
 
 	pL = SetCurrentSystem(doc, pt);						/* sets doc->currentSystem */
 	if (!pL) return doc->tailL;
 	resultL = endL = EndSystemSearch(doc,pL);			/* assume nothing found */
 
-	/* Traverse until we reach the obj ending the system or find a symbol to right
-		of pt.h. */
+	/* Traverse until we reach the obj ending the system or find a symbol to right of
+	   pt.h. */
 	
 	for ( ; pL!=endL && resultL==endL; pL=RightLINK(pL)) {
 		if (!needVisible || LinkVIS(pL))
@@ -1201,9 +1203,9 @@ short GetPitchLim(Document *doc, LINK staffL,
 						Boolean above		/* True=want limit above staff, False=below staff */
 						)
 {
-	register LINK aStaffL, bStaffL;
+	LINK aStaffL, bStaffL;
 	LINK sysL;
-	register PASTAFF aStaff, bStaff;
+	PASTAFF aStaff, bStaff;
 	DRect dr;
 	DDIST dAway, aStaffBottom;
 	short staffAbove, staffBelow, limit;
@@ -1264,14 +1266,14 @@ short CalcPitchLevel(
 					short		staffn
 					)
 {
-	register short lineSp,				/* space between staff lines (pixels) */
-					lines;
-	short			halfLns,			/* approximate half-line number */
-					relHotY,			/* distance from staff top down to hotY (pixels) */
-					headHotY,			/* distances below hiPitchLim point */
-					headTop,
-					headBottom,
-					hiPitchLim, lowPitchLim;
+	short		lineSp,				/* space between staff lines (pixels) */
+				lines;
+	short		halfLns,			/* approximate half-line number */
+				relHotY,			/* distance from staff top down to hotY (pixels) */
+				headHotY,			/* distances below hiPitchLim point */
+				headTop,
+				headBottom,
+				hiPitchLim, lowPitchLim;
 	Document 	*doc=GetDocumentFromWindow(TopDocument);
 	
 	if (doc==NULL) return 0;
@@ -1285,22 +1287,22 @@ short CalcPitchLevel(
 	if (halfLns<=hiPitchLim)		return hiPitchLim;
 	else if (halfLns>=lowPitchLim)	return lowPitchLim;
 
-/* If distance between staff lines is not large, i.e., no more than the height
- *	of most cursor noteheads, we're done.
- */
+	/* If distance between staff lines is not large, i.e., no more than the height of
+	most cursor noteheads, we're done. */
+	
 	if (lineSp<=4) return halfLns;
 
-/* If distance between staff lines is greater than the height of most cursor
- *	noteheads, consider note to be on a line only if the cursor head touches the
- *	line. To do this, we must consider the number of pixels above and below the
- *	hotspot the cursor notehead extends: 2 above and 1 below for all but breves.
- *	Should really consider breves, but to my knowledge no user has complained about
- *	it.  --DAB, March 2017
- */
+	/* If distance between staff lines is greater than the height of most cursor
+	   noteheads, consider note to be on a line only if the cursor head touches the
+	   line. To do this, we must consider the number of pixels above and below the
+	   hotspot the cursor notehead extends: 2 above and 1 below for all but breves.
+	   Should really consider breves, but to my knowledge no user has complained about
+	   it.  --DAB, March 2017 */
+	   
 	else {
-		/* To simplify things, offset values so everything is positive and a coord.
-		 * of 0 corresponds to a line, not a space.
-		 */ 
+		/* To simplify things, offset values so everything is positive and a coord. of
+		   0 corresponds to a line, not a space. */
+		    
 		if (ODD(hiPitchLim)) hiPitchLim -= 1;
 		headHotY = relHotY-hiPitchLim*lineSp/2;
 		headTop = headHotY-ABOVE_HOTSPOT;
@@ -1336,7 +1338,7 @@ static DDIST GetTopStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT context
 
 static DDIST GetBotStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT contextTbl)
 {
-	short staffBelow; PCONTEXT pContext, qContext;
+	short staffBelow;  PCONTEXT pContext, qContext;
 	DDIST bottomLimit;
 
 	pContext = &contextTbl[StaffSTAFF(aStaffL)];
@@ -1354,12 +1356,12 @@ static DDIST GetBotStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT context
 
 short FindStaffSetSys(Document *doc, Point pt)
 {
-	register LINK	pL, aStaffL;
-	register PCONTEXT	pContext;
-	Rect			r;
-	PCONTEXT		contextTbl;
-	DDIST			topLimit, bottomLimit;
-	short			staffn=NOONE;
+	LINK		pL, aStaffL;
+	PCONTEXT	pContext;
+	Rect		r;
+	PCONTEXT	contextTbl;
+	DDIST		topLimit, bottomLimit;
+	short		staffn=NOONE;
 
 	contextTbl = AllocContext();
 	if (!contextTbl) return NOONE;
@@ -1406,9 +1408,9 @@ expected in page-relative coordinates. */
 
 LINK SetCurrentSystem(Document *doc, Point pt)
 {
-	register LINK 	pL;
-	Rect 			r;
-	LINK 			pageL;
+	LINK 	pL;
+	Rect 	r;
+	LINK	pageL;
 
 	pL = LSSearch(doc->headL, PAGEtype, doc->currentSheet, GO_RIGHT, False);
 	
@@ -1465,9 +1467,9 @@ static void AddGRNoteUnbeam(Document *doc, LINK beamL, LINK startL, LINK endL,
 }
 
 /* ------------------------------------------------------------------- AddNoteFixBeams -- */
-/* AddNoteFixBeams should be called ONLY if <newNoteL> is being inserted in the
-middle of a beamset; it fixes things up appropriately. It assumes inChord flags are
-set properly for notes in the Sync in <newNoteL>'s voice. */ 
+/* AddNoteFixBeams should be called ONLY if <newNoteL> is being inserted in the middle
+of a beamset; if so, it fixes things up appropriately. It assumes inChord flags are set
+properly for notes in the Sync in <newNoteL>'s voice. */ 
 
 void AddNoteFixBeams(Document *doc,
 							LINK syncL,			/* Sync the new note belongs to */
@@ -1484,11 +1486,11 @@ void AddNoteFixBeams(Document *doc,
 	
 	voice = NoteVOICE(newNoteL);
 	
-	/* If new note is being inserted in the middle of a beamset, then either it's
+	/* If the new note is being inserted in the middle of a beamset, then either it's
 	   beamable: unbeam and rebeam to include it in the beamset; or it's not beamable:
 	   unbeam and rebeam on either side, if there are enough notes to do this. In the
 	   first case, even if the new note is merely added to a chord in a beamset, for
-	   the moment we unbeam and rebeam because the new note may affects the vertical pos-
+	   the moment we unbeam and rebeam because the new note may affects the vertical pos.
 	   of the beamset, & it's easier to unbeam & re-beam than recalculate ystem pos. */
 	
 	InitSearchParam(&pbSearch);
@@ -1547,6 +1549,7 @@ void AddNoteFixBeams(Document *doc,
 	/* syncL may need fixing up, since the new note in the chord may need the
 	   stem. This involves:
 	   1. Get ystem for the stemmed note in this voice & Sync. */
+	   
 		aNoteL = FirstSubLINK(syncL);
 		for (ystem = -9999; aNoteL; aNoteL = NextNOTEL(aNoteL))
 			if (NoteVOICE(aNoteL)==voice && !NoteREST(aNoteL))
@@ -1559,7 +1562,8 @@ void AddNoteFixBeams(Document *doc,
 			ystem = 99;
 		}
 		
-		/* 2. Get note in syncL in voice furthest from ystem (farNote).*/
+		/* 2. Get note in syncL in voice furthest from ystem (farNote). */
+		
 		maxLength = -9999;
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
@@ -1675,6 +1679,7 @@ Boolean AddNoteFixOttavas(LINK newL, LINK newNoteL)	/* Sync and new note (in tha
 			if ((newNoteOttavaL = HeapAlloc(NOTEOTTAVAheap, 1))) {
 			
 				/* Subobjects must be in order: find the place to insert the new one. */
+				
 				aNoteOttavaL = FirstSubLINK(ottavaL);
 				for ( ; aNoteOttavaL; aNoteOttavaL = NextNOTEOTTAVAL(aNoteOttavaL)) {
 					aNoteOttava = GetPANOTEOTTAVA(aNoteOttavaL);
@@ -1698,9 +1703,9 @@ Boolean AddNoteFixOttavas(LINK newL, LINK newNoteL)	/* Sync and new note (in tha
 
 
 /* ------------------------------------------------------------------- AddNoteFixSlurs -- */
-/* If there's a tie crossing the added note, remove it. Ignore slurs, which can
-cross any intervening notes: maybe this function should be renamed AddNoteFixTies.
-??This function should certainly work by voice, not by staff! */
+/* If there's a tie crossing the added note, remove it. Ignore slurs, which can cross
+any intervening notes: maybe this function should be renamed AddNoteFixTies. FIXME: This
+function should certainly work by voice, not by staff! */
 
 void AddNoteFixSlurs(Document *doc, LINK newL, short staff)
 {
@@ -1749,10 +1754,9 @@ void AddNoteFixGraphics(LINK newpL, LINK oldpL)
 
 
 /* --------------------------------------------------------------------- FixWholeRests -- */
-/* In <thisL>'s measure, correct whole rest/whole measure rest status: make whole
-rests be whole-measure rests iff there are no other notes/rests in their voice in
-the measure. Exception: in some time signatures, we also make breve rests be
-whole-measure rests.
+/* In <thisL>'s measure, correct whole rest/whole measure rest status: make whole rests
+be whole-measure rests iff there are no other notes/rests in their voice in the measure.
+In some time signatures, we also make breve rests be whole-measure rests.
 
 After this, the caller should update timestamps (normally by calling FixTimeStamps). */
 
@@ -1761,7 +1765,7 @@ void FixWholeRests(Document *doc, LINK thisL)
 	LINK	pL, endL, aNoteL;
 	PANOTE	aNote;
 	Boolean	isWholeMR;
-	Boolean	canBreveBeWholeMR;	/* To allow breve rests to be whole-measure rests */
+	Boolean	canBreveBeWholeMR;		/* To allow breve rests to be whole-measure rests */
 	CONTEXT	context;
 	
 	pL = LSSearch(thisL, MEASUREtype, ANYONE, True, False);
@@ -1774,7 +1778,7 @@ void FixWholeRests(Document *doc, LINK thisL)
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				GetContext(doc, thisL, NoteSTAFF(aNoteL), &context);
 			
-				/* Allow whole-measure rests in some time signatures to look like breve rests. */
+				/* Let whole-measure rests in some time signatures look like breve rests. */
 				
 				canBreveBeWholeMR = WholeMeasRestIsBreve(context.numerator,
 															context.denominator);
@@ -1786,10 +1790,10 @@ void FixWholeRests(Document *doc, LINK thisL)
 					isWholeMR = !SyncInVoiceMeas(doc, pL, NoteVOICE(aNoteL), True);
 					
 					/* If rest is changing from whole-measure to whole, move it back
-					 *	to a "normal" (non-centered) position. We do nothing in the
-					 * opposite case because centering is affected by the width of
-					 *	the measure, so we leave the whole question for Respacing.
-					 */
+					   to a "normal" (non-centered) position. We do nothing in the
+					   opposite case because centering is affected by the width of
+					   the measure, so we leave the whole question for Respacing. */
+					  
 					if (!isWholeMR && NoteType(aNoteL)==WHOLEMR_L_DUR) {
 						aNote = GetPANOTE(aNoteL);
 						aNote->xd = 0;
@@ -1803,11 +1807,10 @@ void FixWholeRests(Document *doc, LINK thisL)
 
 
 /* -------------------------------------------------------------------- FixNewMeasAccs -- */
-/*	FixNewMeasAccs should be called when the given Measure object has just been
-created by inserting it and may already contain notes. Notes within it that
-formerly inherited accidentals from preceding notes on their line/space in what
-is now the previous measure must have explicit accidentals added, and this function
-does that. */
+/*	FixNewMeasAccs should be called when the given Measure object has just been created
+by inserting it and may already contain notes. Notes within it that formerly inherited
+accidentals from preceding notes on their line/space in what is now the previous measure
+must have explicit accidentals added, and this function does that. */
 
 void FixNewMeasAccs(Document *doc, LINK measureL)
 {
@@ -1849,19 +1852,19 @@ Boolean InsFixMeasNums(Document *doc, LINK newL)
 	
 	switch (ObjLType(newL)) {
 		case MEASUREtype:
-			/* For years, the 2nd param here was <NILINK>, i.e., do the entire file.
-			 * But starting just before <newL> can be much, much faster, and it should be
-			 * sufficient in all cases.  --DAB, 1/2000
-			 */
+			/* For years, the 2nd param here was <NILINK>, i.e., do the entire file. But
+			   starting just before <newL> can be much, much faster, and it should be
+			   sufficient in all cases.  --DAB, 1/2000 */
+			   
 			return UpdateMeasNums(doc, LeftLINK(newL));
 		case SYNCtype:
 		case GRSYNCtype:
 			measL = LSSearch(newL, MEASUREtype, ANYONE, GO_LEFT, False);
-			if (!MeasISFAKE(measL)) return False;		
-			/*
-			 *	The updating is a bit tricky, so (at least for now) we'll just let
-			 *	UpdateMeasNums handle it.
-			 */
+			if (!MeasISFAKE(measL)) return False;
+			
+			/* The updating is a bit tricky, so (at least for now) we'll just let
+			   UpdateMeasNums handle it. */
+			   
 			return UpdateMeasNums(doc, NILINK);
 		default:
 			return False;
@@ -1875,7 +1878,7 @@ Boolean InsFixMeasNums(Document *doc, LINK newL)
 LINK FindGraphicObject(Document *doc, Point pt,
 						short *staff, short *voice)		/* Undefined if object is a System */
 {
-	short index; LINK pL;
+	short index;  LINK pL;
 
 	FindStaffSetSys(doc, pt);
 	pL = FindRelObject(doc, pt, &index, SMFind);
@@ -1893,8 +1896,8 @@ LINK FindGraphicObject(Document *doc, Point pt,
 
 
 /* ------------------------------------------------------------------ ChkGraphicRelObj -- */
-/* Check the type of the relObj for a Graphic which is to be inserted and return
-True iff it's OK; otherwise, give an error message and return False. */
+/* Check the type of the relObj for a Graphic which is to be inserted and return True
+iff it's OK; otherwise, give an error message and return False. */
 
 Boolean ChkGraphicRelObj(LINK pL,
 							char subtype)	/* ??SignedByte May be pseudo-code <GRChar> */
@@ -2108,11 +2111,11 @@ Boolean NewObjInit(Document *doc, short type, short *sym, char inchar, short sta
 		}
 	}
 	
-	/* If doc->selStartL is before the first Measure, GetContext will not define
-	 * all fields. For now, at least fill the most important ones in with the
-	 * likely (but not guaranteed) values--a lousy way to handle this. FIXME:
-	 * GetContext should really always define these!
-	 */
+	/* If doc->selStartL is before the first Measure, GetContext will not define all
+	   fields. For now, at least fill the most important ones in with the likely but
+	   not guaranteed values--a lousy way to handle this. FIXME: GetContext should
+	   really always define these! */
+	   
 	 context->staffHeight = drSize[doc->srastral];
 	 context->staffLines = STFLINES;
 
@@ -2173,7 +2176,7 @@ LINK NewObjPrepare(Document *doc, short type, short *sym, char inchar, short sta
 				xd = 0;
 				break;
 			default:
-				MayErrMsg("NewObjPrepare: type %ld not supported", (long)type);
+				MayErrMsg("NewObjPrepare: object type %ld is not supported.", (long)type);
 		}
 		NewObjSetup(doc, newpL, staff, xd);
 	}
@@ -2196,7 +2199,7 @@ void NewObjCleanup(Document *doc, LINK newpL, short staff)
 
 	if (doc->selEndL==doc->tailL) UpdateTailxd(doc);
 	if (doc->autoRespace && objTable[ObjLType(newpL)].justType!=J_D) {
-		pMeasL = LSSearch(doc->selStartL,MEASUREtype,staff,False,False);
+		pMeasL = LSSearch(doc->selStartL,MEASUREtype, staff, False, False);
 		if (pMeasL) {
 			measxd = LinkXD(pMeasL);
 			RespaceBars(doc,doc->selStartL,doc->selEndL,0L,False,False);		/* Make space in this measure */

@@ -51,6 +51,7 @@ static Boolean ParseStructComment(void);
 static Boolean ExtractVal(char *str, long *val);
 static Boolean ExtractNoteFlags(char *flagStr, PNL_NRGR pNRGR);
 static Boolean ExtractNoteMods(char *modStr, PNL_NRGR pNRGR);
+static Boolean ExtractNoteSegs(char	*segStr, PNL_NRGR pNRGR);
 
 static Boolean CheckNLNoteRests(void);
 static Boolean CheckNLTuplets(void);
@@ -305,7 +306,7 @@ R t=480 v=1 npt=1 stf=1 dur=4 dots=0 ...... appear=1
 R t=960 v=1 npt=1 stf=1 dur=4 dots=0 ...... appear=1 mods=10
 G t=-1 v=1 npt=1 stf=1 dur=5 dots=0 nn=76 acc=0 eAcc=3 pDur=240 vel=75 . appear=1
 
-If a note, rest or grace note owns any note modifiers, they are listed in a "mods" field
+If a note or grace note owns any note modifiers, they're listed in a "mods" field
 at the end of the line (except for notehead segments). (NB: As of v. 5.8, Nightingale
 doesn't support modifiers attached to grace notes.) The mods field gives a list of
 modCodes separated by commas, with optional data value trailing each modCode and
@@ -314,6 +315,9 @@ separated from it by a colon. E.g.:
 			mods=0,2,3			[3 modifiers]
 			mods=3:50,2			[2 modifiers, the first having a data value of 50]
 NB: If a line lists segments but no modifiers, the segments must be preceded by "mods=-1".
+
+Segments are similar to mods but simpler. If a note has any segments, they're listed in
+a "segs" field at the very end of the line, with numeric values seperated by commas.
 
 Rests omit the fields labelled "nn", "acc", "eAcc", "pDur" and "vel" above.
 
@@ -469,26 +473,18 @@ static Boolean ParseNRGR()
 	
 	if (*modStr) {
 		err = NLERR_BADMODS;
-		if (pNRGR->objType==GRACE_TYPE) goto broken;			/* Ngale doesn't support these */
+		if (pNRGR->objType==GRACE_TYPE) goto broken;		/* grace notes can't have mods */
 		if (!ExtractNoteMods(modStr, pNRGR)) goto broken;
 	}
 	else pNRGR->firstMod = 0;
 
-	if (*modStr) {
-		err = NLERR_BADMODS;
-		if (pNRGR->objType==GRACE_TYPE) goto broken;			/* Ngale doesn't support these */
-		if (!ExtractNoteMods(modStr, pNRGR)) goto broken;
-	}
-	else pNRGR->firstMod = 0;
-
-#ifdef NOTYET
 	if (*segmentStr) {
 		err = NLERR_BADSEGS;
-		if (pNRGR->objType==GRACE_TYPE) goto broken;			/* Ngale doesn't support these */
+		if (pNRGR->objType==GRACE_TYPE) goto broken;		/* grace notes can't have segs */
+		if (objTypeCode==REST_CHAR) goto broken;			/* rests can't have segs */
 		if (!ExtractNoteSegs(segmentStr, pNRGR)) goto broken;
 	}
-	else pNRGR->segs = 0;
-#endif
+	else pNRGR->nhSeg[0] = 0;
 
 	gNextEmptyNode++;
 	return True;
@@ -1245,8 +1241,7 @@ The mCode for rests is ignored. (It's always '.'.)
 
 Grace notes have only one flag (for mCode) at the moment. (This is likely to change.) */
 
-static Boolean ExtractNoteFlags(char *flagStr,
-									PNL_NRGR pNRGR)
+static Boolean ExtractNoteFlags(char *flagStr, PNL_NRGR pNRGR)
 {
 	char	*p;
 	
@@ -1304,7 +1299,7 @@ static Boolean ExtractNoteFlags(char *flagStr,
 	return True;
 
 illegal:
-	AlwaysErrMsg("Illegal character %c in note flag string.\n", *p);
+	AlwaysErrMsg("Illegal character %c in note flag string. (ExtractNoteFlags)", *p);
 	return False;
 }
 
@@ -1318,19 +1313,19 @@ illegal:
 
 Stores each modifier parsed into gHModList, filling in the <next> field of these modifiers
 to form a linked list. Stores the index of the first of these in the <firstMod> field of
-the given note (NRGR). If error, return False without giving a message (but see comments
-below), else return True. */
+the given note (NRGR). If error, return False without giving user a message (but see
+comments below), else return True. */
 
 #define MAX_MODNRS 50		/* Max. modifiers per note/rest we can handle */
 
 static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 {
 	char	*p, *q;
-	short	modCount=0, ashort;
+	short	modCount, ashort;
 	NLINK	offset = NILINK;
 	NL_MOD	tmpMod;
 	
-	if (strncmp(modStr, "mods=", (size_t)5))		/* Is it really a mod string? */
+	if (strncmp(modStr, "mods=", (size_t)4))		/* Is it really a mod string? */
 		return False;
 	
 	pNRGR->firstMod = NILINK;
@@ -1344,6 +1339,7 @@ static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 	if (*p=='-') return True;						
 	
 	p = strtok(p, ",");
+	modCount = 0;
 	do {
 		q = strchr(p, ':');
 		if (q) {									/* there's a data field */
@@ -1374,14 +1370,12 @@ static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 			the owning note. Otherwise, store its index into the <next> field of the
 			previous modifier. */
 			
-		if (pNRGR->firstMod==NILINK)
-			pNRGR->firstMod = offset;
-		else
-			(*gHModList)[offset-1].next = offset;
+		if (pNRGR->firstMod==NILINK)	pNRGR->firstMod = offset;
+		else							(*gHModList)[offset-1].next = offset;
 		
 		p = strtok(NULL, ",");
 		modCount++;
-		if (modCount==MAX_MODNRS) break;			/* not likely */
+		if (modCount==MAX_MODNRS) break;	/* if any more mods, ignore them -- unlikely to happen! */
 	} while (p);
 
 	return True;
@@ -1390,9 +1384,62 @@ broken:
 	/* It would be nice someday to give more information about the problem here, e.g.,
 		pNRGR->lStartTime, pNRGR->part, pNRGR->uVoice, pNRGR->staff. */
 		
+	LogPrintf(LOG_WARNING, "Can't extract note modifiers for line %d.  (ExtractNoteMods)\n",
+				gLineCount);
 	return False;
 }
 
+
+/* ------------------------------------------------------------------- ExtractNoteSegs -- */
+/* Parses segment strings like these:
+	segs=2				[one segment]
+	segs=2,3,5			[three segments]
+	segs=2,7,3,4		[four segments, of which the 2nd is "invisible"]
+
+Stores each segment parsed into gHModList, filling in the <next> field of these segments
+to form a linked list. Stores the index of the first of these in the <firstMod> field of
+the given note (NRGR). If error, return False without giving a message (but see comments
+below), else return True. */
+
+#define MAX_SEGMENTS 6		/* Max. segments per note/rest we can handle */
+
+static Boolean ExtractNoteSegs(char	*segStr, PNL_NRGR pNRGR)
+{
+	char	*p;
+	short	segCount, ashort;
+	
+	if (strncmp(segStr, "segs=", (size_t)4))		/* Is it really a mod string? */
+		return False;
+		
+	/* Move to character following '='. if it's '-', there are no segs. */
+	
+	p = strchr(segStr, '=');						/* p will point to '=' */
+	if (!p) goto broken;
+	p++;
+//LogPrintf(LOG_DEBUG, "ExtractNoteSegs: *p=%c\n", *p);
+	if (*p=='-') return True;						
+	
+	p = strtok(p, ",");
+	segCount = 0;
+	do {
+		errno = 0;
+		ashort = atoi(p);
+		if (errno==ERANGE) goto broken;
+LogPrintf(LOG_DEBUG, "ExtractNoteSegs: segCount=%d ashort=%d\n", segCount, ashort);
+		pNRGR->nhSeg[segCount] = ashort;
+					
+		p = strtok(NULL, ",");
+		segCount++;
+		if (segCount==MAX_SEGMENTS) break;	/* if any more segments, just ignore them */
+	} while (p);
+	
+	return True;
+
+broken:
+	LogPrintf(LOG_WARNING, "Can't extract notehead segments for line %d.  (ExtractNoteSegs)\n",
+				gLineCount);
+	return False;
+}
 
 
 /* -------------------------------------------------------------------------------------- */
@@ -1835,12 +1882,9 @@ static short NotelistVersion(short refNum)
 	GoodStrncpy(headerVerString, gInBuf, strlen(COMMENT_NLHEADER2));
 	LogPrintf(LOG_INFO, "Notelist header string='%s'  (NotelistVersion)\n", headerVerString);
 
-	if (strncmp(gInBuf, COMMENT_NLHEADER0, strlen(COMMENT_NLHEADER0))==0)
-		return 0;
-	if (strncmp(gInBuf, COMMENT_NLHEADER1, strlen(COMMENT_NLHEADER1))==0)
-		return 1;
-	if (strncmp(gInBuf, COMMENT_NLHEADER2, strlen(COMMENT_NLHEADER2))==0)
-		return 2;
+	if (strncmp(gInBuf, COMMENT_NLHEADER0, strlen(COMMENT_NLHEADER0))==0) return 0;
+	if (strncmp(gInBuf, COMMENT_NLHEADER1, strlen(COMMENT_NLHEADER1))==0) return 1;
+	if (strncmp(gInBuf, COMMENT_NLHEADER2, strlen(COMMENT_NLHEADER2))==0) return 2;
 
 Err:
 	LogPrintf(LOG_ERR, gInBuf);

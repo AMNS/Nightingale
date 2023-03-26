@@ -9,6 +9,7 @@ short DCheckNode(Document *, LINK, short, Boolean);
 
 Boolean DBadLink(Document *, short, LINK, Boolean);
 Boolean DCheckHeaps(Document *);
+Boolean DCheckObjRect(LINK objL);
 Boolean DCheckHeadTail(Document *, LINK, Boolean);
 Boolean DCheckSyncSlurs(Document *, LINK, LINK);
 Boolean DCheckMBBox(Document *, LINK, Boolean);
