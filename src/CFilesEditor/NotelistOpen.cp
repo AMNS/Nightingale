@@ -632,7 +632,7 @@ static Boolean ConvertTuplet(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("Can't make tuplet from intermediate form (pL=%u).  (ConvertTuplet)", pL);
+	MayErrMsg("Can't convert tuplet from intermediate form (pL=%u).  (ConvertTuplet)", pL);
 	return False;
 }
 
@@ -651,7 +651,7 @@ static Boolean ConvertBarline(Document *doc, NLINK pL)
 
 	return True;
 broken:
-	MayErrMsg("Can't make barline from intermediate form (pL=%u).  (ConvertBarline)", pL);
+	MayErrMsg("Can't convert barline from intermediate form (pL=%u).  (ConvertBarline)", pL);
 	return False;
 }
 
@@ -985,7 +985,7 @@ static Boolean SetDefaultCoords(Document *doc)
 	return True;
 	
 broken:
-	MayErrMsg("Can't set default coordinates for text, dynamics and tempo marks.  (SetDefaultCoords)");
+	MayErrMsg("Can't set default coordinates for text, dynamics, and tempo marks.  (SetDefaultCoords)");
 	return False;
 }
 

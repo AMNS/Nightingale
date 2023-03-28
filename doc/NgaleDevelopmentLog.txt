@@ -12219,7 +12219,7 @@ Being able to use Sourcetree would be nice in general, so pursue that first?
 
 ---------------------------------------------------------------------------------------
 
-2 - 17 Mar.
+2 - 28 Mar. (2 commits)
 
 SWITCH TO: MayErrMsg() should reset the alarm count if the message changes! Do
 that => done -- but not easy to test! What messages can I easily provoke? Ah, the "Can't
@@ -12302,9 +12302,9 @@ clobbering a previously-converted object's objRect -- but from the cases I've se
 object whose conversion is doing the clobbering can be either a Sync or a GRSync. Weird!
 Anyway, I'd best commit & push now and fix that later!
 
-Commit => OK; push (from Sourcetree) => appears to do nothing, not even an error message
-)*&^)(^(%&*(*  So, while my unsuccessful attempts to push 5.8 didn't hurt pushing 6.0, it
-appears my successful attempt did! Okay, let's try via the command line.
+20 Mar.: Commit => OK; push (from Sourcetree) => appears to do nothing, not even an error
+message)*&^)(^(%&*(*  So, while my unsuccessful attempts to push 5.8 didn't hurt pushing
+6.0, it appears my successful attempt did! Okay, let's try via the command line.
 
 	Dons-2017-Air:NightingaleGitRepo donbyrd$ git status
 	On branch develop
@@ -12337,7 +12337,7 @@ appears my successful attempt did! Okay, let's try via the command line.
 	origin	ssh://git@github.com/AMNS/Nightingale (fetch)
 	origin	ssh://git@github.com/AMNS/Nightingale (push)
 	
-All of that is as it should be.
+All of that is as it should be for Build 40.
 
 	Dons-2017-Air:NightingaleGitRepo donbyrd$ git push
 	Enter passphrase for key '/Users/donbyrd/.ssh/id_rsa': 
@@ -12353,7 +12353,7 @@ All of that is as it should be.
 		...
 		modified:   src/Utilities/InsUtils.cp
 
-So that also did nothing and didn't say why. Sigh.
+So that also did nothing and didn't say why! Sigh.
 
 ^(%&(%&$%&*  What did I do to (apparently) cause this? It looks I pushed 5.8 successfully
 on 12 Mar., late evening, or possibly 13 Mar., early morning -- but GitHub says 24 February,
@@ -12372,5 +12372,84 @@ I.e., remote info for the 5.8 repo (which I can push -- I think!) is exactly the
 remote info for the 6.0 repo (which I can't push)! Which makes sense because I fixed the
 former problem pushing 5.8 by setting it to be the same as 6.0. Well, _can_ I really still
 push 5.8? Add Ngale5p8p11Changes.txt to (local) repository, commit, push => OK. So the
-situation is reversed from late February! R%&((#@$@
+situation is reversed from late February! %&((#@$@!%*&^
 
+25 Mar.: Arrrgh!! This morning I get:
+
+	Dons-2017-Air:NightingaleGitRepo donbyrd$ git push
+	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+	Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+	It is also possible that a host key has just been changed.
+	The fingerprint for the RSA key sent by the remote host is
+	SHA256:uNiVztksCsDhcc0u9e8BujQXVUpKZIDTMczCvj3tD2s.
+	Please contact your system administrator.
+	Add correct host key in /Users/donbyrd/.ssh/known_hosts to get rid of this message.
+	Offending RSA key in /Users/donbyrd/.ssh/known_hosts:2
+	RSA host key for github.com has changed and you have requested strict checking.
+	Host key verification failed.
+	fatal: Could not read from remote repository.
+
+	Please make sure you have the correct access rights
+	and the repository exists.
+
+What the!?!  Looking at the GitHub repository via the Web
+(https://github.com/AMNS/Nightingale/issues)...
+
+26 Mar.: What causes the GitHub host key verification issue? This blog post
+
+	https://github.blog/2023-03-23-we-updated-our-rsa-ssh-host-key/
+
+...is entitled "We updated our RSA SSH host key”; it says "At approximately 05:00 UTC on
+March 24, out of an abundance of caution, we replaced our RSA SSH host key used to secure
+Git operations for GitHub.com.” :-) . I followed their instructions for updating my
+~/.ssh/known_hosts. That got rid of the scary error message when I say _git push_; instead
+I now get a warning, which I can override. So not a complete solution, but a huge step in
+the right direction; huge enough this is now a mere annoyance!
+
+3 PM: With help from Praneeth Chityala, the changes of Build 40 are now in the repository!,
+though with a crude (and incorrect) comment. Praneeth did:
+
+	git status
+	git branch
+	git log
+	git reset HEAD --??
+	git commit -m "march 8 changes"
+	git push
+	git status
+
+Actually, the changes (Build 40) were of 20 March. Anyway, _git status_ now lists no
+changes "to be committed", and one change "not staged for commit" (this document)
+-- exactly as desired! And looking at the repository in GitHub shows exactly what I
+expect. Hooray!
+
+But (1) What went wrong? and (2) is everything working correctly now, i.e., can I go back
+to using Sourcetree only?
+
+(1) As best I can tell, the command mapping is simply:
+	Sourcetree (move to "Staged Files") = git add
+	Sourcetree (move to "Unstaged Files") = git reset ??
+	Sourcetree ("Commit") = git commit
+	Sourcetree "Push" = git push
+
+...and what went wrong is that when I tried to commit Build 40, nothing happened -- but
+there's no indication in Sourcetree's history that I ever told it to commit. How could I
+have not noticed that? The only thing I can think of is, as a result of the problems with
+5.8, I got confused and never noticed I hadn't committed 6.0. But in that case why did
+Sourcetree let me try to push?? No; more likely Sourcetree did something screwy.
+
+(2) Using Sourcetree, try committing the only file I've actually changed that didn't go
+into Build 40, namely this one => OK; Sourcetree's history window is as expected, and
+it shows I can push to the develop branch. But can I really?
+
+TBD. To avoid future confusion, may be better to not try to do any more commits or
+pushes of anything today!
+
+28 Mar.: Oops. The latest code to debug the "note or grace note has an objRect of (0,0,0,0)"
+seems to make Ngale crash when it tries to open DanceFor2Fl.43.ngl! Before it crashes it
+gives hundreds of messages like " ****** (ConvertObjSubobjs): Problem (no.959) found with
+objRect for L2559, at objL=2630". Well, that code has done its job -- it's made it clear
+that bug hasn't surfaced by the end of the main loop in ConvertObjSubobj()! -- so may as well
+disable it... done.

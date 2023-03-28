@@ -449,9 +449,9 @@ Error:
 }
 
 
-/* -------------------------------- Convert the content of objects, including headers -- */
+/* -------------------------------------------------- Routines to debug the conversion -- */
 
-/* First, some code to help debug the very complex and messy conversion process. */
+/* The conversion process is complex and messy; the code below is to to help debug it. */
 
 #include "DebugUtils.h"
 
@@ -461,7 +461,7 @@ static LINK badObjLink[BAD_OBJ_TABSIZE];
 
 static void InitDebugConvert();
 static void DebugConvertObj(Document *doc, LINK objL);
-static void DebugConvCheckObj(Document *doc, LINK objL, char *label);
+static void DebugConvCheckObjs(Document *doc, LINK objL, char *label);
 
 static void InitDebugConvert()
 {
@@ -498,33 +498,38 @@ static void DebugConvertObj(Document *doc, LINK objL)
 
 /* Do whatever to help track down type-specific bug(s) involving object <objL> in
 context by checking all objects with smaller links: if called during the file-conversion
-process, that means all previously converted objects. Intended for bugs where converting
-one object clobbers a previous one. */
+process, that means all previously converted objects. Intended for tracking down bugs
+where converting one object clobbers a previous one. */
 
-static Boolean DCheckObjN105Rect(LINK objL);
-static Boolean DCheckObjN105Rect(LINK objL)
+Boolean DCheckObjRect(LINK objL);	// FIXME: If this seems to be useful, move it to Debug2Utils!!
+Boolean DCheckObjRect(LINK objL)
 {
-	PKEYSIG pKeySig;
+	PKEYSIG pKeySig;  Boolean bad=FALSE;
 	
 	PMEVENT p = GetPMEVENT(objL);
 	if (GARBAGE_Q1RECT(p->objRect)) {
 		/* It's OK for initial keysigs to be unselectable. */
 		
 		pKeySig = GetPKEYSIG(objL);						/* FIXME: OR USE KeySigINMEAS? */
-		if (!(KeySigTYPE(objL) && !pKeySig->inMeasure))
-			LogPrintf(LOG_WARNING, "Object L%u HAS A GARBAGE (UNSELECTABLE) objRect.  (DCheckObjN105Rect)\n",
+		if (!(KeySigTYPE(objL) && !pKeySig->inMeasure)) {
+			LogPrintf(LOG_WARNING, "Object L%u IS UNSELECTABLE: IT HAS A GARBAGE objRect.  (DCheckObjRect)\n",
 				objL);
+			bad = True;
+		}
+		
 	}
 	
 	/* Valid initial objects, e.g., "deleted", can have zero-width objRects. */
 	
 	else if (!ClefTYPE(objL) && !KeySigTYPE(objL) && !TimeSigTYPE(objL)
 				&& ZERODIM_RECT(p->objRect)) {
-		LogPrintf(LOG_WARNING, "Object L%u HAS A ZERO-WIDTH AND/OR HEIGHT objRect.  (DCheckObjN105Rect)\n",
+		LogPrintf(LOG_WARNING, "Object L%u IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.  (DCheckObjRect)\n",
 					objL);
+		bad = True;
 	}
+	
+	return bad;
 }
-
 
 
 typedef struct {
@@ -532,7 +537,7 @@ typedef struct {
 } OBJHDR_5;
 OBJHDR_5 tmpObjHeader_5;
 
-static void DebugConvCheckObj(Document *doc, LINK objL, char *label)
+static void DebugConvCheckObjs(Document *doc, LINK objL, char *label)
 {
 	LINK lastSyncL;
 	Boolean isARepeat;
@@ -551,7 +556,7 @@ static void DebugConvCheckObj(Document *doc, LINK objL, char *label)
 			case BEAMSETtype:
 				//if (DCheckBeamset(doc, qL, False, True, &lastSyncL) || rand()/RAND_MAX<0.2) {	// ??TEST!
 				if (DCheckBeamset(doc, qL, False, True, &lastSyncL)) {
-					LogPrintf(LOG_DEBUG, "****** (%s): Problem no. %d found with Beamset L%u, at objL=%Lu. (DebugConvCheckObj)\n",
+					LogPrintf(LOG_DEBUG, "****** (%s): Problem (no.%d) found with Beamset L%u, at objL=%Lu. (DebugConvCheckObjs)\n",
 								label, debugBadObjCount, qL, objL);
 					badObjLink[debugBadObjCount++] = qL;
 					
@@ -563,11 +568,11 @@ static void DebugConvCheckObj(Document *doc, LINK objL, char *label)
 				break;
 			case SYNCtype:
 			case GRSYNCtype:
-				if (DCheckObjN105Rect(qL)) {
-					Rect r = LinkOBJRECT(qL);		// ??SHOULDN'T THIS BE FOR N105 FMT?
-					LogPrintf(LOG_DEBUG, "****** (%s): Problem no. %d found with objRect for L%u, at objL=%Lu. (DebugConvCheckObj)\n",
+				if (DCheckObjRect(qL)) {
+					Rect r = LinkOBJRECT(qL);
+					LogPrintf(LOG_DEBUG, "****** (%s): Problem (no.%d) found with objRect for L%u, at objL=%Lu. (DebugConvCheckObjs)\n",
 								label, debugBadObjCount, qL, objL);
-					LogPrintf(LOG_DEBUG, "             objRect/t l b r=p%d %d %d %d\n",
+					LogPrintf(LOG_DEBUG, "             objRect/t,l,b,r=p%d,%d,%d,%d\n",
 								r.top, r.left, r.bottom, r.right);
 					badObjLink[debugBadObjCount++] = qL;
 				break;
@@ -580,7 +585,7 @@ static void DebugConvCheckObj(Document *doc, LINK objL, char *label)
 }
 
 
-/* Now functions to implement the very complex and messy conversion process. */
+/* -------------------------------- Convert the content of OBJECTS, including headers -- */
 
 #ifdef NOMORE
 /* Definitions of four functions to help convert 'N103' format and earlier files formerly
@@ -630,7 +635,7 @@ static void ConvertStaffLines(LINK startL)
 #endif
 
 
-/* ---------------------------- Convert content of SUBobjects, including their headers -- */
+/* ---------------------------- Convert content of SUBOBJECTS, including their headers -- */
 
 static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS);
 static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS)
@@ -638,9 +643,10 @@ static void KeySigN105Copy(PKSINFO_5 srcKS, PKSINFO dstKS)
 	dstKS->nKSItems = srcKS->nKSItems;		
 	for (short i = 0; i<srcKS->nKSItems; i++) {
 	
-		/* Copy the fields individually. Using struct assignment here fails to
-		   compile, saying "no match for 'operator=' in 'dstKS->KSINFO::KSItem, blah
-		   blah etc.'. Why? The structs aren't identical. */
+		/* Copy the fields individually. Using struct assignment here looks like it
+		   should work; but it fails to compile, saying "no match for 'operator=' in
+		   'dstKS->KSINFO::KSItem, blah blah etc.'. Why? Because -- while the structs
+		   have identical field names -- the structs really aren't identical. */
 		   
 		dstKS->KSItem[i].letcode = srcKS->KSItem[i].letcode;
 		dstKS->KSItem[i].sharp = srcKS->KSItem[i].sharp;
@@ -1189,7 +1195,7 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 	BlockMove(&tmpSuperObj, &tmpObjHeader_5, sizeof(OBJHDR_5));
 	
 	/* The first six fields of the header are in the same location in 'N105' and 'N106'
-	   format, so no need to do anything with them. Copy the others. */
+	   format, so there's no need to do anything with them. Copy the others. */
 	   
 	LinkSEL(objL) = tmpObjHeader_5.selected;
 	LinkVIS(objL) = tmpObjHeader_5.visible;
@@ -1199,9 +1205,10 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 	LinkSPAREFLAG(objL) = tmpObjHeader_5.spareFlag;
 	LinkOBJRECT(objL) = tmpObjHeader_5.objRect;
 	LinkNENTRIES(objL) = tmpObjHeader_5.nEntries;
-#if DEBUG_EMPTY_OBJRECT
-if (ObjLType(objL)==SYNCtype || ObjLType(objL)==GRSYNCtype)
-LogPrintf(LOG_DEBUG, "  ConvertObjHeader: objL=L%u objRect=p%d,%d,%d,%d\n",
+#define NoDEBUG_EMPTY_OBJRECT
+#ifdef DEBUG_EMPTY_OBJRECT
+//if (ObjLType(objL)==SYNCtype || ObjLType(objL)==GRSYNCtype)
+LogPrintf(LOG_DEBUG, "  ConvertObjHeader: objL=L%u objRect/t,l,b,r=p%d,%d,%d,%d\n",
 objL, LinkOBJRECT(objL).top, LinkOBJRECT(objL).left,
 LinkOBJRECT(objL).bottom, LinkOBJRECT(objL).right);
 #endif
@@ -1685,14 +1692,12 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 	
 	BlockMove(&tmpSuperObj, &aSlur, sizeof(SLUR_5));
 	
-	DebugConvCheckObj(doc, slurL, "ConvertSLUR1");
+//DebugConvCheckObjs(doc, slurL, "ConvertSLUR1");
 
 	SlurSTAFF(slurL) = (&aSlur)->staffn;		/* EXTOBJHEADER */
 
 	SlurVOICE(slurL) = (&aSlur)->voice;
-//DebugConvCheckObj(doc, slurL, "ConvertSLUR1.2");
 	SlurPHILLER(slurL) = 0;
-//DebugConvCheckObj(doc, slurL, "ConvertSLUR1.3");
 	SlurCrossSTAFF(slurL) = (&aSlur)->crossStaff;
 	SlurCrossSTFBACK(slurL) = (&aSlur)->crossStfBack;			
 	SlurCrossSYS(slurL) = (&aSlur)->crossSystem;
@@ -1703,7 +1708,7 @@ static Boolean ConvertSLUR(Document *doc, LINK slurL)
 	SlurFIRSTSYNC(slurL) = (&aSlur)->firstSyncL;
 	SlurLASTSYNC(slurL) = (&aSlur)->lastSyncL;
 
-	DebugConvCheckObj(doc, slurL, "ConvertSLUR2");
+//DebugConvCheckObjs(doc, slurL, "ConvertSLUR2");
 
 	if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertSLUR: slurL=L%u staff=%d voice=%d tie=%d\n", slurL,
 				SlurSTAFF(slurL), SlurVOICE(slurL), SlurTIE(slurL)); 
@@ -1937,7 +1942,7 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 			   
 			KludgeOS10p5Delay4Log(objCount==1);
 			
-			if (debugLevel>1 || objCount%20==0) LogPrintf(LOG_DEBUG,
+			if (debugLevel>1 || objCount%20==1) LogPrintf(LOG_DEBUG,
 					"**************** ConvertObjSubobjs: objL=%u prevL=%u type='%s'\n",
 					objL, prevL, NameObjType(objL));
 		}
@@ -1958,8 +1963,9 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 		/* Convert the object header now so type-specific functions don't have to. */
 		
 		ConvertObjHeader(doc, objL);
-		DebugConvCheckObj(doc, objL, "ConvertObjSubobjs");
-		
+#ifdef DEBUG_EMPTY_OBJRECT
+DebugConvCheckObjs(doc, objL, "ConvertObjSubobjs");
+#endif
 		switch (ObjLType(objL)) {
 			case HEADERtype:
 				ConvertHEADER(doc, objL);
@@ -2062,10 +2068,9 @@ called after the header and entire object list have been read. Return True if al
 well, False if not.
 
 FIXME: If code here considers changing something, and especially if it ends up actually
-doing so, it should call LogPrintf to display at least one very prominent message
-in the console window, and SysBeep to draw attention to it! It should perhaps also
-set doc->changed, though this will make it easier for people to accidentally overwrite
-the original version.
+doing so, it should both alert the user and call LogPrintf to display at least one
+prominent message in the console window! It should perhaps also set doc->changed, though
+that will make it easier for people to accidentally overwrite the original version.
 
 NB2: Be sure that all of this code is removed or commented out in ordinary versions!
 To facilitate that, when done with hacking, add an "#error" line; cf. examples

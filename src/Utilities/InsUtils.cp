@@ -118,8 +118,8 @@ static void IDrawHairpin(Point downPt,			/* Original mouseDown */
 {
    short   rise;
         
-   rise = d2p(qd2d(config.hairpinMouthWidth,
-pContext->staffHeight, pContext->staffLines)>>1);
+   rise = d2p(qd2d(config.hairpinMouthWidth, pContext->staffHeight,
+   					pContext->staffLines)>>1);
 
    if (left) {
       MoveTo(downPt.h, downPt.v+rise);

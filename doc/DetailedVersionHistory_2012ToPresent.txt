@@ -3948,3 +3948,10 @@ Minor changes: to Master Page "Add Parts" command, etc. Affects info.plist, .rsr
 Debug.h, Defs.h, Notelist.h; Browser, DebugDisplay, DebugUtils, FileConversion, InsUtils.
 
 ------------------------------------------------------------------------------------ Build 40
+
+22 - 28 Mar.
+
+Minor changes. Affects info.plist; Browser, DebugUtils, FileConversion, InsUtils,
+NotelistOpen.
+
+------------------------------------------------------------------------------------ Build 41

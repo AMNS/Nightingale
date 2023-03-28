@@ -545,7 +545,7 @@ short DCheckNode(
 				
 				pKeySig = GetPKEYSIG(pL);						/* FIXME: OR USE KeySigINMEAS? */
 				if (!(KeySigTYPE(pL) && !pKeySig->inMeasure))
-					COMPLAIN2("DCheckNode: Object L%u IN MEASURE %d HAS A GARBAGE (UNSELECTABLE) objRect.\n",
+					COMPLAIN2("DCheckNode: Object L%u IN MEASURE %d IS UNSELECTABLE: IT HAS A GARBAGE objRect.\n",
 						pL, GetMeasNum(doc, pL));
 			}
 			
@@ -553,7 +553,8 @@ short DCheckNode(
 			
 			else if (!ClefTYPE(pL) && !KeySigTYPE(pL) && !TimeSigTYPE(pL)
 						&& ZERODIM_RECT(p->objRect)) {
-				COMPLAIN("DCheckNode: Object L%u HAS A ZERO-WIDTH AND/OR HEIGHT objRect.\n", pL);
+				COMPLAIN("DCheckNode: Object L%u IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.\n",
+						pL);
 			}
 
 			else if (objRectOrdered) {
