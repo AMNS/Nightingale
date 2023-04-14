@@ -3955,3 +3955,17 @@ Minor changes. Affects info.plist; Browser, DebugUtils, FileConversion, InsUtils
 NotelistOpen.
 
 ------------------------------------------------------------------------------------ Build 41
+
+30 Mar. - 14 Apr.
+
+Work towards alleviating or fixing bug (Issue #205): Opening 'N105'-format files sometimes
+leaves notes/grace notes invisible and with nonsense vertical position. Affects .rsrc;
+FileOpen.
+
+Added to the Browser a button to copy the object/subobject display to the log file. Affects
+.rsrc; Browser.
+
+Minor changes. Affects info.plist, .rsrc, Debug.h, FileConversion.h; Browser, DebugDisplay,
+DebugUtils, Debug2Utils, DrawNRGR, FileConversion, FileOpen, HeapBrowser, HeapFileIO.
+
+------------------------------------------------------------------------------------ Build B42

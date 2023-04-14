@@ -42,6 +42,72 @@ static void SetTimeStamps(Document *doc)
 
 
 /* -------------------------------------------------------------------------- OpenFile -- */
+
+static void VisifyAllNRGRs(Document *doc);
+static void VisifyAllNRGRs(Document *doc)
+{
+	LINK objL, aNoteRL, aGRNoteL;
+	
+	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
+		switch (ObjLType(objL)) {
+			case SYNCtype:
+				aNoteRL = FirstSubLINK(objL);
+				for ( ; aNoteRL; aNoteRL = NextNOTEL(aNoteRL)) {
+					NoteVIS(aNoteRL) = True;
+				}
+				break;
+			case GRSYNCtype:
+				aGRNoteL = FirstSubLINK(objL);
+				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
+					GRNoteVIS(aGRNoteL) = True;
+				}
+				break;
+			default:
+				;
+		}
+	}
+}
+
+static Boolean CheckNRGRVisibility(Document *doc);
+static Boolean CheckNRGRVisibility(Document *doc)
+{
+	LINK objL, aNoteRL, aGRNoteL;
+	short invisNCount, invisRCount, invisGRCount, itemHit;
+	char fmtStr[256];
+	
+	invisNCount = invisRCount = invisGRCount = 0;
+	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
+		switch (ObjLType(objL)) {
+			case SYNCtype:
+				aNoteRL = FirstSubLINK(objL);
+				for ( ; aNoteRL; aNoteRL = NextNOTEL(aNoteRL)) {
+					if (!NoteVIS(aNoteRL)) {
+						if (NoteREST(aNoteRL))	invisRCount++;
+						else					invisNCount++;
+					}
+				}
+				break;
+			case GRSYNCtype:
+				aGRNoteL = FirstSubLINK(objL);
+				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
+					if (!GRNoteVIS(aGRNoteL)) invisGRCount++;
+				}
+				break;
+			default:
+				;
+		}
+	}
+
+	GetIndCString(fmtStr, FILEIO_STRS, 21);			/* "The converted score has %d invisible... Make them visible?" */
+	sprintf(strBuf, fmtStr, invisNCount, invisRCount, invisGRCount);
+	CParamText(strBuf, "", "", "");
+#define INVISIBLES_ALRT 520
+	itemHit = CautionAdvise(INVISIBLES_ALRT);
+	if (itemHit==OK) VisifyAllNRGRs(doc);
+	
+	return (invisNCount==0 && invisRCount==0 && invisGRCount==0);
+}
+
 /* Open and read in the specified file Nightingale score file. If there's an error,
 normally (see comments in OpenError) give an error message, and return <errType>; else
 return noErr (0). Also set *fileVersion to the Nightingale version that created the file.
@@ -279,11 +345,15 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (!PreflightMem(800)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
 	/* Do any further conversion needed of both the main and the Master Page object lists
-	   in old files. */
+	   in old files. If any notes, rests, or grace notes are invisible, ask the user if
+	   they want them made visible, and do what they want. Why? Because a bizarre bug
+	   in the file conversion occasionally makes them invisible and it isn't worth any
+	   more of my time trying to fix it. */
 	   
 	if (version=='N105') {
-		ConvertObjSubobjs(doc, version, fileTime, False);
-		ConvertObjSubobjs(doc, version, fileTime, True);
+		(void)ConvertObjectList(doc, version, fileTime, False);
+		(void)ConvertObjectList(doc, version, fileTime, True);
+		(void)CheckNRGRVisibility(doc);
 	}
 
 	if (DETAIL_SHOW) DObjDump("OpenFile", 1, (MORE_DETAIL_SHOW? 30 : 4));

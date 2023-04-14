@@ -86,8 +86,9 @@ enum {
 	do {
 		if (heapIndex!=oldHeapIndex || itemIndex!=oldItemIndex) {	/* If the desired thing changed... */
 			EraseRect(&bRect);
-			ShowHeap(heapIndex, itemIndex);						/*		show the thing */
+			ShowHeap(heapIndex, itemIndex);							/*		show the thing */
 		}
+
 		oldHeapIndex = heapIndex;
 		oldItemIndex = itemIndex;
 		ModalDialog(NULL, &ditem);									/* Handle dialog events */
@@ -99,12 +100,10 @@ enum {
 			heapIndex = FIRSTtype;
 		  	break;
 		case hLeft:
-			if (heapIndex > FIRSTtype)
-				{ itemIndex = 1; heapIndex--; }
+			if (heapIndex > FIRSTtype) { itemIndex = 1; heapIndex--; }
 			break;
 		case hRight:
-			if (heapIndex < LASTtype-1) 
-				{ itemIndex = 1; heapIndex++; }
+			if (heapIndex < LASTtype-1) { itemIndex = 1; heapIndex++; }
 			break;
 		case hTail:
 			heapIndex = LASTtype;
@@ -123,15 +122,14 @@ enum {
 			else
 				if (itemIndex < (Heap + heapIndex)->nObjs-1) itemIndex++;
 			break;
-		 default:
+		default:
 		 	;
 		}
 	} while (!done);
 	
 	DisposeDialog(dlog);
 	SetPort(oldPort);
-	return; 
-
+	return;
 }
 
 
@@ -638,7 +636,28 @@ void HeapBrowseGRSync(short itemIndex, Boolean isFree)
 	qL = itemIndex;
 	
 	q = GetPAGRNOTE(qL);
-	sprintf(str, "link=%u%s next=%u", qL, (isFree? "/FREE" : " "), q->next);
+	sprintf(str, "link=%u%s staffn=%d voice=%hd next=%u", qL, (isFree? "/FREE" : " "),
+				 q->staffn, q->voice, q->next);
+	HeapDrawLine(str);	q = GetPAGRNOTE(qL);
+	strcpy(str, "flags=");
+	if (q->selected)
+		strcat(str, "SELECTED ");
+	if (q->visible)
+		strcat(str, "VISIBLE ");
+	if (q->soft)
+		strcat(str, "SOFT ");
+	HeapDrawLine(str);	q = GetPAGRNOTE(qL);
+	sprintf(str, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
+	HeapDrawLine(str);	q = GetPAGRNOTE(qL);
+	sprintf(str, "l_dur=%hd headShape=%d", q->subType, q->headShape);
+	HeapDrawLine(str);	q = GetPAGRNOTE(qL);
+	sprintf(str, "accident=%hd accSoft=%s", q->accident,
+													  q->accSoft ? "True" : "False");
+	HeapDrawLine(str);	q = GetPAGRNOTE(qL);
+	sprintf(str, "xmoveAcc=%hd", q->xmoveAcc);
+	HeapDrawLine(str);	q = GetPAGRNOTE(qL);
+	sprintf(str, "beamed=%s otherStemSide==%s", q->beamed ? "True" : "False",
+														q->otherStemSide ? "True" : "False");
 	HeapDrawLine(str);
 }
 

@@ -12453,3 +12453,153 @@ gives hundreds of messages like " ****** (ConvertObjSubobjs): Problem (no.959) f
 objRect for L2559, at objL=2630". Well, that code has done its job -- it's made it clear
 that bug hasn't surfaced by the end of the main loop in ConvertObjSubobj()! -- so may as well
 disable it... done.
+
+---------------------------------------------------------------------------------------
+
+30 Mar. - 10 Apr.
+
+Add code to OpenFile() to track down the "note or grace note has an objRect of (0,0,0,0)".
+Testing w/ UnbeamedGraceNotes.ngl, the last note (LINK 13)'s objRect looks OK until the call
+to InvalRange(), which sets _all_ objRects to empty -- duh -- but after the score has been
+redrawn, the objRects of the preceding note and grace notes are back to something reasonable,
+but the last note's is not. Cf. HindemithBnSonata.ngl, where it's the 1st grace note (LINK
+19) that ends up with an objRect of (0,0,0,0)! Where are the objRects recomputed? Almost
+certainly in the drawing functions, DrawNote() and DrawGRNote(), when they're called with
+*recalc True. Have DrawNote and DrawGRNote report just before they check *recalc:
+
+	Apr  1 21:04:53 unknown00112431479a Ngale[4515]:
+	info. Staff sizes in points are  1:16 2:16
+	debug. DrawNote: *recalc=1 pL=10 aNoteL=1
+	debug. DrawGRNote: *recalc=1 pL=11 aGRNoteL=1
+	debug. DrawGRNote: *recalc=1 pL=12 aGRNoteL=2
+	Notice. Opened file 'UnbeamedGraceNotes.ngl'.  (DoFileMenu)
+
+!! Apparently DrawNote is never even called for the wayward LINK 13! Try it with
+HindemithBnSonata.ngl => looks like DrawGRNote is never called for the wayward LINK 19.
+Have DrawSYNC and DrawGRSYNC report just before calling DrawNote and DrawGRNote => yep: the 
+drawing functions are never called. Why? Because the note/grace note's <visible> flag isn't
+set! Why? The file-conversion code should just copy the flag's setting, and it looks like
+it does. From Convert1NOTER():
+
+	NoteVIS(aNoteRL) = (&a1NoteR)->visible;
+	...
+	if (True) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
+
+
+So what is it?
+
+	Apr  2 09:21:14 unknown00112431479a Ngale[5671]:
+	debug.     Convert1NOTER: aNoteRL=1 voice=1 vis=1 yqpit=-18 xd=0 yd=32 playDur=456
+	debug.     Convert1NOTER: aNoteRL=2 voice=1 vis=0 yqpit=1 xd=0 yd=0 playDur=456
+
+Okay, the 1st note in the opened score is visible; the 2nd isn't. Why? What is it in the file?
+NGDumper says both are visible! So it's the file-input or file-conversion code.
+
+	Apr  2 09:47:06 unknown00112431479a Ngale[5867]:
+	debug.     Convert1NOTER: aNoteRL=1 sel=0 vis=1 soft=0
+	debug.     Convert1NOTER: aNoteRL=1 voice=1 vis=1 yqpit=-18 xd=0 yd=32 playDur=456
+	debug.     Convert1NOTER: aNoteRL=2 sel=0 vis=0 soft=0
+	debug.     Convert1NOTER: aNoteRL=2 voice=1 vis=0 yqpit=1 xd=0 yd=0 playDur=456
+
+It's already bad at the beginning of Convert1NOTER(). Ugh. Have to look at the SYNC heap
+handling in reading the file, in ReadSubHeap().
+
+	Apr  3 11:48:27 unknown00112431479a Ngale[9198]:
+	info.     heap 2 (SYNC): 2 subobjects. sizeAllInFile=60 sizeAllInHeap=136  (ReadSubHeap)
+	debug. ReadSubHeap1  0: 00 00 01 04   40 ee 00 00   00 20 01 00   00 00 01 c8
+	debug.               1: 00 00 4c 4b   40 20 01 00   2c 0b 00 00   00 00 
+	debug. ReadSubHeap1  0: 00 00 01 04   40 ec 00 00   00 00 00 e0   00 00 01 c8
+	debug.               1: 00 00 4d 4b   40 10 01 00   2c 0b 00 00   00 00 
+
+The 5th byte is the relevant one. 0x40 = 0100 0000; the top 3 bits are selected, visible,
+soft -- so the <visible> flag is still set for the 2nd note; no problem yet.
+
+ReadSubHeap is called from ReadHeaps(); #define'ing DEBUG_READHEAPS & setting it to show only
+SYNC subobjects produces
+
+Apr  4 07:53:49 unknown00112431479a Ngale[11375]:
+	debug. ReadObjHeap: pLink1=11449400 FPos:4918
+	info.  802 L10 xd=96 yd=0 SYNC S.S.T. objRect.l=p-15253 n=2
+	info.        L1 @169f2044 stf=1 v=64 xd=456 yd=0 ystm=19531 yqpit=0 ldur=4 .s=4 acc=0 onV=0 SV.. .B.. ><T 1stMod=0
+	info.  802 L13 xd=448 yd=0 SYNC S.S.T. objRect.l=p963
+	info.        L2 @169f2088 stf=1 v=0 xd=456 yd=0 ystm=19787 yqpit=0 ldur=4 .s=0 acc=0 onV=0 SV.. .... ... 1stMod=0
+
+So the <visible> flag is still set for the 2nd note here. (NB: The above should be preceded
+by four "info" lines very similar to the above but with "902" instead of "802", but it's not!
+I have no idea why.)
+
+Between the call to ReadHeaps and the calls to ConvertObjSubobjs, almost nothing happens;
+it's hard to believe that bit is getting cleared there! So look again at ConvertObjSubobjs?
+
+5 Apr.: This is CRAZY. Along the lines of the missing "902" lines in the log, I sprinkled
+throughout ReadHeaps() calls to LogPrintf(various); SleepMS(1000); exit(77), (88), and (99);
+and Sysbeep(1). Most of those calls were completely ignored, but not all. Some are inside an
+"#ifdef"; that seems to make no difference. What the ?!?  %#@$&*@$@*()&^&*(^*%^&#@!_(&  Code
+is in file HeapFileIO_CRAZY.cp, log output in FileConversionLogCRAZY.txt.
+
+6 Apr.: Excerpts from ReadHeaps():
+
+	*	SysBeep(1);
+	*	LogPrintf(LOG_NOTICE, "errType=%d\n", errType);
+	*	SleepMS(1000);
+		LogPrintf(LOG_NOTICE, "errType=%d\n", errType);
+		...
+		SysBeep(1);
+		LogPrintf(LOG_NOTICE, "HI there 1.5!\n");
+		exit(77);
+		...
+	*	exit(99);
+
+It looks like the lines preceded by "*" are executed, but not the others shown. (There are
+no "go to"s or other transfers of control in the omitted lines. Other than a compiler bug,
+the _only_ explanation I can think is a clobber; but that seems very unlikely because this
+function -- minus all the debugging code, of course -- has been working flawlessly for months,
+even on far longer and more complex scores! Well, the bug I've been trying to fix has only
+been seen to cause notes and grace notes to become invisible when a score is converted, but
+it might well affect rests. In real music, given Ngale's limitations, there are (very
+occasionly) legitimate reasons for invisible rests; for invisible notes, I doubt it; for
+grace notes, I very much doubt it -- but any of them might be useful for teaching! Debug
+Check at its default level complains about invisible notes and grace notes:
+
+	DCheckNode: Object L19 IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.
+
+...but that's really not good enough. How about telling the user if any of these occur when
+a score is converted and offering to make them all visible?
+
+9 Apr.: Done. Test w/ UnbeamedGraceNotes.ngl => it makes the invisible note visible, sure;
+but it also draws a nonsensical ledger line, and Debug Check says
+
+	Warning. DCheckNoteNums: Note in Sync L13 in measure 1, staff 1 notenum 77 and notation disagree.
+
+If I tell Ngale _don't_ make invisible notes visible:
+
+	Apr 10 06:37:24 unknown00112431479a Ngale[6065]:
+	info.  12 L13 xd=448 yd=0 SYNC .V.V.. objRect.l=p0 TS=480 LT=480 n=1
+	info.        L2 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+	Warning. DCheckNode: Object L13 IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.
+
+If I tell it _do_ make them visible:
+
+	Apr 10 06:37:32 unknown00112431479a Ngale[6065]:
+	info. {12 L13 xd=448 yd=0 SYNC SV.V.. objRect.l=p210 TS=480 LT=480 n=1
+	info.        L2 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 SV.. .... ... 1stMod=0
+
+NB the info about the note above is identical except for the Selected & Visible flags! ?!
+
+10 Apr.: The notenum/notation disagreement is, of course, the reason for the nonsense ledger
+line. The note has yqpit=1, but it should be -20! Looking again at the 3 Apr. dump from
+ReadSubHeap:
+
+	debug. ReadSubHeap1  0: 00 00 01 04   40 ee 00 00   00 20 01 00   00 00 01 c8
+	debug.               1: 00 00 4c 4b   40 20 01 00   2c 0b 00 00   00 00 
+	debug. ReadSubHeap1  0: 00 00 01 04   40 ec 00 00   00 00 00 e0   00 00 01 c8
+	debug.               1: 00 00 4d 4b   40 10 01 00   2c 0b 00 00   00 00 
+
+The 6th byte is <yqpit>, a SHORTQD (signed byte). So the values are 0xee = -18 and 0xec
+= -20(?): like the <visible> flag, both correct. By the time we get to Convert1NOTER, for
+the 2nd note, both are wrong :-( .
+
+Arrrrgh! Has this bug really been in Ngale 6's file conversion all along? 6.0.40 behaves the
+same way on both UnbeamedGraceNotes.ngl and HindemithBnSonataVisTEST.ng; so  does 6.0.26 (of
+17 Sept. 2022). So it's been there for almost seven months, if not longer!!

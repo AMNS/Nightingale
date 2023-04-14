@@ -11,7 +11,8 @@
 	DCheckNodeSel			DCheckSel				DCheckVoiceTable
 	DCheckHeirarchy			DCheckJDOrder			DCheckBeamset
 	DCheckBeams				DCheckOttavas			DCheckSlurs
-	DCheckTuplets			DCheckHairpins			DCheckContext
+	DCheckTuplets			DCheckHairpins			DCheckObjRect
+	DCheckContext
 	DCheck1NEntries			DCheckNEntries			DCheck1SubobjLinks
  */
 
@@ -1512,7 +1513,6 @@ positions agree with their relative object-list positions. */
 				break;
 
 
-
 			default:
 				;
 		}
@@ -2684,6 +2684,38 @@ Boolean DCheckHairpins(Document *doc)
 	}
 	
 	return bad;			
+}
+
+
+/* --------------------------------------------------------------------- DCheckObjRect -- */
+
+Boolean DCheckObjRect(Document * /* doc */, LINK objL)
+{
+	PKEYSIG pKeySig;  Boolean bad=FALSE;
+	
+	PMEVENT p = GetPMEVENT(objL);
+	if (GARBAGE_Q1RECT(p->objRect)) {
+		/* It's OK for initial keysigs to be unselectable. */
+		
+		pKeySig = GetPKEYSIG(objL);						/* FIXME: OR USE KeySigINMEAS? */
+		if (!(KeySigTYPE(objL) && !pKeySig->inMeasure)) {
+			LogPrintf(LOG_WARNING, "Object L%u IS UNSELECTABLE: IT HAS A GARBAGE objRect.  (DCheckObjRect)\n",
+				objL);
+			bad = True;
+		}
+		
+	}
+	
+	/* Valid initial objects, e.g., "deleted", can have zero-width objRects. */
+	
+	else if (!ClefTYPE(objL) && !KeySigTYPE(objL) && !TimeSigTYPE(objL)
+				&& ZERODIM_RECT(p->objRect)) {
+		LogPrintf(LOG_WARNING, "Object L%u IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.  (DCheckObjRect)\n",
+					objL);
+		bad = True;
+	}
+	
+	return bad;
 }
 
 

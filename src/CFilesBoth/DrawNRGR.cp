@@ -686,8 +686,8 @@ void DrawNotePianoroll(Document *doc, LINK aNoteL, PCONTEXT pContext, short xhea
 	resFact = RESFACTOR*(long)doc->spacePercent;
 	qdLenStd = IdealSpace(doc, NotePLAYDUR(aNoteL), resFact);
 	qdLen = (long)(config.pianorollLenFact*qdLenStd) / 100L;
-//LogPrintf(LOG_DEBUG, "DrawNote: qdLenStd=%d pianorollLenFact=%d qdLen=%d\n", qdLenStd,
-//config.pianorollLenFact, qdLen);
+//LogPrintf(LOG_DEBUG, "DrawNotePianoroll: qdLenStd=%d pianorollLenFact=%d qdLen=%d\n",
+//qdLenStd, config.pianorollLenFact, qdLen);
 	qdLen = n_max(qdLen, 4);								/* Insure at least one space long */
 	spatialLen = d2p(qd2d(qdLen, pContext->staffHeight, pContext->staffLines));
 
@@ -711,7 +711,7 @@ void DrawNote(Document *doc,
 				PCONTEXT pContext,		/* Current context[] entry */
 				LINK	aNoteL,			/* Subobject (note) to draw */
 				Boolean	*drawn,			/* False until a subobject has been drawn */
-				Boolean	*recalc			/* True if we need to recalc enclosing rectangle */
+				Boolean	*recalc			/* True if we need to recompute objRect */
 				)	
 {
 	PANOTE		aNote, bNote;
@@ -845,8 +845,8 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, dim, sizePercent, chordNoteToL);
 
 		/* If note is not a non-Main note in a chord, draw any ledger lines needed: for
-		   note or entire chord. A chord has exactly one MainNote, so this draws the
-		   ledger lines exactly once. */
+		   note or entire chord. A chord should have exactly one MainNote, so this will
+		   draw the ledger lines exactly once. */
 		
 		if (MainNote(aNoteL) || !NoteINCHORD(aNoteL))
 			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct);
@@ -979,8 +979,7 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 								}
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								if (yoff || xoff)
-									Move(d2p(xoff), d2p(yoff));
+								if (yoff || xoff) Move(d2p(xoff), d2p(yoff));
 								glyphWidth = CharWidth(flagGlyph);
 								while (count-- > 1) {
 									DrawMChar(doc, flagGlyph, NORMAL_VIS, dim);
@@ -1027,7 +1026,6 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 
 EndQDrawing:
 		if (*recalc) {
-			
 			GetNoteheadRect(glyph, appearance, dhalfSp, &rSub);
 			
 			/* "Proper" size rects for noteheads can be both hard to click on and hard
@@ -1061,8 +1059,8 @@ EndQDrawing:
 		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, False, sizePercent, chordNoteToL);
 
 		/* If note is not a non-Main note in a chord, draw any ledger lines needed: for
-		   note or entire chord. A chord has exactly one MainNote, so this draws the
-		   ledger lines exactly once. */
+		   note or entire chord. A chord should have exactly one MainNote, so this will
+		   draw the ledger lines exactly once. */
 		   
 		if (MainNote(aNoteL) || !NoteINCHORD(aNoteL))
 			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct); 
@@ -1321,7 +1319,7 @@ void DrawRest(Document *doc,
 				PCONTEXT pContext,	/* current context[] entry */
 				LINK aRestL,		/* current subobject */
 				Boolean *drawn,		/* False until a subobject has been drawn */
-				Boolean *recalc		/* True if we need to recalc enclosing rectangle */
+				Boolean *recalc		/* True if we need to recompute objRect */
 				)
 {
 	PANOTE		aRest;
@@ -1558,7 +1556,7 @@ void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 	LINK		aNoteL;
 	PCONTEXT	pContext;
 	Boolean		drawn;				/* False until a subobject has been drawn */
-	Boolean		recalc;				/* True if we need to recalc enclosing rectangle */
+	Boolean		recalc;				/* True if we need to recompute objRect */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 	
@@ -1568,6 +1566,7 @@ void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 	aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
+//LogPrintf(LOG_DEBUG, "DrawSYNC: visible=%d pL=%u aNoteL=%u\n", aNote->visible, pL, aNoteL);
 		if (aNote->visible) {
 			pContext = &context[NoteSTAFF(aNoteL)];
 			MaySetPSMusSize(doc, pContext);
@@ -1744,7 +1743,7 @@ void DrawGRNote(Document *doc,
 						PCONTEXT pContext,	/* current context[] entry */
 						LINK aGRNoteL,		/* Subobject (grace note) to draw */
 						Boolean	*drawn,		/* False until a subobject has been drawn */
-						Boolean	*recalc)	/* True if we need to recalc enclosing rectangle */
+						Boolean	*recalc)	/* True if we need to recompute objRect */
 {
 	PAGRNOTE	aGRNote;
 	short		flagCount,			/* number of flags on grace note */
@@ -1897,11 +1896,10 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 
 		DrawGRAcc(doc, pContext, aGRNoteL, xdNorm, yd, dim, sizePercent);
 
-		/*
-		 * If grace note is not a non-Main note in a chord, draw any ledger lines needed:
-		 * for grace note or entire chord. A chord has only one GRMainNote, so this draws
-		 * the ledger lines exactly once.
-		 */
+		/* If grace note is not a non-Main note in a chord, draw any ledger lines needed:
+		   for grace note or entire chord. A chord should have exactly one GRMainNote, so
+		   this will draw the ledger lines exactly once. */
+
 		if (GRMainNote(aGRNoteL))
 			DrawGRNCLedgers(pL, pContext, aGRNoteL, xd, dTop, ledgerSizePct);
 			
@@ -2036,8 +2034,7 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 								}
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								if (yoff || xoff)
-									Move(d2p(xoff), d2p(yoff));
+								if (yoff || xoff) Move(d2p(xoff), d2p(yoff));
 								glyphWidth = CharWidth(flagGlyph);
 								while (count-- > 1) {
 									DrawMChar(doc, flagGlyph, NORMAL_VIS, dim);
@@ -2058,8 +2055,7 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 								}
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								if (yoff || xoff)
-									Move(d2p(xoff), d2p(yoff));
+								if (yoff || xoff) Move(d2p(xoff), d2p(yoff));
 								Move(0, flagLeading);
 								DrawMChar(doc, flagGlyph, NORMAL_VIS, dim);
 							}
@@ -2097,11 +2093,10 @@ EndQDrawing:
 		 
 		DrawGRAcc(doc, pContext, aGRNoteL, xdNorm, yd, False, sizePercent);
 
-		/*
-		 * If grace note is not a stemless note in a chord, draw any ledger lines needed
-		 * for grace note or entire chord. All but one note of every chord has its stem
-		 * length set to 0, so this draws the ledger lines exactly once.
-		 */
+		/* If grace note is not a stemless note in a chord, draw any ledger lines needed:
+		   for grace note or entire chord. A chord should have exactly one GRMainNote, so
+		   this will draw the ledger lines exactly once. */
+
 		if (GRMainNote(aGRNoteL))
 			DrawGRNCLedgers(pL, pContext, aGRNoteL, xd, dTop, ledgerSizePct);
 	
@@ -2132,10 +2127,8 @@ EndQDrawing:
 			
 			else {
 			
-				/*
-				 *	STEMMED NOTE. If the note is in a chord and is stemless, skip
-				 *	entire business of drawing the stem and flags.
-				 */
+				/* STEMMED NOTE. If the grace note is in a chord and is stemless, skip
+				   entire business of drawing the stem and flags. */
 				 
 				if (GRMainNote(aGRNoteL)) {
 					stemDown = (dStemLen>0);
@@ -2255,9 +2248,9 @@ EndQDrawing:
 										appearance!=NO_VIS, headSizePct);
 				}
 			}
-		/*
-		 *	Note drawn: if modifiers are allowed on grace notes, draw them here.
-		 */
+
+		/* Note drawn: if modifiers are allowed on grace notes, draw them here. */
+		
 		}
 		
 		break;
@@ -2279,7 +2272,7 @@ void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 	LINK		aGRNoteL;
 	PCONTEXT	pContext;
 	Boolean		drawn;			/* False until a subobject has been drawn */
-	Boolean		recalc;			/* True if we need to recalc enclosing rectangle */
+	Boolean		recalc;			/* True if we need to recompute objRect */
 	
 	drawn = False;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);
@@ -2287,6 +2280,7 @@ void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 	aGRNoteL = FirstSubLINK(pL);
 	for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 		aGRNote = GetPAGRNOTE(aGRNoteL);
+//LogPrintf(LOG_DEBUG, "DrawGRSYNC: visible=%d pL=%u aGRNoteL=%u\n", aGRNote->visible, pL, aGRNoteL);
 		if (aGRNote->visible) {
 			pContext = &context[GRNoteSTAFF(aGRNoteL)];
 			MaySetPSMusSize(doc, pContext);

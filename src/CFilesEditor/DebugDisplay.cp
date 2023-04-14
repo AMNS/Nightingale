@@ -635,7 +635,6 @@ void DHexDump(short logLevel,			/* From LOG_DEBUG to LOG_ERR */
 	for (pos = 0; pos<nBytes; pos++) {
 		sprintf(&strBuf[strlen(strBuf)], "%02x", pBuffer[pos]); 
 		if ((pos+1)%(long)nPerLine==0L) {
-#if 1
 			sprintf(&strBuf[strlen(strBuf)], "\n");
 
 			strcpy(blankLabelC, blankLabel);
@@ -646,11 +645,8 @@ void DHexDump(short logLevel,			/* From LOG_DEBUG to LOG_ERR */
 			}
 			else if (numberLines)
 				strcat(blankLabelC, "   ");
-			printf("%s: %s", (firstTime? labelC : blankLabelC), strBuf);
+			//printf("%s: %s", (firstTime? labelC : blankLabelC), strBuf);	??WHY DO THIS?
 			LogPrintf(logLevel, "%s: %s", (firstTime? labelC : blankLabelC), strBuf);
-#else
-			LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
-#endif
 			strBuf[0] = 0;
 			firstTime = False;
 		}
@@ -662,7 +658,6 @@ void DHexDump(short logLevel,			/* From LOG_DEBUG to LOG_ERR */
 
 	if (pos%(long)nPerLine!=0L) {
 		sprintf(&strBuf[strlen(strBuf)], "\n");
-#if 1
 		if (!firstTime && numberLines) {
 			lineNum++;
 			sprintf(lineNumStr, "%3d", lineNum);
@@ -670,9 +665,6 @@ void DHexDump(short logLevel,			/* From LOG_DEBUG to LOG_ERR */
 			strcat(blankLabelC, lineNumStr);
 		}
 		LogPrintf(logLevel, "%s: %s", (firstTime? labelC : blankLabelC), strBuf);
-#else
-		LogPrintf(logLevel, "%s: %s", (firstTime? label : blankLabel), strBuf);
-#endif
 	}
 }
 

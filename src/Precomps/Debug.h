@@ -26,7 +26,7 @@ Boolean DCheckSlurs(Document *);
 Boolean DCheckTuplets(Document *, Boolean);
 Boolean DCheckHairpins(Document *);
 Boolean DCheckContext(Document *);
-
+Boolean DCheckObjRect(Document *, LINK);
 Boolean DCheckPlayDurs(Document *, Boolean);
 Boolean DCheckTempi(Document *);
 Boolean DCheckRedundantKS(Document *);
@@ -40,8 +40,7 @@ Boolean DCheck1SubobjLinks(Document *, LINK);
 
 /* Debug2Utils.c */
 
-short DBadNoteNum(Document *doc, short clefType, short octType, SignedByte accTable[],
-						LINK syncL, LINK theNoteL);
+short DBadNoteNum(Document *doc, short clefType, short octType, LINK syncL, LINK theNoteL);
 Boolean DCheckNoteNums(Document *doc);
 
 /* DebugHighLevel.c */

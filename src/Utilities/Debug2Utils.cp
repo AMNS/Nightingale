@@ -424,7 +424,6 @@ table: return the discrepancy in the note's MIDI note number (0 if none). */
 short DBadNoteNum(
 			Document *doc,
 			short clefType, short octType,
-			SignedByte /*accTable*/[],
 			LINK syncL, LINK theNoteL)
 {
 	short halfLn;									/* Relative to the top of the staff */
@@ -435,6 +434,7 @@ short DBadNoteNum(
 	midCHalfLn = ClefMiddleCHalfLn(clefType);					/* Get middle C staff pos. */		
 	yqpit = NoteYQPIT(theNoteL)+halfLn2qd(midCHalfLn);
 	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
+LogPrintf(LOG_DEBUG, "DCheckNoteNums: yqpit=%d halfLn=%d\n", yqpit, halfLn);
 
 	if (!FirstTiedNote(syncL, theNoteL, &firstSyncL, &firstNoteL))
 		return False;											/* Object list is messed up */
@@ -456,11 +456,10 @@ it'll draw attention to nearby grace notes. */
 
 Boolean DCheckNoteNums(Document *doc)
 {
-	Boolean bad=False, haveAccs;
+	Boolean bad=False;
 	short staff, octType[MAXSTAVES+1], useOctType, nnDiff;
 	short clefType=TREBLE_CLEF;
 	LINK pL, aNoteL, aClefL;
-	SignedByte accidTable[MAX_STAFFPOS];
 
 	/* We keep track of where octave signs begin. But keeping track of where they end
 	   is a bit messy: to avoid doing that, we'll just rely on each Note subobj's
@@ -474,24 +473,19 @@ Boolean DCheckNoteNums(Document *doc)
 			switch (ObjLType(pL)) {
 				case SYNCtype:
 					aNoteL = FirstSubLINK(pL);
-					haveAccs = False;
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 						if (NoteSTAFF(aNoteL)==staff && !NoteREST(aNoteL)) {
-							if (!haveAccs) {
-								GetAccTable(doc, accidTable, pL, staff);
-								haveAccs = True;
-							}
-
 							useOctType = (NoteINOTTAVA(aNoteL)? octType[staff] : 0);
-							nnDiff = DBadNoteNum(doc, clefType, useOctType, accidTable, pL, aNoteL);
+							nnDiff = DBadNoteNum(doc, clefType, useOctType, pL, aNoteL);
+LogPrintf(LOG_DEBUG, "DCheckNoteNums: clefType=%d useOctType=%d nnDiff=%d\n", clefType, useOctType, nnDiff);
 							if (nnDiff!=0) {
 								if (abs(nnDiff)<=2) {
 									COMPLAIN4("DCheckNoteNums: Note in Sync L%u in measure %d, staff %d notenum %d and notation disagree: wrong accidental?\n",
-													pL, GetMeasNum(doc, pL), staff, NoteNUM(aNoteL));
+												pL, GetMeasNum(doc, pL), staff, NoteNUM(aNoteL));
 								}
 								else {
 									COMPLAIN4("DCheckNoteNums: Note in Sync L%u in measure %d, staff %d notenum %d and notation disagree.\n",
-													pL, GetMeasNum(doc, pL), staff, NoteNUM(aNoteL));
+												pL, GetMeasNum(doc, pL), staff, NoteNUM(aNoteL));
 								}
 							}
 						}

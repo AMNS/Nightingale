@@ -109,6 +109,27 @@ static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObj
 static void PrepareClips(void);
 
 
+#define DEBUG_READHEAPS
+#ifdef DEBUG_READHEAPS
+/* Dump subobjects in Heap _iHp_ with positions in the range [nFrom, nTo] into the log
+file, displaying them in hexadecimal. We assume subobjects are in 'N105' format. <pLink1>
+must point to LINK 1 in the given Heap. This is intended for use debugging problems
+reading old-format files. It's similar to DObjDump, except it's for subobjects instead
+of objects; it assumes an older format; and it does _not_ assume that LINKs are
+meaningful. */
+
+static void DSubobj5Dump(short iHp, unsigned char *pLink1, short nFrom, short nTo);
+static void DSubobj5Dump(short iHp, unsigned char *pLink1, short nFrom, short nTo)
+{
+	short sLen = subObjLength_5[iHp];
+	for (short m = nFrom; m<=nTo; m++) {
+		unsigned char *pSObj = pLink1+(m*sLen);
+		DHexDump(LOG_DEBUG, "DSubobj5Dump:", pSObj, sLen, 4, 16, True);
+	}
+}
+#endif
+
+
 /* ============================== Functions for Writing Heaps =========================== */
 
 /* Write all heaps with their headers to the given file. Returns 0 if no error, else
@@ -834,10 +855,9 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	else {
 		errType = HeapFixObjLinks(doc);
 
-#define NoDEBUG_READHEAPS
 #ifdef DEBUG_READHEAPS
 	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
-		if (DETAIL_SHOW && (ObjLType(objL)<=MEASUREtype || ObjLType(objL)==TUPLETtype))
+		if (DETAIL_SHOW && (ObjLType(objL)==SYNCtype))
 			DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);
 	}
 #endif
@@ -850,7 +870,7 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	
 #ifdef DEBUG_READHEAPS
 	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
-		if (DETAIL_SHOW && (ObjLType(objL)<=MEASUREtype || ObjLType(objL)==TUPLETtype))
+		if (DETAIL_SHOW && (ObjLType(objL)==SYNCtype))
 			DisplayObject(doc, objL, 800+ObjLType(objL), True, True, True);
 	}
 #endif
@@ -868,7 +888,7 @@ we succeed, False if not.
 If the file is in the current format, this should be called only for the object heap;
 subobjects are already the correct length. If it's in 'N105' format, it should be
 called for both object and subobject heaps. In that case, the _content_ of objects
-and subobjects will still need more work, which should be done in ConvertObjSubobjs().  */
+and subobjects will still need more work, which should be done in ConvertObjectList().  */
 
 static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 				char *pLink1, long sizeAllInHeap)
@@ -951,8 +971,8 @@ known offset from the beginning of each object record. Thus only a scan forwards
 the block can work.
 
 NB: If the file is in an old format, the objects' fields still need to be converted,
-including perhaps moving them within the object! That should be done in
-ConvertObjSubobjs(). */
+including perhaps moving them within the object! That work should be done in
+ConvertObjectList(). */
 
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
@@ -1028,7 +1048,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 /* Read one subobject heap from file. NB: If the file is in an old format, some
 subobjects may have changed size, and we move the entire subobject accordingly to make
 room; but the subobjects' fields still need to be converted, including perhaps moving
-them within the subobject! That work should be done in ConvertObjSubobjs(). */
+them within the subobject! That work should be done in ConvertObjectList(). */
 
 static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, Boolean isViewerFile)
 {
@@ -1086,7 +1106,9 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadSubHeap: pLink1=%ld FPos:%ld\n", pLink1, position);
 	
 	ioErr = FSRead(refNum, &sizeAllInFile, pLink1);
-//if (DETAIL_SHOW) DHexDump(LOG_DEBUG, "ReadSubHeap0", (unsigned char *)pLink1, 64, 4, 16);
+#ifdef DEBUG_READHEAPS
+	if (iHp==SYNCtype) DSubobj5Dump(iHp, (unsigned char *)pLink1, 0, 1);
+#endif
 
 	/* If file is in an old format, move the contents of the subobject heap around
 	   so each subobject has space for any new fields. (Unlike objects, subobjects are
@@ -1102,7 +1124,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	PopLock(myHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, iHp); return ioErr; }
 	RebuildFreeList(doc, iHp, nFObjs);
-//if (DETAIL_SHOW) DHexDump(LOG_DEBUG, "ReadSubHeap3", (unsigned char *)pLink1, 78, 4, 16);
+//if (DETAIL_SHOW) DHexDump(LOG_DEBUG, "ReadSubHeap3", (unsigned char *)pLink1, 78, 4, 16, False);
 	
 	return 0;
 }
@@ -1231,9 +1253,9 @@ if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "HeapFixObjLinks: pL=%u type=%d in main ob
 
 {	//unsigned char *pSObj;
 //pSObj = (unsigned char *)GetPSUPEROBJ(1);
-//DHexDump(LOG_DEBUG, "HeapFixObjLinks L1", pSObj, 46, 4, 16);
+//DHexDump(LOG_DEBUG, "HeapFixObjLinks L1", pSObj, 46, 4, 16, False);
 //pSObj = (unsigned char *)GetPSUPEROBJ(2);
-//DHexDump(LOG_DEBUG, "HeapFixObjLinks L2", pSObj, 46, 4, 16);
+//DHexDump(LOG_DEBUG, "HeapFixObjLinks L2", pSObj, 46, 4, 16, False);
 }
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 

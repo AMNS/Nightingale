@@ -19,7 +19,7 @@
 
 static Rect bRect, paperRect;
 static DRect systemRect;
-static short linenum, showBPage;
+static short linenum, showBPage, brOutputTo;
 static char lStr[300];			/* A bit more than 256 to protect against 255-char. Graphics, etc. */
 static char dynStr[40];			/* for dynamics only */
 static char clefStr[40];		/* for clefs only */
@@ -55,6 +55,10 @@ static void BrowseSpace(LINK, Rect *);
 static void BrowseSlur(LINK, short, Rect *);
 static pascal Boolean BrowserFilter(DialogPtr, EventRecord *, short *);
 
+enum {
+	TO_LOGFILE,
+	TO_SCREEN
+};
 
 enum {
 	iOK = 1,
@@ -76,6 +80,7 @@ enum {
 	iPicture,
 	iGoNum,
 	iGo,
+	iLog,
 	iShowMore		/* Fake item (not in the DITL) */
 };
 
@@ -154,7 +159,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	ModalFilterUPP	filterUPP;
 
 	if (!headL) {
-		LogPrintf(LOG_WARNING, "Object list is nonexistent.  (Browser)\n");
+		AlwaysErrMsg("Object list is nonexistent!  (Browser)");
 		return;
 	}
 
@@ -207,6 +212,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	
 	index = 0;
 	showBPage = 0;
+	brOutputTo = TO_SCREEN;
 
 	oldpL = NILINK;
 	oldIndex = -1;
@@ -403,9 +409,15 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			case iShowMore:
 				showBPage++;
 				break;			   
-			 default:
-			 	;
+			case iLog:
+				brOutputTo = TO_LOGFILE;
+				ShowObject(doc, pL, index, &objRect);			/* Show the thing in log */
+				brOutputTo = TO_SCREEN;
+				break;
+			default:
+				;
 		}
+		
 		if (scrollHdl) {
 			Rect box, portRect;
 			WindowPtr w; 
@@ -458,9 +470,13 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 
 void DrawTextLine(char *str)
 {
-	MoveTo(bRect.left, bRect.top+linenum*LEADING);
-	DrawCString(str);
-	++linenum;
+	if (brOutputTo==TO_LOGFILE)
+		LogPrintf(LOG_DEBUG, "Browser: %s\n", str);
+	else {
+		MoveTo(bRect.left, bRect.top+linenum*LEADING);
+		DrawCString(str);
+		++linenum;
+	}
 }
 
 

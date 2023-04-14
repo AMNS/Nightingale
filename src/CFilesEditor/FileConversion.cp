@@ -501,37 +501,6 @@ context by checking all objects with smaller links: if called during the file-co
 process, that means all previously converted objects. Intended for tracking down bugs
 where converting one object clobbers a previous one. */
 
-Boolean DCheckObjRect(LINK objL);	// FIXME: If this seems to be useful, move it to Debug2Utils!!
-Boolean DCheckObjRect(LINK objL)
-{
-	PKEYSIG pKeySig;  Boolean bad=FALSE;
-	
-	PMEVENT p = GetPMEVENT(objL);
-	if (GARBAGE_Q1RECT(p->objRect)) {
-		/* It's OK for initial keysigs to be unselectable. */
-		
-		pKeySig = GetPKEYSIG(objL);						/* FIXME: OR USE KeySigINMEAS? */
-		if (!(KeySigTYPE(objL) && !pKeySig->inMeasure)) {
-			LogPrintf(LOG_WARNING, "Object L%u IS UNSELECTABLE: IT HAS A GARBAGE objRect.  (DCheckObjRect)\n",
-				objL);
-			bad = True;
-		}
-		
-	}
-	
-	/* Valid initial objects, e.g., "deleted", can have zero-width objRects. */
-	
-	else if (!ClefTYPE(objL) && !KeySigTYPE(objL) && !TimeSigTYPE(objL)
-				&& ZERODIM_RECT(p->objRect)) {
-		LogPrintf(LOG_WARNING, "Object L%u IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.  (DCheckObjRect)\n",
-					objL);
-		bad = True;
-	}
-	
-	return bad;
-}
-
-
 typedef struct {
 	OBJECTHEADER_5 
 } OBJHDR_5;
@@ -568,7 +537,7 @@ static void DebugConvCheckObjs(Document *doc, LINK objL, char *label)
 				break;
 			case SYNCtype:
 			case GRSYNCtype:
-				if (DCheckObjRect(qL)) {
+				if (DCheckObjRect(doc, qL)) {
 					Rect r = LinkOBJRECT(qL);
 					LogPrintf(LOG_DEBUG, "****** (%s): Problem (no.%d) found with objRect for L%u, at objL=%Lu. (DebugConvCheckObjs)\n",
 								label, debugBadObjCount, qL, objL);
@@ -716,6 +685,8 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteSEL(aNoteRL) = (&a1NoteR)->selected;
 	NoteVIS(aNoteRL) = (&a1NoteR)->visible;
 	NoteSOFT(aNoteRL) = (&a1NoteR)->soft;
+LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d\n", aNoteRL,
+(&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft);
 
 	/* Now for the ANOTE-specific fields. */
 	
@@ -765,7 +736,7 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteUSERID(aNoteRL) = 0;
 	NoteRESERVEDN(aNoteRL) = 0L;
 	
-if (SUBOBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+if (True) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
 aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
 
 	/* AMODNR subobjs are attached directly to ANOTEs, so convert them here. */
@@ -1887,7 +1858,7 @@ static Boolean ConvertPSMEAS(Document *doc, LINK psMeasL)
 }
 
 
-/* ----------------------------------------------------------------- ConvertObjSubobjs -- */
+/* ----------------------------------------------------------------- ConvertObjectList -- */
 
 /* Convert the headers and bodies of objects in either the main or the Master Page
 object list read from 'N105' format files to the current structure for that type of
@@ -1910,7 +1881,7 @@ ReadHeaps(). */
 // FIXME: REMOVE GetPSUPEROBJECT() & CHANGE ALL TO GetPSUPEROBJ()!
 #define GetPSUPEROBJECT(link)	(PSUPEROBJECT)GetObjectPtr(OBJheap, link, PSUPEROBJECT)
 
-Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime */,
+Boolean ConvertObjectList(Document *doc, unsigned long version, long /* fileTime */,
 			Boolean doMasterList)
 {
 	HEAP *objHeap;
@@ -1919,7 +1890,7 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 	short debugLevel, objCount;
 
 	if (version!='N105') {
-		AlwaysErrMsg("Can't convert file of any version but 'N105'.  (ConvertObjSubobjs)");
+		AlwaysErrMsg("Can't convert file of any version but 'N105'.  (ConvertObjectList)");
 		return False;
 	}
 	
@@ -1943,14 +1914,14 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 			KludgeOS10p5Delay4Log(objCount==1);
 			
 			if (debugLevel>1 || objCount%20==1) LogPrintf(LOG_DEBUG,
-					"**************** ConvertObjSubobjs: objL=%u prevL=%u type='%s'\n",
+					"**************** ConvertObjectList: objL=%u prevL=%u type='%s'\n",
 					objL, prevL, NameObjType(objL));
 		}
 
 		/* If this function is called in the process of opening a file, the only situation
 		   where it should be, consecutive objects must have sequential links; check that. */
 		 
-		if (objL!=prevL+1) MayErrMsg("PROGRAM ERROR: objL=%ld BUT prevL=%ld INSTEAD OF %ld!  (ConvertObjSubobjs)",
+		if (objL!=prevL+1) MayErrMsg("PROGRAM ERROR: objL=%ld BUT prevL=%ld INSTEAD OF %ld!  (ConvertObjectList)",
 									(long)objL, (long)prevL, (long)prevL-1);
 		prevL = objL;
 
@@ -1964,7 +1935,7 @@ Boolean ConvertObjSubobjs(Document *doc, unsigned long version, long /* fileTime
 		
 		ConvertObjHeader(doc, objL);
 #ifdef DEBUG_EMPTY_OBJRECT
-DebugConvCheckObjs(doc, objL, "ConvertObjSubobjs");
+DebugConvCheckObjs(doc, objL, "ConvertObjectList");
 #endif
 		switch (ObjLType(objL)) {
 			case HEADERtype:
@@ -1974,7 +1945,7 @@ DebugConvCheckObjs(doc, objL, "ConvertObjSubobjs");
 				/* TAIL objects have no subobjs & no fields but header, so there's nothing
 				   to do except to stop: we're at the end of this object list. */
 				   
-				if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertObjSubobjs: objL=%u is TAIL.\n",
+				if (OBJ_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ConvertObjectList: objL=%u is TAIL.\n",
 										objL);
 				break;
 			case SYNCtype:
@@ -2041,7 +2012,7 @@ DebugConvCheckObjs(doc, objL, "ConvertObjSubobjs");
 				ConvertPSMEAS(doc, objL);
 				continue;
 			default:
-				MayErrMsg("PROGRAM ERROR: OBJECT L%ld TYPE %ld IS ILLEGAL.  (ConvertObjSubobjs)",
+				MayErrMsg("PROGRAM ERROR: OBJECT L%ld TYPE %ld IS ILLEGAL.  (ConvertObjectList)",
 							(long)objL, (long)ObjLType(objL));
 		}
 
@@ -2057,6 +2028,8 @@ DebugConvCheckObjs(doc, objL, "ConvertObjSubobjs");
 
 	VisifyMasterStaves(doc);
 	
+DebugConvCheckObjs(doc, doc->tailL, "ConvertObjectList");
+
 	return True;
 }
 
