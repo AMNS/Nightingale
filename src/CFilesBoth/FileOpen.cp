@@ -68,8 +68,8 @@ static void VisifyAllNRGRs(Document *doc)
 	}
 }
 
-static Boolean CheckNRGRVisibility(Document *doc);
-static Boolean CheckNRGRVisibility(Document *doc)
+static Boolean CheckNRGRVisibilityOK(Document *doc);
+static Boolean CheckNRGRVisibilityOK(Document *doc)
 {
 	LINK objL, aNoteRL, aGRNoteL;
 	short invisNCount, invisRCount, invisGRCount, itemHit;
@@ -82,6 +82,8 @@ static Boolean CheckNRGRVisibility(Document *doc)
 				aNoteRL = FirstSubLINK(objL);
 				for ( ; aNoteRL; aNoteRL = NextNOTEL(aNoteRL)) {
 					if (!NoteVIS(aNoteRL)) {
+PANOTE aNoteR = GetPANOTE(aNoteRL);
+DSubobjDump(SYNCtype, (unsigned char *)aNoteR, 0, 0, True);
 						if (NoteREST(aNoteRL))	invisRCount++;
 						else					invisNCount++;
 					}
@@ -90,6 +92,8 @@ static Boolean CheckNRGRVisibility(Document *doc)
 			case GRSYNCtype:
 				aGRNoteL = FirstSubLINK(objL);
 				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
+PAGRNOTE aGRNote = GetPAGRNOTE(aGRNoteL);
+DSubobjDump(GRSYNCtype, (unsigned char *)aGRNote, 0, 0, True);
 					if (!GRNoteVIS(aGRNoteL)) invisGRCount++;
 				}
 				break;
@@ -98,7 +102,9 @@ static Boolean CheckNRGRVisibility(Document *doc)
 		}
 	}
 
-	GetIndCString(fmtStr, FILEIO_STRS, 21);			/* "The converted score has %d invisible... Make them visible?" */
+	if (invisNCount==0 && invisRCount==0 && invisGRCount==0) return True;
+	
+	GetIndCString(fmtStr, FILEIO_STRS, 21);			/* "%d notes, %d rest(s), and %d grace note(s)" */
 	sprintf(strBuf, fmtStr, invisNCount, invisRCount, invisGRCount);
 	CParamText(strBuf, "", "", "");
 #define INVISIBLES_ALRT 520
@@ -353,7 +359,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (version=='N105') {
 		(void)ConvertObjectList(doc, version, fileTime, False);
 		(void)ConvertObjectList(doc, version, fileTime, True);
-		(void)CheckNRGRVisibility(doc);
+		(void)CheckNRGRVisibilityOK(doc);
 	}
 
 	if (DETAIL_SHOW) DObjDump("OpenFile", 1, (MORE_DETAIL_SHOW? 30 : 4));

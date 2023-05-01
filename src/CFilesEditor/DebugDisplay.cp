@@ -9,7 +9,8 @@
 /* File DebugDisplay.c - printing functions for the Debug command and debugging in general:
 	KeySigSprintf			DKeySigPrintf			DisplaySubobjects
 	DisplayObject			MemUsageStats			DisplayIndexNode
-	DHexDump				DObjDump				DPrintRow
+	DHexDump				DSubobjDump				DSubobj5Dump
+	DObjDump				DPrintRow
 */
 
 #include "Nightingale_Prefix.pch"
@@ -49,6 +50,8 @@ void DKeySigPrintf(PKSINFO ksInfo)
 
 
 /* --------------------------------------------------------- DisplayObject and helpers -- */
+
+/* FIXME: Shouldn't SubobjCountIsBad also warn if thee are _fewer_ subobjs than expected? */
 
 static Boolean SubobjCountIsBad(short nEntries, short subCnt);
 static Boolean SubobjCountIsBad(short nEntries, short subCnt)
@@ -669,10 +672,41 @@ void DHexDump(short logLevel,			/* From LOG_DEBUG to LOG_ERR */
 }
 
 
-/* -------------------------------------------------------------------------- DObjDump -- */
+/* ------------------------------------------------------------ DObjDump, DSubobj?Dump -- */
+
+/* DSubobjDump dumps subobjects in Heap _iHp_ with positions in the range [nFrom, nTo]
+into the log file, displaying them in hexadecimal. <pLink1> must point to LINK 1 in the
+given Heap. This is intended for use debugging problems reading old-format files. It's
+similar to DObjDump, except it's for subobjects instead of objects and it doesn't assume
+that LINKs are meaningful. It _does_ assume subobjects are in the current format.
+
+DSubobj5Dump is identical except that it assume subobjects are in 'N105' format; it's
+intended for debugging the process of converting ?? */
+
+void DSubobj5Dump(short iHp, unsigned char *pLink1, short nFrom, short nTo, Boolean doLabel)
+{
+	short sLen = subObjLength_5[iHp];
+	if (doLabel) LogPrintf(LOG_DEBUG, "DSubobj5Dump: iHp=%d pLink1=%lx\n", iHp, pLink1);
+	for (short m = nFrom; m<=nTo; m++) {
+		unsigned char *pSObj = pLink1+(m*sLen);
+		DHexDump(LOG_DEBUG, "DSubobj5Dump:", pSObj, sLen, 4, 16, True);
+	}
+}
+
+void DSubobjDump(short iHp, unsigned char *pLink1, short nFrom, short nTo, Boolean doLabel)
+{
+	short sLen = subObjLength[iHp];
+	if (doLabel) LogPrintf(LOG_DEBUG, "DSubobjDump: iHp=%d pLink1=%lx\n", iHp, pLink1);
+	for (short m = nFrom; m<=nTo; m++) {
+		unsigned char *pSObj = pLink1+(m*sLen);
+		DHexDump(LOG_DEBUG, "DSubobjDump:", pSObj, sLen, 4, 16, True);
+	}
+}
+
+
 /* Dump objects with positions in the object heap -- not links -- in the range [nFrom,
 nTo] into the log file, displaying them in hexadecimal. We assume objects are in the
-current format, so if a score in an old format was just opened, objects should be
+current format, so if a score is in an old format was just opened, objects should be
 converted before this is called. Caveat: positions in the object heap are not necessarily
 link values! For a newly-opened score, position n is indeed LINK n; for a score that's
 been edited, the relationship between position and LINK isn't easily predictable. */

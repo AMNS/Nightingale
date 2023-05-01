@@ -67,6 +67,7 @@ static void LogScoreHeaderFormatInfo(void)
 	LogPrintf(LOG_DEBUG,
 		"      spaceMap=%ld voiceTab=%ld afterEnd=%ld\n",
 			spaceMapOff, voiceTabOff, afterEnd);
+
 	noteInsFeedbackOff = ScoreHdrFieldOffset(tD, noteInsFeedback);
 	fontNameMNOff = ScoreHdrFieldOffset(tD, fontNameMN[0]);
 	nfontsUsedOff = ScoreHdrFieldOffset(tD, nfontsUsed);
@@ -149,10 +150,10 @@ static void InitNPalettes(void)
 		SHOWWD;
 	}
 
-	if (!NInitPaletteWindows()) { BadInit(); ExitToShell(); }
-	if (!InitDynamicPalette()) { BadInit(); ExitToShell(); }
-	if (!InitModNRPalette()) { BadInit(); ExitToShell(); }
-	if (!InitDurationPalette()) { BadInit(); ExitToShell(); }
+	if (!NInitPaletteWindows())	{ BadInit(); ExitToShell(); }
+	if (!InitDynamicPalette())	{ BadInit(); ExitToShell(); }
+	if (!InitModNRPalette())	{ BadInit(); ExitToShell(); }
+	if (!InitDurationPalette())	{ BadInit(); ExitToShell(); }
 	
 	chdir(cwdSave);
 }
@@ -222,7 +223,7 @@ void Initialize(void)
 	
 #ifdef NOTYET
 	/* FIXME: Finish mplementing the Preferences text file! The code in Preferences.c
-	   passes simple tests like these. */
+	   already passes simple tests like these. */
 	   
 	char *foo = GetPrefsValue("foo");
 	char *bazz = GetPrefsValue("bazz");
@@ -265,8 +266,7 @@ void Initialize(void)
 	   we might as well make the minimum a lot higher -- though it's probably not even
 	   meaningful anymore!  --DAB, Feb. 2017) */
 	   
-	if (!PreflightMem(1000))
-		{ BadInit(); ExitToShell(); }
+	if (!PreflightMem(1000)) { BadInit(); ExitToShell(); }
 }
 
 
@@ -382,7 +382,7 @@ static Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
 
-	/* The MIDI modifier prefs table and its template. */
+	/* Copy the MIDI modifier Prefs table and its template. */
 	
 	resH = GetResource('MIDM', PREFS_MIDI_MODNR);
 	if (!GoodResource(resH)) return False;		
@@ -474,8 +474,7 @@ Boolean OpenPrefsFile(void)
 
 	short oldVRefNum, vRefNum;
 	long oldDirID, dirID;
-
-	FSSpec rfSpec; OSErr theErr;
+	FSSpec rfSpec;  OSErr theErr;
 	
 //	short oldVol; 
 //	GetVol(volName,&oldVol);
@@ -1327,7 +1326,7 @@ Boolean BuildEmptyDoc(Document *doc)
 {
 	if (!InitAllHeaps(doc)) { NoMoreMemory(); return False; }
 	InstallDoc(doc);
-	BuildEmptyList(doc,&doc->headL,&doc->tailL);
+	BuildEmptyList(doc, &doc->headL, &doc->tailL);
 	
 	doc->selStartL = doc->selEndL = doc->tailL;			/* Empty selection  */	
 	return True;

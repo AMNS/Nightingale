@@ -1325,9 +1325,9 @@ messages in a second; presumably Apple decided that was good enough, and easier 
 fixing the bug.
 
 To sidestep the bug, call this function to add a delay between messages. Note that this
-can make some operations -- e.g., converting large files -- much slower, so it should be
-#ifdef'd out or removed completely if we're not concerned about getting all the
-messages.  */
+can make some operations -- e.g., converting large files -- much slower, so calls to it
+should be #ifdef'd out or removed completely if you're not concerned about getting all
+the messages.  */
    
 void KludgeOS10p5Delay4Log(Boolean giveWarning)
 {

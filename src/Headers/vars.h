@@ -13,7 +13,7 @@
 */
 
 
-/* ------------------------------------------------------------ Without Initialization -- */
+/* ============================================================ Without Initialization == */
 
 /* The HEAP pointers below are indexed by type; therefore, the list _must_ agree with the
 list of types in NBasicTypes.h, among other things! See comments there. */
@@ -126,7 +126,6 @@ GLOBAL Boolean		recordingNow;			/* True = MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
 GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
 
-GLOBAL Boolean		notDoNoteheadGraphs;	/* Display noteheads as tiny graphs? FIXME: OBSOLETE! REMOVE! */
 GLOBAL Boolean		thinLines;				/* On PostScript output, linewidth(s) set dangerously thin */
 
 GLOBAL CharRectCache charRectCache;
@@ -161,7 +160,7 @@ GLOBAL NBMP			bmpDurationPal;
 
 GLOBAL Rect			durPalCell[DP_NROWS*DP_NCOLS];
 
-/* --------------------------------------------------------------- With Initialization -- */
+/* =============================================================== With Initialization == */
 
 #ifdef MAIN
 
@@ -411,6 +410,69 @@ short objLength[] = {
 		sizeof(SUPEROBJECT)
 	};
 
+
+/* Subobject sizes in 'N105' format files. */
+
+short subObjLength_5[] = {
+		sizeof(PARTINFO),		/* HEADER subobject */
+		0,						/* TAIL objects can't have subobjects */
+		sizeof(ANOTE_5),		/* SYNC subobject */
+		sizeof(ARPTEND_5),		/* etc. */
+		0,
+		0,
+		sizeof(ASTAFF_5),
+		sizeof(AMEASURE_5),
+		sizeof(ACLEF_5),
+		sizeof(AKEYSIG_5),
+		sizeof(ATIMESIG_5),
+		sizeof(ANOTEBEAM_5),
+		sizeof(ACONNECT_5),
+		sizeof(ADYNAMIC_5),
+		sizeof(AMODNR_5),
+		sizeof(AGRAPHIC_5),
+		sizeof(ANOTEOTTAVA_5),
+		sizeof(ASLUR_5),
+		sizeof(ANOTETUPLE),
+		sizeof(AGRNOTE_5),
+		0,
+		0,
+		0,
+		sizeof(APSMEAS_5),
+		sizeof(SUPEROBJECT_N105)
+	};
+		
+/* Object sizes in memory (a fixed size, that of SUPEROBJECT_N105) and in 'N105' format
+files (size dependent on object type). */
+
+short objLength_5[] = {
+		sizeof(HEADER_5),
+		sizeof(TAIL_5),
+		sizeof(SYNC_5),
+		sizeof(RPTEND_5),
+		sizeof(PAGE_5),
+		sizeof(SYSTEM_5),
+		sizeof(STAFF_5),
+		sizeof(MEASURE_5),
+		sizeof(CLEF_5),
+		sizeof(KEYSIG_5),
+		sizeof(TIMESIG_5),
+		sizeof(BEAMSET_5),
+		sizeof(CONNECT_5),
+		sizeof(DYNAMIC_5),
+		0, 							/* No MODNR objects */
+		sizeof(GRAPHIC_5),
+		sizeof(OTTAVA_5),
+		sizeof(SLUR_5),
+		sizeof(TUPLET_5),
+		sizeof(GRSYNC_5),
+		sizeof(TEMPO_5),
+		sizeof(SPACER_5),
+		sizeof(ENDING_5),
+		sizeof(PSMEAS_5),
+		sizeof(SUPEROBJECT_N105)
+	};
+
+
 GLOBAL SignedByte threadableType=SYNCtype;
 
 GLOBAL short durPalCode[] = { 
@@ -439,8 +501,11 @@ GLOBAL short restYOffset[];
 
 GLOBAL short noteOffset[];
 GLOBAL FASTFLOAT relFSizeTab[];
+
 GLOBAL short subObjLength[];
 GLOBAL short objLength[];
+GLOBAL short subObjLength_5[];
+GLOBAL short objLength_5[];
 
 GLOBAL SignedByte threadableType;
 
@@ -450,6 +515,6 @@ GLOBAL short durPalNDots[];
 #endif
 
 
-/* ----------------------------------------------------------------------------- enums -- */
+/* ============================================================================= enums == */
 
 enum { ClickErase, ClickSelect, ClickInsert, ClickFrame };

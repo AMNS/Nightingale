@@ -58,9 +58,11 @@ void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, short, short *);
 void DHexDump(short logLevel, char *label, unsigned char *pBuffer, long nBytes,
 				short nPerGroup, short nPerLine, Boolean numberLines);
+void DSubobj5Dump(short iHp, unsigned char *pLink1, short nFrom, short nTo, Boolean doLabel);
+void DSubobjDump(short iHp, unsigned char *pLink1, short nFrom, short nTo, Boolean doLabel);
+void DObjDump(char *label, short nFrom, short nTo);
 void DPrintRow(Byte bitmap[], short startLoc, short byWidth, short rowNum, Boolean foreIsAOne,
 				Boolean skipBits);
-void DObjDump(char *label, short nFrom, short nTo);
 
 /* If we're running inside Xcode, #define'ing _DebugPrintf_ as simply _printf_ is OK:
 then DebugPrintf output will appear in the Run Log window. But if we're not in Xcode,

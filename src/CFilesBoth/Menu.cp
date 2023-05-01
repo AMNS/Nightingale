@@ -2116,6 +2116,7 @@ static void VMGraphMode()
 		else
 			doc->graphMode = GRAPHMODE_NORMAL;
 		CheckMenuItem(viewMenu, VM_GraphMode, doc->graphMode);
+		InvalRangeContent(doc->headL, doc->tailL);
 		InvalWindow(doc);
 	}
 }

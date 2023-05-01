@@ -42,7 +42,7 @@ as well. */
 	
 #define SUBOBJHEADER \
 	LINK		next;				/* index of next subobject */								\
-	SignedByte	staffn;				/* staff no. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
+	SignedByte	staffn;				/* staff no. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */	\
 	SignedByte	subType;			/* subobject subtype. NB: Signed; see ANOTE. */			\
 	Boolean		selected;			/* True if subobject is selected */						\
 	Boolean		visible;			/* True if subobject is visible */						\

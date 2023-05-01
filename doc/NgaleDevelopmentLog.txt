@@ -12085,7 +12085,7 @@ PrepareResultListDoc called from DoResultListDoc called from ListMatches.
 
 4 - 14 Feb.
 
-Take a quick look at why opening Bach-BWV540FMToccata.ngl is so slow. Have
+BACK TO: Take a quick look at why opening Bach-BWV540FMToccata.ngl is so slow. Have
 ConvertObjSubobjs() write a log message every 20 objs. W/ Bach_StAnne_69.ngl, about 11 to
 17 msgs/sec. W/ Bach-BWV540FMToccata.ngl, only 1 to 8, most often no more than 3! Yep. But
 why? Toccata gradually gets slower -- but it also starts off much more slowly than StAnne.
@@ -12603,3 +12603,29 @@ the 2nd note, both are wrong :-( .
 Arrrrgh! Has this bug really been in Ngale 6's file conversion all along? 6.0.40 behaves the
 same way on both UnbeamedGraceNotes.ngl and HindemithBnSonataVisTEST.ng; so  does 6.0.26 (of
 17 Sept. 2022). So it's been there for almost seven months, if not longer!!
+
+---------------------------------------------------------------------------------------
+
+14 - 24 Apr.
+
+BACK TO: Search/Find All problems: see notes of 15 - 20 July 2022 and 17 Jan. - 2 Feb. 2023.
+This is of immediate interest for my Princeton talk on 20 April!
+
+Problem 1: When Search Again (and maybe Search for Notes/Rests) find a match, it tends to
+scroll in a very unhelpful way! But it may need to scroll to get the new match in view.
+What should it do?
+
+Problem 2: It's very hard to see the notes of a match, partly because of Ngale's subtle
+hilighting, partly because of the unhelpful scrolling.
+
+Problem 3: With Bach_StAnne_69.ngl, the 2nd Find All crashes or hangs or shows a blank result
+list -- maybe only if pitch tolerance is nonzero. In two or three tries, the 1st Find All w/
+pitch tolerance 2 lists from 1 to 4 matches(?); is that what the log shows? While the window
+listing used to be a disaster, Ngale did the matching a lot better than that; if not quite
+perfectly, darn close! Better not show this on 20 April :-( .
+
+24 Apr.: BACK TO: the "files converted from N105 format sometimes have invisible notes or
+grace notes" problem. Evidence so far is the notenum/notation disagreement as well as the
+invisible notes/ grace notes. It might help a lot to compare all ANOTE fields before and after
+conversion! To do that, need DSubobjDump & DSubobj5Dump...done.
+

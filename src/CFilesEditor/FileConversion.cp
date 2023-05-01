@@ -319,7 +319,7 @@ short HeapFixN105ObjLinks(Document *doc)
 	
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
-#if 0
+#ifdef NOMORE
 {	unsigned char *pSObj;
 DHexDump(LOG_DEBUG, "HeapFixLinks1 L1", pSObj, 46, 4, 16);
 pSObj = (unsigned char *)GetPSUPEROBJ(2);
@@ -380,7 +380,7 @@ DHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 		}
 	}
 
-#if 0
+#ifdef NOMORE
 {	unsigned char *pSObj;
 pSObj = (unsigned char *)GetPSUPEROBJ(1);
 DHexDump(LOG_DEBUG, "HeapFixLinks2 L1", pSObj, 46, 4, 16);
@@ -685,9 +685,11 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteSEL(aNoteRL) = (&a1NoteR)->selected;
 	NoteVIS(aNoteRL) = (&a1NoteR)->visible;
 	NoteSOFT(aNoteRL) = (&a1NoteR)->soft;
-LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d\n", aNoteRL,
-(&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft);
-
+#define DEBUG_EMPTY_OBJRECT
+#ifdef DEBUG_EMPTY_OBJRECT
+LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d\n",
+aNoteRL, (&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft);
+#endif
 	/* Now for the ANOTE-specific fields. */
 	
 	NoteINCHORD(aNoteRL) = (&a1NoteR)->inChord;
@@ -736,8 +738,10 @@ LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d\n", aN
 	NoteUSERID(aNoteRL) = 0;
 	NoteRESERVEDN(aNoteRL) = 0L;
 	
-if (True) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+#ifdef DEBUG_EMPTY_OBJRECT
+LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
 aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
+#endif
 
 	/* AMODNR subobjs are attached directly to ANOTEs, so convert them here. */
 
@@ -1176,9 +1180,8 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 	LinkSPAREFLAG(objL) = tmpObjHeader_5.spareFlag;
 	LinkOBJRECT(objL) = tmpObjHeader_5.objRect;
 	LinkNENTRIES(objL) = tmpObjHeader_5.nEntries;
-#define NoDEBUG_EMPTY_OBJRECT
 #ifdef DEBUG_EMPTY_OBJRECT
-//if (ObjLType(objL)==SYNCtype || ObjLType(objL)==GRSYNCtype)
+if (ObjLType(objL)==SYNCtype || ObjLType(objL)==GRSYNCtype || DETAIL_SHOW)
 LogPrintf(LOG_DEBUG, "  ConvertObjHeader: objL=L%u objRect/t,l,b,r=p%d,%d,%d,%d\n",
 objL, LinkOBJRECT(objL).top, LinkOBJRECT(objL).left,
 LinkOBJRECT(objL).bottom, LinkOBJRECT(objL).right);
