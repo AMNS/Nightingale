@@ -49,7 +49,7 @@ GLOBAL SysEnvRec	thisMac;				/* Our machine environment info */
 GLOBAL OSType		creatorType;			/* Application signature ('BYRD') */
 GLOBAL OSType		documentType;			/* Document file signature */
 
-GLOBAL LINK			clipFirstMeas;			/* first measure of clipboard */
+GLOBAL LINK			clipFirstMeas;			/* first Measure of clipboard */
 GLOBAL Boolean		doneFlag,				/* False until program is done */
 					cursorValid,			/* True while cursor is valid */
 					bestQualityPrint,		/* "Best Quality Print" requested (on ImageWriter)? */
@@ -125,8 +125,8 @@ GLOBAL long			mFinalTime;				/* For our MIDI Mgr readHook: time stamp of last da
 GLOBAL Boolean		recordingNow;			/* True = MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
 GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
-
 GLOBAL Boolean		thinLines;				/* On PostScript output, linewidth(s) set dangerously thin */
+GLOBAL short		debugLevel;				/* 0 = no special debug features (mostly for logging) */
 
 GLOBAL CharRectCache charRectCache;
 GLOBAL GrafPtr		underBits, offScrBits, picBits;	/* Bitmaps for dragging */

@@ -468,10 +468,8 @@ work. */
 #define COMPOUND(numer) (numer%3==0 && numer>3)
 
 
-#define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
-#define MORE_DETAIL_SHOW	(DETAIL_SHOW && OptionKeyDown())
 
-/* -------------------------------------------------------------------- Error Checking -- */ 
+/* ------------------------------------------------------ Error checking and debugging -- */ 
 		
 /* Is the link garbage because it's greater than the length of the heap for its type? */
 
@@ -506,6 +504,15 @@ height or  width, or (2) a rectangle of area zero because its width or height is
 									|| (r).left<0 || (r).right<0					\
 									|| (r).top<0 || (r).bottom<0 )
 #define ZERODIM_RECT(r)		( (r).left==(r).right || (r).top==(r).bottom )
+
+#define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
+#define MORE_DETAIL_SHOW	(DETAIL_SHOW && OptionKeyDown())
+
+/* NTH_D(num, nDigit) extracts from <num> the <nDigit>th from the right. */
+
+#define LNTH_D(num, nDigit)	((num) / (short)pow(10, (nDigit)))
+#define NP1_D(num, nDigit)	(10*((num) / (short)pow(10, (nDigit+1))))
+#define NTH_D(num, nDigit)	(LNTH_D(num, nDigit) - NP1_D(num, nDigit))
 
 
 /* ------------------------------------------- Coordinate & distance conversion macros -- */

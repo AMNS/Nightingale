@@ -198,17 +198,19 @@ if it's really a problem (and fix it) or not (and remove this code)! */
 	p += ((long)heap->nObjs) * (long)heap->objSize;			/* Addr of first added object */
 	p1stNew = p;
 	
-	if (DETAIL_SHOW && DEBUG_CLOBBER) LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld ->objSize=%d deltaObjs=%ld\n",
-		heap, heap->nObjs, heap->objSize, deltaObjs);
-	if (DETAIL_SHOW && DEBUG_CLOBBER) LogPrintf(LOG_DEBUG, "ExpandFreeList: block=%lx p1stNew=%lx\n", *heap->block, p1stNew);
-	if (DETAIL_SHOW && DEBUG_CLOBBER) DHexDump(LOG_DEBUG, "ExpandFreeList1", (unsigned char *)p1stNew, 60, 4, 16, False);
-
+	if (DETAIL_SHOW && DEBUG_CLOBBER) {
+		KludgeOS10p5LogDelay(True);					/* Avoid bug in OS 10.5/10.6 Console */
+		LogPrintf(LOG_DEBUG, "ExpandFreeList: heap=%lx ->nObjs=%ld ->objSize=%d deltaObjs=%ld\n",
+			heap, heap->nObjs, heap->objSize, deltaObjs);
+		LogPrintf(LOG_DEBUG, "ExpandFreeList: block=%lx p1stNew=%lx\n", *heap->block, p1stNew);
+		DHexDump(LOG_DEBUG, "ExpandFreeList1", (unsigned char *)p1stNew, 60, 4, 16, False);
+	}
+	
 	for (i=heap->nObjs; i<newSize-1; i++) {
 		if (DEBUG_CLOBBER) FillMem(0, p, heap->objSize);
 		*(LINK *)p = i+1;
 
 		if (DETAIL_SHOW && DEBUG_CLOBBER && i-(heap->nObjs)<3) {
-			KludgeOS10p5Delay4Log(False);				/* Avoid bug in OS 10.5/10.6 Console */
 			DHexDump(LOG_DEBUG, "    ExpandFreeList2", (unsigned char *)p, heap->objSize+4, 4, 16, False);
 		}
 

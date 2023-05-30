@@ -25,6 +25,7 @@ reclaim heap space, but with the gigabytes of RAM modern computers have, who car
 static void			InitToolbox(void);
 static void			LogScoreHeaderFormatInfo(void);
 static void			LogObjAndSubobjInfo(void);
+static void			LogANoteInfo(void);
 static void			InitNPalettes(void);
 static Boolean		AddPrefsResource(Handle);
 static OSStatus		GetPrefsFileSpec(unsigned char *name, OSType fType, OSType fCreator,
@@ -37,6 +38,7 @@ static Boolean		PrepareClipDoc(void);
 static void			InstallCoreEventHandlers(void);
 
 
+/* ---------------------------------------------------- Collect info for documentation -- */
 /* The following code is intended to be compiled once in a blue moon, when the file
    format changes, to collect information for Nightingale documentation. That info (as
    of March 2022, for formats 'N105' and 'N106') is in Nightingale Tech Note #1, the
@@ -45,6 +47,7 @@ static void			InstallCoreEventHandlers(void);
 #define NoDISP_STRUCT_INFO
 #define ScoreHdrFieldOffsetQQ(field)	(long)&((field))-(long)&(headL)
 #define ScoreHdrFieldOffset(dc, field)	(long)&(dc->field)-(long)&(dc->headL)
+#define NoteFieldOffset(dc, field)		(long)&(dc->field)-(long)&(dc->next)
 
 static void LogScoreHeaderFormatInfo(void)
 {
@@ -52,7 +55,7 @@ static void LogScoreHeaderFormatInfo(void)
 	Document *tD;
 	DocumentN105 *tD5;
 	long noteInsFeedbackOff, fontNameMNOff, nfontsUsedOff, magnifyOff, spaceMapOff,
-		voiceTabOff, afterEnd;
+			voiceTabOff, afterEnd;
 
 	noteInsFeedbackOff = ScoreHdrFieldOffset(tD5, comment[MAX_COMMENT_LEN+1]);
 	fontNameMNOff = ScoreHdrFieldOffset(tD5, fontNameMN[0]);
@@ -118,6 +121,147 @@ static void LogObjAndSubobjInfo(void)
 #endif
 }
 
+static void LogANoteInfo(void)
+{
+#ifdef DISP_STRUCT_INFO
+	PANOTE pANote;
+
+	long inChordOff = NoteFieldOffset(pANote, inChord);
+	long restOff = NoteFieldOffset(pANote, rest);
+	long unpitchedOff = NoteFieldOffset(pANote, unpitched);
+	long beamedOff = NoteFieldOffset(pANote, beamed);
+	long otherStemSideOff = NoteFieldOffset(pANote, otherStemSide);
+	long yqpitOff = NoteFieldOffset(pANote, yqpit);
+	LogPrintf(LOG_DEBUG,
+		"ANOTE OFFSETS ('N106' fmt): inChord=%ld rest=%ld unpitched=%ld otherStemSide=%ld beamed=%ld yqpit=%ld\n",
+			inChordOff, restOff, unpitchedOff, beamedOff, otherStemSideOff, yqpitOff);	
+	long xdOff = NoteFieldOffset(pANote, xd);
+	long ydOff = NoteFieldOffset(pANote, yd);
+	long ystemOff = NoteFieldOffset(pANote, ystem);
+	long playTimeDeltaOff = NoteFieldOffset(pANote, playTimeDelta);
+	long playDurOff = NoteFieldOffset(pANote, playDur);
+	long pTimeOff = NoteFieldOffset(pANote, pTime);
+	LogPrintf(LOG_DEBUG,
+		"                            xd=%ld yd=%ld ystem=%ld playTimeDelta=%ld playDur=%ld pTime=%ld\n",
+			xdOff, ydOff, ystemOff, playTimeDeltaOff, playDurOff, pTimeOff);	
+	long noteNumOff = NoteFieldOffset(pANote, noteNum);
+	long onVelocityOff = NoteFieldOffset(pANote, onVelocity);
+	long offVelocityOff = NoteFieldOffset(pANote, offVelocity);
+	long tiedLOff = NoteFieldOffset(pANote, tiedL);
+	long tiedROff = NoteFieldOffset(pANote, tiedR);
+	LogPrintf(LOG_DEBUG,
+		"                            noteNum=%ld onVelocity=%ld offVelocity=%ld tiedL=%ld tiedR=%ld\n",
+			noteNumOff, onVelocityOff, offVelocityOff, tiedLOff, tiedROff);	
+	long xMoveDotsOff = NoteFieldOffset(pANote, xMoveDots);
+	long yMoveDotsOff = NoteFieldOffset(pANote, yMoveDots);
+	long ndotsOff = NoteFieldOffset(pANote, ndots);
+	long voiceOff = NoteFieldOffset(pANote, voice);
+	long rspIgnoreOff = NoteFieldOffset(pANote, rspIgnore);
+	long accidentOff = NoteFieldOffset(pANote, accident);
+	LogPrintf(LOG_DEBUG,
+		"                            xMoveDots=%ld yMoveDots=%ld ndots=%ld voice=%ld rspIgnore=%ld accident=%ld\n",
+			xMoveDotsOff, yMoveDotsOff, ndotsOff, voiceOff, rspIgnoreOff, accidentOff);
+	long accSoftOff = NoteFieldOffset(pANote, accSoft);
+	long courtesyAccOff = NoteFieldOffset(pANote, courtesyAcc);
+	long xmoveAccOff = NoteFieldOffset(pANote, xmoveAcc);
+	long playAsCueOff = NoteFieldOffset(pANote, playAsCue);
+	long micropitchOff = NoteFieldOffset(pANote, micropitch);
+	LogPrintf(LOG_DEBUG,
+		"                            accSoft=%ld courtesyAcc=%ld xmoveAcc=%ld playAsCue=%ld micropitch=%ld\n",
+			accSoftOff, courtesyAccOff, xmoveAccOff, playAsCueOff, micropitchOff);
+	long mergedOff = NoteFieldOffset(pANote, merged);
+	long doubleDurOff = NoteFieldOffset(pANote, doubleDur);
+	long headShapeOff = NoteFieldOffset(pANote, headShape);
+	long firstModOff = NoteFieldOffset(pANote, firstMod);
+	long slurredLOff = NoteFieldOffset(pANote, slurredL);
+	long slurredROff = NoteFieldOffset(pANote, slurredR);
+	LogPrintf(LOG_DEBUG,
+		"                            merged=%ld doubleDur=%ld headShape=%ld firstMod=%ld slurredL=%ld slurredR=%ld\n",
+			mergedOff, doubleDurOff, headShapeOff, firstModOff, slurredLOff, slurredROff);
+	long inTupletOff = NoteFieldOffset(pANote, inTuplet);
+	long inOttavaOff = NoteFieldOffset(pANote, inOttava);
+	long smallOff = NoteFieldOffset(pANote, small);
+	long tempFlagOff = NoteFieldOffset(pANote, tempFlag);
+	long artHarmonicOff = NoteFieldOffset(pANote, artHarmonic);
+	long userIDOff = NoteFieldOffset(pANote, userID);
+	LogPrintf(LOG_DEBUG,
+		"                            inTuplet=%ld inOttava=%ld small=%ld tempFlag=%ld artHarmonic=%ld userID=%ld\n",
+			inTupletOff, inOttavaOff, smallOff, tempFlagOff, artHarmonicOff, userIDOff);
+	long nhSegmentOff = NoteFieldOffset(pANote, nhSegment);
+	long reservedNOff = NoteFieldOffset(pANote, reservedN);
+	LogPrintf(LOG_DEBUG,
+		"                            nhSegment[]=%ld reservedN=%ld\n",
+			nhSegmentOff, reservedNOff);
+#endif
+}
+
+
+/* ---------------------------------------------------------------- DebugLevelDialog -- */
+/* Conduct dialog to get debug level from user. Returns result, or NRV_CANCEL for
+Cancel. */
+
+#define NUMBER_DI 	3			/* DITL index of number to be adjusted */
+#define UpRect_DI	5			/* DITL index of up button rect */
+#define DownRect_DI	6			/* DITL index of down button rect */
+
+short DebugLevelDialog(short initLevel);
+short DebugLevelDialog(short initLevel)		/* Initial (default) value */
+{
+	DialogPtr	dlog;
+	short		ditem, newLevel;
+	short		minDlogVal, maxDlogVal;
+	GrafPtr		oldPort;
+	char		fmtStr[256];
+	ModalFilterUPP filterUPP;
+	
+	filterUPP = NewModalFilterUPP(NumberFilter);
+	if (filterUPP == NULL) {
+		MissingDialog(DEBUG_LEVEL_DLOG);
+		return NRV_CANCEL;
+	}
+	
+	newLevel = NRV_CANCEL;
+	
+	GetPort(&oldPort);
+	dlog = GetNewDialog(DEBUG_LEVEL_DLOG, NULL, BRING_TO_FRONT);
+	if (dlog) {
+		SetPort(GetDialogWindowPort(dlog));
+		PutDlgWord(dlog, NUMBER_DI, initLevel, True);
+		UseNumberFilter(dlog, NUMBER_DI, UpRect_DI, DownRect_DI);
+
+		ShowWindow(GetDialogWindow(dlog));
+		ArrowCursor();
+
+		minDlogVal = 1;
+		maxDlogVal = 9999;
+	
+		do {
+			while (True) {
+				ModalDialog(&NumberFilter, &ditem);
+				if (ditem==OK || ditem==Cancel) break;
+			}
+			if (ditem==OK) {
+				GetDlgWord(dlog, NUMBER_DI, &newLevel);
+				if (newLevel>=minDlogVal && newLevel<=maxDlogVal) break;
+				GetIndCString(fmtStr, DIALOGERRS_STRS, 24);				/* "Debug level" */
+				sprintf(strBuf, fmtStr, minDlogVal, maxDlogVal);
+				CParamText(strBuf, "", "", "");
+				StopInform(GENERIC_ALRT);
+				newLevel = NRV_CANCEL;
+			}
+			 else
+				break;
+		} while (newLevel<minDlogVal || newLevel>maxDlogVal);
+			
+		DisposeDialog(dlog);
+		}
+	else
+		MissingDialog(DEBUG_LEVEL_DLOG);
+	
+	SetPort(oldPort);
+	return newLevel;
+}
+
 
 /* ------------------------------------------------------------- Initialize and allies -- */
 /* Do everything that must be done prior to entering main event loop. A great deal of
@@ -176,14 +320,12 @@ void Initialize(void)
 	appRFRefNum = CurResFile();
 	dummyVolName[0] = 0;
 	err = HGetVol(dummyVolName, &appVRefNum, &appDirID);
-	if (err)
-		{ BadInit(); ExitToShell(); }
+	if (err) { BadInit(); ExitToShell(); }
 			
 	/* We must allocate <strBuf> immediately: it's used to build error messages. */
 	
 	strBuf = (char *)NewPtr(STRBUF_SIZE);
-	if (!GoodNewPtr((Ptr)strBuf))
-		{ OutOfMemory((long)STRBUF_SIZE); ExitToShell(); }
+	if (!GoodNewPtr((Ptr)strBuf)) { OutOfMemory((long)STRBUF_SIZE); ExitToShell(); }
 	
 	creatorType = CREATOR_TYPE_NORMAL;
 	documentType = DOCUMENT_TYPE_NORMAL;
@@ -214,6 +356,23 @@ void Initialize(void)
 	LogPrintf(LOG_NOTICE, "RUNNING NIGHTINGALE %s-%cE  (Initialize)\n", applVerStr,
 				bigOrLittleEndian);
 
+	/* Unlike almost all globals, we want to set <debugLevel> immediately. */
+	
+	debugLevel = 0;
+	if (DETAIL_SHOW) debugLevel = DebugLevelDialog(debugLevel);
+	if (debugLevel!=0) LogPrintf(LOG_DEBUG, "DEBUGGING SETUP: debugLevel=%d.  (Initialize)\n",
+									debugLevel);
+#ifdef NOMORE
+if (debugLevel!=0) {
+	LogPrintf(LOG_DEBUG, "debugLevel LNTH_D 3=%d 2=%d 1=%d 0=%d\n", LNTH_D(debugLevel, 3),
+		LNTH_D(debugLevel, 2), LNTH_D(debugLevel, 1), LNTH_D(debugLevel, 0));
+	LogPrintf(LOG_DEBUG, "debugLevel NP1_D 3=%d 2=%d 1=%d 0=%d\n", NP1_D(debugLevel, 3),
+		NP1_D(debugLevel, 2), NP1_D(debugLevel, 1), NP1_D(debugLevel, 0));
+	LogPrintf(LOG_DEBUG, "debugLevel NTH_D 3=%d 2=%d 1=%d 0=%d\n", NTH_D(debugLevel, 3),
+		NTH_D(debugLevel, 2), NTH_D(debugLevel, 1), NTH_D(debugLevel, 0));
+}
+#endif
+
 	if (!OpenPrefsFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
 	GetConfig();									/* needs the Prefs (Setup) file open */
@@ -222,7 +381,7 @@ void Initialize(void)
 	GetTextConfig();								/* needs the Prefs file open */
 	
 #ifdef NOTYET
-	/* FIXME: Finish mplementing the Preferences text file! The code in Preferences.c
+	/* FIXME: Finish implementing the Preferences text file! The code in Preferences.c
 	   already passes simple tests like these. */
 	   
 	char *foo = GetPrefsValue("foo");
@@ -259,6 +418,7 @@ void Initialize(void)
 	
 	LogScoreHeaderFormatInfo();
 	LogObjAndSubobjInfo();
+	LogANoteInfo();
 	
 	/* See if we have enough memory that the user should be able to do SOMETHING
 	   useful, and enough to get back to the main event loop, where we do our regular
@@ -1246,11 +1406,12 @@ static Boolean GetConfig(void)
 
 	}
 
-	/* Display CNFG fields in the log. Then check for problems, and, if any are found,
-		display the (presumably corrected) values. */
-	if (DETAIL_SHOW) DisplayConfig();
+	/* Optionally display CNFG fields in the log. Then check for problems, and, if any are
+	   found, display the (presumably corrected) values. */
+	   
+	if (NTH_D(debugLevel, 3)!=0) DisplayConfig();
 	if (!CheckConfig()) {
-		LogPrintf(LOG_WARNING, "Illegal fields have been set to default values.  (GetConfig)\n");
+		LogPrintf(LOG_WARNING, "Illegal field(s) found and set to default values.  (GetConfig)\n");
 		DisplayConfig();
 	}
 	
@@ -1311,11 +1472,10 @@ static Boolean PrepareClipDoc(void)
 	//		((WindowPeek)w)->spareFlag = True;
 	ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
 
-	if (!BuildDocument(clipboard, NULL, 0, NULL, &junkVersion, True))
-		return False;
+	if (!BuildDocument(clipboard, NULL, 0, NULL, &junkVersion, True)) return False;
 	for (pL=clipboard->headL; pL!=clipboard->tailL; pL=DRightLINK(clipboard, pL))
-		if (DObjLType(clipboard, pL)==MEASUREtype)
-			{ clipFirstMeas = pL; break; }
+		if (DObjLType(clipboard, pL)==MEASUREtype) { clipFirstMeas = pL;  break; }
+
 	clipboard->canCutCopy = False;
 	GetIndCString(title, MiscStringsID, 2);
 	SetWCTitle((WindowPtr)clipboard, title);
@@ -1372,8 +1532,7 @@ Boolean InitGlobals(void)
 		
 		size = (long)sizeof(Document) * config.maxDocuments;
 		documentTable = (Document *)NewPtr(size);
-		if (!GoodNewPtr((Ptr)documentTable))
-			{ OutOfMemory(size);  return False; }
+		if (!GoodNewPtr((Ptr)documentTable)) { OutOfMemory(size);  return False; }
 		
 		topTable = documentTable + config.maxDocuments;
 		for (doc=documentTable; doc<topTable; doc++) doc->inUse = False;
@@ -1389,8 +1548,7 @@ Boolean InitGlobals(void)
 		/* Allocate various non-relocatable things first */
 		
 		tmpStr = (unsigned char *)NewPtr(256);
-		if (!GoodNewPtr((Ptr)tmpStr))
-			{ OutOfMemory(256L); return False; }
+		if (!GoodNewPtr((Ptr)tmpStr)) { OutOfMemory(256L); return False; }
 		
 		updateRectTable = (Rect *)NewPtr(MAX_UPDATE_RECTS * sizeof(Rect));
 		if (!GoodNewPtr((Ptr)updateRectTable))
@@ -1434,9 +1592,7 @@ Boolean InitGlobals(void)
 		
 		magnifyMenu = GetMenu(magnifyID);	if (!magnifyMenu) return False;
 		InsertMenu(magnifyMenu, hierMenu);
-		
-		/* We install only one of the following menus at a time. */
-		
+				
 		playRecMenu = GetMenu(playRecID);	if (!playRecMenu) return False;
 		InsertMenu(playRecMenu, 0);
 		

@@ -53,6 +53,8 @@ Boolean DErrLimit(void);
 
 void KeySigSprintf(PKSINFO, char []);
 void DKeySigPrintf(PKSINFO);
+void DisplayNote(PANOTE aNote, Boolean addLabel);
+void DisplayGRNote(PAGRNOTE aGRNote, Boolean addLabel);
 void DisplayObject(Document *, LINK, short, Boolean, Boolean, Boolean);
 void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, short, short *);

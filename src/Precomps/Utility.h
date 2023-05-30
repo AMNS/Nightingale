@@ -81,7 +81,6 @@ void RefreshScreen(void);
 void SleepMS(long millisec);
 void SleepTicks(unsigned long ticks);
 void SleepTicksWaitButton(unsigned long ticks);
-void KludgeOS10p5Delay4Log(Boolean giveWarning);
 
 char *StdVerNumToStr(long verNum, char *verStr);
 

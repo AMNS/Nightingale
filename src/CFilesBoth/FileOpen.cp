@@ -75,6 +75,7 @@ static Boolean CheckNRGRVisibilityOK(Document *doc)
 	short invisNCount, invisRCount, invisGRCount, itemHit;
 	char fmtStr[256];
 	
+	KludgeOS10p5LogDelay(True);					/* Avoid bug in OS 10.5/10.6 Console */
 	invisNCount = invisRCount = invisGRCount = 0;
 	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
 		switch (ObjLType(objL)) {
@@ -82,8 +83,13 @@ static Boolean CheckNRGRVisibilityOK(Document *doc)
 				aNoteRL = FirstSubLINK(objL);
 				for ( ; aNoteRL; aNoteRL = NextNOTEL(aNoteRL)) {
 					if (!NoteVIS(aNoteRL)) {
-PANOTE aNoteR = GetPANOTE(aNoteRL);
-DSubobjDump(SYNCtype, (unsigned char *)aNoteR, 0, 0, True);
+#define DEBUG_EMPTY_OBJRECT
+#ifdef DEBUG_EMPTY_OBJRECT
+						if (NTH_D(debugLevel, 1)!=0) {
+							PANOTE aNoteR = GetPANOTE(aNoteRL);
+							DSubobjDump(SYNCtype, (unsigned char *)aNoteR, 0, 0, True);
+						}
+#endif
 						if (NoteREST(aNoteRL))	invisRCount++;
 						else					invisNCount++;
 					}
@@ -92,8 +98,12 @@ DSubobjDump(SYNCtype, (unsigned char *)aNoteR, 0, 0, True);
 			case GRSYNCtype:
 				aGRNoteL = FirstSubLINK(objL);
 				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
-PAGRNOTE aGRNote = GetPAGRNOTE(aGRNoteL);
-DSubobjDump(GRSYNCtype, (unsigned char *)aGRNote, 0, 0, True);
+#ifdef DEBUG_EMPTY_OBJRECT
+						if (NTH_D(debugLevel, 1)!=0) {
+							PAGRNOTE aGRNote = GetPAGRNOTE(aGRNoteL);
+							DSubobjDump(GRSYNCtype, (unsigned char *)aGRNote, 0, 0, True);
+						}
+#endif
 					if (!GRNoteVIS(aGRNoteL)) invisGRCount++;
 				}
 				break;
@@ -362,7 +372,23 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		(void)CheckNRGRVisibilityOK(doc);
 	}
 
-	if (DETAIL_SHOW) DObjDump("OpenFile", 1, (MORE_DETAIL_SHOW? 30 : 4));
+	if (DETAIL_SHOW) DObjDump("OpenFile", 1, (MORE_DETAIL_SHOW? 20 : 4));
+
+#ifdef DEBUG_EMPTY_OBJRECT
+if (NTH_D(debugLevel, 1)!=0) {
+	for (LINK objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
+		LINK aNoteRL;
+		switch (ObjLType(objL)) {
+			case SYNCtype:
+				aNoteRL = FirstSubLINK(objL);
+				for ( ; aNoteRL; aNoteRL = NextNOTEL(aNoteRL)) {
+	PANOTE aNoteR = GetPANOTE(aNoteRL);
+	DSubobjDump(SYNCtype, (unsigned char *)aNoteR, 0, 0, True);
+				}
+		}
+	}
+}
+#endif
 
 	Pstrcpy(doc->name, filename);				/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;
@@ -385,7 +411,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		if (errType) { errInfo = CM_Call; goto Error; }
 	}
 	doc->cmInputDevice = config.cmDfltInputDev;
-	KludgeOS10p5Delay4Log(False);					/* Avoid bug in OS 10.5/10.6 Console */
+	KludgeOS10p5LogDelay(True);							/* Avoid bug in OS 10.5/10.6 Console */
 	LogPrintf(LOG_INFO, "cmInputDevice=%d cmPartDeviceList[]=%d,%d  (OpenFile)\n",
 				doc->cmInputDevice, doc->cmPartDeviceList[1], doc->cmPartDeviceList[2]);
 

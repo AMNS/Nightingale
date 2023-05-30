@@ -321,13 +321,10 @@ short HeapFixN105ObjLinks(Document *doc)
 
 #ifdef NOMORE
 {	unsigned char *pSObj;
+pSObj = (unsigned char *)GetPSUPEROBJ(1);
 DHexDump(LOG_DEBUG, "HeapFixLinks1 L1", pSObj, 46, 4, 16);
 pSObj = (unsigned char *)GetPSUPEROBJ(2);
 DHexDump(LOG_DEBUG, "HeapFixLinks1 L2", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJ(3);
-DHexDump(LOG_DEBUG, "HeapFixLinks1 L3", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJ(4);
-DHexDump(LOG_DEBUG, "HeapFixLinks1 L4", pSObj, 46, 4, 16);
 }
 #endif
 
@@ -388,8 +385,6 @@ pSObj = (unsigned char *)GetPSUPEROBJ(2);
 DHexDump(LOG_DEBUG, "HeapFixLinks2 L2", pSObj, 46, 4, 16);
 pSObj = (unsigned char *)GetPSUPEROBJ(3);
 DHexDump(LOG_DEBUG, "HeapFixLinks2 L3", pSObj, 46, 4, 16);
-pSObj = (unsigned char *)GetPSUPEROBJ(4);
-DHexDump(LOG_DEBUG, "HeapFixLinks2 L4", pSObj, 46, 4, 16);
 }
 #endif
 
@@ -455,7 +450,7 @@ Error:
 
 #include "DebugUtils.h"
 
-#define BAD_OBJ_TABSIZE 100
+#define BAD_OBJ_TABSIZE 250
 static short debugBadObjCount;
 static LINK badObjLink[BAD_OBJ_TABSIZE];
 
@@ -510,10 +505,14 @@ static void DebugConvCheckObjs(Document *doc, LINK objL, char *label)
 {
 	LINK lastSyncL;
 	Boolean isARepeat;
-	
-	if (debugBadObjCount>=BAD_OBJ_TABSIZE) return;
-	
+		
 	for (LINK qL=1; qL<objL; qL++) {
+		if (debugBadObjCount>=BAD_OBJ_TABSIZE) {
+			LogPrintf(LOG_DEBUG, "The number of objRect problems exceeded the limit of %d.\n",
+						BAD_OBJ_TABSIZE);
+			return;
+		}
+
 		/* Report problems with a given object only once! */
 		
 		isARepeat = False;
@@ -687,7 +686,7 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteSOFT(aNoteRL) = (&a1NoteR)->soft;
 #define DEBUG_EMPTY_OBJRECT
 #ifdef DEBUG_EMPTY_OBJRECT
-LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d\n",
+if (NTH_D(debugLevel, 2)!=0) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d\n",
 aNoteRL, (&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft);
 #endif
 	/* Now for the ANOTE-specific fields. */
@@ -739,7 +738,7 @@ aNoteRL, (&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft);
 	NoteRESERVEDN(aNoteRL) = 0L;
 	
 #ifdef DEBUG_EMPTY_OBJRECT
-LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+if (NTH_D(debugLevel, 2)!=0) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
 aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
 #endif
 
@@ -1181,7 +1180,7 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 	LinkOBJRECT(objL) = tmpObjHeader_5.objRect;
 	LinkNENTRIES(objL) = tmpObjHeader_5.nEntries;
 #ifdef DEBUG_EMPTY_OBJRECT
-if (ObjLType(objL)==SYNCtype || ObjLType(objL)==GRSYNCtype || DETAIL_SHOW)
+if ((ObjLType(objL)==SYNCtype || ObjLType(objL)==GRSYNCtype) && NTH_D(debugLevel, 1)!=0)
 LogPrintf(LOG_DEBUG, "  ConvertObjHeader: objL=L%u objRect/t,l,b,r=p%d,%d,%d,%d\n",
 objL, LinkOBJRECT(objL).top, LinkOBJRECT(objL).left,
 LinkOBJRECT(objL).bottom, LinkOBJRECT(objL).right);
@@ -1890,33 +1889,29 @@ Boolean ConvertObjectList(Document *doc, unsigned long version, long /* fileTime
 	HEAP *objHeap;
 	LINK objL, startL, prevL;
 	unsigned char *pSObj;
-	short debugLevel, objCount;
+	short objCount;
 
 	if (version!='N105') {
 		AlwaysErrMsg("Can't convert file of any version but 'N105'.  (ConvertObjectList)");
 		return False;
 	}
 	
-	debugLevel = (DETAIL_SHOW? 1 : 0);
-	if (DEBUG_LOOP) debugLevel = 2;
 	objHeap = doc->Heap + OBJtype;	
 	startL = (doMasterList?  doc->masterHeadL :  doc->headL);
 
 	InitDebugConvert();
+
+	/* If we're debugging file conversion, sidestep the disappearing-message bug in the
+	   OS 10.5 Console utility by adding a delay before each message. */
+
+	if (NTH_D(debugLevel, 2)!=0) KludgeOS10p5LogDelay(True);
 	fflush(stdout);
 	objCount = 0;
 	prevL = startL-1;
 	for (objL = startL; objL; objL = RightLINK(objL)) {
 		objCount++;
 		if (debugLevel) {
-			/* Sidestep the OS 10.5 Console utility disappearing-message bug by adding a
-			   delay each time through. Note that this makes converting large files much
-			   slower, so it should be #ifdef'd out or removed completely if we're not
-			   concerned about getting all the messages. */
-			   
-			KludgeOS10p5Delay4Log(objCount==1);
-			
-			if (debugLevel>1 || objCount%20==1) LogPrintf(LOG_DEBUG,
+			if (NTH_D(debugLevel, 2)!=0>1 || objCount%20==1) LogPrintf(LOG_DEBUG,
 					"**************** ConvertObjectList: objL=%u prevL=%u type='%s'\n",
 					objL, prevL, NameObjType(objL));
 		}
@@ -1938,7 +1933,7 @@ Boolean ConvertObjectList(Document *doc, unsigned long version, long /* fileTime
 		
 		ConvertObjHeader(doc, objL);
 #ifdef DEBUG_EMPTY_OBJRECT
-DebugConvCheckObjs(doc, objL, "ConvertObjectList");
+if (NTH_D(debugLevel, 2)!=0) DebugConvCheckObjs(doc, objL, "ConvertObjectList");
 #endif
 		switch (ObjLType(objL)) {
 			case HEADERtype:
@@ -2031,7 +2026,7 @@ DebugConvCheckObjs(doc, objL, "ConvertObjectList");
 
 	VisifyMasterStaves(doc);
 	
-DebugConvCheckObjs(doc, doc->tailL, "ConvertObjectList");
+if (NTH_D(debugLevel, 2)!=0) DebugConvCheckObjs(doc, doc->tailL, "ConvertObjectList");
 
 	return True;
 }

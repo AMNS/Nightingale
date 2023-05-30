@@ -193,7 +193,8 @@
 #define ENABLENS_DLOG 914
 #define NSERRLIST_DLOG 920
 #define MIDIMAP_DLOG 940
-#define COMBINEPARTS_DLOG 985				/* Whether to save or open parts, etc. */
+#define COMBINEPARTS_DLOG 985			/* Whether to save or open parts, etc. */
+#define DEBUG_LEVEL_DLOG 990
 #define PLAYSPEED_DLOG 1010
 #define MUTEPART_DLOG 1012
 #define DEBUG_DLOG 1024

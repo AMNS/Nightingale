@@ -1249,7 +1249,6 @@ short SmartenQuote(TEHandle textH, short ch)
 		if (ch=='"' || ch=='\'') {
 			n = (*textH)->selStart;
 			prev = (n > 0) ? ((unsigned char) *(*((*textH)->hText) + n-1)) : 0;
-//LogPrintf(LOG_DEBUG, "prev char='%c' =%hx\n", prev, (Byte)prev);
 			if (prev=='\r' || prev==' ' || prev==MRCH_OPTION_SPACE || prev=='\t' || n==0)
 				ch = (ch=='"' ? MRCH_OPEN_DOUBLE_QUOTE : MRCH_OPEN_SINGLE_QUOTE);
 			 else
@@ -1729,6 +1728,30 @@ static Boolean HaveNewline(const char *str)
 }
 #endif
 
+/* There's a weird bug in the Console utility in OS 10.5 where if messages are written
+to the log at too high a rate, some just disappear. To make it worse, the ones that
+disappear seem to be random, and there's no indication there's a problem! With the 10.6
+Console, random messages still disappear, but you at least get a warning after 500
+messages in a second; presumably Apple decided that was good enough, and easier than
+fixing the bug.
+
+To sidestep the bug, call this function with <doDelay> True to add a delay between
+messages. Note that this can make some operations -- e.g., converting large files --
+much slower. */
+   
+static Boolean addLogMsgDelay = False;
+
+void KludgeOS10p5LogDelay(Boolean doDelay)
+{
+	if (doDelay!=addLogMsgDelay) {
+		addLogMsgDelay = doDelay;
+		if (addLogMsgDelay)
+				LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING TO AID DEBUGGING.  (KludgeOS10p5LogDelay) ******\n");
+		else	LogPrintf(LOG_DEBUG, "****** NO LONGER WORKING SLOWLY TO AID DEBUGGING.  (KludgeOS10p5LogDelay) ******\n");
+	}
+	SleepMS(3);
+}
+
 char inStr[1000], outStr[1000];
 
 Boolean VLogPrintf(const char *fmt, va_list argp)
@@ -1774,6 +1797,8 @@ Boolean LogPrintf(short priLevel, const char *fmt, ...)
 	const char *ps;
 	char levelStr[32];
 		
+	if (addLogMsgDelay) SleepMS(3);
+
 	/* If we're starting a new line, prefix a code for the level. */
 	
 	if (strlen(outStr)==0) {
@@ -1800,6 +1825,9 @@ Boolean LogPrintf(short priLevel, const char *fmt, ...)
 	return okay;
 }
 
+
+#define NoTEST_LOGGING_FUNCS
+#define NoTEST_LOGGING_LEVELS
 
 short InitLogPrintf()
 {

@@ -919,7 +919,7 @@ void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 	switch (command) {
 		case MNOTEON:
 			if (!MORE_DETAIL_SHOW) return;
-			KludgeOS10p5Delay4Log(False);			/* Avoid bug in OS 10.5/10.6 Console */
+			KludgeOS10p5LogDelay(True);					/* Avoid bug in OS 10.5/10.6 Console */
 			strcpy(strDisp, "NoteOn"); break;
 		case MNOTEOFF:
 			if (!MORE_DETAIL_SHOW) return;

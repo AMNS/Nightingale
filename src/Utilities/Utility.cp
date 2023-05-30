@@ -1317,24 +1317,6 @@ void SleepTicksWaitButton(unsigned long ticks)
 		;
 }
 
-/* There's a weird bug in the Console utility in OS 10.5 where if messages are written
-to the log at too high a rate, some just disappear. To make it worse, the ones that
-disappear seem to be random, and there's no indication there's a problem! With the 10.6
-Console, random messages still disappear, but you at least get a warning after 500
-messages in a second; presumably Apple decided that was good enough, and easier than
-fixing the bug.
-
-To sidestep the bug, call this function to add a delay between messages. Note that this
-can make some operations -- e.g., converting large files -- much slower, so calls to it
-should be #ifdef'd out or removed completely if you're not concerned about getting all
-the messages.  */
-   
-void KludgeOS10p5Delay4Log(Boolean giveWarning)
-{
-	if (giveWarning) LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING TO AID DEBUGGING.  (KludgeOS10p5Delay4Log) ******\n");
-	SleepMS(3);
-}
-
 /* -------------------------------------------------------------------- StdVerNumToStr -- */
 /* Get String representation of the given Version Number. See Mac Tech Note #189 for
 details. */
@@ -1607,7 +1589,6 @@ short CountUnjustifiedSystems(Document *doc, LINK startPageL, LINK endPageL, sho
 			lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, False);
 			justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
 			if (justFact<1.0-JUSTSLOP || justFact>1.0+JUSTSLOP) {
-//LogPrintf(LOG_DEBUG, "CountUnjustifiedSystems: system L%u is unjustified\n", pL);
 				nUnjust++;
 				if (nUnjust==1) {
 					pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, False);	/* should never fail */

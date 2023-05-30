@@ -7,7 +7,8 @@
  */
 
 /* File DebugDisplay.c - printing functions for the Debug command and debugging in general:
-	KeySigSprintf			DKeySigPrintf			DisplaySubobjects
+	KeySigSprintf			DKeySigPrintf			SubobjCountIsBad
+	DisplayNote				DisplayGRNote			DisplaySubobjects
 	DisplayObject			MemUsageStats			DisplayIndexNode
 	DHexDump				DSubobjDump				DSubobj5Dump
 	DObjDump				DPrintRow
@@ -51,22 +52,69 @@ void DKeySigPrintf(PKSINFO ksInfo)
 
 /* --------------------------------------------------------- DisplayObject and helpers -- */
 
-/* FIXME: Shouldn't SubobjCountIsBad also warn if thee are _fewer_ subobjs than expected? */
+/* FIXME: Shouldn't SubobjCountIsBad also warn if there are _fewer_ subobjs than expected? */
 
 static Boolean SubobjCountIsBad(short nEntries, short subCnt);
 static Boolean SubobjCountIsBad(short nEntries, short subCnt)
 {
-	if (subCnt>nEntries) LogPrintf(LOG_WARNING, "MORE SUBOBJECTS THAN EXPECTED!\n");
+	if (subCnt>nEntries) LogPrintf(LOG_WARNING, "FOUND %d SUBOBJECT(S), MORE THAN THE %d EXPECTED!\n",
+									subCnt, nEntries);
 	return subCnt>nEntries;
 }
 
 #define LogPrintfINDENT LogPrintf(LOG_INFO, "       ")
+
+/* Caveat: The DisplayNote and DisplayGRNote functions each take a pointer as a parameter.
+If they cause memory to be moved (which seems very unlikely with modern machines but might
+be possible) the pointer would be invalid when they return.  --DAB, May 2023 */
+
+void DisplayNote(PANOTE aNote, Boolean addLabel)
+{
+	if (addLabel) LogPrintf(LOG_DEBUG, "DisplayNote: @%lx ", aNote);
+	LogPrintf(LOG_INFO, 
+		"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
+		aNote->staffn, aNote->voice, aNote->xd, aNote->yd,
+		aNote->ystem, aNote->yqpit, aNote->subType, aNote->ndots,
+		aNote->accident, aNote->onVelocity,
+		(aNote->selected? 'S' : '.') ,
+		(aNote->visible? 'V' : '.') ,
+		(aNote->soft? 'S' : '.') ,
+		(aNote->inChord? 'C' : '.') ,
+		(aNote->rest? 'R' : '.'),
+		(aNote->beamed? 'B' : '.'),
+		(aNote->tiedL? ')' : '.'),
+		(aNote->tiedR? '(' : '.'),
+		(aNote->slurredL? '>' : '.'),
+		(aNote->slurredR? '<' : '.'),
+		(aNote->inTuplet? 'T' : '.'),
+		aNote->firstMod );
+}
+
+void DisplayGRNote(PAGRNOTE aGRNote, Boolean addLabel)
+{
+	if (addLabel) LogPrintf(LOG_DEBUG, "DisplayGRNote: @%lx ", aGRNote);
+	LogPrintf(LOG_INFO, 
+		"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
+		aGRNote->staffn, aGRNote->voice, aGRNote->xd, aGRNote->yd,
+		aGRNote->ystem, aGRNote->yqpit, aGRNote->subType, aGRNote->ndots,
+		aGRNote->accident, aGRNote->onVelocity,
+		(aGRNote->selected? 'S' : '.') ,
+		(aGRNote->visible? 'V' : '.') ,
+		(aGRNote->soft? 'S' : '.') ,
+		(aGRNote->inChord? 'C' : '.') ,
+		(aGRNote->beamed? 'B' : '.'),
+		(aGRNote->slurredL? '>' : '.'),
+		(aGRNote->slurredR? '<' : '.'),
+		aGRNote->firstMod );
+}
+
 
 static void DisplaySubobjects(LINK objL, Boolean showLinks);
 static void DisplaySubobjects(LINK objL, Boolean showLinks)
 {
 	PPARTINFO		pPartInfo;
 	PANOTE			aNote;
+	PAGRNOTE		aGRNote;
 	PASTAFF			aStaff;
 	PAMEASURE		aMeasure;
 	PAPSMEAS		aPseudoMeas;
@@ -79,7 +127,7 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 	PACONNECT		aConnect;
 	PASLUR			aSlur;
 	PANOTEOTTAVA	aNoteOct;
-	LINK			aNoteL;
+	LINK			aNoteL, aGRNoteL;
 	LINK			aStaffL, aMeasureL, aPseudoMeasL, aClefL, aKeySigL, aNoteBeamL,
 					aNoteTupleL, aTimeSigL, aDynamicL, aConnectL, aSlurL, aNoteOctL,
 					partL;
@@ -100,51 +148,26 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 			break;
 		case SYNCtype:
 			for (aNoteL=FirstSubLINK(objL); aNoteL; aNoteL=NextNOTEL(aNoteL), subCnt++) {
-				aNote = GetPANOTE(aNoteL);
 				LogPrintfINDENT;
 				
 				/* Be careful with addresses provided by the following; they can change suddenly! */
 				
 				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aNoteL);
+				aNote = GetPANOTE(aNoteL);
 				if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx ", aNote);
-				LogPrintf(LOG_INFO, 
-					"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
-					aNote->staffn, aNote->voice, aNote->xd, aNote->yd,
-					aNote->ystem, aNote->yqpit, aNote->subType, aNote->ndots,
-					aNote->accident, aNote->onVelocity,
-					(aNote->selected? 'S' : '.') ,
-					(aNote->visible? 'V' : '.') ,
-					(aNote->soft? 'S' : '.') ,
-					(aNote->inChord? 'C' : '.') ,
-					(aNote->rest? 'R' : '.'),
-					(aNote->beamed? 'B' : '.'),
-					(aNote->tiedL? ')' : '.'),
-					(aNote->tiedR? '(' : '.'),
-					(aNote->slurredL? '>' : '.'),
-					(aNote->slurredR? '<' : '.'),
-					(aNote->inTuplet? 'T' : '.'),
-					aNote->firstMod );
+				DisplayNote(aNote, False);
+//if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx AGAIN ", aNote);
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;
 		case GRSYNCtype:
-			for (aNoteL=FirstSubLINK(objL); aNoteL; aNoteL=NextGRNOTEL(aNoteL), subCnt++) {
-				aNote = GetPAGRNOTE(aNoteL);
+			for (aGRNoteL=FirstSubLINK(objL); aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL), subCnt++) {
 				LogPrintfINDENT;
-				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aNoteL);
-				LogPrintf(LOG_INFO, 
-					"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
-					aNote->staffn, aNote->voice, aNote->xd, aNote->yd,
-					aNote->ystem, aNote->yqpit, aNote->subType, aNote->ndots,
-					aNote->accident, aNote->onVelocity,
-					(aNote->selected? 'S' : '.') ,
-					(aNote->visible? 'V' : '.') ,
-					(aNote->soft? 'S' : '.') ,
-					(aNote->inChord? 'C' : '.') ,
-					(aNote->beamed? 'B' : '.'),
-					(aNote->slurredL? '>' : '.'),
-					(aNote->slurredR? '<' : '.'),
-					aNote->firstMod );
+				if (showLinks) LogPrintf(LOG_INFO, "L%u ", aGRNoteL);
+				aGRNote = GetPAGRNOTE(aGRNoteL);
+				if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx ", aGRNote);
+				DisplayGRNote(aGRNote, False);
+//if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx AGAIN ", aGRNote);
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;
@@ -681,7 +704,7 @@ similar to DObjDump, except it's for subobjects instead of objects and it doesn'
 that LINKs are meaningful. It _does_ assume subobjects are in the current format.
 
 DSubobj5Dump is identical except that it assume subobjects are in 'N105' format; it's
-intended for debugging the process of converting ?? */
+intended for debugging the process of converting from 'N105' to the current format. */
 
 void DSubobj5Dump(short iHp, unsigned char *pLink1, short nFrom, short nTo, Boolean doLabel)
 {

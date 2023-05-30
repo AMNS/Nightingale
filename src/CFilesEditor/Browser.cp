@@ -638,7 +638,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	if (sysL) {
 		pSystem = GetPSYSTEM(sysL);
 		systemRect = pSystem->systemRect;
-		}
+	}
 	 else
 		SetDRect(&systemRect, 0, 0, 0, 0);
 	
@@ -725,6 +725,8 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	default:
 		;
 	}
+	
+	if (brOutputTo==TO_LOGFILE) LogPrintf(LOG_DEBUG, "\n");
 }
 
 /* --------------------------------------------------------------------- ShowVoicePage -- */
@@ -953,34 +955,34 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 
 	sprintf(lStr, "staff top/left/right=%d %d %d",
 				q->staffTop, q->staffLeft, q->staffRight);
-	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	DrawTextLine(lStr);  q = GetPASTAFF(qL);
 	sprintf(lStr, "staffHeight/Lines=%d %d", q->staffHeight, q->staffLines);
-	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	DrawTextLine(lStr);  q = GetPASTAFF(qL);
 	if (q->showLines==SHOW_ALL_LINES)
 		sprintf(lStr, "showLines=all showLedgers=%s", q->showLedgers? "yes" : "no");
 	else
 		sprintf(lStr, "showLines=%d showLedgers=%s",
 				q->showLines, q->showLedgers? "yes" : "no");
-	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	DrawTextLine(lStr);  q = GetPASTAFF(qL);
 	sprintf(lStr, "fontSize=%d spaceBelow=%d", q->fontSize, q->spaceBelow);
-	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	DrawTextLine(lStr);  q = GetPASTAFF(qL);
 	sprintf(lStr, "ledger/noteHead/fracBeam=%d %d %d",
 				q->ledgerWidth,
 				q->noteHeadWidth,
 				q->fracBeamWidth);
-	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	DrawTextLine(lStr);  q = GetPASTAFF(qL);
 	ClefToString(q->clefType, clefStr);	
 	sprintf(lStr, "clefType=%d (%s)", q->clefType, clefStr);
-	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	DrawTextLine(lStr);  q = GetPASTAFF(qL);
 	sprintf(lStr, "nKSItems=%hd", q->nKSItems);
-	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	DrawTextLine(lStr);  q = GetPASTAFF(qL);
 	KeySigSprintf((PKSINFO)(KeySigKSITEM(qL)), ksStr);
 	DrawTextLine(ksStr);
 	sprintf(lStr, "timeSigType,n/d=%hd,%hd/%hd",
 				q->timeSigType,
 				q->numerator,
 				q->denominator);
-	DrawTextLine(lStr); q = GetPASTAFF(qL);
+	DrawTextLine(lStr);  q = GetPASTAFF(qL);
 	DynamicToString(q->dynamicType, dynStr);	
 	sprintf(lStr, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
 	DrawTextLine(lStr);
@@ -1009,11 +1011,11 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 		;
 	q = GetPACONNECT(qL);
 	sprintf(lStr, "link=%u @%lx next=%u", qL, (long unsigned int)q, q->next);
-	DrawTextLine(lStr);	q = GetPACONNECT(qL);
+	DrawTextLine(lStr);  q = GetPACONNECT(qL);
 	strcpy(lStr, "flags=");
 	if (q->selected)
 		strcat(lStr, "SELECTED ");
-	DrawTextLine(lStr); 	q = GetPACONNECT(qL);
+	DrawTextLine(lStr);  q = GetPACONNECT(qL);
 	switch (q->connLevel) {
 		case SystemLevel:
 			DrawTextLine("connLevel=SystemLevel");
@@ -1028,7 +1030,7 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 			DrawTextLine("connLevel=Unknown");
 			break;
 	}
-	DrawTextLine(lStr); 	q = GetPACONNECT(qL);
+	DrawTextLine(lStr);  q = GetPACONNECT(qL);
 	switch (q->connectType) {
 		case CONNECTLINE:
 			DrawTextLine("connectType=CONNECTLINE");
@@ -1045,9 +1047,9 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 	}
 	
 	sprintf(lStr, "staffAbove=%hd staffBelow=%hd", q->staffAbove, q->staffBelow);
-	DrawTextLine(lStr); 	q = GetPACONNECT(qL);
+	DrawTextLine(lStr);  q = GetPACONNECT(qL);
 	sprintf(lStr, "firstPart=%d lastPart=%d", q->firstPart,q->lastPart);
-	DrawTextLine(lStr); 	q = GetPACONNECT(qL);
+	DrawTextLine(lStr);  q = GetPACONNECT(qL);
 	sprintf(lStr, "xd=%d", q->xd);
 	DrawTextLine(lStr);
 	
@@ -1080,7 +1082,7 @@ void BrowseClef(LINK pL, short index, Rect *pObjRect)
 		;
 	q = GetPACLEF(qL);
 	sprintf(lStr, "link=%u @%lx stf=%d next=%u", qL, (long unsigned int)q, q->staffn, q->next);
-	DrawTextLine(lStr); 	q = GetPACLEF(qL);
+	DrawTextLine(lStr);  q = GetPACLEF(qL);
 	strcpy(lStr, "flags=");
 	if (q->selected)
 		strcat(lStr, "SELECTED ");
@@ -1088,9 +1090,9 @@ void BrowseClef(LINK pL, short index, Rect *pObjRect)
 		strcat(lStr, "VISIBLE ");
 	if (q->soft)
 		strcat(lStr, "SOFT ");
-	DrawTextLine(lStr);  	q = GetPACLEF(qL);
+	DrawTextLine(lStr);  q = GetPACLEF(qL);
 	sprintf(lStr, "xd=%d yd=%d", q->xd, q->yd);
-	DrawTextLine(lStr); 	q = GetPACLEF(qL);
+	DrawTextLine(lStr);  q = GetPACLEF(qL);
 	ClefToString(q->subType, clefStr);	
 	sprintf(lStr, "clefType=%d (%s) small=%d", q->subType, clefStr, q->small);
 
@@ -1867,7 +1869,7 @@ void BrowseSpace(LINK pL, Rect *pObjRect)
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	p = GetPSPACER(pL);
 	sprintf(lStr, "stf=%d spWidth=%d", p->staffn, p->spWidth);
-	DrawTextLine(lStr); p = GetPSPACER(pL);
+	DrawTextLine(lStr);  p = GetPSPACER(pL);
 	sprintf(lStr, "bottomStf=%d", p->bottomStaff);
 	DrawTextLine(lStr);
 }
@@ -1886,12 +1888,12 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(lStr, "stf=%d voice=%d", p->staffn, p->voice);
-	DrawTextLine(lStr);	p = GetPSLUR(pL);
+	DrawTextLine(lStr);	 p = GetPSLUR(pL);
 	sprintf(lStr, "tie=%s", p->tie ? "True" : "False");
-	DrawTextLine(lStr);	p = GetPSLUR(pL);
+	DrawTextLine(lStr);	 p = GetPSLUR(pL);
 	sprintf(lStr, "crossStf=%d crossStfBack=%d crossSys=%d",
 		p->crossStaff,p->crossStfBack,p->crossSystem);
-	DrawTextLine(lStr);	p = GetPSLUR(pL);
+	DrawTextLine(lStr);  p = GetPSLUR(pL);
 
 	sprintf(lStr, "firstSync=%d", SlurFIRSTSYNC(pL));
 	if (!SyncTYPE(SlurFIRSTSYNC(pL)))
@@ -1916,15 +1918,15 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 	if (aSlur->visible)	strcat(lStr, "VISIBLE ");
 	if (aSlur->soft)		strcat(lStr, "SOFT ");
 	if (aSlur->dashed)	strcat(lStr, "DASHED ");
-	DrawTextLine(lStr); 	aSlur = GetPASLUR(aSlurL);
+	DrawTextLine(lStr);  aSlur = GetPASLUR(aSlurL);
 	sprintf(lStr, "firstInd=%d lastInd=%d", aSlur->firstInd, aSlur->lastInd);
-	DrawTextLine(lStr); 	aSlur = GetPASLUR(aSlurL);
+	DrawTextLine(lStr);  aSlur = GetPASLUR(aSlurL);
 	sprintf(lStr, "knot=%d,%d", aSlur->seg.knot.h, aSlur->seg.knot.v);
-	DrawTextLine(lStr);	aSlur = GetPASLUR(aSlurL);
+	DrawTextLine(lStr);	 aSlur = GetPASLUR(aSlurL);
 	sprintf(lStr, "c0=%d,%d", aSlur->seg.c0.h, aSlur->seg.c0.v);
-	DrawTextLine(lStr);	aSlur = GetPASLUR(aSlurL);
+	DrawTextLine(lStr);	 aSlur = GetPASLUR(aSlurL);
 	sprintf(lStr, "c1=%d,%d", aSlur->seg.c1.h, aSlur->seg.c1.v);
-	DrawTextLine(lStr);	aSlur = GetPASLUR(aSlurL);
+	DrawTextLine(lStr);  aSlur = GetPASLUR(aSlurL);
 	sprintf(lStr, "endKnot=%d,%d", aSlur->endKnot.h, aSlur->endKnot.v);
 	DrawTextLine(lStr);
 	sprintf(lStr, "startPt=%d,%d endPt=%d,%d", aSlur->startPt.h, aSlur->startPt.v,

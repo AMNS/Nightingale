@@ -438,7 +438,7 @@ result, or NRV_CANCEL for Cancel. */
 short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 {
 	DialogPtr	dlog;
-	short		ditem, nslashes;
+	short		ditem, nSlashes;
 	GrafPtr		oldPort;
 	char		fmtStr[256];
 	ModalFilterUPP filterUPP;
@@ -449,7 +449,7 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 		return NRV_CANCEL;
 	}
 	
-	nslashes = NRV_CANCEL;
+	nSlashes = NRV_CANCEL;
 	
 	GetPort(&oldPort);
 	dlog = GetNewDialog(TREMSLASHES_DLOG, NULL, BRING_TO_FRONT);
@@ -468,27 +468,27 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 			while (True) {
 				ModalDialog(&NumberFilter, &ditem);
 				if (ditem==OK || ditem==Cancel) break;
-				}
+			}
 			if (ditem==OK) {
-				GetDlgWord(dlog, NUMBER_DI, &nslashes);
-				if (nslashes>=minDlogVal && nslashes<=maxDlogVal) break;
+				GetDlgWord(dlog, NUMBER_DI, &nSlashes);
+				if (nSlashes>=minDlogVal && nSlashes<=maxDlogVal) break;
 				GetIndCString(fmtStr, DIALOGERRS_STRS, 4);				/* "Number of slashes..." */
 				sprintf(strBuf, fmtStr, minDlogVal, maxDlogVal);
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
-				nslashes = NRV_CANCEL;
-				}
+				nSlashes = NRV_CANCEL;
+			}
 			 else
 				break;
-			} while (nslashes<minDlogVal || nslashes>maxDlogVal);
+		} while (nSlashes<minDlogVal || nSlashes>maxDlogVal);
 			
 		DisposeDialog(dlog);
-		}
+	}
 	else
 		MissingDialog(TREMSLASHES_DLOG);
 	
 	SetPort(oldPort);
-	return nslashes;
+	return nSlashes;
 }
 
 

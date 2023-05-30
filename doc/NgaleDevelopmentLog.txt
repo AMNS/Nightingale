@@ -12606,7 +12606,7 @@ same way on both UnbeamedGraceNotes.ngl and HindemithBnSonataVisTEST.ng; so  doe
 
 ---------------------------------------------------------------------------------------
 
-14 - 24 Apr.
+14 - 30 Apr.
 
 BACK TO: Search/Find All problems: see notes of 15 - 20 July 2022 and 17 Jan. - 2 Feb. 2023.
 This is of immediate interest for my Princeton talk on 20 April!
@@ -12622,10 +12622,59 @@ Problem 3: With Bach_StAnne_69.ngl, the 2nd Find All crashes or hangs or shows a
 list -- maybe only if pitch tolerance is nonzero. In two or three tries, the 1st Find All w/
 pitch tolerance 2 lists from 1 to 4 matches(?); is that what the log shows? While the window
 listing used to be a disaster, Ngale did the matching a lot better than that; if not quite
-perfectly, darn close! Better not show this on 20 April :-( .
+perfectly, darn close! Oh well; better not show this on 20 April :-( .
 
 24 Apr.: BACK TO: the "files converted from N105 format sometimes have invisible notes or
 grace notes" problem. Evidence so far is the notenum/notation disagreement as well as the
 invisible notes/ grace notes. It might help a lot to compare all ANOTE fields before and after
 conversion! To do that, need DSubobjDump & DSubobj5Dump...done.
 
+---------------------------------------------------------------------------------------
+
+3 - 25 May
+
+To to compare all ANOTE fields before and after conversion, also need to update "A Typical
+Simple Note, byte-by-byte" section of Tech Note #1... done.
+
+Summary of my two test cases:
+
+UnbeamedGraceNotes.ngl is note, grace note, grace note, note. Open it => 2nd note is
+invisible; re-open & make it visible => there's a nonsensical ledger line below staff. From
+notes above: 10 Apr.: The notenum/notation disagreement is, of course, the reason for the
+nonsense ledger line. The note has yqpit=1, but it should be -20!
+
+Open HindemithBnSonataVisTEST.ng =>a grace note is invisible; re-open & make it visible =>
+yqpit is fine.
+
+21 May: Comparing all ANOTE fields before and after conversion might give me info that'd
+help track down The Bug, but it'd also be a pain in the butt, even with the updated "A
+Typical etc.". First, let's go back to the approach that led to the Crazyness of 5 Apr.
+Cf. code in file HeapFileIO_CRAZY.cp, log output in FileConversionLogCRAZY.txt.
+??
+
+25 May: Arrrrrgh! Open DanceFor2Fl.43.ngl => Ngale crashes; it also crashes w/ B42 & B43!!
+
+With B26 (17 Sept. 2022) => opens & everything looks OK.
+With B42 (14 Apr. 2023) => many, many warnings like these:
+	May 25 08:59:48 unknown00112431479a Ngale[9725]:
+	Warning. Object L19 IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.  (DCheckObjRect)
+	debug. ****** (ConvertObjectList): Problem (no.0) found with objRect for L19, at objL=2629. (DebugConvCheckObjs)
+	debug.              objRect/t,l,b,r=p0,0,0,0
+	debug. ****** (ConvertObjectList): Problem (no.1) found with objRect for L20, at objL=2629. (DebugConvCheckObjs)
+	Warning. Object L21 IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.  (DCheckObjRect)
+	debug.              objRect/t,l,b,r=p0,0,0,0
+	...
+	Warning. Object L2592 IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.  (DCheckObjRect)
+With B43 (30 Apr. 2023), similar results.
+With B44 (current dev. version), crashes into debugger in DebugConvCheckObjs(), line 545.
+
+Ah, the crash is on this line:
+						badObjLink[debugBadObjCount++] = qL;
+
+Could we be exceeding the size of the badObjLink[] array, 100? Yes: we're giving 290 "bad
+objRect" error messages, and getting up to problem no. 977, before crashing! We _are_
+checking, but outside the relevant loop. Fix that => no crash, and DanceFor2Fl.43.ngl again
+opens & everything looks OK. Whew. But why the "bad objRect" error messages? Try something
+much smaller but not trivial. Open MorningHasBroken.ngl => no "bad objRect"s.
+
+Back to DanceFor2Fl.43.ngl => ??

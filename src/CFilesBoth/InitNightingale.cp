@@ -7,7 +7,7 @@ has already been initialized and the config struct filled in. */
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017-22 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -145,7 +145,7 @@ static short InitEndingStrings()
 	if (!GoodNewPtr(endingString)) return -1;
 	
 	/* Get strings up to MAX_ENDING_STRINGS from a resource, terminated by an empty
-	 * string or the last string present. 1st label is string 0 but index 1. */
+	   string or the last string present. 1st label is string 0 but index 1. */
 	 	
 	n = 1;
 	do {
@@ -168,7 +168,6 @@ static short InitEndingStrings()
 static Boolean InitNightGlobals()
 {
 	char	fmtStr[256];
-	short	j;
 	
 	/* Since initialization routines can (and as of this writing do) use the coordinate-
 	   conversion macros, set up variables used by those macros as if no magnification
@@ -186,11 +185,11 @@ static Boolean InitNightGlobals()
 
 	/* Find input char. codes for important symbol table entries */
 	
-	for (j=0; j<nsyms; j++)
+	for (short j=0; j<nsyms; j++)
 		if (symtable[j].objtype==MEASUREtype && symtable[j].subtype==BAR_SINGLE)
 			{ singleBarInChar = symtable[j].symcode; break; }
 
-	for (j=0; j<nsyms; j++)
+	for (short j=0; j<nsyms; j++)
 		if (symtable[j].objtype==SYNCtype && symtable[j].subtype==0
 		&&  symtable[j].durcode==QTR_L_DUR)
 			{ qtrNoteInChar = symtable[j].symcode; break; }
@@ -773,7 +772,7 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	}
 
 	nBytesToRead = byWidthPadded*bmHeight;
-	LogPrintf(LOG_INFO, "byWidth=%d byWidthPadded=%d bmHeight=%d nBytesToRead=%d  (InitToolPalette)\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "byWidth=%d byWidthPadded=%d bmHeight=%d nBytesToRead=%d  (InitToolPalette)\n",
 				byWidth, byWidthPadded, bmHeight, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitToolPalette)\n",
@@ -818,9 +817,9 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	whichPalette->findItemProc = (short (*)())FindToolItem;
 	whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
 		
-LogPrintf(LOG_DEBUG, "InitToolPalette: windowRect tlbr=%d,%d,%d,%d toolCellWidth,Height=%d,%d\n",
-windowRect->top, windowRect->left, windowRect->bottom, windowRect->right, toolCellWidth,
-toolCellHeight);
+//LogPrintf(LOG_DEBUG, "InitToolPalette: windowRect tlbr=%d,%d,%d,%d toolCellWidth,Height=%d,%d\n",
+//windowRect->top, windowRect->left, windowRect->bottom, windowRect->right, toolCellWidth,
+//toolCellHeight);
 
 	/* Draw full bitmap image into offscreen port so any rearrangements can be saved. */
 
@@ -955,7 +954,7 @@ Boolean InitDynamicPalette()
 	}
 
 	nBytesToRead = byWidthPadded*height;
-	LogPrintf(LOG_INFO, "byWidth=%d byWidthPadded=%d height=%d nBytesToRead=%d  (InitDynamicPalette)\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "byWidth=%d byWidthPadded=%d height=%d nBytesToRead=%d  (InitDynamicPalette)\n",
 				byWidth, byWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitDynamicPalette)\n",
@@ -1009,7 +1008,7 @@ Boolean InitModNRPalette()
 	}
 
 	nBytesToRead = byWidthPadded*height;
-	LogPrintf(LOG_INFO, " byWidth=%d byWidthPadded=%d height=%d nBytesToRead=%d  (InitModNRPalette)\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "byWidth=%d byWidthPadded=%d height=%d nBytesToRead=%d  (InitModNRPalette)\n",
 	byWidth, byWidthPadded, height, nBytesToRead);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitModNRPalette)\n",
@@ -1063,7 +1062,7 @@ Boolean InitDurationPalette()
 	}
 		
 	nBytesToRead = byWidthPadded*height;
-	LogPrintf(LOG_INFO, "byWidth=%d byWidthPadded=%d height=%d nBytesToRead=%d  (InitDurationPalette)\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "byWidth=%d byWidthPadded=%d height=%d nBytesToRead=%d  (InitDurationPalette)\n",
 				byWidth, byWidthPadded, height);
 	if (nBytesToRead>BITMAP_SPACE) {
 		LogPrintf(LOG_ERR, "Bitmap needs %ld bytes but Nightingale allocated only %ld bytes.  (InitDurationPalette)\n",

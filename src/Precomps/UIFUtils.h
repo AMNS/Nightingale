@@ -123,6 +123,7 @@ void SetDocumentKind(WindowPtr w);
 
 void OffsetContrlRect(ControlRef ctrl, short dx, short dy);
 
+void KludgeOS10p5LogDelay(Boolean doDelay);
 Boolean VLogPrintf(const char *fmt, va_list argp);
 Boolean LogPrintf(short priLevel, const char *fmt, ...);
 short InitLogPrintf();

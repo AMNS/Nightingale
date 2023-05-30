@@ -120,7 +120,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 	
 		/* Store old link values. */
 		
-		leftL = LeftLINK(pL); rightL = RightLINK(pL);
+		leftL = LeftLINK(pL);  rightL = RightLINK(pL);
 		subL = FirstSubLINK(pL);
 
 		/* Write the link values for the in-file objects. */
@@ -220,7 +220,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 	
 		/* Store old link values. */
 		
-		leftL = LeftLINK(pL); rightL = RightLINK(pL);
+		leftL = LeftLINK(pL);  rightL = RightLINK(pL);
 		subL = FirstSubLINK(pL);
 
 		/* Write the link values for the in-file objects. */
@@ -235,7 +235,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA, LINK
 
 		ioErr = WriteObject(refNum, pL);
 		
-		LeftLINK(pL) = leftL; RightLINK(pL) = rightL;
+		LeftLINK(pL) = leftL;  RightLINK(pL) = rightL;
 		FirstSubLINK(pL) = subL;
 	}
 
@@ -763,18 +763,32 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 		errType = ReadSubHeap(doc, refNum, version, iHp, isViewerFile);
 		if (errType) return errType;
 	}
+#define DEBUG_READHEAPS
+#ifdef DEBUG_READHEAPS
+LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 1\n");
+	HEAP *myHeap = doc->Heap + SYNCtype;
+	char *pLink1 = *(myHeap->block);  pLink1 += myHeap->objSize;
+	DSubobj5Dump(SYNCtype, (unsigned char *)pLink1, 0, 1, True);
+	DisplayNote((PANOTE)pLink1, True);
+	DisplayNote((PANOTE)(pLink1+sizeof(ANOTE)), True);
+#endif
 	errType = ReadObjHeap(doc, refNum, version, isViewerFile);
 	if (errType) return errType;
 
 	/* Fix links. This is necessary because ??WHY?I have no idea, but it sure seems to
-	   be necessary!! --DAB.  Then, if the file is in a format other than 'N105', handle
-	   the Endian issue. If it's in format 'N105', it could only have been written on a
-	   machine with the same Endianness as the one we're running on -- both must be
-	   PowerPC's -- so there's no need to be concerned with Endian issues. */
+	   be necessary!! Leaving it out results in disasters. --DAB.  Then, if the file is
+	   in a format other than 'N105', handle the Endian issue. If it's in format 'N105',
+	   it could only have been written on a machine with the same Endianness as the one
+	   we're running on -- both must be PowerPC's -- so there's no need to be concerned
+	   with Endian issues. */
 	   
-	if (version=='N105') errType = HeapFixN105ObjLinks(doc);
+	if (version=='N105') {
+		errType = HeapFixN105ObjLinks(doc);
+		if (errType) return errType;
+	}
 	else {
 		errType = HeapFixObjLinks(doc);
+		if (errType) return errType;
 
 #ifdef DEBUG_READHEAPS
 	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
@@ -812,7 +826,7 @@ called for both object and subobject heaps. In that case, the _content_ of objec
 and subobjects will still need more work, which should be done in ConvertObjectList().  */
 
 static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
-				char *pLink1, long sizeAllInHeap)
+								char *pLink1, long sizeAllInHeap)
 {
 #define NoDEBUG_LOOP
 #ifdef DEBUG_LOOP
@@ -835,6 +849,9 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 	   
 	src = tempHeap;
 	dst = pLink1;
+#ifdef DEBUG_LOOP
+	KludgeOS10p5LogDelay(True);					/* Avoid bug in OS 10.5/10.6 Console */
+#endif
 	for (n = 1; n<=nFObjs; n++) {
 		if (hType==OBJtype)	curType = ObjPtrTYPE(src);
 		else				curType = hType;
@@ -856,8 +873,6 @@ static Boolean MoveObjSubobjs(short hType, long version, unsigned short nFObjs,
 		}
 		
 #ifdef DEBUG_LOOP
-		KludgeOS10p5Delay4Log(firstCall && n==1);				/* Avoid bug in OS 10.5/10.6 Console */
-		firstCall = False;
 		LogPrintf(LOG_DEBUG, "MoveObjSubobjs: n=%d curType=%d src=%lx dst=%lxlen=%d newLen=%d\n",
 					n, curType, src, dst, len, newLen);
 #endif
@@ -1027,20 +1042,21 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ReadSubHeap: pLink1=%ld FPos:%ld\n", pLink1, position);
 	
 	ioErr = FSRead(refNum, &sizeAllInFile, pLink1);
-#ifdef DEBUG_READHEAPS
-	if (iHp==SYNCtype) DSubobj5Dump(iHp, (unsigned char *)pLink1, 0, 1, True);
-#endif
 
 	/* If file is in an old format, move the contents of the subobject heap around
 	   so each subobject has space for any new fields. (Unlike objects, subobjects are
 	   written out at full length, so if file is in the current format, nothing needs
 	   to be moved.) */
 	   
-	if (version=='N105')
+	if (version=='N105') {
+#ifdef DEBUG_READHEAPS
+		if (iHp==SYNCtype) DSubobj5Dump(iHp, (unsigned char *)pLink1, 0, 1, True);
+#endif
 		if (!MoveObjSubobjs(iHp, version, nFObjs, pLink1, sizeAllInHeap)) {
 			OpenError(True, refNum, MISC_HEAPIO_ERR, iHp);
 			return MISC_HEAPIO_ERR;
 		}
+	}
 
 	PopLock(myHeap);
 	if (ioErr) { OpenError(True, refNum, ioErr, iHp); return ioErr; }

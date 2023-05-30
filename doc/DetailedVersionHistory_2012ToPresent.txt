@@ -3980,3 +3980,18 @@ Minor changes. Affects info.plist, .rsrc, NOjTypes.h, vars.h; DebugDisplay, File
 Initialize, Menu, Utility.
 
 ------------------------------------------------------------------------------------ Build 43
+
+1 - 30 May
+
+To avoid bug in OS 10.5/10.6 Console console, replace KludgeOS10p5Delay4Log(), which
+pauses very briefly on each call, with KludgeOS10p5LogDelay(), which sets a flag that
+makes LogPrintf() pause very briefly before writing a log message on each call. Affects
+UIFUtils.h, Utility.h; FileConversion, FileOpen, FileSave, FontUtils, HeapFileIO, Heaps,
+MIDIUtils, UIFUtils, Utility.
+
+Minor changes: allow setting overall <debugLevel> on launch, etc. Affects info.plist, .rsrc
+(clarify ALRT names, add Debug Level DLOG), Debug.h, Defs.h, NResourceID.h, vars.h; Browser,
+DebugDisplay, DialogsEditor, FileConversion, HeapFileIO, Initialize, InitNightingale,
+UIFUtils.
+
+------------------------------------------------------------------------------ TO BE Build 44

@@ -27,6 +27,7 @@ void DisplayAvailableFonts(void)
 	
 	status = FMCreateFontFamilyIterator(NULL, NULL, kFMDefaultOptions, 
 											&fontFamilyIterator);
+	KludgeOS10p5LogDelay(True);					/* Avoid bug in OS 10.5/10.6 Console */
 	while ( (status = FMGetNextFontFamily(&fontFamilyIterator, &fontFamily)) == noErr) {
 		status = FMGetFontFamilyName(fontFamily, fontFamilyName);
 		char fontFNameC[256];
@@ -34,7 +35,6 @@ void DisplayAvailableFonts(void)
 		Pstrcpy((unsigned char *)fontFNameC, fontFamilyName);
 		LogPrintf(LOG_DEBUG, "DisplayAvailableFonts: fondID=%d fontFamilyName='%s'\n",
 						fontFamily, PToCString((unsigned char *)fontFNameC));
-		KludgeOS10p5Delay4Log(False);					/* Avoid bug in OS 10.5/10.6 Console */
 	}
 }
 
