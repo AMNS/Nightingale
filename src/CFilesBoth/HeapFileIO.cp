@@ -51,6 +51,57 @@ static void PrepareClips(void);
 #define DEBUG_READHEAPS
 
 
+/* Caveat: The DisplayNote and DisplayGRNote functions each take a pointer as a parameter.
+If they cause memory to be moved (which seems very unlikely with modern machines but might
+be possible) the pointer would be invalid when they return.  --DAB, May 2023 */
+
+void DisplayNote5(PANOTE_5 aNote, Boolean addLabel);
+void DisplayNote5(PANOTE_5 aNote, Boolean addLabel)
+{
+	if (addLabel) LogPrintf(LOG_DEBUG, "DisplayNote5: @%lx ", aNote);
+	LogPrintf(LOG_INFO, 
+		"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c 1stMod=%d\n",
+		aNote->staffn, aNote->voice, aNote->xd, aNote->yd,
+		aNote->ystem, aNote->yqpit, aNote->subType, aNote->ndots,
+		aNote->accident, aNote->onVelocity,
+		(aNote->selected? 'S' : '.') ,
+		(aNote->visible? 'V' : '.') ,
+		(aNote->soft? 'S' : '.') ,
+		(aNote->inChord? 'C' : '.') ,
+		(aNote->rest? 'R' : '.'),
+		(aNote->beamed? 'B' : '.'),
+		(aNote->tiedL? ')' : '.'),
+		(aNote->tiedR? '(' : '.'),
+		(aNote->slurredL? '>' : '.'),
+		(aNote->slurredR? '<' : '.'),
+		(aNote->inTuplet? 'T' : '.'),
+		aNote->firstMod );
+}
+
+void DisplayGRNote5(PAGRNOTE_5 aGRNote, Boolean addLabel);
+void DisplayGRNote5(PAGRNOTE_5 aGRNote, Boolean addLabel)
+{
+	if (addLabel) LogPrintf(LOG_DEBUG, "DisplayGRNote5: @%lx ", aGRNote);
+	LogPrintf(LOG_INFO, 
+		"stf=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d acc=%d onV=%d %c%c%c%c %c%c%c 1stMod=%d\n",
+		aGRNote->staffn, aGRNote->voice, aGRNote->xd, aGRNote->yd,
+		aGRNote->ystem, aGRNote->yqpit, aGRNote->subType, aGRNote->ndots,
+		aGRNote->accident, aGRNote->onVelocity,
+		(aGRNote->selected? 'S' : '.') ,
+		(aGRNote->visible? 'V' : '.') ,
+		(aGRNote->soft? 'S' : '.') ,
+		(aGRNote->inChord? 'C' : '.') ,
+		(aGRNote->beamed? 'B' : '.'),
+		(aGRNote->slurredL? '>' : '.'),
+		(aGRNote->slurredR? '<' : '.'),
+		aGRNote->firstMod );
+}
+
+
+
+
+
+
 /* ============================== Functions for Writing Heaps =========================== */
 
 /* Write all heaps with their headers to the given file. Returns 0 if no error, else
@@ -765,16 +816,21 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 	}
 #define DEBUG_READHEAPS
 #ifdef DEBUG_READHEAPS
+	KludgeOS10p5LogDelay(True);					/* Avoid bug in OS 10.5/10.6 Console */
 LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 1\n");
 	HEAP *myHeap = doc->Heap + SYNCtype;
 	char *pLink1 = *(myHeap->block);  pLink1 += myHeap->objSize;
-	DSubobj5Dump(SYNCtype, (unsigned char *)pLink1, 0, 1, True);
-	DisplayNote((PANOTE)pLink1, True);
-	DisplayNote((PANOTE)(pLink1+sizeof(ANOTE)), True);
+	if (debugLevel[DBG_CONVERT]>=1) DSubobj5Dump(SYNCtype, (unsigned char *)pLink1, 0, 1, True);
+	DisplayNote5((PANOTE_5)pLink1, True);
+	DisplayNote5((PANOTE_5)(pLink1+sizeof(ANOTE_5)), True);
 #endif
 	errType = ReadObjHeap(doc, refNum, version, isViewerFile);
-	if (errType) return errType;
+	if (errType) {
+		MayErrMsg("ReadObjHeap failed (errType=%ld).  (ReadHeaps)", (long)errType);
+		return errType;
+	}
 
+LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 2\n");
 	/* Fix links. This is necessary because ??WHY?I have no idea, but it sure seems to
 	   be necessary!! Leaving it out results in disasters. --DAB.  Then, if the file is
 	   in a format other than 'N105', handle the Endian issue. If it's in format 'N105',
@@ -783,15 +839,25 @@ LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 1\n");
 	   with Endian issues. */
 	   
 	if (version=='N105') {
+LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 3\n");
 		errType = HeapFixN105ObjLinks(doc);
-		if (errType) return errType;
+LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 4\n");
+		if (errType) {
+			MayErrMsg("HeapFixN105ObjLinks failed (errType=%ld).  (ReadHeaps)", (long)errType);
+			return errType;
+		}
 	}
 	else {
 		errType = HeapFixObjLinks(doc);
-		if (errType) return errType;
+		if (errType) {
+			MayErrMsg("HeapFixObjLinks failed (errType=%ld).  (ReadHeaps)", (long)errType);
+			return errType;
+		}
 
+LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 5\n");
 #ifdef DEBUG_READHEAPS
-	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
+LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 6\n");
+	for (objL = 8; objL!=doc->tailL; objL = RightLINK(objL)) {
 		if (DETAIL_SHOW && (ObjLType(objL)==SYNCtype))
 			DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);
 	}
@@ -810,8 +876,7 @@ LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 1\n");
 	}
 #endif
 
-	if (errType)	return errType;
-	else			return 0;
+	return 0;
 }
 
 
@@ -1050,7 +1115,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	   
 	if (version=='N105') {
 #ifdef DEBUG_READHEAPS
-		if (iHp==SYNCtype) DSubobj5Dump(iHp, (unsigned char *)pLink1, 0, 1, True);
+		if (debugLevel[DBG_CONVERT]>=2 && iHp==SYNCtype) DSubobj5Dump(iHp, (unsigned char *)pLink1, 0, 1, True);
 #endif
 		if (!MoveObjSubobjs(iHp, version, nFObjs, pLink1, sizeAllInHeap)) {
 			OpenError(True, refNum, MISC_HEAPIO_ERR, iHp);

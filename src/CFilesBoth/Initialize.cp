@@ -204,15 +204,15 @@ Cancel. */
 #define UpRect_DI	5			/* DITL index of up button rect */
 #define DownRect_DI	6			/* DITL index of down button rect */
 
-short DebugLevelDialog(short initLevel);
-short DebugLevelDialog(short initLevel)		/* Initial (default) value */
+short DebugLevelDialog(unsigned short initLevel);
+short DebugLevelDialog(unsigned short initLevel)		/* Initial (default) value */
 {
-	DialogPtr	dlog;
-	short		ditem, newLevel;
-	short		minDlogVal, maxDlogVal;
-	GrafPtr		oldPort;
-	char		fmtStr[256];
-	ModalFilterUPP filterUPP;
+	DialogPtr		dlog;
+	short			ditem, newLevel;
+	short			minDlogVal, maxDlogVal;
+	GrafPtr			oldPort;
+	char			fmtStr[256];
+	ModalFilterUPP	filterUPP;
 	
 	filterUPP = NewModalFilterUPP(NumberFilter);
 	if (filterUPP == NULL) {
@@ -233,7 +233,7 @@ short DebugLevelDialog(short initLevel)		/* Initial (default) value */
 		ArrowCursor();
 
 		minDlogVal = 1;
-		maxDlogVal = 9999;
+		maxDlogVal = 32760;
 	
 		do {
 			while (True) {
@@ -254,7 +254,7 @@ short DebugLevelDialog(short initLevel)		/* Initial (default) value */
 		} while (newLevel<minDlogVal || newLevel>maxDlogVal);
 			
 		DisposeDialog(dlog);
-		}
+	}
 	else
 		MissingDialog(DEBUG_LEVEL_DLOG);
 	
@@ -312,6 +312,7 @@ void Initialize(void)
 	Str63 dummyVolName;
 	Str255 versionPStr;
 	char bigOrLittleEndian;
+	short debugLevels=0;
 	
 	InitToolbox();
 
@@ -356,22 +357,16 @@ void Initialize(void)
 	LogPrintf(LOG_NOTICE, "RUNNING NIGHTINGALE %s-%cE  (Initialize)\n", applVerStr,
 				bigOrLittleEndian);
 
-	/* Unlike almost all globals, we want to set <debugLevel> immediately. */
+	/* We want to set debugLevel[] so it can be used immediately. */
 	
-	debugLevel = 0;
-	if (DETAIL_SHOW) debugLevel = DebugLevelDialog(debugLevel);
-	if (debugLevel!=0) LogPrintf(LOG_DEBUG, "DEBUGGING SETUP: debugLevel=%d.  (Initialize)\n",
-									debugLevel);
-#ifdef NOMORE
-if (debugLevel!=0) {
-	LogPrintf(LOG_DEBUG, "debugLevel LNTH_D 3=%d 2=%d 1=%d 0=%d\n", LNTH_D(debugLevel, 3),
-		LNTH_D(debugLevel, 2), LNTH_D(debugLevel, 1), LNTH_D(debugLevel, 0));
-	LogPrintf(LOG_DEBUG, "debugLevel NP1_D 3=%d 2=%d 1=%d 0=%d\n", NP1_D(debugLevel, 3),
-		NP1_D(debugLevel, 2), NP1_D(debugLevel, 1), NP1_D(debugLevel, 0));
-	LogPrintf(LOG_DEBUG, "debugLevel NTH_D 3=%d 2=%d 1=%d 0=%d\n", NTH_D(debugLevel, 3),
-		NTH_D(debugLevel, 2), NTH_D(debugLevel, 1), NTH_D(debugLevel, 0));
-}
-#endif
+	if (DETAIL_SHOW) debugLevels = DebugLevelDialog(debugLevels);
+	if (debugLevels!=NRV_CANCEL) {
+		for (short k=0; k<5; k++) debugLevel[k] = NTH_D(debugLevels, k);
+		LogPrintf(LOG_DEBUG,
+			"DEBUGGING SETUP: debugLevels=%d: debugLevel[DBG_LAUNCH]=%d [_CONVERT]=%d [_OPEN]=%d [0]=%d  (Initialize)\n",
+						debugLevels, debugLevel[DBG_LAUNCH], debugLevel[DBG_CONVERT],
+						debugLevel[DBG_OPEN], debugLevel[0]);
+	}
 
 	if (!OpenPrefsFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
@@ -1409,7 +1404,7 @@ static Boolean GetConfig(void)
 	/* Optionally display CNFG fields in the log. Then check for problems, and, if any are
 	   found, display the (presumably corrected) values. */
 	   
-	if (NTH_D(debugLevel, 3)!=0) DisplayConfig();
+	if (debugLevel[DBG_LAUNCH]!=0) DisplayConfig();
 	if (!CheckConfig()) {
 		LogPrintf(LOG_WARNING, "Illegal field(s) found and set to default values.  (GetConfig)\n");
 		DisplayConfig();

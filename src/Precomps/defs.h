@@ -505,8 +505,13 @@ height or  width, or (2) a rectangle of area zero because its width or height is
 									|| (r).top<0 || (r).bottom<0 )
 #define ZERODIM_RECT(r)		( (r).left==(r).right || (r).top==(r).bottom )
 
+/* For debugging */
+
 #define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
 #define MORE_DETAIL_SHOW	(DETAIL_SHOW && OptionKeyDown())
+#define DBG_LAUNCH			3					/* debugLevel[] digit position */
+#define DBG_CONVERT			2					/* debugLevel[] digit position */
+#define DBG_OPEN			1					/* debugLevel[] digit position */
 
 /* NTH_D(num, nDigit) extracts from <num> the <nDigit>th from the right. */
 

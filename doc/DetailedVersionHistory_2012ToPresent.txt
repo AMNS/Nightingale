@@ -3994,4 +3994,12 @@ Minor changes: allow setting overall <debugLevel> on launch, etc. Affects info.p
 DebugDisplay, DialogsEditor, FileConversion, HeapFileIO, Initialize, InitNightingale,
 UIFUtils.
 
------------------------------------------------------------------------------- TO BE Build 44
+------------------------------------------------------------------------------------ Build 44
+
+31 May - 8 June
+
+Minor changes: convert <debugLevel> to an array & #define positions in it, etc. Affects
+info.plist, Defs.h, vars.h; FileConversion, FileOpen, HeapFileIO, Initialize,
+InitNightingale.
+
+------------------------------------------------------------------------------------ Build 45

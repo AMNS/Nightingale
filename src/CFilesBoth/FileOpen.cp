@@ -85,7 +85,7 @@ static Boolean CheckNRGRVisibilityOK(Document *doc)
 					if (!NoteVIS(aNoteRL)) {
 #define DEBUG_EMPTY_OBJRECT
 #ifdef DEBUG_EMPTY_OBJRECT
-						if (NTH_D(debugLevel, 1)!=0) {
+						if (debugLevel[DBG_OPEN]!=0) {
 							PANOTE aNoteR = GetPANOTE(aNoteRL);
 							DSubobjDump(SYNCtype, (unsigned char *)aNoteR, 0, 0, True);
 						}
@@ -99,7 +99,7 @@ static Boolean CheckNRGRVisibilityOK(Document *doc)
 				aGRNoteL = FirstSubLINK(objL);
 				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 #ifdef DEBUG_EMPTY_OBJRECT
-						if (NTH_D(debugLevel, 1)!=0) {
+						if (debugLevel[DBG_OPEN]!=0) {
 							PAGRNOTE aGRNote = GetPAGRNOTE(aGRNoteL);
 							DSubobjDump(GRSYNCtype, (unsigned char *)aGRNote, 0, 0, True);
 						}
@@ -375,7 +375,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (DETAIL_SHOW) DObjDump("OpenFile", 1, (MORE_DETAIL_SHOW? 20 : 4));
 
 #ifdef DEBUG_EMPTY_OBJRECT
-if (NTH_D(debugLevel, 1)!=0) {
+if (debugLevel[DBG_OPEN]!=0) {
 	for (LINK objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
 		LINK aNoteRL;
 		switch (ObjLType(objL)) {

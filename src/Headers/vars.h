@@ -126,7 +126,7 @@ GLOBAL Boolean		recordingNow;			/* True = MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
 GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
 GLOBAL Boolean		thinLines;				/* On PostScript output, linewidth(s) set dangerously thin */
-GLOBAL short		debugLevel;				/* 0 = no special debug features (mostly for logging) */
+GLOBAL short		debugLevel[5];			/* 0 = Special debug features (mostly logging); 0 = none */
 
 GLOBAL CharRectCache charRectCache;
 GLOBAL GrafPtr		underBits, offScrBits, picBits;	/* Bitmaps for dragging */

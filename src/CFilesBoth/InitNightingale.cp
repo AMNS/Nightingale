@@ -22,7 +22,6 @@ static Boolean	DoSplashScreen(void);
 static Boolean	InitAllCursors(void);
 static Boolean	InitNightGlobals(void);
 static Boolean	InitTables(void);
-static void 	DisplayInfo(void);
 static void		InitNightFonts(void);
 static Boolean	InitMusFontTables(void);
 static void 	CheckScreenFonts(void);
@@ -47,7 +46,6 @@ void InitNightingale()
 	MEInitCaretSystem();
 	
 	if (!InitTables()) NExitToShell("Init Tables");
-	DisplayInfo();
 	InitMusicFontStuff();
 	if (!InitMIDISystem()) NExitToShell("Init MIDI");
 }
@@ -274,37 +272,14 @@ static Boolean InitTables()
 }
 
 
-/* Show various information for debugging in the log. */
-
-static void DisplayInfo()
-{
-#define DEBUG_FONT_PROBLEMS
-#ifdef DEBUG_FONT_PROBLEMS
-		if (MORE_DETAIL_SHOW) DisplayAvailableFonts();
-#endif
-
-#ifdef IDEBUG
-	LogPrintf(LOG_DEBUG, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
-	
-	LogPrintf(LOG_DEBUG, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
-		sizeof(HEADER), sizeof(TAIL), sizeof(SYNC), sizeof(RPTEND), sizeof(PAGE));
-	LogPrintf(LOG_DEBUG, "Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
-		sizeof(SYSTEM), sizeof(STAFF), sizeof(MEASURE), sizeof(CLEF), sizeof(KEYSIG));
-	LogPrintf(LOG_DEBUG, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
-		sizeof(TIMESIG), sizeof(BEAMSET), sizeof(CONNECT), sizeof(DYNAMIC));
-	LogPrintf(LOG_DEBUG, "Size of GRAPHIC=%ld OTTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
-		sizeof(GRAPHIC), sizeof(OTTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
-	LogPrintf(LOG_DEBUG, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
-		sizeof(TEMPO), sizeof(SPACER), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
-#endif
-}
-
 /* ----------------------------------------------------------------------------- Fonts -- */
 
 /* Set globals describing our standard text font and our standard music font. */
 
 void InitNightFonts()
 {
+	if (MORE_DETAIL_SHOW) DisplayAvailableFonts();
+	
 	textFontNum = applFont;
 	
 	/* NB: The following comment is pre-OS X and should be taken with a grain of salt!:
@@ -827,7 +802,8 @@ static Boolean InitToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	GWorldPtr gwPtr = MakeGWorld(windowRect->right, windowRect->bottom, True);
 	SetGWorld(gwPtr, NULL);
 
-#ifdef DBG_TOOLS
+#define NoTEST_TOOLPALETTE
+#ifdef TEST_TOOLPALETTE
 //LogPrintf(LOG_DEBUG, "InitToolPalette: maxToolsRect tlbr=%d,%d,%d,%d\n", maxToolsRect.top,
 //maxToolsRect.left, maxToolsRect.bottom, maxToolsRect.right);
 	short startLoc;

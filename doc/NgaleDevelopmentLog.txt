@@ -12555,12 +12555,16 @@ It looks like the lines preceded by "*" are executed, but not the others shown. 
 no "go to"s or other transfers of control in the omitted lines. Other than a compiler bug,
 the _only_ explanation I can think is a clobber; but that seems very unlikely because this
 function -- minus all the debugging code, of course -- has been working flawlessly for months,
-even on far longer and more complex scores! Well, the bug I've been trying to fix has only
-been seen to cause notes and grace notes to become invisible when a score is converted, but
-it might well affect rests. In real music, given Ngale's limitations, there are (very
-occasionly) legitimate reasons for invisible rests; for invisible notes, I doubt it; for
-grace notes, I very much doubt it -- but any of them might be useful for teaching! Debug
-Check at its default level complains about invisible notes and grace notes:
+even on far longer and more complex scores! [**ANOTHER EXPLANATION (added on 4 June): The bug 
+in the OS 10.5 console resulting in messages being randomly lost :-( . See the 28 May comment
+below.]
+
+Well, the bug I've been trying to fix has only been seen to cause notes and grace notes to
+become invisible when a score is converted, but it might well affect rests. In real music,
+given Ngale's limitations, there are (very occasionally) legitimate reasons for invisible
+rests; for invisible notes, I doubt it; for grace notes, I very much doubt it -- but any of
+them might be useful for teaching! Debug Check at its default level complains about
+invisible notes and grace notes:
 
 	DCheckNode: Object L19 IS UNSELECTABLE: IT HAS A ZERO-WIDTH AND/OR HEIGHT objRect.
 
@@ -12631,7 +12635,7 @@ conversion! To do that, need DSubobjDump & DSubobj5Dump...done.
 
 ---------------------------------------------------------------------------------------
 
-3 - 25 May
+3 - 30 May
 
 To to compare all ANOTE fields before and after conversion, also need to update "A Typical
 Simple Note, byte-by-byte" section of Tech Note #1... done.
@@ -12639,9 +12643,8 @@ Simple Note, byte-by-byte" section of Tech Note #1... done.
 Summary of my two test cases:
 
 UnbeamedGraceNotes.ngl is note, grace note, grace note, note. Open it => 2nd note is
-invisible; re-open & make it visible => there's a nonsensical ledger line below staff. From
-notes above: 10 Apr.: The notenum/notation disagreement is, of course, the reason for the
-nonsense ledger line. The note has yqpit=1, but it should be -20!
+invisible; re-open & make it visible => there's a nonsensical ledger line below staff. That
+results from notenum/notation disagreement: the note has yqpit=1, but it should be -20.
 
 Open HindemithBnSonataVisTEST.ng =>a grace note is invisible; re-open & make it visible =>
 yqpit is fine.
@@ -12677,4 +12680,26 @@ checking, but outside the relevant loop. Fix that => no crash, and DanceFor2Fl.4
 opens & everything looks OK. Whew. But why the "bad objRect" error messages? Try something
 much smaller but not trivial. Open MorningHasBroken.ngl => no "bad objRect"s.
 
-Back to DanceFor2Fl.43.ngl => ??
+28 May: Hey, log messages are _again_ randomly disappearing because there are places other
+than ConvertObjectList() that are producing many hundreds of messages per second and the
+dreaded OS 10.5 log bug is back! There are multiple places, so best to build the delay into
+LogPrintf(), and replace KludgeOS10p5Delay4Log(Boolean giveWarning) with a function that
+just enables it, KludgeOS10p5LogDelay(Boolean doDelay)... done. Of course _this_ is almost
+certainly the real cause for the early April HeapFileIO_CRAZY.cp business! That means the
+debugging strategy I was trying w/ it will quite possibly work!!
+
+Back to DanceFor2Fl.43.ngl... Sigh. Debugging is clumsy due to a surfeit of irrelevant log
+messages, and it's hard to control 'em w/o re-compiling stuff! Need to add better runtime
+control. Okay, if the DETAIL_SHOW keys are down at launch, let user enter a "debug level"...
+done. 
+
+---------------------------------------------------------------------------------------
+
+1 - 8 June
+
+Make <debugLevel> more usable... done (I think).
+
+Look at comments above from 10 Apr. ff. about <visible> and <yqpit> and summary of the two
+test cases. Call KludgeOS10p5LogDelay(True) near the beginning of ReadHeaps()...done. Now
+try to catch the bug during ReadHeaps() w/ the HeapFileIO_CRAZY.cp approach => ??
+
