@@ -795,6 +795,17 @@ static Boolean InitTrackingLinks(Document *doc, LINK **firstSubLINKA, LINK **obj
 
 /* =============================== Functions for Reading Heaps ========================== */
 
+/* Call MAKE_A_FUSS(str) so it's crystal clear some code is being executed. */
+
+void MAKE_A_FUSS(char *str);
+void MAKE_A_FUSS(char *str)
+{
+	SysBeep(1);
+	SleepMS(1000L);
+	LogPrintf(LOG_DEBUG, "%s  (MAKE_A_FUSS)\n", str);
+	printf("%s  (MAKE_A_FUSS)\n", str);
+}
+
 /* Read all heaps from file <refNum>: one subobject heap for each type of object that
 has subobjects (almost all do), and one object heap, and handle the CPU's Endian property.
 Return 0 if no error, else an error code (either a system result code or one of our own
@@ -817,10 +828,10 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 #define DEBUG_READHEAPS
 #ifdef DEBUG_READHEAPS
 	KludgeOS10p5LogDelay(True);					/* Avoid bug in OS 10.5/10.6 Console */
-LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 1\n");
+MAKE_A_FUSS("DEBUG_READHEAPS 1");
 	HEAP *myHeap = doc->Heap + SYNCtype;
 	char *pLink1 = *(myHeap->block);  pLink1 += myHeap->objSize;
-	if (debugLevel[DBG_CONVERT]>=1) DSubobj5Dump(SYNCtype, (unsigned char *)pLink1, 0, 1, True);
+	if (debugLevel[DBG_OPEN]>=1) DSubobj5Dump(SYNCtype, (unsigned char *)pLink1, 0, 1, True);
 	DisplayNote5((PANOTE_5)pLink1, True);
 	DisplayNote5((PANOTE_5)(pLink1+sizeof(ANOTE_5)), True);
 #endif
@@ -830,7 +841,7 @@ LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 1\n");
 		return errType;
 	}
 
-LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 2\n");
+MAKE_A_FUSS("DEBUG_READHEAPS 2");
 	/* Fix links. This is necessary because ??WHY?I have no idea, but it sure seems to
 	   be necessary!! Leaving it out results in disasters. --DAB.  Then, if the file is
 	   in a format other than 'N105', handle the Endian issue. If it's in format 'N105',
@@ -839,9 +850,9 @@ LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 2\n");
 	   with Endian issues. */
 	   
 	if (version=='N105') {
-LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 3\n");
+MAKE_A_FUSS("DEBUG_READHEAPS 3");
 		errType = HeapFixN105ObjLinks(doc);
-LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 4\n");
+MAKE_A_FUSS("DEBUG_READHEAPS 4");
 		if (errType) {
 			MayErrMsg("HeapFixN105ObjLinks failed (errType=%ld).  (ReadHeaps)", (long)errType);
 			return errType;
@@ -854,14 +865,7 @@ LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 4\n");
 			return errType;
 		}
 
-LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 5\n");
-#ifdef DEBUG_READHEAPS
-LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 6\n");
-	for (objL = 8; objL!=doc->tailL; objL = RightLINK(objL)) {
-		if (DETAIL_SHOW && (ObjLType(objL)==SYNCtype))
-			DisplayObject(doc, objL, 900+ObjLType(objL), True, True, True);
-	}
-#endif
+MAKE_A_FUSS("DEBUG_READHEAPS 5");
 
 		for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
 			EndianFixSubobjs(objL);
@@ -869,13 +873,7 @@ LogPrintf(LOG_DEBUG, "DEBUG_READHEAPS 6\n");
 			EndianFixSubobjs(objL);
 	}
 	
-#ifdef DEBUG_READHEAPS
-	for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL)) {
-		if (DETAIL_SHOW && (ObjLType(objL)==SYNCtype))
-			DisplayObject(doc, objL, 800+ObjLType(objL), True, True, True);
-	}
-#endif
-
+MAKE_A_FUSS("DEBUG_READHEAPS 6");
 	return 0;
 }
 
@@ -1115,7 +1113,7 @@ static short ReadSubHeap(Document *doc, short refNum, long version, short iHp, B
 	   
 	if (version=='N105') {
 #ifdef DEBUG_READHEAPS
-		if (debugLevel[DBG_CONVERT]>=2 && iHp==SYNCtype) DSubobj5Dump(iHp, (unsigned char *)pLink1, 0, 1, True);
+		if (iHp==SYNCtype) DSubobj5Dump(iHp, (unsigned char *)pLink1, 0, 1, True);
 #endif
 		if (!MoveObjSubobjs(iHp, version, nFObjs, pLink1, sizeAllInHeap)) {
 			OpenError(True, refNum, MISC_HEAPIO_ERR, iHp);

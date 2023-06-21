@@ -35,6 +35,6 @@ void		EndianFixScoreHdr(Document *doc);
 void		EndianFixHeapHdr(Document *doc, HEAP *heap);
 void		EndianFixObject(LINK pL);
 Boolean		EndianFixSubobj(short heapIndex, LINK subL);
-void		EndianFixSubobjs(LINK objL);
+Boolean		EndianFixSubobjs(LINK objL);
 void		EndianFixBMPFileHdr(BMPFileHeader *pFileHdr);
 void		EndianFixBMPInfoHdr(BMPInfoHeader *pInfoHdr);

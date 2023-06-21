@@ -363,9 +363,9 @@ void Initialize(void)
 	if (debugLevels!=NRV_CANCEL) {
 		for (short k=0; k<5; k++) debugLevel[k] = NTH_D(debugLevels, k);
 		LogPrintf(LOG_DEBUG,
-			"DEBUGGING SETUP: debugLevels=%d: debugLevel[DBG_LAUNCH]=%d [_CONVERT]=%d [_OPEN]=%d [0]=%d  (Initialize)\n",
-						debugLevels, debugLevel[DBG_LAUNCH], debugLevel[DBG_CONVERT],
-						debugLevel[DBG_OPEN], debugLevel[0]);
+			"DEBUGGING SETUP: debugLevels=%d: debugLevel[DBG_LAUNCH]=%d [_OPEN]=%d [_MISC1]=%d [_MISC2]=%d  (Initialize)\n",
+						debugLevels, debugLevel[DBG_LAUNCH], debugLevel[DBG_OPEN],
+						debugLevel[DBG_MISC1], debugLevel[DBG_MISC2]);
 	}
 
 	if (!OpenPrefsFile())							/* needs creatorType */

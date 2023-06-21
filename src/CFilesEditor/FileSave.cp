@@ -664,10 +664,12 @@ void SaveError(Boolean fileIsOpen,
 		errType, errInfo);
 	if (fileIsOpen) FSClose(refNum);
 
-	/* We expect descriptions of the common errors stored by code (negative values,
-	   for system errors; positive ones for our own I/O errors) in individual 'STR '
-	   resources. If we find one for this error, print it, else just print the raw
-	   code. */
+	/* All system error codes are negative; our own codes are positive. We expect
+	   descriptions of the common errors to be stored by code in individual 'STR '
+	   resources. If we find one for this error, print it, else just print the raw code.
+	   FIXME: Note that the code below actually gets four of the error descriptions
+	   from strings in a single 'STR#' resource; to make things relly confusing, for
+	   two of them, it looks like it expects to find an 'STR ', but it ignores it! */
 	   
 	strHdl = GetString(errType);
 	if (strHdl) {

@@ -156,7 +156,6 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				aNote = GetPANOTE(aNoteL);
 				if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx ", aNote);
 				DisplayNote(aNote, False);
-//if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx AGAIN ", aNote);
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;
@@ -167,7 +166,6 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				aGRNote = GetPAGRNOTE(aGRNoteL);
 				if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx ", aGRNote);
 				DisplayGRNote(aGRNote, False);
-//if (DETAIL_SHOW) LogPrintf(LOG_INFO, "@%lx AGAIN ", aGRNote);
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;
@@ -249,8 +247,6 @@ static void DisplaySubobjects(LINK objL, Boolean showLinks)
 				if (aKeySig->nKSItems==0)
 					LogPrintf(LOG_INFO, " nNatItems=%d", aKeySig->subType);
 				DKeySigPrintf((PKSINFO)(&aKeySig->KSItem[0]));
-//if (DETAIL_SHOW) DHexDump(LOG_DEBUG, "DisplayObject/aKeySig", (unsigned char *)(&aKeySig->KSItem[0]),
-//					sizeof(AKEYSIG), 4, 16);
 				if (SubobjCountIsBad(nEntries, subCnt)) break;
 			}
 			break;

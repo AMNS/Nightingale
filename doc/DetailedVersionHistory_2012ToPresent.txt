@@ -4003,3 +4003,11 @@ info.plist, Defs.h, vars.h; FileConversion, FileOpen, HeapFileIO, Initialize,
 InitNightingale.
 
 ------------------------------------------------------------------------------------ Build 45
+
+8 - 20 June
+
+Minor changes to facilitate debugging, etc. Affects info.plist, Defs.h, Endian.h;
+EndianUtils, Event, DebugDisplay, FileConversion, FileOpen, FileSave, HeapFileIO,
+Initialize.
+
+------------------------------------------------------------------------------------ Build 46

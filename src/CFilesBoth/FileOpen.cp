@@ -25,6 +25,7 @@ static void SetTimeStamps(Document *);
 
 /* A version code is four characters, specifically 'N' followed by three digits, e.g.,
 'N105': N-one-zero-five. Be careful: It's not a valid C or Pascal string! */
+
 static unsigned long version;							/* File version code read/written */
 
 /* --------------------------------------------------------------------- SetTimeStamps -- */
@@ -141,6 +142,90 @@ enum {
 	STROFFSET_ERR				/* headerStrOffset or footerStrOffset exceeds stringPoolSize */
 };
 
+/* Read and, if necessary, convert Document (i.e., Sheets) and Score headers; leave the
+file positioned at the end of the Score header, and return the <errType> value returned
+by FSRead. */
+
+static short ReadHeaders(Document *doc, short refNum, short *pErrInfo);
+static short ReadHeaders(Document *doc, short refNum, short *pErrInfo)
+{
+	short errType, errInfo, nErr, firstErr;
+	long count, fPos;
+	DocumentN105 aDocN105;
+		
+	switch(version) {
+		case 'N105':
+			count = sizeof(DOCUMENTHDR);
+			errType = FSRead(refNum, &count, &aDocN105.origin);
+			if (errType) { errInfo = HEADERobj; goto Error; }
+			ConvertDocumentHeader(doc, &aDocN105);
+			if (DETAIL_SHOW) DisplayDocumentHdr(1, doc);
+			
+			count = sizeof(SCOREHEADER_N105);
+			errType = FSRead(refNum, &count, &aDocN105.headL);
+			if (errType) { errInfo = HEADERobj; goto Error; }
+			ConvertScoreHeader(doc, &aDocN105);
+			if (DETAIL_SHOW) DisplayScoreHdr(1, doc);
+			break;
+		
+		default:
+			count = sizeof(DOCUMENTHDR);
+			errType = FSRead(refNum, &count, &doc->origin);
+			if (errType) { errInfo = HEADERobj; goto Error; }
+			if (MORE_DETAIL_SHOW) { GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(1)=%ld\n", fPos); }
+			
+			count = sizeof(SCOREHEADER);
+			errType = FSRead(refNum, &count, &doc->headL);
+			if (errType) { errInfo = HEADERobj; goto Error; }
+			if (MORE_DETAIL_SHOW) { GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(2)=%ld\n", fPos); }
+	}
+
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing file headers for CPU's Endian property...  (ReadHeaders)\n");	
+	EndianFixDocumentHdr(doc);
+	if (DETAIL_SHOW) DisplayDocumentHdr(2, doc);
+	LogPrintf(LOG_NOTICE, "Checking Document header: ");
+	nErr = CheckDocumentHdr(doc, &firstErr);
+	if (nErr==0) {
+		LogPrintf(LOG_NOTICE, "No errors found.  (ReadHeaders)\n");
+	}
+	else {
+		if (!DETAIL_SHOW) DisplayDocumentHdr(3, doc);
+		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (ReadHeaders)\n",
+					nErr, firstErr);
+		sprintf(strBuf, "%d", nErr);
+		CParamText(strBuf, "", "", "");
+		short itemHit = CautionAlert(504, NULL);
+		if (itemHit == Cancel) goto HeaderError;
+	}
+	
+	EndianFixScoreHdr(doc);
+	if (DETAIL_SHOW) DisplayScoreHdr(3, doc);
+	LogPrintf(LOG_NOTICE, "Checking Score header: ");
+	nErr = CheckScoreHdr(doc, &firstErr);
+	if (nErr==0) {
+		LogPrintf(LOG_NOTICE, "No errors found.  (ReadHeaders)\n");
+	}
+	else {
+		if (!DETAIL_SHOW) DisplayScoreHdr(3, doc);
+		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (ReadHeaders)\n",
+					nErr, firstErr);
+		sprintf(strBuf, "%d", nErr);
+		CParamText(strBuf, "", "", "");
+		short itemHit = CautionAlert(506, NULL);
+		if (itemHit == Cancel) goto HeaderError;
+	}
+	
+	return noErr;
+
+HeaderError:
+	errType = HEADER_ERR;
+	errInfo = 0;
+	/* drop through */
+Error:
+	*pErrInfo = errInfo;
+	return errType;
+}
+
 
 #include <ctype.h>
 
@@ -149,7 +234,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 {
 	short		errType, refNum, strPoolErrCode;
 	short 		errInfo=0,				/* Type of object being read or other info on error */
-				nErr, firstErr, lastType;
+				lastType;
 	long		count, stringPoolSize,
 				fileTime, fPos;
 	Boolean		fileIsOpen;
@@ -158,7 +243,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	long		cmHdr, cmBufCount, cmDevSize;
 	FSSpec		*pfsSpecMidiMap;
 	char		versionCString[5];
-	DocumentN105 aDocN105;
 
 	WaitCursor();
 
@@ -183,7 +267,8 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 #ifdef NOT_NOW
 	/* If user has the secret keys down, pretend file is in current version. This is
 	   almost certainly a waste of time if the file format has changed more than a
-	   little bit. */
+	   little bit. As of this writing, the current format is 'N106', which is _far_
+	   different from 'N105'; draw your own conclusions! */
 	
 	if (DETAIL_SHOW && !OptionKeyDown() && CmdKeyDown()) {
 		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%s'.  (OpenFile)\n", versionCString);
@@ -212,11 +297,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 #endif
 	}
 	
-//#define DIFF(addr1, addr2)	((long)(&addr1)-(long)(&addr2))
-//if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Offset of aDocN105.comment[0]=%lu, spacePercent=%lu, fillerMB=%lu, nFontRecords=%lu, nfontsUsed=%lu, yBetweenSys=%lu\n",
-//DIFF(aDocN105.comment[0], aDocN105.headL), DIFF(aDocN105.spacePercent, aDocN105.headL), DIFF(aDocN105.fillerMB, aDocN105.headL), DIFF(aDocN105.nFontRecords, aDocN105.headL),
-//DIFF(aDocN105.nfontsUsed, aDocN105.headL), DIFF(aDocN105.yBetweenSys, aDocN105.headL));
-
 	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "Header size for Document=%ld, for Score=%ld, for N105 Score=%ld.  (OpenFile)\n",
 		sizeof(DOCUMENTHDR), sizeof(SCOREHEADER), sizeof(SCOREHEADER_N105));
 
@@ -225,69 +305,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	FIX_END(fileTime);
 	if (errType) { errInfo = VERSIONobj; goto Error; }
 		
-	/* Read and, if necessary, convert Document (i.e., Sheets) and Score headers. */
-	
-	switch(version) {
-		case 'N105':
-			count = sizeof(DOCUMENTHDR);
-			errType = FSRead(refNum, &count, &aDocN105.origin);
-			if (errType) { errInfo = HEADERobj; goto Error; }
-			ConvertDocumentHeader(doc, &aDocN105);
-			if (DETAIL_SHOW) DisplayDocumentHdr(1, doc);
-			
-			count = sizeof(SCOREHEADER_N105);
-			errType = FSRead(refNum, &count, &aDocN105.headL);
-			if (errType) { errInfo = HEADERobj; goto Error; }
-			ConvertScoreHeader(doc, &aDocN105);
-			if (DETAIL_SHOW) DisplayScoreHdr(1, doc);
-			break;
-		
-		default:
-			count = sizeof(DOCUMENTHDR);
-			errType = FSRead(refNum, &count, &doc->origin);
-			if (errType) { errInfo = HEADERobj; goto Error; }
-			if (MORE_DETAIL_SHOW) { GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(1)=%ld\n", fPos); }
-			
-			count = sizeof(SCOREHEADER);
-			errType = FSRead(refNum, &count, &doc->headL);
-			if (errType) { errInfo = HEADERobj; goto Error; }
-			if (MORE_DETAIL_SHOW) { GetFPos(refNum, &fPos);  LogPrintf(LOG_DEBUG, "fPos(2)=%ld\n", fPos); }
-	}
-
-	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Fixing file headers for CPU's Endian property...  (OpenFile)\n");	
-	EndianFixDocumentHdr(doc);
-	if (DETAIL_SHOW) DisplayDocumentHdr(2, doc);
-	LogPrintf(LOG_NOTICE, "Checking Document header: ");
-	nErr = CheckDocumentHdr(doc, &firstErr);
-	if (nErr==0) {
-		LogPrintf(LOG_NOTICE, "No errors found.  (CheckDocumentHdr)\n");
-	}
-	else {
-		if (!DETAIL_SHOW) DisplayDocumentHdr(3, doc);
-		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (OpenFile)\n",
-					nErr, firstErr);
-		sprintf(strBuf, "%d", nErr);
-		CParamText(strBuf, "", "", "");
-		short itemHit = CautionAlert(504, NULL);
-		if (itemHit == Cancel) goto HeaderError;
-	}
-	
-	EndianFixScoreHdr(doc);
-	if (DETAIL_SHOW) DisplayScoreHdr(3, doc);
-	LogPrintf(LOG_NOTICE, "Checking Score header: ");
-	nErr = CheckScoreHdr(doc, &firstErr);
-	if (nErr==0) {
-		LogPrintf(LOG_NOTICE, "No errors found.  (CheckScoreHdr)\n");
-	}
-	else {
-		if (!DETAIL_SHOW) DisplayScoreHdr(3, doc);
-		LogPrintf(LOG_ERR, " %d ERROR(S) FOUND (first bad field is no. %d).  (OpenFile)\n",
-					nErr, firstErr);
-		sprintf(strBuf, "%d", nErr);
-		CParamText(strBuf, "", "", "");
-		short itemHit = CautionAlert(506, NULL);
-		if (itemHit == Cancel) goto HeaderError;
-	}
+	if (ReadHeaders(doc, refNum, &errInfo)!=noErr) goto Error;
 
 	count = sizeof(lastType);
 	errType = FSRead(refNum, &count, &lastType);
@@ -451,10 +469,6 @@ if (debugLevel[DBG_OPEN]!=0) {
 	ArrowCursor();	
 	return 0;
 
-HeaderError:
-	errType = HEADER_ERR;
-	errInfo = 0;
-	/* drop through */
 Error:
 	OpenError(fileIsOpen, refNum, errType, errInfo);
 	return errType;

@@ -1042,9 +1042,9 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			CautionInform(READ_PROBLEM_ALRT);			/* Fall through and try to open it anyway */
 		case DOCUMENT_TYPE_NORMAL:
 			Pstrcpy((unsigned char *)tmpCStr, theFile->name); PToCString((unsigned char *)tmpCStr);
-			LogPrintf(LOG_NOTICE, "Opening file '%s'...\n", tmpCStr);
+			LogPrintf(LOG_NOTICE, "Opening file '%s'...  (FSpecOpenDocument)\n", tmpCStr);
 			if (DoOpenDocument(theFile->name, theFile->vRefNum, False, theFile)) {
-				LogPrintf(LOG_NOTICE, "Opened file '%s'.\n", tmpCStr);
+				LogPrintf(LOG_NOTICE, "Opened file '%s'.  (FSpecOpenDocument)\n", tmpCStr);
 				break;
 			}
 			return NULL;

@@ -686,7 +686,7 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteSOFT(aNoteRL) = (&a1NoteR)->soft;
 #define DEBUG_EMPTY_OBJRECT
 #ifdef DEBUG_EMPTY_OBJRECT
-if (debugLevel[DBG_CONVERT]!=0) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d\n",
+if (debugLevel[DBG_OPEN]!=0) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d\n",
 aNoteRL, (&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft);
 #endif
 	/* Now for the ANOTE-specific fields. */
@@ -738,7 +738,7 @@ aNoteRL, (&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft);
 	NoteRESERVEDN(aNoteRL) = 0L;
 	
 #ifdef DEBUG_EMPTY_OBJRECT
-if (debugLevel[DBG_CONVERT]!=0) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
+if (debugLevel[DBG_OPEN]!=0) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u voice=%d vis=%d yqpit=%d xd=%d yd=%d playDur=%d\n",
 aNoteRL, NoteVOICE(aNoteRL), NoteVIS(aNoteRL), NoteYQPIT(aNoteRL), NoteXD(aNoteRL), NoteYD(aNoteRL), NotePLAYDUR(aNoteRL));
 #endif
 
@@ -1180,7 +1180,7 @@ static void ConvertObjHeader(Document * /* doc */, LINK objL)
 	LinkOBJRECT(objL) = tmpObjHeader_5.objRect;
 	LinkNENTRIES(objL) = tmpObjHeader_5.nEntries;
 #ifdef DEBUG_EMPTY_OBJRECT
-if ((ObjLType(objL)==SYNCtype || ObjLType(objL)==GRSYNCtype) && debugLevel[DBG_CONVERT]!=0)
+if ((ObjLType(objL)==SYNCtype || ObjLType(objL)==GRSYNCtype) && debugLevel[DBG_OPEN]!=0)
 LogPrintf(LOG_DEBUG, "  ConvertObjHeader: objL=L%u objRect/t,l,b,r=p%d,%d,%d,%d\n",
 objL, LinkOBJRECT(objL).top, LinkOBJRECT(objL).left,
 LinkOBJRECT(objL).bottom, LinkOBJRECT(objL).right);
@@ -1904,14 +1904,14 @@ Boolean ConvertObjectList(Document *doc, unsigned long version, long /* fileTime
 	/* If we're debugging file conversion, sidestep the disappearing-message bug in the
 	   OS 10.5 Console utility by adding a delay before each message. */
 
-	if (debugLevel[DBG_CONVERT]!=0) KludgeOS10p5LogDelay(True);
+	if (debugLevel[DBG_OPEN]!=0) KludgeOS10p5LogDelay(True);
 	fflush(stdout);
 	objCount = 0;
 	prevL = startL-1;
 	for (objL = startL; objL; objL = RightLINK(objL)) {
 		objCount++;
 		if (debugLevel) {
-			if (debugLevel[DBG_CONVERT]!=0>1 || objCount%50==1) LogPrintf(LOG_DEBUG,
+			if (debugLevel[DBG_OPEN]!=0>1 || objCount%50==1) LogPrintf(LOG_DEBUG,
 					"**************** ConvertObjectList: objL=%u prevL=%u type='%s'\n",
 					objL, prevL, NameObjType(objL));
 		}
@@ -1933,7 +1933,7 @@ Boolean ConvertObjectList(Document *doc, unsigned long version, long /* fileTime
 		
 		ConvertObjHeader(doc, objL);
 #ifdef DEBUG_EMPTY_OBJRECT
-if (debugLevel[DBG_CONVERT]!=0) DebugConvCheckObjs(doc, objL, "ConvertObjectList");
+if (debugLevel[DBG_OPEN]!=0) DebugConvCheckObjs(doc, objL, "ConvertObjectList");
 #endif
 		switch (ObjLType(objL)) {
 			case HEADERtype:
@@ -2026,7 +2026,7 @@ if (debugLevel[DBG_CONVERT]!=0) DebugConvCheckObjs(doc, objL, "ConvertObjectList
 
 	VisifyMasterStaves(doc);
 	
-if (debugLevel[DBG_CONVERT]!=0) DebugConvCheckObjs(doc, doc->tailL, "ConvertObjectList");
+if (debugLevel[DBG_OPEN]!=0) DebugConvCheckObjs(doc, doc->tailL, "ConvertObjectList");
 
 	return True;
 }
@@ -2035,7 +2035,7 @@ if (debugLevel[DBG_CONVERT]!=0) DebugConvCheckObjs(doc, doc->tailL, "ConvertObje
 /* ----------------------------------------------------------------------- ModifyScore -- */
 /* Any temporary file-content-updating code (a.k.a. hacking) that doesn't affect the
 length of the header or lengths of objects should go here. This function should only be
-called after the header and entire object list have been read. Return True if all goes
+called after the header and entire object list have been read! Return True if all goes
 well, False if not.
 
 FIXME: If code here considers changing something, and especially if it ends up actually

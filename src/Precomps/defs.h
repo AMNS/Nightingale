@@ -509,11 +509,15 @@ height or  width, or (2) a rectangle of area zero because its width or height is
 
 #define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
 #define MORE_DETAIL_SHOW	(DETAIL_SHOW && OptionKeyDown())
-#define DBG_LAUNCH			3					/* debugLevel[] digit position */
-#define DBG_CONVERT			2					/* debugLevel[] digit position */
-#define DBG_OPEN			1					/* debugLevel[] digit position */
 
-/* NTH_D(num, nDigit) extracts from <num> the <nDigit>th from the right. */
+/* NTH_D(num, nDigit) extracts from <num> the <nDigit>th from the right, i.e., the
+10^nDigit digit; debugLevel[] digit positions use the same notation. So position 0 is
+the units digit, 2 the hundreds digit, etc. */
+ 
+#define DBG_LAUNCH			3				/* debugLevel[] digit position */
+#define DBG_OPEN			2				/* debugLevel[] digit position */
+#define DBG_MISC1			1				/* debugLevel[] digit position */
+#define DBG_MISC2			0				/* debugLevel[] digit position */
 
 #define LNTH_D(num, nDigit)	((num) / (short)pow(10, (nDigit)))
 #define NP1_D(num, nDigit)	(10*((num) / (short)pow(10, (nDigit+1))))

@@ -11084,7 +11084,7 @@ a trashed version of a totally different dialog or alert!! It's already trashed 
 looks fine in the July 15, 2020 .rsrc for Ngale 5.8. Copy that & paste into the current .rsrc
 => OK now!
 
--BACK TO: tool palette:
+BACK TO: tool palette:
 	- Code is a mess.
 	- Resizing to a larger size never draws the new area.
 	- Sometimes stays in too low a position and ignores clicks :-( .
@@ -12703,3 +12703,48 @@ Look at comments above from 10 Apr. ff. about <visible> and <yqpit> and summary 
 test cases. Call KludgeOS10p5LogDelay(True) near the beginning of ReadHeaps()...done. Now
 try to catch the bug during ReadHeaps() w/ the HeapFileIO_CRAZY.cp approach => ??
 
+---------------------------------------------------------------------------------------
+
+14 - 18 June
+
+SWITCH TO: <debugLevel> still isn't very usable. Maybe change the definition of DETAIL_SHOW
+(and MORE_DETAIL_SHOW?):
+
+	from	#define DETAIL_SHOW			(ShiftKeyDown() && ControlKeyDown())
+	to		#define DETAIL_SHOW(dLev)	(debugLevel[dLev] && ShiftKeyDown() && ControlKeyDown())
+	
+But DETAIL_SHOW appears 169 times in 35 files! It'd take some time to change, and more to
+do code review when committing. Put this off.
+
+BACK TO: the "converting files from the old format leads to invisible notes/grace notes"
+bug. If the debugger was usable, I might be able to fix this much more easily, and I haven't
+tried _compiling_ in debug mode in years. It'd probably be worth trying again.
+
+18 June: Set Project > Set Active Build Configuration > Debug; Build & Debug(?) => exits
+instantly with code 1. Oh well!
+
+Using UnbeamedGraceNotes.ngl, excerpt from UnbeamedGraceNotesLog3.txt:
+
+:17:49: debug. DEBUG_READHEAPS 1  (MAKE_A_FUSS)
+:17:49: debug. DisplayNote5: @169eb044 stf=1 v=1 xd=0 yd=32 ystm=256 yqpit=-18 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+:17:49: debug. DisplayNote5: @169eb062 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=-20 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+:17:49: info.     heap 24 (OBJECT): 20 objects. sizeAllObjsFile=590 sizeAllObjsHeap=1120  (ReadObjHeap)
+:17:50: debug. DEBUG_READHEAPS 2  (MAKE_A_FUSS)
+:17:51: debug. DEBUG_READHEAPS 3  (MAKE_A_FUSS)
+:17:52: debug. DEBUG_READHEAPS 4  (MAKE_A_FUSS)
+:17:53: debug. DEBUG_READHEAPS 6  (MAKE_A_FUSS)
+...
+:27:15: Notice. Opened file 'UnbeamedGraceNotes.ngl'.  (FSpecOpenDocument)
+:27:45: info. DEBUG 'Menu': FULL/CHECK: headL=1 tailL=14 (Obj flags: SelVisSoftValidTwkdSpare)
+...
+:27:45: info. &9 L10 xd=96 yd=0 SYNC .V.V.. objRect.l=p177 TS=0 LT=0 n=1
+:27:45: info.        L1 stf=1 v=1 xd=0 yd=32 ystm=256 yqpit=-18 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+...
+:27:45: info.  12 L13 xd=448 yd=0 SYNC .V.V.. objRect.l=p0 TS=480 LT=480 n=1
+:27:45: info.        L2 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+
+As expected, all "DEBUG_READHEAPS"s except "DEBUG_READHEAPS 5" appear in the log, with one
+second delays between those shown, confirming that MAKE_A_FUSS wasn't called there. ?!?
+Also as expected, all fields shown by DisplayNote5() before are identical to those shown by
+"DEBUG 'Menu'", except the 2nd note's <visible> flag has been cleared and its <yqpit>
+changed from -20 to 1. How does this happen??

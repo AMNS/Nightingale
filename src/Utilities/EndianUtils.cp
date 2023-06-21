@@ -377,8 +377,8 @@ Boolean EndianFixSubobj(short heapIndex, LINK subL)
 
 //LogPrintf(LOG_DEBUG, "EndianFixSubobj: heapIndex=%d subL=%d\n", heapIndex, subL);
 	if (GARBAGEL(heapIndex, subL)) {
-		LogPrintf(LOG_ERR, "IN HEAP %d, LINK %u IS GARBAGE! (EndianFixSubobj)\n",
-				heapIndex, subL);
+		AlwaysErrMsg("IN HEAP %ld, LINK %lu IS GARBAGE! (EndianFixSubobj)",
+				(long)heapIndex, (long)subL);
 		return False;
 	}
 
@@ -516,9 +516,9 @@ static void EndianFixModNRs(LINK aNoteRL)
 
 /* Switch Endian-ness of all the subobjects of a given object. MODNR subobjects are
 attached to other subobjects -- notes or rests -- rather than objects, so we also
-handle them when do the notes/rests they're attached. */
+handle them when do the notes/rests they're attached. Return False if we find a problem.*/
  
-void EndianFixSubobjs(LINK objL)
+Boolean EndianFixSubobjs(LINK objL)
 {
 	LINK partL, aNoteL, aRptL, aStaffL, aMeasL, aClefL, aKeySigL, aTimeSigL, aNoteBeamL,
 			aConnectL, aDynamicL, aGraphicL, anOttavaL, aSlurL, aTupletL, aGRNoteL,
@@ -530,95 +530,97 @@ if (DETAIL_SHOW && objL<10) LogPrintf(LOG_DEBUG, "EndianFixSubobjs: objL=%u heap
 	switch (heapIndex) {
 		case HEADERtype:
 			for (partL = FirstSubLINK(objL); partL; partL = NextPARTINFOL(partL))
-				if (!EndianFixSubobj(heapIndex, partL)) return;
+				if (!EndianFixSubobj(heapIndex, partL)) return False;
 			break;
 		case SYNCtype:
 			for (aNoteL = FirstSubLINK(objL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-				if (!EndianFixSubobj(heapIndex, aNoteL)) return;
+				if (!EndianFixSubobj(heapIndex, aNoteL)) return False;
 				EndianFixModNRs(aNoteL);
 			}
 			break;
 		case RPTENDtype:
 			for (aRptL = FirstSubLINK(objL); aRptL; aRptL = NextRPTENDL(aRptL))
-				if (!EndianFixSubobj(heapIndex, aRptL)) return;
+				if (!EndianFixSubobj(heapIndex, aRptL)) return False;
 			break;
 		case STAFFtype:
 			aStaffL = FirstSubLINK(objL);
 			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
-				if (!EndianFixSubobj(heapIndex, aStaffL)) return;
+				if (!EndianFixSubobj(heapIndex, aStaffL)) return False;
 			break;
 		case MEASUREtype:
 			aMeasL = FirstSubLINK(objL);
 			for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL))
-				if (!EndianFixSubobj(heapIndex, aMeasL)) return;
+				if (!EndianFixSubobj(heapIndex, aMeasL)) return False;
 			break;
 		case CLEFtype:
 			aClefL = FirstSubLINK(objL);
 			for ( ; aClefL; aClefL = NextCLEFL(aClefL))
-				if (!EndianFixSubobj(heapIndex, aClefL)) return;
+				if (!EndianFixSubobj(heapIndex, aClefL)) return False;
 			break;
 		case KEYSIGtype:
 			aKeySigL = FirstSubLINK(objL);
 			for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL))
-				if (!EndianFixSubobj(heapIndex, aKeySigL)) return;
+				if (!EndianFixSubobj(heapIndex, aKeySigL)) return False;
 			break;
 		case TIMESIGtype:
 			aTimeSigL = FirstSubLINK(objL);
 			for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL))
-				if (!EndianFixSubobj(heapIndex, aTimeSigL)) return;
+				if (!EndianFixSubobj(heapIndex, aTimeSigL)) return False;
 			break;
 		case BEAMSETtype:
 			aNoteBeamL = FirstSubLINK(objL);
 			for (; aNoteBeamL; aNoteBeamL=NextNOTEBEAML(aNoteBeamL))
-				if (!EndianFixSubobj(heapIndex, aNoteBeamL)) return;
+				if (!EndianFixSubobj(heapIndex, aNoteBeamL)) return False;
 			break;
 		case CONNECTtype:
 			aConnectL = FirstSubLINK(objL);
 			for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL))
-				if (!EndianFixSubobj(heapIndex, aConnectL)) return;
+				if (!EndianFixSubobj(heapIndex, aConnectL)) return False;
 			break;
 		case DYNAMtype:
 			aDynamicL = FirstSubLINK(objL);
 			for ( ; aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL))
-				if (!EndianFixSubobj(heapIndex, aDynamicL)) return;
+				if (!EndianFixSubobj(heapIndex, aDynamicL)) return False;
 			break;
 		case MODNRtype:
 			/* There are no objects of MODNRtype, so we should never reach here. */
 			
 			AlwaysErrMsg("OBJECT L%ld IS OF MODNRtype!  (EndianFixSubobjs)", (long)objL);
-			break;
+			return False;
 		case GRAPHICtype:
 			aGraphicL = FirstSubLINK(objL);			/* Never has more than one subobject */
-				if (!EndianFixSubobj(heapIndex, aGraphicL)) return;
+				if (!EndianFixSubobj(heapIndex, aGraphicL)) return False;
 			break;
 		case OTTAVAtype:
 			anOttavaL = FirstSubLINK(objL);
 			for ( ; anOttavaL; anOttavaL = NextNOTEOTTAVAL(anOttavaL))
-				if (!EndianFixSubobj(heapIndex, anOttavaL)) return;
+				if (!EndianFixSubobj(heapIndex, anOttavaL)) return False;
 			break;
 		case SLURtype:
 			aSlurL = FirstSubLINK(objL);
 			for ( ; aSlurL; aSlurL = NextSLURL(aSlurL))
-				if (!EndianFixSubobj(heapIndex, aSlurL)) return;
+				if (!EndianFixSubobj(heapIndex, aSlurL)) return False;
 			break;
 		case TUPLETtype:
 			aTupletL = FirstSubLINK(objL);
 			for ( ; aTupletL; aTupletL = NextNOTETUPLEL(aTupletL))
-				if (!EndianFixSubobj(heapIndex, aTupletL)) return;
+				if (!EndianFixSubobj(heapIndex, aTupletL)) return False;
 			break;
 		case GRSYNCtype:
 			aGRNoteL = FirstSubLINK(objL);
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
-				if (!EndianFixSubobj(heapIndex, aGRNoteL)) return;
+				if (!EndianFixSubobj(heapIndex, aGRNoteL)) return False;
 			break;
 		case PSMEAStype:
 			aPSMeasL = FirstSubLINK(objL);
 			for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL))
-				if (!EndianFixSubobj(heapIndex, aPSMeasL)) return;
+				if (!EndianFixSubobj(heapIndex, aPSMeasL)) return False;
 			break;			
 		default:
 			;
 	}
+
+	return True;
 }
 
 /* ------------------------------------------------------- Endian functions for .BMP's -- */
