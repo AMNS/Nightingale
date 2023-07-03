@@ -12622,11 +12622,12 @@ What should it do?
 Problem 2: It's very hard to see the notes of a match, partly because of Ngale's subtle
 hilighting, partly because of the unhelpful scrolling.
 
-Problem 3: With Bach_StAnne_69.ngl, the 2nd Find All crashes or hangs or shows a blank result
-list -- maybe only if pitch tolerance is nonzero. In two or three tries, the 1st Find All w/
-pitch tolerance 2 lists from 1 to 4 matches(?); is that what the log shows? While the window
-listing used to be a disaster, Ngale did the matching a lot better than that; if not quite
-perfectly, darn close! Oh well; better not show this on 20 April :-( .
+Problem 3: Find All has several problems. With Bach_StAnne_69.ngl, usual 5-note pattern, 
+the 2nd Find All crashes or hangs or shows a blank result list -- maybe only if pitch
+tolerance is nonzero. In two or three tries, the 1st Find All w/ pitch tolerance 2 lists
+from 1 to 4 matches(?); is that what the log shows? While the window listing used to be a
+disaster, Ngale did the matching a lot better than that; if not quite perfectly, darn
+close! Oh well; better not show this on 20 April :-( .
 
 24 Apr.: BACK TO: the "files converted from N105 format sometimes have invisible notes or
 grace notes" problem. Evidence so far is the notenum/notation disagreement as well as the
@@ -12748,3 +12749,178 @@ second delays between those shown, confirming that MAKE_A_FUSS wasn't called the
 Also as expected, all fields shown by DisplayNote5() before are identical to those shown by
 "DEBUG 'Menu'", except the 2nd note's <visible> flag has been cleared and its <yqpit>
 changed from -20 to 1. How does this happen??
+
+---------------------------------------------------------------------------------------
+
+24 - 27 June
+
+Add logging to OpenFile() as follows:
+
+	errType = ReadHeaps(doc, refNum, version, fInfo.fdType);
+	...
+	if (version=='N105') {
+		(void)ConvertObjectList(doc, version, fileTime, False);
+		for (LINK objL = 8; objL!=doc->tailL; objL = RightLINK(objL)) {
+			if (ObjLType(objL)==SYNCtype)
+				DisplayObject(doc, objL, 600+ObjLType(objL), True, True, True);
+		}
+		(void)ConvertObjectList(doc, version, fileTime, True);
+		for (LINK objL = 8; objL!=doc->tailL; objL = RightLINK(objL)) {
+			if (ObjLType(objL)==SYNCtype)
+				DisplayObject(doc, objL, 700+ObjLType(objL), True, True, True);
+		}
+	}
+
+Using UnbeamedGraceNotes.ngl, from the resulting log:
+
+	debug. DEBUG_READHEAPS 1  (MAKE_A_FUSS)
+	debug. DisplayNote5: @11c4e044 stf=1 v=1 xd=0 yd=32 ystm=256 yqpit=-18 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+	debug. DisplayNote5: @11c4e062 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=-20 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+	...
+	debug. **************** ConvertObjectList: objL=1 prevL=0 type='HEAD'
+	info.  602 L10 xd=96 yd=0 SYNC .V.V.. objRect.l=p177 n=1
+	info.        L1 stf=1 v=1 xd=0 yd=32 ystm=256 yqpit=-18 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+	info.  602 L13 xd=448 yd=0 SYNC .V.V.. objRect.l=p210 n=1
+	info.        L2 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+	debug. **************** ConvertObjectList: objL=15 prevL=14 type='HEAD'
+	info.  702 L10 xd=96 yd=0 SYNC .V.V.. objRect.l=p177 n=1
+	info.        L1 stf=1 v=1 xd=0 yd=32 ystm=256 yqpit=-18 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+	info.  702 L13 xd=448 yd=0 SYNC .V.V.. objRect.l=p210 n=1
+	info.        L2 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+
+Apparently the mischief is done by the 1st call to ConvertObjectList(), which kinda makes
+sense. Add logging to ConvertObjectList as follows:
+
+			case SYNCtype:
+	DisplayObject(doc, objL, 100+ObjLType(objL), True, True, True);
+				ConvertSYNC(doc, objL);
+	DisplayObject(doc, objL, 200+ObjLType(objL), True, True, True);
+				continue;
+
+Results:
+
+info.  102 L10 xd=96 yd=0 SYNC .V.V.. objRect.l=p177 n=1
+info.        L1 stf=1 v=64 xd=456 yd=0 ystm=19531 yqpit=0 ldur=4 .s=4 acc=0 onV=0 SV.. .B.. ><T 1stMod=0
+info.  202 L10 xd=96 yd=0 SYNC .V.V.. objRect.l=p177 n=1
+info.        L1 stf=1 v=1 xd=0 yd=32 ystm=256 yqpit=-18 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+info.  102 L13 xd=448 yd=0 SYNC .V.V.. objRect.l=p210 n=1
+info.        L2 stf=1 v=0 xd=456 yd=0 ystm=19787 yqpit=0 ldur=4 .s=0 acc=0 onV=0 .V.. .... ... 1stMod=0
+info.  202 L13 xd=448 yd=0 SYNC .V.V.. objRect.l=p210 n=1
+info.        L2 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+
+Oops: calling DisplayObject before conversion and therefore the "102" entries above aren't
+valid. So it's not clear the call to ConvertSYNC() for the 2nd Sync screws it up! ConvertSYNC
+calls Convert1NOTER(). Add logging to it:
+
+	NoteSOFT(aNoteRL) = (&a1NoteR)->soft;
+	if (debugLevel[DBG_OPEN]!=0) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d yqpit=%d\n",
+	aNoteRL, (&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft, (&a1NoteR)->yqpit);
+	/* Now for the ANOTE-specific fields. */
+
+It already ends with a LogPrintf. Add logging to ConvertSYNC, too:
+
+	LogPrintf(LOG_DEBUG, "ConvertSYNC: syncL=L%d aNoteRL=L%d\n", syncL, aNoteRL);
+			pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aNoteRL, PANOTE);
+	if (debugLevel[DBG_OPEN]!=0) DisplayNote5((PANOTE_5)pSSubObj, True);
+			BlockMove(pSSubObj, &tmpANoteR, sizeof(ANOTE));
+			Convert1NOTER(doc, aNoteRL);
+
+Results:
+
+	Jun 25 16:26:21 unknown00112431479a Ngale[9439]:
+	debug. **************** ConvertObjectList: objL=13 prevL=12 type='SYNC'
+	debug.   ConvertObjHeader: objL=L13 objRect/t,l,b,r=p142,210,148,218
+	debug. ConvertSYNC: syncL=L13 aNoteRL=L2
+	debug. DisplayNote5: @15900088 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+	debug.     Convert1NOTER: aNoteRL=2 sel=0 vis=0 soft=0 yqpit=1
+	debug.     Convert1NOTER: aNoteRL=2 voice=1 vis=0 yqpit=1 xd=0 yd=0 playDur=456
+	info.  202 L13 xd=448 yd=0 SYNC .V.V.. objRect.l=p210 n=1
+	info.        L2 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+
+So I think just before ConvertObjectList is called, the Note is OK, but I'm not certain.
+But in ConvertObjectList, before ConvertSYNC is called for the Sync in question (and of course
+before Convert1NOTER), it's already bad!
+
+26 June: BACK TO: Search/Find All problems: Need to update Issue #187! See (1) notes of 15 - 20 July
+2022 and (2) 14 - 30 Apr. 2023. (17 Jan. - 2 Feb. 2023 is about a problem I've fixed.) W/r/t
+the three problems discussed in source 2:
+
+Problem 1: When Search Again (and maybe Search for Notes/Rests) find a match, it tends to
+scroll in a very unhelpful way! But it may need to scroll to get the new match in view.
+What should it do? I have nothing to add.
+
+Problem 2: It's very hard to see the notes of a match, partly because of Ngale's subtle
+hilighting, partly because of the unhelpful scrolling. See 15 - 20 July 2022 for lots of
+details on potential fixes.
+
+Problem 3: Find All has several problems. Expanding on the info in source 2, let's consider
+nonzero pitch tolerance as a special case.
+(a) Regardless of pitch tolerance, Ngale often crashes the 2nd time you do Find All.
+(b) With nonzero pitch tolerance. With Bach_StAnne_69.ngl, usual 5-note pattern, 
+the 2nd Find All crashes or hangs or shows a blank result list. In two or three tries, the
+1st Find All w/ pitch tolerance 2 lists from 1 to 4 matches(?); is that what the log shows?
+While the window listing used to be a disaster, Ngale did the matching a lot better than
+that; if not quite perfectly, darn close! Too bad, but less important than (a).
+
+For case (a), with HindemithBnSonataVisTEST.ng, search pattern of three 8th notes, match
+duration default (ignore pitch), Find All =>
+
+	Jun 26 07:46:18 unknown00112431479a Ngale[9439]:
+	info. Time 0.03 sec. 3 matches, in order found:  (ListMatches)
+	info.   1: HindemithBnSonataVisTEST.ng (co: m.2, voice 1 of SEARCH
+	info.   2: HindemithBnSonataVisTEST.ng (co: m.2, voice 1 of SEARCH
+	info.   3: HindemithBnSonataVisTEST.ng (co: m.4, voice 1 of SEARCH
+
+...which is correct, except that it's renamed the 1st part as "SEARCH"!, and it displays
+correctly in Result List. Double-click on one in Result List => nothing happens ??CHECK!.
+Find All in another score that has no matches => nothing happens; go back to
+HindemithBnSonataVisTEST.ng & Find All => crashes in LDelRow called from DoResultListDoc.
+
+With Bach_StAnne_69.ngl, usual 5-note pattern, default match options, Find Next correctly
+finds the five exact matches. Find All =>
+
+	Jun 26 08:05:47 unknown00112431479a Ngale[10580]:
+	info. ALL: Pitch(R,maxTr=127,tol=0/contour,W75), Dur(R), Rests-Ties-outerN. 5 notes/rests:
+	info. Time 0.07 sec. 5 matches, in order found:  (ListMatches)
+	info.   1: Bach_StAnne_69.ngl (converted): m.1, voice 3 of SEARCH
+	info.   2: Bach_StAnne_69.ngl (converted): m.7, voice 1 of SEARCH
+	info.   3: Bach_StAnne_69.ngl (converted): m.14, voice 1 of Pedal
+	info.   4: Bach_StAnne_69.ngl (converted): m.22, voice 2 of SEARCH
+	info.   5: Bach_StAnne_69.ngl (converted): m.31, voice 1 of Pedal
+
+...all correct, except Ngale renamed the "Manual" part to "SEARCH" -- really; not just in
+the result list! Close the score again, open it again, Find All => crashes, again in LDelRow
+called from DoResultListDoc.
+
+1 July: BACK TO: Converting format of files containing grace notes makes notes or grace notes
+invisible and corrupts their <yqpit>.
+
+debug. ConvertObjectList: display dObjL=13. 1st subobj:
+debug. DisplayNote5: @1147c088 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=-20 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
+debug. **************** ConvertObjectList: objL=1 prevL=0 type='HEAD'
+...
+debug. **************** ConvertObjectList: objL=13 prevL=12 type='SYNC'
+debug.   ConvertObjHeader: objL=L13 objRect/t,l,b,r=p142,210,148,218
+debug. ConvertObjectList: <ConvertSYNC objL=13. 1st subobj:
+debug. DisplayNote5: @1147c088 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+debug. ConvertSYNC: syncL=L13 aNoteRL=L2
+debug. DisplayNote5: @1147c088 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+debug.     Convert1NOTER: aNoteRL=2 sel=0 vis=0 soft=0 yqpit=1
+debug.     Convert1NOTER: aNoteRL=2 voice=1 vis=0 yqpit=1 xd=0 yd=0 playDur=456
+info.  202 L13 xd=448 yd=0 SYNC .V.V.. objRect.l=p210 n=1
+info.        L2 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=1 ldur=4 .s=0 acc=0 onV=75 .... .... ... 1stMod=0
+
+The "display dObjL=13" & next line are at the very top of ConvertObjectList, before entering
+its main loop; the note is OK at that point. The stuff after
+"debug. **************** ConvertObjectList: objL=13 prevL=12 type='SYNC'" is in the main loop,
+just before calling ConvertSYNC for that object, and the notes is messed up. The smoking
+gun! Now, who fired it?? It looks like converting the 2nd GRSYNC does it, which fits with the
+problems I've seen in both files that show this problem! Ah: Convert1GRNOTE() includes the
+lines
+
+	NoteSEL(aGRNoteL) = (&a1GRNote)->selected;
+	NoteVIS(aGRNoteL) = (&a1GRNote)->visible;
+	NoteSOFT(aGRNoteL) = (&a1GRNote)->soft;
+	
+The names of the macros on the left side of each of these should be prefixed with "GR"! Make
+that change => both test files open with no problems!!

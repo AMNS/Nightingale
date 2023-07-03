@@ -434,7 +434,7 @@ short DBadNoteNum(
 	midCHalfLn = ClefMiddleCHalfLn(clefType);					/* Get middle C staff pos. */		
 	yqpit = NoteYQPIT(theNoteL)+halfLn2qd(midCHalfLn);
 	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
-LogPrintf(LOG_DEBUG, "DCheckNoteNums: yqpit=%d halfLn=%d\n", yqpit, halfLn);
+if (debugLevel[DBG_MISC1]>0) LogPrintf(LOG_DEBUG, "DBadNoteNum: yqpit=%d halfLn=%d\n", yqpit, halfLn);
 
 	if (!FirstTiedNote(syncL, theNoteL, &firstSyncL, &firstNoteL))
 		return False;											/* Object list is messed up */
@@ -477,7 +477,7 @@ Boolean DCheckNoteNums(Document *doc)
 						if (NoteSTAFF(aNoteL)==staff && !NoteREST(aNoteL)) {
 							useOctType = (NoteINOTTAVA(aNoteL)? octType[staff] : 0);
 							nnDiff = DBadNoteNum(doc, clefType, useOctType, pL, aNoteL);
-LogPrintf(LOG_DEBUG, "DCheckNoteNums: clefType=%d useOctType=%d nnDiff=%d\n", clefType, useOctType, nnDiff);
+if (debugLevel[DBG_MISC1]>0) LogPrintf(LOG_DEBUG, "DCheckNoteNums: clefType=%d useOctType=%d nnDiff=%d\n", clefType, useOctType, nnDiff);
 							if (nnDiff!=0) {
 								if (abs(nnDiff)<=2) {
 									COMPLAIN4("DCheckNoteNums: Note in Sync L%u in measure %d, staff %d notenum %d and notation disagree: wrong accidental?\n",

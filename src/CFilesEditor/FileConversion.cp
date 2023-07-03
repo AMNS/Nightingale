@@ -686,8 +686,8 @@ static Boolean Convert1NOTER(Document *doc, LINK aNoteRL)
 	NoteSOFT(aNoteRL) = (&a1NoteR)->soft;
 #define DEBUG_EMPTY_OBJRECT
 #ifdef DEBUG_EMPTY_OBJRECT
-if (debugLevel[DBG_OPEN]!=0) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d\n",
-aNoteRL, (&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft);
+if (debugLevel[DBG_OPEN]!=0) LogPrintf(LOG_DEBUG, "    Convert1NOTER: aNoteRL=%u sel=%d vis=%d soft=%d yqpit=%d\n",
+aNoteRL, (&a1NoteR)->selected, (&a1NoteR)->visible, (&a1NoteR)->soft, (&a1NoteR)->yqpit);
 #endif
 	/* Now for the ANOTE-specific fields. */
 	
@@ -1070,9 +1070,9 @@ static Boolean Convert1GRNOTE(Document * /* doc */, LINK aGRNoteL)
 	/* The first three fields of the header are in the same location in 'N105' and 'N106'
 	   format, so no need to do anything with them. Copy the others. */
 	   
-	NoteSEL(aGRNoteL) = (&a1GRNote)->selected;
-	NoteVIS(aGRNoteL) = (&a1GRNote)->visible;
-	NoteSOFT(aGRNoteL) = (&a1GRNote)->soft;
+	GRNoteSEL(aGRNoteL) = (&a1GRNote)->selected;
+	GRNoteVIS(aGRNoteL) = (&a1GRNote)->visible;
+	GRNoteSOFT(aGRNoteL) = (&a1GRNote)->soft;
 
 	/* Now for the AGRNOTE-specific fields. */
 	
@@ -1223,6 +1223,7 @@ static Boolean ConvertHEADER(Document * /* doc */, LINK headL)
 	return True;
 }
 
+extern void DisplayNote5(PANOTE_5 aNote, Boolean addLabel);
 
 static Boolean ConvertSYNC(Document *doc, LINK syncL)
 {
@@ -1241,9 +1242,11 @@ static Boolean ConvertSYNC(Document *doc, LINK syncL)
 		/* Copy the subobj to a separate ANOTE so we can move fields all over the place
 		   without having to worry about clobbering anything. */
 
+if (debugLevel[DBG_OPEN]!=0) LogPrintf(LOG_DEBUG, "ConvertSYNC: syncL=L%d aNoteRL=L%d\n", syncL, aNoteRL);
 		pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aNoteRL, PANOTE);
 //LogPrintf(LOG_DEBUG, "->block=%ld aNoteRL=%d sizeof(ANOTE)*aNoteRL=%d pSSubObj=%ld\n", (NOTEheap)->block,
 //aNoteRL, sizeof(ANOTE)*aNoteRL, pSSubObj);
+if (debugLevel[DBG_OPEN]!=0) DisplayNote5((PANOTE_5)pSSubObj, True);
 		BlockMove(pSSubObj, &tmpANoteR, sizeof(ANOTE));
 
 		Convert1NOTER(doc, aNoteRL);
@@ -1908,13 +1911,26 @@ Boolean ConvertObjectList(Document *doc, unsigned long version, long /* fileTime
 	fflush(stdout);
 	objCount = 0;
 	prevL = startL-1;
+if (debugLevel[DBG_OPEN]!=0) {
+LINK dObjL=13;
+LogPrintf(LOG_DEBUG, "ConvertObjectList: display dObjL=%d. 1st subobj:\n", dObjL);
+LINK aNoteRL = FirstSubLINK(dObjL);
+unsigned char *pSSubObj; pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aNoteRL, PANOTE);
+DisplayNote5((PANOTE_5)pSSubObj, True);
+}
 	for (objL = startL; objL; objL = RightLINK(objL)) {
+if (debugLevel[DBG_OPEN]!=0) {
+	LINK dObjL=13;
+	LogPrintf(LOG_DEBUG, "ConvertObjectList: after converting %u, display dObjL=%u. 1st subobj:\n",
+				objL, dObjL);
+	LINK aNoteRL = FirstSubLINK(dObjL);
+	unsigned char *pSSubObj; pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aNoteRL, PANOTE);
+	DisplayNote5((PANOTE_5)pSSubObj, True);
+}
 		objCount++;
-		if (debugLevel) {
-			if (debugLevel[DBG_OPEN]!=0>1 || objCount%50==1) LogPrintf(LOG_DEBUG,
-					"**************** ConvertObjectList: objL=%u prevL=%u type='%s'\n",
-					objL, prevL, NameObjType(objL));
-		}
+		if (debugLevel[DBG_OPEN]!=0>1 || objCount%50==1) LogPrintf(LOG_DEBUG,
+				"**************** ConvertObjectList: objL=%u prevL=%u type='%s'\n",
+				objL, prevL, NameObjType(objL));
 
 		/* If this function is called in the process of opening a file, the only situation
 		   where it should be, consecutive objects must have sequential links; check that. */
@@ -1947,7 +1963,16 @@ if (debugLevel[DBG_OPEN]!=0) DebugConvCheckObjs(doc, objL, "ConvertObjectList");
 										objL);
 				break;
 			case SYNCtype:
+#ifdef DEBUG_EMPTY_OBJRECT
+if (debugLevel[DBG_OPEN]!=0) {
+LogPrintf(LOG_DEBUG, "ConvertObjectList: <ConvertSYNC objL=%d. 1st subobj:\n", objL);
+LINK aNoteRL = FirstSubLINK(objL);
+unsigned char *pSSubObj; pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aNoteRL, PANOTE);
+DisplayNote5((PANOTE_5)pSSubObj, True);
+}
+#endif
 				ConvertSYNC(doc, objL);
+if (debugLevel[DBG_OPEN]!=0) DisplayObject(doc, objL, 200+ObjLType(objL), True, True, True);
 				continue;
 			case RPTENDtype:
 				ConvertRPTEND(doc, objL);

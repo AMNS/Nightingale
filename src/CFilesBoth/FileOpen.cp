@@ -84,7 +84,7 @@ static Boolean CheckNRGRVisibilityOK(Document *doc)
 				aNoteRL = FirstSubLINK(objL);
 				for ( ; aNoteRL; aNoteRL = NextNOTEL(aNoteRL)) {
 					if (!NoteVIS(aNoteRL)) {
-#define DEBUG_EMPTY_OBJRECT
+#define NoDEBUG_EMPTY_OBJRECT
 #ifdef DEBUG_EMPTY_OBJRECT
 						if (debugLevel[DBG_OPEN]!=0) {
 							PANOTE aNoteR = GetPANOTE(aNoteRL);
@@ -387,6 +387,12 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (version=='N105') {
 		(void)ConvertObjectList(doc, version, fileTime, False);
 		(void)ConvertObjectList(doc, version, fileTime, True);
+#ifdef DEBUG_EMPTY_OBJRECT
+for (LINK objL = 8; objL!=doc->tailL; objL = RightLINK(objL)) {
+	if (ObjLType(objL)==SYNCtype)
+		DisplayObject(doc, objL, 700+ObjLType(objL), True, True, True);
+}
+#endif
 		(void)CheckNRGRVisibilityOK(doc);
 	}
 

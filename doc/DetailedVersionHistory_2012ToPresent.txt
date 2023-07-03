@@ -4011,3 +4011,14 @@ EndianUtils, Event, DebugDisplay, FileConversion, FileOpen, FileSave, HeapFileIO
 Initialize.
 
 ------------------------------------------------------------------------------------ Build 46
+
+21 June - 3 July
+
+Fixed bug (Issue #205): Converting format of files containing grace notes often makes
+notes or grace notes invisible and corrupts their <yqpit>, leading to nonsensical
+ledger lines. Affects FileConversion.
+
+Minor changes: clarified file I/O error messages, etc. Affects info.plist, .rsrc,
+CarbonPrinting.h; Debug2Utils, FileConversion, FileOpen, HeapFileIO, SearchScoreNative.
+
+------------------------------------------------------------------------------------ Build 47

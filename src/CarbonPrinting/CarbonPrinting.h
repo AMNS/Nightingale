@@ -44,12 +44,7 @@
 #ifndef __MyCarbonPrinting__
 #define __MyCarbonPrinting__
 
-#define __APPLE_CC__
-#ifdef __APPLE_CC__
 #include <Carbon/Carbon.h>
-#else
-#include <Carbon.h>
-#endif
 
 #define kDoPrintOne			True
 #define kDoPrintWithPrintDialog		False

@@ -452,45 +452,43 @@ Boolean DoSearchScore(Document *doc, Boolean again, Boolean usePitch, Boolean us
 	else
 		GoToSel(doc);
 
-	if (DETAIL_SHOW) {
-		FormatReportString(sParm, searchPat, "Next", str);
-		LogPrintf(LOG_DEBUG, "%s", str);
-		LogPrintf(LOG_DEBUG, ", L%d V%d: ", startL, startVoice);
-		if (foundL==DB_NILINK)
-			sprintf(strBuf, "not found.");
-		else {
-			Boolean haveSectionName;  char matchLocString[256];
-			Boolean showPitchErr, showDurErr;
+	FormatReportString(sParm, searchPat, "Find Next", str);
+	LogPrintf(LOG_INFO, "%s", str);
+	LogPrintf(LOG_INFO, ", L%d V%d: ", startL, startVoice);
+	if (foundL==DB_NILINK)
+		sprintf(strBuf, "not found.");
+	else {
+		Boolean haveSectionName;  char matchLocString[256];
+		Boolean showPitchErr, showDurErr;
 
-			haveSectionName = GetScoreLocIDString(doc, foundL, matchLocString);
-			if (haveSectionName)
-				sprintf(strBuf, "found in m.%d (%s) (L%d) V%d",
-						GetMeasNum(doc, foundL), matchLocString, foundL, foundVoice);	// ??I18N BUG
-			else
-				sprintf(strBuf, "found in m.%d (L%d) V%d",
-						GetMeasNum(doc, foundL), foundL, foundVoice);					// ??I18N BUG
+		haveSectionName = GetScoreLocIDString(doc, foundL, matchLocString);
+		if (haveSectionName)
+			sprintf(strBuf, "found in m.%d (%s) (L%d) V%d",
+					GetMeasNum(doc, foundL), matchLocString, foundL, foundVoice);	// ??I18N BUG
+		else
+			sprintf(strBuf, "found in m.%d (L%d) V%d",
+					GetMeasNum(doc, foundL), foundL, foundVoice);					// ??I18N BUG
 
-			showPitchErr = (usePitch && pitchTolerance!=0);
-			showDurErr = (useDuration && durSearchType==TYPE_DURATION_CONTOUR);
-			if (showPitchErr || showDurErr) {
-				INT16 relEst;
-				
-				relEst = CalcRelEstimate(totalErrorInfo, pitchTolerance, pitchWeight,
-													searchPat.patLen);
-				if (showPitchErr && showDurErr)
-					sprintf(&strBuf[strlen(strBuf)], ", err=p%dd%d (%d%%)", totalErrorInfo.pitchErr,
-								totalErrorInfo.durationErr, relEst);
-				else if (showPitchErr)
-					sprintf(&strBuf[strlen(strBuf)], ", err=p%d (%d%%)", totalErrorInfo.pitchErr,
-								relEst);
-				else if (showDurErr)
-					sprintf(&strBuf[strlen(strBuf)], ", err=d%d (%d%%)", totalErrorInfo.durationErr,
-								relEst);
-			}
+		showPitchErr = (usePitch && pitchTolerance!=0);
+		showDurErr = (useDuration && durSearchType==TYPE_DURATION_CONTOUR);
+		if (showPitchErr || showDurErr) {
+			INT16 relEst;
+			
+			relEst = CalcRelEstimate(totalErrorInfo, pitchTolerance, pitchWeight,
+												searchPat.patLen);
+			if (showPitchErr && showDurErr)
+				sprintf(&strBuf[strlen(strBuf)], ", err=p%dd%d (%d%%)", totalErrorInfo.pitchErr,
+							totalErrorInfo.durationErr, relEst);
+			else if (showPitchErr)
+				sprintf(&strBuf[strlen(strBuf)], ", err=p%d (%d%%)", totalErrorInfo.pitchErr,
+							relEst);
+			else if (showDurErr)
+				sprintf(&strBuf[strlen(strBuf)], ", err=d%d (%d%%)", totalErrorInfo.durationErr,
+							relEst);
 		}
-
-		LogPrintf(LOG_DEBUG, "%s  (DoSearchScore)\n", strBuf);
 	}
+
+	LogPrintf(LOG_INFO, "%s  (DoSearchScore)\n", strBuf);
 
 Cleanup:
 	return (foundL!=DB_NILINK);
@@ -567,7 +565,7 @@ static INT16 IRSearchScore(Document *doc,
 		/* Found instance(s) of the pattern: save them. Then prepare to look for another
 		   instance, starting with the Sync after the one these instances started with. */
 		   
-LogPrintf(LOG_DEBUG, "IRSearchScore: doc=%x searchPatDoc=%x\n", doc, searchPatDoc);
+		if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "IRSearchScore: doc=%x searchPatDoc=%x\n", doc, searchPatDoc);
 		for (v = 1; v<=MAXVOICES; v++) {
 			if (!foundVoiceA[v]) continue;
 			if (nFound>=MAX_HITS) {
@@ -590,8 +588,8 @@ LogPrintf(LOG_DEBUG, "IRSearchScore: doc=%x searchPatDoc=%x\n", doc, searchPatDo
 			Pstrcpy((StringPtr)scoreName, doc->name);
 			PToCString((StringPtr)scoreName);
 			GoodStrncpy(matchInfoA[nFound].scoreName, scoreName, FILENAME_MAXLEN);
-LogPrintf(LOG_DEBUG, "IRSearchScore: v=%d nFound=%d matchInfoA[].docNum=%d doc=%x scoreName='%s'\n",
-v, nFound, matchInfoA[nFound].docNum, doc, scoreName); 
+			if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "IRSearchScore: v=%d nFound=%d matchInfoA[].docNum=%d doc=%x scoreName='%s'\n",
+				v, nFound, matchInfoA[nFound].docNum, doc, scoreName); 
 	
 			matchInfoA[nFound].measNum = GetMeasNum(doc, foundL);
 			matchInfoA[nFound].foundVoice = v;
@@ -606,8 +604,8 @@ v, nFound, matchInfoA[nFound].docNum, doc, scoreName);
 				pPart = GetPPARTINFO(partL);
 				sprintf(&vInfoStr[strlen(vInfoStr)], (strlen(pPart->name)>14?
 														pPart->shortName : pPart->name));
-LogPrintf(LOG_DEBUG, "IRSearchScore: v=%d userVoice=%d pPart->shortName='%s', ->name='%s', vInfoStr='%s'\n",
-v, userVoice,  pPart->shortName, pPart->name, vInfoStr);
+			if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "IRSearchScore: v=%d userVoice=%d pPart->shortName='%s', ->name='%s', vInfoStr='%s'\n",
+				v, userVoice,  pPart->shortName, pPart->name, vInfoStr);
 			}
 			else
 				sprintf(vInfoStr, "%d", v);
@@ -673,7 +671,7 @@ Boolean DoIRSearchScore(Document *doc, Boolean usePitch, Boolean useDuration,
 	sParm.chordNotes = chordNotes;
 	sParm.matchTiedDur = matchTiedDur;
 	
-	FormatReportString(sParm, searchPat, "ALL", str);	// ??I18N BUG
+	FormatReportString(sParm, searchPat, "Find ALL", str);	// ??I18N BUG
 	LogPrintf(LOG_INFO, "%s:\n", str);
 	startTicks = TickCount();
 

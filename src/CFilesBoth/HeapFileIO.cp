@@ -828,7 +828,7 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 #define DEBUG_READHEAPS
 #ifdef DEBUG_READHEAPS
 	KludgeOS10p5LogDelay(True);					/* Avoid bug in OS 10.5/10.6 Console */
-MAKE_A_FUSS("DEBUG_READHEAPS 1");
+//MAKE_A_FUSS("DEBUG_READHEAPS 1");
 	HEAP *myHeap = doc->Heap + SYNCtype;
 	char *pLink1 = *(myHeap->block);  pLink1 += myHeap->objSize;
 	if (debugLevel[DBG_OPEN]>=1) DSubobj5Dump(SYNCtype, (unsigned char *)pLink1, 0, 1, True);
@@ -841,7 +841,7 @@ MAKE_A_FUSS("DEBUG_READHEAPS 1");
 		return errType;
 	}
 
-MAKE_A_FUSS("DEBUG_READHEAPS 2");
+//MAKE_A_FUSS("DEBUG_READHEAPS 2");
 	/* Fix links. This is necessary because ??WHY?I have no idea, but it sure seems to
 	   be necessary!! Leaving it out results in disasters. --DAB.  Then, if the file is
 	   in a format other than 'N105', handle the Endian issue. If it's in format 'N105',
@@ -850,7 +850,7 @@ MAKE_A_FUSS("DEBUG_READHEAPS 2");
 	   with Endian issues. */
 	   
 	if (version=='N105') {
-MAKE_A_FUSS("DEBUG_READHEAPS 3");
+//MAKE_A_FUSS("DEBUG_READHEAPS 3");
 		errType = HeapFixN105ObjLinks(doc);
 MAKE_A_FUSS("DEBUG_READHEAPS 4");
 		if (errType) {
