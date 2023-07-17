@@ -375,13 +375,13 @@ void DisplayObject(Document *doc, LINK objL,
 				Boolean nonMain				/* Somewhere besides doc's main object list? */
 				)
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	char		selFlag;
 	const char	*ps;
 
 #ifdef DDB
 	PushLock(OBJheap);
-	p = GetPMEVENT(objL);
+	p = GetPOBJHDR(objL);
 	selFlag = ' ';
 	if (!nonMain) {
 		if (objL==doc->selStartL && objL==doc->selEndL)	selFlag = '&';
@@ -585,11 +585,11 @@ void MemUsageStats(Document *doc)
 
 void DisplayIndexNode(Document *doc, LINK pL, short kount, short *inLinep)
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	char		selFlag;
 	const char 	*ps;
 
-	p = GetPMEVENT(pL);
+	p = GetPOBJHDR(pL);
 	if (pL==doc->selStartL && pL==doc->selEndL)	selFlag = '&';
 	else if (pL==doc->selStartL)				selFlag = '{';
 	else if (pL==doc->selEndL)					selFlag = '}';
@@ -597,7 +597,7 @@ void DisplayIndexNode(Document *doc, LINK pL, short kount, short *inLinep)
 	LogPrintf(LOG_INFO, "%c%d (L%2d) ", selFlag, kount, pL);
 	ps = NameObjType(pL);
 	LogPrintf(LOG_INFO, "%s", ps);
-	p = GetPMEVENT(pL);
+	p = GetPOBJHDR(pL);
 	switch (ObjLType(pL)) {
 		case HEADERtype:
 			LogPrintf(LOG_INFO, "\t");					/* Align since info printed is short */
@@ -729,10 +729,6 @@ current format, so if a score is in an old format was just opened, objects shoul
 converted before this is called. Caveat: positions in the object heap are not necessarily
 link values! For a newly-opened score, position n is indeed LINK n; for a score that's
 been edited, the relationship between position and LINK isn't easily predictable. */
-
-typedef struct {
-	OBJECTHEADER
-} OBJHDR;
 
 void DObjDump(char *label, short nFrom, short nTo)
 {

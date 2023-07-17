@@ -205,12 +205,12 @@ the conversion more efficiently.  The pointer argument must be valid! */
 
 /* Given a link, deliver the type of object that it refers to */
 
-#define ObjLType(link)	( ((PMEVENT)GetObjectPtr(OBJheap,link,PSUPEROBJECT))->type )
+#define ObjLType(link)	( ((POBJHDR)GetObjectPtr(OBJheap,link,PSUPEROBJECT))->type )
 
 /* Type-specific versions of the above, for accessing objects in OBJheap */
 
-#define GetPMEVENT(link)	(PMEVENT)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
-#define GetMEVENT(link)		(MEVENT)GetObject(OBJheap,link,PSUPEROBJECT)
+#define GetPOBJHDR(link)	(POBJHDR)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
+#define GetOBJHDR(link)		(OBJHDR)GetObject(OBJheap,link,PSUPEROBJECT)
 #define GetPHEADER(link)	(PHEADER)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPTAIL(link)		(PTAIL)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPPAGE(link)		(PPAGE)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
@@ -353,9 +353,9 @@ the conversion more efficiently.  The pointer argument must be valid! */
 /* These macros take a given Document as argument instead of just using the currently-
 installed doc. */
 
-#define DGetPMEVENT(doc,link)		(PMEVENT)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
+#define DGetPOBJHDR(doc,link)		(POBJHDR)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
 
-#define DObjLType(doc,link)			( ((PMEVENT)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT))->type )
+#define DObjLType(doc,link)			( ((POBJHDR)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT))->type )
 #define DFirstSubLINK(doc,link)		( *(LINK *)((2*sizeof(LINK)) + LinkToPtr((doc)->Heap+OBJtype,link)) )
 
 #define DRightLINK(doc,link)		( *(LINK *)LinkToPtr((doc)->Heap+OBJtype,link) )
@@ -396,15 +396,15 @@ installed doc. */
 #define DGetPANOTEOTTAVA(doc,link)		GetObjectPtr((doc)->Heap+OTTAVAtype,link,PANOTEOTTAVA)
 #define DGetPANOTEBEAM(doc,link)		GetObjectPtr((doc)->Heap+BEAMSETtype,link,PANOTEBEAM)
 
-#define DLinkYD(doc,link)			 	( (DGetPMEVENT(doc,link))->yd )
-#define DLinkSEL(doc,link)			 	( (DGetPMEVENT(doc,link))->selected )
-#define DLinkSOFT(doc,link)				( (DGetPMEVENT(doc,link))->soft )
-#define DLinkVALID(doc,link)			( (DGetPMEVENT(doc,link))->valid )
-#define DLinkVIS(doc,link)			 	( (DGetPMEVENT(doc,link))->visible )
-#define DLinkTWEAKED(doc,link)			( (DGetPMEVENT(doc,link))->tweaked )
-#define DLinkNENTRIES(doc,link)			( (DGetPMEVENT(doc,link))->nEntries )
-#define DLinkOBJRECT(doc,link)			( (DGetPMEVENT(doc,link))->objRect )
-#define DLinkSPAREFLAG(doc,link)		( (DGetPMEVENT(doc,link))->spareFlag )
+#define DLinkYD(doc,link)			 	( (DGetPOBJHDR(doc,link))->yd )
+#define DLinkSEL(doc,link)			 	( (DGetPOBJHDR(doc,link))->selected )
+#define DLinkSOFT(doc,link)				( (DGetPOBJHDR(doc,link))->soft )
+#define DLinkVALID(doc,link)			( (DGetPOBJHDR(doc,link))->valid )
+#define DLinkVIS(doc,link)			 	( (DGetPOBJHDR(doc,link))->visible )
+#define DLinkTWEAKED(doc,link)			( (DGetPOBJHDR(doc,link))->tweaked )
+#define DLinkNENTRIES(doc,link)			( (DGetPOBJHDR(doc,link))->nEntries )
+#define DLinkOBJRECT(doc,link)			( (DGetPOBJHDR(doc,link))->objRect )
+#define DLinkSPAREFLAG(doc,link)		( (DGetPOBJHDR(doc,link))->spareFlag )
 #define DStaffSEL(doc,link)				( (DGetPASTAFF(doc,link))->selected )
 #define DConnectSEL(doc,link)			( (DGetPACONNECT(doc,link))->selected )
 #define DNoteSEL(doc,link)				( (DGetPANOTE(doc,link))->selected )
@@ -485,7 +485,7 @@ now. --DAB, Feb. 2017  */
 170 of these are from the OMRAS "MemMacroizing" project of the late 1990s; most of those
 are by Steve Hart.) */
 
-#define FirstSubObjPtr(p,link)		(p = GetPMEVENT(link), p->firstSubObj)
+#define FirstSubObjPtr(p,link)		(p = GetPOBJHDR(link), p->firstSubObj)
 
 #define SyncTIME(link)				( (GetPSYNC(link))->timeStamp )
 
@@ -621,14 +621,14 @@ are by Steve Hart.) */
 #define KeySigSUBTYPE(link)			( (GetPAKEYSIG(link))->subType )
 #define KeySigXD(link)		 		( (GetPAKEYSIG(link))->xd )
 
-#define LinkSEL(link)				( (GetPMEVENT(link))->selected )	
-#define LinkVIS(link)				( (GetPMEVENT(link))->visible )	
-#define LinkSOFT(link)				( (GetPMEVENT(link))->soft )	
-#define LinkVALID(link)				( (GetPMEVENT(link))->valid )	
-#define LinkTWEAKED(link)			( (GetPMEVENT(link))->tweaked )		
-#define LinkSPAREFLAG(link)			( (GetPMEVENT(link))->spareFlag )		
-#define LinkNENTRIES(link)			( (GetPMEVENT(link))->nEntries )	
-#define LinkOBJRECT(link)			( (GetPMEVENT(link))->objRect )	
+#define LinkSEL(link)				( (GetPOBJHDR(link))->selected )	
+#define LinkVIS(link)				( (GetPOBJHDR(link))->visible )	
+#define LinkSOFT(link)				( (GetPOBJHDR(link))->soft )	
+#define LinkVALID(link)				( (GetPOBJHDR(link))->valid )	
+#define LinkTWEAKED(link)			( (GetPOBJHDR(link))->tweaked )		
+#define LinkSPAREFLAG(link)			( (GetPOBJHDR(link))->spareFlag )		
+#define LinkNENTRIES(link)			( (GetPOBJHDR(link))->nEntries )	
+#define LinkOBJRECT(link)			( (GetPOBJHDR(link))->objRect )	
 
 #define LinkLMEAS(link)				( (GetPMEASURE(link))->lMeasure )
 #define LinkLPAGE(link)				( (GetPPAGE(link))->lPage )

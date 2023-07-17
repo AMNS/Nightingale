@@ -4023,3 +4023,12 @@ CarbonPrinting.h; Debug2Utils, FileConversion, FileOpen, HeapFileIO, SearchScore
 
 ------------------------------------------------------------------------------------ Build 47
 
+11 - 15 July
+
+Minor changes: change every instance of MEVENT to OBJHDR, etc. Affects info.plist,
+MemMacros.h, NObjTypes.h;  Browser, Clipboard, CompactVoices, DebugDisplay, DebugUtils,
+DragSet, DrawUtils, DSUtils, Extract, FileConversion, HeapBrowser, HeapFileIO, InfoDialog,
+InsUtils, Merge, Objects, Part, Reconstruct, Score, Search, Select, SelUtils, SFormat,
+Transcribe, Tuplet.
+
+------------------------------------------------------------------------------------ Build 48

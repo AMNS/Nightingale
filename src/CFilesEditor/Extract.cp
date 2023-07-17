@@ -137,7 +137,7 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 {
 	LINK 		pL, subObjL, aStaffL, aConnectL, aMeasureL, aPseudoMeasL;
 	short		staffDiff;
-	PMEVENT		p;
+	POBJHDR		p;
 	PPARTINFO	pPart;
 	PAMEASURE	aMeasure;
 	PAPSMEAS	aPseudoMeas;
@@ -202,7 +202,7 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 			case DYNAMtype:
 			case RPTENDtype:
 				tmpHeap = newDoc->Heap + ObjLType(pL);
-				p = GetPMEVENT(pL);
+				p = GetPOBJHDR(pL);
 				
 				for (subObjL=FirstSubObjPtr(p, pL); subObjL; subObjL = NextLink(tmpHeap, subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
@@ -217,7 +217,7 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 			case ENDINGtype:
 			case TEMPOtype:
 			case SPACERtype:
-				p = GetPMEVENT(pL);
+				p = GetPOBJHDR(pL);
 				((PEXTEND)p)->staffn -= staffDiff;
 				
 				/* Some objects (e.g., certain tempo marks) go into the part regardless
@@ -270,7 +270,7 @@ static void SelectPart(
 {
 	LINK 		pL, subObjL, aStaffL, aConnectL, aSlurL, firstL;
 	PASLUR		aSlur;
-	PMEVENT		p;
+	POBJHDR		p;
 	PPARTINFO	pPart;
 	short		firstStf, lastStf;
 	PACONNECT	aConnect;
@@ -285,7 +285,7 @@ static void SelectPart(
 	inTempoSeries = False;
 
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
-		p = GetPMEVENT(pL);
+		p = GetPOBJHDR(pL);
 		switch (ObjLType(pL)) {
 			case PAGEtype:
 			case SYSTEMtype:

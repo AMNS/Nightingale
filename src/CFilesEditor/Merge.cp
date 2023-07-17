@@ -1580,14 +1580,14 @@ size of its environment. */
 static void SetSyncSize(Document */*doc*/, LINK pL, short oldRastral, short newRastral)
 {
 	FASTFLOAT sizeRatio;
-	PMEVENT p;  PANOTE aNote;
+	POBJHDR p;  PANOTE aNote;
 	LINK aNoteL;
 	
 	if (oldRastral==newRastral) return;
 
 	sizeRatio = (FASTFLOAT)drSize[newRastral]/drSize[oldRastral];
 
-	p = GetPMEVENT(pL);
+	p = GetPOBJHDR(pL);
 	SCALE(p->xd);
 
 	aNoteL = FirstSubLINK(pL);
@@ -1719,7 +1719,7 @@ return NILINK. */
 
 static LINK CopyClSync(Document *doc, short subCount, PTIME *pTime)
 {
-	PMEVENT pObj,pNewObj;
+	POBJHDR pObj,pNewObj;
 	LINK firstSubObjL,newObjL;
 
 	InstallDoc(doc);
@@ -1727,8 +1727,8 @@ static LINK CopyClSync(Document *doc, short subCount, PTIME *pTime)
 	if (newObjL == NILINK)
 		{ InstallDoc(clipboard); return NILINK; }
 
-	pObj = (PMEVENT)LinkToPtr(clipboard->Heap+OBJtype,pTime->objL);
-	pNewObj = (PMEVENT)LinkToPtr(doc->Heap+OBJtype,newObjL);
+	pObj = (POBJHDR)LinkToPtr(clipboard->Heap+OBJtype,pTime->objL);
+	pNewObj = (POBJHDR)LinkToPtr(doc->Heap+OBJtype,newObjL);
 	firstSubObjL = FirstSubLINK(newObjL);					/* Save it before it gets wiped out */
 	BlockMove(pObj, pNewObj, sizeof(SUPEROBJECT));
 	FirstSubLINK(newObjL) = firstSubObjL;					/* Restore it. */

@@ -702,7 +702,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	short		newval, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
 	Rect		tRect, aRect;
-	PMEVENT		p;
+	POBJHDR		p;
 	PGRAPHIC	pGraphic;
 	PSPACER		pSpace;
 	PTEMPO		pTempo;
@@ -1360,7 +1360,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			
 		case TEMPOtype:
 			GetDlgWord(dlog, VERT, &newval);
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			DIST_ACCEPT(p->yd);
 		  	break;
 	

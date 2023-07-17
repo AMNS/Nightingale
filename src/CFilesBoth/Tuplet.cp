@@ -155,7 +155,7 @@ static PTIME *PrepareSelRange(Document *doc, short *nInRange, LINK *baseMeasL)
 	for (pL = startMeas; pL!=endMeas; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) nInMeas++;
 
-	/* numNotes provides one note per voice for all syncs in selection range. */
+	/* numNotes provides one note per voice for all Syncs in selection range. */
 	
 	numNotes = nInMeas*(MAXVOICES+1);
 
@@ -317,7 +317,7 @@ static Boolean ComputePlayDurs(Document *doc, SELRANGE selRange[], short tupleNu
 						(pDurArray + v*nInMeas+notes)->pTime = aNote->pTime = 
 							stfStartTime + tempTime2;
 
-						/* If a next Sync exists, get the next sync with a note in v.
+						/* If a next Sync exists, get the next Sync with a note in v.
 						   Use its pTime to compute the stfTimeDiff. */
 
 						if (nextSyncExists) {
@@ -369,7 +369,7 @@ static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNot
 	short i, v, notes, numNotes, subCount=0, arrBound;
 	PTIME *pTime, *qTime;
 	LINK pL, firstSubObj, newObjL, subL, newSubL, tempNewSubL;
-	PMEVENT pObj, pNewObj;
+	POBJHDR pObj, pNewObj;
 	Boolean objSel;
 	LINK headL=NILINK, tailL=NILINK, initL, prevL, insertL, firstL, lastL;
 
@@ -460,8 +460,8 @@ static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNot
 			if (newObjL == NILINK)
 				goto broken;
 
-			pObj    = (PMEVENT)LinkToPtr(OBJheap, pTime->objL);
-			pNewObj = (PMEVENT)LinkToPtr(OBJheap, newObjL);
+			pObj    = (POBJHDR)LinkToPtr(OBJheap, pTime->objL);
+			pNewObj = (POBJHDR)LinkToPtr(OBJheap, newObjL);
 			firstSubObj = FirstSubLINK(newObjL);			/* Save it before it gets wiped out */
 			BlockMove(pObj, pNewObj, sizeof(SUPEROBJECT));
 			FirstSubLINK(newObjL) = firstSubObj;			/* Restore it */
@@ -562,20 +562,20 @@ static Boolean CheckContinSel(Document *doc)
 {
 	LINK link, measL, endMeasL; 
 	short i, lastNode, v;  Boolean first;
-	SPACETIMEINFO *spTimeInfo;
+	SPACETIMEINFO *spTimeInfoA;
 	long startTime,nextlTime;
 
 	
-	spTimeInfo = AllocSpTimeInfo();
-	if (!spTimeInfo) return -1L;
+	spTimeInfoA = AllocSpTimeInfo();
+	if (!spTimeInfoA) return -1L;
 
 	measL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, False);
 	endMeasL = LinkRMEAS(measL) ? LinkRMEAS(measL) : LeftLINK(doc->tailL);
 
-	lastNode = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, False);
+	lastNode = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfoA, False);
 
-	/* For each voice in use <v>, traverse spTimeInfo's list of syncs. After the first
-	   sync selected in v, each sync following <link> in v should be at startTime equal
+	/* For each voice in use <v>, traverse spTimeInfoA's list of Syncs. After the first
+	   Sync selected in v, each Sync following <link> in v should be at startTime equal
 	   to link's startTime plus its duration in the voice. If it's at a greater time,
 	   there is a hole in the voice, so return False. Note the confusing way we have to
 	   set the startL and endL params for GetSpTimeInfo. */
@@ -588,14 +588,14 @@ static Boolean CheckContinSel(Document *doc)
 			first = True;
 			startTime = nextlTime = 0L;
 			for (i=0; i<=lastNode; i++) {
-				link = spTimeInfo[i].link;
+				link = spTimeInfoA[i].link;
 				if (SyncTYPE(link))
 					if (NoteInVoice(link,v,True)) {
-						startTime = spTimeInfo[i].startTime;
+						startTime = spTimeInfoA[i].startTime;
 						if (first) first = False;
 						else
 							if (startTime > nextlTime) {
-								DisposePtr((Ptr)spTimeInfo);
+								DisposePtr((Ptr)spTimeInfoA);
 								return False;
 							}
 
@@ -604,7 +604,7 @@ static Boolean CheckContinSel(Document *doc)
 			}
 		}
 
-	DisposePtr((Ptr)spTimeInfo);
+	DisposePtr((Ptr)spTimeInfoA);
 	return True;
 }
 
@@ -1240,8 +1240,8 @@ may not be in the data structure, and the selection status of all LINKs is not p
 by untupling algorithm. Therefore the two tests used to get selStart/selEnd from
 previous selRange fail: testing if selStart/selEnd are in dataStructure, and using
 selection status of new data structure to reset them. We cannot use spareFlag (or other
-object-level fields) either, since some syncs disappear when their notes are combined
-with notes of other syncs by RearrangeNotes. Therefore, we get measure objects bounding
+object-level fields) either, since some Syncs disappear when their notes are combined
+with notes of other Syncs by RearrangeNotes. Therefore, we get measure objects bounding
 previous selRange and use these to do re-spacing and deselection of range, and don't
 try to preserve the previous selection range. */
 

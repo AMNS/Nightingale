@@ -683,7 +683,7 @@ heights, or anything in System objects (e.g., systemRect). */
 void SetStaffSize(Document */*doc*/, LINK headL, LINK tailL, short oldRastral, short newRastral)
 {
 	FASTFLOAT	sizeRatio;
-	PMEVENT		p;
+	POBJHDR		p;
 	PGRAPHIC	pGraphic;
 	PANOTE		aNote;
 	PAGRNOTE	aGRNote;
@@ -711,7 +711,7 @@ void SetStaffSize(Document */*doc*/, LINK headL, LINK tailL, short oldRastral, s
 				if (PageTYPE(pGraphic->firstObj)) continue;
 		}
 		
-		p = GetPMEVENT(pL);
+		p = GetPOBJHDR(pL);
 		SCALE(p->xd);										/* Scale horiz. spacing */
 
 		switch (ObjLType(pL)) {

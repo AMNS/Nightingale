@@ -647,7 +647,7 @@ static void SelectRange2(Document *doc, LINK startL, LINK endL, short firstStf,
 									short lastStf)
 {
 	LINK 		pL,subObjL,aSlurL;
-	PMEVENT		p;
+	POBJHDR		p;
 	GenSubObj 	*subObj;
 	HEAP 		*tmpHeap;
 
@@ -656,7 +656,7 @@ static void SelectRange2(Document *doc, LINK startL, LINK endL, short firstStf,
 		if (KeySigTYPE(pL) && !KeySigINMEAS(pL)) continue;
 		if (TimeSigTYPE(pL) && !TimeSigINMEAS(pL)) continue;
 		
-		p = GetPMEVENT(pL);
+		p = GetPOBJHDR(pL);
 		switch (ObjLType(pL)) {
 			case SYNCtype:
 			case GRSYNCtype:

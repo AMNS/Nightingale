@@ -977,11 +977,11 @@ typedef struct						/* Symbol table data for an object-list object: */
 } OBJDATA;
 
 
-/* ---------------------------------------------------------------------------- MEVENT -- */
+/* ---------------------------------------------------------------------------- OBJHDR -- */
 
 typedef struct {
 	OBJECTHEADER
-} MEVENT, *PMEVENT;
+} OBJHDR, *POBJHDR;
 
 
 /* ---------------------------------------------------------------------------- EXTEND -- */

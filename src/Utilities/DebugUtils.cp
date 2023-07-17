@@ -453,8 +453,8 @@ short DCheckNode(
 	short		minEntries, maxEntries;
 	Boolean		bad, terrible, abnormal;
 	Boolean		objRectOrdered, lRectOrdered, rRectOrdered;
-	PMEVENT		p;
-	PMEVENT		apLeft, apRight, pLeft, pRight;
+	POBJHDR		p;
+	POBJHDR		apLeft, apRight, pLeft, pRight;
 	PSYSTEM		pSystem;
 	PSTAFF		pStaff;
 	PMEASURE	pMeasure;
@@ -480,9 +480,9 @@ short DCheckNode(
 	bad = terrible = False;										/* I like it fine so far */
 	PushLock(OBJheap);
 
-	p = GetPMEVENT(pL);
-	pLeft = GetPMEVENT(p->left);
-	pRight = GetPMEVENT(p->right);
+	p = GetPOBJHDR(pL);
+	pLeft = GetPOBJHDR(p->left);
+	pRight = GetPOBJHDR(p->right);
 
 	abnormal = (where!=MAIN_DSTR);
 	
@@ -578,11 +578,11 @@ positions agree with their relative object-list positions. */
 					if (LinkVALID(apRightL) && rRectOrdered) break; 
 				}
 				if (fullCheck) {
-					apLeft = GetPMEVENT(apLeftL);
+					apLeft = GetPOBJHDR(apLeftL);
 					if (LinkVALID(apLeftL) && lRectOrdered
 					&&  p->objRect.left < apLeft->objRect.left)
 						COMPLAIN("DCheckNode: Object L%u: objRect.left relative to previous is suspicious.\n", pL);
-					apRight = GetPMEVENT(apRightL);
+					apRight = GetPOBJHDR(apRightL);
 					if (LinkVALID(apRightL) && rRectOrdered
 					&&  p->objRect.left > apRight->objRect.left)
 						COMPLAIN("DCheckNode: Object L%u: objRect.left relative to next is suspicious.\n", pL);
@@ -2693,7 +2693,7 @@ Boolean DCheckObjRect(Document * /* doc */, LINK objL)
 {
 	PKEYSIG pKeySig;  Boolean bad=FALSE;
 	
-	PMEVENT p = GetPMEVENT(objL);
+	POBJHDR p = GetPOBJHDR(objL);
 	if (GARBAGE_Q1RECT(p->objRect)) {
 		/* It's OK for initial keysigs to be unselectable. */
 		
@@ -2943,7 +2943,7 @@ Boolean DCheckNEntries(Document *doc)
 
 Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 {
-	PMEVENT p;  HEAP *tmpHeap;
+	POBJHDR p;  HEAP *tmpHeap;
 	LINK subObjL, badLink;  Boolean bad;
 	
 	bad = False;

@@ -1701,7 +1701,7 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 {
 	short		staff,stfDiff,partDiff,stfOff,pasteType=PasteOK,minStf,maxStf;
 	Boolean		staffOK=True;
-	PMEVENT		p;
+	POBJHDR		p;
 	HEAP		*tmpHeap;
 	GenSubObj 	*subObj;
 	LINK		subObjL,pL;
@@ -1725,7 +1725,7 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 			case GRSYNCtype:
 			case DYNAMtype:
 			case RPTENDtype:
-				p = GetPMEVENT(pL);
+				p = GetPOBJHDR(pL);
 				tmpHeap = Heap + p->type;		/* p may not stay valid during loop */
 
 				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
@@ -1740,7 +1740,7 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 			case OTTAVAtype:
 			case GRAPHICtype:
 			case ENDINGtype:
-				p = GetPMEVENT(pL);
+				p = GetPOBJHDR(pL);
 				if (((PEXTEND)p)->staffn+stfDiff>doc->nstaves)
 					{ staffOK = False; staff = ((PEXTEND)p)->staffn; }
 				break;
@@ -2208,7 +2208,7 @@ static Boolean ClipNoteInV(Document *doc, short v)
 static short GetFirstStf(Document *doc, LINK pL)
 {
 	short minStf=1000;  LINK subObjL;
-	PMEVENT p;  GenSubObj *subObj;  HEAP *tmpHeap;
+	POBJHDR p;  GenSubObj *subObj;  HEAP *tmpHeap;
 
 	switch (ObjLType(pL)) {
 
@@ -2228,7 +2228,7 @@ static short GetFirstStf(Document *doc, LINK pL)
 		case DYNAMtype:
 		case RPTENDtype:
 			tmpHeap = doc->Heap + ObjLType(pL);
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			
 			for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
 				subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
@@ -2244,7 +2244,7 @@ static short GetFirstStf(Document *doc, LINK pL)
 		case ENDINGtype:
 		case TEMPOtype:
 		case SPACERtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			return ((PEXTEND)p)->staffn;
 		
 		default:
@@ -2284,7 +2284,7 @@ enter into the computation of the maximum staffn of some range. */
 static short GetLastStf(Document *doc, LINK pL)
 {
 	short maxStf=-1000;  LINK subObjL;
-	PMEVENT p;  GenSubObj *subObj;  HEAP *tmpHeap;
+	POBJHDR p;  GenSubObj *subObj;  HEAP *tmpHeap;
 
 	switch (ObjLType(pL)) {
 		case PAGEtype:
@@ -2303,7 +2303,7 @@ static short GetLastStf(Document *doc, LINK pL)
 		case DYNAMtype:
 		case RPTENDtype:
 			tmpHeap = doc->Heap + ObjLType(pL);
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			
 			for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
 				subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
@@ -2319,7 +2319,7 @@ static short GetLastStf(Document *doc, LINK pL)
 		case ENDINGtype:
 		case TEMPOtype:
 		case SPACERtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			return ((PEXTEND)p)->staffn;
 		
 		default:
@@ -2406,7 +2406,7 @@ static short GetAnyStfDiff(Document *doc, Document *fixDoc, short pasteType,
 void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)
 {
 	LINK 		pL,subObjL;
-	PMEVENT		p;
+	POBJHDR		p;
 	GenSubObj 	*subObj;
 	HEAP 		*tmpHeap;
 
@@ -2427,7 +2427,7 @@ void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)
 			case DYNAMtype:
 			case RPTENDtype:
 				tmpHeap = doc->Heap + ObjLType(pL);
-				p = GetPMEVENT(pL);
+				p = GetPOBJHDR(pL);
 				
 				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
@@ -2442,7 +2442,7 @@ void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)
 			case ENDINGtype:
 			case TEMPOtype:
 			case SPACERtype:
-				p = GetPMEVENT(pL);
+				p = GetPOBJHDR(pL);
 				((PEXTEND)p)->staffn += staffDiff;
 				break;
 		}

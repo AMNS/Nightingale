@@ -549,13 +549,13 @@ void SetDynamicFields(LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short x
 								short yp)
 {
 	PADYNAMIC aDynamic;
-	PMEVENT p;
+	POBJHDR p;
 	Rect tempR;
 
 	aDynamic = GetPADYNAMIC(subObjL);
 	aDynamic->yd += ydDiff;
 	if (LinkNENTRIES(pL)==1) {
-		p = GetPMEVENT(pL);
+		p = GetPOBJHDR(pL);
 		p->xd += xdDiff;
 		OffsetRect(&LinkOBJRECT(pL), xp, yp);
 	}
@@ -578,9 +578,9 @@ void SetDynamicFields(LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short x
 
 void SetRptEndFields(LINK pL, LINK /*subObjL*/, DDIST xdDiff, short xp)
 {
-	PMEVENT p;
+	POBJHDR p;
 
-	p = GetPMEVENT(pL);
+	p = GetPOBJHDR(pL);
 	p->xd += xdDiff;
 	OffsetRect(&LinkOBJRECT(pL),xp,0);
 

@@ -264,7 +264,7 @@ position for Go to Selection. */
 
 DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 {
-	DDIST objXD, xd;  PMEVENT p;
+	DDIST objXD, xd;  POBJHDR p;
 	LINK firstL, lastL;
 	PGRAPHIC pGraphic;  PTEMPO pTempo;
 	
@@ -288,17 +288,17 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 		case ENDINGtype:
 			return pContext->measureLeft + objXD;
 		case CLEFtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			if (((PCLEF)p)->inMeasure) return pContext->measureLeft + objXD;
 			
 			return pContext->staffLeft + objXD;
 		case KEYSIGtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			if (((PKEYSIG)p)->inMeasure) return pContext->measureLeft + objXD;
 			
 			return pContext->staffLeft + objXD;
 		case TIMESIGtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			if (((PTIMESIG)p)->inMeasure) return pContext->measureLeft + objXD;
 			
 			return pContext->staffLeft + objXD;
@@ -350,7 +350,7 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 
 DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 {
-	DDIST objYD, yd;  PMEVENT p;
+	DDIST objYD, yd;  POBJHDR p;
 	LINK firstL, lastL;
 	PGRAPHIC pGraphic;  PTEMPO pTempo;
 	
@@ -372,20 +372,20 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 		case ENDINGtype:
 		case SYNCtype:
 		case GRSYNCtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			return pContext->measureTop + objYD;
 		case CLEFtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			if (((PCLEF)p)->inMeasure) return pContext->measureTop + objYD;
 			
 			return pContext->staffTop + objYD;
 		case KEYSIGtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			if (((PKEYSIG)p)->inMeasure) return pContext->measureTop + objYD;
 			
 			return pContext->staffTop + objYD;
 		case TIMESIGtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			if (((PTIMESIG)p)->inMeasure) return pContext->measureTop + objYD;
 			
 			return pContext->staffTop + objYD;
@@ -738,7 +738,7 @@ Boolean RealignObj(LINK pL,
 {
 	GenSubObj *subObj;  LINK subObjL;  DDIST subXD=0;
 	short i;  Boolean haveXD;
-	PMEVENT p;  HEAP *tmpHeap;
+	POBJHDR p;  HEAP *tmpHeap;
 
 	if (useSel)
 		haveXD = False;
@@ -747,7 +747,7 @@ Boolean RealignObj(LINK pL,
 		subXD = 0;
 	}
 
-	p = GetPMEVENT(pL);
+	p = GetPOBJHDR(pL);
 
 	switch (ObjLType(pL)) {
 		case CLEFtype:
@@ -2449,10 +2449,10 @@ short GetSubObjStaff(LINK pL, short index)
 	short		i;
 	GenSubObj 	*subObj;
 	LINK		subObjL;
-	PMEVENT		p;
+	POBJHDR		p;
 	HEAP		*tmpHeap;
 
-	p = GetPMEVENT(pL);
+	p = GetPOBJHDR(pL);
 
 	switch (ObjLType(pL)) {
 		case PAGEtype:
@@ -2552,7 +2552,7 @@ Boolean ObjOnStaff(LINK pL, short staff, Boolean selectedOnly)
 {
 	GenSubObj	*subObj;
 	LINK		subObjL;
-	PMEVENT		p;
+	POBJHDR		p;
 	HEAP		*myHeap;
 
 	switch (ObjLType(pL)) {
@@ -2586,7 +2586,7 @@ Boolean ObjOnStaff(LINK pL, short staff, Boolean selectedOnly)
 			if (!LinkSEL(pL) && selectedOnly)
 				return False;
 
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			return (((PEXTEND)p)->staffn==staff);
 			
 		/* Ignore <selectedOnly> for structural objects following */

@@ -12752,7 +12752,7 @@ changed from -20 to 1. How does this happen??
 
 ---------------------------------------------------------------------------------------
 
-24 - 27 June
+24 June - 3 July
 
 Add logging to OpenFile() as follows:
 
@@ -12893,7 +12893,7 @@ the result list! Close the score again, open it again, Find All => crashes, agai
 called from DoResultListDoc.
 
 1 July: BACK TO: Converting format of files containing grace notes makes notes or grace notes
-invisible and corrupts their <yqpit>.
+invisible and corrupts their <yqpit> (issue #205).
 
 debug. ConvertObjectList: display dObjL=13. 1st subobj:
 debug. DisplayNote5: @1147c088 stf=1 v=1 xd=0 yd=0 ystm=224 yqpit=-20 ldur=4 .s=0 acc=0 onV=75 .V.. .... ... 1stMod=0
@@ -12924,3 +12924,9 @@ lines
 	
 The names of the macros on the left side of each of these should be prefixed with "GR"! Make
 that change => both test files open with no problems!!
+
+------------------------------------------------------------------------------------ Build 47
+
+11 - 13 July
+
+Need to clean up code added during the marathon debugging of issue #205.

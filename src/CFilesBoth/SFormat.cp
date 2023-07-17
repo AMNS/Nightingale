@@ -433,7 +433,7 @@ vis: True if make them visible, False if invisible. */
 
 static void VisifySubObjs(LINK pL, short staffn, short vis)
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	HEAP		*tmpHeap;
 	LINK		subObjL;
 	GenSubObj 	*subObj;
@@ -465,7 +465,7 @@ static void VisifySubObjs(LINK pL, short staffn, short vis)
 		case OTTAVAtype:
 		case GRAPHICtype:
 		case ENDINGtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			if (((PEXTEND)p)->staffn==staffn)
 				p->visible = vis;
 			break;

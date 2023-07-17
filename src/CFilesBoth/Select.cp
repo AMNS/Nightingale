@@ -545,7 +545,7 @@ void DeselectNode(LINK pL)
 {	
 	HEAP		*tmpHeap;
 	LINK		subObjL;
-	PMEVENT		p;
+	POBJHDR		p;
 	GenSubObj	*subObj;
 	
 	if (LinkSEL(pL))
@@ -619,7 +619,7 @@ select. */
 
 void SelAllSubObjs(LINK pL)
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	HEAP		*tmpHeap;
 	LINK		subObjL;
 	GenSubObj 	*subObj;
@@ -700,12 +700,12 @@ You'd think a loop calling CheckObject could do the same thing, but probably not
 void SelectRange(Document *doc, LINK startL, LINK endL, short firstStf, short lastStf)
 {
 	LINK 		pL, subObjL, aSlurL;
-	PMEVENT		p;
+	POBJHDR		p;
 	GenSubObj 	*subObj;
 	HEAP 		*tmpHeap;
 
 	for (pL = startL; pL!=endL; pL = RightLINK(pL)) {
-		p = GetPMEVENT(pL);
+		p = GetPOBJHDR(pL);
 		switch (ObjLType(pL)) {
 			case SYNCtype:
 			case GRSYNCtype:
@@ -1020,7 +1020,7 @@ static Boolean CSChkSelRanges(LINK s1, LINK e1, LINK s2, LINK e2)
 		
 static Boolean OldContinSel(Document *doc, Boolean strict)
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	LINK		pL;
 	LINK		subObjL, aMeasL, aPSMeasL;
 	short		s;
@@ -1233,7 +1233,7 @@ NB: should probably call BoundSelRange. */
 
 void OptimizeSelection(Document *doc)
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	LINK		pL, oldStartL, subObjL;
 	HEAP		*tmpHeap;
 	GenSubObj	*subObj;
@@ -1325,7 +1325,7 @@ in Graphics, etc. */
 
 void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	LINK 		pL, subObjL;
 	HEAP		*tmpHeap;
 	GenSubObj	*subObj;
@@ -1359,7 +1359,7 @@ void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 			case TUPLETtype:
 			case SLURtype:
 			case OTTAVAtype:
-				p = GetPMEVENT(pL);
+				p = GetPOBJHDR(pL);
 				if (((PEXTEND)p)->staffn==staff)
 					SetSelEnds(pL, startL, endL);
 				break;

@@ -595,7 +595,7 @@ static void ChangeSelectObj(Document *doc, LINK pL,
 
 void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 {
-	PMEVENT p;
+	POBJHDR p;
 	PSYSTEM pSystem;
 	const char *ps;
 	Rect r;
@@ -615,7 +615,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 
 	sprintf(lStr, "here (left,right)=%u (%u,%u)", pL, LeftLINK(pL), RightLINK(pL));
 	DrawTextLine(lStr);
-	p = GetPMEVENT(pL);
+	p = GetPOBJHDR(pL);
 	sprintf(lStr, "@%lx xd,yd=%d,%d", (long unsigned int)p, p->xd, p->yd);
 	DrawTextLine(lStr);
 	strcpy(lStr, "flags=");

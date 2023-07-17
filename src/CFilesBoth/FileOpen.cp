@@ -69,6 +69,11 @@ static void VisifyAllNRGRs(Document *doc)
 	}
 }
 
+/* If any notes, rests, or grace notes are invisible, ask the user if they want them made
+visible, and do what they want. This is because a bizarre bug in file conversion used to
+occasionally make them invisible. Fixed in v. 6.0 B47, I believe, but let's leave just in
+case, at least for now. --DAB, July 2023 */
+	   
 static Boolean CheckNRGRVisibilityOK(Document *doc);
 static Boolean CheckNRGRVisibilityOK(Document *doc)
 {
@@ -380,14 +385,14 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	
 	/* Do any further conversion needed of both the main and the Master Page object lists
 	   in old files. If any notes, rests, or grace notes are invisible, ask the user if
-	   they want them made visible, and do what they want. Why? Because a bizarre bug
-	   in the file conversion occasionally makes them invisible and it isn't worth any
-	   more of my time trying to fix it. */
+	   they want them made visible, and do what they want. Why? See comments on
+	   CheckNRGRVisibilityOK(). */
 	   
 	if (version=='N105') {
 		(void)ConvertObjectList(doc, version, fileTime, False);
 		(void)ConvertObjectList(doc, version, fileTime, True);
 #ifdef DEBUG_EMPTY_OBJRECT
+// The bug leading to the need for CheckNRGRVisibilityOK also caused empty objRects, so...
 for (LINK objL = 8; objL!=doc->tailL; objL = RightLINK(objL)) {
 	if (ObjLType(objL)==SYNCtype)
 		DisplayObject(doc, objL, 700+ObjLType(objL), True, True, True);
@@ -406,8 +411,8 @@ if (debugLevel[DBG_OPEN]!=0) {
 			case SYNCtype:
 				aNoteRL = FirstSubLINK(objL);
 				for ( ; aNoteRL; aNoteRL = NextNOTEL(aNoteRL)) {
-	PANOTE aNoteR = GetPANOTE(aNoteRL);
-	DSubobjDump(SYNCtype, (unsigned char *)aNoteR, 0, 0, True);
+					PANOTE aNoteR = GetPANOTE(aNoteRL);
+					DSubobjDump(SYNCtype, (unsigned char *)aNoteR, 0, 0, True);
 				}
 		}
 	}
@@ -435,7 +440,6 @@ if (debugLevel[DBG_OPEN]!=0) {
 		if (errType) { errInfo = CM_Call; goto Error; }
 	}
 	doc->cmInputDevice = config.cmDfltInputDev;
-	KludgeOS10p5LogDelay(True);							/* Avoid bug in OS 10.5/10.6 Console */
 	LogPrintf(LOG_INFO, "cmInputDevice=%d cmPartDeviceList[]=%d,%d  (OpenFile)\n",
 				doc->cmInputDevice, doc->cmPartDeviceList[1], doc->cmPartDeviceList[2]);
 

@@ -48,9 +48,6 @@ static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObj
 static void PrepareClips(void);
 
 
-#define DEBUG_READHEAPS
-
-
 /* Caveat: The DisplayNote and DisplayGRNote functions each take a pointer as a parameter.
 If they cause memory to be moved (which seems very unlikely with modern machines but might
 be possible) the pointer would be invalid when they return.  --DAB, May 2023 */
@@ -825,7 +822,7 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 		errType = ReadSubHeap(doc, refNum, version, iHp, isViewerFile);
 		if (errType) return errType;
 	}
-#define DEBUG_READHEAPS
+#define NoDEBUG_READHEAPS
 #ifdef DEBUG_READHEAPS
 	KludgeOS10p5LogDelay(True);					/* Avoid bug in OS 10.5/10.6 Console */
 //MAKE_A_FUSS("DEBUG_READHEAPS 1");
@@ -843,16 +840,16 @@ short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 
 //MAKE_A_FUSS("DEBUG_READHEAPS 2");
 	/* Fix links. This is necessary because ??WHY?I have no idea, but it sure seems to
-	   be necessary!! Leaving it out results in disasters. --DAB.  Then, if the file is
-	   in a format other than 'N105', handle the Endian issue. If it's in format 'N105',
-	   it could only have been written on a machine with the same Endianness as the one
-	   we're running on -- both must be PowerPC's -- so there's no need to be concerned
-	   with Endian issues. */
+	   be necessary!! Leaving it out consistently results in disaster. --DAB.  Then,
+	   if the file is in a format other than 'N105', handle the Endian issue. If it's in
+	   format 'N105', it could only have been written on a machine with the same
+	   Endianness as the one we're running on -- both must be PowerPC's -- so there's no
+	   need to bother with Endian issues. */
 	   
 	if (version=='N105') {
 //MAKE_A_FUSS("DEBUG_READHEAPS 3");
 		errType = HeapFixN105ObjLinks(doc);
-MAKE_A_FUSS("DEBUG_READHEAPS 4");
+//MAKE_A_FUSS("DEBUG_READHEAPS 4");
 		if (errType) {
 			MayErrMsg("HeapFixN105ObjLinks failed (errType=%ld).  (ReadHeaps)", (long)errType);
 			return errType;
@@ -865,7 +862,7 @@ MAKE_A_FUSS("DEBUG_READHEAPS 4");
 			return errType;
 		}
 
-MAKE_A_FUSS("DEBUG_READHEAPS 5");
+//MAKE_A_FUSS("DEBUG_READHEAPS 5");
 
 		for (objL = doc->headL; objL!=doc->tailL; objL = RightLINK(objL))
 			EndianFixSubobjs(objL);
@@ -873,7 +870,7 @@ MAKE_A_FUSS("DEBUG_READHEAPS 5");
 			EndianFixSubobjs(objL);
 	}
 	
-MAKE_A_FUSS("DEBUG_READHEAPS 6");
+//MAKE_A_FUSS("DEBUG_READHEAPS 6");
 	return 0;
 }
 

@@ -439,7 +439,7 @@ LINK L_Search(
 			)
 {
 	short		i;
-	PMEVENT		p;
+	POBJHDR		p;
 	PPAGE		pPage;
 	PSYSTEM		pSystem;
 	Boolean		anyType,		/* True if caller will take any type */
@@ -500,7 +500,7 @@ LINK L_Search(
 
 		if (!anySystem && SystemTYPE(pL)) break;
 		nextL = goLeft ? LeftLINK(pL) : RightLINK(pL);
-		p = GetPMEVENT(pL);
+		p = GetPOBJHDR(pL);
 		pType = ObjLType(pL);
 		pSel = LinkSEL(pL);
 
@@ -851,7 +851,7 @@ LINK GSearch(
 			)
 {
 	short		i;
-	PMEVENT		p;
+	POBJHDR		p;
 	Boolean		anyType,		/* True if caller will take any type */
 				anyStaff,		/* True if caller will take any staff */
 				anyVoice,		/* True if caller will take any voice */
@@ -890,7 +890,7 @@ LINK GSearch(
 		pType = ObjLType(pL);
 		pSel = LinkSEL(pL);
 		pVis = LinkVIS(pL);
-		p = GetPMEVENT(pL);
+		p = GetPOBJHDR(pL);
 
 		if ((anyType || pType==type) && (anySelected || pSel) &&
 			 (anyVisible || pVis)) {

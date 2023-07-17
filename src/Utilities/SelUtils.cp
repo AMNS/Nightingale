@@ -171,7 +171,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 	short		i, j;
 	short		selStaves[MAXSTAVES+1];
 	short		selParts[MAXSTAVES+1];
-	PMEVENT		p;
+	POBJHDR		p;
 	LINK 		pL, subObjL;
 	HEAP		*tmpHeap;
 	GenSubObj	*subObj;
@@ -217,7 +217,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 					case TEMPOtype:
 					case SPACERtype:
 					case ENDINGtype:
-						p = GetPMEVENT(pL);
+						p = GetPOBJHDR(pL);
 						
 						if (LinkSEL(pL)) {
 							short staffn = ((PEXTEND)p)->staffn;
@@ -394,7 +394,7 @@ doc->selEndL. */
 
 void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	LINK 		pL, subObjL;
 	HEAP		*tmpHeap;
 	GenSubObj	*subObj;
@@ -439,7 +439,7 @@ void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 				case TEMPOtype:
 				case SPACERtype:
 				case ENDINGtype:
-					p = GetPMEVENT(pL);
+					p = GetPOBJHDR(pL);
 					
 					if (LinkSEL(pL)) {
 						if (((PEXTEND)p)->staffn<topStaffn)

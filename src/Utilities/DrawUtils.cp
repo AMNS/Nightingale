@@ -1020,12 +1020,12 @@ void GetKeySigDrawInfo(Document *doc,
 			short *lines
 			)
 {
-	PMEVENT p;
+	POBJHDR p;
 	PAKEYSIG aKeySig;
 	DDIST dLeft;
 	CONTEXT localContext;
 	
-	p = GetPMEVENT(pL);
+	p = GetPOBJHDR(pL);
 	aKeySig = GetPAKEYSIG(aKeySigL);
 	localContext = context[KeySigSTAFF(aKeySigL)];
 	if (((PKEYSIG)p)->inMeasure) {

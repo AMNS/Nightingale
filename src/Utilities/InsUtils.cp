@@ -1074,7 +1074,7 @@ LINK FindLPI(Document *doc,
 				Boolean needVisible 	/* Must the FOLLOWING item on any staff be visible? */
 				)
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	LINK		pL, subObjL,
 				nodeL, pLPIL, aNoteL, aGRNoteL;
 	Boolean		anyStaff, anyVoice;

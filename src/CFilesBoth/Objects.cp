@@ -93,7 +93,7 @@ LINK DuplicateObject(short type, LINK objL, Boolean selectedOnly, Document *srcD
 	LINK subL, newSubL;
 	LINK newObjL, tmpL, firstSubObj;
 	GenSubObj *pSub, *pNewSub;
-	PMEVENT pObj, pNewObj;
+	POBJHDR pObj, pNewObj;
 	Boolean subsNeeded = True;
 	
 #ifdef DODEBUG
@@ -268,8 +268,8 @@ LogPrintf(LOG_DEBUG, "\tsubsNeeded=%d\n", subsNeeded);
 	
 	/* Copy object's information into newObj's information */
 	
-	pObj    = (PMEVENT)LinkToPtr(srcDoc->Heap+OBJtype,objL);
-	pNewObj = (PMEVENT)LinkToPtr(dstDoc->Heap+OBJtype,newObjL);
+	pObj    = (POBJHDR)LinkToPtr(srcDoc->Heap+OBJtype,objL);
+	pNewObj = (POBJHDR)LinkToPtr(dstDoc->Heap+OBJtype,newObjL);
 	firstSubObj = DFirstSubLINK(dstDoc,newObjL);				/* Save it before it gets wiped out */
 	BlockMove(pObj, pNewObj, sizeof(SUPEROBJECT));
 	
@@ -597,9 +597,9 @@ LINK DuplicNC(Document *doc, LINK syncL, short voice)
 void InitObject(LINK objL, LINK left, LINK right, DDIST xd, DDIST yd, Boolean selected,
 					Boolean visible, Boolean soft)
 {
-	PMEVENT p;
+	POBJHDR p;
 	
-	p = GetPMEVENT(objL);
+	p = GetPOBJHDR(objL);
 	p->left = left;
 	p->right = right;
 	p->tweaked = False;
@@ -614,9 +614,9 @@ void InitObject(LINK objL, LINK left, LINK right, DDIST xd, DDIST yd, Boolean se
 void SetObject(LINK objL, DDIST xd, DDIST yd, Boolean selected, Boolean visible,
 				Boolean soft)
 {
-	PMEVENT p;
+	POBJHDR p;
 	
-	p = GetPMEVENT(objL);
+	p = GetPOBJHDR(objL);
 	p->xd = xd;
 	p->yd = yd;
 	p->selected = selected;
@@ -635,7 +635,7 @@ LINK GrowObject(Document *doc,
 {
 	PSTAFF		pStaff, lStaff, rStaff;
 	PMEASURE 	pMeasure, lMeasure, rMeasure;
-	PMEVENT		q;
+	POBJHDR		q;
 	PRPTEND		pRptEnd, startRpt, endRpt;
 	LINK 		staffL, qL, subListL;
 
@@ -663,7 +663,7 @@ LINK GrowObject(Document *doc,
 			}
 			for (qL=staffL; qL!=pStaff->rStaff; qL=RightLINK(qL)) {
 				if (ObjLType(qL)==MEASUREtype) {
-					q = GetPMEVENT(qL);
+					q = GetPOBJHDR(qL);
 					((PMEASURE)q)->staffL = staffL;
 				}
 			}

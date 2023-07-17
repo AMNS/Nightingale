@@ -664,22 +664,22 @@ void HeapBrowseGRSync(short itemIndex, Boolean isFree)
 void HeapBrowseObject(short itemIndex, Boolean isFree)
 {
 	LINK qL;
-	PMEVENT q;
+	POBJHDR q;
 	Rect r;
 
 	qL = itemIndex;
 	
-	q = GetPMEVENT(qL);
+	q = GetPOBJHDR(qL);
 	sprintf(str, "link=%u%s right=%u left=%u", qL, (isFree? "/FREE" : " "), q->right, q->left);
-	HeapDrawLine(str); q = GetPMEVENT(qL);
+	HeapDrawLine(str); q = GetPOBJHDR(qL);
 	
 	sprintf(str, "xd=%d yd=%d type=%s nEntries=%d", 
 		q->xd, q->yd, NameObjType(qL), q->nEntries);
-	HeapDrawLine(str); q = GetPMEVENT(qL);
+	HeapDrawLine(str); q = GetPOBJHDR(qL);
 	sprintf(str, "selected=%d visible=%d soft=%d", q->selected, q->visible, q->soft);
-	HeapDrawLine(str); q = GetPMEVENT(qL);
+	HeapDrawLine(str); q = GetPOBJHDR(qL);
 	sprintf(str, "valid=%d tweaked=%d", q->valid, q->tweaked);
-	HeapDrawLine(str); q = GetPMEVENT(qL); r = q->objRect;
+	HeapDrawLine(str); q = GetPOBJHDR(qL); r = q->objRect;
 	sprintf(str, "rect.l,t,r,b=%d %d %d %d", r.left, r.top, r.right, r.bottom);
 	HeapDrawLine(str);
 }

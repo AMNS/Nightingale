@@ -42,7 +42,7 @@ static void FixStaffNums(Document *doc,
 							short nDelta,
 							SignedByte measConnStaff[])	/* Ignored if nDelta>0 */
 {
-	PMEVENT		p;
+	POBJHDR		p;
 	PASTAFF		aStaff;
 	PAMEASURE	aMeasure;
 	PAPSMEAS	aPseudoMeas;
@@ -148,7 +148,7 @@ static void FixStaffNums(Document *doc,
 		case GRSYNCtype:
 		case DYNAMtype:
 		case RPTENDtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			tmpHeap = Heap + ObjLType(pL);		/* p may not stay valid during loop */
 			
 			for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
@@ -165,7 +165,7 @@ static void FixStaffNums(Document *doc,
 		case TEMPOtype:
 		case SPACERtype:
 		case ENDINGtype:
-			p = GetPMEVENT(pL);
+			p = GetPOBJHDR(pL);
 			if (((PEXTEND)p)->staffn>=afterStf)
 				((PEXTEND)p)->staffn += nDelta;
 			break;
@@ -729,7 +729,7 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 	LINK pL,aStaffL,aConnectL,subObjL;
 	Boolean selObject;
 	PASTAFF aStaff;  PACONNECT aConnect;
-	PMEVENT p;  HEAP *tmpHeap;  GenSubObj *subObj;
+	POBJHDR p;  HEAP *tmpHeap;  GenSubObj *subObj;
 				
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		selObject = False;
@@ -794,7 +794,7 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 			case TEMPOtype:
 			case SPACERtype:
 			case ENDINGtype:
-				p = GetPMEVENT(pL);
+				p = GetPOBJHDR(pL);
 				if (((PEXTEND)p)->staffn>=startStf && ((PEXTEND)p)->staffn<=endStf)
 					LinkSEL(pL) = True;
 				break;

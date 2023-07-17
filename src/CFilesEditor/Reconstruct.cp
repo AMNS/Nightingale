@@ -473,14 +473,14 @@ pTime into it. */
 
 LINK CopySync(Document *doc, short subCount, PTIME *pTime)
 {
-	PMEVENT pObj,pNewObj;
+	POBJHDR pObj,pNewObj;
 	LINK firstSubObjL,newObjL;
 
 	newObjL = NewNode(doc, SYNCtype, subCount);
 	if (newObjL == NILINK) return NILINK;
 
-	pObj    = (PMEVENT)LinkToPtr(OBJheap,pTime->objL);
-	pNewObj = (PMEVENT)LinkToPtr(OBJheap,newObjL);
+	pObj    = (POBJHDR)LinkToPtr(OBJheap,pTime->objL);
+	pNewObj = (POBJHDR)LinkToPtr(OBJheap,newObjL);
 	firstSubObjL = FirstSubLINK(newObjL);				/* Save it before it gets wiped out */
 	BlockMove(pObj, pNewObj, sizeof(SUPEROBJECT));
 	FirstSubLINK(newObjL) = firstSubObjL;				/* Restore it. */

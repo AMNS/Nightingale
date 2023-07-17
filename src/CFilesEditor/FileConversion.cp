@@ -1911,26 +1911,20 @@ Boolean ConvertObjectList(Document *doc, unsigned long version, long /* fileTime
 	fflush(stdout);
 	objCount = 0;
 	prevL = startL-1;
-if (debugLevel[DBG_OPEN]!=0) {
-LINK dObjL=13;
-LogPrintf(LOG_DEBUG, "ConvertObjectList: display dObjL=%d. 1st subobj:\n", dObjL);
-LINK aNoteRL = FirstSubLINK(dObjL);
-unsigned char *pSSubObj; pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aNoteRL, PANOTE);
-DisplayNote5((PANOTE_5)pSSubObj, True);
-}
 	for (objL = startL; objL; objL = RightLINK(objL)) {
-if (debugLevel[DBG_OPEN]!=0) {
-	LINK dObjL=13;
-	LogPrintf(LOG_DEBUG, "ConvertObjectList: after converting %u, display dObjL=%u. 1st subobj:\n",
-				objL, dObjL);
-	LINK aNoteRL = FirstSubLINK(dObjL);
-	unsigned char *pSSubObj; pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aNoteRL, PANOTE);
-	DisplayNote5((PANOTE_5)pSSubObj, True);
-}
+		if (debugLevel[DBG_OPEN]!=0) {
+			LINK dObjL=13;
+			LogPrintf(LOG_DEBUG, "ConvertObjectList: after converting %u, display dObjL=%u. 1st subobj:\n",
+						objL, dObjL);
+			LINK aNoteRL = FirstSubLINK(dObjL);
+			unsigned char *pSSubObj; pSSubObj = (unsigned char *)GetObjectPtr(NOTEheap, aNoteRL, PANOTE);
+			DisplayNote5((PANOTE_5)pSSubObj, True);
+		}
 		objCount++;
-		if (debugLevel[DBG_OPEN]!=0>1 || objCount%50==1) LogPrintf(LOG_DEBUG,
-				"**************** ConvertObjectList: objL=%u prevL=%u type='%s'\n",
-				objL, prevL, NameObjType(objL));
+		if (debugLevel[DBG_OPEN]!=0)
+			if (DETAIL_SHOW || objCount%50==1) LogPrintf(LOG_DEBUG,
+					"**************** ConvertObjectList: objL=%u prevL=%u type='%s'\n",
+					objL, prevL, NameObjType(objL));
 
 		/* If this function is called in the process of opening a file, the only situation
 		   where it should be, consecutive objects must have sequential links; check that. */

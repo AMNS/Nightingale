@@ -221,7 +221,7 @@ static Boolean CVRearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nN
 	short i, v, notes, numNotes, subCount=0, arrBound;
 	PTIME *pTime, *qTime;
 	LINK pL, firstSubObj, newObjL, subL, newSubL, tempNewSubL, newSelStart;
-	PMEVENT pObj, pNewObj;
+	POBJHDR pObj, pNewObj;
 	Boolean objSel;
 	LINK headL, tailL, initL, prevL, insertL, firstL, lastL;
 
@@ -315,8 +315,8 @@ static Boolean CVRearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nN
 			if (newObjL == NILINK)
 				goto broken;
 
-			pObj    = (PMEVENT)LinkToPtr(OBJheap,pTime->objL);
-			pNewObj = (PMEVENT)LinkToPtr(OBJheap,newObjL);
+			pObj    = (POBJHDR)LinkToPtr(OBJheap,pTime->objL);
+			pNewObj = (POBJHDR)LinkToPtr(OBJheap,newObjL);
 			firstSubObj = FirstSubLINK(newObjL);				/* Save it before it gets wiped out */
 			BlockMove(pObj, pNewObj, sizeof(SUPEROBJECT));
 			FirstSubLINK(newObjL) = firstSubObj;				/* Restore it. */
