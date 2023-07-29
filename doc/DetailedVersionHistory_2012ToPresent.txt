@@ -4032,3 +4032,24 @@ InsUtils, Merge, Objects, Part, Reconstruct, Score, Search, Select, SelUtils, SF
 Transcribe, Tuplet.
 
 ------------------------------------------------------------------------------------ Build 48
+
+17 - 27 July
+
+Fixed bug (Issue #209): Trying to delete a non-empty part in Master Page where there's an
+object (e.g., tempo mark) attached before the first barline says it's non-empty starting
+at measure number 0 regardless of the actual (user) measure number. Affects DSUtils.
+
+Fixed recently introduced minor bug: if error(s) are reported in either the document or
+score header of a file and the user cancels opening it, Nightingale opens it anyway.
+Affects FileOpen.
+
+Make notehead graphs for longer durations wider and for short durations narrower. Affects
+DrawNRGR.
+
+Improve chord slashes: make their ends horizontal instead of vertical (QuickDraw only);
+reduce their thickness (PostScript only). Affects style.h; DrawNRGR, PS_Stdio. 
+
+Minor changes. Affects info.plist, DSUtils, FileSave, NotelistParse, PS_Stdio, TextDialog,
+UIFUtils.
+
+------------------------------------------------------------------------------------ Build 49

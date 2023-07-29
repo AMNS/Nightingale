@@ -72,6 +72,8 @@ with stems away from the staff are shortened. */
 #define FINGERING_SIZEPCT 65				/* Percent of normal font size for fingerings */
 #define CIRCLE_SIZEPCT 150					/* Percent of normal font size for circle */
 
+#define SLASH_THICK 4						/* PostScript chord slash thickness (eighth-spaces) */
+
 /* Constants for cue notes, especially the "Paste as Cue" command. These really don't belong
 in a file of notation style parameters, but where would be better?  --DAB, June 2017 */
 

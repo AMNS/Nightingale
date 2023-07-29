@@ -331,7 +331,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 		// MAS: Declare ddFact before first jump
 		short ddFact;
 		
-		if (PS_Resource(-1,'TEXT',resID=128)) goto PSRErr;			/* Start Preamble (1) */
+		if (PS_Resource(-1, 'TEXT', resID=128)) goto PSRErr;			/* Start Preamble (1) */
 
 		//PS_Print("%%••••\r");
 		/* /qw needs stringwidth of a char whose code depends on the music font. Formerly,
@@ -342,7 +342,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 		sprintf(str, "\\%o", glyph);
 		PS_Print("/SQW {/qw (%s)stringwidth pop def} def\r", str);
 
-		if (PS_Resource(-1,'TEXT',resID=129)) goto PSRErr;			/* Start Preamble (2) */
+		if (PS_Resource(-1, 'TEXT', resID=129)) goto PSRErr;			/* Start Preamble (2) */
 
 		//PS_Print("%%••••\r");
 		/*	Curly braces. For fonts that have curly brace chars, we use them, but also
@@ -350,7 +350,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 			(Why was this provided before?) For fonts like Petrucci that don't have the
 			brace chars, we use only the homebrew method.  -JGG */
 			
-		if (PS_Resource(-1,'TEXT',resID=130)) goto PSRErr;			/* Curly brace (1) */
+		if (PS_Resource(-1, 'TEXT', resID=130)) goto PSRErr;			/* Curly brace (1) */
 		if (MusFontHasCurlyBraces(doc->musFontInfoIndex)) {
 		
 			/* This code is here instead of in resources so that we can map brace chars. */
@@ -1455,7 +1455,7 @@ OSErr PS_Staff(DDIST height, DDIST x0, DDIST x1, short nLines, DDIST *dy)
 {
 	DDIST y;
 	
-	if (*dy <= 0) *dy = lineSpace; else lineSpace = *dy;
+	if (*dy <= 0) *dy = lineSpace;  else lineSpace = *dy;
 	for (y=height; nLines-- > 0; y+=lineSpace) PS_StaffLine(y,x0,x1);
 	return(thisError);
 }
@@ -1666,24 +1666,21 @@ OSErr PS_NoteStem(
 	short sizePercent)
 	{
 		unsigned char str[2];						/* Pascal string */
-		DDIST dhalfLn, thick, xoff, yoff, yShorten=0;
+		DDIST dhalfSp, thick, xoff, yoff, yShorten=0;
 		Boolean drawStem, stemDown;
 		
 		str[0] = 1; str[1] = sym;					/* Not a good string if sym is '\0' */
-		dhalfLn = lineSpace/2;
+		dhalfSp = lineSpace/2;
 		drawStem = (ABS(stemLen) > pt2d(3) && ABS(stemLen)-stemShorten > pt2d(3));
 		stemDown = (stemLen>(DDIST)0);
 		PS_SetMusicFont(doc, sizePercent);
 
 		if (!sym) {									/* Chord slash */
-			yoff = y+2*dhalfLn;
-			thick = 3*dhalfLn/2;
-			if (stemDown)
-				xoff = x-SLASH_XTWEAK;
-			else
-				xoff = x-(3*thick)/4+SLASH_XTWEAK;
-			if (headVisible)
-				PS_LineHT(xoff, yoff, xoff + 2*dhalfLn, yoff - 4*dhalfLn, thick);
+			yoff = y+2*dhalfSp;
+			thick = SLASH_THICK*dhalfSp/4;
+			if (stemDown)	xoff = x-SLASH_XTWEAK;
+			else			xoff = x-(3*thick)/4+SLASH_XTWEAK;
+			if (headVisible) PS_LineHT(xoff, yoff, xoff+2*dhalfSp, yoff-4*dhalfSp, thick);
 			headVisible = False;
 			}
 		

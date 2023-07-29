@@ -310,7 +310,8 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	FIX_END(fileTime);
 	if (errType) { errInfo = VERSIONobj; goto Error; }
 		
-	if (ReadHeaders(doc, refNum, &errInfo)!=noErr) goto Error;
+	errType = ReadHeaders(doc, refNum, &errInfo);
+	if (errType!=noErr) goto Error;
 
 	count = sizeof(lastType);
 	errType = FSRead(refNum, &count, &lastType);
@@ -480,6 +481,7 @@ if (debugLevel[DBG_OPEN]!=0) {
 	return 0;
 
 Error:
+//LogPrintf(LOG_DEBUG, "OpenFile: errType=%d\n", errType);
 	OpenError(fileIsOpen, refNum, errType, errInfo);
 	return errType;
 }

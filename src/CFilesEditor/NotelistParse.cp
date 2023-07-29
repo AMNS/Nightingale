@@ -1425,7 +1425,8 @@ static Boolean ExtractNoteSegs(char	*segStr, PNL_NRGR pNRGR)
 		errno = 0;
 		ashort = atoi(p);
 		if (errno==ERANGE) goto broken;
-LogPrintf(LOG_DEBUG, "ExtractNoteSegs: segCount=%d ashort=%d\n", segCount, ashort);
+		if (MORE_DETAIL_SHOW) LogPrintf(LOG_DEBUG, "ExtractNoteSegs: segCount=%d ashort=%d\n",
+			segCount, ashort);
 		pNRGR->nhSeg[segCount] = ashort;
 					
 		p = strtok(NULL, ",");

@@ -188,7 +188,7 @@ Also defines the font number of the current font. */
 
 static void GetRealSizes()
 {
-	short i, nitems;
+	short nitems;
 	unsigned char str[64];
 	long num;
 	
@@ -201,7 +201,7 @@ static void GetRealSizes()
 		/* Set item style for each item in size popup's menu according to real font */
 		
 		nitems = CountMenuItems(popup11.menu);
-		for (i=1; i<=nitems; i++) {
+		for (short i=1; i<=nitems; i++) {
 			GetMenuItemText(popup11.menu, i, str);
 			StringToNum(str, &num);
 			SetItemStyle(popup11.menu, i, RealFont(theFont,(short)num) ? outline : 0);
@@ -219,10 +219,10 @@ the name in the popup font menu, and set the popup to display it, if it exists. 
 
 static void SetFontPopUp(StringPtr fontName, StringPtr strbuf)
 {
-	short nitems, i;
+	short nitems;
 	
 	nitems = CountMenuItems(popup7.menu);
-	for (i=1; i<=nitems; i++) {
+	for (short i=1; i<=nitems; i++) {
 		GetMenuItemText(popup7.menu, i, strbuf);
 		if (EqualString(strbuf, fontName, False, True)) {
 			ChangePopUpChoice(&popup7, i);
@@ -238,10 +238,10 @@ the size in the size popup menu, and set the popup choice to display it, if it e
 
 static void SetAbsSizePopUp(short size, StringPtr strbuf)
 {
-	short nitems, i; long num;
+	short nitems; long num;
 	
 	nitems = CountMenuItems(popup11.menu);
-	for (i=1; i<=nitems; i++) {
+	for (short i=1; i<=nitems; i++) {
 		GetMenuItemText(popup11.menu, i, strbuf);
 		StringToNum(strbuf, &num);
 		if (num == size) {
@@ -442,7 +442,7 @@ static void SetStyleBoxes(DialogPtr dlog, short style, short lyric)
 not "This Item Only", disable the popups, check boxes, and radio buttons, hide the
 EditText field, and dim everything.  Otherwise, do the opposite. */
 		
-#define HILITE_DITEM(itm, active) 	{	GetDialogItem(dlog, (itm), &type, &hndl, &box);		\
+#define HILITE_DITEM(itm, active) 	{	GetDialogItem(dlog, (itm), &type, &hndl, &box);	\
 										HiliteControl((ControlHandle)hndl, (active)); }
 
 static void DimStylePanels(DialogPtr dlog, Boolean dim)
@@ -514,7 +514,7 @@ static pascal Boolean TextDFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 		Str255 str;
 		
 //SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
-LogPrintf(LOG_DEBUG, "TextDFilter: what=%d\n", evt->what);
+//LogPrintf(LOG_DEBUG, "TextDFilter: what=%d\n", evt->what);
 		w = (WindowPtr)(evt->message);
 		switch(evt->what) {
 			case updateEvt:
@@ -667,7 +667,7 @@ our global variables and setting the dialog's controls accordingly. */
 static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpanded)
 {
 	Str255 str;
-	short tmpSize, i;
+	short tmpSize;
 
 	SetFontPopUp((StringPtr)aStyle->fontName,str);
 	
@@ -696,7 +696,7 @@ static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpand
 	
 	theEncl = aStyle->enclosure;
 	if (theDlog==DefineStyleDlog)
-		for (i=RAD25_None; i<=RAD26_Box; i++)
+		for (short i=RAD25_None; i<=RAD26_Box; i++)
 			PutDlgChkRadio(dlog, i, i==(RAD25_None+theEncl));
 	
 	if (theDlog==DefineStyleDlog)
@@ -856,67 +856,66 @@ current font, size, and style.  If _string_ is NULL, then look it up; otherwise 
 the string to draw. */
 
 static void DrawExampleText(DialogPtr dlog, StringPtr string)
-	{
-		Str255 str1, str2;
-		short oldFont,oldSize,oldStyle,type,y,userItem,editText,i,tmpLen,oldLen;
-		Rect box;  Handle hndl;  RgnHandle oldClip;
-		
-		if (theDlog==TextDlog)
-			 { userItem = USER26; editText = EDIT25_Text; }
-		else { userItem = USER29; editText = EDIT28_Text; }
-
-		GetDialogItem(dlog, userItem, &type, &hndl, &box);
-		EraseRect(&box);
-		
-		if (thePtSize > 0) {					/* Reality check */
-			if (string) Pstrcpy(str1, string);
-			 else	  { GetDlgString(dlog,editText,str1); }
-			
-			/* If it's a multi-line string, truncate to the first line. */
-			
-			tmpLen = oldLen = str1[0];
-			for (i = 1; i <= str1[0]; i++)
-				if (str1[i] == CH_CR) {
-					tmpLen = i;
-					break;
-				}
-			str1[0] = tmpLen;
-
-			if (theExpanded) {
-				if (!ExpandPString(str2, str1, EXPAND_WIDER)) {
-					LogPrintf(LOG_WARNING, "DrawExampleText: ExpandPString failed.\n");
-					return;
-					}
-				}
-			else
-				Pstrcpy(str2, str1);
-
-			oldFont = GetPortTxFont();
-			oldSize = GetPortTxSize();
-			oldStyle = GetPortTxFace();
+{
+	Str255 str1, str2;
+	short oldFont,oldSize,oldStyle,type,y,userItem,editText,tmpLen,oldLen;
+	Rect box;  Handle hndl;  RgnHandle oldClip;
 	
-			/* Clip to box as well, in case of too large pt size */
-			
-			oldClip = NewRgn();
-			if (oldClip) {
-				GetClip(oldClip);
-				ClipRect(&box);
-				}
-			
-			TextFont(theFont);  TextSize(thePtSize);  TextFace(theStyle);
-			
-			y = box.bottom - box.top;
-			MoveTo(box.left, (y/4) + (box.top+box.bottom)/2);
-			DrawString(str2);
-			
-			if (oldClip) {
-				SetClip(oldClip);
-				DisposeRgn(oldClip);
-				}
-			
-			TextFont(oldFont);  TextSize(oldSize);  TextFace(oldStyle);
+	if (theDlog==TextDlog)	{ userItem = USER26; editText = EDIT25_Text; }
+	else					{ userItem = USER29; editText = EDIT28_Text; }
+
+	GetDialogItem(dlog, userItem, &type, &hndl, &box);
+	EraseRect(&box);
+	
+	if (thePtSize > 0) {					/* Reality check */
+		if (string)	Pstrcpy(str1, string);
+		 else		GetDlgString(dlog, editText, str1);
+		
+		/* If it's a multi-line string, truncate to the first line. */
+		
+		tmpLen = oldLen = str1[0];
+		for (short i = 1; i <= str1[0]; i++)
+			if (str1[i] == CH_CR) {
+				tmpLen = i;
+				break;
 			}
+		str1[0] = tmpLen;
+
+		if (theExpanded) {
+			if (!ExpandPString(str2, str1, EXPAND_WIDER)) {
+				LogPrintf(LOG_WARNING, "ExpandPString failed.  (DrawExampleText)\n");
+				return;
+			}
+		}
+		else
+			Pstrcpy(str2, str1);
+
+		oldFont = GetPortTxFont();
+		oldSize = GetPortTxSize();
+		oldStyle = GetPortTxFace();
+
+		/* Clip to box as well, in case of too large point size */
+		
+		oldClip = NewRgn();
+		if (oldClip) {
+			GetClip(oldClip);
+			ClipRect(&box);
+		}
+		
+		TextFont(theFont);  TextSize(thePtSize);  TextFace(theStyle);
+		
+		y = box.bottom - box.top;
+		MoveTo(box.left, (y/4) + (box.top+box.bottom)/2);
+		DrawString(str2);
+		
+		if (oldClip) {
+			SetClip(oldClip);
+			DisposeRgn(oldClip);
+		}
+		
+		TextFont(oldFont);  TextSize(oldSize);  TextFace(oldStyle);
 	}
+}
 
 
 /* Check that the text string is okay, including compatibility with the style. */

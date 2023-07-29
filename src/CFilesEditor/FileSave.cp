@@ -92,9 +92,8 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	for (pL = doc->masterHeadL; pL!=RightLINK(doc->masterTailL); pL = RightLINK(pL))
 		fileSize += objLength[ObjLType(pL)];
 
-	for (i=FIRSTtype; i<LASTtype-1; i++) {
+	for (i=FIRSTtype; i<LASTtype-1; i++)
 		fileSize += subObjLength[i]*objCount[i];
-	}
 	
 	fileSize += 2*sizeof(long);						/* version & file time */
 
@@ -125,7 +124,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 
 	blkMod = fileSize % vAlBlkSize;
 	if (blkMod)
-		fileSize += vAlBlkSize - blkMod;
+		fileSize += vAlBlkSize-blkMod;
 	
 	/* Add size of file's resource fork here, rounded up to the next higher multiple
 	   of allocation block size. */
@@ -136,8 +135,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 		fileSize += rSize;
 
 		blkMod = rSize % vAlBlkSize;
-		if (blkMod)
-			fileSize += vAlBlkSize - blkMod;
+		if (blkMod) fileSize += vAlBlkSize-blkMod;
 	}
 	
 	return fileSize;
@@ -177,10 +175,8 @@ static short AskSaveType(Boolean canContinue)
 {
 	short saveType;
 
-	if (canContinue)
-		saveType = StopAlert(SAFESAVE_ALRT, NULL);
-	else
-		saveType = StopAlert(SAFESAVE1_ALRT, NULL);
+	if (canContinue)	saveType = StopAlert(SAFESAVE_ALRT, NULL);
+	else				saveType = StopAlert(SAFESAVE1_ALRT, NULL);
 
 	if (saveType==1) return SF_SaveAs;
 	if (saveType==3) return SF_Replace;
@@ -202,10 +198,10 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 		oldFileSize = 0L;
 	else {
 	
-		/* Get the amount of space physically allocated to the old file, and the
-		   amount of space available on doc's volume. Return value < 0 indicates
-		   FS Error: should forget safe saving. FIXME: GetOldFileSize() doesn't do a
-		   very good job: see comments on it. */
+		/* Get the amount of space physically allocated to the old file, and the amount
+		   available on doc's volume. Return value < 0 indicates FS Error, so we should
+		   forget safe saving. FIXME: GetOldFileSize() doesn't do a very good job: see
+		   comments on it. */
 	
 		oldFileSize = GetOldFileSize(doc);
 		if (oldFileSize<0L) {
@@ -521,6 +517,7 @@ TryAgain:
 
 	if (saveType==SF_SafeSave) {
 		/* Create and open a temporary file */
+		
 		tempName = TEMP_FILENAME;
 
 		errType = FSMakeFSSpec(vRefNum, fsSpec.parID, tempName, &tempFSSpec);

@@ -536,12 +536,16 @@ static void DrawNotehead(Document *doc,
 		if (dim) PenPat(NGetQDGlobalsGray());
 		
 		/* The "slash notehead" is like a steeply-sloped beam, so steep we have to
-		   increase the vertical thickness so it doesn't look too thin. FIXME: Actually,
-		   it should have horizontal instead of vertical cutoffs! */
+		   increase the vertical thickness so it doesn't look too thin. */
 		   
-		thick = 3*dhalfSp/2;
+		thick = SLASH_THICK*dhalfSp/4;
+#if 1
+		PenSize(d2p(thick), 1);
+		Move(0, d2p(2*dhalfSp));
+#else
 		PenSize(1, d2p(thick));
 		Move(0, d2p(2*dhalfSp-thick/2));
+#endif
 		Line(d2p(2*dhalfSp), -d2p(4*dhalfSp));
 		PenNormal();
 	}
@@ -597,6 +601,18 @@ static void DrawNoteheadGraph(Document *doc,
 	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
 //LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: qdLenStd=%d qdLen=%d\n", qdLenStd, qdLen);
 	graphLen = d2p(qd2d(qdLen, pContext->staffHeight, pContext->staffLines));
+	switch (noteType) {
+		case BREVE_L_DUR:		graphLen = 2*graphLen;  break;
+		case WHOLE_L_DUR:		graphLen = 1.5*graphLen;  break;
+		case HALF_L_DUR:		graphLen = graphLen;  break;
+		case QTR_L_DUR:			graphLen = 0.9*graphLen;  break;
+		case EIGHTH_L_DUR:		graphLen = 0.8*graphLen;  break;
+		case SIXTEENTH_L_DUR:	graphLen = 0.7*graphLen;  break;
+		case THIRTY2ND_L_DUR:	graphLen = 0.6*graphLen;  break;
+		case SIXTY4TH_L_DUR:	graphLen = 0.6*graphLen;  break;
+		case ONE28TH_L_DUR:		graphLen = 0.6*graphLen;  break;
+		default: ;
+	}
 
 	GetPen(&pt);
 	xorg = pt.h;
@@ -608,13 +624,12 @@ static void DrawNoteheadGraph(Document *doc,
 #define TEST_DRAWSEGS
 #ifdef TEST_DRAWSEGS
 	if (OptionKeyDown() && CmdKeyDown()) {
+		/* Show random colors for testing! */
 		for (short k=0; k<6; k++) 
-			if (k<4)	NoteSEGMENT(aNoteL, k) = rand() % NHGRAPH_COLORS;		// ??????? TEST !!!!!!!!!!!!!
+			if (k<4)	NoteSEGMENT(aNoteL, k) = rand() % NHGRAPH_COLORS;
 			else		NoteSEGMENT(aNoteL, k) = 0;
 	}
 #endif
-//LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nhSegment[]=%d, %d, %d, %d\n", aNoteL,
-//NoteSEGMENT(aNoteL, 0), NoteSEGMENT(aNoteL, 1), NoteSEGMENT(aNoteL, 2), NoteSEGMENT(aNoteL, 3));
 
 	/* Copy the info on segments from <aNoteL>. If there's none (the 1st segment value
 	   is 0), assume a single black segment. */
@@ -626,15 +641,15 @@ static void DrawNoteheadGraph(Document *doc,
 		nSegs++;
 	}
 	if (nSegs==0) { nSegs = 1;  nhSegment[0] = -1; }
-if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nSegs=%d, nhSegment[]=%d, %d, %d, %d\n", aNoteL,
-nSegs, nhSegment[0], nhSegment[1], nhSegment[2], nhSegment[3]);
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: aNoteL=%u nSegs=%d, nhSegment[]=%d, %d, %d, %d\n",
+	aNoteL, nSegs, nhSegment[0], nhSegment[1], nhSegment[2], nhSegment[3]);
 
 	stripeWidth = graphLen/nSegs;
 	segRect = graphRect;
 	segRect.right = segRect.left+stripeWidth;
 	
 	/* Draw the segments. Round corners so even consecutive segments in the same color
-	   can be distinguished. */
+	   can be distinguished, if only in magnified views. */
 	
 	rDiam = UseMagnifiedSize(2, doc->magnify);
 	for (short j = 0; j<nSegs; j++) {
@@ -658,7 +673,7 @@ nSegs, nhSegment[0], nhSegment[1], nhSegment[2], nhSegment[3]);
 LogPrintf(LOG_DEBUG, "DrawNoteheadGraph: staffHeight=%d dhalfSp=%d d8thSp=%d h,vBlankSize=%d,%d\n",
 pContext->staffHeight, dhalfSp, d8thSp, hBlankSize, vBlankSize);
 		InsetRect(&segRect, hBlankSize, vBlankSize);
-		EraseRect(&segRect);
+		EraseRoundRect(&segRect, rDiam, rDiam);
 	}
 
 	ForeColor(Voice2Color(doc, NoteVOICE(aNoteL)));

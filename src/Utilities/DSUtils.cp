@@ -54,7 +54,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017-23 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -132,7 +132,7 @@ update the header's nsystems field. */
 
 void UpdateSysNums(Document *doc, LINK headL)
 {
-	LINK sysL; short sysNum=1;
+	LINK sysL;  short sysNum=1;
 	
 	sysL = LSSearch(headL, SYSTEMtype, ANYONE, False, False);
 	
@@ -225,8 +225,8 @@ Boolean UpdateMeasNums(Document *doc, LINK startL)
 
 
 /* ------------------------------------------------------------------------ GetMeasNum -- */
-/* Get the (user) number of the Measure the given object is in, or of the object
-itself if it's a Measure. Does not assume cross-links are valid. */
+/* Get the (user) number of the Measure the given object is in, or of the object itself
+if it's a Measure. Does not assume cross-links are valid. */
 
 short GetMeasNum(Document *doc, LINK pL)
 {
@@ -235,7 +235,7 @@ short GetMeasNum(Document *doc, LINK pL)
 	short		measNum;
 	
 	measL = SSearch(pL, MEASUREtype, GO_LEFT);
-	if (!measL) return 0;								/* ??SHOULD GIVE doc->firstMNNumber */
+	if (!measL) return doc->firstMNNumber;
 	
 	aMeasureL = FirstSubLINK(measL);
 	aMeasure = GetPAMEASURE(aMeasureL);
@@ -872,7 +872,7 @@ be either a Graphic or a Tempo. */
 
 void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 {
-	LINK measL, sysL, lastMeas, objMeasL, firstL;
+	LINK measL, sysL, lastMeas, objMeasL, firstL=NILINK;
 	Rect r, objR;
 
 	if (!GraphicTYPE(pL) && !TempoTYPE(pL)) {
@@ -917,7 +917,7 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 			{ *startMeas = measL; break; } 
 	}
 	
-	/* Include measure containing objects relative object; otherwise coordinate systems
+	/* Include measure containing object's relative object; otherwise coordinate systems
 	   get screwed up, since drawing into offscreen bitmap is relative to this measure. */
 
 	switch(ObjLType(pL)) {

@@ -28,11 +28,11 @@
 /******************************************************************************************/
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright Â© 2018 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -420,10 +420,13 @@ void GetGlobalPort(WindowPtr w, Rect *r)
 {
 	GrafPtr oldPort;  Point pt;
 	
-	GetWindowPortBounds(w,r);
-	pt.h = r->left; pt.v = r->top;
-	GetPort(&oldPort); SetPort(GetWindowPort(w)); LocalToGlobal(&pt); SetPort(oldPort);
-	SetRect(r,pt.h,pt.v,pt.h+r->right-r->left,pt.v+r->bottom-r->top);
+	GetWindowPortBounds(w, r);
+	pt.h = r->left;  pt.v = r->top;
+	GetPort(&oldPort);
+	SetPort(GetWindowPort(w));
+	LocalToGlobal(&pt);
+	SetPort(oldPort);
+	SetRect(r, pt.h, pt.v, pt.h+r->right-r->left, pt.v+r->bottom-r->top);
 }
 
 
@@ -508,16 +511,16 @@ short GetMyScreen(Rect *r, Rect *bnds)
 	bounds.top += GetMBarHeight();						/* Exclude menu bar */
 	if (thisMac.hasColorQD)
 		for (dev=GetDeviceList(); dev; dev=GetNextDevice(dev))
-			if (TestDeviceAttribute(dev,screenDevice) &&
-										TestDeviceAttribute(dev,screenActive)) {
+			if (TestDeviceAttribute(dev, screenDevice) &&
+										TestDeviceAttribute(dev, screenActive)) {
 				test = (*dev)->gdRect;
-				if (TestDeviceAttribute(dev,mainScreen))
+				if (TestDeviceAttribute(dev, mainScreen))
 					test.top += GetMBarHeight();
-				if (SectRect(r,&test,&ans)) {
+				if (SectRect(r, &test, &ans)) {
 					nScreens++;
-					OffsetRect(&ans,-ans.left,-ans.top);
+					OffsetRect(&ans, -ans.left, -ans.top);
 					area = (long)ans.right * (long)ans.bottom;
-					if (area > maxArea) { maxArea = area; bounds = test; }
+					if (area > maxArea) { maxArea = area;  bounds = test; }
 				}
 			}
 	*bnds = bounds;
@@ -765,19 +768,19 @@ static DDIST GetStaffLim(
 					Boolean top,					/* True if getting top staff limit. */
 					PCONTEXT pContext)
 {
-	DDIST blackTop, blackBottom,
-			dhalfLn;								/* Distance between staff half-spaces */
+	DDIST	blackTop, blackBottom,
+			dhalfSp;								/* Distance between staff half-spaces */
 
 	GetContext(doc, pL, staffn, pContext);
-	dhalfLn = pContext->staffHeight/(2*(pContext->staffLines-1));
+	dhalfSp = pContext->staffHeight/(2*(pContext->staffLines-1));
 	if (top) {
 		blackTop = pContext->staffTop;
-		blackTop -= 6*dhalfLn;
+		blackTop -= 6*dhalfSp;
 		return blackTop;
 	}
 
 	blackBottom = pContext->staffTop+pContext->staffHeight;
-	blackBottom += 6*dhalfLn;
+	blackBottom += 6*dhalfSp;
 	return blackBottom;
 }
 
