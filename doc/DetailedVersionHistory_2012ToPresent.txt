@@ -4053,3 +4053,20 @@ Minor changes. Affects info.plist, DSUtils, FileSave, NotelistParse, PS_Stdio, T
 UIFUtils.
 
 ------------------------------------------------------------------------------------ Build 49
+
+29 Aug. - 28 Sept.
+
+Fixed minor bug (Issue #202): Import MIDI File often, maybe always, complains "rawSyncTab
+disagrees with docSyncTab size", for no obvious reason; it never seems to cause any problems.
+Affects MIDIFOpen.
+
+Rename the "Left End of Systems" command "System Left-End Labels". Affects .rsrc.
+
+Add buttons to the "Change playback speed" dialog to instantly set the percentage of
+normal speed: buttons, with values of 70, 100, 150, and 200%. Affects .rsrc; MIDIDialogs.
+
+Minor changes. Affects info.plist, .rsrc; DrawUtils, InsUtils, MIDIDialogs, MIDIFOpen,
+Ottava, RTRhythmDur, TextDialog.
+
+------------------------------------------------------------------------------------ Build 50
+

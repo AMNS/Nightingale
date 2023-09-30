@@ -162,20 +162,20 @@ void SetOttavaYPos(Document *doc, LINK octL)
 	DDIST		firstyd, margin; 
 	DDIST		octydFirst,
 				octAltaYLim, octBassaYLim,			/* Closest possible positions to the staff */
-				lnSpace, dhalfLn;
+				lnSpace, dhalfSp;
 	LINK		firstSyncL;
 	Boolean  	isBassa=False;
 
 	staff = OttavaSTAFF(octL);
 	GetContext(doc, octL, staff, &context);
 	lnSpace = LNSPACE(&context);
-	dhalfLn = lnSpace/2;
+	dhalfSp = lnSpace/2;
 
 	firstSyncL = FirstInOttava(octL);
 	firstyd = GetNoteYD(firstSyncL, staff);
 
-	octAltaYLim = -OTTAVA_STANDOFF_ALTA*dhalfLn;
-	octBassaYLim = context.staffHeight + OTTAVA_STANDOFF_BASSA*dhalfLn;
+	octAltaYLim = -OTTAVA_STANDOFF_ALTA*dhalfSp;
+	octBassaYLim = context.staffHeight + OTTAVA_STANDOFF_BASSA*dhalfSp;
 
 	pOct = GetPOTTAVA(octL);
 	switch (pOct->octSignType) {
@@ -196,8 +196,8 @@ void SetOttavaYPos(Document *doc, LINK octL)
 	/* Try to position the octave sign <margin> half-lines away from the 1st MainNote,
 	   but always put it at least <OTTAVA_STANDOFF_ALTA/BASSA> away from the staff. */
 	   
- 	if (isBassa)	margin = OTTAVA_MARGIN_BASSA*dhalfLn;
- 	else			margin = OTTAVA_MARGIN_ALTA*dhalfLn;
+ 	if (isBassa)	margin = OTTAVA_MARGIN_BASSA*dhalfSp;
+ 	else			margin = OTTAVA_MARGIN_ALTA*dhalfSp;
 	if (isBassa)	octydFirst = OTTAVA_BRACKET_BASSA_LIM(firstyd+margin);
 	else			octydFirst = OTTAVA_BRACKET_ALTA_LIM(firstyd-margin);
 	
@@ -546,7 +546,7 @@ void DrawOTTAVA(Document *doc, LINK pL, CONTEXT context[])
 	DDIST		dTop, dLeft, firstxd, lastxd,
 				lastNoteWidth, yCutoffLen, dBrackMinLen; 
 	DDIST		octxdFirst, octxdLast, octydFirst, octydLast,
-				lnSpace, dhalfLn;
+				lnSpace, dhalfSp;
 	DPoint		firstPt, lastPt;
 	LINK		firstSyncL, lastSyncL, firstMeas, lastMeas;
 	short		octxp, octyp;
@@ -562,7 +562,7 @@ PushLock(OBJheap);
 	pContext = &context[staff];
 	MaySetPSMusSize(doc, pContext);
 	lnSpace = LNSPACE(pContext);
-	dhalfLn = lnSpace/2;
+	dhalfSp = lnSpace/2;
 	dTop = pContext->measureTop;
 	dLeft = pContext->measureLeft;
 	firstSyncL = FirstInOttava(pL);
@@ -603,10 +603,10 @@ PushLock(OBJheap);
 		SetDPt(&firstPt, octxdFirst, octydFirst);
 		SetDPt(&lastPt, octxdLast, octydLast);
 		if (!isBassa) {
-			firstPt.v -= 2*dhalfLn;
-			lastPt.v -= 2*dhalfLn;
+			firstPt.v -= 2*dhalfSp;
+			lastPt.v -= 2*dhalfSp;
 		}
-		dBrackMinLen = 4*dhalfLn;
+		dBrackMinLen = 4*dhalfSp;
 		if (lastPt.h-firstPt.h > dBrackMinLen)
 			DrawOctBracket(firstPt, lastPt, octRect.right-octRect.left, yCutoffLen,
 							isBassa, pContext);
@@ -879,7 +879,7 @@ LINK FirstInOttava(LINK ottavaL)
 LINK LastInOttava(LINK ottavaL)
 {
 	LINK aNoteOctL;
-	PANOTEOTTAVA aNoteOct;
+	PANOTEOTTAVA aNoteOct=NILINK;
 	short i, nInOttava;	
 	
 	nInOttava = LinkNENTRIES(ottavaL);

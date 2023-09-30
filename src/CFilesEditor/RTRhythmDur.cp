@@ -1,5 +1,6 @@
 /* RTRhythmDur.c for Nightingale - routines for identifying tuplets, quantizing,
-and clarifying rhythm in real-time situations. No user-interface implications. */
+and clarifying rhythm in real-time situations: transcribing MIDI files and handling
+the Record command. No user-interface implications. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -35,6 +36,7 @@ static Boolean Add1Tuplet(Document *, short, LINKTIMEINFO [], short, short);
 
 
 /* Simple-minded tuplet denominator for given numerator: cf. GetTupleDenom */
+
 #define MF_TupleDenom(num) ((num)==5? 4 : 2)
 
 
@@ -86,8 +88,8 @@ Boolean TooManySyncs(short numNeed, short maxSyncs)
 /* Rhythmically "clarify" the given note/chord (NC) down to the Measure level, i.e.,
 if it extends across two or more Measures, divide it into a series of unquantized NCs
 that don't cross Measure boundaries. We simply add descriptions of the new NCs to
-<rawSyncTab>. Return OP_COMPLETE if we clarify anything, FAILURE if we try to but
-can't, or NOTHING_TO_DO. */
+<rawSyncTab>. Return OP_COMPLETE if we clarify anything, FAILURE if we try to but can't,
+or NOTHING_TO_DO. */
 
 short Clar1ToMeas(
 			Document *doc,
@@ -219,17 +221,16 @@ Boolean ClarAllToMeas(
 
 /* -------------------------------------------------------------------- Handle Tuplets -- */
 
-/* Return the indices of the range of NRCs in rawSyncTab[] that fall partly or
-entirely in the range of times [startTime,endTime); if there are none, return both
-indices <0. NB: nRawSyncs might be pretty big: it would be better to use binary search
-for speed. */
+/* Return the indices of the range of NRCs in rawSyncTab[] that fall partly or entirely
+in the range of times [startTime,endTime); if there are none, return both indices <0.
+NB: nRawSyncs might be pretty big: it would be better to use binary search for speed. */
 
 void FindTimeRange(
-			long startTime, long endTime,
-			LINKTIMEINFO rawSyncTab[],
-			short nRawSyncs,
-			short *pStart, short *pEnd 	/* 1st entry in range, 1st AFTER range: -1=none in range */
-			)
+		long startTime, long endTime,
+		LINKTIMEINFO rawSyncTab[],
+		short nRawSyncs,
+		short *pStart, short *pEnd 	/* 1st entry in range, 1st AFTER range: -1=none in range */
+		)
 {
 	short q, qEndTime;
 	
@@ -331,7 +332,7 @@ void LevelChooseTuplets(
 			short subBtDur
 			)
 {
-	long btStartTime, btEndTime; Boolean skip;
+	long btStartTime, btEndTime;  Boolean skip;
 	short i, startSlot, endSlot, start, end, bestNum;
 
 	if (levBtDur<2*quantum) return;	
@@ -509,7 +510,7 @@ static Boolean Clar1ToTuplet(
 {
 	short n;  unsigned short newMult;  Boolean restFill;
 	
-	/* Add an identical NC that will start the tuplet (or region FOLLOWING a tuplet--
+	/* Add an identical NC that will start the tuplet (or region FOLLOWING a tuplet;
 	   the logic is the same). If the NC doesn't really extend even to the beginning of
 	   the tuplet, the added one should be replaced later with a rest. Open up space for
 	   the new NC in the table by copying everything after it down a slot; go far enough
@@ -574,7 +575,7 @@ Boolean ClarAllToTuplets(
 		if (rawSyncTab[q].tupleNum>0) {
 			if (rawSyncTab[q].tupleTime>0) {
 				/* Entry q crosses start of tuplet: divide it AND SKIP TO NEXT ENTRY, i.e.,
-					the brand-new one, which is now the start of the tuplet. */
+				   the brand-new one, which is now the start of the tuplet. */
 					
 				if (TooManySyncs(*pnRawSyncs+1, maxRawSyncs))
 					return False;
@@ -627,7 +628,7 @@ static void RemoveShortAddedItems(
 		
 		if (rawSyncTab[q].added && rawSyncTab[q].mult<quantum/2 && q<*pnRawSyncs-1) {
 			/* This NRC should be removed. Before doing so, if this one starts a
-				tuplet, move the tuplet information to the following NRC. */
+			   tuplet, move the tuplet information to the following NRC. */
 			
 			nSkipped++;
 			
@@ -679,9 +680,8 @@ Boolean ChooseChords(
 	if (quantum<1) return False;					/* Should never happen */
 	if (quantum==1) return True;					/* No quantizing is desired */
 	
-	/*
-	 * Discard any "added" items that are very short immediately, before they cause trouble.
-	 */
+	/* Discard any "added" items that are very short immediately, before they cause trouble. */
+	
 	RemoveShortAddedItems(rawSyncTab, pnRawSyncs, quantum);
 
 	qPrevStartTime = prevStartTime = -999999L;
@@ -706,12 +706,11 @@ Boolean ChooseChords(
 			endTuplet = (rawSyncTab[qr].time>=endTupTime? qr : *pnRawSyncs);
 		}
 
-		/*
-		 *	Musically, it seems fine to round times in the obvious way, except it's much
-		 *	better to round the midpoint to the beginning of the interval than to the
-		 *	end. If it's ever desired to round ALL notes to the beginning of their
-		 *	"beats", just set tupRound to 0.
-		 */
+		/* Musically, it seems fine to round times in the obvious way, except it's much
+		   better to round the midpoint to the beginning of the interval than to the
+		   end. If it's ever desired to round ALL notes to the beginning of their
+		   "beats", just set tupRound to 0. */
+		   
 		tupRound = (tupQuantum/2)-1;
 
 		temp = (rawSyncTab[q].time+tupRound)/tupQuantum;
@@ -724,12 +723,11 @@ Boolean ChooseChords(
 				
 		if (chordWithLast) {
 			if (rawSyncTab[q].added) {
-				/*
-				 * if this NC is <added>, it's a continuation of a previous NC, and the
-				 * only way they could have ended up in the same chord is by the previous
-				 *	one's attack time being rounded up; but THIS one has the duration we
-				 *	want, so replace the chord's duration with this one's, then skip it.
-				 */
+				/* If this NC is <added>, it's a continuation of a previous NC, and the
+				   only way they could have ended up in the same chord is by the previous
+				   one's attack time being rounded up; but THIS one has the duration we
+				   want, so replace the chord's duration with this one's, then skip it. */
+				   
 				rawSyncTab[q-1].mult = rawSyncTab[q].mult;
 				rawSyncTab[q-1].tupleNum = rawSyncTab[q].tupleNum;
 				rawSyncTab[q-1].tupleDur = rawSyncTab[q].tupleDur;
@@ -738,21 +736,19 @@ Boolean ChooseChords(
 			else {
 				rawNoteAux[rawSyncTab[q].link].first = False;
 				prevStartTime = rawSyncTab[q].time;
-					/*
-					 *	If the next NC is <added>, it's a continuation of this one; since this
-					 * NC is being merged into the previous one, extend the previous one's dur.
-					 * to last until the end of this one so there's no gap before the next one.
-					 * (THIS NC can't be <added> and being merged into the previous one, or we
-					 *	wouldn't have gotten here.)
-					 */
+					/* If the next NC is <added>, it's a continuation of this one; since
+					   this NC is being merged into the previous one, extend the previous
+					   one's dur. to last until the end of this one so there's no gap
+					   before the next one. (THIS NC can't be <added> and being merged
+					   into the previous one, or we wouldn't have gotten here.) */
+					   
 					if (q<*pnRawSyncs-1 && rawSyncTab[q+1].added)
 						rawSyncTab[q-1].mult += rawSyncTab[q].mult;
 			}
 
-			/*
-			 *	Close up space occupied by the NRC in the table; then decrement <q>,
-			 *	since we haven't yet handled the item that's NOW rawSyncTab[q].
-			 */
+			/* Close up space occupied by the NRC in the table; then decrement <q>,
+			   since we haven't yet handled the item that's NOW rawSyncTab[q]. */
+			   
 			for (n = q; n<*pnRawSyncs; n++)
 				rawSyncTab[n] = rawSyncTab[n+1];
 			(*pnRawSyncs)--;
@@ -883,7 +879,7 @@ void QuantizeAndClip(
 	}
 
 	/* If the last Sync is within a tuplet and doesn't extend to the end of the tuplet,
-	add a rest to extend it. */
+	   add a rest to extend it. */
 	
 	if (tupQuantum!=quantum) {
 		prevEndTime = rawSyncTab[*pnRawSyncs-1].time+rawSyncTab[*pnRawSyncs-1].mult;
@@ -914,9 +910,9 @@ static void RemoveZeroDurItems(
 		
 		if (rawSyncTab[q].mult<=0) {
 			/* This NRC should be removed. Before doing so, make sure the following NRC
-				isn't considered a piece of the preceding one. Also, if this one starts a
-				tuplet, move the tuplet information to the following NRC. (The very last
-				NRC can never be truncated, so there will always be a following one.) */
+			   isn't considered a piece of the preceding one. Also, if this one starts a
+			   tuplet, move the tuplet information to the following NRC. (The very last
+			   NRC can never be truncated, so there will always be a following one.) */
 			
 			nSkipped++;
 			rawSyncTab[q+1].added = False;
@@ -939,8 +935,8 @@ static void RemoveZeroDurItems(
 
 
 /* -------------------------------------------------------------- RemoveOneItemTuplets -- */
-/* If any of our proposed tuplets would end up containing only one NRC, cancel
-making the tuplet. */
+/* If any of our proposed tuplets would end up containing only one NRC, cancel making
+the tuplet. */
 
 static void RemoveOneItemTuplets(LINKTIMEINFO [], short);
 static void RemoveOneItemTuplets(
@@ -1140,7 +1136,7 @@ Boolean MFClarifyFromList(
 #define MAX_DOTS 2		/* Max. aug. dots allowed: be generous, since we have no alternative */
 
 Boolean MFSetNRCDur(LINK syncL, short voice, unsigned short lDur, short tupleNum,
-							short tupleDenom, Boolean setPDur)
+						short tupleDenom, Boolean setPDur)
 {
 	char durCode, nDots;
 	LINK aNoteL;  PANOTE aNote;
@@ -1194,7 +1190,9 @@ static Boolean Clar1BelowMeas(
 		return False;
 	}
 	aNoteL = FindMainNote(syncL, voice);
+	
 	/* Convert play duration ticks to logical, not the other way around! */
+	
 	if (tupleNum>0) {
 		tupleDenom = MF_TupleDenom(tupleNum);
 		lDur = (tupleNum*rawSyncInfo.mult)/tupleDenom;
@@ -1242,10 +1240,9 @@ static Boolean Clar1BelowMeas(
 		return False;
 	}
 
-	/*
-	 *	<piece> now contains a list of start times and durations for the segments we want
-	 *	to divide our note/rest/chord into. Divide it up.
-	 */
+	/* <piece> now contains a list of start times and durations for the segments we want
+	   to divide our note/rest/chord into. Divide it up. */
+	   
 	staff = NoteSTAFF(aNoteL);
 	GetContext(doc, syncL, staff, &context);		/* NB: time sig. is invalid */
 	
@@ -1291,14 +1288,14 @@ Boolean ClarAllBelowMeas(
 		}
 
 		/* Ignore note segments generated by ClarAllToMeas that are overlaid by
-			following notes. See comment in QuantizeAndClip. */
+		   following notes. See comment in QuantizeAndClip. */
 			
 		if (rawSyncTab[q].mult<=0) continue;
 		if (rawSyncTab[q].link<=0) continue;
 		
 		/* Clar1BelowMeas clarifies the rhythm by dividing the note/chord into two
-			or more pieces, storing info about the pieces directly into <newSyncTab>
-			as well as the object list, and increasing <*nNewSyncs> accordingly. */
+		   or more pieces, storing info about the pieces directly into <newSyncTab>
+		   as well as the object list, and increasing <*nNewSyncs> accordingly. */
 		
 		if (!Clar1BelowMeas(doc, voice, rawSyncTab[q], tupleNum, measInfoTab, measTabLen,
 									&m, newSyncTab, maxNewSyncs, nNewSyncs))

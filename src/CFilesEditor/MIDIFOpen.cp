@@ -827,7 +827,6 @@ Word MF2MIDNight(
 				outLoc += ROUND_UP_EVEN(MN_CTLLEN);
 				break;
 			case MPGMCHANGE:
-//LogPrintf(LOG_DEBUG, "MF2MIDNight: found MPGMCHANGE\n");
 				break;
 			case METAEVENT:
 				BlockMove(&tickTime, pChunk+outLoc, sizeof(long));
@@ -868,7 +867,7 @@ plus one extra Measure. Otherwise it generates two tables describing the content
 track: rawSyncTab for what will become Syncs, and rawNoteAux for the notes. When it's
 gone thru a track (other than track 1), Track2Night calls TranscribeVoice, which:
 	-Decides what notes should be tupleted, if tuplets were requested (ChooseTuplets);
-	-Creates all the Syncs (BuildSyncs);
+	-Creates all the Syncs in the object list (BuildSyncs);
 	-Quantizes the notes/chords, if quantization was requested (QuantizeAndClip);
 	-Rhythmically clarifies the notes/chords (several Clarifyxxx functions, interleaved
 		with the preceding steps).
@@ -888,11 +887,12 @@ in ticks in <rawSyncTab>. Then Track2Night:
 		(MRMerge), using <mergeObjs> for info about the new stuff, and getting info about
 		the old stuff in the usual way from the timestamps in the object list; and
 	-Fills the gaps before, between and after notes within measures with rests, leaving
-		measures that don't contain any notes alone (FillNonemptyMeas).
+		measures that don't contain any notes alone (FillNonemptyMeas);
+	-Creates <docSyncTab> and adds tempo changes and control changes to the object list
+		(AddRelObjects)
 
 Finally, MIDNight2Night deletes the extra Measure and adds clef changes. "Beam by Beat"
-can be (and currently is) handled later and at an even higher level.
-*/
+can be (and currently is) handled later and at an even higher level. */
 
 typedef struct MFEvent {
 	long		tStamp;		/* in units specified by <timeBase> in file header */
@@ -1460,10 +1460,9 @@ static long SyncSimpleLDur(LINK syncL);
 static long SyncSimpleLDur(LINK syncL)
 {
 	long dur, newDur;
-	LINK aNoteL;
 	
 	dur = 0L; 
-	for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+	for (LINK aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		newDur = SimpleLDur(aNoteL);
 		dur = n_max(dur, newDur);
 	}
@@ -1489,9 +1488,7 @@ static LINKTIMEINFO *BuildDocSyncTab(Document *doc, short *tabSize,
 	short nSyncs = CountAllSyncs(doc);
 	long tLen = nSyncs * sizeof(LINKTIMEINFO);
 	LINKTIMEINFO *docSyncTab = (LINKTIMEINFO *)NewPtr(tLen);
-	if (!GoodNewPtr((Ptr)docSyncTab)) {
-		*tabSize = 0; return NULL;
-	}
+	if (!GoodNewPtr((Ptr)docSyncTab)) { *tabSize = 0;  return NULL; }
 	*tabSize = nSyncs;
 	
 	long currTime = 0;
@@ -1515,9 +1512,16 @@ static LINKTIMEINFO *BuildDocSyncTab(Document *doc, short *tabSize,
 		}
 	}
 	
-	if (*tabSize != rawTabSize) {
-		LogPrintf(LOG_WARNING, "rawSyncTab size %ld disagrees with docSyncTab size of %ld\n",
-					rawTabSize, *tabSize);
+	/* For years, we gave a warning here if *tabSize!=rawTabSize; but it seems that
+	   they're _never_ equal; *tabSize is always much larger, and that doesn't cause
+	   any problems -- and it's not clear it should; I don't really understand what
+	   <rawSyncTab> does (see Issue #202). This isn't worth spending time on. So let's
+	   warn only if *tabSize is less, but warn more emphatically in that case. --DAB,
+	   August 2023 */
+	   
+	if (*tabSize<rawTabSize) {
+		MayErrMsg("rawSyncTab size %d is greater than docSyncTab size of %d.  (BuildDocSyncTab)",
+					(long)rawTabSize, (long)*tabSize);
 	}
 //	if (*tabSize > rawTabSize) {
 //		*tabSize = rawTabSize;
@@ -1551,15 +1555,15 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 {
 	long timeStamp = ctrlInfo.tStamp;
 	
-	LogPrintf(LOG_NOTICE, "track=%ld num=%ld val=%ld time=%ld\n", ctrlInfo.track, ctrlInfo.ctrlNum, ctrlInfo.ctrlVal, timeStamp);
+	LogPrintf(LOG_NOTICE, "track=%ld num=%ld val=%ld time=%ld  (GetCtrlRelObj)\n", ctrlInfo.track, ctrlInfo.ctrlNum, ctrlInfo.ctrlVal, timeStamp);
 	
 	for (int j = 0; j<tabSize; j++) {
 		LINKTIMEINFO info = docSyncTab[j];
 		
-		if (info.time == timeStamp) {			// Should always be the case
+		if (info.time == timeStamp) {			/* Should always be the case */
 			return info.link;
 		}
-		if (info.time > timeStamp) { 				// Timestamps not equal, first sync after the tempo
+		if (info.time > timeStamp) { 			/* Timestamps not equal, first Sync after the tempo */
 			//if (j>0) {									
 				info = docSyncTab[j];
 			//}
@@ -1571,13 +1575,13 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 }
 
 
-static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize);
-static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize)
+static void PrintSyncTab(char *tabname, LINKTIMEINFO *aSyncTab, short tabSize);
+static void PrintSyncTab(char *tabname, LINKTIMEINFO *aSyncTab, short tabSize)
 {
-	LogPrintf(LOG_DEBUG, "PrintDocSyncTab: for %s, tabSize=%d:\n", tabname, tabSize);
+	LogPrintf(LOG_DEBUG, "PrintSyncTab: for %s, tabSize=%d:\n", tabname, tabSize);
 	
 	for (int j = 0; j<tabSize; j++) {
-		LINKTIMEINFO info = docSyncTab[j];
+		LINKTIMEINFO info = aSyncTab[j];
 		LogPrintf(LOG_DEBUG, "  j=%ld link=%ld time=%ld mult=%ld\n", j, info.link,
 					info.time, info.mult);
 	}
@@ -1586,10 +1590,9 @@ static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSi
 static void PrintDocSyncDurs(Document *doc);
 static void PrintDocSyncDurs(Document *doc)
 {
-	LINK pL;
 	long dur;
 	
-	for (pL = doc->headL; pL != doc->tailL; pL = RightLINK(pL)) {
+	for (LINK pL = doc->headL; pL != doc->tailL; pL = RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
 			dur = SyncSimpleLDur(pL);
 		
@@ -1690,7 +1693,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 
 static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short tabSize)
 {
-	if (DBG) PrintDocSyncTab("DocSyncTab", docSyncTab, tabSize);
+	if (DBG) PrintSyncTab("docSyncTab", docSyncTab, tabSize);
 	
 	for (int i = 0; i<ctrlTabLen; i++) 
 	{
@@ -1768,21 +1771,19 @@ static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, short rawT
 {
 //	short rawTabSize = 16;
 	
-	if (DBG) PrintDocSyncTab("RawSyncTab", rawSyncTab, rawTabSize);
+	if (DBG) PrintSyncTab("rawSyncTab", rawSyncTab, rawTabSize);
 	if (DBG) PrintDocSyncDurs(doc);
 	
  	short tabSize;
 	LINKTIMEINFO *docSyncTab = BuildDocSyncTab(doc, &tabSize, rawSyncTab, rawTabSize);
 	if (docSyncTab == NULL) return False;
 	
-	if (!AddTempoChanges(doc, docSyncTab, tabSize))
-		goto done;
+	if (!AddTempoChanges(doc, docSyncTab, tabSize)) goto done;
 		
 	AddControlChanges(doc, docSyncTab, tabSize);
 
 done:
-	if (docSyncTab != NULL)
-		DisposePtr((Ptr)docSyncTab);
+	if (docSyncTab != NULL) DisposePtr((Ptr)docSyncTab);
 	
 	return True;
 }
@@ -1814,10 +1815,9 @@ static void InitTrack2Night(Document *doc, long *pMergeTabSize, long *pOneTrackT
 	long tryMergeTabSize, tryOneTrackTabSize;
 	long mergeTabEltSize, oneTrackTabEltSize;
 
-	/*
-	 *	MIDI files don't have to contain explicit time signatures. Their official
-	 * default time signature is 4/4.
-	 */
+	/* MIDI files don't have to contain explicit time signatures. Their official
+	   default time signature is 4/4. */
+	 
 	tsNum = 4;
 	tsDenom = 4;
 	measureDur = TimeSigDur(N_OVER_D, tsNum, tsDenom);
@@ -2188,14 +2188,12 @@ static short Track2Night(
 			{ MayErrMsg("MRMerge failed."); goto Done; }
 
 		if (quantum>1) {
-			if (!PreflightMem(400))
-				{ NoMoreMemory(); goto Done; }
+			if (!PreflightMem(400)) { NoMoreMemory();  goto Done; }
 			if (!FillNonemptyMeas(doc, NILINK, NILINK, voice, quantum)) goto Done;
 		}
 	}
-	if (isLastTrack) {
-		AddRelObjects(doc, rawSyncTab, nRawSyncs);
-	}
+	
+	if (isLastTrack) AddRelObjects(doc, rawSyncTab, nRawSyncs);
 	
 	okay = True;
 

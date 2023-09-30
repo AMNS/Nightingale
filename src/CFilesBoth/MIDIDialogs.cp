@@ -115,8 +115,7 @@ static MenuHandle CreateCMInputMenu(Document *doc, DialogPtr dlog, UserPopUp *p,
 	if (!popupOk || p->menu==NULL) return NULL;
 		
 	cmVecDevices = new MIDIUniqueIDVector();
-	long numItems = FillCMSourcePopup(p->menu, cmVecDevices);
-	
+	(void)FillCMSourcePopup(p->menu, cmVecDevices);
 	short currChoice = GetCMInputDeviceIndex(doc->cmInputDevice);
 
 	if (ValidCMInputIndex(currChoice)) {
@@ -762,8 +761,7 @@ static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect * /*box*
 	if (!popupOk || p->menu==NULL) return NULL;
 		
 	cmVecDevices = new MIDIUniqueIDVector();
-	long numItems = FillCMDestinationPopup(p->menu, cmVecDevices);
-
+	(void)FillCMDestinationPopup(p->menu, cmVecDevices);
 	
 	short currChoice = GetCMInputDeviceIndex(device);
 
@@ -1314,8 +1312,17 @@ extern short minDlogVal, maxDlogVal;
 enum {
 	 SPS_PERCENT_DI=3,
 	 UP_SPS_DI=5,
-	 DOWN_SPS_DI
-}; 
+	 DOWN_SPS_DI,
+	 SET_TO_V1_DI=9,
+	 SET_TO_V2_DI,
+	 SET_TO_V3_DI,
+	 SET_TO_V4_DI
+};
+
+#define SET_TO_V1_PCT 70
+#define SET_TO_V2_PCT 100
+#define SET_TO_V3_PCT 150
+#define SET_TO_V4_PCT 200
 
 Boolean SetPlaySpeedDialog(void)
 {
@@ -1337,7 +1344,7 @@ Boolean SetPlaySpeedDialog(void)
 		SetPort(GetDialogWindowPort(dlog));
 		
 		newPercent = playTempoPercent;
-		PutDlgWord(dlog, SPS_PERCENT_DI, newPercent,True);
+		PutDlgWord(dlog, SPS_PERCENT_DI, newPercent, True);
 		
 		UseNumberFilter(dlog, SPS_PERCENT_DI, UP_SPS_DI, DOWN_SPS_DI);
 		minDlogVal = 10;
@@ -1366,6 +1373,19 @@ Boolean SetPlaySpeedDialog(void)
 				case Cancel:
 					done = True;
 					break;
+				case SET_TO_V1_DI:
+					PutDlgWord(dlog, SPS_PERCENT_DI, SET_TO_V1_PCT, True);
+					break;
+				case SET_TO_V2_DI:
+					PutDlgWord(dlog, SPS_PERCENT_DI, SET_TO_V2_PCT, True);
+					break;
+				case SET_TO_V3_DI:
+					PutDlgWord(dlog, SPS_PERCENT_DI, SET_TO_V3_PCT, True);
+					break;
+				case SET_TO_V4_DI:
+					PutDlgWord(dlog, SPS_PERCENT_DI, SET_TO_V4_PCT, True);
+					break;
+					
 			}
 		}
 		DisposeModalFilterUPP(filterUPP);

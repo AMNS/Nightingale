@@ -12933,7 +12933,7 @@ Need to clean up code added during the marathon debugging of issue #205.
 
 ------------------------------------------------------------------------------------ Build 48
 
-17 - 24 July
+17 - 25 July
 
 Trying to delete a non-empty part in Master Page where there's an object (e.g., tempo mark)
 attached before the first barline says it's non-empty starting at measure number 0 regardless
@@ -12965,9 +12965,96 @@ Notelist; Open Notelist => Yes! Does it happen w/ Ngale 5.8.11? Yes! So it's a v
 standing bug.
 
 Open Notelist 1Note.nl => nfontsUsed = 0; insert text Graphic or tempo mark =>
-nfontsUsed = 1 (Times), and everything looks OK. So it's not clear this causes any problems;
-looks like it might actually be a trivial bug!
+nfontsUsed = 1 (Times), and everything looks OK. So it's not clear this causes any problems
+other than the warning; looks like it's actually a trivial bug! Maybe just reword the
+warning to say it shouldn't cause any problems?
 
+------------------------------------------------------------------------------------ Build 49
 
-------------------------------------------------------------------------------------
+9 Aug. - 28 Sept.
+
+A similar problem with Import MIDI File: it often, maybe always, complains "rawSyncTab disagrees
+with docSyncTab size", but that never seems to cause any problems (Issue #202). Test w/ a
+MIDI file containing just one note:
+
+	Aug  9 09:56:47 unknown00112431479a Ngale[48570]:
+	Notice. Importing MIDI file '1CourtesyAcc.mid'...  (DoFileMenu)
+	info. Getting info on and checking the MIDI file...  (GetMIDIFileInfo)
+	info. Calling MIDNight2Night with 3 tracks...  (OpenMIDIFile)
+	Warning. rawSyncTab size 0 disagrees with docSyncTab size of 2.  (BuildDocSyncTab)
+
+Sure enough, no problems I can see! docSyncTab is the number of Syncs -- here 2: 1 for the
+note and 1 for a rest to fill the measure. Try a few small & medium size MIDI files => the
+same complaint, but no visible problems... and it's not clear it should; I don't really
+understand what <rawSyncTab> does (see Issue #202). This isn't worth spending any more time
+on. So let's warn only if *tabSize is less, but warn more emphatically in that case... done.
+
+How about Issue #200: Double-click a text Graphic, regardless of whether it's attached to
+the page, and it's erased as the edit dialog is brought up. That's annoying but not
+serious; but if you cancel it, it's never redrawn. But double-clicking a tempo mark, dynamic,
+or ending doesn't erase it, which is nicer, and redrawing isn't an issue! Why do text
+Graphics do that?
+
+Add as 1st line of TextDFilter():
+
+	LogPrintf(LOG_DEBUG, "TextDFilter: what=%d\n", evt->what); SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
+
+...and just before "/* Fill in dialog's values here */":
+
+	LogPrintf(LOG_DEBUG, "TextDialog 2\n"); SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
+		GetPort(&oldPort);
+		SetPort(GetDialogWindowPort(dlog));
+	LogPrintf(LOG_DEBUG, "TextDialog 3\n"); SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
+
+Log output:
+
+	Aug 18 06:11:22 unknown00112431479a Ngale[70360]:
+	debug. TextDialog 2
+	debug. TextDialog 3
+	debug. TextDFilter: what=8				[activateEvt]
+	--- last message repeated 2 times ---
+	debug. TextDFilter: what=1				[mouseDown!?]
+	debug. TextDFilter: what=2				[mouseUp!?]
+	debug. TextDFilter: what=1
+
+The text is erased the moment the 1st TextDFilter message appears, as the empty dialog box
+is drawn & before it's filled in. So it's erased before TextDFilter has done anything!! But
+how does the code -- esp. for the filter function -- differ from the code for tempo marks,
+dynamics, or endings? I don't see it :-( .
+
+SWITCH TO: Issue #195: New; insert a note. With the tempo/metronome mark tool selected,
+clicking in a blank space above the staff before the invisible barline warns "Possible bug
+in program: GetSubObjStaff: can't handle object type 5 at L4" and again but saying
+"GetSubObjVoice" before giving the correct message ("A tempo must be attached to..."). Doing
+the same thing but clicking on the staff after the barline gives no error messages and
+inserts it attached to the initial Measure. Doing the same thing with the text tool
+clicking anywhere gives no error messages -- which is reasonable in both cases; but, if
+before the barline, it's attached to the page. It's illegal to attach a tempo to the page;
+of course it's legal to do that with a text Graphic but surely not what the user expects.
+In the tempo problem case it might be best to continue giving the current "correct"
+error message, but what about the text case?
+
+The "correct" message is from InsUtils.c/FindTempoObject(); it's INSERTERRS_STRS #19 -- but
+it's not quite correct; it's a slightly-garbled version of #18! Change it to use #18 and
+replace #19 with "(unused)"...done.
+
+??The "Left End of Systems" command is poorly named; let's change it to something better
+that's reminiscent of the old name, "System Left-End Labels". That'd be trival except for
+Resorcerer's problem with keyboard shortcuts w/ modifier keys, so after changing it, need to
+fix those via Rezilla.
+
+??	With Resorcerer, change MDEF for MENU 5 (Score) from 19999 to 0.
+??	With Rezilla, change shortcut for ?? from command-?? to ??
+??	With Resorcerer, change MDEF for MENU 5 (Score) back to 19999.
+
+But wait! After renaming the command, there doesn't seem to be a problem after all! That's
+great, but I'm suspicious. Well, let it go; it's hard to see how it could work sometimes and
+fail sometimes... unless it's different on more recent versions of macOS and/or an Intel
+build?
+
+22 Sept.: SWITCH TO: Add buttons to the "Change playback speed" dialog to instantly set the
+percentage of normal speed: say, four buttons, with values of 70, 100, 150, and 200%... done!
+
+29 Sept.: BACK TO: Updated Score: test menu shortcuts on my MacBook (Intel CPU, OS 10.14)
+??
 

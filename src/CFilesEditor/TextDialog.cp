@@ -513,11 +513,11 @@ static pascal Boolean TextDFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 		Rect box;  Point where;
 		Str255 str;
 		
-//SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
-//LogPrintf(LOG_DEBUG, "TextDFilter: what=%d\n", evt->what);
+//LogPrintf(LOG_DEBUG, "TextDFilter: what=%d\n", evt->what); SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
 		w = (WindowPtr)(evt->message);
 		switch(evt->what) {
 			case updateEvt:
+//SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
 				if (w == GetDialogWindow(dlog)) {
 					BeginUpdate(GetDialogWindow(dlog));
 					
@@ -549,6 +549,7 @@ static pascal Boolean TextDFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				break;
 #endif
 			case activateEvt:
+//SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
 				if (w == GetDialogWindow(dlog)) {
 					/* Do nothing */
 					}
@@ -669,7 +670,7 @@ static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpand
 	Str255 str;
 	short tmpSize;
 
-	SetFontPopUp((StringPtr)aStyle->fontName,str);
+	SetFontPopUp((StringPtr)aStyle->fontName, str);
 	
 	GetRealSizes();
 	isRelative = aStyle->relFSize;
@@ -1053,13 +1054,12 @@ Boolean TextDialog(
 
 	/* Now go on and do dialog */
 	
+//LogPrintf(LOG_DEBUG, "TextDialog 1\n"); SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
 	filterUPP = NewModalFilterUPP(TextDFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(NEW_TEXT_DLOG);
 		return False;
 	}
-
-	GetPort(&oldPort);
 
 	dlog = GetNewDialog(NEW_TEXT_DLOG, NULL, BRING_TO_FRONT);
 	if (dlog == NULL) {
@@ -1068,10 +1068,10 @@ Boolean TextDialog(
 		return False;
 	}
 
-	CenterWindow(GetDialogWindow(dlog), 0);
+//LogPrintf(LOG_DEBUG, "TextDialog 2\n"); SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
+	GetPort(&oldPort);
 	SetPort(GetDialogWindowPort(dlog));
-	
-	ArrowCursor();
+//LogPrintf(LOG_DEBUG, "TextDialog 3\n"); SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
 	
 	/* Fill in dialog's values here */
 
@@ -1115,13 +1115,14 @@ Boolean TextDialog(
 	GetDialogItem(dlog, BUT1_OK, &type, &hndl, &box);
 	HiliteControl((ControlHandle)hndl, *string==0 ? CTL_INACTIVE : CTL_ACTIVE);
 	
+	CenterWindow(GetDialogWindow(dlog), 70);
 	ShowWindow(GetDialogWindow(dlog));
-//SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
+	ArrowCursor();
+//SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
 
 	while (keepGoing) {
 		ModalDialog(filterUPP, &itemHit);
-//SysBeep(1);
-//SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
+//SysBeep(1);	SleepTicks(120);		// ???????TEMP: WHEN IS THE TEXT ERASED?
 		if (itemHit <= 0) continue;
 		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
 		switch(itemHit) {

@@ -384,6 +384,7 @@ void GetClefDrawInfo(
 	}
 		
 	/* FIXME: Note that these are obsolete with new music font scheme.   -JGG */
+	
 	switch (aClef->subType) {
 		case TREBLE8_CLEF:
 		case TREBLE_CLEF:
@@ -1163,8 +1164,8 @@ short GetRestDrawInfo(Document *doc,
 				)
 {
 	PANOTE aRest;
-	DDIST dLeft,lnSpace,dhalfLn;
-	short useTxSize,glyph;
+	DDIST dLeft, lnSpace, dhalfSp;
+	short useTxSize, glyph;
 	Boolean breveWholeMeasure;
 
 	/* Allow whole-measure rests in some time signatures to look like breve rests. */
@@ -1188,8 +1189,8 @@ short GetRestDrawInfo(Document *doc,
 	*yd = *ydNorm = *dTop + aRest->yd;
 	
 	lnSpace = LNSPACE(pContext);
-	dhalfLn = lnSpace/2;
-	*yd += dhalfLn*restYOffset[*lDur];
+	dhalfSp = lnSpace/2;
+	*yd += dhalfSp*restYOffset[*lDur];
 	
 	glyph = MCH_rests[*lDur-1];
 	return glyph;

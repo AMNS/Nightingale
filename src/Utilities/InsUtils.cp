@@ -1472,13 +1472,13 @@ of a beamset; if so, it fixes things up appropriately. It assumes inChord flags 
 properly for notes in the Sync in <newNoteL>'s voice. */ 
 
 void AddNoteFixBeams(Document *doc,
-							LINK syncL,			/* Sync the new note belongs to */
-							LINK newNoteL		/* The new note */
-							)
+						LINK syncL,			/* Sync the new note belongs to */
+						LINK newNoteL		/* The new note */
+						)
 {
 	short 		nBeamable, voice;
 	LINK		firstSyncL, lastSyncL;
-	LINK		aNoteL, beamL, farNoteL, newBeamL=NILINK;
+	LINK		aNoteL, beamL, farNoteL=NILINK, newBeamL=NILINK;
 	PBEAMSET	pBeam, newBeam;
 	DDIST		ystem, maxLength;
 	Boolean		crossSys, firstSys;
@@ -1553,8 +1553,7 @@ void AddNoteFixBeams(Document *doc,
 		aNoteL = FirstSubLINK(syncL);
 		for (ystem = -9999; aNoteL; aNoteL = NextNOTEL(aNoteL))
 			if (NoteVOICE(aNoteL)==voice && !NoteREST(aNoteL))
-				if (MainNote(aNoteL))
-					ystem = NoteYSTEM(aNoteL);
+				if (MainNote(aNoteL)) ystem = NoteYSTEM(aNoteL);
 
 		if (ystem==-9999) {
 			 MayErrMsg("AddNoteFixBeams: no MainNote in Sync %ld voice %ld\n",
@@ -1578,9 +1577,8 @@ void AddNoteFixBeams(Document *doc,
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 			if (NoteVOICE(aNoteL)==voice && !NoteREST(aNoteL))
-				if (aNoteL==farNoteL)
-					NoteYSTEM(aNoteL) = ystem;
-				else NoteYSTEM(aNoteL) = NoteYD(aNoteL);
+				if (aNoteL==farNoteL)	NoteYSTEM(aNoteL) = ystem;
+				else					NoteYSTEM(aNoteL) = NoteYD(aNoteL);
 	}
 }
 
@@ -1873,40 +1871,38 @@ Boolean InsFixMeasNums(Document *doc, LINK newL)
 
 
 /* ----------------------------------------------------------------- FindGraphicObject -- */
-/* Get the relObj for a graphic which is to be inserted. */
+/* Get the relative object for a graphic which is to be inserted. */
 
 LINK FindGraphicObject(Document *doc, Point pt,
 						short *staff, short *voice)		/* Undefined if object is a System */
 {
-	short index;  LINK pL;
+	short index;  LINK objL;
 
 	FindStaffSetSys(doc, pt);
-	pL = FindRelObject(doc, pt, &index, SMFind);
+	objL = FindRelObject(doc, pt, &index, SMFind);
 	
-	if (!pL)
-		return NILINK;
-	
-	if (!SystemTYPE(pL)) {
-		*staff = GetSubObjStaff(pL, index);
-		*voice = GetSubObjVoice(pL, index);
+	if (!objL) return NILINK;
+	if (!SystemTYPE(objL)) {
+		*staff = GetSubObjStaff(objL, index);
+		*voice = GetSubObjVoice(objL, index);
 	}
 
-	return pL;
+	return objL;
 }
 
 
 /* ------------------------------------------------------------------ ChkGraphicRelObj -- */
-/* Check the type of the relObj for a Graphic which is to be inserted and return True
-iff it's OK; otherwise, give an error message and return False. */
+/* Check the type of the relative object for a Graphic which is to be inserted and return
+True iff it's OK; otherwise, give an error message and return False. */
 
-Boolean ChkGraphicRelObj(LINK pL,
+Boolean ChkGraphicRelObj(LINK objL,
 							char subtype)	/* ??SignedByte May be pseudo-code <GRChar> */
 {
-	if (!pL) return False;
+	if (!objL) return False;
 	
 	switch (subtype) {
 		case GRRehearsal:
-			if (SystemTYPE(pL) || PageTYPE(pL)) {
+			if (SystemTYPE(objL) || PageTYPE(objL)) {
 				GetIndCString(strBuf, INSERTERRS_STRS, 17);    /* "A rehearsal mark must be attached to a barline, note/rest, clef, key signature, time signature, or spacer." */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
@@ -1914,7 +1910,7 @@ Boolean ChkGraphicRelObj(LINK pL,
 			}
 			break;
 		case GRChordSym:
-			if (SyncTYPE(pL))
+			if (SyncTYPE(objL))
 				return True;
 			else {
 				GetIndCString(strBuf, INSERTERRS_STRS, 15);    /* "A chord symbol must be attached to a note or rest." */
@@ -1924,7 +1920,7 @@ Boolean ChkGraphicRelObj(LINK pL,
 			}
 			break;
 		case GRChar:
-			if (SystemTYPE(pL) || PageTYPE(pL)) {
+			if (SystemTYPE(objL) || PageTYPE(objL)) {
 				GetIndCString(strBuf, INSERTERRS_STRS, 29);    /* "A music character must be attached to..." */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
@@ -1932,7 +1928,7 @@ Boolean ChkGraphicRelObj(LINK pL,
 			}		
 			break;
 		case GRMIDIPatch:
-			if (SyncTYPE(pL))
+			if (SyncTYPE(objL))
 				return True;
 			else {
 				GetIndCString(strBuf, INSERTERRS_STRS, 30);    // "A MIDI patch change must be attached to a note or rest." //
@@ -1945,7 +1941,7 @@ Boolean ChkGraphicRelObj(LINK pL,
 			break;
 	}
 	
-	switch (ObjLType(pL)) {
+	switch (ObjLType(objL)) {
 		case PAGEtype:
 		case SYSTEMtype:
 		case STAFFtype:
@@ -1973,26 +1969,26 @@ Boolean ChkGraphicRelObj(LINK pL,
 
 
 /* ------------------------------------------------------------------- FindTempoObject -- */
-/* Get the relObj for a Tempo object which is to be inserted. */
+/* Get the relative object for a Tempo object which is to be inserted. */
 
 LINK FindTempoObject(Document *doc, Point pt, short *staff, short *voice)
 {
-	short index;  LINK pL;
+	short index;  LINK objL;
 
 	FindStaffSetSys(doc, pt);								/* Set currentSystem */
-	pL = FindRelObject(doc, pt, &index, SMFind);
+	objL = FindRelObject(doc, pt, &index, SMFind);
 	
-	if (!pL) {
-		GetIndCString(strBuf, INSERTERRS_STRS, 18);			/* "A tempo mark must be attached to a barline, note/rest, clef, key sig., or time sig." */
+	if (!objL) {
+		GetIndCString(strBuf, INSERTERRS_STRS, 18);			/* "A tempo mark must be attached to a barline, note/rest..." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return NILINK;
 	}
 	
-	*staff = GetSubObjStaff(pL, index);
-	*voice = GetSubObjVoice(pL, index);
+	*staff = GetSubObjStaff(objL, index);
+	*voice = GetSubObjVoice(objL, index);
 
-	switch (ObjLType(pL)) {
+	switch (ObjLType(objL)) {
 		case MEASUREtype:
 		case PSMEAStype:
 		case SYNCtype:
@@ -2002,32 +1998,32 @@ LINK FindTempoObject(Document *doc, Point pt, short *staff, short *voice)
 		case RPTENDtype:
 			break;
 		default:
-			GetIndCString(strBuf, INSERTERRS_STRS, 19);    /* "A tempo must be attached to a barline, note/rest, clef, key sig., or time sig." */
+			GetIndCString(strBuf, INSERTERRS_STRS, 18);    /* "A tempo mark must be attached to a barline, note/rest..." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
 			return NILINK;
 	}
 		
-	return pL;
+	return objL;
 }
 
 
 /* ------------------------------------------------------------------ FindEndingObject -- */
-/* Get the relObj for an Ending which is to be inserted. For objects with connStaffs
-and subObjects which span staff ranges the CheckObject and FindAndActOnObject routines
-do not work well (??apparently in the sense of finding the correct subObjects); for
-these objects FindStaffSetSys should provide unambiguous results. */
+/* Get the relative object for an Ending which is to be inserted. For objects with
+connStaffs and subobjects which span staff ranges, the CheckObject and FindAndActOnObject
+routines do not work well (??apparently in the sense of finding the correct subobjects);
+for these objects FindStaffSetSys should provide unambiguous results. */
 
 LINK FindEndingObject(Document *doc, Point pt, short *staff)
 {
-	short index,staffn; LINK pL;
+	short index,staffn;  LINK objL;
 
 	staffn = FindStaffSetSys(doc, pt);
-	pL = FindAndActOnObject(doc, pt, &index, SMFind);
+	objL = FindAndActOnObject(doc, pt, &index, SMFind);
 
-	switch (ObjLType(pL)) {
+	switch (ObjLType(objL)) {
 		case SYNCtype:
-			*staff = GetSubObjStaff(pL, index);
+			*staff = GetSubObjStaff(objL, index);
 			break;
 		case MEASUREtype:
 			*staff = staffn;
@@ -2043,7 +2039,7 @@ LINK FindEndingObject(Document *doc, Point pt, short *staff)
 			
 	}
 
-	return pL;
+	return objL;
 }
 
 /* ---------------------------------------------------------------------- UpdateTailxd -- */
@@ -2191,7 +2187,7 @@ LINK NewObjPrepare(Document *doc, short type, short *sym, char inchar, short sta
 
 void NewObjCleanup(Document *doc, LINK newpL, short staff)
 {
-	LINK		pMeasL,sysL;
+	LINK		pMeasL, sysL;
 	DDIST		measxd;
 	
 	doc->selStartL = newpL; 											/* Update selection first ptr */
