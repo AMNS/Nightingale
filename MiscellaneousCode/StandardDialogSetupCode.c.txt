@@ -1,0 +1,64 @@
+/* Standard setup of a moderately complex modal dialog, based on LeftEndDialog() */
+
+Boolean AModerateDialog()
+{	
+	filterUPP = NewModalFilterUPP(LeftEndFilter);
+	if (filterUPP == NULL) {
+		MissingDialog(LEFTEND_DLOG);
+		return False;
+	}
+
+	GetPort(&oldPort);
+	dlog = GetNewDialog(LEFTEND_DLOG, NULL, BRING_TO_FRONT);
+	if (!dlog) {
+		DisposeModalFilterUPP(filterUPP);
+		MissingDialog(LEFTEND_DLOG);
+		return False;
+	}
+	SetPort(GetDialogWindowPort(dlog));
+	
+	/* Get the background panel rectangle as defined by a user item, blah blah*/
+	
+	GetDialogItem(dlog, USER5, &type, &hndl, &firstRect);
+	HideDialogItem(dlog,USER5);
+
+	/* Set up radio button group, needed and actual indents for "First system". */
+	
+	if (*pFirstNames==NONAMES)			group1 = NONE_FIRST_DI;
+	else if (*pFirstNames==ABBREVNAMES) group1 = ABBREVNAMES_FIRST_DI;
+	else								group1 = FULLNAMES_FIRST_DI;
+	PutDlgChkRadio(dlog, group1, True);
+
+	inchNFDist = PartNameMargin(doc, *pFirstNames);
+	PutDlgDouble(dlog, NEED_FIRST_DI, inchNFDist, False);
+		
+	SelectDialogItemText(dlog, DIST_FIRST_DI, 0, ENDTEXT);
+
+	CenterWindow(GetDialogWindow(dlog), 100);
+	ShowWindow(GetDialogWindow(dlog));
+	ArrowCursor();
+	
+	dialogOver = 0;
+	while (!dialogOver) {
+		ModalDialog(filterUPP, &ditem);	
+		switch (ditem) {
+			case OK:
+				Blah blah;
+				dialogOver = OK;
+				break;
+			case Cancel:
+				dialogOver = Cancel;
+				break;
+			case FULLNAMES_FIRST_DI:
+				Blah blah;
+				break;
+			default:
+				;
+		}
+	}
+
+	DisposeModalFilterUPP(filterUPP);
+	DisposeDialog(dlog);
+	SetPort(oldPort);
+	return (dialogOver==OK);		
+}

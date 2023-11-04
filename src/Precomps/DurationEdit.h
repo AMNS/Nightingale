@@ -28,5 +28,7 @@
 	short		DurCodeToDurPalIdx(short durCode, short nDots, short nDurations);
 	short		DurPalIdxToDurCode(short durPalIdx, short *pNDots);
 	short		DurPalChoiceDlog(short durPalIdx, short maxDots);
+
 	Boolean		SetDurDialog(Document *, Boolean *, short *, short *, short *, Boolean *, 
 								short *, Boolean *, Boolean *);
+	Boolean		SetPlayDurDialog(Document *, short *);

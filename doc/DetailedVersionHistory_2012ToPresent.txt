@@ -4070,3 +4070,12 @@ Ottava, RTRhythmDur, TextDialog.
 
 ------------------------------------------------------------------------------------ Build 50
 
+6 Oct. - 3 Nov.
+
+Add "Set Play Duration" command and remove the capability of the "Set Duration" command
+to set _only_ play duration. Affects .rsrc, DurationEdit.h, NResourceID.h; DurationEdit,
+Menu.
+
+Minor changes. Affects info.plist, Defs.h; MPCommands, Reformat, UIFUtils.
+
+------------------------------------------------------------------------------------ Build 51

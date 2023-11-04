@@ -20,7 +20,7 @@ static void MPDeleteSelRange(Document *doc, LINK partL);
 
 static void MPDefltStfCtxt(LINK aStaffL);
 static Boolean ChkStfHt(Document *doc, short nadd, short nper);
-static Boolean MPAddChkVars(Document *, short nadd, short nper);
+static Boolean MPAddPartChkVars(Document *, short nadd, short nper);
 static Boolean MPAddPartDialog(short *, short *);
 
 static void InsertPartMP(Document *doc, LINK partL, short nadd, short nper, short showLines);
@@ -121,7 +121,7 @@ void Map2OrigStaves(Document *doc, short minStf, short maxStf, short *pOrigMinSt
 	for (i = 0; i<doc->nChangeMP; i++)
    	switch (doc->change[i].oper) {
    		case SDAdd:
-				/* Affects original staves starting with the specified new staff nunmber,
+				/* Affects original staves starting with the specified new staff number,
 				   so we must first convert the start staff number! */
 				   
 				newStart = doc->change[i].staff;
@@ -147,8 +147,8 @@ void Map2OrigStaves(Document *doc, short minStf, short maxStf, short *pOrigMinSt
 }
 
 
-/* Remove a part from the Master Page object list and append a Delete Part change
-record to the array of changes. */
+/* Remove a part from the Master Page object list and append a Delete Part change record
+to the array of changes. */
 
 void MPDeletePart(Document *doc)
 {
@@ -264,10 +264,10 @@ void UpdateConnFields(LINK connectL, short stfDiff, short lastStf)
 		}
 	}
 
- 	/* If part deleted is removed from inside an already existing group,
-		update the Connect field of that group here. If the staffBelow field
-		is >= lastStf, & the staffAbove field is <lastStf, a GroupLevel
-		Connect spans the part deleted. Handle this case here. */
+ 	/* If part deleted is removed from inside an already existing group, update the
+	   Connect field of that group here. If the staffBelow field is >= lastStf and the
+	   staffAbove field is <lastStf, a GroupLevel Connect spans the part deleted. Handle
+	   this case here. */
 
 	aConnectL = FirstSubLINK(connectL);
 	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
@@ -279,7 +279,7 @@ void UpdateConnFields(LINK connectL, short stfDiff, short lastStf)
 	}
 
 	/* Handle the case where the staffAbove field is >lastStf for GroupLevel Connects
-		here. */
+	   here. */
 
 	aConnectL = FirstSubLINK(connectL);
 	for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
@@ -493,11 +493,11 @@ void MPAddPart(Document *doc)
 {
 	LINK staffL, aStaffL, partL=NILINK;  short nadd, nper;
 
-	/* Get the selected staff subobject before which to add the new part. If no
-		subobj is selected, partL will be passed to InsertPartMP as NILINK, and
-		the part will be added after all staves. */
+	/* Get the selected staff subobject before which to add the new part. If no subobj
+	   is selected, partL will be passed to InsertPartMP as NILINK, and the part will be
+	   added after all staves. */
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);
 
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
@@ -513,7 +513,7 @@ void MPAddPart(Document *doc)
 
 	if (!MPAddPartDialog(&nadd, &nper)) return;
 	
-	if (!MPAddChkVars(doc, nadd, nper)) return;
+	if (!MPAddPartChkVars(doc, nadd, nper)) return;
 
 	InsertPartMP(doc, partL, nadd, nper, SHOW_ALL_LINES);
 }
@@ -556,9 +556,10 @@ static Boolean ChkStfHt(Document *doc, short nadd, short nper)
 }
 
 
-/* Check the document to see if it is fit to have parts added. */
+/* Check the numbers of parts and number of staves per part to add to see if they're legal,
+both independently and for the document. */
 
-static Boolean MPAddChkVars(Document *doc,
+static Boolean MPAddPartChkVars(Document *doc,
 						short nadd,			/* No. of parts to add */
 						short nper)			/* No. of staves per part */
 {
@@ -582,6 +583,7 @@ static Boolean MPAddChkVars(Document *doc,
 		StopInform(FITSTAFF_ALRT);
 		return False;
 	}
+
 	return True;
 }
 
@@ -900,7 +902,7 @@ short GetPartSelRange(Document *doc, LINK *firstPartL, LINK *lastPartL)
 		return False;
 	}	
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE,GO_RIGHT, False);
 	if (!LinkSEL(staffL)) {
 		return False;
 	}
@@ -966,7 +968,7 @@ short GroupIsSel(Document *doc)
 	short minStf,maxStf;
 	PACONNECT aConnect;
 	
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
+	staffL =  LSSearch(doc->masterHeadL, STAFFtype, ANYONE,GO_RIGHT, False);
 	if (!LinkSEL(staffL)) return False;
 
 	GetSelStaves(staffL,&minStf,&maxStf);
@@ -1017,7 +1019,7 @@ void GetSelStaves(LINK staffL, short *minStf, short *maxStf)
 {
 	LINK aStaffL;
 
-	*minStf=999; *maxStf = -999;
+	*minStf=999;  *maxStf = -999;
 
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
@@ -1038,15 +1040,15 @@ enum {
 };
 
 static void GroupPartsDialog(
-				Boolean *pConnBars,		/* True=extend barlines to connect staves */
+				Boolean *pConnBars,			/* True=extend barlines to connect staves */
 				short *pConnType)			/* CONNECTBRACKET or CONNECTCURLY */
 {
 	short itemHit;
 	static short radioGroup;
 	static Boolean firstCall=True;
 	Boolean keepGoing=True;
-	DialogPtr dlog; GrafPtr oldPort;
-	ModalFilterUPP	filterUPP;
+	DialogPtr dlog;  GrafPtr oldPort;
+	ModalFilterUPP filterUPP;
 
 	/* Build dialog window and install its item values. */
 	
@@ -1114,7 +1116,7 @@ void DoGroupParts(Document *doc)
 	PACONNECT aConnect;
 	static Boolean connBars=True;				/* True=extend barlines to connect staves */ 
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
+	staffL =  LSSearch(doc->masterHeadL, STAFFtype, ANYONE,GO_RIGHT, False);
 	if (!LinkSEL(staffL)) return;
 
 	GroupPartsDialog(&connBars, &connType);
@@ -1198,18 +1200,18 @@ void DoGroupParts(Document *doc)
 void DoUngroupParts(Document *doc)
 {
 	LINK staffL,connectL,aConnectL,bConnectL,nextConnL;
-	short minStf,maxStf,minGrpStf,maxGrpStf; DDIST connWidth;
+	short minStf,maxStf,minGrpStf,maxGrpStf;  DDIST connWidth;
 	PACONNECT aConnect,bConnect;
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
+	staffL =  LSSearch(doc->masterHeadL, STAFFtype, ANYONE,GO_RIGHT, False);
 	if (!LinkSEL(staffL)) return;
 
-	GetSelStaves(staffL,&minStf,&maxStf);
+	GetSelStaves(staffL, &minStf, &maxStf);
 
-	connectL = SSearch(doc->masterHeadL,CONNECTtype,GO_RIGHT);
+	connectL = SSearch(doc->masterHeadL, CONNECTtype, GO_RIGHT);
 
 	/* Remove Connect subObjs if the range of the group intersects
-		the selection range. */
+	   the selection range. */
 
 	aConnectL = FirstSubLINK(connectL);
 	for ( ; aConnectL; aConnectL = nextConnL) {
@@ -1228,7 +1230,7 @@ void DoUngroupParts(Document *doc)
 				connWidth = ConnectDWidth(doc->srastralMP, aConnect->connectType);
 
 				/* Move all Connect subObjs that were nested within the deleted Connect to
-					the right by the deleted Connect's width. */
+				   the right by the deleted Connect's width. */
 
 				minGrpStf = aConnect->staffAbove;
 				maxGrpStf = aConnect->staffBelow;

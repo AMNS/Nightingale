@@ -13038,23 +13038,48 @@ The "correct" message is from InsUtils.c/FindTempoObject(); it's INSERTERRS_STRS
 it's not quite correct; it's a slightly-garbled version of #18! Change it to use #18 and
 replace #19 with "(unused)"...done.
 
-??The "Left End of Systems" command is poorly named; let's change it to something better
+Now, the "Left End of Systems" command is poorly named; let's change it to something better
 that's reminiscent of the old name, "System Left-End Labels". That'd be trival except for
 Resorcerer's problem with keyboard shortcuts w/ modifier keys, so after changing it, need to
-fix those via Rezilla.
+fix those via Rezilla:
 
-??	With Resorcerer, change MDEF for MENU 5 (Score) from 19999 to 0.
-??	With Rezilla, change shortcut for ?? from command-?? to ??
-??	With Resorcerer, change MDEF for MENU 5 (Score) back to 19999.
+	- With Resorcerer, change MDEF for MENU 5 (Score) from 19999 to 0.
+	- With Rezilla, change shortcut for ?? from command-?? to ??
+	- With Resorcerer, change MDEF for MENU 5 (Score) back to 19999.
 
-But wait! After renaming the command, there doesn't seem to be a problem after all! That's
-great, but I'm suspicious. Well, let it go; it's hard to see how it could work sometimes and
-fail sometimes... unless it's different on more recent versions of macOS and/or an Intel
-build?
+But wait! After renaming the command, there doesn't seem to be a problem with keyboard
+shortcuts after all! That's great, but I'm suspicious. Well, let it go; it's hard to see
+how it could work sometimes and fail sometimes... unless it's different on more recent
+versions of macOS and/or an Intel build?
 
 22 Sept.: SWITCH TO: Add buttons to the "Change playback speed" dialog to instantly set the
 percentage of normal speed: say, four buttons, with values of 70, 100, 150, and 200%... done!
 
-29 Sept.: BACK TO: Updated Score: test menu shortcuts on my MacBook (Intel CPU, OS 10.14)
-??
+29 Sept.: BACK TO: Updated Score menu: test keyboard shortcuts on my MacBook (Intel CPU,
+OS 10.14) => all OK in that environment too!
 
+------------------------------------------------------------------------------------ Build 50
+
+6 October - 1 November
+
+Open the current MorningHasSomething.ngl in Ngale 5.8.11 => doc->nsystems=8. Select smthg on
+p.3; shift-click on p. 4 to select through there => doc->currSys=8; Reformat Systems =>
+nsystems=7 but currSys=8: inconsisent. Save the file & Open in 5.8.11 again => "Nightingale
+can't open the file"; Open in 6.0.50 => "Found 1 error in the score header. Open the score
+anyway?"; "Continue", then click almost anywhere => all OK. So this isn't too serious except
+for someone working w/ Ngale 5.x that wants to keep working w/ 5.x and not have the file
+converted to 'N106' format!
+
+17 Oct.: In m. 28, Copy both dotted-qtr rests from piano lower staff, Paste Merge in upper
+staff => new rests aren't drawn, just selection hiliting. This is an old bug I thought I'd
+fixed... Ah, but that's with Ngale 5.x! With 6.0.50, no problem. So I did fix it; case
+closed.
+
+25 Oct.: SWITCH TO: Per Issue #80, having to use the Set Duration dialog to set only play
+duration is just too clumsy. We really need a separate command (probably in the Play/Record
+menu) and dialog to set play duration; then can remove the option to uncheck "Set durations
+of selected notes" in the existing dialog! See DurationEdit.c/SetDurDialog()... OK, done,
+but it'd be nice to have a keyboard shortcut. Let's use shift-cmd-D. Need Rezilla to
+set it, but Rezilla wants the key code; what is it? I need Apple's "truly bizarre" mapping.
+T shortcut code for the Set Duration command is 68, so...Wait; that's just the ASCII code
+for "D"!  => ?#$^&)*#$&^*)  All OK except disabling the menu command ??

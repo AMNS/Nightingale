@@ -321,20 +321,33 @@ static Boolean DrawDurationPalette(Rect *pBox)
 }
 								 
 
-#define DE_NROWS 3		/* Show all three rows (no dots, one dot, two dots) of duration palette */
-#define NDURATIONS DE_NROWS*DP_NCOLS
+#define MIN_PLAYDUR_PCT 1
+#define MAX_PLAYDUR_PCT 500
+
+static void WarnBadPlayDur();
+static void WarnBadPlayDur()
+{
+	char fmtStr[256];
+
+	GetIndCString(fmtStr, DIALOGERRS_STRS, 13);				/* "Play duration percent must be..." */
+	sprintf(strBuf, fmtStr, MIN_PLAYDUR_PCT, MAX_PLAYDUR_PCT);
+	CParamText(strBuf, "", "", "");
+	StopInform(GENERIC_ALRT);
+}
 
 /* ---------------------------------------------------------------------- SetDurDialog -- */
 
-static Boolean SDAnyBadValues(Document *, DialogPtr, Boolean, short, short, short);
+#define DE_NROWS 3		/* No. of rows (no dots, 1 dot, 2 dots) of duration palette to show */
+#define NDURATIONS DE_NROWS*DP_NCOLS
+
+static Boolean SDAnyBadValues(Document *, DialogPtr, short, short, short);
 static pascal Boolean SetDurFilter(DialogPtr, EventRecord *, short *);
 
 enum {
-	SETLDUR_DI=3,
-	SDDURPAL_DI,
+	PDURPCT_DI=4,
 	CV_DI,
 	SETPDUR_DI,
-	PDURPCT_DI,
+	SDDURPAL_DI,
 	DUMMYFLD_DI=9,
 	HALVEDURS_DI=10,
 	DOUBLEDURS_DI,
@@ -343,33 +356,29 @@ enum {
 
 static short setDurGroup;
 
-static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
-								short newLDurAction, short /*newnDots*/, short newpDurPct)
+static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, short newLDurAction,
+								short /*newnDots*/, short newpDurPct)
 {	
-	if (newpDurPct<1 || newpDurPct>500) {
-		GetIndCString(strBuf, DIALOGERRS_STRS, 13);				/* "Play duration percent must be..." */
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
+	if (newpDurPct<MIN_PLAYDUR_PCT || newpDurPct>MAX_PLAYDUR_PCT) {
+		WarnBadPlayDur();
 		SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
 		return True;
 	}
 
-	if (newSetLDur) {
-		if (newLDurAction==SET_DURS_TO) {
-			if (IsSelInTuplet(doc)) {
-				GetIndCString(strBuf, DIALOGERRS_STRS, 14);		/* "can't Set notated Duration in tuplets" */
-				CParamText(strBuf, "", "", "");
-				StopInform(GENERIC_ALRT);
-				return True;
-			}
+	if (newLDurAction==SET_DURS_TO) {
+		if (IsSelInTuplet(doc)) {
+			GetIndCString(strBuf, DIALOGERRS_STRS, 14);		/* "can't Set notated Duration in tuplets" */
+			CParamText(strBuf, "", "", "");
+			StopInform(GENERIC_ALRT);
+			return True;
 		}
-		else {
-			if (IsSelInTupletNotAllSel(doc)) {
-				GetIndCString(strBuf, DIALOGERRS_STRS, 21);		/* "...select all the notes of the tuplet" */
-				CParamText(strBuf, "", "", "");
-				StopInform(GENERIC_ALRT);
-				return True;
-			}
+	}
+	else {
+		if (IsSelInTupletNotAllSel(doc)) {
+			GetIndCString(strBuf, DIALOGERRS_STRS, 21);		/* "...select all the notes of the tuplet" */
+			CParamText(strBuf, "", "", "");
+			StopInform(GENERIC_ALRT);
+			return True;
 		}
 	}
 
@@ -513,7 +522,7 @@ Boolean SetDurDialog(
 	GrafPtr oldPort;
 	ModalFilterUPP	filterUPP;
 	short newpDurPct;
-	short newnDots, newSetLDur, newLDur;
+	short newnDots, newLDur;
 
 //LogPrintf(LOG_DEBUG, "SetDurDialog: byWidth=%d byWidthPadded=%d height=%d\n",
 //bmpDurationPal.byWidth, bmpDurationPal.byWidthPadded, bmpDurationPal.height);
@@ -564,20 +573,16 @@ Boolean SetDurDialog(
 	
 	HiliteDurCell(choiceIdx, &box, durPalCell);
 
-	PutDlgChkRadio(dlog, SETLDUR_DI, *setLDur);
 	PutDlgChkRadio(dlog, SETPDUR_DI, *setPDur);
 	hndl = PutDlgChkRadio(dlog, CV_DI, *cptV);
 	HiliteControl((ControlHandle)hndl, (*setLDur? CTL_ACTIVE : CTL_INACTIVE));
 	
 	PutDlgWord(dlog, PDURPCT_DI, *pDurPct, False);
 
+// ??CUT NEXT & XableLDurPanel(), ETC.?
 	if (*setLDur) {
 		XableLDurPanel(dlog, True);
 		SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
-	}
-	else {
-		XableLDurPanel(dlog, False);
-		SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
 	}
 	CenterWindow(GetDialogWindow(dlog), 100);
 	ShowWindow(GetDialogWindow(dlog));
@@ -591,22 +596,20 @@ Boolean SetDurDialog(
 		switch (ditem) {
 			case OK:
 				GetDlgWord(dlog, PDURPCT_DI, &newpDurPct);
-				newSetLDur = GetDlgChkRadio(dlog, SETLDUR_DI);
 				
 				if (setDurGroup==HALVEDURS_DI)			*lDurAction = HALVE_DURS;
 				else if (setDurGroup==DOUBLEDURS_DI)	*lDurAction = DOUBLE_DURS;
 				else									*lDurAction = SET_DURS_TO;
 
-				if (!SDAnyBadValues(doc, dlog, newSetLDur, *lDurAction, newnDots, newpDurPct)) {
+				if (!SDAnyBadValues(doc, dlog, *lDurAction, newnDots, newpDurPct)) {
 				
-					/* If the logical durations are to be set and any selected note is beamed,
-					   it must be unbeamed first; tell the user. */
+					/* If the logical durations are to be set and any selected note is
+					   beamed, it must be unbeamed first; tell the user. */
 			
-					if (newSetLDur && beamed) {
+					if (beamed) {
 						if (CautionAdvise(SDBEAM_ALRT)==Cancel) break;
 						*doUnbeam = True;						
 					}
-					*setLDur = newSetLDur;
 					*lDurCode = durPalCode[choiceIdx];
 					*nDots = durPalNDots[choiceIdx];
 					*setPDur = GetDlgChkRadio(dlog, SETPDUR_DI);
@@ -622,19 +625,7 @@ Boolean SetDurDialog(
 			case SETDURSTO_DI:
 				if (ditem!=setDurGroup) SwitchRadio(dlog, &setDurGroup, ditem);
 				break;
-			case SETLDUR_DI:
-				PutDlgChkRadio(dlog, SETLDUR_DI, !GetDlgChkRadio(dlog, SETLDUR_DI));
-				newSetLDur = GetDlgChkRadio(dlog, SETLDUR_DI);
-				if (newSetLDur) {
-					XableLDurPanel(dlog, True);
-				}
-				else {
-					XableLDurPanel(dlog, False);
-					SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
-				}
-				break;
 			case SDDURPAL_DI:
-				PutDlgChkRadio(dlog, SETLDUR_DI, newSetLDur = True);
 				XableLDurPanel(dlog, True);
 				if (setDurGroup!=SETDURSTO_DI) SwitchRadio(dlog, &setDurGroup, SETDURSTO_DI);
 #ifdef NOTYET
@@ -659,4 +650,65 @@ Boolean SetDurDialog(
 	
 	SetPort(oldPort);
 	return (ditem==OK);
+}
+
+
+/* ============================================ Code for the Set Play Duration command == */
+
+Boolean SetPlayDurDialog(
+				Document * /* doc */,
+				short *pDurPct
+				)	
+{
+	DialogPtr		dlog;
+	short			ditem;
+	short			newpDurPct;
+	GrafPtr			oldPort;
+	ModalFilterUPP	filterUPP;
+	Boolean			okay=True;
+	
+	filterUPP = NewModalFilterUPP(OKButFilter);
+	if (filterUPP == NULL) {
+		MissingDialog(SETPLAYDUR_DLOG);
+		return False;
+	}
+		
+	GetPort(&oldPort);
+	dlog = GetNewDialog(SETPLAYDUR_DLOG, NULL, BRING_TO_FRONT);
+	if (dlog==NULL) {
+		DisposeModalFilterUPP(filterUPP);
+		MissingDialog(SETPLAYDUR_DLOG);
+		return False;
+	}
+
+	SetPort(GetDialogWindowPort(dlog));
+
+	PutDlgWord(dlog, PDURPCT_DI, *pDurPct, False);
+	SelectDialogItemText(dlog, PDURPCT_DI, 0, ENDTEXT);
+
+	CenterWindow(GetDialogWindow(dlog), 100);
+	ShowWindow(GetDialogWindow(dlog));
+	ArrowCursor();
+
+	do {
+		while (True) {
+			ModalDialog(&NumberFilter, &ditem);
+			if (ditem==OK || ditem==Cancel) break;
+		}
+		if (ditem==OK) {
+			GetDlgWord(dlog, PDURPCT_DI, &newpDurPct);
+			if (newpDurPct>=MIN_PLAYDUR_PCT && newpDurPct<=MAX_PLAYDUR_PCT) break;
+			LogPrintf(LOG_WARNING, "newpDurPct of %d is illegal.  (SetPlayDurDialog)\n",
+						newpDurPct);			
+			WarnBadPlayDur();
+			okay = False;
+		}
+		 else { okay = False;  break; }
+	} while (newpDurPct<MIN_PLAYDUR_PCT || newpDurPct>MAX_PLAYDUR_PCT);
+		
+	*pDurPct = newpDurPct;
+	DisposeDialog(dlog);
+	
+	SetPort(oldPort);
+	return okay;
 }

@@ -263,7 +263,7 @@ enum {
 #define CTL_ACTIVE 0					/* Standard HiliteControl codes */
 #define CTL_INACTIVE 255
 
-#define ENDTEXT 999						/* "End of text" to SelIText */
+#define ENDTEXT 999						/* "End of text" to SelectDialogItemText */
 
 #define TOO_MANY_MEASNODES 31999		/* Exceeded MAX_MEASNODES limit */
 

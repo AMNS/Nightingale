@@ -66,6 +66,8 @@ static void	VMGraphMode(void);
 static void	VMShowToolPalette(void);
 static void	VMActivate(short);
 
+static void PLSetPlayDuration(Document *);
+static Boolean OKToRecord(Document *doc);
 static void	PLRecord(Document *doc, Boolean merge);
 static void	PLStepRecord(Document *doc, Boolean merge);
 static void	PLMIDIDynPrefs(Document *);
@@ -1192,6 +1194,10 @@ void DoPlayRecMenu(short choice)
 				MEHideCaret(doc);
 				if (doc) SetPlaySpeedDialog();
 				break;
+			case PL_SetPlayDuration:
+				MEHideCaret(doc);
+				if (doc) PLSetPlayDuration(doc);
+				break;			
 			case PL_AllNotesOff:
 				if (useWhichMIDI==MIDIDR_CM)
 					CMAllNotesOff();
@@ -2177,7 +2183,23 @@ static void VMActivate(short choice)
 
 /* --------------------------------------------------------------------- Other helpers -- */
 
-static Boolean OKToRecord(Document *);
+
+static void PLSetPlayDuration(Document *doc)
+{
+	static short plDurPct=-1;
+	
+	if (plDurPct<0) plDurPct = config.legatoPct;
+	
+	if (SetPlayDurDialog(doc, &plDurPct)) {
+		//PrepareUndo(doc, doc->selStartL, U_SetPlayDuration, ??);    	/* "Set Play Duration" */
+		
+LogPrintf(LOG_DEBUG, "PLSetPlayDuration: plDurPct=%d\n", plDurPct);
+
+		SetPDur(doc, plDurPct, True);
+	}
+}
+
+
 static Boolean OKToRecord(Document *doc)
 {
 	short anInt;  LINK lookPartL, selPartL;
@@ -3151,6 +3173,7 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 		XableItem(playRecMenu, PL_PlayFromSelection, doc!=clipboard && haveMIDI);
 		XableItem(playRecMenu, PL_MutePart, haveMIDI);
 		XableItem(playRecMenu, PL_PlayVarSpeed, haveMIDI);
+		XableItem(playRecMenu, PL_SetPlayDuration, doc!=clipboard && nSel!=0 && haveMIDI);
 		XableItem(playRecMenu, PL_AllNotesOff, haveMIDI);
 
 		noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
@@ -3174,6 +3197,7 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 		XableItem(playRecMenu, PL_PlayFromSelection, False);
 		XableItem(playRecMenu, PL_MutePart, False);
 		XableItem(playRecMenu, PL_PlayVarSpeed, False);
+		XableItem(playRecMenu, PL_SetPlayDuration, False);
 		XableItem(playRecMenu, PL_AllNotesOff, False);	
 		XableItem(playRecMenu, PL_Quantize, False);
 		XableItem(playRecMenu, PL_RecordInsert, False);

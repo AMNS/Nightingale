@@ -149,7 +149,7 @@
 #define FANCYTUPLET_DLOG 741
 #define OTTAVA_DLOG 745
 #define MULTIVOICE_DLOG 750
-#define SETDUR_DLOG 761
+#define SETDUR_DLOG 761					/* Set duration */
 #define SETDYN_DLOG 762
 #define SETMOD_DLOG 763
 #define ADDMOD_DLOG 764
@@ -182,6 +182,7 @@
 #define MIDIVELTABLE_DLOG 860
 #define MIDIMODTABLES_DLOG 862
 #define FILLEMPTY_DLOG 870				/* Fill empty measures */
+#define SETPLAYDUR_DLOG 871				/* Set play duration */
 #define RESPACE_BEF_MEAS_DLOG 874		/* Respace area before system's 1st measure */
 #define MISSINGFONTS_DLOG 880
 #define MFINFO_DLOG 890					/* MIDI File Info */
@@ -409,6 +410,7 @@ enum {							/* Play/Record menu */
     PL_PlaySelection,
 	PL_MutePart,
 	PL_PlayVarSpeed,
+	PL_SetPlayDuration,
 	PL_AllNotesOff,
 	PL_____________1,
 	PL_RecordInsert,
