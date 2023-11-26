@@ -1,23 +1,15 @@
-NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 6.0)
+NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.8.10, with premonitions of 6.0)
 Nightingale Technical Note #1
-Don Byrd, rev. late November 2023
+Don Byrd, rev. late June 2022
 
-Some general notes:
-
-Nightingale is written in C99; as of this writing and for many years, it's developed and
-compiled with Xcode 2.5. Some of the programmers who've worked on it added code in other
-dialects of C, and I've tried to undo that, but there's almost certainly still some
-non-C99 code in it. In fact, the source code modules currently all have the extension
-".cp" instead of ".c" because there used to be problems compiling with ".c": that suggests
-there's still a _lot_ of non-C99 code. But I haven't tried using ".c"s in years, so maybe
-not anymore!
+A general note:
 
 Working on Nightingale is considerably more difficult than you might expect, and more
 difficult than it should be, for several reasons, mostly related to its age. It was
 designed in the mid- and late-1980's to run on some of the first Macintosh computers,
 e.g., the Macintosh Plus and SE. Those machines were hundreds, perhaps thousands, of
 times slower than modern (say, 2010 and later) computers: their processors were Motorola
-68000s, 16-bit CPUs running at 8 MHz. They also had at least a thousand times less memory
+68000s, 16-bit CPUs running at 8 MHz. They also had a thousand or more times less memory
 than modern computers: typically one or two megabytes, and at the most four, vs. the
 multiple _gigabytes_ our machines have now. As a result:
 
@@ -41,9 +33,8 @@ multiple _gigabytes_ our machines have now. As a result:
 	followed by at most 255 characters. Thus Nightingale frequently converts strings
 	from C to Pascal format and vice-versa.
 
-NB: Everything in this document applies to versions of Nightingale at least as far back
-as v. 2000 except for information about source-code header files, and the object list
-and the (closely related) file format.
+NB: Everything in this document except the description of source-code header files
+applies to versions of Nightingale at least as far back as v. 2000.
 
 Also see the important source-code header files themselves:
 
@@ -96,34 +87,41 @@ is changed.
 
 Nightingale File Structure
 
-Every Nightingale file begins with a Document header and a Score header (declared in
-NDocAndCnfgTypes.h), followed by the content. Files in “N106” format begin (offset and
-length are in bytes in base 10):
+Every Nightingale file begins with a Document header and a Score header, followed by the
+content. Files in “N105” format begin (offset and length are in bytes in base 10):
 
 Offset			Length	Item
 ------			------	----
-0				4		“N106”
+0				4		“N105”
 4				4		Date/time file was written
-8				72		Document header: information suitable for any page-based document
-80 = 0x50		2802	Score header: Nightingale-specific information
-2882 = 0xB42	2		LASTtype (always 25)
-2884 = 0xB44	4		String pool length (in bytes) = SL
-2888 = 0xB48	SL		String pool, containing all the character strings
+8				72		Document header
+80 = 0x50		2148	Score header
+2228 = 0x8B4	2		LASTtype (always 25)
+2230 = 0x8B6	4		String pool length (in bytes) = SL
+2234 = 0x8BA	SL		String pool, containing all the character strings
 2234+SL 		var.	Heaps, containing the content of the score
---				--		Info for the CoreMIDI driver
+--				--		Info for MIDI drivers: OMS (obsolete), FreeMIDI (obsolete), and
+						CoreMIDI
+
+As of this writing, an “N106” format, to be used by Nightingale version 6.0 and later, is
+essentially finished. In terms of the details above, the “N106” format is identical except
+that bytes 0 to 3 are "N106"; the length of the Score header is 2802. Thus LASTtype has
+offset 2882 = 0xB42, and the string pool has offset 2888 = 0xB48. Also, info for the two
+obsolete MIDI drivers is omitted.
 
 The score header contains many, many fields; here's a kind of overview.
 
-Offset			Length	Item
-------			------	----
-80 = 0x50		12		various: <headL>, etc. to <nsystems>
-92 = 0x5C		256		<comment>
-348 = 0x15C		60		various: <noteInsFeedback>, <spacePercent>, etc., to <nFontRecords>
-408 = 0x198		660		15 TEXTSTYLE records of 44 bytes each
-1068 = 0x42C	714		<nfontsUsed>, <fontTable>, <musFontName>
-1782 = 0x6F6	36		various: <magnify>, etc., to <yBetweenSys>
-1818 = 0x71A	674		<spaceMap>
-2492 = 0x9BC			just after the end (total length)
+							(..."N106" format...)
+Offset			Length		Offset			Length	Item
+------			------		------			------	----
+80 = 0x50		12			80 = 0x50		12		various: <headL>, etc.
+92 = 0x5C		256			92 = 0x5C		256		<comment>
+348 = 0x15C		42			348 = 0x15C		60		various: <noteInsFeedback>, etc.
+390 = 0x186		540			408 = 0x198		660		15 TEXTSTYLE records of 36/44 bytes each
+930 = 0x3A2		714			1068 = 0x42C	714		<nfontsUsed>, <fontTable>, <musFontName>
+1644 = 0x66C	32			1782 = 0x6F6	36		various: <magnify>, etc.
+1676 = 0x68C	472			1818 = 0x71A	674		<spaceMap>
+2148 = 0x864				2492 = 0x9BC			just after the end (total length)
 
 ---------------------------------------------------------------------------------------
 
@@ -153,43 +151,44 @@ Files and Troubleshooting Files Nightingale Can’t Open".
 
 ---------------------------------------------------------------------------------------
 
-Object Types (from NTypes.h). The sizes correspond to Nightingale version 6.0 and after,
-and file format 'N106'.
+Object Types (from NTypes.h). The sizes correspond to Nightingale versions up to and
+including 5.8.x, and file format 'N105'. (In Nightingale 6 and file format 'N106', almost
+all are larger.)
 
-Type	Name			Object size in files (it's always 56 in RAM) (- = type has no objs)
+Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 							Subobject size  (- = type has no subobjs)
 									Contents/comment
 ---- 	-----------		---	---		--------------------
-0		HEADERtype		30	346		part info
-1		TAILtype		30	-
-2		SYNCtype		32	68		note, rest
-3		RPTENDtype		38	10		D.C., D.S., etc.
-4		PAGEtype		44	-
+0		HEADERtype		24	62		part info
+1		TAILtype		24	-
+2		SYNCtype		26	30		note, rest
+3		RPTENDtype		32	6		D.C., D.S., etc.
+4		PAGEtype		38	-
 
-5		SYSTEMtype		50	-
-6		STAFFtype		36	54		staff
-7		MEASUREtype		54	48		measure
-8		CLEFtype		30	14		clef
-9		KEYSIGtype		30	30		key signature
+5		SYSTEMtype		44	-
+6		STAFFtype		30	50		staff
+7		MEASUREtype		46	40		measure
+8		CLEFtype		24	10		clef
+9		KEYSIGtype		24	24		key signature
 
-10		TIMESIGtype		30	16		time signature
-11		BEAMSETtype		38	8		includes LINK to Sync
-12		CONNECTtype		32	14		brace, bracket, line
-13		DYNAMtype		36	20		dynamic (only 1 subobj per object)
-14		MODNRtype		-	10		note/rest modifier
+10		TIMESIGtype		24	12		time signature
+11		BEAMSETtype		26	6		includes LINK to Sync
+12		CONNECTtype		26	12		brace, bracket, line
+13		DYNAMtype		30	12		dynamic (only 1 subobj per object)
+14		MODNRtype		-	6		note/rest modifier
 
-15		GRAPHICtype		56	6		text, lyric, rehearsal mark, line (only 1 subobj per object)
-16		OTTAVAtype		52	4		includes LINK to Sync
-17		SLURtype		42	46		slur, tie (if slur, only 1 subobj per object)
-18		TUPLETtype		50	4		includes LINK to Sync
-19		GRSYNCtype		30	68		grace note
+15		GRAPHICtype		44	6		text, lyric, rehearsal mark, line (only 1 subobj per object)
+16		OTTAVAtype		40	4		includes LINK to Sync
+17		SLURtype		30	42		slur, tie (if slur, only 1 subobj per object)
+18		TUPLETtype		40	4		includes LINK to Sync
+19		GRSYNCtype		24	30		grace note
 
-20		TEMPOtype		48	-
-21		SPACERtype		34	-
-22		ENDINGtype		40	-
-23		PSMEAStype		30	10		pseudo-measure: dotted barline, repeat bar that isn't
+20		TEMPOtype		38	-
+21		SPACERtype		28	-
+22		ENDINGtype		32	-
+23		PSMEAStype		24	6		pseudo-measure: dotted barline, repeat bar that isn't
 									a barline
-24		OBJtype			56	56		size in RAM = sizeof(SUPEROBJECT); in a file, usually
+24		OBJtype			46	46		size in RAM = sizeof(SUPEROBJECT); in a file, usually
 									less, depending on type
 
 ---------------------------------------------------------------------------------------
@@ -214,28 +213,28 @@ other fields as well. */
 
 #define OBJECTHEADER \
 	LINK		right, left;		/* links to left and right objects */					\
-	LINK		firstSubObj;		/* link to first subobject */							\
+	LINK		firstSubObj;		/* link to first subObject */							\
 	DDIST		xd, yd;				/* position of object */								\
 	SignedByte	type;				/* (.+#10) object type */								\
-	Boolean		selected;			/* True if object or any part of it is selected */		\
-	Boolean		visible;			/* True if object or any part of it is visible */		\
-	Boolean		soft;				/* True if object is program-generated */				\
-	Boolean		valid;				/* True if objRect (for Measures, measureBBox too) valid. */ \
-	Boolean		tweaked;			/* True if object dragged or position edited with Get Info */ \
-	Boolean		spareFlag;			/* available for general use */							\
-	char		ohdrFiller1;		/* unused; could use for specific "tweak" flags */		\
-	Rect		objRect;			/* (.+18) enclosing rectangle of object (paper-rel.pixels) */ 	\
+	Boolean		selected:1;			/* True if any part of object selected */				\
+	Boolean		visible:1;			/* True if any part of object is visible */				\
+	Boolean		soft:1;				/* True if object is program-generated */				\
+	Boolean		valid:1;			/* True if objRect (for Measures, measureBBox also) valid. */ \
+	Boolean		tweaked:1;			/* True if object dragged or position edited with Get Info */ \
+	Boolean		spareFlag:1;		/* available for general use */							\
+	char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */		\
+	Rect		objRect;			/* (.+#12) enclosing rectangle of object (paper-rel.pixels) */ 	\
 	SignedByte	relSize;			/* (unused) size rel. to normal for object & context */	\
 	SignedByte	ohdrFiller2;		/* unused */											\
-	Byte		nEntries;			/* (.+#28) number of subobjects in object */
+	Byte		nEntries;			/* (.+#22) number of subobjects in object */
 	
 #define SUBOBJHEADER \
-	LINK		next;				/* index of next subobject */								\
-	SignedByte	staffn;				/* staff no. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
-	SignedByte	subType;			/* subobject subtype. NB: Signed; see ANOTE. */			\
-	Boolean		selected;			/* True if subobject is selected */						\
-	Boolean		visible;			/* True if subobject is visible */						\
-	Boolean		soft;				/* True if subobject is program-generated */
+	LINK		next;				/* index of next subobj */								\
+	SignedByte	staffn;				/* staff number. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
+	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */		\
+	Boolean		selected:1;			/* True if subobject is selected */						\
+	Boolean		visible:1;			/* True if subobject is visible */						\
+	Boolean		soft:1;				/* True if subobject is program-generated */
 
 #define EXTOBJHEADER \
 	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
@@ -246,34 +245,34 @@ Object features table (from vars.h)
 
 OBJDATA objTable[] = {
 	/*	objtype  justType	minEnt	maxEnt	objRectOrd */
-	HEADERtype,	0,			2,		MAXSTAVES+1,False,
-	TAILtype,	J_IT,		0,		0,			False,
-	SYNCtype,	J_IT,		1,		255,		True,
-	RPTENDtype,	J_IT,		1,		MAXSTAVES,	True,
-	PAGEtype,	J_STRUC,	0,		0,			False,
+	HEADERtype,	0,			2,			MAXSTAVES+1,False,
+	TAILtype,	J_IT,		0,			0,			False,
+	SYNCtype,	J_IT,		1,			255,		True,
+	RPTENDtype,	J_IT,		1,			MAXSTAVES,	True,
+	PAGEtype,	J_STRUC,	0,			0,			False,
 
-	SYSTEMtype,	J_STRUC,	0,		0,			False,
-	STAFFtype,	J_STRUC,	1,		MAXSTAVES,	False,
-	MEASUREtype,J_IT,		1,		MAXSTAVES,	True,
-	CLEFtype,	J_IP,		1,		MAXSTAVES,	True,
-	KEYSIGtype,	J_IP,		1,		MAXSTAVES,	True,
+	SYSTEMtype,	J_STRUC,	0,			0,			False,
+	STAFFtype,	J_STRUC,	1,			MAXSTAVES,	False,
+	MEASUREtype,J_IT,		1,			MAXSTAVES,	True,
+	CLEFtype,	J_IP,		1,			MAXSTAVES,	True,
+	KEYSIGtype,	J_IP,		1,			MAXSTAVES,	True,
 
-	TIMESIGtype,J_IP,		1,		MAXSTAVES,	True,
-	BEAMSETtype,J_D,		2,		127,		False,
-	CONNECTtype,J_D,		1,		MAXSTAVES,	True,
-	DYNAMtype,	J_D,		1,		MAXSTAVES,	False,
-	MODNRtype,	0,			0,		0,			False,
+	TIMESIGtype,J_IP,		1,			MAXSTAVES,	True,
+	BEAMSETtype,J_D,		2,			127,		False,
+	CONNECTtype,J_D,		1,			MAXSTAVES,	True,
+	DYNAMtype,	J_D,		1,			MAXSTAVES,	False,
+	MODNRtype,	0,			0,			0,			False,
 
-	GRAPHICtype,J_D,		1,		255,		False,
-	OTTAVAtype,	J_D,		1,		MAXINOTTAVA,True,
-	SLURtype,	J_D,		1,		MAXCHORD,	False,
-	TUPLETtype,	J_D,		2,		127,		False,
-	GRSYNCtype,	J_IP,		1,		255,		True,
-	TEMPOtype,	J_D,		0,		0,			False,
-	SPACERtype,	J_IT,		0,		0,			True,	
-	ENDINGtype,	J_D,		0,		0,			False,
-	PSMEAStype, J_IT,		1,		MAXSTAVES,	True,	
-	OBJtype,	J_STRUC,	0,		0,			False
+	GRAPHICtype,J_D,		1,			255,		False,
+	OTTAVAtype,	J_D,		1,			MAXINOTTAVA,True,
+	SLURtype,	J_D,		1,			MAXCHORD,	False,
+	TUPLETtype,	J_D,		2,			127,		False,
+	GRSYNCtype,	J_IP,		1,			255,		True,
+	TEMPOtype,	J_D,		0,			0,			False,
+	SPACERtype,	J_IT,		0,			0,			True,	
+	ENDINGtype,	J_D,		0,			0,			False,
+	PSMEAStype, J_IT,		1,			MAXSTAVES,	True,	
+	OBJtype,	J_STRUC,	0,			0,			False
 };
 
 ---------------------------------------------------------------------------------------
@@ -338,57 +337,51 @@ never should use then.
 
 -------------------------------
 
-From Utility.cp:
-
-/* There's a weird bug in the Console utility in OS 10.5 where if messages are written
-to the log at too high a rate, some just disappear. To make it worse, the ones that
-disappear seem to be random, and there's no indication there's a problem! With the 10.6
-Console, random messages still disappear, but you at least get a warning after 500
-messages in a second; presumably Apple decided that was good enough, and easier than
-fixing the bug.
-
-To sidestep the bug, call this function to add a delay between messages. Note that this
-can make some operations -- e.g., converting large files -- much slower, so calls to it
-should be #ifdef'd out or removed completely if you're not concerned about getting all
-the messages.  */
+/* There's a weird bug in the OS 10.5 Console utility where if messages are
+   written to the log at too high a rate, some just disappear. To make it worse,
+   the ones that disappear seem to be random, and there's no indication there's
+   a problem! With the 10.6 Console, you at least get a warning at 500 messages
+   in a second; presumably Apple decided that was good enough, and easier than
+   fixing the bug.
    
-void KludgeOS10p5Delay4Log(Boolean giveWarning)
-{
-	if (giveWarning) LogPrintf(LOG_DEBUG, "****** WORKING SLOWLY! DELAYING TO AID DEBUGGING.  (KludgeOS10p5Delay4Log) ******\n");
-	SleepMS(3);
-}
+   To sidestep the bug in places where it might be a problem, add a delay before each
+   call to LogPrintf, e.g.:
+   
+  		SleepMS(3);
+ 
+   For an example, see ConvertObjSubobjs() in FileConversion.c. */
 
 
 ----------------------------------------------------------------------------------------
 
-Results of Debug/"Display memory usage" on a New score in Nightingale 6.0.42:
+Results of "Display memory usage" on a New score in Nightingale 5.8.9:
 
-	Heap 0 (HEAD): 4 in use (346 bytes each)
-	Heap 2 (SYNC): 0 in use (68 bytes each)
-	Heap 3 (REPEATEND): 0 in use (10 bytes each)
-	Heap 6 (STAFF): 4 in use (54 bytes each)
-	Heap 7 (MEASURE): 2 in use (48 bytes each)
-	Heap 8 (CLEF): 2 in use (14 bytes each)
-	Heap 9 (KEYSIG): 2 in use (30 bytes each)
-	Heap 10 (TIMESIG): 2 in use (16 bytes each)
-	Heap 11 (BEAMSET): 0 in use (8 bytes each)
-	Heap 12 (CONNECT): 4 in use (14 bytes each)
-	Heap 13 (DYNAMIC): 0 in use (20 bytes each)
-	Heap 14 (MODNR): 0 in use (10 bytes each)
-	Heap 15 (GRAPHIC): 0 in use (6 bytes each)
-	Heap 16 (OTTAVA): 0 in use (4 bytes each)
-	Heap 17 (SLUR): 0 in use (46 bytes each)
-	Heap 18 (TUPLET): 0 in use (4 bytes each)
-	Heap 19 (GRSYNC): 0 in use (68 bytes each)
-	Heap 23 (PSEUDOMEAS): 0 in use (10 bytes each)
-	Heap 24 (OBJECT): 0 in use (56 bytes each)
-	Apr 25 13:10:36 unknown00112431479a Ngale[2117]: info. Size of *=8 DOCHDR=72 SCOREHDR=2802 *=2 strPool=306
-		  *=4 { heapHdrs=468 HeapsMem/File=2768/2460 }
-	Apr 25 13:10:36 unknown00112431479a Ngale[2117]: info. TOTAL Mem/File=6434/6126
+  HEAD Heap: 4 in use (346 bytes each)
+  SYNC Heap: 0 in use (30 bytes each)
+  REPEATEND Heap: 0 in use (6 bytes each)
+  STAFF Heap: 4 in use (50 bytes each)
+  MEASURE Heap: 2 in use (40 bytes each)
+  CLEF Heap: 2 in use (10 bytes each)
+  KEYSIG Heap: 2 in use (24 bytes each)
+  TIMESIG Heap: 2 in use (12 bytes each)
+  BEAMSET Heap: 0 in use (6 bytes each)
+  CONNECT Heap: 4 in use (12 bytes each)
+  DYNAMIC Heap: 0 in use (14 bytes each)
+  MODNR Heap: 0 in use (6 bytes each)
+  GRAPHIC Heap: 0 in use (6 bytes each)
+  OCTAVE Heap: 0 in use (4 bytes each)
+  SLUR Heap: 0 in use (42 bytes each)
+  TUPLET Heap: 0 in use (4 bytes each)
+  GRSYNC Heap: 0 in use (30 bytes each)
+  PSEUDOMEAS Heap: 0 in use (6 bytes each)
+  OBJECT Heap: 0 in use (46 bytes each)
+Size of *=8 DOCHDR=72 SCOREHDR=2148 *=2 strPool=306
+		*=4 { heapHdrs=468 HeapsMem/File=2540/2294 } 
+ TOTAL Mem/File=5552/5306
 
 "Mem/File=xxx/yyy" means size in memory is xxx, in a file yyy.
 
-NB: According to Finder on OS 10.5.6, the file size is actually 6380, about 250
+NB: According to Finder on OS 10.5.8, the file size is actually 5984, about 600
 bytes larger than the number given above.
 
 
@@ -401,8 +394,8 @@ This is a Sync (note/rest) heap with room for 2313 = 0x0909 notes/rests.
 This header, like all heap headers, takes 16 bytes. In hexadecimal:
 01C3 3CA0 001E 0002 0894 0909 0607 0000
 
-Offset (base 10)
-	Contents (base 16)
+Offset
+	Contents
 0	01C3 3CA0	Handle block;					/* Handle to floating array of objects */
 4	001E		INT16 objSize;					/* Size in bytes of each object in array */
 6	0002		INT16 type;						/* Type of object for this heap */
@@ -414,65 +407,59 @@ Offset (base 10)
 
 A Typical Simple Note, byte-by-byte
 
-Every Sync subobject, whether note or rest, takes 68 bytes. This is an 8th-note G#5 (treble
-clef above top line, MIDI notenum 80=0x50); not in a chord, beam, tie, slur, tuplet, or octave
-sign; no modifiers or notehead segments; play duration 228=0xE4 ticks; On Velocity 75=0x4B,
-Off Velocity 64=0x40. In hexadecimal, this note is:
+This is an 8th-note F#5 (treble clef top line, MIDI notenum=78=0x4E); not in a chord,
+beam, tie, slur, tuplet, or octave sign; no modifiers; play duration=228=0xE4 ticks;
+On Velocity=75=0x4B; Off Velocity=64=0x40.
 
-[0]  0000 0105   0101 0000   0000 0000   ea00 0000
-[16] ffe0 00c0   0000 00e4   0000 504b   4000 0003
-[32] 0200 0100   0400 0005   0000 0000   0100 0000
-[48] 0000 0000   0000 0000   0000 0000   0000 0000
-[64] 0000 0000
+Every Sync subobject, whether note or rest, takes 30 bytes. In hexadecimal:
+0000 0105 40EC 0000 0000 0150 0000 00E4 0000 4E4B 4010 0140 280B 0000 0000 
 
-Offset (base 10)
-	Contents (base 16)
-*** SUBOBJHEADER ***
+Offset
+	Contents
+	(SUBOBJHEADER:)
 0	0000	LINK		next;			/* index of next subobj */
-2	01		SignedByte	staffn;			/* staff no. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */
+2	01		SignedByte	staffn;			/* staff number */
 3	05		SignedByte	subType;		/* subType (l_dur): LG: <0=n measure rest, 0=unknown, >0=Logical (CMN) dur. code */
-4	01		Boolean		selected;		/* (.+4) True if subobject is selected */
-5	01		Boolean		visible;		/* True if subobject is visible */
-6	00		Boolean		soft;			/* True if subobject is program-generated */
-*** Everything else ***
-7	00		Boolean		inChord;		/* True if note is part of a chord */
-8	00		Boolean		rest;			/* LGP: True=rest (=> ignore accident, ystem, etc.) */
-9	00		Boolean		unpitched;		/* LGP: True=unpitched note */
-10	00		Boolean		beamed;			/* True if beamed */
-11	00		Boolean		otherStemSide;	/* G: True if note goes on "wrong" side of stem */
-12	EA		SHORTQD		yqpit;			/* LG: clef-independent dist. below middle C ("pitch") (unused for rests) */
-14	0,FFE0	DDIST		xd, yd;			/* G: head position */
-18	00C0	DDIST		ystem;			/* G: endpoint of stem (unused for rests) */
-20	0000	short		playTimeDelta;	/* P: PDURticks before/after timeStamp when note starts */
-22	00E4	short		playDur;		/* P: PDURticks that note plays for */
-24	0000	short		pTime;			/* P: PDURticks play time; for internal use by Tuplet routines */
-26	50		Byte		noteNum;		/* P: MIDI note number (unused for rests) */
-27	4B		Byte		onVelocity;		/* P: MIDI note-on velocity, normally loudness (unused for rests) */
-28	40		Byte		offVelocity;	/* P: MIDI note-off (release) velocity (unused for rests) */
-29	00		Boolean		tiedL;			/* LGP: True if tied to left */
-30	00		Boolean		tiedR;			/* LGP: True if tied to right */
-31	03		Byte		xMoveDots;		/* G: X-offset on aug. dot position (quarter-spaces) */
-32	02		Byte		yMoveDots;		/* G: Y-offset on aug. dot pos. (half-spaces, 2=same as note, except 0=invisible) */
-33	00		Byte		ndots;			/* LG: No. of aug. dots */
-34	01		SignedByte	voice;			/* L: Voice number */
-35	00		Byte		rspIgnore;		/* True if note's chord should not affect automatic spacing (unused as of v. 5.9) */
-36	04		Byte		accident;		/* LG: 0=none, 1--5=dbl. flat--dbl. sharp (unused for rests) */
-37	00		Boolean		accSoft;		/* L: Was accidental generated by Nightingale? */
-38	00		Byte		courtesyAcc;	/* G: Accidental is a "courtesy accidental" */
-39	05		Byte		xmoveAcc;		/* G: X-offset to left on accidental position */
-40	00		Boolean		playAsCue;		/* LP: True = play note as cue, ignoring dynamic marks (unused as of v. 5.9) */
-41	00		Byte		micropitch;		/* LP: Microtonal pitch modifier (unused as of v. 5.9) */
-42	00		Byte		merged;			/* temporary flag for Merge functions */
-43	00		Byte		doubleDur;		/* G: Draw as if double the actual duration */
-44	01		Byte		headShape;		/* G: Special notehead or rest shape; see list below */
-46	0000	LINK		firstMod;		/* LG: Note-related symbols (articulation, fingering, etc.) */
-48	00		Boolean		slurredL;		/* G: True if endpoint of slur to left */
-49	00		Boolean		slurredR;		/* G: True if endpoint of slur to right */
-50	00		Boolean		inTuplet;		/* True if in a tuplet */
-51	00		Boolean		inOttava;		/* True if in an octave sign */
-52	00		Boolean		small;			/* G: True if a small (cue, cadenza-like, etc.) note */
-53	00		Byte		tempFlag;		/* temporary flag for benefit of functions that need it */
-54	00		Byte		artHarmonic;	/* Artificial harmonic: stopped, touched, sounding, normal note (unused as of v. 6.0) */
-56	0000	unsigned short	userID;		/* User ID number (unused as of v. 6.0) */
-58	00		Byte		nhSegment[6];	/* Segments of notehead graph */
-64	00000000long		reservedN;		/* For future use (unused as of v. 6.0) */
+4	40		Boolean		selected:1;		/* (.+4) True if subobject is selected */
+			Boolean		visible:1;		/* True if subobject is visible */
+			Boolean		soft:1;			/* True if subobject is program-generated */
+	(Everything else:)
+			Boolean		inChord:1;		/* True if note is part of a chord */
+			Boolean		rest:1;			/* LGP: True=rest (=> ignore accident, ystem, etc.) */
+			Boolean		unpitched:1;	/* LGP: True=unpitched note */
+			Boolean		beamed:1;		/* True if beamed */
+			Boolean		otherStemSide:1;	/* G: True if note goes on "wrong" side of stem */
+	    
+5	EC		SHORTQD		yqpit;			/* LG: clef-independent dist. below middle C ("pitch") (unused for rests) */
+6	0000	DDIST		xd, yd;			/* G: head position */
+8	0000
+10	0150	DDIST		ystem;			/* (.+10) G: endpoint of stem (unused for rests) */
+12	0000	INT16		playTimeDelta;	/* P: PDURticks before/after timeStamp when note starts */
+14	00E4	INT16		playDur;		/* P: PDURticks that note plays for */
+16	0000	INT16		pTime;			/* P: PDURticks play time; for internal use by Tuplet routines */
+18	4E		Byte		noteNum;		/* P: MIDI note number (unused for rests) */
+19	4B		Byte		onVelocity;		/* P: MIDI note-on velocity, normally loudness (unused for rests) */
+20	40		Byte		offVelocity;	/* (.+20) P: MIDI note-off (release) velocity (unused for rests) */
+21	10		Boolean		tiedL:1;		/* True if tied to left */
+			Boolean		tiedR:1;		/* True if tied to right */
+			Byte		ymovedots:2;	/* G: Y-offset on dot pos. (halflines, 2=same as note, except 0=invisible) */
+			Byte		ndots:4;		/* LG: No. of dots */
+22	01		SignedByte	voice;			/* L: Voice number */
+23	40		Byte		accident:4;		/* LG: 0=none, 1--5=dbl. flat--dbl. sharp (unused for rests) */
+			Boolean		accSoft : 1;	/* L: Was accidental generated by Nightingale? */
+			Byte		micropitch:3;	/* LP: Microtonal pitch modifier */
+24	28		Byte		xmoveAcc:5;		/* G: X-offset to left on accidental position */
+			Byte		merged:1;		/* temporary flag for Merge functions */
+			Byte		filler:1;
+			Byte		doubleDur:1;	/* G: Draw as if double the actual duration */
+25	0B		Byte		headShape:5;	/* G: Special notehead or rest shape; see list below */
+			Byte		xmovedots:3;	/* G: x-offset on dot position (4=normal??) */
+26	0000	LINK		firstMod;		/* LG: Note-related symbols (articulation, fingering, etc.) */
+28	00		Byte		slurredL:2;		/* True if endpoint of slur to left (extra bit for future use) */
+			Byte		slurredR:2;		/* True if endpoint of slur to right (extra bit for future use) */
+			Byte		inTuplet:1;		/* True if in a tuplet */
+			Byte		inOctava:1;		/* True if in an octava */
+			Byte		small:1;		/* True if a small (cue, etc.) note */
+			Byte		tempFlag:1;		/* temporary flag for benefit of functions that need it */
+29	00		SignedByte	fillerN;
+
